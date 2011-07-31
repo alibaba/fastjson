@@ -17,6 +17,7 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.TimeZone;
 
 import com.alibaba.fastjson.JSONAware;
@@ -192,6 +194,17 @@ public class JSONSerializer {
 
     public ObjectSerializer getObjectWriter(Class<?> clazz) {
         ObjectSerializer writer = config.get(clazz);
+
+        if (writer == null) {
+            final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+            for (AutowiredObjectSerializer autowired : ServiceLoader.load(AutowiredObjectSerializer.class, classLoader)) {
+                for (Type forType : autowired.getAutowiredFor()) {
+                    config.put(forType, autowired);
+                }
+            }
+            
+            writer = config.get(clazz);
+        }
 
         if (writer == null) {
             if (Map.class.isAssignableFrom(clazz)) {

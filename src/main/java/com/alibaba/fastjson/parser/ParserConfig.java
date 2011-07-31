@@ -62,6 +62,7 @@ import com.alibaba.fastjson.parser.deserializer.ArrayListTypeDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ArrayListTypeFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.AtomicIntegerArrayDeserializer;
 import com.alibaba.fastjson.parser.deserializer.AtomicLongArrayDeserializer;
+import com.alibaba.fastjson.parser.deserializer.AutowiredObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.BigDecimalDeserializer;
 import com.alibaba.fastjson.parser.deserializer.BigIntegerDeserializer;
 import com.alibaba.fastjson.parser.deserializer.BooleanDeserializer;
@@ -106,7 +107,6 @@ import com.alibaba.fastjson.parser.deserializer.TreeMapDeserializer;
 import com.alibaba.fastjson.parser.deserializer.URIDeserializer;
 import com.alibaba.fastjson.parser.deserializer.URLDeserializer;
 import com.alibaba.fastjson.parser.deserializer.UUIDDeserializer;
-import com.alibaba.fastjson.serializer.AutowiredObjectDeserializer;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.IdentityHashMap;
 
@@ -224,13 +224,7 @@ public class ParserConfig {
         derializers.put(AtomicIntegerArray.class, AtomicIntegerArrayDeserializer.instance);
         derializers.put(AtomicLongArray.class, AtomicLongArrayDeserializer.instance);
 
-        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        for (AutowiredObjectDeserializer item : ServiceLoader.load(AutowiredObjectDeserializer.class, classLoader)) {
-            AutowiredObjectDeserializer autowired = (AutowiredObjectDeserializer) item;
-            for (Type type : autowired.getAutowiredFor()) {
-                derializers.put(type, autowired);
-            }
-        }
+        
     }
 
     public boolean isAsmEnable() {
@@ -269,6 +263,18 @@ public class ParserConfig {
 
     public ObjectDeserializer getDeserializer(Class<?> clazz, Type type) {
         ObjectDeserializer derializer = derializers.get(type);
+        if (derializer != null) {
+            return derializer;
+        }
+        
+        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        for (AutowiredObjectDeserializer autowired : ServiceLoader.load(AutowiredObjectDeserializer.class, classLoader)) {
+            for (Type forType : autowired.getAutowiredFor()) {
+                derializers.put(forType, autowired);
+            }
+        }
+        
+        derializer = derializers.get(type);
         if (derializer != null) {
             return derializer;
         }

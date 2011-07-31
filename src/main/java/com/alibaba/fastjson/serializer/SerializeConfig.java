@@ -17,6 +17,7 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.File;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.Inet4Address;
@@ -52,7 +53,7 @@ import com.alibaba.fastjson.util.IdentityHashMap;
  * 
  * @author wenshao<szujobs@hotmail.com>
  */
-public class SerializeConfig extends IdentityHashMap<Class<?>, ObjectSerializer> {
+public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 
     private final static SerializeConfig globalInstance = new SerializeConfig();
 

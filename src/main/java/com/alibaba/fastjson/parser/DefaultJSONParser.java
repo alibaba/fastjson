@@ -32,7 +32,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
     protected final JSONLexer   lexer;
     protected final Object      input;
     protected final SymbolTable symbolTable;
-    protected ParserConfig      mapping;
+    protected ParserConfig      config;
 
     public DefaultJSONParser(String input){
         this(input, ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
@@ -53,7 +53,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
     public DefaultJSONParser(final Object input, final JSONLexer lexer, final ParserConfig config){
         this.input = input;
         this.lexer = lexer;
-        this.mapping = config;
+        this.config = config;
         this.symbolTable = config.getSymbolTable();
 
         lexer.nextToken(JSONToken.LBRACE); // prime the pump

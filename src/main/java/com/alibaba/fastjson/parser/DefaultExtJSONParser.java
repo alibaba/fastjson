@@ -82,11 +82,11 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
     }
 
     public ParserConfig getConfig() {
-        return mapping;
+        return config;
     }
 
     public void setConfig(ParserConfig config) {
-        this.mapping = config;
+        this.config = config;
     }
 
     // compatible
@@ -102,7 +102,7 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
             return null;
         }
 
-        ObjectDeserializer derializer = mapping.getDeserializer(type);
+        ObjectDeserializer derializer = config.getDeserializer(type);
 
         try {
             return (T) derializer.deserialze(this, type);
@@ -137,7 +137,7 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
             deserializer = StringDeserializer.instance;
             lexer.nextToken(JSONToken.LITERAL_STRING);
         } else {
-            deserializer = mapping.getDeserializer(type);
+            deserializer = config.getDeserializer(type);
             lexer.nextToken(deserializer.getFastMatchToken());
         }
 
@@ -219,7 +219,7 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
                         lexer.nextToken(JSONToken.COMMA);
                     } else {
                         value = this.parse();
-                        value = TypeUtils.cast(value, type, mapping);
+                        value = TypeUtils.cast(value, type, config);
                     }
                 } else if (type == String.class) {
                     if (lexer.token() == JSONToken.LITERAL_STRING) {
@@ -227,7 +227,7 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
                         lexer.nextToken(JSONToken.COMMA);
                     } else {
                         value = this.parse();
-                        value = TypeUtils.cast(value, type, mapping);
+                        value = TypeUtils.cast(value, type, config);
                     }
                 } else {
                     boolean isArray = false;
@@ -244,7 +244,7 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
                     if (isArray && lexer.token() != JSONToken.LBRACKET) {
                         List<Object> varList = new ArrayList<Object>();
 
-                        ObjectDeserializer derializer = mapping.getDeserializer(componentType);
+                        ObjectDeserializer derializer = config.getDeserializer(componentType);
                         int fastMatch = derializer.getFastMatchToken();
 
                         if (lexer.token() != JSONToken.RBRACKET) {
@@ -262,9 +262,9 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
                             }
                         }
 
-                        value = TypeUtils.cast(varList, type, mapping);
+                        value = TypeUtils.cast(varList, type, config);
                     } else {
-                        ObjectDeserializer derializer = mapping.getDeserializer(type);
+                        ObjectDeserializer derializer = config.getDeserializer(type);
                         value = derializer.deserialze(this, type);
                     }
                 }

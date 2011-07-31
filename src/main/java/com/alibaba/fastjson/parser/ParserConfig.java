@@ -39,6 +39,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
@@ -105,6 +106,7 @@ import com.alibaba.fastjson.parser.deserializer.TreeMapDeserializer;
 import com.alibaba.fastjson.parser.deserializer.URIDeserializer;
 import com.alibaba.fastjson.parser.deserializer.URLDeserializer;
 import com.alibaba.fastjson.parser.deserializer.UUIDDeserializer;
+import com.alibaba.fastjson.serializer.AutowiredObjectDeserializer;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.IdentityHashMap;
 
@@ -128,6 +130,10 @@ public class ParserConfig {
     private boolean                                         asmEnable         = true;
 
     protected final SymbolTable                             symbolTable       = new SymbolTable();
+
+    public DefaultObjectDeserializer getDefaultSerializer() {
+        return defaultSerializer;
+    }
 
     public ParserConfig(){
         primitiveClasses.add(boolean.class);
@@ -217,6 +223,14 @@ public class ParserConfig {
         derializers.put(Number.class, NumberDeserializer.instance);
         derializers.put(AtomicIntegerArray.class, AtomicIntegerArrayDeserializer.instance);
         derializers.put(AtomicLongArray.class, AtomicLongArrayDeserializer.instance);
+
+        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        for (AutowiredObjectDeserializer item : ServiceLoader.load(AutowiredObjectDeserializer.class, classLoader)) {
+            AutowiredObjectDeserializer autowired = (AutowiredObjectDeserializer) item;
+            for (Type type : autowired.getAutowiredFor()) {
+                derializers.put(type, autowired);
+            }
+        }
     }
 
     public boolean isAsmEnable() {

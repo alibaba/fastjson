@@ -1,0 +1,263 @@
+[
+		{
+			"S" : 398,
+			"T" : "MonitorItemData"
+		},
+		{
+			"D" : {
+				"URIList" : [
+						{
+							"ConcurrentMax" : 1,
+							"Count" : 1,
+							"ErrorCount" : 0,
+							"ID" : 9165,
+							"LastAccessedTime" : 1292411670768,
+							"LastError" : null,
+							"LastErrorReferer" : null,
+							"LastErrorTime" : null,
+							"LastErrorUser" : null,
+							"MaxTime" : 12,
+							"ProfileEntries" : [
+									{
+										"Count" : 1,
+										"ErrorCount" : 0,
+										"Name" : "select 1",
+										"TimeMillis" : 0,
+										"TimeMillisTotal" : 0,
+										"Type" : "JDBC"
+									},
+									{
+										"Count" : 1,
+										"ErrorCount" : 0,
+										"Name" : "/sonar/dependencies/index",
+										"TimeMillis" : 11,
+										"TimeMillisTotal" : 12,
+										"Type" : "URL"
+									},
+									{
+										"Count" : 1,
+										"ErrorCount" : 0,
+										"Name" : "SELECT * FROM `properties` WHERE (`properties`.`prop_key` = 'sonar.forceAuthentication' AND `properties`.`resource_id` IS NULL AND `properties`.`user_id` IS NULL)  LIMIT 1",
+										"TimeMillis" : 0,
+										"TimeMillisTotal" : 0,
+										"Type" : "JDBC"
+									} ],
+							"RunningCount" : 0,
+							"TotalTime" : 12,
+							"URI" : "/sonar/dependencies/index"
+						},
+						{
+							"ConcurrentMax" : 1,
+							"Count" : 1,
+							"ErrorCount" : 0,
+							"ID" : 9166,
+							"LastAccessedTime" : 1292411686073,
+							"LastError" : null,
+							"LastErrorReferer" : null,
+							"LastErrorTime" : null,
+							"LastErrorUser" : null,
+							"MaxTime" : 311,
+							"ProfileEntries" : [
+									{
+										"Count" : 1,
+										"ErrorCount" : 0,
+										"Name" : "SELECT * FROM `project_measures` WHERE (rule_priority is null and rules_category_id is null and rule_id is null and characteristic_id is null and snapshot_id in (429391,167251,829298,623087,838321,188853,837572,837312,837639,626217,746548,841618,629632,624436,630374,630343,678654,622420,841546,185384,624032,457894,800622,807051,170205,625116,167918,838778,843918,839790,839639,627815,840096,628562,629455,191058,839944,830082)) ",
+										"TimeMillis" : 52,
+										"TimeMillisTotal" : 52,
+										"Type" : "JDBC"
+									},
+									{
+										"Count" : 1,
+										"ErrorCount" : 0,
+										"Name" : "SELECT `active_filters`.`id` AS t0_r0, `active_filters`.`filter_id` AS t0_r1, `active_filters`.`user_id` AS t0_r2, `active_filters`.`order_index` AS t0_r3, `filters`.`id` AS t1_r0, `filters`.`name` AS t1_r1, `filters`.`user_id` AS t1_r2, `filters`.`shared` AS t1_r3, `filters`.`favourites` AS t1_r4, `filters`.`resource_id` AS t1_r5, `filters`.`default_view` AS t1_r6, `filters`.`page_size` AS t1_r7 FROM `active_filters`  LEFT OUTER JOIN `filters` ON `filters`.id = `active_filters`.filter_id WHERE (active_filters.user_id is null AND (filters.favourites=0 OR filters.favourites is null))  ORDER BY order_index",
+										"TimeMillis" : 0,
+										"TimeMillisTotal" : 0,
+										"Type" : "JDBC"
+									},
+									{
+										"Count" : 1,
+										"ErrorCount" : 0,
+										"Name" : "SELECT s.id, MAX(s.project_id) as pid, MAX(s.root_project_id) as rpid, MAX(p.long_name) as name  FROM snapshots s  INNER JOIN projects p ON s.project_id=p.id  WHERE  s.status=? AND s.islast=?  AND s.qualifier IN (?)  AND p.copy_resource_id IS NULL  GROUP BY s.id",
+										"TimeMillis" : 47,
+										"TimeMillisTotal" : 47,
+										"Type" : "JDBC"
+									},
+									{
+										"Count" : 1,
+										"ErrorCount" : 0,
+										"Name" : "SELECT * FROM `projects` WHERE (`projects`.`id` IN (6162,21829,18851,14083,12408,22347,29365,23460,1381,1406,28515,30163,23219,3486,24346,2228,29994,2904,30857,30164,33164,3563,35236,35405,26230,35160,393,27432,33591,1896,22442,3152,23955,24097,13424,31568,14294,35595)) ",
+										"TimeMillis" : 0,
+										"TimeMillisTotal" : 0,
+										"Type" : "JDBC"
+									},
+									{
+										"Count" : 2,
+										"ErrorCount" : 0,
+										"Name" : "select 1",
+										"TimeMillis" : 0,
+										"TimeMillisTotal" : 0,
+										"Type" : "JDBC"
+									},
+									{
+										"Count" : 1,
+										"ErrorCount" : 0,
+										"Name" : "SELECT resource_id FROM `group_roles` WHERE (resource_id in(29365,6162,26230,1406,1896,12408,27432,393,33591,3486,3563,14294,2904,30163,30164,30857,33164,1381,31568,14083,28515,23460,35236,35405,18851,23219,21829,22442,35595,23955,3152,24346,13424,2228,29994,22347,24097,35160) and role='user' and group_id is null) ",
+										"TimeMillis" : 0,
+										"TimeMillisTotal" : 0,
+										"Type" : "JDBC"
+									},
+									{
+										"Count" : 1,
+										"ErrorCount" : 0,
+										"Name" : "SELECT * FROM `criteria` WHERE (`criteria`.filter_id = 1) ",
+										"TimeMillis" : 0,
+										"TimeMillisTotal" : 0,
+										"Type" : "JDBC"
+									},
+									{
+										"Count" : 1,
+										"ErrorCount" : 0,
+										"Name" : "/sonar/filters/index",
+										"TimeMillis" : 207,
+										"TimeMillisTotal" : 311,
+										"Type" : "URL"
+									},
+									{
+										"Count" : 1,
+										"ErrorCount" : 0,
+										"Name" : "SELECT * FROM `filter_columns` WHERE (`filter_columns`.filter_id = 1)  ORDER BY order_index",
+										"TimeMillis" : 0,
+										"TimeMillisTotal" : 0,
+										"Type" : "JDBC"
+									},
+									{
+										"Count" : 1,
+										"ErrorCount" : 0,
+										"Name" : "SELECT * FROM `properties` WHERE (`properties`.`prop_key` = 'sonar.forceAuthentication' AND `properties`.`resource_id` IS NULL AND `properties`.`user_id` IS NULL)  LIMIT 1",
+										"TimeMillis" : 0,
+										"TimeMillisTotal" : 0,
+										"Type" : "JDBC"
+									},
+									{
+										"Count" : 1,
+										"ErrorCount" : 0,
+										"Name" : "SELECT * FROM `snapshots` WHERE (id in (429391,167251,829298,623087,838321,188853,837572,837312,837639,626217,746548,841618,629632,624436,630374,630343,678654,622420,841546,185384,624032,457894,800622,807051,170205,625116,167918,838778,843918,839790,839639,627815,840096,628562,629455,191058,839944,830082)) ",
+										"TimeMillis" : 0,
+										"TimeMillisTotal" : 0,
+										"Type" : "JDBC"
+									} ],
+							"RunningCount" : 0,
+							"TotalTime" : 311,
+							"URI" : "/sonar/filters/index"
+						},
+						{
+							"ConcurrentMax" : 1,
+							"Count" : 1,
+							"ErrorCount" : 0,
+							"ID" : 9164,
+							"LastAccessedTime" : 1292411667616,
+							"LastError" : null,
+							"LastErrorReferer" : null,
+							"LastErrorTime" : null,
+							"LastErrorUser" : null,
+							"MaxTime" : 326,
+							"ProfileEntries" : [
+									{
+										"Count" : 1,
+										"ErrorCount" : 0,
+										"Name" : "SELECT * FROM `project_measures` WHERE (rule_priority is null and rules_category_id is null and rule_id is null and characteristic_id is null and snapshot_id in (429391,167251,829298,623087,838321,188853,837572,837312,837639,626217,746548,841618,629632,624436,630374,630343,678654,622420,841546,185384,624032,457894,800622,807051,170205,625116,167918,838778,843918,839790,839639,627815,840096,628562,629455,191058,839944,830082)) ",
+										"TimeMillis" : 52,
+										"TimeMillisTotal" : 52,
+										"Type" : "JDBC"
+									},
+									{
+										"Count" : 1,
+										"ErrorCount" : 0,
+										"Name" : "SELECT `active_filters`.`id` AS t0_r0, `active_filters`.`filter_id` AS t0_r1, `active_filters`.`user_id` AS t0_r2, `active_filters`.`order_index` AS t0_r3, `filters`.`id` AS t1_r0, `filters`.`name` AS t1_r1, `filters`.`user_id` AS t1_r2, `filters`.`shared` AS t1_r3, `filters`.`favourites` AS t1_r4, `filters`.`resource_id` AS t1_r5, `filters`.`default_view` AS t1_r6, `filters`.`page_size` AS t1_r7 FROM `active_filters`  LEFT OUTER JOIN `filters` ON `filters`.id = `active_filters`.filter_id WHERE (active_filters.user_id is null AND (filters.favourites=0 OR filters.favourites is null))  ORDER BY order_index",
+										"TimeMillis" : 0,
+										"TimeMillisTotal" : 0,
+										"Type" : "JDBC"
+									},
+									{
+										"Count" : 1,
+										"ErrorCount" : 0,
+										"Name" : "SELECT s.id, MAX(s.project_id) as pid, MAX(s.root_project_id) as rpid, MAX(p.long_name) as name  FROM snapshots s  INNER JOIN projects p ON s.project_id=p.id  WHERE  s.status=? AND s.islast=?  AND s.qualifier IN (?)  AND p.copy_resource_id IS NULL  GROUP BY s.id",
+										"TimeMillis" : 47,
+										"TimeMillisTotal" : 47,
+										"Type" : "JDBC"
+									},
+									{
+										"Count" : 1,
+										"ErrorCount" : 0,
+										"Name" : "SELECT * FROM `projects` WHERE (`projects`.`id` IN (6162,21829,18851,14083,12408,22347,29365,23460,1381,1406,28515,30163,23219,3486,24346,2228,29994,2904,30857,30164,33164,3563,35236,35405,26230,35160,393,27432,33591,1896,22442,3152,23955,24097,13424,31568,14294,35595)) ",
+										"TimeMillis" : 0,
+										"TimeMillisTotal" : 0,
+										"Type" : "JDBC"
+									},
+									{
+										"Count" : 2,
+										"ErrorCount" : 0,
+										"Name" : "select 1",
+										"TimeMillis" : 0,
+										"TimeMillisTotal" : 0,
+										"Type" : "JDBC"
+									},
+									{
+										"Count" : 1,
+										"ErrorCount" : 0,
+										"Name" : "SELECT resource_id FROM `group_roles` WHERE (resource_id in(29365,6162,26230,1406,1896,12408,27432,393,33591,3486,3563,14294,2904,30163,30164,30857,33164,1381,31568,14083,28515,23460,35236,35405,18851,23219,21829,22442,35595,23955,3152,24346,13424,2228,29994,22347,24097,35160) and role='user' and group_id is null) ",
+										"TimeMillis" : 1,
+										"TimeMillisTotal" : 1,
+										"Type" : "JDBC"
+									},
+									{
+										"Count" : 1,
+										"ErrorCount" : 0,
+										"Name" : "SELECT * FROM `criteria` WHERE (`criteria`.filter_id = 1) ",
+										"TimeMillis" : 0,
+										"TimeMillisTotal" : 0,
+										"Type" : "JDBC"
+									},
+									{
+										"Count" : 1,
+										"ErrorCount" : 0,
+										"Name" : "SELECT * FROM `filter_columns` WHERE (`filter_columns`.filter_id = 1)  ORDER BY order_index",
+										"TimeMillis" : 0,
+										"TimeMillisTotal" : 0,
+										"Type" : "JDBC"
+									},
+									{
+										"Count" : 1,
+										"ErrorCount" : 0,
+										"Name" : "SELECT * FROM `properties` WHERE (`properties`.`prop_key` = 'sonar.forceAuthentication' AND `properties`.`resource_id` IS NULL AND `properties`.`user_id` IS NULL)  LIMIT 1",
+										"TimeMillis" : 0,
+										"TimeMillisTotal" : 0,
+										"Type" : "JDBC"
+									},
+									{
+										"Count" : 1,
+										"ErrorCount" : 0,
+										"Name" : "SELECT * FROM `snapshots` WHERE (id in (429391,167251,829298,623087,838321,188853,837572,837312,837639,626217,746548,841618,629632,624436,630374,630343,678654,622420,841546,185384,624032,457894,800622,807051,170205,625116,167918,838778,843918,839790,839639,627815,840096,628562,629455,191058,839944,830082)) ",
+										"TimeMillis" : 0,
+										"TimeMillisTotal" : 0,
+										"Type" : "JDBC"
+									}, {
+										"Count" : 1,
+										"ErrorCount" : 0,
+										"Name" : "/sonar/",
+										"TimeMillis" : 220,
+										"TimeMillisTotal" : 326,
+										"Type" : "URL"
+									} ],
+							"RunningCount" : 0,
+							"TotalTime" : 326,
+							"URI" : "/sonar/"
+						} ]
+			},
+			"MID" : 13329149,
+			"S" : {
+				"APP_NUM" : "sonar",
+				"INST_NUM" : ""
+			},
+			"TS" : 1292411870281
+		} ]

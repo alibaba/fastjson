@@ -1,0 +1,100 @@
+Fastjson介绍
+
+Fastjson是一个Java语言编写的JSON处理器。
+1、遵循http://json.org标准，为其官方网站收录的参考实现之一。
+2、功能qiang打，支持JDK的各种类型，包括基本的JavaBean、Collection、Map、Date、Enum、泛型。
+3、无依赖，不需要例外额外的jar，能够直接跑在JDK上。
+4、开源，使用Apache License 2.0协议开源。http://code.alibabatech.com/wiki/display/FastJSON/Home
+
+如果获得Fastjson？
+SVN:http://code.alibabatech.com/svn/fastjson/trunk/
+WIKI:http://code.alibabatech.com/wiki/display/FastJSON/Home
+Issue Tracking:http://code.alibabatech.com/jira/browse/FASTJSON
+
+如果你使用了Maven，maven repository配置如下：
+<repository>
+	<id>opensesame</id>
+	<name>Alibaba OpenSource Repsoitory</name>
+	<url>http://code.alibabatech.com/mvn/releases/</url>
+	<snapshots>
+		<enabled>false</enabled>
+	</snapshots>
+</repository>
+
+pom.xml文件中加入依赖依赖：
+<dependency>
+	<groupId>com.alibaba</groupId>
+	<artifactId>fastjson</artifactId>
+	<version>1.0.4</version>
+</dependency>
+
+如果没有使用maven，可以直接下载：
+http://code.alibabatech.com/mvn/releases/com/alibaba/fastjson/1.0.4/fastjson-1.0.4.jar
+http://code.alibabatech.com/mvn/releases/com/alibaba/fastjson/1.0.4/fastjson-1.0.4-sources.jar
+
+
+使用介绍：
+Fastjson的最主要的使用入口是com.alibaba.fastjson.JSON
+
+import com.alibaba.fastjson.JSON;
+
+public static final Object parse(String text); // 把JSON文本parse为JSONObject或者JSONArray
+public static final JSONObject parseObject(String text)； // 把JSON文本parse成JSONObject
+public static final <T> T parseObject(String text, Class<T> clazz); // 把JSON文本parse为JavaBean
+public static final JSONArray parseArray(String text); // 把JSON文本parse成JSONArray
+public static final <T> List<T> parseArray(String text, Class<T> clazz); //把JSON文本parse成JavaBean集合
+public static final String toJSONString(Object object); // 将JavaBean序列化为JSON文本
+public static final String toJSONString(Object object, boolean prettyFormat); // 将JavaBean序列化为带格式的JSON文本
+public static final Object toJSON(Object javaObject); 将JavaBean转换为JSONObject或者JSONArray。
+
+代码示例：
+代码示例用到类User和Group：
+public class User {
+	private Long id;
+	private String name;
+
+	public Long getId() { return id; }
+	public void setId(Long id) { this.id = id; }
+
+	public String getName() { return name; }
+	public void setName(String name) { this.name = name; }
+}
+public class Group {
+	private Long id;
+	private String name;
+	private List<User> users = new ArrayList<User>();
+
+	public Long getId() { return id; }
+	public void setId(Long id) { this.id = id; }
+
+	public String getName() { return name; }
+	public void setName(String name) { this.name = name; }
+
+	public List<User> getUsers() { return users; }
+	public void setUsers(List<User> users) { this.users = users; }
+}
+
+Encode代码示例：
+import com.alibaba.fastjson.JSON;
+
+Group group = new Group();
+group.setId(0L);
+group.setName("admin");
+
+User guestUser = new User();
+guestUser.setId(2L);
+guestUser.setName("guest");
+
+User rootUser = new User();
+rootUser.setId(3L);
+rootUser.setName("root");
+
+group.getUsers().add(guestUser);
+group.getUsers().add(rootUser);
+
+String jsonString = JSON.toJSONString(group);
+
+System.out.println(jsonString);
+
+Decode 代码示例：
+Group group2 = JSON.parseObject(jsonString, Group.class);

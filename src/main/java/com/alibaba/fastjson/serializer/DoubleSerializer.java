@@ -1,0 +1,53 @@
+/*
+ * Copyright 1999-2101 Alibaba Group.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.alibaba.fastjson.serializer;
+
+import java.io.IOException;
+
+/**
+ * @author wenshao<szujobs@hotmail.com>
+ */
+public class DoubleSerializer implements ObjectSerializer {
+
+    public final static DoubleSerializer instance = new DoubleSerializer();
+
+    public void write(JSONSerializer serializer, Object object) throws IOException {
+        SerializeWriter out = serializer.getWriter();
+
+        if (object == null) {
+            if (serializer.isEnabled(SerializerFeature.WriteNullNumberAsZero)) {
+                out.write('0');
+            } else {
+                out.writeNull();                
+            }
+            return;
+        }
+
+        double doubleValue = ((Double) object).doubleValue(); 
+        
+        if (Double.isNaN(doubleValue)) {
+            out.writeNull();
+        } else if (Double.isInfinite(doubleValue)) {
+            out.writeNull();
+        } else {
+            String doubleText = Double.toString(doubleValue);
+            if (doubleText.endsWith(".0")) {
+                doubleText = doubleText.substring(0, doubleText.length() - 2);
+            }
+            out.append(doubleText);
+        }
+    }
+}

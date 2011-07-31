@@ -1,0 +1,71 @@
+{
+	"description":"Alibaba Group makes it easy for anyone to buy or sell online anywhere in the world. ",
+	"name":"Alibaba Group",
+	"companies":
+		[
+			{
+				"id":1,
+				"stock":"1688.HK",
+				"description":"Global leader in e-commerce for small businesses",
+				"name":"Alibaba.com",
+				"rootDepartment":{
+					"id":2,
+					"name":"B2B",
+					"children":
+						[
+							{
+								"id":3,
+								"name":"CBU",
+								"children":[
+									
+								],
+								"members":
+									[
+										{
+											"badboy":true,
+											"description":"神棍敌人姐",
+											"name":"校长",
+											"age":3,
+											"birthdate":1293286738586,
+											"salary":123456789.0123
+										}
+									]
+							},
+							{
+								"id":4,
+								"name":"ICBU",
+								"children":[
+									
+								],
+								"members":[
+									
+								]
+							}
+						],
+					"members":[
+						
+					]
+				}
+			},
+			{
+				"id":5,
+				"description":"China's largest online retail website and one-stop platform for shopping, socializing and information sharing",
+				"name":"Taobao"
+			},
+			{
+				"id":6,
+				"description":"China's leading third-party online payment platform",
+				"name":"Alipay"
+			},
+			{
+				"id":7,
+				"description":"Developer of advanced data-centric cloud computing services",
+				"name":"Alibaba Cloud Computing"
+			},
+			{
+				"id":8,
+				"description":"One of China's leading Internet portals",
+				"name":"China Yahoo"
+			}
+		]
+}

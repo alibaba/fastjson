@@ -39,11 +39,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 import javax.management.ObjectName;
-import javax.management.openmbean.CompositeData;
-import javax.management.openmbean.CompositeDataSupport;
-import javax.management.openmbean.SimpleType;
-import javax.management.openmbean.TabularData;
-import javax.management.openmbean.TabularDataSupport;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.util.IdentityHashMap;
@@ -146,12 +141,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
         put(AtomicLongArray.class, AtomicLongArraySerializer.instance);
 
         // jmx
-        put(CompositeData.class, CompositeDataSerializer.instance);
-        put(CompositeDataSupport.class, CompositeDataSerializer.instance);
-        put(TabularData.class, TabularDataSerializer.instance);
-        put(TabularDataSupport.class, TabularDataSerializer.instance);
         put(ObjectName.class, ObjectNameSerializer.instance);
-        put(SimpleType.class, SimpleTypeSerializer.instance);
 
     }
 

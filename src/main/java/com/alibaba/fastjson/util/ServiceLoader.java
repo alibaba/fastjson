@@ -39,6 +39,7 @@ public class ServiceLoader {
                 T service = (T) serviceClass.newInstance();
                 services.add(service);
             } catch (Exception e) {
+                e.printStackTrace();
                 // skip
             }
         }
@@ -66,6 +67,7 @@ public class ServiceLoader {
                 if (line.length() == 0) {
                     continue;
                 }
+                set.add(line);
             }
         } finally {
             close(reader);

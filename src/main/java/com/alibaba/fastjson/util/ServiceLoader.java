@@ -39,7 +39,6 @@ public class ServiceLoader {
                 T service = (T) serviceClass.newInstance();
                 services.add(service);
             } catch (Exception e) {
-                e.printStackTrace();
                 // skip
             }
         }

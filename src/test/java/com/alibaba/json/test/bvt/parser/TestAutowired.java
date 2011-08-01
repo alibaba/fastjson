@@ -16,10 +16,15 @@ import com.alibaba.fastjson.parser.deserializer.AutowiredObjectDeserializer;
 import com.alibaba.fastjson.serializer.AutowiredObjectSerializer;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.SerializeWriter;
+import com.alibaba.fastjson.util.ServiceLoader;
 
 public class TestAutowired extends TestCase {
 
     public void test_0() throws Exception {
+        new ServiceLoader();
+        
+        ServiceLoader.close(null);
+        
         String text = JSON.toJSONString(new Entity("xxx"));
         Assert.assertEquals("{\"v\":\"xxx\"}", text);
         Entity entity = JSON.parseObject(text, Entity.class);

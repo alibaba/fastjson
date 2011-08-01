@@ -2,7 +2,9 @@ package com.alibaba.json.test.bvt.parser;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.URL;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Set;
 
 import junit.framework.Assert;
@@ -22,13 +24,24 @@ public class TestAutowired extends TestCase {
 
     public void test_0() throws Exception {
         new ServiceLoader();
-        
+
         ServiceLoader.close(null);
-        
+
         String text = JSON.toJSONString(new Entity("xxx"));
         Assert.assertEquals("{\"v\":\"xxx\"}", text);
         Entity entity = JSON.parseObject(text, Entity.class);
         Assert.assertEquals("xxx", entity.getValue());
+    }
+    
+    public void test_1() throws Exception {
+        ServiceLoader.load(AutowiredObjectSerializer.class, new MyClassLoader());
+    }
+
+    public static class MyClassLoader extends ClassLoader {
+
+        public Enumeration<URL> getResources(String name) throws IOException {
+            throw new IOException();
+        }
     }
 
     public static class Entity {
@@ -63,7 +76,7 @@ public class TestAutowired extends TestCase {
         }
 
     }
-    
+
     public static class EntityDeserializer implements AutowiredObjectDeserializer {
 
         public <T> T deserialze(DefaultExtJSONParser parser, Type type) {
@@ -72,7 +85,7 @@ public class TestAutowired extends TestCase {
             Assert.assertEquals("v", lexer.stringVal());
             parser.accept(JSONToken.LITERAL_STRING);
             parser.accept(JSONToken.COLON);
-            
+
             Entity entity = new Entity(lexer.stringVal());
             parser.accept(JSONToken.LITERAL_STRING);
             parser.accept(JSONToken.RBRACE);
@@ -86,7 +99,7 @@ public class TestAutowired extends TestCase {
         public Set<Type> getAutowiredFor() {
             return Collections.<Type> singleton(Entity.class);
         }
-        
+
     }
 
 }

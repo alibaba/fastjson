@@ -25,6 +25,8 @@ public class EncodeDemo extends TestCase {
         String jsonString = JSON.toJSONString(group);
 
         System.out.println(jsonString);
+        
+        JSON.parseObject(jsonString, Group.class);
     }
 
 }

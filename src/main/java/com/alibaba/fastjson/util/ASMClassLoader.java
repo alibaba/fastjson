@@ -9,9 +9,7 @@ public class ASMClassLoader extends ClassLoader {
     private static java.security.ProtectionDomain DOMAIN;
 
     static {
-
         DOMAIN = (java.security.ProtectionDomain) java.security.AccessController.doPrivileged(new PrivilegedAction<Object>() {
-
             public Object run() {
                 return ASMClassLoader.class.getProtectionDomain();
             }

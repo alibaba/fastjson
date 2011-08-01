@@ -13,6 +13,8 @@ import java.util.Set;
 public class ServiceLoader {
 
     private static final String PREFIX = "META-INF/services/";
+    
+    private static final Set<String> loadedUrls = new HashSet<String>();
 
     @SuppressWarnings("unchecked")
     public static <T> Set<T> load(Class<T> clazz, ClassLoader classLoader) {
@@ -27,7 +29,11 @@ public class ServiceLoader {
             Enumeration<URL> urls = classLoader.getResources(path);
             while (urls.hasMoreElements()) {
                 URL url = urls.nextElement();
+                if (loadedUrls.contains(url.toString())) {
+                    continue;
+                }
                 load(url, serviceNames);
+                loadedUrls.add(url.toString());
             }
         } catch (IOException ex) {
             // skip

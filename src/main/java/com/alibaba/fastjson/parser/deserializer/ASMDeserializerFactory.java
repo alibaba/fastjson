@@ -57,7 +57,7 @@ public class ASMDeserializerFactory implements Opcodes {
         return instance;
     }
 
-    public ObjectDeserializer createJavaBeanDeserializer(ParserConfig mapping, Class<?> clazz) throws Exception {
+    public ObjectDeserializer createJavaBeanDeserializer(ParserConfig config, Class<?> clazz) throws Exception {
         if (clazz.isPrimitive()) {
             throw new IllegalArgumentException("not support type :" + clazz.getName());
         }
@@ -70,10 +70,10 @@ public class ASMDeserializerFactory implements Opcodes {
         List<FieldInfo> fieldInfoList = new ArrayList<FieldInfo>();
         JavaBeanDeserializer.computeSetters(clazz, fieldInfoList);
 
-        _init(cw, new Context(fieldInfoList, className, mapping, clazz, 3));
-        _createInstance(cw, new Context(fieldInfoList, className, mapping, clazz, 3));
-        _parseField(cw, new Context(fieldInfoList, className, mapping, clazz, 4));
-        _deserialze(cw, new Context(fieldInfoList, className, mapping, clazz, 3));
+        _init(cw, new Context(fieldInfoList, className, config, clazz, 3));
+        _createInstance(cw, new Context(fieldInfoList, className, config, clazz, 3));
+        _parseField(cw, new Context(fieldInfoList, className, config, clazz, 4));
+        _deserialze(cw, new Context(fieldInfoList, className, config, clazz, 3));
 
         byte[] code = cw.toByteArray();
 
@@ -83,7 +83,7 @@ public class ASMDeserializerFactory implements Opcodes {
         Class<?> exampleClass = classLoader.defineClassPublic(className, code, 0, code.length);
 
         Constructor<?> constructor = exampleClass.getConstructor(ParserConfig.class, Class.class);
-        Object instance = constructor.newInstance(mapping, clazz);
+        Object instance = constructor.newInstance(config, clazz);
 
         return (ObjectDeserializer) instance;
     }

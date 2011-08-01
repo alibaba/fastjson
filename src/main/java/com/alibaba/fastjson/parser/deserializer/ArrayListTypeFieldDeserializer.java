@@ -15,17 +15,15 @@ import com.alibaba.fastjson.util.FieldInfo;
 
 public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
-    private final Type               itemType;
-    private final int                itemFastMatchToken;
-    private final ObjectDeserializer deserializer;
+    private final Type         itemType;
+    private int                itemFastMatchToken;
+    private ObjectDeserializer deserializer;
 
     public ArrayListTypeFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo){
         super(clazz, fieldInfo);
 
         this.itemType = ((ParameterizedType) getFieldType()).getActualTypeArguments()[0];
 
-        deserializer = mapping.getDeserializer(itemType);
-        itemFastMatchToken = deserializer.getFastMatchToken();
     }
 
     public int getFastMatchToken() {
@@ -35,11 +33,11 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
     @SuppressWarnings("rawtypes")
     @Override
     public void parseField(DefaultExtJSONParser parser, Object object) {
-    	if (parser.getLexer().token() == JSONToken.NULL) {
-    		setValue(object, null);
-    		return;
-    	}
-    	
+        if (parser.getLexer().token() == JSONToken.NULL) {
+            setValue(object, null);
+            return;
+        }
+
         ArrayList list = new ArrayList();
 
         parseArray(parser, list);
@@ -53,6 +51,11 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
         if (lexer.token() != JSONToken.LBRACKET) {
             throw new JSONException("exepct '[', but " + JSONToken.name(lexer.token()));
+        }
+
+        if (deserializer == null) {
+            deserializer = parser.getConfig().getDeserializer(itemType);
+            itemFastMatchToken = deserializer.getFastMatchToken();
         }
 
         lexer.nextToken(itemFastMatchToken);

@@ -18,6 +18,8 @@ public class Demo2 extends TestCase {
 
         String text = JSON.toJSONString(dep);
         System.out.println(text);
+        
+        JSON.parseObject(text, Department.class);
     }
 
     public static class Department {
@@ -25,7 +27,7 @@ public class Demo2 extends TestCase {
         private int                  id;
         private String               name;
         private Department parent;
-        private List<Department> children = new ArrayList<Department>();
+        private transient List<Department> children = new ArrayList<Department>();
     
         public int getId() { return id; }
         public void setId(int id) { this.id = id; }

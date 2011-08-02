@@ -47,6 +47,24 @@ public final class ListSerializer implements ObjectSerializer {
             return;
         }
 
+        if (size > 1 && out.isEnabled(SerializerFeature.PrettyFormat)) {
+            out.append('[');
+            serializer.incrementIndent();
+            for (int i = 0; i < size; ++i) {
+                if (i != 0) {
+                    out.append(',');
+                }
+
+                serializer.println();
+                Object item = list.get(i);
+                serializer.write(item);
+            }
+            serializer.decrementIdent();
+            serializer.println();
+            out.append(']');
+            return;
+        }
+
         out.append('[');
         for (int i = 0; i < end; ++i) {
             Object item = list.get(i);

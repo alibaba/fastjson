@@ -92,6 +92,11 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
         try {
             out.append('{');
+            
+            if (out.isEnabled(SerializerFeature.PrettyFormat)) {
+                serializer.incrementIndent();
+                serializer.println();
+            }
 
             boolean commaFlag = false;
 
@@ -132,6 +137,9 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
                 if (commaFlag) {
                     out.append(',');
+                    if (out.isEnabled(SerializerFeature.PrettyFormat)) {
+                        serializer.println();
+                    }
                 }
 
                 if (key != fieldSerializer.getName()) {
@@ -147,6 +155,11 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 commaFlag = true;
             }
 
+            if (out.isEnabled(SerializerFeature.PrettyFormat)) {
+                serializer.decrementIdent();
+                serializer.println();
+            }
+            
             out.append('}');
         } catch (Exception e) {
             throw new JSONException("write javaBean error", e);

@@ -39,6 +39,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.IdentityHashMap;
 
 /**
@@ -50,9 +51,9 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 
     private final static SerializeConfig globalInstance = new SerializeConfig();
 
-    private boolean                        asm            = true;
+    private boolean                      asm            = !ASMUtils.isAndroid();      ;
 
-    private final ASMSerializerFactory     asmFactory     = new ASMSerializerFactory();
+    private final ASMSerializerFactory   asmFactory     = new ASMSerializerFactory();
 
     public final ObjectSerializer createASMSerializer(Class<?> clazz) throws Exception {
         return asmFactory.createJavaBeanSerializer(clazz);

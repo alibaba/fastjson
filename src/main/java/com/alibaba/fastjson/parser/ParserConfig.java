@@ -106,6 +106,7 @@ import com.alibaba.fastjson.parser.deserializer.TreeMapDeserializer;
 import com.alibaba.fastjson.parser.deserializer.URIDeserializer;
 import com.alibaba.fastjson.parser.deserializer.URLDeserializer;
 import com.alibaba.fastjson.parser.deserializer.UUIDDeserializer;
+import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.ServiceLoader;
@@ -127,7 +128,7 @@ public class ParserConfig {
 
     private DefaultObjectDeserializer                       defaultSerializer = new DefaultObjectDeserializer();
 
-    private boolean                                         asmEnable         = true;
+    private boolean                                         asmEnable         = !ASMUtils.isAndroid();
 
     protected final SymbolTable                             symbolTable       = new SymbolTable();
 
@@ -224,7 +225,6 @@ public class ParserConfig {
         derializers.put(AtomicIntegerArray.class, AtomicIntegerArrayDeserializer.instance);
         derializers.put(AtomicLongArray.class, AtomicLongArrayDeserializer.instance);
 
-        
     }
 
     public boolean isAsmEnable() {
@@ -266,14 +266,14 @@ public class ParserConfig {
         if (derializer != null) {
             return derializer;
         }
-        
+
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         for (AutowiredObjectDeserializer autowired : ServiceLoader.load(AutowiredObjectDeserializer.class, classLoader)) {
             for (Type forType : autowired.getAutowiredFor()) {
                 derializers.put(forType, autowired);
             }
         }
-        
+
         derializer = derializers.get(type);
         if (derializer != null) {
             return derializer;

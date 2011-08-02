@@ -3,6 +3,14 @@ package com.alibaba.fastjson.util;
 import java.lang.reflect.Method;
 
 public class ASMUtils {
+    
+    public static boolean isAndroid(String vmName) {
+        return "Dalvik".equals(vmName);
+    }
+    
+    public static boolean isAndroid() {
+        return isAndroid(System.getProperty("java.vm.name"));
+    }
 
     public static String getDesc(Method method) {
         StringBuffer buf = new StringBuffer();

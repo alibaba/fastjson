@@ -38,8 +38,6 @@ import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
-import javax.management.ObjectName;
-
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.util.IdentityHashMap;
 
@@ -139,9 +137,6 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
         put(AtomicReference.class, AtomicReferenceSerializer.instance);
         put(AtomicIntegerArray.class, AtomicIntegerArraySerializer.instance);
         put(AtomicLongArray.class, AtomicLongArraySerializer.instance);
-
-        // jmx
-        put(ObjectName.class, ObjectNameSerializer.instance);
 
     }
 

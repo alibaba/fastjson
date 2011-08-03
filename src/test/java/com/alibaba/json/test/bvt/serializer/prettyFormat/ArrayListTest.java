@@ -17,7 +17,7 @@ public class ArrayListTest extends TestCase {
         list.add(new Entity(234, "bbb"));
         list.add(new Entity(3, "ccc"));
         String text = JSON.toJSONString(list, SerializerFeature.PrettyFormat, SerializerFeature.UseSingleQuotes);
-        Assert.assertEquals("[\n\t{'id':123,'name':'aaa'},\n\t{'id':234,'name':'bbb'},\n\t{'id':3,'name':'ccc'}\n]", text);
+        Assert.assertEquals("[\n\t{\n\t\t'id':123,\n\t\t'name':'aaa'\n\t},\n\t{\n\t\t'id':234,\n\t\t'name':'bbb'\n\t},\n\t{\n\t\t'id':3,\n\t\t'name':'ccc'\n\t}\n]", text);
     }
 
     public static class Entity {

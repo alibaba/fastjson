@@ -21,7 +21,7 @@ public class ArrayListFieldTest extends TestCase {
         System.out.println(text);
     }
 
-    private static class VO {
+    public static class VO {
 
         private final List<Entity> entries = new ArrayList<Entity>();
 
@@ -31,7 +31,7 @@ public class ArrayListFieldTest extends TestCase {
 
     }
 
-    private static class Entity {
+    public static class Entity {
 
         private int    id;
         private String name;

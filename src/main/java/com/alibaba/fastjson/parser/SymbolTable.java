@@ -39,17 +39,6 @@ public class SymbolTable {
         this.symbols_char = new char[tableSize][];
     }
 
-    /**
-     * Adds the specified symbol to the symbol table and returns a reference to the unique symbol. If the symbol already
-     * exists, the previous symbol reference is returned instead, in order guarantee that symbol references remain
-     * unique.
-     * 
-     * @param symbol The new symbol.
-     */
-    public String addSymbol(String symbol) {
-        return addSymbol(symbol.toCharArray(), 0, symbol.length(), symbol.hashCode());
-    }
-
 
     public String addSymbol(char[] buffer, int offset, int len) {
         // search for identical symbol

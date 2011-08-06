@@ -334,8 +334,6 @@ public class ASMDeserializerFactory implements Opcodes {
 
     private void _deserialze_list_obj(Context context, MethodVisitor mw, Label reset_, FieldInfo fieldInfo,
                                       Class<?> fieldClass, Class<?> itemType) {
-        // _asm_list_item_deser__
-
         mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "matchField", "([C)Z");
         mw.visitJumpInsn(IFEQ, reset_);
 
@@ -392,12 +390,6 @@ public class ASMDeserializerFactory implements Opcodes {
         // continue;
         // }
         // }
-        // mw.visitVarInsn(ALOAD, context.var("lexer"));
-        // mw.visitFieldInsn(GETSTATIC, getType(Feature.class), "AllowArbitraryCommas", "L" + getType(Feature.class) +
-        // ";");
-        // mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "isEnabled", "(" + "L" + getType(Feature.class)
-        // + ";" + ")Z");
-
         // if (lexer.token() == JSONToken.RBRACKET) {
         // break;
         // }

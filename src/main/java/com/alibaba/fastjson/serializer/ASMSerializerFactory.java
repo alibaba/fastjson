@@ -624,8 +624,13 @@ public class ASMSerializerFactory implements Opcodes {
 
         Type propertyType = method.getGenericReturnType();
 
-        Type elementType = ((ParameterizedType) propertyType).getActualTypeArguments()[0];
-
+        Type elementType;
+        if (propertyType instanceof Class) {
+            elementType = Object.class;
+        } else {
+            elementType = ((ParameterizedType) propertyType).getActualTypeArguments()[0];    
+        }
+        
         Label _end = new Label();
 
         Label _if = new Label();

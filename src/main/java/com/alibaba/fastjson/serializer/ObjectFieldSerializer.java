@@ -15,6 +15,8 @@
  */
 package com.alibaba.fastjson.serializer;
 
+import java.util.Collection;
+
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.util.FieldInfo;
 
@@ -29,6 +31,7 @@ public class ObjectFieldSerializer extends FieldSerializer {
 	private boolean writeNumberAsZero = false;
 	boolean writeNullStringAsEmpty = false;
 	boolean writeNullBooleanAsFalse = false;
+	boolean writeNullListAsEmpty = false;
 	
 	public ObjectFieldSerializer(FieldInfo fieldInfo) {
 		super(fieldInfo);
@@ -49,6 +52,8 @@ public class ObjectFieldSerializer extends FieldSerializer {
                     writeNullStringAsEmpty = true;
 	            } else if (feature == SerializerFeature.WriteNullBooleanAsFalse) {
 	                writeNullBooleanAsFalse = true;
+                } else if (feature == SerializerFeature.WriteNullListAsEmpty) {
+                    writeNullListAsEmpty = true;
 	            }
 			}
 		}
@@ -85,6 +90,9 @@ public class ObjectFieldSerializer extends FieldSerializer {
 		    } else if (writeNullBooleanAsFalse && Boolean.class == runtimeFieldClass) {
 		        serializer.getWriter().write("false");
 		        return;
+		    } else if (writeNullListAsEmpty && Collection.class.isAssignableFrom(runtimeFieldClass)) {
+		        serializer.getWriter().write("[]");
+                return;
 		    }
 		    
 			fieldSerializer.write(serializer, null);

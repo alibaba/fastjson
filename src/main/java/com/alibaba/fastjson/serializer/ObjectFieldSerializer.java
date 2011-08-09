@@ -26,7 +26,9 @@ public class ObjectFieldSerializer extends FieldSerializer {
 	private ObjectSerializer fieldSerializer;
 	private Class<?> runtimeFieldClass;
 	private String format;
-
+	private boolean writeNumberAsZero = false;
+	boolean writeNullStringAsEmpty = false;
+	
 	public ObjectFieldSerializer(FieldInfo fieldInfo) {
 		super(fieldInfo);
 
@@ -37,6 +39,14 @@ public class ObjectFieldSerializer extends FieldSerializer {
 
 			if (format.trim().length() == 0) {
 				format = null;
+			}
+			
+			for (SerializerFeature feature : annotation.serialzeFeatures()) {
+			    if (feature == SerializerFeature.WriteNullNumberAsZero) {
+			        writeNumberAsZero = true;
+	            } else if (feature == SerializerFeature.WriteNullStringAsEmpty) {
+                    writeNullStringAsEmpty = true;
+	            }
 			}
 		}
 	}
@@ -63,6 +73,14 @@ public class ObjectFieldSerializer extends FieldSerializer {
 		}
 
 		if (propertyValue == null) {
+		    if (writeNumberAsZero && Number.class.isAssignableFrom(runtimeFieldClass)) {
+		        serializer.getWriter().write('0');
+		        return;
+		    } else if (writeNullStringAsEmpty && String.class == runtimeFieldClass) {
+		        serializer.getWriter().write("\"\"");
+                return;
+		    }
+		    
 			fieldSerializer.write(serializer, null);
 			return;
 		}

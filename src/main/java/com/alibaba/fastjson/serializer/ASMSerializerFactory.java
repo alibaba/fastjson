@@ -1051,11 +1051,17 @@ public class ASMSerializerFactory implements Opcodes {
 
         // out.isEnabled(Serializer.WriteMapNullValue)
         boolean writeNull = false;
+        boolean writeNullNumberAsZero = false;
+        boolean writeNullStringAsEmpty = false;
         JSONField annotation = fieldInfo.getAnnotation(JSONField.class);
         if (annotation != null) {
             for (SerializerFeature feature : annotation.serialzeFeatures()) {
                 if (feature == SerializerFeature.WriteMapNullValue) {
                     writeNull = true;
+                } else if (feature == SerializerFeature.WriteNullNumberAsZero) {
+                    writeNullNumberAsZero = true;
+                } else if (feature == SerializerFeature.WriteNullStringAsEmpty) {
+                    writeNullStringAsEmpty = true;
                 }
             }
         }
@@ -1076,11 +1082,23 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitVarInsn(ALOAD, context.fieldName());
 
         if (propertyClass == String.class || propertyClass == Character.class) {
-            mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "writeFieldNullString",
-                               "(CLjava/lang/String;)V");
+            if (writeNullStringAsEmpty) {
+                mw.visitLdcInsn("");
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "writeFieldValue",
+                        "(CLjava/lang/String;Ljava/lang/String;)V");
+            } else {
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "writeFieldNullString",
+                                   "(CLjava/lang/String;)V");
+            }
         } else if (Number.class.isAssignableFrom(propertyClass)) {
-            mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "writeFieldNullNumber",
-                               "(CLjava/lang/String;)V");
+            if (writeNullNumberAsZero) {
+                mw.visitInsn(ICONST_0);
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "writeFieldValue",
+                               "(CLjava/lang/String;I)V");
+            } else {
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "writeFieldNullNumber",
+                        "(CLjava/lang/String;)V");    
+            }
         } else if (propertyClass == Boolean.class) {
             mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "writeFieldNullBoolean",
                                "(CLjava/lang/String;)V");

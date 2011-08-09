@@ -32,6 +32,7 @@ public class ObjectFieldSerializer extends FieldSerializer {
 	boolean writeNullStringAsEmpty = false;
 	boolean writeNullBooleanAsFalse = false;
 	boolean writeNullListAsEmpty = false;
+	boolean writeEnumUsingToString = false;
 	
 	public ObjectFieldSerializer(FieldInfo fieldInfo) {
 		super(fieldInfo);
@@ -54,6 +55,8 @@ public class ObjectFieldSerializer extends FieldSerializer {
 	                writeNullBooleanAsFalse = true;
                 } else if (feature == SerializerFeature.WriteNullListAsEmpty) {
                     writeNullListAsEmpty = true;
+                } else if (feature == SerializerFeature.WriteEnumUsingToString) {
+                    writeEnumUsingToString = true;
 	            }
 			}
 		}
@@ -97,6 +100,11 @@ public class ObjectFieldSerializer extends FieldSerializer {
 		    
 			fieldSerializer.write(serializer, null);
 			return;
+		}
+		
+		if (writeEnumUsingToString == true && runtimeFieldClass.isEnum()) {
+		    serializer.getWriter().writeString(((Enum<?>) propertyValue).name());
+		    return;
 		}
 
 		if (propertyValue.getClass() == runtimeFieldClass) {

@@ -333,6 +333,16 @@ public class ASMSerializerFactory implements Opcodes {
 
     private void _enum(Class<?> clazz, MethodVisitor mw, FieldInfo property, Context context) {
         Method method = property.getMethod();
+        
+        boolean writeEnumUsingToString = false;
+        JSONField annotation = property.getAnnotation(JSONField.class);
+        if (annotation != null) {
+            for (SerializerFeature feature : annotation.serialzeFeatures()) {
+                if (feature == SerializerFeature.WriteEnumUsingToString) {
+                    writeEnumUsingToString = true;
+                }
+            }
+        }
 
         Label _not_null = new Label();
         Label _end_if = new Label();
@@ -355,9 +365,14 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitVarInsn(ALOAD, context.fieldName());
         mw.visitVarInsn(ALOAD, context.var("enum"));
 
-        mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "writeFieldValue", "(CLjava/lang/String;L"
-                                                                                             + getType(Enum.class)
-                                                                                             + ";)V");
+        if (writeEnumUsingToString) {
+            mw.visitMethodInsn(INVOKEVIRTUAL, getType(Object.class), "toString", "()Ljava/lang/String;");
+            mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "writeFieldValue", "(CLjava/lang/String;Ljava/lang/String;)V");
+        } else {
+            mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "writeFieldValue", "(CLjava/lang/String;L"
+                                                                                                 + getType(Enum.class)
+                                                                                         + ";)V");
+        }
 
         mw.visitLabel(_end_if);
 

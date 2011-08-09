@@ -741,6 +741,12 @@ public final class SerializeWriter extends Writer {
 		writeFieldName(name);
 		writeNull();
 	}
+	
+	public void writeFieldEmptyList(char seperator, String key) {
+        write(seperator);
+        writeFieldName(key);
+        write("[]");
+    }
 
 	public void writeFieldNullString(char seperator, String name) {
 		write(seperator);
@@ -1149,7 +1155,7 @@ public final class SerializeWriter extends Writer {
 
 		buf[count - 1] = '\'';
 	}
-
+	
 	public void writeFieldName(String key) {
 		if (isEnabled(SerializerFeature.UseSingleQuotes)) {
 			if (isEnabled(SerializerFeature.QuoteFieldNames)) {

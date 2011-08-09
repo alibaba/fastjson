@@ -1053,6 +1053,7 @@ public class ASMSerializerFactory implements Opcodes {
         boolean writeNull = false;
         boolean writeNullNumberAsZero = false;
         boolean writeNullStringAsEmpty = false;
+        boolean writeNullBooleanAsFalse = false;
         JSONField annotation = fieldInfo.getAnnotation(JSONField.class);
         if (annotation != null) {
             for (SerializerFeature feature : annotation.serialzeFeatures()) {
@@ -1062,6 +1063,8 @@ public class ASMSerializerFactory implements Opcodes {
                     writeNullNumberAsZero = true;
                 } else if (feature == SerializerFeature.WriteNullStringAsEmpty) {
                     writeNullStringAsEmpty = true;
+                } else if (feature == SerializerFeature.WriteNullBooleanAsFalse) {
+                    writeNullBooleanAsFalse = true;
                 }
             }
         }
@@ -1100,8 +1103,14 @@ public class ASMSerializerFactory implements Opcodes {
                         "(CLjava/lang/String;)V");    
             }
         } else if (propertyClass == Boolean.class) {
-            mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "writeFieldNullBoolean",
-                               "(CLjava/lang/String;)V");
+            if (writeNullBooleanAsFalse) {
+                mw.visitInsn(ICONST_0);
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "writeFieldValue",
+                               "(CLjava/lang/String;Z)V");
+            } else {
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "writeFieldNullBoolean",
+                                   "(CLjava/lang/String;)V");
+            }
         } else if (Collection.class.isAssignableFrom(propertyClass) || propertyClass.isArray()) {
             mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "writeFieldNullList",
                                "(CLjava/lang/String;)V");

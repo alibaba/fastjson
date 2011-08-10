@@ -20,6 +20,10 @@ public class ThreadLocalCache {
         }
         
         char[] chars = ref.get();
+        
+        if (chars == null) {
+            return allocate(length);
+        }
 
         if (chars.length < length) {
             chars = allocate(length);
@@ -74,6 +78,10 @@ public class ThreadLocalCache {
         }
 
         byte[] bytes = ref.get();
+        
+        if (bytes == null) {
+            return allocateBytes(length);
+        }
 
         if (bytes.length < length) {
             bytes = allocateBytes(length);

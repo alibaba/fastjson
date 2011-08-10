@@ -32,10 +32,10 @@ public class ByteArrayTest extends TestCase {
         SerializerFeature[] features = { SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullListAsEmpty };
         String text1 = JSON.toJSONString(vo, mapping, features);
 
-        Assert.assertEquals("{\"value\":[1,2,3]}", text1);
+        Assert.assertEquals("{\"value\":\"AQID\"}", text1);
         String text2 = JSON.toJSONString(vo, features);
 
-        Assert.assertEquals("{\"value\":[1,2,3]}", text2);
+        Assert.assertEquals("{\"value\":\"AQID\"}", text2);
     }
 
     public static class VO {

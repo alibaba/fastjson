@@ -12,7 +12,7 @@ public class ByteArrayFieldSerializerTest extends TestCase {
         A a1 = new A();
         a1.setBytes(new byte[] { 1, 2 });
 
-        Assert.assertEquals("{\"bytes\":[1,2]}", JSON.toJSONString(a1));
+        Assert.assertEquals("{\"bytes\":\"AQI=\"}", JSON.toJSONString(a1));
     }
 
     public void test_1() throws Exception {

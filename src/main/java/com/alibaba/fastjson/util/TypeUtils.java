@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 
@@ -348,6 +349,17 @@ public class TypeUtils {
             return Integer.parseInt(strVal);
         }
 
+        throw new JSONException("can not cast to int, value : " + value);
+    }
+    
+    public static final byte[] castToBytes(Object value) {
+        if (value instanceof byte[]) {
+            return (byte[]) value;
+        }
+        
+        if (value instanceof String) {
+            return Base64.decode((String) value);
+        }
         throw new JSONException("can not cast to int, value : " + value);
     }
 

@@ -7,6 +7,8 @@ import java.util.Map;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.MapSerializer;
 import com.alibaba.fastjson.serializer.SerializeWriter;
@@ -119,6 +121,13 @@ public class MapSerializerTest extends TestCase {
         MapSerializer mapSerializer = new MapSerializer();
         mapSerializer.write(new JSONSerializer(out), map);
 
-        Assert.assertEquals("{\"TOP\":\"value\",\"bytes\":[1,2]}", out.toString());
+        String text = out.toString();
+        Assert.assertEquals("{\"TOP\":\"value\",\"bytes\":\"AQI=\"}", text);
+        
+        JSONObject json = JSON.parseObject(text);
+        byte[] bytes = json.getBytes("bytes");
+        Assert.assertEquals(1, bytes[0]);
+        Assert.assertEquals(2, bytes[1]);
+        Assert.assertEquals(2, bytes.length);
     }
 }

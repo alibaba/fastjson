@@ -400,10 +400,14 @@ public final class SerializeWriter extends Writer {
         count = newcount;
     }
 
-    public void writeByteArrayBase64(byte[] bytes) {
-        final char[] CA = Base64.CA;
-        // Check special case
+    public void writeByteArray(byte[] bytes) {
         int bytesLen = bytes.length;
+        if (bytesLen == 0) {
+            write("\"\"");
+            return;
+        }
+        
+        final char[] CA = Base64.CA;
 
         int eLen = (bytesLen / 3) * 3; // Length of even 24-bits.
         int charsLen = ((bytesLen - 1) / 3 + 1) << 2; // base64 character count
@@ -441,46 +445,6 @@ public final class SerializeWriter extends Writer {
             buf[newcount - 2] = '=';
         }
         buf[newcount - 1] = '\"';
-    }
-
-    public void writeByteArray(byte[] array) {
-        if (array.length > 1) {
-            writeByteArrayBase64(array);
-            return;
-        }
-
-        int[] sizeArray = new int[array.length];
-        int totalSize = 2;
-        for (int i = 0; i < array.length; ++i) {
-            if (i != 0) {
-                totalSize++;
-            }
-            byte val = array[i];
-            int size = IOUtils.stringSize(val);
-            sizeArray[i] = size;
-            totalSize += size;
-        }
-
-        int newcount = count + totalSize;
-        if (newcount > buf.length) {
-            expandCapacity(newcount);
-        }
-
-        buf[count] = '[';
-
-        int currentSize = count + 1;
-        for (int i = 0; i < array.length; ++i) {
-            if (i != 0) {
-                buf[currentSize++] = ',';
-            }
-
-            byte val = array[i];
-            currentSize += sizeArray[i];
-            IOUtils.getChars(val, currentSize, buf);
-        }
-        buf[currentSize] = ']';
-
-        count = newcount;
     }
 
     public void writeIntArray(int[] array) {

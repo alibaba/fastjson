@@ -19,6 +19,7 @@ import static com.alibaba.fastjson.util.TypeUtils.castToBigDecimal;
 import static com.alibaba.fastjson.util.TypeUtils.castToBigInteger;
 import static com.alibaba.fastjson.util.TypeUtils.castToBoolean;
 import static com.alibaba.fastjson.util.TypeUtils.castToByte;
+import static com.alibaba.fastjson.util.TypeUtils.castToBytes;
 import static com.alibaba.fastjson.util.TypeUtils.castToDate;
 import static com.alibaba.fastjson.util.TypeUtils.castToDouble;
 import static com.alibaba.fastjson.util.TypeUtils.castToFloat;
@@ -127,6 +128,16 @@ public class JSONObject extends JSON implements Map<String, Object>, JSONAware, 
         }
 
         return castToBoolean(value);
+    }
+    
+    public byte[] getBytes(String key) {
+        Object value = get(key);
+
+        if (value == null) {
+            return null;
+        }
+
+        return castToBytes(value);
     }
 
     public boolean getBooleanValue(String key) {

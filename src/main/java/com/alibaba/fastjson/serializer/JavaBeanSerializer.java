@@ -27,6 +27,7 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.FieldInfo;
 
@@ -37,6 +38,8 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
     // serializers
     private final FieldSerializer[] getters;
+    private boolean                 managedReference = true;
+    private FieldSerializer         keyField;
 
     public FieldSerializer[] getGetters() {
         return getters;
@@ -44,6 +47,29 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
     public JavaBeanSerializer(Class<?> clazz){
         this(clazz, (Map<String, String>) null);
+
+        String key = "";
+        JSONType annotation = clazz.getAnnotation(JSONType.class);
+        if (annotation != null) {
+            key = annotation.key();
+        }
+
+        if (key.length() == 0) {
+            for (FieldSerializer field : getters) {
+                if ("id".equals(field.getName())) {
+                    keyField = field;
+                    key = "id";
+                    break;
+                }
+            }
+        } else {
+            for (FieldSerializer field : getters) {
+                if (key.equals(field.getName())) {
+                    keyField = field;
+                    break;
+                }
+            }
+        }
     }
 
     public JavaBeanSerializer(Class<?> clazz, String... aliasList){
@@ -77,11 +103,29 @@ public class JavaBeanSerializer implements ObjectSerializer {
     }
 
     public void write(JSONSerializer serializer, Object object) throws IOException {
+        Object parent = serializer.getParent();
+
+        serializer.setParent(object);
+        writeInternal(serializer, object);
+
+        serializer.setParent(parent);
+    }
+
+    private void writeInternal(JSONSerializer serializer, Object object) {
         SerializeWriter out = serializer.getWriter();
 
         if (object == null) {
             out.writeNull();
             return;
+        }
+
+        if (managedReference) {
+            if (serializer.containsReference(object)) {
+                writeReference(serializer, object);
+                return;
+            }
+
+            serializer.addReference(object);
         }
 
         FieldSerializer[] getters = this.getters;
@@ -92,7 +136,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
         try {
             out.append('{');
-            
+
             if (out.isEnabled(SerializerFeature.PrettyFormat)) {
                 serializer.incrementIndent();
                 serializer.println();
@@ -130,7 +174,8 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 propertyValue = FilterUtils.processValue(serializer, object, fieldSerializer.getName(), propertyValue);
 
                 if (propertyValue == null) {
-                    if ((!fieldSerializer.isWriteNull()) && (!serializer.isEnabled(SerializerFeature.WriteMapNullValue))) {
+                    if ((!fieldSerializer.isWriteNull())
+                        && (!serializer.isEnabled(SerializerFeature.WriteMapNullValue))) {
                         continue;
                     }
                 }
@@ -159,11 +204,29 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 serializer.decrementIdent();
                 serializer.println();
             }
-            
+
             out.append('}');
         } catch (Exception e) {
             throw new JSONException("write javaBean error", e);
         }
+    }
+
+    public void writeReference(JSONSerializer serializer, Object object) {
+        SerializeWriter out = serializer.getWriter();
+
+        if (object == serializer.getParent()) {
+            out.write("{\"$ref\":\"#\"}");
+        } else {
+            out.write("{\"$ref\":");
+            try {
+                Object key = keyField.getPropertyValue(object);
+                serializer.write(key);
+            } catch (Exception e) {
+                throw new JSONException("get keyField error", e);
+            }
+            out.write("}");
+        }
+
     }
 
     public FieldSerializer createFieldSerializer(FieldInfo fieldInfo) {

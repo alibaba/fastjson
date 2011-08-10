@@ -225,14 +225,8 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitFieldInsn(GETFIELD, context.getClassName(), "nature", getDesc(JavaBeanSerializer.class));
             mw.visitJumpInsn(IFNONNULL, notNull_);
             
-            mw.visitVarInsn(ALOAD, 0);
-            mw.visitTypeInsn(NEW, getType(JavaBeanSerializer.class));
-            mw.visitInsn(DUP);
-            mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc(clazz)));
-            mw.visitMethodInsn(INVOKESPECIAL, getType(JavaBeanSerializer.class), "<init>", "(" + getDesc(Class.class) + ")V");
-            mw.visitFieldInsn(PUTFIELD, context.getClassName(), "nature", getDesc(JavaBeanSerializer.class));
+            initNature(clazz, mw, context);
             
-
             ///////
             mw.visitLabel(notNull_);
             
@@ -244,6 +238,54 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitInsn(RETURN);
 
             mw.visitLabel(endFormat_);
+        }
+        
+        {
+            mw.visitVarInsn(ALOAD, context.serializer());
+            mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "getParent", "()Ljava/lang/Object;");
+            mw.visitVarInsn(ASTORE, context.var("parent"));
+            
+            mw.visitVarInsn(ALOAD, context.serializer());
+            mw.visitVarInsn(ALOAD, context.obj());
+            mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "setParent", "(Ljava/lang/Object;)V");
+        }
+        
+        {
+            // if (serializer.containsReference(object)) {
+            
+            Label endRef_ = new Label();
+            Label notNull_ = new Label();
+            
+            mw.visitVarInsn(ALOAD, context.serializer());
+            mw.visitVarInsn(ALOAD, context.obj());
+            mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "containsReference", "(Ljava/lang/Object;)Z");
+            mw.visitJumpInsn(IFEQ, endRef_);
+            
+            mw.visitVarInsn(ALOAD, 0);
+            mw.visitFieldInsn(GETFIELD, context.getClassName(), "nature", getDesc(JavaBeanSerializer.class));
+            mw.visitJumpInsn(IFNONNULL, notNull_);
+            
+            initNature(clazz, mw, context);
+            
+            ///////
+            mw.visitLabel(notNull_);
+            mw.visitVarInsn(ALOAD, 0);
+            mw.visitFieldInsn(GETFIELD, context.getClassName(), "nature", getDesc(JavaBeanSerializer.class));
+            mw.visitVarInsn(ALOAD, 1);
+            mw.visitVarInsn(ALOAD, 2);
+            mw.visitMethodInsn(INVOKEVIRTUAL, getType(JavaBeanSerializer.class), "writeReference", "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;)V");
+            
+            mw.visitVarInsn(ALOAD, context.serializer());
+            mw.visitVarInsn(ALOAD, context.var("parent"));
+            mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "setParent", "(Ljava/lang/Object;)V");
+            
+            mw.visitInsn(RETURN);
+            
+            mw.visitVarInsn(ALOAD, context.serializer());
+            mw.visitVarInsn(ALOAD, context.obj());
+            mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "addReference", "(Ljava/lang/Object;)V");
+            
+            mw.visitLabel(endRef_);
         }
 
         // SEPERATO
@@ -314,6 +356,19 @@ public class ASMSerializerFactory implements Opcodes {
 
         mw.visitLabel(_end_if);
         mw.visitLabel(end);
+        
+        mw.visitVarInsn(ALOAD, context.serializer());
+        mw.visitVarInsn(ALOAD, context.var("parent"));
+        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "setParent", "(Ljava/lang/Object;)V");
+    }
+
+    private void initNature(Class<?> clazz, MethodVisitor mw, Context context) {
+        mw.visitVarInsn(ALOAD, 0);
+        mw.visitTypeInsn(NEW, getType(JavaBeanSerializer.class));
+        mw.visitInsn(DUP);
+        mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc(clazz)));
+        mw.visitMethodInsn(INVOKESPECIAL, getType(JavaBeanSerializer.class), "<init>", "(" + getDesc(Class.class) + ")V");
+        mw.visitFieldInsn(PUTFIELD, context.getClassName(), "nature", getDesc(JavaBeanSerializer.class));
     }
 
     private void _object(Class<?> clazz, MethodVisitor mw, FieldInfo property, Context context) {

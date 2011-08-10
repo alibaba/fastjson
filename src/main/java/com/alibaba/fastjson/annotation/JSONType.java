@@ -11,9 +11,12 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
  * @author wenshao<szujobs@hotmail.com>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.METHOD, ElementType.FIELD })
-public @interface JSONClass {
+@Target({ ElementType.TYPE })
+public @interface JSONType {
+
+    String key() default "id";
+
     String[] orders() default {};
-    
+
     SerializerFeature[] serialzeFeatures() default {};
 }

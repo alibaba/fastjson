@@ -37,16 +37,43 @@ import com.alibaba.fastjson.util.ServiceLoader;
  */
 public class JSONSerializer {
 
-    private final SerializeConfig config;
+    private final SerializeConfig                               config;
 
-    private final SerializeWriter   out;
+    private final SerializeWriter                               out;
 
-    private List<PropertyFilter>    propertyFilters = null;
-    private List<ValueFilter>       valueFilters    = null;
-    private List<NameFilter>        nameFilters     = null;
+    private List<PropertyFilter>                                propertyFilters = null;
+    private List<ValueFilter>                                   valueFilters    = null;
+    private List<NameFilter>                                    nameFilters     = null;
 
-    private int                     indentCount     = 0;
-    private String                  indent          = "\t";
+    private int                                                 indentCount     = 0;
+    private String                                              indent          = "\t";
+
+    private static final Object                                 PRESENT         = new Object();
+    private transient java.util.IdentityHashMap<Object, Object> references;
+    private Object                                              parent;
+
+    public Object getParent() {
+        return parent;
+    }
+
+    public void setParent(Object parent) {
+        this.parent = parent;
+    }
+
+    public void addReference(Object value) {
+        if (references == null) {
+            references = new java.util.IdentityHashMap<Object, Object>();
+        }
+        references.put(value, PRESENT);
+    }
+
+    public boolean containsReference(Object value) {
+        if (references == null) {
+            return false;
+        }
+
+        return references.containsKey(value);
+    }
 
     public List<ValueFilter> getValueFilters() {
         if (valueFilters == null) {
@@ -202,7 +229,7 @@ public class JSONSerializer {
                     config.put(forType, autowired);
                 }
             }
-            
+
             writer = config.get(clazz);
         }
 

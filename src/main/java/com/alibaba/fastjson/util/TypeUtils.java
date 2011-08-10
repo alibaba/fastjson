@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 

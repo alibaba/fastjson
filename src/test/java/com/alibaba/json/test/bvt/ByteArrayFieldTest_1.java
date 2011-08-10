@@ -10,7 +10,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 public class ByteArrayFieldTest_1 extends TestCase {
 
     public void test_array() throws Exception {
-        Assert.assertEquals("[1]", JSON.toJSONString(new byte[] { 1 }));
+        Assert.assertEquals("\"AQ==\"", JSON.toJSONString(new byte[] { 1 }));
 
     }
 

@@ -34,6 +34,7 @@ import java.util.Calendar;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.util.Base64;
 
 //这个类，为了性能优化做了很多特别处理，一切都是为了性能！！！
 
@@ -849,7 +850,7 @@ public class JSONScanner implements JSONLexer {
 
         return strVal;
     }
-    
+
     public String scanFieldSymbol(char[] fieldName, final SymbolTable symbolTable) {
         matchStat = UNKOWN;
 
@@ -880,7 +881,7 @@ public class JSONScanner implements JSONLexer {
                 strVal = symbolTable.addSymbol(buf, start, index - start - 1, hash);
                 break;
             }
-            
+
             hash = 31 * hash + ch;
 
             if (ch == '\\') {
@@ -1323,6 +1324,116 @@ public class JSONScanner implements JSONLexer {
         return value;
     }
 
+    public byte[] scanFieldByteArray(char[] fieldName) {
+        matchStat = UNKOWN;
+
+        final int fieldNameLength = fieldName.length;
+        for (int i = 0; i < fieldNameLength; ++i) {
+            if (fieldName[i] != buf[bp + i]) {
+                matchStat = NOT_MATCH_NAME;
+                return null;
+            }
+        }
+
+        int index = bp + fieldNameLength;
+
+        char ch = buf[index++];
+
+        byte[] value;
+        if (ch == '"' || ch == '\'') {
+            char sep = ch;
+
+            int startIndex = index;
+            int endIndex = index;
+            for (endIndex = index; endIndex < buf.length; ++endIndex) {
+                if (buf[endIndex] == sep) {
+                    break;
+                }
+            }
+
+            int base64Len = endIndex - startIndex;
+            value = decodeBase64(buf, startIndex, base64Len);
+            if (value == null) {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+            bp = endIndex + 1;
+            ch = buf[bp];
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        if (ch == ',') {
+            ch = buf[++bp];
+            matchStat = VALUE;
+            token = JSONToken.COMMA;
+            return value;
+        } else if (ch == '}') {
+            ch = buf[++bp];
+            if (ch == ',') {
+                token = JSONToken.COMMA;
+                this.ch = buf[++bp];
+            } else if (ch == ']') {
+                token = JSONToken.RBRACKET;
+                this.ch = buf[++bp];
+            } else if (ch == '}') {
+                token = JSONToken.RBRACE;
+                this.ch = buf[++bp];
+            } else if (ch == EOI) {
+                token = JSONToken.EOF;
+            } else {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+            matchStat = END;
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        return value;
+    }
+    
+    public byte[] bytesValue() {
+        if (!hasSpecial) {
+            return decodeBase64(buf, np + 1, sp);
+        } else {
+            return decodeBase64(sbuf, 0, sp);
+        }
+    }
+
+    public final static byte[] decodeBase64(char[] buf, int offset, int base64Len) {
+        int[] IA = Base64.IA;
+
+        // Check so that legal chars (including '=') are evenly divideable by 4 as specified in RFC 2045.
+        if ((base64Len) % 4 != 0) {
+            return null;
+        }
+
+
+        int len = ((base64Len) * 6 >> 3);
+
+        byte[] bytes = new byte[len]; // Preallocate byte[] of exact length
+
+        for (int s = offset, d = 0; d < len;) {
+            // Assemble three bytes into an int from four "valid" characters.
+            int i = 0;
+            for (int j = 0; j < 4; j++) { // j only increased if a valid char was found.
+                int c = IA[buf[s++]];
+                if (c >= 0) i |= c << (18 - j * 6);
+                else j--;
+            }
+            // Add the bytes
+            bytes[d++] = (byte) (i >> 16);
+            if (d < len) {
+                bytes[d++] = (byte) (i >> 8);
+                if (d < len) bytes[d++] = (byte) i;
+            }
+        }
+        return bytes;
+    }
+
     public double scanFieldDouble(char[] fieldName) {
         matchStat = UNKOWN;
 
@@ -1575,7 +1686,8 @@ public class JSONScanner implements JSONLexer {
 
         ch = buf[bp];
 
-        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI || ch == '\f' || ch == '\b') {
+        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
+            || ch == '\f' || ch == '\b') {
             token = JSONToken.TRUE;
         } else {
             throw new JSONException("scan true error");
@@ -1597,7 +1709,8 @@ public class JSONScanner implements JSONLexer {
             }
             ch = buf[bp];
 
-            if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI || ch == '\f' || ch == '\b') {
+            if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
+                || ch == '\f' || ch == '\b') {
                 token = JSONToken.NULL;
             } else {
                 throw new JSONException("scan true error");
@@ -1615,7 +1728,8 @@ public class JSONScanner implements JSONLexer {
         }
         ch = buf[bp];
 
-        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI || ch == '\f' || ch == '\b') {
+        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
+            || ch == '\f' || ch == '\b') {
             token = JSONToken.NEW;
         } else {
             throw new JSONException("scan true error");
@@ -1641,7 +1755,8 @@ public class JSONScanner implements JSONLexer {
 
         ch = buf[bp];
 
-        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI || ch == '\f' || ch == '\b') {
+        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
+            || ch == '\f' || ch == '\b') {
             token = JSONToken.FALSE;
         } else {
             throw new JSONException("scan false error");
@@ -1944,11 +2059,11 @@ public class JSONScanner implements JSONLexer {
     public final String numberString() {
         return new String(buf, np, sp);
     }
-    
+
     public float floatValue() {
         return Float.parseFloat(numberString());
     }
-    
+
     public double doubleValue() {
         return Double.parseDouble(numberString());
     }

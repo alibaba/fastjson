@@ -188,7 +188,10 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "scanFieldString",
                                    "([C)Ljava/lang/String;");
                 mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
-
+            } else if (fieldClass == byte[].class) {
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "scanFieldByteArray",
+                                   "([C)[B");
+                mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
             } else if (fieldClass.isEnum()) {
                 Label enumNull_ = new Label();
                 mw.visitInsn(ACONST_NULL);

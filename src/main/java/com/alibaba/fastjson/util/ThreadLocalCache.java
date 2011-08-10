@@ -1,23 +1,25 @@
 package com.alibaba.fastjson.util;
 
+import java.lang.ref.SoftReference;
+
 public class ThreadLocalCache {
 
-    public final static int                  CHARS_CACH_INIT_SIZE = 1024;                     // 1k;
-    public final static int                  CHARS_CACH_MAX_SIZE  = 1024 * 128;               // 1k;
-    private final static ThreadLocal<char[]> charsBufLocal        = new ThreadLocal<char[]>();
+    public final static int                                 CHARS_CACH_INIT_SIZE = 1024;                                    // 1k;
+    public final static int                                 CHARS_CACH_MAX_SIZE  = 1024 * 128;                              // 1k;
+    private final static ThreadLocal<SoftReference<char[]>> charsBufLocal        = new ThreadLocal<SoftReference<char[]>>();
 
     public static void clearChars() {
         charsBufLocal.set(null);
     }
 
     public static char[] getChars(int length) {
-        char[] chars = charsBufLocal.get();
+        SoftReference<char[]> ref = charsBufLocal.get();
 
-        if (chars == null) {
-            chars = allocate(length);
-
-            return chars;
+        if (ref == null) {
+            return allocate(length);
         }
+        
+        char[] chars = ref.get();
 
         if (chars.length < length) {
             chars = allocate(length);
@@ -31,7 +33,7 @@ public class ThreadLocalCache {
 
         if (allocateLength <= CHARS_CACH_MAX_SIZE) {
             char[] chars = new char[allocateLength];
-            charsBufLocal.set(chars);
+            charsBufLocal.set(new SoftReference<char[]>(chars));
             return chars;
         }
 
@@ -56,22 +58,22 @@ public class ThreadLocalCache {
     }
 
     // /////////
-    public final static int                  BYTES_CACH_INIT_SIZE = 1024;                     // 1k;
-    public final static int                  BYTeS_CACH_MAX_SIZE  = 1024 * 128;               // 1k;
-    private final static ThreadLocal<byte[]> bytesBufLocal        = new ThreadLocal<byte[]>();
+    public final static int                                 BYTES_CACH_INIT_SIZE = 1024;                                    // 1k;
+    public final static int                                 BYTeS_CACH_MAX_SIZE  = 1024 * 128;                              // 1k;
+    private final static ThreadLocal<SoftReference<byte[]>> bytesBufLocal        = new ThreadLocal<SoftReference<byte[]>>();
 
     public static void clearBytes() {
         bytesBufLocal.set(null);
     }
 
     public static byte[] getBytes(int length) {
-        byte[] bytes = bytesBufLocal.get();
+        SoftReference<byte[]> ref = bytesBufLocal.get();
 
-        if (bytes == null) {
-            bytes = allocateBytes(length);
-
-            return bytes;
+        if (ref == null) {
+            return allocateBytes(length);
         }
+
+        byte[] bytes = ref.get();
 
         if (bytes.length < length) {
             bytes = allocateBytes(length);
@@ -85,7 +87,7 @@ public class ThreadLocalCache {
 
         if (allocateLength <= CHARS_CACH_MAX_SIZE) {
             byte[] chars = new byte[allocateLength];
-            bytesBufLocal.set(chars);
+            bytesBufLocal.set(new SoftReference<byte[]>(chars));
             return chars;
         }
 

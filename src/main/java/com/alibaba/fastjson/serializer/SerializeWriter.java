@@ -20,6 +20,7 @@ import static com.alibaba.fastjson.parser.CharTypes.replaceChars;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.lang.ref.SoftReference;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 
@@ -43,18 +44,22 @@ public final class SerializeWriter extends Writer {
      */
     protected int                            count;
 
-    private final static ThreadLocal<char[]> bufLocal = new ThreadLocal<char[]>();
+    private final static ThreadLocal<SoftReference<char[]>> bufLocal = new ThreadLocal<SoftReference<char[]>>();
 
     private int                              features;
 
     public SerializeWriter(){
         this.features = JSON.DEFAULT_GENERATE_FEATURE;
 
-        buf = bufLocal.get(); // new char[1024];
+        SoftReference<char[]> ref = bufLocal.get();
+        
+        if (ref != null) {
+            buf = ref.get();
+            bufLocal.set(null);
+        }
+        
         if (buf == null) {
             buf = new char[1024];
-        } else {
-            bufLocal.set(null);
         }
     }
 
@@ -62,11 +67,15 @@ public final class SerializeWriter extends Writer {
      * Creates a new CharArrayWriter.
      */
     public SerializeWriter(SerializerFeature... features){
-        buf = bufLocal.get(); // new char[1024];
+        SoftReference<char[]> ref = bufLocal.get();
+        
+        if (ref != null) {
+            buf = ref.get();
+            bufLocal.set(null);
+        }
+        
         if (buf == null) {
             buf = new char[1024];
-        } else {
-            bufLocal.set(null);
         }
 
         int featuresValue = 0;
@@ -275,7 +284,7 @@ public final class SerializeWriter extends Writer {
      * Invoking this method in this class will have no effect.
      */
     public void close() {
-        bufLocal.set(buf);
+        bufLocal.set(new SoftReference<char[]>(buf));
     }
 
     public void writeBooleanArray(boolean[] array) throws IOException {

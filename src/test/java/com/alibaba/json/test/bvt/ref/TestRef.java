@@ -32,19 +32,23 @@ public class TestRef extends TestCase {
             cn.setRoot(tech);
             tech.getChildren().add(cn);
         }
+        
+        {
+            //JSON.toJSONString(tech);
+        }
 
         {
-            String text = JSON.toJSONString(tech, SerializerFeature.PrettyFormat);
+            String prettyText = JSON.toJSONString(tech, SerializerFeature.PrettyFormat);
+            System.out.println(prettyText);
 
-            System.out.println(text);
-            
+            String text = JSON.toJSONString(tech);
             Department dept = JSON.parseObject(text, Department.class);
             
             System.out.println(JSON.toJSONString(dept, SerializerFeature.PrettyFormat));
         }
     }
 
-    private static class Department {
+    public static class Department {
 
         private int                    id;
         private String                 name;
@@ -101,6 +105,10 @@ public class TestRef extends TestCase {
 
         public void setChildren(Collection<Department> children) {
             this.children = children;
+        }
+        
+        public String toString() {
+            return "{id:" + id + ",name:" + name + "}";
         }
 
     }

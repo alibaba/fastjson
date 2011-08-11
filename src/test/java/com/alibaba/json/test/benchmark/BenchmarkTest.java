@@ -11,7 +11,7 @@ public class BenchmarkTest extends TestCase {
         // 注意，byte[]在jackson中是使用base64编码的，不正确的。
 
         BenchmarkExecutor executor = new BenchmarkExecutor();
-        executor.setExecuteCount(10);
+        executor.setExecuteCount(5);
         executor.getCodecList().add(new FastjsonCodec());
 //        executor.getCodecList().add(new JacksonCodec());
         //

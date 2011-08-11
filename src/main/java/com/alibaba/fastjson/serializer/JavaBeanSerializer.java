@@ -103,15 +103,8 @@ public class JavaBeanSerializer implements ObjectSerializer {
     }
 
     public void write(JSONSerializer serializer, Object object) throws IOException {
-        Object parent = serializer.getParent();
 
-        serializer.setParent(object);
-        writeInternal(serializer, parent, object);
 
-        serializer.setParent(parent);
-    }
-
-    private void writeInternal(JSONSerializer serializer, Object parent, Object object) {
         SerializeWriter out = serializer.getWriter();
 
         if (object == null) {
@@ -121,7 +114,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
         if (managedReference) {
             if (serializer.containsReference(object)) {
-                writeReference(serializer, parent, object);
+                writeReference(serializer, object);
                 return;
             }
 
@@ -134,6 +127,8 @@ public class JavaBeanSerializer implements ObjectSerializer {
             Arrays.sort(getters);
         }
 
+        SerialContext parent = serializer.getContext();
+        serializer.setContext(parent, object);
         try {
             out.append('{');
 
@@ -208,25 +203,52 @@ public class JavaBeanSerializer implements ObjectSerializer {
             out.append('}');
         } catch (Exception e) {
             throw new JSONException("write javaBean error", e);
+        } finally {
+            serializer.setContext(parent);    
         }
     }
 
-    public void writeReference(JSONSerializer serializer, Object parent, Object object) {
+    public void writeReference(JSONSerializer serializer, Object object) {
         SerializeWriter out = serializer.getWriter();
 
-        if (object == parent) {
-            out.write("{\"$ref\":\"#\"}");
-        } else {
-            out.write("{\"$ref\":");
-            try {
-                Object key = keyField.getPropertyValue(object);
-                serializer.write(key);
-            } catch (Exception e) {
-                throw new JSONException("get keyField error", e);
+        SerialContext context = serializer.getContext();
+        Object current = context.getObject();
+
+        if (object == current) {
+            out.write("{\"$ref\":\"@\"}");
+            return;
+        }
+        
+        SerialContext parentContext = context.getParent();
+
+        if (parentContext != null) {
+            if (object == parentContext.getObject()) {
+                out.write("{\"$ref\":\"..\"}");
+                return;
             }
-            out.write("}");
+        }
+        
+        SerialContext rootContext = context;
+        for (;;) {
+            if (rootContext.getParent() == null) {
+                break;
+            }
+            rootContext = rootContext.getParent();
+        }
+        
+        if (object == rootContext.getObject()) {
+            out.write("{\"$ref\":\"$\"}");
+            return;
         }
 
+        out.write("{\"$ref\":");
+        try {
+            Object key = keyField.getPropertyValue(object);
+            serializer.write(key);
+        } catch (Exception e) {
+            throw new JSONException("get keyField error", e);
+        }
+        out.write("}");
     }
 
     public FieldSerializer createFieldSerializer(FieldInfo fieldInfo) {

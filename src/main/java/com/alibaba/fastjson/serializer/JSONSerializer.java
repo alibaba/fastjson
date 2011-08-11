@@ -49,14 +49,18 @@ public class JSONSerializer {
     private String                 indent          = "\t";
 
     private transient List<Object> references      = new ArrayList<Object>();
-    private Object                 parent;
+    private SerialContext                 context;
 
-    public Object getParent() {
-        return parent;
+    public SerialContext getContext() {
+        return context;
     }
 
-    public void setParent(Object parent) {
-        this.parent = parent;
+    public void setContext(SerialContext context) {
+        this.context = context;
+    }
+    
+    public void setContext(SerialContext parent, Object object) {
+        this.context = new SerialContext(parent, object);
     }
 
     public void addReference(Object value) {

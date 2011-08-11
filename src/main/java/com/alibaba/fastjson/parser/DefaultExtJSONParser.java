@@ -29,6 +29,7 @@ import java.util.Set;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.deserializer.DefaultObjectDeserializer;
+import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.IntegerDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StringDeserializer;
@@ -40,9 +41,18 @@ import com.alibaba.fastjson.util.TypeUtils;
 @SuppressWarnings("rawtypes")
 public class DefaultExtJSONParser extends DefaultJSONParser {
 
-    private DefaultObjectDeserializer  derializer       = new DefaultObjectDeserializer();
+    private DefaultObjectDeserializer  derializer           = new DefaultObjectDeserializer();
+    private Object                     parent;
 
-    private final static Set<Class<?>> primitiveClasses = new HashSet<Class<?>>();
+    private final List<Object>         references           = new ArrayList<Object>();
+    private final List<ResolveTask>    resolveTaskList      = new ArrayList<ResolveTask>();
+
+    public final static int            NONE                 = 0;
+    public final static int            NeedToResolve        = 1;
+
+    private int                        referenceResolveStat = NONE;
+
+    private final static Set<Class<?>> primitiveClasses     = new HashSet<Class<?>>();
     static {
         primitiveClasses.add(boolean.class);
         primitiveClasses.add(byte.class);
@@ -79,6 +89,34 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
 
     public DefaultExtJSONParser(char[] input, int length, ParserConfig mapping, int features){
         super(input, length, mapping, features);
+    }
+
+    public int getReferenceResolveStat() {
+        return referenceResolveStat;
+    }
+
+    public void setReferenceResolveStat(int referenceResolveStat) {
+        this.referenceResolveStat = referenceResolveStat;
+    }
+
+    public Object getParent() {
+        return parent;
+    }
+
+    public void addReference(Object value) {
+        references.add(value);
+    }
+
+    public List<Object> getReferences() {
+        return references;
+    }
+
+    public List<ResolveTask> getResolveTaskList() {
+        return resolveTaskList;
+    }
+
+    public void setParent(Object parent) {
+        this.parent = parent;
     }
 
     public ParserConfig getConfig() {
@@ -368,5 +406,35 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
         }
 
         throw new JSONException("TODO : " + collectionType);
+    }
+
+    public static class ResolveTask {
+
+        private final Object      object;
+        private final Object      referenceValue;
+        private FieldDeserializer fieldDeserializer;
+
+        public ResolveTask(Object object, Object referenceValue){
+            super();
+            this.object = object;
+            this.referenceValue = referenceValue;
+        }
+
+        public Object getObject() {
+            return object;
+        }
+
+        public Object getReferenceValue() {
+            return referenceValue;
+        }
+
+        public FieldDeserializer getFieldDeserializer() {
+            return fieldDeserializer;
+        }
+
+        public void setFieldDeserializer(FieldDeserializer fieldDeserializer) {
+            this.fieldDeserializer = fieldDeserializer;
+        }
+
     }
 }

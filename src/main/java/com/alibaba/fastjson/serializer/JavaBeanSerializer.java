@@ -106,12 +106,12 @@ public class JavaBeanSerializer implements ObjectSerializer {
         Object parent = serializer.getParent();
 
         serializer.setParent(object);
-        writeInternal(serializer, object);
+        writeInternal(serializer, parent, object);
 
         serializer.setParent(parent);
     }
 
-    private void writeInternal(JSONSerializer serializer, Object object) {
+    private void writeInternal(JSONSerializer serializer, Object parent, Object object) {
         SerializeWriter out = serializer.getWriter();
 
         if (object == null) {
@@ -121,7 +121,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
         if (managedReference) {
             if (serializer.containsReference(object)) {
-                writeReference(serializer, object);
+                writeReference(serializer, parent, object);
                 return;
             }
 
@@ -211,10 +211,10 @@ public class JavaBeanSerializer implements ObjectSerializer {
         }
     }
 
-    public void writeReference(JSONSerializer serializer, Object object) {
+    public void writeReference(JSONSerializer serializer, Object parent, Object object) {
         SerializeWriter out = serializer.getWriter();
 
-        if (object == serializer.getParent()) {
+        if (object == parent) {
             out.write("{\"$ref\":\"#\"}");
         } else {
             out.write("{\"$ref\":");

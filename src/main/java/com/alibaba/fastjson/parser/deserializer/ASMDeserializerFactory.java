@@ -148,6 +148,24 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "token", "()I");
         mw.visitVarInsn(ISTORE, context.var("mark_token"));
 
+        mw.visitTypeInsn(NEW, getType(context.getClazz()));
+        mw.visitInsn(DUP);
+        mw.visitMethodInsn(INVOKESPECIAL, getType(context.getClazz()), "<init>", "()V");
+        mw.visitVarInsn(ASTORE, context.var("instance"));
+
+        {
+            mw.visitVarInsn(ALOAD, 1); // parser
+            mw.visitMethodInsn(INVOKEVIRTUAL, getType(DefaultExtJSONParser.class), "getContext",
+                               "()Lcom/alibaba/fastjson/parser/ParseContext;");
+            mw.visitVarInsn(ASTORE, context.var("context"));
+            
+            mw.visitVarInsn(ALOAD, 1); // parser
+            mw.visitVarInsn(ALOAD, context.var("context"));
+            mw.visitVarInsn(ALOAD, context.var("instance"));
+            mw.visitMethodInsn(INVOKEVIRTUAL, getType(DefaultExtJSONParser.class), "setContext",
+                    "(Lcom/alibaba/fastjson/parser/ParseContext;Ljava/lang/Object;)V");
+        }
+
         for (int i = 0, size = context.getFieldInfoList().size(); i < size; ++i) {
             FieldInfo fieldInfo = context.getFieldInfoList().get(i);
             Class<?> fieldClass = fieldInfo.getMethod().getParameterTypes()[0];
@@ -189,8 +207,7 @@ public class ASMDeserializerFactory implements Opcodes {
                                    "([C)Ljava/lang/String;");
                 mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
             } else if (fieldClass == byte[].class) {
-                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "scanFieldByteArray",
-                                   "([C)[B");
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "scanFieldByteArray", "([C)[B");
                 mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
             } else if (fieldClass.isEnum()) {
                 Label enumNull_ = new Label();
@@ -252,11 +269,6 @@ public class ASMDeserializerFactory implements Opcodes {
             }
         }
 
-        mw.visitTypeInsn(NEW, getType(context.getClazz()));
-        mw.visitInsn(DUP);
-        mw.visitMethodInsn(INVOKESPECIAL, getType(context.getClazz()), "<init>", "()V");
-        mw.visitVarInsn(ASTORE, context.var("instance"));
-
         for (int i = 0, size = context.getFieldInfoList().size(); i < size; ++i) {
             FieldInfo fieldInfo = context.getFieldInfoList().get(i);
             Class<?> fieldClass = fieldInfo.getMethod().getParameterTypes()[0];
@@ -297,7 +309,8 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitMethodInsn(INVOKEVIRTUAL, getType(fieldInfo.getMethod().getDeclaringClass()),
                                fieldInfo.getMethod().getName(), getDesc(fieldInfo.getMethod()));
         }
-
+        
+        _setContext(context, mw);
         mw.visitVarInsn(ALOAD, context.var("instance"));
         mw.visitInsn(ARETURN);
 
@@ -309,6 +322,8 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ILOAD, context.var("mark_ch"));
         mw.visitVarInsn(ILOAD, context.var("mark_token"));
         mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "reset", "(ICI)V");
+        
+        _setContext(context, mw);
 
         mw.visitLabel(super_);
         mw.visitVarInsn(ALOAD, 0);
@@ -322,6 +337,13 @@ public class ASMDeserializerFactory implements Opcodes {
 
         mw.visitMaxs(4, context.getVariantCount());
         mw.visitEnd();
+    }
+
+    private void _setContext(Context context, MethodVisitor mw) {
+        mw.visitVarInsn(ALOAD, 1); // parser
+        mw.visitVarInsn(ALOAD, context.var("context"));
+        mw.visitMethodInsn(INVOKEVIRTUAL, getType(DefaultExtJSONParser.class), "setContext",
+                "(Lcom/alibaba/fastjson/parser/ParseContext;)V");
     }
 
     private void _deserialize_endCheck(Context context, MethodVisitor mw, Label reset_) {

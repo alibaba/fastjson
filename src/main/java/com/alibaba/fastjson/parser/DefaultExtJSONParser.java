@@ -42,7 +42,7 @@ import com.alibaba.fastjson.util.TypeUtils;
 public class DefaultExtJSONParser extends DefaultJSONParser {
 
     private DefaultObjectDeserializer  derializer           = new DefaultObjectDeserializer();
-    private Object                     parent;
+    private ParseContext               context;
 
     private final List<Object>         references           = new ArrayList<Object>();
     private final List<ResolveTask>    resolveTaskList      = new ArrayList<ResolveTask>();
@@ -99,8 +99,8 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
         this.referenceResolveStat = referenceResolveStat;
     }
 
-    public Object getParent() {
-        return parent;
+    public ParseContext getContext() {
+        return context;
     }
 
     public void addReference(Object value) {
@@ -115,8 +115,12 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
         return resolveTaskList;
     }
 
-    public void setParent(Object parent) {
-        this.parent = parent;
+    public void setContext(ParseContext context) {
+        this.context = context;
+    }
+    
+    public void setContext(ParseContext parent, Object object) {
+        this.context = new ParseContext(parent, object);
     }
 
     public ParserConfig getConfig() {

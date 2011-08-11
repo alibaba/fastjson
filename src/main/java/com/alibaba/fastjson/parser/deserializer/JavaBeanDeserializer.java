@@ -18,6 +18,7 @@ import com.alibaba.fastjson.parser.DefaultExtJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
+import com.alibaba.fastjson.parser.ParseContext;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.JavaBeanSerializer;
 import com.alibaba.fastjson.util.FieldInfo;
@@ -202,7 +203,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer, ReferenceResolv
             return null;
         }
 
-        Object parent = parser.getParent();
+        ParseContext context = parser.getContext();
 
         try {
             Object object = null;
@@ -231,14 +232,22 @@ public class JavaBeanDeserializer implements ObjectDeserializer, ReferenceResolv
                     lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
                     if (lexer.token() == JSONToken.LITERAL_STRING) {
                         String ref = lexer.stringVal();
-                        if ("#".equals(ref)) {
-                            object = parent;
+                        if ("@".equals(ref)) {
+                            object = context.getObject();
+                        } else if ("..".equals(ref)) {
+                            object = context.getParentContext().getObject();
+                        } else if ("$".equals(ref)) {
+                            ParseContext root = context;
+                            while (root.getParentContext() != null) {
+                                root = root.getParentContext();
+                            }
+                            object =root.getObject();
                         } else {
-                            parser.getResolveTaskList().add(new ResolveTask(parent, ref));
+                            parser.getResolveTaskList().add(new ResolveTask(context, ref));
                             parser.setReferenceResolveStat(DefaultExtJSONParser.NeedToResolve);
                         }
                     } else if (lexer.token() == JSONToken.LITERAL_INT) {
-                        parser.getResolveTaskList().add(new ResolveTask(parent, lexer.integerValue()));
+                        parser.getResolveTaskList().add(new ResolveTask(context, lexer.integerValue()));
                         parser.setReferenceResolveStat(DefaultExtJSONParser.NeedToResolve);
                     } else {
                         throw new JSONException("illegal ref, " + JSONToken.name(lexer.token()));
@@ -258,7 +267,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer, ReferenceResolv
                     if (keyField != null) {
                         parser.addReference(object);
                     }
-                    parser.setParent(object);
+                    parser.setContext(context, object);
                 }
 
                 boolean match = parseField(parser, key, object);
@@ -287,7 +296,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer, ReferenceResolv
 
             return (T) object;
         } finally {
-            parser.setParent(parent);
+            parser.setContext(context);
         }
     }
 

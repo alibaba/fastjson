@@ -37,20 +37,19 @@ import com.alibaba.fastjson.util.ServiceLoader;
  */
 public class JSONSerializer {
 
-    private final SerializeConfig                               config;
+    private final SerializeConfig  config;
 
-    private final SerializeWriter                               out;
+    private final SerializeWriter  out;
 
-    private List<PropertyFilter>                                propertyFilters = null;
-    private List<ValueFilter>                                   valueFilters    = null;
-    private List<NameFilter>                                    nameFilters     = null;
+    private List<PropertyFilter>   propertyFilters = null;
+    private List<ValueFilter>      valueFilters    = null;
+    private List<NameFilter>       nameFilters     = null;
 
-    private int                                                 indentCount     = 0;
-    private String                                              indent          = "\t";
+    private int                    indentCount     = 0;
+    private String                 indent          = "\t";
 
-    private static final Object                                 PRESENT         = new Object();
-    private transient java.util.IdentityHashMap<Object, Object> references;
-    private Object                                              parent;
+    private transient List<Object> references      = new ArrayList<Object>();
+    private Object                 parent;
 
     public Object getParent() {
         return parent;
@@ -61,18 +60,17 @@ public class JSONSerializer {
     }
 
     public void addReference(Object value) {
-        if (references == null) {
-            references = new java.util.IdentityHashMap<Object, Object>();
-        }
-        references.put(value, PRESENT);
+        references.add(value);
     }
 
     public boolean containsReference(Object value) {
-        if (references == null) {
-            return false;
+        for (Object item : references) {
+            if (item == value) {
+                return true;
+            }
         }
 
-        return references.containsKey(value);
+        return false;
     }
 
     public List<ValueFilter> getValueFilters() {

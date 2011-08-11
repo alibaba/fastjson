@@ -13,7 +13,7 @@ public class TestRef extends TestCase {
     public void test_ref() throws Exception {
         Department tech = new Department(1, "技术部");
         tech.setRoot(tech);
-        
+
         {
             Department pt = new Department(2, "平台技术部");
             pt.setParent(tech);
@@ -33,9 +33,15 @@ public class TestRef extends TestCase {
             tech.getChildren().add(cn);
         }
 
-        String text = JSON.toJSONString(tech);
+        {
+            String text = JSON.toJSONString(tech, SerializerFeature.PrettyFormat);
 
-        System.out.println(text);
+            System.out.println(text);
+            
+            Department dept = JSON.parseObject(text, Department.class);
+            
+            System.out.println(JSON.toJSONString(dept, SerializerFeature.PrettyFormat));
+        }
     }
 
     private static class Department {

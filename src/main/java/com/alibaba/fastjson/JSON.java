@@ -29,9 +29,13 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultExtJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
+import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
+import com.alibaba.fastjson.parser.deserializer.ReferenceResolver;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.JavaBeanSerializer;
 import com.alibaba.fastjson.serializer.SerializeConfig;
@@ -189,9 +193,28 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         DefaultExtJSONParser parser = new DefaultExtJSONParser(input, config, featureValues);
         T value = (T) parser.parseObject(clazz);
 
-        if (clazz != JSONArray.class) {
-            parser.close();
+        for (ResolveTask task : parser.getResolveTaskList()) {
+            FieldDeserializer fieldDeser = task.getFieldDeserializer();
+            Class<?> fieldClass = fieldDeser.getFieldClass();
+
+            for (Object ref : parser.getReferences()) {
+                Class<?> refClass = ref.getClass();
+                if (!fieldClass.isAssignableFrom(refClass)) {
+                    continue;
+                }
+
+                ObjectDeserializer deser = config.getDeserializer(refClass);
+                if (deser instanceof ReferenceResolver) {
+                    ReferenceResolver resolver = (ReferenceResolver) deser;
+                    if (resolver.resolve(value, task.getReferenceValue())) {
+                        fieldDeser.setValue(task.getObject(), ref);
+                        break;
+                    }
+                }
+            }
         }
+
+        parser.close();
 
         return (T) value;
     }

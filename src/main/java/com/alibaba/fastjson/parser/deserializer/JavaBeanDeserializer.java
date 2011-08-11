@@ -12,14 +12,17 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultExtJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.serializer.JavaBeanSerializer;
 import com.alibaba.fastjson.util.FieldInfo;
 
-public class JavaBeanDeserializer implements ObjectDeserializer {
+public class JavaBeanDeserializer implements ObjectDeserializer, ReferenceResolver {
 
     private final Map<String, FieldDeserializer> setters            = new IdentityHashMap<String, FieldDeserializer>();
 
@@ -29,9 +32,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
     private Constructor<?>                       constructor;
 
-    public Map<String, FieldDeserializer> getFieldDeserializerMap() {
-        return setters;
-    }
+    private FieldInfo                            keyField;
 
     public JavaBeanDeserializer(ParserConfig mapping, Class<?> clazz){
         this.clazz = clazz;
@@ -52,6 +53,37 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         for (FieldInfo fieldInfo : fieldInfoList) {
             addFieldDeserializer(mapping, clazz, fieldInfo);
         }
+
+        String key = "";
+        JSONType annotation = clazz.getAnnotation(JSONType.class);
+        if (annotation != null) {
+            key = annotation.key();
+        }
+
+        List<FieldInfo> getters = JavaBeanSerializer.computeGetters(clazz, null);
+        if (key.length() == 0) {
+            for (FieldInfo field : getters) {
+                if ("id".equals(field.getName())) {
+                    keyField = field;
+                    key = "id";
+                    break;
+                }
+            }
+        } else {
+            for (FieldInfo field : getters) {
+                if (key.equals(field.getName())) {
+                    keyField = field;
+                    break;
+                }
+            }
+        }
+        if (keyField != null) {
+            keyField.getMethod().setAccessible(true);
+        }
+    }
+
+    public Map<String, FieldDeserializer> getFieldDeserializerMap() {
+        return setters;
     }
 
     public static void computeSetters(Class<?> clazz, List<FieldInfo> fieldInfoList) {
@@ -141,6 +173,26 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         return object;
     }
 
+    public boolean resolve(Object object, Object reference) {
+        if (keyField == null) {
+            return false;
+        }
+
+        Object key;
+        try {
+            Method getter = keyField.getMethod();
+            key = getter.invoke(object);
+        } catch (Exception e) {
+            return false;
+        }
+        
+        if (key.equals(reference)) {
+            return true;
+        }
+
+        return false;
+    }
+
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultExtJSONParser parser, Type type) {
         JSONScanner lexer = (JSONScanner) parser.getLexer(); // xxx
@@ -150,54 +202,93 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             return null;
         }
 
-        Object object = createInstance(parser, type);
+        Object parent = parser.getParent();
 
-        if (lexer.token() != JSONToken.LBRACE) {
-            throw new JSONException("syntax error, expect {, actual " + JSONToken.name(lexer.token()));
-        }
+        try {
+            Object object = null;
 
-        for (;;) {
-
-            String key = lexer.scanSymbol(parser.getSymbolTable());
-
-            if (key == null) {
-                if (lexer.token() == JSONToken.RBRACE) {
-                    lexer.nextToken(JSONToken.COMMA);
-                    break;
-                }
-                if (lexer.token() == JSONToken.COMMA) {
-                    if (parser.isEnabled(Feature.AllowArbitraryCommas)) {
-                        continue;
-                    }
-                }
+            if (lexer.token() != JSONToken.LBRACE) {
+                throw new JSONException("syntax error, expect {, actual " + JSONToken.name(lexer.token()));
             }
 
-            boolean match = parseField(parser, key, object);
-            if (!match) {
-                if (lexer.token() == JSONToken.RBRACE) {
-                    lexer.nextToken();
+            for (;;) {
+
+                String key = lexer.scanSymbol(parser.getSymbolTable());
+
+                if (key == null) {
+                    if (lexer.token() == JSONToken.RBRACE) {
+                        lexer.nextToken(JSONToken.COMMA);
+                        break;
+                    }
+                    if (lexer.token() == JSONToken.COMMA) {
+                        if (parser.isEnabled(Feature.AllowArbitraryCommas)) {
+                            continue;
+                        }
+                    }
+                }
+
+                if ("$ref" == key) {
+                    lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
+                    if (lexer.token() == JSONToken.LITERAL_STRING) {
+                        String ref = lexer.stringVal();
+                        if ("#".equals(ref)) {
+                            object = parent;
+                        } else {
+                            parser.getResolveTaskList().add(new ResolveTask(parent, ref));
+                            parser.setReferenceResolveStat(DefaultExtJSONParser.NeedToResolve);
+                        }
+                    } else if (lexer.token() == JSONToken.LITERAL_INT) {
+                        parser.getResolveTaskList().add(new ResolveTask(parent, lexer.integerValue()));
+                        parser.setReferenceResolveStat(DefaultExtJSONParser.NeedToResolve);
+                    } else {
+                        throw new JSONException("illegal ref, " + JSONToken.name(lexer.token()));
+                    }
+
+                    lexer.nextToken(JSONToken.RBRACE);
+                    if (lexer.token() != JSONToken.RBRACE) {
+                        throw new JSONException("illegal ref");
+                    }
+                    lexer.nextToken(JSONToken.COMMA);
+
                     return (T) object;
                 }
 
-                continue;
+                if (object == null) {
+                    object = createInstance(parser, type);
+                    if (keyField != null) {
+                        parser.addReference(object);
+                    }
+                    parser.setParent(object);
+                }
+
+                boolean match = parseField(parser, key, object);
+                if (!match) {
+                    if (lexer.token() == JSONToken.RBRACE) {
+                        lexer.nextToken();
+                        return (T) object;
+                    }
+
+                    continue;
+                }
+
+                if (lexer.token() == JSONToken.COMMA) {
+                    continue;
+                }
+
+                if (lexer.token() == JSONToken.RBRACE) {
+                    lexer.nextToken(JSONToken.COMMA);
+                    return (T) object;
+                }
+
+                if (lexer.token() == JSONToken.IDENTIFIER || lexer.token() == JSONToken.ERROR) {
+                    throw new JSONException("syntax error, unexpect token " + JSONToken.name(lexer.token()));
+                }
             }
 
-            if (lexer.token() == JSONToken.COMMA) {
-                continue;
-            }
-
-            if (lexer.token() == JSONToken.RBRACE) {
-                lexer.nextToken(JSONToken.COMMA);
-                return (T) object;
-            }
-
-            if (lexer.token() == JSONToken.IDENTIFIER || lexer.token() == JSONToken.ERROR) {
-                throw new JSONException("syntax error, unexpect token " + JSONToken.name(lexer.token()));
-            }
-
+            return (T) object;
+        } finally {
+            parser.setParent(parent);
         }
-
-        return (T) object;
     }
 
     public boolean parseField(DefaultExtJSONParser parser, String key, Object object) {

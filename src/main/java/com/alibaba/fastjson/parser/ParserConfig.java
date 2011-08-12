@@ -332,13 +332,11 @@ public class ParserConfig {
     public FieldDeserializer createFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
         boolean asmEnable = this.asmEnable;
 
-        Method method = fieldInfo.getMethod();
-
         if (!Modifier.isPublic(clazz.getModifiers())) {
             asmEnable = false;
         }
 
-        if (method.getParameterTypes()[0] == Class.class) {
+        if (fieldInfo.getFieldClass() == Class.class) {
             asmEnable = false;
         }
 
@@ -358,7 +356,7 @@ public class ParserConfig {
 
     public FieldDeserializer createFieldDeserializerWithoutASM(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
         Method method = fieldInfo.getMethod();
-        Class<?> fieldClass = method.getParameterTypes()[0];
+        Class<?> fieldClass = fieldInfo.getFieldClass();
 
         if (fieldClass == boolean.class || fieldClass == Boolean.class) {
             return new BooleanFieldDeserializer(mapping, clazz, fieldInfo);

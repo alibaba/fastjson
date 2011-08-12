@@ -5,6 +5,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 public class FieldInfo implements Comparable<FieldInfo> {
 
     private final String   name;
@@ -13,6 +15,16 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
     private final Class<?> fieldClass;
     private final Type     fieldType;
+    private final Class<?> declaringClass;
+
+    public FieldInfo(JSONField field, Class<?> declaringClass, Class<?> fieldClass, Type fieldType){
+        this.name = field.name();
+        this.declaringClass = declaringClass;
+        this.fieldClass = fieldClass;
+        this.fieldType = fieldType;
+        this.method = null;
+        this.field = null;
+    }
 
     public FieldInfo(String name, Method method, Field field){
         this.name = name;
@@ -26,6 +38,12 @@ public class FieldInfo implements Comparable<FieldInfo> {
             this.fieldClass = method.getReturnType();
             this.fieldType = method.getGenericReturnType();
         }
+
+        this.declaringClass = method.getDeclaringClass();
+    }
+
+    public Class<?> getDeclaringClass() {
+        return declaringClass;
     }
 
     public Class<?> getFieldClass() {

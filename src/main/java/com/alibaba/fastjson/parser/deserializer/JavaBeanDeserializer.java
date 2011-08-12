@@ -14,7 +14,6 @@ import java.util.Map;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
-import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.DefaultExtJSONParser;
 import com.alibaba.fastjson.parser.DefaultExtJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.Feature;
@@ -22,10 +21,9 @@ import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParseContext;
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.serializer.JavaBeanSerializer;
 import com.alibaba.fastjson.util.FieldInfo;
 
-public class JavaBeanDeserializer implements ObjectDeserializer, ReferenceResolver {
+public class JavaBeanDeserializer implements ObjectDeserializer {
 
     private final Map<String, FieldDeserializer> setters            = new IdentityHashMap<String, FieldDeserializer>();
 
@@ -34,8 +32,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer, ReferenceResolv
     private final Class<?>                       clazz;
 
     private Constructor<?>                       constructor;
-
-    private FieldInfo                            keyField;
 
     public JavaBeanDeserializer(ParserConfig mapping, Class<?> clazz){
         this.clazz = clazz;
@@ -55,33 +51,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer, ReferenceResolv
 
         for (FieldInfo fieldInfo : fieldInfoList) {
             addFieldDeserializer(mapping, clazz, fieldInfo);
-        }
-
-        String key = "";
-        JSONType annotation = clazz.getAnnotation(JSONType.class);
-        if (annotation != null) {
-            key = annotation.key();
-        }
-
-        List<FieldInfo> getters = JavaBeanSerializer.computeGetters(clazz, null);
-        if (key.length() == 0) {
-            for (FieldInfo field : getters) {
-                if ("id".equals(field.getName())) {
-                    keyField = field;
-                    key = "id";
-                    break;
-                }
-            }
-        } else {
-            for (FieldInfo field : getters) {
-                if (key.equals(field.getName())) {
-                    keyField = field;
-                    break;
-                }
-            }
-        }
-        if (keyField != null) {
-            keyField.getMethod().setAccessible(true);
         }
     }
 
@@ -187,26 +156,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer, ReferenceResolv
         }
 
         return object;
-    }
-
-    public boolean resolve(Object object, Object reference) {
-        if (keyField == null) {
-            return false;
-        }
-
-        Object key;
-        try {
-            Method getter = keyField.getMethod();
-            key = getter.invoke(object);
-        } catch (Exception e) {
-            return false;
-        }
-
-        if (key.equals(reference)) {
-            return true;
-        }
-
-        return false;
     }
 
     @SuppressWarnings("unchecked")

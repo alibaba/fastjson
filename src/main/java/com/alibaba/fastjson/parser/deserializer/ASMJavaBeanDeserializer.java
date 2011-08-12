@@ -1,10 +1,8 @@
 package com.alibaba.fastjson.parser.deserializer;
 
-import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.DefaultExtJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONScanner;

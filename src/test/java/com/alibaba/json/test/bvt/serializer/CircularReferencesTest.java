@@ -14,13 +14,9 @@ public class CircularReferencesTest extends TestCase {
         B b = new B(a);
         a.setB(b);
 
-        JSONException error = null;
-        try {
-            JSON.toJSONString(a);
-        } catch (JSONException e) {
-            error = e;
-        }
-        Assert.assertNotNull(error);
+        String text = JSON.toJSONString(a);
+        A a1 = JSON.parseObject(text, A.class);
+        Assert.assertTrue(a1 == a1.getB().getA());
     }
 
     public void test_1() throws Exception {
@@ -28,13 +24,9 @@ public class CircularReferencesTest extends TestCase {
         B b = new B(a);
         a.setB(b);
 
-        JSONException error = null;
-        try {
-            JSON.toJSONString(a, SerializerFeature.UseISO8601DateFormat);
-        } catch (JSONException e) {
-            error = e;
-        }
-        Assert.assertNotNull(error);
+        String text = JSON.toJSONString(a, SerializerFeature.UseISO8601DateFormat);
+        A a1 = JSON.parseObject(text, A.class);
+        Assert.assertTrue(a1 == a1.getB().getA());
     }
 
     public void test_2() throws Exception {
@@ -42,13 +34,9 @@ public class CircularReferencesTest extends TestCase {
         B b = new B(a);
         a.setB(b);
 
-        JSONException error = null;
-        try {
-            JSON.toJSONString(a, true);
-        } catch (JSONException e) {
-            error = e;
-        }
-        Assert.assertNotNull(error);
+        String text = JSON.toJSONString(a, true);
+        A a1 = JSON.parseObject(text, A.class);
+        Assert.assertTrue(a1 == a1.getB().getA());
     }
 
     public static class A {
@@ -76,6 +64,10 @@ public class CircularReferencesTest extends TestCase {
 
         private A a;
 
+        public B(){
+
+        }
+
         public B(A a){
             this.a = a;
         }
@@ -83,6 +75,9 @@ public class CircularReferencesTest extends TestCase {
         public A getA() {
             return a;
         }
-
+        
+        public void setA(A a) {
+            this.a = a;
+        }
     }
 }

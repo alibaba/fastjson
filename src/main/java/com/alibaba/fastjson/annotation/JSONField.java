@@ -27,7 +27,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
  * @author wenshao<szujobs@hotmail.com>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.METHOD, ElementType.FIELD })
+@Target({ ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER })
 public @interface JSONField {
 
     String name() default "";

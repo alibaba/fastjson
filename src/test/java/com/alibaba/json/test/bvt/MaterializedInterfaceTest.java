@@ -16,7 +16,6 @@ public class MaterializedInterfaceTest extends TestCase {
     }
 
     public static interface Bean {
-
         int getId();
 
         void setId(int value);

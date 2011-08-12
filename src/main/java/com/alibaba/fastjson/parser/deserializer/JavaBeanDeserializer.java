@@ -1,5 +1,6 @@
 package com.alibaba.fastjson.parser.deserializer;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -13,6 +14,7 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.annotation.JSONCreator;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.parser.DefaultExtJSONParser;
 import com.alibaba.fastjson.parser.DefaultExtJSONParser.ResolveTask;
@@ -37,11 +39,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         this.clazz = clazz;
 
         if (!Modifier.isAbstract(clazz.getModifiers())) {
-            try {
-                constructor = clazz.getDeclaredConstructor();
+            constructor = JavaBeanDeserializer.getDefaultConstructor(clazz);
+            if (constructor == null) {
+                constructor = JavaBeanDeserializer.getCreatorConstructor(clazz);    
+            }
+            if (constructor != null) {
                 constructor.setAccessible(true);
-            } catch (NoSuchMethodException e) {
-                throw new JSONException("class not has default constructor : " + clazz.getName());
             }
         }
 
@@ -63,6 +66,33 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     }
 
     public static void computeSetters(Class<?> clazz, List<FieldInfo> fieldInfoList) {
+        Constructor<?> defaultConstructor = getDefaultConstructor(clazz);
+
+        if (defaultConstructor == null) {
+            Constructor<?> creatorConstructor = getCreatorConstructor(clazz);
+
+            if (creatorConstructor != null) {
+                for (int i = 0; i < creatorConstructor.getParameterTypes().length; ++i) {
+                    Annotation[] paramAnnotations = creatorConstructor.getParameterAnnotations()[i];
+                    JSONField fieldAnnotation = null;
+                    for (Annotation paramAnnotation : paramAnnotations) {
+                        if (paramAnnotation instanceof JSONField) {
+                            fieldAnnotation = (JSONField) paramAnnotation;
+                            break;
+                        }
+                    }
+                    if (fieldAnnotation == null) {
+                        throw new JSONException("illegal json creator");
+                    }
+
+                    Class<?> fieldClass = creatorConstructor.getParameterTypes()[i];
+                    Type fieldType = creatorConstructor.getGenericParameterTypes()[i];
+                    fieldInfoList.add(new FieldInfo(fieldAnnotation, clazz, fieldClass, fieldType));
+                }
+                return;
+            }
+        }
+
         for (Method method : clazz.getMethods()) {
             String methodName = method.getName();
             if (methodName.length() < 4) {
@@ -116,6 +146,34 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 method.setAccessible(true);
             }
         }
+    }
+
+    public static Constructor<?> getDefaultConstructor(Class<?> clazz) {
+        Constructor<?> defaultConstructor = null;
+        for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
+            if (constructor.getParameterTypes().length == 0) {
+                defaultConstructor = constructor;
+                break;
+            }
+        }
+        return defaultConstructor;
+    }
+
+    public static Constructor<?> getCreatorConstructor(Class<?> clazz) {
+        Constructor<?> creatorConstructor = null;
+
+        for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
+            JSONCreator annotation = constructor.getAnnotation(JSONCreator.class);
+            if (annotation != null) {
+                if (creatorConstructor != null) {
+                    throw new JSONException("multi-json creator");
+                }
+
+                creatorConstructor = constructor;
+                break;
+            }
+        }
+        return creatorConstructor;
     }
 
     private void addFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {

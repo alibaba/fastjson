@@ -1,5 +1,6 @@
 package com.alibaba.fastjson.util;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 public class ASMUtils {
@@ -21,6 +22,17 @@ public class ASMUtils {
         }
         buf.append(")");
         buf.append(getDesc(method.getReturnType()));
+        return buf.toString();
+    }
+    
+    public static String getDesc(Constructor<?> constructor) {
+        StringBuffer buf = new StringBuffer();
+        buf.append("(");
+        java.lang.Class<?>[] types = constructor.getParameterTypes();
+        for (int i = 0; i < types.length; ++i) {
+            buf.append(getDesc(types[i]));
+        }
+        buf.append(")V");
         return buf.toString();
     }
 

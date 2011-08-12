@@ -30,6 +30,8 @@ import static com.alibaba.fastjson.util.TypeUtils.castToSqlDate;
 import static com.alibaba.fastjson.util.TypeUtils.castToTimestamp;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
@@ -39,12 +41,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.util.TypeUtils;
 
 /**
  * @author wenshao<szujobs@hotmail.com>
  */
-public class JSONObject extends JSON implements Map<String, Object>, JSONAware, Cloneable, Serializable {
+public class JSONObject extends JSON implements Map<String, Object>, JSONAware, Cloneable, Serializable, InvocationHandler {
 
     private static final long         serialVersionUID         = 1L;
     private static final int          DEFAULT_INITIAL_CAPACITY = 16;
@@ -129,7 +132,7 @@ public class JSONObject extends JSON implements Map<String, Object>, JSONAware, 
 
         return castToBoolean(value);
     }
-    
+
     public byte[] getBytes(String key) {
         Object value = get(key);
 
@@ -318,12 +321,84 @@ public class JSONObject extends JSON implements Map<String, Object>, JSONAware, 
     public Object clone() {
         return new JSONObject(new HashMap<String, Object>(map));
     }
-    
+
     public boolean equals(Object obj) {
         return this.map.equals(obj);
     }
-    
+
     public int hashCode() {
         return this.map.hashCode();
+    }
+
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        if (parameterTypes.length == 1) {
+            Class<?> returnType = method.getReturnType();
+            if (returnType != void.class) {
+                throw new JSONException("illegal setter");
+            }
+
+            String name = null;
+            JSONField annotation = method.getAnnotation(JSONField.class);
+            if (annotation != null) {
+                if (annotation.name().length() != 0) {
+                    name = annotation.name();
+                }
+            }
+
+            if (name == null) {
+                name = method.getName();
+                if (!name.startsWith("set")) {
+                    throw new JSONException("illegal setter");
+                }
+
+                name = name.substring(3);
+                if (name.length() == 0) {
+                    throw new JSONException("illegal setter");
+                }
+                name = Character.toLowerCase(name.charAt(0)) + name.substring(1);
+            }
+
+            map.put(name, args[0]);
+            return null;
+        }
+
+        if (parameterTypes.length == 0) {
+            Class<?> returnType = method.getReturnType();
+            if (returnType == Void.class) {
+                throw new JSONException("illegal getter");
+            }
+
+            String name = null;
+            JSONField annotation = method.getAnnotation(JSONField.class);
+            if (annotation != null) {
+                if (annotation.name().length() != 0) {
+                    name = annotation.name();
+                }
+            }
+
+            if (name == null) {
+                name = method.getName();
+                if (name.startsWith("get")) {
+                    name = name.substring(3);
+                    if (name.length() == 0) {
+                        throw new JSONException("illegal getter");
+                    }
+                    name = Character.toLowerCase(name.charAt(0)) + name.substring(1);
+                } else if (name.startsWith("is")) {
+                    name = name.substring(2);
+                    if (name.length() == 0) {
+                        throw new JSONException("illegal getter");
+                    }
+                    name = Character.toLowerCase(name.charAt(0)) + name.substring(1);
+                } else {
+                    throw new JSONException("illegal getter");
+                }
+            }
+            
+            return map.get(name);
+        }
+
+        return null;
     }
 }

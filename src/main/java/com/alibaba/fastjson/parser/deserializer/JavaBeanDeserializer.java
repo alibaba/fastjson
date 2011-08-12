@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.DefaultExtJSONParser;
@@ -85,6 +87,10 @@ public class JavaBeanDeserializer implements ObjectDeserializer, ReferenceResolv
 
     public Map<String, FieldDeserializer> getFieldDeserializerMap() {
         return setters;
+    }
+
+    public Class<?> getClazz() {
+        return clazz;
     }
 
     public static void computeSetters(Class<?> clazz, List<FieldInfo> fieldInfoList) {
@@ -162,7 +168,16 @@ public class JavaBeanDeserializer implements ObjectDeserializer, ReferenceResolv
         }
     }
 
-    public Object createInstance(DefaultExtJSONParser parser, Type type) {
+    public Object createInstance(Type type) {
+        if (type instanceof Class) {
+            if (clazz.isInterface()) {
+                Class<?> clazz = (Class<?>) type;
+                ClassLoader loader = Thread.currentThread().getContextClassLoader();
+                final JSONObject obj = new JSONObject();
+                Object proxy = Proxy.newProxyInstance(loader, new Class<?>[] { clazz }, obj);
+                return proxy;
+            }
+        }
 
         Object object;
         try {
@@ -263,7 +278,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer, ReferenceResolv
                 }
 
                 if (object == null) {
-                    object = createInstance(parser, type);
+                    object = createInstance(type);
                     parser.addReference(object);
                     parser.setContext(context, object);
                 }
@@ -291,9 +306,9 @@ public class JavaBeanDeserializer implements ObjectDeserializer, ReferenceResolv
                     throw new JSONException("syntax error, unexpect token " + JSONToken.name(lexer.token()));
                 }
             }
-            
+
             if (object == null) {
-                object = createInstance(parser, type);
+                object = createInstance(type);
             }
 
             return (T) object;

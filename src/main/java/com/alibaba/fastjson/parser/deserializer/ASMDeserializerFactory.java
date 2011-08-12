@@ -148,11 +148,19 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "token", "()I");
         mw.visitVarInsn(ISTORE, context.var("mark_token"));
 
-        mw.visitTypeInsn(NEW, getType(context.getClazz()));
-        mw.visitInsn(DUP);
-        mw.visitMethodInsn(INVOKESPECIAL, getType(context.getClazz()), "<init>", "()V");
-        mw.visitVarInsn(ASTORE, context.var("instance"));
-
+        // create instance
+        if (context.getClazz().isInterface()) {
+            mw.visitVarInsn(ALOAD, 0);
+            mw.visitMethodInsn(INVOKESPECIAL, getType(ASMJavaBeanDeserializer.class), "createInstance", "()Ljava/lang/Object;");
+            mw.visitTypeInsn(CHECKCAST, getType(context.getClazz())); // cast
+            mw.visitVarInsn(ASTORE, context.var("instance"));
+        } else {
+            mw.visitTypeInsn(NEW, getType(context.getClazz()));
+            mw.visitInsn(DUP);
+            mw.visitMethodInsn(INVOKESPECIAL, getType(context.getClazz()), "<init>", "()V");
+            mw.visitVarInsn(ASTORE, context.var("instance"));
+        }
+        
         {
             mw.visitVarInsn(ALOAD, 1); // parser
             mw.visitMethodInsn(INVOKEVIRTUAL, getType(DefaultExtJSONParser.class), "getContext",
@@ -306,7 +314,14 @@ public class ASMDeserializerFactory implements Opcodes {
             } else {
                 mw.visitVarInsn(ALOAD, context.var(fieldInfo.getName() + "_asm"));
             }
-            mw.visitMethodInsn(INVOKEVIRTUAL, getType(fieldInfo.getMethod().getDeclaringClass()),
+            
+            int INVAKE_TYPE;
+            if (context.getClazz().isInterface()) {
+                INVAKE_TYPE = INVOKEINTERFACE;
+            } else {
+                INVAKE_TYPE = INVOKEVIRTUAL;
+            }
+            mw.visitMethodInsn(INVAKE_TYPE, getType(fieldInfo.getMethod().getDeclaringClass()),
                                fieldInfo.getMethod().getName(), getDesc(fieldInfo.getMethod()));
         }
         
@@ -537,6 +552,13 @@ public class ASMDeserializerFactory implements Opcodes {
         } else {
             superClass = StringFieldDeserializer.class;
         }
+        
+        int INVAKE_TYPE;
+        if (clazz.isInterface()) {
+            INVAKE_TYPE = INVOKEINTERFACE;
+        } else {
+            INVAKE_TYPE = INVOKEVIRTUAL;
+        }
 
         cw.visit(V1_5, ACC_PUBLIC + ACC_SUPER, className, getType(superClass), null);
 
@@ -562,7 +584,7 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitVarInsn(ALOAD, 1);
             mw.visitTypeInsn(CHECKCAST, getType(method.getDeclaringClass())); // cast
             mw.visitVarInsn(ILOAD, 2);
-            mw.visitMethodInsn(INVOKEVIRTUAL, getType(method.getDeclaringClass()), method.getName(), "(I)V");
+            mw.visitMethodInsn(INVAKE_TYPE, getType(method.getDeclaringClass()), method.getName(), "(I)V");
 
             mw.visitInsn(RETURN);
             mw.visitMaxs(3, 3);
@@ -572,7 +594,7 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitVarInsn(ALOAD, 1);
             mw.visitTypeInsn(CHECKCAST, getType(method.getDeclaringClass())); // cast
             mw.visitVarInsn(LLOAD, 2);
-            mw.visitMethodInsn(INVOKEVIRTUAL, getType(method.getDeclaringClass()), method.getName(), "(J)V");
+            mw.visitMethodInsn(INVAKE_TYPE, getType(method.getDeclaringClass()), method.getName(), "(J)V");
 
             mw.visitInsn(RETURN);
             mw.visitMaxs(3, 4);
@@ -585,7 +607,7 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitTypeInsn(CHECKCAST, getType(method.getDeclaringClass())); // cast
             mw.visitVarInsn(ALOAD, 2);
             mw.visitTypeInsn(CHECKCAST, getType(fieldClass)); // cast
-            mw.visitMethodInsn(INVOKEVIRTUAL, getType(method.getDeclaringClass()), method.getName(),
+            mw.visitMethodInsn(INVAKE_TYPE, getType(method.getDeclaringClass()), method.getName(),
                                "(" + getDesc(fieldClass) + ")V");
 
             mw.visitInsn(RETURN);

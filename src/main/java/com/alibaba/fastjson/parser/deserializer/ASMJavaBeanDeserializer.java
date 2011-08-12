@@ -1,8 +1,10 @@
 package com.alibaba.fastjson.parser.deserializer;
 
+import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.DefaultExtJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONScanner;
@@ -32,6 +34,10 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
 
     public int getFastMatchToken() {
         return serializer.getFastMatchToken();
+    }
+
+    public Object createInstance() {
+        return serializer.createInstance(serializer.getClazz());
     }
 
     public FieldDeserializer createFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {

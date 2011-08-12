@@ -13,26 +13,18 @@ public class JSONTest_overflow extends TestCase {
         Entity entity = new Entity();
         entity.setSelf(entity);
 
-        JSONException error = null;
-        try {
-            JSON.toJSONString(entity, SerializeConfig.getGlobalInstance());
-        } catch (JSONException ex) {
-            error = ex;
-        }
-        Assert.assertNotNull(error);
+        String text = JSON.toJSONString(entity, SerializeConfig.getGlobalInstance());
+        Entity entity2 = JSON.parseObject(text, Entity.class);
+        Assert.assertTrue(entity2 == entity2.getSelf());
     }
     
     public void test_overflow_1() throws Exception {
         Entity entity = new Entity();
         entity.setSelf(entity);
 
-        JSONException error = null;
-        try {
-            JSON.toJSONStringZ(entity, SerializeConfig.getGlobalInstance());
-        } catch (JSONException ex) {
-            error = ex;
-        }
-        Assert.assertNotNull(error);
+        String text = JSON.toJSONStringZ(entity, SerializeConfig.getGlobalInstance());
+        Entity entity2 = JSON.parseObject(text, Entity.class);
+        Assert.assertTrue(entity2 == entity2.getSelf());
     }
 
     public static class Entity {

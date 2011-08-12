@@ -186,7 +186,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer, ReferenceResolv
         } catch (Exception e) {
             return false;
         }
-        
+
         if (key.equals(reference)) {
             return true;
         }
@@ -241,7 +241,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer, ReferenceResolv
                             while (root.getParentContext() != null) {
                                 root = root.getParentContext();
                             }
-                            object =root.getObject();
+                            object = root.getObject();
                         } else {
                             parser.getResolveTaskList().add(new ResolveTask(context, ref));
                             parser.setReferenceResolveStat(DefaultExtJSONParser.NeedToResolve);
@@ -264,9 +264,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer, ReferenceResolv
 
                 if (object == null) {
                     object = createInstance(parser, type);
-                    if (keyField != null) {
-                        parser.addReference(object);
-                    }
+                    parser.addReference(object);
                     parser.setContext(context, object);
                 }
 
@@ -292,6 +290,10 @@ public class JavaBeanDeserializer implements ObjectDeserializer, ReferenceResolv
                 if (lexer.token() == JSONToken.IDENTIFIER || lexer.token() == JSONToken.ERROR) {
                     throw new JSONException("syntax error, unexpect token " + JSONToken.name(lexer.token()));
                 }
+            }
+            
+            if (object == null) {
+                object = createInstance(parser, type);
             }
 
             return (T) object;

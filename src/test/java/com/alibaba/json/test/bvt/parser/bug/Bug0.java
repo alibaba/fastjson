@@ -5,6 +5,7 @@ import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 
 public class Bug0 extends TestCase {
@@ -16,10 +17,14 @@ public class Bug0 extends TestCase {
         Assert.assertEquals(2, json.getIntValue("b"));
     }
 
-    public void test_array() throws Exception {
+    public void test_array_exception() throws Exception {
         String text = "[1, 2]}";
-        JSONArray json = JSON.parseObject(text, JSONArray.class);
-        Assert.assertEquals(1, json.getIntValue(0));
-        Assert.assertEquals(2, json.getIntValue(1));
+        Exception error = null;
+        try {
+            JSON.parseObject(text, JSONArray.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
     }
 }

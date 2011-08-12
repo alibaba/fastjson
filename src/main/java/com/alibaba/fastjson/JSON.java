@@ -320,8 +320,6 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             serializer.write(object);
 
             return out.toString();
-        } catch (StackOverflowError e) {
-            throw new JSONException("maybe circular references", e);
         } finally {
             out.close();
         }
@@ -339,8 +337,6 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             serializer.write(object);
 
             return out.toString();
-        } catch (StackOverflowError e) {
-            throw new JSONException("maybe circular references", e);
         } finally {
             out.close();
         }
@@ -355,8 +351,6 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             serializer.write(object);
 
             return out.toString();
-        } catch (StackOverflowError e) {
-            throw new JSONException("maybe circular references", e);
         } finally {
             out.close();
         }

@@ -34,8 +34,6 @@ import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
-import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
-import com.alibaba.fastjson.parser.deserializer.ReferenceResolver;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.JavaBeanSerializer;
 import com.alibaba.fastjson.serializer.SerializeConfig;
@@ -203,14 +201,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                     continue;
                 }
 
-                ObjectDeserializer deser = config.getDeserializer(refClass);
-                if (deser instanceof ReferenceResolver) {
-                    ReferenceResolver resolver = (ReferenceResolver) deser;
-                    if (resolver.resolve(value, task.getReferenceValue())) {
-                        fieldDeser.setValue(task.getObject(), ref);
-                        break;
-                    }
-                }
+                throw new JSONException("TODO");
             }
         }
 

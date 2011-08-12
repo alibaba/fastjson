@@ -14,8 +14,6 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 @Target({ ElementType.TYPE })
 public @interface JSONType {
 
-    String key() default "id";
-
     String[] orders() default {};
 
     SerializerFeature[] serialzeFeatures() default {};

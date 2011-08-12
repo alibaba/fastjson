@@ -27,7 +27,6 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONField;
-import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.FieldInfo;
 
@@ -39,7 +38,6 @@ public class JavaBeanSerializer implements ObjectSerializer {
     // serializers
     private final FieldSerializer[] getters;
     private boolean                 managedReference = true;
-    private FieldSerializer         keyField;
 
     public FieldSerializer[] getGetters() {
         return getters;
@@ -47,29 +45,6 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
     public JavaBeanSerializer(Class<?> clazz){
         this(clazz, (Map<String, String>) null);
-
-        String key = "";
-        JSONType annotation = clazz.getAnnotation(JSONType.class);
-        if (annotation != null) {
-            key = annotation.key();
-        }
-
-        if (key.length() == 0) {
-            for (FieldSerializer field : getters) {
-                if ("id".equals(field.getName())) {
-                    keyField = field;
-                    key = "id";
-                    break;
-                }
-            }
-        } else {
-            for (FieldSerializer field : getters) {
-                if (key.equals(field.getName())) {
-                    keyField = field;
-                    break;
-                }
-            }
-        }
     }
 
     public JavaBeanSerializer(Class<?> clazz, String... aliasList){
@@ -241,14 +216,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
             return;
         }
 
-        out.write("{\"$ref\":");
-        try {
-            Object key = keyField.getPropertyValue(object);
-            serializer.write(key);
-        } catch (Exception e) {
-            throw new JSONException("get keyField error", e);
-        }
-        out.write("}");
+        throw new JSONException("circular reference error, " + object.getClass().getName());
     }
 
     public FieldSerializer createFieldSerializer(FieldInfo fieldInfo) {

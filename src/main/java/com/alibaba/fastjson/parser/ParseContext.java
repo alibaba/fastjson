@@ -2,7 +2,7 @@ package com.alibaba.fastjson.parser;
 
 public class ParseContext {
 
-    private final Object       object;
+    private Object             object;
     private final ParseContext parent;
 
     public ParseContext(ParseContext parent, Object object){
@@ -13,6 +13,10 @@ public class ParseContext {
 
     public Object getObject() {
         return object;
+    }
+
+    public void setObject(Object object) {
+        this.object = object;
     }
 
     public ParseContext getParentContext() {

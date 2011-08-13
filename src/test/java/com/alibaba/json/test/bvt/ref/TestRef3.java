@@ -8,7 +8,7 @@ import com.alibaba.fastjson.annotation.JSONCreator;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.parser.ParserConfig;
 
-public class TestRef2 extends TestCase {
+public class TestRef3 extends TestCase {
 
     public void test_0() throws Exception {
         Entity entity = new Entity(123, new Child());
@@ -17,9 +17,7 @@ public class TestRef2 extends TestCase {
         String text = JSON.toJSONString(entity);
         System.out.println(text);
 
-        ParserConfig config = new ParserConfig();
-        config.setAsmEnable(false);
-        Entity entity2 = JSON.parseObject(text, Entity.class, config, 0);
+        Entity entity2 = JSON.parseObject(text, Entity.class);
 
         Assert.assertEquals(entity2, entity2.getChild().getParent());
 
@@ -51,6 +49,10 @@ public class TestRef2 extends TestCase {
     public static class Child {
 
         private Entity parent;
+        
+        public Child() {
+            
+        }
 
         public Entity getParent() {
             return parent;

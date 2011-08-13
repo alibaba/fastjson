@@ -93,7 +93,12 @@ public class DeserializeBeanInfo {
 
                     Class<?> fieldClass = creatorConstructor.getParameterTypes()[i];
                     Type fieldType = creatorConstructor.getGenericParameterTypes()[i];
-                    beanInfo.getFieldList().add(new FieldInfo(fieldAnnotation, clazz, fieldClass, fieldType));
+                    Field field = getField(clazz, fieldAnnotation.name());
+                    if (field != null) {
+                        field.setAccessible(true);
+                    }
+                    FieldInfo fieldInfo = new FieldInfo(fieldAnnotation, clazz, fieldClass, fieldType, null, field);
+                    beanInfo.getFieldList().add(fieldInfo);
                 }
                 return beanInfo;
             }
@@ -118,7 +123,12 @@ public class DeserializeBeanInfo {
 
                     Class<?> fieldClass = factoryMethod.getParameterTypes()[i];
                     Type fieldType = factoryMethod.getGenericParameterTypes()[i];
-                    beanInfo.getFieldList().add(new FieldInfo(fieldAnnotation, clazz, fieldClass, fieldType));
+                    Field field = getField(clazz, fieldAnnotation.name());
+                    if (field != null) {
+                        field.setAccessible(true);
+                    }
+                    FieldInfo fieldInfo = new FieldInfo(fieldAnnotation, clazz, fieldClass, fieldType, null, field);
+                    beanInfo.getFieldList().add(fieldInfo);
                 }
                 return beanInfo;
             }

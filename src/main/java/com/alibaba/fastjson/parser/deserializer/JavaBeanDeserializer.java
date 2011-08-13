@@ -97,9 +97,10 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         }
 
         ParseContext context = parser.getContext();
-
+        ParseContext childContext = null;
+        Object object = null;
+        
         try {
-            Object object = null;
             Map<String, Object> fieldValues = null;
 
             if (lexer.token() != JSONToken.LBRACE) {
@@ -129,13 +130,25 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         if ("@".equals(ref)) {
                             object = context.getObject();
                         } else if ("..".equals(ref)) {
-                            object = context.getParentContext().getObject();
-                        } else if ("$".equals(ref)) {
-                            ParseContext root = context;
-                            while (root.getParentContext() != null) {
-                                root = root.getParentContext();
+                            ParseContext parentContext = context.getParentContext();
+                            if (parentContext.getObject() != null) {
+                                object = parentContext.getObject();
+                            } else {
+                                parser.getResolveTaskList().add(new ResolveTask(parentContext, ref));        
+                                parser.setReferenceResolveStat(DefaultExtJSONParser.NeedToResolve);
                             }
-                            object = root.getObject();
+                        } else if ("$".equals(ref)) {
+                            ParseContext rootContext = context;
+                            while (rootContext.getParentContext() != null) {
+                                rootContext = rootContext.getParentContext();
+                            }
+                            
+                            if (rootContext.getObject() != null) {
+                                object = rootContext.getObject();
+                            } else {
+                                parser.getResolveTaskList().add(new ResolveTask(rootContext, ref));
+                                parser.setReferenceResolveStat(DefaultExtJSONParser.NeedToResolve);
+                            }
                         } else {
                             parser.getResolveTaskList().add(new ResolveTask(context, ref));
                             parser.setReferenceResolveStat(DefaultExtJSONParser.NeedToResolve);
@@ -162,7 +175,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         fieldValues = new HashMap<String, Object>(this.fieldDeserializers.size());
                     }
                     parser.addReference(object);
-                    parser.setContext(context, object);
+                    childContext = parser.setContext(context, object);
                 }
 
                 boolean match = parseField(parser, key, object, fieldValues);
@@ -220,6 +233,9 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
             return (T) object;
         } finally {
+            if (childContext != null) {
+                childContext.setObject(object);
+            }
             parser.setContext(context);
         }
     }

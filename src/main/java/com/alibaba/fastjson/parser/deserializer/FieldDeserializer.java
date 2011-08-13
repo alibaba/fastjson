@@ -52,10 +52,19 @@ public abstract class FieldDeserializer {
     }
 
     public void setValue(Object object, Object value) {
-        try {
-            fieldInfo.getMethod().invoke(object, value);
-        } catch (Exception e) {
-            throw new JSONException("set property error, " + fieldInfo.getMethod().toString(), e);
+        Method method = fieldInfo.getMethod();
+        if (method != null) {
+            try {
+                method.invoke(object, value);
+            } catch (Exception e) {
+                throw new JSONException("set property error, " + fieldInfo.toString(), e);
+            }
+        } else if (fieldInfo.getField() != null) {
+            try {
+                fieldInfo.getField().set(object, value);
+            } catch (Exception e) {
+                throw new JSONException("set property error, " + fieldInfo.toString(), e);
+            }
         }
     }
 }

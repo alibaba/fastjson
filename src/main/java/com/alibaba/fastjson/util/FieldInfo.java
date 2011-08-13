@@ -17,13 +17,13 @@ public class FieldInfo implements Comparable<FieldInfo> {
     private final Type     fieldType;
     private final Class<?> declaringClass;
 
-    public FieldInfo(JSONField field, Class<?> declaringClass, Class<?> fieldClass, Type fieldType){
-        this.name = field.name();
+    public FieldInfo(JSONField annotation, Class<?> declaringClass, Class<?> fieldClass, Type fieldType, Method method, Field field){
+        this.name = annotation.name();
         this.declaringClass = declaringClass;
         this.fieldClass = fieldClass;
         this.fieldType = fieldType;
-        this.method = null;
-        this.field = null;
+        this.method = method;
+        this.field = field;
     }
 
     public FieldInfo(String name, Method method, Field field){

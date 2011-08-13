@@ -193,16 +193,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         for (ResolveTask task : parser.getResolveTaskList()) {
             FieldDeserializer fieldDeser = task.getFieldDeserializer();
-            Class<?> fieldClass = fieldDeser.getFieldClass();
-
-            for (Object ref : parser.getReferences()) {
-                Class<?> refClass = ref.getClass();
-                if (!fieldClass.isAssignableFrom(refClass)) {
-                    continue;
-                }
-
-                throw new JSONException("TODO");
-            }
+            fieldDeser.setValue(task.getOwnerContext().getObject(), value);
         }
 
         parser.close();

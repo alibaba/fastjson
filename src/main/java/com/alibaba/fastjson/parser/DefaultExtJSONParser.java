@@ -114,13 +114,18 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
     public List<ResolveTask> getResolveTaskList() {
         return resolveTaskList;
     }
+    
+    public ResolveTask getLastResolveTask() {
+        return resolveTaskList.get(resolveTaskList.size() - 1);
+    }
 
     public void setContext(ParseContext context) {
         this.context = context;
     }
-    
-    public void setContext(ParseContext parent, Object object) {
+
+    public ParseContext setContext(ParseContext parent, Object object) {
         this.context = new ParseContext(parent, object);
+        return this.context;
     }
 
     public ParserConfig getConfig() {
@@ -414,18 +419,19 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
 
     public static class ResolveTask {
 
-        private final Object      object;
-        private final Object      referenceValue;
-        private FieldDeserializer fieldDeserializer;
+        private final ParseContext context;
+        private final Object       referenceValue;
+        private FieldDeserializer  fieldDeserializer;
+        private ParseContext       ownerContext;
 
-        public ResolveTask(Object object, Object referenceValue){
+        public ResolveTask(ParseContext context, Object referenceValue){
             super();
-            this.object = object;
+            this.context = context;
             this.referenceValue = referenceValue;
         }
 
-        public Object getObject() {
-            return object;
+        public ParseContext getContext() {
+            return context;
         }
 
         public Object getReferenceValue() {
@@ -438,6 +444,14 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
 
         public void setFieldDeserializer(FieldDeserializer fieldDeserializer) {
             this.fieldDeserializer = fieldDeserializer;
+        }
+
+        public ParseContext getOwnerContext() {
+            return ownerContext;
+        }
+
+        public void setOwnerContext(ParseContext ownerContext) {
+            this.ownerContext = ownerContext;
         }
 
     }

@@ -31,6 +31,7 @@ import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.SymbolTable;
 import com.alibaba.fastjson.parser.deserializer.ASMJavaBeanDeserializer.InnerJavaBeanDeserializer;
 import com.alibaba.fastjson.util.ASMClassLoader;
+import com.alibaba.fastjson.util.DeserializeBeanInfo;
 import com.alibaba.fastjson.util.FieldInfo;
 
 public class ASMDeserializerFactory implements Opcodes {
@@ -70,8 +71,8 @@ public class ASMDeserializerFactory implements Opcodes {
         ClassWriter cw = new ClassWriter();
         cw.visit(V1_5, ACC_PUBLIC + ACC_SUPER, className, getType(ASMJavaBeanDeserializer.class), null);
 
-        List<FieldInfo> fieldInfoList = new ArrayList<FieldInfo>();
-        JavaBeanDeserializer.computeSetters(clazz, fieldInfoList);
+        DeserializeBeanInfo beanInfo = JavaBeanDeserializer.computeSetters(clazz);
+        List<FieldInfo> fieldInfoList = beanInfo.getFieldList();
 
         _init(cw, new Context(fieldInfoList, className, config, clazz, 3));
         _createInstance(cw, new Context(fieldInfoList, className, config, clazz, 3));

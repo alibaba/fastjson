@@ -24,6 +24,7 @@ import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParseContext;
 import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.util.DeserializeBeanInfo;
 import com.alibaba.fastjson.util.FieldInfo;
 
 public class JavaBeanDeserializer implements ObjectDeserializer {
@@ -33,35 +34,15 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     private final List<FieldDeserializer>        fieldDeserializers   = new ArrayList<FieldDeserializer>();
 
     private final Class<?>                       clazz;
-    private List<FieldInfo> fieldInfoList = new ArrayList<FieldInfo>();
-
-    private Constructor<?>                       defaultConstructor;
-    private Constructor<?>                       creatorConstructor;
-    private Method                               factoryMethod;
+    
+    private DeserializeBeanInfo beanInfo;
 
     public JavaBeanDeserializer(ParserConfig mapping, Class<?> clazz){
         this.clazz = clazz;
 
-        if (!Modifier.isAbstract(clazz.getModifiers())) {
-            defaultConstructor = JavaBeanDeserializer.getDefaultConstructor(clazz);
-            if (defaultConstructor == null) {
-                creatorConstructor = JavaBeanDeserializer.getCreatorConstructor(clazz);
-                if (creatorConstructor != null) {
-                    creatorConstructor.setAccessible(true);
-                } else {
-                    factoryMethod = JavaBeanDeserializer.getFactoryMethod(clazz);
-                    if (factoryMethod != null) {
-                        factoryMethod.setAccessible(true);
-                    }
-                }
-            } else {
-                defaultConstructor.setAccessible(true);
-            }
-        }
-
-        computeSetters(clazz, fieldInfoList);
-
-        for (FieldInfo fieldInfo : fieldInfoList) {
+        beanInfo = computeSetters(clazz);
+        
+        for (FieldInfo fieldInfo : beanInfo.getFieldList()) {
             addFieldDeserializer(mapping, clazz, fieldInfo);
         }
     }
@@ -74,13 +55,19 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         return clazz;
     }
 
-    public static void computeSetters(Class<?> clazz, List<FieldInfo> fieldInfoList) {
+    public static DeserializeBeanInfo computeSetters(Class<?> clazz) {
+        DeserializeBeanInfo beanInfo = new DeserializeBeanInfo(clazz);
+
         Constructor<?> defaultConstructor = getDefaultConstructor(clazz);
-
-        if (defaultConstructor == null && !(clazz.isInterface())) {
+        if (defaultConstructor != null) {
+            defaultConstructor.setAccessible(true);
+            beanInfo.setDefaultConstructor(defaultConstructor);
+        } else if (defaultConstructor == null && !(clazz.isInterface())) {
             Constructor<?> creatorConstructor = getCreatorConstructor(clazz);
-
             if (creatorConstructor != null) {
+                creatorConstructor.setAccessible(true);
+                beanInfo.setCreatorConstructor(creatorConstructor);
+                
                 for (int i = 0; i < creatorConstructor.getParameterTypes().length; ++i) {
                     Annotation[] paramAnnotations = creatorConstructor.getParameterAnnotations()[i];
                     JSONField fieldAnnotation = null;
@@ -96,13 +83,16 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
                     Class<?> fieldClass = creatorConstructor.getParameterTypes()[i];
                     Type fieldType = creatorConstructor.getGenericParameterTypes()[i];
-                    fieldInfoList.add(new FieldInfo(fieldAnnotation, clazz, fieldClass, fieldType));
+                    beanInfo.getFieldList().add(new FieldInfo(fieldAnnotation, clazz, fieldClass, fieldType));
                 }
-                return;
+                return beanInfo;
             }
 
             Method factoryMethod = getFactoryMethod(clazz);
             if (factoryMethod != null) {
+                factoryMethod.setAccessible(true);
+                beanInfo.setFactoryMethod(factoryMethod);
+                
                 for (int i = 0; i < factoryMethod.getParameterTypes().length; ++i) {
                     Annotation[] paramAnnotations = factoryMethod.getParameterAnnotations()[i];
                     JSONField fieldAnnotation = null;
@@ -118,11 +108,11 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
                     Class<?> fieldClass = factoryMethod.getParameterTypes()[i];
                     Type fieldType = factoryMethod.getGenericParameterTypes()[i];
-                    fieldInfoList.add(new FieldInfo(fieldAnnotation, clazz, fieldClass, fieldType));
+                    beanInfo.getFieldList().add(new FieldInfo(fieldAnnotation, clazz, fieldClass, fieldType));
                 }
-                return;
+                return beanInfo;
             }
-            
+
             throw new JSONException("default constructor not found.");
         }
 
@@ -153,7 +143,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
                 if (annotation.name().length() != 0) {
                     String propertyName = annotation.name();
-                    fieldInfoList.add(new FieldInfo(propertyName, method, null));
+                    beanInfo.getFieldList().add(new FieldInfo(propertyName, method, null));
                     method.setAccessible(true);
                     continue;
                 }
@@ -170,15 +160,17 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     if (fieldAnnotation != null && fieldAnnotation.name().length() != 0) {
                         propertyName = fieldAnnotation.name();
 
-                        fieldInfoList.add(new FieldInfo(propertyName, method, field));
+                        beanInfo.getFieldList().add(new FieldInfo(propertyName, method, field));
                         continue;
                     }
                 }
 
-                fieldInfoList.add(new FieldInfo(propertyName, method, null));
+                beanInfo.getFieldList().add(new FieldInfo(propertyName, method, null));
                 method.setAccessible(true);
             }
         }
+        
+        return beanInfo;
     }
 
     public static Constructor<?> getDefaultConstructor(Class<?> clazz) {
@@ -264,13 +256,13 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             }
         }
 
-        if (defaultConstructor == null) {
+        if (beanInfo.getDefaultConstructor() == null) {
             return null;
         }
 
         Object object;
         try {
-            object = defaultConstructor.newInstance();
+            object = beanInfo.getDefaultConstructor().newInstance();
         } catch (Exception e) {
             throw new JSONException("create instance error, class " + clazz.getName(), e);
         }
@@ -383,27 +375,28 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             if (object == null) {
                 if (fieldValues == null) {
                     object = createInstance(type);
-                    return (T) object;        
+                    return (T) object;
                 }
-                
+
+                List<FieldInfo> fieldInfoList = beanInfo.getFieldList();
                 int size = fieldInfoList.size();
                 Object[] params = new Object[size];
                 for (int i = 0; i < size; ++i) {
                     FieldInfo fieldInfo = fieldInfoList.get(i);
                     params[i] = fieldValues.get(fieldInfo.getName());
                 }
-                
-                if (creatorConstructor != null) {
+
+                if (beanInfo.getCreatorConstructor() != null) {
                     try {
-                        object = creatorConstructor.newInstance(params);
+                        object = beanInfo.getCreatorConstructor().newInstance(params);
                     } catch (Exception e) {
-                        throw new JSONException("create instance error, " +  creatorConstructor.toGenericString(), e);
+                        throw new JSONException("create instance error, " + beanInfo.getCreatorConstructor().toGenericString(), e);
                     }
-                } else if (factoryMethod != null) {
+                } else if (beanInfo.getFactoryMethod() != null) {
                     try {
-                        object = factoryMethod.invoke(null, params);
+                        object = beanInfo.getFactoryMethod().invoke(null, params);
                     } catch (Exception e) {
-                        throw new JSONException("create factory method error, " +  factoryMethod.toString(), e);
+                        throw new JSONException("create factory method error, " + beanInfo.getFactoryMethod().toString(), e);
                     }
                 }
             }

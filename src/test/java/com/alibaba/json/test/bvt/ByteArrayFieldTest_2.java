@@ -7,7 +7,7 @@ import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.util.Base64;
+import com.alibaba.json.test.TestUtils;
 
 public class ByteArrayFieldTest_2 extends TestCase {
 
@@ -15,7 +15,7 @@ public class ByteArrayFieldTest_2 extends TestCase {
         Entity entity = new Entity("中华人民共和国");
         String text = JSON.toJSONString(entity);
         JSONObject json = JSON.parseObject(text);
-        Assert.assertEquals(Base64.encodeToString(entity.getValue(), false), json.getString("value"));
+        Assert.assertEquals(TestUtils.encodeToBase64String(entity.getValue(), false), json.getString("value"));
         
         Entity entity2 = JSON.parseObject(text, Entity.class);
         Assert.assertEquals("中华人民共和国", new String(entity2.getValue(), "UTF-8"));

@@ -289,27 +289,30 @@ public class ASMDeserializerFactory implements Opcodes {
             }
         }
 
-        if (defaultConstructor != null) {
-            _batchSet(context, mw);
-        } else {
-            mw.visitTypeInsn(NEW, getType(context.getClazz()));
-            mw.visitInsn(DUP);
-
-            Constructor<?> creatorConstructor = JavaBeanDeserializer.getCreatorConstructor(context.getClazz());
-            if (creatorConstructor != null) {
-                _loadCreatorParameters(context, mw);
-
-                mw.visitMethodInsn(INVOKESPECIAL, getType(context.getClazz()), "<init>", getDesc(creatorConstructor));
-                mw.visitVarInsn(ASTORE, context.var("instance"));
+        if (!context.getClazz().isInterface()) {
+            if (defaultConstructor != null) {
+                _batchSet(context, mw);
             } else {
-                Method factoryMethod = JavaBeanDeserializer.getFactoryMethod(context.getClazz());
-                if (factoryMethod != null) {
+                mw.visitTypeInsn(NEW, getType(context.getClazz()));
+                mw.visitInsn(DUP);
+
+                Constructor<?> creatorConstructor = JavaBeanDeserializer.getCreatorConstructor(context.getClazz());
+                if (creatorConstructor != null) {
                     _loadCreatorParameters(context, mw);
-                    mw.visitMethodInsn(INVOKESTATIC, getType(factoryMethod.getDeclaringClass()),
-                                       factoryMethod.getName(), getDesc(factoryMethod));
+
+                    mw.visitMethodInsn(INVOKESPECIAL, getType(context.getClazz()), "<init>",
+                                       getDesc(creatorConstructor));
                     mw.visitVarInsn(ASTORE, context.var("instance"));
                 } else {
-                    throw new JSONException("TODO");
+                    Method factoryMethod = JavaBeanDeserializer.getFactoryMethod(context.getClazz());
+                    if (factoryMethod != null) {
+                        _loadCreatorParameters(context, mw);
+                        mw.visitMethodInsn(INVOKESTATIC, getType(factoryMethod.getDeclaringClass()),
+                                           factoryMethod.getName(), getDesc(factoryMethod));
+                        mw.visitVarInsn(ASTORE, context.var("instance"));
+                    } else {
+                        throw new JSONException("TODO");
+                    }
                 }
             }
         }
@@ -837,7 +840,8 @@ public class ASMDeserializerFactory implements Opcodes {
     }
 
     private void _parseField(ClassWriter cw, Context context) {
-        // public boolean parseField(DefaultExtJSONParser parser, String key, Object object, Map<String, Object> fieldValues) {
+        // public boolean parseField(DefaultExtJSONParser parser, String key, Object object, Map<String, Object>
+        // fieldValues) {
 
         MethodVisitor mw = cw.visitMethod(ACC_PUBLIC, "parseField", "(" + getDesc(DefaultExtJSONParser.class)
                                                                     + getDesc(String.class) + getDesc(Object.class)

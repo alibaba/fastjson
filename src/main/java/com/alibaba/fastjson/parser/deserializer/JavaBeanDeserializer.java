@@ -77,7 +77,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     public static void computeSetters(Class<?> clazz, List<FieldInfo> fieldInfoList) {
         Constructor<?> defaultConstructor = getDefaultConstructor(clazz);
 
-        if (defaultConstructor == null) {
+        if (defaultConstructor == null && !(clazz.isInterface())) {
             Constructor<?> creatorConstructor = getCreatorConstructor(clazz);
 
             if (creatorConstructor != null) {
@@ -122,6 +122,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 }
                 return;
             }
+            
+            throw new JSONException("default constructor not found.");
         }
 
         for (Method method : clazz.getMethods()) {

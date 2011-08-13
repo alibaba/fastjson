@@ -168,18 +168,6 @@ public class IOUtils {
             if (x <= sizeTable[i]) return i + 1;
     }
 
-    final static int[] byte_len_array = new int[256];
-    static {
-        for (int i = Byte.MIN_VALUE; i <= Byte.MAX_VALUE; ++i) {
-            int size = (i < 0) ? IOUtils.stringSize(-i) + 1 : IOUtils.stringSize(i);
-            byte_len_array[i & 0xFF] = size;
-        }
-    }
-
-    public static int stringSize(byte i) {
-        return byte_len_array[i & 0xFF];
-    }
-
     public static void decode(CharsetDecoder charsetDecoder, ByteBuffer byteBuf, CharBuffer charByte) {
         try {
             CoderResult cr = charsetDecoder.decode(byteBuf, charByte, true);

@@ -1352,7 +1352,7 @@ public class JSONScanner implements JSONLexer {
             }
 
             int base64Len = endIndex - startIndex;
-            value = decodeBase64(buf, startIndex, base64Len);
+            value = Base64.decodeFast(buf, startIndex, base64Len);
             if (value == null) {
                 matchStat = NOT_MATCH;
                 return null;
@@ -1397,41 +1397,10 @@ public class JSONScanner implements JSONLexer {
     
     public byte[] bytesValue() {
         if (!hasSpecial) {
-            return decodeBase64(buf, np + 1, sp);
+            return Base64.decodeFast(buf, np + 1, sp);
         } else {
-            return decodeBase64(sbuf, 0, sp);
+            return Base64.decodeFast(sbuf, 0, sp);
         }
-    }
-
-    public final static byte[] decodeBase64(char[] buf, int offset, int base64Len) {
-        int[] IA = Base64.IA;
-
-        // Check so that legal chars (including '=') are evenly divideable by 4 as specified in RFC 2045.
-        if ((base64Len) % 4 != 0) {
-            return null;
-        }
-
-
-        int len = ((base64Len) * 6 >> 3);
-
-        byte[] bytes = new byte[len]; // Preallocate byte[] of exact length
-
-        for (int s = offset, d = 0; d < len;) {
-            // Assemble three bytes into an int from four "valid" characters.
-            int i = 0;
-            for (int j = 0; j < 4; j++) { // j only increased if a valid char was found.
-                int c = IA[buf[s++]];
-                if (c >= 0) i |= c << (18 - j * 6);
-                else j--;
-            }
-            // Add the bytes
-            bytes[d++] = (byte) (i >> 16);
-            if (d < len) {
-                bytes[d++] = (byte) (i >> 8);
-                if (d < len) bytes[d++] = (byte) i;
-            }
-        }
-        return bytes;
     }
 
     public double scanFieldDouble(char[] fieldName) {

@@ -168,6 +168,11 @@ public class JSONObjectTest extends TestCase {
 
         Assert.assertTrue(json.getJSONObject("obj") == null);
     }
+    
+    public void test_bytes () throws Exception {
+        JSONObject object = new JSONObject();
+        Assert.assertNull(object.getBytes("bytes"));
+    }
 
     public void test_getObject() throws Exception {
         JSONObject json = new JSONObject();

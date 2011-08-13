@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.TypeUtils;
 
 /**
@@ -365,7 +366,7 @@ public class JSONObject extends JSON implements Map<String, Object>, JSONAware, 
 
         if (parameterTypes.length == 0) {
             Class<?> returnType = method.getReturnType();
-            if (returnType == Void.class) {
+            if (returnType == void.class) {
                 throw new JSONException("illegal getter");
             }
 
@@ -396,9 +397,10 @@ public class JSONObject extends JSON implements Map<String, Object>, JSONAware, 
                 }
             }
             
-            return map.get(name);
+            Object value = map.get(name);
+            return TypeUtils.cast(value, method.getGenericReturnType(), ParserConfig.getGlobalInstance());
         }
 
-        return null;
+        throw new UnsupportedOperationException(method.toGenericString());
     }
 }

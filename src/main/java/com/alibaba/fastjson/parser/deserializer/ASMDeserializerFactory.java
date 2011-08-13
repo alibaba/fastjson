@@ -297,49 +297,20 @@ public class ASMDeserializerFactory implements Opcodes {
 
             Constructor<?> creatorConstructor = JavaBeanDeserializer.getCreatorConstructor(context.getClazz());
             if (creatorConstructor != null) {
-                for (int i = 0, size = context.getFieldInfoList().size(); i < size; ++i) {
-                    FieldInfo fieldInfo = context.getFieldInfoList().get(i);
-                    Class<?> fieldClass = fieldInfo.getFieldClass();
-                    Type fieldType = fieldInfo.getFieldType();
-
-                    if (fieldClass == boolean.class) {
-                        mw.visitVarInsn(ILOAD, context.var(fieldInfo.getName() + "_asm"));
-                    } else if (fieldClass == byte.class) {
-                        mw.visitVarInsn(ILOAD, context.var(fieldInfo.getName() + "_asm"));
-                    } else if (fieldClass == short.class) {
-                        mw.visitVarInsn(ILOAD, context.var(fieldInfo.getName() + "_asm"));
-                    } else if (fieldClass == int.class) {
-                        mw.visitVarInsn(ILOAD, context.var(fieldInfo.getName() + "_asm"));
-                    } else if (fieldClass == long.class) {
-                        mw.visitVarInsn(LLOAD, context.var(fieldInfo.getName() + "_asm"));
-                        mw.visitMethodInsn(INVOKEVIRTUAL, getType(context.getClazz()), fieldInfo.getMethod().getName(),
-                                           "(J)V");
-                        continue;
-                    } else if (fieldClass == float.class) {
-                        mw.visitVarInsn(FLOAD, context.var(fieldInfo.getName() + "_asm"));
-                    } else if (fieldClass == double.class) {
-                        mw.visitVarInsn(DLOAD, context.var(fieldInfo.getName() + "_asm", 2));
-                    } else if (fieldClass == String.class) {
-                        mw.visitVarInsn(ALOAD, context.var(fieldInfo.getName() + "_asm"));
-                    } else if (fieldClass.isEnum()) {
-                        mw.visitVarInsn(ALOAD, context.var(fieldInfo.getName() + "_asm"));
-                    } else if (Collection.class.isAssignableFrom(fieldClass)) {
-                        Type itemType = ((ParameterizedType) fieldType).getActualTypeArguments()[0];
-                        if (itemType == String.class) {
-                            mw.visitVarInsn(ALOAD, context.var(fieldInfo.getName() + "_asm"));
-                            mw.visitTypeInsn(CHECKCAST, getType(fieldClass)); // cast
-                        } else {
-                            mw.visitVarInsn(ALOAD, context.var(fieldInfo.getName() + "_asm"));
-                        }
-                    } else {
-                        mw.visitVarInsn(ALOAD, context.var(fieldInfo.getName() + "_asm"));
-                    }
-                }
+                _loadCreatorParameters(context, mw);
 
                 mw.visitMethodInsn(INVOKESPECIAL, getType(context.getClazz()), "<init>", getDesc(creatorConstructor));
                 mw.visitVarInsn(ASTORE, context.var("instance"));
             } else {
-                throw new JSONException("TODO");
+                Method factoryMethod = JavaBeanDeserializer.getFactoryMethod(context.getClazz());
+                if (factoryMethod != null) {
+                    _loadCreatorParameters(context, mw);
+                    mw.visitMethodInsn(INVOKESTATIC, getType(factoryMethod.getDeclaringClass()),
+                                       factoryMethod.getName(), getDesc(factoryMethod));
+                    mw.visitVarInsn(ASTORE, context.var("instance"));
+                } else {
+                    throw new JSONException("TODO");
+                }
             }
         }
 
@@ -370,6 +341,46 @@ public class ASMDeserializerFactory implements Opcodes {
 
         mw.visitMaxs(4, context.getVariantCount());
         mw.visitEnd();
+    }
+
+    private void _loadCreatorParameters(Context context, MethodVisitor mw) {
+        for (int i = 0, size = context.getFieldInfoList().size(); i < size; ++i) {
+            FieldInfo fieldInfo = context.getFieldInfoList().get(i);
+            Class<?> fieldClass = fieldInfo.getFieldClass();
+            Type fieldType = fieldInfo.getFieldType();
+
+            if (fieldClass == boolean.class) {
+                mw.visitVarInsn(ILOAD, context.var(fieldInfo.getName() + "_asm"));
+            } else if (fieldClass == byte.class) {
+                mw.visitVarInsn(ILOAD, context.var(fieldInfo.getName() + "_asm"));
+            } else if (fieldClass == short.class) {
+                mw.visitVarInsn(ILOAD, context.var(fieldInfo.getName() + "_asm"));
+            } else if (fieldClass == int.class) {
+                mw.visitVarInsn(ILOAD, context.var(fieldInfo.getName() + "_asm"));
+            } else if (fieldClass == long.class) {
+                mw.visitVarInsn(LLOAD, context.var(fieldInfo.getName() + "_asm"));
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(context.getClazz()), fieldInfo.getMethod().getName(), "(J)V");
+                continue;
+            } else if (fieldClass == float.class) {
+                mw.visitVarInsn(FLOAD, context.var(fieldInfo.getName() + "_asm"));
+            } else if (fieldClass == double.class) {
+                mw.visitVarInsn(DLOAD, context.var(fieldInfo.getName() + "_asm", 2));
+            } else if (fieldClass == String.class) {
+                mw.visitVarInsn(ALOAD, context.var(fieldInfo.getName() + "_asm"));
+            } else if (fieldClass.isEnum()) {
+                mw.visitVarInsn(ALOAD, context.var(fieldInfo.getName() + "_asm"));
+            } else if (Collection.class.isAssignableFrom(fieldClass)) {
+                Type itemType = ((ParameterizedType) fieldType).getActualTypeArguments()[0];
+                if (itemType == String.class) {
+                    mw.visitVarInsn(ALOAD, context.var(fieldInfo.getName() + "_asm"));
+                    mw.visitTypeInsn(CHECKCAST, getType(fieldClass)); // cast
+                } else {
+                    mw.visitVarInsn(ALOAD, context.var(fieldInfo.getName() + "_asm"));
+                }
+            } else {
+                mw.visitVarInsn(ALOAD, context.var(fieldInfo.getName() + "_asm"));
+            }
+        }
     }
 
     private void _batchSet(Context context, MethodVisitor mw) {
@@ -826,7 +837,7 @@ public class ASMDeserializerFactory implements Opcodes {
     }
 
     private void _parseField(ClassWriter cw, Context context) {
-        // public boolean parseField(DefaultExtJSONParser parser, String key, Object object) {
+        // public boolean parseField(DefaultExtJSONParser parser, String key, Object object, Map<String, Object> fieldValues) {
 
         MethodVisitor mw = cw.visitMethod(ACC_PUBLIC, "parseField", "(" + getDesc(DefaultExtJSONParser.class)
                                                                     + getDesc(String.class) + getDesc(Object.class)

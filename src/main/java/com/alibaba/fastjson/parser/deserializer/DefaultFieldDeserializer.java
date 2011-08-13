@@ -1,6 +1,7 @@
 package com.alibaba.fastjson.parser.deserializer;
 
 import java.util.List;
+import java.util.Map;
 
 import com.alibaba.fastjson.parser.DefaultExtJSONParser;
 import com.alibaba.fastjson.parser.DefaultExtJSONParser.ResolveTask;
@@ -17,7 +18,7 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
     }
 
     @Override
-    public void parseField(DefaultExtJSONParser parser, Object object) {
+    public void parseField(DefaultExtJSONParser parser, Object object, Map<String, Object> fieldValues) {
         if (fieldValueDeserilizer == null) {
             fieldValueDeserilizer = parser.getConfig().getDeserializer(fieldInfo);
         }
@@ -29,7 +30,11 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
             task.setFieldDeserializer(this);
             parser.setReferenceResolveStat(DefaultExtJSONParser.NONE);
         } else {
-            setValue(object, value);
+            if (object == null) {
+                fieldValues.put(fieldInfo.getName(), value);
+            } else {
+                setValue(object, value);
+            }
         }
     }
 

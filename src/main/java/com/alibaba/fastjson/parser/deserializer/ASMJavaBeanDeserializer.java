@@ -1,6 +1,7 @@
 package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.Type;
+import java.util.Map;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultExtJSONParser;
@@ -42,7 +43,7 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
         return mapping.createFieldDeserializer(mapping, clazz, fieldInfo);
     }
 
-    public boolean parseField(DefaultExtJSONParser parser, String key, Object object) {
+    public boolean parseField(DefaultExtJSONParser parser, String key, Object object, Map<String, Object> fieldValues) {
         JSONScanner lexer = (JSONScanner) parser.getLexer(); // xxx
 
         FieldDeserializer fieldDeserializer = serializer.getFieldDeserializerMap().get(key);
@@ -59,7 +60,7 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
         }
 
         lexer.nextTokenWithColon(fieldDeserializer.getFastMatchToken());
-        fieldDeserializer.parseField(parser, object);
+        fieldDeserializer.parseField(parser, object, fieldValues);
         return true;
     }
 
@@ -69,8 +70,8 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
             super(mapping, clazz);
         }
 
-        public boolean parseField(DefaultExtJSONParser parser, String key, Object object) {
-            return ASMJavaBeanDeserializer.this.parseField(parser, key, object);
+        public boolean parseField(DefaultExtJSONParser parser, String key, Object object, Map<String, Object> fieldValues) {
+            return ASMJavaBeanDeserializer.this.parseField(parser, key, object, fieldValues);
         }
 
         public FieldDeserializer createFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {

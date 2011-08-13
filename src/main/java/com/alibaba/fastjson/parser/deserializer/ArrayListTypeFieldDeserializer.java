@@ -4,6 +4,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultExtJSONParser;
@@ -32,7 +33,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
     @SuppressWarnings("rawtypes")
     @Override
-    public void parseField(DefaultExtJSONParser parser, Object object) {
+    public void parseField(DefaultExtJSONParser parser, Object object, Map<String, Object> fieldValues) {
         if (parser.getLexer().token() == JSONToken.NULL) {
             setValue(object, null);
             return;
@@ -42,7 +43,11 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
         parseArray(parser, list);
 
-        setValue(object, list);
+        if (object == null) {
+            fieldValues.put(fieldInfo.getName(), list);
+        } else {
+            setValue(object, list);
+        }
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })

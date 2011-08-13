@@ -1,5 +1,7 @@
 package com.alibaba.fastjson.parser.deserializer;
 
+import java.util.Map;
+
 import com.alibaba.fastjson.parser.DefaultExtJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -14,14 +16,18 @@ public class IntegerFieldDeserializer extends FieldDeserializer {
     }
 
     @Override
-    public void parseField(DefaultExtJSONParser parser, Object object) {
+    public void parseField(DefaultExtJSONParser parser, Object object, Map<String, Object> fieldValues) {
         Integer value;
 
         final JSONLexer lexer = parser.getLexer();
         if (lexer.token() == JSONToken.LITERAL_INT) {
             int val = lexer.intValue();
             lexer.nextToken(JSONToken.COMMA);
-            setValue(object, val);
+            if (object == null) {
+                fieldValues.put(fieldInfo.getName(), val);
+            } else {
+                setValue(object, val);
+            }
             return;
         } else if (lexer.token() == JSONToken.NULL) {
             value = null;
@@ -37,7 +43,11 @@ public class IntegerFieldDeserializer extends FieldDeserializer {
             return;
         }
 
-        setValue(object, value);
+        if (object == null) {
+            fieldValues.put(fieldInfo.getName(), value);
+        } else {
+            setValue(object, value);
+        }
     }
 
     public int getFastMatchToken() {

@@ -1,5 +1,7 @@
 package com.alibaba.fastjson.parser.deserializer;
 
+import java.util.Map;
+
 import com.alibaba.fastjson.parser.DefaultExtJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -17,7 +19,7 @@ public class StringFieldDeserializer extends FieldDeserializer {
     }
 
     @Override
-    public void parseField(DefaultExtJSONParser parser, Object object) {
+    public void parseField(DefaultExtJSONParser parser, Object object, Map<String, Object> fieldValues) {
         String value;
 
         final JSONLexer lexer = parser.getLexer();
@@ -35,7 +37,11 @@ public class StringFieldDeserializer extends FieldDeserializer {
             }
         }
 
-        setValue(object, value);
+        if (object == null) {
+            fieldValues.put(fieldInfo.getName(), value);
+        } else {
+            setValue(object, value);
+        }
     }
 
     public int getFastMatchToken() {

@@ -2,6 +2,7 @@ package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Map;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultExtJSONParser;
@@ -30,7 +31,7 @@ public abstract class FieldDeserializer {
         return fieldInfo.getFieldType();
     }
 
-    public abstract void parseField(DefaultExtJSONParser parser, Object object);
+    public abstract void parseField(DefaultExtJSONParser parser, Object object, Map<String, Object> fieldValues);
 
     public abstract int getFastMatchToken();
 

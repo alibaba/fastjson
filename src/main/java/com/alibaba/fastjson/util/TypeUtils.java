@@ -357,7 +357,7 @@ public class TypeUtils {
         }
         
         if (value instanceof String) {
-            return Base64.decode((String) value);
+            return Base64.decodeFast((String) value);
         }
         throw new JSONException("can not cast to int, value : " + value);
     }

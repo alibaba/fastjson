@@ -1,5 +1,7 @@
 package com.alibaba.fastjson.parser.deserializer;
 
+import java.util.Map;
+
 import com.alibaba.fastjson.parser.DefaultExtJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -14,23 +16,28 @@ public class BooleanFieldDeserializer extends FieldDeserializer {
     }
 
     @Override
-    public void parseField(DefaultExtJSONParser parser, Object object) {
+    public void parseField(DefaultExtJSONParser parser, Object object, Map<String, Object> fieldValues) {
         Boolean value;
 
         final JSONLexer lexer = parser.getLexer();
         if (lexer.token() == JSONToken.TRUE) {
             lexer.nextToken(JSONToken.COMMA);
-            setValue(object, true);
+            if (object == null) {
+                fieldValues.put(fieldInfo.getName(), Boolean.TRUE);
+            } else {
+                setValue(object, true);
+            }
             return;
         }
 
         if (lexer.token() == JSONToken.LITERAL_INT) {
             int val = lexer.intValue();
             lexer.nextToken(JSONToken.COMMA);
-            if (val == 1) {
-                setValue(object, true);
+            boolean booleanValue = val == 1;
+            if (object == null) {
+                fieldValues.put(fieldInfo.getName(), booleanValue);
             } else {
-                setValue(object, false);
+                setValue(object, booleanValue);
             }
             return;
         }
@@ -50,7 +57,11 @@ public class BooleanFieldDeserializer extends FieldDeserializer {
 
         if (lexer.token() == JSONToken.FALSE) {
             lexer.nextToken(JSONToken.COMMA);
-            setValue(object, false);
+            if (object == null) {
+                fieldValues.put(fieldInfo.getName(), Boolean.FALSE);
+            } else {
+                setValue(object, false);
+            }
             return;
         }
 
@@ -63,7 +74,11 @@ public class BooleanFieldDeserializer extends FieldDeserializer {
             return;
         }
 
-        setValue(object, value);
+        if (object == null) {
+            fieldValues.put(fieldInfo.getName(), value);
+        } else {
+            setValue(object, value);
+        }
     }
 
     public int getFastMatchToken() {

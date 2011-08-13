@@ -71,13 +71,12 @@ public class ASMDeserializerFactory implements Opcodes {
         ClassWriter cw = new ClassWriter();
         cw.visit(V1_5, ACC_PUBLIC + ACC_SUPER, className, getType(ASMJavaBeanDeserializer.class), null);
 
-        DeserializeBeanInfo beanInfo = JavaBeanDeserializer.computeSetters(clazz);
-        List<FieldInfo> fieldInfoList = beanInfo.getFieldList();
+        DeserializeBeanInfo beanInfo = DeserializeBeanInfo.computeSetters(clazz);
 
-        _init(cw, new Context(fieldInfoList, className, config, clazz, 3));
-        _createInstance(cw, new Context(fieldInfoList, className, config, clazz, 3));
-        _parseField(cw, new Context(fieldInfoList, className, config, clazz, 4));
-        _deserialze(cw, new Context(fieldInfoList, className, config, clazz, 3));
+        _init(cw, new Context(className, config, beanInfo, 3));
+        _createInstance(cw, new Context(className, config, beanInfo, 3));
+        _parseField(cw, new Context(className, config, beanInfo, 4));
+        _deserialze(cw, new Context(className, config, beanInfo, 3));
 
         byte[] code = cw.toByteArray();
 
@@ -152,7 +151,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "token", "()I");
         mw.visitVarInsn(ISTORE, context.var("mark_token"));
 
-        Constructor<?> defaultConstructor = JavaBeanDeserializer.getDefaultConstructor(context.getClazz());
+        Constructor<?> defaultConstructor = context.getBeanInfo().getDefaultConstructor();
 
         // create instance
         if (context.getClazz().isInterface()) {
@@ -297,7 +296,7 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitTypeInsn(NEW, getType(context.getClazz()));
                 mw.visitInsn(DUP);
 
-                Constructor<?> creatorConstructor = JavaBeanDeserializer.getCreatorConstructor(context.getClazz());
+                Constructor<?> creatorConstructor = context.getBeanInfo().getCreatorConstructor();
                 if (creatorConstructor != null) {
                     _loadCreatorParameters(context, mw);
 
@@ -305,7 +304,7 @@ public class ASMDeserializerFactory implements Opcodes {
                                        getDesc(creatorConstructor));
                     mw.visitVarInsn(ASTORE, context.var("instance"));
                 } else {
-                    Method factoryMethod = JavaBeanDeserializer.getFactoryMethod(context.getClazz());
+                    Method factoryMethod = context.getBeanInfo().getFactoryMethod();
                     if (factoryMethod != null) {
                         _loadCreatorParameters(context, mw);
                         mw.visitMethodInsn(INVOKESTATIC, getType(factoryMethod.getDeclaringClass()),
@@ -714,20 +713,19 @@ public class ASMDeserializerFactory implements Opcodes {
 
     static class Context {
 
-        private int                  variantIndex = 4;
+        private int                       variantIndex = 4;
 
-        private Map<String, Integer> variants     = new HashMap<String, Integer>();
+        private Map<String, Integer>      variants     = new HashMap<String, Integer>();
 
-        private Class<?>             clazz;
-        private List<FieldInfo>      fieldInfoList;
-        private String               className;
+        private Class<?>                  clazz;
+        private final DeserializeBeanInfo beanInfo;
+        private String                    className;
 
-        public Context(List<FieldInfo> fieldInfoList, String className, ParserConfig config, Class<?> clazz,
-                       int initVariantIndex){
+        public Context(String className, ParserConfig config, DeserializeBeanInfo beanInfo, int initVariantIndex){
             this.className = className;
-            this.fieldInfoList = fieldInfoList;
-            this.clazz = clazz;
+            this.clazz = beanInfo.getClazz();
             this.variantIndex = initVariantIndex;
+            this.beanInfo = beanInfo;
         }
 
         public String getClassName() {
@@ -735,7 +733,11 @@ public class ASMDeserializerFactory implements Opcodes {
         }
 
         public List<FieldInfo> getFieldInfoList() {
-            return fieldInfoList;
+            return beanInfo.getFieldList();
+        }
+
+        public DeserializeBeanInfo getBeanInfo() {
+            return beanInfo;
         }
 
         public Class<?> getClazz() {

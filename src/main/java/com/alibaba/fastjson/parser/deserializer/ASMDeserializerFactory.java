@@ -80,8 +80,9 @@ public class ASMDeserializerFactory implements Opcodes {
 
         byte[] code = cw.toByteArray();
 
-        // org.apache.commons.io.IOUtils.write(code, new
-        // java.io.FileOutputStream("/usr/alibaba/workspace/fastjson-asm/target/classes/" + className + ".class"));
+        org.apache.commons.io.IOUtils.write(code, new java.io.FileOutputStream(
+                                                                               "/usr/alibaba/workspace/fastjson-asm/target/classes/"
+                                                                                       + className + ".class"));
 
         Class<?> exampleClass = classLoader.defineClassPublic(className, code, 0, code.length);
 
@@ -347,8 +348,10 @@ public class ASMDeserializerFactory implements Opcodes {
     }
 
     private void _loadCreatorParameters(Context context, MethodVisitor mw) {
-        for (int i = 0, size = context.getFieldInfoList().size(); i < size; ++i) {
-            FieldInfo fieldInfo = context.getFieldInfoList().get(i);
+        List<FieldInfo> fieldInfoList = context.getBeanInfo().getFieldList();
+        
+        for (int i = 0, size = fieldInfoList.size(); i < size; ++i) {
+            FieldInfo fieldInfo = fieldInfoList.get(i);
             Class<?> fieldClass = fieldInfo.getFieldClass();
             Type fieldType = fieldInfo.getFieldType();
 
@@ -585,7 +588,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ALOAD, 1);
         mw.visitMethodInsn(INVOKEVIRTUAL, getType(DefaultExtJSONParser.class), "getConfig",
                            "()" + getDesc(ParserConfig.class));
-        mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc(fieldInfo.getMethod().getParameterTypes()[0])));
+        mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc(fieldInfo.getFieldClass())));
         mw.visitMethodInsn(INVOKEVIRTUAL, getType(ParserConfig.class), "getDeserializer",
                            "(" + getDesc(Type.class) + ")" + getDesc(ObjectDeserializer.class));
 
@@ -598,7 +601,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitFieldInsn(GETFIELD, context.getClassName(), fieldInfo.getName() + "_asm_deser__",
                           getDesc(ObjectDeserializer.class));
         mw.visitVarInsn(ALOAD, 1);
-        mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc(fieldInfo.getMethod().getParameterTypes()[0])));
+        mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc(fieldInfo.getFieldClass())));
         mw.visitMethodInsn(INVOKEINTERFACE, getType(ObjectDeserializer.class), "deserialze",
                            "(" + getDesc(DefaultExtJSONParser.class) + getDesc(Type.class) + ")Ljava/lang/Object;");
         mw.visitTypeInsn(CHECKCAST, getType(fieldClass)); // cast
@@ -720,12 +723,14 @@ public class ASMDeserializerFactory implements Opcodes {
         private Class<?>                  clazz;
         private final DeserializeBeanInfo beanInfo;
         private String                    className;
+        private List<FieldInfo>           fieldInfoList;
 
         public Context(String className, ParserConfig config, DeserializeBeanInfo beanInfo, int initVariantIndex){
             this.className = className;
             this.clazz = beanInfo.getClazz();
             this.variantIndex = initVariantIndex;
             this.beanInfo = beanInfo;
+            fieldInfoList = new ArrayList<FieldInfo>(beanInfo.getFieldList());
         }
 
         public String getClassName() {
@@ -733,7 +738,7 @@ public class ASMDeserializerFactory implements Opcodes {
         }
 
         public List<FieldInfo> getFieldInfoList() {
-            return beanInfo.getFieldList();
+            return fieldInfoList;
         }
 
         public DeserializeBeanInfo getBeanInfo() {

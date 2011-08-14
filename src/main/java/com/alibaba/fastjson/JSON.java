@@ -171,6 +171,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         DefaultExtJSONParser parser = new DefaultExtJSONParser(input, ParserConfig.getGlobalInstance(), featureValues);
         T value = (T) parser.parseObject(clazz);
+        
+        handleResovleTask(parser, value);
 
         parser.close();
 
@@ -191,14 +193,20 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         DefaultExtJSONParser parser = new DefaultExtJSONParser(input, config, featureValues);
         T value = (T) parser.parseObject(clazz);
 
-        for (ResolveTask task : parser.getResolveTaskList()) {
-            FieldDeserializer fieldDeser = task.getFieldDeserializer();
-            fieldDeser.setValue(task.getOwnerContext().getObject(), value);
-        }
+        handleResovleTask(parser, value);
 
         parser.close();
 
         return (T) value;
+    }
+
+    private static <T> void handleResovleTask(DefaultExtJSONParser parser, T value) {
+        int size = parser.getResolveTaskList().size();
+        for (int i = 0; i < size; ++i) {
+            ResolveTask task = parser.getResolveTaskList().get(i);
+            FieldDeserializer fieldDeser = task.getFieldDeserializer();
+            fieldDeser.setValue(task.getOwnerContext().getObject(), value);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -240,6 +248,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         DefaultExtJSONParser parser = new DefaultExtJSONParser(input, length, ParserConfig.getGlobalInstance(),
                                                                featureValues);
         T value = (T) parser.parseObject(clazz);
+        
+        handleResovleTask(parser, value);
 
         parser.close();
 

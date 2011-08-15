@@ -1394,13 +1394,9 @@ public class JSONScanner implements JSONLexer {
 
         return value;
     }
-    
+
     public byte[] bytesValue() {
-        if (!hasSpecial) {
-            return Base64.decodeFast(buf, np + 1, sp);
-        } else {
-            return Base64.decodeFast(sbuf, 0, sp);
-        }
+        return Base64.decodeFast(buf, np + 1, sp);
     }
 
     public double scanFieldDouble(char[] fieldName) {

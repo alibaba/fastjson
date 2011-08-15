@@ -3,6 +3,7 @@ package com.alibaba.json.test.bvt.ref;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
@@ -13,7 +14,7 @@ public class TestRef extends TestCase {
     public void test_ref() throws Exception {
         Department tech = new Department(1, "技术部");
         tech.setRoot(tech);
-
+        
         {
             Department pt = new Department(2, "平台技术部");
             pt.setParent(tech);
@@ -36,13 +37,14 @@ public class TestRef extends TestCase {
         {
             //JSON.toJSONString(tech);
         }
-
+        
         {
             String prettyText = JSON.toJSONString(tech, SerializerFeature.PrettyFormat);
             System.out.println(prettyText);
-
+        
             String text = JSON.toJSONString(tech);
             Department dept = JSON.parseObject(text, Department.class);
+            Assert.assertTrue(dept == dept.getRoot());
             
             System.out.println(JSON.toJSONString(dept, SerializerFeature.PrettyFormat));
         }

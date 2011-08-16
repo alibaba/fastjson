@@ -28,7 +28,7 @@ public class MapSerializer implements ObjectSerializer {
     public static MapSerializer instance = new MapSerializer();
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void write(JSONSerializer serializer, Object object) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         if (object == null) {
@@ -104,12 +104,12 @@ public class MapSerializer implements ObjectSerializer {
             Class<?> clazz = value.getClass();
 
             if (clazz == preClazz) {
-                preWriter.write(serializer, value);
+                preWriter.write(serializer, value, null);
             } else {
                 preClazz = clazz;
                 preWriter = serializer.getObjectWriter(clazz);
 
-                preWriter.write(serializer, value);
+                preWriter.write(serializer, value, null);
             }
         }
         out.write('}');

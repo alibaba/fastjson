@@ -65,7 +65,7 @@ public class TestAutowired extends TestCase {
 
     public static class EntitySerializer implements AutowiredObjectSerializer {
 
-        public void write(JSONSerializer serializer, Object object) throws IOException {
+        public void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException {
             SerializeWriter out = serializer.getWriter();
             out.writeFieldValue('{', "v", ((Entity) object).getValue());
             out.write('}');

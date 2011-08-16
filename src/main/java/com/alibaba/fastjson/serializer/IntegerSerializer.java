@@ -24,7 +24,7 @@ public class IntegerSerializer implements ObjectSerializer {
 
     public static IntegerSerializer instance = new IntegerSerializer();
 
-    public void write(JSONSerializer serializer, Object object) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         Number value = (Number) object;

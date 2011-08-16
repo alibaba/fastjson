@@ -174,7 +174,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     if (object == null) {
                         fieldValues = new HashMap<String, Object>(this.fieldDeserializers.size());
                     }
-                    parser.addReference(object);
                     childContext = parser.setContext(context, object);
                 }
 

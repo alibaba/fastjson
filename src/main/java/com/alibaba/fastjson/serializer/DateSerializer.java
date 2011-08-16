@@ -28,7 +28,7 @@ public class DateSerializer implements ObjectSerializer {
 
     public final static DateSerializer instance = new DateSerializer();
 
-    public void write(JSONSerializer serializer, Object object) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException {
         SerializeWriter out = serializer.getWriter();
         
         if (object == null) {

@@ -37,7 +37,6 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
     // serializers
     private final FieldSerializer[] getters;
-    private boolean                 managedReference = true;
 
     public FieldSerializer[] getGetters() {
         return getters;
@@ -77,9 +76,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
         return serializer.isEnabled(SerializerFeature.WriteClassName);
     }
 
-    public void write(JSONSerializer serializer, Object object) throws IOException {
-
-
+    public void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         if (object == null) {
@@ -87,13 +84,9 @@ public class JavaBeanSerializer implements ObjectSerializer {
             return;
         }
 
-        if (managedReference) {
-            if (serializer.containsReference(object)) {
-                writeReference(serializer, object);
-                return;
-            }
-
-            serializer.addReference(object);
+        if (serializer.containsReference(object)) {
+            writeReference(serializer, object);
+            return;
         }
 
         FieldSerializer[] getters = this.getters;
@@ -103,7 +96,8 @@ public class JavaBeanSerializer implements ObjectSerializer {
         }
 
         SerialContext parent = serializer.getContext();
-        serializer.setContext(parent, object);
+        serializer.setContext(parent, object, fieldName);
+
         try {
             out.append('{');
 
@@ -179,7 +173,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
         } catch (Exception e) {
             throw new JSONException("write javaBean error", e);
         } finally {
-            serializer.setContext(parent);    
+            serializer.setContext(parent);
         }
     }
 
@@ -193,7 +187,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
             out.write("{\"$ref\":\"@\"}");
             return;
         }
-        
+
         SerialContext parentContext = context.getParent();
 
         if (parentContext != null) {
@@ -202,7 +196,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 return;
             }
         }
-        
+
         SerialContext rootContext = context;
         for (;;) {
             if (rootContext.getParent() == null) {
@@ -210,13 +204,26 @@ public class JavaBeanSerializer implements ObjectSerializer {
             }
             rootContext = rootContext.getParent();
         }
-        
+
         if (object == rootContext.getObject()) {
             out.write("{\"$ref\":\"$\"}");
             return;
         }
 
-        throw new JSONException("circular reference error, " + object.getClass().getName());
+        SerialContext refContext = null;
+        for (SerialContext item : serializer.getReferences()) {
+            if (item.getObject() == object) {
+                refContext = item;
+                break;
+            }
+        }
+        
+        String path = refContext.getPath();
+
+        out.write("{\"$ref\":\"");
+        out.write(path);
+        out.write("\"}");
+        return;
     }
 
     public FieldSerializer createFieldSerializer(FieldInfo fieldInfo) {

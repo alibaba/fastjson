@@ -25,7 +25,7 @@ public class PatternSerializer implements ObjectSerializer {
 
     public final static PatternSerializer instance = new PatternSerializer();
 
-    public void write(JSONSerializer serializer, Object object) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException {
         if (object == null) {
             serializer.writeNull();
             return;

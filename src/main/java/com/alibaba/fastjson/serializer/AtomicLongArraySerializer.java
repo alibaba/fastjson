@@ -25,7 +25,7 @@ public class AtomicLongArraySerializer implements ObjectSerializer {
 
     public final static AtomicLongArraySerializer instance = new AtomicLongArraySerializer();
 
-    public void write(JSONSerializer serializer, Object object) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         if (object == null) {

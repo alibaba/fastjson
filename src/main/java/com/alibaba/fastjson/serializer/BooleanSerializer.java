@@ -24,7 +24,7 @@ public class BooleanSerializer implements ObjectSerializer {
 
     public final static BooleanSerializer instance = new BooleanSerializer();
 
-    public void write(JSONSerializer serializer, Object object) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         Boolean value = (Boolean) object;

@@ -26,7 +26,7 @@ public class AtomicReferenceSerializer implements ObjectSerializer {
     public final static AtomicReferenceSerializer instance = new AtomicReferenceSerializer();
 
     @SuppressWarnings("rawtypes")
-    public void write(JSONSerializer serializer, Object object) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException {
         AtomicReference val = (AtomicReference) object;
         serializer.write(val.get());
     }

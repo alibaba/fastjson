@@ -7,7 +7,7 @@ public class TimeZoneSerializer implements ObjectSerializer {
 
     public final static TimeZoneSerializer instance = new TimeZoneSerializer();
 
-    public void write(JSONSerializer serializer, Object object) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException {
         if (object == null) {
             serializer.writeNull();
             return;

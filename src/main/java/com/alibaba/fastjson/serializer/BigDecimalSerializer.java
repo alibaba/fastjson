@@ -25,7 +25,7 @@ public class BigDecimalSerializer implements ObjectSerializer {
 
     public final static BigDecimalSerializer instance = new BigDecimalSerializer();
 
-    public void write(JSONSerializer serializer, Object object) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         if (object == null) {

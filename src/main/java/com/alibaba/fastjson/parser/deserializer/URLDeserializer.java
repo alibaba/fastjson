@@ -12,7 +12,7 @@ public class URLDeserializer implements ObjectDeserializer {
     public final static URLDeserializer instance = new URLDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
         
         String url = (String) parser.parse();
         

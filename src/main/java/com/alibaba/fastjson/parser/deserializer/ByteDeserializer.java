@@ -10,7 +10,7 @@ public class ByteDeserializer implements ObjectDeserializer {
     public final static ByteDeserializer instance = new ByteDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
         Object value = parser.parse();
 
         if (value == null) {

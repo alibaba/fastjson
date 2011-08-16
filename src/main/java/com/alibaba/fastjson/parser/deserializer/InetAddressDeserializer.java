@@ -13,7 +13,7 @@ public class InetAddressDeserializer implements ObjectDeserializer {
     public final static InetAddressDeserializer instance = new InetAddressDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
 
         String host = (String) parser.parse();
 

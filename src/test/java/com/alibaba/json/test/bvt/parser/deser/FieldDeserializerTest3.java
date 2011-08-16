@@ -63,7 +63,7 @@ public class FieldDeserializerTest3 extends TestCase {
                                                                    featureValues);
 
             DefaultObjectDeserializer objectDeser = new DefaultObjectDeserializer();
-            objectDeser.deserialze(parser, ((ParameterizedType) type).getActualTypeArguments()[0]);
+            objectDeser.deserialze(parser, ((ParameterizedType) type).getActualTypeArguments()[0], null);
         } catch (JSONException ex) {
             error = ex;
         }
@@ -82,7 +82,7 @@ public class FieldDeserializerTest3 extends TestCase {
                                                                    featureValues);
 
             DefaultObjectDeserializer objectDeser = new DefaultObjectDeserializer();
-            objectDeser.deserialze(parser, ((ParameterizedType) type).getActualTypeArguments()[0]);
+            objectDeser.deserialze(parser, ((ParameterizedType) type).getActualTypeArguments()[0], null);
         } catch (JSONException ex) {
             error = ex;
         }
@@ -101,7 +101,7 @@ public class FieldDeserializerTest3 extends TestCase {
                                                                    featureValues);
 
             DefaultObjectDeserializer objectDeser = new DefaultObjectDeserializer();
-            objectDeser.deserialze(parser, ((ParameterizedType) type).getActualTypeArguments()[0]);
+            objectDeser.deserialze(parser, ((ParameterizedType) type).getActualTypeArguments()[0], null);
         } catch (JSONException ex) {
             error = ex;
         }

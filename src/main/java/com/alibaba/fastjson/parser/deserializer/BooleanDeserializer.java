@@ -11,7 +11,7 @@ public class BooleanDeserializer implements ObjectDeserializer {
     public final static BooleanDeserializer instance = new BooleanDeserializer();
     
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
         return (T) deserialze(parser);
     }
 

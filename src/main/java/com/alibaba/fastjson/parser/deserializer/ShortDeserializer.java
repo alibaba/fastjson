@@ -10,7 +10,7 @@ public class ShortDeserializer implements ObjectDeserializer {
     public final static ShortDeserializer instance = new ShortDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
         Object value = parser.parse();
 
         if (value == null) {

@@ -29,7 +29,7 @@ public class ImageDeserializer extends ASMJavaBeanDeserializer implements Object
     private char[] height_ = "\"height\":".toCharArray();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
         final JSONScanner lexer = (JSONScanner) parser.getLexer();
 
         int height;
@@ -48,7 +48,7 @@ public class ImageDeserializer extends ASMJavaBeanDeserializer implements Object
             if (lexer.matchStat == JSONScanner.NOT_MATCH) {
                 // 退出快速模式, 进入常规模式
                 lexer.reset(mark, mark_ch, mark_token);
-                return (T) super.deserialze(parser, clazz);
+                return (T) super.deserialze(parser, clazz, fieldName);
             }
         }
         {
@@ -56,7 +56,7 @@ public class ImageDeserializer extends ASMJavaBeanDeserializer implements Object
             if (lexer.matchStat == JSONScanner.NOT_MATCH) {
                 // 退出快速模式, 进入常规模式
                 lexer.reset(mark, mark_ch, mark_token);
-                return (T) super.deserialze(parser, clazz);
+                return (T) super.deserialze(parser, clazz, fieldName);
             }
             size = Size.valueOf(value);
         }
@@ -65,7 +65,7 @@ public class ImageDeserializer extends ASMJavaBeanDeserializer implements Object
             if (lexer.matchStat == JSONScanner.NOT_MATCH) {
                 // 退出快速模式, 进入常规模式
                 lexer.reset(mark, mark_ch, mark_token);
-                return (T) super.deserialze(parser, clazz);
+                return (T) super.deserialze(parser, clazz, fieldName);
             }
         }
         {
@@ -73,7 +73,7 @@ public class ImageDeserializer extends ASMJavaBeanDeserializer implements Object
             if (lexer.matchStat == JSONScanner.NOT_MATCH) {
                 // 退出快速模式, 进入常规模式
                 lexer.reset(mark, mark_ch, mark_token);
-                return (T) super.deserialze(parser, clazz);
+                return (T) super.deserialze(parser, clazz, fieldName);
             }
         }
         {
@@ -81,7 +81,7 @@ public class ImageDeserializer extends ASMJavaBeanDeserializer implements Object
             if (lexer.matchStat == JSONScanner.NOT_MATCH) {
                 // 退出快速模式, 进入常规模式
                 lexer.reset(mark, mark_ch, mark_token);
-                return (T) super.deserialze(parser, clazz);
+                return (T) super.deserialze(parser, clazz, fieldName);
             }
         }
 
@@ -89,7 +89,7 @@ public class ImageDeserializer extends ASMJavaBeanDeserializer implements Object
         if (lexer.matchStat != JSONScanner.END) {
             // 退出快速模式, 进入常规模式
             lexer.reset(mark, mark_ch, mark_token);
-            return (T) super.deserialze(parser, clazz);
+            return (T) super.deserialze(parser, clazz, fieldName);
         }
 
         Image image = new Image();

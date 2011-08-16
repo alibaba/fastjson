@@ -19,7 +19,7 @@ public class IntegerDeserializerTest extends TestCase {
         Assert.assertEquals(null, JSON.parseObject("null", Integer.class));
 
         DefaultExtJSONParser parser = new DefaultExtJSONParser("null", ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
-        Assert.assertEquals(null, IntegerDeserializer.instance.deserialze(parser, null));
+        Assert.assertEquals(null, IntegerDeserializer.instance.deserialze(parser, null, null));
         Assert.assertEquals(JSONToken.LITERAL_INT, IntegerDeserializer.instance.getFastMatchToken());
     }
 }

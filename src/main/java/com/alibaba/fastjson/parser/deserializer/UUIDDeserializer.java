@@ -10,7 +10,7 @@ public class UUIDDeserializer implements ObjectDeserializer {
     public final static UUIDDeserializer instance = new UUIDDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
         
         String name = (String) parser.parse();
         

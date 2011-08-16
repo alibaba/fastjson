@@ -88,7 +88,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type type) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type type, Object fieldName) {
         JSONScanner lexer = (JSONScanner) parser.getLexer(); // xxx
 
         if (lexer.token() == JSONToken.NULL) {
@@ -153,9 +153,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             parser.getResolveTaskList().add(new ResolveTask(context, ref));
                             parser.setReferenceResolveStat(DefaultExtJSONParser.NeedToResolve);
                         }
-                    } else if (lexer.token() == JSONToken.LITERAL_INT) {
-                        parser.getResolveTaskList().add(new ResolveTask(context, lexer.integerValue()));
-                        parser.setReferenceResolveStat(DefaultExtJSONParser.NeedToResolve);
                     } else {
                         throw new JSONException("illegal ref, " + JSONToken.name(lexer.token()));
                     }
@@ -174,7 +171,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     if (object == null) {
                         fieldValues = new HashMap<String, Object>(this.fieldDeserializers.size());
                     }
-                    childContext = parser.setContext(context, object);
+                    childContext = parser.setContext(context, object, fieldName);
                 }
 
                 boolean match = parseField(parser, key, object, fieldValues);
@@ -256,6 +253,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
         lexer.nextTokenWithColon(fieldDeserializer.getFastMatchToken());
         fieldDeserializer.parseField(parser, object, fieldValues);
+        
         return true;
     }
 

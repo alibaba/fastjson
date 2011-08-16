@@ -11,7 +11,7 @@ public class StringDeserializer implements ObjectDeserializer {
     public final static StringDeserializer instance = new StringDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
         return (T) deserialze(parser);
     }
     

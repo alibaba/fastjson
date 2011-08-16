@@ -5,7 +5,7 @@ import java.lang.reflect.Type;
 import com.alibaba.fastjson.parser.DefaultExtJSONParser;
 
 public interface ObjectDeserializer {
-    <T> T deserialze(DefaultExtJSONParser parser, Type type);
+    <T> T deserialze(DefaultExtJSONParser parser, Type type, Object fieldName);
     
     int getFastMatchToken();
 }

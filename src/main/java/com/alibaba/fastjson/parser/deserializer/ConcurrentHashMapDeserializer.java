@@ -11,7 +11,7 @@ public class ConcurrentHashMapDeserializer implements ObjectDeserializer {
     public final static ConcurrentHashMapDeserializer instance = new ConcurrentHashMapDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
         Map<String, Object> map = new ConcurrentHashMap<String, Object>();
         parser.parseObject(map);
         return (T) map;

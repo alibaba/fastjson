@@ -12,7 +12,7 @@ public class TimestampDeserializer implements ObjectDeserializer {
     public final static TimestampDeserializer instance = new TimestampDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
         Object val = parser.parse();
         
         if (val == null) {

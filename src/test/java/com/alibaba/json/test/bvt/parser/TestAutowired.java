@@ -79,7 +79,7 @@ public class TestAutowired extends TestCase {
 
     public static class EntityDeserializer implements AutowiredObjectDeserializer {
 
-        public <T> T deserialze(DefaultExtJSONParser parser, Type type) {
+        public <T> T deserialze(DefaultExtJSONParser parser, Type type, Object fieldName) {
             parser.accept(JSONToken.LBRACE);
             JSONLexer lexer = parser.getLexer();
             Assert.assertEquals("v", lexer.stringVal());

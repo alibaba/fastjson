@@ -21,6 +21,6 @@ public class BigDecimalDeserializerTest extends TestCase {
         Assert.assertEquals(null, JSON.parseObject("null", BigDecimal.class));
 
         DefaultExtJSONParser parser = new DefaultExtJSONParser("null", ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
-        Assert.assertEquals(null, BigDecimalDeserializer.instance.deserialze(parser, null));
+        Assert.assertEquals(null, BigDecimalDeserializer.instance.deserialze(parser, null, null));
     }
 }

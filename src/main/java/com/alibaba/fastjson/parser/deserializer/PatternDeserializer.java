@@ -10,7 +10,7 @@ public class PatternDeserializer implements ObjectDeserializer {
     public final static PatternDeserializer instance = new PatternDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
         Object value = parser.parse();
 
         if (value == null) {

@@ -22,7 +22,7 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
             fieldValueDeserilizer = parser.getConfig().getDeserializer(fieldInfo);
         }
 
-        Object value = fieldValueDeserilizer.deserialze(parser, getFieldType());
+        Object value = fieldValueDeserilizer.deserialze(parser, getFieldType(), fieldInfo.getName());
         if (parser.getReferenceResolveStat() == DefaultExtJSONParser.NeedToResolve) {
             ResolveTask task = parser.getLastResolveTask();
             task.setFieldDeserializer(this);

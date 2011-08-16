@@ -24,7 +24,7 @@ public class BooleanDeserializerTest extends TestCase {
 
         {
             DefaultExtJSONParser parser = new DefaultExtJSONParser("null", ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
-            Assert.assertEquals(null, BooleanDeserializer.instance.deserialze(parser, null));
+            Assert.assertEquals(null, BooleanDeserializer.instance.deserialze(parser, null, null));
         }
     }
 }

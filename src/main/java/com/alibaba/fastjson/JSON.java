@@ -32,6 +32,7 @@ import com.alibaba.fastjson.parser.DefaultExtJSONParser;
 import com.alibaba.fastjson.parser.DefaultExtJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
+import com.alibaba.fastjson.parser.ParseContext;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.serializer.JSONSerializer;
@@ -171,7 +172,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         DefaultExtJSONParser parser = new DefaultExtJSONParser(input, ParserConfig.getGlobalInstance(), featureValues);
         T value = (T) parser.parseObject(clazz);
-        
+
         handleResovleTask(parser, value);
 
         parser.close();
@@ -205,7 +206,18 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         for (int i = 0; i < size; ++i) {
             ResolveTask task = parser.getResolveTaskList().get(i);
             FieldDeserializer fieldDeser = task.getFieldDeserializer();
-            fieldDeser.setValue(task.getOwnerContext().getObject(), value);
+            
+            Object object = task.getContext().getObject();
+            
+            
+            String ref = task.getReferenceValue();
+            Object refValue;
+            if (ref.startsWith("$")) {
+                refValue = parser.getObject(ref);
+            } else {
+                refValue = task.getOwnerContext().getObject();
+            }
+            fieldDeser.setValue(object, refValue);
         }
     }
 
@@ -248,7 +260,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         DefaultExtJSONParser parser = new DefaultExtJSONParser(input, length, ParserConfig.getGlobalInstance(),
                                                                featureValues);
         T value = (T) parser.parseObject(clazz);
-        
+
         handleResovleTask(parser, value);
 
         parser.close();

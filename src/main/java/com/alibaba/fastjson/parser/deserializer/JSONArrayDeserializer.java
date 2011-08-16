@@ -10,7 +10,7 @@ public class JSONArrayDeserializer implements ObjectDeserializer {
     public final static JSONArrayDeserializer instance = new JSONArrayDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
         JSONArray array = new JSONArray();
         parser.parseArray(array);
         return (T) array;

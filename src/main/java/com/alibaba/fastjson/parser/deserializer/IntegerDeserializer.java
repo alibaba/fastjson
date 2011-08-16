@@ -12,7 +12,7 @@ public class IntegerDeserializer implements ObjectDeserializer {
     public final static IntegerDeserializer instance = new IntegerDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
         return (T) deserialze(parser);
     }
     

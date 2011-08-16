@@ -12,7 +12,7 @@ public class LongDeserializer implements ObjectDeserializer {
     public final static LongDeserializer instance = new LongDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
         return (T) deserialze(parser);
     }
 

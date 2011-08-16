@@ -10,7 +10,7 @@ public class TimeZoneDeserializer implements ObjectDeserializer {
     public final static TimeZoneDeserializer instance = new TimeZoneDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
         
         String id = (String) parser.parse();
         

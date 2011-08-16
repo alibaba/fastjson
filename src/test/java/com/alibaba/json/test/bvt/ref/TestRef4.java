@@ -6,6 +6,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
@@ -30,10 +31,15 @@ public class TestRef4 extends TestCase {
         sager.setReportTo(sdh5724);
         jobs.setReportTo(sdh5724);
 
-        SerializeConfig config = new SerializeConfig();
-        config.setAsmEnable(false);
-        String text = JSON.toJSONString(admin, config, SerializerFeature.PrettyFormat);
+        SerializeConfig serializeConfig = new SerializeConfig();
+        serializeConfig.setAsmEnable(false);
+        String text = JSON.toJSONString(admin, serializeConfig, SerializerFeature.PrettyFormat);
         System.out.println(text);
+        
+        ParserConfig config = new ParserConfig();
+        config.setAsmEnable(false);
+        
+        JSON.parseObject(text, Group.class, config, 0);
     }
 
     public static class Group {
@@ -66,6 +72,9 @@ public class TestRef4 extends TestCase {
             this.members = members;
         }
 
+        public String toString() {
+            return this.name;
+        }
     }
 
     public static class User {
@@ -108,5 +117,8 @@ public class TestRef4 extends TestCase {
             this.groups = groups;
         }
 
+        public String toString() {
+            return this.name;
+        }
     }
 }

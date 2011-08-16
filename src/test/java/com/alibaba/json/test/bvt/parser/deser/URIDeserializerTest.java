@@ -18,7 +18,7 @@ public class URIDeserializerTest extends TestCase {
         URIDeserializer deser = new URIDeserializer();
         Assert.assertEquals(JSONToken.LITERAL_STRING, deser.getFastMatchToken());
 
-        Assert.assertNull(deser.deserialze(parser, null));
+        Assert.assertNull(deser.deserialze(parser, null, null));
     }
 
 }

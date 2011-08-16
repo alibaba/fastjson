@@ -14,7 +14,7 @@ public class ArrayDeserializer implements ObjectDeserializer {
     public final static ArrayDeserializer instance = new ArrayDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
         final JSONLexer lexer = parser.getLexer();
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken(JSONToken.COMMA);

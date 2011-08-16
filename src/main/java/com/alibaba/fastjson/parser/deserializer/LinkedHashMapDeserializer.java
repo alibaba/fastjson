@@ -11,7 +11,7 @@ public class LinkedHashMapDeserializer implements ObjectDeserializer {
     public final static LinkedHashMapDeserializer instance = new LinkedHashMapDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
         Map<String, Object> map = new LinkedHashMap<String, Object>();
         parser.parseObject(map);
         return (T) map;

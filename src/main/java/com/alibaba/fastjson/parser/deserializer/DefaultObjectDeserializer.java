@@ -163,12 +163,12 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
                     args[0] = LongDeserializer.deserialze(parser);
                 } else if (fieldClass == List.class) {
                     lexer.nextTokenWithColon(JSONToken.LBRACE);
-                    args[0] = CollectionDeserializer.instance.deserialze(parser, fieldType);
+                    args[0] = CollectionDeserializer.instance.deserialze(parser, fieldType, null);
                 } else {
                     ObjectDeserializer fieldValueDeserializer = parser.getConfig().getDeserializer(fieldClass, fieldType);
 
                     lexer.nextTokenWithColon(fieldValueDeserializer.getFastMatchToken());
-                    args[0] = fieldValueDeserializer.deserialze(parser, fieldType);
+                    args[0] = fieldValueDeserializer.deserialze(parser, fieldType, null);
                 }
 
                 try {
@@ -190,7 +190,7 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type type) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type type, Object fieldName) {
         if (type instanceof Class<?>) {
             return deserialze(parser, (Class<T>) type);
         }

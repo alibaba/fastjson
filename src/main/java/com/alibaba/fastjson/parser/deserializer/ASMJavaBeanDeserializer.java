@@ -27,8 +27,8 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type type) {
-        return (T) serializer.deserialze(parser, type);
+    public <T> T deserialze(DefaultExtJSONParser parser, Type type, Object fieldName) {
+        return (T) serializer.deserialze(parser, type, fieldName);
     }
 
     public int getFastMatchToken() {

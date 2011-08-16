@@ -44,6 +44,9 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
     private DefaultObjectDeserializer  derializer           = new DefaultObjectDeserializer();
     private ParseContext               context;
 
+    private ParseContext[]             contextArray         = new ParseContext[8];
+    private int                        contextArrayIndex    = 0;
+
     private final List<ResolveTask>    resolveTaskList      = new ArrayList<ResolveTask>();
 
     public final static int            NONE                 = 0;
@@ -72,6 +75,16 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
         primitiveClasses.add(BigInteger.class);
         primitiveClasses.add(BigDecimal.class);
         primitiveClasses.add(String.class);
+    }
+    
+    public Object getObject(String path) {
+        for (int i = 0; i < contextArrayIndex; ++i) {
+            if (path.equals(contextArray[i].getPath())) {
+                return contextArray[i].getObject();
+            }
+        }
+        
+        return null;
     }
 
     public DefaultExtJSONParser(String input){
@@ -105,7 +118,7 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
     public List<ResolveTask> getResolveTaskList() {
         return resolveTaskList;
     }
-    
+
     public ResolveTask getLastResolveTask() {
         return resolveTaskList.get(resolveTaskList.size() - 1);
     }
@@ -114,9 +127,21 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
         this.context = context;
     }
 
-    public ParseContext setContext(ParseContext parent, Object object) {
-        this.context = new ParseContext(parent, object);
+    public ParseContext setContext(ParseContext parent, Object object, Object fieldName) {
+        this.context = new ParseContext(parent, object, fieldName);
+        addContext(this.context);
         return this.context;
+    }
+
+    private void addContext(ParseContext context) {
+        int i = contextArrayIndex++;
+        if (i >= contextArray.length) {
+            int newLen = contextArray.length * 2 / 3;
+            ParseContext[] newArray = new ParseContext[newLen];
+            System.arraycopy(contextArray, 0, newArray, 0, contextArray.length);
+            contextArray = newArray;
+        }
+        contextArray[i] = context;
     }
 
     public ParserConfig getConfig() {
@@ -143,7 +168,7 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
         ObjectDeserializer derializer = config.getDeserializer(type);
 
         try {
-            return (T) derializer.deserialze(this, type);
+            return (T) derializer.deserialze(this, type, null);
         } catch (JSONException e) {
             throw e;
         } catch (Throwable e) {
@@ -210,7 +235,7 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
 
                 array.add(value);
             } else {
-                Object val = deserializer.deserialze(this, type);
+                Object val = deserializer.deserialze(this, type, null);
                 array.add(val);
             }
 
@@ -287,7 +312,7 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
 
                         if (lexer.token() != JSONToken.RBRACKET) {
                             for (;;) {
-                                Object item = derializer.deserialze(this, type);
+                                Object item = derializer.deserialze(this, type, null);
                                 varList.add(item);
 
                                 if (lexer.token() == JSONToken.COMMA) {
@@ -303,7 +328,7 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
                         value = TypeUtils.cast(varList, type, config);
                     } else {
                         ObjectDeserializer derializer = config.getDeserializer(type);
-                        value = derializer.deserialze(this, type);
+                        value = derializer.deserialze(this, type, null);
                     }
                 }
             }
@@ -411,11 +436,11 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
     public static class ResolveTask {
 
         private final ParseContext context;
-        private final Object       referenceValue;
+        private final String       referenceValue;
         private FieldDeserializer  fieldDeserializer;
         private ParseContext       ownerContext;
 
-        public ResolveTask(ParseContext context, Object referenceValue){
+        public ResolveTask(ParseContext context, String referenceValue){
             super();
             this.context = context;
             this.referenceValue = referenceValue;
@@ -425,7 +450,7 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
             return context;
         }
 
-        public Object getReferenceValue() {
+        public String getReferenceValue() {
             return referenceValue;
         }
 

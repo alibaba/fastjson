@@ -10,7 +10,7 @@ public class CharacterDeserializer implements ObjectDeserializer {
     public final static CharacterDeserializer instance = new CharacterDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
         Object value = parser.parse();
 
         if (value == null) {

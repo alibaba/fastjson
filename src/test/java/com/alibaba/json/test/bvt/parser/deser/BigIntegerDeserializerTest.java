@@ -17,7 +17,7 @@ public class BigIntegerDeserializerTest extends TestCase {
 
         BigIntegerDeserializer deser = new BigIntegerDeserializer();
 
-        Assert.assertNull(deser.deserialze(parser, null));
+        Assert.assertNull(deser.deserialze(parser, null, null));
     }
     
     public void test_1() throws Exception {

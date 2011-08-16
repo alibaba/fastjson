@@ -15,7 +15,7 @@ public class ArrayListStringDeserializer implements ObjectDeserializer {
     public final static ArrayListStringDeserializer instance = new ArrayListStringDeserializer();
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T deserialze(DefaultExtJSONParser parser, Type type) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type type, Object fieldName) {
         ArrayList list = new ArrayList();
 
         parseArray(parser, list);

@@ -14,7 +14,7 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
         Object jsonValue = parser.parse();
         return (T) TypeUtils.cast(jsonValue, clazz, parser.getConfig());
     }

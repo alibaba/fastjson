@@ -77,13 +77,13 @@ public class ASMDeserializerFactory implements Opcodes {
 
         _init(cw, new Context(className, config, beanInfo, 3));
         _createInstance(cw, new Context(className, config, beanInfo, 3));
-        _deserialze(cw, new Context(className, config, beanInfo, 3));
+        _deserialze(cw, new Context(className, config, beanInfo, 4));
 
         byte[] code = cw.toByteArray();
 
-//        org.apache.commons.io.IOUtils.write(code, new java.io.FileOutputStream(
-//                                                                               "/usr/alibaba/workspace/fastjson-asm/target/classes/"
-//                                                                                       + className + ".class"));
+        org.apache.commons.io.IOUtils.write(code, new java.io.FileOutputStream(
+                                                                               "/usr/alibaba/workspace/fastjson-asm/target/classes/"
+                                                                                       + className + ".class"));
 
         Class<?> exampleClass = classLoader.defineClassPublic(className, code, 0, code.length);
 
@@ -123,7 +123,7 @@ public class ASMDeserializerFactory implements Opcodes {
         Collections.sort(context.getFieldInfoList());
 
         MethodVisitor mw = cw.visitMethod(ACC_PUBLIC, "deserialze", "(" + getDesc(DefaultExtJSONParser.class)
-                                                                    + getDesc(Type.class) + ")Ljava/lang/Object;",
+                                                                    + getDesc(Type.class) + "Ljava/lang/Object;)Ljava/lang/Object;",
                                           null, null);
 
         Label reset_ = new Label();
@@ -184,8 +184,9 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitVarInsn(ALOAD, 1); // parser
             mw.visitVarInsn(ALOAD, context.var("context"));
             mw.visitVarInsn(ALOAD, context.var("instance"));
+            mw.visitVarInsn(ALOAD, 3); // fieldName
             mw.visitMethodInsn(INVOKEVIRTUAL, getType(DefaultExtJSONParser.class), "setContext",
-                               "(Lcom/alibaba/fastjson/parser/ParseContext;Ljava/lang/Object;)Lcom/alibaba/fastjson/parser/ParseContext;");
+                               "(Lcom/alibaba/fastjson/parser/ParseContext;Ljava/lang/Object;Ljava/lang/Object;)Lcom/alibaba/fastjson/parser/ParseContext;");
             mw.visitVarInsn(ASTORE, context.var("childContext"));
         }
 
@@ -339,8 +340,9 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ALOAD, 0);
         mw.visitVarInsn(ALOAD, 1);
         mw.visitVarInsn(ALOAD, 2);
+        mw.visitVarInsn(ALOAD, 3);
         mw.visitMethodInsn(INVOKESPECIAL, getType(ASMJavaBeanDeserializer.class), "deserialze",
-                           "(" + getDesc(DefaultExtJSONParser.class) + getDesc(Type.class) + ")Ljava/lang/Object;");
+                           "(" + getDesc(DefaultExtJSONParser.class) + getDesc(Type.class) + "Ljava/lang/Object;)Ljava/lang/Object;");
         mw.visitInsn(ARETURN);
 
         mw.visitLabel(end_);
@@ -515,6 +517,8 @@ public class ASMDeserializerFactory implements Opcodes {
         Label loop_end_ = new Label();
 
         // for (;;) {
+        mw.visitInsn(ICONST_0);
+        mw.visitVarInsn(ISTORE, context.var("i"));
         mw.visitLabel(loop_);
         // if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
         // while (lexer.token() == JSONToken.COMMA) {
@@ -538,9 +542,13 @@ public class ASMDeserializerFactory implements Opcodes {
                           getDesc(ObjectDeserializer.class));
         mw.visitVarInsn(ALOAD, 1);
         mw.visitInsn(ACONST_NULL);
+        mw.visitVarInsn(ILOAD, context.var("i"));
+        mw.visitMethodInsn(INVOKESTATIC, getType(Integer.class), "valueOf", "(I)Ljava/lang/Integer;");
         mw.visitMethodInsn(INVOKEINTERFACE, getType(ObjectDeserializer.class), "deserialze",
-                           "(Lcom/alibaba/fastjson/parser/DefaultExtJSONParser;Ljava/lang/reflect/Type;)Ljava/lang/Object;");
+                           "(Lcom/alibaba/fastjson/parser/DefaultExtJSONParser;Ljava/lang/reflect/Type;Ljava/lang/Object;)Ljava/lang/Object;");
         mw.visitVarInsn(ASTORE, context.var("list_item_value"));
+        
+        mw.visitIincInsn(context.var("i"), 1);
 
         mw.visitVarInsn(ALOAD, context.var(fieldInfo.getName() + "_asm"));
         mw.visitVarInsn(ALOAD, context.var("list_item_value"));
@@ -609,8 +617,9 @@ public class ASMDeserializerFactory implements Opcodes {
                           getDesc(ObjectDeserializer.class));
         mw.visitVarInsn(ALOAD, 1);
         mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc(fieldInfo.getFieldClass())));
+        mw.visitLdcInsn(fieldInfo.getName());
         mw.visitMethodInsn(INVOKEINTERFACE, getType(ObjectDeserializer.class), "deserialze",
-                           "(" + getDesc(DefaultExtJSONParser.class) + getDesc(Type.class) + ")Ljava/lang/Object;");
+                           "(" + getDesc(DefaultExtJSONParser.class) + getDesc(Type.class) + "Ljava/lang/Object;)Ljava/lang/Object;");
         mw.visitTypeInsn(CHECKCAST, getType(fieldClass)); // cast
         mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
 
@@ -761,7 +770,7 @@ public class ASMDeserializerFactory implements Opcodes {
 
     static class Context {
 
-        private int                       variantIndex = 4;
+        private int                       variantIndex = 5;
 
         private Map<String, Integer>      variants     = new HashMap<String, Integer>();
 

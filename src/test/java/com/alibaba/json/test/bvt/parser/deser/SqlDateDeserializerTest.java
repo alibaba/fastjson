@@ -19,7 +19,7 @@ public class SqlDateDeserializerTest extends TestCase {
         Assert.assertEquals(null, JSON.parseObject("null", Integer.class));
 
         DefaultExtJSONParser parser = new DefaultExtJSONParser("null", ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
-        Assert.assertEquals(null, SqlDateDeserializer.instance.deserialze(parser, null));
+        Assert.assertEquals(null, SqlDateDeserializer.instance.deserialze(parser, null, null));
         Assert.assertEquals(JSONToken.LITERAL_INT, SqlDateDeserializer.instance.getFastMatchToken());
     }
 }

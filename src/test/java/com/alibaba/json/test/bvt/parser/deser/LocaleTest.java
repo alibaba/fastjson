@@ -35,6 +35,6 @@ public class LocaleTest extends TestCase {
 
         LocaleDeserializer deser = new LocaleDeserializer();
 
-        Assert.assertNull(deser.deserialze(parser, null));
+        Assert.assertNull(deser.deserialze(parser, null, null));
     }
 }

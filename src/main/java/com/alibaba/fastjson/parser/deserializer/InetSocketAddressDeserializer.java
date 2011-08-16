@@ -14,7 +14,7 @@ public class InetSocketAddressDeserializer implements ObjectDeserializer {
     public final static InetSocketAddressDeserializer instance = new InetSocketAddressDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
         JSONLexer lexer = parser.getLexer();
 
         if (lexer.token() == JSONToken.NULL) {

@@ -11,7 +11,7 @@ public class TreeMapDeserializer implements ObjectDeserializer {
     public final static TreeMapDeserializer instance = new TreeMapDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
         Map<String, Object> map = new TreeMap<String, Object>();
         parser.parseObject(map);
         return (T) map;

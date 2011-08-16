@@ -13,7 +13,7 @@ public class BigDecimalDeserializer implements ObjectDeserializer {
     public final static BigDecimalDeserializer instance = new BigDecimalDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
         return (T) deserialze(parser);
     }
 

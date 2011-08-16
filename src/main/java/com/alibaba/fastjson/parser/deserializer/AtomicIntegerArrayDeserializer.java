@@ -12,7 +12,7 @@ public class AtomicIntegerArrayDeserializer implements ObjectDeserializer {
     public final static AtomicIntegerArrayDeserializer instance = new AtomicIntegerArrayDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
         if (parser.getLexer().token() == JSONToken.NULL) {
             parser.getLexer().nextToken(JSONToken.COMMA);
             return null;

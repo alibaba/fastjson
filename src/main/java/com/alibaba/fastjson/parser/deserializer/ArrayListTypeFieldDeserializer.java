@@ -4,6 +4,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONException;
@@ -11,6 +12,7 @@ import com.alibaba.fastjson.parser.DefaultExtJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
+import com.alibaba.fastjson.parser.ParseContext;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.FieldInfo;
 
@@ -41,7 +43,11 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
         ArrayList list = new ArrayList();
 
+        ParseContext context = parser.getContext();
+        
+        parser.setContext(context, object, fieldInfo.getName());
         parseArray(parser, list);
+        parser.setContext(context);
 
         if (object == null) {
             fieldValues.put(fieldInfo.getName(), list);
@@ -64,8 +70,8 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
         }
 
         lexer.nextToken(itemFastMatchToken);
-
-        for (;;) {
+        
+        for (int i = 0;; ++i) {
             if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
                 while (lexer.token() == JSONToken.COMMA) {
                     lexer.nextToken();
@@ -77,8 +83,29 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
                 break;
             }
 
-            Object val = deserializer.deserialze(parser, itemType);
+            Object val = deserializer.deserialze(parser, itemType, i);
             array.add(val);
+            
+            if (parser.getReferenceResolveStat() == DefaultExtJSONParser.NeedToResolve) {
+                final int index = array.size() - 1;
+                final List list = (List) array;
+                parser.getLastResolveTask().setFieldDeserializer(new FieldDeserializer(null, null) {
+                    
+                    public void setValue(Object object, Object value) {
+                        list.set(index, value);  
+                    }
+                    
+                    @Override
+                    public void parseField(DefaultExtJSONParser parser, Object object, Map<String, Object> fieldValues) {
+                        
+                    }
+                    
+                    @Override
+                    public int getFastMatchToken() {
+                        return 0;
+                    }
+                });
+            }
 
             if (lexer.token() == JSONToken.COMMA) {
                 lexer.nextToken(itemFastMatchToken);

@@ -10,7 +10,7 @@ public class LocaleDeserializer implements ObjectDeserializer {
     public final static LocaleDeserializer instance = new LocaleDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
         String text = (String) parser.parse();
         
         if (text == null) {

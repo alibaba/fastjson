@@ -15,7 +15,7 @@ public class CollectionDeserializer implements ObjectDeserializer {
     public final static CollectionDeserializer instance = new CollectionDeserializer();
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T deserialze(DefaultExtJSONParser parser, Type type) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type type, Object fieldName) {
         if (parser.getLexer().token() == JSONToken.NULL) {
             parser.getLexer().nextToken(JSONToken.COMMA);
             return null;

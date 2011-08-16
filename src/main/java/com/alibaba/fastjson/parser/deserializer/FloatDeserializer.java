@@ -12,7 +12,7 @@ public class FloatDeserializer implements ObjectDeserializer {
     public final static FloatDeserializer instance = new FloatDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
         return (T) deserialze(parser);
     }
 

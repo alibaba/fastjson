@@ -24,7 +24,7 @@ public class MediaDeserializer implements ObjectDeserializer {
     private char[] player_   = "\"player\":".toCharArray();
     private char[] copyright_   = "\"copyright\":".toCharArray();
 
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
         // "size":58982400,"format":"video/mpg4","uri":"http://javaone.com/keynote.mpg","title":"Javaone Keynote","width":640,"height":480,
         // "duration":18000000,"bitrate":262144,"persons":["Bill Gates","Steve Jobs"],"player":"JAVA"
         

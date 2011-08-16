@@ -17,7 +17,7 @@ public class InetAddressDeserializerTest extends TestCase {
 
         InetAddressDeserializer deser = new InetAddressDeserializer();
 
-        Assert.assertNull(deser.deserialze(parser, null));
+        Assert.assertNull(deser.deserialze(parser, null, null));
     }
     
     public void test_string_null() throws Exception {
@@ -26,7 +26,7 @@ public class InetAddressDeserializerTest extends TestCase {
         
         StringDeserializer deser = new StringDeserializer();
         
-        Assert.assertNull(deser.deserialze(parser, null));
+        Assert.assertNull(deser.deserialze(parser, null, null));
     }
 
     public void test_error_0() throws Exception {
@@ -39,7 +39,7 @@ public class InetAddressDeserializerTest extends TestCase {
 
         Object value = null;
         try {
-            value = deser.deserialze(parser, null);
+            value = deser.deserialze(parser, null, null);
         } catch (Throwable ex) {
             error = ex;
         }

@@ -10,7 +10,7 @@ public class URIDeserializer implements ObjectDeserializer {
     public final static URIDeserializer instance = new URIDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz) {
+    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
         
         String uri = (String) parser.parse();
         

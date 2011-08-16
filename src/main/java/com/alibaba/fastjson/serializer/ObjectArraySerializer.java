@@ -27,7 +27,7 @@ public class ObjectArraySerializer implements ObjectSerializer {
     public ObjectArraySerializer(){
     }
 
-    public final void write(JSONSerializer serializer, Object object) throws IOException {
+    public final void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         Object[] array = (Object[]) object;
@@ -79,12 +79,12 @@ public class ObjectArraySerializer implements ObjectSerializer {
                 Class<?> clazz = item.getClass();
 
                 if (clazz == preClazz) {
-                    preWriter.write(serializer, item);
+                    preWriter.write(serializer, item, null);
                 } else {
                     preClazz = clazz;
                     preWriter = serializer.getObjectWriter(clazz);
 
-                    preWriter.write(serializer, item);
+                    preWriter.write(serializer, item, null);
                 }
 
                 out.append(',');

@@ -37,19 +37,19 @@ import com.alibaba.fastjson.util.ServiceLoader;
  */
 public class JSONSerializer {
 
-    private final SerializeConfig  config;
+    private final SerializeConfig     config;
 
-    private final SerializeWriter  out;
+    private final SerializeWriter     out;
 
-    private List<PropertyFilter>   propertyFilters = null;
-    private List<ValueFilter>      valueFilters    = null;
-    private List<NameFilter>       nameFilters     = null;
+    private List<PropertyFilter>      propertyFilters = null;
+    private List<ValueFilter>         valueFilters    = null;
+    private List<NameFilter>          nameFilters     = null;
 
-    private int                    indentCount     = 0;
-    private String                 indent          = "\t";
+    private int                       indentCount     = 0;
+    private String                    indent          = "\t";
 
-    private transient List<Object> references      = new ArrayList<Object>();
-    private SerialContext                 context;
+    private final List<SerialContext> references      = new ArrayList<SerialContext>();
+    private SerialContext             context;
 
     public SerialContext getContext() {
         return context;
@@ -58,18 +58,24 @@ public class JSONSerializer {
     public void setContext(SerialContext context) {
         this.context = context;
     }
-    
-    public void setContext(SerialContext parent, Object object) {
-        this.context = new SerialContext(parent, object);
+
+    public void setContext(SerialContext parent, Object object, Object fieldName) {
+        this.context = new SerialContext(parent, object, fieldName);
+        this.references.add(context);
     }
 
-    public void addReference(Object value) {
-        references.add(value);
+    public void setContext(SerialContext parent, Object object) {
+        this.context = new SerialContext(parent, object, null);
+        this.references.add(context);
+    }
+
+    public List<SerialContext> getReferences() {
+        return references;
     }
 
     public boolean containsReference(Object value) {
-        for (Object item : references) {
-            if (item == value) {
+        for (SerialContext item : references) {
+            if (item.getObject() == value) {
                 return true;
             }
         }
@@ -202,7 +208,7 @@ public class JSONSerializer {
 
             ObjectSerializer writer = getObjectWriter(clazz);
 
-            writer.write(this, object);
+            writer.write(this, object, null);
         } catch (IOException e) {
             throw new JSONException(e.getMessage(), e);
         }

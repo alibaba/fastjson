@@ -25,7 +25,7 @@ public class AtomicBooleanSerializer implements ObjectSerializer {
 
     public final static AtomicBooleanSerializer instance = new AtomicBooleanSerializer();
 
-    public void write(JSONSerializer serializer, Object object) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         AtomicBoolean val = (AtomicBoolean) object;

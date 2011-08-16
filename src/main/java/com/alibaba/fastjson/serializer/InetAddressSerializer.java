@@ -7,7 +7,7 @@ public class InetAddressSerializer implements ObjectSerializer {
 
     public static InetAddressSerializer instance = new InetAddressSerializer();
 
-    public void write(JSONSerializer serializer, Object object) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException {
         if (object == null) {
             serializer.writeNull();
             return;

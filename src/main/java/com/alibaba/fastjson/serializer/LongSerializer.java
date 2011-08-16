@@ -24,7 +24,7 @@ public class LongSerializer implements ObjectSerializer {
 
     public static LongSerializer instance = new LongSerializer();
 
-    public void write(JSONSerializer serializer, Object object) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         if (object == null) {

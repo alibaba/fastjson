@@ -24,7 +24,7 @@ public class IntArraySerializer implements ObjectSerializer {
 
     public static IntArraySerializer instance = new IntArraySerializer();
 
-    public final void write(JSONSerializer serializer, Object object) throws IOException {
+    public final void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException {
         SerializeWriter out = serializer.getWriter();
         
         if (object == null) {

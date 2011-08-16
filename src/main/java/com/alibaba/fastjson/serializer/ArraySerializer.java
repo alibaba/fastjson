@@ -29,7 +29,7 @@ public class ArraySerializer implements ObjectSerializer {
         this.compObjectSerializer = compObjectSerializer;
     }
 
-    public final void write(JSONSerializer serializer, Object object) throws IOException {
+    public final void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException {
         SerializeWriter out = serializer.getWriter();
         
         if (object == null) {
@@ -58,7 +58,7 @@ public class ArraySerializer implements ObjectSerializer {
             if (item == null) {
                 out.append("null,");
             } else {
-                compObjectSerializer.write(serializer, item);
+                compObjectSerializer.write(serializer, item, null);
                 out.append(',');
             }
         }
@@ -68,7 +68,7 @@ public class ArraySerializer implements ObjectSerializer {
         if (item == null) {
             out.append("null]");
         } else {
-            compObjectSerializer.write(serializer, item);
+            compObjectSerializer.write(serializer, item, null);
             out.append(']');
         }
     }

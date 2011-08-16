@@ -6,9 +6,12 @@ public class SerialContext {
 
     private final Object        object;
 
-    public SerialContext(SerialContext parent, Object object){
+    private final Object        fieldName;
+
+    public SerialContext(SerialContext parent, Object object, Object fieldName){
         this.parent = parent;
         this.object = object;
+        this.fieldName = fieldName;
     }
 
     public SerialContext getParent() {
@@ -19,4 +22,20 @@ public class SerialContext {
         return object;
     }
 
+    public Object getFieldName() {
+        return fieldName;
+    }
+
+    public String getPath() {
+        if (parent == null) {
+            return "$";
+        } else {
+            if (fieldName instanceof Integer) {
+                return parent.getPath() + "[" + fieldName + "]";
+            } else {
+                return parent.getPath() + "." + fieldName;    
+            }
+            
+        }
+    }
 }

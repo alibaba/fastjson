@@ -26,7 +26,7 @@ public class JSONStreamAwareSerializer implements ObjectSerializer {
 
     public static JSONStreamAwareSerializer instance = new JSONStreamAwareSerializer();
 
-    public void write(JSONSerializer serializer, Object object) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         JSONStreamAware aware = (JSONStreamAware) object;

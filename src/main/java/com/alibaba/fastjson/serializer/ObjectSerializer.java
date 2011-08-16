@@ -22,5 +22,5 @@ import java.io.IOException;
  */
 public interface ObjectSerializer {
 
-    abstract void write(JSONSerializer serializer, Object object) throws IOException;
+    void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException;
 }

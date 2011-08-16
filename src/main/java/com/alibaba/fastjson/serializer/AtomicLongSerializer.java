@@ -25,7 +25,7 @@ public class AtomicLongSerializer implements ObjectSerializer {
 
     public final static AtomicLongSerializer instance = new AtomicLongSerializer();
 
-    public void write(JSONSerializer serializer, Object object) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         AtomicLong val = (AtomicLong) object;

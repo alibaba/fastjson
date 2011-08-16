@@ -44,7 +44,6 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
     private DefaultObjectDeserializer  derializer           = new DefaultObjectDeserializer();
     private ParseContext               context;
 
-    private final List<Object>         references           = new ArrayList<Object>();
     private final List<ResolveTask>    resolveTaskList      = new ArrayList<ResolveTask>();
 
     public final static int            NONE                 = 0;
@@ -101,14 +100,6 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
 
     public ParseContext getContext() {
         return context;
-    }
-
-    public void addReference(Object value) {
-        references.add(value);
-    }
-
-    public List<Object> getReferences() {
-        return references;
     }
 
     public List<ResolveTask> getResolveTaskList() {

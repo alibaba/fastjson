@@ -25,7 +25,7 @@ public class AtomicIntegerSerializer implements ObjectSerializer {
 
     public final static AtomicIntegerSerializer instance = new AtomicIntegerSerializer();
 
-    public void write(JSONSerializer serializer, Object object) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         AtomicInteger val = (AtomicInteger) object;

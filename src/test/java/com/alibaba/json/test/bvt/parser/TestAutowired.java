@@ -11,7 +11,7 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.deserializer.AutowiredObjectDeserializer;
@@ -79,7 +79,7 @@ public class TestAutowired extends TestCase {
 
     public static class EntityDeserializer implements AutowiredObjectDeserializer {
 
-        public <T> T deserialze(DefaultExtJSONParser parser, Type type, Object fieldName) {
+        public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
             parser.accept(JSONToken.LBRACE);
             JSONLexer lexer = parser.getLexer();
             Assert.assertEquals("v", lexer.stringVal());

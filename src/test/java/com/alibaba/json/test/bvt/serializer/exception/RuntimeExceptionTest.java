@@ -12,7 +12,7 @@ public class RuntimeExceptionTest extends TestCase {
         RuntimeException ex = new RuntimeException();
 
         JSONObject json = JSON.parseObject(JSON.toJSONString(ex));
-        Assert.assertEquals(RuntimeException.class.getName(), json.get("class"));
+//        Assert.assertEquals(RuntimeException.class.getName(), json.get("@type"));
 
         String jsonString = JSON.toJSONString(ex);
         Exception ex1 = JSON.parseObject(jsonString, Exception.class);

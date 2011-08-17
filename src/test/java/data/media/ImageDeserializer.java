@@ -2,7 +2,7 @@ package data.media;
 
 import java.lang.reflect.Type;
 
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParserConfig;
@@ -29,7 +29,7 @@ public class ImageDeserializer extends ASMJavaBeanDeserializer implements Object
     private char[] height_ = "\"height\":".toCharArray();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
+    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         final JSONScanner lexer = (JSONScanner) parser.getLexer();
 
         int height;
@@ -107,7 +107,7 @@ public class ImageDeserializer extends ASMJavaBeanDeserializer implements Object
     }
 
     @Override
-    public Object createInstance(DefaultExtJSONParser parser, Type type) {
+    public Object createInstance(DefaultJSONParser parser, Type type) {
         return new Image();
     }
 

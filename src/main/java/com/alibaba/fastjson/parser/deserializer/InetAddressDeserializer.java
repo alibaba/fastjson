@@ -5,7 +5,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONToken;
 
 public class InetAddressDeserializer implements ObjectDeserializer {
@@ -13,7 +13,7 @@ public class InetAddressDeserializer implements ObjectDeserializer {
     public final static InetAddressDeserializer instance = new InetAddressDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
+    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
 
         String host = (String) parser.parse();
 

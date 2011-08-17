@@ -3,14 +3,14 @@ package com.alibaba.fastjson.parser.deserializer;
 import java.lang.reflect.Type;
 import java.util.Locale;
 
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONToken;
 
 public class LocaleDeserializer implements ObjectDeserializer {
     public final static LocaleDeserializer instance = new LocaleDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
+    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         String text = (String) parser.parse();
         
         if (text == null) {

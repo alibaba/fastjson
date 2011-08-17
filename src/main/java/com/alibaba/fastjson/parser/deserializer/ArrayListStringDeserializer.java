@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -15,7 +15,7 @@ public class ArrayListStringDeserializer implements ObjectDeserializer {
     public final static ArrayListStringDeserializer instance = new ArrayListStringDeserializer();
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T deserialze(DefaultExtJSONParser parser, Type type, Object fieldName) {
+    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         ArrayList list = new ArrayList();
 
         parseArray(parser, list);
@@ -24,7 +24,7 @@ public class ArrayListStringDeserializer implements ObjectDeserializer {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static void parseArray(DefaultExtJSONParser parser, Collection array) {
+    public static void parseArray(DefaultJSONParser parser, Collection array) {
         JSONLexer lexer = parser.getLexer();
 
         if (lexer.token() != JSONToken.LBRACKET) {

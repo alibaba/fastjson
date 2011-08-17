@@ -5,14 +5,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONToken;
 
 public class URLDeserializer implements ObjectDeserializer {
     public final static URLDeserializer instance = new URLDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
+    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         
         String url = (String) parser.parse();
         

@@ -751,13 +751,69 @@ public class JSONScanner implements JSONLexer {
         return symbolTable.addSymbol(buf, np, sp, hash);
     }
 
-    public final static int NOT_MATCH      = -1;
-    public final static int NOT_MATCH_NAME = -2;
-    public final static int UNKOWN         = 0;
-    public final static int OBJECT         = 1;
-    public final static int ARRAY          = 2;
-    public final static int VALUE          = 3;
-    public final static int END            = 4;
+    public final static int     NOT_MATCH      = -1;
+    public final static int     NOT_MATCH_NAME = -2;
+    public final static int     UNKOWN         = 0;
+    public final static int     OBJECT         = 1;
+    public final static int     ARRAY          = 2;
+    public final static int     VALUE          = 3;
+    public final static int     END            = 4;
+
+    private final static char[] typeFieldName  = "\"@type\":\"".toCharArray();
+
+    public int scanType(String type) {
+        matchStat = UNKOWN;
+        
+        final int fieldNameLength = typeFieldName.length;
+
+        for (int i = 0; i < fieldNameLength; ++i) {
+            if (typeFieldName[i] != buf[bp + i]) {
+                return NOT_MATCH_NAME;
+            }
+        }
+
+        int bp = this.bp + fieldNameLength;
+        
+        final int typeLength = type.length();
+        for (int i = 0; i < typeLength; ++i) {
+            if (type.charAt(i) != buf[bp + i]) {
+                return NOT_MATCH;
+            }
+        }
+        bp += typeLength;
+        if (buf[bp] != '"') {
+            return NOT_MATCH;
+        }
+
+        this.ch = buf[++bp];
+        
+        if (ch == ',') {
+            this.ch = buf[++bp];
+            this.bp = bp;
+            token = JSONToken.COMMA;
+            return VALUE;
+        } else if (ch == '}') {
+            ch = buf[++bp];
+            if (ch == ',') {
+                token = JSONToken.COMMA;
+                this.ch = buf[++bp];
+            } else if (ch == ']') {
+                token = JSONToken.RBRACKET;
+                this.ch = buf[++bp];
+            } else if (ch == '}') {
+                token = JSONToken.RBRACE;
+                this.ch = buf[++bp];
+            } else if (ch == EOI) {
+                token = JSONToken.EOF;
+            } else {
+                return NOT_MATCH;
+            }
+            matchStat = END;
+        }
+        
+        this.bp = bp;
+        return matchStat;
+    }
 
     public boolean matchField(char[] fieldName) {
         final int fieldNameLength = fieldName.length;

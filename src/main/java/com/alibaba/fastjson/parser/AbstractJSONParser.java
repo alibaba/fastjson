@@ -23,7 +23,7 @@ import com.alibaba.fastjson.JSONObject;
 public abstract class AbstractJSONParser {
 
 	@SuppressWarnings("rawtypes")
-	public abstract void parseObject(final Map object);
+	public abstract Object parseObject(final Map object);
 
 	public JSONObject parseObject() {
 		JSONObject object = new JSONObject();
@@ -90,8 +90,7 @@ public abstract class AbstractJSONParser {
 				break;
 			case LBRACE:
 				JSONObject object = new JSONObject();
-				parseObject(object);
-				value = object;
+				value = parseObject(object);
 				break;
 			case LBRACKET:
 				Collection items = new JSONArray();
@@ -128,8 +127,7 @@ public abstract class AbstractJSONParser {
 			return array;
 		case LBRACE:
 			JSONObject object = new JSONObject();
-			parseObject(object);
-			return object;
+			return parseObject(object);
 		case LITERAL_INT:
 			Number intValue = lexer.integerValue();
 			lexer.nextToken();

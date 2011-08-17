@@ -109,7 +109,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
             boolean commaFlag = false;
 
             if (isWriteClassName(serializer)) {
-                out.writeFieldName("class");
+                out.writeFieldName("@type");
                 serializer.write(object.getClass());
                 commaFlag = true;
             }

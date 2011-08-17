@@ -22,7 +22,9 @@ public class EishayDecodeBytes extends BenchmarkCase {
 
     private final byte[]                  bytes;
     private final char[]                  chars;
-    private final String text;
+    private final String                  text;
+
+    private final MediaContent                  content;
 
     public byte[] getBytes() {
         return bytes;
@@ -31,15 +33,19 @@ public class EishayDecodeBytes extends BenchmarkCase {
     public char[] getChars() {
         return chars;
     }
-    
+
     public String getText() {
         return text;
+    }
+
+    public MediaContent getContent() {
+        return content;
     }
 
     public EishayDecodeBytes(){
         super("EishayDecode-Byte[]");
 
-        MediaContent content = new MediaContent();
+        content = new MediaContent();
 
         Media media = new Media();
         media.uri = "http://javaone.com/keynote.mpg";

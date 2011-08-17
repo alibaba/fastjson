@@ -1,6 +1,7 @@
 package com.alibaba.json.test.bvt.bug;
 
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -17,8 +18,17 @@ public class Bug_KimShen extends TestCase {
 
     public static class Entity {
 
-        private Set<Object>     value   = new HashSet<Object>();
-        private TreeSet<Object> treeSet = new TreeSet<Object>();
+        private Set<Object>     value      = new HashSet<Object>();
+        private TreeSet<Object> treeSet    = new TreeSet<Object>();
+        private LinkedList<Object> linkedList = new LinkedList<Object>();
+
+        public LinkedList<Object> getLinkedList() {
+            return linkedList;
+        }
+
+        public void setLinkedList(LinkedList<Object> linkedList) {
+            this.linkedList = linkedList;
+        }
 
         public Set<Object> getValue() {
             return value;

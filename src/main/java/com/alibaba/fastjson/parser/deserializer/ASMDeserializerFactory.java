@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
@@ -524,6 +525,10 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitTypeInsn(NEW, getType(ArrayList.class));
             mw.visitInsn(DUP);
             mw.visitMethodInsn(INVOKESPECIAL, getType(ArrayList.class), "<init>", "()V");
+        } else if (fieldClass.isAssignableFrom(LinkedList.class)) {
+            mw.visitTypeInsn(NEW, getType(LinkedList.class));
+            mw.visitInsn(DUP);
+            mw.visitMethodInsn(INVOKESPECIAL, getType(LinkedList.class), "<init>", "()V");
         } else if (fieldClass.isAssignableFrom(HashSet.class)) {
             mw.visitTypeInsn(NEW, getType(HashSet.class));
             mw.visitInsn(DUP);

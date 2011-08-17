@@ -610,7 +610,7 @@ public class TypeUtils {
         throw new JSONException("can not cast to : " + type);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({ "unchecked" })
     public static final <T> T castToJavaBean(Map<String, Object> map, Class<T> clazz, ParserConfig mapping) {
         try {
             if (clazz == StackTraceElement.class) {
@@ -635,12 +635,7 @@ public class TypeUtils {
                 if (iClassObject instanceof String) {
                     String className = (String) iClassObject;
 
-                    try {
-                        Class iClass = Thread.currentThread().getContextClassLoader().loadClass(className);
-                        clazz = iClass;
-                    } catch (Throwable e) {
-                        // skip
-                    }
+                    clazz = (Class<T>) loadClass(className);
                 }
             }
 
@@ -661,5 +656,25 @@ public class TypeUtils {
         } catch (Exception e) {
             throw new JSONException(e.getMessage(), e);
         }
+    }
+
+    public static Class<?> loadClass(String className) {
+        Class<?> clazz = null;
+        try {
+            clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
+            return clazz;
+        } catch (Throwable e) {
+            // skip
+        }
+        
+        try {
+            clazz = Class.forName(className);
+            return clazz;
+        } catch (Throwable e) {
+            // skip
+        }
+        
+        
+        return clazz;
     }
 }

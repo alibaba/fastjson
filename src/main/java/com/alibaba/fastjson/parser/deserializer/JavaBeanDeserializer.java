@@ -12,6 +12,7 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.DefaultExtJSONParser;
 import com.alibaba.fastjson.parser.DefaultExtJSONParser.ResolveTask;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -103,8 +104,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         try {
             Map<String, Object> fieldValues = null;
 
-            if (lexer.token() != JSONToken.LBRACE) {
+            if (parser.getResolveStatus() != DefaultJSONParser.TypeNameRedirect && lexer.token() != JSONToken.LBRACE) {
                 throw new JSONException("syntax error, expect {, actual " + JSONToken.name(lexer.token()));
+            }
+            
+            if (parser.getResolveStatus() == DefaultJSONParser.TypeNameRedirect) {
+                parser.setResolveStatus(DefaultJSONParser.NONE);
             }
 
             for (;;) {
@@ -135,7 +140,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                                 object = parentContext.getObject();
                             } else {
                                 parser.getResolveTaskList().add(new ResolveTask(parentContext, ref));        
-                                parser.setReferenceResolveStat(DefaultExtJSONParser.NeedToResolve);
+                                parser.setResolveStatus(DefaultExtJSONParser.NeedToResolve);
                             }
                         } else if ("$".equals(ref)) {
                             ParseContext rootContext = context;
@@ -147,11 +152,11 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                                 object = rootContext.getObject();
                             } else {
                                 parser.getResolveTaskList().add(new ResolveTask(rootContext, ref));
-                                parser.setReferenceResolveStat(DefaultExtJSONParser.NeedToResolve);
+                                parser.setResolveStatus(DefaultExtJSONParser.NeedToResolve);
                             }
                         } else {
                             parser.getResolveTaskList().add(new ResolveTask(context, ref));
-                            parser.setReferenceResolveStat(DefaultExtJSONParser.NeedToResolve);
+                            parser.setResolveStatus(DefaultExtJSONParser.NeedToResolve);
                         }
                     } else {
                         throw new JSONException("illegal ref, " + JSONToken.name(lexer.token()));

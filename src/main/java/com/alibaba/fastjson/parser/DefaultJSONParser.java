@@ -23,6 +23,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
+import com.alibaba.fastjson.util.TypeUtils;
 
 /**
  * @author wenshao<szujobs@hotmail.com>
@@ -33,6 +35,12 @@ public class DefaultJSONParser extends AbstractJSONParser {
     protected final Object      input;
     protected final SymbolTable symbolTable;
     protected ParserConfig      config;
+
+    public final static int     NONE             = 0;
+    public final static int     NeedToResolve    = 1;
+    public final static int     TypeNameRedirect = 2;
+
+    private int                 resolveStatus    = NONE;
 
     public DefaultJSONParser(String input){
         this(input, ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
@@ -59,6 +67,14 @@ public class DefaultJSONParser extends AbstractJSONParser {
         lexer.nextToken(JSONToken.LBRACE); // prime the pump
     }
 
+    public int getResolveStatus() {
+        return resolveStatus;
+    }
+
+    public void setResolveStatus(int resolveStatus) {
+        this.resolveStatus = resolveStatus;
+    }
+
     public SymbolTable getSymbolTable() {
         return symbolTable;
     }
@@ -74,104 +90,8 @@ public class DefaultJSONParser extends AbstractJSONParser {
         return input.toString();
     }
 
-    // public final void parseObject2(final Map map) {
-    // JSONScanner lexer = (JSONScanner) this.lexer;
-    //
-    // if (lexer.token() != JSONToken.LBRACE) {
-    // throw new JSONException("syntax error, expect {, actual " + lexer.token());
-    // }
-    //
-    // for (;;) {
-    // // lexer.scanSymbol
-    // String key = lexer.scanSymbol(getSymbolTable());
-    //
-    // if (key == null) {
-    // if (lexer.token() == JSONToken.RBRACE) {
-    // lexer.nextToken(JSONToken.COMMA);
-    // return;
-    // }
-    // if (lexer.token() == JSONToken.COMMA) {
-    // if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
-    // continue;
-    // }
-    // }
-    // }
-    //
-    // Object value;
-    //
-    // lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
-    // switch (lexer.token()) {
-    // case LITERAL_INT:
-    // value = lexer.integerValue();
-    // lexer.nextToken(JSONToken.COMMA);
-    // break;
-    // case LITERAL_FLOAT:
-    // if (lexer.isEnabled(Feature.UseBigDecimal)) {
-    // value = lexer.decimalValue();
-    // } else {
-    // value = Double.parseDouble(lexer.numberString());
-    // }
-    // lexer.nextToken(JSONToken.COMMA);
-    // break;
-    // case LITERAL_STRING:
-    // String stringLiteral = lexer.stringVal();
-    // lexer.nextToken(JSONToken.COMMA);
-    //
-    // if (lexer.isEnabled(Feature.AllowISO8601DateFormat)) {
-    // JSONScanner iso8601Lexer = new JSONScanner(stringLiteral);
-    // if (iso8601Lexer.scanISO8601DateIfMatch()) {
-    // value = iso8601Lexer.getCalendar().getTime();
-    // } else {
-    // value = stringLiteral;
-    // }
-    // } else {
-    // value = stringLiteral;
-    // }
-    //
-    // break;
-    // case TRUE:
-    // value = Boolean.TRUE;
-    // lexer.nextToken(JSONToken.COMMA);
-    // break;
-    // case FALSE:
-    // value = Boolean.FALSE;
-    // lexer.nextToken(JSONToken.COMMA);
-    // break;
-    // case LBRACE:
-    // JSONObject object = new JSONObject();
-    // parseObject(object);
-    // value = object;
-    // break;
-    // case LBRACKET:
-    // Collection array = new ArrayList();
-    // parseArray(array);
-    // value = array;
-    // break;
-    // case NULL:
-    // value = null;
-    // lexer.nextToken();
-    // break;
-    // default:
-    // value = parse();
-    // break;
-    // }
-    //
-    // map.put(key, value);
-    //
-    // if (lexer.token() == JSONToken.COMMA) {
-    // continue;
-    // }
-    //
-    // if (lexer.token() == JSONToken.RBRACE) {
-    // lexer.nextToken(JSONToken.COMMA);
-    // return;
-    // }
-    // }
-    //
-    // }
-
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public final void parseObject(final Map object) {
+    public final Object parseObject(final Map object) {
         JSONScanner lexer = (JSONScanner) this.lexer;
         if (lexer.token() != JSONToken.LBRACE) {
             throw new JSONException("syntax error, expect {, actual " + lexer.token());
@@ -200,7 +120,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                 lexer.incrementBufferPosition();
                 lexer.resetStringPosition();
                 lexer.nextToken();
-                return;
+                return object;
             } else if (ch == '\'') {
                 if (!isEnabled(Feature.AllowSingleQuotes)) {
                     throw new JSONException("syntax error");
@@ -235,6 +155,18 @@ public class DefaultJSONParser extends AbstractJSONParser {
 
             lexer.resetStringPosition();
 
+            if (key == "@type") {
+                String typeName = lexer.scanSymbol(symbolTable, '"');
+                Class<?> clazz = TypeUtils.loadClass(typeName);
+
+                ObjectDeserializer deserializer = config.getDeserializer(clazz);
+                
+                lexer.nextToken(JSONToken.COMMA);
+
+                this.resolveStatus = TypeNameRedirect;
+                return deserializer.deserialze((DefaultExtJSONParser) this, clazz, null);
+            }
+
             Object value;
             if (ch == '"') {
                 lexer.scanString();
@@ -267,7 +199,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
 
                 if (lexer.token() == JSONToken.RBRACE) {
                     lexer.nextToken();
-                    return;
+                    return object;
                 } else if (lexer.token() == JSONToken.COMMA) {
                     continue;
                 } else {
@@ -275,13 +207,12 @@ public class DefaultJSONParser extends AbstractJSONParser {
                 }
             } else if (ch == '{') { // 减少潜套，兼容android
                 lexer.nextToken();
-                JSONObject obj = new JSONObject();
-                this.parseObject(obj);
+                Object obj = this.parseObject(new JSONObject());
                 object.put(key, obj);
 
                 if (lexer.token() == JSONToken.RBRACE) {
                     lexer.nextToken();
-                    return;
+                    return object;
                 } else if (lexer.token() == JSONToken.COMMA) {
                     continue;
                 } else {
@@ -294,7 +225,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
 
                 if (lexer.token() == JSONToken.RBRACE) {
                     lexer.nextToken();
-                    return;
+                    return object;
                 } else if (lexer.token() == JSONToken.COMMA) {
                     continue;
                 } else {
@@ -311,13 +242,13 @@ public class DefaultJSONParser extends AbstractJSONParser {
                 lexer.incrementBufferPosition();
                 lexer.resetStringPosition();
                 lexer.nextToken();
-                return;
+                return object;
             } else {
                 throw new JSONException("syntax error, position at " + lexer.pos() + ", name " + key);
             }
 
         }
-    }
 
+    }
 
 }

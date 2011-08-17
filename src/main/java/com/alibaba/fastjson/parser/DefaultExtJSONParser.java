@@ -49,12 +49,8 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
 
     private final List<ResolveTask>    resolveTaskList      = new ArrayList<ResolveTask>();
 
-    public final static int            NONE                 = 0;
-    public final static int            NeedToResolve        = 1;
-
-    private int                        referenceResolveStat = NONE;
-
     private final static Set<Class<?>> primitiveClasses     = new HashSet<Class<?>>();
+    
     static {
         primitiveClasses.add(boolean.class);
         primitiveClasses.add(byte.class);
@@ -103,14 +99,6 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
         super(input, length, mapping, features);
     }
 
-    public int getReferenceResolveStat() {
-        return referenceResolveStat;
-    }
-
-    public void setReferenceResolveStat(int referenceResolveStat) {
-        this.referenceResolveStat = referenceResolveStat;
-    }
-
     public ParseContext getContext() {
         return context;
     }
@@ -136,7 +124,7 @@ public class DefaultExtJSONParser extends DefaultJSONParser {
     private void addContext(ParseContext context) {
         int i = contextArrayIndex++;
         if (i >= contextArray.length) {
-            int newLen = contextArray.length * 2 / 3;
+            int newLen = (contextArray.length * 3) / 2;
             ParseContext[] newArray = new ParseContext[newLen];
             System.arraycopy(contextArray, 0, newArray, 0, contextArray.length);
             contextArray = newArray;

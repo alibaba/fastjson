@@ -86,7 +86,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
             Object val = deserializer.deserialze(parser, itemType, i);
             array.add(val);
             
-            if (parser.getReferenceResolveStat() == DefaultExtJSONParser.NeedToResolve) {
+            if (parser.getResolveStatus() == DefaultExtJSONParser.NeedToResolve) {
                 final int index = array.size() - 1;
                 final List list = (List) array;
                 parser.getLastResolveTask().setFieldDeserializer(new FieldDeserializer(null, null) {

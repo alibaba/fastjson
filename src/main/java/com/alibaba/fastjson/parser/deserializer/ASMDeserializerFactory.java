@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.alibaba.fastjson.JSONException;
@@ -82,9 +82,9 @@ public class ASMDeserializerFactory implements Opcodes {
 
         byte[] code = cw.toByteArray();
 
-//         org.apache.commons.io.IOUtils.write(code, new java.io.FileOutputStream(
-//         "/usr/alibaba/workspace/fastjson-asm/target/classes/"
-//         + className + ".class"));
+        // org.apache.commons.io.IOUtils.write(code, new java.io.FileOutputStream(
+        // "/usr/alibaba/workspace/fastjson-asm/target/classes/"
+        // + className + ".class"));
 
         Class<?> exampleClass = classLoader.defineClassPublic(className, code, 0, code.length);
 
@@ -146,7 +146,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ALOAD, context.var("lexer"));
         mw.visitLdcInsn(context.getClazz().getName());
         mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "scanType", "(Ljava/lang/String;)I");
-        
+
         mw.visitFieldInsn(GETSTATIC, getType(JSONScanner.class), "NOT_MATCH", "I");
         mw.visitJumpInsn(IF_ICMPEQ, super_);
         // matchType
@@ -493,8 +493,8 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ALOAD, 0);
 
         mw.visitVarInsn(ALOAD, 1);
-        mw.visitMethodInsn(INVOKEVIRTUAL, getType(DefaultJSONParser.class), "getConfig",
-                           "()" + getDesc(ParserConfig.class));
+        mw.visitMethodInsn(INVOKEVIRTUAL, getType(DefaultJSONParser.class), "getConfig", "()"
+                                                                                         + getDesc(ParserConfig.class));
         mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc(itemType)));
         mw.visitMethodInsn(INVOKEVIRTUAL, getType(ParserConfig.class), "getDeserializer",
                            "(" + getDesc(Type.class) + ")" + getDesc(ObjectDeserializer.class));
@@ -520,16 +520,22 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ILOAD, context.var("fastMatchToken"));
         mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "nextToken", "(I)V");
 
-        if (Set.class == fieldClass) {
-            mw.visitTypeInsn(NEW, getType(HashSet.class));
-            mw.visitInsn(DUP);
-            mw.visitMethodInsn(INVOKESPECIAL, getType(HashSet.class), "<init>", "()V");
-        } else {
+        if (fieldClass.isAssignableFrom(ArrayList.class)) {
             mw.visitTypeInsn(NEW, getType(ArrayList.class));
             mw.visitInsn(DUP);
             mw.visitMethodInsn(INVOKESPECIAL, getType(ArrayList.class), "<init>", "()V");
+        } else if (fieldClass.isAssignableFrom(HashSet.class)) {
+            mw.visitTypeInsn(NEW, getType(HashSet.class));
+            mw.visitInsn(DUP);
+            mw.visitMethodInsn(INVOKESPECIAL, getType(HashSet.class), "<init>", "()V");
+        } else if (fieldClass.isAssignableFrom(TreeSet.class)) {
+            mw.visitTypeInsn(NEW, getType(TreeSet.class));
+            mw.visitInsn(DUP);
+            mw.visitMethodInsn(INVOKESPECIAL, getType(TreeSet.class), "<init>", "()V");
+        } else {
+            throw new JSONException("TODO : " + fieldClass);
         }
-        
+
         mw.visitTypeInsn(CHECKCAST, getType(fieldClass)); // cast
         mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
 
@@ -621,8 +627,8 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ALOAD, 0);
 
         mw.visitVarInsn(ALOAD, 1);
-        mw.visitMethodInsn(INVOKEVIRTUAL, getType(DefaultJSONParser.class), "getConfig",
-                           "()" + getDesc(ParserConfig.class));
+        mw.visitMethodInsn(INVOKEVIRTUAL, getType(DefaultJSONParser.class), "getConfig", "()"
+                                                                                         + getDesc(ParserConfig.class));
         mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc(fieldInfo.getFieldClass())));
         mw.visitMethodInsn(INVOKEVIRTUAL, getType(ParserConfig.class), "getDeserializer",
                            "(" + getDesc(Type.class) + ")" + getDesc(ObjectDeserializer.class));
@@ -662,8 +668,8 @@ public class ASMDeserializerFactory implements Opcodes {
 
         mw.visitVarInsn(ALOAD, context.var("resolveTask"));
         mw.visitVarInsn(ALOAD, 1);
-        mw.visitMethodInsn(INVOKEVIRTUAL, getType(DefaultJSONParser.class), "getContext",
-                           "()" + getDesc(ParseContext.class));
+        mw.visitMethodInsn(INVOKEVIRTUAL, getType(DefaultJSONParser.class), "getContext", "()"
+                                                                                          + getDesc(ParseContext.class));
         mw.visitMethodInsn(INVOKEVIRTUAL, getType(ResolveTask.class), "setOwnerContext", "("
                                                                                          + getDesc(ParseContext.class)
                                                                                          + ")V");

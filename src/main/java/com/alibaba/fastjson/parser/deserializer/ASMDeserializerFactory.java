@@ -11,8 +11,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.alibaba.fastjson.JSONException;
@@ -518,9 +520,16 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ILOAD, context.var("fastMatchToken"));
         mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "nextToken", "(I)V");
 
-        mw.visitTypeInsn(NEW, getType(ArrayList.class));
-        mw.visitInsn(DUP);
-        mw.visitMethodInsn(INVOKESPECIAL, getType(ArrayList.class), "<init>", "()V");
+        if (Set.class == fieldClass) {
+            mw.visitTypeInsn(NEW, getType(HashSet.class));
+            mw.visitInsn(DUP);
+            mw.visitMethodInsn(INVOKESPECIAL, getType(HashSet.class), "<init>", "()V");
+        } else {
+            mw.visitTypeInsn(NEW, getType(ArrayList.class));
+            mw.visitInsn(DUP);
+            mw.visitMethodInsn(INVOKESPECIAL, getType(ArrayList.class), "<init>", "()V");
+        }
+        
         mw.visitTypeInsn(CHECKCAST, getType(fieldClass)); // cast
         mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
 

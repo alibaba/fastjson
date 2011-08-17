@@ -4,7 +4,7 @@ import java.lang.reflect.Type;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONToken;
 
 public class AtomicIntegerArrayDeserializer implements ObjectDeserializer {
@@ -12,7 +12,7 @@ public class AtomicIntegerArrayDeserializer implements ObjectDeserializer {
     public final static AtomicIntegerArrayDeserializer instance = new AtomicIntegerArrayDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
+    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         if (parser.getLexer().token() == JSONToken.NULL) {
             parser.getLexer().nextToken(JSONToken.COMMA);
             return null;

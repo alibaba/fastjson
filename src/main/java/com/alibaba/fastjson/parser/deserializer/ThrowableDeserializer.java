@@ -1,8 +1,14 @@
 package com.alibaba.fastjson.parser.deserializer;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
 
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.parser.Feature;
+import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.TypeUtils;
@@ -14,9 +20,133 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
-        Object jsonValue = parser.parse();
-        return (T) TypeUtils.cast(jsonValue, clazz, parser.getConfig());
+    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
+        JSONScanner lexer = (JSONScanner) parser.getLexer();
+
+        if (parser.getResolveStatus() == DefaultJSONParser.TypeNameRedirect) {
+            parser.setResolveStatus(DefaultJSONParser.NONE);
+        } else {
+            if (lexer.token() != JSONToken.LBRACE) {
+                throw new JSONException("syntax error");
+            }
+        }
+
+        Throwable cause = null;
+        Class<?> exClass = null;
+        String message = null;
+        StackTraceElement[] stackTrace = null;
+        Map<String, Object> otherValues = new HashMap<String, Object>();
+
+        for (;;) {
+            // lexer.scanSymbol
+            String key = lexer.scanSymbol(parser.getSymbolTable());
+
+            if (key == null) {
+                if (lexer.token() == JSONToken.RBRACE) {
+                    lexer.nextToken(JSONToken.COMMA);
+                    break;
+                }
+                if (lexer.token() == JSONToken.COMMA) {
+                    if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
+                        continue;
+                    }
+                }
+            }
+
+            lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
+
+            if ("@type".equals(key)) {
+                if (lexer.token() == JSONToken.LITERAL_STRING) {
+                    String exClassName = lexer.stringVal();
+                    exClass = TypeUtils.loadClass(exClassName);
+                } else {
+                    throw new JSONException("syntax error");
+                }
+                lexer.nextToken();
+            } else if ("message".equals(key)) {
+                if (lexer.token() == JSONToken.NULL) {
+                    message = null;
+                } else if (lexer.token() == JSONToken.LITERAL_STRING) {
+                    message = lexer.stringVal();
+                } else {
+                    throw new JSONException("syntax error");
+                }
+                lexer.nextToken();
+            } else if ("cause".equals(key)) {
+                cause = deserialze(parser, null, "cause");
+            } else if ("stackTrace".equals(key)) {
+                stackTrace = parser.parseObject(StackTraceElement[].class);
+            } else {
+                // TODO
+                otherValues.put(key, parser.parse());
+            }
+
+            if (lexer.token() == JSONToken.COMMA) {
+                continue;
+            }
+
+            if (lexer.token() == JSONToken.RBRACE) {
+                lexer.nextToken(JSONToken.COMMA);
+                break;
+            }
+        }
+
+        Throwable ex = null;
+        if (exClass == null) {
+            ex = new Exception(message, cause);
+        } else {
+            try {
+                ex = createException(message, cause, exClass);
+                if (ex == null) {
+                    ex = new Exception(message, cause);
+                }
+            } catch (Exception e) {
+                throw new JSONException("create instance error", e);
+            }
+        }
+
+        if (stackTrace != null) {
+            ex.setStackTrace(stackTrace);
+        }
+
+        return (T) ex;
+    }
+
+    private Throwable createException(String message, Throwable cause, Class<?> exClass) throws Exception {
+        Constructor<?> defaultConstructor = null;
+        Constructor<?> messageConstructor = null;
+        Constructor<?> causeConstructor = null;
+        for (Constructor<?> constructor : exClass.getConstructors()) {
+            if (constructor.getParameterTypes().length == 0) {
+                defaultConstructor = constructor;
+                continue;
+            }
+
+            if (constructor.getParameterTypes().length == 1 && constructor.getParameterTypes()[0] == String.class) {
+                messageConstructor = constructor;
+                continue;
+            }
+
+            if (constructor.getParameterTypes().length == 2 && constructor.getParameterTypes()[0] == String.class
+                && constructor.getParameterTypes()[1] == Throwable.class) {
+                causeConstructor = constructor;
+                continue;
+            }
+        }
+
+        if (causeConstructor != null) {
+            return (Throwable) causeConstructor.newInstance(message, cause);
+        }
+
+        if (messageConstructor != null) {
+            return (Throwable) messageConstructor.newInstance(message);
+        }
+
+        if (defaultConstructor != null) {
+            return (Throwable) defaultConstructor.newInstance();
+        }
+
+        return null;
     }
 
     public int getFastMatchToken() {

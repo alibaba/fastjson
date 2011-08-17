@@ -4,7 +4,7 @@ import java.lang.reflect.Type;
 import java.util.Date;
 
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONToken;
 
 public class TimestampDeserializer implements ObjectDeserializer {
@@ -12,7 +12,7 @@ public class TimestampDeserializer implements ObjectDeserializer {
     public final static TimestampDeserializer instance = new TimestampDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
+    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         Object val = parser.parse();
         
         if (val == null) {

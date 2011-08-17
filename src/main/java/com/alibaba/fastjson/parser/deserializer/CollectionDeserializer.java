@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONToken;
 
 public class CollectionDeserializer implements ObjectDeserializer {
@@ -15,7 +15,7 @@ public class CollectionDeserializer implements ObjectDeserializer {
     public final static CollectionDeserializer instance = new CollectionDeserializer();
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T deserialze(DefaultExtJSONParser parser, Type type, Object fieldName) {
+    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         if (parser.getLexer().token() == JSONToken.NULL) {
             parser.getLexer().nextToken(JSONToken.COMMA);
             return null;

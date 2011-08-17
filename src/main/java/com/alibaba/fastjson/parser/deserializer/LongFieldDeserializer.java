@@ -2,7 +2,7 @@ package com.alibaba.fastjson.parser.deserializer;
 
 import java.util.Map;
 
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParserConfig;
@@ -20,7 +20,7 @@ public class LongFieldDeserializer extends FieldDeserializer {
     }
 
     @Override
-    public void parseField(DefaultExtJSONParser parser, Object object, Map<String, Object> fieldValues) {
+    public void parseField(DefaultJSONParser parser, Object object, Map<String, Object> fieldValues) {
         Long value;
         
         final JSONLexer lexer = parser.getLexer();

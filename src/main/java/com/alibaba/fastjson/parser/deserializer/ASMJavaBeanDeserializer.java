@@ -4,7 +4,7 @@ import java.lang.reflect.Type;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.ParserConfig;
@@ -20,14 +20,14 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
         serializer.getFieldDeserializerMap();
     }
 
-    public abstract Object createInstance(DefaultExtJSONParser parser, Type type);
+    public abstract Object createInstance(DefaultJSONParser parser, Type type);
 
     public InnerJavaBeanDeserializer getInnterSerializer() {
         return serializer;
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type type, Object fieldName) {
+    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         return (T) serializer.deserialze(parser, type, fieldName);
     }
 
@@ -47,7 +47,7 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
         return serializer.getFieldDeserializerMap().get(name);
     }
 
-    public boolean parseField(DefaultExtJSONParser parser, String key, Object object, Map<String, Object> fieldValues) {
+    public boolean parseField(DefaultJSONParser parser, String key, Object object, Map<String, Object> fieldValues) {
         JSONScanner lexer = (JSONScanner) parser.getLexer(); // xxx
 
         FieldDeserializer fieldDeserializer = serializer.getFieldDeserializerMap().get(key);
@@ -74,7 +74,7 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
             super(mapping, clazz);
         }
 
-        public boolean parseField(DefaultExtJSONParser parser, String key, Object object, Map<String, Object> fieldValues) {
+        public boolean parseField(DefaultJSONParser parser, String key, Object object, Map<String, Object> fieldValues) {
             return ASMJavaBeanDeserializer.this.parseField(parser, key, object, fieldValues);
         }
 

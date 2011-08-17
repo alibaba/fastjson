@@ -3,7 +3,7 @@ package com.alibaba.fastjson.parser.deserializer;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONToken;
 
 public class ArrayListTypeDeserializer implements ObjectDeserializer {
@@ -15,7 +15,7 @@ public class ArrayListTypeDeserializer implements ObjectDeserializer {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T deserialze(DefaultExtJSONParser parser, Type type, Object fieldName) {
+    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         ArrayList list = new ArrayList();
 
         parser.parseArray(itemType, list);

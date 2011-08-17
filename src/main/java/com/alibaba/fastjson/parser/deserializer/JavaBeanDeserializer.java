@@ -10,9 +10,8 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -30,14 +29,19 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     private final Class<?>                       clazz;
     
     private DeserializeBeanInfo beanInfo;
-
-    public JavaBeanDeserializer(ParserConfig mapping, Class<?> clazz){
+    
+    public JavaBeanDeserializer(DeserializeBeanInfo beanInfo) {
+        this.beanInfo = beanInfo;
+        this.clazz = beanInfo.getClass();
+    }
+    
+    public JavaBeanDeserializer(ParserConfig config, Class<?> clazz){
         this.clazz = clazz;
 
         beanInfo = DeserializeBeanInfo.computeSetters(clazz);
         
         for (FieldInfo fieldInfo : beanInfo.getFieldList()) {
-            addFieldDeserializer(mapping, clazz, fieldInfo);
+            addFieldDeserializer(config, clazz, fieldInfo);
         }
     }
 
@@ -89,7 +93,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type type, Object fieldName) {
+    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         JSONScanner lexer = (JSONScanner) parser.getLexer(); // xxx
 
         if (lexer.token() == JSONToken.NULL) {
@@ -140,7 +144,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                                 object = parentContext.getObject();
                             } else {
                                 parser.getResolveTaskList().add(new ResolveTask(parentContext, ref));        
-                                parser.setResolveStatus(DefaultExtJSONParser.NeedToResolve);
+                                parser.setResolveStatus(DefaultJSONParser.NeedToResolve);
                             }
                         } else if ("$".equals(ref)) {
                             ParseContext rootContext = context;
@@ -152,11 +156,11 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                                 object = rootContext.getObject();
                             } else {
                                 parser.getResolveTaskList().add(new ResolveTask(rootContext, ref));
-                                parser.setResolveStatus(DefaultExtJSONParser.NeedToResolve);
+                                parser.setResolveStatus(DefaultJSONParser.NeedToResolve);
                             }
                         } else {
                             parser.getResolveTaskList().add(new ResolveTask(context, ref));
-                            parser.setResolveStatus(DefaultExtJSONParser.NeedToResolve);
+                            parser.setResolveStatus(DefaultJSONParser.NeedToResolve);
                         }
                     } else {
                         throw new JSONException("illegal ref, " + JSONToken.name(lexer.token()));
@@ -241,7 +245,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         }
     }
 
-    public boolean parseField(DefaultExtJSONParser parser, String key, Object object, Map<String, Object> fieldValues) {
+    public boolean parseField(DefaultJSONParser parser, String key, Object object, Map<String, Object> fieldValues) {
         JSONScanner lexer = (JSONScanner) parser.getLexer(); // xxx
 
         FieldDeserializer fieldDeserializer = feildDeserializerMap.get(key);

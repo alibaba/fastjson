@@ -3,7 +3,7 @@ package com.alibaba.fastjson.parser.deserializer;
 import java.util.ArrayList;
 import java.util.Map;
 
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.FieldInfo;
@@ -20,7 +20,7 @@ public class ArrayListStringFieldDeserializer extends FieldDeserializer {
     }
 
     @Override
-    public void parseField(DefaultExtJSONParser parser, Object object, Map<String, Object> fieldValues) {
+    public void parseField(DefaultJSONParser parser, Object object, Map<String, Object> fieldValues) {
         ArrayList<Object> list = new ArrayList<Object>();
 
         ArrayListStringDeserializer.parseArray(parser, list);

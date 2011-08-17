@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -35,7 +35,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
     @SuppressWarnings("rawtypes")
     @Override
-    public void parseField(DefaultExtJSONParser parser, Object object, Map<String, Object> fieldValues) {
+    public void parseField(DefaultJSONParser parser, Object object, Map<String, Object> fieldValues) {
         if (parser.getLexer().token() == JSONToken.NULL) {
             setValue(object, null);
             return;
@@ -57,7 +57,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public final void parseArray(DefaultExtJSONParser parser, Collection array) {
+    public final void parseArray(DefaultJSONParser parser, Collection array) {
         final JSONLexer lexer = parser.getLexer();
 
         if (lexer.token() != JSONToken.LBRACKET) {
@@ -86,7 +86,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
             Object val = deserializer.deserialze(parser, itemType, i);
             array.add(val);
             
-            if (parser.getResolveStatus() == DefaultExtJSONParser.NeedToResolve) {
+            if (parser.getResolveStatus() == DefaultJSONParser.NeedToResolve) {
                 final int index = array.size() - 1;
                 final List list = (List) array;
                 parser.getLastResolveTask().setFieldDeserializer(new FieldDeserializer(null, null) {
@@ -96,7 +96,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
                     }
                     
                     @Override
-                    public void parseField(DefaultExtJSONParser parser, Object object, Map<String, Object> fieldValues) {
+                    public void parseField(DefaultJSONParser parser, Object object, Map<String, Object> fieldValues) {
                         
                     }
                     

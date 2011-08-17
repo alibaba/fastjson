@@ -4,7 +4,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.util.TypeUtils;
@@ -14,7 +14,7 @@ public class ArrayDeserializer implements ObjectDeserializer {
     public final static ArrayDeserializer instance = new ArrayDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultExtJSONParser parser, Type clazz, Object fieldName) {
+    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         final JSONLexer lexer = parser.getLexer();
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken(JSONToken.COMMA);
@@ -34,7 +34,7 @@ public class ArrayDeserializer implements ObjectDeserializer {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T toObjectArray(DefaultExtJSONParser parser, Class<T> clazz, JSONArray array) {
+    private <T> T toObjectArray(DefaultJSONParser parser, Class<T> clazz, JSONArray array) {
         int size = array.size();
 
         Class<?> componentType = clazz.getComponentType();

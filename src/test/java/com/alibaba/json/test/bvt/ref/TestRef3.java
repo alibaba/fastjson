@@ -44,14 +44,17 @@ public class TestRef3 extends TestCase {
             return child;
         }
 
+        public String toString() {
+            return "Entity-" + id;
+        }
     }
 
     public static class Child {
 
         private Entity parent;
-        
-        public Child() {
-            
+
+        public Child(){
+
         }
 
         public Entity getParent() {
@@ -62,5 +65,8 @@ public class TestRef3 extends TestCase {
             this.parent = parent;
         }
 
+        public String toString() {
+            return "Child";
+        }
     }
 }

@@ -28,9 +28,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
@@ -141,7 +140,12 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static final JSONObject parseObject(String text) {
-        return (JSONObject) parse(text);
+        Object obj = parse(text);
+        if (obj instanceof JSONObject) {
+            return (JSONObject) obj;
+        }
+
+        return (JSONObject) JSON.toJSON(obj);
     }
 
     @SuppressWarnings("unchecked")
@@ -169,7 +173,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             featureValues = Feature.config(featureValues, featrue, true);
         }
 
-        DefaultExtJSONParser parser = new DefaultExtJSONParser(input, ParserConfig.getGlobalInstance(), featureValues);
+        DefaultJSONParser parser = new DefaultJSONParser(input, ParserConfig.getGlobalInstance(), featureValues);
         T value = (T) parser.parseObject(clazz);
 
         handleResovleTask(parser, value);
@@ -190,7 +194,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             featureValues = Feature.config(featureValues, featrue, true);
         }
 
-        DefaultExtJSONParser parser = new DefaultExtJSONParser(input, config, featureValues);
+        DefaultJSONParser parser = new DefaultJSONParser(input, config, featureValues);
         T value = (T) parser.parseObject(clazz);
 
         handleResovleTask(parser, value);
@@ -200,21 +204,23 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return (T) value;
     }
 
-    private static <T> void handleResovleTask(DefaultExtJSONParser parser, T value) {
+    private static <T> void handleResovleTask(DefaultJSONParser parser, T value) {
         int size = parser.getResolveTaskList().size();
         for (int i = 0; i < size; ++i) {
             ResolveTask task = parser.getResolveTaskList().get(i);
             FieldDeserializer fieldDeser = task.getFieldDeserializer();
-            
-            Object object = task.getContext().getObject();
-            
-            
+
+            Object object = null;
+            if (task.getOwnerContext() != null) {
+                object = task.getOwnerContext().getObject();
+            }
+
             String ref = task.getReferenceValue();
             Object refValue;
             if (ref.startsWith("$")) {
                 refValue = parser.getObject(ref);
             } else {
-                refValue = task.getOwnerContext().getObject();
+                refValue = task.getContext().getObject();
             }
             fieldDeser.setValue(object, refValue);
         }
@@ -256,8 +262,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             featureValues = Feature.config(featureValues, featrue, true);
         }
 
-        DefaultExtJSONParser parser = new DefaultExtJSONParser(input, length, ParserConfig.getGlobalInstance(),
-                                                               featureValues);
+        DefaultJSONParser parser = new DefaultJSONParser(input, length, ParserConfig.getGlobalInstance(), featureValues);
         T value = (T) parser.parseObject(clazz);
 
         handleResovleTask(parser, value);
@@ -282,7 +287,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         List<T> list = new ArrayList<T>();
 
-        DefaultExtJSONParser parser = new DefaultExtJSONParser(text, ParserConfig.getGlobalInstance());
+        DefaultJSONParser parser = new DefaultJSONParser(text, ParserConfig.getGlobalInstance());
         parser.parseArray(clazz, list);
 
         parser.close();
@@ -297,7 +302,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         List<Object> list;
 
-        DefaultExtJSONParser parser = new DefaultExtJSONParser(text, ParserConfig.getGlobalInstance());
+        DefaultJSONParser parser = new DefaultJSONParser(text, ParserConfig.getGlobalInstance());
         list = Arrays.asList(parser.parseArray(types));
 
         parser.close();

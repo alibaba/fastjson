@@ -18,9 +18,18 @@ public class Bug_KimShen extends TestCase {
 
     public static class Entity {
 
-        private Set<Object>     value      = new HashSet<Object>();
-        private TreeSet<Object> treeSet    = new TreeSet<Object>();
+        private Set<Object>        value      = new HashSet<Object>();
+        private TreeSet<Object>    treeSet    = new TreeSet<Object>();
         private LinkedList<Object> linkedList = new LinkedList<Object>();
+        private MySet<Object>      mySet      = new MySet<Object>();
+
+        public MySet<Object> getMySet() {
+            return mySet;
+        }
+
+        public void setMySet(MySet<Object> mySet) {
+            this.mySet = mySet;
+        }
 
         public LinkedList<Object> getLinkedList() {
             return linkedList;
@@ -45,6 +54,10 @@ public class Bug_KimShen extends TestCase {
         public void setTreeSet(TreeSet<Object> treeSet) {
             this.treeSet = treeSet;
         }
+
+    }
+
+    public static class MySet<T> extends TreeSet<T> {
 
     }
 }

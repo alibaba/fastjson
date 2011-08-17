@@ -538,7 +538,9 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitInsn(DUP);
             mw.visitMethodInsn(INVOKESPECIAL, getType(TreeSet.class), "<init>", "()V");
         } else {
-            throw new JSONException("TODO : " + fieldClass);
+            mw.visitTypeInsn(NEW, getType(fieldClass));
+            mw.visitInsn(DUP);
+            mw.visitMethodInsn(INVOKESPECIAL, getType(fieldClass), "<init>", "()V");
         }
 
         mw.visitTypeInsn(CHECKCAST, getType(fieldClass)); // cast

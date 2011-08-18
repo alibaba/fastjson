@@ -26,6 +26,40 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
     public DefaultObjectDeserializer(){
     }
 
+    public void parseMap(DefaultJSONParser parser, Map<Object, Object> map, Type keyType, Type valueType) {
+        JSONScanner lexer = (JSONScanner) parser.getLexer();
+
+        if (lexer.token() != JSONToken.LBRACE) {
+            throw new JSONException("syntax error, expect {, actual " + lexer.token());
+        }
+
+        ObjectDeserializer keyDeserializer = parser.getConfig().getDeserializer(keyType);
+        ObjectDeserializer valueDeserializer = parser.getConfig().getDeserializer(valueType);
+        lexer.nextToken(keyDeserializer.getFastMatchToken());
+
+        for (;;) {
+            if (lexer.token() == JSONToken.RBRACE) {
+                lexer.nextToken(JSONToken.COMMA);
+                break;
+            }
+            
+            Object key = keyDeserializer.deserialze(parser, keyType, null);
+            
+            if (lexer.token() != JSONToken.COLON) {
+                throw new JSONException("syntax error, expect :, actual " + lexer.token());
+            }
+            
+            lexer.nextToken(valueDeserializer.getFastMatchToken());
+            Object value = valueDeserializer.deserialze(parser, valueType, key);
+
+            map.put(key, value);
+            
+            if (lexer.token() == JSONToken.COMMA) {
+                lexer.nextToken(keyDeserializer.getFastMatchToken());
+            }
+        }
+    }
+
     public void parseMap(DefaultJSONParser parser, Map<String, Object> map, Type valueType) {
         JSONScanner lexer = (JSONScanner) parser.getLexer();
 
@@ -165,7 +199,8 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
                     lexer.nextTokenWithColon(JSONToken.LBRACE);
                     args[0] = CollectionDeserializer.instance.deserialze(parser, fieldType, null);
                 } else {
-                    ObjectDeserializer fieldValueDeserializer = parser.getConfig().getDeserializer(fieldClass, fieldType);
+                    ObjectDeserializer fieldValueDeserializer = parser.getConfig().getDeserializer(fieldClass,
+                                                                                                   fieldType);
 
                     lexer.nextTokenWithColon(fieldValueDeserializer.getFastMatchToken());
                     args[0] = fieldValueDeserializer.deserialze(parser, fieldType, null);
@@ -238,9 +273,14 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
                         }
                     }
 
+                    Type keyType = type.getActualTypeArguments()[0];
                     Type valueType = type.getActualTypeArguments()[1];
 
-                    parseMap(parser, map, valueType);
+                    if (keyType == String.class) {
+                        parseMap(parser, map, valueType);
+                    } else {
+                        parseMap(parser, map, keyType, valueType);
+                    }
 
                     return (T) map;
                 }
@@ -258,13 +298,13 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public <T> T deserialze(DefaultJSONParser parser, Class<T> clazz) {
         Object value = null;
-            if (clazz.isAssignableFrom(HashMap.class)) {
-                value = new HashMap();
-            } else if (clazz.isAssignableFrom(TreeMap.class)) {
-                value = new TreeMap();
-            } else if (clazz.isAssignableFrom(ConcurrentHashMap.class)) {
-                value = new ConcurrentHashMap();
-            }
+        if (clazz.isAssignableFrom(HashMap.class)) {
+            value = new HashMap();
+        } else if (clazz.isAssignableFrom(TreeMap.class)) {
+            value = new TreeMap();
+        } else if (clazz.isAssignableFrom(ConcurrentHashMap.class)) {
+            value = new ConcurrentHashMap();
+        }
 
         if (clazz == Class.class) {
             Object classValue = parser.parse();

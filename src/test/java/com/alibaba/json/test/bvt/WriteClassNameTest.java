@@ -8,45 +8,45 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class WriteClassNameTest extends TestCase {
 
-public void test_0() throws Exception {
-    Entity entity = new Entity(3, "jobs");
-    String text = JSON.toJSONString(entity, SerializerFeature.WriteClassName);
-    System.out.println(text);
-    
-    Entity entity2 = (Entity) JSON.parseObject(text, Object.class);
-    
-    Assert.assertEquals(entity.getId(), entity2.getId());
-    Assert.assertEquals(entity.getName(), entity2.getName());
-}
+    public void test_0() throws Exception {
+        Entity entity = new Entity(3, "jobs");
+        String text = JSON.toJSONString(entity, SerializerFeature.WriteClassName);
+        System.out.println(text);
 
-public static class Entity {
+        Entity entity2 = (Entity) JSON.parseObject(text, Object.class);
 
-    private int    id;
-    private String name;
-
-    public Entity(){
+        Assert.assertEquals(entity.getId(), entity2.getId());
+        Assert.assertEquals(entity.getName(), entity2.getName());
     }
 
-    public Entity(int id, String name){
-        this.id = id;
-        this.name = name;
-    }
+    public static class Entity {
 
-    public int getId() {
-        return id;
-    }
+        private int    id;
+        private String name;
 
-    public void setId(int id) {
-        this.id = id;
-    }
+        public Entity(){
+        }
 
-    public String getName() {
-        return name;
-    }
+        public Entity(int id, String name){
+            this.id = id;
+            this.name = name;
+        }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+        public int getId() {
+            return id;
+        }
 
-}
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+    }
 }

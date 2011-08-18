@@ -52,48 +52,58 @@ public class MapSerializer implements ObjectSerializer {
             Object value = entry.getValue();
 
             Object entryKey = entry.getKey();
-            String key = entryKey == null ? "null" : entryKey.toString();
 
-            List<PropertyFilter> propertyFilters = serializer.getPropertyFiltersDirect();
-            if (propertyFilters != null) {
-                boolean apply = true;
-                for (PropertyFilter propertyFilter : propertyFilters) {
-                    if (!propertyFilter.apply(object, key, value)) {
-                        apply = false;
-                        break;
+            if (entryKey == null || entryKey instanceof String) {
+                String key = (String) entryKey;
+                List<PropertyFilter> propertyFilters = serializer.getPropertyFiltersDirect();
+                if (propertyFilters != null) {
+                    boolean apply = true;
+                    for (PropertyFilter propertyFilter : propertyFilters) {
+                        if (!propertyFilter.apply(object, key, value)) {
+                            apply = false;
+                            break;
+                        }
+                    }
+
+                    if (!apply) {
+                        continue;
                     }
                 }
 
-                if (!apply) {
-                    continue;
+                List<NameFilter> nameFilters = serializer.getNameFiltersDirect();
+                if (nameFilters != null) {
+                    for (NameFilter nameFilter : nameFilters) {
+                        key = nameFilter.process(object, key, value);
+                    }
                 }
-            }
 
-            List<NameFilter> nameFilters = serializer.getNameFiltersDirect();
-            if (nameFilters != null) {
-                for (NameFilter nameFilter : nameFilters) {
-                    key = nameFilter.process(object, key, value);
+                List<ValueFilter> valueFilters = serializer.getValueFiltersDirect();
+                if (valueFilters != null) {
+                    for (ValueFilter valueFilter : valueFilters) {
+                        value = valueFilter.process(object, key, value);
+                    }
                 }
-            }
-
-            List<ValueFilter> valueFilters = serializer.getValueFiltersDirect();
-            if (valueFilters != null) {
-                for (ValueFilter valueFilter : valueFilters) {
-                    value = valueFilter.process(object, key, value);
+                
+                if (value == null) {
+                    if (!serializer.isEnabled(SerializerFeature.WriteMapNullValue)) {
+                        continue;
+                    }
                 }
-            }
-
-            if (value == null) {
-                if (!serializer.isEnabled(SerializerFeature.WriteMapNullValue)) {
-                    continue;
+                
+                if (!first) {
+                    out.write(',');
                 }
+                
+                out.writeFieldName(key);
+            } else {
+                if (!first) {
+                    out.write(',');
+                } 
+                
+                serializer.write(entryKey);
+                out.write(':');
             }
-
-            if (!first) {
-                out.write(',');
-            }
-
-            out.writeFieldName(key);
+            
             first = false;
 
             if (value == null) {

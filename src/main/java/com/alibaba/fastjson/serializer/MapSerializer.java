@@ -42,85 +42,91 @@ public class MapSerializer implements ObjectSerializer {
             map = new TreeMap(map);
         }
 
-        out.write('{');
+        SerialContext parent = serializer.getContext();
+        serializer.setContext(parent, object, fieldName);
+        try {
+            out.write('{');
 
-        Class<?> preClazz = null;
-        ObjectSerializer preWriter = null;
+            Class<?> preClazz = null;
+            ObjectSerializer preWriter = null;
 
-        boolean first = true;
-        for (Map.Entry entry : map.entrySet()) {
-            Object value = entry.getValue();
+            boolean first = true;
+            for (Map.Entry entry : map.entrySet()) {
+                Object value = entry.getValue();
 
-            Object entryKey = entry.getKey();
+                Object entryKey = entry.getKey();
 
-            if (entryKey == null || entryKey instanceof String) {
-                String key = (String) entryKey;
-                List<PropertyFilter> propertyFilters = serializer.getPropertyFiltersDirect();
-                if (propertyFilters != null) {
-                    boolean apply = true;
-                    for (PropertyFilter propertyFilter : propertyFilters) {
-                        if (!propertyFilter.apply(object, key, value)) {
-                            apply = false;
-                            break;
+                if (entryKey == null || entryKey instanceof String) {
+                    String key = (String) entryKey;
+                    List<PropertyFilter> propertyFilters = serializer.getPropertyFiltersDirect();
+                    if (propertyFilters != null) {
+                        boolean apply = true;
+                        for (PropertyFilter propertyFilter : propertyFilters) {
+                            if (!propertyFilter.apply(object, key, value)) {
+                                apply = false;
+                                break;
+                            }
+                        }
+
+                        if (!apply) {
+                            continue;
                         }
                     }
 
-                    if (!apply) {
-                        continue;
+                    List<NameFilter> nameFilters = serializer.getNameFiltersDirect();
+                    if (nameFilters != null) {
+                        for (NameFilter nameFilter : nameFilters) {
+                            key = nameFilter.process(object, key, value);
+                        }
                     }
+
+                    List<ValueFilter> valueFilters = serializer.getValueFiltersDirect();
+                    if (valueFilters != null) {
+                        for (ValueFilter valueFilter : valueFilters) {
+                            value = valueFilter.process(object, key, value);
+                        }
+                    }
+
+                    if (value == null) {
+                        if (!serializer.isEnabled(SerializerFeature.WriteMapNullValue)) {
+                            continue;
+                        }
+                    }
+
+                    if (!first) {
+                        out.write(',');
+                    }
+
+                    out.writeFieldName(key);
+                } else {
+                    if (!first) {
+                        out.write(',');
+                    }
+
+                    serializer.write(entryKey);
+                    out.write(':');
                 }
 
-                List<NameFilter> nameFilters = serializer.getNameFiltersDirect();
-                if (nameFilters != null) {
-                    for (NameFilter nameFilter : nameFilters) {
-                        key = nameFilter.process(object, key, value);
-                    }
-                }
+                first = false;
 
-                List<ValueFilter> valueFilters = serializer.getValueFiltersDirect();
-                if (valueFilters != null) {
-                    for (ValueFilter valueFilter : valueFilters) {
-                        value = valueFilter.process(object, key, value);
-                    }
-                }
-                
                 if (value == null) {
-                    if (!serializer.isEnabled(SerializerFeature.WriteMapNullValue)) {
-                        continue;
-                    }
+                    out.writeNull();
+                    continue;
                 }
-                
-                if (!first) {
-                    out.write(',');
+
+                Class<?> clazz = value.getClass();
+
+                if (clazz == preClazz) {
+                    preWriter.write(serializer, value, entryKey);
+                } else {
+                    preClazz = clazz;
+                    preWriter = serializer.getObjectWriter(clazz);
+
+                    preWriter.write(serializer, value, entryKey);
                 }
-                
-                out.writeFieldName(key);
-            } else {
-                if (!first) {
-                    out.write(',');
-                } 
-                
-                serializer.write(entryKey);
-                out.write(':');
             }
-            
-            first = false;
-
-            if (value == null) {
-                out.writeNull();
-                continue;
-            }
-
-            Class<?> clazz = value.getClass();
-
-            if (clazz == preClazz) {
-                preWriter.write(serializer, value, null);
-            } else {
-                preClazz = clazz;
-                preWriter = serializer.getObjectWriter(clazz);
-
-                preWriter.write(serializer, value, null);
-            }
+        } finally {
+            serializer.setContext(parent);
         }
         out.write('}');
     }

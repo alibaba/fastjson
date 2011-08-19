@@ -46,34 +46,34 @@ import com.alibaba.fastjson.util.TypeUtils;
  */
 public class DefaultJSONParser extends AbstractJSONParser {
 
-    protected final JSONLexer   lexer;
-    protected final Object      input;
-    protected final SymbolTable symbolTable;
-    protected ParserConfig      config;
+    protected final JSONLexer          lexer;
+    protected final Object             input;
+    protected final SymbolTable        symbolTable;
+    protected ParserConfig             config;
 
-    public final static int     NONE             = 0;
-    public final static int     NeedToResolve    = 1;
-    public final static int     TypeNameRedirect = 2;
+    public final static int            NONE              = 0;
+    public final static int            NeedToResolve     = 1;
+    public final static int            TypeNameRedirect  = 2;
 
-    private int                 resolveStatus    = NONE;
-    
-    private DefaultObjectDeserializer  derializer           = new DefaultObjectDeserializer();
+    private int                        resolveStatus     = NONE;
+
+    private DefaultObjectDeserializer  derializer        = new DefaultObjectDeserializer();
     private ParseContext               context;
 
-    private ParseContext[]             contextArray         = new ParseContext[8];
-    private int                        contextArrayIndex    = 0;
+    private ParseContext[]             contextArray      = new ParseContext[8];
+    private int                        contextArrayIndex = 0;
 
-    private final List<ResolveTask>    resolveTaskList      = new ArrayList<ResolveTask>();
+    private final List<ResolveTask>    resolveTaskList   = new ArrayList<ResolveTask>();
 
-    private final static Set<Class<?>> primitiveClasses     = new HashSet<Class<?>>();
-    
+    private final static Set<Class<?>> primitiveClasses  = new HashSet<Class<?>>();
+
     public Object getObject(String path) {
         for (int i = 0; i < contextArrayIndex; ++i) {
             if (path.equals(contextArray[i].getPath())) {
                 return contextArray[i].getObject();
             }
         }
-        
+
         return null;
     }
 
@@ -147,163 +147,172 @@ public class DefaultJSONParser extends AbstractJSONParser {
         return input.toString();
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public final Object parseObject(final Map object) {
         JSONScanner lexer = (JSONScanner) this.lexer;
         if (lexer.token() != JSONToken.LBRACE) {
             throw new JSONException("syntax error, expect {, actual " + lexer.token());
         }
 
-        for (;;) {
-            lexer.skipWhitespace();
-            char ch = lexer.getCurrent();
-            if (isEnabled(Feature.AllowArbitraryCommas)) {
-                while (ch == ',') {
-                    lexer.incrementBufferPosition();
-                    lexer.skipWhitespace();
-                    ch = lexer.getCurrent();
-                }
-            }
-
-            String key;
-            if (ch == '"') {
-                key = lexer.scanSymbol(symbolTable, '"');
+        ParseContext context = this.getContext();
+        try {
+            for (;;) {
                 lexer.skipWhitespace();
-                ch = lexer.getCurrent();
-                if (ch != ':') {
-                    throw new JSONException("expect ':' at " + lexer.pos() + ", name " + key);
-                }
-            } else if (ch == '}') {
-                lexer.incrementBufferPosition();
-                lexer.resetStringPosition();
-                lexer.nextToken();
-                return object;
-            } else if (ch == '\'') {
-                if (!isEnabled(Feature.AllowSingleQuotes)) {
-                    throw new JSONException("syntax error");
-                }
-
-                key = lexer.scanSymbol(symbolTable, '\'');
-                lexer.skipWhitespace();
-                ch = lexer.getCurrent();
-                if (ch != ':') {
-                    throw new JSONException("expect ':' at " + lexer.pos());
-                }
-            } else if (ch == EOI) {
-                throw new JSONException("syntax error");
-            } else if (ch == ',') {
-                throw new JSONException("syntax error");
-            } else {
-                if (!isEnabled(Feature.AllowUnQuotedFieldNames)) {
-                    throw new JSONException("syntax error");
-                }
-
-                key = lexer.scanSymbolUnQuoted(symbolTable);
-                lexer.skipWhitespace();
-                ch = lexer.getCurrent();
-                if (ch != ':') {
-                    throw new JSONException("expect ':' at " + lexer.pos() + ", actual " + ch);
-                }
-            }
-
-            lexer.incrementBufferPosition();
-            lexer.skipWhitespace();
-            ch = lexer.getCurrent();
-
-            lexer.resetStringPosition();
-
-            if (key == "@type") {
-                String typeName = lexer.scanSymbol(symbolTable, '"');
-                Class<?> clazz = TypeUtils.loadClass(typeName);
-
-                ObjectDeserializer deserializer = config.getDeserializer(clazz);
-                
-                lexer.nextToken(JSONToken.COMMA);
-
-                this.resolveStatus = TypeNameRedirect;
-                return deserializer.deserialze(this, clazz, null);
-            }
-
-            Object value;
-            if (ch == '"') {
-                lexer.scanString();
-                String strValue = lexer.stringVal();
-                value = strValue;
-
-                if (lexer.isEnabled(Feature.AllowISO8601DateFormat)) {
-                    JSONScanner iso8601Lexer = new JSONScanner(strValue);
-                    if (iso8601Lexer.scanISO8601DateIfMatch()) {
-                        value = iso8601Lexer.getCalendar().getTime();
+                char ch = lexer.getCurrent();
+                if (isEnabled(Feature.AllowArbitraryCommas)) {
+                    while (ch == ',') {
+                        lexer.incrementBufferPosition();
+                        lexer.skipWhitespace();
+                        ch = lexer.getCurrent();
                     }
                 }
 
-                object.put(key, value);
-            } else if (ch >= '0' && ch <= '9' || ch == '-') {
-                lexer.scanNumber();
-                if (lexer.token() == JSONToken.LITERAL_INT) {
-                    value = lexer.integerValue();
-                } else {
-                    value = lexer.decimalValue();
-                }
-
-                object.put(key, value);
-            } else if (ch == '[') { // 减少潜套，兼容android
-                lexer.nextToken();
-                JSONArray list = new JSONArray();
-                this.parseArray(list);
-                value = list;
-                object.put(key, value);
-
-                if (lexer.token() == JSONToken.RBRACE) {
+                String key;
+                if (ch == '"') {
+                    key = lexer.scanSymbol(symbolTable, '"');
+                    lexer.skipWhitespace();
+                    ch = lexer.getCurrent();
+                    if (ch != ':') {
+                        throw new JSONException("expect ':' at " + lexer.pos() + ", name " + key);
+                    }
+                } else if (ch == '}') {
+                    lexer.incrementBufferPosition();
+                    lexer.resetStringPosition();
                     lexer.nextToken();
                     return object;
-                } else if (lexer.token() == JSONToken.COMMA) {
-                    continue;
-                } else {
+                } else if (ch == '\'') {
+                    if (!isEnabled(Feature.AllowSingleQuotes)) {
+                        throw new JSONException("syntax error");
+                    }
+
+                    key = lexer.scanSymbol(symbolTable, '\'');
+                    lexer.skipWhitespace();
+                    ch = lexer.getCurrent();
+                    if (ch != ':') {
+                        throw new JSONException("expect ':' at " + lexer.pos());
+                    }
+                } else if (ch == EOI) {
                     throw new JSONException("syntax error");
-                }
-            } else if (ch == '{') { // 减少潜套，兼容android
-                lexer.nextToken();
-                Object obj = this.parseObject(new JSONObject());
-                object.put(key, obj);
-
-                if (lexer.token() == JSONToken.RBRACE) {
-                    lexer.nextToken();
-                    return object;
-                } else if (lexer.token() == JSONToken.COMMA) {
-                    continue;
-                } else {
+                } else if (ch == ',') {
                     throw new JSONException("syntax error");
-                }
-            } else {
-                lexer.nextToken();
-                value = parse();
-                object.put(key, value);
+                } else {
+                    if (!isEnabled(Feature.AllowUnQuotedFieldNames)) {
+                        throw new JSONException("syntax error");
+                    }
 
-                if (lexer.token() == JSONToken.RBRACE) {
+                    key = lexer.scanSymbolUnQuoted(symbolTable);
+                    lexer.skipWhitespace();
+                    ch = lexer.getCurrent();
+                    if (ch != ':') {
+                        throw new JSONException("expect ':' at " + lexer.pos() + ", actual " + ch);
+                    }
+                }
+
+                lexer.incrementBufferPosition();
+                lexer.skipWhitespace();
+                ch = lexer.getCurrent();
+
+                lexer.resetStringPosition();
+
+                if (key == "@type") {
+                    String typeName = lexer.scanSymbol(symbolTable, '"');
+                    Class<?> clazz = TypeUtils.loadClass(typeName);
+
+                    ObjectDeserializer deserializer = config.getDeserializer(clazz);
+
+                    lexer.nextToken(JSONToken.COMMA);
+
+                    this.resolveStatus = TypeNameRedirect;
+                    return deserializer.deserialze(this, clazz, null);
+                }
+
+                Object value;
+                if (ch == '"') {
+                    lexer.scanString();
+                    String strValue = lexer.stringVal();
+                    value = strValue;
+
+                    if (lexer.isEnabled(Feature.AllowISO8601DateFormat)) {
+                        JSONScanner iso8601Lexer = new JSONScanner(strValue);
+                        if (iso8601Lexer.scanISO8601DateIfMatch()) {
+                            value = iso8601Lexer.getCalendar().getTime();
+                        }
+                    }
+
+                    object.put(key, value);
+                } else if (ch >= '0' && ch <= '9' || ch == '-') {
+                    lexer.scanNumber();
+                    if (lexer.token() == JSONToken.LITERAL_INT) {
+                        value = lexer.integerValue();
+                    } else {
+                        value = lexer.decimalValue();
+                    }
+
+                    object.put(key, value);
+                } else if (ch == '[') { // 减少潜套，兼容android
+                    lexer.nextToken();
+                    JSONArray list = new JSONArray();
+                    this.parseArray(list);
+                    value = list;
+                    object.put(key, value);
+
+                    if (lexer.token() == JSONToken.RBRACE) {
+                        lexer.nextToken();
+                        return object;
+                    } else if (lexer.token() == JSONToken.COMMA) {
+                        continue;
+                    } else {
+                        throw new JSONException("syntax error");
+                    }
+                } else if (ch == '{') { // 减少潜套，兼容android
+                    lexer.nextToken();
+                    Object obj = this.parseObject(new JSONObject());
+                    object.put(key, obj);
+                    
+                    setContext(context, obj, key);
+
+                    if (lexer.token() == JSONToken.RBRACE) {
+                        lexer.nextToken();
+                        
+                        setContext(context);
+                        return object;
+                    } else if (lexer.token() == JSONToken.COMMA) {
+                        continue;
+                    } else {
+                        throw new JSONException("syntax error");
+                    }
+                } else {
+                    lexer.nextToken();
+                    value = parse();
+                    object.put(key, value);
+
+                    if (lexer.token() == JSONToken.RBRACE) {
+                        lexer.nextToken();
+                        return object;
+                    } else if (lexer.token() == JSONToken.COMMA) {
+                        continue;
+                    } else {
+                        throw new JSONException("syntax error, position at " + lexer.pos() + ", name " + key);
+                    }
+                }
+
+                lexer.skipWhitespace();
+                ch = lexer.getCurrent();
+                if (ch == ',') {
+                    lexer.incrementBufferPosition();
+                    continue;
+                } else if (ch == '}') {
+                    lexer.incrementBufferPosition();
+                    lexer.resetStringPosition();
                     lexer.nextToken();
                     return object;
-                } else if (lexer.token() == JSONToken.COMMA) {
-                    continue;
                 } else {
                     throw new JSONException("syntax error, position at " + lexer.pos() + ", name " + key);
                 }
-            }
 
-            lexer.skipWhitespace();
-            ch = lexer.getCurrent();
-            if (ch == ',') {
-                lexer.incrementBufferPosition();
-                continue;
-            } else if (ch == '}') {
-                lexer.incrementBufferPosition();
-                lexer.resetStringPosition();
-                lexer.nextToken();
-                return object;
-            } else {
-                throw new JSONException("syntax error, position at " + lexer.pos() + ", name " + key);
             }
-
+        } finally {
+            this.setContext(context);
         }
 
     }

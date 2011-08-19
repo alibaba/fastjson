@@ -204,7 +204,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return (T) value;
     }
 
-    private static <T> void handleResovleTask(DefaultJSONParser parser, T value) {
+    public static <T> void handleResovleTask(DefaultJSONParser parser, T value) {
         int size = parser.getResolveTaskList().size();
         for (int i = 0; i < size; ++i) {
             ResolveTask task = parser.getResolveTaskList().get(i);

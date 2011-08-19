@@ -7,6 +7,7 @@ import java.util.Map;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
+import com.alibaba.fastjson.parser.ParseContext;
 
 public class HashMapDeserializer implements ObjectDeserializer {
 
@@ -19,9 +20,20 @@ public class HashMapDeserializer implements ObjectDeserializer {
             lexer.nextToken(JSONToken.COMMA);
             return null;
         }
-        
+
         Map<String, Object> map = new HashMap<String, Object>();
-        parser.parseObject(map);
+
+        ParseContext context = parser.getContext();
+
+        try {
+            parser.setContext(context, map, fieldName);
+
+            parser.parseObject(map);
+
+        } finally {
+            parser.setContext(context);
+        }
+
         return (T) map;
     }
 

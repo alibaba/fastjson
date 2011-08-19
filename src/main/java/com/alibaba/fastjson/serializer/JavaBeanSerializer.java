@@ -178,52 +178,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
     }
 
     public void writeReference(JSONSerializer serializer, Object object) {
-        SerializeWriter out = serializer.getWriter();
-
-        SerialContext context = serializer.getContext();
-        Object current = context.getObject();
-
-        if (object == current) {
-            out.write("{\"$ref\":\"@\"}");
-            return;
-        }
-
-        SerialContext parentContext = context.getParent();
-
-        if (parentContext != null) {
-            if (object == parentContext.getObject()) {
-                out.write("{\"$ref\":\"..\"}");
-                return;
-            }
-        }
-
-        SerialContext rootContext = context;
-        for (;;) {
-            if (rootContext.getParent() == null) {
-                break;
-            }
-            rootContext = rootContext.getParent();
-        }
-
-        if (object == rootContext.getObject()) {
-            out.write("{\"$ref\":\"$\"}");
-            return;
-        }
-
-        SerialContext refContext = null;
-        for (SerialContext item : serializer.getReferences()) {
-            if (item.getObject() == object) {
-                refContext = item;
-                break;
-            }
-        }
-        
-        String path = refContext.getPath();
-
-        out.write("{\"$ref\":\"");
-        out.write(path);
-        out.write("\"}");
-        return;
+        serializer.writeReference(object);
     }
 
     public FieldSerializer createFieldSerializer(FieldInfo fieldInfo) {

@@ -108,7 +108,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         try {
             Map<String, Object> fieldValues = null;
 
-            if (parser.getResolveStatus() != DefaultJSONParser.TypeNameRedirect && lexer.token() != JSONToken.LBRACE) {
+            if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {
                 throw new JSONException("syntax error, expect {, actual " + JSONToken.name(lexer.token()));
             }
             

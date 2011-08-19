@@ -213,6 +213,23 @@ public class JSONSerializer {
             throw new JSONException(e.getMessage(), e);
         }
     }
+    
+    public final void writeWithFieldName(Object object, Object fieldName) {
+        try {
+            if (object == null) {
+                out.writeNull();
+                return;
+            }
+
+            Class<?> clazz = object.getClass();
+
+            ObjectSerializer writer = getObjectWriter(clazz);
+
+            writer.write(this, object, fieldName);
+        } catch (IOException e) {
+            throw new JSONException(e.getMessage(), e);
+        }
+    }
 
     public final void writeWithFormat(Object object, String format) {
         if (object instanceof Date) {

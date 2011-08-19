@@ -3,6 +3,7 @@ package com.alibaba.json.test.bvt;
 import java.util.HashMap;
 import java.util.Map;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
@@ -19,5 +20,6 @@ public class SpecialKeyTest extends TestCase {
         System.out.println(text);
         
         Map<Integer, Object> map2 = JSON.parseObject(text, new TypeReference<Map<Integer, Object>>() {});
+        Assert.assertEquals(map, map2);
     }
 }

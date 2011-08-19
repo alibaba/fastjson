@@ -1116,6 +1116,11 @@ public final class SerializeWriter extends Writer {
     }
 
     public void writeFieldName(String key) {
+        if (key == null) {
+            write("null:");
+            return;
+        }
+        
         if (isEnabled(SerializerFeature.UseSingleQuotes)) {
             if (isEnabled(SerializerFeature.QuoteFieldNames)) {
                 writeKeyWithSingleQuote(key);

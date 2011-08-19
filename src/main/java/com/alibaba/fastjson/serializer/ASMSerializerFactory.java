@@ -297,8 +297,9 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitVarInsn(ALOAD, context.serializer());
             mw.visitVarInsn(ALOAD, context.var("parent"));
             mw.visitVarInsn(ALOAD, context.obj());
+            mw.visitVarInsn(ALOAD, context.paramFieldName());
             mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "setContext",
-                               "(Lcom/alibaba/fastjson/serializer/SerialContext;Ljava/lang/Object;)V");
+                               "(Lcom/alibaba/fastjson/serializer/SerialContext;Ljava/lang/Object;Ljava/lang/Object;)V");
         }
 
         // SEPERATO
@@ -830,7 +831,8 @@ public class ASMSerializerFactory implements Opcodes {
                 mw.visitVarInsn(ALOAD, context.var("list"));
                 mw.visitVarInsn(ILOAD, context.var("i"));
                 mw.visitMethodInsn(INVOKEINTERFACE, getType(List.class), "get", "(I)Ljava/lang/Object;");
-                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "write", "(Ljava/lang/Object;)V");
+                mw.visitVarInsn(ALOAD, context.fieldName());
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "writeWithFieldName", "(Ljava/lang/Object;Ljava/lang/Object;)V");
 
                 mw.visitVarInsn(ALOAD, context.var("out"));
                 mw.visitVarInsn(BIPUSH, ',');
@@ -859,7 +861,8 @@ public class ASMSerializerFactory implements Opcodes {
                 mw.visitVarInsn(ALOAD, context.var("list"));
                 mw.visitVarInsn(ILOAD, context.var("i"));
                 mw.visitMethodInsn(INVOKEINTERFACE, getType(List.class), "get", "(I)Ljava/lang/Object;");
-                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "write", "(Ljava/lang/Object;)V");
+                mw.visitVarInsn(ALOAD, context.fieldName());
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "writeWithFieldName", "(Ljava/lang/Object;Ljava/lang/Object;)V");
 
                 mw.visitVarInsn(ALOAD, context.var("out"));
                 mw.visitVarInsn(BIPUSH, ']');
@@ -944,7 +947,8 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "writeWithFormat",
                                "(Ljava/lang/Object;Ljava/lang/String;)V");
         } else {
-            mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "write", "(Ljava/lang/Object;)V");
+            mw.visitVarInsn(ALOAD, context.fieldName());
+            mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "writeWithFieldName", "(Ljava/lang/Object;Ljava/lang/Object;)V");
         }
 
         _seperator(mw, context);

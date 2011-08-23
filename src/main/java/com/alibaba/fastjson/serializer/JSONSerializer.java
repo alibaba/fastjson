@@ -251,6 +251,8 @@ public class JSONSerializer {
                 out.writeNull();
                 return;
             }
+            
+            
 
             Class<?> clazz = object.getClass();
 

@@ -16,15 +16,17 @@ public class JSONSerializerTest2 extends TestCase {
         JSONSerializer serializer = new JSONSerializer();
 
         int size = serializer.getMapping().size();
+        serializer.config(SerializerFeature.WriteEnumUsingToString, false);
         serializer.write(Type.A);
 
-        Assert.assertEquals(size + 1, serializer.getMapping().size());
+        Assert.assertTrue(size < serializer.getMapping().size());
 
         Assert.assertEquals(Integer.toString(Type.A.ordinal()), serializer.getWriter().toString());
     }
 
     public void test_1() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
+        serializer.config(SerializerFeature.WriteEnumUsingToString, false);
         serializer.write(new A(Type.B));
 
         Assert.assertEquals("{\"type\":" + Integer.toString(Type.B.ordinal()) + "}", serializer.getWriter().toString());

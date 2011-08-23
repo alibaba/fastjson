@@ -13,6 +13,9 @@ public class MaterializedInterfaceTest extends TestCase {
         
         Assert.assertEquals(123, bean.getId());
         Assert.assertEquals("chris", bean.getName());
+        
+        String text2 = JSON.toJSONString(bean);
+        System.out.println(text2);
     }
 
     public static interface Bean {

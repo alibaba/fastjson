@@ -68,6 +68,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         int features = 0;
         features |= com.alibaba.fastjson.serializer.SerializerFeature.QuoteFieldNames.getMask();
         features |= com.alibaba.fastjson.serializer.SerializerFeature.SkipTransientField.getMask();
+        features |= com.alibaba.fastjson.serializer.SerializerFeature.WriteEnumUsingToString.getMask();
         features |= com.alibaba.fastjson.serializer.SerializerFeature.SortField.getMask();
         DEFAULT_GENERATE_FEATURE = features;
     }
@@ -332,6 +333,23 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             out.close();
         }
     }
+    
+    public static final byte[] toJSONBytes(Object object, SerializerFeature... features) {
+        SerializeWriter out = new SerializeWriter();
+
+        try {
+            JSONSerializer serializer = new JSONSerializer(out);
+            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
+                serializer.config(feature, true);
+            }
+
+            serializer.write(object);
+
+            return out.toBytes("UTF-8");
+        } finally {
+            out.close();
+        }
+    }
 
     public static final String toJSONString(Object object, SerializeConfig config, SerializerFeature... features) {
         SerializeWriter out = new SerializeWriter();
@@ -363,7 +381,24 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             out.close();
         }
     }
+    
+    public static final byte[] toJSONBytes(Object object, SerializeConfig config, SerializerFeature... features) {
+        SerializeWriter out = new SerializeWriter();
 
+        try {
+            JSONSerializer serializer = new JSONSerializer(out, config);
+            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
+                serializer.config(feature, true);
+            }
+
+            serializer.write(object);
+
+            return out.toBytes("UTF-8");
+        } finally {
+            out.close();
+        }
+    }
+    
     public static final String toJSONString(Object object, boolean prettyFormat) {
         if (!prettyFormat) {
             return toJSONString(object);

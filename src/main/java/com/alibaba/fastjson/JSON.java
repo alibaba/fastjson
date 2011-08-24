@@ -42,7 +42,6 @@ import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.ThreadLocalCache;
 import com.alibaba.fastjson.util.TypeUtils;
-import com.alibaba.fastjson.util.UTF8Decoder;
 
 /**
  * @author wenshao<szujobs@hotmail.com>
@@ -91,7 +90,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static final Object parse(byte[] input, Feature... features) {
-        return parse(input, 0, input.length, UTF8_CharsetEncoder, features);
+        return parse(input, 0, input.length, ThreadLocalCache.getUTF8Decoder(), features);
     }
 
     public static final Object parse(byte[] input, int off, int len, CharsetDecoder charsetDecoder, Feature... features) {
@@ -229,11 +228,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     @SuppressWarnings("unchecked")
     public static final <T> T parseObject(byte[] input, Type clazz, Feature... features) {
-        return (T) parseObject(input, 0, input.length, UTF8_CharsetEncoder, clazz, features);
+        return (T) parseObject(input, 0, input.length, ThreadLocalCache.getUTF8Decoder(), clazz, features);
     }
-
-    public static CharsetDecoder UTF8_CharsetEncoder = new UTF8Decoder(); // =
-                                                                          // Charset.forName("UTF-8").newDecoder();
 
     @SuppressWarnings("unchecked")
     public static final <T> T parseObject(byte[] input, int off, int len, CharsetDecoder charsetDecoder, Type clazz,

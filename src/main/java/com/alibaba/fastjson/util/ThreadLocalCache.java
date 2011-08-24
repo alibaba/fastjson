@@ -1,12 +1,24 @@
 package com.alibaba.fastjson.util;
 
 import java.lang.ref.SoftReference;
+import java.nio.charset.CharsetDecoder;
 
 public class ThreadLocalCache {
 
     public final static int                                 CHARS_CACH_INIT_SIZE = 1024;                                    // 1k;
     public final static int                                 CHARS_CACH_MAX_SIZE  = 1024 * 128;                              // 1k;
     private final static ThreadLocal<SoftReference<char[]>> charsBufLocal        = new ThreadLocal<SoftReference<char[]>>();
+
+    private final static ThreadLocal<CharsetDecoder>        decoderLocal         = new ThreadLocal<CharsetDecoder>();
+
+    public static CharsetDecoder getUTF8Decoder() {
+        CharsetDecoder decoder = decoderLocal.get();
+        if (decoder == null) {
+            decoder = new UTF8Decoder();
+            decoderLocal.set(decoder);
+        }
+        return decoder;
+    }
 
     public static void clearChars() {
         charsBufLocal.set(null);
@@ -18,9 +30,9 @@ public class ThreadLocalCache {
         if (ref == null) {
             return allocate(length);
         }
-        
+
         char[] chars = ref.get();
-        
+
         if (chars == null) {
             return allocate(length);
         }
@@ -78,7 +90,7 @@ public class ThreadLocalCache {
         }
 
         byte[] bytes = ref.get();
-        
+
         if (bytes == null) {
             return allocateBytes(length);
         }

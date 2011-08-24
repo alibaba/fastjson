@@ -9,6 +9,7 @@ import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.util.IOUtils;
+import com.alibaba.fastjson.util.ThreadLocalCache;
 import com.alibaba.fastjson.util.UTF8Decoder;
 
 public class IOUtilsTest extends TestCase {
@@ -16,7 +17,7 @@ public class IOUtilsTest extends TestCase {
     public void test_error_0() throws Exception {
         Exception error = null;
         try {
-            IOUtils.decode(JSON.UTF8_CharsetEncoder, ByteBuffer.wrap("abc".getBytes("UTF-8")),
+            IOUtils.decode(ThreadLocalCache.getUTF8Decoder(), ByteBuffer.wrap("abc".getBytes("UTF-8")),
                            CharBuffer.wrap(new char[0]));
         } catch (Exception ex) {
             error = ex;

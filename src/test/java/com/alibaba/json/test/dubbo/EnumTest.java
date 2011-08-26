@@ -1,4 +1,4 @@
-package com.alibaba.json.test.bvt.dubbo;
+package com.alibaba.json.test.dubbo;
 
 public enum EnumTest {
 

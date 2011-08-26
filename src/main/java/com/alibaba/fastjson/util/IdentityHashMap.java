@@ -50,7 +50,7 @@ public class IdentityHashMap<K, V> {
         return null;
     }
 
-    public final boolean put(K key, V value) {
+    public boolean put(K key, V value) {
         final int hash = System.identityHashCode(key);
         final int bucket = hash & indexMask;
 

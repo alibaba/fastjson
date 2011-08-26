@@ -50,6 +50,29 @@ public class JSONSerializer {
 
     private final List<SerialContext> references      = new ArrayList<SerialContext>();
     private SerialContext             context;
+    
+
+    public JSONSerializer(){
+        this(new SerializeWriter(), SerializeConfig.getGlobalInstance());
+    }
+
+    public JSONSerializer(SerializeWriter out){
+        this(out, SerializeConfig.getGlobalInstance());
+    }
+
+    public JSONSerializer(SerializeConfig config){
+        this(new SerializeWriter(), config);
+    }
+    
+    @Deprecated
+    public JSONSerializer(JSONSerializerMap mapping){
+        this(new SerializeWriter(), mapping);
+    }
+
+    public JSONSerializer(SerializeWriter out, SerializeConfig config){
+        this.out = out;
+        this.config = config;
+    }
 
     public SerialContext getContext() {
         return context;
@@ -186,23 +209,6 @@ public class JSONSerializer {
         return propertyFilters;
     }
 
-    public JSONSerializer(){
-        this(new SerializeWriter(), SerializeConfig.getGlobalInstance());
-    }
-
-    public JSONSerializer(SerializeWriter out){
-        this(out, SerializeConfig.getGlobalInstance());
-    }
-
-    public JSONSerializer(SerializeConfig mapping){
-        this(new SerializeWriter(), mapping);
-    }
-
-    public JSONSerializer(SerializeWriter out, SerializeConfig config){
-        this.out = out;
-        this.config = config;
-    }
-
     public SerializeWriter getWriter() {
         return out;
     }
@@ -321,7 +327,7 @@ public class JSONSerializer {
                 config.put(clazz, JSONAwareSerializer.instance);
             } else if (JSONStreamAware.class.isAssignableFrom(clazz)) {
                 config.put(clazz, JSONStreamAwareSerializer.instance);
-            } else if (clazz.isEnum()) {
+            } else if (clazz.isEnum() || (clazz.getSuperclass() != null && clazz.getSuperclass().isEnum())) {
                 config.put(clazz, EnumSerializer.instance);
             } else if (clazz.isArray()) {
                 Class<?> componentType = clazz.getComponentType();

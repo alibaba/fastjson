@@ -7,6 +7,14 @@ import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.json.test.dubbo.FullAddress;
+import com.alibaba.json.test.dubbo.HelloServiceImpl;
+import com.alibaba.json.test.dubbo.Person;
+import com.alibaba.json.test.dubbo.PersonInfo;
+import com.alibaba.json.test.dubbo.PersonStatus;
+import com.alibaba.json.test.dubbo.Phone;
+import com.alibaba.json.test.dubbo.Tiger;
+import com.alibaba.json.test.dubbo.Tigers;
 
 public class TestForDubbo extends TestCase {
 

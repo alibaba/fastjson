@@ -1,4 +1,4 @@
-package com.alibaba.json.test.bvt.dubbo;
+package com.alibaba.json.test.dubbo;
 
 import java.io.Serializable;
 import java.util.HashMap;

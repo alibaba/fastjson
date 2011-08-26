@@ -13,7 +13,7 @@
  * accordance with the terms of the license agreement you entered into
  * with Alibaba.com.
  */
-package com.alibaba.json.test.bvt.dubbo;
+package com.alibaba.json.test.dubbo;
 
 import java.util.Collection;
 import java.util.Date;
@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+
+import com.alibaba.json.test.bvt.dubbo.EnumTest;
 
 /**
  * TODO Comment of HelloServiceImpl

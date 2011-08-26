@@ -13,7 +13,7 @@
  * accordance with the terms of the license agreement you entered into
  * with Alibaba.com.
  */
-package com.alibaba.json.test.bvt.dubbo;
+package com.alibaba.json.test.dubbo;
 
 import java.io.Serializable;
 

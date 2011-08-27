@@ -22,12 +22,28 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.fieldType = fieldType;
         this.method = method;
         this.field = field;
+        
+        if (method != null) {
+            method.setAccessible(true);
+        }
+        
+        if (field != null) {
+            field.setAccessible(true);
+        }
     }
 
     public FieldInfo(String name, Method method, Field field){
         this.name = name;
         this.method = method;
         this.field = field;
+        
+        if (method != null) {
+            method.setAccessible(true);
+        }
+        
+        if (field != null) {
+            field.setAccessible(true);
+        }
 
         if (method.getParameterTypes().length == 1) {
             this.fieldClass = method.getParameterTypes()[0];

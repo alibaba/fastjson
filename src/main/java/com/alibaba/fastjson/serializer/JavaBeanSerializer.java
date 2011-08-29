@@ -22,6 +22,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -192,8 +193,10 @@ public class JavaBeanSerializer implements ObjectSerializer {
     }
 
     public static List<FieldInfo> computeGetters(Class<?> clazz, Map<String, String> aliasMap) {
-        List<FieldInfo> getters = new ArrayList<FieldInfo>();
+        List<FieldInfo> fieldInfoList = new ArrayList<FieldInfo>();
 
+        Map<String, FieldInfo> fieldInfoMap = new LinkedHashMap<String, FieldInfo>();
+        
         for (Method method : clazz.getMethods()) {
             String methodName = method.getName();
 
@@ -226,7 +229,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                         }
                     }
 
-                    getters.add(new FieldInfo(propertyName, method, null));
+                    fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, null));
                     continue;
                 }
             }
@@ -269,7 +272,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                     }
                 }
 
-                getters.add(new FieldInfo(propertyName, method, field));
+                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field));
             }
 
             if (methodName.startsWith("is")) {
@@ -306,10 +309,14 @@ public class JavaBeanSerializer implements ObjectSerializer {
                     }
                 }
 
-                getters.add(new FieldInfo(propertyName, method, field));
+                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field));
             }
         }
+        
+        for (FieldInfo fieldInfo : fieldInfoMap.values()) {
+            fieldInfoList.add(fieldInfo);
+        }
 
-        return getters;
+        return fieldInfoList;
     }
 }

@@ -83,9 +83,9 @@ public class ASMDeserializerFactory implements Opcodes {
 
         byte[] code = cw.toByteArray();
 
-        // org.apache.commons.io.IOUtils.write(code, new java.io.FileOutputStream(
-        // "/usr/alibaba/workspace/fastjson-asm/target/classes/"
-        // + className + ".class"));
+         org.apache.commons.io.IOUtils.write(code, new java.io.FileOutputStream(
+         "/usr/alibaba/workspace-3.7/fastjson-asm/target/classes/"
+         + className + ".class"));
 
         Class<?> exampleClass = classLoader.defineClassPublic(className, code, 0, code.length);
 
@@ -384,8 +384,8 @@ public class ASMDeserializerFactory implements Opcodes {
             } else if (fieldClass == int.class) {
                 mw.visitVarInsn(ILOAD, context.var(fieldInfo.getName() + "_asm"));
             } else if (fieldClass == long.class) {
-                mw.visitVarInsn(LLOAD, context.var(fieldInfo.getName() + "_asm"));
-                mw.visitMethodInsn(INVOKEVIRTUAL, getType(context.getClazz()), fieldInfo.getMethod().getName(), "(J)V");
+                mw.visitVarInsn(LLOAD, context.var(fieldInfo.getName() + "_asm", 2));
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(context.getClazz()), fieldInfo.getName(), "(J)V");
                 continue;
             } else if (fieldClass == float.class) {
                 mw.visitVarInsn(FLOAD, context.var(fieldInfo.getName() + "_asm"));
@@ -425,7 +425,7 @@ public class ASMDeserializerFactory implements Opcodes {
             } else if (fieldClass == int.class) {
                 mw.visitVarInsn(ILOAD, context.var(fieldInfo.getName() + "_asm"));
             } else if (fieldClass == long.class) {
-                mw.visitVarInsn(LLOAD, context.var(fieldInfo.getName() + "_asm"));
+                mw.visitVarInsn(LLOAD, context.var(fieldInfo.getName() + "_asm", 2));
                 mw.visitMethodInsn(INVOKEVIRTUAL, getType(context.getClazz()), fieldInfo.getMethod().getName(), "(J)V");
                 continue;
             } else if (fieldClass == float.class) {

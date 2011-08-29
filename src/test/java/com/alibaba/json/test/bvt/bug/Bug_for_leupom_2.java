@@ -2,10 +2,10 @@ package com.alibaba.json.test.bvt.bug;
 
 import java.util.concurrent.TimeUnit;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.annotation.JSONCreator;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
@@ -19,6 +19,9 @@ public class Bug_for_leupom_2 extends TestCase {
         System.out.println(text);
 
         Time time2 = JSON.parseObject(text, Time.class);
+        
+        Assert.assertEquals(time2.getValue(), time.getValue());
+        Assert.assertEquals(time2.getUnit(), time.getUnit());
     }
 
     public static class Time {
@@ -40,6 +43,7 @@ public class Bug_for_leupom_2 extends TestCase {
             return value;
         }
 
+        @JSONField(serialzeFeatures={SerializerFeature.WriteEnumUsingToString})
         public TimeUnit getUnit() {
             return unit;
         }

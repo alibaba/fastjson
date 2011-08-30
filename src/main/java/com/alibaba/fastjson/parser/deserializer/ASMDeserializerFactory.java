@@ -83,9 +83,9 @@ public class ASMDeserializerFactory implements Opcodes {
 
         byte[] code = cw.toByteArray();
 
-         org.apache.commons.io.IOUtils.write(code, new java.io.FileOutputStream(
-         "/usr/alibaba/workspace-3.7/fastjson-asm/target/classes/"
-         + className + ".class"));
+//         org.apache.commons.io.IOUtils.write(code, new java.io.FileOutputStream(
+//         "/usr/alibaba/workspace-3.7/fastjson-asm/target/classes/"
+//         + className + ".class"));
 
         Class<?> exampleClass = classLoader.defineClassPublic(className, code, 0, code.length);
 

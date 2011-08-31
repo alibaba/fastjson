@@ -18,6 +18,7 @@ package com.alibaba.fastjson.util;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 
@@ -350,12 +352,12 @@ public class TypeUtils {
 
         throw new JSONException("can not cast to int, value : " + value);
     }
-    
+
     public static final byte[] castToBytes(Object value) {
         if (value instanceof byte[]) {
             return (byte[]) value;
         }
-        
+
         if (value instanceof String) {
             return Base64.decodeFast((String) value);
         }
@@ -519,7 +521,7 @@ public class TypeUtils {
 
                 return (T) Enum.valueOf((Class<? extends Enum>) clazz, name);
             }
-            
+
             if (obj instanceof Number) {
                 int ordinal = ((Number) obj).intValue();
 
@@ -631,12 +633,24 @@ public class TypeUtils {
             }
 
             {
-                Object iClassObject = map.get("class");
+                Object iClassObject = map.get("@type");
                 if (iClassObject instanceof String) {
                     String className = (String) iClassObject;
 
                     clazz = (Class<T>) loadClass(className);
                 }
+            }
+
+            if (clazz.isInterface()) {
+                JSONObject object;
+
+                if (map instanceof JSONObject) {
+                    object = (JSONObject) map;
+                } else {
+                    object = new JSONObject(map);
+                }
+
+                return (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class<?>[] { clazz }, object);
             }
 
             Map<String, FieldDeserializer> setters = mapping.getFieldDeserializers(clazz);
@@ -666,15 +680,14 @@ public class TypeUtils {
         } catch (Throwable e) {
             // skip
         }
-        
+
         try {
             clazz = Class.forName(className);
             return clazz;
         } catch (Throwable e) {
             // skip
         }
-        
-        
+
         return clazz;
     }
 }

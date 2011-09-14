@@ -9,6 +9,7 @@ import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 
 public class StackTraceElementDeserializer implements ObjectDeserializer {
+
     public final static StackTraceElementDeserializer instance = new StackTraceElementDeserializer();
 
     @SuppressWarnings("unchecked")
@@ -20,14 +21,10 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
             return null;
         }
 
-        if (lexer.token() == JSONToken.LBRACE) {
-            lexer.nextToken(JSONToken.LITERAL_STRING);
-        } else {
-            if (lexer.token() != JSONToken.COMMA) {
-                throw new JSONException("syntax error: " + JSONToken.name(lexer.token()));
-            }
+        if (!(lexer.token() != JSONToken.LBRACE || lexer.token() != JSONToken.COMMA)) {
+            throw new JSONException("syntax error: " + JSONToken.name(lexer.token()));
         }
-        
+
         String declaringClass = null;
         String methodName = null;
         String fileName = null;
@@ -38,7 +35,7 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
                 lexer.nextToken(JSONToken.COMMA);
                 break;
             }
-            
+
             // lexer.scanSymbol
             String key = lexer.scanSymbol(parser.getSymbolTable());
 
@@ -97,10 +94,21 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
                 } else {
                     throw new JSONException("syntax error");
                 }
+            } else if (key == "@type") {
+                if (lexer.token() == JSONToken.NULL) {
+                    // skip
+                } else if (lexer.token() == JSONToken.LITERAL_STRING) {
+                    String elementType = lexer.stringVal();
+                    if (!elementType.equals("java.lang.StackTraceElement")) {
+                        throw new JSONException("syntax error : " + elementType);    
+                    }
+                } else {
+                    throw new JSONException("syntax error");
+                }
             } else {
                 throw new JSONException("syntax error : " + key);
             }
-            
+
             if (lexer.token() == JSONToken.COMMA) {
                 continue;
             }
@@ -109,7 +117,7 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
                 lexer.nextToken(JSONToken.COMMA);
                 break;
             }
-            
+
         }
         return (T) new StackTraceElement(declaringClass, methodName, fileName, lineNumber);
     }

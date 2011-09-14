@@ -26,6 +26,10 @@ public class EnumSerializer implements ObjectSerializer {
 
     public void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException {
         SerializeWriter out = serializer.getWriter();
+        if (object == null) {
+            serializer.getWriter().writeNull();
+            return;
+        }
 
         if (serializer.isEnabled(SerializerFeature.WriteEnumUsingToString)) {
             Enum<?> e = (Enum<?>) object;

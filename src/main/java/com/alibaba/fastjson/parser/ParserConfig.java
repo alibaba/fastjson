@@ -97,6 +97,7 @@ import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.PatternDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ShortDeserializer;
 import com.alibaba.fastjson.parser.deserializer.SqlDateDeserializer;
+import com.alibaba.fastjson.parser.deserializer.StackTraceElementDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StringDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StringFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ThrowableDeserializer;
@@ -224,6 +225,7 @@ public class ParserConfig {
         derializers.put(Number.class, NumberDeserializer.instance);
         derializers.put(AtomicIntegerArray.class, AtomicIntegerArrayDeserializer.instance);
         derializers.put(AtomicLongArray.class, AtomicLongArrayDeserializer.instance);
+        derializers.put(StackTraceElement.class, StackTraceElementDeserializer.instance);
 
     }
 

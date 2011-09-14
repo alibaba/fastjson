@@ -97,7 +97,8 @@ public class DeserializeBeanInfo {
                     if (field != null) {
                         field.setAccessible(true);
                     }
-                    FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, null, field);
+                    FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, null,
+                                                        field);
                     beanInfo.getFieldList().add(fieldInfo);
                 }
                 return beanInfo;
@@ -127,7 +128,8 @@ public class DeserializeBeanInfo {
                     if (field != null) {
                         field.setAccessible(true);
                     }
-                    FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, null, field);
+                    FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, null,
+                                                        field);
                     beanInfo.getFieldList().add(fieldInfo);
                 }
                 return beanInfo;

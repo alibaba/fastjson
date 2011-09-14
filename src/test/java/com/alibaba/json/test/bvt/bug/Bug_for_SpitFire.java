@@ -3,7 +3,6 @@ package com.alibaba.json.test.bvt.bug;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class Bug_for_SpitFire extends TestCase {
@@ -15,8 +14,7 @@ public class Bug_for_SpitFire extends TestCase {
         String text = JSON.toJSONString(object, SerializerFeature.WriteClassName);
         System.out.println(text);
 
-        JSON.parseObject(text, new TypeReference<GenericDTO<MyDTO>>() {
-        });
+        JSON.parseObject(text, GenericDTO.class);
     }
 
     public static class GenericDTO<T extends AbstractDTO> extends AbstractDTO {

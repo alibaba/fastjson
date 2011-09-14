@@ -72,7 +72,7 @@ public class DeserializeBeanInfo {
         if (defaultConstructor != null) {
             defaultConstructor.setAccessible(true);
             beanInfo.setDefaultConstructor(defaultConstructor);
-        } else if (defaultConstructor == null && !(clazz.isInterface())) {
+        } else if (defaultConstructor == null && !(clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers()))) {
             Constructor<?> creatorConstructor = getCreatorConstructor(clazz);
             if (creatorConstructor != null) {
                 creatorConstructor.setAccessible(true);
@@ -204,6 +204,10 @@ public class DeserializeBeanInfo {
     }
 
     public static Constructor<?> getDefaultConstructor(Class<?> clazz) {
+       if (Modifier.isAbstract(clazz.getModifiers())) {
+           return null;
+       }
+       
         Constructor<?> defaultConstructor = null;
         for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
             if (constructor.getParameterTypes().length == 0) {

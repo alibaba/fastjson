@@ -201,7 +201,7 @@ public class JSONScanner implements JSONLexer {
                 continue;
             }
 
-            throw new JSONException("not match ':'");
+            throw new JSONException("not match ':' - " + ch);
         }
     }
 

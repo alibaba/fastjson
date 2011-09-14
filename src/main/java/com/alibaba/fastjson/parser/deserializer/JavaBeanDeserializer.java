@@ -19,6 +19,7 @@ import com.alibaba.fastjson.parser.ParseContext;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.DeserializeBeanInfo;
 import com.alibaba.fastjson.util.FieldInfo;
+import com.alibaba.fastjson.util.TypeUtils;
 
 public class JavaBeanDeserializer implements ObjectDeserializer {
 
@@ -173,6 +174,19 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     lexer.nextToken(JSONToken.COMMA);
 
                     return (T) object;
+                }
+                
+                if ("@type" == key) {
+                    lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
+                    if (lexer.token() == JSONToken.LITERAL_STRING) {
+                        String typeName = lexer.stringVal();
+                        lexer.nextToken(JSONToken.COMMA);
+                        Class<?> userType = TypeUtils.loadClass(typeName);
+                        ObjectDeserializer deserizer = parser.getConfig().getDeserializer(userType);
+                        return deserizer.deserialze(parser, userType, fieldName);
+                    } else {
+                        throw new JSONException("syntax error");
+                    }
                 }
 
                 if (object == null && fieldValues == null) {

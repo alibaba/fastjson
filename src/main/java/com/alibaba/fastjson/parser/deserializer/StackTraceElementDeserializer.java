@@ -34,6 +34,11 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
         int lineNumber = 0;
 
         for (;;) {
+            if (lexer.token() == JSONToken.RBRACE) {
+                lexer.nextToken(JSONToken.COMMA);
+                break;
+            }
+            
             // lexer.scanSymbol
             String key = lexer.scanSymbol(parser.getSymbolTable());
 
@@ -83,12 +88,28 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
                     throw new JSONException("syntax error");
                 }
             } else if (key == "nativeMethod") {
-                parser.parse();
+                if (lexer.token() == JSONToken.NULL) {
+                    lexer.nextToken(JSONToken.COMMA);
+                } else if (lexer.token() == JSONToken.TRUE) {
+                    lexer.nextToken(JSONToken.COMMA);
+                } else if (lexer.token() == JSONToken.FALSE) {
+                    lexer.nextToken(JSONToken.COMMA);
+                } else {
+                    throw new JSONException("syntax error");
+                }
             } else {
                 throw new JSONException("syntax error : " + key);
             }
             
-            lexer.nextToken(JSONToken.COMMA);
+            if (lexer.token() == JSONToken.COMMA) {
+                continue;
+            }
+
+            if (lexer.token() == JSONToken.RBRACE) {
+                lexer.nextToken(JSONToken.COMMA);
+                break;
+            }
+            
         }
         return (T) new StackTraceElement(declaringClass, methodName, fileName, lineNumber);
     }

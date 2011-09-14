@@ -15,9 +15,10 @@ public class Bug_for_SpitFire extends TestCase {
 
         String text = JSON.toJSONString(object, SerializerFeature.WriteClassName);
 
-        GenericDTO object2 = JSON.parseObject(text, GenericDTO.class);
+        GenericDTO<MyDTO> object2 = (GenericDTO<MyDTO>) JSON.parseObject(text, GenericDTO.class);
         
         Assert.assertEquals(object.getName(), object2.getName());
+        Assert.assertEquals(object.getFiled().getId(), object2.getFiled().getId());
     }
 
     public static class GenericDTO<T extends AbstractDTO> extends AbstractDTO {

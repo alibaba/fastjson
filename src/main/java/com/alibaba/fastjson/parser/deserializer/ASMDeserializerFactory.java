@@ -131,6 +131,7 @@ public class ASMDeserializerFactory implements Opcodes {
 
         Label reset_ = new Label();
         Label super_ = new Label();
+        Label return_ = new Label();
         Label end_ = new Label();
 
         mw.visitVarInsn(ALOAD, 1);
@@ -152,6 +153,7 @@ public class ASMDeserializerFactory implements Opcodes {
 
         mw.visitFieldInsn(GETSTATIC, getType(JSONScanner.class), "NOT_MATCH", "I");
         mw.visitJumpInsn(IF_ICMPEQ, super_);
+        
         // matchType
 
         mw.visitVarInsn(ALOAD, context.var("lexer"));
@@ -205,6 +207,11 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitVarInsn(ASTORE, context.var("childContext"));
         }
 
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitFieldInsn(GETFIELD, getType(JSONScanner.class), "matchStat", "I");
+        mw.visitFieldInsn(GETSTATIC, getType(JSONScanner.class), "END", "I");
+        mw.visitJumpInsn(IF_ICMPEQ, return_);
+        
         for (int i = 0, size = context.getFieldInfoList().size(); i < size; ++i) {
             FieldInfo fieldInfo = context.getFieldInfoList().get(i);
             Class<?> fieldClass = fieldInfo.getFieldClass();
@@ -336,6 +343,8 @@ public class ASMDeserializerFactory implements Opcodes {
             }
         }
 
+        mw.visitLabel(return_);
+        
         _setContext(context, mw);
         mw.visitVarInsn(ALOAD, context.var("instance"));
         mw.visitInsn(ARETURN);

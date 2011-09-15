@@ -183,7 +183,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         lexer.nextToken(JSONToken.COMMA);
                         Class<?> userType = TypeUtils.loadClass(typeName);
                         ObjectDeserializer deserizer = parser.getConfig().getDeserializer(userType);
-                        return deserizer.deserialze(parser, userType, fieldName);
+                        return (T) deserizer.deserialze(parser, userType, fieldName);
                     } else {
                         throw new JSONException("syntax error");
                     }

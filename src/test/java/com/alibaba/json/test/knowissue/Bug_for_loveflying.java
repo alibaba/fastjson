@@ -1,4 +1,4 @@
-package com.alibaba.json.test.bvt.bug;
+package com.alibaba.json.test.knowissue;
 
 import java.util.Date;
 import java.util.HashSet;

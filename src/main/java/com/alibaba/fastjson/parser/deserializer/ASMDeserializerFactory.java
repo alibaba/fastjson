@@ -319,11 +319,11 @@ public class ASMDeserializerFactory implements Opcodes {
             if (defaultConstructor != null) {
                 _batchSet(context, mw);
             } else {
-                mw.visitTypeInsn(NEW, getType(context.getClazz()));
-                mw.visitInsn(DUP);
-
                 Constructor<?> creatorConstructor = context.getBeanInfo().getCreatorConstructor();
                 if (creatorConstructor != null) {
+                    mw.visitTypeInsn(NEW, getType(context.getClazz()));
+                    mw.visitInsn(DUP);
+                    
                     _loadCreatorParameters(context, mw);
 
                     mw.visitMethodInsn(INVOKESPECIAL, getType(context.getClazz()), "<init>",

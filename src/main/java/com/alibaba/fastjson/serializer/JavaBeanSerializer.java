@@ -102,7 +102,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
         try {
             out.append('{');
 
-            if (out.isEnabled(SerializerFeature.PrettyFormat)) {
+            if (getters.length > 0 && out.isEnabled(SerializerFeature.PrettyFormat)) {
                 serializer.incrementIndent();
                 serializer.println();
             }
@@ -165,7 +165,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 commaFlag = true;
             }
 
-            if (out.isEnabled(SerializerFeature.PrettyFormat)) {
+            if (getters.length > 0 && out.isEnabled(SerializerFeature.PrettyFormat)) {
                 serializer.decrementIdent();
                 serializer.println();
             }

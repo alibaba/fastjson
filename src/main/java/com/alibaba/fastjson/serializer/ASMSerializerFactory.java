@@ -217,13 +217,6 @@ public class ASMSerializerFactory implements Opcodes {
 
         int size = getters.size();
 
-        if (size == 0) {
-            mw.visitVarInsn(ALOAD, context.var("out"));
-            mw.visitLdcInsn("{}");
-            mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "write", "(Ljava/lang/String;)V");
-            return;
-        }
-
         {
             // 格式化输出不走asm 优化
             Label endFormat_ = new Label();

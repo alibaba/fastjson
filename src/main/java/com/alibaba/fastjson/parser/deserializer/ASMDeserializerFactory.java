@@ -5,6 +5,7 @@ import static com.alibaba.fastjson.util.ASMUtils.getType;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -315,7 +316,7 @@ public class ASMDeserializerFactory implements Opcodes {
             }
         }
 
-        if (!context.getClazz().isInterface()) {
+        if (!context.getClazz().isInterface() && !Modifier.isAbstract(context.getClazz().getModifiers())) {
             if (defaultConstructor != null) {
                 _batchSet(context, mw);
             } else {

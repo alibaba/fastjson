@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -77,7 +78,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
         return serializer.isEnabled(SerializerFeature.WriteClassName);
     }
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         if (object == null) {
@@ -110,9 +111,12 @@ public class JavaBeanSerializer implements ObjectSerializer {
             boolean commaFlag = false;
 
             if (isWriteClassName(serializer)) {
-                out.writeFieldName("@type");
-                serializer.write(object.getClass());
-                commaFlag = true;
+                Class<?> objClass = object.getClass();
+                if (objClass != fieldType) {
+                    out.writeFieldName("@type");
+                    serializer.write(object.getClass());
+                    commaFlag = true;
+                }
             }
 
             for (int i = 0; i < getters.length; ++i) {
@@ -196,7 +200,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
         List<FieldInfo> fieldInfoList = new ArrayList<FieldInfo>();
 
         Map<String, FieldInfo> fieldInfoMap = new LinkedHashMap<String, FieldInfo>();
-        
+
         for (Method method : clazz.getMethods()) {
             String methodName = method.getName();
 
@@ -312,7 +316,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field));
             }
         }
-        
+
         for (FieldInfo fieldInfo : fieldInfoMap.values()) {
             fieldInfoList.add(fieldInfo);
         }

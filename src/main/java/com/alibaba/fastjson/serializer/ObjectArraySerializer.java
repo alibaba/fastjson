@@ -16,6 +16,7 @@
 package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 
 /**
  * @author wenshao<szujobs@hotmail.com>
@@ -27,7 +28,7 @@ public class ObjectArraySerializer implements ObjectSerializer {
     public ObjectArraySerializer(){
     }
 
-    public final void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException {
+    public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         Object[] array = (Object[]) object;
@@ -79,12 +80,12 @@ public class ObjectArraySerializer implements ObjectSerializer {
                 Class<?> clazz = item.getClass();
 
                 if (clazz == preClazz) {
-                    preWriter.write(serializer, item, null);
+                    preWriter.write(serializer, item, null, null);
                 } else {
                     preClazz = clazz;
                     preWriter = serializer.getObjectWriter(clazz);
 
-                    preWriter.write(serializer, item, null);
+                    preWriter.write(serializer, item, null, null);
                 }
 
                 out.append(',');

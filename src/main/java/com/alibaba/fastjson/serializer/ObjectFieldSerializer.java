@@ -98,7 +98,7 @@ public class ObjectFieldSerializer extends FieldSerializer {
                 return;
             }
 
-            fieldSerializer.write(serializer, null, null);
+            fieldSerializer.write(serializer, null, null, null);
             return;
         }
 
@@ -109,12 +109,12 @@ public class ObjectFieldSerializer extends FieldSerializer {
 
         Class<?> valueClass = propertyValue.getClass();
         if (valueClass == runtimeFieldClass) {
-            fieldSerializer.write(serializer, propertyValue, fieldInfo.getName());
+            fieldSerializer.write(serializer, propertyValue, fieldInfo.getName(), fieldInfo.getFieldType());
             return;
         }
 
         ObjectSerializer valueSerializer = serializer.getObjectWriter(valueClass);
-        valueSerializer.write(serializer, propertyValue, fieldInfo.getName());
+        valueSerializer.write(serializer, propertyValue, fieldInfo.getName(), null);
     }
 
 }

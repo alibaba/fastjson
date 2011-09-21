@@ -48,7 +48,7 @@ public class ASMSerializerFactory implements Opcodes {
             this.className = className;
         }
 
-        private int                  variantIndex = 7;
+        private int                  variantIndex = 8;
 
         private Map<String, Integer> variants     = new HashMap<String, Integer>();
 
@@ -68,16 +68,20 @@ public class ASMSerializerFactory implements Opcodes {
             return 3;
         }
 
-        public int fieldName() {
+        public int paramFieldType() {
             return 4;
         }
-
-        public int original() {
+        
+        public int fieldName() {
             return 5;
+        }
+        
+        public int original() {
+            return 6;
         }
 
         public int processValue() {
-            return 6;
+            return 7;
         }
 
         public int getVariantCount() {
@@ -134,7 +138,7 @@ public class ASMSerializerFactory implements Opcodes {
 
             mw = cw.visitMethod(ACC_PUBLIC,
                                 "write",
-                                "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;Ljava/lang/Object;)V",
+                                "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;)V",
                                 null, new String[] { "java/io/IOException" });
 
             mw.visitVarInsn(ALOAD, context.serializer()); // serializer
@@ -155,8 +159,9 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitVarInsn(ALOAD, 1);
             mw.visitVarInsn(ALOAD, 2);
             mw.visitVarInsn(ALOAD, 3);
+            mw.visitVarInsn(ALOAD, context.paramFieldName());
             mw.visitMethodInsn(INVOKEVIRTUAL, className, "write1",
-                               "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;Ljava/lang/Object;)V");
+                               "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;)V");
             mw.visitInsn(RETURN);
 
             mw.visitLabel(_else);
@@ -180,7 +185,7 @@ public class ASMSerializerFactory implements Opcodes {
 
             mw = cw.visitMethod(ACC_PUBLIC,
                                 "write1",
-                                "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;Ljava/lang/Object;)V",
+                                "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;)V",
                                 null, new String[] { "java/io/IOException" });
 
             mw.visitVarInsn(ALOAD, context.serializer()); // serializer
@@ -242,8 +247,9 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitVarInsn(ALOAD, 1);
             mw.visitVarInsn(ALOAD, 2);
             mw.visitVarInsn(ALOAD, 3);
+            mw.visitVarInsn(ALOAD, 4);
             mw.visitMethodInsn(INVOKEVIRTUAL, getType(JavaBeanSerializer.class), "write",
-                               "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;Ljava/lang/Object;)V");
+                               "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;)V");
             mw.visitInsn(RETURN);
 
             mw.visitLabel(endFormat_);

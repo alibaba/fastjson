@@ -16,6 +16,7 @@
 package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.math.BigInteger;
 
 /**
@@ -25,7 +26,7 @@ public class BigIntegerSerializer implements ObjectSerializer {
 
     public final static BigIntegerSerializer instance = new BigIntegerSerializer();
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         if (object == null) {

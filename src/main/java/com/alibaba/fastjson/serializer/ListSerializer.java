@@ -16,6 +16,7 @@
 package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
 
@@ -26,8 +27,17 @@ public final class ListSerializer implements ObjectSerializer {
 
     public static final ListSerializer instance = new ListSerializer();
 
-    public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType)
+                                                                                                       throws IOException {
         SerializeWriter out = serializer.getWriter();
+
+        Type elementType = null;
+        if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
+            if (fieldType instanceof ParameterizedType) {
+                ParameterizedType param = (ParameterizedType) fieldType;
+                elementType = param.getActualTypeArguments()[0];
+            }
+        }
 
         if (object == null) {
             if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {
@@ -71,7 +81,7 @@ public final class ListSerializer implements ObjectSerializer {
                             itemSerializer = serializer.getObjectWriter(item.getClass());
                             SerialContext itemContext = new SerialContext(context, object, fieldName);
                             serializer.setContext(itemContext);
-                            itemSerializer.write(serializer, item, i, null);
+                            itemSerializer.write(serializer, item, i, elementType);
                         }
                     } else {
                         serializer.getWriter().writeNull();
@@ -105,7 +115,7 @@ public final class ListSerializer implements ObjectSerializer {
                             serializer.writeReference(item);
                         } else {
                             itemSerializer = serializer.getObjectWriter(item.getClass());
-                            itemSerializer.write(serializer, item, end, null);
+                            itemSerializer.write(serializer, item, end, elementType);
                         }
 
                         out.append(',');
@@ -132,7 +142,7 @@ public final class ListSerializer implements ObjectSerializer {
                         serializer.writeReference(item);
                     } else {
                         itemSerializer = serializer.getObjectWriter(item.getClass());
-                        itemSerializer.write(serializer, item, end, null);
+                        itemSerializer.write(serializer, item, end, elementType);
                     }
                     out.append(']');
                 }

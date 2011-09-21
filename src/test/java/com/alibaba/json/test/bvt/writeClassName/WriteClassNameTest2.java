@@ -8,7 +8,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class WriteClassNameTest2 extends TestCase {
 
-    public void test_list() throws Exception {
+    public void test_writeClassName() throws Exception {
         A a = new A();
         a.setB(new B());
         String text = JSON.toJSONString(a, SerializerFeature.WriteClassName);

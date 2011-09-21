@@ -24,6 +24,7 @@ import com.alibaba.fastjson.asm.Label;
 import com.alibaba.fastjson.asm.MethodVisitor;
 import com.alibaba.fastjson.asm.Opcodes;
 import com.alibaba.fastjson.util.ASMClassLoader;
+import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.FieldInfo;
 
 public class ASMSerializerFactory implements Opcodes {
@@ -971,11 +972,14 @@ public class ASMSerializerFactory implements Opcodes {
                                "(Ljava/lang/Object;Ljava/lang/String;)V");
         } else {
             mw.visitVarInsn(ALOAD, context.fieldName());
-            if (fieldInfo.getFieldType() instanceof Class<?> && !((Class<?>)fieldInfo.getFieldType()).isPrimitive()) {
-                mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc((Class<?>) fieldInfo.getFieldType())));
-                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "writeWithFieldName", "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;)V");
+            if (fieldInfo.getFieldType() instanceof Class<?> && ((Class<?>)fieldInfo.getFieldType()).isPrimitive()) {
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "writeWithFieldName", "(Ljava/lang/Object;Ljava/lang/Object;)V");
             } else {
-                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "writeWithFieldName", "(Ljava/lang/Object;Ljava/lang/Object;)V");    
+                mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc(fieldInfo.getDeclaringClass())));
+                mw.visitLdcInsn(fieldInfo.getMethod().getName());
+                mw.visitMethodInsn(INVOKESTATIC, getType(ASMUtils.class), "getFieldType",
+                        "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/reflect/Type;");
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "writeWithFieldName", "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;)V");    
             }
         }
 

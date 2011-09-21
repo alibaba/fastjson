@@ -2,13 +2,14 @@ package com.alibaba.fastjson.util;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 
 public class ASMUtils {
-    
+
     public static boolean isAndroid(String vmName) {
         return "Dalvik".equals(vmName);
     }
-    
+
     public static boolean isAndroid() {
         return isAndroid(System.getProperty("java.vm.name"));
     }
@@ -24,7 +25,7 @@ public class ASMUtils {
         buf.append(getDesc(method.getReturnType()));
         return buf.toString();
     }
-    
+
     public static String getDesc(Constructor<?> constructor) {
         StringBuffer buf = new StringBuffer();
         buf.append("(");
@@ -86,6 +87,16 @@ public class ASMUtils {
         }
 
         throw new IllegalStateException("Type: " + type.getCanonicalName() + " is not a primitive type");
+    }
+
+    public static Type getFieldType(Class<?> clazz, String methodName) {
+        try {
+            Method method = clazz.getMethod(methodName);
+
+            return method.getGenericReturnType();
+        } catch (Exception ex) {
+            return null;
+        }
     }
 
 }

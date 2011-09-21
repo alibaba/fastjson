@@ -16,6 +16,7 @@
 package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.List;
 
 /**
@@ -25,7 +26,7 @@ public final class ListSerializer implements ObjectSerializer {
 
     public static final ListSerializer instance = new ListSerializer();
 
-    public final void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException {
+    public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         if (object == null) {
@@ -70,7 +71,7 @@ public final class ListSerializer implements ObjectSerializer {
                             itemSerializer = serializer.getObjectWriter(item.getClass());
                             SerialContext itemContext = new SerialContext(context, object, fieldName);
                             serializer.setContext(itemContext);
-                            itemSerializer.write(serializer, item, i);
+                            itemSerializer.write(serializer, item, i, null);
                         }
                     } else {
                         serializer.getWriter().writeNull();
@@ -104,7 +105,7 @@ public final class ListSerializer implements ObjectSerializer {
                             serializer.writeReference(item);
                         } else {
                             itemSerializer = serializer.getObjectWriter(item.getClass());
-                            itemSerializer.write(serializer, item, end);
+                            itemSerializer.write(serializer, item, end, null);
                         }
 
                         out.append(',');
@@ -131,7 +132,7 @@ public final class ListSerializer implements ObjectSerializer {
                         serializer.writeReference(item);
                     } else {
                         itemSerializer = serializer.getObjectWriter(item.getClass());
-                        itemSerializer.write(serializer, item, end);
+                        itemSerializer.write(serializer, item, end, null);
                     }
                     out.append(']');
                 }

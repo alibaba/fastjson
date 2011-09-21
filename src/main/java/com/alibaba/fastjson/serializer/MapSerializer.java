@@ -16,6 +16,7 @@
 package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -28,7 +29,7 @@ public class MapSerializer implements ObjectSerializer {
     public static MapSerializer instance = new MapSerializer();
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         if (object == null) {
@@ -117,12 +118,12 @@ public class MapSerializer implements ObjectSerializer {
                 Class<?> clazz = value.getClass();
 
                 if (clazz == preClazz) {
-                    preWriter.write(serializer, value, entryKey);
+                    preWriter.write(serializer, value, entryKey, null);
                 } else {
                     preClazz = clazz;
                     preWriter = serializer.getObjectWriter(clazz);
 
-                    preWriter.write(serializer, value, entryKey);
+                    preWriter.write(serializer, value, entryKey, null);
                 }
             }
         } finally {

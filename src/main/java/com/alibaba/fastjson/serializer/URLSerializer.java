@@ -16,6 +16,7 @@
 package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 
 /**
  * @author wenshao<szujobs@hotmail.com>
@@ -24,7 +25,7 @@ public class URLSerializer implements ObjectSerializer {
 
     public final static URLSerializer instance = new URLSerializer();
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         if (object == null) {
             serializer.writeNull();
             return;

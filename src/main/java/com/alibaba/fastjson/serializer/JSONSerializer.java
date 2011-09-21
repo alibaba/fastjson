@@ -49,8 +49,7 @@ public class JSONSerializer {
     private int                                          indentCount     = 0;
     private String                                       indent          = "\t";
 
-    private final static Object                          PRESENT         = new Object();
-    private final IdentityHashMap<SerialContext, Object> references      = new IdentityHashMap<SerialContext, Object>();
+    private final IdentityHashMap<Object, SerialContext> references      = new IdentityHashMap<Object, SerialContext>();
     private SerialContext                                context;
 
     public JSONSerializer(){
@@ -85,16 +84,16 @@ public class JSONSerializer {
 
     public void setContext(SerialContext parent, Object object, Object fieldName) {
         this.context = new SerialContext(parent, object, fieldName);
-        this.references.put(context, PRESENT);
+        this.references.put(object, context);
     }
 
     public void setContext(SerialContext parent, Object object) {
         this.context = new SerialContext(parent, object, null);
-        this.references.put(context, PRESENT);
+        this.references.put(object, context);
     }
 
-    public List<SerialContext> getReferences() {
-        return new ArrayList<SerialContext>(references.keySet());
+    public Collection<SerialContext> getReferences() {
+        return references.values();
     }
 
     public boolean containsReference(Object value) {
@@ -257,7 +256,7 @@ public class JSONSerializer {
 
             ObjectSerializer writer = getObjectWriter(clazz);
 
-            writer.write(this, object, null);
+            writer.write(this, object, null, null);
         } catch (IOException e) {
             throw new JSONException(e.getMessage(), e);
         }
@@ -274,7 +273,7 @@ public class JSONSerializer {
 
             ObjectSerializer writer = getObjectWriter(clazz);
 
-            writer.write(this, object, fieldName);
+            writer.write(this, object, fieldName, null);
         } catch (IOException e) {
             throw new JSONException(e.getMessage(), e);
         }

@@ -21,7 +21,7 @@ public class ListSerializerTest2 extends TestCase {
 
         List<Object> list = Arrays.asList(array);
 
-        listSerializer.write(new JSONSerializer(out), list, null);
+        listSerializer.write(new JSONSerializer(out), list, null, null);
 
         // System.out.println(out.toString());
         Assert.assertEquals("[1,2,3,4,5,6,\"a\"]", out.toString());

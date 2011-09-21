@@ -22,6 +22,7 @@ public class WriteClassNameTest_List extends TestCase {
         A a1 = (A) JSON.parse(text);
 
         Assert.assertEquals(1, a1.getList().size());
+        Assert.assertTrue(a1.getList().get(0) instanceof B);
     }
 
     private static class A {

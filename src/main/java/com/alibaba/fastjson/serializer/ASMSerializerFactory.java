@@ -842,7 +842,7 @@ public class ASMSerializerFactory implements Opcodes {
                 mw.visitVarInsn(ILOAD, context.var("i"));
                 mw.visitMethodInsn(INVOKEINTERFACE, getType(List.class), "get", "(I)Ljava/lang/Object;");
                 mw.visitVarInsn(ALOAD, context.fieldName());
-                // TODO
+             
                 if (elementType instanceof Class<?>) {
                     mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc((Class<?>) elementType)));
                     mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "writeWithFieldName", "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;)V");
@@ -878,7 +878,14 @@ public class ASMSerializerFactory implements Opcodes {
                 mw.visitVarInsn(ILOAD, context.var("i"));
                 mw.visitMethodInsn(INVOKEINTERFACE, getType(List.class), "get", "(I)Ljava/lang/Object;");
                 mw.visitVarInsn(ALOAD, context.fieldName());
-                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "writeWithFieldName", "(Ljava/lang/Object;Ljava/lang/Object;)V");
+                
+                if (elementType instanceof Class<?>) {
+                    mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc((Class<?>) elementType)));
+                    mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "writeWithFieldName", "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;)V");
+                } else {
+                    mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "writeWithFieldName", "(Ljava/lang/Object;Ljava/lang/Object;)V");
+                }
+                
 
                 mw.visitVarInsn(ALOAD, context.var("out"));
                 mw.visitVarInsn(BIPUSH, ']');

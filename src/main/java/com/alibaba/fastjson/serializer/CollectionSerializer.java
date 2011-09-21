@@ -16,6 +16,7 @@
 package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
 
@@ -28,7 +29,7 @@ public class CollectionSerializer implements ObjectSerializer {
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         SerializeWriter out = serializer.getWriter();
-        
+
         if (object == null) {
             if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {
                 out.write("[]");
@@ -38,15 +39,23 @@ public class CollectionSerializer implements ObjectSerializer {
             return;
         }
 
+        Type elementType = null;
+        if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
+            if (fieldType instanceof ParameterizedType) {
+                ParameterizedType param = (ParameterizedType) fieldType;
+                elementType = param.getActualTypeArguments()[0];
+            }
+        }
+
         Collection<?> collection = (Collection<?>) object;
-        
+
+        int i = 0;
         out.append('[');
-        boolean first = true;
         for (Object item : collection) {
-            if (!first) {
+
+            if (i++ != 0) {
                 out.append(',');
             }
-            first = false;
 
             if (item == null) {
                 out.writeNull();
@@ -65,7 +74,8 @@ public class CollectionSerializer implements ObjectSerializer {
                 continue;
             }
 
-            serializer.write(item);
+            ObjectSerializer itemSerializer = serializer.getObjectWriter(clazz);
+            itemSerializer.write(serializer, item, i, elementType);
         }
         out.append(']');
     }

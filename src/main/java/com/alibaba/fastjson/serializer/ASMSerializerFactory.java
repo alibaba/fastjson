@@ -206,9 +206,9 @@ public class ASMSerializerFactory implements Opcodes {
 
         byte[] code = cw.toByteArray();
         //
-//         org.apache.commons.io.IOUtils.write(code, new java.io.FileOutputStream(
-//         "/usr/alibaba/workspace-3.7/fastjson-asm/target/classes/"
-//         + className + ".class"));
+         org.apache.commons.io.IOUtils.write(code, new java.io.FileOutputStream(
+         "/usr/alibaba/workspace-3.7/fastjson-asm/target/classes/"
+         + className + ".class"));
 
         Class<?> exampleClass = classLoader.defineClassPublic(className, code, 0, code.length);
         Object instance = exampleClass.newInstance();
@@ -971,7 +971,7 @@ public class ASMSerializerFactory implements Opcodes {
                                "(Ljava/lang/Object;Ljava/lang/String;)V");
         } else {
             mw.visitVarInsn(ALOAD, context.fieldName());
-            if (fieldInfo.getFieldType() instanceof Class<?>) {
+            if (fieldInfo.getFieldType() instanceof Class<?> && !((Class<?>)fieldInfo.getFieldType()).isPrimitive()) {
                 mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc((Class<?>) fieldInfo.getFieldType())));
                 mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "writeWithFieldName", "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;)V");
             } else {

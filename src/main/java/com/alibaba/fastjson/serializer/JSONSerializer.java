@@ -263,6 +263,10 @@ public class JSONSerializer {
     }
 
     public final void writeWithFieldName(Object object, Object fieldName) {
+        writeWithFieldName(object, fieldName, null);
+    }
+    
+    public final void writeWithFieldName(Object object, Object fieldName, Type fieldType) {
         try {
             if (object == null) {
                 out.writeNull();
@@ -273,7 +277,7 @@ public class JSONSerializer {
 
             ObjectSerializer writer = getObjectWriter(clazz);
 
-            writer.write(this, object, fieldName, null);
+            writer.write(this, object, fieldName, fieldType);
         } catch (IOException e) {
             throw new JSONException(e.getMessage(), e);
         }

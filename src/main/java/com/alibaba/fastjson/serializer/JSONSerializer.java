@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
@@ -37,20 +38,20 @@ import com.alibaba.fastjson.util.ServiceLoader;
  */
 public class JSONSerializer {
 
-    private final SerializeConfig     config;
+    private final SerializeConfig                        config;
 
-    private final SerializeWriter     out;
+    private final SerializeWriter                        out;
 
-    private List<PropertyFilter>      propertyFilters = null;
-    private List<ValueFilter>         valueFilters    = null;
-    private List<NameFilter>          nameFilters     = null;
+    private List<PropertyFilter>                         propertyFilters = null;
+    private List<ValueFilter>                            valueFilters    = null;
+    private List<NameFilter>                             nameFilters     = null;
 
-    private int                       indentCount     = 0;
-    private String                    indent          = "\t";
+    private int                                          indentCount     = 0;
+    private String                                       indent          = "\t";
 
-    private final List<SerialContext> references      = new ArrayList<SerialContext>();
-    private SerialContext             context;
-    
+    private final static Object                          PRESENT         = new Object();
+    private final IdentityHashMap<SerialContext, Object> references      = new IdentityHashMap<SerialContext, Object>();
+    private SerialContext                                context;
 
     public JSONSerializer(){
         this(new SerializeWriter(), SerializeConfig.getGlobalInstance());
@@ -63,7 +64,7 @@ public class JSONSerializer {
     public JSONSerializer(SerializeConfig config){
         this(new SerializeWriter(), config);
     }
-    
+
     @Deprecated
     public JSONSerializer(JSONSerializerMap mapping){
         this(new SerializeWriter(), mapping);
@@ -84,28 +85,22 @@ public class JSONSerializer {
 
     public void setContext(SerialContext parent, Object object, Object fieldName) {
         this.context = new SerialContext(parent, object, fieldName);
-        this.references.add(context);
+        this.references.put(context, PRESENT);
     }
 
     public void setContext(SerialContext parent, Object object) {
         this.context = new SerialContext(parent, object, null);
-        this.references.add(context);
+        this.references.put(context, PRESENT);
     }
 
     public List<SerialContext> getReferences() {
-        return references;
+        return new ArrayList<SerialContext>(references.keySet());
     }
 
     public boolean containsReference(Object value) {
-        for (SerialContext item : references) {
-            if (item.getObject() == value) {
-                return true;
-            }
-        }
-
-        return false;
+        return references.containsKey(value);
     }
-    
+
     public void writeReference(Object object) {
 
         SerialContext context = this.getContext();
@@ -145,7 +140,7 @@ public class JSONSerializer {
                 break;
             }
         }
-        
+
         String path = refContext.getPath();
 
         out.write("{\"$ref\":\"");
@@ -257,8 +252,6 @@ public class JSONSerializer {
                 out.writeNull();
                 return;
             }
-            
-            
 
             Class<?> clazz = object.getClass();
 
@@ -269,7 +262,7 @@ public class JSONSerializer {
             throw new JSONException(e.getMessage(), e);
         }
     }
-    
+
     public final void writeWithFieldName(Object object, Object fieldName) {
         try {
             if (object == null) {

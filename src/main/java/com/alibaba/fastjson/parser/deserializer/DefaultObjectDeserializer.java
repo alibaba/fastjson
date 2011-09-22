@@ -9,6 +9,7 @@ import java.lang.reflect.WildcardType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -304,6 +305,8 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
             value = new TreeMap();
         } else if (clazz.isAssignableFrom(ConcurrentHashMap.class)) {
             value = new ConcurrentHashMap();
+        } else if (clazz.isAssignableFrom(Properties.class)) {
+            value = new Properties();
         }
 
         if (clazz == Class.class) {

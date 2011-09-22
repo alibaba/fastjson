@@ -83,11 +83,19 @@ public class JSONSerializer {
     }
 
     public void setContext(SerialContext parent, Object object, Object fieldName) {
+        if (isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {
+            return;
+        }
+        
         this.context = new SerialContext(parent, object, fieldName);
         this.references.put(object, context);
     }
 
     public void setContext(SerialContext parent, Object object) {
+        if (isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {
+            return;
+        }
+        
         this.context = new SerialContext(parent, object, null);
         this.references.put(object, context);
     }
@@ -97,11 +105,18 @@ public class JSONSerializer {
     }
 
     public boolean containsReference(Object value) {
+        if (isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {
+            return false;
+        }
+        
         return references.containsKey(value);
     }
 
     public void writeReference(Object object) {
-
+        if (isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {
+            return;
+        }
+        
         SerialContext context = this.getContext();
         Object current = context.getObject();
 

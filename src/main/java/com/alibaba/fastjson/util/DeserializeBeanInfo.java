@@ -135,7 +135,7 @@ public class DeserializeBeanInfo {
                 return beanInfo;
             }
 
-            throw new JSONException("default constructor not found.");
+            throw new JSONException("default constructor not found. " + clazz);
         }
 
         for (Method method : clazz.getMethods()) {

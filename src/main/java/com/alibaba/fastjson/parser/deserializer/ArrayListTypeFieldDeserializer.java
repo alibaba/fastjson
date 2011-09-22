@@ -105,6 +105,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
                         return 0;
                     }
                 });
+                parser.setResolveStatus(DefaultJSONParser.NONE);
             }
 
             if (lexer.token() == JSONToken.COMMA) {

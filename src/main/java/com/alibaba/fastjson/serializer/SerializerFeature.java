@@ -71,7 +71,13 @@ public enum SerializerFeature {
     /**
      * @since 1.1.2
      */
-    WriteClassName;
+    WriteClassName,
+    
+    /**
+     * @since 1.1.6
+     */
+    DisableCircularReferenceDetect
+    ;
     
 
     private SerializerFeature(){

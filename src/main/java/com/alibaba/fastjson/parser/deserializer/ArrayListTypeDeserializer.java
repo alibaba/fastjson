@@ -23,9 +23,9 @@ public class ArrayListTypeDeserializer implements ObjectDeserializer {
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         Collection list = null;
         
-        if (LinkedHashSet.class.isAssignableFrom(rawClass)) {
+        if (rawClass.isAssignableFrom(LinkedHashSet.class)) {
             list = new LinkedHashSet();
-        } else if (HashSet.class.isAssignableFrom(rawClass)) {
+        } else if (rawClass.isAssignableFrom(HashSet.class)) {
             list = new HashSet();
         } else {
             list = new ArrayList();

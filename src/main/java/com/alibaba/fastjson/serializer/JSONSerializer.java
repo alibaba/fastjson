@@ -38,19 +38,19 @@ import com.alibaba.fastjson.util.ServiceLoader;
  */
 public class JSONSerializer {
 
-    private final SerializeConfig                        config;
+    private final SerializeConfig                  config;
 
-    private final SerializeWriter                        out;
+    private final SerializeWriter                  out;
 
-    private List<PropertyFilter>                         propertyFilters = null;
-    private List<ValueFilter>                            valueFilters    = null;
-    private List<NameFilter>                             nameFilters     = null;
+    private List<PropertyFilter>                   propertyFilters = null;
+    private List<ValueFilter>                      valueFilters    = null;
+    private List<NameFilter>                       nameFilters     = null;
 
-    private int                                          indentCount     = 0;
-    private String                                       indent          = "\t";
+    private int                                    indentCount     = 0;
+    private String                                 indent          = "\t";
 
-    private final IdentityHashMap<Object, SerialContext> references      = new IdentityHashMap<Object, SerialContext>();
-    private SerialContext                                context;
+    private IdentityHashMap<Object, SerialContext> references      = null;
+    private SerialContext                          context;
 
     public JSONSerializer(){
         this(new SerializeWriter(), SerializeConfig.getGlobalInstance());
@@ -86,8 +86,11 @@ public class JSONSerializer {
         if (isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {
             return;
         }
-        
+
         this.context = new SerialContext(parent, object, fieldName);
+        if (references == null) {
+            references = new IdentityHashMap<Object, SerialContext>();
+        }
         this.references.put(object, context);
     }
 
@@ -95,12 +98,19 @@ public class JSONSerializer {
         if (isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {
             return;
         }
-        
+
         this.context = new SerialContext(parent, object, null);
+        if (references == null) {
+            references = new IdentityHashMap<Object, SerialContext>();
+        }
         this.references.put(object, context);
     }
 
     public Collection<SerialContext> getReferences() {
+        if (references == null) {
+            references = new IdentityHashMap<Object, SerialContext>();
+        }
+        
         return references.values();
     }
 
@@ -109,6 +119,10 @@ public class JSONSerializer {
             return false;
         }
         
+        if (references == null) {
+            return false;
+        }
+       
         return references.containsKey(value);
     }
 
@@ -116,7 +130,7 @@ public class JSONSerializer {
         if (isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {
             return;
         }
-        
+
         SerialContext context = this.getContext();
         Object current = context.getObject();
 
@@ -280,7 +294,7 @@ public class JSONSerializer {
     public final void writeWithFieldName(Object object, Object fieldName) {
         writeWithFieldName(object, fieldName, null);
     }
-    
+
     public final void writeWithFieldName(Object object, Object fieldName, Type fieldType) {
         try {
             if (object == null) {

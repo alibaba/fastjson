@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
@@ -21,24 +22,21 @@ public class CollectionDeserializer implements ObjectDeserializer {
             return null;
         }
 
-        Collection list = null;
-        if (type instanceof Class<?>) {
-            Class<?> clazz = (Class<?>) type;
-            if (clazz.isAssignableFrom(HashSet.class)) {
-                list = new HashSet();
-            } else if (clazz.isAssignableFrom(ArrayList.class)) {
-                list = new ArrayList();
-            } else {
-                try {
-                    list = (Collection) clazz.newInstance();
-                } catch (Exception e) {
-                    throw new JSONException("create instane error, class " + clazz.getName());
-                }
-            }
-        }
-        
-        if (list == null) {
+        Class<?> rawClass = getRawClass(type);
+
+        Collection list;
+        if (rawClass.isAssignableFrom(LinkedHashSet.class)) {
+            list = new LinkedHashSet();
+        } else if (rawClass.isAssignableFrom(HashSet.class)) {
+            list = new HashSet();
+        } else if (rawClass.isAssignableFrom(ArrayList.class)) {
             list = new ArrayList();
+        } else {
+            try {
+                list = (Collection) rawClass.newInstance();
+            } catch (Exception e) {
+                throw new JSONException("create instane error, class " + rawClass.getName());
+            }
         }
 
         Type itemType;
@@ -50,6 +48,17 @@ public class CollectionDeserializer implements ObjectDeserializer {
         parser.parseArray(itemType, list);
 
         return (T) list;
+    }
+
+    public Class<?> getRawClass(Type type) {
+
+        if (type instanceof Class<?>) {
+            return (Class<?>) type;
+        } else if (type instanceof ParameterizedType) {
+            return getRawClass(((ParameterizedType) type).getRawType());
+        } else {
+            throw new JSONException("TODO");
+        }
     }
 
     public int getFastMatchToken() {

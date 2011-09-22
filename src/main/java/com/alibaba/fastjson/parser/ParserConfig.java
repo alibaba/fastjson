@@ -291,7 +291,7 @@ public class ParserConfig {
                 if (itemType == String.class) {
                     derializer = ArrayListStringDeserializer.instance;
                 } else {
-                    derializer = new ArrayListTypeDeserializer(itemType);
+                    derializer = new ArrayListTypeDeserializer(clazz, itemType);
                 }
             } else {
                 derializer = CollectionDeserializer.instance;

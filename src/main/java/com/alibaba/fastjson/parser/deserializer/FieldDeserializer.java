@@ -57,13 +57,13 @@ public abstract class FieldDeserializer {
             try {
                 method.invoke(object, value);
             } catch (Exception e) {
-                throw new JSONException("set property error, " + fieldInfo.toString(), e);
+                throw new JSONException("set property error, " + fieldInfo.getName(), e);
             }
         } else if (fieldInfo.getField() != null) {
             try {
                 fieldInfo.getField().set(object, value);
             } catch (Exception e) {
-                throw new JSONException("set property error, " + fieldInfo.toString(), e);
+                throw new JSONException("set property error, " + fieldInfo.getName(), e);
             }
         }
     }

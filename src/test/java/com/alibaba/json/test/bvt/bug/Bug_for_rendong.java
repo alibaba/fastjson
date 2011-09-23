@@ -10,7 +10,7 @@ import junit.framework.TestCase;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 
-public class Bug15 extends TestCase {
+public class Bug_for_rendong extends TestCase {
 
     public void test_0() throws Exception {
         String text = "{\"BX-20110613-1739\":{\"repairNum\":\"BX-20110613-1739\",\"set\":[{\"employNum\":\"a1027\",\"isConfirm\":false,\"isReceive\":false,\"state\":11}]},\"BX-20110613-1749\":{\"repairNum\":\"BX-20110613-1749\",\"set\":[{\"employNum\":\"a1027\",\"isConfirm\":false,\"isReceive\":true,\"state\":1}]}}";

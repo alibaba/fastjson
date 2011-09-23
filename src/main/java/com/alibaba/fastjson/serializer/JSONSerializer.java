@@ -113,6 +113,14 @@ public class JSONSerializer {
         
         return references.values();
     }
+    
+    public SerialContext getSerialContext(Object object) {
+        if (references == null) {
+            return null;
+        }
+        
+        return references.get(object);
+    }
 
     public boolean containsReference(Object value) {
         if (isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {
@@ -161,13 +169,7 @@ public class JSONSerializer {
             return;
         }
 
-        SerialContext refContext = null;
-        for (SerialContext item : this.getReferences()) {
-            if (item.getObject() == object) {
-                refContext = item;
-                break;
-            }
-        }
+        SerialContext refContext = this.getSerialContext(object);
 
         String path = refContext.getPath();
 

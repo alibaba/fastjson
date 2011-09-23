@@ -4,7 +4,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONException;
@@ -86,27 +85,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
             Object val = deserializer.deserialze(parser, itemType, i);
             array.add(val);
             
-            if (parser.getResolveStatus() == DefaultJSONParser.NeedToResolve) {
-                final int index = array.size() - 1;
-                final List list = (List) array;
-                parser.getLastResolveTask().setFieldDeserializer(new FieldDeserializer(null, null) {
-                    
-                    public void setValue(Object object, Object value) {
-                        list.set(index, value);  
-                    }
-                    
-                    @Override
-                    public void parseField(DefaultJSONParser parser, Object object, Map<String, Object> fieldValues) {
-                        
-                    }
-                    
-                    @Override
-                    public int getFastMatchToken() {
-                        return 0;
-                    }
-                });
-                parser.setResolveStatus(DefaultJSONParser.NONE);
-            }
+            parser.checkListResolve(array);
 
             if (lexer.token() == JSONToken.COMMA) {
                 lexer.nextToken(itemFastMatchToken);
@@ -116,4 +95,5 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
         lexer.nextToken(JSONToken.COMMA);
     }
+
 }

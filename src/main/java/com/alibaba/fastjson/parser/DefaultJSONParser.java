@@ -37,6 +37,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.deserializer.DefaultObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.IntegerDeserializer;
+import com.alibaba.fastjson.parser.deserializer.ListResolveFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StringDeserializer;
 import com.alibaba.fastjson.util.TypeUtils;
@@ -130,6 +131,16 @@ public class DefaultJSONParser extends AbstractJSONParser {
 
     public void setResolveStatus(int resolveStatus) {
         this.resolveStatus = resolveStatus;
+    }
+    
+    @SuppressWarnings("rawtypes")
+    public void checkListResolve(Collection array) {
+        if (resolveStatus == NeedToResolve) {
+            final int index = array.size() - 1;
+            final List list = (List) array;
+            getLastResolveTask().setFieldDeserializer(new ListResolveFieldDeserializer(list, index));
+            setResolveStatus(DefaultJSONParser.NONE);
+        }
     }
 
     public SymbolTable getSymbolTable() {

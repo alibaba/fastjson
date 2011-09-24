@@ -45,7 +45,7 @@ public class CollectionDeserializer implements ObjectDeserializer {
         } else {
             itemType = Object.class;
         }
-        parser.parseArray(itemType, list);
+        parser.parseArray(itemType, list, fieldName);
 
         return (T) list;
     }

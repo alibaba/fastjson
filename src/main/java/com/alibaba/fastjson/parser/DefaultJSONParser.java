@@ -344,6 +344,14 @@ public class DefaultJSONParser extends AbstractJSONParser {
     public void setContext(ParseContext context) {
         this.context = context;
     }
+    
+    public void popContext() {
+        this.context = this.context.getParentContext();
+    }
+    
+    public ParseContext setContext(Object object, Object fieldName) {
+        return setContext(this.context, object, fieldName);
+    }
 
     public ParseContext setContext(ParseContext parent, Object object, Object fieldName) {
         this.context = new ParseContext(parent, object, fieldName);

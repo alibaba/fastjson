@@ -79,7 +79,7 @@ public class CollectionSerializer implements ObjectSerializer {
                 }
 
                 ObjectSerializer itemSerializer = serializer.getObjectWriter(clazz);
-                itemSerializer.write(serializer, item, i, elementType);
+                itemSerializer.write(serializer, item, i - 1, elementType);
             }
             out.append(']');
         } finally {

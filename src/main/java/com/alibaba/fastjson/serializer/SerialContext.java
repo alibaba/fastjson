@@ -38,4 +38,8 @@ public class SerialContext {
             
         }
     }
+    
+    public String toString() {
+        return getPath();
+    }
 }

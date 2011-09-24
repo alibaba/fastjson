@@ -177,6 +177,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         throw new JSONException("illegal ref");
                     }
                     lexer.nextToken(JSONToken.COMMA);
+                    
+                    childContext = parser.setContext(context, object, fieldName);
 
                     return (T) object;
                 }

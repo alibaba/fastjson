@@ -99,7 +99,9 @@ public class JSONSerializer {
     }
     
     public void popContext() {
-        this.context = this.context.getParent();
+        if (context != null) {
+            this.context = this.context.getParent();
+        }
     }
 
     public void setContext(SerialContext parent, Object object) {

@@ -84,9 +84,9 @@ public class ASMDeserializerFactory implements Opcodes {
 
         byte[] code = cw.toByteArray();
 
-        // org.apache.commons.io.IOUtils.write(code, new java.io.FileOutputStream(
-        // "/usr/alibaba/workspace-3.7/fastjson-asm/target/classes/"
-        // + className + ".class"));
+         org.apache.commons.io.IOUtils.write(code, new java.io.FileOutputStream(
+         "/usr/alibaba/workspace-3.7/fastjson-asm/target/classes/"
+         + className + ".class"));
 
         Class<?> exampleClass = classLoader.defineClassPublic(className, code, 0, code.length);
 
@@ -346,7 +346,7 @@ public class ASMDeserializerFactory implements Opcodes {
 
         mw.visitLabel(return_);
 
-        _setContext(context, mw);
+        _setContext(context, mw, true);
         mw.visitVarInsn(ALOAD, context.var("instance"));
         mw.visitInsn(ARETURN);
 
@@ -359,7 +359,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ILOAD, context.var("mark_token"));
         mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "reset", "(ICI)V");
 
-        _setContext(context, mw);
+        _setContext(context, mw, false);
 
         mw.visitLabel(super_);
         mw.visitVarInsn(ALOAD, 0);
@@ -469,16 +469,18 @@ public class ASMDeserializerFactory implements Opcodes {
         }
     }
 
-    private void _setContext(Context context, MethodVisitor mw) {
+    private void _setContext(Context context, MethodVisitor mw, boolean setObject) {
         mw.visitVarInsn(ALOAD, 1); // parser
         mw.visitVarInsn(ALOAD, context.var("context"));
         mw.visitMethodInsn(INVOKEVIRTUAL, getType(DefaultJSONParser.class), "setContext",
                            "(Lcom/alibaba/fastjson/parser/ParseContext;)V");
 
         // TODO childContext is null
-        mw.visitVarInsn(ALOAD, context.var("childContext"));
-        mw.visitVarInsn(ALOAD, context.var("instance"));
-        mw.visitMethodInsn(INVOKEVIRTUAL, getType(ParseContext.class), "setObject", "(Ljava/lang/Object;)V");
+        if (setObject) {
+            mw.visitVarInsn(ALOAD, context.var("childContext"));
+            mw.visitVarInsn(ALOAD, context.var("instance"));
+            mw.visitMethodInsn(INVOKEVIRTUAL, getType(ParseContext.class), "setObject", "(Ljava/lang/Object;)V");
+        }
     }
 
     private void _deserialize_endCheck(Context context, MethodVisitor mw, Label reset_) {

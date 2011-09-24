@@ -83,6 +83,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         DefaultJSONParser parser = new DefaultJSONParser(text, ParserConfig.getGlobalInstance(), features);
         Object value = parser.parse();
+        
+        handleResovleTask(parser, value);
 
         parser.close();
 
@@ -120,6 +122,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         DefaultJSONParser parser = new DefaultJSONParser(chars, position, ParserConfig.getGlobalInstance(), features);
         Object value = parser.parse();
+        
+        handleResovleTask(parser, value);
 
         parser.close();
 
@@ -286,6 +290,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         DefaultJSONParser parser = new DefaultJSONParser(text, ParserConfig.getGlobalInstance());
         parser.parseArray(clazz, list);
+        
+        handleResovleTask(parser, list);
 
         parser.close();
 
@@ -301,6 +307,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         DefaultJSONParser parser = new DefaultJSONParser(text, ParserConfig.getGlobalInstance());
         list = Arrays.asList(parser.parseArray(types));
+        
+        handleResovleTask(parser, list);
 
         parser.close();
 

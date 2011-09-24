@@ -11,7 +11,7 @@ public class JavaObjectDeserializer implements ObjectDeserializer {
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        return (T) parser.parse();
+        return (T) parser.parse(fieldName);
     }
 
     public int getFastMatchToken() {

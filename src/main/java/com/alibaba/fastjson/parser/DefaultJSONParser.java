@@ -138,7 +138,8 @@ public class DefaultJSONParser extends AbstractJSONParser {
         if (resolveStatus == NeedToResolve) {
             final int index = array.size() - 1;
             final List list = (List) array;
-            getLastResolveTask().setFieldDeserializer(new ListResolveFieldDeserializer(list, index));
+            ResolveTask task = getLastResolveTask(); 
+            task.setFieldDeserializer(new ListResolveFieldDeserializer(list, index));
             setResolveStatus(DefaultJSONParser.NONE);
         }
     }
@@ -159,7 +160,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public final Object parseObject(final Map object) {
+    public final Object parseObject(final Map object, Object fieldName) {
         JSONScanner lexer = (JSONScanner) this.lexer;
         if (lexer.token() != JSONToken.LBRACE) {
             throw new JSONException("syntax error, expect {, actual " + lexer.token());
@@ -234,7 +235,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                     lexer.nextToken(JSONToken.COMMA);
 
                     this.resolveStatus = TypeNameRedirect;
-                    return deserializer.deserialze(this, clazz, null);
+                    return deserializer.deserialze(this, clazz, fieldName);
                 }
 
                 Object value;
@@ -403,8 +404,13 @@ public class DefaultJSONParser extends AbstractJSONParser {
         parseArray((Type) clazz, array);
     }
 
-    @SuppressWarnings({ "unchecked" })
-    public void parseArray(Type type, @SuppressWarnings("rawtypes") Collection array) {
+    @SuppressWarnings("rawtypes")
+    public void parseArray(Type type,  Collection array) {
+        parseArray(type, array, null);
+    }
+    
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public void parseArray(Type type,  Collection array, Object fieldName) {
         if (lexer.token() != JSONToken.LBRACKET) {
             throw new JSONException("exepct '[', but " + JSONToken.name(lexer.token()));
         }
@@ -452,7 +458,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
 
                 array.add(value);
             } else {
-                Object val = deserializer.deserialze(this, type, null);
+                Object val = deserializer.deserialze(this, type, fieldName);
                 array.add(val);
             }
 

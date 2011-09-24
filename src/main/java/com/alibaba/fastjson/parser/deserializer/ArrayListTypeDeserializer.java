@@ -31,7 +31,7 @@ public class ArrayListTypeDeserializer implements ObjectDeserializer {
             list = new ArrayList();
         }
         
-        parser.parseArray(itemType, list);
+        parser.parseArray(itemType, list, fieldName);
 
         return (T) list;
     }

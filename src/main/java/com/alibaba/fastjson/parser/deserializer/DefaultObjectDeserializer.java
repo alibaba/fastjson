@@ -236,11 +236,11 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
         }
 
         if (type instanceof TypeVariable) {
-            return (T) parser.parse();
+            return (T) parser.parse(fieldName);
         }
 
         if (type instanceof WildcardType) {
-            return (T) parser.parse();
+            return (T) parser.parse(fieldName);
         }
 
         throw new JSONException("not support type : " + type);

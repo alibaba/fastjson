@@ -93,6 +93,14 @@ public class JSONSerializer {
         }
         this.references.put(object, context);
     }
+    
+    public void setContext(Object object, Object fieldName) {
+        this.setContext(context, object, fieldName);
+    }
+    
+    public void popContext() {
+        this.context = this.context.getParent();
+    }
 
     public void setContext(SerialContext parent, Object object) {
         if (isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {

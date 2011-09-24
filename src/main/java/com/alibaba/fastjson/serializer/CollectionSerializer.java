@@ -49,35 +49,42 @@ public class CollectionSerializer implements ObjectSerializer {
 
         Collection<?> collection = (Collection<?>) object;
 
-        int i = 0;
-        out.append('[');
-        for (Object item : collection) {
+        SerialContext context = serializer.getContext();
+        serializer.setContext(context, object, fieldName);
 
-            if (i++ != 0) {
-                out.append(',');
+        try {
+            int i = 0;
+            out.append('[');
+            for (Object item : collection) {
+
+                if (i++ != 0) {
+                    out.append(',');
+                }
+
+                if (item == null) {
+                    out.writeNull();
+                    continue;
+                }
+
+                Class<?> clazz = item.getClass();
+
+                if (clazz == Integer.class) {
+                    out.writeInt(((Integer) item).intValue());
+                    continue;
+                }
+
+                if (clazz == Long.class) {
+                    out.writeLong(((Long) item).longValue());
+                    continue;
+                }
+
+                ObjectSerializer itemSerializer = serializer.getObjectWriter(clazz);
+                itemSerializer.write(serializer, item, i, elementType);
             }
-
-            if (item == null) {
-                out.writeNull();
-                continue;
-            }
-
-            Class<?> clazz = item.getClass();
-
-            if (clazz == Integer.class) {
-                out.writeInt(((Integer) item).intValue());
-                continue;
-            }
-
-            if (clazz == Long.class) {
-                out.writeLong(((Long) item).longValue());
-                continue;
-            }
-
-            ObjectSerializer itemSerializer = serializer.getObjectWriter(clazz);
-            itemSerializer.write(serializer, item, i, elementType);
+            out.append(']');
+        } finally {
+            serializer.setContext(context);
         }
-        out.append(']');
     }
 
 }

@@ -477,9 +477,15 @@ public class ASMDeserializerFactory implements Opcodes {
 
         // TODO childContext is null
         if (setObject) {
+            Label endIf_ = new Label();
+            mw.visitVarInsn(ALOAD, context.var("childContext"));
+            mw.visitJumpInsn(IFNULL, endIf_);
+
             mw.visitVarInsn(ALOAD, context.var("childContext"));
             mw.visitVarInsn(ALOAD, context.var("instance"));
             mw.visitMethodInsn(INVOKEVIRTUAL, getType(ParseContext.class), "setObject", "(Ljava/lang/Object;)V");
+            
+            mw.visitLabel(endIf_);
         }
     }
 

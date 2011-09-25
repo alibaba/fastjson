@@ -343,18 +343,32 @@ public class DefaultJSONParser extends AbstractJSONParser {
     }
 
     public void setContext(ParseContext context) {
+        if (isEnabled(Feature.DisableCircularReferenceDetect)) {
+            return;
+        }
         this.context = context;
     }
 
     public void popContext() {
+        if (isEnabled(Feature.DisableCircularReferenceDetect)) {
+            return;
+        }
+        
         this.context = this.context.getParentContext();
     }
 
     public ParseContext setContext(Object object, Object fieldName) {
+        if (isEnabled(Feature.DisableCircularReferenceDetect)) {
+            return null;
+        }
+        
         return setContext(this.context, object, fieldName);
     }
 
     public ParseContext setContext(ParseContext parent, Object object, Object fieldName) {
+        if (isEnabled(Feature.DisableCircularReferenceDetect)) {
+            return null;
+        }
         this.context = new ParseContext(parent, object, fieldName);
         addContext(this.context);
         return this.context;

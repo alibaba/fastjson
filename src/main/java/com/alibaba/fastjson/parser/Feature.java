@@ -60,14 +60,19 @@ public enum Feature {
     IgnoreNotMatch,
 
     /**
-     * 
+     * @since 1.1.3
      */
     SortFeidFastMatch,
     
     /**
-     * 
+     * @since 1.1.3
      */
-    DisableASM
+    DisableASM,
+    
+    /**
+     * @since 1.1.7
+     */
+    DisableCircularReferenceDetect
     ;
 
     private Feature(){

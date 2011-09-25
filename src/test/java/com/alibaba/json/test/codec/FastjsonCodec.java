@@ -5,6 +5,7 @@ import java.util.Collection;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.DefaultExtJSONParser;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.SerializeWriter;
@@ -19,21 +20,25 @@ public class FastjsonCodec implements Codec {
 
     public <T> T decodeObject(String text, Class<T> clazz) {
         DefaultExtJSONParser parser = new DefaultExtJSONParser(text, config);
+        parser.config(Feature.DisableCircularReferenceDetect, true);
         return parser.parseObject(clazz);
     }
 
     public <T> Collection<T> decodeArray(String text, Class<T> clazz) throws Exception {
         DefaultExtJSONParser parser = new DefaultExtJSONParser(text, config);
+        parser.config(Feature.DisableCircularReferenceDetect, true);
         return parser.parseArray(clazz);
     }
 
     public final Object decodeObject(String text) {
         DefaultJSONParser parser = new DefaultJSONParser(text, config);
+        parser.config(Feature.DisableCircularReferenceDetect, true);
         return parser.parse();
     }
 
     public final Object decode(String text) {
         DefaultJSONParser parser = new DefaultJSONParser(text, config);
+        parser.config(Feature.DisableCircularReferenceDetect, true);
         return parser.parse();
     }
 

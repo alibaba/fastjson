@@ -3,6 +3,7 @@ package com.alibaba.json.test.benchmark;
 import junit.framework.TestCase;
 
 import com.alibaba.json.test.benchmark.decode.EishayDecode;
+import com.alibaba.json.test.benchmark.decode.EishayDecodeBytes;
 import com.alibaba.json.test.codec.FastjsonCodec;
 import com.alibaba.json.test.codec.JacksonCodec;
 
@@ -22,7 +23,7 @@ public class BenchmarkTest extends TestCase {
 
         executor.setLoopCount(1000 * 1000);
 
-//        executor.getCaseList().add(new EishayDecodeBytes());
+        executor.getCaseList().add(new EishayDecodeBytes());
 //        executor.getCaseList().add(new EishayDecode2Bytes());
          executor.getCaseList().add(new EishayDecode());
 //         executor.getCaseList().add(new EishayDecodeByClassName());

@@ -2,7 +2,7 @@ package com.alibaba.json.test.benchmark;
 
 import junit.framework.TestCase;
 
-import com.alibaba.json.test.benchmark.decode.EishayDecodeByClassName;
+import com.alibaba.json.test.benchmark.decode.EishayDecode;
 import com.alibaba.json.test.codec.FastjsonCodec;
 import com.alibaba.json.test.codec.JacksonCodec;
 
@@ -14,7 +14,7 @@ public class BenchmarkTest extends TestCase {
         BenchmarkExecutor executor = new BenchmarkExecutor();
         executor.setExecuteCount(5);
         executor.getCodecList().add(new FastjsonCodec());
-//        executor.getCodecList().add(new JacksonCodec());
+        executor.getCodecList().add(new JacksonCodec());
         //
         // executor.getCodecList().add(new SimpleJsonCodec());
         // executor.getCodecList().add(new JsonLibCodec());
@@ -24,8 +24,8 @@ public class BenchmarkTest extends TestCase {
 
 //        executor.getCaseList().add(new EishayDecodeBytes());
 //        executor.getCaseList().add(new EishayDecode2Bytes());
-//         executor.getCaseList().add(new EishayDecode());
-         executor.getCaseList().add(new EishayDecodeByClassName());
+         executor.getCaseList().add(new EishayDecode());
+//         executor.getCaseList().add(new EishayDecodeByClassName());
 //         executor.getCaseList().add(new EishayTreeDecode());
 //         executor.getCaseList().add(new EishayEncode());
 //         executor.getCaseList().add(new EishayEncodeManual());

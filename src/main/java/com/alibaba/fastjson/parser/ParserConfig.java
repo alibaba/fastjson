@@ -378,9 +378,11 @@ public class ParserConfig {
 
         if (fieldClass == List.class || fieldClass == ArrayList.class) {
             Type fieldType = method.getGenericParameterTypes()[0];
-            Type itemType = ((ParameterizedType) fieldType).getActualTypeArguments()[0];
-            if (itemType == String.class) {
-                return new ArrayListStringFieldDeserializer(mapping, clazz, fieldInfo);
+            if (fieldType instanceof ParameterizedType) {
+                Type itemType = ((ParameterizedType) fieldType).getActualTypeArguments()[0];
+                if (itemType == String.class) {
+                    return new ArrayListStringFieldDeserializer(mapping, clazz, fieldInfo);
+                }
             }
 
             return new ArrayListTypeFieldDeserializer(mapping, clazz, fieldInfo);

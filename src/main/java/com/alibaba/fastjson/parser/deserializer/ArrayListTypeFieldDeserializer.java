@@ -24,8 +24,12 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
     public ArrayListTypeFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo){
         super(clazz, fieldInfo);
 
-        this.itemType = ((ParameterizedType) getFieldType()).getActualTypeArguments()[0];
-
+        Type fieldType = getFieldType();
+        if (fieldType instanceof ParameterizedType) {
+            this.itemType = ((ParameterizedType) getFieldType()).getActualTypeArguments()[0];
+        } else {
+            this.itemType = Object.class;
+        }
     }
 
     public int getFastMatchToken() {
@@ -43,7 +47,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
         ArrayList list = new ArrayList();
 
         ParseContext context = parser.getContext();
-        
+
         parser.setContext(context, object, fieldInfo.getName());
         parseArray(parser, list);
         parser.setContext(context);
@@ -69,7 +73,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
         }
 
         lexer.nextToken(itemFastMatchToken);
-        
+
         for (int i = 0;; ++i) {
             if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
                 while (lexer.token() == JSONToken.COMMA) {
@@ -84,7 +88,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
             Object val = deserializer.deserialze(parser, itemType, i);
             array.add(val);
-            
+
             parser.checkListResolve(array);
 
             if (lexer.token() == JSONToken.COMMA) {

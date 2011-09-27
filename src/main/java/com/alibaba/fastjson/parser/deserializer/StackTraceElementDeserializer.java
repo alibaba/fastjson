@@ -13,7 +13,6 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
     public final static StackTraceElementDeserializer instance = new StackTraceElementDeserializer();
 
     @SuppressWarnings("unchecked")
-    @Override
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         JSONLexer lexer = parser.getLexer();
         if (lexer.token() == JSONToken.NULL) {

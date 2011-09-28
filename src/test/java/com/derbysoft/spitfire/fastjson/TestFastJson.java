@@ -158,7 +158,6 @@ public class TestFastJson {
 
     }
 
-    @Test
     public void testDeserializePerformance() throws IOException, ClassNotFoundException {
         Object obj = createTest();
         byte[] bytes = JSON.toJSONBytes(obj, SerializerFeature.WriteClassName);

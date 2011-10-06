@@ -36,7 +36,7 @@ public abstract class FieldSerializer implements Comparable<FieldSerializer> {
     public FieldSerializer(FieldInfo fieldInfo){
         super();
         this.fieldInfo = fieldInfo;
-        fieldInfo.getMethod().setAccessible(true);
+        fieldInfo.setAccessible(true);
 
         this.double_quoted_fieldPrefix = '"' + fieldInfo.getName() + "\":";
 
@@ -89,7 +89,7 @@ public abstract class FieldSerializer implements Comparable<FieldSerializer> {
     }
 
     public Object getPropertyValue(Object object) throws Exception {
-        return getMethod().invoke(object);
+        return fieldInfo.get(object);
     }
 
     public abstract void writeProperty(JSONSerializer serializer, Object propertyValue) throws Exception;

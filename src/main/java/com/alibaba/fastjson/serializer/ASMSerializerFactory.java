@@ -342,8 +342,7 @@ public class ASMSerializerFactory implements Opcodes {
 
         for (int i = 0; i < size; ++i) {
             FieldInfo property = getters.get(i);
-            Method method = property.getMethod();
-            Class<?> propertyClass = method.getReturnType();
+            Class<?> propertyClass = property.getFieldClass();
 
             mw.visitLdcInsn(property.getName());
             mw.visitVarInsn(ASTORE, context.fieldName());
@@ -741,7 +740,7 @@ public class ASMSerializerFactory implements Opcodes {
     private void _list(Class<?> clazz, MethodVisitor mw, FieldInfo property, Context context) {
         Method method = property.getMethod();
 
-        Type propertyType = method.getGenericReturnType();
+        Type propertyType = property.getFieldType();
 
         Type elementType;
         if (propertyType instanceof Class) {

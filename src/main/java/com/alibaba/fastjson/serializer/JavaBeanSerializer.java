@@ -184,7 +184,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
     }
 
     public FieldSerializer createFieldSerializer(FieldInfo fieldInfo) {
-        Class<?> clazz = fieldInfo.getMethod().getReturnType();
+        Class<?> clazz = fieldInfo.getFieldClass();
 
         if (clazz == Number.class) {
             return new NumberFieldSerializer(fieldInfo);

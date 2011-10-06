@@ -34,7 +34,6 @@ import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.serializer.JSONSerializer;
-import com.alibaba.fastjson.serializer.JavaBeanSerializer;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -507,7 +506,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
 
         try {
-            List<FieldInfo> getters = JavaBeanSerializer.computeGetters(clazz, null);
+            List<FieldInfo> getters = TypeUtils.computeGetters(clazz, null);
 
             JSONObject json = new JSONObject(getters.size());
 

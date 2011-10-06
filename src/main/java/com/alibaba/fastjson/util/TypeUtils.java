@@ -16,7 +16,9 @@
 package com.alibaba.fastjson.util;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
@@ -28,11 +30,13 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 
@@ -692,5 +696,133 @@ public class TypeUtils {
         }
 
         return clazz;
+    }
+
+    public static List<FieldInfo> computeGetters(Class<?> clazz, Map<String, String> aliasMap) {
+        List<FieldInfo> fieldInfoList = new ArrayList<FieldInfo>();
+    
+        Map<String, FieldInfo> fieldInfoMap = new LinkedHashMap<String, FieldInfo>();
+    
+        for (Method method : clazz.getMethods()) {
+            String methodName = method.getName();
+    
+            if (Modifier.isStatic(method.getModifiers())) {
+                continue;
+            }
+    
+            if (method.getReturnType().equals(Void.TYPE)) {
+                continue;
+            }
+    
+            if (method.getParameterTypes().length != 0) {
+                continue;
+            }
+    
+            JSONField annotation = method.getAnnotation(JSONField.class);
+    
+            if (annotation != null) {
+                if (!annotation.serialize()) {
+                    continue;
+                }
+    
+                if (annotation.name().length() != 0) {
+                    String propertyName = annotation.name();
+    
+                    if (aliasMap != null) {
+                        propertyName = aliasMap.get(propertyName);
+                        if (propertyName == null) {
+                            continue;
+                        }
+                    }
+    
+                    fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, null));
+                    continue;
+                }
+            }
+    
+            if (methodName.startsWith("get")) {
+                if (methodName.length() < 4) {
+                    continue;
+                }
+    
+                if (methodName.equals("getClass")) {
+                    continue;
+                }
+    
+                if (!Character.isUpperCase(methodName.charAt(3))) {
+                    continue;
+                }
+    
+                String propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+    
+                Field field = ParserConfig.getField(clazz, propertyName);
+                if (field != null) {
+                    JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
+    
+                    if (fieldAnnotation != null && fieldAnnotation.name().length() != 0) {
+                        propertyName = fieldAnnotation.name();
+    
+                        if (aliasMap != null) {
+                            propertyName = aliasMap.get(propertyName);
+                            if (propertyName == null) {
+                                continue;
+                            }
+                        }
+                    }
+                }
+    
+                if (aliasMap != null) {
+                    propertyName = aliasMap.get(propertyName);
+                    if (propertyName == null) {
+                        continue;
+                    }
+                }
+    
+                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field));
+            }
+    
+            if (methodName.startsWith("is")) {
+                if (methodName.length() < 3) {
+                    continue;
+                }
+    
+                if (!Character.isUpperCase(methodName.charAt(2))) {
+                    continue;
+                }
+    
+                String propertyName = Character.toLowerCase(methodName.charAt(2)) + methodName.substring(3);
+    
+                Field field = ParserConfig.getField(clazz, propertyName);
+                if (field != null) {
+                    JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
+    
+                    if (fieldAnnotation != null && fieldAnnotation.name().length() != 0) {
+                        propertyName = fieldAnnotation.name();
+    
+                        if (aliasMap != null) {
+                            propertyName = aliasMap.get(propertyName);
+                            if (propertyName == null) {
+                                continue;
+                            }
+                        }
+                    }
+                }
+    
+                if (aliasMap != null) {
+                    propertyName = aliasMap.get(propertyName);
+                    if (propertyName == null) {
+                        continue;
+                    }
+                }
+    
+                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field));
+            }
+        }
+    
+        for (FieldInfo fieldInfo : fieldInfoMap.values()) {
+            fieldInfoList.add(fieldInfo);
+        }
+    
+        return fieldInfoList;
     }
 }

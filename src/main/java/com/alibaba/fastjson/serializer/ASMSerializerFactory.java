@@ -26,6 +26,7 @@ import com.alibaba.fastjson.asm.Opcodes;
 import com.alibaba.fastjson.util.ASMClassLoader;
 import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.FieldInfo;
+import com.alibaba.fastjson.util.TypeUtils;
 
 public class ASMSerializerFactory implements Opcodes {
 
@@ -135,7 +136,7 @@ public class ASMSerializerFactory implements Opcodes {
         {
             Context context = new Context(className);
 
-            List<FieldInfo> getters = JavaBeanSerializer.computeGetters(clazz, aliasMap);
+            List<FieldInfo> getters = TypeUtils.computeGetters(clazz, aliasMap);
 
             mw = cw.visitMethod(ACC_PUBLIC,
                                 "write",
@@ -181,7 +182,7 @@ public class ASMSerializerFactory implements Opcodes {
             // sortField support
             Context context = new Context(className);
 
-            List<FieldInfo> getters = JavaBeanSerializer.computeGetters(clazz, aliasMap);
+            List<FieldInfo> getters = TypeUtils.computeGetters(clazz, aliasMap);
             Collections.sort(getters);
 
             mw = cw.visitMethod(ACC_PUBLIC,

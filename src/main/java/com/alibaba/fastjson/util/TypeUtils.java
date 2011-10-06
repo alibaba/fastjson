@@ -650,7 +650,8 @@ public class TypeUtils {
                     object = new JSONObject(map);
                 }
 
-                return (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class<?>[] { clazz }, object);
+                return (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
+                                                  new Class<?>[] { clazz }, object);
             }
 
             Map<String, FieldDeserializer> setters = mapping.getFieldDeserializers(clazz);
@@ -661,9 +662,11 @@ public class TypeUtils {
                 String key = entry.getKey();
                 Method method = entry.getValue().getMethod();
 
-                Object value = map.get(key);
-                value = cast(value, method.getGenericParameterTypes()[0], mapping);
-                method.invoke(object, new Object[] { value });
+                if (map.containsKey(key)) {
+                    Object value = map.get(key);
+                    value = cast(value, method.getGenericParameterTypes()[0], mapping);
+                    method.invoke(object, new Object[] { value });
+                }
             }
 
             return object;

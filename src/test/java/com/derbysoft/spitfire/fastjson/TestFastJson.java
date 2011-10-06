@@ -144,7 +144,7 @@ public class TestFastJson {
             }
             stopWatch.stop();
 
-            System.out.println("JSON serialize:" + stopWatch.getTime());
+            System.out.println("JSON serialize:" + stopWatch.getTime());    
 
             stopWatch.reset();
             stopWatch.start();

@@ -17,7 +17,6 @@ package com.alibaba.fastjson;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -511,8 +510,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             JSONObject json = new JSONObject(getters.size());
 
             for (FieldInfo field : getters) {
-                Method method = field.getMethod();
-                Object value = method.invoke(javaObject, new Object[0]);
+                Object value = field.get(javaObject);
                 Object jsonValue = toJSON(value);
 
                 json.put(field.getName(), jsonValue);

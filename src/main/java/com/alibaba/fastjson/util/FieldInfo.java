@@ -93,7 +93,9 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
     public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
         T annotation = null;
-        annotation = method.getAnnotation(annotationClass);
+        if (method != null) {
+            annotation = method.getAnnotation(annotationClass);
+        }
 
         if (annotation == null) {
             if (field != null) {
@@ -109,7 +111,16 @@ public class FieldInfo implements Comparable<FieldInfo> {
             Object value = method.invoke(javaObject, new Object[0]);
             return value;
         }
-        
+
         return field.get(javaObject);
+    }
+
+    public void setAccessible(boolean flag) throws SecurityException {
+        if (method != null) {
+            method.setAccessible(flag);
+            return;
+        }
+
+        field.setAccessible(flag);
     }
 }

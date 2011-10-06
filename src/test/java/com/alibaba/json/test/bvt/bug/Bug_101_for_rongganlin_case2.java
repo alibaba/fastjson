@@ -7,7 +7,7 @@ import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
 
-public class Bug_101_for_rongganlin extends TestCase {
+public class Bug_101_for_rongganlin_case2 extends TestCase {
 
     public void test_for_bug() throws Exception {
         Structure structure = new Structure();
@@ -25,16 +25,15 @@ public class Bug_101_for_rongganlin extends TestCase {
 
         structure.groups = groups;
 
-        System.out.println(JSON.toJSON(structure));
         System.out.println(JSON.toJSONString(structure));
     }
 
-    class Structure {
+    public static class Structure {
 
         public List<Group> groups;
     }
 
-    class Group implements Object {
+    public static class Group implements Object {
 
         public List<Element> elements;
 
@@ -44,10 +43,10 @@ public class Bug_101_for_rongganlin extends TestCase {
         }
     }
 
-    interface Object {
+    public static interface Object {
     }
 
-    abstract class Element {
+    public static abstract class Element {
 
         public String key, value;
 
@@ -58,9 +57,9 @@ public class Bug_101_for_rongganlin extends TestCase {
         }
     }
 
-    class Text extends Element {
+    public static class Text extends Element {
     }
 
-    class Image extends Element {
+    public static class Image extends Element {
     }
 }

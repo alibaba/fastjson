@@ -818,6 +818,18 @@ public class TypeUtils {
                 fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field));
             }
         }
+        
+        for (Field field : clazz.getFields()) {
+            if(Modifier.isStatic(field.getModifiers())) {
+                continue;
+            }
+            
+            if (!Modifier.isPublic(field.getModifiers())) {
+                continue;
+            }
+            
+            fieldInfoMap.put(field.getName(), new FieldInfo(field.getName(), null, field));
+        }
     
         for (FieldInfo fieldInfo : fieldInfoMap.values()) {
             fieldInfoList.add(fieldInfo);

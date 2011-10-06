@@ -2,6 +2,7 @@ package com.alibaba.fastjson.util;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
@@ -15,18 +16,19 @@ public class FieldInfo implements Comparable<FieldInfo> {
     private final Type     fieldType;
     private final Class<?> declaringClass;
 
-    public FieldInfo(String name, Class<?> declaringClass, Class<?> fieldClass, Type fieldType, Method method, Field field){
+    public FieldInfo(String name, Class<?> declaringClass, Class<?> fieldClass, Type fieldType, Method method,
+                     Field field){
         this.name = name;
         this.declaringClass = declaringClass;
         this.fieldClass = fieldClass;
         this.fieldType = fieldType;
         this.method = method;
         this.field = field;
-        
+
         if (method != null) {
             method.setAccessible(true);
         }
-        
+
         if (field != null) {
             field.setAccessible(true);
         }
@@ -36,24 +38,29 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.name = name;
         this.method = method;
         this.field = field;
-        
+
         if (method != null) {
             method.setAccessible(true);
         }
-        
+
         if (field != null) {
             field.setAccessible(true);
         }
 
-        if (method.getParameterTypes().length == 1) {
-            this.fieldClass = method.getParameterTypes()[0];
-            this.fieldType = method.getGenericParameterTypes()[0];
+        if (method != null) {
+            if (method.getParameterTypes().length == 1) {
+                this.fieldClass = method.getParameterTypes()[0];
+                this.fieldType = method.getGenericParameterTypes()[0];
+            } else {
+                this.fieldClass = method.getReturnType();
+                this.fieldType = method.getGenericReturnType();
+            }
+            this.declaringClass = method.getDeclaringClass();
         } else {
-            this.fieldClass = method.getReturnType();
-            this.fieldType = method.getGenericReturnType();
+            this.fieldClass = field.getType();
+            this.fieldType = field.getGenericType();
+            this.declaringClass = field.getDeclaringClass();
         }
-
-        this.declaringClass = method.getDeclaringClass();
     }
 
     public Class<?> getDeclaringClass() {
@@ -95,5 +102,14 @@ public class FieldInfo implements Comparable<FieldInfo> {
         }
 
         return annotation;
+    }
+
+    public Object get(Object javaObject) throws IllegalAccessException, InvocationTargetException {
+        if (method != null) {
+            Object value = method.invoke(javaObject, new Object[0]);
+            return value;
+        }
+        
+        return field.get(javaObject);
     }
 }

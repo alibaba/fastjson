@@ -84,9 +84,9 @@ public class ASMDeserializerFactory implements Opcodes {
 
         byte[] code = cw.toByteArray();
 
-//         org.apache.commons.io.IOUtils.write(code, new java.io.FileOutputStream(
-//         "/usr/alibaba/workspace-3.7/fastjson-asm/target/classes/"
-//         + className + ".class"));
+        // org.apache.commons.io.IOUtils.write(code, new java.io.FileOutputStream(
+        // "/usr/alibaba/workspace-3.7/fastjson-asm/target/classes/"
+        // + className + ".class"));
 
         Class<?> exampleClass = classLoader.defineClassPublic(className, code, 0, code.length);
 
@@ -464,8 +464,13 @@ public class ASMDeserializerFactory implements Opcodes {
             } else {
                 INVAKE_TYPE = INVOKEVIRTUAL;
             }
-            mw.visitMethodInsn(INVAKE_TYPE, getType(fieldInfo.getDeclaringClass()), fieldInfo.getMethod().getName(),
-                               getDesc(fieldInfo.getMethod()));
+            if (fieldInfo.getMethod() != null) {
+                mw.visitMethodInsn(INVAKE_TYPE, getType(fieldInfo.getDeclaringClass()),
+                                   fieldInfo.getMethod().getName(), getDesc(fieldInfo.getMethod()));
+            } else {
+                mw.visitFieldInsn(PUTFIELD, getType(fieldInfo.getDeclaringClass()),
+                                  fieldInfo.getField().getName(), getDesc(fieldInfo.getFieldClass()));
+            }
         }
     }
 
@@ -484,7 +489,7 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitVarInsn(ALOAD, context.var("childContext"));
             mw.visitVarInsn(ALOAD, context.var("instance"));
             mw.visitMethodInsn(INVOKEVIRTUAL, getType(ParseContext.class), "setObject", "(Ljava/lang/Object;)V");
-            
+
             mw.visitLabel(endIf_);
         }
     }

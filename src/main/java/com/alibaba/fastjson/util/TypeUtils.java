@@ -22,6 +22,8 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -565,6 +567,10 @@ public class TypeUtils {
                 return null;
             }
         }
+        
+        if (type instanceof TypeVariable) {
+            return (T) obj;
+        }
 
         throw new JSONException("can not cast to : " + type);
     }
@@ -610,6 +616,13 @@ public class TypeUtils {
             String strVal = (String) obj;
             if (strVal.length() == 0) {
                 return null;
+            }
+        }
+        
+        if (type.getActualTypeArguments().length == 1) {
+            Type argType = type.getActualTypeArguments()[0];
+            if (argType instanceof WildcardType) {
+                return (T) cast(obj, rawTye, mapping);
             }
         }
 

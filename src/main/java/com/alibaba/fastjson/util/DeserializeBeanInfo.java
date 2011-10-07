@@ -192,6 +192,18 @@ public class DeserializeBeanInfo {
             }
         }
 
+        for (Field field : clazz.getFields()) {
+            if (Modifier.isStatic(field.getModifiers())) {
+                continue;
+            }
+
+            if (!Modifier.isPublic(field.getModifiers())) {
+                continue;
+            }
+
+            beanInfo.getFieldList().add(new FieldInfo(field.getName(), null, field));
+        }
+
         return beanInfo;
     }
 
@@ -204,10 +216,10 @@ public class DeserializeBeanInfo {
     }
 
     public static Constructor<?> getDefaultConstructor(Class<?> clazz) {
-       if (Modifier.isAbstract(clazz.getModifiers())) {
-           return null;
-       }
-       
+        if (Modifier.isAbstract(clazz.getModifiers())) {
+            return null;
+        }
+
         Constructor<?> defaultConstructor = null;
         for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
             if (constructor.getParameterTypes().length == 0) {

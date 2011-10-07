@@ -1,6 +1,7 @@
 package com.alibaba.fastjson.util;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
@@ -89,7 +90,7 @@ public class ASMUtils {
         throw new IllegalStateException("Type: " + type.getCanonicalName() + " is not a primitive type");
     }
 
-    public static Type getFieldType(Class<?> clazz, String methodName) {
+    public static Type getMethodType(Class<?> clazz, String methodName) {
         try {
             Method method = clazz.getMethod(methodName);
 
@@ -99,4 +100,13 @@ public class ASMUtils {
         }
     }
 
+    public static Type getFieldType(Class<?> clazz, String fieldName) {
+        try {
+            Field field = clazz.getField(fieldName);
+
+            return field.getGenericType();
+        } catch (Exception ex) {
+            return null;
+        }
+    }
 }

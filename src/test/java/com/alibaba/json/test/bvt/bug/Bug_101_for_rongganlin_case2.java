@@ -3,6 +3,7 @@ package com.alibaba.json.test.bvt.bug;
 import java.util.ArrayList;
 import java.util.List;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
@@ -25,7 +26,12 @@ public class Bug_101_for_rongganlin_case2 extends TestCase {
 
         structure.groups = groups;
 
-        System.out.println(JSON.toJSONString(structure));
+        String text = JSON.toJSONString(structure);
+        System.out.println(text);
+        Structure structure2 = JSON.parseObject(text, Structure.class);
+        
+        Assert.assertEquals(structure.groups.size(), structure2.groups.size());
+        System.out.println(JSON.toJSONString(structure2));
     }
 
     public static class Structure {

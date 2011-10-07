@@ -17,7 +17,6 @@ package com.alibaba.fastjson.parser;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -357,7 +356,6 @@ public class ParserConfig {
     }
 
     public FieldDeserializer createFieldDeserializerWithoutASM(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
-        Method method = fieldInfo.getMethod();
         Class<?> fieldClass = fieldInfo.getFieldClass();
 
         if (fieldClass == boolean.class || fieldClass == Boolean.class) {
@@ -377,7 +375,7 @@ public class ParserConfig {
         }
 
         if (fieldClass == List.class || fieldClass == ArrayList.class) {
-            Type fieldType = method.getGenericParameterTypes()[0];
+            Type fieldType = fieldInfo.getFieldType();
             if (fieldType instanceof ParameterizedType) {
                 Type itemType = ((ParameterizedType) fieldType).getActualTypeArguments()[0];
                 if (itemType == String.class) {

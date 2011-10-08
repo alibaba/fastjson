@@ -1,5 +1,6 @@
 package com.alibaba.json.test.bvt.bug;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
@@ -12,9 +13,8 @@ public class Bug_101_for_rongganlin_case3 extends TestCase {
         entity.setHolder(new Holder<String>("AAA"));
 
         JSONObject json = (JSONObject) JSON.toJSON(entity);
-        System.out.println(json);
         Entity entity2 = JSON.toJavaObject(json, Entity.class);
-        System.out.println(JSON.toJSONString(entity2));
+        Assert.assertEquals(JSON.toJSONString(entity), JSON.toJSONString(entity2));
     }
 
     public static class Entity {

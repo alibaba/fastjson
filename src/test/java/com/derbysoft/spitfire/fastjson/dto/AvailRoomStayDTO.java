@@ -1,5 +1,7 @@
 package com.derbysoft.spitfire.fastjson.dto;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 public class AvailRoomStayDTO extends AbstractDTO {
     private RoomTypeDTO roomType;
 
@@ -47,18 +49,22 @@ public class AvailRoomStayDTO extends AbstractDTO {
         this.quantity = quantity;
     }
 
+    @JSONField(name="PC")
     public ProviderChainDTO getProviderChain() {
         return providerChain;
     }
 
+    @JSONField(name="PC")
     public void setProviderChain(ProviderChainDTO providerChain) {
         this.providerChain = providerChain;
     }
 
+    @JSONField(name="LT")
     public LanguageType getLanguageType() {
         return languageType;
     }
 
+    @JSONField(name="LT")
     public void setLanguageType(LanguageType languageType) {
         this.languageType = languageType;
     }

@@ -1,5 +1,7 @@
 package com.derbysoft.spitfire.fastjson.dto;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 public class UniqueIDDTO extends AbstractDTO{
     private String companyName;
     private String code;
@@ -13,10 +15,12 @@ public class UniqueIDDTO extends AbstractDTO{
         this.type = type;
     }
 
+    @JSONField(name="CName")
     public String getCompanyName() {
         return companyName;
     }
 
+    @JSONField(name="CName")
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
     }

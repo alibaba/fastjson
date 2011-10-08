@@ -200,6 +200,18 @@ public class DeserializeBeanInfo {
             if (!Modifier.isPublic(field.getModifiers())) {
                 continue;
             }
+            
+            boolean contains = false;
+            for (FieldInfo item : beanInfo.getFieldList()) {
+                if (item.getName().equals(field.getName())) {
+                    contains = true;
+                    continue;
+                }
+            }
+            
+            if (contains) {
+                continue;
+            }
 
             beanInfo.getFieldList().add(new FieldInfo(field.getName(), null, field));
         }

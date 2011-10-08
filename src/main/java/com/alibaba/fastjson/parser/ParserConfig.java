@@ -68,6 +68,7 @@ import com.alibaba.fastjson.parser.deserializer.BooleanFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ByteDeserializer;
 import com.alibaba.fastjson.parser.deserializer.CharacterDeserializer;
 import com.alibaba.fastjson.parser.deserializer.CharsetDeserializer;
+import com.alibaba.fastjson.parser.deserializer.ClassDerializer;
 import com.alibaba.fastjson.parser.deserializer.CollectionDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ConcurrentHashMapDeserializer;
 import com.alibaba.fastjson.parser.deserializer.DateDeserializer;
@@ -208,6 +209,7 @@ public class ParserConfig {
         derializers.put(Double.class, DoubleDeserializer.instance);
         derializers.put(boolean.class, BooleanDeserializer.instance);
         derializers.put(Boolean.class, BooleanDeserializer.instance);
+        derializers.put(Class.class, ClassDerializer.instance);
 
         derializers.put(UUID.class, UUIDDeserializer.instance);
         derializers.put(TimeZone.class, TimeZoneDeserializer.instance);

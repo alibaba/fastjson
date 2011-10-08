@@ -3,6 +3,8 @@ package com.derbysoft.spitfire.fastjson.dto;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 public class RoomStayCandidateDTO extends AbstractDTO{
     private int numberOfUnits;
     private List<GuestCountDTO> guests = new ArrayList<GuestCountDTO>();
@@ -15,10 +17,12 @@ public class RoomStayCandidateDTO extends AbstractDTO{
         this.guests = guests;
     }
 
+    @JSONField(name="Unit")
     public int getNumberOfUnits() {
         return numberOfUnits;
     }
 
+    @JSONField(name="Unit")
     public void setNumberOfUnits(int numberOfUnits) {
         this.numberOfUnits = numberOfUnits;
     }

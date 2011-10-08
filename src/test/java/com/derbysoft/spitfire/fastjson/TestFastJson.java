@@ -9,8 +9,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.junit.Test;
 
@@ -54,9 +54,8 @@ import com.derbysoft.spitfire.fastjson.dto.UniqueIDType;
 
 public class TestFastJson {
 
-
-    private static final int TIMES = 10000;
-    private static final int STAYS_COUNT = 12;
+    private static final int TIMES       = 10000;
+    private static final int STAYS_COUNT = 10;
 
     public void f_testF() {
         Generic<String> q = new Generic<String>();
@@ -100,22 +99,25 @@ public class TestFastJson {
     }
 
     private <T> void jsonSerialize(T t) throws IOException {
-        //String text = JSON.toJSONString(t, SerializerFeature.WriteClassName, SerializerFeature.PrettyFormat);
-        //System.out.println(text);
-        
+        // String text = JSON.toJSONString(t, SerializerFeature.WriteClassName, SerializerFeature.PrettyFormat);
+        // System.out.println(text);
+
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         SerializeWriter out = new SerializeWriter(SerializerFeature.WriteClassName);
-//        SerializeWriter out = new SerializeWriter();
+        // SerializeWriter out = new SerializeWriter();
         JSONSerializer serializer = new JSONSerializer(out);
         serializer.write(t);
         out.writeTo(os, "UTF-8");
         os.toByteArray();
+        //System.out.println(JSON.toJSONString(t, SerializerFeature.WriteClassName, SerializerFeature.PrettyFormat));
+        //System.out.println("json " + os.toByteArray().length);
     }
 
     private <T> void javaSerialize(T t) throws IOException {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(os);
         oos.writeObject(t);
+        // System.out.println("java " + os.toByteArray().length);
     }
 
     @SuppressWarnings("unchecked")
@@ -128,9 +130,7 @@ public class TestFastJson {
         ByteArrayInputStream is = new ByteArrayInputStream(bytes);
         ObjectInputStream ois = new ObjectInputStream(is);
         return (T) ois.readObject();
-
     }
-
 
     @Test
     public void testSerializePerformance() throws IOException {
@@ -144,7 +144,7 @@ public class TestFastJson {
             }
             stopWatch.stop();
 
-            System.out.println("JSON serialize:" + stopWatch.getTime());    
+            System.out.println("JSON serialize:" + stopWatch.getTime());
 
             stopWatch.reset();
             stopWatch.start();
@@ -155,7 +155,6 @@ public class TestFastJson {
             System.out.println("JAVA serialize:" + stopWatch.getTime());
             System.out.println();
         }
-
     }
 
     public void testDeserializePerformance() throws IOException, ClassNotFoundException {
@@ -173,7 +172,7 @@ public class TestFastJson {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
             for (int i = 0; i < TIMES; ++i) {
-//                ByteArrayInputStream is = new ByteArrayInputStream(bytes);
+                // ByteArrayInputStream is = new ByteArrayInputStream(bytes);
                 Object o = jsonDeserialize(bytes, GenericRS.class);
                 o.getClass();
             }
@@ -196,7 +195,6 @@ public class TestFastJson {
 
     }
 
-
     public GenericRS<HotelAvailRS> createTest() {
         GenericRS<HotelAvailRS> rs = new GenericRS<HotelAvailRS>();
         rs.setHeader(new ResponseHeader("dsfsdfsd"));
@@ -208,50 +206,51 @@ public class TestFastJson {
         return rs;
     }
 
+    // private static final String HOTEL_DESC = "foo hotel desc";
+    private static final String       ROOM_TYPE_CODE            = "foo room type code";
+    private static final String       ROOM_TYPE_NAME            = "foo room type name";
+    private static final String       RATE_PLAN_CODE            = "foo rate plan code";
+    private static final String       RATE_PLAN_NAME            = "rate plan name";
+    private static final Integer      ROOM_COUNT                = 2;
 
-    //    private static final String HOTEL_DESC = "foo hotel desc";
-    private static final String ROOM_TYPE_CODE = "foo room type code";
-    private static final String ROOM_TYPE_NAME = "foo room type name";
-    private static final String RATE_PLAN_CODE = "foo rate plan code";
-    private static final String RATE_PLAN_NAME = "rate plan name";
-    private static final Integer ROOM_COUNT = 2;
+    // private static final Date CANCEL_POLICY_DEAD_LINE = DateUtils.parseUseDefaultFormat("2008-09-01");
+    private static final String       CANCEL_POLICY_DESCRIPTION = "foo cancel policy description";
 
-    //    private static final Date CANCEL_POLICY_DEAD_LINE = DateUtils.parseUseDefaultFormat("2008-09-01");
-    private static final String CANCEL_POLICY_DESCRIPTION = "foo cancel policy description";
+    private static final String       GUARANTEE_DESCRIPTION     = "foo guarantee description";
+    // private static final String CARD_NUMBER = "foo card number";
+    // private static final String CARD_HOLDER_NAME = "foo card holder name";
+    // private static final String CARD_SERIES_CODE = "foo card series code";
+    // private static final Date CARD_EXPIRE_DATE = DateUtils.parseUseDefaultFormat("2010-12-31");
+    private static final Currency     CURRENCY                  = Currency.CNY;
 
-    private static final String GUARANTEE_DESCRIPTION = "foo guarantee description";
-    //    private static final String CARD_NUMBER = "foo card number";
-//    private static final String CARD_HOLDER_NAME = "foo card holder name";
-//    private static final String CARD_SERIES_CODE = "foo card series code";
-    //    private static final Date CARD_EXPIRE_DATE = DateUtils.parseUseDefaultFormat("2010-12-31");
-    private static final Currency CURRENCY = Currency.CNY;
+    private static final PaymentType  PAYMENT_TYPE_POA          = PaymentType.POA;
+    // private static final int DAY_COUNT = 4;
+    // private static final String[] CHECKIN_DATES = {"2008-08-25", "2008-08-26", "2008-08-27", "2008-08-28"};
+    // private static final String[] CHECKOUT_DATES = {"2008-08-26", "2008-08-27", "2008-08-28", "2008-08-29"};
+    // private static final BigDecimal[] AMOUNT_AFTER_TAXS
+    // = {new BigDecimal(800), new BigDecimal(800), new BigDecimal(800), new BigDecimal(900)};
+    private static final BigDecimal[] AMOUNT_BEFORE_TAXS        = { new BigDecimal(750), new BigDecimal(750),
+            new BigDecimal(760), new BigDecimal(880)           };
+    private static final BigDecimal   AMOUNT_TAX                = new BigDecimal(50);
+    private static final BigDecimal   SERVICE_CHARGE_AMOUNT     = new BigDecimal(10);
+    private static final String       TAX_DESC                  = "foo tax desc";
+    private static final String       SERVICE_CHARGE_DESC       = "foo repository charge desc";
 
-    private static final PaymentType PAYMENT_TYPE_POA = PaymentType.POA;
-    //    private static final int DAY_COUNT = 4;
-//    private static final String[] CHECKIN_DATES = {"2008-08-25", "2008-08-26", "2008-08-27", "2008-08-28"};
-//    private static final String[] CHECKOUT_DATES = {"2008-08-26", "2008-08-27", "2008-08-28", "2008-08-29"};
-//    private static final BigDecimal[] AMOUNT_AFTER_TAXS
-//            = {new BigDecimal(800), new BigDecimal(800), new BigDecimal(800), new BigDecimal(900)};
-    private static final BigDecimal[] AMOUNT_BEFORE_TAXS
-            = {new BigDecimal(750), new BigDecimal(750), new BigDecimal(760), new BigDecimal(880)};
-    private static final BigDecimal AMOUNT_TAX = new BigDecimal(50);
-    private static final BigDecimal SERVICE_CHARGE_AMOUNT = new BigDecimal(10);
-    private static final String TAX_DESC = "foo tax desc";
-    private static final String SERVICE_CHARGE_DESC = "foo repository charge desc";
+    private static final String       PROVIDER_CODE             = "hilton";
+    private static final String       HOTEL_NAME                = "foo hotel name";
+    private static final String       HOTEL_CODE                = "foo hotel code";
+    private static final LanguageType LANGUAGE_TYPE_CN          = LanguageType.ZH_CN;
+    // private static final String TASK_ID = "task id";
+    private static final boolean      NEED_GUARANTEE            = true;
+    private static final CardCode     VISA                      = CardCode.VISA;
+    // private static final String CARD_CODE = VISA.getCode();
 
-    private static final String PROVIDER_CODE = "hilton";
-    private static final String HOTEL_NAME = "foo hotel name";
-    private static final String HOTEL_CODE = "foo hotel code";
-    private static final LanguageType LANGUAGE_TYPE_CN = LanguageType.ZH_CN;
-    //    private static final String TASK_ID = "task id";
-    private static final boolean NEED_GUARANTEE = true;
-    private static final CardCode VISA = CardCode.VISA;
-//    private static final String CARD_CODE = VISA.getCode();
-
-    private static final int NUMBER_ZERO = 0;
-    private static final int NUMBER_ONE = 1;
-    private static final int NUMBER_TWO = 2;
-    private static final int NUMBER_THREE = 3;
+    private static final int          NUMBER_ZERO               = 0;
+    private static final int          NUMBER_ONE                = 1;
+    private static final int          NUMBER_TWO                = 2;
+    private static final int          NUMBER_THREE              = 3;
+    
+    private static AtomicLong seed = new AtomicLong();
 
     private HotelAvailRS createExpectedHotelAvailRS() {
         HotelAvailRS payLoad = new HotelAvailRS();
@@ -268,15 +267,15 @@ public class TestFastJson {
 
     private List<AvailRoomStayDTO> createExpectedRoomStays() {
         ArrayList<AvailRoomStayDTO> roomStays = new ArrayList<AvailRoomStayDTO>();
-        AvailRoomStayDTO roomStay = new AvailRoomStayDTO();
-        roomStay.setLanguageType(LANGUAGE_TYPE_CN);
-        roomStay.setRoomType(createExpectedRoomType());
-        roomStay.setRatePlan(createExpectedRatePlan());
-        roomStay.setQuantity(ROOM_COUNT);
-        roomStay.setRoomRate(createExpectedRoomRate());
-        roomStay.setProviderChain(createExpectedProviderChain());
         for (int i = 0; i < STAYS_COUNT; ++i) {
-            roomStays.add((AvailRoomStayDTO) SerializationUtils.clone(roomStay));
+            AvailRoomStayDTO roomStay = new AvailRoomStayDTO();
+            roomStay.setLanguageType(LANGUAGE_TYPE_CN);
+            roomStay.setRoomType(createExpectedRoomType());
+            roomStay.setRatePlan(createExpectedRatePlan());
+            roomStay.setQuantity(ROOM_COUNT);
+            roomStay.setRoomRate(createExpectedRoomRate());
+            roomStay.setProviderChain(createExpectedProviderChain());
+            roomStays.add(roomStay);
         }
 
         return roomStays;
@@ -331,12 +330,12 @@ public class TestFastJson {
         RatePlanDTO ratePlan = new RatePlanDTO();
         ratePlan.setCode(RATE_PLAN_CODE);
         ratePlan.setName(RATE_PLAN_NAME);
-        ratePlan.setPaymentType(PAYMENT_TYPE_POA);    //TODO paymentType only cash back?
+        ratePlan.setPaymentType(PAYMENT_TYPE_POA); // TODO paymentType only cash back?
         ratePlan.setTaxes(createExpectedTaxs());
         ratePlan.setServiceCharges(createExpectedServiceCharges());
         ratePlan.setNeedGuarantee(NEED_GUARANTEE);
         ratePlan.setCancelPolicy(createExpectedCancelPolicy());
-        ratePlan.setAvailGuarantees(createExpectedAvailGuarantee()); //TODO translator
+        ratePlan.setAvailGuarantees(createExpectedAvailGuarantee()); // TODO translator
         ratePlan.setFreeMeal(createExpectedFreeMeal());
         return ratePlan;
     }
@@ -384,7 +383,7 @@ public class TestFastJson {
         serviceCharge.setUnit(ChargeUnit.PER_NIGHT);
         serviceCharge.setType(ChargeType.FIXED);
         serviceCharge.setValue(SERVICE_CHARGE_AMOUNT);
-        serviceCharge.setDescription(SERVICE_CHARGE_DESC);
+        serviceCharge.setDescription(new String(SERVICE_CHARGE_DESC + seed.incrementAndGet()));
         serviceCharges.add(serviceCharge);
         return serviceCharges;
     }
@@ -395,7 +394,7 @@ public class TestFastJson {
         tax.setUnit(ChargeUnit.PER_NIGHT);
         tax.setValue(AMOUNT_TAX);
         tax.setType(ChargeType.FIXED);
-        tax.setDescription(TAX_DESC);
+        tax.setDescription(TAX_DESC + seed.incrementAndGet());
         taxs.add(tax);
         return taxs;
     }
@@ -407,7 +406,6 @@ public class TestFastJson {
         return simpleAmountDTO;
     }
 
-
     private DateRangeDTO createExpectedDateRangeDTO() {
         DateRangeDTO dateRangeDTO = new DateRangeDTO();
         dateRangeDTO.setStart(new Date());
@@ -417,10 +415,9 @@ public class TestFastJson {
 
     private HotelRefDTO createExpectedHotelRef() {
         HotelRefDTO hotelRef = new HotelRefDTO();
-        hotelRef.setCode(HOTEL_CODE);
-        hotelRef.setName(HOTEL_NAME);
+        hotelRef.setCode(new String(HOTEL_CODE));
+        hotelRef.setName(new String(HOTEL_NAME));
         return hotelRef;
     }
-
 
 }

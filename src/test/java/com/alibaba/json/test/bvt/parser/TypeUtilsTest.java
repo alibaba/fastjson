@@ -242,17 +242,17 @@ public class TypeUtilsTest extends TestCase {
     public void test_cast_to_Timestamp_null2() throws Exception {
         Assert.assertEquals(null, TypeUtils.castToTimestamp(null));
     }
-    
+
     public void test_cast_to_BigDecimal_same() throws Exception {
         BigDecimal value = new BigDecimal("123");
         Assert.assertEquals(true, value == TypeUtils.castToBigDecimal(value));
     }
-    
+
     public void test_cast_to_BigInteger_same() throws Exception {
         BigInteger value = new BigInteger("123");
         Assert.assertEquals(true, value == TypeUtils.castToBigInteger(value));
     }
-    
+
     public void test_cast_Array() throws Exception {
         Assert.assertEquals(Integer[].class, TypeUtils.cast(new ArrayList(), Integer[].class, null).getClass());
     }
@@ -354,13 +354,7 @@ public class TypeUtilsTest extends TestCase {
 
         Method method = TypeUtilsTest.class.getMethod("f", List.class);
 
-        JSONException error = null;
-        try {
-            TypeUtils.cast(json, method.getGenericParameterTypes()[0], ParserConfig.getGlobalInstance());
-        } catch (JSONException e) {
-            error = e;
-        }
-        Assert.assertNotNull(error);
+        TypeUtils.cast(json, method.getGenericParameterTypes()[0], ParserConfig.getGlobalInstance());
     }
 
     public void test_3() throws Exception {

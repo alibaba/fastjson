@@ -23,7 +23,7 @@ public class ClassFieldTest extends TestCase {
     public void test_error() throws Exception {
         Exception error = null;
         try {
-            JSON.parseObject("{\"value\":\"123\"}", User.class);
+            JSON.parseObject("{\"value\":123}", User.class);
         } catch (JSONException ex) {
             error = ex;
         }

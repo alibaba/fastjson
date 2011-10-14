@@ -4,6 +4,8 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import sun.org.mozilla.javascript.internal.Token;
+
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
@@ -26,6 +28,11 @@ public class ArrayListStringDeserializer implements ObjectDeserializer {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public static void parseArray(DefaultJSONParser parser, Collection array) {
         JSONLexer lexer = parser.getLexer();
+        
+        if (lexer.token() == JSONToken.NULL) {
+            lexer.nextToken(Token.COMMA);
+            return;
+        }
 
         if (lexer.token() != JSONToken.LBRACKET) {
             throw new JSONException("exepct '[', but " + lexer.token());

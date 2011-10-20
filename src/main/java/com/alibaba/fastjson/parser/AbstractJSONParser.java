@@ -67,9 +67,9 @@ public abstract class AbstractJSONParser {
                     break;
                 case LITERAL_FLOAT:
                     if (lexer.isEnabled(Feature.UseBigDecimal)) {
-                        value = lexer.decimalValue();
+                        value = lexer.decimalValue(true);
                     } else {
-                        value = lexer.doubleValue();
+                        value = lexer.decimalValue(false);
                     }
                     lexer.nextToken(JSONToken.COMMA);
                     break;
@@ -147,13 +147,7 @@ public abstract class AbstractJSONParser {
                 return intValue;
             case LITERAL_FLOAT:
 
-                Object value;
-                if (isEnabled(Feature.UseBigDecimal)) {
-                    value = lexer.decimalValue();
-                } else {
-                    value = lexer.doubleValue();
-                }
-                lexer.nextToken();
+                Object value = lexer.decimalValue(isEnabled(Feature.UseBigDecimal));
                 return value;
             case LITERAL_STRING:
                 String stringLiteral = lexer.stringVal();

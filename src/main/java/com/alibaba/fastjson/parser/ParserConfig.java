@@ -102,6 +102,7 @@ import com.alibaba.fastjson.parser.deserializer.StackTraceElementDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StringDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StringFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ThrowableDeserializer;
+import com.alibaba.fastjson.parser.deserializer.TimeDeserializer;
 import com.alibaba.fastjson.parser.deserializer.TimeZoneDeserializer;
 import com.alibaba.fastjson.parser.deserializer.TimestampDeserializer;
 import com.alibaba.fastjson.parser.deserializer.TreeMapDeserializer;
@@ -174,6 +175,7 @@ public class ParserConfig {
 
         derializers.put(java.sql.Timestamp.class, TimestampDeserializer.instance);
         derializers.put(java.sql.Date.class, SqlDateDeserializer.instance);
+        derializers.put(java.sql.Time.class, TimeDeserializer.instance);
         derializers.put(java.util.Date.class, DateDeserializer.instance);
 
         derializers.put(JSONObject.class, JSONObjectDeserializer.instance);

@@ -19,6 +19,7 @@ public class Bug_for_smoothrat2 extends TestCase {
         Assert.assertEquals("{\"value\":" + millis + "}", text);
 
         Entity entity2 = JSON.parseObject(text, Entity.class);
+        Assert.assertEquals(time, entity2.getValue());
         
     }
 

@@ -13,7 +13,6 @@ public class ClassDerializer implements ObjectDeserializer {
     public final static ClassDerializer instance = new ClassDerializer();
     
     @SuppressWarnings("unchecked")
-    @Override
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         JSONLexer lexer = parser.getLexer();
         if (lexer.token() != JSONToken.LITERAL_STRING) {
@@ -25,7 +24,6 @@ public class ClassDerializer implements ObjectDeserializer {
         return (T) TypeUtils.loadClass(className);
     }
 
-    @Override
     public int getFastMatchToken() {
         return JSONToken.LITERAL_STRING;
     }

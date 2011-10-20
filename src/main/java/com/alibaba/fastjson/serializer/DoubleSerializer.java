@@ -49,6 +49,10 @@ public class DoubleSerializer implements ObjectSerializer {
                 doubleText = doubleText.substring(0, doubleText.length() - 2);
             }
             out.append(doubleText);
+            
+            if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
+                out.write('D');
+            }
         }
     }
 }

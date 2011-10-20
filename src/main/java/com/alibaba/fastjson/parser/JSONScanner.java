@@ -763,7 +763,7 @@ public class JSONScanner implements JSONLexer {
 
     public int scanType(String type) {
         matchStat = UNKOWN;
-        
+
         final int fieldNameLength = typeFieldName.length;
 
         for (int i = 0; i < fieldNameLength; ++i) {
@@ -773,7 +773,7 @@ public class JSONScanner implements JSONLexer {
         }
 
         int bp = this.bp + fieldNameLength;
-        
+
         final int typeLength = type.length();
         for (int i = 0; i < typeLength; ++i) {
             if (type.charAt(i) != buf[bp + i]) {
@@ -786,7 +786,7 @@ public class JSONScanner implements JSONLexer {
         }
 
         this.ch = buf[++bp];
-        
+
         if (ch == ',') {
             this.ch = buf[++bp];
             this.bp = bp;
@@ -810,7 +810,7 @@ public class JSONScanner implements JSONLexer {
             }
             matchStat = END;
         }
-        
+
         this.bp = bp;
         return matchStat;
     }
@@ -1842,7 +1842,24 @@ public class JSONScanner implements JSONLexer {
             }
         }
 
-        if (ch == 'e' || ch == 'E') {
+        if (ch == 'L') {
+            sp++;
+            ch = buf[++bp];
+        } else if (ch == 'S') {
+            sp++;
+            ch = buf[++bp];
+        } else if (ch == 'B') {
+            sp++;
+            ch = buf[++bp];
+        } else if (ch == 'F') {
+            sp++;
+            ch = buf[++bp];
+            isDouble = true;
+        } else if (ch == 'D') {
+            sp++;
+            ch = buf[++bp];
+            isDouble = true;
+        } else if (ch == 'e' || ch == 'E') {
             sp++;
             ch = buf[++bp];
 
@@ -1946,6 +1963,25 @@ public class JSONScanner implements JSONLexer {
         long multmin;
         int digit;
 
+        char type = ' ';
+        
+        switch (buf[max - 1]) {
+            case 'L':
+                max--;
+                type = 'L';
+                break;
+            case 'S':
+                max--;
+                type = 'S';
+                break;
+            case 'B':
+                max--;
+                type = 'B';
+                break;
+            default:
+                break;
+        }
+
         if (buf[np] == '-') {
             negative = true;
             limit = Long.MIN_VALUE;
@@ -1973,7 +2009,15 @@ public class JSONScanner implements JSONLexer {
 
         if (negative) {
             if (i > np + 1) {
-                if (result >= Integer.MIN_VALUE) {
+                if (result >= Integer.MIN_VALUE && type != 'L') {
+                    if (type == 'S') {
+                        return (short) result;
+                    }
+                    
+                    if (type == 'B') {
+                        return (byte) result;
+                    }
+                    
                     return (int) result;
                 }
                 return result;
@@ -1982,7 +2026,15 @@ public class JSONScanner implements JSONLexer {
             }
         } else {
             result = -result;
-            if (result <= Integer.MAX_VALUE) {
+            if (result <= Integer.MAX_VALUE && type != 'L') {
+                if (type == 'S') {
+                    return (short) result;
+                }
+                
+                if (type == 'B') {
+                    return (byte) result;
+                }
+                
                 return (int) result;
             }
             return result;
@@ -2087,6 +2139,23 @@ public class JSONScanner implements JSONLexer {
 
     public double doubleValue() {
         return Double.parseDouble(numberString());
+    }
+    
+    public Number decimalValue(boolean decimal) {
+        char ch = buf[np + sp - 1];
+        if (ch == 'F') {
+            return Float.parseFloat(new String(buf, np, sp - 1));
+        }
+        
+        if (ch == 'D') {
+            return Double.parseDouble(new String(buf, np, sp - 1));
+        }
+        
+        if (decimal) {
+            return decimalValue();
+        } else {
+            return doubleValue();
+        }
     }
 
     public BigDecimal decimalValue() {

@@ -39,6 +39,8 @@ public interface JSONLexer {
 
     BigDecimal decimalValue();
     
+    Number decimalValue(boolean decimal);
+    
     double doubleValue();
     
     float floatValue();

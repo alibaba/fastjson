@@ -112,6 +112,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
         put(float[].class, FloatArraySerializer.instance);
         put(double[].class, DoubleArraySerializer.instance);
         put(boolean[].class, BooleanArraySerializer.instance);
+        put(char[].class, CharArraySerializer.instance);
         put(Object[].class, ObjectArraySerializer.instance);
         put(Class.class, ClassSerializer.instance);
 

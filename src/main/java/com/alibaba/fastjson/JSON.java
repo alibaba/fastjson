@@ -81,7 +81,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         DefaultJSONParser parser = new DefaultJSONParser(text, ParserConfig.getGlobalInstance(), features);
         Object value = parser.parse();
-        
+
         handleResovleTask(parser, value);
 
         parser.close();
@@ -120,7 +120,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         DefaultJSONParser parser = new DefaultJSONParser(chars, position, ParserConfig.getGlobalInstance(), features);
         Object value = parser.parse();
-        
+
         handleResovleTask(parser, value);
 
         parser.close();
@@ -210,7 +210,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         if (parser.isEnabled(Feature.DisableCircularReferenceDetect)) {
             return;
         }
-        
+
         int size = parser.getResolveTaskList().size();
         for (int i = 0; i < size; ++i) {
             ResolveTask task = parser.getResolveTaskList().get(i);
@@ -292,7 +292,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         DefaultJSONParser parser = new DefaultJSONParser(text, ParserConfig.getGlobalInstance());
         parser.parseArray(clazz, list);
-        
+
         handleResovleTask(parser, list);
 
         parser.close();
@@ -309,7 +309,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         DefaultJSONParser parser = new DefaultJSONParser(text, ParserConfig.getGlobalInstance());
         list = Arrays.asList(parser.parseArray(types));
-        
+
         handleResovleTask(parser, list);
 
         parser.close();
@@ -339,7 +339,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             out.close();
         }
     }
-    
+
     public static final byte[] toJSONBytes(Object object, SerializerFeature... features) {
         SerializeWriter out = new SerializeWriter();
 
@@ -387,7 +387,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             out.close();
         }
     }
-    
+
     public static final byte[] toJSONBytes(Object object, SerializeConfig config, SerializerFeature... features) {
         SerializeWriter out = new SerializeWriter();
 
@@ -404,7 +404,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             out.close();
         }
     }
-    
+
     public static final String toJSONString(Object object, boolean prettyFormat) {
         if (!prettyFormat) {
             return toJSONString(object);
@@ -485,6 +485,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
 
         Class<?> clazz = javaObject.getClass();
+
+        if (clazz.isEnum()) {
+            return ((Enum<?>) javaObject).name();
+        }
 
         if (clazz.isArray()) {
             int len = Array.getLength(javaObject);

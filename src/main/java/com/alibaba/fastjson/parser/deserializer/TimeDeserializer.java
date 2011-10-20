@@ -13,6 +13,31 @@ public class TimeDeserializer implements ObjectDeserializer {
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
+        JSONScanner lexer = (JSONScanner) parser.getLexer();
+        
+        if (lexer.token() == JSONToken.COMMA) {
+            lexer.nextToken(JSONToken.LITERAL_STRING);
+            
+            if (lexer.token() != JSONToken.LITERAL_STRING) {
+                throw new JSONException("syntax error");
+            }
+            
+            lexer.nextTokenWithColon(JSONToken.LITERAL_INT);
+            
+            if (lexer.token() != JSONToken.LITERAL_INT) {
+                throw new JSONException("syntax error");
+            }
+            
+            long time = lexer.longValue();
+            lexer.nextToken(JSONToken.RBRACE);
+            if (lexer.token() != JSONToken.RBRACE) {
+                throw new JSONException("syntax error");
+            }
+            lexer.nextToken(JSONToken.COMMA);
+            
+            return (T) new java.sql.Time(time);
+        }
+        
         Object val = parser.parse();
 
         if (val == null) {

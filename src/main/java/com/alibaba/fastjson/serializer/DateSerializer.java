@@ -36,6 +36,17 @@ public class DateSerializer implements ObjectSerializer {
         	out.writeNull();
         	return;
         }
+        
+        if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
+            if (object.getClass() != fieldType) {
+                out.write('{');
+                out.writeFieldName("@type");
+                serializer.write(object.getClass().getName());
+                out.writeFieldValue(',', "val", ((Date) object).getTime());
+                out.write('}');
+                return;
+            }
+        }
 
         Date date = (Date) object;
         long time = date.getTime();

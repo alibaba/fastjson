@@ -475,6 +475,9 @@ public class JSONScanner implements JSONLexer {
                 case 't': // true
                     scanTrue();
                     return;
+                case 'S': // set
+                    scanSet();
+                    return;
                 case 'f': // false
                     scanFalse();
                     return;
@@ -1716,6 +1719,27 @@ public class JSONScanner implements JSONLexer {
             token = JSONToken.TRUE;
         } else {
             throw new JSONException("scan true error");
+        }
+    }
+    
+    public void scanSet() {
+        if (buf[bp++] != 'S') {
+            throw new JSONException("error parse true");
+        }
+        if (buf[bp++] != 'e') {
+            throw new JSONException("error parse true");
+        }
+        if (buf[bp++] != 't') {
+            throw new JSONException("error parse true");
+        }
+
+        ch = buf[bp];
+
+        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
+            || ch == '\f' || ch == '\b' || ch == '[') {
+            token = JSONToken.SET;
+        } else {
+            throw new JSONException("scan set error");
         }
     }
 

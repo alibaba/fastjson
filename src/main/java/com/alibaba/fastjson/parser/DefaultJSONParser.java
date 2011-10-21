@@ -208,7 +208,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                     throw new JSONException("syntax error");
                 } else if (ch == ',') {
                     throw new JSONException("syntax error");
-                } else if (ch >= '0' && ch <= '9') {
+                } else if ((ch >= '0' && ch <= '9') || ch == '-') {
                     lexer.resetStringPosition();
                     lexer.scanNumber();
                     if (lexer.token() == JSONToken.LITERAL_INT) {

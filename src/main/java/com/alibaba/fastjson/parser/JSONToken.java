@@ -61,6 +61,8 @@ public class JSONToken {
     public final static int FIELD_NAME           = 19;
     
     public final static int EOF                  = 20;
+    
+    public final static int SET                  = 21;
 
     public static String name(int value) {
         switch (value) {
@@ -104,6 +106,8 @@ public class JSONToken {
                 return "fieldName";
             case EOF:
                 return "EOF";
+            case SET:
+                return "Set";
             default:
                 return "Unkown";
         }

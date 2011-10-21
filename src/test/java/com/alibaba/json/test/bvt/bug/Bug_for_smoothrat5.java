@@ -28,12 +28,13 @@ public class Bug_for_smoothrat5 extends TestCase {
 
         Entity entity2 = JSON.parseObject(text, Entity.class);
         Assert.assertEquals(map, entity2.getValue());
+        Assert.assertEquals(map.getClass(), entity2.getValue().getClass());
     }
     
     public void test_treemap() throws Exception {
         TreeMap<Object, Object> map = new TreeMap<Object, Object>();
-        map.put(34L, "b");
-        map.put(12L, "a");
+        map.put(-34L, "b");
+        map.put(-56L, "a");
         
 
         Entity entity = new Entity();
@@ -42,11 +43,12 @@ public class Bug_for_smoothrat5 extends TestCase {
 
         String text = JSON.toJSONString(entity, SerializerFeature.WriteClassName);
         System.out.println(text);
-        Assert.assertEquals("{\"@type\":\"com.alibaba.json.test.bvt.bug.Bug_for_smoothrat5$Entity\",\"value\":{\"@type\":\"java.util.TreeMap\",12L:\"a\",34L:\"b\"}}",
+        Assert.assertEquals("{\"@type\":\"com.alibaba.json.test.bvt.bug.Bug_for_smoothrat5$Entity\",\"value\":{\"@type\":\"java.util.TreeMap\",-56L:\"a\",-34L:\"b\"}}",
                             text);
 
         Entity entity2 = JSON.parseObject(text, Entity.class);
         Assert.assertEquals(map, entity2.getValue());
+        Assert.assertEquals(map.getClass(), entity2.getValue().getClass());
     }
 
     public static class Entity {

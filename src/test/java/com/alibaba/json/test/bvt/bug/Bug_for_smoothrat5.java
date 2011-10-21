@@ -2,6 +2,7 @@ package com.alibaba.json.test.bvt.bug;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -28,8 +29,25 @@ public class Bug_for_smoothrat5 extends TestCase {
         Entity entity2 = JSON.parseObject(text, Entity.class);
         Assert.assertEquals(map, entity2.getValue());
     }
+    
+    public void test_treemap() throws Exception {
+        TreeMap<Object, Object> map = new TreeMap<Object, Object>();
+        map.put(34L, "b");
+        map.put(12L, "a");
+        
 
- 
+        Entity entity = new Entity();
+
+        entity.setValue(map);
+
+        String text = JSON.toJSONString(entity, SerializerFeature.WriteClassName);
+        System.out.println(text);
+        Assert.assertEquals("{\"@type\":\"com.alibaba.json.test.bvt.bug.Bug_for_smoothrat5$Entity\",\"value\":{\"@type\":\"java.util.TreeMap\",12L:\"a\",34L:\"b\"}}",
+                            text);
+
+        Entity entity2 = JSON.parseObject(text, Entity.class);
+        Assert.assertEquals(map, entity2.getValue());
+    }
 
     public static class Entity {
 

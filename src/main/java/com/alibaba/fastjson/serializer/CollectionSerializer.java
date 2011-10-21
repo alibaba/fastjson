@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * @author wenshao<szujobs@hotmail.com>
@@ -51,6 +52,12 @@ public class CollectionSerializer implements ObjectSerializer {
 
         SerialContext context = serializer.getContext();
         serializer.setContext(context, object, fieldName);
+        
+        if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
+            if (HashSet.class == collection.getClass()) {
+                out.append("Set");
+            }
+        }
 
         try {
             int i = 0;
@@ -75,6 +82,10 @@ public class CollectionSerializer implements ObjectSerializer {
 
                 if (clazz == Long.class) {
                     out.writeLong(((Long) item).longValue());
+                    
+                    if (out.isEnabled(SerializerFeature.WriteClassName)) {
+                        out.write('L');
+                    }
                     continue;
                 }
 

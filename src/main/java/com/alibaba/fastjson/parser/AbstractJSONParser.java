@@ -10,10 +10,12 @@ import static com.alibaba.fastjson.parser.JSONToken.LITERAL_STRING;
 import static com.alibaba.fastjson.parser.JSONToken.NEW;
 import static com.alibaba.fastjson.parser.JSONToken.NULL;
 import static com.alibaba.fastjson.parser.JSONToken.RBRACKET;
+import static com.alibaba.fastjson.parser.JSONToken.SET;
 import static com.alibaba.fastjson.parser.JSONToken.TRUE;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONArray;
@@ -134,6 +136,11 @@ public abstract class AbstractJSONParser {
     public Object parse(Object fieldName) {
         final JSONLexer lexer = getLexer();
         switch (lexer.token()) {
+            case SET:
+                lexer.nextToken();
+                HashSet<Object> set = new HashSet<Object>();
+                parseArray(set, fieldName);
+                return set;
             case LBRACKET:
                 JSONArray array = new JSONArray();
                 parseArray(array, fieldName);

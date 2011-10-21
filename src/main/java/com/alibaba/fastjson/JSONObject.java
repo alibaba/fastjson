@@ -289,7 +289,7 @@ public class JSONObject extends JSON implements Map<String, Object>, JSONAware, 
 
         return castToTimestamp(value);
     }
-
+    
     public Object put(String key, Object value) {
         return map.put(key, value);
     }

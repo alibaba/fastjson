@@ -40,7 +40,11 @@ public class MapSerializer implements ObjectSerializer {
         Map<?, ?> map = (Map<?, ?>) object;
 
         if (out.isEnabled(SerializerFeature.SortField)) {
-            map = new TreeMap(map);
+            try {
+                map = new TreeMap(map);
+            } catch (Exception ex) {
+                // skip
+            }
         }
 
         SerialContext parent = serializer.getContext();
@@ -52,6 +56,13 @@ public class MapSerializer implements ObjectSerializer {
             ObjectSerializer preWriter = null;
 
             boolean first = true;
+            
+            if (out.isEnabled(SerializerFeature.WriteClassName)) {
+                out.writeFieldName("@type");
+                out.writeString(object.getClass().getName());
+                first = false;
+            }
+            
             for (Map.Entry entry : map.entrySet()) {
                 Object value = entry.getValue();
 

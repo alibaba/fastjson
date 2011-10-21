@@ -163,6 +163,10 @@ public class JSONScanner implements JSONLexer {
         return token;
     }
 
+    public final String tokenName() {
+        return JSONToken.name(token);
+    }
+
     private static boolean[] whitespaceFlags = new boolean[256];
     static {
         whitespaceFlags[' '] = true;
@@ -1964,22 +1968,24 @@ public class JSONScanner implements JSONLexer {
         int digit;
 
         char type = ' ';
-        
-        switch (buf[max - 1]) {
-            case 'L':
-                max--;
-                type = 'L';
-                break;
-            case 'S':
-                max--;
-                type = 'S';
-                break;
-            case 'B':
-                max--;
-                type = 'B';
-                break;
-            default:
-                break;
+
+        if (max > 0) {
+            switch (buf[max - 1]) {
+                case 'L':
+                    max--;
+                    type = 'L';
+                    break;
+                case 'S':
+                    max--;
+                    type = 'S';
+                    break;
+                case 'B':
+                    max--;
+                    type = 'B';
+                    break;
+                default:
+                    break;
+            }
         }
 
         if (buf[np] == '-') {
@@ -2013,11 +2019,11 @@ public class JSONScanner implements JSONLexer {
                     if (type == 'S') {
                         return (short) result;
                     }
-                    
+
                     if (type == 'B') {
                         return (byte) result;
                     }
-                    
+
                     return (int) result;
                 }
                 return result;
@@ -2030,11 +2036,11 @@ public class JSONScanner implements JSONLexer {
                 if (type == 'S') {
                     return (short) result;
                 }
-                
+
                 if (type == 'B') {
                     return (byte) result;
                 }
-                
+
                 return (int) result;
             }
             return result;
@@ -2140,17 +2146,17 @@ public class JSONScanner implements JSONLexer {
     public double doubleValue() {
         return Double.parseDouble(numberString());
     }
-    
+
     public Number decimalValue(boolean decimal) {
         char ch = buf[np + sp - 1];
         if (ch == 'F') {
             return Float.parseFloat(new String(buf, np, sp - 1));
         }
-        
+
         if (ch == 'D') {
             return Double.parseDouble(new String(buf, np, sp - 1));
         }
-        
+
         if (decimal) {
             return decimalValue();
         } else {

@@ -163,8 +163,8 @@ public class DefaultJSONParser extends AbstractJSONParser {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public final Object parseObject(final Map object, Object fieldName) {
         JSONScanner lexer = (JSONScanner) this.lexer;
-        if (lexer.token() != JSONToken.LBRACE) {
-            throw new JSONException("syntax error, expect {, actual " + lexer.token());
+        if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {
+            throw new JSONException("syntax error, expect {, actual " + lexer.tokenName());
         }
 
         ParseContext context = this.getContext();
@@ -180,7 +180,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                     }
                 }
 
-                String key;
+                Object key;
                 if (ch == '"') {
                     key = lexer.scanSymbol(symbolTable, '"');
                     lexer.skipWhitespace();
@@ -208,6 +208,18 @@ public class DefaultJSONParser extends AbstractJSONParser {
                     throw new JSONException("syntax error");
                 } else if (ch == ',') {
                     throw new JSONException("syntax error");
+                } else if (ch >= '0' && ch <= '9') {
+                    lexer.resetStringPosition();
+                    lexer.scanNumber();
+                    if (lexer.token() == JSONToken.LITERAL_INT) {
+                        key = lexer.integerValue();
+                    } else {
+                        key = lexer.decimalValue(true);
+                    }
+                    ch = lexer.getCurrent();
+                    if (ch != ':') {
+                        throw new JSONException("expect ':' at " + lexer.pos() + ", name " + key);
+                    }
                 } else {
                     if (!isEnabled(Feature.AllowUnQuotedFieldNames)) {
                         throw new JSONException("syntax error");

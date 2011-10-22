@@ -1,4 +1,4 @@
-package com.alibaba.json.test.bvt.writeClassName;
+package com.alibaba.json.bvt.writeClassName;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -16,7 +16,7 @@ public class WriteClassNameTest_Collection2 extends TestCase {
         a.setList(Collections.singletonList(new B()));
         String text = JSON.toJSONString(a, SerializerFeature.WriteClassName);
         System.out.println(text);
-        Assert.assertEquals("{\"@type\":\"com.alibaba.json.test.bvt.writeClassName.WriteClassNameTest_Collection2$A\",\"list\":[{}]}",
+        Assert.assertEquals("{\"@type\":\"com.alibaba.json.bvt.writeClassName.WriteClassNameTest_Collection2$A\",\"list\":[{}]}",
                             text);
 
         A a1 = (A) JSON.parse(text);

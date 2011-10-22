@@ -1,4 +1,4 @@
-package com.alibaba.json.test.bvt.serializer.prettyFormat;
+package com.alibaba.json.bvt.serializer.prettyFormat;
 
 import java.util.ArrayList;
 import java.util.List;

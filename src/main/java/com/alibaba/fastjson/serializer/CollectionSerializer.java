@@ -20,6 +20,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.TreeSet;
 
 /**
  * @author wenshao<szujobs@hotmail.com>
@@ -52,10 +53,12 @@ public class CollectionSerializer implements ObjectSerializer {
 
         SerialContext context = serializer.getContext();
         serializer.setContext(context, object, fieldName);
-        
+
         if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
             if (HashSet.class == collection.getClass()) {
                 out.append("Set");
+            } else if (TreeSet.class == collection.getClass()) {
+                out.append("TreeSet");
             }
         }
 
@@ -82,7 +85,7 @@ public class CollectionSerializer implements ObjectSerializer {
 
                 if (clazz == Long.class) {
                     out.writeLong(((Long) item).longValue());
-                    
+
                     if (out.isEnabled(SerializerFeature.WriteClassName)) {
                         out.write('L');
                     }

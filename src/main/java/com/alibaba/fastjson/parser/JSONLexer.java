@@ -28,6 +28,8 @@ public interface JSONLexer {
     void nextToken(int expect);
 
     int token();
+    
+    String tokenName();
 
     int pos();
 

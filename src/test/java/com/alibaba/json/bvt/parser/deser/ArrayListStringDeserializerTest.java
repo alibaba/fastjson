@@ -1,4 +1,4 @@
-package com.alibaba.json.test.bvt.parser.deser;
+package com.alibaba.json.bvt.parser.deser;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;

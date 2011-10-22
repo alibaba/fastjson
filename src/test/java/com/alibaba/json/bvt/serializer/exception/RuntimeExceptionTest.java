@@ -1,4 +1,4 @@
-package com.alibaba.json.test.bvt.serializer.exception;
+package com.alibaba.json.bvt.serializer.exception;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;

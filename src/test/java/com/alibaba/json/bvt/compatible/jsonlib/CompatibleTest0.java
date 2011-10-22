@@ -1,4 +1,4 @@
-package com.alibaba.json.test.bvt.compatible.jsonlib;
+package com.alibaba.json.bvt.compatible.jsonlib;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

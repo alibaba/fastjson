@@ -1,5 +1,6 @@
 package com.alibaba.json.test.bvt.bug;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -52,6 +53,24 @@ public class Bug_for_smoothrat6 extends TestCase {
     }
     
 
+    public void test_list() throws Exception {
+        ArrayList<Object> list = new ArrayList<Object>();
+        list.add(3L);
+        list.add(4L);
+
+        Entity entity = new Entity();
+
+        entity.setValue(list);
+
+        String text = JSON.toJSONString(entity, SerializerFeature.WriteClassName);
+        System.out.println(text);
+        Assert.assertEquals("{\"@type\":\"com.alibaba.json.test.bvt.bug.Bug_for_smoothrat6$Entity\",\"value\":[3L,4L]}",
+                            text);
+
+        Entity entity2 = JSON.parseObject(text, Entity.class);
+        Assert.assertEquals(list, entity2.getValue());
+    }
+    
     public static class Entity {
 
         private Object value;

@@ -29,10 +29,13 @@ public final class ListSerializer implements ObjectSerializer {
 
     public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType)
                                                                                                        throws IOException {
+        
+        boolean writeClassName = serializer.isEnabled(SerializerFeature.WriteClassName);
+        
         SerializeWriter out = serializer.getWriter();
 
         Type elementType = null;
-        if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
+        if (writeClassName) {
             if (fieldType instanceof ParameterizedType) {
                 ParameterizedType param = (ParameterizedType) fieldType;
                 elementType = param.getActualTypeArguments()[0];
@@ -106,7 +109,12 @@ public final class ListSerializer implements ObjectSerializer {
                         out.writeIntAndChar(((Integer) item).intValue(), ',');
                     } else if (clazz == Long.class) {
                         long val = ((Long) item).longValue();
-                        out.writeLongAndChar(val, ',');
+                        if (writeClassName) {
+                            out.writeLongAndChar(val, 'L');
+                            out.write(',');
+                        } else {
+                            out.writeLongAndChar(val, ',');                            
+                        }
                     } else {
                         SerialContext itemContext = new SerialContext(context, object, fieldName);
                         serializer.setContext(itemContext);
@@ -133,7 +141,12 @@ public final class ListSerializer implements ObjectSerializer {
                 if (clazz == Integer.class) {
                     out.writeIntAndChar(((Integer) item).intValue(), ']');
                 } else if (clazz == Long.class) {
-                    out.writeLongAndChar(((Long) item).longValue(), ']');
+                    if (writeClassName) {
+                        out.writeLongAndChar(((Long) item).longValue(), 'L');
+                        out.write(']');
+                    } else {
+                        out.writeLongAndChar(((Long) item).longValue(), ']');                            
+                    }
                 } else {
                     SerialContext itemContext = new SerialContext(context, object, fieldName);
                     serializer.setContext(itemContext);

@@ -31,19 +31,24 @@ public class DateSerializer implements ObjectSerializer {
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         SerializeWriter out = serializer.getWriter();
-        
+
         if (object == null) {
-        	out.writeNull();
-        	return;
+            out.writeNull();
+            return;
         }
-        
+
         if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
             if (object.getClass() != fieldType) {
-                out.write('{');
-                out.writeFieldName("@type");
-                serializer.write(object.getClass().getName());
-                out.writeFieldValue(',', "val", ((Date) object).getTime());
-                out.write('}');
+                if (object.getClass() == java.util.Date.class) {
+                    out.write("new Date(");
+                    out.writeLongAndChar(((Date) object).getTime(), ')');
+                } else {
+                    out.write('{');
+                    out.writeFieldName("@type");
+                    serializer.write(object.getClass().getName());
+                    out.writeFieldValue(',', "val", ((Date) object).getTime());
+                    out.write('}');
+                }
                 return;
             }
         }

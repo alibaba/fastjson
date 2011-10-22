@@ -1,10 +1,10 @@
-package com.alibaba.json.test.bvt.bug;
+package com.alibaba.json.bvt.bug;
 
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.json.test.bvt.bug.JSONTest.InnerEntry;
-import com.alibaba.json.test.bvt.bug.JSONTest.OuterEntry;
+import com.alibaba.json.bvt.bug.JSONTest.InnerEntry;
+import com.alibaba.json.bvt.bug.JSONTest.OuterEntry;
 
 public class Bug1 extends TestCase {
 

@@ -1,4 +1,4 @@
-package com.alibaba.json.test.bvt.bug;
+package com.alibaba.json.bvt.bug;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

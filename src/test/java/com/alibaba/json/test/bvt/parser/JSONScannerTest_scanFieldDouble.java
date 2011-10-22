@@ -47,7 +47,7 @@ public class JSONScannerTest_scanFieldDouble extends TestCase {
     public void test_error_2() throws Exception {
         JSONException error = null;
         try {
-            String text = "{\"value\":32D}";
+            String text = "{\"value\":32K}";
             JSON.parseObject(text, VO.class);
         } catch (JSONException ex) {
             error = ex;

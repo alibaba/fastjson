@@ -28,7 +28,7 @@ public class JSONScannerTest_scanFieldLong extends TestCase {
     public void test_2() throws Exception {
         JSONException error = null;
         try {
-            String text = "{\"value\":32D}";
+            String text = "{\"value\":32RR}";
             JSON.parseObject(text, VO.class);
         } catch (JSONException ex) {
             error = ex;

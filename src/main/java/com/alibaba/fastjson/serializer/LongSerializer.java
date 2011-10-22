@@ -42,7 +42,9 @@ public class LongSerializer implements ObjectSerializer {
 
         if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
             if (value <= Integer.MAX_VALUE && value >= Integer.MIN_VALUE) {
-                out.write('L');
+                if (fieldType != Long.class) {
+                    out.write('L');
+                }
             }
         }
     }

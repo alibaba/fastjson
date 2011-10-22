@@ -1,2 +1,2 @@
 #
-com.alibaba.json.test.bvt.parser.TestAutowired$EntitySerializer
+com.alibaba.json.bvt.parser.TestAutowired$EntitySerializer

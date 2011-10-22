@@ -160,8 +160,8 @@ public abstract class AbstractJSONParser {
                 lexer.nextToken();
                 return intValue;
             case LITERAL_FLOAT:
-
                 Object value = lexer.decimalValue(isEnabled(Feature.UseBigDecimal));
+                lexer.nextToken();
                 return value;
             case LITERAL_STRING:
                 String stringLiteral = lexer.stringVal();

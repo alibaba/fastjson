@@ -11,12 +11,14 @@ import static com.alibaba.fastjson.parser.JSONToken.NEW;
 import static com.alibaba.fastjson.parser.JSONToken.NULL;
 import static com.alibaba.fastjson.parser.JSONToken.RBRACKET;
 import static com.alibaba.fastjson.parser.JSONToken.SET;
+import static com.alibaba.fastjson.parser.JSONToken.TREE_SET;
 import static com.alibaba.fastjson.parser.JSONToken.TRUE;
 
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.TreeSet;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
@@ -141,6 +143,11 @@ public abstract class AbstractJSONParser {
                 HashSet<Object> set = new HashSet<Object>();
                 parseArray(set, fieldName);
                 return set;
+            case TREE_SET:
+                lexer.nextToken();
+                TreeSet<Object> treeSet = new TreeSet<Object>();
+                parseArray(treeSet, fieldName);
+                return treeSet;
             case LBRACKET:
                 JSONArray array = new JSONArray();
                 parseArray(array, fieldName);

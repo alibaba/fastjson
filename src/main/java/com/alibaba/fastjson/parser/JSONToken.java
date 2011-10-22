@@ -20,7 +20,6 @@ package com.alibaba.fastjson.parser;
  */
 public class JSONToken {
 
-    
     //
     public final static int ERROR                = 1;
     //
@@ -59,10 +58,11 @@ public class JSONToken {
     public final static int IDENTIFIER           = 18;
     //
     public final static int FIELD_NAME           = 19;
-    
+
     public final static int EOF                  = 20;
-    
+
     public final static int SET                  = 21;
+    public final static int TREE_SET             = 22;
 
     public static String name(int value) {
         switch (value) {
@@ -108,6 +108,8 @@ public class JSONToken {
                 return "EOF";
             case SET:
                 return "Set";
+            case TREE_SET:
+                return "TreeSet";
             default:
                 return "Unkown";
         }

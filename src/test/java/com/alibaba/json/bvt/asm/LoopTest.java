@@ -1,4 +1,4 @@
-package com.alibaba.json.test.bvt.asm;
+package com.alibaba.json.bvt.asm;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.alibaba.json.test.bvt.bug;
+package com.alibaba.json.bvt.bug;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +23,7 @@ public class Bug_for_smoothrat5 extends TestCase {
 
         String text = JSON.toJSONString(entity, SerializerFeature.WriteClassName);
         System.out.println(text);
-        Assert.assertEquals("{\"@type\":\"com.alibaba.json.test.bvt.bug.Bug_for_smoothrat5$Entity\",\"value\":{\"@type\":\"java.util.HashMap\",34L:\"b\",12:\"a\"}}",
+        Assert.assertEquals("{\"@type\":\"com.alibaba.json.bvt.bug.Bug_for_smoothrat5$Entity\",\"value\":{\"@type\":\"java.util.HashMap\",34L:\"b\",12:\"a\"}}",
                             text);
 
         Entity entity2 = JSON.parseObject(text, Entity.class);
@@ -43,7 +43,7 @@ public class Bug_for_smoothrat5 extends TestCase {
 
         String text = JSON.toJSONString(entity, SerializerFeature.WriteClassName);
         System.out.println(text);
-        Assert.assertEquals("{\"@type\":\"com.alibaba.json.test.bvt.bug.Bug_for_smoothrat5$Entity\",\"value\":{\"@type\":\"java.util.TreeMap\",-56L:\"a\",-34L:\"b\"}}",
+        Assert.assertEquals("{\"@type\":\"com.alibaba.json.bvt.bug.Bug_for_smoothrat5$Entity\",\"value\":{\"@type\":\"java.util.TreeMap\",-56L:\"a\",-34L:\"b\"}}",
                             text);
 
         Entity entity2 = JSON.parseObject(text, Entity.class);

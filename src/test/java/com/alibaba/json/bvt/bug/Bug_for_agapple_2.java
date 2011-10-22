@@ -1,4 +1,4 @@
-package com.alibaba.json.test.bvt.bug;
+package com.alibaba.json.bvt.bug;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;

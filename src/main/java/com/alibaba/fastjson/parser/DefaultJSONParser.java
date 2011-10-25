@@ -251,6 +251,51 @@ public class DefaultJSONParser extends AbstractJSONParser {
                     return deserializer.deserialze(this, clazz, fieldName);
                 }
 
+                if (key == "$ref") {
+                    lexer.nextToken(JSONToken.LITERAL_STRING);
+                    if (lexer.token() == JSONToken.LITERAL_STRING) {
+                        String ref = lexer.stringVal();
+                        lexer.nextToken(JSONToken.RBRACE);
+
+                        Object refValue = null;
+                        if ("@".equals(ref)) {
+                            refValue = this.getContext().getObject();
+                        } else if ("..".equals(ref)) {
+                            ParseContext parentContext = context.getParentContext();
+                            if (parentContext.getObject() != null) {
+                                refValue = this.getContext().getObject();
+                            } else {
+                                getResolveTaskList().add(new ResolveTask(parentContext, ref));
+                                setResolveStatus(DefaultJSONParser.NeedToResolve);
+                            }
+                        } else if ("$".equals(ref)) {
+                            ParseContext rootContext = context;
+                            while (rootContext.getParentContext() != null) {
+                                rootContext = rootContext.getParentContext();
+                            }
+
+                            if (rootContext.getObject() != null) {
+                                refValue = rootContext.getObject();
+                            } else {
+                                getResolveTaskList().add(new ResolveTask(rootContext, ref));
+                                setResolveStatus(DefaultJSONParser.NeedToResolve);
+                            }
+                        } else {
+                            getResolveTaskList().add(new ResolveTask(context, ref));
+                            setResolveStatus(DefaultJSONParser.NeedToResolve);
+                        }
+
+                        if (lexer.token() != JSONToken.RBRACE) {
+                            throw new JSONException("syntax error");
+                        }
+                        lexer.nextToken(JSONToken.COMMA);
+
+                        return refValue;
+                    } else {
+                        throw new JSONException("illegal ref, " + JSONToken.name(lexer.token()));
+                    }
+                }
+
                 Object value;
                 if (ch == '"') {
                     lexer.scanString();
@@ -304,7 +349,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                     } else if (lexer.token() == JSONToken.COMMA) {
                         continue;
                     } else {
-                        throw new JSONException("syntax error");
+                        throw new JSONException("syntax error, " + lexer.tokenName());
                     }
                 } else {
                     lexer.nextToken();
@@ -365,7 +410,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
         if (isEnabled(Feature.DisableCircularReferenceDetect)) {
             return;
         }
-        
+
         this.context = this.context.getParentContext();
     }
 
@@ -373,7 +418,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
         if (isEnabled(Feature.DisableCircularReferenceDetect)) {
             return null;
         }
-        
+
         return setContext(this.context, object, fieldName);
     }
 
@@ -464,7 +509,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
 
         this.setContext(array, fieldName);
         try {
-            for (int i = 0;;++i) {
+            for (int i = 0;; ++i) {
                 if (isEnabled(Feature.AllowArbitraryCommas)) {
                     while (lexer.token() == JSONToken.COMMA) {
                         lexer.nextToken();

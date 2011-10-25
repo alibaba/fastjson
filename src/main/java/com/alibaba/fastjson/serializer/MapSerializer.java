@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
@@ -40,11 +41,18 @@ public class MapSerializer implements ObjectSerializer {
         Map<?, ?> map = (Map<?, ?>) object;
 
         if (out.isEnabled(SerializerFeature.SortField)) {
-            try {
-                map = new TreeMap(map);
-            } catch (Exception ex) {
-                // skip
-            }
+        	if (!(map instanceof SortedMap)) {
+	            try {
+	                map = new TreeMap(map);
+	            } catch (Exception ex) {
+	                // skip
+	            }
+        	}
+        }
+        
+        if (serializer.containsReference(object)) {
+        	serializer.writeReference(object);
+            return;
         }
 
         SerialContext parent = serializer.getContext();

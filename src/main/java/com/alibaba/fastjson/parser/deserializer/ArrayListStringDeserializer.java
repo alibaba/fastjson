@@ -1,10 +1,11 @@
 package com.alibaba.fastjson.parser.deserializer;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
-
-import sun.org.mozilla.javascript.internal.Token;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
@@ -14,69 +15,91 @@ import com.alibaba.fastjson.parser.JSONToken;
 
 public class ArrayListStringDeserializer implements ObjectDeserializer {
 
-    public final static ArrayListStringDeserializer instance = new ArrayListStringDeserializer();
+	public final static ArrayListStringDeserializer instance = new ArrayListStringDeserializer();
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-        ArrayList list = new ArrayList();
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public <T> T deserialze(DefaultJSONParser parser, Type type,
+			Object fieldName) {
 
-        parseArray(parser, list);
+		Collection array = null;
 
-        return (T) list;
-    }
+		
+		if (type == Set.class || type == HashSet.class) {
+			array = new HashSet();
+		} else {
+			if (type instanceof ParameterizedType) {
+				Type rawType = ((ParameterizedType) type).getRawType();
+				if (rawType == Set.class || rawType == HashSet.class) {
+					array = new HashSet();
+				}
+			}
+		}
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static void parseArray(DefaultJSONParser parser, Collection array) {
-        JSONLexer lexer = parser.getLexer();
-        
-        if (lexer.token() == JSONToken.NULL) {
-            lexer.nextToken(Token.COMMA);
-            return;
-        }
+		if (array == null) {
+			array = new ArrayList();
+		}
 
-        if (lexer.token() != JSONToken.LBRACKET) {
-            throw new JSONException("exepct '[', but " + lexer.token());
-        }
+		parseArray(parser, array);
 
-        lexer.nextToken(JSONToken.LITERAL_STRING);
+		return (T) array;
+	}
 
-        for (;;) {
-            if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
-                while (lexer.token() == JSONToken.COMMA) {
-                    lexer.nextToken();
-                    continue;
-                }
-            }
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static void parseArray(DefaultJSONParser parser, Collection array) {
+		JSONLexer lexer = parser.getLexer();
 
-            if (lexer.token() == JSONToken.RBRACKET) {
-                break;
-            }
+		if (lexer.token() == JSONToken.NULL) {
+			lexer.nextToken(JSONToken.COMMA);
+			return;
+		}
 
-            String value;
-            if (lexer.token() == JSONToken.LITERAL_STRING) {
-                value = lexer.stringVal();
-                lexer.nextToken(JSONToken.COMMA);
-            } else {
-                Object obj = parser.parse();
-                if (obj == null) {
-                    value = null;
-                } else {
-                    value = obj.toString();
-                }
-            }
+		if (lexer.token() == JSONToken.SET) {
+			lexer.nextToken();
+		}
 
-            array.add(value);
+		if (lexer.token() != JSONToken.LBRACKET) {
+			throw new JSONException("exepct '[', but " + lexer.token());
+		}
 
-            if (lexer.token() == JSONToken.COMMA) {
-                lexer.nextToken(JSONToken.LITERAL_STRING);
-                continue;
-            }
-        }
+		lexer.nextToken(JSONToken.LITERAL_STRING);
 
-        lexer.nextToken(JSONToken.COMMA);
-    }
+		for (;;) {
+			if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
+				while (lexer.token() == JSONToken.COMMA) {
+					lexer.nextToken();
+					continue;
+				}
+			}
 
-    public int getFastMatchToken() {
-        return JSONToken.LBRACKET;
-    }
+			if (lexer.token() == JSONToken.RBRACKET) {
+				break;
+			}
+
+			String value;
+			if (lexer.token() == JSONToken.LITERAL_STRING) {
+				value = lexer.stringVal();
+				lexer.nextToken(JSONToken.COMMA);
+			} else {
+				Object obj = parser.parse();
+				if (obj == null) {
+					value = null;
+				} else {
+					value = obj.toString();
+				}
+			}
+
+			array.add(value);
+
+			if (lexer.token() == JSONToken.COMMA) {
+				lexer.nextToken(JSONToken.LITERAL_STRING);
+				continue;
+			}
+		}
+
+		lexer.nextToken(JSONToken.COMMA);
+	}
+
+	public int getFastMatchToken() {
+		return JSONToken.LBRACKET;
+	}
 }

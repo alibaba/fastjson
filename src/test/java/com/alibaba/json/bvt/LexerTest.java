@@ -70,7 +70,7 @@ public class LexerTest extends TestCase {
 
         String stringVal = lexer.stringVal();
 
-        Assert.assertEquals("\"\\\\/\\b\\f\\n\\r\t中\"", JSON.toJSONString(stringVal));
+        Assert.assertEquals("\"\\\\/\\b\\f\\n\\r\\t中\"", JSON.toJSONString(stringVal));
 
     }
 

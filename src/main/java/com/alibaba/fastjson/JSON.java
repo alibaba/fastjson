@@ -59,6 +59,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         features |= Feature.IgnoreNotMatch.getMask();
         DEFAULT_PARSER_FEATURE = features;
     }
+    
 
     public static int DEFAULT_GENERATE_FEATURE;
     static {

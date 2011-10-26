@@ -21,7 +21,7 @@ public class URLFieldTest extends TestCase {
 
         User user1 = JSON.parseObject(text, User.class);
 
-        Assert.assertEquals(user1.getValue(), user.getValue());
+        Assert.assertEquals(user1.getValue().toString(), user.getValue().toString());
     }
 
     public void test_codec_null() throws Exception {

@@ -76,7 +76,12 @@ public enum SerializerFeature {
     /**
      * @since 1.1.6
      */
-    DisableCircularReferenceDetect
+    DisableCircularReferenceDetect,
+    
+    /**
+     * @since 1.1.9
+     */
+    WriteSlashAsSpecial
     ;
     
 

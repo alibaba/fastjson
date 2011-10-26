@@ -37,27 +37,27 @@ public final class SerializeWriter extends Writer {
     /**
      * The buffer where data is stored.
      */
-    protected char                           buf[];
+    protected char                                          buf[];
 
     /**
      * The number of chars in the buffer.
      */
-    protected int                            count;
+    protected int                                           count;
 
     private final static ThreadLocal<SoftReference<char[]>> bufLocal = new ThreadLocal<SoftReference<char[]>>();
 
-    private int                              features;
+    private int                                             features;
 
     public SerializeWriter(){
         this.features = JSON.DEFAULT_GENERATE_FEATURE;
 
         SoftReference<char[]> ref = bufLocal.get();
-        
+
         if (ref != null) {
             buf = ref.get();
             bufLocal.set(null);
         }
-        
+
         if (buf == null) {
             buf = new char[1024];
         }
@@ -68,12 +68,12 @@ public final class SerializeWriter extends Writer {
      */
     public SerializeWriter(SerializerFeature... features){
         SoftReference<char[]> ref = bufLocal.get();
-        
+
         if (ref != null) {
             buf = ref.get();
             bufLocal.set(null);
         }
-        
+
         if (buf == null) {
             buf = new char[1024];
         }
@@ -195,7 +195,7 @@ public final class SerializeWriter extends Writer {
         byte[] bytes = new String(buf, 0, count).getBytes(charset);
         out.write(bytes);
     }
-    
+
     public void writeTo(OutputStream out, Charset charset) throws IOException {
         byte[] bytes = new String(buf, 0, count).getBytes(charset);
         out.write(bytes);
@@ -420,12 +420,12 @@ public final class SerializeWriter extends Writer {
             write("\"\"");
             return;
         }
-        
+
         final char[] CA = Base64.CA;
 
         int eLen = (bytesLen / 3) * 3; // Length of even 24-bits.
         int charsLen = ((bytesLen - 1) / 3 + 1) << 2; // base64 character count
-        //char[] chars = new char[charsLen];
+        // char[] chars = new char[charsLen];
         int offset = count;
         int newcount = count + charsLen + 2;
         if (newcount > buf.length) {
@@ -655,7 +655,8 @@ public final class SerializeWriter extends Writer {
         for (int i = start; i < end; ++i) {
             char ch = buf[i];
             if (ch == '\b' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\\' || ch == '"' //
-                || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))) {
+                || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))
+                || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
                 specialCount++;
                 lastSpecialIndex = i;
                 lastSpecial = ch;
@@ -681,7 +682,8 @@ public final class SerializeWriter extends Writer {
                 char ch = buf[i];
 
                 if (ch == '\b' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\\' || ch == '"' //
-                    || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))) {
+                    || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))
+                    || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
                     System.arraycopy(buf, i + 1, buf, i + 2, end - i - 1);
                     buf[i] = '\\';
                     buf[i + 1] = replaceChars[(int) ch];
@@ -713,7 +715,8 @@ public final class SerializeWriter extends Writer {
         for (int i = start; i < end; ++i) {
             char ch = buf[i];
             if (ch < specicalFlags_doubleQuotes.length && specicalFlags_doubleQuotes[ch] //
-                || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))) {
+                || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))
+                || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
                 newcount++;
                 if (newcount > buf.length) {
                     expandCapacity(newcount);
@@ -908,8 +911,10 @@ public final class SerializeWriter extends Writer {
         char lastSpecial = '\0';
         for (int i = nameStart; i < nameEnd; ++i) {
             char ch = buf[i];
-            if (ch == '\b' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\\' || ch == '"' //
-                || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))) {
+            if (ch == '\b' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\\'
+                || ch == '"' //
+                || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))
+                || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
                 specialCount++;
                 lastSpecialIndex = i;
                 lastSpecial = ch;
@@ -938,7 +943,8 @@ public final class SerializeWriter extends Writer {
                 char ch = buf[i];
 
                 if (ch == '\b' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\\' || ch == '"' //
-                    || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))) {
+                    || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))
+                    || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
                     System.arraycopy(buf, i + 1, buf, i + 2, nameEnd - i - 1);
                     buf[i] = '\\';
                     buf[i + 1] = replaceChars[(int) ch];
@@ -973,7 +979,8 @@ public final class SerializeWriter extends Writer {
         for (int i = valueStart; i < valueEnd; ++i) {
             char ch = buf[i];
             if (ch == '\b' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\\' || ch == '"' //
-                || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))) {
+                || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))
+                || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
                 specialCount++;
                 lastSpecialIndex = i;
                 lastSpecial = ch;
@@ -1001,7 +1008,8 @@ public final class SerializeWriter extends Writer {
                 char ch = buf[i];
 
                 if (ch == '\b' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\\' || ch == '"' //
-                    || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))) {
+                    || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))
+                    || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
                     System.arraycopy(buf, i + 1, buf, i + 2, valueEnd - i - 1);
                     buf[i] = '\\';
                     buf[i + 1] = replaceChars[(int) ch];
@@ -1082,7 +1090,8 @@ public final class SerializeWriter extends Writer {
         for (int i = start; i < end; ++i) {
             char ch = buf[i];
             if (ch == '\b' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\\' || ch == '\'' //
-                || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))) {
+                || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))
+                || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
                 specialCount++;
                 lastSpecialIndex = i;
                 lastSpecial = ch;
@@ -1108,7 +1117,8 @@ public final class SerializeWriter extends Writer {
                 char ch = buf[i];
 
                 if (ch == '\b' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\\' || ch == '\'' //
-                    || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))) {
+                    || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))
+                    || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
                     System.arraycopy(buf, i + 1, buf, i + 2, end - i - 1);
                     buf[i] = '\\';
                     buf[i + 1] = replaceChars[(int) ch];
@@ -1125,7 +1135,7 @@ public final class SerializeWriter extends Writer {
             write("null:");
             return;
         }
-        
+
         if (isEnabled(SerializerFeature.UseSingleQuotes)) {
             if (isEnabled(SerializerFeature.QuoteFieldNames)) {
                 writeKeyWithSingleQuote(key);
@@ -1160,7 +1170,8 @@ public final class SerializeWriter extends Writer {
         for (int i = start; i < end; ++i) {
             char ch = buf[i];
             if (ch < specicalFlags_singleQuotes.length && specicalFlags_singleQuotes[ch] //
-                || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))) {
+                || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))
+                || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
                 newcount++;
                 if (newcount > buf.length) {
                     expandCapacity(newcount);

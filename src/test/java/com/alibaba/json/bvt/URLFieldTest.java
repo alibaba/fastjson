@@ -18,6 +18,7 @@ public class URLFieldTest extends TestCase {
         SerializeConfig mapping = new SerializeConfig();
         mapping.setAsmEnable(false);
         String text = JSON.toJSONString(user, mapping, SerializerFeature.WriteMapNullValue);
+        System.out.println(text);
 
         User user1 = JSON.parseObject(text, User.class);
 

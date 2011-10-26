@@ -12,7 +12,7 @@ public class TabCharTest extends TestCase {
     public void test_0() throws Exception {
         JSONObject json = new JSONObject();
         json.put("hello\t", "World\t!");
-        Assert.assertEquals("{\"hello\\t\":\"World\\t!\"}", JSON.toJSONString(json));
+        Assert.assertEquals("{\"hello\t\":\"World\t!\"}", JSON.toJSONString(json));
         Assert.assertEquals("{\"hello\\t\":\"World\\t!\"}", JSON.toJSONString(json, SerializerFeature.WriteTabAsSpecial));
         Assert.assertEquals("{'hello\\t':'World\\t!'}", JSON.toJSONString(json, SerializerFeature.WriteTabAsSpecial, SerializerFeature.UseSingleQuotes));
     }

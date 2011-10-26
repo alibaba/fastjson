@@ -34,7 +34,7 @@ public class JSONScannerTest_singQuoteString extends TestCase {
         StringBuilder buf = new StringBuilder();
 
         buf.append('\'');
-        buf.append("\\\\\\/\\b\\f\\n\\r\\t\\u" + Integer.toHexString('中'));
+        buf.append("\\\\\\/\\b\\f\\n\\r\t\\u" + Integer.toHexString('中'));
         buf.append('\'');
         buf.append('\u2001');
 
@@ -48,7 +48,7 @@ public class JSONScannerTest_singQuoteString extends TestCase {
 
         String stringVal = lexer.stringVal();
 
-        Assert.assertEquals("\"\\\\/\\b\\f\\n\\r\\t中\"", JSON.toJSONString(stringVal));
+        Assert.assertEquals("\"\\\\/\\b\\f\\n\\r\t中\"", JSON.toJSONString(stringVal));
 
         JSON.toJSONString(stringVal);
     }

@@ -80,6 +80,7 @@ public final class CharTypes {
         replaceChars['\''] = '\'';
         replaceChars['\\'] = '\\';
         replaceChars['\t'] = 't';
+        replaceChars['/'] = '/';
     }
 
 }

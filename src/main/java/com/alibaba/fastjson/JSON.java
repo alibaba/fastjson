@@ -60,6 +60,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         DEFAULT_PARSER_FEATURE = features;
     }
     
+    public static String DEFFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     public static int DEFAULT_GENERATE_FEATURE;
     static {

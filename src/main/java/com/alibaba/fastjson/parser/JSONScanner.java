@@ -2315,7 +2315,7 @@ public class JSONScanner implements JSONLexer {
             if (rest < ISO8601_LEN_1) {
                 return false;
             }
-        } else {
+        } else if (t == '"' || t == EOI) {
             calendar.set(Calendar.HOUR_OF_DAY, 0);
             calendar.set(Calendar.MINUTE, 0);
             calendar.set(Calendar.SECOND, 0);
@@ -2325,6 +2325,8 @@ public class JSONScanner implements JSONLexer {
 
             token = JSONToken.LITERAL_ISO8601_DATE;
             return true;
+        } else {
+            return false;
         }
 
         char h0 = buf[bp + 11];

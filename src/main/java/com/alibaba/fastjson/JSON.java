@@ -46,7 +46,7 @@ import com.alibaba.fastjson.util.TypeUtils;
  */
 public abstract class JSON implements JSONStreamAware, JSONAware {
 
-    public static final int DEFAULT_PARSER_FEATURE;
+    public static int DEFAULT_PARSER_FEATURE;
     static {
         int features = 0;
         features |= Feature.AutoCloseSource.getMask();
@@ -60,7 +60,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         DEFAULT_PARSER_FEATURE = features;
     }
 
-    public static final int DEFAULT_GENERATE_FEATURE;
+    public static int DEFAULT_GENERATE_FEATURE;
     static {
         int features = 0;
         features |= com.alibaba.fastjson.serializer.SerializerFeature.QuoteFieldNames.getMask();

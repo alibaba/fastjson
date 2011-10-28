@@ -15,6 +15,7 @@
  */
 package com.alibaba.fastjson.serializer;
 
+
 /**
  * @author wenshao<szujobs@hotmail.com>
  */
@@ -72,18 +73,16 @@ public enum SerializerFeature {
      * @since 1.1.2
      */
     WriteClassName,
-    
+
     /**
      * @since 1.1.6
      */
     DisableCircularReferenceDetect,
-    
+
     /**
      * @since 1.1.9
      */
-    WriteSlashAsSpecial
-    ;
-    
+    WriteSlashAsSpecial;
 
     private SerializerFeature(){
         mask = (1 << ordinal());
@@ -97,5 +96,15 @@ public enum SerializerFeature {
 
     public static boolean isEnabled(int features, SerializerFeature feature) {
         return (features & feature.getMask()) != 0;
+    }
+
+    public static int config(int features, SerializerFeature feature, boolean state) {
+        if (state) {
+            features |= feature.getMask();
+        } else {
+            features &= ~feature.getMask();
+        }
+
+        return features;
     }
 }

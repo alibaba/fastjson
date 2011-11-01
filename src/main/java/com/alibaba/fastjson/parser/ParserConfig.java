@@ -18,6 +18,7 @@ package com.alibaba.fastjson.parser;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -102,6 +103,7 @@ import com.alibaba.fastjson.parser.deserializer.NumberDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.PatternDeserializer;
 import com.alibaba.fastjson.parser.deserializer.PointDeserializer;
+import com.alibaba.fastjson.parser.deserializer.RectangleDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ShortDeserializer;
 import com.alibaba.fastjson.parser.deserializer.SqlDateDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StackTraceElementDeserializer;
@@ -241,6 +243,7 @@ public class ParserConfig {
         derializers.put(Color.class, ColorDeserializer.instance);
         derializers.put(Font.class, FontDeserializer.instance);
         derializers.put(Point.class, PointDeserializer.instance);
+        derializers.put(Rectangle.class, RectangleDeserializer.instance);
 
     }
 

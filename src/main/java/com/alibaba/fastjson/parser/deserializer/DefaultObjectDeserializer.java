@@ -21,13 +21,14 @@ import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.util.ASMClassLoader;
+import com.alibaba.fastjson.util.TypeUtils;
 
 public class DefaultObjectDeserializer implements ObjectDeserializer {
 
     public DefaultObjectDeserializer(){
     }
 
-    public void parseMap(DefaultJSONParser parser, Map<Object, Object> map, Type keyType, Type valueType) {
+    public void parseMap(DefaultJSONParser parser, Map<Object, Object> map, Type keyType, Type valueType, Object fieldName) {
         JSONScanner lexer = (JSONScanner) parser.getLexer();
 
         if (lexer.token() != JSONToken.LBRACE) {
@@ -61,7 +62,8 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
         }
     }
 
-    public void parseMap(DefaultJSONParser parser, Map<String, Object> map, Type valueType) {
+    @SuppressWarnings("rawtypes")
+    public Map parseMap(DefaultJSONParser parser, Map<String, Object> map, Type valueType, Object fieldName) {
         JSONScanner lexer = (JSONScanner) parser.getLexer();
 
         if (lexer.token() != JSONToken.LBRACE) {
@@ -90,7 +92,7 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
             } else if (ch == '}') {
                 lexer.incrementBufferPosition();
                 lexer.resetStringPosition();
-                return;
+                return map;
             } else if (ch == '\'') {
                 if (!parser.isEnabled(Feature.AllowSingleQuotes)) {
                     throw new JSONException("syntax error");
@@ -120,6 +122,23 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
             ch = lexer.getCurrent();
 
             lexer.resetStringPosition();
+            
+            if (key == "@type") {
+                String typeName = lexer.scanSymbol(parser.getSymbolTable(), '"');
+                Class<?> clazz = TypeUtils.loadClass(typeName);
+                
+                if (clazz == map.getClass()) {
+                    lexer.nextToken(JSONToken.COMMA);
+                    continue;
+                }
+
+                ObjectDeserializer deserializer = parser.getConfig().getDeserializer(clazz);
+
+                lexer.nextToken(JSONToken.COMMA);
+
+                parser.setResolveStatus(DefaultJSONParser.TypeNameRedirect);
+                return (Map) deserializer.deserialze(parser, clazz, fieldName);
+            }
 
             Object value;
             lexer.nextToken();
@@ -135,9 +154,10 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
 
             if (lexer.token() == JSONToken.RBRACE) {
                 lexer.nextToken();
-                return;
+                return map;
             }
         }
+        
     }
 
     public void parseObject(DefaultJSONParser parser, Object object) {
@@ -232,7 +252,7 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
         }
 
         if (type instanceof ParameterizedType) {
-            return (T) deserialze(parser, (ParameterizedType) type);
+            return (T) deserialze(parser, (ParameterizedType) type, fieldName);
         }
 
         if (type instanceof TypeVariable) {
@@ -247,7 +267,7 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public <T> T deserialze(DefaultJSONParser parser, ParameterizedType type) {
+    public <T> T deserialze(DefaultJSONParser parser, ParameterizedType type, Object fieldName) {
         try {
             Type rawType = type.getRawType();
             if (rawType instanceof Class<?>) {
@@ -278,9 +298,9 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
                     Type valueType = type.getActualTypeArguments()[1];
 
                     if (keyType == String.class) {
-                        parseMap(parser, map, valueType);
+                        map = parseMap(parser, map, valueType, fieldName);
                     } else {
-                        parseMap(parser, map, keyType, valueType);
+                        parseMap(parser, map, keyType, valueType, fieldName);
                     }
 
                     return (T) map;

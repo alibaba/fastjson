@@ -1,6 +1,6 @@
 package com.alibaba.fastjson.parser.deserializer;
 
-import java.awt.Color;
+import java.awt.Rectangle;
 import java.lang.reflect.Type;
 
 import com.alibaba.fastjson.JSONException;
@@ -8,9 +8,9 @@ import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
 
-public class ColorDeserializer implements ObjectDeserializer {
+public class RectangleDeserializer implements ObjectDeserializer {
 
-    public final static ColorDeserializer instance = new ColorDeserializer();
+    public final static RectangleDeserializer instance = new RectangleDeserializer();
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
@@ -21,7 +21,7 @@ public class ColorDeserializer implements ObjectDeserializer {
         }
         lexer.nextToken();
 
-        int r = 0, g = 0, b = 0, alpha = 0;
+        int x = 0, y = 0, width = 0, height = 0;
         for (;;) {
             if (lexer.token() == JSONToken.RBRACE) {
                 lexer.nextToken();
@@ -44,14 +44,14 @@ public class ColorDeserializer implements ObjectDeserializer {
                 throw new JSONException("syntax error");
             }
 
-            if (key.equalsIgnoreCase("r")) {
-                r = val;
-            } else if (key.equalsIgnoreCase("g")) {
-                g = val;
-            } else if (key.equalsIgnoreCase("b")) {
-                b = val;
-            } else if (key.equalsIgnoreCase("alpha")) {
-                alpha = val;
+            if (key.equalsIgnoreCase("x")) {
+                x = val;
+            } else if (key.equalsIgnoreCase("y")) {
+                y = val;
+            } else if (key.equalsIgnoreCase("width")) {
+                width = val;
+            } else if (key.equalsIgnoreCase("height")) {
+                height = val;
             } else {
                 throw new JSONException("syntax error, " + key);
             }
@@ -61,7 +61,7 @@ public class ColorDeserializer implements ObjectDeserializer {
             }
         }
 
-        return (T) new Color(r, g, b, alpha);
+        return (T) new Rectangle(x, y, width, height);
     }
 
     public int getFastMatchToken() {

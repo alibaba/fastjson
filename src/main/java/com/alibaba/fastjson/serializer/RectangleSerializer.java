@@ -1,17 +1,17 @@
 package com.alibaba.fastjson.serializer;
 
-import java.awt.Color;
+import java.awt.Rectangle;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
+public class RectangleSerializer implements ObjectSerializer {
 
-public class ColorSerializer implements ObjectSerializer {
-    public final static ColorSerializer instance = new ColorSerializer();
+    public final static RectangleSerializer instance = new RectangleSerializer();
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         SerializeWriter out = serializer.getWriter();
-        Color color = (Color) object;
-        if (color == null) {
+        Rectangle rectangle = (Rectangle) object;
+        if (rectangle == null) {
             out.writeNull();
             return;
         }
@@ -20,18 +20,16 @@ public class ColorSerializer implements ObjectSerializer {
         if (out.isEnabled(SerializerFeature.WriteClassName)) {
             out.write('{');
             out.writeFieldName("@type");
-            out.writeString(Color.class.getName());
+            out.writeString(Rectangle.class.getName());
             sep = ',';
         }
         
-        out.writeFieldValue(sep, "r", color.getRed());
-        out.writeFieldValue(',', "g", color.getGreen());
-        out.writeFieldValue(',', "b", color.getBlue());
-        if (color.getAlpha() > 0) {
-            out.writeFieldValue(',', "alpha", color.getAlpha());    
-        }
-        
+        out.writeFieldValue(sep, "x", rectangle.getX());
+        out.writeFieldValue(',', "y", rectangle.getY());
+        out.writeFieldValue(',', "width", rectangle.getWidth());
+        out.writeFieldValue(',', "height", rectangle.getHeight());
         out.write('}');
+
     }
 
 }

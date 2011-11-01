@@ -7,10 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-
-import junit.framework.TestCase;
 
 public class Bug_for_Johnny extends TestCase {
 	
@@ -40,7 +41,8 @@ public class Bug_for_Johnny extends TestCase {
         
         String text = JSON.toJSONString(myObject, SerializerFeature.WriteClassName);
         System.out.println(text);
-        JSON.parse(text);
+        MyObject myObject2 = (MyObject) JSON.parse(text);
+        Assert.assertEquals(myObject2.getMapType(), myObject.getMapType());
 	}
 	
 	public static enum EnumType {

@@ -24,7 +24,7 @@ public class DefaultObjectDeserializerTest extends TestCase {
 
         Map<String, Object> map = new HashMap<String, Object>();
         deser.parseMap(parser, map, new TypeReference<TreeMap>() {
-        }.getType());
+        }.getType(), null);
         Assert.assertTrue(map.get("map") instanceof TreeMap);
     }
     
@@ -36,7 +36,7 @@ public class DefaultObjectDeserializerTest extends TestCase {
 
         Map<String, Object> map = new HashMap<String, Object>();
         deser.parseMap(parser, map, new TypeReference<TreeMap>() {
-        }.getType());
+        }.getType(), null);
         Assert.assertTrue(map.get("map") instanceof TreeMap);
         Assert.assertEquals(1, map.size());
     }
@@ -52,7 +52,7 @@ public class DefaultObjectDeserializerTest extends TestCase {
         JSONException error = null;
         try {
             deser.parseMap(parser, map, new TypeReference<TreeMap>() {
-            }.getType());
+            }.getType(), null);
         } catch (JSONException ex) {
             error = ex;
         }
@@ -70,7 +70,7 @@ public class DefaultObjectDeserializerTest extends TestCase {
         JSONException error = null;
         try {
             deser.parseMap(parser, map, new TypeReference<TreeMap>() {
-            }.getType());
+            }.getType(), null);
         } catch (JSONException ex) {
             error = ex;
         }
@@ -88,7 +88,7 @@ public class DefaultObjectDeserializerTest extends TestCase {
         JSONException error = null;
         try {
             deser.parseMap(parser, map, new TypeReference<TreeMap>() {
-            }.getType());
+            }.getType(), null);
         } catch (JSONException ex) {
             error = ex;
         }
@@ -106,7 +106,7 @@ public class DefaultObjectDeserializerTest extends TestCase {
         JSONException error = null;
         try {
             deser.parseMap(parser, map, new TypeReference<TreeMap>() {
-            }.getType());
+            }.getType(), null);
         } catch (JSONException ex) {
             error = ex;
         }

@@ -17,6 +17,7 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
@@ -93,11 +94,11 @@ public class JSONSerializer {
         }
         this.references.put(object, context);
     }
-    
+
     public void setContext(Object object, Object fieldName) {
         this.setContext(context, object, fieldName);
     }
-    
+
     public void popContext() {
         if (context != null) {
             this.context = this.context.getParent();
@@ -120,15 +121,15 @@ public class JSONSerializer {
         if (references == null) {
             references = new IdentityHashMap<Object, SerialContext>();
         }
-        
+
         return references.values();
     }
-    
+
     public SerialContext getSerialContext(Object object) {
         if (references == null) {
             return null;
         }
-        
+
         return references.get(object);
     }
 
@@ -136,11 +137,11 @@ public class JSONSerializer {
         if (isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {
             return false;
         }
-        
+
         if (references == null) {
             return false;
         }
-       
+
         return references.containsKey(value);
     }
 
@@ -379,7 +380,11 @@ public class JSONSerializer {
             } else if (Charset.class.isAssignableFrom(clazz)) {
                 config.put(clazz, CharsetSerializer.instance);
             } else {
-                config.put(clazz, config.createJavaBeanSerializer(clazz));
+                if (Proxy.isProxyClass(clazz)) {
+                    config.put(clazz, config.createJavaBeanSerializer(clazz));
+                } else {
+                    config.put(clazz, config.createJavaBeanSerializer(clazz));
+                }
             }
 
             writer = config.get(clazz);

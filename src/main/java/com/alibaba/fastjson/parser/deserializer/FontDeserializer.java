@@ -22,7 +22,6 @@ public class FontDeserializer implements ObjectDeserializer {
         lexer.nextToken();
 
         int size = 0, style = 0;
-        float size2D = 0;
         String name = null;
         for (;;) {
             if (lexer.token() == JSONToken.RBRACE) {

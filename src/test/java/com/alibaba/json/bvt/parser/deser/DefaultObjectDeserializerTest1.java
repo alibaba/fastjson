@@ -23,7 +23,7 @@ public class DefaultObjectDeserializerTest1 extends TestCase {
 
         Map<String, Object> map = new HashMap<String, Object>();
         deser.parseMap(parser, map, new TypeReference<TreeMap>() {
-        }.getType());
+        }.getType(), null);
         Assert.assertTrue(map.get("map") instanceof TreeMap);
     }
 
@@ -35,7 +35,7 @@ public class DefaultObjectDeserializerTest1 extends TestCase {
 
         Map<String, Object> map = new HashMap<String, Object>();
         deser.parseMap(parser, map, new TypeReference<TreeMap>() {
-        }.getType());
+        }.getType(), null);
         Assert.assertTrue(map.get("map") == null);
     }
 
@@ -51,7 +51,7 @@ public class DefaultObjectDeserializerTest1 extends TestCase {
         try {
             Map<String, Object> map = new HashMap<String, Object>();
             deser.parseMap(parser, map, new TypeReference<TreeMap>() {
-            }.getType());
+            }.getType(), null);
         } catch (Throwable ex) {
             error = ex;
         }
@@ -70,7 +70,7 @@ public class DefaultObjectDeserializerTest1 extends TestCase {
         try {
             Map<String, Object> map = new HashMap<String, Object>();
             deser.parseMap(parser, map, new TypeReference<TreeMap>() {
-            }.getType());
+            }.getType(), null);
         } catch (Throwable ex) {
             error = ex;
         }
@@ -89,7 +89,7 @@ public class DefaultObjectDeserializerTest1 extends TestCase {
         try {
             Map<String, Object> map = new HashMap<String, Object>();
             deser.parseMap(parser, map, new TypeReference<TreeMap>() {
-            }.getType());
+            }.getType(), null);
         } catch (Throwable ex) {
             error = ex;
         }
@@ -108,7 +108,7 @@ public class DefaultObjectDeserializerTest1 extends TestCase {
         try {
             Map<String, Object> map = new HashMap<String, Object>();
             deser.parseMap(parser, map, new TypeReference<TreeMap>() {
-            }.getType());
+            }.getType(), null);
         } catch (Throwable ex) {
             error = ex;
         }

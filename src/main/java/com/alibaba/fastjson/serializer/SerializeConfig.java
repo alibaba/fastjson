@@ -18,6 +18,7 @@ package com.alibaba.fastjson.serializer;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.io.File;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
@@ -146,6 +147,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
         put(Color.class, ColorSerializer.instance);
         put(Font.class, FontSerializer.instance);
         put(Point.class, PointSerializer.instance);
+        put(Rectangle.class, RectangleSerializer.instance);
     }
 
 }

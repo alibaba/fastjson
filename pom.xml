@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.alibaba</groupId>
 	<artifactId>fastjson</artifactId>
-	<version>1.1.9</version>
+	<version>1.1.10-SNAPSHOT</version>
 	<name>fastjson</name>
 
 	<properties>

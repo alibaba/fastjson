@@ -72,7 +72,12 @@ public enum Feature {
     /**
      * @since 1.1.7
      */
-    DisableCircularReferenceDetect
+    DisableCircularReferenceDetect,
+    
+    /**
+     * @since 1.1.10
+     */
+    InitStringFieldAsEmpty
     ;
 
     private Feature(){

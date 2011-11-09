@@ -35,8 +35,8 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
         return serializer.getFastMatchToken();
     }
 
-    public Object createInstance() {
-        return serializer.createInstance(serializer.getClazz());
+    public Object createInstance(DefaultJSONParser parser) {
+        return serializer.createInstance(parser, serializer.getClazz());
     }
 
     public FieldDeserializer createFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {

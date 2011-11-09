@@ -114,6 +114,15 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
         return field.get(javaObject);
     }
+    
+    public void set(Object javaObject, Object value) throws IllegalAccessException, InvocationTargetException {
+    	if (method != null) {
+    		method.invoke(javaObject, new Object[] {value});
+    		return;
+    	}
+    	
+    	field.set(javaObject, value);
+    }
 
     public void setAccessible(boolean flag) throws SecurityException {
         if (method != null) {

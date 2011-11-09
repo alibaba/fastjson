@@ -28,19 +28,19 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     private final List<FieldDeserializer>        fieldDeserializers   = new ArrayList<FieldDeserializer>();
 
     private final Class<?>                       clazz;
-    
-    private DeserializeBeanInfo beanInfo;
-    
-    public JavaBeanDeserializer(DeserializeBeanInfo beanInfo) {
+
+    private DeserializeBeanInfo                  beanInfo;
+
+    public JavaBeanDeserializer(DeserializeBeanInfo beanInfo){
         this.beanInfo = beanInfo;
         this.clazz = beanInfo.getClass();
     }
-    
+
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz){
         this.clazz = clazz;
 
         beanInfo = DeserializeBeanInfo.computeSetters(clazz);
-        
+
         for (FieldInfo fieldInfo : beanInfo.getFieldList()) {
             addFieldDeserializer(config, clazz, fieldInfo);
         }
@@ -54,9 +54,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         return clazz;
     }
 
-    
-
-   
     private void addFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
         FieldDeserializer fieldDeserializer = createFieldDeserializer(mapping, clazz, fieldInfo);
 
@@ -68,7 +65,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         return mapping.createFieldDeserializer(mapping, clazz, fieldInfo);
     }
 
-    public Object createInstance(Type type) {
+    public Object createInstance(DefaultJSONParser parser, Type type) {
         if (type instanceof Class) {
             if (clazz.isInterface()) {
                 Class<?> clazz = (Class<?>) type;
@@ -90,6 +87,18 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             throw new JSONException("create instance error, class " + clazz.getName(), e);
         }
 
+        if (parser.isEnabled(Feature.InitStringFieldAsEmpty)) {
+            for (FieldInfo fieldInfo : beanInfo.getFieldList()) {
+                if (fieldInfo.getFieldClass() == String.class) {
+                    try {
+                        fieldInfo.set(object, "");
+                    } catch (Exception e) {
+                        throw new JSONException("create instance error, class " + clazz.getName(), e);
+                    }
+                }
+            }
+        }
+
         return object;
     }
 
@@ -105,19 +114,19 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         ParseContext context = parser.getContext();
         ParseContext childContext = null;
         Object object = null;
-        
+
         try {
             Map<String, Object> fieldValues = null;
-            
+
             if (lexer.token() == JSONToken.RBRACE) {
-               lexer.nextToken(JSONToken.COMMA);
-               return (T) createInstance(type);
+                lexer.nextToken(JSONToken.COMMA);
+                return (T) createInstance(parser, type);
             }
 
             if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {
                 throw new JSONException("syntax error, expect {, actual " + JSONToken.name(lexer.token()));
             }
-            
+
             if (parser.getResolveStatus() == DefaultJSONParser.TypeNameRedirect) {
                 parser.setResolveStatus(DefaultJSONParser.NONE);
             }
@@ -149,7 +158,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             if (parentContext.getObject() != null) {
                                 object = parentContext.getObject();
                             } else {
-                                parser.getResolveTaskList().add(new ResolveTask(parentContext, ref));        
+                                parser.getResolveTaskList().add(new ResolveTask(parentContext, ref));
                                 parser.setResolveStatus(DefaultJSONParser.NeedToResolve);
                             }
                         } else if ("$".equals(ref)) {
@@ -157,7 +166,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             while (rootContext.getParentContext() != null) {
                                 rootContext = rootContext.getParentContext();
                             }
-                            
+
                             if (rootContext.getObject() != null) {
                                 object = rootContext.getObject();
                             } else {
@@ -177,12 +186,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         throw new JSONException("illegal ref");
                     }
                     lexer.nextToken(JSONToken.COMMA);
-                    
+
                     childContext = parser.setContext(context, object, fieldName);
 
                     return (T) object;
                 }
-                
+
                 if ("@type" == key) {
                     lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
                     if (lexer.token() == JSONToken.LITERAL_STRING) {
@@ -197,7 +206,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 }
 
                 if (object == null && fieldValues == null) {
-                    object = createInstance(type);
+                    object = createInstance(parser, type);
                     if (object == null) {
                         fieldValues = new HashMap<String, Object>(this.fieldDeserializers.size());
                     }
@@ -230,7 +239,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
             if (object == null) {
                 if (fieldValues == null) {
-                    object = createInstance(type);
+                    object = createInstance(parser, type);
                     return (T) object;
                 }
 
@@ -246,13 +255,15 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     try {
                         object = beanInfo.getCreatorConstructor().newInstance(params);
                     } catch (Exception e) {
-                        throw new JSONException("create instance error, " + beanInfo.getCreatorConstructor().toGenericString(), e);
+                        throw new JSONException("create instance error, "
+                                                + beanInfo.getCreatorConstructor().toGenericString(), e);
                     }
                 } else if (beanInfo.getFactoryMethod() != null) {
                     try {
                         object = beanInfo.getFactoryMethod().invoke(null, params);
                     } catch (Exception e) {
-                        throw new JSONException("create factory method error, " + beanInfo.getFactoryMethod().toString(), e);
+                        throw new JSONException("create factory method error, "
+                                                + beanInfo.getFactoryMethod().toString(), e);
                     }
                 }
             }
@@ -283,7 +294,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
         lexer.nextTokenWithColon(fieldDeserializer.getFastMatchToken());
         fieldDeserializer.parseField(parser, object, fieldValues);
-        
+
         return true;
     }
 

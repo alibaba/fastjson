@@ -152,6 +152,10 @@ public class DefaultJSONParser extends AbstractJSONParser {
     public JSONLexer getLexer() {
         return lexer;
     }
+    
+    public boolean isEnabled(Feature feature) {
+        return lexer.isEnabled(feature);
+    }
 
     public String getInput() {
         if (input instanceof char[]) {

@@ -256,25 +256,25 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "scanFieldString",
                                    "([C)Ljava/lang/String;");
                 mw.visitInsn(DUP);
-                
+
                 Label endCheck_ = new Label();
                 mw.visitJumpInsn(IFNONNULL, endCheck_);
-                
+
                 mw.visitVarInsn(ALOAD, 1);
-                mw.visitFieldInsn(GETSTATIC, getType(Feature.class), "InitStringFieldAsEmpty", "L" + getType(Feature.class)
+                mw.visitFieldInsn(GETSTATIC, getType(Feature.class), "InitStringFieldAsEmpty", "L"
+                                                                                               + getType(Feature.class)
                                                                                                + ";");
-                mw.visitMethodInsn(INVOKEVIRTUAL, getType(DefaultJSONParser.class), "isEnabled", "(" + "L"
-                                                                                                 + getType(Feature.class) + ";"
-                                                                                                 + ")Z");
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(DefaultJSONParser.class), "isEnabled",
+                                   "(" + "L" + getType(Feature.class) + ";" + ")Z");
                 mw.visitJumpInsn(IFEQ, endCheck_);
-                
+
                 mw.visitInsn(POP);
                 mw.visitLdcInsn("");
-                
+
                 mw.visitLabel(endCheck_);
-                
+
                 mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
-                
+
             } else if (fieldClass == byte[].class) {
                 mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "scanFieldByteArray", "([C)[B");
                 mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
@@ -301,6 +301,7 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitLabel(enumNull_);
 
             } else if (Collection.class.isAssignableFrom(fieldClass)) {
+
                 Type actualTypeArgument = ((ParameterizedType) fieldType).getActualTypeArguments()[0];
 
                 if (actualTypeArgument instanceof Class) {
@@ -1013,6 +1014,5 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitMaxs(3, 3);
         mw.visitEnd();
     }
-
 
 }

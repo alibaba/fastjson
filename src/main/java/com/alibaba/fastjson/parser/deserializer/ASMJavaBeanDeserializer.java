@@ -42,7 +42,7 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
     public FieldDeserializer createFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
         return mapping.createFieldDeserializer(mapping, clazz, fieldInfo);
     }
-    
+
     public FieldDeserializer getFieldDeserializer(String name) {
         return serializer.getFieldDeserializerMap().get(name);
     }

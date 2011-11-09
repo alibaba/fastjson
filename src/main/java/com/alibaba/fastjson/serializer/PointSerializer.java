@@ -3,8 +3,10 @@ package com.alibaba.fastjson.serializer;
 import java.awt.Point;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.Set;
 
-public class PointSerializer implements ObjectSerializer {
+public class PointSerializer implements AutowiredObjectSerializer {
 
     public final static PointSerializer instance = new PointSerializer();
 
@@ -30,4 +32,7 @@ public class PointSerializer implements ObjectSerializer {
 
     }
 
+    public Set<Type> getAutowiredFor() {
+        return Collections.<Type>singleton(Point.class);
+    }
 }

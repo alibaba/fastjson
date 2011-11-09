@@ -3,10 +3,11 @@ package com.alibaba.fastjson.serializer;
 import java.awt.Color;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.Set;
 
 
-public class ColorSerializer implements ObjectSerializer {
-    public final static ColorSerializer instance = new ColorSerializer();
+public class ColorSerializer implements AutowiredObjectSerializer {
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         SerializeWriter out = serializer.getWriter();
@@ -34,4 +35,7 @@ public class ColorSerializer implements ObjectSerializer {
         out.write('}');
     }
 
+    public Set<Type> getAutowiredFor() {
+        return Collections.<Type>singleton(Color.class);
+    }
 }

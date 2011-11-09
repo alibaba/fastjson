@@ -2,13 +2,15 @@ package com.alibaba.fastjson.parser.deserializer;
 
 import java.awt.Point;
 import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.Set;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
 
-public class PointDeserializer implements ObjectDeserializer {
+public class PointDeserializer implements AutowiredObjectDeserializer {
 
     public final static PointDeserializer instance = new PointDeserializer();
 
@@ -64,4 +66,7 @@ public class PointDeserializer implements ObjectDeserializer {
         return JSONToken.LBRACE;
     }
 
+    public Set<Type> getAutowiredFor() {
+        return Collections.<Type>singleton(Point.class);
+    }
 }

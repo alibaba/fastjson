@@ -55,6 +55,7 @@ import java.util.regex.Pattern;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.asm.ASMException;
 import com.alibaba.fastjson.parser.deserializer.ASMDeserializerFactory;
 import com.alibaba.fastjson.parser.deserializer.ASMJavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ArrayDeserializer;
@@ -344,6 +345,8 @@ public class ParserConfig {
 
         try {
             return ASMDeserializerFactory.getInstance().createJavaBeanDeserializer(this, clazz);
+        } catch (ASMException asmError) {
+        	return new JavaBeanDeserializer(this, clazz);
         } catch (Exception e) {
             throw new JSONException("create asm deserializer error, " + clazz.getName(), e);
         }

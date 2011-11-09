@@ -2,13 +2,15 @@ package com.alibaba.fastjson.parser.deserializer;
 
 import java.awt.Rectangle;
 import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.Set;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
 
-public class RectangleDeserializer implements ObjectDeserializer {
+public class RectangleDeserializer implements AutowiredObjectDeserializer {
 
     public final static RectangleDeserializer instance = new RectangleDeserializer();
 
@@ -67,5 +69,8 @@ public class RectangleDeserializer implements ObjectDeserializer {
     public int getFastMatchToken() {
         return JSONToken.LBRACE;
     }
-
+    
+    public Set<Type> getAutowiredFor() {
+        return Collections.<Type>singleton(Rectangle.class);
+    }
 }

@@ -1,0 +1,5 @@
+#
+com.alibaba.fastjson.parser.deserializer.PointDeserializer
+com.alibaba.fastjson.parser.deserializer.FontDeserializer
+com.alibaba.fastjson.parser.deserializer.RectangleDeserializer
+com.alibaba.fastjson.parser.deserializer.ColorDeserializer

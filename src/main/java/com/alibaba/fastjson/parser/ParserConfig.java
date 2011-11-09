@@ -15,10 +15,6 @@
  */
 package com.alibaba.fastjson.parser;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Point;
-import java.awt.Rectangle;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -76,7 +72,6 @@ import com.alibaba.fastjson.parser.deserializer.CharacterDeserializer;
 import com.alibaba.fastjson.parser.deserializer.CharsetDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ClassDerializer;
 import com.alibaba.fastjson.parser.deserializer.CollectionDeserializer;
-import com.alibaba.fastjson.parser.deserializer.ColorDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ConcurrentHashMapDeserializer;
 import com.alibaba.fastjson.parser.deserializer.DateDeserializer;
 import com.alibaba.fastjson.parser.deserializer.DefaultFieldDeserializer;
@@ -86,7 +81,6 @@ import com.alibaba.fastjson.parser.deserializer.EnumDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FileDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FloatDeserializer;
-import com.alibaba.fastjson.parser.deserializer.FontDeserializer;
 import com.alibaba.fastjson.parser.deserializer.HashMapDeserializer;
 import com.alibaba.fastjson.parser.deserializer.InetAddressDeserializer;
 import com.alibaba.fastjson.parser.deserializer.InetSocketAddressDeserializer;
@@ -103,8 +97,6 @@ import com.alibaba.fastjson.parser.deserializer.LongFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.NumberDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.PatternDeserializer;
-import com.alibaba.fastjson.parser.deserializer.PointDeserializer;
-import com.alibaba.fastjson.parser.deserializer.RectangleDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ShortDeserializer;
 import com.alibaba.fastjson.parser.deserializer.SqlDateDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StackTraceElementDeserializer;
@@ -240,12 +232,6 @@ public class ParserConfig {
         derializers.put(AtomicIntegerArray.class, AtomicIntegerArrayDeserializer.instance);
         derializers.put(AtomicLongArray.class, AtomicLongArrayDeserializer.instance);
         derializers.put(StackTraceElement.class, StackTraceElementDeserializer.instance);
-        
-        derializers.put(Color.class, ColorDeserializer.instance);
-        derializers.put(Font.class, FontDeserializer.instance);
-        derializers.put(Point.class, PointDeserializer.instance);
-        derializers.put(Rectangle.class, RectangleDeserializer.instance);
-
     }
 
     public boolean isAsmEnable() {

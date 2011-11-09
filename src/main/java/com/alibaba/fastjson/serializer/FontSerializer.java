@@ -3,8 +3,10 @@ package com.alibaba.fastjson.serializer;
 import java.awt.Font;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.Set;
 
-public class FontSerializer implements ObjectSerializer {
+public class FontSerializer implements AutowiredObjectSerializer {
 
     public final static FontSerializer instance = new FontSerializer();
 
@@ -31,4 +33,7 @@ public class FontSerializer implements ObjectSerializer {
 
     }
 
+    public Set<Type> getAutowiredFor() {
+        return Collections.<Type>singleton(Font.class);
+    }
 }

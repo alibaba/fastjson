@@ -2,15 +2,15 @@ package com.alibaba.fastjson.parser.deserializer;
 
 import java.awt.Color;
 import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.Set;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
 
-public class ColorDeserializer implements ObjectDeserializer {
-
-    public final static ColorDeserializer instance = new ColorDeserializer();
+public class ColorDeserializer implements AutowiredObjectDeserializer {
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
@@ -66,6 +66,10 @@ public class ColorDeserializer implements ObjectDeserializer {
 
     public int getFastMatchToken() {
         return JSONToken.LBRACE;
+    }
+
+    public Set<Type> getAutowiredFor() {
+        return Collections.<Type>singleton(Color.class);
     }
 
 }

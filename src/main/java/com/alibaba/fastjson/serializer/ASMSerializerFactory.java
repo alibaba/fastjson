@@ -729,7 +729,12 @@ public class ASMSerializerFactory implements Opcodes {
         } else {
             elementType = ((ParameterizedType) propertyType).getActualTypeArguments()[0];
         }
-
+        
+        Class<?> elementClass = null;
+        if (elementClass instanceof Class<?>) {
+        	elementClass = (Class<?>) elementType;
+        }
+        
         Label _end = new Label();
 
         Label _if = new Label();
@@ -834,7 +839,7 @@ public class ASMSerializerFactory implements Opcodes {
                 mw.visitVarInsn(ILOAD, context.var("i"));
                 mw.visitMethodInsn(INVOKESTATIC, getType(Integer.class), "valueOf", "(I)Ljava/lang/Integer;");
 
-                if (elementType instanceof Class<?>) {
+                if (elementClass != null && Modifier.isPublic(elementClass.getModifiers())) {
                     mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc((Class<?>) elementType)));
                     mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "writeWithFieldName",
                                        "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;)V");
@@ -873,7 +878,7 @@ public class ASMSerializerFactory implements Opcodes {
                 mw.visitVarInsn(ILOAD, context.var("i"));
                 mw.visitMethodInsn(INVOKESTATIC, getType(Integer.class), "valueOf", "(I)Ljava/lang/Integer;");
 
-                if (elementType instanceof Class<?>) {
+                if (elementClass != null && Modifier.isPublic(elementClass.getModifiers())) {
                     mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc((Class<?>) elementType)));
                     mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "writeWithFieldName",
                                        "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;)V");

@@ -20,6 +20,7 @@ import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.asm.ASMException;
 import com.alibaba.fastjson.asm.ClassWriter;
 import com.alibaba.fastjson.asm.FieldVisitor;
 import com.alibaba.fastjson.asm.Label;
@@ -279,19 +280,30 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitLabel(enumNull_);
 
             } else if (Collection.class.isAssignableFrom(fieldClass)) {
-                Class<?> itemType = (Class<?>) ((ParameterizedType) fieldType).getActualTypeArguments()[0];
-                if (itemType == String.class) {
-                    mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "scanFieldStringArray",
-                                       "([C)" + getDesc(ArrayList.class));
-                    mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
-                } else {
-                    _deserialze_list_obj(context, mw, reset_, fieldInfo, fieldClass, itemType);
-
-                    if (i == size - 1) {
-                        _deserialize_endCheck(context, mw, reset_);
-                    }
-                    continue;
-                }
+            	Type actualTypeArgument = ((ParameterizedType) fieldType).getActualTypeArguments()[0];
+            	
+            	if (actualTypeArgument instanceof Class) {
+	                Class<?> itemClass = (Class<?>) actualTypeArgument;
+	                
+	                if (!Modifier.isPublic(itemClass.getModifiers())) {
+	                	throw new ASMException("can not create ASMParser");
+	                }
+	                
+	                if (itemClass == String.class) {
+	                    mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "scanFieldStringArray",
+	                                       "([C)" + getDesc(ArrayList.class));
+	                    mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
+	                } else {
+	                    _deserialze_list_obj(context, mw, reset_, fieldInfo, fieldClass, itemClass);
+	
+	                    if (i == size - 1) {
+	                        _deserialize_endCheck(context, mw, reset_);
+	                    }
+	                    continue;
+	                }
+            	} else {
+            		throw new ASMException("can not create ASMParser");
+            	}
 
             } else {
                 _deserialze_obj(context, mw, reset_, fieldInfo, fieldClass);

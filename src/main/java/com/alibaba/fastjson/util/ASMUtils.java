@@ -8,7 +8,9 @@ import java.lang.reflect.Type;
 public class ASMUtils {
 
     public static boolean isAndroid(String vmName) {
-        return "Dalvik".equals(vmName);
+        return "Dalvik".equals(vmName) 
+                || "Lemur".equals(vmName) // aliyun-vm name
+                ;
     }
 
     public static boolean isAndroid() {

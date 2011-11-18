@@ -111,6 +111,7 @@ import com.alibaba.fastjson.parser.deserializer.URIDeserializer;
 import com.alibaba.fastjson.parser.deserializer.URLDeserializer;
 import com.alibaba.fastjson.parser.deserializer.UUIDDeserializer;
 import com.alibaba.fastjson.util.ASMUtils;
+import com.alibaba.fastjson.util.DeserializeBeanInfo;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.ServiceLoader;
@@ -321,8 +322,19 @@ public class ParserConfig {
             return this.defaultSerializer;
         }
 
-        if (!Modifier.isPublic(clazz.getModifiers())) {
-            return new JavaBeanDeserializer(this, clazz);
+        boolean asmEnable = this.asmEnable;
+        if (asmEnable && !Modifier.isPublic(clazz.getModifiers())) {
+            asmEnable = false;
+        }
+        
+        if (asmEnable) {
+            DeserializeBeanInfo beanInfo = DeserializeBeanInfo.computeSetters(clazz);
+            for (FieldInfo fieldInfo : beanInfo.getFieldList()) {
+                if (!Modifier.isPublic(fieldInfo.getFieldClass().getModifiers())) {
+                    asmEnable = false;
+                    break;
+                }
+            }
         }
 
         if (!asmEnable) {

@@ -9,8 +9,9 @@ import com.alibaba.fastjson.parser.Feature;
 public class TestInitStringFieldAsEmpty2 extends TestCase {
 
     public void test_public() throws Exception {
-        VO1 vo1 = JSON.parseObject("{\"id\":0,\"value\":33}", VO1.class, Feature.InitStringFieldAsEmpty);
+        VO1 vo1 = JSON.parseObject("{\"id\":0,\"value\":33, \"o\":{}}", VO1.class, Feature.InitStringFieldAsEmpty);
         Assert.assertEquals("", vo1.getName());
+        Assert.assertEquals("", vo1.getO().getValue());
     }
 
     public static class VO1 {
@@ -21,8 +22,18 @@ public class TestInitStringFieldAsEmpty2 extends TestCase {
 
         private int    value;
 
-        public VO1() {
+        private VO2    o;
 
+        public VO1(){
+
+        }
+
+        public VO2 getO() {
+            return o;
+        }
+
+        public void setO(VO2 o) {
+            this.o = o;
         }
 
         public int getId() {
@@ -47,6 +58,20 @@ public class TestInitStringFieldAsEmpty2 extends TestCase {
 
         public void setName(String name) {
             this.name = name;
+        }
+
+    }
+
+    public static class VO2 {
+
+        private String value;
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
         }
 
     }

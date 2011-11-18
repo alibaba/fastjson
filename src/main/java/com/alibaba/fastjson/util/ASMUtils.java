@@ -55,12 +55,7 @@ public class ASMUtils {
             return "[" + getDesc(parameterType.getComponentType());
         } else {
             if (!parameterType.isPrimitive()) {
-                String clsName = parameterType.getCanonicalName();
-
-                if (parameterType.isMemberClass()) {
-                    int lastDot = clsName.lastIndexOf(".");
-                    clsName = clsName.substring(0, lastDot) + "$" + clsName.substring(lastDot + 1);
-                }
+                String clsName = parameterType.getName();
                 return clsName.replaceAll("\\.", "/");
             } else {
                 return getPrimitiveLetter(parameterType);

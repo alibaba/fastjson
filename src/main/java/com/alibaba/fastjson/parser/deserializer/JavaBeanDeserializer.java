@@ -1,5 +1,6 @@
 package com.alibaba.fastjson.parser.deserializer;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -82,7 +83,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
         Object object;
         try {
-            object = beanInfo.getDefaultConstructor().newInstance();
+            Constructor<?> constructor = beanInfo.getDefaultConstructor();
+            if (constructor.getParameterTypes().length == 0) {
+                object = constructor.newInstance();
+            } else {
+                object = constructor.newInstance(parser.getContext().getObject());
+            }
         } catch (Exception e) {
             throw new JSONException("create instance error, class " + clazz.getName(), e);
         }

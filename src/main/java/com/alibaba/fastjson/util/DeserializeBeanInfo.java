@@ -134,7 +134,7 @@ public class DeserializeBeanInfo {
                 }
                 return beanInfo;
             }
-
+            
             throw new JSONException("default constructor not found. " + clazz);
         }
 
@@ -239,6 +239,18 @@ public class DeserializeBeanInfo {
                 break;
             }
         }
+        
+        if (defaultConstructor == null) {
+            if (clazz.isMemberClass() && !Modifier.isStatic(clazz.getModifiers())) {
+                for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
+                    if (constructor.getParameterTypes().length == 1 && constructor.getParameterTypes()[0].equals(clazz.getDeclaringClass())) {
+                        defaultConstructor = constructor;
+                        break;
+                    }
+                }
+            }
+        }
+        
         return defaultConstructor;
     }
 

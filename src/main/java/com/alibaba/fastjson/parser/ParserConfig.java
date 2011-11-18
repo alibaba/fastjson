@@ -330,10 +330,21 @@ public class ParserConfig {
         if (asmEnable) {
             DeserializeBeanInfo beanInfo = DeserializeBeanInfo.computeSetters(clazz);
             for (FieldInfo fieldInfo : beanInfo.getFieldList()) {
-                if (!Modifier.isPublic(fieldInfo.getFieldClass().getModifiers())) {
+                Class<?> fieldClass = fieldInfo.getFieldClass();
+                if (!Modifier.isPublic(fieldClass.getModifiers())) {
                     asmEnable = false;
                     break;
                 }
+                
+                if (fieldClass.isMemberClass() && !Modifier.isStatic(fieldClass.getModifiers())) {
+                    asmEnable = false;
+                }
+            }
+        }
+        
+        if (asmEnable) {
+            if (clazz.isMemberClass() && !Modifier.isStatic(clazz.getModifiers())) {
+                asmEnable = false;
             }
         }
 

@@ -82,7 +82,13 @@ public enum SerializerFeature {
     /**
      * @since 1.1.9
      */
-    WriteSlashAsSpecial;
+    WriteSlashAsSpecial,
+    
+    /**
+     * @since 1.1.10
+     */
+    BrowserCompatible
+    ;
 
     private SerializerFeature(){
         mask = (1 << ordinal());

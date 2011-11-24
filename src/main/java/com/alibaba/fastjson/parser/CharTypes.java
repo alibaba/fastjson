@@ -49,14 +49,14 @@ public final class CharTypes {
         }
     }
 
-    public final static boolean[] specicalFlags_doubleQuotes = new boolean[((int) '\\' + 1)];
-    public final static boolean[] specicalFlags_singleQuotes = new boolean[((int) '\\' + 1)];
+    public final static boolean[] specicalFlags_doubleQuotes = new boolean[128];
+    public final static boolean[] specicalFlags_singleQuotes = new boolean[128];
 
     public static boolean isSpecial_doubleQuotes(char ch) {
         return ch < specicalFlags_doubleQuotes.length && specicalFlags_doubleQuotes[ch];
     }
 
-    public final static char[] replaceChars = new char[((int) '\\' + 1)];
+    public final static char[] replaceChars = new char[128];
     static {
         specicalFlags_doubleQuotes['\b'] = true;
         specicalFlags_doubleQuotes['\n'] = true;
@@ -64,6 +64,7 @@ public final class CharTypes {
         specicalFlags_doubleQuotes['\r'] = true;
         specicalFlags_doubleQuotes['\"'] = true;
         specicalFlags_doubleQuotes['\\'] = true;
+        specicalFlags_doubleQuotes['\u000B'] = true;
 
         specicalFlags_singleQuotes['\b'] = true;
         specicalFlags_singleQuotes['\n'] = true;
@@ -71,7 +72,8 @@ public final class CharTypes {
         specicalFlags_singleQuotes['\r'] = true;
         specicalFlags_singleQuotes['\''] = true;
         specicalFlags_singleQuotes['\\'] = true;
-
+        specicalFlags_singleQuotes['\u000B'] = true;
+        
         replaceChars['\b'] = 'b';
         replaceChars['\n'] = 'n';
         replaceChars['\f'] = 'f';
@@ -81,6 +83,41 @@ public final class CharTypes {
         replaceChars['\\'] = '\\';
         replaceChars['\t'] = 't';
         replaceChars['/'] = '/';
+        replaceChars['\u000B'] = 'v';
     }
 
+    public final static char [] ASCII_CHARS = {
+                                      '0', '0', '0', '1', '0', '2', '0', '3', 
+                                      '0', '4', '0', '5', '0', '6', '0', '7', 
+                                      '0', '8', '0', '9', '0', 'A', '0', 'B',
+                                      '0', 'C', '0', 'D', '0', 'E', '0', 'F',
+                                      '1', '0', '1', '1', '1', '2', '1', '3', 
+                                      '1', '4', '1', '5', '1', '6', '1', '7', 
+                                      '1', '8', '1', '9', '1', 'A', '1', 'B',
+                                      '1', 'C', '1', 'D', '1', 'E', '1', 'F',
+                                      } ; 
+    
+    public final static boolean isEmoji(char ch) {
+        if (ch >= '\uE001' && ch <= '\uE05A') {
+            return true;
+        }
+        
+        if (ch >= '\uE101' && ch <= '\uE15A') {
+            return true;
+        }
+        
+        if (ch >= '\uE201' && ch <= '\uE253') {
+            return true;
+        }
+        
+        if (ch >= '\uE401' && ch <= '\uE44C') {
+            return true;
+        }
+        
+        if (ch >= '\uE501' && ch <= '\uE437') {
+            return true;
+        }
+        
+        return false;
+    }
 }

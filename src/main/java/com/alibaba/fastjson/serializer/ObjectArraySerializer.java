@@ -51,54 +51,61 @@ public class ObjectArraySerializer implements ObjectSerializer {
             return;
         }
 
-        Class<?> preClazz = null;
-        ObjectSerializer preWriter = null;
-        out.append('[');
+        SerialContext context = serializer.getContext();
+        serializer.setContext(context, object, fieldName);
         
-        if (out.isEnabled(SerializerFeature.PrettyFormat)) {
-            serializer.incrementIndent();
-            serializer.println();
-            for (int i = 0; i < size; ++i) {
-                if (i != 0) {
-                    out.write(',');
-                    serializer.println();
+        try {
+            Class<?> preClazz = null;
+            ObjectSerializer preWriter = null;
+            out.append('[');
+            
+            if (out.isEnabled(SerializerFeature.PrettyFormat)) {
+                serializer.incrementIndent();
+                serializer.println();
+                for (int i = 0; i < size; ++i) {
+                    if (i != 0) {
+                        out.write(',');
+                        serializer.println();
+                    }
+                    serializer.write(array[i]);
                 }
-                serializer.write(array[i]);
+                serializer.decrementIdent();
+                serializer.println();
+                out.write(']');
+                return;
             }
-            serializer.decrementIdent();
-            serializer.println();
-            out.write(']');
-            return;
-        }
-        
-        for (int i = 0; i < end; ++i) {
-            Object item = array[i];
-
-            if (item == null) {
-                out.append("null,");
-            } else {
-                Class<?> clazz = item.getClass();
-
-                if (clazz == preClazz) {
-                    preWriter.write(serializer, item, null, null);
+            
+            for (int i = 0; i < end; ++i) {
+                Object item = array[i];
+    
+                if (item == null) {
+                    out.append("null,");
                 } else {
-                    preClazz = clazz;
-                    preWriter = serializer.getObjectWriter(clazz);
-
-                    preWriter.write(serializer, item, null, null);
+                    Class<?> clazz = item.getClass();
+    
+                    if (clazz == preClazz) {
+                        preWriter.write(serializer, item, null, null);
+                    } else {
+                        preClazz = clazz;
+                        preWriter = serializer.getObjectWriter(clazz);
+    
+                        preWriter.write(serializer, item, null, null);
+                    }
+    
+                    out.append(',');
                 }
-
-                out.append(',');
             }
-        }
-
-        Object item = array[end];
-
-        if (item == null) {
-            out.append("null]");
-        } else {
-            serializer.write(item);
-            out.append(']');
+    
+            Object item = array[end];
+    
+            if (item == null) {
+                out.append("null]");
+            } else {
+                serializer.write(item);
+                out.append(']');
+            }
+        } finally {
+            serializer.setContext(context);
         }
     }
 }

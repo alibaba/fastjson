@@ -19,7 +19,12 @@ package com.alibaba.fastjson.parser;
  * @author wenshao<szujobs@hotmail.com>
  */
 public final class CharTypes {
-
+    public final static char[] digits = {
+        '0' , '1' , '2' , '3' , '4' , '5' ,
+        '6' , '7' , '8' , '9' , 'A' , 'B' ,
+        'C' , 'D' , 'E' , 'F'
+    };
+    
     public final static boolean[] firstIdentifierFlags       = new boolean[256];
     static {
         for (char c = 0; c < firstIdentifierFlags.length; ++c) {
@@ -114,7 +119,7 @@ public final class CharTypes {
             return true;
         }
         
-        if (ch >= '\uE501' && ch <= '\uE437') {
+        if (ch >= '\uE501' && ch <= '\uE537') {
             return true;
         }
         

@@ -684,6 +684,17 @@ public final class SerializeWriter extends Writer {
                     buf[i + 4] = CharTypes.ASCII_CHARS[ch * 2];
                     buf[i + 5] = CharTypes.ASCII_CHARS[ch * 2 + 1];
                     end += 5;
+                    continue;
+                }
+                
+                if (CharTypes.isEmoji(ch)) {
+                    System.arraycopy(buf, i + 1, buf, i + 6, end - i - 1);
+                    buf[i] = '\\';
+                    buf[i + 1] = 'u';
+                    buf[i + 2] = CharTypes.digits[(ch >>> 12) & 15];
+                    buf[i + 3] = CharTypes.digits[(ch >>> 8) & 15];
+                    buf[i + 4] = CharTypes.digits[(ch >>> 4) & 15];
+                    buf[i + 5] = CharTypes.digits[ch & 15];
                 }
             }
             

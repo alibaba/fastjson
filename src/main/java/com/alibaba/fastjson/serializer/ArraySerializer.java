@@ -30,9 +30,10 @@ public class ArraySerializer implements ObjectSerializer {
         this.compObjectSerializer = compObjectSerializer;
     }
 
-    public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType)
+                                                                                                       throws IOException {
         SerializeWriter out = serializer.getWriter();
-        
+
         if (object == null) {
             if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {
                 out.write("[]");
@@ -52,25 +53,32 @@ public class ArraySerializer implements ObjectSerializer {
             return;
         }
 
-        out.append('[');
-        for (int i = 0; i < end; ++i) {
-            Object item = array[i];
+        SerialContext context = serializer.getContext();
+        serializer.setContext(context, object, fieldName);
+
+        try {
+            out.append('[');
+            for (int i = 0; i < end; ++i) {
+                Object item = array[i];
+
+                if (item == null) {
+                    out.append("null,");
+                } else {
+                    compObjectSerializer.write(serializer, item, null, null);
+                    out.append(',');
+                }
+            }
+
+            Object item = array[end];
 
             if (item == null) {
-                out.append("null,");
+                out.append("null]");
             } else {
                 compObjectSerializer.write(serializer, item, null, null);
-                out.append(',');
+                out.append(']');
             }
-        }
-
-        Object item = array[end];
-
-        if (item == null) {
-            out.append("null]");
-        } else {
-            compObjectSerializer.write(serializer, item, null, null);
-            out.append(']');
+        } finally {
+            serializer.setContext(context);
         }
     }
 }

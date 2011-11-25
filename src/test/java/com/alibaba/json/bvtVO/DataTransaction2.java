@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import junit.framework.Assert;
+
 import com.alibaba.fastjson.JSON;
 
 /**
@@ -294,12 +296,24 @@ public class DataTransaction2 implements Serializable {
 
         String jsonString = "{'head' : {'appid':'epas','transcode' : '000000','seqno' : '111111111',        'user' : {          'id' : '00000'},        'ret' : {           'code' : '1',           'msg' : 'txt'}  },  'body' : {      param : {           form:{              name : '111',               sex : '1',              address : 'street1',                array : [ {                 id : '1',                   name : 'tom1'               }, {                    id : '2',                   name : 'tom2'               } ]},           limit : {               start : 1,              size : 25,              total : 100}        },      dataset : {         total : 1000,           rows : [ {              id : 'id',              name : 'name'           }, {                id : 'id',              name : 'name'           } ]     }   }}";
         DataTransaction2 dt = DataTransaction2.fromJSON(jsonString);
-        System.out.println(dt);
+        System.out.println(dt.toJSON());
+        DataTransaction2 dt1 = JSON.parseObject(dt.toJSON(), DataTransaction2.class);
+        System.out.println(dt1.toJSON());
+        
+        Assert.assertEquals(dt.toJSON(), dt1.toJSON());
+        
         System.out.println("=================");
         System.out.println(dt.toJSON());
         dt.setRetMsgCode("-1", "错误");
         dt.setDataSet("1000", new ArrayList<Map<String, Object>>());
         System.out.println(dt.toJSON());
+        
+        String text = dt.toJSON();
+        System.out.println(text);
+        
+        DataTransaction2 dt2 = JSON.parseObject(text, DataTransaction2.class);
+        System.out.println(JSON.toJSONString(dt2));
 
+        Assert.assertEquals(dt.toJSON(), dt2.toJSON());
     }
 }

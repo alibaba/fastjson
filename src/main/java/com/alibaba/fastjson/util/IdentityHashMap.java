@@ -56,6 +56,7 @@ public class IdentityHashMap<K, V> {
 
         for (Entry<K, V> entry = buckets[bucket]; entry != null; entry = entry.next) {
             if (key == entry.key) {
+                entry.value = value;
                 return true;
             }
         }
@@ -80,7 +81,7 @@ public class IdentityHashMap<K, V> {
 
         public final int   hashCode;
         public final K     key;
-        public final V     value;
+        public V     value;
 
         public final Entry<K, V> next;
 

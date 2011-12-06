@@ -182,11 +182,20 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitVarInsn(ASTORE, context.var("instance"));
         } else {
             if (defaultConstructor != null) {
-                mw.visitTypeInsn(NEW, getType(context.getClazz()));
-                mw.visitInsn(DUP);
-                mw.visitMethodInsn(INVOKESPECIAL, getType(context.getClazz()), "<init>", "()V");
-
-                mw.visitVarInsn(ASTORE, context.var("instance"));
+                if (Modifier.isPublic(defaultConstructor.getModifiers())) {
+                    mw.visitTypeInsn(NEW, getType(context.getClazz()));
+                    mw.visitInsn(DUP);
+                    mw.visitMethodInsn(INVOKESPECIAL, getType(context.getClazz()), "<init>", "()V");
+    
+                    mw.visitVarInsn(ASTORE, context.var("instance"));
+                } else {
+                    mw.visitVarInsn(ALOAD, 0);
+                    mw.visitVarInsn(ALOAD, 1);
+                    mw.visitMethodInsn(INVOKESPECIAL, getType(ASMJavaBeanDeserializer.class), "createInstance",
+                                       "(" + getDesc(DefaultJSONParser.class) + ")Ljava/lang/Object;");
+                    mw.visitTypeInsn(CHECKCAST, getType(context.getClazz())); // cast
+                    mw.visitVarInsn(ASTORE, context.var("instance"));
+                }
             } else {
                 mw.visitInsn(ACONST_NULL);
                 mw.visitTypeInsn(CHECKCAST, getType(context.getClazz())); // cast

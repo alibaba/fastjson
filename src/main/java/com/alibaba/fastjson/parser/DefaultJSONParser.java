@@ -495,6 +495,10 @@ public class DefaultJSONParser extends AbstractJSONParser {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void parseArray(Type type, Collection array, Object fieldName) {
+        if (lexer.token() == JSONToken.SET || lexer.token() == JSONToken.TREE_SET) {
+            lexer.nextToken();
+        }
+        
         if (lexer.token() != JSONToken.LBRACKET) {
             throw new JSONException("exepct '[', but " + JSONToken.name(lexer.token()));
         }

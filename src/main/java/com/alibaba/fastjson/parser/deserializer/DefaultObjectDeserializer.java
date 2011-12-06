@@ -20,6 +20,8 @@ import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
+import com.alibaba.fastjson.parser.ParseContext;
+import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.util.ASMClassLoader;
 import com.alibaba.fastjson.util.TypeUtils;
 
@@ -28,7 +30,8 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
     public DefaultObjectDeserializer(){
     }
 
-    public void parseMap(DefaultJSONParser parser, Map<Object, Object> map, Type keyType, Type valueType, Object fieldName) {
+    public Object parseMap(DefaultJSONParser parser, Map<Object, Object> map, Type keyType, Type valueType,
+                           Object fieldName) {
         JSONScanner lexer = (JSONScanner) parser.getLexer();
 
         if (lexer.token() != JSONToken.LBRACE) {
@@ -39,27 +42,86 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
         ObjectDeserializer valueDeserializer = parser.getConfig().getDeserializer(valueType);
         lexer.nextToken(keyDeserializer.getFastMatchToken());
 
-        for (;;) {
-            if (lexer.token() == JSONToken.RBRACE) {
-                lexer.nextToken(JSONToken.COMMA);
-                break;
-            }
-            
-            Object key = keyDeserializer.deserialze(parser, keyType, null);
-            
-            if (lexer.token() != JSONToken.COLON) {
-                throw new JSONException("syntax error, expect :, actual " + lexer.token());
-            }
-            
-            lexer.nextToken(valueDeserializer.getFastMatchToken());
-            Object value = valueDeserializer.deserialze(parser, valueType, key);
+        ParseContext context = parser.getContext();
+        try {
+            for (;;) {
+                if (lexer.token() == JSONToken.RBRACE) {
+                    lexer.nextToken(JSONToken.COMMA);
+                    break;
+                }
 
-            map.put(key, value);
-            
-            if (lexer.token() == JSONToken.COMMA) {
-                lexer.nextToken(keyDeserializer.getFastMatchToken());
+                if (lexer.token() == JSONToken.LITERAL_STRING && lexer.isRef()) {
+                    Object object = null;
+
+                    lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
+                    if (lexer.token() == JSONToken.LITERAL_STRING) {
+                        String ref = lexer.stringVal();
+                        if ("@".equals(ref)) {
+                            object = context.getObject();
+                        } else if ("..".equals(ref)) {
+                            ParseContext parentContext = context.getParentContext();
+                            if (parentContext.getObject() != null) {
+                                object = parentContext.getObject();
+                            } else {
+                                parser.getResolveTaskList().add(new ResolveTask(parentContext, ref));
+                                parser.setResolveStatus(DefaultJSONParser.NeedToResolve);
+                            }
+                        } else if ("$".equals(ref)) {
+                            ParseContext rootContext = context;
+                            while (rootContext.getParentContext() != null) {
+                                rootContext = rootContext.getParentContext();
+                            }
+
+                            if (rootContext.getObject() != null) {
+                                object = rootContext.getObject();
+                            } else {
+                                parser.getResolveTaskList().add(new ResolveTask(rootContext, ref));
+                                parser.setResolveStatus(DefaultJSONParser.NeedToResolve);
+                            }
+                        } else {
+                            parser.getResolveTaskList().add(new ResolveTask(context, ref));
+                            parser.setResolveStatus(DefaultJSONParser.NeedToResolve);
+                        }
+                    } else {
+                        throw new JSONException("illegal ref, " + JSONToken.name(lexer.token()));
+                    }
+
+                    lexer.nextToken(JSONToken.RBRACE);
+                    if (lexer.token() != JSONToken.RBRACE) {
+                        throw new JSONException("illegal ref");
+                    }
+                    lexer.nextToken(JSONToken.COMMA);
+
+                    parser.setContext(context, map, fieldName);
+                    parser.setContext(context);
+
+                    return object;
+                }
+
+                Object key = keyDeserializer.deserialze(parser, keyType, null);
+
+                if (lexer.token() != JSONToken.COLON) {
+                    throw new JSONException("syntax error, expect :, actual " + lexer.token());
+                }
+
+                lexer.nextToken(valueDeserializer.getFastMatchToken());
+                Object value = valueDeserializer.deserialze(parser, valueType, key);
+
+                if (map.size() == 0) {
+                    parser.setContext(context, map, fieldName);
+                }
+
+                map.put(key, value);
+
+                if (lexer.token() == JSONToken.COMMA) {
+                    lexer.nextToken(keyDeserializer.getFastMatchToken());
+                }
             }
+        } finally {
+            parser.setContext(context);
         }
+
+        return map;
     }
 
     @SuppressWarnings("rawtypes")
@@ -122,11 +184,11 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
             ch = lexer.getCurrent();
 
             lexer.resetStringPosition();
-            
+
             if (key == "@type") {
                 String typeName = lexer.scanSymbol(parser.getSymbolTable(), '"');
                 Class<?> clazz = TypeUtils.loadClass(typeName);
-                
+
                 if (clazz == map.getClass()) {
                     lexer.nextToken(JSONToken.COMMA);
                     continue;
@@ -157,7 +219,7 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
                 return map;
             }
         }
-        
+
     }
 
     public void parseObject(DefaultJSONParser parser, Object object) {
@@ -298,12 +360,10 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
                     Type valueType = type.getActualTypeArguments()[1];
 
                     if (keyType == String.class) {
-                        map = parseMap(parser, map, valueType, fieldName);
+                        return (T) parseMap(parser, map, valueType, fieldName);
                     } else {
-                        parseMap(parser, map, keyType, valueType, fieldName);
+                        return (T) parseMap(parser, map, keyType, valueType, fieldName);
                     }
-
-                    return (T) map;
                 }
 
             }

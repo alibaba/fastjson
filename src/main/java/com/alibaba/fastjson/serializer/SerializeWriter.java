@@ -650,24 +650,30 @@ public final class SerializeWriter extends Writer {
         count = newcount;
         
         if (isEnabled(SerializerFeature.BrowserCompatible)) {
-            int specialCount = 0;
             int lastSpecialIndex = -1;
             
             for (int i = start; i < end; ++i) {
                 char ch = buf[i];
                 if (ch < 32) {
-                    specialCount++;
                     lastSpecialIndex = i;
+                    newcount += 5;
+                    continue;
+                }
+                
+                if (ch == '"' || ch == '/') {
+                    lastSpecialIndex = i;
+                    newcount += 1;
                     continue;
                 }
                 
                 if (CharTypes.isEmoji(ch)) {
-                    specialCount++;
                     lastSpecialIndex = i;
+                    newcount += 5;
                     continue;
                 }
             }
-            newcount += specialCount * 5;
+            
+            
             if (newcount > buf.length) {
                 expandCapacity(newcount);
             }
@@ -687,6 +693,13 @@ public final class SerializeWriter extends Writer {
                     continue;
                 }
                 
+                if (ch == '"' || ch == '/') {
+                    System.arraycopy(buf, i + 1, buf, i + 2, end - i - 1);
+                    buf[i] = '\\';
+                    buf[i + 1] = ch;
+                    end += 1;
+                }
+                
                 if (CharTypes.isEmoji(ch)) {
                     System.arraycopy(buf, i + 1, buf, i + 6, end - i - 1);
                     buf[i] = '\\';
@@ -695,6 +708,7 @@ public final class SerializeWriter extends Writer {
                     buf[i + 3] = CharTypes.digits[(ch >>> 8) & 15];
                     buf[i + 4] = CharTypes.digits[(ch >>> 4) & 15];
                     buf[i + 5] = CharTypes.digits[ch & 15];
+                    end += 5;
                 }
             }
             

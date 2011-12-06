@@ -28,7 +28,7 @@ public class HashMapDeserializer implements ObjectDeserializer {
         try {
             parser.setContext(context, map, fieldName);
 
-            parser.parseObject(map);
+            parser.parseObject(map, fieldName);
 
         } finally {
             parser.setContext(context);

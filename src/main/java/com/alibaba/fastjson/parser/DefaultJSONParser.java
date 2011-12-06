@@ -252,6 +252,11 @@ public class DefaultJSONParser extends AbstractJSONParser {
                     lexer.nextToken(JSONToken.COMMA);
 
                     this.resolveStatus = TypeNameRedirect;
+                    
+                    if (this.context != null) {
+                        this.popContext();
+                    }
+                    
                     return deserializer.deserialze(this, clazz, fieldName);
                 }
 

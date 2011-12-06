@@ -48,6 +48,10 @@ public abstract class AbstractJSONParser {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public final void parseArray(final Collection array, Object fieldName) {
         final JSONLexer lexer = getLexer();
+        
+        if (lexer.token() == JSONToken.SET || lexer.token() == JSONToken.TREE_SET) {
+            lexer.nextToken();
+        }
 
         if (lexer.token() != JSONToken.LBRACKET) {
             throw new JSONException("syntax error, expect [, actual " + JSONToken.name(lexer.token()));

@@ -30,6 +30,8 @@ import java.util.Map;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.Feature;
+import com.alibaba.fastjson.parser.JSONLexer;
+import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.serializer.JSONSerializer;
@@ -46,7 +48,7 @@ import com.alibaba.fastjson.util.TypeUtils;
  */
 public abstract class JSON implements JSONStreamAware, JSONAware {
 
-    public static int DEFAULT_PARSER_FEATURE;
+    public static int    DEFAULT_PARSER_FEATURE;
     static {
         int features = 0;
         features |= Feature.AutoCloseSource.getMask();
@@ -59,10 +61,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         features |= Feature.IgnoreNotMatch.getMask();
         DEFAULT_PARSER_FEATURE = features;
     }
-    
+
     public static String DEFFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
-    public static int DEFAULT_GENERATE_FEATURE;
+    public static int    DEFAULT_GENERATE_FEATURE;
     static {
         int features = 0;
         features |= com.alibaba.fastjson.serializer.SerializerFeature.QuoteFieldNames.getMask();
@@ -284,7 +286,30 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static final JSONArray parseArray(String text) {
-        return (JSONArray) parse(text);
+        if (text == null) {
+            return null;
+        }
+
+        DefaultJSONParser parser = new DefaultJSONParser(text, ParserConfig.getGlobalInstance());
+
+        JSONArray array;
+        
+        JSONLexer lexer = parser.getLexer();
+        if (lexer.token() == JSONToken.NULL) {
+            lexer.nextToken();
+            array = null;
+        } else if (lexer.token() == JSONToken.EOF) {
+            array = null;
+        } else {
+            array = new JSONArray();
+            parser.parseArray(array);
+
+            handleResovleTask(parser, array);
+        }
+        
+        parser.close();
+
+        return array;
     }
 
     public static final <T> List<T> parseArray(String text, Class<T> clazz) {

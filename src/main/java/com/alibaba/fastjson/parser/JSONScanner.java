@@ -1744,7 +1744,7 @@ public class JSONScanner implements JSONLexer {
             throw new JSONException("scan set error");
         }
     }
-    
+
     public void scanTreeSet() {
         if (buf[bp++] != 'T') {
             throw new JSONException("error parse true");
@@ -1978,6 +1978,19 @@ public class JSONScanner implements JSONLexer {
         } else {
             return new String(sbuf, 0, sp);
         }
+    }
+
+    //
+    public boolean isRef() {
+        if (hasSpecial) {
+            return false;
+        }
+
+        if (sp != 4) {
+            return false;
+        }
+
+        return buf[np + 1] == '$' && buf[np + 2] == 'r' && buf[np + 3] == 'e' && buf[np + 4] == 'f';
     }
 
     public final String symbol(SymbolTable symbolTable) {

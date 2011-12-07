@@ -1,5 +1,6 @@
 package com.alibaba.fastjson.parser.deserializer;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +13,7 @@ import com.alibaba.fastjson.parser.ParseContext;
 public class HashMapDeserializer implements ObjectDeserializer {
 
     public final static HashMapDeserializer instance = new HashMapDeserializer();
+    
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
@@ -21,15 +23,22 @@ public class HashMapDeserializer implements ObjectDeserializer {
             return null;
         }
 
-        Map<String, Object> map = new HashMap<String, Object>();
-
+        Map<Object, Object> map = new HashMap<Object, Object>();
+        
         ParseContext context = parser.getContext();
 
         try {
             parser.setContext(context, map, fieldName);
-
-            parser.parseObject(map, fieldName);
-
+            
+            if (type instanceof ParameterizedType) {
+                ParameterizedType parameterizedType = (ParameterizedType) type;
+                Type keyType = parameterizedType.getActualTypeArguments()[0];
+                Type valueType = parameterizedType.getActualTypeArguments()[1];
+                
+                DefaultObjectDeserializer.instance.parseMap(parser, map, keyType, valueType, fieldName);                
+            } else {
+                parser.parseObject(map, fieldName);    
+            }
         } finally {
             parser.setContext(context);
         }

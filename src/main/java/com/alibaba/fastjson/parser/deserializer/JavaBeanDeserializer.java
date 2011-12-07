@@ -130,7 +130,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             }
 
             if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {
-                throw new JSONException("syntax error, expect {, actual " + JSONToken.name(lexer.token()));
+                throw new JSONException("syntax error, expect {, actual " + lexer.tokenName());
             }
 
             if (parser.getResolveStatus() == DefaultJSONParser.TypeNameRedirect) {

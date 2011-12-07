@@ -26,6 +26,7 @@ import com.alibaba.fastjson.util.ASMClassLoader;
 import com.alibaba.fastjson.util.TypeUtils;
 
 public class DefaultObjectDeserializer implements ObjectDeserializer {
+    public final static DefaultObjectDeserializer instance = new DefaultObjectDeserializer();
 
     public DefaultObjectDeserializer(){
     }
@@ -97,14 +98,21 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
 
                     return object;
                 }
+                
+                if (map.size() == 0 && lexer.token() == JSONToken.LITERAL_STRING && "@type".equals(lexer.stringVal())) {
+                    lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
+                    lexer.nextToken(JSONToken.COMMA);
+                    lexer.nextToken(keyDeserializer.getFastMatchToken());
+                }
 
                 Object key = keyDeserializer.deserialze(parser, keyType, null);
 
                 if (lexer.token() != JSONToken.COLON) {
                     throw new JSONException("syntax error, expect :, actual " + lexer.token());
                 }
-
+                
                 lexer.nextToken(valueDeserializer.getFastMatchToken());
+                
                 Object value = valueDeserializer.deserialze(parser, valueType, key);
 
                 if (map.size() == 0) {

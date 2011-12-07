@@ -17,7 +17,9 @@ import java.util.Map;
  */
 public class QueueEntity {
 
-    private Map<Integer, PhysicalQueue> pqMap                = new HashMap<Integer, PhysicalQueue>();
+    private int                         id;
+
+    private Map<Integer, PhysicalQueue> pqMap = new HashMap<Integer, PhysicalQueue>();
 
     /**
      * @return the pqMap
@@ -32,7 +34,6 @@ public class QueueEntity {
     public void setPqMap(Map<Integer, PhysicalQueue> pqMap) {
         this.pqMap = pqMap;
     }
-
 
     public QueueEntity(){
     }
@@ -51,6 +52,12 @@ public class QueueEntity {
         this.pqMap = pqMap;
     }
 
+    public int getId() {
+        return id;
+    }
 
+    public void setId(int id) {
+        this.id = id;
+    }
 
 }

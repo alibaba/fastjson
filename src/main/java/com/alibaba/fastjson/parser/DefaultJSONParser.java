@@ -167,6 +167,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public final Object parseObject(final Map object, Object fieldName) {
         JSONScanner lexer = (JSONScanner) this.lexer;
+        
         if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {
             throw new JSONException("syntax error, expect {, actual " + lexer.tokenName());
         }

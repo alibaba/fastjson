@@ -30,6 +30,11 @@ public class HashMapDeserializer implements ObjectDeserializer {
         try {
             parser.setContext(context, map, fieldName);
             
+            if (lexer.token() == JSONToken.RBRACE) {
+            	lexer.nextToken(JSONToken.COMMA);
+            	return (T) map;
+            }
+            
             if (type instanceof ParameterizedType) {
                 ParameterizedType parameterizedType = (ParameterizedType) type;
                 Type keyType = parameterizedType.getActualTypeArguments()[0];

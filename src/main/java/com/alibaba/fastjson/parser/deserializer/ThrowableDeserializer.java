@@ -20,7 +20,7 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
+    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         JSONScanner lexer = (JSONScanner) parser.getLexer();
 
         if (parser.getResolveStatus() == DefaultJSONParser.TypeNameRedirect) {
@@ -33,6 +33,14 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
 
         Throwable cause = null;
         Class<?> exClass = null;
+        
+        if (type != null && type instanceof Class) {
+        	Class<?> clazz = (Class<?>) type;
+        	if (Throwable.class.isAssignableFrom(clazz)) {
+        		exClass = clazz;
+        	}
+        }
+        
         String message = null;
         StackTraceElement[] stackTrace = null;
         Map<String, Object> otherValues = new HashMap<String, Object>();

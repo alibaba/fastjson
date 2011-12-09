@@ -23,7 +23,7 @@ public class HashMapDeserializer implements ObjectDeserializer {
             return null;
         }
 
-        Map<Object, Object> map = new HashMap<Object, Object>();
+        Map<Object, Object> map = createMap();
         
         ParseContext context = parser.getContext();
 
@@ -50,6 +50,11 @@ public class HashMapDeserializer implements ObjectDeserializer {
 
         return (T) map;
     }
+
+	protected Map<Object, Object> createMap() {
+		Map<Object, Object> map = new HashMap<Object, Object>();
+		return map;
+	}
 
     public int getFastMatchToken() {
         return JSONToken.LBRACE;

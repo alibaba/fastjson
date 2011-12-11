@@ -35,8 +35,8 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
                            Object fieldName) {
         JSONScanner lexer = (JSONScanner) parser.getLexer();
 
-        if (lexer.token() != JSONToken.LBRACE) {
-            throw new JSONException("syntax error, expect {, actual " + lexer.token());
+        if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {
+            throw new JSONException("syntax error, expect {, actual " + lexer.tokenName());
         }
 
         ObjectDeserializer keyDeserializer = parser.getConfig().getDeserializer(keyType);

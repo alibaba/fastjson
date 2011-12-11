@@ -13,7 +13,6 @@ import com.alibaba.fastjson.parser.ParseContext;
 public class HashMapDeserializer implements ObjectDeserializer {
 
     public final static HashMapDeserializer instance = new HashMapDeserializer();
-    
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
@@ -24,26 +23,18 @@ public class HashMapDeserializer implements ObjectDeserializer {
         }
 
         Map<Object, Object> map = createMap();
-        
+
         ParseContext context = parser.getContext();
 
         try {
             parser.setContext(context, map, fieldName);
-            
+
             if (lexer.token() == JSONToken.RBRACE) {
-            	lexer.nextToken(JSONToken.COMMA);
-            	return (T) map;
+                lexer.nextToken(JSONToken.COMMA);
+                return (T) map;
             }
-            
-            if (type instanceof ParameterizedType) {
-                ParameterizedType parameterizedType = (ParameterizedType) type;
-                Type keyType = parameterizedType.getActualTypeArguments()[0];
-                Type valueType = parameterizedType.getActualTypeArguments()[1];
-                
-                DefaultObjectDeserializer.instance.parseMap(parser, map, keyType, valueType, fieldName);                
-            } else {
-                parser.parseObject(map, fieldName);    
-            }
+
+            deserialze(parser, type, fieldName, map);
         } finally {
             parser.setContext(context);
         }
@@ -51,10 +42,22 @@ public class HashMapDeserializer implements ObjectDeserializer {
         return (T) map;
     }
 
-	protected Map<Object, Object> createMap() {
-		Map<Object, Object> map = new HashMap<Object, Object>();
-		return map;
-	}
+    protected void deserialze(DefaultJSONParser parser, Type type, Object fieldName, Map<Object, Object> map) {
+        if (type instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = (ParameterizedType) type;
+            Type keyType = parameterizedType.getActualTypeArguments()[0];
+            Type valueType = parameterizedType.getActualTypeArguments()[1];
+
+            DefaultObjectDeserializer.instance.parseMap(parser, map, keyType, valueType, fieldName);
+        } else {
+            parser.parseObject(map, fieldName);
+        }
+    }
+
+    protected Map<Object, Object> createMap() {
+        Map<Object, Object> map = new HashMap<Object, Object>();
+        return map;
+    }
 
     public int getFastMatchToken() {
         return JSONToken.LBRACE;

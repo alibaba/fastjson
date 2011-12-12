@@ -25,10 +25,10 @@ public class CollectionDeserializer implements ObjectDeserializer {
         Class<?> rawClass = getRawClass(type);
 
         Collection list;
-        if (rawClass.isAssignableFrom(LinkedHashSet.class)) {
-            list = new LinkedHashSet();
-        } else if (rawClass.isAssignableFrom(HashSet.class)) {
+        if (rawClass.isAssignableFrom(HashSet.class)) {
             list = new HashSet();
+        } else if (rawClass.isAssignableFrom(LinkedHashSet.class)) {
+            list = new LinkedHashSet();
         } else if (rawClass.isAssignableFrom(ArrayList.class)) {
             list = new ArrayList();
         } else {

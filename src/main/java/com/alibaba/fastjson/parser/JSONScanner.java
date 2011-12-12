@@ -2140,7 +2140,13 @@ public class JSONScanner implements JSONLexer {
         }
         while (i < max) {
             // Accumulating negatively avoids surprises near MAX_VALUE
-            digit = digits[buf[i++]];
+            char ch = buf[i++];
+            
+            if (ch == 'L') {
+                break;
+            }
+            
+            digit = digits[ch];
             if (result < multmin) {
                 throw new NumberFormatException(numberString());
             }

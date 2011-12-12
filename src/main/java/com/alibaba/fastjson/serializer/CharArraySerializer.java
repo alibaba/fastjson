@@ -13,7 +13,7 @@ public class CharArraySerializer implements ObjectSerializer {
         
         if (object == null) {
             if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {
-                out.writeString("");
+                out.write("[]");
             } else {
                 out.writeNull();
             }

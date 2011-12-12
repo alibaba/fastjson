@@ -757,6 +757,11 @@ public class JSONScanner implements JSONLexer {
 
         this.ch = buf[bp];
         token = JSONToken.IDENTIFIER;
+        
+        final int NULL_HASH = 3392903;
+        if (sp == 4 && hash == NULL_HASH && buf[np] == 'n' && buf[np + 1] == 'u' && buf[np + 2] == 'l' && buf[np + 3] == 'l') {
+            return null;
+        }
 
         return symbolTable.addSymbol(buf, np, sp, hash);
     }

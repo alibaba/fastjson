@@ -933,7 +933,14 @@ public final class SerializeWriter extends Writer {
                     writeString(value);
                 }
             } else {
-                writeFieldValueStringWithDoubleQuote(seperator, name, value);
+                if (isEnabled(SerializerFeature.BrowserCompatible)) {
+                    write(seperator);
+                    writeStringWithDoubleQuote(name);
+                    write(':');
+                    writeStringWithDoubleQuote(value);
+                } else {
+                    writeFieldValueStringWithDoubleQuote(seperator, name, value);                    
+                }
             }
         } else {
             write(seperator);

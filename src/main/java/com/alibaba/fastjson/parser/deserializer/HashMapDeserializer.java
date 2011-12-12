@@ -34,23 +34,21 @@ public class HashMapDeserializer implements ObjectDeserializer {
                 return (T) map;
             }
 
-            deserialze(parser, type, fieldName, map);
+            return (T) deserialze(parser, type, fieldName, map);
         } finally {
             parser.setContext(context);
         }
-
-        return (T) map;
     }
 
-    protected void deserialze(DefaultJSONParser parser, Type type, Object fieldName, Map<Object, Object> map) {
+    protected Object deserialze(DefaultJSONParser parser, Type type, Object fieldName, Map<Object, Object> map) {
         if (type instanceof ParameterizedType) {
             ParameterizedType parameterizedType = (ParameterizedType) type;
             Type keyType = parameterizedType.getActualTypeArguments()[0];
             Type valueType = parameterizedType.getActualTypeArguments()[1];
 
-            DefaultObjectDeserializer.instance.parseMap(parser, map, keyType, valueType, fieldName);
+            return DefaultObjectDeserializer.instance.parseMap(parser, map, keyType, valueType, fieldName);
         } else {
-            parser.parseObject(map, fieldName);
+            return parser.parseObject(map, fieldName);
         }
     }
 

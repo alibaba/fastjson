@@ -2,6 +2,7 @@ package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.Type;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -25,9 +26,9 @@ public class CharArrayDeserializer implements ObjectDeserializer {
         }
         
         if (lexer.token() == JSONToken.LITERAL_INT) {
-            String val = lexer.numberString();
+            Number val = lexer.integerValue();
             lexer.nextToken(JSONToken.COMMA);
-            return (T) val.toCharArray();
+            return (T) val.toString().toCharArray();
         }
 
         Object value = parser.parse();
@@ -36,7 +37,7 @@ public class CharArrayDeserializer implements ObjectDeserializer {
             return null;
         }
 
-        return (T) value.toString().toCharArray();
+        return (T) JSON.toJSONString(value).toCharArray();
     }
 
     public int getFastMatchToken() {

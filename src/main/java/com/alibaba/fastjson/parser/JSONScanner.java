@@ -2147,7 +2147,7 @@ public class JSONScanner implements JSONLexer {
             // Accumulating negatively avoids surprises near MAX_VALUE
             char ch = buf[i++];
             
-            if (ch == 'L') {
+            if (ch == 'L' || ch == 'S' || ch == 'B') {
                 break;
             }
             
@@ -2195,7 +2195,14 @@ public class JSONScanner implements JSONLexer {
         }
         while (i < max) {
             // Accumulating negatively avoids surprises near MAX_VALUE
-            digit = digits[buf[i++]];
+            char ch = buf[i++];
+            
+            if (ch == 'L' || ch == 'S' || ch == 'B') {
+                break;
+            }
+            
+            digit = digits[ch];
+            
             if (result < multmin) {
                 throw new NumberFormatException(numberString());
             }
@@ -2218,6 +2225,13 @@ public class JSONScanner implements JSONLexer {
     }
 
     public final String numberString() {
+        char ch = buf[np + sp - 1];
+        
+        int sp = this.sp;
+        if (ch == 'L' || ch == 'S' || ch == 'B'  || ch == 'F'  || ch == 'D' ) {
+            sp--;
+        }
+        
         return new String(buf, np, sp);
     }
 
@@ -2247,6 +2261,13 @@ public class JSONScanner implements JSONLexer {
     }
 
     public BigDecimal decimalValue() {
+        char ch = buf[np + sp - 1];
+        
+        int sp = this.sp;
+        if (ch == 'L' || ch == 'S' || ch == 'B'  || ch == 'F'  || ch == 'D' ) {
+            sp--;
+        }
+        
         return new BigDecimal(buf, np, sp);
     }
 

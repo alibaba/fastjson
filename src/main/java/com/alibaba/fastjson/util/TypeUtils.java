@@ -150,6 +150,10 @@ public class TypeUtils {
         if (value instanceof BigInteger) {
             return (BigInteger) value;
         }
+        
+        if (value instanceof Float || value instanceof Double) {
+            return BigInteger.valueOf(((Number) value).longValue());
+        }
 
         String strVal = value.toString();
         if (strVal.length() == 0) {

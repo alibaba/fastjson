@@ -13,11 +13,18 @@ import com.alibaba.fastjson.parser.JSONToken;
 public class PointDeserializer implements AutowiredObjectDeserializer {
 
     public final static PointDeserializer instance = new PointDeserializer();
+    
+    
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         JSONScanner lexer = (JSONScanner) parser.getLexer();
-
+        
+        if (lexer.token() == JSONToken.NULL) {
+            lexer.nextToken(JSONToken.COMMA);
+            return null;
+        }
+        
         if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {
             throw new JSONException("syntax error");
         }
@@ -33,17 +40,23 @@ public class PointDeserializer implements AutowiredObjectDeserializer {
             String key;
             if (lexer.token() == JSONToken.LITERAL_STRING) {
                 key = lexer.stringVal();
+                
+                if ("@type".equals(key)) {
+                    parser.acceptType("java.awt.Point");
+                    continue;
+                }
+                
                 lexer.nextTokenWithColon(JSONToken.LITERAL_INT);
             } else {
                 throw new JSONException("syntax error");
             }
-
+            
             int val;
             if (lexer.token() == JSONToken.LITERAL_INT) {
                 val = lexer.intValue();
                 lexer.nextToken();
             } else {
-                throw new JSONException("syntax error");
+                throw new JSONException("syntax error : " + lexer.tokenName());
             }
 
             if (key.equalsIgnoreCase("x")) {

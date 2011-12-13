@@ -35,6 +35,10 @@ public class ArrayDeserializer implements ObjectDeserializer {
 
     @SuppressWarnings("unchecked")
     private <T> T toObjectArray(DefaultJSONParser parser, Class<T> clazz, JSONArray array) {
+        if (array == null) {
+            return null;
+        }
+        
         int size = array.size();
 
         Class<?> componentType = clazz.getComponentType();

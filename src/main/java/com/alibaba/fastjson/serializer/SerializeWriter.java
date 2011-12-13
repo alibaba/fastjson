@@ -654,15 +654,22 @@ public final class SerializeWriter extends Writer {
             
             for (int i = start; i < end; ++i) {
                 char ch = buf[i];
-                if (ch < 32) {
+                
+                if (ch == '"' || ch == '/' || ch == '\\') {
                     lastSpecialIndex = i;
-                    newcount += 5;
+                    newcount += 1;
                     continue;
                 }
                 
-                if (ch == '"' || ch == '/') {
+                if (ch == '\b' || ch == '\f' || ch == '\n' || ch == '\r' || ch == '\t') {
                     lastSpecialIndex = i;
                     newcount += 1;
+                    continue;
+                }
+                
+                if (ch < 32) {
+                    lastSpecialIndex = i;
+                    newcount += 5;
                     continue;
                 }
                 
@@ -681,6 +688,23 @@ public final class SerializeWriter extends Writer {
             
             for (int i = lastSpecialIndex; i >= start; --i) {
                 char ch = buf[i];
+                
+                if (ch == '\b' || ch == '\f' || ch == '\n' || ch == '\r' || ch == '\t') {
+                    System.arraycopy(buf, i + 1, buf, i + 2, end - i - 1);
+                    buf[i] = '\\';
+                    buf[i + 1] = replaceChars[(int) ch];
+                    end += 1;
+                    continue;
+                }
+                
+                if (ch == '"' || ch == '/' || ch == '\\') {
+                    System.arraycopy(buf, i + 1, buf, i + 2, end - i - 1);
+                    buf[i] = '\\';
+                    buf[i + 1] = ch;
+                    end += 1;
+                    continue;
+                }
+                
                 if (ch < 32) {
                     System.arraycopy(buf, i + 1, buf, i + 6, end - i - 1);
                     buf[i] = '\\';
@@ -691,13 +715,6 @@ public final class SerializeWriter extends Writer {
                     buf[i + 5] = CharTypes.ASCII_CHARS[ch * 2 + 1];
                     end += 5;
                     continue;
-                }
-                
-                if (ch == '"' || ch == '/') {
-                    System.arraycopy(buf, i + 1, buf, i + 2, end - i - 1);
-                    buf[i] = '\\';
-                    buf[i + 1] = ch;
-                    end += 1;
                 }
                 
                 if (CharTypes.isEmoji(ch)) {

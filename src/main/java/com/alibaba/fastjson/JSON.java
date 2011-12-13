@@ -293,7 +293,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         DefaultJSONParser parser = new DefaultJSONParser(text, ParserConfig.getGlobalInstance());
 
         JSONArray array;
-        
+
         JSONLexer lexer = parser.getLexer();
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken();
@@ -306,7 +306,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
             handleResovleTask(parser, array);
         }
-        
+
         parser.close();
 
         return array;
@@ -317,12 +317,19 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             return null;
         }
 
-        List<T> list = new ArrayList<T>();
+        List<T> list;
 
         DefaultJSONParser parser = new DefaultJSONParser(text, ParserConfig.getGlobalInstance());
-        parser.parseArray(clazz, list);
+        JSONLexer lexer = parser.getLexer();
+        if (lexer.token() == JSONToken.NULL) {
+            lexer.nextToken();
+            list = null;
+        } else {
+            list = new ArrayList<T>();
+            parser.parseArray(clazz, list);
 
-        handleResovleTask(parser, list);
+            handleResovleTask(parser, list);
+        }
 
         parser.close();
 
@@ -337,7 +344,12 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         List<Object> list;
 
         DefaultJSONParser parser = new DefaultJSONParser(text, ParserConfig.getGlobalInstance());
-        list = Arrays.asList(parser.parseArray(types));
+        Object[] objectArray = parser.parseArray(types);
+        if (objectArray == null) {
+            list = null;
+        } else {
+            list = Arrays.asList(objectArray);
+        }
 
         handleResovleTask(parser, list);
 

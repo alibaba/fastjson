@@ -18,6 +18,11 @@ public class SqlDateDeserializer implements ObjectDeserializer {
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         final JSONScanner lexer = (JSONScanner) parser.getLexer();
         
+        if (lexer.token() == JSONToken.NULL) {
+            lexer.nextToken(JSONToken.COMMA);
+            return null;
+        }
+        
         if (lexer.token() == JSONToken.COMMA) {
             String key = lexer.scanSymbol(parser.getSymbolTable());
             

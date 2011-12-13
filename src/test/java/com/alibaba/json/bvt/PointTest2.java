@@ -10,12 +10,38 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class PointTest2 extends TestCase {
 
-    public void test_color() throws Exception {
+    public void test_point() throws Exception {
         Point point = new Point(3, 4);
         String text = JSON.toJSONString(point, SerializerFeature.WriteClassName);
 
         Point point2 = (Point) JSON.parse(text);
 
         Assert.assertEquals(point, point2);
+
+        Point point3 = (Point) JSON.parseObject(text, Point.class);
+
+        Assert.assertEquals(point, point3);
+    }
+
+    public void test_point2() throws Exception {
+        JSON.parseObject("{}", Point.class);
+        JSON.parseArray("[null,null]", Point.class);
+        Assert.assertNull(JSON.parseObject("null", Point.class));
+        JSON.parseObject("{\"@type\":\"java.awt.Point\"}", Point.class);
+        JSON.parseObject("{\"value\":null}", VO.class);
+    }
+
+    public static class VO {
+
+        private Point value;
+
+        public Point getValue() {
+            return value;
+        }
+
+        public void setValue(Point value) {
+            this.value = value;
+        }
+
     }
 }

@@ -19,6 +19,12 @@ public class IntegerDeserializer implements ObjectDeserializer {
     @SuppressWarnings("unchecked")
     public static <T> T deserialze(DefaultJSONParser parser) {
         final JSONLexer lexer = parser.getLexer();
+        
+        if (lexer.token() == JSONToken.NULL) {
+            lexer.nextToken(JSONToken.COMMA);
+            return null;
+        }
+        
         if (lexer.token() == JSONToken.LITERAL_INT) {
             int val = lexer.intValue();
             lexer.nextToken(JSONToken.COMMA);
@@ -33,10 +39,6 @@ public class IntegerDeserializer implements ObjectDeserializer {
         
         Object value = parser.parse();
 
-        if (value == null) {
-            return null;
-        }
-        
         return (T) TypeUtils.castToInt(value);
     }
 

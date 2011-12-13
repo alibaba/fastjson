@@ -16,6 +16,23 @@ import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 
 public class ArrayListStringDeserializerTest extends TestCase {
+    public void test_null() throws Exception {
+        Assert.assertNull(JSON.parseObject("null", new TypeReference<List<String>>() {
+        }));
+        
+        Assert.assertNull(JSON.parseArray("null", new Type[] {new TypeReference<List<String>>() {
+        }.getType()}));
+        
+        Assert.assertNull(JSON.parseArray("null", Entity.class));
+        Assert.assertNull(JSON.parseArray("null", Entity[].class));
+        Assert.assertNull(JSON.parseArray("null"));
+        Assert.assertNull(JSON.parseObject("null"));
+        Assert.assertNull(JSON.parseObject("null", Object[].class));
+        Assert.assertNull(JSON.parseObject("null", Entity[].class));
+        
+        Assert.assertNull(JSON.parseArray("[null]", new Type[] {new TypeReference<List<String>>() {
+        }.getType()}).get(0));
+    }
 
     public void test_strings() throws Exception {
         Entity a = JSON.parseObject("{units:['NANOSECONDS', 'SECONDS', 3, null]}", Entity.class);

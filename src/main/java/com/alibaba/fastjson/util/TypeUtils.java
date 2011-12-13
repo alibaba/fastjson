@@ -150,7 +150,7 @@ public class TypeUtils {
         if (value instanceof BigInteger) {
             return (BigInteger) value;
         }
-        
+
         if (value instanceof Float || value instanceof Double) {
             return BigInteger.valueOf(((Number) value).longValue());
         }
@@ -696,8 +696,43 @@ public class TypeUtils {
         }
     }
 
+    private static Map<String, Class<?>> mappings = new HashMap<String, Class<?>>();
+    static {
+        mappings.put("byte", byte.class);
+        mappings.put("short", short.class);
+        mappings.put("int", int.class);
+        mappings.put("long", long.class);
+        mappings.put("float", float.class);
+        mappings.put("double", double.class);
+        mappings.put("boolean", boolean.class);
+        mappings.put("char", char.class);
+        
+        mappings.put("[byte", byte[].class);
+        mappings.put("[short", short[].class);
+        mappings.put("[int", int[].class);
+        mappings.put("[long", long[].class);
+        mappings.put("[float", float[].class);
+        mappings.put("[double", double[].class);
+        mappings.put("[boolean", boolean[].class);
+        mappings.put("[char", char[].class);
+    }
+
     public static Class<?> loadClass(String className) {
-        Class<?> clazz = null;
+        if (className == null || className.length() == 0) {
+            return null;
+        }
+        
+        Class<?> clazz = mappings.get(className);
+        
+        if (clazz != null) {
+            return clazz;
+        }
+        
+        if (className.charAt(0) == '[') {
+            Class<?> componentType = loadClass(className.substring(1));
+            return Array.newInstance(componentType, 0).getClass();
+        }
+        
         try {
             clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
             return clazz;

@@ -20,6 +20,15 @@ public class ArrayListTypeFieldTest extends TestCase {
         Entity entity = JSON.parseObject("{list:[{value:3}]}", Entity.class, 0, Feature.AllowUnQuotedFieldNames);
         Assert.assertEquals(3, entity.getList().get(0).getValue());
     }
+    
+    public void test_null() throws Exception {
+        Entity entity = JSON.parseObject("{list:null}", Entity.class, 0, Feature.AllowUnQuotedFieldNames);
+        Assert.assertEquals(null, entity.getList());
+    }
+    public void test_null2() throws Exception {
+        Entity entity = JSON.parseObject("{list:[null]}", Entity.class, 0, Feature.AllowUnQuotedFieldNames);
+        Assert.assertEquals(null, entity.getList().get(0));
+    }
 
     public void test_error_0() throws Exception {
         Exception error = null;

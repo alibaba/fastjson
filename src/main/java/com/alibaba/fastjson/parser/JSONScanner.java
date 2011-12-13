@@ -2228,7 +2228,7 @@ public class JSONScanner implements JSONLexer {
         char ch = buf[np + sp - 1];
         
         int sp = this.sp;
-        if (ch == 'L' || ch == 'S' || ch == 'B'  || ch == 'F'  || ch == 'D' ) {
+        if (ch == 'L' || ch == 'S' || ch == 'B'  || ch == 'F'  || ch == 'D') {
             sp--;
         }
         
@@ -2264,7 +2264,7 @@ public class JSONScanner implements JSONLexer {
         char ch = buf[np + sp - 1];
         
         int sp = this.sp;
-        if (ch == 'L' || ch == 'S' || ch == 'B'  || ch == 'F'  || ch == 'D' ) {
+        if (ch == 'L' || ch == 'S' || ch == 'B'  || ch == 'F'  || ch == 'D') {
             sp--;
         }
         

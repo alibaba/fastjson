@@ -40,6 +40,10 @@ public class BigDecimalSerializer implements ObjectSerializer {
 
         BigDecimal val = (BigDecimal) object;
         out.write(val.toString());
+
+        if (out.isEnabled(SerializerFeature.WriteClassName) && fieldType != BigDecimal.class && val.scale() == 0) {
+            out.write('.');
+        }
     }
 
 }

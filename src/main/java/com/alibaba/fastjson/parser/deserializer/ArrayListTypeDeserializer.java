@@ -22,16 +22,20 @@ public class ArrayListTypeDeserializer implements ObjectDeserializer {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         Collection list = null;
-        
-        if (rawClass.isAssignableFrom(LinkedHashSet.class)) {
-            list = new LinkedHashSet();
-        } else if (rawClass.isAssignableFrom(HashSet.class)) {
-            list = new HashSet();
+
+        if (parser.getLexer().token() == JSONToken.NULL) {
+            parser.getLexer().nextToken();
         } else {
-            list = new ArrayList();
+            if (rawClass.isAssignableFrom(LinkedHashSet.class)) {
+                list = new LinkedHashSet();
+            } else if (rawClass.isAssignableFrom(HashSet.class)) {
+                list = new HashSet();
+            } else {
+                list = new ArrayList();
+            }
+            
+            parser.parseArray(itemType, list, fieldName);
         }
-        
-        parser.parseArray(itemType, list, fieldName);
 
         return (T) list;
     }

@@ -2,6 +2,7 @@ package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -25,7 +26,9 @@ public class CollectionDeserializer implements ObjectDeserializer {
         Class<?> rawClass = getRawClass(type);
 
         Collection list;
-        if (rawClass.isAssignableFrom(HashSet.class)) {
+        if (rawClass == AbstractCollection.class) {
+            list = new ArrayList();
+        } else if (rawClass.isAssignableFrom(HashSet.class)) {
             list = new HashSet();
         } else if (rawClass.isAssignableFrom(LinkedHashSet.class)) {
             list = new LinkedHashSet();

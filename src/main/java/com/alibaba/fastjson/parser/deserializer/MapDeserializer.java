@@ -49,6 +49,7 @@ public class MapDeserializer implements ObjectDeserializer {
         }
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     protected Object deserialze(DefaultJSONParser parser, Type type, Object fieldName, Map map) {
         if (type instanceof ParameterizedType) {
             ParameterizedType parameterizedType = (ParameterizedType) type;
@@ -65,6 +66,7 @@ public class MapDeserializer implements ObjectDeserializer {
         }
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     protected Map<Object, Object> createMap(Type type) {
         if (type == Properties.class) {
             return new Properties();

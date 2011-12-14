@@ -81,7 +81,7 @@ import com.alibaba.fastjson.parser.deserializer.EnumDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FileDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FloatDeserializer;
-import com.alibaba.fastjson.parser.deserializer.HashMapDeserializer;
+import com.alibaba.fastjson.parser.deserializer.MapDeserializer;
 import com.alibaba.fastjson.parser.deserializer.InetAddressDeserializer;
 import com.alibaba.fastjson.parser.deserializer.InetSocketAddressDeserializer;
 import com.alibaba.fastjson.parser.deserializer.IntegerDeserializer;
@@ -183,8 +183,8 @@ public class ParserConfig {
         derializers.put(JSONObject.class, JSONObjectDeserializer.instance);
         derializers.put(JSONArray.class, JSONArrayDeserializer.instance);
 
-        derializers.put(Map.class, HashMapDeserializer.instance);
-        derializers.put(HashMap.class, HashMapDeserializer.instance);
+        derializers.put(Map.class, MapDeserializer.instance);
+        derializers.put(HashMap.class, MapDeserializer.instance);
         derializers.put(LinkedHashMap.class, LinkedHashMapDeserializer.instance);
         derializers.put(TreeMap.class, TreeMapDeserializer.instance);
         derializers.put(ConcurrentMap.class, ConcurrentHashMapDeserializer.instance);
@@ -305,7 +305,7 @@ public class ParserConfig {
         } else if (Collection.class.isAssignableFrom(clazz)) {
             derializer = CollectionDeserializer.instance;
         } else if (Map.class.isAssignableFrom(clazz)) {
-            derializer = this.defaultSerializer;
+            derializer = MapDeserializer.instance;
         } else if (Throwable.class.isAssignableFrom(clazz)) {
             derializer = new ThrowableDeserializer(this, clazz);
         } else {

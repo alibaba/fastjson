@@ -1,9 +1,13 @@
 package com.alibaba.json.bvt.parser.deser;
 
+import java.util.AbstractCollection;
+import java.util.AbstractList;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.Vector;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -37,6 +41,27 @@ public class CollectionDeserializerTest extends TestCase {
         Assert.assertEquals(TreeSet.class, JSON.parseObject("[]", TreeSet.class).getClass());
         Assert.assertEquals(null, JSON.parseObject("{value:null}", V3.class).getValue());
         Assert.assertEquals(null, JSON.parseObject("null", TreeSet.class));
+    }
+    
+    public void test_vector() throws Exception {
+        Assert.assertEquals(Vector.class, JSON.parseObject("{value:[]}", V4.class).getValue().getClass());
+        Assert.assertEquals(Vector.class, JSON.parseObject("[]", Vector.class).getClass());
+        Assert.assertEquals(null, JSON.parseObject("{value:null}", V4.class).getValue());
+        Assert.assertEquals(null, JSON.parseObject("null", Vector.class));
+    }
+    
+    public void test_AbstractList() throws Exception {
+        Assert.assertEquals(ArrayList.class, JSON.parseObject("{value:[]}", V5.class).getValue().getClass());
+        Assert.assertEquals(ArrayList.class, JSON.parseObject("[]", AbstractList.class).getClass());
+        Assert.assertEquals(null, JSON.parseObject("{value:null}", V5.class).getValue());
+        Assert.assertEquals(null, JSON.parseObject("null", AbstractList.class));
+    }
+    
+    public void test_AbstractCollection() throws Exception {
+        Assert.assertEquals(ArrayList.class, JSON.parseObject("{value:[]}", V6.class).getValue().getClass());
+        Assert.assertEquals(ArrayList.class, JSON.parseObject("[]", AbstractCollection.class).getClass());
+        Assert.assertEquals(null, JSON.parseObject("{value:null}", V6.class).getValue());
+        Assert.assertEquals(null, JSON.parseObject("null", AbstractCollection.class));
     }
     
     public static class VO {
@@ -93,5 +118,47 @@ public class CollectionDeserializerTest extends TestCase {
             this.value = value;
         }
 
+    }
+    
+    public static class V4 {
+        
+        private Vector value;
+        
+        public Vector getValue() {
+            return value;
+        }
+        
+        public void setValue(Vector value) {
+            this.value = value;
+        }
+        
+    }
+    
+    public static class V5 {
+        
+        private AbstractList value;
+        
+        public AbstractList getValue() {
+            return value;
+        }
+        
+        public void setValue(AbstractList value) {
+            this.value = value;
+        }
+        
+    }
+    
+    public static class V6 {
+        
+        private AbstractCollection value;
+        
+        public AbstractCollection getValue() {
+            return value;
+        }
+        
+        public void setValue(AbstractCollection value) {
+            this.value = value;
+        }
+        
     }
 }

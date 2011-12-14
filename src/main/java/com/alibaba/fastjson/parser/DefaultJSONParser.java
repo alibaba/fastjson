@@ -465,6 +465,8 @@ public class DefaultJSONParser extends AbstractJSONParser {
                 }
                 contextArray[end] = null;
                 contextArrayIndex--;
+                
+                clearChildContext(item, i + 1);
             }
         }
     }

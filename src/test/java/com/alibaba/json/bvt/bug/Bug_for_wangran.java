@@ -26,7 +26,13 @@ public class Bug_for_wangran extends TestCase {
         
         for (PhysicalQueue q : qe.getPhysicalQueueMap().values()) {
             q.getInRate();
+            Assert.assertEquals(qe, q.getQueue());
         }
+        
+        Assert.assertEquals(qe.getPhysicalQueueMap(), qe.getPqMap());
+        Assert.assertEquals(true, qe.getPhysicalQueueMap() == qe.getPqMap());
+        Assert.assertEquals("amq", qe.getDescription());
+        
     }
 }
 // 500m / 300

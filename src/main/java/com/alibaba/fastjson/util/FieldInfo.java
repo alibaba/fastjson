@@ -62,6 +62,10 @@ public class FieldInfo implements Comparable<FieldInfo> {
             this.declaringClass = field.getDeclaringClass();
         }
     }
+    
+    public String toString() {
+        return this.name;
+    }
 
     public Class<?> getDeclaringClass() {
         return declaringClass;

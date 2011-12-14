@@ -22,6 +22,9 @@ import java.util.Calendar;
  * @author wenshao<szujobs@hotmail.com>
  */
 public interface JSONLexer {
+    boolean isResetFlag();
+    
+    void setResetFlag(boolean resetFlag);
 
     void nextToken();
 

@@ -43,7 +43,7 @@ import com.alibaba.fastjson.util.Base64;
  */
 public class JSONScanner implements JSONLexer {
 
-    public final static byte                 EOI      = 0x1A;
+    public final static byte                 EOI       = 0x1A;
 
     private final char[]                     buf;
     private int                              bp;
@@ -76,13 +76,15 @@ public class JSONScanner implements JSONLexer {
      */
     private int                              token;
 
-    private Keywords                         keywods  = Keywords.DEFAULT_KEYWORDS;
+    private Keywords                         keywods   = Keywords.DEFAULT_KEYWORDS;
 
-    private final static ThreadLocal<char[]> sbufRef  = new ThreadLocal<char[]>();
+    private final static ThreadLocal<char[]> sbufRef   = new ThreadLocal<char[]>();
 
-    private int                              features = JSON.DEFAULT_PARSER_FEATURE;
+    private int                              features  = JSON.DEFAULT_PARSER_FEATURE;
 
-    private Calendar                         calendar = null;
+    private Calendar                         calendar  = null;
+
+    private boolean                          resetFlag = false;
 
     public JSONScanner(String input){
         this(input, JSON.DEFAULT_PARSER_FEATURE);
@@ -124,6 +126,14 @@ public class JSONScanner implements JSONLexer {
         ch = buf[++bp];
     }
 
+    public boolean isResetFlag() {
+        return resetFlag;
+    }
+
+    public void setResetFlag(boolean resetFlag) {
+        this.resetFlag = resetFlag;
+    }
+
     public final int getBufferPosition() {
         return bp;
     }
@@ -132,6 +142,8 @@ public class JSONScanner implements JSONLexer {
         this.bp = mark;
         this.ch = mark_ch;
         this.token = token;
+
+        resetFlag = true;
     }
 
     public boolean isBlankInput() {
@@ -757,9 +769,10 @@ public class JSONScanner implements JSONLexer {
 
         this.ch = buf[bp];
         token = JSONToken.IDENTIFIER;
-        
+
         final int NULL_HASH = 3392903;
-        if (sp == 4 && hash == NULL_HASH && buf[np] == 'n' && buf[np + 1] == 'u' && buf[np + 2] == 'l' && buf[np + 3] == 'l') {
+        if (sp == 4 && hash == NULL_HASH && buf[np] == 'n' && buf[np + 1] == 'u' && buf[np + 2] == 'l'
+            && buf[np + 3] == 'l') {
             return null;
         }
 
@@ -2146,11 +2159,11 @@ public class JSONScanner implements JSONLexer {
         while (i < max) {
             // Accumulating negatively avoids surprises near MAX_VALUE
             char ch = buf[i++];
-            
+
             if (ch == 'L' || ch == 'S' || ch == 'B') {
                 break;
             }
-            
+
             digit = digits[ch];
             if (result < multmin) {
                 throw new NumberFormatException(numberString());
@@ -2196,13 +2209,13 @@ public class JSONScanner implements JSONLexer {
         while (i < max) {
             // Accumulating negatively avoids surprises near MAX_VALUE
             char ch = buf[i++];
-            
+
             if (ch == 'L' || ch == 'S' || ch == 'B') {
                 break;
             }
-            
+
             digit = digits[ch];
-            
+
             if (result < multmin) {
                 throw new NumberFormatException(numberString());
             }
@@ -2226,12 +2239,12 @@ public class JSONScanner implements JSONLexer {
 
     public final String numberString() {
         char ch = buf[np + sp - 1];
-        
+
         int sp = this.sp;
-        if (ch == 'L' || ch == 'S' || ch == 'B'  || ch == 'F'  || ch == 'D') {
+        if (ch == 'L' || ch == 'S' || ch == 'B' || ch == 'F' || ch == 'D') {
             sp--;
         }
-        
+
         return new String(buf, np, sp);
     }
 
@@ -2262,12 +2275,12 @@ public class JSONScanner implements JSONLexer {
 
     public BigDecimal decimalValue() {
         char ch = buf[np + sp - 1];
-        
+
         int sp = this.sp;
-        if (ch == 'L' || ch == 'S' || ch == 'B'  || ch == 'F'  || ch == 'D') {
+        if (ch == 'L' || ch == 'S' || ch == 'B' || ch == 'F' || ch == 'D') {
             sp--;
         }
-        
+
         return new BigDecimal(buf, np, sp);
     }
 

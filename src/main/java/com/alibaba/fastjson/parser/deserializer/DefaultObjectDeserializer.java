@@ -7,6 +7,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -27,6 +28,7 @@ import com.alibaba.fastjson.util.ASMClassLoader;
 import com.alibaba.fastjson.util.TypeUtils;
 
 public class DefaultObjectDeserializer implements ObjectDeserializer {
+
     public final static DefaultObjectDeserializer instance = new DefaultObjectDeserializer();
 
     public DefaultObjectDeserializer(){
@@ -99,7 +101,7 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
 
                     return object;
                 }
-                
+
                 if (map.size() == 0 && lexer.token() == JSONToken.LITERAL_STRING && "@type".equals(lexer.stringVal())) {
                     lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
                     lexer.nextToken(JSONToken.COMMA);
@@ -111,9 +113,9 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
                 if (lexer.token() != JSONToken.COLON) {
                     throw new JSONException("syntax error, expect :, actual " + lexer.token());
                 }
-                
+
                 lexer.nextToken(valueDeserializer.getFastMatchToken());
-                
+
                 Object value = valueDeserializer.deserialze(parser, valueType, key);
 
                 if (map.size() == 0) {
@@ -141,92 +143,99 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
             throw new JSONException("syntax error, expect {, actual " + lexer.token());
         }
 
-        for (;;) {
-            lexer.skipWhitespace();
-            char ch = lexer.getCurrent();
-            if (parser.isEnabled(Feature.AllowArbitraryCommas)) {
-                while (ch == ',') {
-                    lexer.incrementBufferPosition();
+        ParseContext context = parser.getContext();
+        try {
+            for (;;) {
+                lexer.skipWhitespace();
+                char ch = lexer.getCurrent();
+                if (parser.isEnabled(Feature.AllowArbitraryCommas)) {
+                    while (ch == ',') {
+                        lexer.incrementBufferPosition();
+                        lexer.skipWhitespace();
+                        ch = lexer.getCurrent();
+                    }
+                }
+
+                String key;
+                if (ch == '"') {
+                    key = lexer.scanSymbol(parser.getSymbolTable(), '"');
                     lexer.skipWhitespace();
                     ch = lexer.getCurrent();
-                }
-            }
+                    if (ch != ':') {
+                        throw new JSONException("expect ':' at " + lexer.pos());
+                    }
+                } else if (ch == '}') {
+                    lexer.incrementBufferPosition();
+                    lexer.resetStringPosition();
+                    return map;
+                } else if (ch == '\'') {
+                    if (!parser.isEnabled(Feature.AllowSingleQuotes)) {
+                        throw new JSONException("syntax error");
+                    }
 
-            String key;
-            if (ch == '"') {
-                key = lexer.scanSymbol(parser.getSymbolTable(), '"');
-                lexer.skipWhitespace();
-                ch = lexer.getCurrent();
-                if (ch != ':') {
-                    throw new JSONException("expect ':' at " + lexer.pos());
+                    key = lexer.scanSymbol(parser.getSymbolTable(), '\'');
+                    lexer.skipWhitespace();
+                    ch = lexer.getCurrent();
+                    if (ch != ':') {
+                        throw new JSONException("expect ':' at " + lexer.pos());
+                    }
+                } else {
+                    if (!parser.isEnabled(Feature.AllowUnQuotedFieldNames)) {
+                        throw new JSONException("syntax error");
+                    }
+
+                    key = lexer.scanSymbolUnQuoted(parser.getSymbolTable());
+                    lexer.skipWhitespace();
+                    ch = lexer.getCurrent();
+                    if (ch != ':') {
+                        throw new JSONException("expect ':' at " + lexer.pos() + ", actual " + ch);
+                    }
                 }
-            } else if (ch == '}') {
+
                 lexer.incrementBufferPosition();
+                lexer.skipWhitespace();
+                ch = lexer.getCurrent();
+
                 lexer.resetStringPosition();
-                return map;
-            } else if (ch == '\'') {
-                if (!parser.isEnabled(Feature.AllowSingleQuotes)) {
-                    throw new JSONException("syntax error");
-                }
 
-                key = lexer.scanSymbol(parser.getSymbolTable(), '\'');
-                lexer.skipWhitespace();
-                ch = lexer.getCurrent();
-                if (ch != ':') {
-                    throw new JSONException("expect ':' at " + lexer.pos());
-                }
-            } else {
-                if (!parser.isEnabled(Feature.AllowUnQuotedFieldNames)) {
-                    throw new JSONException("syntax error");
-                }
+                if (key == "@type") {
+                    String typeName = lexer.scanSymbol(parser.getSymbolTable(), '"');
+                    Class<?> clazz = TypeUtils.loadClass(typeName);
 
-                key = lexer.scanSymbolUnQuoted(parser.getSymbolTable());
-                lexer.skipWhitespace();
-                ch = lexer.getCurrent();
-                if (ch != ':') {
-                    throw new JSONException("expect ':' at " + lexer.pos() + ", actual " + ch);
-                }
-            }
+                    if (clazz == map.getClass()) {
+                        lexer.nextToken(JSONToken.COMMA);
+                        continue;
+                    }
 
-            lexer.incrementBufferPosition();
-            lexer.skipWhitespace();
-            ch = lexer.getCurrent();
+                    ObjectDeserializer deserializer = parser.getConfig().getDeserializer(clazz);
 
-            lexer.resetStringPosition();
-
-            if (key == "@type") {
-                String typeName = lexer.scanSymbol(parser.getSymbolTable(), '"');
-                Class<?> clazz = TypeUtils.loadClass(typeName);
-
-                if (clazz == map.getClass()) {
                     lexer.nextToken(JSONToken.COMMA);
-                    continue;
+
+                    parser.setResolveStatus(DefaultJSONParser.TypeNameRedirect);
+                    return (Map) deserializer.deserialze(parser, clazz, fieldName);
+                }
+                
+                Object value;
+                lexer.nextToken();
+
+                if (lexer.token() == JSONToken.NULL) {
+                    value = null;
+                    lexer.nextToken();
+                } else {
+                    value = parser.parseObject(valueType);
                 }
 
-                ObjectDeserializer deserializer = parser.getConfig().getDeserializer(clazz);
+                map.put(key, value);
+                
+                parser.setContext(context, value, key);
 
-                lexer.nextToken(JSONToken.COMMA);
-
-                parser.setResolveStatus(DefaultJSONParser.TypeNameRedirect);
-                return (Map) deserializer.deserialze(parser, clazz, fieldName);
+                if (lexer.token() == JSONToken.RBRACE) {
+                    lexer.nextToken();
+                    return map;
+                }
             }
-
-            Object value;
-            lexer.nextToken();
-
-            if (lexer.token() == JSONToken.NULL) {
-                value = null;
-                lexer.nextToken();
-            } else {
-                value = parser.parseObject(valueType);
-            }
-
-            map.put(key, value);
-
-            if (lexer.token() == JSONToken.RBRACE) {
-                lexer.nextToken();
-                return map;
-            }
+        } finally {
+            parser.setContext(context);
         }
 
     }
@@ -237,8 +246,13 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
 
         JSONScanner lexer = (JSONScanner) parser.getLexer(); // xxx
 
-        if (lexer.token() != JSONToken.LBRACE) {
-            throw new JSONException("syntax error, expect {, actual " + lexer.token());
+        if (lexer.token() == JSONToken.RBRACE) {
+            lexer.nextToken(JSONToken.COMMA);
+            return;
+        }
+
+        if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {
+            throw new JSONException("syntax error, expect {, actual " + lexer.tokenName());
         }
 
         final Object[] args = new Object[1];
@@ -345,7 +359,7 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
                 lexer.nextToken();
                 return null;
             }
-            
+
             Type rawType = type.getRawType();
             if (rawType instanceof Class<?>) {
                 Class<?> rawClass = (Class<?>) rawType;
@@ -402,6 +416,8 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
             value = new ConcurrentHashMap();
         } else if (clazz.isAssignableFrom(Properties.class)) {
             value = new Properties();
+        } else if (clazz.isAssignableFrom(IdentityHashMap.class)) {
+            value = new IdentityHashMap();
         }
 
         if (clazz == Class.class) {
@@ -413,6 +429,10 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
             if (classValue instanceof String) {
                 return (T) ASMClassLoader.forName((String) classValue);
             }
+        }
+
+        if (value == null) {
+            throw new JSONException("not support type : " + clazz);
         }
 
         try {

@@ -129,9 +129,10 @@ public class DefaultObjectDeserializerTest2 extends TestCase {
 
         DefaultObjectDeserializer deser = new DefaultObjectDeserializer();
 
+        Object val = null;
         Exception error = null;
         try {
-            JSON.parseObject(input, new TypeReference<Map1<String, HashMap>>() {
+            val = JSON.parseObject(input, new TypeReference<Map1<String, HashMap>>() {
             }.getType());
         } catch (Exception ex) {
             error = ex;
@@ -140,6 +141,10 @@ public class DefaultObjectDeserializerTest2 extends TestCase {
     }
 
     public static interface Map1<K, V> extends Map<K, V> {
+
+    }
+    
+    public static class Map2<K, V> extends HashMap<K, V> {
 
     }
 }

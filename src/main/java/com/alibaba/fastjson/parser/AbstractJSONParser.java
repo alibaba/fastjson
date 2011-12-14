@@ -208,7 +208,7 @@ public abstract class AbstractJSONParser {
                     return null;
                 }
             default:
-                throw new JSONException("TODO " + JSONToken.name(lexer.token()) + " " + lexer.stringVal());
+                throw new JSONException("TODO " + lexer.tokenName() + " " + lexer.stringVal());
         }
     }
 

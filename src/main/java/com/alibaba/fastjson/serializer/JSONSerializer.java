@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -379,6 +380,8 @@ public class JSONSerializer {
                 config.put(clazz, AppendableSerializer.instance);
             } else if (Charset.class.isAssignableFrom(clazz)) {
                 config.put(clazz, CharsetSerializer.instance);
+            } else if (Enumeration.class.isAssignableFrom(clazz)) {
+                config.put(clazz, EnumerationSeriliazer.instance);
             } else {
                 if (Proxy.isProxyClass(clazz)) {
                     config.put(clazz, config.createJavaBeanSerializer(clazz));

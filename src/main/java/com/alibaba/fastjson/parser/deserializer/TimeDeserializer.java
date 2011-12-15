@@ -54,12 +54,13 @@ public class TimeDeserializer implements ObjectDeserializer {
                 return null;
             }
             
+            long longVal;
             JSONScanner dateLexer = new JSONScanner(strVal);
             if (dateLexer.scanISO8601DateIfMatch()) {
-                return (T) dateLexer.getCalendar().getTime();
+                longVal = dateLexer.getCalendar().getTimeInMillis();
+            } else {
+                longVal = Long.parseLong(strVal);
             }
-
-            long longVal = Long.parseLong(strVal);
             return (T) new java.sql.Time(longVal);
         }
         

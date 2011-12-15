@@ -31,6 +31,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
@@ -2360,7 +2362,8 @@ public class JSONScanner implements JSONLexer {
             return false;
         }
 
-        calendar = Calendar.getInstance();
+        Locale local = Locale.getDefault();
+        calendar = Calendar.getInstance(TimeZone.getDefault(), local);
         int year = digits[y0] * 1000 + digits[y1] * 100 + digits[y2] * 10 + digits[y3];
         int month = digits[M0] * 10 + digits[M1] - 1;
         int day = digits[d0] * 10 + digits[d1];

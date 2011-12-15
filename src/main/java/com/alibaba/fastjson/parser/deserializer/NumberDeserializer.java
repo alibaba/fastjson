@@ -14,11 +14,6 @@ public class NumberDeserializer implements ObjectDeserializer {
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        return (T) deserialze(parser);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T> T deserialze(DefaultJSONParser parser) {
         final JSONLexer lexer = parser.getLexer();
         if (lexer.token() == JSONToken.LITERAL_INT) {
             long val = lexer.longValue();

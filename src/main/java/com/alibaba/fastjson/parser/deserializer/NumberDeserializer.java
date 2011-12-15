@@ -19,6 +19,18 @@ public class NumberDeserializer implements ObjectDeserializer {
             long val = lexer.longValue();
             lexer.nextToken(JSONToken.COMMA);
             
+            if (clazz == double.class || clazz  == Double.class) {
+                return (T) Double.valueOf(val);
+            }
+            
+            if (clazz == short.class || clazz  == Short.class) {
+                return (T) Short.valueOf((short) val);
+            }
+            
+            if (clazz == byte.class || clazz  == Byte.class) {
+                return (T) Byte.valueOf((byte) val);
+            }
+            
             if (val >= Integer.MIN_VALUE && val <= Integer.MAX_VALUE) {
                 return (T) Integer.valueOf((int) val);    
             }
@@ -26,8 +38,24 @@ public class NumberDeserializer implements ObjectDeserializer {
         }
 
         if (lexer.token() == JSONToken.LITERAL_FLOAT) {
+            if (clazz == double.class || clazz  == Double.class) {
+                String val = lexer.numberString();
+                lexer.nextToken(JSONToken.COMMA);
+                return (T) Double.valueOf(Double.parseDouble(val));
+            }
+            
+            
             BigDecimal val = lexer.decimalValue();
             lexer.nextToken(JSONToken.COMMA);
+            
+            if (clazz == short.class || clazz  == Short.class) {
+                return (T) Short.valueOf(val.shortValue());
+            }
+            
+            if (clazz == byte.class || clazz  == Byte.class) {
+                return (T) Byte.valueOf(val.byteValue());
+            }
+            
             return (T) val;
         }
 
@@ -36,7 +64,19 @@ public class NumberDeserializer implements ObjectDeserializer {
         if (value == null) {
             return null;
         }
-
+        
+        if (clazz == double.class || clazz  == Double.class) {
+            return (T) TypeUtils.castToDouble(value);
+        }
+        
+        if (clazz == short.class || clazz  == Short.class) {
+            return (T) TypeUtils.castToShort(value);
+        }
+        
+        if (clazz == byte.class || clazz  == Byte.class) {
+            return (T) TypeUtils.castToByte(value);
+        }
+        
         return (T) TypeUtils.castToBigDecimal(value);
     }
 

@@ -70,7 +70,7 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
                 } else {
                     throw new JSONException("syntax error");
                 }
-                lexer.nextToken();
+                lexer.nextToken(JSONToken.COMMA);
             } else if ("message".equals(key)) {
                 if (lexer.token() == JSONToken.NULL) {
                     message = null;

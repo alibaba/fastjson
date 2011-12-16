@@ -430,6 +430,21 @@ public class ASMDeserializerFactory implements Opcodes {
             if (maxStack < constructorTypeStack) {
                 maxStack = constructorTypeStack;
             }
+        } else {
+            Method factoryMethod = context.getBeanInfo().getFactoryMethod();
+            if (factoryMethod != null) {
+                int paramStacks = 2;
+                for (Class<?> type : factoryMethod.getParameterTypes()) {
+                    if (type == long.class || type == double.class) {
+                        paramStacks += 2;
+                    } else {
+                        paramStacks++;
+                    }
+                }
+                if (maxStack < paramStacks) {
+                    maxStack = paramStacks;
+                }
+            }
         }
 
         mw.visitMaxs(maxStack, context.getVariantCount());

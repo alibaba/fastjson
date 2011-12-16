@@ -186,7 +186,7 @@ public class ASMDeserializerFactory implements Opcodes {
                     mw.visitTypeInsn(NEW, getType(context.getClazz()));
                     mw.visitInsn(DUP);
                     mw.visitMethodInsn(INVOKESPECIAL, getType(context.getClazz()), "<init>", "()V");
-    
+
                     mw.visitVarInsn(ASTORE, context.var("instance"));
                 } else {
                     mw.visitVarInsn(ALOAD, 0);
@@ -416,7 +416,23 @@ public class ASMDeserializerFactory implements Opcodes {
                                    + "Ljava/lang/Object;)Ljava/lang/Object;");
         mw.visitInsn(ARETURN);
 
-        mw.visitMaxs(4, context.getVariantCount());
+        int maxStack = 4;
+        Constructor<?> creatorConstructor = context.getBeanInfo().getCreatorConstructor();
+        if (creatorConstructor != null) {
+            int constructorTypeStack = 2;
+            for (Class<?> type : creatorConstructor.getParameterTypes()) {
+                if (type == long.class || type == double.class) {
+                    constructorTypeStack += 2;
+                } else {
+                    constructorTypeStack++;
+                }
+            }
+            if (maxStack < constructorTypeStack) {
+                maxStack = constructorTypeStack;
+            }
+        }
+
+        mw.visitMaxs(maxStack, context.getVariantCount());
         mw.visitEnd();
     }
 
@@ -438,8 +454,6 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitVarInsn(ILOAD, context.var(fieldInfo.getName() + "_asm"));
             } else if (fieldClass == long.class) {
                 mw.visitVarInsn(LLOAD, context.var(fieldInfo.getName() + "_asm", 2));
-                mw.visitMethodInsn(INVOKEVIRTUAL, getType(context.getClazz()), fieldInfo.getName(), "(J)V");
-                continue;
             } else if (fieldClass == float.class) {
                 mw.visitVarInsn(FLOAD, context.var(fieldInfo.getName() + "_asm"));
             } else if (fieldClass == double.class) {

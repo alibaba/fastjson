@@ -1,28 +1,29 @@
 package com.alibaba.json.bvt.parser.deser;
 
+import java.awt.Font;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.parser.deserializer.FontDeserializer;
 
-public class StackTraceElementDeserializerTest extends TestCase {
 
-    public void test_stack() throws Exception {
+public class FontDeserializerTest extends TestCase {
+    public void test_0 () throws Exception {
+        FontDeserializer.instance.getFastMatchToken();
+        
         Assert.assertNull(JSON.parseObject("null", StackTraceElement.class));
         Assert.assertNull(JSON.parseArray("null", StackTraceElement.class));
         Assert.assertNull(JSON.parseArray("[null]", StackTraceElement.class).get(0));
         Assert.assertNull(JSON.parseObject("{\"value\":null}", VO.class).getValue());
-        Assert.assertNull(JSON.parseObject("{\"className\":\"int\",\"methodName\":\"parseInt\"}",
-                                           StackTraceElement.class).getFileName());
-        
-        Assert.assertEquals(StackTraceElement.class, ((StackTraceElement) JSON.parse("{\"@type\":\"java.lang.StackTraceElement\",\"className\":\"int\",\"methodName\":\"parseInt\"}")).getClass());
     }
-
-    public void test_stack_error() throws Exception {
+    
+    public void test_stack_error_0() throws Exception {
         Exception error = null;
         try {
-            JSON.parseObject("{}", StackTraceElement.class);
+            JSON.parseObject("[]", Font.class);
         } catch (JSONException ex) {
             error = ex;
         }
@@ -32,7 +33,7 @@ public class StackTraceElementDeserializerTest extends TestCase {
     public void test_stack_error_1() throws Exception {
         Exception error = null;
         try {
-            JSON.parseObject("[]", StackTraceElement.class);
+            JSON.parseObject("{33:22}", Font.class);
         } catch (JSONException ex) {
             error = ex;
         }
@@ -42,31 +43,52 @@ public class StackTraceElementDeserializerTest extends TestCase {
     public void test_stack_error_2() throws Exception {
         Exception error = null;
         try {
-            JSON.parseObject("{\"className\":null,\"methodName\":null,\"fileName\":null,\"lineNumber\":null,\"@type\":\"xxx\"}", StackTraceElement.class);
+            JSON.parseObject("{\"name\":22}", Font.class);
         } catch (JSONException ex) {
             error = ex;
         }
         Assert.assertNotNull(error);
     }
+    
     public void test_stack_error_3() throws Exception {
         Exception error = null;
         try {
-            JSON.parseObject("{\"@type\":33}", StackTraceElement.class);
+            JSON.parseObject("{\"style\":true}", Font.class);
         } catch (JSONException ex) {
             error = ex;
         }
         Assert.assertNotNull(error);
     }
-
+    
+    public void test_stack_error_4() throws Exception {
+        Exception error = null;
+        try {
+            JSON.parseObject("{\"size\":\"33\"}", Font.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_stack_error_5() throws Exception {
+        Exception error = null;
+        try {
+            JSON.parseObject("{\"xxx\":22}", Font.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
     public static class VO {
 
-        private StackTraceElement value;
+        private Font value;
 
-        public StackTraceElement getValue() {
+        public Font getValue() {
             return value;
         }
 
-        public void setValue(StackTraceElement value) {
+        public void setValue(Font value) {
             this.value = value;
         }
 

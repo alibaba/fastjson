@@ -285,7 +285,7 @@ public class ParserConfig {
             derializer = new EnumDeserializer(clazz);
         } else if (clazz.isArray()) {
             return ArrayDeserializer.instance;
-        } else if (clazz == Set.class || clazz == Collection.class || clazz == List.class || clazz == ArrayList.class) {
+        } else if (clazz == Set.class || clazz == HashSet.class || clazz == Collection.class || clazz == List.class || clazz == ArrayList.class) {
             if (type instanceof ParameterizedType) {
                 Type itemType = ((ParameterizedType) type).getActualTypeArguments()[0];
                 if (itemType == String.class) {

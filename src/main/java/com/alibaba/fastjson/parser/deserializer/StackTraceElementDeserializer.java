@@ -20,7 +20,7 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
             return null;
         }
 
-        if (!(lexer.token() != JSONToken.LBRACE || lexer.token() != JSONToken.COMMA)) {
+        if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {
             throw new JSONException("syntax error: " + JSONToken.name(lexer.token()));
         }
 
@@ -30,11 +30,6 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
         int lineNumber = 0;
 
         for (;;) {
-            if (lexer.token() == JSONToken.RBRACE) {
-                lexer.nextToken(JSONToken.COMMA);
-                break;
-            }
-
             // lexer.scanSymbol
             String key = lexer.scanSymbol(parser.getSymbolTable());
 

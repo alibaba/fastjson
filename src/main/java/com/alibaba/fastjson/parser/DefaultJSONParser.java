@@ -68,6 +68,8 @@ public class DefaultJSONParser extends AbstractJSONParser {
 
     private final static Set<Class<?>> primitiveClasses  = new HashSet<Class<?>>();
 
+    private String                     dateFomrat        = JSON.DEFFAULT_DATE_FORMAT;
+
     public Object getObject(String path) {
         for (int i = 0; i < contextArrayIndex; ++i) {
             if (path.equals(contextArray[i].getPath())) {
@@ -98,6 +100,14 @@ public class DefaultJSONParser extends AbstractJSONParser {
         primitiveClasses.add(BigInteger.class);
         primitiveClasses.add(BigDecimal.class);
         primitiveClasses.add(String.class);
+    }
+
+    public String getDateFomrat() {
+        return dateFomrat;
+    }
+
+    public void setDateFomrat(String dateFomrat) {
+        this.dateFomrat = dateFomrat;
     }
 
     public DefaultJSONParser(String input){
@@ -436,7 +446,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
         if (isEnabled(Feature.DisableCircularReferenceDetect)) {
             return null;
         }
-        
+
         if (lexer.isResetFlag()) {
             for (int i = 0; i < contextArrayIndex; ++i) {
                 ParseContext item = contextArray[i];
@@ -454,7 +464,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
         }
         return this.context;
     }
-    
+
     private void clearChildContext(ParseContext parent, int start) {
         for (int i = start; i < contextArrayIndex; ++i) {
             ParseContext item = contextArray[i];
@@ -465,7 +475,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                 }
                 contextArray[end] = null;
                 contextArrayIndex--;
-                
+
                 clearChildContext(item, i + 1);
             }
         }
@@ -611,7 +621,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
             lexer.nextToken(JSONToken.COMMA);
             return null;
         }
-        
+
         if (lexer.token() != JSONToken.LBRACKET) {
             throw new JSONException("syntax error : " + lexer.tokenName());
         }

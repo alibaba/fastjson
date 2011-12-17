@@ -4,7 +4,6 @@ import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONScanner;
@@ -37,7 +36,7 @@ public class DateDeserializer implements ObjectDeserializer {
                 return (T) dateLexer.getCalendar().getTime();
             }
             
-            SimpleDateFormat dateFormat = new SimpleDateFormat(JSON.DEFFAULT_DATE_FORMAT);
+            SimpleDateFormat dateFormat = new SimpleDateFormat(parser.getDateFomrat());
             try {
                 return (T) dateFormat.parse(strVal);
             } catch (ParseException e) {

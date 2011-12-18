@@ -20,6 +20,7 @@ import java.io.Writer;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONStreamAware;
@@ -44,14 +46,17 @@ public class JSONSerializer {
 
     private final SerializeWriter                  out;
 
-    private List<PropertyFilter>                   propertyFilters = null;
-    private List<ValueFilter>                      valueFilters    = null;
-    private List<NameFilter>                       nameFilters     = null;
+    private List<PropertyFilter>                   propertyFilters   = null;
+    private List<ValueFilter>                      valueFilters      = null;
+    private List<NameFilter>                       nameFilters       = null;
 
-    private int                                    indentCount     = 0;
-    private String                                 indent          = "\t";
+    private int                                    indentCount       = 0;
+    private String                                 indent            = "\t";
 
-    private IdentityHashMap<Object, SerialContext> references      = null;
+    private String                                 dateFormatPatterm = JSON.DEFFAULT_DATE_FORMAT;
+    private DateFormat                             dateFormat;
+
+    private IdentityHashMap<Object, SerialContext> references        = null;
     private SerialContext                          context;
 
     public JSONSerializer(){
@@ -74,6 +79,29 @@ public class JSONSerializer {
     public JSONSerializer(SerializeWriter out, SerializeConfig config){
         this.out = out;
         this.config = config;
+    }
+
+    public String getDateFormatPattern() {
+        return dateFormatPatterm;
+    }
+    
+    public DateFormat getDateFormat() {
+        if (dateFormat == null) {
+            dateFormat = new SimpleDateFormat(dateFormatPatterm);
+        }
+        
+        return dateFormat;
+    }
+    
+    public void setDateFormat(DateFormat dateFormat) {
+        this.dateFormat = dateFormat;
+    }
+
+    public void setDateFormat(String dateFormat) {
+        this.dateFormatPatterm = dateFormat;
+        if (this.dateFormat != null) {
+            this.dateFormat = null;  
+        }
     }
 
     public SerialContext getContext() {

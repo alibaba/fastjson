@@ -380,6 +380,32 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             out.close();
         }
     }
+    
+    /**
+     * @since 1.1.14
+     */
+    public static final String toJSONStringWithDateFormat(Object object, String dateFormat, SerializerFeature... features) {
+        SerializeWriter out = new SerializeWriter();
+
+        try {
+            JSONSerializer serializer = new JSONSerializer(out);
+            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
+                serializer.config(feature, true);
+            }
+            
+            serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
+            
+            if (dateFormat != null) {
+                serializer.setDateFormat(dateFormat);
+            }
+
+            serializer.write(object);
+
+            return out.toString();
+        } finally {
+            out.close();
+        }
+    }
 
     public static final byte[] toJSONBytes(Object object, SerializerFeature... features) {
         SerializeWriter out = new SerializeWriter();

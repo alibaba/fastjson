@@ -87,7 +87,12 @@ public enum SerializerFeature {
     /**
      * @since 1.1.10
      */
-    BrowserCompatible
+    BrowserCompatible,
+    
+    /**
+     * Since 1.1.14
+     */
+    WriteDateUseDateFormat
     ;
 
     private SerializerFeature(){

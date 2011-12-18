@@ -17,6 +17,7 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -37,7 +38,7 @@ public class DateSerializer implements ObjectSerializer {
             return;
         }
 
-        if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
+        if (out.isEnabled(SerializerFeature.WriteClassName)) {
             if (object.getClass() != fieldType) {
                 if (object.getClass() == java.util.Date.class) {
                     out.write("new Date(");
@@ -52,8 +53,16 @@ public class DateSerializer implements ObjectSerializer {
                 return;
             }
         }
-
+        
         Date date = (Date) object;
+        
+        if (out.isEnabled(SerializerFeature.WriteDateUseDateFormat)) {
+            DateFormat format = serializer.getDateFormat();
+            String text = format.format(date);
+            out.writeString(text);
+            return;
+        }
+
         long time = date.getTime();
         if (serializer.isEnabled(SerializerFeature.UseISO8601DateFormat)) {
             if (serializer.isEnabled(SerializerFeature.UseSingleQuotes)) {

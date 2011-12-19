@@ -48,6 +48,76 @@ public class StackTraceElementDeserializerTest extends TestCase {
         }
         Assert.assertNotNull(error);
     }
+    
+    public void test_stack_error_3() throws Exception {
+        Exception error = null;
+        try {
+            JSON.parseObject("{\"@type\":int}", StackTraceElement.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_stack_error_4() throws Exception {
+        Exception error = null;
+        try {
+            JSON.parseObject("{\"xxx\":33}", StackTraceElement.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_stack_error_5() throws Exception {
+        Exception error = null;
+        try {
+            JSON.parseObject("{\"nativeMethod\":33}", StackTraceElement.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_stack_error_6() throws Exception {
+        Exception error = null;
+        try {
+            JSON.parseObject("{\"lineNumber\":33}", StackTraceElement.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_stack_error_7() throws Exception {
+        Exception error = null;
+        try {
+            JSON.parseObject("{\"fileName\":33}", StackTraceElement.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_stack_error_8() throws Exception {
+        Exception error = null;
+        try {
+            JSON.parseObject("{\"methodName\":33}", StackTraceElement.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_stack_error_9() throws Exception {
+        Exception error = null;
+        try {
+            JSON.parseObject("{\"className\":33}", StackTraceElement.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
 
     public static class VO {
 

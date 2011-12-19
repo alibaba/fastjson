@@ -1,5 +1,7 @@
 package com.alibaba.json.bvt.parser;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CoderResult;
@@ -7,7 +9,6 @@ import java.nio.charset.CoderResult;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.ThreadLocalCache;
 import com.alibaba.fastjson.util.UTF8Decoder;
@@ -24,7 +25,7 @@ public class IOUtilsTest extends TestCase {
         }
         Assert.assertNotNull(error);
     }
-    
+
     public void test_error_1() throws Exception {
         Exception error = null;
         try {
@@ -35,7 +36,7 @@ public class IOUtilsTest extends TestCase {
         }
         Assert.assertNotNull(error);
     }
-    
+
     public void test_error_2() throws Exception {
         Exception error = null;
         try {
@@ -47,6 +48,30 @@ public class IOUtilsTest extends TestCase {
         Assert.assertNotNull(error);
     }
 
+    public void test_close() throws Exception {
+        IOUtils.close((Closeable) null);
+    }
+
+    public void test_close1() throws Exception {
+        IOUtils.close(new Closeable() {
+
+            public void close() throws IOException {
+
+            }
+
+        });
+    }
+
+    public void test_close_error() throws Exception {
+        IOUtils.close(new Closeable() {
+
+            public void close() throws IOException {
+                throw new IOException();
+            }
+
+        });
+    }
+
     public static class MockCharsetDecoder extends UTF8Decoder {
 
         @Override
@@ -54,7 +79,7 @@ public class IOUtilsTest extends TestCase {
             return CoderResult.OVERFLOW;
         }
     }
-    
+
     public static class MockCharsetDecoder2 extends UTF8Decoder {
 
         @Override

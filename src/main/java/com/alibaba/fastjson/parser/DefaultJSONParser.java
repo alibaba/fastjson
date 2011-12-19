@@ -23,6 +23,8 @@ import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -68,7 +70,8 @@ public class DefaultJSONParser extends AbstractJSONParser {
 
     private final static Set<Class<?>> primitiveClasses  = new HashSet<Class<?>>();
 
-    private String                     dateFomrat        = JSON.DEFFAULT_DATE_FORMAT;
+    private String                     dateFormatPattern = JSON.DEFFAULT_DATE_FORMAT;
+    private DateFormat                 dateFormat;
 
     public Object getObject(String path) {
         for (int i = 0; i < contextArrayIndex; ++i) {
@@ -102,12 +105,24 @@ public class DefaultJSONParser extends AbstractJSONParser {
         primitiveClasses.add(String.class);
     }
 
-    public String getDateFomrat() {
-        return dateFomrat;
+    public String getDateFomartPattern() {
+        return dateFormatPattern;
     }
 
-    public void setDateFomrat(String dateFomrat) {
-        this.dateFomrat = dateFomrat;
+    public DateFormat getDateFormat() {
+        if (dateFormat == null) {
+            dateFormat = new SimpleDateFormat(dateFormatPattern);
+        }
+        return dateFormat;
+    }
+
+    public void setDateFormat(String dateFormat) {
+        this.dateFormatPattern = dateFormat;
+        this.dateFormat = null;
+    }
+    
+    public void setDateFomrat(DateFormat dateFormat) {
+        this.dateFormat = dateFormat;
     }
 
     public DefaultJSONParser(String input){

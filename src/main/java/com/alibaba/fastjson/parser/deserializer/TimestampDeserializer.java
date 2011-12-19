@@ -2,6 +2,7 @@ package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -36,7 +37,7 @@ public class TimestampDeserializer implements ObjectDeserializer {
                 return null;
             }
             
-            SimpleDateFormat dateFormat = new SimpleDateFormat(parser.getDateFomrat());
+            DateFormat dateFormat = parser.getDateFormat();
             try {
                 Date date = (Date) dateFormat.parse(strVal);
                 return (T) new Timestamp(date.getTime());

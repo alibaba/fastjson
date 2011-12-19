@@ -1,6 +1,7 @@
 package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.Type;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -70,7 +71,7 @@ public class SqlDateDeserializer implements ObjectDeserializer {
                 longVal = dateLexer.getCalendar().getTimeInMillis();
             } else {
 
-                SimpleDateFormat dateFormat = new SimpleDateFormat(parser.getDateFomrat());
+                DateFormat dateFormat = parser.getDateFormat();
                 try {
                     java.util.Date date = (java.util.Date) dateFormat.parse(strVal);
                     return (T) new java.sql.Date(date.getTime());

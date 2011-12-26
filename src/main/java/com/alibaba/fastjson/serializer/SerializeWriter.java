@@ -290,6 +290,7 @@ public final class SerializeWriter extends Writer {
      */
     public void close() {
         bufLocal.set(new SoftReference<char[]>(buf));
+        this.buf = null;
     }
 
     public void writeBooleanArray(boolean[] array) throws IOException {

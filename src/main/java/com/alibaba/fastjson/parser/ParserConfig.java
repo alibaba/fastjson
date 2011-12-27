@@ -15,7 +15,9 @@
  */
 package com.alibaba.fastjson.parser;
 
+import java.io.Closeable;
 import java.io.File;
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -227,6 +229,11 @@ public class ParserConfig {
         derializers.put(AtomicIntegerArray.class, AtomicIntegerArrayDeserializer.instance);
         derializers.put(AtomicLongArray.class, AtomicLongArrayDeserializer.instance);
         derializers.put(StackTraceElement.class, StackTraceElementDeserializer.instance);
+        
+        derializers.put(Serializable.class, defaultSerializer);
+        derializers.put(Cloneable.class, defaultSerializer);
+        derializers.put(Comparable.class, defaultSerializer);
+        derializers.put(Closeable.class, defaultSerializer);
     }
 
     public boolean isAsmEnable() {

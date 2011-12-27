@@ -11,9 +11,10 @@ import com.alibaba.fastjson.JSON;
 public class Bug_for_wangran2 extends TestCase {
 
     public void test_for_wangran() throws Exception {
-        String text = "{\"first\":{\"id\":1001},\"id\":23,\"name\":\"xxx\",\"children\":[{\"root\":{\"$ref\":\"$\"}}]}";
+        String text = "{\"first\":{\"id\":1001},\"second\":{\"id\":1002,\"root\":{\"$ref\":\"$\"}},\"id\":23,\"name\":\"xxx\",\"children\":[{\"root\":{\"$ref\":\"$\"}},{\"$ref\":\"$.second\"}]}";
         Root root = JSON.parseObject(text, Root.class);
         Assert.assertTrue(root == root.getChildren().get(0).getRoot());
+        Assert.assertTrue(root == root.getChildren().get(1).getRoot());
     }
 
     public static class Root {
@@ -22,11 +23,20 @@ public class Bug_for_wangran2 extends TestCase {
         private String      name;
 
         private Child       first;
+        private Child       second;
 
         private List<Child> children = new ArrayList<Child>();
 
         public Root(){
 
+        }
+
+        public Child getSecond() {
+            return second;
+        }
+
+        public void setSecond(Child second) {
+            this.second = second;
         }
 
         public Child getFirst() {
@@ -68,9 +78,9 @@ public class Bug_for_wangran2 extends TestCase {
         private int  id;
 
         private Root root;
-        
-        public Child() {
-            
+
+        public Child(){
+
         }
 
         public Root getRoot() {

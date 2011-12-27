@@ -55,6 +55,12 @@ public class JSONTest extends TestCase {
         Assert.assertEquals("中国", JSON.parse("\"\\u4E2D\\u56FD\"").toString());
         Assert.assertEquals("\u001F", JSON.parse("\"\\u001F\"").toString());
     }
+    
+    public void test_for_jh() throws Exception {
+        String text = "[{\"I.13\":\"XEMwXFMweGEuMHhjOFxGy87M5VxUxOO6ww==\",\"I.18\":\"MA==\"},{\"I.13\":\"XEMwXFMweGEuMHhjOFxGy87M5VxUxOO6ww==\",\"I.18\":\"MA==\"}]";
+        JSON.parse(text);
+        JSON.parseArray(text);
+    }
 
     public void test_value() throws Exception {
         Assert.assertEquals(Boolean.TRUE, JSON.parse("true"));

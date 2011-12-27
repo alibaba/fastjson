@@ -96,8 +96,8 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
                     }
                     lexer.nextToken(JSONToken.COMMA);
 
-                    parser.setContext(context, map, fieldName);
-                    parser.setContext(context);
+                    //parser.setContext(context, map, fieldName);
+                    //parser.setContext(context);
 
                     return object;
                 }
@@ -118,7 +118,7 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
 
                 Object value = valueDeserializer.deserialze(parser, valueType, key);
 
-                if (map.size() == 0) {
+                if (map.size() == 0 && context != null && context.getObject() != map) {
                     parser.setContext(context, map, fieldName);
                 }
 

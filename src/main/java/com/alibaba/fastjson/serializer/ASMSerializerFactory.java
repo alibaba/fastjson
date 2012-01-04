@@ -473,9 +473,9 @@ public class ASMSerializerFactory implements Opcodes {
                                "(CLjava/lang/String;L" + getType(Enum.class) + ";)V");
         }
 
-        mw.visitLabel(_end_if);
-
         _seperator(mw, context);
+        
+        mw.visitLabel(_end_if);
 
         mw.visitLabel(_end);
     }

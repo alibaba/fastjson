@@ -2,6 +2,7 @@ package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -38,7 +39,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
     @SuppressWarnings("rawtypes")
     @Override
-    public void parseField(DefaultJSONParser parser, Object object, Map<String, Object> fieldValues) {
+    public void parseField(DefaultJSONParser parser, Object object, Type objectType, Map<String, Object> fieldValues) {
         if (parser.getLexer().token() == JSONToken.NULL) {
             setValue(object, null);
             return;
@@ -49,7 +50,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
         ParseContext context = parser.getContext();
 
         parser.setContext(context, object, fieldInfo.getName());
-        parseArray(parser, list);
+        parseArray(parser, objectType, list);
         parser.setContext(context);
 
         if (object == null) {
@@ -60,7 +61,34 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public final void parseArray(DefaultJSONParser parser, Collection array) {
+    public final void parseArray(DefaultJSONParser parser, Type objectType, Collection array) {
+        Type itemType = this.itemType;;
+        
+        if (itemType instanceof TypeVariable && objectType instanceof ParameterizedType) {
+            TypeVariable typeVar = (TypeVariable) itemType;
+            ParameterizedType paramType = (ParameterizedType) objectType;
+
+            Class<?> objectClass = null;
+            if (paramType.getRawType() instanceof Class) {
+                objectClass = (Class<?>) paramType.getRawType();
+            }
+
+            int paramIndex = -1;
+            if (objectClass != null) {
+                for (int i = 0, size = objectClass.getTypeParameters().length; i < size; ++i) {
+                    TypeVariable item = objectClass.getTypeParameters()[i];
+                    if (item.getName().equals(typeVar.getName())) {
+                        paramIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            if (paramIndex != -1) {
+                itemType = paramType.getActualTypeArguments()[paramIndex];
+            }
+        }
+
         final JSONLexer lexer = parser.getLexer();
 
         if (lexer.token() != JSONToken.LBRACKET) {

@@ -31,7 +31,7 @@ public abstract class FieldDeserializer {
         return fieldInfo.getFieldType();
     }
 
-    public abstract void parseField(DefaultJSONParser parser, Object object, Map<String, Object> fieldValues);
+    public abstract void parseField(DefaultJSONParser parser, Object object, Type objectType, Map<String, Object> fieldValues);
 
     public abstract int getFastMatchToken();
 

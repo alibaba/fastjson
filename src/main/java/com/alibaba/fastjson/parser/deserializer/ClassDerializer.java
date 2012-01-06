@@ -18,6 +18,12 @@ public class ClassDerializer implements ObjectDeserializer {
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         JSONLexer lexer = parser.getLexer();
+        
+        if (lexer.token() == JSONToken.NULL) {
+            lexer.nextToken();
+            return null;
+        }
+        
         if (lexer.token() != JSONToken.LITERAL_STRING) {
             throw new JSONException("expect className");
         }

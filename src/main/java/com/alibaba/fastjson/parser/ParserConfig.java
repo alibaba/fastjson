@@ -264,7 +264,7 @@ public class ParserConfig {
 
         if (type instanceof ParameterizedType) {
             Type rawType = ((ParameterizedType) type).getRawType();
-            return getDeserializer((Class<?>) rawType, type);
+            return getDeserializer(rawType);
         }
 
         return this.defaultSerializer;
@@ -275,7 +275,12 @@ public class ParserConfig {
         if (derializer != null) {
             return derializer;
         }
-
+        
+        derializer = derializers.get(clazz);
+        if (derializer != null) {
+            return derializer;
+        }
+        
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         for (AutowiredObjectDeserializer autowired : ServiceLoader.load(AutowiredObjectDeserializer.class, classLoader)) {
             for (Type forType : autowired.getAutowiredFor()) {
@@ -325,6 +330,10 @@ public class ParserConfig {
 
         boolean asmEnable = this.asmEnable;
         if (asmEnable && !Modifier.isPublic(clazz.getModifiers())) {
+            asmEnable = false;
+        }
+        
+        if (clazz.getTypeParameters().length != 0) {
             asmEnable = false;
         }
         

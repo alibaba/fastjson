@@ -17,7 +17,7 @@ public class ASMClassLoader extends ClassLoader {
     }
 
     public ASMClassLoader(){
-        super(ASMClassLoader.class.getClassLoader());
+        super(Thread.currentThread().getContextClassLoader());
     }
 
     public Class<?> defineClassPublic(String name, byte[] b, int off, int len) throws ClassFormatError {

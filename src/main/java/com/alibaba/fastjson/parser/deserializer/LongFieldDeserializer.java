@@ -1,5 +1,6 @@
 package com.alibaba.fastjson.parser.deserializer;
 
+import java.lang.reflect.Type;
 import java.util.Map;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
@@ -20,7 +21,7 @@ public class LongFieldDeserializer extends FieldDeserializer {
     }
 
     @Override
-    public void parseField(DefaultJSONParser parser, Object object, Map<String, Object> fieldValues) {
+    public void parseField(DefaultJSONParser parser, Object object, Type objectType, Map<String, Object> fieldValues) {
         Long value;
         
         final JSONLexer lexer = parser.getLexer();

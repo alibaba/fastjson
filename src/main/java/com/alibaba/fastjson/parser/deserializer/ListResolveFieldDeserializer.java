@@ -1,5 +1,6 @@
 package com.alibaba.fastjson.parser.deserializer;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +24,7 @@ public final class ListResolveFieldDeserializer extends FieldDeserializer {
     }
 
     @Override
-    public void parseField(DefaultJSONParser parser, Object object, Map<String, Object> fieldValues) {
+    public void parseField(DefaultJSONParser parser, Object object, Type objectType, Map<String, Object> fieldValues) {
 
     }
 

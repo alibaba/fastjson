@@ -51,7 +51,7 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
         return serializer.getFieldDeserializerMap().get(name).getFieldType();
     }
 
-    public boolean parseField(DefaultJSONParser parser, String key, Object object, Map<String, Object> fieldValues) {
+    public boolean parseField(DefaultJSONParser parser, String key, Object object, Type objectType, Map<String, Object> fieldValues) {
         JSONScanner lexer = (JSONScanner) parser.getLexer(); // xxx
 
         FieldDeserializer fieldDeserializer = serializer.getFieldDeserializerMap().get(key);
@@ -68,7 +68,7 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
         }
 
         lexer.nextTokenWithColon(fieldDeserializer.getFastMatchToken());
-        fieldDeserializer.parseField(parser, object, fieldValues);
+        fieldDeserializer.parseField(parser, object, objectType, fieldValues);
         return true;
     }
 
@@ -78,8 +78,8 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
             super(mapping, clazz);
         }
 
-        public boolean parseField(DefaultJSONParser parser, String key, Object object, Map<String, Object> fieldValues) {
-            return ASMJavaBeanDeserializer.this.parseField(parser, key, object, fieldValues);
+        public boolean parseField(DefaultJSONParser parser, String key, Object object, Type objectType, Map<String, Object> fieldValues) {
+            return ASMJavaBeanDeserializer.this.parseField(parser, key, object, objectType, fieldValues);
         }
 
         public FieldDeserializer createFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {

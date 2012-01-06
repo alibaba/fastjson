@@ -219,7 +219,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     childContext = parser.setContext(context, object, fieldName);
                 }
 
-                boolean match = parseField(parser, key, object, fieldValues);
+                boolean match = parseField(parser, key, object, type, fieldValues);
                 if (!match) {
                     if (lexer.token() == JSONToken.RBRACE) {
                         lexer.nextToken();
@@ -283,7 +283,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         }
     }
 
-    public boolean parseField(DefaultJSONParser parser, String key, Object object, Map<String, Object> fieldValues) {
+    public boolean parseField(DefaultJSONParser parser, String key, Object object, Type objectType, Map<String, Object> fieldValues) {
         JSONScanner lexer = (JSONScanner) parser.getLexer(); // xxx
 
         FieldDeserializer fieldDeserializer = feildDeserializerMap.get(key);
@@ -299,7 +299,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         }
 
         lexer.nextTokenWithColon(fieldDeserializer.getFastMatchToken());
-        fieldDeserializer.parseField(parser, object, fieldValues);
+        
+        fieldDeserializer.parseField(parser, object, objectType, fieldValues);
 
         return true;
     }

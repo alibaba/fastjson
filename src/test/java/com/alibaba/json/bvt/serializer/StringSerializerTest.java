@@ -144,7 +144,7 @@ public class StringSerializerTest extends TestCase {
 	public void test_10_d() throws Exception {
 		SerializeWriter out = new SerializeWriter();
 
-		out.writeFieldName("123\na\nb\nc\nd\"'e");
+		out.writeFieldName("123\na\nb\nc\nd\"'e", true);
 		Assert.assertEquals("\"123\\na\\nb\\nc\\nd\\\"'e\":", out.toString());
 	}
 

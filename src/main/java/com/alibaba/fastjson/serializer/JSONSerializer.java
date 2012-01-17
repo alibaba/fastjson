@@ -145,6 +145,29 @@ public class JSONSerializer {
         }
         this.references.put(object, context);
     }
+    
+    public boolean isWriteClassName() {
+        return isEnabled(SerializerFeature.WriteClassName);
+    }
+    
+    public final boolean isWriteClassName(Type fieldType, Object obj) {
+        boolean result = out.isEnabled(SerializerFeature.WriteClassName);
+        
+        if (!result) {
+            return false;
+        }
+        
+        if (fieldType == null) {
+            if (this.isEnabled(SerializerFeature.NotWriteRootClassName)) {
+                boolean isRoot = context.getParent() == null;
+                if (isRoot) {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    }
 
     public Collection<SerialContext> getReferences() {
         if (references == null) {

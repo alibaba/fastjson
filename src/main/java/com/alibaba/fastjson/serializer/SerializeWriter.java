@@ -739,6 +739,7 @@ public final class SerializeWriter extends Writer {
             } else {
                 buf[count - 1] = '\"';
             }
+
             return;
         }
 

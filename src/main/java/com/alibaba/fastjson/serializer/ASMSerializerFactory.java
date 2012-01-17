@@ -308,13 +308,20 @@ public class ASMSerializerFactory implements Opcodes {
             Label end_ = new Label();
             Label else_ = new Label();
             Label writeClass_ = new Label();
-
-            mw.visitVarInsn(ALOAD, context.var("out"));
-            mw.visitFieldInsn(GETSTATIC, getType(SerializerFeature.class), "WriteClassName",
-                              "L" + getType(SerializerFeature.class) + ";");
-            mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "isEnabled",
-                               "(" + "L" + getType(SerializerFeature.class) + ";" + ")Z");
+            
+            mw.visitVarInsn(ALOAD, context.serializer());
+            mw.visitVarInsn(ALOAD, context.paramFieldType());
+            mw.visitVarInsn(ALOAD, context.obj());
+            mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "isWriteClassName",
+                               "(Ljava/lang/reflect/Type;Ljava/lang/Object;)Z");
             mw.visitJumpInsn(IFEQ, else_);
+            
+//            mw.visitVarInsn(ALOAD, context.var("out"));
+//            mw.visitFieldInsn(GETSTATIC, getType(SerializerFeature.class), "WriteClassName",
+//                              "L" + getType(SerializerFeature.class) + ";");
+//            mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "isEnabled",
+//                               "(" + "L" + getType(SerializerFeature.class) + ";" + ")Z");
+//            mw.visitJumpInsn(IFEQ, else_);
 
             // mw.visitVarInsn(ALOAD, context.paramFieldType());
             // mw.visitJumpInsn(IFNULL, writeClass_);

@@ -117,7 +117,7 @@ public class MapSerializer implements ObjectSerializer {
                         out.write(',');
                     }
 
-                    out.writeFieldName(key);
+                    out.writeFieldName(key, true);
                 } else {
                     if (!first) {
                         out.write(',');

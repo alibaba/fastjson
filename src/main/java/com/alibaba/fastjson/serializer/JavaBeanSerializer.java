@@ -71,8 +71,8 @@ public class JavaBeanSerializer implements ObjectSerializer {
         getters = getterList.toArray(new FieldSerializer[getterList.size()]);
     }
 
-    protected boolean isWriteClassName(JSONSerializer serializer) {
-        return serializer.isEnabled(SerializerFeature.WriteClassName);
+    protected boolean isWriteClassName(JSONSerializer serializer, Object obj, Type fieldType, Object fieldName) {
+        return serializer.isWriteClassName(fieldType, obj);
     }
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
@@ -107,7 +107,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
             boolean commaFlag = false;
 
-            if (isWriteClassName(serializer)) {
+            if (isWriteClassName(serializer, object, fieldType, fieldName)) {
                 Class<?> objClass = object.getClass();
                 if (objClass != fieldType) {
                     out.writeFieldName("@type");

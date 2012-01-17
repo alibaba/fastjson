@@ -90,9 +90,14 @@ public enum SerializerFeature {
     BrowserCompatible,
     
     /**
-     * Since 1.1.14
+     * @since 1.1.14
      */
-    WriteDateUseDateFormat
+    WriteDateUseDateFormat,
+    
+    /**
+     * @since 1.1.15
+     */
+    NotWriteRootClassName
     ;
 
     private SerializerFeature(){

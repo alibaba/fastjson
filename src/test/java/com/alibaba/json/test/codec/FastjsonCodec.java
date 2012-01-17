@@ -9,6 +9,7 @@ import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.SerializeWriter;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class FastjsonCodec implements Codec {
 
@@ -46,6 +47,7 @@ public class FastjsonCodec implements Codec {
 
     public String encode(Object object) throws Exception {
         SerializeWriter out = new SerializeWriter();
+        out.config(SerializerFeature.DisableCircularReferenceDetect, true);
 
         JSONSerializer.write(out, object);
 

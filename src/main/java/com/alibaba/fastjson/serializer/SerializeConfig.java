@@ -39,6 +39,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.util.ASMClassLoader;
 import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.IdentityHashMap;
 
@@ -63,7 +64,12 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
         if (!Modifier.isPublic(clazz.getModifiers())) {
             return new JavaBeanSerializer(clazz);
         }
-
+        
+        boolean asm = this.asm;
+        
+        if (asm && ASMClassLoader.isExternalClass(clazz)) {
+            asm = false;
+        }
         if (asm) {
             try {
                 return createASMSerializer(clazz);

@@ -84,15 +84,15 @@ public class JSONSerializer {
     public String getDateFormatPattern() {
         return dateFormatPatterm;
     }
-    
+
     public DateFormat getDateFormat() {
         if (dateFormat == null) {
             dateFormat = new SimpleDateFormat(dateFormatPatterm);
         }
-        
+
         return dateFormat;
     }
-    
+
     public void setDateFormat(DateFormat dateFormat) {
         this.dateFormat = dateFormat;
     }
@@ -100,7 +100,7 @@ public class JSONSerializer {
     public void setDateFormat(String dateFormat) {
         this.dateFormatPatterm = dateFormat;
         if (this.dateFormat != null) {
-            this.dateFormat = null;  
+            this.dateFormat = null;
         }
     }
 
@@ -145,18 +145,18 @@ public class JSONSerializer {
         }
         this.references.put(object, context);
     }
-    
+
     public boolean isWriteClassName() {
         return isEnabled(SerializerFeature.WriteClassName);
     }
-    
+
     public final boolean isWriteClassName(Type fieldType, Object obj) {
         boolean result = out.isEnabled(SerializerFeature.WriteClassName);
-        
+
         if (!result) {
             return false;
         }
-        
+
         if (fieldType == null) {
             if (this.isEnabled(SerializerFeature.NotWriteRootClassName)) {
                 boolean isRoot = context.getParent() == null;
@@ -165,7 +165,7 @@ public class JSONSerializer {
                 }
             }
         }
-        
+
         return true;
     }
 
@@ -340,16 +340,15 @@ public class JSONSerializer {
     }
 
     public final void write(Object object) {
+        if (object == null) {
+            out.writeNull();
+            return;
+        }
+
+        Class<?> clazz = object.getClass();
+        ObjectSerializer writer = getObjectWriter(clazz);
+        
         try {
-            if (object == null) {
-                out.writeNull();
-                return;
-            }
-
-            Class<?> clazz = object.getClass();
-
-            ObjectSerializer writer = getObjectWriter(clazz);
-
             writer.write(this, object, null, null);
         } catch (IOException e) {
             throw new JSONException(e.getMessage(), e);

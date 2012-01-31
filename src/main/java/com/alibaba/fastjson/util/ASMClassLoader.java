@@ -10,6 +10,7 @@ public class ASMClassLoader extends ClassLoader {
 
     static {
         DOMAIN = (java.security.ProtectionDomain) java.security.AccessController.doPrivileged(new PrivilegedAction<Object>() {
+
             public Object run() {
                 return ASMClassLoader.class.getProtectionDomain();
             }
@@ -33,5 +34,24 @@ public class ASMClassLoader extends ClassLoader {
         } catch (ClassNotFoundException e) {
             throw new JSONException("class nout found : " + className);
         }
+    }
+
+    public static boolean isExternalClass(Class<?> clazz) {
+        ClassLoader classLoader = clazz.getClassLoader();
+
+        if (classLoader == null) {
+            return false;
+        }
+
+        ClassLoader current = Thread.currentThread().getContextClassLoader();
+        while (current != null) {
+            if (current == classLoader) {
+                return false;
+            }
+            
+            current = current.getParent();
+        }
+
+        return true;
     }
 }

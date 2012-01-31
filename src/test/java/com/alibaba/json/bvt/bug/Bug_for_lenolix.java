@@ -16,6 +16,8 @@ public class Bug_for_lenolix extends TestCase {
         String[] array = map.get("key");
         Assert.assertEquals("value1", array[0]);
         Assert.assertEquals("value2", array[1]);
+        
+        System.out.println(Thread.currentThread().getContextClassLoader().getResource("com/alibaba/fastjson/JSON.class"));
     }
 
     

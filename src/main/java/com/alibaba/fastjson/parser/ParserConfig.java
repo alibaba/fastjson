@@ -106,6 +106,7 @@ import com.alibaba.fastjson.parser.deserializer.TimestampDeserializer;
 import com.alibaba.fastjson.parser.deserializer.URIDeserializer;
 import com.alibaba.fastjson.parser.deserializer.URLDeserializer;
 import com.alibaba.fastjson.parser.deserializer.UUIDDeserializer;
+import com.alibaba.fastjson.util.ASMClassLoader;
 import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.DeserializeBeanInfo;
 import com.alibaba.fastjson.util.FieldInfo;
@@ -337,6 +338,10 @@ public class ParserConfig {
             asmEnable = false;
         }
         
+        if (ASMClassLoader.isExternalClass(clazz)) {
+            asmEnable = false;
+        }
+        
         if (asmEnable) {
             DeserializeBeanInfo beanInfo = DeserializeBeanInfo.computeSetters(clazz);
             for (FieldInfo fieldInfo : beanInfo.getFieldList()) {
@@ -379,6 +384,10 @@ public class ParserConfig {
         }
 
         if (fieldInfo.getFieldClass() == Class.class) {
+            asmEnable = false;
+        }
+        
+        if (ASMClassLoader.isExternalClass(clazz)) {
             asmEnable = false;
         }
 

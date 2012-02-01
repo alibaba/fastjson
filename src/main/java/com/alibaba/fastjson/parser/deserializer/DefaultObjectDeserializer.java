@@ -1,11 +1,14 @@
 package com.alibaba.fastjson.parser.deserializer;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -346,6 +349,20 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
 
         if (type instanceof WildcardType) {
             return (T) parser.parse(fieldName);
+        }
+        
+        if (type instanceof GenericArrayType) {
+            Type componentType = ((GenericArrayType) type).getGenericComponentType();
+            List<Object> list = new ArrayList<Object>();
+            parser.parseArray(componentType, list);
+            if (componentType instanceof Class) {
+                Class<?> componentClass = (Class<?>) componentType;
+                Object[] array = (Object[]) Array.newInstance(componentClass, list.size());
+                
+                list.toArray(array);
+                
+                return (T) array;
+            }
         }
 
         throw new JSONException("not support type : " + type);

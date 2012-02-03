@@ -203,6 +203,15 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     if (lexer.token() == JSONToken.LITERAL_STRING) {
                         String typeName = lexer.stringVal();
                         lexer.nextToken(JSONToken.COMMA);
+                        
+                        if (type instanceof Class && typeName.equals(((Class<?>)type).getName())) {
+                            if (lexer.token() == JSONToken.RBRACE) {
+                                lexer.nextToken();
+                                break;
+                            }
+                            continue;
+                        }
+                        
                         Class<?> userType = TypeUtils.loadClass(typeName);
                         ObjectDeserializer deserizer = parser.getConfig().getDeserializer(userType);
                         return (T) deserizer.deserialze(parser, userType, fieldName);

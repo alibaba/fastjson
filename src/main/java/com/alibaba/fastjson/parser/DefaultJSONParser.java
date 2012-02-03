@@ -273,6 +273,9 @@ public class DefaultJSONParser extends AbstractJSONParser {
                     String typeName = lexer.scanSymbol(symbolTable, '"');
                     Class<?> clazz = TypeUtils.loadClass(typeName);
 
+                    if (clazz == null) {
+                        continue;
+                    }
                     ObjectDeserializer deserializer = config.getDeserializer(clazz);
 
                     lexer.nextToken(JSONToken.COMMA);

@@ -26,8 +26,8 @@ public class WriteClassNameTest_Set2 extends TestCase {
         A a1 = (A) JSON.parse(text);
 
         Assert.assertEquals(2, a1.getList().size());
-        Assert.assertTrue("B", new ArrayList<B>(a1.getList()).get(0) instanceof B);
-        Assert.assertTrue("B1", new ArrayList<B>(a1.getList()).get(1) instanceof B1);
+        Assert.assertTrue("B", new ArrayList<B>(a1.getList()).get(0) instanceof B || new ArrayList<B>(a1.getList()).get(0) instanceof B1);
+        Assert.assertTrue("B1", new ArrayList<B>(a1.getList()).get(1) instanceof B || new ArrayList<B>(a1.getList()).get(1) instanceof B1);
     }
 
     private static class A {

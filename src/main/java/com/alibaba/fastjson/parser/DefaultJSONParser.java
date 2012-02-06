@@ -210,6 +210,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                     }
                 }
 
+                boolean isObjectKey = false;
                 Object key;
                 if (ch == '"') {
                     key = lexer.scanSymbol(symbolTable, '"');
@@ -250,6 +251,10 @@ public class DefaultJSONParser extends AbstractJSONParser {
                     if (ch != ':') {
                         throw new JSONException("expect ':' at " + lexer.pos() + ", name " + key);
                     }
+                } else if (ch == '{' || ch == '[') {
+                    lexer.nextToken();
+                    key = parse();
+                    isObjectKey = true;
                 } else {
                     if (!isEnabled(Feature.AllowUnQuotedFieldNames)) {
                         throw new JSONException("syntax error");
@@ -263,8 +268,11 @@ public class DefaultJSONParser extends AbstractJSONParser {
                     }
                 }
 
-                lexer.incrementBufferPosition();
-                lexer.skipWhitespace();
+                if (!isObjectKey) {
+                    lexer.incrementBufferPosition();
+                    lexer.skipWhitespace();
+                }
+                
                 ch = lexer.getCurrent();
 
                 lexer.resetStringPosition();

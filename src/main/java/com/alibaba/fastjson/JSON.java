@@ -526,13 +526,15 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
 
         if (javaObject instanceof Map) {
-            Map<String, Object> map = (Map<String, Object>) javaObject;
+            Map<Object, Object> map = (Map<Object, Object>) javaObject;
 
             JSONObject json = new JSONObject(map.size());
 
-            for (Map.Entry<String, Object> entry : map.entrySet()) {
+            for (Map.Entry<Object, Object> entry : map.entrySet()) {
+                Object key = entry.getKey();
+                String jsonKey = TypeUtils.castToString(key);
                 Object jsonValue = toJSON(entry.getValue());
-                json.put(entry.getKey(), jsonValue);
+                json.put(jsonKey, jsonValue);
             }
 
             return json;

@@ -285,16 +285,24 @@ public class DefaultJSONParser extends AbstractJSONParser {
                         object.put("@type", typeName);
                         continue;
                     }
-                    ObjectDeserializer deserializer = config.getDeserializer(clazz);
 
                     lexer.nextToken(JSONToken.COMMA);
-
+                    if (lexer.token() == JSONToken.RBRACE) {
+                        lexer.nextToken(JSONToken.COMMA);
+                        try {
+                            return clazz.newInstance();
+                        } catch (Exception e) {
+                            throw new JSONException("create instance error", e);
+                        }
+                    }
+                    
                     this.resolveStatus = TypeNameRedirect;
 
                     if (this.context != null) {
                         this.popContext();
                     }
 
+                    ObjectDeserializer deserializer = config.getDeserializer(clazz);
                     return deserializer.deserialze(this, clazz, fieldName);
                 }
 

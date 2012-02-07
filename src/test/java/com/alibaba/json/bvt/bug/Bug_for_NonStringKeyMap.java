@@ -19,6 +19,17 @@ public class Bug_for_NonStringKeyMap extends TestCase {
         
         JSON.parse(text);
     }
+    
+    public void test_1() throws Exception {
+        Map<Map<String, String>, String> map = new HashMap<Map<String, String>, String>();
+        Map<String, String> submap = new HashMap<String, String>();
+        submap.put("subkey", "subvalue");
+        map.put(submap, "value");
+        String jsonString = JSON.toJSONString(map, SerializerFeature.WriteClassName);
+        System.out.println(jsonString);
+        Object object = JSON.parse(jsonString);
+        System.out.println(object.toString());
+    }
 
     public static class VO {
 

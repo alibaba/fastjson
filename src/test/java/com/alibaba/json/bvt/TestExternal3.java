@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 
@@ -23,7 +25,8 @@ public class TestExternal3 extends TestCase {
         String text = JSON.toJSONString(obj, SerializerFeature.WriteClassName);
         System.out.println(text);
         JSON.parseObject(text, clazz);
-        JSON.parseObject(text);
+        JSONObject jsonObj = JSON.parseObject(text);
+        Assert.assertEquals(jsonObj.getString("@type"), "external.VO");
     }
     
     public static class ExtClassLoader extends ClassLoader {

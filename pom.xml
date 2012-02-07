@@ -3,8 +3,14 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.alibaba</groupId>
 	<artifactId>fastjson</artifactId>
-	<version>1.1.16-SNAPSHOT</version>
+	<version>1.1.16</version>
+	
+	<packaging>jar</packaging>
 	<name>fastjson</name>
+	<description>Fastjson is a JSON processor (JSON parser + JSON generator) written in Java</description>
+	
+	<url>https://github.com/AlibabaTech/fastjson</url>
+	<inceptionYear>2012</inceptionYear>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -17,6 +23,11 @@
 			<email>szujobs@hotmail.com</email>
 		</developer>
 	</developers>
+	
+	<scm>
+		<url>https://wenshao@github.com/AlibabaTech/fastjson.git</url>
+		<connection>scm:git:https://wenshao@github.com/AlibabaTech/fastjson.git</connection>
+	</scm>
 
 	<distributionManagement>
 		<repository>
@@ -33,6 +44,16 @@
 		<name>Alibaba Group</name>
 		<url>http://code.alibabatech.com/</url>
 	</organization>
+	
+	<licenses>
+		<license>
+			<name>Apache 2</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+			<comments>A business-friendly OSS license</comments>
+		</license>
+	</licenses>
+	
 	<build>
 		<extensions>
 			<extension>
@@ -77,6 +98,40 @@
 						<include>**/bvt/**/*.java</include>
 					</includes>
 				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+                    <execution>
+                        <id>attach-javadoc</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+				<configuration>
+					<show>public</show>
+					<charset>UTF-8</charset>
+					<encoding>UTF-8</encoding>
+					<docencoding>UTF-8</docencoding>
+					<links>
+						<link>http://docs.oracle.com/javase/6/docs/api</link>
+					</links>
+				</configuration>
+			</plugin>
+			
+			<plugin>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

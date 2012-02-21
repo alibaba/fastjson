@@ -314,7 +314,9 @@ public class DefaultJSONParser extends AbstractJSONParser {
 
                         Object refValue = null;
                         if ("@".equals(ref)) {
-                            refValue = this.getContext().getObject();
+                            if (this.getContext() != null) {
+                                refValue = this.getContext().getObject();
+                            }
                         } else if ("..".equals(ref)) {
                             ParseContext parentContext = context.getParentContext();
                             if (parentContext.getObject() != null) {

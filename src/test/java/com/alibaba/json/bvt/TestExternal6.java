@@ -15,15 +15,16 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
-public class TestExternal5 extends TestCase {
+public class TestExternal6 extends TestCase {
 
     public void test_0() throws Exception {
         ExtClassLoader classLoader = new ExtClassLoader();
-        Class<?> clazz = classLoader.loadClass("com.alibaba.dubbo.demo.MyEsbResultModel2");
+        Class<?> clazz = classLoader.loadClass("org.mule.esb.model.tcc.result.EsbResultModel");
+        Method[] methods = clazz.getMethods();
         Method method = clazz.getMethod("setReturnValue", new Class[] { Serializable.class });
 
         Object obj = clazz.newInstance();
-        method.invoke(obj, "AAAA");
+//        method.invoke(obj, "AAAA");
 
         {
             String text = JSON.toJSONString(obj);
@@ -34,7 +35,7 @@ public class TestExternal5 extends TestCase {
         System.out.println(text);
         JSON.parseObject(text, clazz);
         JSONObject jsonObj = JSON.parseObject(text);
-        Assert.assertEquals(jsonObj.getString("@type"), "com.alibaba.dubbo.demo.MyEsbResultModel2");
+        Assert.assertEquals(jsonObj.getString("@type"), "org.mule.esb.model.tcc.result.EsbResultModel");
     }
 
     public static class ExtClassLoader extends ClassLoader {
@@ -44,11 +45,27 @@ public class TestExternal5 extends TestCase {
 
             {
                 byte[] bytes;
-                InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("external/MyEsbResultModel2.clazz");
+                InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("external/EsbResultModel.clazz");
+                bytes = IOUtils.toByteArray(is);
+                is.close();
+
+                super.defineClass("org.mule.esb.model.tcc.result.EsbResultModel", bytes, 0, bytes.length);
+            }
+            {
+                byte[] bytes;
+                InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("external/EsbListBean.clazz");
                 bytes = IOUtils.toByteArray(is);
                 is.close();
                 
-                super.defineClass("com.alibaba.dubbo.demo.MyEsbResultModel2", bytes, 0, bytes.length);
+                super.defineClass("org.esb.crm.tools.EsbListBean", bytes, 0, bytes.length);
+            }
+            {
+                byte[] bytes;
+                InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("external/EsbHashMapBean.clazz");
+                bytes = IOUtils.toByteArray(is);
+                is.close();
+                
+                super.defineClass("org.esb.crm.tools.EsbHashMapBean", bytes, 0, bytes.length);
             }
         }
     }

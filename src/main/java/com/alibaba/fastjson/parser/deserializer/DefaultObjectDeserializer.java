@@ -1,5 +1,6 @@
 package com.alibaba.fastjson.parser.deserializer;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
@@ -425,6 +426,11 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public <T> T deserialze(DefaultJSONParser parser, Class<T> clazz) {
         Object value = null;
+        
+        if (parser.getLexer().token() == JSONToken.NULL) {
+            parser.getLexer().nextToken(JSONToken.COMMA);
+            return null;
+        }
         if (clazz.isAssignableFrom(HashMap.class)) {
             value = new HashMap();
         } else if (clazz.isAssignableFrom(TreeMap.class)) {
@@ -446,6 +452,8 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
             if (classValue instanceof String) {
                 return (T) ASMClassLoader.forName((String) classValue);
             }
+        } else if (clazz == Serializable.class) {
+            return (T) parser.parse();
         }
 
         if (value == null) {

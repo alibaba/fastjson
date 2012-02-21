@@ -16,6 +16,7 @@
 package com.alibaba.fastjson.serializer;
 
 import java.io.File;
+import java.io.Serializable;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -67,7 +68,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
         
         boolean asm = this.asm;
         
-        if (asm && ASMClassLoader.isExternalClass(clazz)) {
+        if (asm && ASMClassLoader.isExternalClass(clazz) || clazz == Serializable.class) {
             asm = false;
         }
         if (asm) {

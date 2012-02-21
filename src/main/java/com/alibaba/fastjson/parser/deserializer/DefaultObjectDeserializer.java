@@ -425,6 +425,11 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public <T> T deserialze(DefaultJSONParser parser, Class<T> clazz) {
         Object value = null;
+        
+        if (parser.getLexer().token() == JSONToken.NULL) {
+            parser.getLexer().nextToken(JSONToken.COMMA);
+            return null;
+        }
         if (clazz.isAssignableFrom(HashMap.class)) {
             value = new HashMap();
         } else if (clazz.isAssignableFrom(TreeMap.class)) {

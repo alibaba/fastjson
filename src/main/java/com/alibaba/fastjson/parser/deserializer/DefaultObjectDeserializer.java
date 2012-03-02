@@ -208,6 +208,10 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
 
                     if (clazz == map.getClass()) {
                         lexer.nextToken(JSONToken.COMMA);
+                        if (lexer.token() == JSONToken.RBRACE) {
+                            lexer.nextToken(JSONToken.COMMA);
+                            return map;
+                        }
                         continue;
                     }
 

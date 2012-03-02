@@ -171,6 +171,7 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
                 } else if (ch == '}') {
                     lexer.incrementBufferPosition();
                     lexer.resetStringPosition();
+                    lexer.nextToken(JSONToken.COMMA);
                     return map;
                 } else if (ch == '\'') {
                     if (!parser.isEnabled(Feature.AllowSingleQuotes)) {
@@ -208,6 +209,10 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
 
                     if (clazz == map.getClass()) {
                         lexer.nextToken(JSONToken.COMMA);
+                        if (lexer.token() == JSONToken.RBRACE) {
+                            lexer.nextToken(JSONToken.COMMA);
+                            return map;
+                        }
                         continue;
                     }
 

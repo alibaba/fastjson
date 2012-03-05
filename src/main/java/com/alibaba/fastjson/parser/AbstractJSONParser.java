@@ -33,6 +33,9 @@ public abstract class AbstractJSONParser {
 
     @SuppressWarnings("rawtypes")
     public abstract Object parseObject(final Map object, Object fieldName);
+    
+    @SuppressWarnings("rawtypes")
+    public abstract void checkListResolve(Collection array);
 
     public JSONObject parseObject() {
         JSONObject object = new JSONObject();
@@ -127,6 +130,7 @@ public abstract class AbstractJSONParser {
             }
 
             array.add(value);
+            checkListResolve(array);
 
             if (lexer.token() == JSONToken.COMMA) {
                 lexer.nextToken(JSONToken.LITERAL_STRING);

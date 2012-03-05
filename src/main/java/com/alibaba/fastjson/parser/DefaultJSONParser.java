@@ -322,7 +322,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                             if (parentContext.getObject() != null) {
                                 refValue = this.getContext().getObject();
                             } else {
-                                getResolveTaskList().add(new ResolveTask(parentContext, ref));
+                                addResolveTask(new ResolveTask(parentContext, ref));
                                 setResolveStatus(DefaultJSONParser.NeedToResolve);
                             }
                         } else if ("$".equals(ref)) {
@@ -334,11 +334,11 @@ public class DefaultJSONParser extends AbstractJSONParser {
                             if (rootContext.getObject() != null) {
                                 refValue = rootContext.getObject();
                             } else {
-                                getResolveTaskList().add(new ResolveTask(rootContext, ref));
+                                addResolveTask(new ResolveTask(rootContext, ref));
                                 setResolveStatus(DefaultJSONParser.NeedToResolve);
                             }
                         } else {
-                            getResolveTaskList().add(new ResolveTask(context, ref));
+                            addResolveTask(new ResolveTask(context, ref));
                             setResolveStatus(DefaultJSONParser.NeedToResolve);
                         }
 
@@ -450,6 +450,10 @@ public class DefaultJSONParser extends AbstractJSONParser {
 
     public List<ResolveTask> getResolveTaskList() {
         return resolveTaskList;
+    }
+    
+    public void addResolveTask(ResolveTask task) {
+        resolveTaskList.add(task);
     }
 
     public ResolveTask getLastResolveTask() {
@@ -639,6 +643,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                         val = deserializer.deserialze(this, type, i);
                     }
                     array.add(val);
+                    checkListResolve(array);
                 }
 
                 if (lexer.token() == JSONToken.COMMA) {

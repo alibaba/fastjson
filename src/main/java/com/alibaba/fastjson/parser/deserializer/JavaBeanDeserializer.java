@@ -164,7 +164,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             if (parentContext.getObject() != null) {
                                 object = parentContext.getObject();
                             } else {
-                                parser.getResolveTaskList().add(new ResolveTask(parentContext, ref));
+                                parser.addResolveTask(new ResolveTask(parentContext, ref));
                                 parser.setResolveStatus(DefaultJSONParser.NeedToResolve);
                             }
                         } else if ("$".equals(ref)) {
@@ -176,11 +176,11 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             if (rootContext.getObject() != null) {
                                 object = rootContext.getObject();
                             } else {
-                                parser.getResolveTaskList().add(new ResolveTask(rootContext, ref));
+                                parser.addResolveTask(new ResolveTask(rootContext, ref));
                                 parser.setResolveStatus(DefaultJSONParser.NeedToResolve);
                             }
                         } else {
-                            parser.getResolveTaskList().add(new ResolveTask(context, ref));
+                            parser.addResolveTask(new ResolveTask(context, ref));
                             parser.setResolveStatus(DefaultJSONParser.NeedToResolve);
                         }
                     } else {

@@ -16,6 +16,7 @@ public class Bug_for_wuzhengmao extends TestCase {
         Node node2 = new Node();
         node2.setId(2);
         node1.setParent(node2);
+        
         List<Node> list = Arrays.asList(new Node[] { node1, node2 });
         String json = JSON.toJSONString(list, true);
         System.out.println(json);

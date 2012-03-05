@@ -34,6 +34,13 @@ public class ArrayRefTest extends TestCase {
         
         List<Group> groups = JSON.parseObject(text, new TypeReference<List<Group>>() {});
         Assert.assertEquals(6, groups.size());
+        
+        Assert.assertEquals(0, groups.get(0).getId());
+        Assert.assertEquals(1, groups.get(1).getId());
+        Assert.assertEquals(2, groups.get(2).getId());
+        Assert.assertEquals(0, groups.get(3).getId());
+        Assert.assertEquals(1, groups.get(4).getId());
+        Assert.assertEquals(2, groups.get(5).getId());
     }
 
     public static class Group {

@@ -9,7 +9,7 @@ import junit.framework.TestCase;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 
-public class ArrayRefTest extends TestCase {
+public class ArrayRefTest2 extends TestCase {
 
     public void test_0() throws Exception {
         String text;
@@ -32,15 +32,15 @@ public class ArrayRefTest extends TestCase {
         
         System.out.println(text);
         
-        List<Group> groups = JSON.parseObject(text, new TypeReference<List<Group>>() {});
-        Assert.assertEquals(6, groups.size());
+        Group[] groups = JSON.parseObject(text, new TypeReference<Group[]>() {});
+        Assert.assertEquals(6, groups.length);
         
-        Assert.assertEquals(0, groups.get(0).getId());
-        Assert.assertEquals(1, groups.get(1).getId());
-        Assert.assertEquals(2, groups.get(2).getId());
-        Assert.assertEquals(0, groups.get(3).getId());
-        Assert.assertEquals(1, groups.get(4).getId());
-        Assert.assertEquals(2, groups.get(5).getId());
+        Assert.assertEquals(0, groups[0].getId());
+        Assert.assertEquals(1, groups[1].getId());
+        Assert.assertEquals(2, groups[2].getId());
+        Assert.assertEquals(0, groups[3].getId());
+        Assert.assertEquals(1, groups[4].getId());
+        Assert.assertEquals(2, groups[5].getId());
     }
 
     public static class Group {

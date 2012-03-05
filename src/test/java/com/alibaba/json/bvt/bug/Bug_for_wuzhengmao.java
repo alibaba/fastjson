@@ -16,11 +16,14 @@ public class Bug_for_wuzhengmao extends TestCase {
         Node node2 = new Node();
         node2.setId(2);
         node1.setParent(node2);
+        
         List<Node> list = Arrays.asList(new Node[] { node1, node2 });
         String json = JSON.toJSONString(list, true);
         System.out.println(json);
         List<Node> result = JSON.parseArray(json, Node.class);
         Assert.assertEquals(2, result.size());
+        Assert.assertEquals(1, result.get(0).getId());
+        Assert.assertEquals(2, result.get(1).getId());
         Assert.assertEquals(result.get(0).getParent(), result.get(1));
     }
 

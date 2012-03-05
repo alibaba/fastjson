@@ -54,6 +54,9 @@ public class ArrayDeserializer implements ObjectDeserializer {
                 Array.set(objArray, i, element);
             }
         }
+        
+        array.setRelatedArray((Object[]) objArray);
+        array.setComponentType(componentType);
         return (T) objArray; // TODO
     }
 

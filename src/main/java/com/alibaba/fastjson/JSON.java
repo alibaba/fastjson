@@ -212,9 +212,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return (T) value;
     }
 
-    public static <T> void handleResovleTask(DefaultJSONParser parser, T value) {
+    public static <T> int handleResovleTask(DefaultJSONParser parser, T value) {
         if (parser.isEnabled(Feature.DisableCircularReferenceDetect)) {
-            return;
+            return 0;
         }
 
         int size = parser.getResolveTaskList().size();
@@ -236,6 +236,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             }
             fieldDeser.setValue(object, refValue);
         }
+        
+        return size;
     }
 
     @SuppressWarnings("unchecked")

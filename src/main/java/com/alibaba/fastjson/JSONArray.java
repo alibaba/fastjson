@@ -30,6 +30,7 @@ import static com.alibaba.fastjson.util.TypeUtils.castToString;
 import static com.alibaba.fastjson.util.TypeUtils.castToTimestamp;
 
 import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -46,8 +47,10 @@ import com.alibaba.fastjson.util.TypeUtils;
  */
 public class JSONArray extends JSON implements List<Object>, JSONAware, Cloneable, RandomAccess, Serializable {
 
-    private static final long  serialVersionUID = 1L;
-    private final List<Object> list;
+    private static final long    serialVersionUID = 1L;
+    private final List<Object>   list;
+    protected transient Object[] relatedArray;
+    protected transient Type     componentType;
 
     public JSONArray(){
         this.list = new ArrayList<Object>(10);
@@ -59,6 +62,26 @@ public class JSONArray extends JSON implements List<Object>, JSONAware, Cloneabl
 
     public JSONArray(int initialCapacity){
         this.list = new ArrayList<Object>(initialCapacity);
+    }
+
+    /**
+     * @since 1.1.16
+     * @return
+     */
+    public Object[] getRelatedArray() {
+        return relatedArray;
+    }
+
+    public void setRelatedArray(Object[] relatedArray) {
+        this.relatedArray = relatedArray;
+    }
+
+    public Type getComponentType() {
+        return componentType;
+    }
+
+    public void setComponentType(Type componentType) {
+        this.componentType = componentType;
     }
 
     public int size() {
@@ -334,11 +357,11 @@ public class JSONArray extends JSON implements List<Object>, JSONAware, Cloneabl
     public Object clone() {
         return new JSONArray(new ArrayList<Object>(list));
     }
-    
+
     public boolean equals(Object obj) {
         return this.list.equals(obj);
     }
-    
+
     public int hashCode() {
         return this.list.hashCode();
     }

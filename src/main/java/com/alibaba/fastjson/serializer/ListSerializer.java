@@ -123,7 +123,7 @@ public final class ListSerializer implements ObjectSerializer {
                             serializer.writeReference(item);
                         } else {
                             itemSerializer = serializer.getObjectWriter(item.getClass());
-                            itemSerializer.write(serializer, item, end, elementType);
+                            itemSerializer.write(serializer, item, i, elementType);
                         }
 
                         out.append(',');

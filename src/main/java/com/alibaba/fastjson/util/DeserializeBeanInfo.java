@@ -64,6 +64,17 @@ public class DeserializeBeanInfo {
     public List<FieldInfo> getFieldList() {
         return fieldList;
     }
+    
+    public boolean add(FieldInfo field) {
+        for (FieldInfo item : this.fieldList) {
+            if (item.getName().equals(field.getName())) {
+                return false;
+            }
+        }
+        fieldList.add(field);
+        
+        return true;
+    }
 
     public static DeserializeBeanInfo computeSetters(Class<?> clazz) {
         DeserializeBeanInfo beanInfo = new DeserializeBeanInfo(clazz);
@@ -99,7 +110,7 @@ public class DeserializeBeanInfo {
                     }
                     FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, null,
                                                         field);
-                    beanInfo.getFieldList().add(fieldInfo);
+                    beanInfo.add(fieldInfo);
                 }
                 return beanInfo;
             }
@@ -130,7 +141,7 @@ public class DeserializeBeanInfo {
                     }
                     FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, null,
                                                         field);
-                    beanInfo.getFieldList().add(fieldInfo);
+                    beanInfo.add(fieldInfo);
                 }
                 return beanInfo;
             }
@@ -165,7 +176,7 @@ public class DeserializeBeanInfo {
 
                 if (annotation.name().length() != 0) {
                     String propertyName = annotation.name();
-                    beanInfo.getFieldList().add(new FieldInfo(propertyName, method, null));
+                    beanInfo.add(new FieldInfo(propertyName, method, null));
                     method.setAccessible(true);
                     continue;
                 }
@@ -182,12 +193,12 @@ public class DeserializeBeanInfo {
                     if (fieldAnnotation != null && fieldAnnotation.name().length() != 0) {
                         propertyName = fieldAnnotation.name();
 
-                        beanInfo.getFieldList().add(new FieldInfo(propertyName, method, field));
+                        beanInfo.add(new FieldInfo(propertyName, method, field));
                         continue;
                     }
                 }
 
-                beanInfo.getFieldList().add(new FieldInfo(propertyName, method, null));
+                beanInfo.add(new FieldInfo(propertyName, method, null));
                 method.setAccessible(true);
             }
         }
@@ -213,7 +224,7 @@ public class DeserializeBeanInfo {
                 continue;
             }
 
-            beanInfo.getFieldList().add(new FieldInfo(field.getName(), null, field));
+            beanInfo.add(new FieldInfo(field.getName(), null, field));
         }
 
         return beanInfo;

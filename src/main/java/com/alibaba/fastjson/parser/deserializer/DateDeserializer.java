@@ -9,13 +9,12 @@ import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
 
-public class DateDeserializer implements ObjectDeserializer {
+public class DateDeserializer extends AbstractDateDeserializer implements ObjectDeserializer {
 
     public final static DateDeserializer instance = new DateDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        Object val = parser.parse();
+    protected <T> T cast(DefaultJSONParser parser, Type clazz, Object fieldName, Object val) {
 
         if (val == null) {
             return null;
@@ -30,12 +29,12 @@ public class DateDeserializer implements ObjectDeserializer {
             if (strVal.length() == 0) {
                 return null;
             }
-            
+
             JSONScanner dateLexer = new JSONScanner(strVal);
             if (dateLexer.scanISO8601DateIfMatch()) {
                 return (T) dateLexer.getCalendar().getTime();
             }
-            
+
             DateFormat dateFormat = parser.getDateFormat();
             try {
                 return (T) dateFormat.parse(strVal);
@@ -46,7 +45,7 @@ public class DateDeserializer implements ObjectDeserializer {
             long longVal = Long.parseLong(strVal);
             return (T) new java.util.Date(longVal);
         }
-        
+
         throw new JSONException("parse error");
     }
 

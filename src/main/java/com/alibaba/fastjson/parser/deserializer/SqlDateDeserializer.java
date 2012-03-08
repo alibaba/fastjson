@@ -10,45 +10,12 @@ import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
 
-public class SqlDateDeserializer implements ObjectDeserializer {
+public class SqlDateDeserializer extends AbstractDateDeserializer implements ObjectDeserializer {
 
     public final static SqlDateDeserializer instance = new SqlDateDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        final JSONScanner lexer = (JSONScanner) parser.getLexer();
-
-        if (lexer.token() == JSONToken.NULL) {
-            lexer.nextToken(JSONToken.COMMA);
-            return null;
-        }
-
-        if (lexer.token() == JSONToken.COMMA) {
-            String key = lexer.scanSymbol(parser.getSymbolTable());
-
-            if ("val" != key) {
-                throw new JSONException("syntax error");
-            }
-
-            lexer.nextTokenWithColon(JSONToken.LITERAL_INT);
-
-            if (lexer.token() != JSONToken.LITERAL_INT) {
-                throw new JSONException("syntax error");
-            }
-
-            long val = lexer.longValue();
-
-            lexer.nextToken(JSONToken.RBRACE);
-
-            if (lexer.token() != JSONToken.RBRACE) {
-                throw new JSONException("syntax error");
-            }
-            lexer.nextToken(JSONToken.COMMA);
-
-            return (T) new java.sql.Date(val);
-        }
-
-        Object val = parser.parse();
+    protected <T> T cast(DefaultJSONParser parser, Type clazz, Object fieldName, Object val) {
         if (val == null) {
             return null;
         }

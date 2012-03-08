@@ -10,14 +10,13 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONToken;
 
-public class TimestampDeserializer implements ObjectDeserializer {
+public class TimestampDeserializer extends AbstractDateDeserializer implements ObjectDeserializer {
 
     public final static TimestampDeserializer instance = new TimestampDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        Object val = parser.parse();
-        
+    protected <T> T cast(DefaultJSONParser parser, Type clazz, Object fieldName, Object val) {
+
         if (val == null) {
             return null;
         }
@@ -35,7 +34,7 @@ public class TimestampDeserializer implements ObjectDeserializer {
             if (strVal.length() == 0) {
                 return null;
             }
-            
+
             DateFormat dateFormat = parser.getDateFormat();
             try {
                 Date date = (Date) dateFormat.parse(strVal);

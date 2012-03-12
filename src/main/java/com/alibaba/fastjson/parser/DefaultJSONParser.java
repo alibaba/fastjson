@@ -55,6 +55,7 @@ import com.alibaba.fastjson.parser.deserializer.DefaultObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.IntegerDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ListResolveFieldDeserializer;
+import com.alibaba.fastjson.parser.deserializer.MapResolveFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StringDeserializer;
 import com.alibaba.fastjson.util.TypeUtils;
@@ -301,7 +302,8 @@ public class DefaultJSONParser extends AbstractJSONParser {
                             if (parentContext.getObject() != null) {
                                 refValue = this.getContext().getObject();
                             } else {
-                                addResolveTask(new ResolveTask(parentContext, ref));
+                                MapResolveFieldDeserializer fieldResolver = new MapResolveFieldDeserializer(object, (String) key);
+                                addResolveTask(new ResolveTask(parentContext, ref, parentContext, fieldResolver));
                                 setResolveStatus(DefaultJSONParser.NeedToResolve);
                             }
                         } else if ("$".equals(ref)) {
@@ -317,7 +319,8 @@ public class DefaultJSONParser extends AbstractJSONParser {
                                 setResolveStatus(DefaultJSONParser.NeedToResolve);
                             }
                         } else {
-                            addResolveTask(new ResolveTask(context, ref));
+                            MapResolveFieldDeserializer fieldResolver = new MapResolveFieldDeserializer(object, (String) key);
+                            addResolveTask(new ResolveTask(context, ref, context.getParentContext(), fieldResolver));
                             setResolveStatus(DefaultJSONParser.NeedToResolve);
                         }
 
@@ -372,7 +375,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                     }
                 } else if (ch == '{') { // 减少潜套，兼容android
                     lexer.nextToken();
-                    Object obj = this.parseObject(new JSONObject());
+                    Object obj = this.parseObject(new JSONObject(), key);
                     object.put(key, obj);
 
                     setContext(context, obj, key);
@@ -1107,9 +1110,15 @@ public class DefaultJSONParser extends AbstractJSONParser {
         private ParseContext       ownerContext;
 
         public ResolveTask(ParseContext context, String referenceValue){
-            super();
+            this(context, referenceValue, null, null);
+        }
+
+        public ResolveTask(ParseContext context, String referenceValue, ParseContext ownerContext,
+                           FieldDeserializer fieldDeserializer){
             this.context = context;
             this.referenceValue = referenceValue;
+            this.ownerContext = ownerContext;
+            this.fieldDeserializer = fieldDeserializer;
         }
 
         public ParseContext getContext() {

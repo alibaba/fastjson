@@ -3,11 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.alibaba</groupId>
 	<artifactId>fastjson</artifactId>
-<<<<<<< HEAD
 	<version>1.1.17-SNAPSHOT</version>
-=======
-	<version>1.1.16</version>
->>>>>>> branch 'master' of https://wenshao@github.com/AlibabaTech/fastjson.git
 	
 	<packaging>jar</packaging>
 	<name>fastjson</name>

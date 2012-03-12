@@ -302,8 +302,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                             if (parentContext.getObject() != null) {
                                 refValue = this.getContext().getObject();
                             } else {
-                                MapResolveFieldDeserializer fieldResolver = new MapResolveFieldDeserializer(object, (String) key);
-                                addResolveTask(new ResolveTask(parentContext, ref, parentContext, fieldResolver));
+                                addResolveTask(new ResolveTask(parentContext, ref));
                                 setResolveStatus(DefaultJSONParser.NeedToResolve);
                             }
                         } else if ("$".equals(ref)) {
@@ -319,8 +318,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                                 setResolveStatus(DefaultJSONParser.NeedToResolve);
                             }
                         } else {
-                            MapResolveFieldDeserializer fieldResolver = new MapResolveFieldDeserializer(object, (String) key);
-                            addResolveTask(new ResolveTask(context, ref, context.getParentContext(), fieldResolver));
+                            addResolveTask(new ResolveTask(context, ref));
                             setResolveStatus(DefaultJSONParser.NeedToResolve);
                         }
 
@@ -377,7 +375,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                     lexer.nextToken();
                     Object obj = this.parseObject(new JSONObject(), key);
                     checkMapResolve(object, key.toString());
-                    
+
                     object.put(key, obj);
 
                     setContext(context, obj, key);
@@ -1123,18 +1121,8 @@ public class DefaultJSONParser extends AbstractJSONParser {
         private ParseContext       ownerContext;
 
         public ResolveTask(ParseContext context, String referenceValue){
-<<<<<<< HEAD
-=======
-            this(context, referenceValue, null, null);
-        }
-
-        public ResolveTask(ParseContext context, String referenceValue, ParseContext ownerContext,
-                           FieldDeserializer fieldDeserializer){
->>>>>>> branch 'master' of https://wenshao@github.com/AlibabaTech/fastjson.git
             this.context = context;
             this.referenceValue = referenceValue;
-            this.ownerContext = ownerContext;
-            this.fieldDeserializer = fieldDeserializer;
         }
 
         public ParseContext getContext() {

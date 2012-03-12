@@ -11,6 +11,7 @@ public class DateFormatDeserializer extends AbstractDateDeserializer implements 
 
     public final static DateFormatDeserializer instance = new DateFormatDeserializer();
 
+    @SuppressWarnings("unchecked")
     protected <T> T cast(DefaultJSONParser parser, Type clazz, Object fieldName, Object val) {
 
         if (val instanceof String) {

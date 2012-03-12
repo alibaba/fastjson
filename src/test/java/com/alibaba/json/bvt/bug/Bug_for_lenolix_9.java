@@ -26,11 +26,14 @@ public class Bug_for_lenolix_9 extends TestCase {
         System.out.println(mapString4);
         Object object4 = JSON.parse(mapString4);
         Assert.assertNotNull(object4);
+<<<<<<< HEAD
         
         Map<String, Object> map = (Map<String, Object>) object4;
         
         Assert.assertNotNull(map.get("address1"));
         Assert.assertNotNull(map.get("address2"));
+=======
+>>>>>>> branch 'master' of https://wenshao@github.com/AlibabaTech/fastjson.git
 
     }
 

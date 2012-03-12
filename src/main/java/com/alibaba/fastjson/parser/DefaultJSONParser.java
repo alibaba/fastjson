@@ -55,6 +55,7 @@ import com.alibaba.fastjson.parser.deserializer.DefaultObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.IntegerDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ListResolveFieldDeserializer;
+import com.alibaba.fastjson.parser.deserializer.MapResolveFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StringDeserializer;
 import com.alibaba.fastjson.util.TypeUtils;
@@ -372,7 +373,9 @@ public class DefaultJSONParser extends AbstractJSONParser {
                     }
                 } else if (ch == '{') { // 减少潜套，兼容android
                     lexer.nextToken();
-                    Object obj = this.parseObject(new JSONObject());
+                    Object obj = this.parseObject(new JSONObject(), key);
+                    checkMapResolve(object, key.toString());
+                    
                     object.put(key, obj);
 
                     setContext(context, obj, key);
@@ -790,6 +793,17 @@ public class DefaultJSONParser extends AbstractJSONParser {
     }
 
     @SuppressWarnings("rawtypes")
+    public void checkMapResolve(Map object, String fieldName) {
+        if (resolveStatus == NeedToResolve) {
+            MapResolveFieldDeserializer fieldResolver = new MapResolveFieldDeserializer(object, fieldName);
+            ResolveTask task = getLastResolveTask();
+            task.setFieldDeserializer(fieldResolver);
+            task.setOwnerContext(context);
+            setResolveStatus(DefaultJSONParser.NONE);
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
     public Object parseObject(final Map object) {
         return parseObject(object, null);
     }
@@ -1107,7 +1121,6 @@ public class DefaultJSONParser extends AbstractJSONParser {
         private ParseContext       ownerContext;
 
         public ResolveTask(ParseContext context, String referenceValue){
-            super();
             this.context = context;
             this.referenceValue = referenceValue;
         }

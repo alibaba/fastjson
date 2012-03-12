@@ -8,6 +8,7 @@ import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.json.bvt.bug.Bug_for_lenolix_9.Address.Country;
 
 public class Bug_for_lenolix_9 extends TestCase {
 
@@ -20,7 +21,7 @@ public class Bug_for_lenolix_9 extends TestCase {
         submap4.put("address1", address);
         submap4.put("address2", address);
 
-        Country country = new Country();
+        Country country = address.new Country();
         country.setProvince("ZheJiang");
         
         address.setCountry(country);
@@ -80,19 +81,20 @@ public class Bug_for_lenolix_9 extends TestCase {
             this.postCode = postCode;
         }
 
+        public class Country {
+
+            private String province;
+
+            public String getProvince() {
+                return province;
+            }
+
+            public void setProvince(String province) {
+                this.province = province;
+            }
+
+        }
     }
 
-    public static class Country {
-
-        private String province;
-
-        public String getProvince() {
-            return province;
-        }
-
-        public void setProvince(String province) {
-            this.province = province;
-        }
-
-    }
+   
 }

@@ -31,6 +31,7 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -74,6 +75,7 @@ import com.alibaba.fastjson.parser.deserializer.CharsetDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ClassDerializer;
 import com.alibaba.fastjson.parser.deserializer.CollectionDeserializer;
 import com.alibaba.fastjson.parser.deserializer.DateDeserializer;
+import com.alibaba.fastjson.parser.deserializer.DateFormatDeserializer;
 import com.alibaba.fastjson.parser.deserializer.DefaultFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.DefaultObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.EnumDeserializer;
@@ -172,6 +174,7 @@ public class ParserConfig {
         primitiveClasses.add(java.sql.Time.class);
         primitiveClasses.add(java.sql.Timestamp.class);
 
+        derializers.put(SimpleDateFormat.class, DateFormatDeserializer.instance);
         derializers.put(java.sql.Timestamp.class, TimestampDeserializer.instance);
         derializers.put(java.sql.Date.class, SqlDateDeserializer.instance);
         derializers.put(java.sql.Time.class, TimeDeserializer.instance);

@@ -28,6 +28,7 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -122,7 +123,8 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
         put(char[].class, CharArraySerializer.instance);
         put(Object[].class, ObjectArraySerializer.instance);
         put(Class.class, ClassSerializer.instance);
-
+        
+        put(SimpleDateFormat.class, DateFormatSerializer.instance);
         put(Locale.class, LocaleSerializer.instance);
         put(TimeZone.class, TimeZoneSerializer.instance);
         put(UUID.class, UUIDSerializer.instance);

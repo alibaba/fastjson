@@ -20,25 +20,41 @@ public class Bug_for_lenolix_9 extends TestCase {
         submap4.put("address1", address);
         submap4.put("address2", address);
 
+        Country country = new Country();
+        country.setProvince("ZheJiang");
+        
+        address.setCountry(country);
+
         String mapString4 = JSON.toJSONString(submap4, SerializerFeature.WriteClassName,
                                               SerializerFeature.WriteMapNullValue);
-        
+
         System.out.println(mapString4);
         Object object4 = JSON.parse(mapString4);
         Assert.assertNotNull(object4);
-        
+
         Map<String, Object> map = (Map<String, Object>) object4;
-        
+
         Assert.assertNotNull(map.get("address1"));
         Assert.assertNotNull(map.get("address2"));
+
+        Assert.assertTrue(map.get("address1") == map.get("address2"));
 
     }
 
     public static class Address {
 
-        private String city;
-        private String street;
-        private int postCode;
+        private String  city;
+        private String  street;
+        private int     postCode;
+        private Country country;
+
+        public Country getCountry() {
+            return country;
+        }
+
+        public void setCountry(Country country) {
+            this.country = country;
+        }
 
         public String getCity() {
             return city;
@@ -62,6 +78,20 @@ public class Bug_for_lenolix_9 extends TestCase {
 
         public void setPostCode(int postCode) {
             this.postCode = postCode;
+        }
+
+    }
+
+    public static class Country {
+
+        private String province;
+
+        public String getProvince() {
+            return province;
+        }
+
+        public void setProvince(String province) {
+            this.province = province;
         }
 
     }

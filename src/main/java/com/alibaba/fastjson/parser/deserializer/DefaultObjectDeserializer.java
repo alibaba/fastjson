@@ -235,6 +235,7 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
                 }
 
                 map.put(key, value);
+                parser.checkMapResolve(map, key);
                 
                 parser.setContext(context, value, key);
 

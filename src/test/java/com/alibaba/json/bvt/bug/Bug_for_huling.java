@@ -1,5 +1,6 @@
 package com.alibaba.json.bvt.bug;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
@@ -7,39 +8,29 @@ import com.alibaba.fastjson.JSON;
 public class Bug_for_huling extends TestCase {
 
     public void test_for_objectKey() throws Exception {
-        String text = "\0\0";
-        System.out.println("A" + JSON.toJSONString(text) + "B");
+        VO vo = new VO();
+        vo.setValue("\0\0");
+        
+        Assert.assertEquals('\0', vo.getValue().charAt(0));
+        
+        String text = JSON.toJSONString(vo);
+        System.out.println(text);
+        Assert.assertEquals("{\"value\":\"\0\0\"}", text);
 
+        VO vo2 = JSON.parseObject(text, VO.class);
+        Assert.assertEquals("\0\0", vo2.getValue());
     }
 
-    public static class Address {
+    public static class VO {
 
-        private String city;
-        private String street;
-        private int postCode;
+        private String value;
 
-        public String getCity() {
-            return city;
+        public String getValue() {
+            return value;
         }
 
-        public void setCity(String city) {
-            this.city = city;
-        }
-
-        public String getStreet() {
-            return street;
-        }
-
-        public void setStreet(String street) {
-            this.street = street;
-        }
-
-        public int getPostCode() {
-            return postCode;
-        }
-
-        public void setPostCode(int postCode) {
-            this.postCode = postCode;
+        public void setValue(String value) {
+            this.value = value;
         }
 
     }

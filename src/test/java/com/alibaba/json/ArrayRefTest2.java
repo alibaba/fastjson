@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt;
+package com.alibaba.json;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -17,6 +17,7 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -40,7 +41,7 @@ public class MapSerializer implements ObjectSerializer {
 
         Map<?, ?> map = (Map<?, ?>) object;
 
-        if (out.isEnabled(SerializerFeature.SortField)) {
+        if (out.isEnabled(SerializerFeature.SortField) && !(map instanceof LinkedHashMap)) {
         	if (!(map instanceof SortedMap)) {
 	            try {
 	                map = new TreeMap(map);

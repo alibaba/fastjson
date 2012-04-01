@@ -89,4 +89,6 @@ public interface JSONLexer {
     long longValue() throws NumberFormatException;
     
     byte[] bytesValue();
+    
+    void close();
 }

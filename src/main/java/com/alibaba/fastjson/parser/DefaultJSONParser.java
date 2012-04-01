@@ -1106,10 +1106,14 @@ public class DefaultJSONParser extends AbstractJSONParser {
     public void close() {
         final JSONLexer lexer = getLexer();
 
-        if (isEnabled(Feature.AutoCloseSource)) {
-            if (!lexer.isEOF()) {
-                throw new JSONException("not close json text, token : " + JSONToken.name(lexer.token()));
+        try {
+            if (isEnabled(Feature.AutoCloseSource)) {
+                if (!lexer.isEOF()) {
+                    throw new JSONException("not close json text, token : " + JSONToken.name(lexer.token()));
+                }
             }
+        } finally {
+            lexer.close();
         }
     }
 

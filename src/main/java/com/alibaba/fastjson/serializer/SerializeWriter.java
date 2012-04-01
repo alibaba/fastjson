@@ -289,7 +289,10 @@ public final class SerializeWriter extends Writer {
      * Invoking this method in this class will have no effect.
      */
     public void close() {
-        bufLocal.set(new SoftReference<char[]>(buf));
+        if (buf.length <= 1024 * 8) {
+            bufLocal.set(new SoftReference<char[]>(buf));
+        }
+        
         this.buf = null;
     }
 

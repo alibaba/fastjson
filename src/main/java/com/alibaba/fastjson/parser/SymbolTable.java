@@ -21,6 +21,7 @@ package com.alibaba.fastjson.parser;
 public class SymbolTable {
 
     public static final int DEFAULT_TABLE_SIZE = 128;
+    public static final int MAX_BUCKET_LENTH   = 8;
 
     private final Entry[]   buckets;
     private final String[]  symbols;
@@ -38,7 +39,6 @@ public class SymbolTable {
         this.symbols = new String[tableSize];
         this.symbols_char = new char[tableSize][];
     }
-
 
     public String addSymbol(char[] buffer, int offset, int len) {
         // search for identical symbol
@@ -82,15 +82,28 @@ public class SymbolTable {
             }
         }
 
-        OUTER: for (Entry entry = buckets[bucket]; entry != null; entry = entry.next) {
-            char[] characters = entry.characters;
-            if (len == characters.length && hash == entry.hashCode) {
-                for (int i = 0; i < len; i++) {
-                    if (buffer[offset + i] != characters[i]) {
-                        continue OUTER;
+        {
+            int entryIndex = 0;
+            for (Entry entry = buckets[bucket]; entry != null; entry = entry.next) {
+                char[] characters = entry.characters;
+                if (len == characters.length && hash == entry.hashCode) {
+                    boolean eq = true;
+                    for (int i = 0; i < len; i++) {
+                        if (buffer[offset + i] != characters[i]) {
+                            eq = false;
+                            break;
+                        }
                     }
+
+                    if (!eq) {
+                        entryIndex++;
+                        continue;
+                    }
+                    return entry.symbol;
                 }
-                return entry.symbol;
+            }
+            if (entryIndex >= MAX_BUCKET_LENTH) {
+                return new String(buffer, offset, len);
             }
         }
 

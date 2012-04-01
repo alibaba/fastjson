@@ -27,6 +27,7 @@ import static com.alibaba.fastjson.parser.JSONToken.RBRACE;
 import static com.alibaba.fastjson.parser.JSONToken.RBRACKET;
 import static com.alibaba.fastjson.parser.JSONToken.RPAREN;
 
+import java.lang.ref.SoftReference;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -80,7 +81,7 @@ public class JSONScanner implements JSONLexer {
 
     private Keywords                         keywods   = Keywords.DEFAULT_KEYWORDS;
 
-    private final static ThreadLocal<char[]> sbufRef   = new ThreadLocal<char[]>();
+    private final static ThreadLocal<SoftReference<char[]>> sbufRefLocal   = new ThreadLocal<SoftReference<char[]>>();
 
     private int                              features  = JSON.DEFAULT_PARSER_FEATURE;
 
@@ -103,10 +104,15 @@ public class JSONScanner implements JSONLexer {
     public JSONScanner(char[] input, int inputLength, int features){
         this.features = features;
 
-        sbuf = sbufRef.get(); // new char[1024];
+        SoftReference<char[]> sbufRef = sbufRefLocal.get();
+        
+        if (sbufRef != null) {
+            sbuf = sbufRef.get();
+            sbufRefLocal.set(null);
+        }
+        
         if (sbuf == null) {
             sbuf = new char[64];
-            sbufRef.set(sbuf);
         }
 
         eofPos = inputLength;
@@ -2502,14 +2508,13 @@ public class JSONScanner implements JSONLexer {
             default:
                 return false;
         }
-
-        // for (int i = bp; i < buflen; ++i) {
-        // char ch = buf[i];
-        // if (!isWhitespace(ch)) {
-        // return false;
-        // }
-        // }
-        //
-        // return true;
+    }
+    
+    public void close() {
+        if (sbuf.length <= 1024 * 8) {
+            sbufRefLocal.set(new SoftReference<char[]>(sbuf));
+        }
+        
+        this.sbuf = null;
     }
 }

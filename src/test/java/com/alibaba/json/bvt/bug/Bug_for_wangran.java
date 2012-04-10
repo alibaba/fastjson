@@ -1,6 +1,7 @@
 package com.alibaba.json.bvt.bug;
 
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -16,7 +17,8 @@ public class Bug_for_wangran extends TestCase {
     public void test_for_wangran() throws Exception {
         String resource = "json/wangran.json";
         InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
-        String text = IOUtils.toString(is);
+        String text = IOUtils.toString(new InputStreamReader(is,"UTF-8"));
+
 
         QueueEntity qe = JSON.parseObject(text, QueueEntity.class);
         

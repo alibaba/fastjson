@@ -192,7 +192,7 @@ public class AnticollisionHashMap<K,V>
     
     final static int M_MASK = 0x8765fed3;    
     final static int SEED = -2128831035;    
-    final int random = new Random().nextInt(99999);
+    final int random = new Random().nextInt(99999); //a fixed value in an instance
     final static int KEY = 16777619;
     private int hashString(String key){
     	char[] cs = key.toCharArray();

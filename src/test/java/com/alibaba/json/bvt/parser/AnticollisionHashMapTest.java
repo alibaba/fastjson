@@ -3,17 +3,16 @@ package com.alibaba.json.bvt.parser;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.util.AnticollisionHashMap;
 
-public class SafelyHashMapTest extends TestCase {
+public class AnticollisionHashMapTest extends TestCase {
 	public void testHash() {
 		try {
-			InputStream in = SafelyHashMapTest.class
+			InputStream in = AnticollisionHashMapTest.class
 					.getResourceAsStream("/hashcollide.txt");
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			String line = br.readLine();

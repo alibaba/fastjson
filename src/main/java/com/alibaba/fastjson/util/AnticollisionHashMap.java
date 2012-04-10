@@ -20,6 +20,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -191,10 +192,11 @@ public class AnticollisionHashMap<K,V>
     
     final static int M_MASK = 0x8765fed3;    
     final static int SEED = -2128831035;    
+    final int random = new Random().nextInt(99999);
     final static int KEY = 16777619;
     private int hashString(String key){
     	char[] cs = key.toCharArray();
-        int hash =  SEED;   
+        int hash =  SEED * random;   
         for(char c : cs)   
             hash = (hash * KEY) ^ c;   
         return (hash ^ (hash >> 1)) & M_MASK;    

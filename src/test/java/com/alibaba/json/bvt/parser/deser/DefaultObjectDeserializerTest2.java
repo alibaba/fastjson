@@ -16,6 +16,7 @@ import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.parser.DefaultExtJSONParser;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.DefaultObjectDeserializer;
+import com.alibaba.fastjson.util.AnticollisionHashMap;
 
 public class DefaultObjectDeserializerTest2 extends TestCase {
 
@@ -51,7 +52,7 @@ public class DefaultObjectDeserializerTest2 extends TestCase {
         SortedMap<String, Map> map = JSON.parseObject(input, new TypeReference<SortedMap<String, Map>>() {
         }.getType());
 
-        Assert.assertEquals(HashMap.class, map.get("map").getClass());
+        Assert.assertEquals(AnticollisionHashMap.class, map.get("map").getClass());
     }
 
     public void test_3() throws Exception {

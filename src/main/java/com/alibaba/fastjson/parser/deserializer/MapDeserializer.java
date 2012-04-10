@@ -18,6 +18,7 @@ import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParseContext;
+import com.alibaba.fastjson.util.AnticollisionHashMap;
 
 public class MapDeserializer implements ObjectDeserializer {
 
@@ -88,10 +89,14 @@ public class MapDeserializer implements ObjectDeserializer {
             return new ConcurrentHashMap();
         }
         
-        if (type == Map.class || type == HashMap.class) {
-            return new HashMap();
+        if (type == Map.class ) {
+            return new AnticollisionHashMap();
         }
         
+        if(type == HashMap.class){ //
+        	return new HashMap();
+        }
+
         if (type == LinkedHashMap.class) {
             return new LinkedHashMap();
         }

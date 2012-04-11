@@ -11,7 +11,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import com.alibaba.fastjson.util.AnticollisionHashMap;
+import com.alibaba.fastjson.util.AntiCollisionHashMap;
 
 public class AnticollisionHashMapTest extends TestCase {
 	
@@ -24,7 +24,7 @@ public class AnticollisionHashMapTest extends TestCase {
 			br.close();
 			String[] kvs = line.split("&");
 			long start = System.currentTimeMillis();
-			Map<String, String> m = new AnticollisionHashMap<String, String>();
+			Map<String, String> m = new AntiCollisionHashMap<String, String>();
 			for (String kv : kvs) {
 				String[] cols = kv.split("=");
 				m.put(cols[0], "test");
@@ -34,7 +34,7 @@ public class AnticollisionHashMapTest extends TestCase {
 					+ (System.currentTimeMillis() - start));
 
 			
-			m = new AnticollisionHashMap<String, String>();
+			m = new AntiCollisionHashMap<String, String>();
 			m.put("axmantest", "12345");
 			m.put("axmantest1", "123451");
 			m.put("axmantest2", "123452");
@@ -54,7 +54,7 @@ public class AnticollisionHashMapTest extends TestCase {
 			ObjectInputStream oin = new ObjectInputStream(inbuf);
 			
 			@SuppressWarnings("unchecked")
-			AnticollisionHashMap<String, String> m1 = (AnticollisionHashMap<String, String>)oin.readObject();
+			AntiCollisionHashMap<String, String> m1 = (AntiCollisionHashMap<String, String>)oin.readObject();
 			oin.close();
 			System.out.println(m1.get("axmantest"));
 			System.out.println(m1.get("axmantest1"));

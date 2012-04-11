@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.alibaba</groupId>
 	<artifactId>fastjson</artifactId>
-	<version>1.1.18-SNAPSHOT</version>
+	<version>1.1.18</version>
 	
 	<packaging>jar</packaging>
 	<name>fastjson</name>
@@ -22,6 +22,11 @@
 			<id>wenshao</id>
 			<name>wenshao</name>
 			<email>szujobs@hotmail.com</email>
+		</developer>
+		<developer>
+			<id>axmanwang</id>
+			<name>axmanwang</name>
+			<email>iamaxman@hotmail.com</email>
 		</developer>
 	</developers>
 	
@@ -131,7 +136,7 @@
 				</configuration>
 			</plugin>
 			
-			<!--plugin>
+			<plugin>
 				<artifactId>maven-gpg-plugin</artifactId>
 				<executions>
 					<execution>
@@ -142,7 +147,7 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin-->
+			</plugin>
 		</plugins>
 	</build>
 

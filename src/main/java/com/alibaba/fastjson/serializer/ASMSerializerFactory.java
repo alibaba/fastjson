@@ -751,7 +751,7 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitLabel(_if);
 
         _get(mw, context, property);
-        mw.visitTypeInsn(CHECKCAST, getType(List.class)); // cast
+        mw.visitTypeInsn(CHECKCAST, getType(property.getFieldClass())); // cast
         mw.visitVarInsn(ASTORE, context.var("list"));
 
         _filters(mw, property, context, _end);
@@ -773,7 +773,7 @@ public class ASMSerializerFactory implements Opcodes {
 
         //
         mw.visitVarInsn(ALOAD, context.var("list"));
-        mw.visitMethodInsn(INVOKEINTERFACE, getType(List.class), "size", "()I");
+        mw.visitMethodInsn(INVOKEINTERFACE, getType(property.getFieldClass()), "size", "()I");
         mw.visitVarInsn(ISTORE, context.var("int"));
 
         Label _if_3 = new Label();
@@ -833,7 +833,7 @@ public class ASMSerializerFactory implements Opcodes {
                 mw.visitVarInsn(ALOAD, context.var("out"));
                 mw.visitVarInsn(ALOAD, context.var("list"));
                 mw.visitVarInsn(ILOAD, context.var("i"));
-                mw.visitMethodInsn(INVOKEINTERFACE, getType(List.class), "get", "(I)Ljava/lang/Object;");
+                mw.visitMethodInsn(INVOKEINTERFACE, getType(property.getFieldClass()), "get", "(I)Ljava/lang/Object;");
                 mw.visitTypeInsn(CHECKCAST, getType(String.class)); // cast to string
                 mw.visitVarInsn(BIPUSH, ',');
                 mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "writeString",
@@ -842,7 +842,7 @@ public class ASMSerializerFactory implements Opcodes {
                 mw.visitVarInsn(ALOAD, context.serializer());
                 mw.visitVarInsn(ALOAD, context.var("list"));
                 mw.visitVarInsn(ILOAD, context.var("i"));
-                mw.visitMethodInsn(INVOKEINTERFACE, getType(List.class), "get", "(I)Ljava/lang/Object;");
+                mw.visitMethodInsn(INVOKEINTERFACE, getType(property.getFieldClass()), "get", "(I)Ljava/lang/Object;");
                 mw.visitVarInsn(ILOAD, context.var("i"));
                 mw.visitMethodInsn(INVOKESTATIC, getType(Integer.class), "valueOf", "(I)Ljava/lang/Integer;");
 
@@ -872,7 +872,7 @@ public class ASMSerializerFactory implements Opcodes {
                 mw.visitVarInsn(ILOAD, context.var("int"));
                 mw.visitInsn(ICONST_1);
                 mw.visitInsn(ISUB);
-                mw.visitMethodInsn(INVOKEINTERFACE, getType(List.class), "get", "(I)Ljava/lang/Object;");
+                mw.visitMethodInsn(INVOKEINTERFACE, getType(property.getFieldClass()), "get", "(I)Ljava/lang/Object;");
                 mw.visitTypeInsn(CHECKCAST, getType(String.class)); // cast to string
                 mw.visitVarInsn(BIPUSH, ']');
                 mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "writeString",
@@ -881,7 +881,7 @@ public class ASMSerializerFactory implements Opcodes {
                 mw.visitVarInsn(ALOAD, context.serializer());
                 mw.visitVarInsn(ALOAD, context.var("list"));
                 mw.visitVarInsn(ILOAD, context.var("i"));
-                mw.visitMethodInsn(INVOKEINTERFACE, getType(List.class), "get", "(I)Ljava/lang/Object;");
+                mw.visitMethodInsn(INVOKEINTERFACE, getType(property.getFieldClass()), "get", "(I)Ljava/lang/Object;");
                 mw.visitVarInsn(ILOAD, context.var("i"));
                 mw.visitMethodInsn(INVOKESTATIC, getType(Integer.class), "valueOf", "(I)Ljava/lang/Integer;");
 

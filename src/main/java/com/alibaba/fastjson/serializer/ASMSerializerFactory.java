@@ -1060,7 +1060,7 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitVarInsn(ALOAD, context.var("enum"));
             mw.visitMethodInsn(INVOKESTATIC, getType(FilterUtils.class), "apply",
                                "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;)Z");
-        } else if (propertyClass == List.class) {
+        } else if (propertyClass == List.class || propertyClass == ArrayList.class) {
             mw.visitVarInsn(ALOAD, context.var("list"));
             mw.visitMethodInsn(INVOKESTATIC, getType(FilterUtils.class), "apply",
                                "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;)Z");
@@ -1108,7 +1108,7 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitVarInsn(ALOAD, context.var("string"));
         } else if (propertyClass.isEnum()) {
             mw.visitVarInsn(ALOAD, context.var("enum"));
-        } else if (propertyClass == List.class) {
+        } else if (propertyClass == List.class || propertyClass == ArrayList.class) {
             mw.visitVarInsn(ALOAD, context.var("list"));
         } else {
             mw.visitVarInsn(ALOAD, context.var("object"));
@@ -1182,7 +1182,7 @@ public class ASMSerializerFactory implements Opcodes {
                                getType(FilterUtils.class),
                                "processKey",
                                "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/String;");
-        } else if (propertyClass == List.class) {
+        } else if (propertyClass == List.class || propertyClass == ArrayList.class) {
             mw.visitVarInsn(ALOAD, context.var("list"));
             mw.visitMethodInsn(INVOKESTATIC,
                                getType(FilterUtils.class),

@@ -41,6 +41,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.util.ASMClassLoader;
 import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.IdentityHashMap;
@@ -66,17 +67,25 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
         if (!Modifier.isPublic(clazz.getModifiers())) {
             return new JavaBeanSerializer(clazz);
         }
-        
+
         boolean asm = this.asm;
-        
+
         if (asm && ASMClassLoader.isExternalClass(clazz) || clazz == Serializable.class || clazz == Object.class) {
             asm = false;
         }
+        
+        {
+            JSONType annotation = clazz.getAnnotation(JSONType.class);
+            if (annotation != null && annotation.asm() == false) {
+                asm = false;
+            }
+        }
+
         if (asm) {
             try {
                 return createASMSerializer(clazz);
             } catch (Throwable e) {
-                throw new JSONException("create asm serilizer error, class " + clazz, e);
+                throw new JSONException("create asm serializer error, class " + clazz, e);
             }
         }
 
@@ -123,7 +132,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
         put(char[].class, CharArraySerializer.instance);
         put(Object[].class, ObjectArraySerializer.instance);
         put(Class.class, ClassSerializer.instance);
-        
+
         put(SimpleDateFormat.class, DateFormatSerializer.instance);
         put(Locale.class, LocaleSerializer.instance);
         put(TimeZone.class, TimeZoneSerializer.instance);

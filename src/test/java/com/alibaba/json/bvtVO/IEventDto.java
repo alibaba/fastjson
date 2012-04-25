@@ -17,7 +17,6 @@ package com.alibaba.json.bvtVO;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author wb_jianhui.shijh
@@ -28,7 +27,7 @@ public class IEventDto implements Serializable {
 
     private String            source;
 
-    private ArrayList<IEvent> eventList;
+    private ArrayList<IEvent> eventList = new ArrayList<IEvent>();
 
     public String getSource() {
         return source;

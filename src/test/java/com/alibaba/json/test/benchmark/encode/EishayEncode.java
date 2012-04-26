@@ -62,7 +62,7 @@ public class EishayEncode extends BenchmarkCase {
 
     @Override
     public void execute(Codec codec) throws Exception {
-        String text = codec.encode(mediaContent);
+        String text = codec.encode(mediaContent.media);
         if (text == null) {
             throw new Exception();
         }

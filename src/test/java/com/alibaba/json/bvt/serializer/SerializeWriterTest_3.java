@@ -36,19 +36,5 @@ public class SerializeWriterTest_3 extends TestCase {
         Assert.assertEquals(",name:null", out.toString());
     }
     
-    public void test_2() throws Exception {
-        SerializeWriter out = new SerializeWriter(1);
-        out.config(SerializerFeature.QuoteFieldNames, true);
-        out.config(SerializerFeature.WriteTabAsSpecial, true);
-        out.writeFieldValue(',', "\t\n \b\n\r\f\\ \"", "jobs");
-        Assert.assertEquals(",\"\\t\\n \\b\\n\\r\\f\\\\ \\\"\":\"jobs\"", out.toString());
-    }
-    
-    public void test_3() throws Exception {
-        SerializeWriter out = new SerializeWriter(1);
-        out.config(SerializerFeature.QuoteFieldNames, true);
-        out.config(SerializerFeature.WriteTabAsSpecial, false);
-        out.writeFieldValue(',', "\t\n \b\n\r\f\\ \"", "jobs");
-        Assert.assertEquals(",\"\t\\n \\b\\n\\r\\f\\\\ \\\"\":\"jobs\"", out.toString());
-    }
+
 }

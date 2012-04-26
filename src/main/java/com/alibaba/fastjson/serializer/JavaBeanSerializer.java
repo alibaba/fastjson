@@ -36,6 +36,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
     // serializers
     private final FieldSerializer[] getters;
+    private final FieldSerializer[] sortedGetters;
 
     public FieldSerializer[] getGetters() {
         return getters;
@@ -69,6 +70,8 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
         //
         getters = getterList.toArray(new FieldSerializer[getterList.size()]);
+        sortedGetters = getterList.toArray(new FieldSerializer[getterList.size()]);
+        Arrays.sort(sortedGetters);
     }
 
     protected boolean isWriteClassName(JSONSerializer serializer, Object obj, Type fieldType, Object fieldName) {
@@ -88,10 +91,12 @@ public class JavaBeanSerializer implements ObjectSerializer {
             return;
         }
 
-        FieldSerializer[] getters = this.getters;
+        final FieldSerializer[] getters;
 
         if (out.isEnabled(SerializerFeature.SortField)) {
-            Arrays.sort(getters);
+            getters = this.getters;
+        } else {
+            getters = this.sortedGetters;    
         }
 
         SerialContext parent = serializer.getContext();

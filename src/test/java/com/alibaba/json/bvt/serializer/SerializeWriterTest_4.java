@@ -12,8 +12,8 @@ public class SerializeWriterTest_4 extends TestCase {
         SerializeWriter out = new SerializeWriter(1);
         out.config(SerializerFeature.QuoteFieldNames, true);
         out.config(SerializerFeature.WriteTabAsSpecial, true);
-        out.writeFieldValue(',', "\tname", "\t");
-        Assert.assertEquals(",\"\\tname\":\"\\t\"", out.toString());
+        out.writeFieldValue(',', "name", "\t");
+        Assert.assertEquals(",\"name\":\"\\t\"", out.toString());
     }
     
     public void test_1() throws Exception {

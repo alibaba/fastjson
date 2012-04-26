@@ -94,9 +94,9 @@ public class JavaBeanSerializer implements ObjectSerializer {
         final FieldSerializer[] getters;
 
         if (out.isEnabled(SerializerFeature.SortField)) {
-            getters = this.getters;
+            getters = this.sortedGetters;
         } else {
-            getters = this.sortedGetters;    
+            getters = this.getters;    
         }
 
         SerialContext parent = serializer.getContext();

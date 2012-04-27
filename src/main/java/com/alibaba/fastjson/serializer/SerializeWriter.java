@@ -1151,19 +1151,44 @@ public final class SerializeWriter extends Writer {
         int specialCount = 0;
         int lastSpecialIndex = -1;
         char lastSpecial = '\0';
-        for (int i = valueStart; i < valueEnd; ++i) {
-            char ch = buf[i];
-            if (ch >= 'a') {
-                continue;
-            }
-            
-            if (ch == '\b' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\\'
-                || ch == '"' //
-                || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))
-                || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
-                specialCount++;
-                lastSpecialIndex = i;
-                lastSpecial = ch;
+
+        if (!isEnabled(SerializerFeature.DisableCheckSpecialChar)) {
+            if (isEnabled(SerializerFeature.WriteSlashAsSpecial)) {
+                for (int i = valueStart; i < valueEnd; ++i) {
+                    char ch = buf[i];
+                    if (ch >= ']') {
+                        continue;
+                    }
+
+                    if (ch == '\b' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\\' || ch == '"' //
+                        || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial)) || ch == '/') {
+                        specialCount++;
+                        lastSpecialIndex = i;
+                        lastSpecial = ch;
+                    }
+                }
+            } else {
+                for (int i = valueStart; i < valueEnd; ++i) {
+                    char ch = buf[i];
+                    if (ch >= ']') {
+                        continue;
+                    }
+
+                    if (ch == ' ') {
+                        continue;
+                    }
+
+                    if (ch >= '#' && ch != '\\') {
+                        continue;
+                    }
+
+                    if (ch == '\b' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\\' || ch == '"' //
+                        || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))) {
+                        specialCount++;
+                        lastSpecialIndex = i;
+                        lastSpecial = ch;
+                    }
+                }
             }
         }
 
@@ -1214,15 +1239,15 @@ public final class SerializeWriter extends Writer {
 
         if (isEnabled(SerializerFeature.WriteEnumUsingToString)) {
             if (isEnabled(SerializerFeature.UseSingleQuotes)) {
-                writeFieldValue(seperator, name, value.name());    
+                writeFieldValue(seperator, name, value.name());
             } else {
                 write(seperator);
                 writeFieldName(name);
                 writeStringWithDoubleQuote(value.name(), (char) 0, false);
-                return;    
+                return;
             }
-            
-            //writeStringWithDoubleQuote
+
+            // writeStringWithDoubleQuote
         } else {
             writeFieldValue(seperator, name, value.ordinal());
         }

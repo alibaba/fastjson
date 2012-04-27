@@ -97,7 +97,12 @@ public enum SerializerFeature {
     /**
      * @since 1.1.15
      */
-    NotWriteRootClassName
+    NotWriteRootClassName,
+    
+    /**
+     * @since 1.1.19
+     */
+    DisableCheckSpecialChar
     ;
 
     private SerializerFeature(){

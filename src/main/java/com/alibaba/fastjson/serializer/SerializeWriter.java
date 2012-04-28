@@ -756,6 +756,17 @@ public final class SerializeWriter extends Writer {
         if (checkSpecial) {
             for (int i = start; i < end; ++i) {
                 char ch = buf[i];
+                if (ch >= ']') {
+                    continue;
+                }
+                
+                if (ch == ' ') {
+                    continue;
+                }
+
+                if (ch >= '0' && ch != '\\') {
+                    continue;
+                }
 
                 if (ch < CharTypes.specicalFlags_doubleQuotes.length
                     && CharTypes.specicalFlags_doubleQuotes[ch] //
@@ -1086,7 +1097,7 @@ public final class SerializeWriter extends Writer {
                     writeStringWithDoubleQuote(name, ':');
                     writeStringWithDoubleQuote(value, (char) 0);
                 } else {
-                    writeFieldValueStringWithDoubleQuote(seperator, name, value);
+                    writeFieldValueStringWithDoubleQuote(seperator, name, value, true);
                 }
             }
         } else {
@@ -1100,7 +1111,7 @@ public final class SerializeWriter extends Writer {
         }
     }
 
-    private void writeFieldValueStringWithDoubleQuote(char seperator, String name, String value) {
+    private void writeFieldValueStringWithDoubleQuote(char seperator, String name, String value, boolean checkSpecial) {
         int nameLen = name.length();
         int valueLen;
 
@@ -1148,11 +1159,11 @@ public final class SerializeWriter extends Writer {
 
         value.getChars(0, valueLen, buf, valueStart);
 
-        int specialCount = 0;
-        int lastSpecialIndex = -1;
-        char lastSpecial = '\0';
+        if (checkSpecial && !isEnabled(SerializerFeature.DisableCheckSpecialChar)) {
+            int specialCount = 0;
+            int lastSpecialIndex = -1;
+            char lastSpecial = '\0';
 
-        if (!isEnabled(SerializerFeature.DisableCheckSpecialChar)) {
             if (isEnabled(SerializerFeature.WriteSlashAsSpecial)) {
                 for (int i = valueStart; i < valueEnd; ++i) {
                     char ch = buf[i];
@@ -1190,39 +1201,41 @@ public final class SerializeWriter extends Writer {
                     }
                 }
             }
-        }
-
-        if (specialCount > 0) {
-            newcount += specialCount;
-            if (newcount > buf.length) {
-                expandCapacity(newcount);
+            
+            if (specialCount > 0) {
+                newcount += specialCount;
+                if (newcount > buf.length) {
+                    expandCapacity(newcount);
+                }
+                count = newcount;
             }
-            count = newcount;
-        }
+            
+            if (specialCount == 1) {
+                System.arraycopy(buf, lastSpecialIndex + 1, buf, lastSpecialIndex + 2, valueEnd - lastSpecialIndex - 1);
+                buf[lastSpecialIndex] = '\\';
+                buf[++lastSpecialIndex] = replaceChars[(int) lastSpecial];
+            } else if (specialCount > 1) {
+                System.arraycopy(buf, lastSpecialIndex + 1, buf, lastSpecialIndex + 2, valueEnd - lastSpecialIndex - 1);
+                buf[lastSpecialIndex] = '\\';
+                buf[++lastSpecialIndex] = replaceChars[(int) lastSpecial];
+                valueEnd++;
+                for (int i = lastSpecialIndex - 2; i >= valueStart; --i) {
+                    char ch = buf[i];
 
-        if (specialCount == 1) {
-            System.arraycopy(buf, lastSpecialIndex + 1, buf, lastSpecialIndex + 2, valueEnd - lastSpecialIndex - 1);
-            buf[lastSpecialIndex] = '\\';
-            buf[++lastSpecialIndex] = replaceChars[(int) lastSpecial];
-        } else if (specialCount > 1) {
-            System.arraycopy(buf, lastSpecialIndex + 1, buf, lastSpecialIndex + 2, valueEnd - lastSpecialIndex - 1);
-            buf[lastSpecialIndex] = '\\';
-            buf[++lastSpecialIndex] = replaceChars[(int) lastSpecial];
-            valueEnd++;
-            for (int i = lastSpecialIndex - 2; i >= valueStart; --i) {
-                char ch = buf[i];
-
-                if (ch == '\b' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\\'
-                    || ch == '"' //
-                    || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))
-                    || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
-                    System.arraycopy(buf, i + 1, buf, i + 2, valueEnd - i - 1);
-                    buf[i] = '\\';
-                    buf[i + 1] = replaceChars[(int) ch];
-                    valueEnd++;
+                    if (ch == '\b' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\\'
+                        || ch == '"' //
+                        || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))
+                        || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
+                        System.arraycopy(buf, i + 1, buf, i + 2, valueEnd - i - 1);
+                        buf[i] = '\\';
+                        buf[i + 1] = replaceChars[(int) ch];
+                        valueEnd++;
+                    }
                 }
             }
         }
+
+        
 
         buf[count - 1] = '\"';
     }
@@ -1241,9 +1254,7 @@ public final class SerializeWriter extends Writer {
             if (isEnabled(SerializerFeature.UseSingleQuotes)) {
                 writeFieldValue(seperator, name, value.name());
             } else {
-                write(seperator);
-                writeFieldName(name);
-                writeStringWithDoubleQuote(value.name(), (char) 0, false);
+                writeFieldValueStringWithDoubleQuote(seperator, name, value.name(), false);
                 return;
             }
 

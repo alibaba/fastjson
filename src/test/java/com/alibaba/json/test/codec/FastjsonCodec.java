@@ -48,6 +48,7 @@ public class FastjsonCodec implements Codec {
     public String encode(Object object) throws Exception {
         SerializeWriter out = new SerializeWriter();
         out.config(SerializerFeature.DisableCircularReferenceDetect, true);
+//        out.config(SerializerFeature.DisableCheckSpecialChar, true);
 
         JSONSerializer.write(out, object);
 

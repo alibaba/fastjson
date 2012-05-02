@@ -1164,42 +1164,18 @@ public final class SerializeWriter extends Writer {
             int lastSpecialIndex = -1;
             char lastSpecial = '\0';
 
-            if (isEnabled(SerializerFeature.WriteSlashAsSpecial)) {
-                for (int i = valueStart; i < valueEnd; ++i) {
-                    char ch = buf[i];
-                    if (ch >= ']') {
-                        continue;
-                    }
+            for (int i = valueStart; i < valueEnd; ++i) {
+            	char ch = buf[i];
 
-                    if (ch == '\b' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\\' || ch == '"' //
-                        || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial)) || ch == '/') {
-                        specialCount++;
-                        lastSpecialIndex = i;
-                        lastSpecial = ch;
-                    }
-                }
-            } else {
-                for (int i = valueStart; i < valueEnd; ++i) {
-                    char ch = buf[i];
-                    if (ch >= ']') {
-                        continue;
-                    }
+				if (ch >= ']') {
+					continue;
+				}
 
-                    if (ch == ' ') {
-                        continue;
-                    }
-
-                    if (ch >= '#' && ch != '\\') {
-                        continue;
-                    }
-
-                    if (ch == '\b' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\\' || ch == '"' //
-                        || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))) {
-                        specialCount++;
-                        lastSpecialIndex = i;
-                        lastSpecial = ch;
-                    }
-                }
+            	if (isSpecial(ch, this.features)) {
+                  specialCount++;
+                  lastSpecialIndex = i;
+                  lastSpecial = ch;
+            	}
             }
             
             if (specialCount > 0) {
@@ -1238,6 +1214,29 @@ public final class SerializeWriter extends Writer {
         
 
         buf[count - 1] = '\"';
+    }
+    
+    final static boolean isSpecial(char ch, int features) {
+//        if (ch > ']') {
+//            return false;
+//        }
+
+        if (ch == ' ') {
+        	return false;
+        }
+
+        if (ch > '#' && ch != '\\') {
+        	return false;
+        }
+
+        if (ch == '\b' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\\' || ch == '"' //
+            || (ch == '\t' && SerializerFeature.isEnabled(features, SerializerFeature.WriteTabAsSpecial))
+            || (ch == '/' && SerializerFeature.isEnabled(features, SerializerFeature.WriteTabAsSpecial))
+            ) {
+            return true;
+        }
+        
+        return false;
     }
 
     // writeStringWithSingleQuote

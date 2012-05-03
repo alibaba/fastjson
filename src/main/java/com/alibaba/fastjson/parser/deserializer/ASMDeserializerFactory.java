@@ -37,6 +37,7 @@ import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.SymbolTable;
 import com.alibaba.fastjson.parser.deserializer.ASMJavaBeanDeserializer.InnerJavaBeanDeserializer;
 import com.alibaba.fastjson.util.ASMClassLoader;
+import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.DeserializeBeanInfo;
 import com.alibaba.fastjson.util.FieldInfo;
 
@@ -539,6 +540,10 @@ public class ASMDeserializerFactory implements Opcodes {
             if (fieldInfo.getMethod() != null) {
                 mw.visitMethodInsn(INVAKE_TYPE, getType(fieldInfo.getDeclaringClass()),
                                    fieldInfo.getMethod().getName(), getDesc(fieldInfo.getMethod()));
+                
+                if (!fieldInfo.getMethod().getReturnType().equals(Void.TYPE)) {
+                	mw.visitInsn(POP);
+                }
             } else {
                 mw.visitFieldInsn(PUTFIELD, getType(fieldInfo.getDeclaringClass()), fieldInfo.getField().getName(),
                                   getDesc(fieldInfo.getFieldClass()));
@@ -882,7 +887,7 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitVarInsn(ALOAD, 1);
                 mw.visitTypeInsn(CHECKCAST, getType(method.getDeclaringClass())); // cast
                 mw.visitVarInsn(ILOAD, 2);
-                mw.visitMethodInsn(INVAKE_TYPE, getType(method.getDeclaringClass()), method.getName(), "(I)V");
+                mw.visitMethodInsn(INVAKE_TYPE, getType(method.getDeclaringClass()), method.getName(), ASMUtils.getDesc(method));
 
                 mw.visitInsn(RETURN);
                 mw.visitMaxs(3, 3);
@@ -893,7 +898,7 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitVarInsn(ALOAD, 1);
                 mw.visitTypeInsn(CHECKCAST, getType(method.getDeclaringClass())); // cast
                 mw.visitVarInsn(LLOAD, 2);
-                mw.visitMethodInsn(INVAKE_TYPE, getType(method.getDeclaringClass()), method.getName(), "(J)V");
+                mw.visitMethodInsn(INVAKE_TYPE, getType(method.getDeclaringClass()), method.getName(), ASMUtils.getDesc(method));
 
                 mw.visitInsn(RETURN);
                 mw.visitMaxs(3, 4);
@@ -907,7 +912,7 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitVarInsn(ALOAD, 2);
                 mw.visitTypeInsn(CHECKCAST, getType(fieldClass)); // cast
                 mw.visitMethodInsn(INVAKE_TYPE, getType(method.getDeclaringClass()), method.getName(),
-                                   "(" + getDesc(fieldClass) + ")V");
+                		ASMUtils.getDesc(method));
 
                 mw.visitInsn(RETURN);
                 mw.visitMaxs(3, 3);

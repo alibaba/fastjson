@@ -29,6 +29,7 @@ import static com.alibaba.fastjson.parser.JSONToken.RBRACKET;
 import static com.alibaba.fastjson.parser.JSONToken.SET;
 import static com.alibaba.fastjson.parser.JSONToken.TREE_SET;
 import static com.alibaba.fastjson.parser.JSONToken.TRUE;
+import static com.alibaba.fastjson.parser.JSONToken.ERROR;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -1076,8 +1077,10 @@ public class DefaultJSONParser extends AbstractJSONParser {
                 if (lexer.isBlankInput()) {
                     return null;
                 }
+                throw new JSONException("unterminated json string, pos " + lexer.getBufferPosition());
+            case ERROR:
             default:
-                throw new JSONException("TODO " + lexer.tokenName() + " " + lexer.stringVal());
+                throw new JSONException("syntax error, pos " + lexer.getBufferPosition());
         }
     }
 

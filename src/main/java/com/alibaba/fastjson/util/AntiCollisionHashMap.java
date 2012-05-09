@@ -130,9 +130,8 @@ import java.util.TreeMap;
  * @see Map
  * @see TreeMap
  * @see Hashtable
- * @since 1.2
  */
-
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
 		Map<K, V>, Cloneable, Serializable {
 

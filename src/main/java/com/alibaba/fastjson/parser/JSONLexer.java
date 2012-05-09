@@ -35,6 +35,8 @@ public interface JSONLexer {
     String tokenName();
 
     int pos();
+    
+    int getBufferPosition();
 
     String stringVal();
 

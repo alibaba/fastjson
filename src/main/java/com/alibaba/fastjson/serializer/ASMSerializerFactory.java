@@ -128,8 +128,6 @@ public class ASMSerializerFactory implements Opcodes {
         }
 
         for (FieldInfo fieldInfo : getters) {
-            Class<?> propertyClass = fieldInfo.getFieldClass();
-
             {
                 FieldVisitor fw = cw.visitField(ACC_PUBLIC, fieldInfo.getName() + "_asm_fieldPrefix",
                                                 "Ljava/lang/reflect/Type;");

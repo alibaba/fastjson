@@ -21,4 +21,8 @@ public class TestForEmoji extends TestCase {
         Assert.assertEquals("\"\\uE001\"", JSON.toJSONString("\uE001", SerializerFeature.BrowserCompatible));
         //E507
     }
+    
+    public void test_zh() throws Exception {
+    	Assert.assertEquals("\"\\u4E2D\\u56FD\"", JSON.toJSONString("中国", SerializerFeature.BrowserCompatible));
+    }
 }

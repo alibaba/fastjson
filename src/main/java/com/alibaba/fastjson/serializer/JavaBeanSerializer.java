@@ -20,7 +20,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,18 +59,26 @@ public class JavaBeanSerializer implements ObjectSerializer {
     }
 
     public JavaBeanSerializer(Class<?> clazz, Map<String, String> aliasMap){
-        List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
-
-        List<FieldInfo> fieldInfoList = TypeUtils.computeGetters(clazz, aliasMap);
-
-        for (FieldInfo fieldInfo : fieldInfoList) {
-            getterList.add(createFieldSerializer(fieldInfo));
+        {
+        	List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
+	        List<FieldInfo> fieldInfoList = TypeUtils.computeGetters(clazz, aliasMap, false);
+	
+	        for (FieldInfo fieldInfo : fieldInfoList) {
+	            getterList.add(createFieldSerializer(fieldInfo));
+	        }
+	
+	        getters = getterList.toArray(new FieldSerializer[getterList.size()]);
         }
-
-        //
-        getters = getterList.toArray(new FieldSerializer[getterList.size()]);
-        sortedGetters = getterList.toArray(new FieldSerializer[getterList.size()]);
-        Arrays.sort(sortedGetters);
+        {
+        	List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
+	        List<FieldInfo> fieldInfoList = TypeUtils.computeGetters(clazz, aliasMap, true);
+	
+	        for (FieldInfo fieldInfo : fieldInfoList) {
+	            getterList.add(createFieldSerializer(fieldInfo));
+	        }
+	
+	        sortedGetters = getterList.toArray(new FieldSerializer[getterList.size()]);
+        }
     }
 
     protected boolean isWriteClassName(JSONSerializer serializer, Object obj, Type fieldType, Object fieldName) {

@@ -29,6 +29,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -39,6 +40,7 @@ import java.util.Map;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 
@@ -749,10 +751,12 @@ public class TypeUtils {
 
         return clazz;
     }
-
-    public static List<FieldInfo> computeGetters(Class<?> clazz, Map<String, String> aliasMap) {
-        List<FieldInfo> fieldInfoList = new ArrayList<FieldInfo>();
-
+	public static List<FieldInfo> computeGetters(Class<?> clazz,
+			Map<String, String> aliasMap) {
+		return computeGetters(clazz, aliasMap, true);
+	}
+	
+    public static List<FieldInfo> computeGetters(Class<?> clazz, Map<String, String> aliasMap, boolean sorted) {
         Map<String, FieldInfo> fieldInfoMap = new LinkedHashMap<String, FieldInfo>();
 
         for (Method method : clazz.getMethods()) {
@@ -885,8 +889,41 @@ public class TypeUtils {
             }
         }
 
-        for (FieldInfo fieldInfo : fieldInfoMap.values()) {
-            fieldInfoList.add(fieldInfo);
+        List<FieldInfo> fieldInfoList = new ArrayList<FieldInfo>();
+
+        boolean containsAll = false;
+        String[] orders = null;
+
+        JSONType annotation = clazz.getAnnotation(JSONType.class);
+        if (annotation != null) {
+            orders = annotation.orders();
+
+            if (orders != null && orders.length == fieldInfoMap.size()) {
+                containsAll = true;
+                for (String item : orders) {
+                    if (!fieldInfoMap.containsKey(item)) {
+                        containsAll = false;
+                        break;
+                    }
+                }
+            } else {
+                containsAll = false;
+            }
+        }
+
+        if (containsAll) {
+            for (String item : orders) {
+                FieldInfo fieldInfo = fieldInfoMap.get(item);
+                fieldInfoList.add(fieldInfo);
+            }
+        } else {
+            for (FieldInfo fieldInfo : fieldInfoMap.values()) {
+                fieldInfoList.add(fieldInfo);
+            }
+            
+            if (sorted) {
+                Collections.sort(fieldInfoList);
+            }
         }
 
         return fieldInfoList;

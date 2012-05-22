@@ -685,7 +685,7 @@ public final class SerializeWriter extends Writer {
                     continue;
                 }
 
-                if (CharTypes.isEmoji(ch)) {
+                if (ch >= 127) {
                     lastSpecialIndex = i;
                     newcount += 5;
                     continue;
@@ -728,7 +728,7 @@ public final class SerializeWriter extends Writer {
                     continue;
                 }
 
-                if (CharTypes.isEmoji(ch)) {
+                if (ch >= 127) {
                     System.arraycopy(buf, i + 1, buf, i + 6, end - i - 1);
                     buf[i] = '\\';
                     buf[i + 1] = 'u';

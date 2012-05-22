@@ -9,7 +9,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -114,7 +113,7 @@ public class ASMSerializerFactory implements Opcodes {
             throw new JSONException("unsupportd class " + clazz.getName());
         }
 
-        List<FieldInfo> getters = TypeUtils.computeGetters(clazz, aliasMap);
+        List<FieldInfo> getters = TypeUtils.computeGetters(clazz, aliasMap, false);
 
         String className = getGenClassName(clazz);
 
@@ -212,8 +211,7 @@ public class ASMSerializerFactory implements Opcodes {
         }
 
         {
-            List<FieldInfo> sortedGetters = TypeUtils.computeGetters(clazz, aliasMap);
-            Collections.sort(sortedGetters);
+            List<FieldInfo> sortedGetters = TypeUtils.computeGetters(clazz, aliasMap, true);
 
             // sortField support
             Context context = new Context(className);

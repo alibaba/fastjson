@@ -810,6 +810,12 @@ public class TypeUtils {
                 }
 
                 String propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+                
+                boolean ignore = isJSONTypeIgnore(clazz, propertyName);
+                
+                if (ignore) {
+                    continue;
+                }
 
                 Field field = ParserConfig.getField(clazz, propertyName);
                 if (field != null) {
@@ -927,5 +933,25 @@ public class TypeUtils {
         }
 
         return fieldInfoList;
+    }
+
+    private static boolean isJSONTypeIgnore(Class<?> clazz, String propertyName) {
+        JSONType jsonType = clazz.getAnnotation(JSONType.class);
+        
+        if (jsonType != null && jsonType.ignores() != null) {
+            for (String item : jsonType.ignores()) {
+                if (propertyName.equalsIgnoreCase(item)) {
+                    return true;
+                }
+            }
+        }
+        
+        if (clazz.getSuperclass() != Object.class) {
+            if (isJSONTypeIgnore(clazz.getSuperclass(), propertyName)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 }

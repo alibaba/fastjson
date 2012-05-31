@@ -17,6 +17,8 @@ public @interface JSONType {
     boolean asm() default true;
 
     String[] orders() default {};
+    
+    String[] ignores() default {};
 
     SerializerFeature[] serialzeFeatures() default {};
 }

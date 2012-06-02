@@ -279,7 +279,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
 
                     this.setResolveStatus(TypeNameRedirect);
 
-                    if (this.context != null) {
+                    if (this.context != null && fieldName instanceof String) {
                         this.popContext();
                     }
 

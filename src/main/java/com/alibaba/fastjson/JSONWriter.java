@@ -16,14 +16,18 @@ public class JSONWriter {
     private Context         context;
 
     public static enum State {
-        None, BeginObject, PropertyKey, PropertyValue, BeginArray, ArrayValue
+        BeginObject, //
+        PropertyKey, //
+        PropertyValue, //
+        BeginArray, //
+        ArrayValue
     }
 
     public static class Context {
 
         private final Context parent;
 
-        private State         state = State.None;
+        private State         state;
 
         public Context(Context parent, State state){
             this.parent = parent;

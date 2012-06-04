@@ -13,8 +13,8 @@ public class ArrayDeserializer implements ObjectDeserializer {
 
     public final static ArrayDeserializer instance = new ArrayDeserializer();
 
-    @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         final JSONLexer lexer = parser.getLexer();
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken(JSONToken.COMMA);
@@ -27,10 +27,12 @@ public class ArrayDeserializer implements ObjectDeserializer {
             return (T) bytes;
         }
         
+        Class clazz = (Class) type;
+        Class componentType = clazz.getComponentType();
         JSONArray array = new JSONArray();
-        parser.parseArray(array);
+        parser.parseArray(componentType, array, fieldName);
 
-        return toObjectArray(parser, (Class<T>) clazz, array);
+        return (T) toObjectArray(parser, clazz, array);
     }
 
     @SuppressWarnings("unchecked")
@@ -47,7 +49,13 @@ public class ArrayDeserializer implements ObjectDeserializer {
             Object value = array.get(i);
 
             if (componentType.isArray()) {
-                Object element = toObjectArray(parser, componentType, (JSONArray) value);
+                Object element;
+                if (componentType.isInstance(value)) {
+                    element = value;    
+                } else {
+                    element = toObjectArray(parser, componentType, (JSONArray) value);
+                }
+                
                 Array.set(objArray, i, element);
             } else {
                 Object element = TypeUtils.cast(value, componentType, parser.getConfig());

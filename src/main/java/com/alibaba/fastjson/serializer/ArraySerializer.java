@@ -64,7 +64,7 @@ public class ArraySerializer implements ObjectSerializer {
                 if (item == null) {
                     out.append("null,");
                 } else {
-                    compObjectSerializer.write(serializer, item, null, null);
+                    compObjectSerializer.write(serializer, item, i, null);
                     out.append(',');
                 }
             }
@@ -74,7 +74,7 @@ public class ArraySerializer implements ObjectSerializer {
             if (item == null) {
                 out.append("null]");
             } else {
-                compObjectSerializer.write(serializer, item, null, null);
+                compObjectSerializer.write(serializer, item, end, null);
                 out.append(']');
             }
         } finally {

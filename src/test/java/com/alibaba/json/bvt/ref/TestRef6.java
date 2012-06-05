@@ -8,22 +8,29 @@ import com.alibaba.fastjson.JSON;
 public class TestRef6 extends TestCase {
 
     public void test_0() throws Exception {
-        Family family = new Family();
 
         Person pA = new Person("a");
-
         Person pB = new Person("b");
 
-        family.setMembers(new Person[] { pA, pB });
-        family.setMaster(pA);
+        Family fA = new Family();
+        fA.setMembers(new Person[] { pA, pB });
+        fA.setMaster(pA);
 
-        Family[] familyArray = new Family[] { family };
+        Person pC = new Person("c");
+        Person pD = new Person("d");
+        
+        Family fB = new Family();
+        fB.setMembers(new Person[] { pC, pD });
+        fB.setMaster(pC);
+
+        Family[] familyArray = new Family[] { fA, fB };
         String text = JSON.toJSONString(familyArray);
         System.out.println(text);
 
         Family[] result = JSON.parseObject(text, Family[].class);
 
         Assert.assertSame(result[0].getMaster(), result[0].getMembers()[0]);
+        Assert.assertSame(result[1].getMaster(), result[1].getMembers()[0]);
 
     }
 

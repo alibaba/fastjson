@@ -125,6 +125,8 @@ public class Bug_for_zhuel extends TestCase {
         
         Family[] result = JSON.parseObject(sfs, Family[].class);
         Assert.assertSame(result[0].getMaster(), result[0].getPs()[0]);
+        Assert.assertSame(result[1].getMaster(), result[1].getPs()[0]);
+        Assert.assertSame(result[2].getMaster(), result[2].getPs()[0]);
         
     }
 

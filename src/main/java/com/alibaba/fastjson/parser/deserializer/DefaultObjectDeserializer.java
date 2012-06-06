@@ -221,6 +221,11 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
                     lexer.nextToken(JSONToken.COMMA);
 
                     parser.setResolveStatus(DefaultJSONParser.TypeNameRedirect);
+                    
+                    if (context != null && !(fieldName instanceof Integer)) {
+                        parser.popContext();
+                    }
+                    
                     return (Map) deserializer.deserialze(parser, clazz, fieldName);
                 }
                 

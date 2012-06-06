@@ -23,7 +23,7 @@ public class Bug_for_smoothrat7 extends TestCase {
 
         Map<String, Object> entity2 = (Map<String, Object>) JSON.parse(text);
         Assert.assertEquals(map.getClass(), entity2.getClass());
-        Assert.assertEquals(true, entity2 == entity2.get("self"));
+        Assert.assertSame(entity2, entity2.get("self"));
     }
     
 

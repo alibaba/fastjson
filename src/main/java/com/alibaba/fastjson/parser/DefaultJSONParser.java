@@ -17,6 +17,7 @@ package com.alibaba.fastjson.parser;
 
 import static com.alibaba.fastjson.parser.JSONScanner.EOI;
 import static com.alibaba.fastjson.parser.JSONToken.EOF;
+import static com.alibaba.fastjson.parser.JSONToken.ERROR;
 import static com.alibaba.fastjson.parser.JSONToken.FALSE;
 import static com.alibaba.fastjson.parser.JSONToken.LBRACE;
 import static com.alibaba.fastjson.parser.JSONToken.LBRACKET;
@@ -29,7 +30,6 @@ import static com.alibaba.fastjson.parser.JSONToken.RBRACKET;
 import static com.alibaba.fastjson.parser.JSONToken.SET;
 import static com.alibaba.fastjson.parser.JSONToken.TREE_SET;
 import static com.alibaba.fastjson.parser.JSONToken.TRUE;
-import static com.alibaba.fastjson.parser.JSONToken.ERROR;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -279,14 +279,14 @@ public class DefaultJSONParser extends AbstractJSONParser {
 
                     this.setResolveStatus(TypeNameRedirect);
 
-                    if (this.context != null && fieldName instanceof String) {
+                    if (this.context != null && !(fieldName instanceof Integer)) {
                         this.popContext();
                     }
 
                     ObjectDeserializer deserializer = config.getDeserializer(clazz);
                     return deserializer.deserialze(this, clazz, fieldName);
                 }
-
+                
                 if (key == "$ref") {
                     lexer.nextToken(JSONToken.LITERAL_STRING);
                     if (lexer.token() == JSONToken.LITERAL_STRING) {
@@ -333,6 +333,8 @@ public class DefaultJSONParser extends AbstractJSONParser {
                         throw new JSONException("illegal ref, " + JSONToken.name(lexer.token()));
                     }
                 }
+                
+                setContext(object, fieldName);
 
                 Object value;
                 if (ch == '"') {
@@ -360,7 +362,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                 } else if (ch == '[') { // 减少潜套，兼容android
                     lexer.nextToken();
                     JSONArray list = new JSONArray();
-                    this.parseArray(list);
+                    this.parseArray(list, key);
                     value = list;
                     object.put(key, value);
 
@@ -834,6 +836,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
 
         lexer.nextToken(JSONToken.LITERAL_STRING);
 
+        ParseContext context = this.getContext();
         this.setContext(array, fieldName);
         try {
             for (int i = 0;; ++i) {
@@ -912,7 +915,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                 }
             }
         } finally {
-            this.popContext();
+            this.setContext(context);
         }
     }
 
@@ -945,6 +948,8 @@ public class DefaultJSONParser extends AbstractJSONParser {
         }
 
         this.context = this.context.getParentContext();
+        contextArray[contextArrayIndex - 1] = null;
+        contextArrayIndex--;
     }
 
     public ParseContext setContext(Object object, Object fieldName) {

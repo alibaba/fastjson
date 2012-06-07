@@ -4,6 +4,8 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 
 public class Bug_for_zhuel extends TestCase {
 
@@ -119,15 +121,23 @@ public class Bug_for_zhuel extends TestCase {
         fs[2] = f3;
         System.out.println(JSON.VERSION);
         String sfs = JSON.toJSONString(fs, true);
-        
+
         Assert.assertSame(fs[0].getMaster(), fs[0].getPs()[0]);
         System.out.println(sfs);
-        
-        Family[] result = JSON.parseObject(sfs, Family[].class);
-        Assert.assertSame(result[0].getMaster(), result[0].getPs()[0]);
-        Assert.assertSame(result[1].getMaster(), result[1].getPs()[0]);
-        Assert.assertSame(result[2].getMaster(), result[2].getPs()[0]);
-        
+
+        {
+            Family[] result = JSON.parseObject(sfs, Family[].class);
+            Assert.assertSame(result[0].getMaster(), result[0].getPs()[0]);
+            Assert.assertSame(result[1].getMaster(), result[1].getPs()[0]);
+            Assert.assertSame(result[2].getMaster(), result[2].getPs()[0]);
+        }
+        {
+            JSONArray array = JSON.parseArray(sfs);
+            for (int i = 0; i < array.size(); ++i) {
+                JSONObject jsonObj = array.getJSONObject(i);
+                Assert.assertSame(jsonObj.get("master"), jsonObj.getJSONArray("ps").get(0));
+            }
+        }
     }
 
     public static class Family {

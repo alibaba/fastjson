@@ -180,6 +180,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
 
         ParseContext context = this.getContext();
         try {
+            boolean setContextFlag = false;
             for (;;) {
                 lexer.skipWhitespace();
                 char ch = lexer.getCurrent();
@@ -334,7 +335,10 @@ public class DefaultJSONParser extends AbstractJSONParser {
                     }
                 }
                 
-                setContext(object, fieldName);
+                if (!setContextFlag) {
+                    setContext(object, fieldName);
+                    setContextFlag = true;
+                }
 
                 Object value;
                 if (ch == '"') {

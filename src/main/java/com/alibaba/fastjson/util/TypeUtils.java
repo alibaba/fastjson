@@ -26,6 +26,8 @@ import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -37,6 +39,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
@@ -227,6 +230,16 @@ public class TypeUtils {
 
         if (value instanceof String) {
             String strVal = (String) value;
+            
+            if (strVal.indexOf(':') != -1) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat(JSON.DEFFAULT_DATE_FORMAT);
+                try {
+                    return (Date) dateFormat.parse(strVal);
+                } catch (ParseException e) {
+                    throw new JSONException("can not cast to Date, value : " + strVal);
+                }
+            }
+            
             if (strVal.length() == 0) {
                 return null;
             }

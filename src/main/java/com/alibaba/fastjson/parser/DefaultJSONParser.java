@@ -505,6 +505,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
             lexer.nextToken(deserializer.getFastMatchToken());
         }
 
+        ParseContext context = this.getContext();
         this.setContext(array, fieldName);
         try {
             for (int i = 0;; ++i) {
@@ -555,7 +556,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                 }
             }
         } finally {
-            this.popContext();
+            this.setContext(context);
         }
 
         lexer.nextToken(JSONToken.COMMA);

@@ -170,6 +170,8 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ALOAD, context.var("lexer"));
         mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "token", "()I");
         mw.visitVarInsn(ISTORE, context.var("mark_token"));
+        
+        //ParseContext context = parser.getContext();
 
         Constructor<?> defaultConstructor = context.getBeanInfo().getDefaultConstructor();
 
@@ -649,6 +651,10 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
 
         { // setContext
+            mw.visitVarInsn(ALOAD, 1);
+            mw.visitMethodInsn(INVOKEVIRTUAL, getType(DefaultJSONParser.class), "getContext", "()Lcom/alibaba/fastjson/parser/ParseContext;");
+            mw.visitVarInsn(ASTORE, context.var("listContext"));
+            
             mw.visitVarInsn(ALOAD, 1); // parser
             mw.visitVarInsn(ALOAD, context.var(fieldInfo.getName() + "_asm"));
             mw.visitLdcInsn(fieldInfo.getName());
@@ -724,9 +730,12 @@ public class ASMDeserializerFactory implements Opcodes {
 
         mw.visitLabel(loop_end_);
 
+        //mw.visitVarInsn(ASTORE, context.var("context"));
+        //parser.setContext(context);
         { // setContext
             mw.visitVarInsn(ALOAD, 1); // parser
-            mw.visitMethodInsn(INVOKEVIRTUAL, getType(DefaultJSONParser.class), "popContext", "()V");
+            mw.visitVarInsn(ALOAD, context.var("listContext"));
+            mw.visitMethodInsn(INVOKEVIRTUAL, getType(DefaultJSONParser.class), "setContext", "(Lcom/alibaba/fastjson/parser/ParseContext;)V");
         }
 
         mw.visitVarInsn(ALOAD, context.var("lexer"));

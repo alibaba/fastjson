@@ -23,6 +23,7 @@ import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
@@ -432,6 +433,8 @@ public class JSONSerializer {
                 config.put(clazz, CharsetSerializer.instance);
             } else if (Enumeration.class.isAssignableFrom(clazz)) {
                 config.put(clazz, EnumerationSeriliazer.instance);
+            } else if (Calendar.class.isAssignableFrom(clazz)) {
+                config.put(clazz, CalendarSerializer.instance);
             } else {
                 boolean isCglibProxy = false;
                 for (Class<?> item : clazz.getInterfaces()) {

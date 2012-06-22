@@ -29,6 +29,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -73,7 +74,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
         if (asm && ASMClassLoader.isExternalClass(clazz) || clazz == Serializable.class || clazz == Object.class) {
             asm = false;
         }
-        
+
         {
             JSONType annotation = clazz.getAnnotation(JSONType.class);
             if (annotation != null && annotation.asm() == false) {

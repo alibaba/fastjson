@@ -33,6 +33,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -69,6 +70,7 @@ import com.alibaba.fastjson.parser.deserializer.BigDecimalDeserializer;
 import com.alibaba.fastjson.parser.deserializer.BigIntegerDeserializer;
 import com.alibaba.fastjson.parser.deserializer.BooleanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.BooleanFieldDeserializer;
+import com.alibaba.fastjson.parser.deserializer.CalendarDeserializer;
 import com.alibaba.fastjson.parser.deserializer.CharArrayDeserializer;
 import com.alibaba.fastjson.parser.deserializer.CharacterDeserializer;
 import com.alibaba.fastjson.parser.deserializer.CharsetDeserializer;
@@ -179,6 +181,7 @@ public class ParserConfig {
         derializers.put(java.sql.Date.class, SqlDateDeserializer.instance);
         derializers.put(java.sql.Time.class, TimeDeserializer.instance);
         derializers.put(java.util.Date.class, DateDeserializer.instance);
+        derializers.put(Calendar.class, CalendarDeserializer.instance);
 
         derializers.put(JSONObject.class, JSONObjectDeserializer.instance);
         derializers.put(JSONArray.class, JSONArrayDeserializer.instance);

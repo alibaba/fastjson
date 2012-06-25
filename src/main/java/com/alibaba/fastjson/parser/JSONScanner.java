@@ -32,6 +32,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -1011,11 +1013,28 @@ public class JSONScanner implements JSONLexer {
 
         return strVal;
     }
-
+    
     public ArrayList<String> scanFieldStringArray(char[] fieldName) {
+        return (ArrayList<String>) scanFieldStringArray(fieldName, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Collection<String> scanFieldStringArray(char[] fieldName, Class<?> type) {
         matchStat = UNKOWN;
 
-        ArrayList<String> list = new ArrayList<String>();
+        Collection<String> list;
+        
+        if (type.isAssignableFrom(HashSet.class)) {
+            list = new HashSet<String>();
+        } else if (type.isAssignableFrom(ArrayList.class)) {
+            list = new ArrayList<String>();
+        } else {
+            try {
+                list = (Collection<String>) type.newInstance();
+            } catch (Exception e) {
+                throw new JSONException(e.getMessage(), e);
+            }            
+        }
 
         final int fieldNameLength = fieldName.length;
         for (int i = 0; i < fieldNameLength; ++i) {

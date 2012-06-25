@@ -324,8 +324,9 @@ public class ASMDeserializerFactory implements Opcodes {
                     }
 
                     if (itemClass == String.class) {
+                        mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc(fieldClass))); // cast
                         mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "scanFieldStringArray",
-                                           "([C)" + getDesc(ArrayList.class));
+                                           "([CLjava/lang/Class;)" + getDesc(Collection.class));
                         mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
                     } else {
                         _deserialze_list_obj(context, mw, reset_, fieldInfo, fieldClass, itemClass);

@@ -230,16 +230,27 @@ public class TypeUtils {
 
         if (value instanceof String) {
             String strVal = (String) value;
-            
-            if (strVal.indexOf(':') != -1) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat(JSON.DEFFAULT_DATE_FORMAT);
+
+            if (strVal.indexOf('-') != -1) {
+                String format;
+                if (strVal.length() == JSON.DEFFAULT_DATE_FORMAT.length()) {
+                    format = JSON.DEFFAULT_DATE_FORMAT;
+                } else if (strVal.length() == 10) {
+                    format = "yyyy-MM-dd";
+                } else if (strVal.length() == "yyyy-MM-dd HH:mm:ss".length()) {
+                    format = "yyyy-MM-dd HH:mm:ss";
+                } else {
+                    format = "yyyy-MM-dd HH:mm:ss.SSS";
+                }
+                
+                SimpleDateFormat dateFormat = new SimpleDateFormat(format);
                 try {
                     return (Date) dateFormat.parse(strVal);
                 } catch (ParseException e) {
                     throw new JSONException("can not cast to Date, value : " + strVal);
                 }
             }
-            
+
             if (strVal.length() == 0) {
                 return null;
             }
@@ -525,6 +536,22 @@ public class TypeUtils {
             return (T) castToEnum(obj, clazz, mapping);
         }
 
+        if (Calendar.class.isAssignableFrom(clazz)) {
+            Date date = castToDate(obj);
+            Calendar calendar;
+            if (clazz == Calendar.class) {
+                calendar = Calendar.getInstance();
+            } else {
+                try {
+                    calendar = (Calendar) clazz.newInstance();
+                } catch (Exception e) {
+                    throw new JSONException("can not cast to : " + clazz.getName(), e);
+                }
+            }
+            calendar.setTime(date);
+            return (T) calendar;
+        }
+
         if (obj instanceof String) {
             String strVal = (String) obj;
             if (strVal.length() == 0) {
@@ -721,7 +748,7 @@ public class TypeUtils {
         mappings.put("double", double.class);
         mappings.put("boolean", boolean.class);
         mappings.put("char", char.class);
-        
+
         mappings.put("[byte", byte[].class);
         mappings.put("[short", short[].class);
         mappings.put("[int", int[].class);
@@ -736,18 +763,18 @@ public class TypeUtils {
         if (className == null || className.length() == 0) {
             return null;
         }
-        
+
         Class<?> clazz = mappings.get(className);
-        
+
         if (clazz != null) {
             return clazz;
         }
-        
+
         if (className.charAt(0) == '[') {
             Class<?> componentType = loadClass(className.substring(1));
             return Array.newInstance(componentType, 0).getClass();
         }
-        
+
         try {
             clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
             return clazz;
@@ -764,11 +791,11 @@ public class TypeUtils {
 
         return clazz;
     }
-	public static List<FieldInfo> computeGetters(Class<?> clazz,
-			Map<String, String> aliasMap) {
-		return computeGetters(clazz, aliasMap, true);
-	}
-	
+
+    public static List<FieldInfo> computeGetters(Class<?> clazz, Map<String, String> aliasMap) {
+        return computeGetters(clazz, aliasMap, true);
+    }
+
     public static List<FieldInfo> computeGetters(Class<?> clazz, Map<String, String> aliasMap, boolean sorted) {
         Map<String, FieldInfo> fieldInfoMap = new LinkedHashMap<String, FieldInfo>();
 
@@ -823,9 +850,9 @@ public class TypeUtils {
                 }
 
                 String propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
-                
+
                 boolean ignore = isJSONTypeIgnore(clazz, propertyName);
-                
+
                 if (ignore) {
                     continue;
                 }
@@ -939,7 +966,7 @@ public class TypeUtils {
             for (FieldInfo fieldInfo : fieldInfoMap.values()) {
                 fieldInfoList.add(fieldInfo);
             }
-            
+
             if (sorted) {
                 Collections.sort(fieldInfoList);
             }
@@ -950,7 +977,7 @@ public class TypeUtils {
 
     private static boolean isJSONTypeIgnore(Class<?> clazz, String propertyName) {
         JSONType jsonType = clazz.getAnnotation(JSONType.class);
-        
+
         if (jsonType != null && jsonType.ignores() != null) {
             for (String item : jsonType.ignores()) {
                 if (propertyName.equalsIgnoreCase(item)) {
@@ -958,13 +985,13 @@ public class TypeUtils {
                 }
             }
         }
-        
+
         if (clazz.getSuperclass() != Object.class) {
             if (isJSONTypeIgnore(clazz.getSuperclass(), propertyName)) {
                 return true;
             }
         }
-        
+
         return false;
     }
 }

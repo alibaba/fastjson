@@ -189,14 +189,14 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>2.0.1</version>
+			<version>2.0.4</version>
 			<scope>test</scope>
 		</dependency>
 	
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-core-lgpl</artifactId>
-			<version>1.9.7</version>
+			<version>1.9.8</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

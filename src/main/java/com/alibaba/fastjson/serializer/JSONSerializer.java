@@ -20,6 +20,7 @@ import java.io.Writer;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
+import java.sql.Clob;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -435,6 +436,8 @@ public class JSONSerializer {
                 config.put(clazz, EnumerationSeriliazer.instance);
             } else if (Calendar.class.isAssignableFrom(clazz)) {
                 config.put(clazz, CalendarSerializer.instance);
+            } else if (Clob.class.isAssignableFrom(clazz)) {
+                config.put(clazz, ClobSeriliazer.instance);
             } else {
                 boolean isCglibProxy = false;
                 for (Class<?> item : clazz.getInterfaces()) {

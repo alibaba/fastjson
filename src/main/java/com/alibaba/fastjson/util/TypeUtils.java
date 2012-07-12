@@ -818,7 +818,7 @@ public class TypeUtils {
                 continue;
             }
             
-            if (method.getReturnType().getName().equals("groovy.lang.MetaClass")) {
+            if (method.getName().equals("getMetaClass") && method.getReturnType().getName().equals("groovy.lang.MetaClass")) {
                 continue;
             }
 

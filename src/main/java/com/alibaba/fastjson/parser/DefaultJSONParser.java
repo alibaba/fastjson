@@ -353,7 +353,11 @@ public class DefaultJSONParser extends AbstractJSONParser {
                         }
                     }
 
-                    object.put(key, value);
+                    if (object.getClass() == JSONObject.class) {
+                        object.put(key.toString(), value);
+                    } else {
+                        object.put(key, value);
+                    }
                 } else if (ch >= '0' && ch <= '9' || ch == '-') {
                     lexer.scanNumber();
                     if (lexer.token() == JSONToken.LITERAL_INT) {
@@ -383,7 +387,11 @@ public class DefaultJSONParser extends AbstractJSONParser {
                     Object obj = this.parseObject(new JSONObject(), key);
                     checkMapResolve(object, key.toString());
 
-                    object.put(key, obj);
+                    if (object.getClass() == JSONObject.class) {
+                        object.put(key.toString(), obj);
+                    } else {
+                        object.put(key, obj);
+                    }
 
                     setContext(context, obj, key);
 

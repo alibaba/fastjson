@@ -813,6 +813,14 @@ public class TypeUtils {
             if (method.getParameterTypes().length != 0) {
                 continue;
             }
+            
+            if (method.getReturnType() == ClassLoader.class) {
+                continue;
+            }
+            
+            if (method.getReturnType().getName().equals("groovy.lang.MetaClass")) {
+                continue;
+            }
 
             JSONField annotation = method.getAnnotation(JSONField.class);
 
@@ -986,7 +994,7 @@ public class TypeUtils {
             }
         }
 
-        if (clazz.getSuperclass() != Object.class) {
+        if (clazz.getSuperclass() != Object.class && clazz.getSuperclass() != null) {
             if (isJSONTypeIgnore(clazz.getSuperclass(), propertyName)) {
                 return true;
             }

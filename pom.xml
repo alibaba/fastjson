@@ -5,11 +5,11 @@
 	<groupId>com.alibaba</groupId>
 	<artifactId>fastjson</artifactId>
 	<version>1.1.23-SNAPSHOT</version>
-	
+
 	<packaging>jar</packaging>
 	<name>fastjson</name>
 	<description>Fastjson is a JSON processor (JSON parser + JSON generator) written in Java</description>
-	
+
 	<url>https://github.com/AlibabaTech/fastjson</url>
 	<inceptionYear>2012</inceptionYear>
 
@@ -29,7 +29,7 @@
 			<email>iamaxman@hotmail.com</email>
 		</developer>
 	</developers>
-	
+
 	<scm>
 		<url>https://wenshao@github.com/AlibabaTech/fastjson.git</url>
 		<connection>scm:git:https://wenshao@github.com/AlibabaTech/fastjson.git</connection>
@@ -50,7 +50,7 @@
 		<name>Alibaba Group</name>
 		<url>http://code.alibabatech.com/</url>
 	</organization>
-	
+
 	<licenses>
 		<license>
 			<name>Apache 2</name>
@@ -59,7 +59,7 @@
 			<comments>A business-friendly OSS license</comments>
 		</license>
 	</licenses>
-	
+
 	<build>
 		<extensions>
 			<extension>
@@ -72,20 +72,20 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				
+
 				<version>2.3.1</version>
 				<configuration>
 					<encoding>UTF-8</encoding>
 					<source>1.5</source>
 					<target>1.5</target>
 				</configuration>
-				<dependencies>  
-				        <dependency>  
-				            <groupId>org.codehaus.plexus</groupId>  
-				            <artifactId>plexus-compiler-javac</artifactId>  
-				            <version>1.8.1</version>  
-				        </dependency>  
-				</dependencies> 
+				<dependencies>
+					<dependency>
+						<groupId>org.codehaus.plexus</groupId>
+						<artifactId>plexus-compiler-javac</artifactId>
+						<version>1.8.1</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 
 			<plugin>
@@ -118,13 +118,13 @@
 			<plugin>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<executions>
-                    <execution>
-                        <id>attach-javadoc</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
+					<execution>
+						<id>attach-javadoc</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
 				<configuration>
 					<show>public</show>
 					<charset>UTF-8</charset>
@@ -135,7 +135,7 @@
 					</links>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
 				<artifactId>maven-gpg-plugin</artifactId>
 				<executions>
@@ -192,7 +192,7 @@
 			<version>2.0.4</version>
 			<scope>test</scope>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-core-lgpl</artifactId>
@@ -201,11 +201,11 @@
 		</dependency>
 		<dependency>
 			<groupId>cglib</groupId>
-			<artifactId>cglib</artifactId>
+			<artifactId>cglib-nodep</artifactId>
 			<version>2.2.2</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-mapper-lgpl</artifactId>
@@ -269,9 +269,9 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>cglib</groupId>
-			<artifactId>cglib</artifactId>
-			<version>2.2.2</version>
+			<groupId>org.codehaus.groovy</groupId>
+			<artifactId>groovy</artifactId>
+			<version>2.0.0</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

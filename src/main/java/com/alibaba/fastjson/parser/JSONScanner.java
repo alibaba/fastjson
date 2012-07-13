@@ -1983,6 +1983,10 @@ public class JSONScanner implements JSONLexer {
                 }
                 ch = buf[++bp];
             }
+            
+            if (ch == 'D' || ch == 'F') {
+                ch = buf[++bp];
+            }
 
             isDouble = true;
         }

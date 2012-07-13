@@ -296,6 +296,16 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         JSONScanner lexer = (JSONScanner) parser.getLexer(); // xxx
 
         FieldDeserializer fieldDeserializer = feildDeserializerMap.get(key);
+        
+        if (fieldDeserializer == null) {
+            for (Map.Entry<String, FieldDeserializer> entry : feildDeserializerMap.entrySet()) {
+                if (entry.getKey().equalsIgnoreCase(key)) {
+                    fieldDeserializer = entry.getValue();
+                    break;
+                }
+            }
+        }
+        
         if (fieldDeserializer == null) {
             if (!parser.isEnabled(Feature.IgnoreNotMatch)) {
                 throw new JSONException("setter not found, class " + clazz.getName() + ", property " + key);

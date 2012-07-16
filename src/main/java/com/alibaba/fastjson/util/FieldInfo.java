@@ -35,7 +35,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
             field.setAccessible(true);
         }
     }
-    
+
     public FieldInfo(String name, Method method, Field field){
         this(name, method, field, null, null);
     }
@@ -69,15 +69,17 @@ public class FieldInfo implements Comparable<FieldInfo> {
             fieldType = field.getGenericType();
             this.declaringClass = field.getDeclaringClass();
         }
-        
+
         Type genericFieldType = getFieldType(clazz, type, fieldType);
-        
+
         if (genericFieldType != fieldType) {
             if (genericFieldType instanceof ParameterizedType) {
                 fieldClass = TypeUtils.getClass(genericFieldType);
+            } else if (genericFieldType instanceof Class) {
+                fieldClass = TypeUtils.getClass(genericFieldType);
             }
         }
-        
+
         this.fieldType = genericFieldType;
         this.fieldClass = fieldClass;
     }
@@ -86,12 +88,11 @@ public class FieldInfo implements Comparable<FieldInfo> {
         if (clazz == null || type == null) {
             return fieldType;
         }
-        
+
         if (!(type instanceof ParameterizedType)) {
             return fieldType;
         }
-        
-        
+
         if (fieldType instanceof TypeVariable) {
             ParameterizedType paramType = (ParameterizedType) type;
             TypeVariable<?> typeVar = (TypeVariable<?>) fieldType;

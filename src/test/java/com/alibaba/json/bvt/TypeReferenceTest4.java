@@ -10,7 +10,7 @@ import junit.framework.TestCase;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 
-public class TypeReerenceTest4 extends TestCase {
+public class TypeReferenceTest4 extends TestCase {
 
     public void test_typeRef() throws Exception {
         TypeReference<VO<List<A>>> typeRef = new TypeReference<VO<List<A>>>() {

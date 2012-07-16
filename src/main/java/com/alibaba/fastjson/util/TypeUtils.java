@@ -1002,4 +1002,16 @@ public class TypeUtils {
 
         return false;
     }
+    
+    public static Class<?> getClass(Type type) {
+        if (type.getClass() == Class.class) {
+            return (Class<?>) type;
+        }
+        
+        if (type instanceof ParameterizedType) {
+            return getClass(((ParameterizedType) type).getRawType());
+        }
+        
+        return Object.class;
+    }
 }

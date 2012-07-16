@@ -68,7 +68,7 @@ public class ASMDeserializerFactory implements Opcodes {
         return instance;
     }
 
-    public ObjectDeserializer createJavaBeanDeserializer(ParserConfig config, Class<?> clazz) throws Exception {
+    public ObjectDeserializer createJavaBeanDeserializer(ParserConfig config, Class<?> clazz, Type type) throws Exception {
         if (clazz.isPrimitive()) {
             throw new IllegalArgumentException("not support type :" + clazz.getName());
         }
@@ -78,7 +78,7 @@ public class ASMDeserializerFactory implements Opcodes {
         ClassWriter cw = new ClassWriter();
         cw.visit(V1_5, ACC_PUBLIC + ACC_SUPER, className, getType(ASMJavaBeanDeserializer.class), null);
 
-        DeserializeBeanInfo beanInfo = DeserializeBeanInfo.computeSetters(clazz);
+        DeserializeBeanInfo beanInfo = DeserializeBeanInfo.computeSetters(clazz, type);
 
         _init(cw, new Context(className, config, beanInfo, 3));
         _createInstance(cw, new Context(className, config, beanInfo, 3));

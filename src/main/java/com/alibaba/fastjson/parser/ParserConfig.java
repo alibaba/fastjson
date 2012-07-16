@@ -22,6 +22,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.Inet4Address;
@@ -236,7 +238,7 @@ public class ParserConfig {
         derializers.put(AtomicIntegerArray.class, AtomicIntegerArrayDeserializer.instance);
         derializers.put(AtomicLongArray.class, AtomicLongArrayDeserializer.instance);
         derializers.put(StackTraceElement.class, StackTraceElementDeserializer.instance);
-        
+
         derializers.put(Serializable.class, defaultSerializer);
         derializers.put(Cloneable.class, defaultSerializer);
         derializers.put(Comparable.class, defaultSerializer);
@@ -271,7 +273,11 @@ public class ParserConfig {
 
         if (type instanceof ParameterizedType) {
             Type rawType = ((ParameterizedType) type).getRawType();
-            return getDeserializer(rawType);
+            if (rawType instanceof Class<?>) {
+                return getDeserializer((Class<?>) rawType, type);
+            } else {
+                return getDeserializer(rawType);
+            }
         }
 
         return this.defaultSerializer;
@@ -282,12 +288,24 @@ public class ParserConfig {
         if (derializer != null) {
             return derializer;
         }
-        
-        derializer = derializers.get(clazz);
+
+        if (type == null) {
+            type = clazz;
+        }
+
+        derializer = derializers.get(type);
         if (derializer != null) {
             return derializer;
         }
+
+        if (type instanceof WildcardType || type instanceof TypeVariable) {
+            derializer = derializers.get(clazz);
+        }
         
+        if (derializer != null) {
+            return derializer;
+        }
+
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         for (AutowiredObjectDeserializer autowired : ServiceLoader.load(AutowiredObjectDeserializer.class, classLoader)) {
             for (Type forType : autowired.getAutowiredFor()) {
@@ -304,7 +322,8 @@ public class ParserConfig {
             derializer = new EnumDeserializer(clazz);
         } else if (clazz.isArray()) {
             return ArrayDeserializer.instance;
-        } else if (clazz == Set.class || clazz == HashSet.class || clazz == Collection.class || clazz == List.class || clazz == ArrayList.class) {
+        } else if (clazz == Set.class || clazz == HashSet.class || clazz == Collection.class || clazz == List.class
+                   || clazz == ArrayList.class) {
             if (type instanceof ParameterizedType) {
                 Type itemType = ((ParameterizedType) type).getActualTypeArguments()[0];
                 if (itemType == String.class) {
@@ -322,7 +341,7 @@ public class ParserConfig {
         } else if (Throwable.class.isAssignableFrom(clazz)) {
             derializer = new ThrowableDeserializer(this, clazz);
         } else {
-            derializer = createJavaBeanDeserializer(clazz);
+            derializer = createJavaBeanDeserializer(clazz, type);
         }
 
         putDeserializer(type, derializer);
@@ -330,7 +349,7 @@ public class ParserConfig {
         return derializer;
     }
 
-    public ObjectDeserializer createJavaBeanDeserializer(Class<?> clazz) {
+    public ObjectDeserializer createJavaBeanDeserializer(Class<?> clazz, Type type) {
         if (clazz == Class.class) {
             return this.defaultSerializer;
         }
@@ -339,30 +358,30 @@ public class ParserConfig {
         if (asmEnable && !Modifier.isPublic(clazz.getModifiers())) {
             asmEnable = false;
         }
-        
+
         if (clazz.getTypeParameters().length != 0) {
             asmEnable = false;
         }
-        
+
         if (ASMClassLoader.isExternalClass(clazz)) {
             asmEnable = false;
         }
-        
+
         if (asmEnable) {
-            DeserializeBeanInfo beanInfo = DeserializeBeanInfo.computeSetters(clazz);
+            DeserializeBeanInfo beanInfo = DeserializeBeanInfo.computeSetters(clazz, type);
             for (FieldInfo fieldInfo : beanInfo.getFieldList()) {
                 Class<?> fieldClass = fieldInfo.getFieldClass();
                 if (!Modifier.isPublic(fieldClass.getModifiers())) {
                     asmEnable = false;
                     break;
                 }
-                
+
                 if (fieldClass.isMemberClass() && !Modifier.isStatic(fieldClass.getModifiers())) {
                     asmEnable = false;
                 }
             }
         }
-        
+
         if (asmEnable) {
             if (clazz.isMemberClass() && !Modifier.isStatic(clazz.getModifiers())) {
                 asmEnable = false;
@@ -370,13 +389,13 @@ public class ParserConfig {
         }
 
         if (!asmEnable) {
-            return new JavaBeanDeserializer(this, clazz);
+            return new JavaBeanDeserializer(this, clazz, type);
         }
 
         try {
-            return ASMDeserializerFactory.getInstance().createJavaBeanDeserializer(this, clazz);
+            return ASMDeserializerFactory.getInstance().createJavaBeanDeserializer(this, clazz, type);
         } catch (ASMException asmError) {
-        	return new JavaBeanDeserializer(this, clazz);
+            return new JavaBeanDeserializer(this, clazz, type);
         } catch (Exception e) {
             throw new JSONException("create asm deserializer error, " + clazz.getName(), e);
         }
@@ -392,7 +411,7 @@ public class ParserConfig {
         if (fieldInfo.getFieldClass() == Class.class) {
             asmEnable = false;
         }
-        
+
         if (ASMClassLoader.isExternalClass(clazz)) {
             asmEnable = false;
         }

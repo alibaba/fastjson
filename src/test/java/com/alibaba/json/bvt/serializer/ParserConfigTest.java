@@ -19,7 +19,7 @@ public class ParserConfigTest extends TestCase {
         
         Exception error = null;
         try {
-            config.createJavaBeanDeserializer(int.class);
+            config.createJavaBeanDeserializer(int.class, int.class);
         } catch (JSONException ex) {
             error = ex;
         }

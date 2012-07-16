@@ -75,8 +75,12 @@ public class DeserializeBeanInfo {
         
         return true;
     }
-
+    
     public static DeserializeBeanInfo computeSetters(Class<?> clazz) {
+        return computeSetters(clazz, clazz);
+    }
+
+    public static DeserializeBeanInfo computeSetters(Class<?> clazz, Type type) {
         DeserializeBeanInfo beanInfo = new DeserializeBeanInfo(clazz);
 
         Constructor<?> defaultConstructor = getDefaultConstructor(clazz);
@@ -177,7 +181,7 @@ public class DeserializeBeanInfo {
 
                 if (annotation.name().length() != 0) {
                     String propertyName = annotation.name();
-                    beanInfo.add(new FieldInfo(propertyName, method, null));
+                    beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type));
                     method.setAccessible(true);
                     continue;
                 }
@@ -194,12 +198,12 @@ public class DeserializeBeanInfo {
                     if (fieldAnnotation != null && fieldAnnotation.name().length() != 0) {
                         propertyName = fieldAnnotation.name();
 
-                        beanInfo.add(new FieldInfo(propertyName, method, field));
+                        beanInfo.add(new FieldInfo(propertyName, method, field, clazz, type));
                         continue;
                     }
                 }
 
-                beanInfo.add(new FieldInfo(propertyName, method, null));
+                beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type));
                 method.setAccessible(true);
             }
         }

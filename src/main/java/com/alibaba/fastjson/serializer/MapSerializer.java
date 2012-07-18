@@ -60,6 +60,8 @@ public class MapSerializer implements ObjectSerializer {
         serializer.setContext(parent, object, fieldName);
         try {
             out.write('{');
+            
+            serializer.incrementIndent();
 
             Class<?> preClazz = null;
             ObjectSerializer preWriter = null;
@@ -118,6 +120,9 @@ public class MapSerializer implements ObjectSerializer {
                         out.write(',');
                     }
 
+                    if (out.isEnabled(SerializerFeature.PrettyFormat)) {
+                        serializer.println();
+                    }
                     out.writeFieldName(key, true);
                 } else {
                     if (!first) {
@@ -148,6 +153,11 @@ public class MapSerializer implements ObjectSerializer {
             }
         } finally {
             serializer.setContext(parent);
+        }
+        
+        serializer.decrementIdent();
+        if (out.isEnabled(SerializerFeature.PrettyFormat) && map.size() > 0) {
+            serializer.println();
         }
         out.write('}');
     }

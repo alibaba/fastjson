@@ -186,6 +186,21 @@
 
 
 	<dependencies>
+	    <dependency>
+	        <groupId>javax.ws.rs</groupId>
+	        <artifactId>jsr311-api</artifactId>
+	        <version>1.1.1</version>
+	        <scope>provided</scope>
+	        <optional>true</optional>
+	    </dependency>
+	    <dependency>
+	        <groupId>org.springframework</groupId>
+	        <artifactId>spring-web</artifactId>
+	        <version>3.0.0.RELEASE</version>
+	        <scope>provided</scope>
+	        <optional>true</optional>
+	    </dependency>
+	    
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>

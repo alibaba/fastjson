@@ -349,7 +349,7 @@ public class JSONSerializer {
 
         Class<?> clazz = object.getClass();
         ObjectSerializer writer = getObjectWriter(clazz);
-        
+
         try {
             writer.write(this, object, null, null);
         } catch (IOException e) {
@@ -440,21 +440,25 @@ public class JSONSerializer {
                 config.put(clazz, ClobSeriliazer.instance);
             } else {
                 boolean isCglibProxy = false;
+                boolean isJavassistProxy = false;
                 for (Class<?> item : clazz.getInterfaces()) {
                     if (item.getName().equals("net.sf.cglib.proxy.Factory")) {
                         isCglibProxy = true;
                         break;
+                    } else if (item.getName().equals("javassist.util.proxy.ProxyObject")) {
+                        isJavassistProxy = true;
+                        break;
                     }
                 }
-                
-                if (isCglibProxy) {
+
+                if (isCglibProxy || isJavassistProxy) {
                     Class<?> superClazz = clazz.getSuperclass();
-                    
+
                     ObjectSerializer superWriter = getObjectWriter(superClazz);
                     config.put(clazz, superWriter);
                     return superWriter;
                 }
-                
+
                 if (Proxy.isProxyClass(clazz)) {
                     config.put(clazz, config.createJavaBeanSerializer(clazz));
                 } else {

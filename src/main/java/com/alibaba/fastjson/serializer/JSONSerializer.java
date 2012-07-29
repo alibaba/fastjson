@@ -470,5 +470,8 @@ public class JSONSerializer {
         }
         return writer;
     }
-
+    
+    public void close() {
+        this.out.close();
+    }
 }

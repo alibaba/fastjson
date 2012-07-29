@@ -102,12 +102,7 @@ public enum SerializerFeature {
     /**
      * @since 1.1.19
      */
-    DisableCheckSpecialChar,
-    
-    /**
-     * @since 1.1.20
-     */
-    NonDefault,
+    DisableCheckSpecialChar
     ;
 
     private SerializerFeature(){

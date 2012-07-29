@@ -242,7 +242,7 @@ public class TypeUtils {
                 } else {
                     format = "yyyy-MM-dd HH:mm:ss.SSS";
                 }
-                
+
                 SimpleDateFormat dateFormat = new SimpleDateFormat(format);
                 try {
                     return (Date) dateFormat.parse(strVal);
@@ -813,12 +813,13 @@ public class TypeUtils {
             if (method.getParameterTypes().length != 0) {
                 continue;
             }
-            
+
             if (method.getReturnType() == ClassLoader.class) {
                 continue;
             }
-            
-            if (method.getName().equals("getMetaClass") && method.getReturnType().getName().equals("groovy.lang.MetaClass")) {
+
+            if (method.getName().equals("getMetaClass")
+                && method.getReturnType().getName().equals("groovy.lang.MetaClass")) {
                 continue;
             }
 
@@ -1002,16 +1003,16 @@ public class TypeUtils {
 
         return false;
     }
-    
+
     public static Class<?> getClass(Type type) {
         if (type.getClass() == Class.class) {
             return (Class<?>) type;
         }
-        
+
         if (type instanceof ParameterizedType) {
             return getClass(((ParameterizedType) type).getRawType());
         }
-        
+
         return Object.class;
     }
 }

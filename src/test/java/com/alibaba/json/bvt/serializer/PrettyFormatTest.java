@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt.serializer.indent;
+package com.alibaba.json.bvt.serializer;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;

@@ -35,6 +35,7 @@ import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.serializer.JSONSerializer;
+import com.alibaba.fastjson.serializer.PropertyFilter;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -236,7 +237,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             }
             fieldDeser.setValue(object, refValue);
         }
-        
+
         return size;
     }
 
@@ -382,11 +383,12 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             out.close();
         }
     }
-    
+
     /**
      * @since 1.1.14
      */
-    public static final String toJSONStringWithDateFormat(Object object, String dateFormat, SerializerFeature... features) {
+    public static final String toJSONStringWithDateFormat(Object object, String dateFormat,
+                                                          SerializerFeature... features) {
         SerializeWriter out = new SerializeWriter();
 
         try {
@@ -394,11 +396,35 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
                 serializer.config(feature, true);
             }
-            
+
             serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
-            
+
             if (dateFormat != null) {
                 serializer.setDateFormat(dateFormat);
+            }
+
+            serializer.write(object);
+
+            return out.toString();
+        } finally {
+            out.close();
+        }
+    }
+
+    public static final String toJSONStringWithPropertyFilter(Object object, PropertyFilter propertyFilter,
+                                                              SerializerFeature... features) {
+        SerializeWriter out = new SerializeWriter();
+
+        try {
+            JSONSerializer serializer = new JSONSerializer(out);
+            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
+                serializer.config(feature, true);
+            }
+
+            serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
+
+            if (propertyFilter != null) {
+                serializer.getPropertyFilters().add(propertyFilter);
             }
 
             serializer.write(object);
@@ -600,6 +626,6 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     public static final <T> T toJavaObject(JSON json, Class<T> clazz) {
         return TypeUtils.cast(json, clazz, ParserConfig.getGlobalInstance());
     }
-    
+
     public final static String VERSION = "1.1.22";
 }

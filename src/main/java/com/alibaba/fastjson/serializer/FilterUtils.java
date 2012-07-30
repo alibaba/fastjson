@@ -138,7 +138,7 @@ public class FilterUtils {
         }
 
         for (NamePreFilter filter : filters) {
-            if (!filter.apply(object, key)) {
+            if (!filter.apply(serializer, object, key)) {
                 return false;
             }
         }

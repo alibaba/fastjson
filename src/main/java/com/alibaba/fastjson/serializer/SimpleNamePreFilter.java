@@ -35,11 +35,7 @@ public class SimpleNamePreFilter implements NamePreFilter {
         return excludes;
     }
 
-    public boolean apply(Object source, String name, Object value) {
-        return apply(source, name);
-    }
-
-    public boolean apply(Object source, String name) {
+    public boolean apply(JSONSerializer serializer, Object source, String name) {
         if (source == null) {
             return true;
         }

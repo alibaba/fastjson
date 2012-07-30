@@ -2,5 +2,5 @@ package com.alibaba.fastjson.serializer;
 
 public interface NamePreFilter extends SerializeFilter {
 
-    boolean apply(Object source, String name);
+    boolean apply(JSONSerializer serializer, Object source, String name);
 }

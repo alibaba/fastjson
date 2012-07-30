@@ -86,7 +86,7 @@ public class MapSerializer implements ObjectSerializer {
                     if (namePreFilters != null) {
                         boolean apply = true;
                         for (NamePreFilter nameFilter : namePreFilters) {
-                            if (!nameFilter.apply(object, key)) {
+                            if (!nameFilter.apply(serializer, object, key)) {
                                 apply = false;
                                 break;
                             }

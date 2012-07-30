@@ -261,8 +261,7 @@ public class ASMSerializerFactory implements Opcodes {
 
         byte[] code = cw.toByteArray();
 
-        FileCopyUtils.copy(code, new java.io.FileOutputStream(
-			"d:/" + className + ".class"));
+        FileCopyUtils.copy(code, new java.io.FileOutputStream("d:/" + className + ".class"));
 
         Class<?> exampleClass = classLoader.defineClassPublic(className, code, 0, code.length);
         Object instance = exampleClass.newInstance();
@@ -616,7 +615,7 @@ public class ASMSerializerFactory implements Opcodes {
 		_getDeley(mw, context, property);
 		_filters(mw, property, context, _end);
         _get(mw, context, property);
-        mw.visitVarInsn(DSTORE, context.var("double"));
+        mw.visitVarInsn(DSTORE, context.var("double", 2));
 
         _filtersProcessValue(mw, property, context, _end);
 

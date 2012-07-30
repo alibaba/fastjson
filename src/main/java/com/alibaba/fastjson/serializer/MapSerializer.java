@@ -58,6 +58,8 @@ public class MapSerializer implements ObjectSerializer {
 
         SerialContext parent = serializer.getContext();
         serializer.setContext(parent, object, fieldName);
+		SerialLinkedContext parentLinkedContext = serializer.getSerialLinkedContext();
+
         try {
             out.write('{');
             
@@ -84,6 +86,8 @@ public class MapSerializer implements ObjectSerializer {
 				Object value = null;
 
                 Object entryKey = entry.getKey();
+				SerialLinkedContext serialLinkedContext = new SerialLinkedContext(parentLinkedContext, object, entryKey);
+				serializer.setSerialLinkedContext(serialLinkedContext);
 
                 if (entryKey == null || entryKey instanceof String) {
                     String key = (String) entryKey;
@@ -161,6 +165,7 @@ public class MapSerializer implements ObjectSerializer {
                 }
             }
         } finally {
+			serializer.setSerialLinkedContext(parentLinkedContext);
             serializer.setContext(parent);
         }
         

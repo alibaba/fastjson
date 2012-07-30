@@ -108,6 +108,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
         SerialContext parent = serializer.getContext();
         serializer.setContext(parent, object, fieldName);
+		SerialLinkedContext parentContext = serializer.getSerialLinkedContext();
 
         try {
             out.append('{');
@@ -139,6 +140,10 @@ public class JavaBeanSerializer implements ObjectSerializer {
                         }
                     }
                 }
+
+				//reset linktedContext
+				SerialLinkedContext currentLinkedContext = new SerialLinkedContext(parentContext, object, fieldSerializer.getName());
+				serializer.setSerialLinkedContext(currentLinkedContext);
 
 				final FieldSerializer finalFieldSerializer = fieldSerializer;
 				final Object finalObject = object;
@@ -197,6 +202,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
         } catch (Exception e) {
             throw new JSONException("write javaBean error", e);
         } finally {
+			serializer.setSerialLinkedContext(parentContext);
             serializer.setContext(parent);
         }
     }

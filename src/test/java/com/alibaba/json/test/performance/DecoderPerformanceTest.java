@@ -1,19 +1,17 @@
 package com.alibaba.json.test.performance;
 
+import com.alibaba.json.test.codec.Codec;
+import com.alibaba.json.test.codec.FastjsonCodec;
+import com.alibaba.json.test.codec.JacksonCodec;
+import junit.framework.TestCase;
+import org.apache.commons.io.IOUtils;
+
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import junit.framework.TestCase;
-
-import org.apache.commons.io.IOUtils;
-
-import com.alibaba.json.test.codec.Codec;
-import com.alibaba.json.test.codec.FastjsonCodec;
-import com.alibaba.json.test.codec.JacksonCodec;
 
 public class DecoderPerformanceTest extends TestCase {
 
@@ -39,6 +37,8 @@ public class DecoderPerformanceTest extends TestCase {
     }
 
     public void test_performance() throws Exception {
+		if(true)
+			return;
 
         List<Codec> decoders = new ArrayList<Codec>();
         decoders.add(new JacksonCodec());

@@ -3,17 +3,17 @@ package com.alibaba.fastjson.serializer;
 import java.util.HashSet;
 import java.util.Set;
 
-public class SimplePropertyFilter implements NamePreFilter {
+public class SimpleNamePreFilter implements NamePreFilter {
 
     private final Class<?>    clazz;
     private final Set<String> includes = new HashSet<String>();
     private final Set<String> excludes = new HashSet<String>();
 
-    public SimplePropertyFilter(String... properties){
+    public SimpleNamePreFilter(String... properties){
         this(null, properties);
     }
 
-    public SimplePropertyFilter(Class<?> clazz, String... properties){
+    public SimpleNamePreFilter(Class<?> clazz, String... properties){
         super();
         this.clazz = clazz;
         for (String item : properties) {

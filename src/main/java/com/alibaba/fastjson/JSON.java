@@ -415,8 +415,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
     }
 
-    public static final String toJSONStringWithFilter(Object object, SerializeFilter filter,
-                                                              SerializerFeature... features) {
+    public static final String toJSONString(Object object, SerializeFilter filter, SerializerFeature... features) {
         SerializeWriter out = new SerializeWriter();
 
         try {
@@ -431,15 +430,15 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                 if (filter instanceof NamePreFilter) {
                     serializer.getNamePreFilters().add((NamePreFilter) filter);
                 }
-                
+
                 if (filter instanceof NameFilter) {
                     serializer.getNameFilters().add((NameFilter) filter);
                 }
-                
+
                 if (filter instanceof ValueFilter) {
                     serializer.getValueFilters().add((ValueFilter) filter);
                 }
-                
+
                 if (filter instanceof PropertyFilter) {
                     serializer.getPropertyFilters().add((PropertyFilter) filter);
                 }

@@ -3,14 +3,14 @@ package com.alibaba.fastjson.serializer;
 import java.util.HashSet;
 import java.util.Set;
 
-public class SimplePropertyFilter implements PropertyFilter {
+public class SimplePropertyFilter implements NamePreFilter {
 
     private final Class<?>    clazz;
     private final Set<String> includes = new HashSet<String>();
     private final Set<String> excludes = new HashSet<String>();
-    
+
     public SimplePropertyFilter(String... properties){
-        this (null, properties);
+        this(null, properties);
     }
 
     public SimplePropertyFilter(Class<?> clazz, String... properties){
@@ -36,6 +36,10 @@ public class SimplePropertyFilter implements PropertyFilter {
     }
 
     public boolean apply(Object source, String name, Object value) {
+        return apply(source, name);
+    }
+
+    public boolean apply(Object source, String name) {
         if (source == null) {
             return true;
         }
@@ -43,7 +47,7 @@ public class SimplePropertyFilter implements PropertyFilter {
         if (clazz != null && !clazz.isInstance(source)) {
             return true;
         }
-        
+
         if (this.excludes.contains(name)) {
             return false;
         }
@@ -51,7 +55,7 @@ public class SimplePropertyFilter implements PropertyFilter {
         if (includes.size() == 0 || includes.contains(name)) {
             return true;
         }
-        
+
         return false;
     }
 

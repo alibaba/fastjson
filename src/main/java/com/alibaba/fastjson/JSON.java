@@ -35,10 +35,14 @@ import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.serializer.JSONSerializer;
+import com.alibaba.fastjson.serializer.NameFilter;
+import com.alibaba.fastjson.serializer.NamePreFilter;
 import com.alibaba.fastjson.serializer.PropertyFilter;
 import com.alibaba.fastjson.serializer.SerializeConfig;
+import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.serializer.ValueFilter;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.ThreadLocalCache;
@@ -411,7 +415,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
     }
 
-    public static final String toJSONStringWithPropertyFilter(Object object, PropertyFilter propertyFilter,
+    public static final String toJSONStringWithFilter(Object object, SerializeFilter filter,
                                                               SerializerFeature... features) {
         SerializeWriter out = new SerializeWriter();
 
@@ -423,8 +427,22 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
             serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
 
-            if (propertyFilter != null) {
-                serializer.getPropertyFilters().add(propertyFilter);
+            if (filter != null) {
+                if (filter instanceof NamePreFilter) {
+                    serializer.getNamePreFilters().add((NamePreFilter) filter);
+                }
+                
+                if (filter instanceof NameFilter) {
+                    serializer.getNameFilters().add((NameFilter) filter);
+                }
+                
+                if (filter instanceof ValueFilter) {
+                    serializer.getValueFilters().add((ValueFilter) filter);
+                }
+                
+                if (filter instanceof PropertyFilter) {
+                    serializer.getPropertyFilters().add((PropertyFilter) filter);
+                }
             }
 
             serializer.write(object);

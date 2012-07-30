@@ -81,6 +81,22 @@ public class MapSerializer implements ObjectSerializer {
 
                 if (entryKey == null || entryKey instanceof String) {
                     String key = (String) entryKey;
+                    
+                    List<NamePreFilter> namePreFilters = serializer.getNamePreFiltersDirect();
+                    if (namePreFilters != null) {
+                        boolean apply = true;
+                        for (NamePreFilter nameFilter : namePreFilters) {
+                            if (!nameFilter.apply(object, key)) {
+                                apply = false;
+                                break;
+                            }
+                        }
+
+                        if (!apply) {
+                            continue;
+                        }
+                    }
+                    
                     List<PropertyFilter> propertyFilters = serializer.getPropertyFiltersDirect();
                     if (propertyFilters != null) {
                         boolean apply = true;

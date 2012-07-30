@@ -51,6 +51,7 @@ public class JSONSerializer {
     private List<PropertyFilter>                   propertyFilters   = null;
     private List<ValueFilter>                      valueFilters      = null;
     private List<NameFilter>                       nameFilters       = null;
+    private List<NamePreFilter>                    namePreFilters    = null;
 
     private int                                    indentCount       = 0;
     private String                                 indent            = "\t";
@@ -287,6 +288,18 @@ public class JSONSerializer {
         return nameFilters;
     }
 
+    public List<NamePreFilter> getNamePreFilters() {
+        if (namePreFilters == null) {
+            namePreFilters = new ArrayList<NamePreFilter>();
+        }
+        
+        return namePreFilters;
+    }
+    
+    public List<NamePreFilter> getNamePreFiltersDirect() {
+        return namePreFilters;
+    }
+
     public List<PropertyFilter> getPropertyFilters() {
         if (propertyFilters == null) {
             propertyFilters = new ArrayList<PropertyFilter>();
@@ -470,7 +483,7 @@ public class JSONSerializer {
         }
         return writer;
     }
-    
+
     public void close() {
         this.out.close();
     }

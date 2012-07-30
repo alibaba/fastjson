@@ -461,6 +461,7 @@ public class ASMSerializerFactory implements Opcodes {
     private void _object(Class<?> clazz, MethodVisitor mw, FieldInfo property, Context context) {
         Label _end = new Label();
 
+        _nameApply(mw, property, context, _end);
         _get(mw, context, property);
         mw.visitVarInsn(ASTORE, context.var("object"));
 
@@ -486,6 +487,7 @@ public class ASMSerializerFactory implements Opcodes {
         Label _end_if = new Label();
         Label _end = new Label();
 
+        _nameApply(mw, property, context, _end);
         _get(mw, context, property);
         mw.visitTypeInsn(CHECKCAST, getType(Enum.class)); // cast
         mw.visitVarInsn(ASTORE, context.var("enum"));
@@ -522,6 +524,7 @@ public class ASMSerializerFactory implements Opcodes {
     private void _long(Class<?> clazz, MethodVisitor mw, FieldInfo property, Context context) {
         Label _end = new Label();
 
+        _nameApply(mw, property, context, _end);
         _get(mw, context, property);
         mw.visitVarInsn(LSTORE, context.var("long", 2));
 
@@ -541,6 +544,7 @@ public class ASMSerializerFactory implements Opcodes {
     private void _float(Class<?> clazz, MethodVisitor mw, FieldInfo property, Context context) {
         Label _end = new Label();
 
+        _nameApply(mw, property, context, _end);
         _get(mw, context, property);
         mw.visitVarInsn(FSTORE, context.var("float"));
 
@@ -560,6 +564,7 @@ public class ASMSerializerFactory implements Opcodes {
     private void _double(Class<?> clazz, MethodVisitor mw, FieldInfo property, Context context) {
         Label _end = new Label();
 
+        _nameApply(mw, property, context, _end);
         _get(mw, context, property);
         mw.visitVarInsn(DSTORE, context.var("double"));
 
@@ -579,6 +584,7 @@ public class ASMSerializerFactory implements Opcodes {
     private void _char(Class<?> clazz, MethodVisitor mw, FieldInfo property, Context context) {
         Label _end = new Label();
 
+        _nameApply(mw, property, context, _end);
         _get(mw, context, property);
         mw.visitVarInsn(ISTORE, context.var("char"));
 
@@ -599,6 +605,7 @@ public class ASMSerializerFactory implements Opcodes {
     private void _boolean(Class<?> clazz, MethodVisitor mw, FieldInfo property, Context context) {
         Label _end = new Label();
 
+        _nameApply(mw, property, context, _end);
         _get(mw, context, property);
         mw.visitVarInsn(ISTORE, context.var("boolean"));
 
@@ -631,6 +638,7 @@ public class ASMSerializerFactory implements Opcodes {
     private void _byte(Class<?> clazz, MethodVisitor mw, FieldInfo property, Context context) {
         Label _end = new Label();
 
+        _nameApply(mw, property, context, _end);
         _get(mw, context, property);
         mw.visitVarInsn(ISTORE, context.var("byte"));
 
@@ -651,6 +659,7 @@ public class ASMSerializerFactory implements Opcodes {
     private void _short(Class<?> clazz, MethodVisitor mw, FieldInfo property, Context context) {
         Label _end = new Label();
 
+        _nameApply(mw, property, context, _end);
         _get(mw, context, property);
         mw.visitVarInsn(ISTORE, context.var("short"));
 
@@ -671,6 +680,7 @@ public class ASMSerializerFactory implements Opcodes {
     private void _int(Class<?> clazz, MethodVisitor mw, FieldInfo property, Context context) {
         Label _end = new Label();
 
+        _nameApply(mw, property, context, _end);
         _get(mw, context, property);
         mw.visitVarInsn(ISTORE, context.var("int"));
 
@@ -691,6 +701,7 @@ public class ASMSerializerFactory implements Opcodes {
     private void _decimal(Class<?> clazz, MethodVisitor mw, FieldInfo property, Context context) {
         Label _end = new Label();
 
+        _nameApply(mw, property, context, _end);
         _get(mw, context, property);
         mw.visitVarInsn(ASTORE, context.var("decimal"));
 
@@ -728,6 +739,7 @@ public class ASMSerializerFactory implements Opcodes {
     private void _string(Class<?> clazz, MethodVisitor mw, FieldInfo property, Context context) {
         Label _end = new Label();
 
+        _nameApply(mw, property, context, _end);
         _get(mw, context, property);
         mw.visitVarInsn(ASTORE, context.var("string"));
 
@@ -782,6 +794,7 @@ public class ASMSerializerFactory implements Opcodes {
 
         mw.visitLabel(_if);
 
+        _nameApply(mw, property, context, _end);
         _get(mw, context, property);
         mw.visitTypeInsn(CHECKCAST, getType(List.class)); // cast
         mw.visitVarInsn(ASTORE, context.var("list"));
@@ -975,6 +988,15 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitJumpInsn(GOTO, _end);
 
         mw.visitLabel(_else_processKey);
+    }
+    
+    private void _nameApply(MethodVisitor mw, FieldInfo property, Context context, Label _end) {
+        mw.visitVarInsn(ALOAD, context.serializer());
+        mw.visitVarInsn(ALOAD, context.obj());
+        mw.visitVarInsn(ALOAD, context.fieldName());
+        mw.visitMethodInsn(INVOKESTATIC, getType(FilterUtils.class), "applyName",
+                           "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;Ljava/lang/String;)Z");
+        mw.visitJumpInsn(IFEQ, _end);
     }
 
     private void _writeObject(MethodVisitor mw, FieldInfo fieldInfo, Context context, Label _end) {

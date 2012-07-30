@@ -1,21 +1,21 @@
 package com.alibaba.json.bvt.serializer;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
+import com.alibaba.fastjson.serializer.DelayObject;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.PropertyFilter;
 import com.alibaba.fastjson.serializer.SerializeWriter;
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class PropertyFilter_char extends TestCase {
 
     public void test_0() throws Exception {
         PropertyFilter filter = new PropertyFilter() {
 
-            public boolean apply(Object source, String name, Object value) {
+            public boolean apply(Object source, String name, DelayObject value) {
                 return false;
             }
         };
@@ -34,9 +34,10 @@ public class PropertyFilter_char extends TestCase {
     public void test_1() throws Exception {
         PropertyFilter filter = new PropertyFilter() {
 
-            public boolean apply(Object source, String name, Object value) {
+            public boolean apply(Object source, String name, DelayObject value) {
                 if ("id".equals(name)) {
-                    Assert.assertTrue(value instanceof Character);
+					Object v = value.getValue();
+                    Assert.assertTrue(v instanceof Character);
                     return true;
                 }
                 return false;
@@ -57,7 +58,7 @@ public class PropertyFilter_char extends TestCase {
     public void test_2() throws Exception {
         PropertyFilter filter = new PropertyFilter() {
 
-            public boolean apply(Object source, String name, Object value) {
+            public boolean apply(Object source, String name, DelayObject value) {
                 if ("name".equals(name)) {
                     return true;
                 }
@@ -80,7 +81,7 @@ public class PropertyFilter_char extends TestCase {
     public void test_3() throws Exception {
         PropertyFilter filter = new PropertyFilter() {
 
-            public boolean apply(Object source, String name, Object value) {
+            public boolean apply(Object source, String name, DelayObject value) {
                 if ("name".equals(name)) {
                     return true;
                 }
@@ -103,7 +104,7 @@ public class PropertyFilter_char extends TestCase {
     public void test_4() throws Exception {
         PropertyFilter filter = new PropertyFilter() {
 
-            public boolean apply(Object source, String name, Object value) {
+            public boolean apply(Object source, String name, DelayObject value) {
                 if ("name".equals(name)) {
                     return false;
                 }

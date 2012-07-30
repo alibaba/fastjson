@@ -9,6 +9,7 @@ public class SerialContext {
     private final Object        fieldName;
 
     private int                 features = 0;
+	private transient String path;
 
     public SerialContext(SerialContext parent, Object object, Object fieldName){
         this.parent = parent;
@@ -37,19 +38,25 @@ public class SerialContext {
     }
 
     public String getPath() {
-        if (parent == null) {
-            return "$";
-        } else {
-            if (fieldName instanceof Integer) {
-                return parent.getPath() + "[" + fieldName + "]";
-            } else {
-                return parent.getPath() + "." + fieldName;
-            }
-
-        }
+		if(path == null) {
+			path = calculatePath();
+		}
+		return path;
     }
 
-    public String toString() {
+	private String calculatePath() {
+		if (parent == null) {
+			return "$";
+		} else {
+			if (fieldName instanceof Integer) {
+				return parent.getPath() + "[" + fieldName + "]";
+			} else {
+				return parent.getPath() + "." + fieldName;
+			}
+		}
+	}
+
+	public String toString() {
         return getPath();
     }
 }

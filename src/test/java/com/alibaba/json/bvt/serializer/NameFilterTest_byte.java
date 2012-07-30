@@ -1,23 +1,25 @@
 package com.alibaba.json.bvt.serializer;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
+import com.alibaba.fastjson.serializer.DelayObject;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.NameFilter;
 import com.alibaba.fastjson.serializer.SerializeWriter;
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class NameFilterTest_byte extends TestCase {
 
     public void test_namefilter() throws Exception {
         NameFilter filter = new NameFilter() {
 
-            public String process(Object source, String name, Object value) {
+            public String process(Object source, String name, DelayObject value) {
                 if (value != null) {
-                    Assert.assertTrue(value instanceof Byte);
+					Object v = value.getValue();
+					if(v != null)
+                    	Assert.assertTrue(v instanceof Byte);
                 }
                 
                 if (name.equals("id")) {
@@ -43,7 +45,7 @@ public class NameFilterTest_byte extends TestCase {
     public void test_namefilter_1() throws Exception {
         NameFilter filter = new NameFilter() {
 
-            public String process(Object source, String name, Object value) {
+            public String process(Object source, String name, DelayObject value) {
                 if (name.equals("id")) {
                     return "ID";
                 }

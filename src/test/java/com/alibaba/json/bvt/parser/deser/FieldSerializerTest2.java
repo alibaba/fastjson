@@ -1,16 +1,11 @@
 package com.alibaba.json.bvt.parser.deser;
 
+import com.alibaba.fastjson.serializer.*;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONField;
-import com.alibaba.fastjson.serializer.JSONSerializer;
-import com.alibaba.fastjson.serializer.NameFilter;
-import com.alibaba.fastjson.serializer.PropertyFilter;
-import com.alibaba.fastjson.serializer.SerializeWriter;
-import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.alibaba.fastjson.serializer.ValueFilter;
 
 public class FieldSerializerTest2 extends TestCase {
 
@@ -26,7 +21,7 @@ public class FieldSerializerTest2 extends TestCase {
             JSONSerializer serializer = new JSONSerializer(out);
             serializer.getPropertyFilters().add(new PropertyFilter() {
                 
-                public boolean apply(Object source, String name, Object value) {
+                public boolean apply(Object source, String name, DelayObject value) {
                     if ("id".equals(name)) {
                         return false;
                     }
@@ -35,7 +30,7 @@ public class FieldSerializerTest2 extends TestCase {
             });
             serializer.getNameFilters().add(new NameFilter() {
 
-                public String process(Object source, String name, Object value) {
+                public String process(Object source, String name, DelayObject value) {
                     if ("v".equals(name)) {
                         return "value";
                     }

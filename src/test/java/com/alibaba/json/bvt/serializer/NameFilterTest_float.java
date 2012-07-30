@@ -3,6 +3,7 @@ package com.alibaba.json.bvt.serializer;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.alibaba.fastjson.serializer.DelayObject;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
@@ -15,7 +16,7 @@ public class NameFilterTest_float extends TestCase {
     public void test_namefilter() throws Exception {
         NameFilter filter = new NameFilter() {
 
-            public String process(Object source, String name, Object value) {
+            public String process(Object source, String name, DelayObject value) {
                 if (name.equals("id")) {
                     return "ID";
                 }
@@ -39,7 +40,7 @@ public class NameFilterTest_float extends TestCase {
     public void test_namefilter_1() throws Exception {
         NameFilter filter = new NameFilter() {
 
-            public String process(Object source, String name, Object value) {
+            public String process(Object source, String name, DelayObject value) {
                 if (name.equals("id")) {
                     return "ID";
                 }

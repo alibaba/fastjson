@@ -15,6 +15,12 @@
  */
 package com.alibaba.fastjson.serializer;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONAware;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONStreamAware;
+import com.alibaba.fastjson.util.ServiceLoader;
+
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Proxy;
@@ -23,21 +29,7 @@ import java.nio.charset.Charset;
 import java.sql.Clob;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONAware;
-import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.JSONStreamAware;
-import com.alibaba.fastjson.util.ServiceLoader;
+import java.util.*;
 
 /**
  * @author wenshao<szujobs@hotmail.com>
@@ -60,8 +52,17 @@ public class JSONSerializer {
 
     private IdentityHashMap<Object, SerialContext> references        = null;
     private SerialContext                          context;
+	private SerialLinkedContext serialLinkedContext;
 
-    public JSONSerializer(){
+	public SerialLinkedContext getSerialLinkedContext() {
+		return serialLinkedContext;
+	}
+
+	public void setSerialLinkedContext(SerialLinkedContext serialLinkedContext) {
+		this.serialLinkedContext = serialLinkedContext;
+	}
+
+	public JSONSerializer(){
         this(new SerializeWriter(), SerializeConfig.getGlobalInstance());
     }
 

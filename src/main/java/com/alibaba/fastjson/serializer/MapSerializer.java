@@ -75,7 +75,13 @@ public class MapSerializer implements ObjectSerializer {
             }
             
             for (Map.Entry entry : map.entrySet()) {
-                Object value = entry.getValue();
+				final Map.Entry e = entry;
+                DelayObject delayValue = new DelayObject<Object>() {
+					public Object getValue() {
+						return e.getValue();
+					}
+				};
+				Object value = null;
 
                 Object entryKey = entry.getKey();
 
@@ -85,7 +91,7 @@ public class MapSerializer implements ObjectSerializer {
                     if (propertyFilters != null) {
                         boolean apply = true;
                         for (PropertyFilter propertyFilter : propertyFilters) {
-                            if (!propertyFilter.apply(object, key, value)) {
+                            if (!propertyFilter.apply(object, key, delayValue)) {
                                 apply = false;
                                 break;
                             }
@@ -99,9 +105,11 @@ public class MapSerializer implements ObjectSerializer {
                     List<NameFilter> nameFilters = serializer.getNameFiltersDirect();
                     if (nameFilters != null) {
                         for (NameFilter nameFilter : nameFilters) {
-                            key = nameFilter.process(object, key, value);
+                            key = nameFilter.process(object, key, delayValue);
                         }
                     }
+
+					value = delayValue.getValue();
 
                     List<ValueFilter> valueFilters = serializer.getValueFiltersDirect();
                     if (valueFilters != null) {
@@ -131,6 +139,7 @@ public class MapSerializer implements ObjectSerializer {
 
                     serializer.write(entryKey);
                     out.write(':');
+					value = delayValue.getValue();
                 }
 
                 first = false;

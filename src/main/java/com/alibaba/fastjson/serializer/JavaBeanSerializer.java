@@ -15,6 +15,10 @@
  */
 package com.alibaba.fastjson.serializer;
 
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.util.FieldInfo;
+import com.alibaba.fastjson.util.TypeUtils;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -23,10 +27,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.util.FieldInfo;
-import com.alibaba.fastjson.util.TypeUtils;
 
 /**
  * @author wenshao<szujobs@hotmail.com>
@@ -140,14 +140,24 @@ public class JavaBeanSerializer implements ObjectSerializer {
                     }
                 }
 
-                Object propertyValue = fieldSerializer.getPropertyValue(object);
+				final FieldSerializer finalFieldSerializer = fieldSerializer;
+				final Object finalObject = object;
+				DelayObject delayPropertyValue = new DelayObject<Object>() {
+					public Object getValue() {
+						try{
+						return finalFieldSerializer.getPropertyValue(finalObject);
+						}catch(Exception e) {
+							throw new RuntimeException(e);
+						}
+					}
+				};
 
-                if (!FilterUtils.apply(serializer, object, fieldSerializer.getName(), propertyValue)) {
+                if (!FilterUtils.apply(serializer, object, fieldSerializer.getName(), delayPropertyValue)) {
                     continue;
                 }
 
-                String key = FilterUtils.processKey(serializer, object, fieldSerializer.getName(), propertyValue);
-
+                String key = FilterUtils.processKey(serializer, object, fieldSerializer.getName(), delayPropertyValue);
+				Object propertyValue = delayPropertyValue.getValue();
                 Object originalValue = propertyValue;
                 propertyValue = FilterUtils.processValue(serializer, object, fieldSerializer.getName(), propertyValue);
 

@@ -43,6 +43,8 @@ public class PropertyLinkedPathTest extends TestCase {
 		final JSONSerializer jsonSerializer2 = new JSONSerializer(new SerializeWriter());
 		PropertyFilter filter4 = new PropertyFilter() {
 			public boolean apply(Object source, String name, DelayObject value) {
+				System.out.println("path->" + jsonSerializer2.getSerialLinkedContext().getLinkedPath());
+				System.out.println("out->" + jsonSerializer2.toString());
 				return !jsonSerializer2.getSerialLinkedContext().getLinkedPath().equals("t4.m5.m.x2");
 			}
 		};
@@ -53,17 +55,17 @@ public class PropertyLinkedPathTest extends TestCase {
 	}
 
 	public void test_2() throws Exception {
-		for(int i = 0; i < 5; i++) {
-		T3 t = new T3();
-		t.setD(111111111111111111111111111111111111111111111111111111111111111111111111111111D);
-		t.setD1(222222222222222222222222222222222222222222222222222222222222222222222222222222D);
-		t.setD3(4444444444444444444L);
-		t.setD4(5555555);
-		String s = JSON.toJSONString(t);
-		System.out.println(s);
-		System.out.println(t.getD1());
-		System.out.println(t.getD());
-		System.out.println(t.getD3());
+		for(int i = 0;i < 5;i++) {
+			T3 t = new T3();
+			t.setD(111111111111111111111111111111111111111111111111111111111111111111111111111111D);
+			t.setD1(222222222222222222222222222222222222222222222222222222222222222222222222222222D);
+			t.setD3(4444444444444444444L);
+			t.setD4(5555555);
+			String s = JSON.toJSONString(t);
+			System.out.println(s);
+			System.out.println(t.getD1());
+			System.out.println(t.getD());
+			System.out.println(t.getD3());
 		}
 	}
 

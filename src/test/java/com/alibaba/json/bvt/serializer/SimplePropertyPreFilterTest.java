@@ -7,9 +7,9 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SimpleNamePreFilter;
+import com.alibaba.fastjson.serializer.SimplePropertyPreFilter;
 
-public class SimpleNamePreFilterTest extends TestCase {
+public class SimplePropertyPreFilterTest extends TestCase {
 
     private VO vo;
     
@@ -33,74 +33,74 @@ public class SimpleNamePreFilterTest extends TestCase {
     }
 
     public void test_name() throws Exception {
-        SimpleNamePreFilter filter = new SimpleNamePreFilter(VO.class, "name");
+        SimplePropertyPreFilter filter = new SimplePropertyPreFilter(VO.class, "name");
         Assert.assertEquals("{\"name\":\"sandzhangtoo\"}", JSON.toJSONString(vo, filter));
     }
     
     public void test_name_0() throws Exception {
-        SimpleNamePreFilter filter = new SimpleNamePreFilter("name");
+        SimplePropertyPreFilter filter = new SimplePropertyPreFilter("name");
         Assert.assertEquals("{\"name\":\"sandzhangtoo\"}", JSON.toJSONString(vo, filter));
     }
     
     public void test_name_a() throws Exception {
-        SimpleNamePreFilter filter = new SimpleNamePreFilter(VO.class, "name");
+        SimplePropertyPreFilter filter = new SimplePropertyPreFilter(VO.class, "name");
         Assert.assertEquals("{\"id\":123,\"name\":\"sandzhangtoo\"}", JSON.toJSONString(a, filter));
     }
     
     public void test_name_a1() throws Exception {
-        SimpleNamePreFilter filter = new SimpleNamePreFilter("name");
+        SimplePropertyPreFilter filter = new SimplePropertyPreFilter("name");
         Assert.assertEquals("{\"name\":\"sandzhangtoo\"}", JSON.toJSONString(a, filter));
     }
     
     public void test_id() throws Exception {
-        SimpleNamePreFilter filter = new SimpleNamePreFilter(VO.class, "id");
+        SimplePropertyPreFilter filter = new SimplePropertyPreFilter(VO.class, "id");
         Assert.assertEquals("{\"id\":123}", JSON.toJSONString(vo, filter));
     }
     
     public void test_id_0() throws Exception {
-        SimpleNamePreFilter filter = new SimpleNamePreFilter("id");
+        SimplePropertyPreFilter filter = new SimplePropertyPreFilter("id");
         Assert.assertEquals("{\"id\":123}", JSON.toJSONString(vo, filter));
     }
     
     public void test_map() throws Exception {
-        SimpleNamePreFilter filter = new SimpleNamePreFilter(VO.class, "name");
+        SimplePropertyPreFilter filter = new SimplePropertyPreFilter(VO.class, "name");
         Assert.assertEquals("{\"id\":123,\"name\":\"sandzhangtoo\"}", JSON.toJSONString(map, filter));
     }
     
     public void test_map_id() throws Exception {
-        SimpleNamePreFilter filter = new SimpleNamePreFilter("id");
+        SimplePropertyPreFilter filter = new SimplePropertyPreFilter("id");
         Assert.assertEquals("{\"id\":123}", JSON.toJSONString(map, filter));
     }
     
     public void test_map_name() throws Exception {
-        SimpleNamePreFilter filter = new SimpleNamePreFilter("name");
+        SimplePropertyPreFilter filter = new SimplePropertyPreFilter("name");
         Assert.assertEquals("{\"name\":\"sandzhangtoo\"}", JSON.toJSONString(map, filter));
     }
     
     public void test_all() throws Exception {
-        SimpleNamePreFilter filter = new SimpleNamePreFilter(VO.class);
+        SimplePropertyPreFilter filter = new SimplePropertyPreFilter(VO.class);
         Assert.assertEquals("{\"id\":123,\"name\":\"sandzhangtoo\"}", JSON.toJSONString(vo, filter));
     }
     
     public void test_all_map() throws Exception {
-        SimpleNamePreFilter filter = new SimpleNamePreFilter(VO.class);
+        SimplePropertyPreFilter filter = new SimplePropertyPreFilter(VO.class);
         Assert.assertEquals("{\"id\":123,\"name\":\"sandzhangtoo\"}", JSON.toJSONString(map, filter));
     }
     
     public void test_exclude_id() throws Exception {
-        SimpleNamePreFilter filter = new SimpleNamePreFilter(VO.class);
+        SimplePropertyPreFilter filter = new SimplePropertyPreFilter(VO.class);
         filter.getExcludes().add("id");
         Assert.assertEquals("{\"name\":\"sandzhangtoo\"}", JSON.toJSONString(vo, filter));
     }
     
     public void test_exclude_id_map() throws Exception {
-        SimpleNamePreFilter filter = new SimpleNamePreFilter(VO.class);
+        SimplePropertyPreFilter filter = new SimplePropertyPreFilter(VO.class);
         filter.getExcludes().add("id");
         Assert.assertEquals("{\"name\":\"sandzhangtoo\"}", JSON.toJSONString(vo, filter));
     }
     
     public void test_exclude_name() throws Exception {
-        SimpleNamePreFilter filter = new SimpleNamePreFilter(VO.class);
+        SimplePropertyPreFilter filter = new SimplePropertyPreFilter(VO.class);
         filter.getExcludes().add("name");
         Assert.assertEquals("{\"id\":123}", JSON.toJSONString(vo, filter));
     }

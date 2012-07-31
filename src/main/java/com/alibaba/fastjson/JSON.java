@@ -36,7 +36,7 @@ import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.NameFilter;
-import com.alibaba.fastjson.serializer.NamePreFilter;
+import com.alibaba.fastjson.serializer.PropertyPreFilter;
 import com.alibaba.fastjson.serializer.PropertyFilter;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializeFilter;
@@ -427,8 +427,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
 
             if (filter != null) {
-                if (filter instanceof NamePreFilter) {
-                    serializer.getNamePreFilters().add((NamePreFilter) filter);
+                if (filter instanceof PropertyPreFilter) {
+                    serializer.getNamePreFilters().add((PropertyPreFilter) filter);
                 }
 
                 if (filter instanceof NameFilter) {

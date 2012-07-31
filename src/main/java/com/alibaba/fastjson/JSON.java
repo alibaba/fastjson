@@ -428,7 +428,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
             if (filter != null) {
                 if (filter instanceof PropertyPreFilter) {
-                    serializer.getNamePreFilters().add((PropertyPreFilter) filter);
+                    serializer.getPropertyPreFilters().add((PropertyPreFilter) filter);
                 }
 
                 if (filter instanceof NameFilter) {

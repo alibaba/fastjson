@@ -51,7 +51,7 @@ public class JSONSerializer {
     private List<PropertyFilter>                   propertyFilters   = null;
     private List<ValueFilter>                      valueFilters      = null;
     private List<NameFilter>                       nameFilters       = null;
-    private List<NamePreFilter>                    namePreFilters    = null;
+    private List<PropertyPreFilter>                    namePreFilters    = null;
 
     private int                                    indentCount       = 0;
     private String                                 indent            = "\t";
@@ -288,15 +288,15 @@ public class JSONSerializer {
         return nameFilters;
     }
 
-    public List<NamePreFilter> getNamePreFilters() {
+    public List<PropertyPreFilter> getNamePreFilters() {
         if (namePreFilters == null) {
-            namePreFilters = new ArrayList<NamePreFilter>();
+            namePreFilters = new ArrayList<PropertyPreFilter>();
         }
         
         return namePreFilters;
     }
     
-    public List<NamePreFilter> getNamePreFiltersDirect() {
+    public List<PropertyPreFilter> getNamePreFiltersDirect() {
         return namePreFilters;
     }
 

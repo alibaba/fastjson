@@ -131,7 +131,7 @@ public class FilterUtils {
     }
 
     public static boolean applyName(JSONSerializer serializer, Object object, String key) {
-        List<PropertyPreFilter> filters = serializer.getNamePreFiltersDirect();
+        List<PropertyPreFilter> filters = serializer.getPropertyPreFiltersDirect();
 
         if (filters == null) {
             return true;

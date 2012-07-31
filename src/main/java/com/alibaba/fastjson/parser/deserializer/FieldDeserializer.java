@@ -2,6 +2,7 @@ package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONException;
@@ -31,7 +32,8 @@ public abstract class FieldDeserializer {
         return fieldInfo.getFieldType();
     }
 
-    public abstract void parseField(DefaultJSONParser parser, Object object, Type objectType, Map<String, Object> fieldValues);
+    public abstract void parseField(DefaultJSONParser parser, Object object, Type objectType,
+                                    Map<String, Object> fieldValues);
 
     public abstract int getFastMatchToken();
 
@@ -51,11 +53,17 @@ public abstract class FieldDeserializer {
         setValue(object, (Object) value);
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public void setValue(Object object, Object value) {
         Method method = fieldInfo.getMethod();
         if (method != null) {
             try {
-                method.invoke(object, value);
+                if (fieldInfo.isGetOnly()) {
+                    Collection collection = (Collection) method.invoke(object);
+                    collection.addAll((Collection) value);
+                } else {
+                    method.invoke(object, value);
+                }
             } catch (Exception e) {
                 throw new JSONException("set property error, " + fieldInfo.getName(), e);
             }

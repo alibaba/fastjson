@@ -17,6 +17,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
     private final Class<?> fieldClass;
     private final Type     fieldType;
     private final Class<?> declaringClass;
+    private boolean        getOnly = false;
 
     public FieldInfo(String name, Class<?> declaringClass, Class<?> fieldClass, Type fieldType, Method method,
                      Field field){
@@ -62,6 +63,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
             } else {
                 fieldClass = method.getReturnType();
                 fieldType = method.getGenericReturnType();
+                getOnly = true;
             }
             this.declaringClass = method.getDeclaringClass();
         } else {
@@ -181,4 +183,9 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
         field.setAccessible(flag);
     }
+
+    public boolean isGetOnly() {
+        return getOnly;
+    }
+
 }

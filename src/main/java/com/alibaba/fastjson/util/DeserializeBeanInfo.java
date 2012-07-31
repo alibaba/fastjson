@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import com.alibaba.fastjson.JSONException;
@@ -63,6 +64,16 @@ public class DeserializeBeanInfo {
 
     public List<FieldInfo> getFieldList() {
         return fieldList;
+    }
+    
+    public FieldInfo getField(String propertyName) {
+        for (FieldInfo item : this.fieldList) {
+            if (item.getName().equals(propertyName)) {
+                return item;
+            }
+        }
+        
+        return null;
     }
     
     public boolean add(FieldInfo field) {
@@ -230,6 +241,37 @@ public class DeserializeBeanInfo {
             }
 
             beanInfo.add(new FieldInfo(field.getName(), null, field));
+        }
+        
+        for (Method method : clazz.getMethods()) {
+            String methodName = method.getName();
+            if (methodName.length() < 4) {
+                continue;
+            }
+
+            if (Modifier.isStatic(method.getModifiers())) {
+                continue;
+            }
+            
+            if (methodName.startsWith("get") && Character.isUpperCase(methodName.charAt(3))) {
+                if (method.getParameterTypes().length != 0) {
+                    continue;
+                }
+                
+                if (!Collection.class.isAssignableFrom(method.getReturnType())) {
+                    continue;
+                }
+                
+                String propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+                
+                FieldInfo fieldInfo = beanInfo.getField(propertyName);
+                if (fieldInfo != null) {
+                    continue;
+                }
+                
+                beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type));
+                method.setAccessible(true);
+            }
         }
 
         return beanInfo;

@@ -774,6 +774,10 @@ public class TypeUtils {
             Class<?> componentType = loadClass(className.substring(1));
             return Array.newInstance(componentType, 0).getClass();
         }
+        
+        if (className.startsWith("L") && className.endsWith(";")) {
+            className = className.substring(1, className.length() - 1);
+        }
 
         try {
             clazz = Thread.currentThread().getContextClassLoader().loadClass(className);

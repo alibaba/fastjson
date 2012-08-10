@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.alibaba</groupId>
 	<artifactId>fastjson</artifactId>
-	<version>1.1.23</version>
+	<version>1.1.24-SNAPSHOT</version>
 
 	<packaging>jar</packaging>
 	<name>fastjson</name>
@@ -256,6 +256,12 @@
 			<artifactId>json-lib</artifactId>
 			<version>2.4</version>
 			<classifier>jdk15</classifier>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>xom</groupId>
+			<artifactId>xom</artifactId>
+			<version>1.2.5</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

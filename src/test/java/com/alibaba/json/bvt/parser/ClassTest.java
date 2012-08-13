@@ -2,14 +2,24 @@ package com.alibaba.json.bvt.parser;
 
 import com.alibaba.fastjson.JSON;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
 
 public class ClassTest extends TestCase {
 
-    public void test_class() throws Exception {
+    public void test_class_array() throws Exception {
         String text = "{\"clazz\":\"[Ljava.lang.String;\",\"value\":\"[\\\"武汉银行\\\"]\"}";
         
         VO vo = JSON.parseObject(text, VO.class);
+        
+        Assert.assertEquals(String[].class, vo.getClazz());
+    }
+    
+    public void test_class() throws Exception {
+        String text = "{\"clazz\":\"Ljava.lang.String;\",\"value\":\"[\\\"武汉银行\\\"]\"}";
+        
+        VO vo = JSON.parseObject(text, VO.class);
+        Assert.assertEquals(String.class, vo.getClazz());
     }
 
     public static class VO {

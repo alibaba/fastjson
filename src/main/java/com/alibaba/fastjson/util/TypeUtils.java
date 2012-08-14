@@ -38,6 +38,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
@@ -738,7 +740,7 @@ public class TypeUtils {
         }
     }
 
-    private static Map<String, Class<?>> mappings = new HashMap<String, Class<?>>();
+    private static ConcurrentMap<String, Class<?>> mappings = new ConcurrentHashMap<String, Class<?>>();
     static {
         mappings.put("byte", byte.class);
         mappings.put("short", short.class);
@@ -757,6 +759,16 @@ public class TypeUtils {
         mappings.put("[double", double[].class);
         mappings.put("[boolean", boolean[].class);
         mappings.put("[char", char[].class);
+
+        mappings.put(HashMap.class.getName(), HashMap.class);
+    }
+
+    public static void addClassMapping(String className, Class<?> clazz) {
+        if (className == null) {
+            className = clazz.getName();
+        }
+
+        mappings.put(className, clazz);
     }
 
     public static Class<?> loadClass(String className) {
@@ -774,13 +786,17 @@ public class TypeUtils {
             Class<?> componentType = loadClass(className.substring(1));
             return Array.newInstance(componentType, 0).getClass();
         }
-        
+
         if (className.startsWith("L") && className.endsWith(";")) {
-            className = className.substring(1, className.length() - 1);
+            String newClassName = className.substring(1, className.length() - 1);
+            return loadClass(newClassName);
         }
 
         try {
             clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
+
+            addClassMapping(className, clazz);
+
             return clazz;
         } catch (Throwable e) {
             // skip
@@ -788,6 +804,9 @@ public class TypeUtils {
 
         try {
             clazz = Class.forName(className);
+
+            addClassMapping(className, clazz);
+
             return clazz;
         } catch (Throwable e) {
             // skip

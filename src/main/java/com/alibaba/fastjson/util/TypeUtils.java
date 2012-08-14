@@ -742,6 +742,18 @@ public class TypeUtils {
 
     private static ConcurrentMap<String, Class<?>> mappings = new ConcurrentHashMap<String, Class<?>>();
     static {
+        addBaseClassMappings();
+    }
+
+    public static void addClassMapping(String className, Class<?> clazz) {
+        if (className == null) {
+            className = clazz.getName();
+        }
+
+        mappings.put(className, clazz);
+    }
+    
+    public static void addBaseClassMappings() {
         mappings.put("byte", byte.class);
         mappings.put("short", short.class);
         mappings.put("int", int.class);
@@ -759,16 +771,13 @@ public class TypeUtils {
         mappings.put("[double", double[].class);
         mappings.put("[boolean", boolean[].class);
         mappings.put("[char", char[].class);
-
+        
         mappings.put(HashMap.class.getName(), HashMap.class);
     }
-
-    public static void addClassMapping(String className, Class<?> clazz) {
-        if (className == null) {
-            className = clazz.getName();
-        }
-
-        mappings.put(className, clazz);
+    
+    public static void clearClassMapping() {
+        mappings.clear();
+        addBaseClassMappings();
     }
 
     public static Class<?> loadClass(String className) {

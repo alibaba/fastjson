@@ -8,6 +8,7 @@ import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.JSONSerializer;
+import com.alibaba.fastjson.serializer.PropertyFilter;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
@@ -50,7 +51,14 @@ public class FastjsonCodec implements Codec {
         out.config(SerializerFeature.DisableCircularReferenceDetect, true);
 //        out.config(SerializerFeature.DisableCheckSpecialChar, true);
 
-        JSONSerializer.write(out, object);
+        JSONSerializer serializer = new JSONSerializer(out);
+        serializer.write(object);
+        serializer.getPropertyFilters().add(new PropertyFilter() {
+            
+            public boolean apply(Object source, String name, Object value) {
+                return true;
+            }
+        });
 
         String text = out.toString();
 

@@ -7,6 +7,7 @@ import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
+import com.alibaba.fastjson.util.TypeUtils;
 
 public abstract class AbstractDateDeserializer implements ObjectDeserializer {
 
@@ -32,7 +33,45 @@ public abstract class AbstractDateDeserializer implements ObjectDeserializer {
         } else if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken();
             val = null;
+        } else if (lexer.token() == JSONToken.LBRACE) {
+            lexer.nextToken();
+            
+            String key;
+            if (lexer.token() == JSONToken.LITERAL_STRING) {
+                key = lexer.stringVal();
+                
+                if ("@type".equals(key)) {
+                    lexer.nextToken();
+                    parser.accept(JSONToken.COLON);
+                    
+                    String typeName = lexer.stringVal();
+                    Class<?> type = TypeUtils.loadClass(typeName);
+                    if (type != null) {
+                        clazz = type;
+                    }
+                    
+                    parser.accept(JSONToken.LITERAL_STRING);
+                    parser.accept(JSONToken.COMMA);
+                }
+                
+                lexer.nextTokenWithColon(JSONToken.LITERAL_INT);
+            } else {
+                throw new JSONException("syntax error");
+            }
+            
+            long timeMillis;
+            if (lexer.token() == JSONToken.LITERAL_INT) {
+                timeMillis = lexer.longValue();
+                lexer.nextToken();
+            } else {
+                throw new JSONException("syntax error : " + lexer.tokenName());
+            }
+            
+            val = timeMillis;
+            
+            parser.accept(JSONToken.RBRACE);
         } else if (parser.getResolveStatus() == DefaultJSONParser.TypeNameRedirect) {
+            parser.setResolveStatus(DefaultJSONParser.NONE);
             parser.accept(JSONToken.COMMA);
 
             if (lexer.token() == JSONToken.LITERAL_STRING) {
@@ -49,8 +88,6 @@ public abstract class AbstractDateDeserializer implements ObjectDeserializer {
             val = parser.parse();
 
             parser.accept(JSONToken.RBRACE);
-
-            parser.setResolveStatus(DefaultJSONParser.NONE);
         } else {
             val = parser.parse();
         }

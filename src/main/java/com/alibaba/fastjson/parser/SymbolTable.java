@@ -22,12 +22,15 @@ public class SymbolTable {
 
     public static final int DEFAULT_TABLE_SIZE = 128;
     public static final int MAX_BUCKET_LENTH   = 8;
+    public static final int MAX_SIZE           = 1024;
 
     private final Entry[]   buckets;
     private final String[]  symbols;
     private final char[][]  symbols_char;
 
     private final int       indexMask;
+
+    private int             size               = 0;
 
     public SymbolTable(){
         this(DEFAULT_TABLE_SIZE);
@@ -107,13 +110,22 @@ public class SymbolTable {
             }
         }
 
+        if (size >= MAX_SIZE) {
+            return new String(buffer, offset, len);
+        }
+
         Entry entry = new Entry(buffer, offset, len, hash, buckets[bucket]);
         buckets[bucket] = entry; // 并发是处理时会导致缓存丢失，但不影响正确性
         if (match) {
             symbols[bucket] = entry.symbol;
             symbols_char[bucket] = entry.characters;
         }
+        size++;
         return entry.symbol;
+    }
+
+    public int size() {
+        return size;
     }
 
     public static final int hash(char[] buffer, int offset, int len) {

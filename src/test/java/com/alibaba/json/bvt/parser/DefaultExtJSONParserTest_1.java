@@ -24,54 +24,54 @@ public class DefaultExtJSONParserTest_1 extends TestCase {
         Assert.assertEquals(Boolean.TRUE, entity.getF2());
     }
 
-    public void test_2() throws Exception {
-        TestEntity e0 = new TestEntity();
-        e0.setF1(true);
-        e0.setF2(Boolean.TRUE);
-        e0.setF3((byte) 123);
-        e0.setF4((byte) 123);
-        e0.setF5((short) 123);
-        e0.setF6((short) 123);
-        e0.setF7((int) 123);
-        e0.setF8((int) 123);
-        e0.setF9((long) 123);
-        e0.setF10((long) 123);
-        e0.setF11(new BigInteger("123"));
-        e0.setF12(new BigDecimal("123"));
-        e0.setF13("abc");
-        e0.setF14(null);
-        e0.setF15(12.34F);
-        e0.setF16(12.34F);
-        e0.setF17(12.345D);
-        e0.setF18(12.345D);
+    public void f_test_2() throws Exception {
+        TestEntity a = new TestEntity();
+        a.setF1(true);
+        a.setF2(Boolean.TRUE);
+        a.setF3((byte) 123);
+        a.setF4((byte) 123);
+        a.setF5((short) 123);
+        a.setF6((short) 123);
+        a.setF7((int) 123);
+        a.setF8((int) 123);
+        a.setF9((long) 123);
+        a.setF10((long) 123);
+        a.setF11(new BigInteger("123"));
+        a.setF12(new BigDecimal("123"));
+        a.setF13("abc");
+        a.setF14(null);
+        a.setF15(12.34F);
+        a.setF16(12.35F);
+        a.setF17(12.345D);
+        a.setF18(12.345D);
 
-        String text = JSON.toJSONString(e0);
+        String text = JSON.toJSONString(a);
         System.out.println(text);
 
-        TestEntity e1 = new TestEntity();
+        TestEntity b = new TestEntity();
         {
             DefaultExtJSONParser parser = new DefaultExtJSONParser(text);
-            parser.parseObject(e1);
+            parser.parseObject(b);
         }
 
-        Assert.assertEquals(e0.isF1(), e1.isF1());
-        Assert.assertEquals(e0.getF2(), e1.getF2());
-        Assert.assertEquals(e0.getF3(), e1.getF3());
-        Assert.assertEquals(e0.getF4(), e1.getF4());
-        Assert.assertEquals(e0.getF5(), e1.getF5());
-        Assert.assertEquals(e0.getF6(), e1.getF6());
-        Assert.assertEquals(e0.getF7(), e1.getF7());
-        Assert.assertEquals(e0.getF8(), e1.getF8());
-        Assert.assertEquals(e0.getF9(), e1.getF9());
-        Assert.assertEquals(e0.getF10(), e1.getF10());
-        Assert.assertEquals(e0.getF11(), e1.getF11());
-        Assert.assertEquals(e0.getF12(), e1.getF12());
-        Assert.assertEquals(e0.getF13(), e1.getF13());
-        Assert.assertEquals(e0.getF14(), e1.getF14());
-        Assert.assertEquals(e0.getF15(), e1.getF15());
-        Assert.assertEquals(e0.getF16(), e1.getF16());
-        Assert.assertEquals(e0.getF17(), e1.getF17());
-        Assert.assertEquals(e0.getF18(), e1.getF18());
+        Assert.assertEquals(a.isF1(), b.isF1());
+        Assert.assertEquals(a.getF2(), b.getF2());
+        Assert.assertEquals(a.getF3(), b.getF3());
+        Assert.assertEquals(a.getF4(), b.getF4());
+        Assert.assertEquals(a.getF5(), b.getF5());
+        Assert.assertEquals(a.getF6(), b.getF6());
+        Assert.assertEquals(a.getF7(), b.getF7());
+        Assert.assertEquals(a.getF8(), b.getF8());
+        Assert.assertEquals(a.getF9(), b.getF9());
+        Assert.assertEquals(a.getF10(), b.getF10());
+        Assert.assertEquals(a.getF11(), b.getF11());
+        Assert.assertEquals(a.getF12(), b.getF12());
+        Assert.assertEquals(a.getF13(), b.getF13());
+        Assert.assertEquals(a.getF14(), b.getF14());
+        Assert.assertEquals(a.getF15(), b.getF15());
+        Assert.assertEquals(a.getF16(), b.getF16());
+        Assert.assertEquals(a.getF17(), b.getF17());
+        Assert.assertEquals(a.getF18(), b.getF18());
 
     }
 }

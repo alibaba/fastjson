@@ -48,18 +48,18 @@ public class JSONSerializer {
 
     private final SerializeWriter                  out;
 
-    private List<PropertyFilter>                   propertyFilters   = null;
-    private List<ValueFilter>                      valueFilters      = null;
-    private List<NameFilter>                       nameFilters       = null;
-    private List<PropertyPreFilter>                    propertyPreFilters    = null;
+    private List<PropertyFilter>                   propertyFilters    = null;
+    private List<ValueFilter>                      valueFilters       = null;
+    private List<NameFilter>                       nameFilters        = null;
+    private List<PropertyPreFilter>                propertyPreFilters = null;
 
-    private int                                    indentCount       = 0;
-    private String                                 indent            = "\t";
+    private int                                    indentCount        = 0;
+    private String                                 indent             = "\t";
 
-    private String                                 dateFormatPatterm = JSON.DEFFAULT_DATE_FORMAT;
+    private String                                 dateFormatPatterm  = JSON.DEFFAULT_DATE_FORMAT;
     private DateFormat                             dateFormat;
 
-    private IdentityHashMap<Object, SerialContext> references        = null;
+    private IdentityHashMap<Object, SerialContext> references         = null;
     private SerialContext                          context;
 
     public JSONSerializer(){
@@ -292,10 +292,10 @@ public class JSONSerializer {
         if (propertyPreFilters == null) {
             propertyPreFilters = new ArrayList<PropertyPreFilter>();
         }
-        
+
         return propertyPreFilters;
     }
-    
+
     public List<PropertyPreFilter> getPropertyPreFiltersDirect() {
         return propertyPreFilters;
     }
@@ -416,6 +416,20 @@ public class JSONSerializer {
             }
 
             writer = config.get(clazz);
+        }
+
+        if (writer == null) {
+            final ClassLoader classLoader = JSON.class.getClassLoader();
+            if (classLoader != Thread.currentThread().getContextClassLoader()) {
+                for (AutowiredObjectSerializer autowired : ServiceLoader.load(AutowiredObjectSerializer.class,
+                                                                              classLoader)) {
+                    for (Type forType : autowired.getAutowiredFor()) {
+                        config.put(forType, autowired);
+                    }
+                }
+
+                writer = config.get(clazz);
+            }
         }
 
         if (writer == null) {

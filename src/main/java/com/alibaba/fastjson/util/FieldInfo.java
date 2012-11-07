@@ -2,6 +2,7 @@ package com.alibaba.fastjson.util;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -71,6 +72,16 @@ public class FieldInfo implements Comparable<FieldInfo> {
             fieldType = field.getGenericType();
             this.declaringClass = field.getDeclaringClass();
         }
+        
+        if (clazz != null && fieldClass == Object.class && fieldType instanceof TypeVariable) {
+            TypeVariable<?> tv = (TypeVariable<?>) fieldType;
+            Type genericFieldType = getInheritGenericType(clazz, tv);
+            if (genericFieldType != null) {
+                this.fieldClass = TypeUtils.getClass(genericFieldType);
+                this.fieldType = genericFieldType;
+                return;
+            }
+        }
 
         Type genericFieldType = getFieldType(clazz, type, fieldType);
 
@@ -108,6 +119,28 @@ public class FieldInfo implements Comparable<FieldInfo> {
         }
 
         return fieldType;
+    }
+    
+    public static Type getInheritGenericType(Class<?> clazz, TypeVariable<?> tv) {
+        Type type = null;
+        GenericDeclaration gd = tv.getGenericDeclaration();
+        do {
+            type = clazz.getGenericSuperclass();
+            if (type instanceof ParameterizedType) {
+                ParameterizedType ptype = (ParameterizedType) type;
+                if (ptype.getRawType() == gd) {
+                    TypeVariable<?>[] tvs = gd.getTypeParameters();
+                    Type[] types = ptype.getActualTypeArguments();
+                    for (int i = 0; i < tvs.length; i++) {
+                        if (tvs[i] == tv)
+                            return types[i];
+                    }
+                    return null;
+                }
+            }
+            clazz = TypeUtils.getClass(type);
+        } while (type != null);
+        return null;
     }
 
     public String toString() {

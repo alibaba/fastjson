@@ -1,4 +1,0 @@
-com.alibaba.fastjson.serializer.ColorSerializer
-com.alibaba.fastjson.serializer.FontSerializer
-com.alibaba.fastjson.serializer.PointSerializer
-com.alibaba.fastjson.serializer.RectangleSerializer

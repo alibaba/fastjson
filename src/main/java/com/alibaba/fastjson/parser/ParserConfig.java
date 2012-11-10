@@ -301,16 +301,21 @@ public class ParserConfig {
         if (type instanceof WildcardType || type instanceof TypeVariable) {
             derializer = derializers.get(clazz);
         }
-        
+
         if (derializer != null) {
             return derializer;
         }
 
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        for (AutowiredObjectDeserializer autowired : ServiceLoader.load(AutowiredObjectDeserializer.class, classLoader)) {
-            for (Type forType : autowired.getAutowiredFor()) {
-                derializers.put(forType, autowired);
+        try {
+            for (AutowiredObjectDeserializer autowired : ServiceLoader.load(AutowiredObjectDeserializer.class,
+                                                                            classLoader)) {
+                for (Type forType : autowired.getAutowiredFor()) {
+                    derializers.put(forType, autowired);
+                }
             }
+        } catch (Exception ex) {
+            // skip
         }
 
         derializer = derializers.get(type);
@@ -374,7 +379,7 @@ public class ParserConfig {
                     asmEnable = false;
                     break;
                 }
-                
+
                 Class<?> fieldClass = fieldInfo.getFieldClass();
                 if (!Modifier.isPublic(fieldClass.getModifiers())) {
                     asmEnable = false;

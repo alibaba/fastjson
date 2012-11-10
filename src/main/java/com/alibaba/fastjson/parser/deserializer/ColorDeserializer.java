@@ -12,6 +12,8 @@ import com.alibaba.fastjson.parser.JSONToken;
 
 public class ColorDeserializer implements AutowiredObjectDeserializer {
 
+    public final static ColorDeserializer instance = new ColorDeserializer();
+
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         JSONScanner lexer = (JSONScanner) parser.getLexer();
@@ -69,7 +71,7 @@ public class ColorDeserializer implements AutowiredObjectDeserializer {
     }
 
     public Set<Type> getAutowiredFor() {
-        return Collections.<Type>singleton(Color.class);
+        return Collections.<Type> singleton(Color.class);
     }
 
 }

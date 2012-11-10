@@ -282,6 +282,12 @@
 			<version>1.0.6.3</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.owlike</groupId>
+			<artifactId>genson</artifactId>
+			<version>0.93</version>
+			<scope>test</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>org.clojure</groupId>

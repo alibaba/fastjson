@@ -8,6 +8,7 @@ import java.util.Set;
 
 
 public class ColorSerializer implements AutowiredObjectSerializer {
+    public final static ColorSerializer instance = new ColorSerializer();
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         SerializeWriter out = serializer.getWriter();

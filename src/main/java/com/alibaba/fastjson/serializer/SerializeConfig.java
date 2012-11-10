@@ -15,6 +15,10 @@
  */
 package com.alibaba.fastjson.serializer;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.Modifier;
@@ -157,6 +161,16 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
         put(AtomicReference.class, AtomicReferenceSerializer.instance);
         put(AtomicIntegerArray.class, AtomicIntegerArraySerializer.instance);
         put(AtomicLongArray.class, AtomicLongArraySerializer.instance);
+
+        // awt
+        try {
+            put(Class.forName("java.awt.Color"), ColorSerializer.instance);
+            put(Class.forName("java.awt.Font"), FontSerializer.instance);
+            put(Class.forName("java.awt.Point"), PointSerializer.instance);
+            put(Class.forName("java.awt.Rectangle"), RectangleSerializer.instance);
+        } catch (Throwable e) {
+            // skip
+        }
 
     }
 

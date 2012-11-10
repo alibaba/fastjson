@@ -78,6 +78,7 @@ import com.alibaba.fastjson.parser.deserializer.CharacterDeserializer;
 import com.alibaba.fastjson.parser.deserializer.CharsetDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ClassDerializer;
 import com.alibaba.fastjson.parser.deserializer.CollectionDeserializer;
+import com.alibaba.fastjson.parser.deserializer.ColorDeserializer;
 import com.alibaba.fastjson.parser.deserializer.DateDeserializer;
 import com.alibaba.fastjson.parser.deserializer.DateFormatDeserializer;
 import com.alibaba.fastjson.parser.deserializer.DefaultFieldDeserializer;
@@ -86,6 +87,7 @@ import com.alibaba.fastjson.parser.deserializer.EnumDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FileDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FloatDeserializer;
+import com.alibaba.fastjson.parser.deserializer.FontDeserializer;
 import com.alibaba.fastjson.parser.deserializer.InetAddressDeserializer;
 import com.alibaba.fastjson.parser.deserializer.InetSocketAddressDeserializer;
 import com.alibaba.fastjson.parser.deserializer.IntegerDeserializer;
@@ -101,6 +103,8 @@ import com.alibaba.fastjson.parser.deserializer.MapDeserializer;
 import com.alibaba.fastjson.parser.deserializer.NumberDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.PatternDeserializer;
+import com.alibaba.fastjson.parser.deserializer.PointDeserializer;
+import com.alibaba.fastjson.parser.deserializer.RectangleDeserializer;
 import com.alibaba.fastjson.parser.deserializer.SqlDateDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StackTraceElementDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StringDeserializer;
@@ -243,6 +247,15 @@ public class ParserConfig {
         derializers.put(Cloneable.class, defaultSerializer);
         derializers.put(Comparable.class, defaultSerializer);
         derializers.put(Closeable.class, defaultSerializer);
+
+        try {
+            derializers.put(Class.forName("java.awt.Point"), PointDeserializer.instance);
+            derializers.put(Class.forName("java.awt.Font"), FontDeserializer.instance);
+            derializers.put(Class.forName("java.awt.Rectangle"), RectangleDeserializer.instance);
+            derializers.put(Class.forName("java.awt.Color"), ColorDeserializer.instance);
+        } catch (Throwable e) {
+            // skip
+        }
     }
 
     public boolean isAsmEnable() {

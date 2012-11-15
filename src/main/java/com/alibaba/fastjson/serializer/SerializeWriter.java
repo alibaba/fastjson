@@ -759,7 +759,7 @@ public final class SerializeWriter extends Writer {
                 if (ch >= ']') {
                     continue;
                 }
-                
+
                 if (ch == ' ') {
                     continue;
                 }
@@ -1165,19 +1165,19 @@ public final class SerializeWriter extends Writer {
             char lastSpecial = '\0';
 
             for (int i = valueStart; i < valueEnd; ++i) {
-            	char ch = buf[i];
+                char ch = buf[i];
 
-				if (ch >= ']') {
-					continue;
-				}
+                if (ch >= ']') {
+                    continue;
+                }
 
-            	if (isSpecial(ch, this.features)) {
-                  specialCount++;
-                  lastSpecialIndex = i;
-                  lastSpecial = ch;
-            	}
+                if (isSpecial(ch, this.features)) {
+                    specialCount++;
+                    lastSpecialIndex = i;
+                    lastSpecial = ch;
+                }
             }
-            
+
             if (specialCount > 0) {
                 newcount += specialCount;
                 if (newcount > buf.length) {
@@ -1185,7 +1185,7 @@ public final class SerializeWriter extends Writer {
                 }
                 count = newcount;
             }
-            
+
             if (specialCount == 1) {
                 System.arraycopy(buf, lastSpecialIndex + 1, buf, lastSpecialIndex + 2, valueEnd - lastSpecialIndex - 1);
                 buf[lastSpecialIndex] = '\\';
@@ -1211,11 +1211,9 @@ public final class SerializeWriter extends Writer {
             }
         }
 
-        
-
         buf[count - 1] = '\"';
     }
-    
+
     final static boolean isSpecial(char ch, int features) {
 //        if (ch > ']') {
 //            return false;
@@ -1224,15 +1222,17 @@ public final class SerializeWriter extends Writer {
         if (ch == ' ') {
         	return false;
         }
+        
+        if (ch == '/' && SerializerFeature.isEnabled(features, SerializerFeature.WriteSlashAsSpecial)) {
+            return true;
+        }
 
         if (ch > '#' && ch != '\\') {
         	return false;
         }
 
         if (ch == '\b' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\\' || ch == '"' //
-            || (ch == '\t' && SerializerFeature.isEnabled(features, SerializerFeature.WriteTabAsSpecial))
-            || (ch == '/' && SerializerFeature.isEnabled(features, SerializerFeature.WriteTabAsSpecial))
-            ) {
+            || (ch == '\t' && SerializerFeature.isEnabled(features, SerializerFeature.WriteTabAsSpecial))){
             return true;
         }
         

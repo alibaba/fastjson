@@ -500,11 +500,16 @@ public class ParserConfig {
     }
 
     public static Field getField(Class<?> clazz, String fieldName) {
-        try {
-            return clazz.getDeclaredField(fieldName);
-        } catch (Exception e) {
-            return null;
+        for (Field item : clazz.getDeclaredFields()) {
+            if (fieldName.equals(item.getName())) {
+                return item;
+            }
         }
+        if (clazz.getSuperclass() != null && clazz.getSuperclass() != Object.class) {
+            return getField(clazz.getSuperclass(), fieldName);
+        }
+
+        return null;
     }
 
     public Map<String, FieldDeserializer> getFieldDeserializers(Class<?> clazz) {

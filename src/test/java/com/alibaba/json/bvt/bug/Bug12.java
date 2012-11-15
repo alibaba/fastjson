@@ -11,7 +11,7 @@ import com.alibaba.fastjson.JSON;
 public class Bug12 extends TestCase {
 
     public void test_0() throws Exception {
-        String resource = "json.json";
+        String resource = "2.json";
         InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
         String text = IOUtils.toString(is);
         is.close();

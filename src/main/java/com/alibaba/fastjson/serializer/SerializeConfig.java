@@ -15,10 +15,6 @@
  */
 package com.alibaba.fastjson.serializer;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Point;
-import java.awt.Rectangle;
 import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.Modifier;

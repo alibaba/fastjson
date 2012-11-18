@@ -977,25 +977,13 @@ public class DefaultJSONParser extends AbstractJSONParser {
         if (isEnabled(Feature.DisableCircularReferenceDetect)) {
             return null;
         }
+        
+        this.context = new ParseContext(parent, object, fieldName);
+        addContext(this.context);
 
-        if (lexer.isResetFlag()) {
-            for (int i = 0; i < contextArrayIndex; ++i) {
-                ParseContext item = contextArray[i];
-                if (item.getParentContext() == parent && item.getFieldName() == fieldName) {
-                    this.context = item;
-                    this.context.setObject(object);
-                    clearChildContext(this.context, i + 1);
-                    break;
-                }
-            }
-            lexer.setResetFlag(false);
-        } else {
-            this.context = new ParseContext(parent, object, fieldName);
-            addContext(this.context);
-        }
         return this.context;
     }
-
+    
     private void clearChildContext(ParseContext parent, int start) {
         for (int i = start; i < contextArrayIndex; ++i) {
             ParseContext item = contextArray[i];
@@ -1010,6 +998,18 @@ public class DefaultJSONParser extends AbstractJSONParser {
                 clearChildContext(item, i + 1);
             }
         }
+    }
+    
+    public int getContextLength() {
+        return contextArrayIndex;
+    }
+    
+    public void clearContext(ParseContext context, int start) {
+        for (int i = start; i < contextArrayIndex; ++i) {
+            contextArray[i] = null;
+        }
+        contextArrayIndex = start;
+        this.context = context;
     }
 
     private void addContext(ParseContext context) {

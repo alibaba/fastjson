@@ -11,8 +11,16 @@ import com.alibaba.fastjson.JSON;
 public class Bug_for_wangran2 extends TestCase {
 
     public void test_for_wangran() throws Exception {
-        String text = "{\"first\":{\"id\":1001},\"second\":{\"id\":1002,\"root\":{\"$ref\":\"$\"}},\"id\":23,\"name\":\"xxx\",\"children\":[{\"root\":{\"$ref\":\"$\"}},{\"$ref\":\"$.second\"}]}";
+        String text = "{" + //
+                      "\"first\":{\"id\":1001}," + //
+                      "\"second\":{\"id\":1002,\"root\":{\"$ref\":\"$\"}}," + //
+                      "\"id\":23," + //
+                      "\"name\":\"xxx\"," + //
+                      "\"children\":[{\"root\":{\"$ref\":\"$\"}},{\"$ref\":\"$.second\"}]" + //
+                      "}";
         Root root = JSON.parseObject(text, Root.class);
+        Assert.assertEquals(23, root.getId());
+        Assert.assertEquals("xxx", root.getName());
         Assert.assertTrue(root == root.getChildren().get(0).getRoot());
         Assert.assertTrue(root == root.getChildren().get(1).getRoot());
     }
@@ -36,6 +44,7 @@ public class Bug_for_wangran2 extends TestCase {
         }
 
         public void setSecond(Child second) {
+            System.out.println("setSecond");
             this.second = second;
         }
 
@@ -44,6 +53,7 @@ public class Bug_for_wangran2 extends TestCase {
         }
 
         public void setFirst(Child first) {
+            System.out.println("setFirst");
             this.first = first;
         }
 
@@ -52,6 +62,7 @@ public class Bug_for_wangran2 extends TestCase {
         }
 
         public void setChildren(List<Child> children) {
+            System.out.println("setChildren");
             this.children = children;
         }
 
@@ -88,6 +99,7 @@ public class Bug_for_wangran2 extends TestCase {
         }
 
         public void setRoot(Root root) {
+            System.out.println("setRoot");
             this.root = root;
         }
 

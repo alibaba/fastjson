@@ -46,50 +46,52 @@ import com.alibaba.fastjson.util.Base64;
 /**
  * @author wenshao<szujobs@hotmail.com>
  */
-public class JSONScanner implements JSONLexer {
+public final class JSONScanner implements JSONLexer {
 
-    public final static byte                 EOI       = 0x1A;
+    public final static byte                                EOI          = 0x1A;
 
-    private final char[]                     buf;
-    private int                              bp;
-    private final int                        buflen;
-    private int                              eofPos;
+    private final char[]                                    buf;
+    private int                                             bp;
+    private final int                                       buflen;
+    private int                                             eofPos;
 
     /**
      * The current character.
      */
-    private char                             ch;
+    private char                                            ch;
 
     /**
      * The token's position, 0-based offset from beginning of text.
      */
-    private int                              pos;
+    private int                                             pos;
 
     /**
      * A character buffer for literals.
      */
-    private char[]                           sbuf;
-    private int                              sp;
+    private char[]                                          sbuf;
+    private int                                             sp;
 
     /**
      * number start position
      */
-    private int                              np;
+    private int                                             np;
 
     /**
      * The token, set by nextToken().
      */
-    private int                              token;
+    private int                                             token;
 
-    private Keywords                         keywods   = Keywords.DEFAULT_KEYWORDS;
+    private Keywords                                        keywods      = Keywords.DEFAULT_KEYWORDS;
 
-    private final static ThreadLocal<SoftReference<char[]>> sbufRefLocal   = new ThreadLocal<SoftReference<char[]>>();
+    private final static ThreadLocal<SoftReference<char[]>> sbufRefLocal = new ThreadLocal<SoftReference<char[]>>();
 
-    private int                              features  = JSON.DEFAULT_PARSER_FEATURE;
+    private int                                             features     = JSON.DEFAULT_PARSER_FEATURE;
 
-    private Calendar                         calendar  = null;
+    private Calendar                                        calendar     = null;
 
-    private boolean                          resetFlag = false;
+    private boolean                                         resetFlag    = false;
+
+    public int                                              resetCount   = 0;
 
     public JSONScanner(String input){
         this(input, JSON.DEFAULT_PARSER_FEATURE);
@@ -107,12 +109,12 @@ public class JSONScanner implements JSONLexer {
         this.features = features;
 
         SoftReference<char[]> sbufRef = sbufRefLocal.get();
-        
+
         if (sbufRef != null) {
             sbuf = sbufRef.get();
             sbufRefLocal.set(null);
         }
-        
+
         if (sbuf == null) {
             sbuf = new char[64];
         }
@@ -154,6 +156,7 @@ public class JSONScanner implements JSONLexer {
         this.token = token;
 
         resetFlag = true;
+        resetCount++;
     }
 
     public boolean isBlankInput() {
@@ -886,7 +889,8 @@ public class JSONScanner implements JSONLexer {
         for (int i = 0; i < fieldNameLength; ++i) {
             if (fieldName[i] != buf[bp + i]) {
                 matchStat = NOT_MATCH_NAME;
-                return null;
+
+                return stringDefaultValue();
             }
         }
 
@@ -895,7 +899,8 @@ public class JSONScanner implements JSONLexer {
         char ch = buf[index++];
         if (ch != '"') {
             matchStat = NOT_MATCH;
-            return null;
+
+            return stringDefaultValue();
         }
 
         String strVal;
@@ -911,7 +916,8 @@ public class JSONScanner implements JSONLexer {
 
             if (ch == '\\') {
                 matchStat = NOT_MATCH;
-                return null;
+
+                return stringDefaultValue();
             }
         }
 
@@ -934,15 +940,23 @@ public class JSONScanner implements JSONLexer {
                 token = JSONToken.EOF;
             } else {
                 matchStat = NOT_MATCH;
-                return null;
+                return stringDefaultValue();
             }
             matchStat = END;
         } else {
             matchStat = NOT_MATCH;
-            return null;
+
+            return stringDefaultValue();
         }
 
         return strVal;
+    }
+
+    public String stringDefaultValue() {
+        if (this.isEnabled(Feature.InitStringFieldAsEmpty)) {
+            return "";
+        }
+        return null;
     }
 
     public String scanFieldSymbol(char[] fieldName, final SymbolTable symbolTable) {
@@ -1013,7 +1027,7 @@ public class JSONScanner implements JSONLexer {
 
         return strVal;
     }
-    
+
     public ArrayList<String> scanFieldStringArray(char[] fieldName) {
         return (ArrayList<String>) scanFieldStringArray(fieldName, null);
     }
@@ -1023,7 +1037,7 @@ public class JSONScanner implements JSONLexer {
         matchStat = UNKOWN;
 
         Collection<String> list;
-        
+
         if (type.isAssignableFrom(HashSet.class)) {
             list = new HashSet<String>();
         } else if (type.isAssignableFrom(ArrayList.class)) {
@@ -1033,7 +1047,7 @@ public class JSONScanner implements JSONLexer {
                 list = (Collection<String>) type.newInstance();
             } catch (Exception e) {
                 throw new JSONException(e.getMessage(), e);
-            }            
+            }
         }
 
         final int fieldNameLength = fieldName.length;
@@ -1430,77 +1444,6 @@ public class JSONScanner implements JSONLexer {
         } else {
             matchStat = NOT_MATCH;
             return 0;
-        }
-
-        return value;
-    }
-
-    public byte[] scanFieldByteArray(char[] fieldName) {
-        matchStat = UNKOWN;
-
-        final int fieldNameLength = fieldName.length;
-        for (int i = 0; i < fieldNameLength; ++i) {
-            if (fieldName[i] != buf[bp + i]) {
-                matchStat = NOT_MATCH_NAME;
-                return null;
-            }
-        }
-
-        int index = bp + fieldNameLength;
-
-        char ch = buf[index++];
-
-        byte[] value;
-        if (ch == '"' || ch == '\'') {
-            char sep = ch;
-
-            int startIndex = index;
-            int endIndex = index;
-            for (endIndex = index; endIndex < buf.length; ++endIndex) {
-                if (buf[endIndex] == sep) {
-                    break;
-                }
-            }
-
-            int base64Len = endIndex - startIndex;
-            value = Base64.decodeFast(buf, startIndex, base64Len);
-            if (value == null) {
-                matchStat = NOT_MATCH;
-                return null;
-            }
-            bp = endIndex + 1;
-            ch = buf[bp];
-        } else {
-            matchStat = NOT_MATCH;
-            return null;
-        }
-
-        if (ch == ',') {
-            ch = buf[++bp];
-            matchStat = VALUE;
-            token = JSONToken.COMMA;
-            return value;
-        } else if (ch == '}') {
-            ch = buf[++bp];
-            if (ch == ',') {
-                token = JSONToken.COMMA;
-                this.ch = buf[++bp];
-            } else if (ch == ']') {
-                token = JSONToken.RBRACKET;
-                this.ch = buf[++bp];
-            } else if (ch == '}') {
-                token = JSONToken.RBRACE;
-                this.ch = buf[++bp];
-            } else if (ch == EOI) {
-                token = JSONToken.EOF;
-            } else {
-                matchStat = NOT_MATCH;
-                return null;
-            }
-            matchStat = END;
-        } else {
-            matchStat = NOT_MATCH;
-            return null;
         }
 
         return value;
@@ -1983,7 +1926,7 @@ public class JSONScanner implements JSONLexer {
                 }
                 ch = buf[++bp];
             }
-            
+
             if (ch == 'D' || ch == 'F') {
                 ch = buf[++bp];
             }
@@ -2532,12 +2475,12 @@ public class JSONScanner implements JSONLexer {
                 return false;
         }
     }
-    
+
     public void close() {
         if (sbuf.length <= 1024 * 8) {
             sbufRefLocal.set(new SoftReference<char[]>(sbuf));
         }
-        
+
         this.sbuf = null;
     }
 }

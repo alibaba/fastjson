@@ -984,22 +984,6 @@ public class DefaultJSONParser extends AbstractJSONParser {
         return this.context;
     }
     
-    private void clearChildContext(ParseContext parent, int start) {
-        for (int i = start; i < contextArrayIndex; ++i) {
-            ParseContext item = contextArray[i];
-            if (item.getParentContext() == parent) {
-                int end = contextArrayIndex - 1;
-                if (i != end) {
-                    System.arraycopy(contextArray, i + 1, contextArray, i, end - i);
-                }
-                contextArray[end] = null;
-                contextArrayIndex--;
-
-                clearChildContext(item, i + 1);
-            }
-        }
-    }
-    
     public int getContextLength() {
         return contextArrayIndex;
     }

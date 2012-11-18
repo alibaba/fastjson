@@ -623,6 +623,14 @@ public final class JSONScanner implements JSONLexer {
                     case 't':
                         putChar('\t');
                         break;
+                    case 'x':
+                        char x1 = ch = buf[++bp];
+                        char x2 = ch = buf[++bp];
+
+                        int x_val = digits[x1] * 16 + digits[x2];
+                        char x_char = (char) x_val;
+                        putChar(x_char);
+                        break;
                     case 'u':
                         char c1 = ch = buf[++bp];
                         char c2 = ch = buf[++bp];

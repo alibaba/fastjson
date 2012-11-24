@@ -248,7 +248,7 @@ public class JSONObject extends JSON implements Map<String, Object>, JSONAware, 
             return 0D;
         }
 
-        return castToDouble(value).floatValue();
+        return castToDouble(value);
     }
 
     public BigDecimal getBigDecimal(String key) {

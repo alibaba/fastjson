@@ -39,7 +39,11 @@ public class ASMSerializerFactory implements Opcodes {
     public String getGenClassName(Class<?> clazz) {
         return "Serializer_" + seed.incrementAndGet();
     }
-
+    
+    public boolean isExternalClass(Class<?> clazz) {
+        return classLoader.isExternalClass(clazz);
+    }
+    
     static class Context {
 
         private final String className;

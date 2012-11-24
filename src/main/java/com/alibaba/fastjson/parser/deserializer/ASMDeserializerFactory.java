@@ -67,6 +67,10 @@ public class ASMDeserializerFactory implements Opcodes {
     public final static ASMDeserializerFactory getInstance() {
         return instance;
     }
+    
+    public boolean isExternalClass(Class<?> clazz) {
+        return classLoader.isExternalClass(clazz);
+    }
 
     public ObjectDeserializer createJavaBeanDeserializer(ParserConfig config, Class<?> clazz, Type type)
                                                                                                         throws Exception {

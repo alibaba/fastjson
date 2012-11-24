@@ -314,7 +314,7 @@ public class JSONArray extends JSON implements List<Object>, JSONAware, Cloneabl
             return 0D;
         }
 
-        return castToDouble(value).floatValue();
+        return castToDouble(value);
     }
 
     public BigDecimal getBigDecimal(int index) {

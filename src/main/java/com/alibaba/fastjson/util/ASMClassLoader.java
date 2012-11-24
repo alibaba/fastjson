@@ -35,15 +35,15 @@ public class ASMClassLoader extends ClassLoader {
             throw new JSONException("class nout found : " + className);
         }
     }
-
-    public static boolean isExternalClass(Class<?> clazz) {
+    
+    public boolean isExternalClass(Class<?> clazz) {
         ClassLoader classLoader = clazz.getClassLoader();
 
         if (classLoader == null) {
             return false;
         }
 
-        ClassLoader current = Thread.currentThread().getContextClassLoader();
+        ClassLoader current = this;
         while (current != null) {
             if (current == classLoader) {
                 return false;
@@ -54,4 +54,5 @@ public class ASMClassLoader extends ClassLoader {
 
         return true;
     }
+
 }

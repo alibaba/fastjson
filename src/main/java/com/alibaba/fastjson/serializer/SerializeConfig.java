@@ -42,7 +42,6 @@ import java.util.regex.Pattern;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONType;
-import com.alibaba.fastjson.util.ASMClassLoader;
 import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.IdentityHashMap;
 
@@ -70,7 +69,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 
         boolean asm = this.asm;
 
-        if (asm && ASMClassLoader.isExternalClass(clazz) || clazz == Serializable.class || clazz == Object.class) {
+        if (asm && asmFactory.isExternalClass(clazz) || clazz == Serializable.class || clazz == Object.class) {
             asm = false;
         }
 
@@ -84,6 +83,9 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
         if (asm) {
             try {
                 return createASMSerializer(clazz);
+            } catch (ClassCastException e) {
+                // skip
+                return new JavaBeanSerializer(clazz); 
             } catch (Throwable e) {
                 throw new JSONException("create asm serializer error, class " + clazz, e);
             }

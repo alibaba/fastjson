@@ -416,6 +416,8 @@ public class ParserConfig {
 
         try {
             return ASMDeserializerFactory.getInstance().createJavaBeanDeserializer(this, clazz, type);
+        } catch (NoSuchMethodException error) {
+            return new JavaBeanDeserializer(this, clazz, type);
         } catch (ASMException asmError) {
             return new JavaBeanDeserializer(this, clazz, type);
         } catch (Exception e) {
@@ -445,8 +447,7 @@ public class ParserConfig {
         try {
             return ASMDeserializerFactory.getInstance().createFieldDeserializer(mapping, clazz, fieldInfo);
         } catch (Throwable e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            // skip
         }
 
         return createFieldDeserializerWithoutASM(mapping, clazz, fieldInfo);

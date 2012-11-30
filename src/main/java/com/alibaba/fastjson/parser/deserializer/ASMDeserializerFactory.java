@@ -91,9 +91,9 @@ public class ASMDeserializerFactory implements Opcodes {
 
         byte[] code = cw.toByteArray();
 
-        // org.apache.commons.io.IOUtils.write(code, new java.io.FileOutputStream(
-        // "/usr/alibaba/workspace-3.7/fastjson-asm/target/classes/"
-        // + className + ".class"));
+//         org.apache.commons.io.IOUtils.write(code, new java.io.FileOutputStream(
+//         "/usr/alibaba/workspace-3.7/fastjson-asm/target/classes/"
+//         + className + ".class"));
 
         Class<?> exampleClass = classLoader.defineClassPublic(className, code, 0, code.length);
 
@@ -101,6 +101,23 @@ public class ASMDeserializerFactory implements Opcodes {
         Object instance = constructor.newInstance(config, clazz);
 
         return (ObjectDeserializer) instance;
+    }
+    
+    void _setFlag(MethodVisitor mw, Context context, int i) {
+        String varName = "_asm_flag_" + (i / 32);
+        
+        mw.visitVarInsn(ILOAD, context.var(varName));
+        mw.visitLdcInsn(1 << i);
+        mw.visitInsn(IOR);
+        mw.visitVarInsn(ISTORE, context.var(varName));
+    }
+    
+    void _isFlag(MethodVisitor mw, Context context, int i, Label label) {
+        mw.visitVarInsn(ILOAD, context.var("_asm_flag_" + (i / 32)));
+        mw.visitLdcInsn(1 << i);
+        mw.visitInsn(IAND);
+        
+        mw.visitJumpInsn(IFEQ, label);
     }
 
     void _deserialze(ClassWriter cw, Context context) {
@@ -246,6 +263,11 @@ public class ASMDeserializerFactory implements Opcodes {
 
         mw.visitInsn(ICONST_0); // UNKOWN
         mw.visitIntInsn(ISTORE, context.var("matchStat"));
+        
+        for (int i = 0, size = context.getFieldInfoList().size(); i < size; i+=32) {
+            mw.visitInsn(ICONST_0);
+            mw.visitVarInsn(ISTORE, context.var("_asm_flag_" + (i / 32)));
+        }
 
         for (int i = 0, size = context.getFieldInfoList().size(); i < size; ++i) {
             FieldInfo fieldInfo = context.getFieldInfoList().get(i);
@@ -369,10 +391,9 @@ public class ASMDeserializerFactory implements Opcodes {
                                            "([CLjava/lang/Class;)" + getDesc(Collection.class));
                         mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
                         
-                        mw.visitInsn(ICONST_1);
-                        mw.visitVarInsn(ISTORE, context.var(fieldInfo.getName() + "_asm_flag"));
+                        _setFlag(mw, context, i);
                     } else {
-                        _deserialze_list_obj(context, mw, reset_, fieldInfo, fieldClass, itemClass);
+                        _deserialze_list_obj(context, mw, reset_, fieldInfo, fieldClass, itemClass, i);
 
                         if (i == size - 1) {
                             _deserialize_endCheck(context, mw, reset_);
@@ -384,7 +405,7 @@ public class ASMDeserializerFactory implements Opcodes {
                 }
 
             } else {
-                _deserialze_obj(context, mw, reset_, fieldInfo, fieldClass);
+                _deserialze_obj(context, mw, reset_, fieldInfo, fieldClass, i);
 
                 if (i == size - 1) {
                     _deserialize_endCheck(context, mw, reset_);
@@ -617,8 +638,7 @@ public class ASMDeserializerFactory implements Opcodes {
             } else if (Collection.class.isAssignableFrom(fieldClass)) {
                 Label notSet_ = new Label();
 
-                mw.visitIntInsn(ILOAD, context.var(fieldInfo.getName() + "_asm_flag"));
-                mw.visitJumpInsn(IFEQ, notSet_);
+                _isFlag(mw, context, i, notSet_);
 
                 mw.visitVarInsn(ALOAD, context.var("instance"));
                 Type itemType = ((ParameterizedType) fieldType).getActualTypeArguments()[0];
@@ -637,8 +657,7 @@ public class ASMDeserializerFactory implements Opcodes {
 
                 Label notSet_ = new Label();
 
-                mw.visitIntInsn(ILOAD, context.var(fieldInfo.getName() + "_asm_flag"));
-                mw.visitJumpInsn(IFEQ, notSet_);
+                _isFlag(mw, context, i, notSet_);
 
                 mw.visitVarInsn(ALOAD, context.var("instance"));
                 mw.visitVarInsn(ALOAD, context.var(fieldInfo.getName() + "_asm"));
@@ -717,7 +736,7 @@ public class ASMDeserializerFactory implements Opcodes {
     }
 
     private void _deserialze_list_obj(Context context, MethodVisitor mw, Label reset_, FieldInfo fieldInfo,
-                                      Class<?> fieldClass, Class<?> itemType) {
+                                      Class<?> fieldClass, Class<?> itemType, int i) {
         Label matched_ = new Label();
         Label _end_if = new Label();
 
@@ -726,14 +745,11 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitInsn(ACONST_NULL);
         mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
 
-        mw.visitInsn(ICONST_0);
-        mw.visitVarInsn(ISTORE, context.var(fieldInfo.getName() + "_asm_flag"));
 
         mw.visitJumpInsn(GOTO, _end_if);
 
         mw.visitLabel(matched_);
-        mw.visitInsn(ICONST_1);
-        mw.visitVarInsn(ISTORE, context.var(fieldInfo.getName() + "_asm_flag"));
+        _setFlag(mw, context, i);
 
         Label notNull_ = new Label();
         mw.visitVarInsn(ALOAD, 0);
@@ -893,7 +909,7 @@ public class ASMDeserializerFactory implements Opcodes {
     }
 
     private void _deserialze_obj(Context context, MethodVisitor mw, Label reset_, FieldInfo fieldInfo,
-                                 Class<?> fieldClass) {
+                                 Class<?> fieldClass, int i) {
         Label matched_ = new Label();
         Label _end_if = new Label();
 
@@ -905,15 +921,11 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitInsn(ACONST_NULL);
         mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
 
-        mw.visitInsn(ICONST_0);
-        mw.visitVarInsn(ISTORE, context.var(fieldInfo.getName() + "_asm_flag"));
-
         mw.visitJumpInsn(GOTO, _end_if);
 
         mw.visitLabel(matched_);
 
-        mw.visitInsn(ICONST_1);
-        mw.visitVarInsn(ISTORE, context.var(fieldInfo.getName() + "_asm_flag"));
+        _setFlag(mw, context, i);
 
         // increment matchedCount
         mw.visitVarInsn(ILOAD, context.var("matchedCount"));
@@ -1161,6 +1173,10 @@ public class ASMDeserializerFactory implements Opcodes {
             }
             i = variants.get(name);
             return i.intValue();
+        }
+        
+        public boolean contains(String name) {
+            return variants.get(name) != null;
         }
     }
 

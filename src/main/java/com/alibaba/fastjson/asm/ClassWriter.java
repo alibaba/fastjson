@@ -538,7 +538,10 @@ public class ClassWriter {
      * @return a new or already existing constant item with the given value.
      */
     Item newConstItem(final Object cst) {
-        if (cst instanceof String) {
+        if (cst instanceof Integer) {
+            int val = ((Integer) cst).intValue();
+            return newInteger(val);
+        } else if (cst instanceof String) {
             return newString((String) cst);
         } else if (cst instanceof Type) {
             Type t = (Type) cst;
@@ -546,6 +549,17 @@ public class ClassWriter {
         } else {
             throw new IllegalArgumentException("value " + cst);
         }
+    }
+    
+    Item newInteger(final int value) {
+        key.set(value);
+        Item result = get(key);
+        if (result == null) {
+            pool.putByte(INT).putInt(value);
+            result = new Item(index++, key);
+            put(result);
+        }
+        return result;
     }
 
     public int newUTF8(final String value) {

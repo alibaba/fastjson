@@ -141,6 +141,17 @@ final class Item {
                 hashCode = 0x7FFFFFFF & (type + strVal1.hashCode() * strVal2.hashCode() * strVal3.hashCode());
         }
     }
+    
+    /**
+     * Sets this item to an integer item.
+     *
+     * @param intVal the value of this item.
+     */
+    void set(final int intVal) {
+        this.type = ClassWriter.INT;
+        this.intVal = intVal;
+        this.hashCode = 0x7FFFFFFF & (type + intVal);
+    }
 
     /**
      * Indicates if the given item is equal to this one. <i>This method assumes that the two items have the same

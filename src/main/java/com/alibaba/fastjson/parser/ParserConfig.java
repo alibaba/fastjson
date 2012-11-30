@@ -386,6 +386,10 @@ public class ParserConfig {
 
         if (asmEnable) {
             DeserializeBeanInfo beanInfo = DeserializeBeanInfo.computeSetters(clazz, type);
+            if (beanInfo.getFieldList().size() > 200) {
+                asmEnable = false;
+            }
+            
             for (FieldInfo fieldInfo : beanInfo.getFieldList()) {
                 if (fieldInfo.isGetOnly()) {
                     asmEnable = false;
@@ -416,6 +420,9 @@ public class ParserConfig {
 
         try {
             return ASMDeserializerFactory.getInstance().createJavaBeanDeserializer(this, clazz, type);
+//        } catch (VerifyError e) {
+//            e.printStackTrace();
+//            return new JavaBeanDeserializer(this, clazz, type);
         } catch (NoSuchMethodException error) {
             return new JavaBeanDeserializer(this, clazz, type);
         } catch (ASMException asmError) {

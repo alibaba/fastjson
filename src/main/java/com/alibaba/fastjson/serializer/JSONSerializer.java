@@ -408,11 +408,20 @@ public class JSONSerializer {
         ObjectSerializer writer = config.get(clazz);
 
         if (writer == null) {
-            final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            for (AutowiredObjectSerializer autowired : ServiceLoader.load(AutowiredObjectSerializer.class, classLoader)) {
-                for (Type forType : autowired.getAutowiredFor()) {
-                    config.put(forType, autowired);
+            try {
+                final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+                for (Object o : ServiceLoader.load(AutowiredObjectSerializer.class, classLoader)) {
+                    if (!(o instanceof AutowiredObjectSerializer)) {
+                        continue;
+                    }
+
+                    AutowiredObjectSerializer autowired = (AutowiredObjectSerializer) o;
+                    for (Type forType : autowired.getAutowiredFor()) {
+                        config.put(forType, autowired);
+                    }
                 }
+            } catch (ClassCastException ex) {
+                // skip
             }
 
             writer = config.get(clazz);
@@ -421,11 +430,20 @@ public class JSONSerializer {
         if (writer == null) {
             final ClassLoader classLoader = JSON.class.getClassLoader();
             if (classLoader != Thread.currentThread().getContextClassLoader()) {
-                for (AutowiredObjectSerializer autowired : ServiceLoader.load(AutowiredObjectSerializer.class,
-                                                                              classLoader)) {
-                    for (Type forType : autowired.getAutowiredFor()) {
-                        config.put(forType, autowired);
+                try {
+                    for (Object o : ServiceLoader.load(AutowiredObjectSerializer.class, classLoader)) {
+
+                        if (!(o instanceof AutowiredObjectSerializer)) {
+                            continue;
+                        }
+
+                        AutowiredObjectSerializer autowired = (AutowiredObjectSerializer) o;
+                        for (Type forType : autowired.getAutowiredFor()) {
+                            config.put(forType, autowired);
+                        }
                     }
+                } catch (ClassCastException ex) {
+                    // skip
                 }
 
                 writer = config.get(clazz);

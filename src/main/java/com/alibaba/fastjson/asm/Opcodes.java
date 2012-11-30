@@ -213,9 +213,9 @@ public interface Opcodes {
 //    int    LSHR                = 123;                    // -
 //    int    IUSHR               = 124;                    // -
 //    int    LUSHR               = 125;                    // -
-//    int    IAND                = 126;                    // -
+    int    IAND                = 126;                    // -
 //    int    LAND                = 127;                    // -
-//    int    IOR                 = 128;                    // -
+    int    IOR                 = 128;                    // -
 //    int    LOR                 = 129;                    // -
 //    int    IXOR                = 130;                    // -
 //    int    LXOR                = 131;                    // -

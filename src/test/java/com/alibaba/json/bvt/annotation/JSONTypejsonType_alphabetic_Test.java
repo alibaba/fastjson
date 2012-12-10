@@ -21,7 +21,7 @@ public class JSONTypejsonType_alphabetic_Test extends TestCase {
         b.setF0(101);
         b.setF1(102);
 
-        Assert.assertEquals("{\"f2\":0,\"f1\":102,\"f0\":101}", JSON.toJSONString(b));
+        Assert.assertFalse("{\"f2\":0,\"f1\":102,\"f0\":101}".equals(JSON.toJSONString(b)));
     }
 
     public void test_alphabetic_notSet() throws Exception {

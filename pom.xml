@@ -140,7 +140,7 @@
 			<plugin>
 				<artifactId>maven-gpg-plugin</artifactId>
 				<configuration>
-					<skip>${gpg.skip}</skip>
+					<skip>true</skip>
 				</configuration>
 				<executions>
 					<execution>

@@ -445,6 +445,10 @@ public class TypeUtils {
         if (obj == null) {
             return null;
         }
+        
+        if (clazz == null) {
+        	throw new IllegalArgumentException("clazz is null");
+        }
 
         if (clazz == obj.getClass()) {
             return (T) obj;
@@ -703,6 +707,10 @@ public class TypeUtils {
                     String className = (String) iClassObject;
 
                     clazz = (Class<T>) loadClass(className);
+                    
+                    if (clazz == null) {
+                    	throw new ClassNotFoundException(className + " not found");
+                    }
                 }
             }
 

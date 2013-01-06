@@ -136,6 +136,9 @@ public final class JSONScanner implements JSONLexer {
         bp = -1;
 
         ch = buf[++bp];
+        if (ch == 65279) {
+        	ch = buf[++bp];	
+        }
     }
 
     public boolean isResetFlag() {

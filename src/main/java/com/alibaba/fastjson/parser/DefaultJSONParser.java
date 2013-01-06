@@ -844,7 +844,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
         }
 
         if (lexer.token() != JSONToken.LBRACKET) {
-            throw new JSONException("syntax error, expect [, actual " + JSONToken.name(lexer.token()));
+            throw new JSONException("syntax error, expect [, actual " + JSONToken.name(lexer.token()) + ", pos " + lexer.pos());
         }
 
         lexer.nextToken(JSONToken.LITERAL_STRING);

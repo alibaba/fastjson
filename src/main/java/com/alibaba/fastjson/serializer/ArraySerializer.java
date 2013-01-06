@@ -23,10 +23,11 @@ import java.lang.reflect.Type;
  */
 public class ArraySerializer implements ObjectSerializer {
 
+	private final Class<?> componentType;
     private final ObjectSerializer compObjectSerializer;
 
-    public ArraySerializer(ObjectSerializer compObjectSerializer){
-        super();
+    public ArraySerializer(Class<?> componentType, ObjectSerializer compObjectSerializer){
+        this.componentType = componentType;
         this.compObjectSerializer = compObjectSerializer;
     }
 
@@ -46,37 +47,27 @@ public class ArraySerializer implements ObjectSerializer {
         Object[] array = (Object[]) object;
         int size = array.length;
 
-        int end = size - 1;
-
-        if (end == -1) {
-            out.append("[]");
-            return;
-        }
-
         SerialContext context = serializer.getContext();
         serializer.setContext(context, object, fieldName);
 
         try {
             out.append('[');
-            for (int i = 0; i < end; ++i) {
+            for (int i = 0; i < size; ++i) {
+            	if (i != 0) {
+            		out.append(',');
+            	}
                 Object item = array[i];
 
                 if (item == null) {
-                    out.append("null,");
+                    out.append("null");
+                } else if (item.getClass() == componentType) {
+                	compObjectSerializer.write(serializer, item, i, null);
                 } else {
-                    compObjectSerializer.write(serializer, item, i, null);
-                    out.append(',');
+                	ObjectSerializer itemSerializer = serializer.getObjectWriter(item.getClass());
+                	itemSerializer.write(serializer, item, i, null);
                 }
             }
-
-            Object item = array[end];
-
-            if (item == null) {
-                out.append("null]");
-            } else {
-                compObjectSerializer.write(serializer, item, end, null);
-                out.append(']');
-            }
+            out.append(']');
         } finally {
             serializer.setContext(context);
         }

@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 
 import com.alibaba.json.test.benchmark.encode.EishayEncode;
 import com.alibaba.json.test.codec.FastjsonCodec;
+import com.alibaba.json.test.codec.JacksonCodec;
 
 public class BenchmarkTest extends TestCase {
 
@@ -11,7 +12,7 @@ public class BenchmarkTest extends TestCase {
         // 注意，byte[]在jackson中是使用base64编码的，不正确的。
 
         BenchmarkExecutor executor = new BenchmarkExecutor();
-        executor.setExecuteCount(6);
+        executor.setExecuteCount(5);
         executor.getCodecList().add(new FastjsonCodec());
 //        executor.getCodecList().add(new JacksonCodec());
 //        executor.getCodecList().add(new Jackson2Codec());
@@ -20,7 +21,7 @@ public class BenchmarkTest extends TestCase {
         // executor.getCodecList().add(new JsonLibCodec());
         // executor.getCodecList().add(new JsonSmartCodec());
 
-        executor.setLoopCount(1000 * 1000);
+        executor.setLoopCount(1000 * 1000 * 100);
 
 //        executor.getCaseList().add(new EishayDecodeBytes());
 //        executor.getCaseList().add(new EishayDecode2Bytes());

@@ -43,6 +43,8 @@ public class BenchmarkExecutor {
     }
 
     public void execute() {
+    	System.out.println(System.getProperty("java.vm.name"));
+    	
         for (BenchmarkCase benchmarkCase : caseList) {
             for (Codec codec : codecList) {
                 for (int i = 0; i < executeCount; ++i) {
@@ -60,13 +62,14 @@ public class BenchmarkExecutor {
             return;
         }
         NumberFormat format = NumberFormat.getInstance();
-        System.out.println(result.getName() + "\t" + codec.getName() + "\t" + format.format(result.getMillis()) + "\tYoungGC " + result.getYoungGC()
-                           + "\tFullGC " + result.getFullGC());
+        System.out.println(result.getName() + "\t" + codec.getName() + "\t" + format.format(result.getMillis()) + "\tYGC " + result.getYoungGC()
+                           + "\tYGCT " + result.getYoungGCTime());
     }
 
     private Result executeLoop(Codec codec, BenchmarkCase benchmarkCase) {
         long startMillis = System.currentTimeMillis();
         long startYoungGC = getYoungGC();
+        long startYoungGCTime = getYoungGCTime();
         long startFullGC = getFullGC();
 
         Throwable error = null;
@@ -79,12 +82,14 @@ public class BenchmarkExecutor {
         }
         long time = System.currentTimeMillis() - startMillis;
         long youngGC = getYoungGC() - startYoungGC;
+        long youngGCTime = getYoungGCTime() - startYoungGCTime;
         long fullGC = getFullGC() - startFullGC;
 
         Result result = new Result();
         result.setName(benchmarkCase.getName());
         result.setMillis(time);
         result.setYoungGC(youngGC);
+        result.setYoungGCTime(youngGCTime);
         result.setFullGC(fullGC);
         result.setError(error);
 
@@ -93,12 +98,16 @@ public class BenchmarkExecutor {
 
     public long getYoungGC() {
         try {
+        	// java.lang:type=GarbageCollector,name=G1 Young Generation
+        	// java.lang:type=GarbageCollector,name=G1 Old Generation
             MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
             ObjectName objectName;
             if (mbeanServer.isRegistered(new ObjectName("java.lang:type=GarbageCollector,name=ParNew"))) {
                 objectName = new ObjectName("java.lang:type=GarbageCollector,name=ParNew");
             } else if (mbeanServer.isRegistered(new ObjectName("java.lang:type=GarbageCollector,name=Copy"))) {
                 objectName = new ObjectName("java.lang:type=GarbageCollector,name=Copy");
+            } else if (mbeanServer.isRegistered(new ObjectName("java.lang:type=GarbageCollector,name=G1 Young Generation"))) {
+                objectName = new ObjectName("java.lang:type=GarbageCollector,name=G1 Young Generation");
             } else {
                 objectName = new ObjectName("java.lang:type=GarbageCollector,name=PS Scavenge");
             }
@@ -106,6 +115,26 @@ public class BenchmarkExecutor {
             return (Long) mbeanServer.getAttribute(objectName, "CollectionCount");
         } catch (Exception e) {
             throw new RuntimeException("error");
+        }
+    }
+    
+    public long getYoungGCTime() {
+        try {
+            MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
+            ObjectName objectName;
+            if (mbeanServer.isRegistered(new ObjectName("java.lang:type=GarbageCollector,name=ParNew"))) {
+                objectName = new ObjectName("java.lang:type=GarbageCollector,name=ParNew");
+            } else if (mbeanServer.isRegistered(new ObjectName("java.lang:type=GarbageCollector,name=Copy"))) {
+                objectName = new ObjectName("java.lang:type=GarbageCollector,name=Copy");
+            } else if (mbeanServer.isRegistered(new ObjectName("java.lang:type=GarbageCollector,name=G1 Young Generation"))) {
+                objectName = new ObjectName("java.lang:type=GarbageCollector,name=G1 Young Generation");
+            } else {
+                objectName = new ObjectName("java.lang:type=GarbageCollector,name=PS Scavenge");
+            }
+
+            return (Long) mbeanServer.getAttribute(objectName, "CollectionTime");
+        } catch (Exception e) {
+            throw new RuntimeException("error", e);
         }
     }
 
@@ -118,6 +147,8 @@ public class BenchmarkExecutor {
                 objectName = new ObjectName("java.lang:type=GarbageCollector,name=ConcurrentMarkSweep");
             } else if (mbeanServer.isRegistered(new ObjectName("java.lang:type=GarbageCollector,name=MarkSweepCompact"))) {
                 objectName = new ObjectName("java.lang:type=GarbageCollector,name=MarkSweepCompact");
+            } else if (mbeanServer.isRegistered(new ObjectName("java.lang:type=GarbageCollector,name=G1 Old Generation"))) {
+                objectName = new ObjectName("java.lang:type=GarbageCollector,name=G1 Old Generation");
             } else {
                 objectName = new ObjectName("java.lang:type=GarbageCollector,name=PS MarkSweep");
             }
@@ -133,6 +164,7 @@ public class BenchmarkExecutor {
         private String    name;
         private long      millis;
         private long      youngGC;
+        private long      youngGCTime;
         private long      fullGC;
         private Throwable error;
 
@@ -158,6 +190,14 @@ public class BenchmarkExecutor {
 
         public void setYoungGC(long youngGC) {
             this.youngGC = youngGC;
+        }
+        
+        public long getYoungGCTime() {
+            return youngGCTime;
+        }
+
+        public void setYoungGCTime(long youngGCTime) {
+            this.youngGCTime = youngGCTime;
         }
 
         public long getFullGC() {

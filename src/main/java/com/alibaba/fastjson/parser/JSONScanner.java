@@ -816,7 +816,7 @@ public final class JSONScanner implements JSONLexer {
     public int scanType(String type) {
         matchStat = UNKOWN;
 
-        if (!charArrayCompary(buf, bp, typeFieldName)) {
+        if (!charArrayCompare(buf, bp, typeFieldName)) {
         	return NOT_MATCH_NAME;
         }
 
@@ -864,7 +864,7 @@ public final class JSONScanner implements JSONLexer {
     }
 
     public boolean matchField(char[] fieldName) {
-        if (!charArrayCompary(buf, bp, fieldName)) {
+        if (!charArrayCompare(buf, bp, fieldName)) {
         	return false;
         }
 
@@ -887,7 +887,7 @@ public final class JSONScanner implements JSONLexer {
     public int matchStat = UNKOWN;
     
     // sun.misc.Unsafe.byteArrayCompare(byte[], int, int, byte[], int, int)
-    static final boolean charArrayCompary(char[] src, int offset, char[] dest) {
+    static final boolean charArrayCompare(char[] src, int offset, char[] dest) {
     	final int destLen = dest.length;
 //    	if (destLen + offset > src.length) {
 //    		return false;
@@ -914,7 +914,7 @@ public final class JSONScanner implements JSONLexer {
 //            }
 //        }
         
-        if (!charArrayCompary(buf, bp, fieldName)) {
+        if (!charArrayCompare(buf, bp, fieldName)) {
         	matchStat = NOT_MATCH_NAME;
             return stringDefaultValue();
         }
@@ -987,7 +987,7 @@ public final class JSONScanner implements JSONLexer {
     public String scanFieldSymbol(char[] fieldName, final SymbolTable symbolTable) {
         matchStat = UNKOWN;
 
-        if (!charArrayCompary(buf, bp, fieldName)) {
+        if (!charArrayCompare(buf, bp, fieldName)) {
         	matchStat = NOT_MATCH_NAME;
             return null;
         }
@@ -1058,7 +1058,7 @@ public final class JSONScanner implements JSONLexer {
     public Collection<String> scanFieldStringArray(char[] fieldName, Class<?> type) {
         matchStat = UNKOWN;
 
-        if (!charArrayCompary(buf, bp, fieldName)) {
+        if (!charArrayCompare(buf, bp, fieldName)) {
             matchStat = NOT_MATCH_NAME;
             return null;
         }
@@ -1160,7 +1160,7 @@ public final class JSONScanner implements JSONLexer {
     public int scanFieldInt(char[] fieldName) {
         matchStat = UNKOWN;
 
-        if (!charArrayCompary(buf, bp, fieldName)) {
+        if (!charArrayCompare(buf, bp, fieldName)) {
             matchStat = NOT_MATCH_NAME;
             return 0;
         }
@@ -1226,7 +1226,7 @@ public final class JSONScanner implements JSONLexer {
     public boolean scanFieldBoolean(char[] fieldName) {
         matchStat = UNKOWN;
 
-        if (!charArrayCompary(buf, bp, fieldName)) {
+        if (!charArrayCompare(buf, bp, fieldName)) {
             matchStat = NOT_MATCH_NAME;
             return false;
         }
@@ -1312,7 +1312,7 @@ public final class JSONScanner implements JSONLexer {
     public long scanFieldLong(char[] fieldName) {
         matchStat = UNKOWN;
 
-        if (!charArrayCompary(buf, bp, fieldName)) {
+        if (!charArrayCompare(buf, bp, fieldName)) {
             matchStat = NOT_MATCH_NAME;
             return 0;
         }
@@ -1379,7 +1379,7 @@ public final class JSONScanner implements JSONLexer {
     public float scanFieldFloat(char[] fieldName) {
         matchStat = UNKOWN;
 
-        if (!charArrayCompary(buf, bp, fieldName)) {
+        if (!charArrayCompare(buf, bp, fieldName)) {
             matchStat = NOT_MATCH_NAME;
             return 0;
         }
@@ -1463,7 +1463,7 @@ public final class JSONScanner implements JSONLexer {
     public double scanFieldDouble(char[] fieldName) {
         matchStat = UNKOWN;
 
-        if (!charArrayCompary(buf, bp, fieldName)) {
+        if (!charArrayCompare(buf, bp, fieldName)) {
             matchStat = NOT_MATCH_NAME;
             return 0;
         }

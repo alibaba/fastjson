@@ -928,8 +928,8 @@ public final class JSONScanner implements JSONLexer {
             return stringDefaultValue();
         }
 
-        String strVal;
-        int start = index;
+        final String strVal;
+        final int start = index;
         for (;;) {
             ch = buf[index++];
             if (ch == '\"') {

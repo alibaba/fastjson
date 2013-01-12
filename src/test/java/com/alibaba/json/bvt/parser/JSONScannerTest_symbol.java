@@ -19,10 +19,10 @@ public class JSONScannerTest_symbol extends TestCase {
 
         JSONScanner lexer = new JSONScanner("\"name\"");
         String symbol = lexer.scanSymbol(symbolTable, '"');
-        Assert.assertTrue("name" == symbol);
+        Assert.assertTrue("name".equals(symbol));
 
         String symbol2 = lexer.symbol(symbolTable);
-        Assert.assertTrue("name" == symbol2);
+        Assert.assertTrue("name".equals(symbol2));
     }
 
     public void test_0_1() throws Exception {
@@ -31,7 +31,7 @@ public class JSONScannerTest_symbol extends TestCase {
         JSONScanner lexer = new JSONScanner("\"name\"");
         lexer.scanString();
         String symbol = lexer.symbol(symbolTable);
-        Assert.assertTrue("name" == symbol);
+        Assert.assertTrue("name".equals(symbol));
 
         Assert.assertTrue("name" != lexer.symbol(null));
     }
@@ -41,7 +41,7 @@ public class JSONScannerTest_symbol extends TestCase {
 
         JSONScanner lexer = new JSONScanner("\"nick name\"");
         String symbol = lexer.scanSymbol(symbolTable, '"');
-        Assert.assertTrue("nick name" == symbol);
+        Assert.assertTrue("nick name".equals(symbol));
     }
 
     public void test_2() throws Exception {

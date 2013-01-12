@@ -54,15 +54,15 @@ public class DefaultExtJSONParserTest_1 extends TestCase {
             parser.parseObject(b);
         }
 
-        Assert.assertEquals(a.isF1(), b.isF1());
-        Assert.assertEquals(a.getF2(), b.getF2());
-        Assert.assertEquals(a.getF3(), b.getF3());
-        Assert.assertEquals(a.getF4(), b.getF4());
-        Assert.assertEquals(a.getF5(), b.getF5());
-        Assert.assertEquals(a.getF6(), b.getF6());
-        Assert.assertEquals(a.getF7(), b.getF7());
-        Assert.assertEquals(a.getF8(), b.getF8());
-        Assert.assertEquals(a.getF9(), b.getF9());
+        Assert.assertEquals("f1", a.isF1(), b.isF1());
+        Assert.assertEquals("f2", a.getF2(), b.getF2());
+        Assert.assertEquals("f3", a.getF3(), b.getF3());
+        Assert.assertEquals("f4", a.getF4(), b.getF4());
+        Assert.assertEquals("f5", a.getF5(), b.getF5());
+        Assert.assertEquals("f6", a.getF6(), b.getF6());
+        Assert.assertEquals("f7", a.getF7(), b.getF7());
+        Assert.assertEquals("f8", a.getF8(), b.getF8());
+        Assert.assertEquals("f9", a.getF9(), b.getF9());
         Assert.assertEquals(a.getF10(), b.getF10());
         Assert.assertEquals(a.getF11(), b.getF11());
         Assert.assertEquals(a.getF12(), b.getF12());

@@ -50,9 +50,8 @@ public final class JSONScanner implements JSONLexer {
 
     public final static byte                                EOI          = 0x1A;
 
-    private final char[]                                    buf;
+    private final String                                    text;
     private int                                             bp;
-    private final int                                       buflen;
     private int                                             eofPos;
 
     /**
@@ -98,14 +97,6 @@ public final class JSONScanner implements JSONLexer {
     }
 
     public JSONScanner(String input, int features){
-        this(input.toCharArray(), input.length(), features);
-    }
-
-    public JSONScanner(char[] input, int inputLength){
-        this(input, inputLength, JSON.DEFAULT_PARSER_FEATURE);
-    }
-
-    public JSONScanner(char[] input, int inputLength, int features){
         this.features = features;
 
         SoftReference<char[]> sbufRef = sbufRefLocal.get();
@@ -119,26 +110,29 @@ public final class JSONScanner implements JSONLexer {
             sbuf = new char[64];
         }
 
-        eofPos = inputLength;
-
-        if (inputLength == input.length) {
-            if (input.length > 0 && isWhitespace(input[input.length - 1])) {
-                inputLength--;
-            } else {
-                char[] newInput = new char[inputLength + 1];
-                System.arraycopy(input, 0, newInput, 0, input.length);
-                input = newInput;
-            }
-        }
-        buf = input;
-        buflen = inputLength;
-        buf[buflen] = EOI;
+        text = input;
         bp = -1;
 
-        ch = buf[++bp];
+        ch = charAt(++bp);
         if (ch == 65279) {
-        	ch = buf[++bp];	
+            ch = charAt(++bp);
         }
+    }
+    
+    public final char charAt(int index) {
+        if (index >= text.length()) {
+            return EOI;
+        }
+
+        return text.charAt(index);
+    }
+
+    public JSONScanner(char[] input, int inputLength){
+        this(input, inputLength, JSON.DEFAULT_PARSER_FEATURE);
+    }
+
+    public JSONScanner(char[] input, int inputLength, int features){
+        this (new String(input, 0, inputLength), features);
     }
 
     public boolean isResetFlag() {
@@ -163,8 +157,8 @@ public final class JSONScanner implements JSONLexer {
     }
 
     public boolean isBlankInput() {
-        for (int i = 0; i < buflen; ++i) {
-            if (!isWhitespace(buf[i])) {
+        for (int i = 0; i < text.length(); ++i) {
+            if (!isWhitespace(charAt(i))) {
                 return false;
             }
         }
@@ -208,7 +202,7 @@ public final class JSONScanner implements JSONLexer {
     public final void skipWhitespace() {
         for (;;) {
             if (whitespaceFlags[ch]) {
-                ch = buf[++bp];
+                ch = charAt(++bp);
                 continue;
             } else {
                 break;
@@ -223,13 +217,13 @@ public final class JSONScanner implements JSONLexer {
     public final void nextTokenWithColon() {
         for (;;) {
             if (ch == ':') {
-                ch = buf[++bp];
+                ch = charAt(++bp);
                 nextToken();
                 return;
             }
 
             if (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b') {
-                ch = buf[++bp];
+                ch = charAt(++bp);
                 continue;
             }
 
@@ -240,12 +234,12 @@ public final class JSONScanner implements JSONLexer {
     public final void nextTokenWithColon(int expect) {
         for (;;) {
             if (ch == ':') {
-                ch = buf[++bp];
+                ch = charAt(++bp);
                 break;
             }
 
             if (isWhitespace(ch)) {
-                ch = buf[++bp];
+                ch = charAt(++bp);
                 continue;
             }
 
@@ -285,30 +279,30 @@ public final class JSONScanner implements JSONLexer {
             } else if (expect == JSONToken.LBRACE) {
                 if (ch == '{') {
                     token = JSONToken.LBRACE;
-                    ch = buf[++bp];
+                    ch = charAt(++bp);
                     return;
                 }
                 if (ch == '[') {
                     token = JSONToken.LBRACKET;
-                    ch = buf[++bp];
+                    ch = charAt(++bp);
                     return;
                 }
             } else if (expect == JSONToken.LBRACKET) {
                 if (ch == '[') {
                     token = JSONToken.LBRACKET;
-                    ch = buf[++bp];
+                    ch = charAt(++bp);
                     return;
                 }
 
                 if (ch == '{') {
                     token = JSONToken.LBRACE;
-                    ch = buf[++bp];
+                    ch = charAt(++bp);
                     return;
                 }
             }
 
             if (isWhitespace(ch)) {
-                ch = buf[++bp];
+                ch = charAt(++bp);
                 continue;
             }
 
@@ -318,7 +312,7 @@ public final class JSONScanner implements JSONLexer {
     }
 
     public final void incrementBufferPosition() {
-        ch = buf[++bp];
+        ch = charAt(++bp);
     }
 
     public final void resetStringPosition() {
@@ -331,31 +325,31 @@ public final class JSONScanner implements JSONLexer {
                 case JSONToken.LBRACE:
                     if (ch == '{') {
                         token = JSONToken.LBRACE;
-                        ch = buf[++bp];
+                        ch = charAt(++bp);
                         return;
                     }
                     if (ch == '[') {
                         token = JSONToken.LBRACKET;
-                        ch = buf[++bp];
+                        ch = charAt(++bp);
                         return;
                     }
                     break;
                 case JSONToken.COMMA:
                     if (ch == ',') {
                         token = JSONToken.COMMA;
-                        ch = buf[++bp];
+                        ch = charAt(++bp);
                         return;
                     }
 
                     if (ch == '}') {
                         token = JSONToken.RBRACE;
-                        ch = buf[++bp];
+                        ch = charAt(++bp);
                         return;
                     }
 
                     if (ch == ']') {
                         token = JSONToken.RBRACKET;
-                        ch = buf[++bp];
+                        ch = charAt(++bp);
                         return;
                     }
 
@@ -381,13 +375,13 @@ public final class JSONScanner implements JSONLexer {
 
                     if (ch == '[') {
                         token = JSONToken.LBRACKET;
-                        ch = buf[++bp];
+                        ch = charAt(++bp);
                         return;
                     }
 
                     if (ch == '{') {
                         token = JSONToken.LBRACE;
-                        ch = buf[++bp];
+                        ch = charAt(++bp);
                         return;
                     }
 
@@ -409,33 +403,33 @@ public final class JSONScanner implements JSONLexer {
 
                     if (ch == '[') {
                         token = JSONToken.LBRACKET;
-                        ch = buf[++bp];
+                        ch = charAt(++bp);
                         return;
                     }
 
                     if (ch == '{') {
                         token = JSONToken.LBRACE;
-                        ch = buf[++bp];
+                        ch = charAt(++bp);
                         return;
                     }
                     break;
                 case JSONToken.LBRACKET:
                     if (ch == '[') {
                         token = JSONToken.LBRACKET;
-                        ch = buf[++bp];
+                        ch = charAt(++bp);
                         return;
                     }
 
                     if (ch == '{') {
                         token = JSONToken.LBRACE;
-                        ch = buf[++bp];
+                        ch = charAt(++bp);
                         return;
                     }
                     break;
                 case JSONToken.RBRACKET:
                     if (ch == ']') {
                         token = JSONToken.RBRACKET;
-                        ch = buf[++bp];
+                        ch = charAt(++bp);
                         return;
                     }
                 case JSONToken.EOF:
@@ -449,7 +443,7 @@ public final class JSONScanner implements JSONLexer {
             }
 
             if (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b') {
-                ch = buf[++bp];
+                ch = charAt(++bp);
                 continue;
             }
 
@@ -470,7 +464,7 @@ public final class JSONScanner implements JSONLexer {
             }
 
             if (ch == ',') {
-                ch = buf[++bp];
+                ch = charAt(++bp);
                 token = COMMA;
                 return;
             }
@@ -498,7 +492,7 @@ public final class JSONScanner implements JSONLexer {
                 case '\f':
                 case '\n':
                 case '\r':
-                    ch = buf[++bp];
+                    ch = charAt(++bp);
                     break;
                 case 't': // true
                     scanTrue();
@@ -519,35 +513,35 @@ public final class JSONScanner implements JSONLexer {
                     scanIdent();
                     return;
                 case '(':
-                    ch = buf[++bp];
+                    ch = charAt(++bp);
                     token = LPAREN;
                     return;
                 case ')':
-                    ch = buf[++bp];
+                    ch = charAt(++bp);
                     token = RPAREN;
                     return;
                 case '[':
-                    ch = buf[++bp];
+                    ch = charAt(++bp);
                     token = LBRACKET;
                     return;
                 case ']':
-                    ch = buf[++bp];
+                    ch = charAt(++bp);
                     token = RBRACKET;
                     return;
                 case '{':
-                    ch = buf[++bp];
+                    ch = charAt(++bp);
                     token = LBRACE;
                     return;
                 case '}':
-                    ch = buf[++bp];
+                    ch = charAt(++bp);
                     token = RBRACE;
                     return;
                 case ':':
-                    ch = buf[++bp];
+                    ch = charAt(++bp);
                     token = COLON;
                     return;
                 default:
-                    if (bp == buflen || ch == EOI && bp + 1 == buflen) { // JLS
+                    if (bp == text.length() || ch == EOI && bp + 1 == text.length()) { // JLS
                         if (token == EOF) {
                             throw new JSONException("EOF error");
                         }
@@ -556,7 +550,7 @@ public final class JSONScanner implements JSONLexer {
                         pos = bp = eofPos;
                     } else {
                         lexError("illegal.char", String.valueOf((int) ch));
-                        ch = buf[++bp];
+                        ch = charAt(++bp);
                     }
 
                     return;
@@ -572,7 +566,7 @@ public final class JSONScanner implements JSONLexer {
         hasSpecial = false;
         char ch;
         for (;;) {
-            ch = buf[++bp];
+            ch = charAt(++bp);
 
             if (ch == '\'') {
                 break;
@@ -592,10 +586,11 @@ public final class JSONScanner implements JSONLexer {
                         sbuf = newsbuf;
                     }
 
-                    System.arraycopy(buf, np + 1, sbuf, 0, sp);
+                    text.getChars(np + 1, np + 1 + sp, sbuf, 0);
+//                    System.arraycopy(buf, np + 1, sbuf, 0, sp);
                 }
 
-                ch = buf[++bp];
+                ch = charAt(++bp);
 
                 switch (ch) {
                     case '"':
@@ -627,18 +622,18 @@ public final class JSONScanner implements JSONLexer {
                         putChar('\t');
                         break;
                     case 'x':
-                        char x1 = ch = buf[++bp];
-                        char x2 = ch = buf[++bp];
+                        char x1 = ch = charAt(++bp);
+                        char x2 = ch = charAt(++bp);
 
                         int x_val = digits[x1] * 16 + digits[x2];
                         char x_char = (char) x_val;
                         putChar(x_char);
                         break;
                     case 'u':
-                        char c1 = ch = buf[++bp];
-                        char c2 = ch = buf[++bp];
-                        char c3 = ch = buf[++bp];
-                        char c4 = ch = buf[++bp];
+                        char c1 = ch = charAt(++bp);
+                        char c2 = ch = charAt(++bp);
+                        char c3 = ch = charAt(++bp);
+                        char c4 = ch = charAt(++bp);
                         int val = Integer.parseInt(new String(new char[] { c1, c2, c3, c4 }), 16);
                         putChar((char) val);
                         break;
@@ -662,7 +657,7 @@ public final class JSONScanner implements JSONLexer {
         }
 
         token = LITERAL_STRING;
-        this.ch = buf[++bp];
+        this.ch = charAt(++bp);
     }
 
     public final void scanString() {
@@ -670,7 +665,7 @@ public final class JSONScanner implements JSONLexer {
         hasSpecial = false;
         char ch;
         for (;;) {
-            ch = buf[++bp];
+            ch = charAt(++bp);
 
             if (ch == '\"') {
                 break;
@@ -690,10 +685,11 @@ public final class JSONScanner implements JSONLexer {
                         sbuf = newsbuf;
                     }
 
-                    System.arraycopy(buf, np + 1, sbuf, 0, sp);
+                    text.getChars(np + 1, np + 1 + sp, sbuf, 0);
+//                  System.arraycopy(buf, np + 1, sbuf, 0, sp);
                 }
 
-                ch = buf[++bp];
+                ch = charAt(++bp);
 
                 switch (ch) {
                     case '"':
@@ -722,18 +718,18 @@ public final class JSONScanner implements JSONLexer {
                         putChar('\t');
                         break;
                     case 'x':
-                        char x1 = ch = buf[++bp];
-                        char x2 = ch = buf[++bp];
+                        char x1 = ch = charAt(++bp);
+                        char x2 = ch = charAt(++bp);
 
                         int x_val = digits[x1] * 16 + digits[x2];
                         char x_char = (char) x_val;
                         putChar(x_char);
                         break;
                     case 'u':
-                        char u1 = ch = buf[++bp];
-                        char u2 = ch = buf[++bp];
-                        char u3 = ch = buf[++bp];
-                        char u4 = ch = buf[++bp];
+                        char u1 = ch = charAt(++bp);
+                        char u2 = ch = charAt(++bp);
+                        char u3 = ch = charAt(++bp);
+                        char u4 = ch = charAt(++bp);
                         int val = Integer.parseInt(new String(new char[] { u1, u2, u3, u4 }), 16);
                         putChar((char) val);
                         break;
@@ -757,7 +753,7 @@ public final class JSONScanner implements JSONLexer {
         }
 
         token = LITERAL_STRING;
-        this.ch = buf[++bp];
+        this.ch = charAt(++bp);
     }
 
     public final String scanSymbolUnQuoted(final SymbolTable symbolTable) {
@@ -777,7 +773,7 @@ public final class JSONScanner implements JSONLexer {
         sp = 1;
         char ch;
         for (;;) {
-            ch = buf[++bp];
+            ch = charAt(++bp);
 
             if (ch < identifierFlags.length) {
                 if (!identifierFlags[ch]) {
@@ -791,16 +787,18 @@ public final class JSONScanner implements JSONLexer {
             continue;
         }
 
-        this.ch = buf[bp];
+        this.ch = charAt(bp);
         token = JSONToken.IDENTIFIER;
 
         final int NULL_HASH = 3392903;
-        if (sp == 4 && hash == NULL_HASH && buf[np] == 'n' && buf[np + 1] == 'u' && buf[np + 2] == 'l'
-            && buf[np + 3] == 'l') {
+        if (sp == 4 && hash == NULL_HASH && charAt(np) == 'n' && charAt(np + 1) == 'u' && charAt(np + 2) == 'l'
+            && charAt(np + 3) == 'l') {
             return null;
         }
+        
+        return text.substring(np, np + sp).intern();
 
-        return symbolTable.addSymbol(buf, np, sp, hash);
+//        return symbolTable.addSymbol(buf, np, sp, hash);
     }
 
     public final static int     NOT_MATCH      = -1;
@@ -816,41 +814,41 @@ public final class JSONScanner implements JSONLexer {
     public int scanType(String type) {
         matchStat = UNKOWN;
 
-        if (!charArrayCompare(buf, bp, typeFieldName)) {
-        	return NOT_MATCH_NAME;
+        if (!charArrayCompare(text, bp, typeFieldName)) {
+            return NOT_MATCH_NAME;
         }
 
         int bp = this.bp + typeFieldName.length;
 
         final int typeLength = type.length();
         for (int i = 0; i < typeLength; ++i) {
-            if (type.charAt(i) != buf[bp + i]) {
+            if (type.charAt(i) != charAt(bp + i)) {
                 return NOT_MATCH;
             }
         }
         bp += typeLength;
-        if (buf[bp] != '"') {
+        if (charAt(bp) != '"') {
             return NOT_MATCH;
         }
 
-        this.ch = buf[++bp];
+        this.ch = charAt(++bp);
 
         if (ch == ',') {
-            this.ch = buf[++bp];
+            this.ch = charAt(++bp);
             this.bp = bp;
             token = JSONToken.COMMA;
             return VALUE;
         } else if (ch == '}') {
-            ch = buf[++bp];
+            ch = charAt(++bp);
             if (ch == ',') {
                 token = JSONToken.COMMA;
-                this.ch = buf[++bp];
+                this.ch = charAt(++bp);
             } else if (ch == ']') {
                 token = JSONToken.RBRACKET;
-                this.ch = buf[++bp];
+                this.ch = charAt(++bp);
             } else if (ch == '}') {
                 token = JSONToken.RBRACE;
-                this.ch = buf[++bp];
+                this.ch = charAt(++bp);
             } else if (ch == EOI) {
                 token = JSONToken.EOF;
             } else {
@@ -864,18 +862,18 @@ public final class JSONScanner implements JSONLexer {
     }
 
     public boolean matchField(char[] fieldName) {
-        if (!charArrayCompare(buf, bp, fieldName)) {
-        	return false;
+        if (!charArrayCompare(text, bp, fieldName)) {
+            return false;
         }
 
         bp = bp + fieldName.length;
-        ch = buf[bp];
+        ch = charAt(bp);
 
         if (ch == '{') {
-            ch = buf[++bp];
+            ch = charAt(++bp);
             token = JSONToken.LBRACE;
         } else if (ch == '[') {
-            ch = buf[++bp];
+            ch = charAt(++bp);
             token = JSONToken.LBRACKET;
         } else {
             nextToken();
@@ -885,82 +883,134 @@ public final class JSONScanner implements JSONLexer {
     }
 
     public int matchStat = UNKOWN;
-    
+
     // sun.misc.Unsafe.byteArrayCompare(byte[], int, int, byte[], int, int)
     static final boolean charArrayCompare(char[] src, int offset, char[] dest) {
-    	final int destLen = dest.length;
-//    	if (destLen + offset > src.length) {
-//    		return false;
-//    	}
-    	
-    	for (int i = 0; i < destLen; ++i) {
-    		if (dest[i] != src[offset + i]) {
-    			return false;
-    		}
-    	}
-    	
-    	return true;
+        final int destLen = dest.length;
+        // if (destLen + offset > src.length) {
+        // return false;
+        // }
+
+        for (int i = 0; i < destLen; ++i) {
+            if (dest[i] != src[offset + i]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+    
+    static final boolean charArrayCompare(String src, int offset, char[] dest) {
+        final int destLen = dest.length;
+         if (destLen + offset > src.length()) {
+             return false;
+         }
+
+        for (int i = 0; i < destLen; ++i) {
+            if (dest[i] != src.charAt(offset + i)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public String scanFieldString(char[] fieldName) {
         matchStat = UNKOWN;
 
-//        final int fieldNameLength = fieldName.length;
-//        for (int i = 0; i < fieldNameLength; ++i) {
-//            if (fieldName[i] != buf[bp + i]) {
-//                matchStat = NOT_MATCH_NAME;
-//
-//                return stringDefaultValue();
-//            }
-//        }
-        
-        if (!charArrayCompare(buf, bp, fieldName)) {
-        	matchStat = NOT_MATCH_NAME;
+        // final int fieldNameLength = fieldName.length;
+        // for (int i = 0; i < fieldNameLength; ++i) {
+        // if (fieldName[i] != buf[bp + i]) {
+        // matchStat = NOT_MATCH_NAME;
+        //
+        // return stringDefaultValue();
+        // }
+        // }
+
+        if (!charArrayCompare(text, bp, fieldName)) {
+            matchStat = NOT_MATCH_NAME;
             return stringDefaultValue();
         }
 
         int index = bp + fieldName.length;
 
-        char ch = buf[index++];
+        char ch = charAt(index++);
         if (ch != '"') {
             matchStat = NOT_MATCH;
 
             return stringDefaultValue();
         }
-
+        
+        boolean hasSpecial = false;
         final String strVal;
-        final int start = index;
-        for (;;) {
-            ch = buf[index++];
-            if (ch == '\"') {
-                bp = index;
-                this.ch = ch = buf[bp];
-                strVal = new String(buf, start, index - start - 1);
-                break;
+        {
+            int startIndex = index;
+            int endIndex = text.indexOf('"', startIndex);
+            if (endIndex == -1) {
+                throw new JSONException("unclosed str");
             }
 
-            if (ch == '\\') {
+            String stringVal = subString(startIndex, endIndex - startIndex);
+            for (int i = 0; i < stringVal.length(); ++i) {
+                if (stringVal.charAt(i) == '\\') {
+                    hasSpecial = true;
+                    break;
+                }
+            }
+            
+            if (hasSpecial) {
                 matchStat = NOT_MATCH;
 
                 return stringDefaultValue();
             }
+
+            bp = endIndex + 1;
+            this.ch = ch = charAt(bp);
+            strVal = stringVal;
+//                this.stringVal = stringVal;
+//                int pos = endIndex + 1;
+//                char ch = charAt(pos);
+//                if (ch != '\'') {
+//                    this.pos = pos;
+//                    this.ch = ch;
+//                    token = LITERAL_CHARS;
+//                    return;
+//                }
         }
 
+//        final int start = index;
+//        for (;;) {
+//            ch = charAt(index++);
+//            if (ch == '\"') {
+//                bp = index;
+//                this.ch = ch = charAt(bp);
+//                strVal = text.substring(start, index - 1);
+////                strVal = new String(buf, start, index - start - 1);
+//                break;
+//            }
+//
+//            if (ch == '\\') {
+//                matchStat = NOT_MATCH;
+//
+//                return stringDefaultValue();
+//            }
+//        }
+
         if (ch == ',') {
-            this.ch = buf[++bp];
+            this.ch = charAt(++bp);
             matchStat = VALUE;
             return strVal;
         } else if (ch == '}') {
-            ch = buf[++bp];
+            ch = charAt(++bp);
             if (ch == ',') {
                 token = JSONToken.COMMA;
-                this.ch = buf[++bp];
+                this.ch = charAt(++bp);
             } else if (ch == ']') {
                 token = JSONToken.RBRACKET;
-                this.ch = buf[++bp];
+                this.ch = charAt(++bp);
             } else if (ch == '}') {
                 token = JSONToken.RBRACE;
-                this.ch = buf[++bp];
+                this.ch = charAt(++bp);
             } else if (ch == EOI) {
                 token = JSONToken.EOF;
             } else {
@@ -987,14 +1037,14 @@ public final class JSONScanner implements JSONLexer {
     public String scanFieldSymbol(char[] fieldName, final SymbolTable symbolTable) {
         matchStat = UNKOWN;
 
-        if (!charArrayCompare(buf, bp, fieldName)) {
-        	matchStat = NOT_MATCH_NAME;
+        if (!charArrayCompare(text, bp, fieldName)) {
+            matchStat = NOT_MATCH_NAME;
             return null;
         }
 
         int index = bp + fieldName.length;
 
-        char ch = buf[index++];
+        char ch = charAt(index++);
         if (ch != '"') {
             matchStat = NOT_MATCH;
             return null;
@@ -1004,11 +1054,12 @@ public final class JSONScanner implements JSONLexer {
         int start = index;
         int hash = 0;
         for (;;) {
-            ch = buf[index++];
+            ch = charAt(index++);
             if (ch == '\"') {
                 bp = index;
-                this.ch = ch = buf[bp];
-                strVal = symbolTable.addSymbol(buf, start, index - start - 1, hash);
+                this.ch = ch = charAt(bp);
+//                strVal = text.substring(start, index - 1).intern();
+                strVal = symbolTable.addSymbol(text, start, index - start - 1, hash);
                 break;
             }
 
@@ -1021,20 +1072,20 @@ public final class JSONScanner implements JSONLexer {
         }
 
         if (ch == ',') {
-            this.ch = buf[++bp];
+            this.ch = charAt(++bp);
             matchStat = VALUE;
             return strVal;
         } else if (ch == '}') {
-            ch = buf[++bp];
+            ch = charAt(++bp);
             if (ch == ',') {
                 token = JSONToken.COMMA;
-                this.ch = buf[++bp];
+                this.ch = charAt(++bp);
             } else if (ch == ']') {
                 token = JSONToken.RBRACKET;
-                this.ch = buf[++bp];
+                this.ch = charAt(++bp);
             } else if (ch == '}') {
                 token = JSONToken.RBRACE;
-                this.ch = buf[++bp];
+                this.ch = charAt(++bp);
             } else if (ch == EOI) {
                 token = JSONToken.EOF;
             } else {
@@ -1058,11 +1109,11 @@ public final class JSONScanner implements JSONLexer {
     public Collection<String> scanFieldStringArray(char[] fieldName, Class<?> type) {
         matchStat = UNKOWN;
 
-        if (!charArrayCompare(buf, bp, fieldName)) {
+        if (!charArrayCompare(text, bp, fieldName)) {
             matchStat = NOT_MATCH_NAME;
             return null;
         }
-        
+
         Collection<String> list;
 
         if (type.isAssignableFrom(HashSet.class)) {
@@ -1079,14 +1130,14 @@ public final class JSONScanner implements JSONLexer {
 
         int index = bp + fieldName.length;
 
-        char ch = buf[index++];
+        char ch = charAt(index++);
 
         if (ch != '[') {
             matchStat = NOT_MATCH;
             return null;
         }
 
-        ch = buf[index++];
+        ch = charAt(index++);
 
         for (;;) {
             if (ch != '"') {
@@ -1097,11 +1148,12 @@ public final class JSONScanner implements JSONLexer {
             String strVal;
             int start = index;
             for (;;) {
-                ch = buf[index++];
+                ch = charAt(index++);
                 if (ch == '\"') {
-                    strVal = new String(buf, start, index - start - 1);
+                    strVal = text.substring(start, index - 1);
+//                    strVal = new String(buf, start, index - start - 1);
                     list.add(strVal);
-                    ch = buf[index++];
+                    ch = charAt(index++);
                     break;
                 }
 
@@ -1112,12 +1164,12 @@ public final class JSONScanner implements JSONLexer {
             }
 
             if (ch == ',') {
-                ch = buf[index++];
+                ch = charAt(index++);
                 continue;
             }
 
             if (ch == ']') {
-                ch = buf[index++];
+                ch = charAt(index++);
                 break;
             }
 
@@ -1127,20 +1179,20 @@ public final class JSONScanner implements JSONLexer {
 
         bp = index;
         if (ch == ',') {
-            this.ch = buf[bp];
+            this.ch = charAt(bp);
             matchStat = VALUE;
             return list;
         } else if (ch == '}') {
-            ch = buf[bp];
+            ch = charAt(bp);
             if (ch == ',') {
                 token = JSONToken.COMMA;
-                this.ch = buf[++bp];
+                this.ch = charAt(++bp);
             } else if (ch == ']') {
                 token = JSONToken.RBRACKET;
-                this.ch = buf[++bp];
+                this.ch = charAt(++bp);
             } else if (ch == '}') {
                 token = JSONToken.RBRACE;
-                this.ch = buf[++bp];
+                this.ch = charAt(++bp);
             } else if (ch == EOI) {
                 token = JSONToken.EOF;
                 this.ch = ch;
@@ -1160,20 +1212,20 @@ public final class JSONScanner implements JSONLexer {
     public int scanFieldInt(char[] fieldName) {
         matchStat = UNKOWN;
 
-        if (!charArrayCompare(buf, bp, fieldName)) {
+        if (!charArrayCompare(text, bp, fieldName)) {
             matchStat = NOT_MATCH_NAME;
             return 0;
         }
 
         int index = bp + fieldName.length;
 
-        char ch = buf[index++];
+        char ch = charAt(index++);
 
         int value;
         if (ch >= '0' && ch <= '9') {
             value = digits[ch];
             for (;;) {
-                ch = buf[index++];
+                ch = charAt(index++);
                 if (ch >= '0' && ch <= '9') {
                     value = value * 10 + digits[ch];
                 } else if (ch == '.') {
@@ -1194,23 +1246,23 @@ public final class JSONScanner implements JSONLexer {
         }
 
         if (ch == ',') {
-            ch = buf[++bp];
+            ch = charAt(++bp);
             matchStat = VALUE;
             token = JSONToken.COMMA;
             return value;
         }
 
         if (ch == '}') {
-            ch = buf[++bp];
+            ch = charAt(++bp);
             if (ch == ',') {
                 token = JSONToken.COMMA;
-                this.ch = buf[++bp];
+                this.ch = charAt(++bp);
             } else if (ch == ']') {
                 token = JSONToken.RBRACKET;
-                this.ch = buf[++bp];
+                this.ch = charAt(++bp);
             } else if (ch == '}') {
                 token = JSONToken.RBRACE;
-                this.ch = buf[++bp];
+                this.ch = charAt(++bp);
             } else if (ch == EOI) {
                 token = JSONToken.EOF;
             } else {
@@ -1226,53 +1278,53 @@ public final class JSONScanner implements JSONLexer {
     public boolean scanFieldBoolean(char[] fieldName) {
         matchStat = UNKOWN;
 
-        if (!charArrayCompare(buf, bp, fieldName)) {
+        if (!charArrayCompare(text, bp, fieldName)) {
             matchStat = NOT_MATCH_NAME;
             return false;
         }
 
         int index = bp + fieldName.length;
 
-        char ch = buf[index++];
+        char ch = charAt(index++);
 
         boolean value;
         if (ch == 't') {
-            if (buf[index++] != 'r') {
+            if (charAt(index++) != 'r') {
                 matchStat = NOT_MATCH;
                 return false;
             }
-            if (buf[index++] != 'u') {
+            if (charAt(index++) != 'u') {
                 matchStat = NOT_MATCH;
                 return false;
             }
-            if (buf[index++] != 'e') {
+            if (charAt(index++) != 'e') {
                 matchStat = NOT_MATCH;
                 return false;
             }
 
             bp = index;
-            ch = buf[bp];
+            ch = charAt(bp);
             value = true;
         } else if (ch == 'f') {
-            if (buf[index++] != 'a') {
+            if (charAt(index++) != 'a') {
                 matchStat = NOT_MATCH;
                 return false;
             }
-            if (buf[index++] != 'l') {
+            if (charAt(index++) != 'l') {
                 matchStat = NOT_MATCH;
                 return false;
             }
-            if (buf[index++] != 's') {
+            if (charAt(index++) != 's') {
                 matchStat = NOT_MATCH;
                 return false;
             }
-            if (buf[index++] != 'e') {
+            if (charAt(index++) != 'e') {
                 matchStat = NOT_MATCH;
                 return false;
             }
 
             bp = index;
-            ch = buf[bp];
+            ch = charAt(bp);
             value = false;
         } else {
             matchStat = NOT_MATCH;
@@ -1280,20 +1332,20 @@ public final class JSONScanner implements JSONLexer {
         }
 
         if (ch == ',') {
-            ch = buf[++bp];
+            ch = charAt(++bp);
             matchStat = VALUE;
             token = JSONToken.COMMA;
         } else if (ch == '}') {
-            ch = buf[++bp];
+            ch = charAt(++bp);
             if (ch == ',') {
                 token = JSONToken.COMMA;
-                this.ch = buf[++bp];
+                this.ch = charAt(++bp);
             } else if (ch == ']') {
                 token = JSONToken.RBRACKET;
-                this.ch = buf[++bp];
+                this.ch = charAt(++bp);
             } else if (ch == '}') {
                 token = JSONToken.RBRACE;
-                this.ch = buf[++bp];
+                this.ch = charAt(++bp);
             } else if (ch == EOI) {
                 token = JSONToken.EOF;
             } else {
@@ -1312,20 +1364,20 @@ public final class JSONScanner implements JSONLexer {
     public long scanFieldLong(char[] fieldName) {
         matchStat = UNKOWN;
 
-        if (!charArrayCompare(buf, bp, fieldName)) {
+        if (!charArrayCompare(text, bp, fieldName)) {
             matchStat = NOT_MATCH_NAME;
             return 0;
         }
 
         int index = bp + fieldName.length;
 
-        char ch = buf[index++];
+        char ch = charAt(index++);
 
         long value;
         if (ch >= '0' && ch <= '9') {
             value = digits[ch];
             for (;;) {
-                ch = buf[index++];
+                ch = charAt(index++);
                 if (ch >= '0' && ch <= '9') {
                     value = value * 10 + digits[ch];
                 } else if (ch == '.') {
@@ -1346,21 +1398,21 @@ public final class JSONScanner implements JSONLexer {
         }
 
         if (ch == ',') {
-            ch = buf[++bp];
+            ch = charAt(++bp);
             matchStat = VALUE;
             token = JSONToken.COMMA;
             return value;
         } else if (ch == '}') {
-            ch = buf[++bp];
+            ch = charAt(++bp);
             if (ch == ',') {
                 token = JSONToken.COMMA;
-                this.ch = buf[++bp];
+                this.ch = charAt(++bp);
             } else if (ch == ']') {
                 token = JSONToken.RBRACKET;
-                this.ch = buf[++bp];
+                this.ch = charAt(++bp);
             } else if (ch == '}') {
                 token = JSONToken.RBRACE;
-                this.ch = buf[++bp];
+                this.ch = charAt(++bp);
             } else if (ch == EOI) {
                 token = JSONToken.EOF;
             } else {
@@ -1379,20 +1431,20 @@ public final class JSONScanner implements JSONLexer {
     public float scanFieldFloat(char[] fieldName) {
         matchStat = UNKOWN;
 
-        if (!charArrayCompare(buf, bp, fieldName)) {
+        if (!charArrayCompare(text, bp, fieldName)) {
             matchStat = NOT_MATCH_NAME;
             return 0;
         }
 
         int index = bp + fieldName.length;
 
-        char ch = buf[index++];
+        char ch = charAt(index++);
 
         float value;
         if (ch >= '0' && ch <= '9') {
             int start = index - 1;
             for (;;) {
-                ch = buf[index++];
+                ch = charAt(index++);
                 if (ch >= '0' && ch <= '9') {
                     continue;
                 } else {
@@ -1401,10 +1453,10 @@ public final class JSONScanner implements JSONLexer {
             }
 
             if (ch == '.') {
-                ch = buf[index++];
+                ch = charAt(index++);
                 if (ch >= '0' && ch <= '9') {
                     for (;;) {
-                        ch = buf[index++];
+                        ch = charAt(index++);
                         if (ch >= '0' && ch <= '9') {
                             continue;
                         } else {
@@ -1418,7 +1470,8 @@ public final class JSONScanner implements JSONLexer {
             }
 
             bp = index - 1;
-            String text = new String(buf, start, index - start - 1);
+            String text = this.text.substring(start, index - 1);
+//            String text = new String(buf, start, index - start - 1);
             value = Float.parseFloat(text);
         } else {
             matchStat = NOT_MATCH;
@@ -1426,21 +1479,21 @@ public final class JSONScanner implements JSONLexer {
         }
 
         if (ch == ',') {
-            ch = buf[++bp];
+            ch = charAt(++bp);
             matchStat = VALUE;
             token = JSONToken.COMMA;
             return value;
         } else if (ch == '}') {
-            ch = buf[++bp];
+            ch = charAt(++bp);
             if (ch == ',') {
                 token = JSONToken.COMMA;
-                this.ch = buf[++bp];
+                this.ch = charAt(++bp);
             } else if (ch == ']') {
                 token = JSONToken.RBRACKET;
-                this.ch = buf[++bp];
+                this.ch = charAt(++bp);
             } else if (ch == '}') {
                 token = JSONToken.RBRACE;
-                this.ch = buf[++bp];
+                this.ch = charAt(++bp);
             } else if (ch == EOI) {
                 token = JSONToken.EOF;
             } else {
@@ -1457,26 +1510,26 @@ public final class JSONScanner implements JSONLexer {
     }
 
     public byte[] bytesValue() {
-        return Base64.decodeFast(buf, np + 1, sp);
+        return Base64.decodeFast(text, np + 1, sp);
     }
 
     public double scanFieldDouble(char[] fieldName) {
         matchStat = UNKOWN;
 
-        if (!charArrayCompare(buf, bp, fieldName)) {
+        if (!charArrayCompare(text, bp, fieldName)) {
             matchStat = NOT_MATCH_NAME;
             return 0;
         }
 
         int index = bp + fieldName.length;
 
-        char ch = buf[index++];
+        char ch = charAt(index++);
 
         double value;
         if (ch >= '0' && ch <= '9') {
             int start = index - 1;
             for (;;) {
-                ch = buf[index++];
+                ch = charAt(index++);
                 if (ch >= '0' && ch <= '9') {
                     continue;
                 } else {
@@ -1485,10 +1538,10 @@ public final class JSONScanner implements JSONLexer {
             }
 
             if (ch == '.') {
-                ch = buf[index++];
+                ch = charAt(index++);
                 if (ch >= '0' && ch <= '9') {
                     for (;;) {
-                        ch = buf[index++];
+                        ch = charAt(index++);
                         if (ch >= '0' && ch <= '9') {
                             continue;
                         } else {
@@ -1502,7 +1555,8 @@ public final class JSONScanner implements JSONLexer {
             }
 
             bp = index - 1;
-            String text = new String(buf, start, index - start - 1);
+            String text = this.text.substring(start, index - 1);
+//            String text = new String(buf, start, index - start - 1);
             value = Double.parseDouble(text);
         } else {
             matchStat = NOT_MATCH;
@@ -1510,20 +1564,20 @@ public final class JSONScanner implements JSONLexer {
         }
 
         if (ch == ',') {
-            ch = buf[++bp];
+            ch = charAt(++bp);
             matchStat = VALUE;
             token = JSONToken.COMMA;
         } else if (ch == '}') {
-            ch = buf[++bp];
+            ch = charAt(++bp);
             if (ch == ',') {
                 token = JSONToken.COMMA;
-                this.ch = buf[++bp];
+                this.ch = charAt(++bp);
             } else if (ch == ']') {
                 token = JSONToken.RBRACKET;
-                this.ch = buf[++bp];
+                this.ch = charAt(++bp);
             } else if (ch == '}') {
                 token = JSONToken.RBRACE;
-                this.ch = buf[++bp];
+                this.ch = charAt(++bp);
             } else if (ch == EOI) {
                 token = JSONToken.EOF;
             } else {
@@ -1559,13 +1613,13 @@ public final class JSONScanner implements JSONLexer {
         }
 
         if (ch == '}') {
-            ch = buf[++bp];
+            ch = charAt(++bp);
             token = JSONToken.RBRACE;
             return null;
         }
 
         if (ch == ',') {
-            ch = buf[++bp];
+            ch = charAt(++bp);
             token = JSONToken.COMMA;
             return null;
         }
@@ -1590,7 +1644,7 @@ public final class JSONScanner implements JSONLexer {
         boolean hasSpecial = false;
         char ch;
         for (;;) {
-            ch = buf[++bp];
+            ch = charAt(++bp);
 
             if (ch == quote) {
                 break;
@@ -1614,10 +1668,11 @@ public final class JSONScanner implements JSONLexer {
                         sbuf = newsbuf;
                     }
 
-                    System.arraycopy(buf, np + 1, sbuf, 0, sp);
+                    text.getChars(np + 1, np + 1 + sp, sbuf, 0);
+//                  System.arraycopy(buf, np + 1, sbuf, 0, sp);
                 }
 
-                ch = buf[++bp];
+                ch = charAt(++bp);
 
                 switch (ch) {
                     case '"':
@@ -1654,10 +1709,10 @@ public final class JSONScanner implements JSONLexer {
                         putChar('\t');
                         break;
                     case 'u':
-                        char c1 = ch = buf[++bp];
-                        char c2 = ch = buf[++bp];
-                        char c3 = ch = buf[++bp];
-                        char c4 = ch = buf[++bp];
+                        char c1 = ch = charAt(++bp);
+                        char c2 = ch = charAt(++bp);
+                        char c3 = ch = charAt(++bp);
+                        char c4 = ch = charAt(++bp);
                         int val = Integer.parseInt(new String(new char[] { c1, c2, c3, c4 }), 16);
                         hash = 31 * hash + val;
                         putChar((char) val);
@@ -1684,30 +1739,31 @@ public final class JSONScanner implements JSONLexer {
         }
 
         token = LITERAL_STRING;
-        this.ch = buf[++bp];
+        this.ch = charAt(++bp);
 
         if (!hasSpecial) {
-            return symbolTable.addSymbol(buf, np + 1, sp, hash);
+//            return this.text.substring(np + 1, np + 1 + sp).intern();
+            return symbolTable.addSymbol(text, np + 1, sp, hash);
         } else {
             return symbolTable.addSymbol(sbuf, 0, sp, hash);
         }
     }
 
     public void scanTrue() {
-        if (buf[bp++] != 't') {
+        if (charAt(bp++) != 't') {
             throw new JSONException("error parse true");
         }
-        if (buf[bp++] != 'r') {
+        if (charAt(bp++) != 'r') {
             throw new JSONException("error parse true");
         }
-        if (buf[bp++] != 'u') {
+        if (charAt(bp++) != 'u') {
             throw new JSONException("error parse true");
         }
-        if (buf[bp++] != 'e') {
+        if (charAt(bp++) != 'e') {
             throw new JSONException("error parse true");
         }
 
-        ch = buf[bp];
+        ch = charAt(bp);
 
         if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
             || ch == '\f' || ch == '\b') {
@@ -1718,17 +1774,17 @@ public final class JSONScanner implements JSONLexer {
     }
 
     public void scanSet() {
-        if (buf[bp++] != 'S') {
+        if (charAt(bp++) != 'S') {
             throw new JSONException("error parse true");
         }
-        if (buf[bp++] != 'e') {
+        if (charAt(bp++) != 'e') {
             throw new JSONException("error parse true");
         }
-        if (buf[bp++] != 't') {
+        if (charAt(bp++) != 't') {
             throw new JSONException("error parse true");
         }
 
-        ch = buf[bp];
+        ch = charAt(bp);
 
         if (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b' || ch == '[' || ch == '(') {
             token = JSONToken.SET;
@@ -1738,29 +1794,29 @@ public final class JSONScanner implements JSONLexer {
     }
 
     public void scanTreeSet() {
-        if (buf[bp++] != 'T') {
+        if (charAt(bp++) != 'T') {
             throw new JSONException("error parse true");
         }
-        if (buf[bp++] != 'r') {
+        if (charAt(bp++) != 'r') {
             throw new JSONException("error parse true");
         }
-        if (buf[bp++] != 'e') {
+        if (charAt(bp++) != 'e') {
             throw new JSONException("error parse true");
         }
-        if (buf[bp++] != 'e') {
+        if (charAt(bp++) != 'e') {
             throw new JSONException("error parse true");
         }
-        if (buf[bp++] != 'S') {
+        if (charAt(bp++) != 'S') {
             throw new JSONException("error parse true");
         }
-        if (buf[bp++] != 'e') {
+        if (charAt(bp++) != 'e') {
             throw new JSONException("error parse true");
         }
-        if (buf[bp++] != 't') {
+        if (charAt(bp++) != 't') {
             throw new JSONException("error parse true");
         }
 
-        ch = buf[bp];
+        ch = charAt(bp);
 
         if (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b' || ch == '[' || ch == '(') {
             token = JSONToken.TREE_SET;
@@ -1770,19 +1826,19 @@ public final class JSONScanner implements JSONLexer {
     }
 
     public void scanNullOrNew() {
-        if (buf[bp++] != 'n') {
+        if (charAt(bp++) != 'n') {
             throw new JSONException("error parse null or new");
         }
 
-        if (buf[bp] == 'u') {
+        if (charAt(bp) == 'u') {
             bp++;
-            if (buf[bp++] != 'l') {
+            if (charAt(bp++) != 'l') {
                 throw new JSONException("error parse true");
             }
-            if (buf[bp++] != 'l') {
+            if (charAt(bp++) != 'l') {
                 throw new JSONException("error parse true");
             }
-            ch = buf[bp];
+            ch = charAt(bp);
 
             if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
                 || ch == '\f' || ch == '\b') {
@@ -1793,15 +1849,15 @@ public final class JSONScanner implements JSONLexer {
             return;
         }
 
-        if (buf[bp] != 'e') {
+        if (charAt(bp) != 'e') {
             throw new JSONException("error parse e");
         }
 
         bp++;
-        if (buf[bp++] != 'w') {
+        if (charAt(bp++) != 'w') {
             throw new JSONException("error parse w");
         }
-        ch = buf[bp];
+        ch = charAt(bp);
 
         if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
             || ch == '\f' || ch == '\b') {
@@ -1812,23 +1868,23 @@ public final class JSONScanner implements JSONLexer {
     }
 
     public void scanFalse() {
-        if (buf[bp++] != 'f') {
+        if (charAt(bp++) != 'f') {
             throw new JSONException("error parse false");
         }
-        if (buf[bp++] != 'a') {
+        if (charAt(bp++) != 'a') {
             throw new JSONException("error parse false");
         }
-        if (buf[bp++] != 'l') {
+        if (charAt(bp++) != 'l') {
             throw new JSONException("error parse false");
         }
-        if (buf[bp++] != 's') {
+        if (charAt(bp++) != 's') {
             throw new JSONException("error parse false");
         }
-        if (buf[bp++] != 'e') {
+        if (charAt(bp++) != 'e') {
             throw new JSONException("error parse false");
         }
 
-        ch = buf[bp];
+        ch = charAt(bp);
 
         if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
             || ch == '\f' || ch == '\b') {
@@ -1845,7 +1901,7 @@ public final class JSONScanner implements JSONLexer {
         for (;;) {
             sp++;
 
-            ch = buf[++bp];
+            ch = charAt(++bp);
             if (Character.isLetterOrDigit(ch)) {
                 continue;
             }
@@ -1867,7 +1923,7 @@ public final class JSONScanner implements JSONLexer {
 
         if (ch == '-') {
             sp++;
-            ch = buf[++bp];
+            ch = charAt(++bp);
         }
 
         for (;;) {
@@ -1876,14 +1932,14 @@ public final class JSONScanner implements JSONLexer {
             } else {
                 break;
             }
-            ch = buf[++bp];
+            ch = charAt(++bp);
         }
 
         boolean isDouble = false;
 
         if (ch == '.') {
             sp++;
-            ch = buf[++bp];
+            ch = charAt(++bp);
             isDouble = true;
 
             for (;;) {
@@ -1892,34 +1948,34 @@ public final class JSONScanner implements JSONLexer {
                 } else {
                     break;
                 }
-                ch = buf[++bp];
+                ch = charAt(++bp);
             }
         }
 
         if (ch == 'L') {
             sp++;
-            ch = buf[++bp];
+            ch = charAt(++bp);
         } else if (ch == 'S') {
             sp++;
-            ch = buf[++bp];
+            ch = charAt(++bp);
         } else if (ch == 'B') {
             sp++;
-            ch = buf[++bp];
+            ch = charAt(++bp);
         } else if (ch == 'F') {
             sp++;
-            ch = buf[++bp];
+            ch = charAt(++bp);
             isDouble = true;
         } else if (ch == 'D') {
             sp++;
-            ch = buf[++bp];
+            ch = charAt(++bp);
             isDouble = true;
         } else if (ch == 'e' || ch == 'E') {
             sp++;
-            ch = buf[++bp];
+            ch = charAt(++bp);
 
             if (ch == '+' || ch == '-') {
                 sp++;
-                ch = buf[++bp];
+                ch = charAt(++bp);
             }
 
             for (;;) {
@@ -1928,11 +1984,11 @@ public final class JSONScanner implements JSONLexer {
                 } else {
                     break;
                 }
-                ch = buf[++bp];
+                ch = charAt(++bp);
             }
 
             if (ch == 'D' || ch == 'F') {
-                ch = buf[++bp];
+                ch = charAt(++bp);
             }
 
             isDouble = true;
@@ -1970,12 +2026,17 @@ public final class JSONScanner implements JSONLexer {
      */
     public final String stringVal() {
         if (!hasSpecial) {
-            return new String(buf, np + 1, sp);
+//            return new String(buf, np + 1, sp);
+            return text.substring(np + 1, np + 1 + sp);
         } else {
             return new String(sbuf, 0, sp);
         }
     }
-
+    
+    public final String subString(int offset, int count) {
+        return text.substring(offset, offset + count);
+    }
+    
     //
     public boolean isRef() {
         if (hasSpecial) {
@@ -1986,20 +2047,21 @@ public final class JSONScanner implements JSONLexer {
             return false;
         }
 
-        return buf[np + 1] == '$' && buf[np + 2] == 'r' && buf[np + 3] == 'e' && buf[np + 4] == 'f';
+        return charAt(np + 1) == '$' && charAt(np + 2) == 'r' && charAt(np + 3) == 'e' && charAt(np + 4) == 'f';
     }
 
     public final String symbol(SymbolTable symbolTable) {
         if (symbolTable == null) {
             if (!hasSpecial) {
-                return new String(buf, np + 1, sp);
+                return text.substring(np + 1, np + 1 + sp);
+//                return new String(buf, np + 1, sp);
             } else {
                 return new String(sbuf, 0, sp);
             }
         }
 
         if (!hasSpecial) {
-            return symbolTable.addSymbol(buf, np + 1, sp);
+            return symbolTable.addSymbol(text, np + 1, sp);
         } else {
             return symbolTable.addSymbol(sbuf, 0, sp);
         }
@@ -2037,7 +2099,7 @@ public final class JSONScanner implements JSONLexer {
         char type = ' ';
 
         if (max > 0) {
-            switch (buf[max - 1]) {
+            switch (charAt(max - 1)) {
                 case 'L':
                     max--;
                     type = 'L';
@@ -2055,7 +2117,7 @@ public final class JSONScanner implements JSONLexer {
             }
         }
 
-        if (buf[np] == '-') {
+        if (charAt(np) == '-') {
             negative = true;
             limit = Long.MIN_VALUE;
             i++;
@@ -2064,12 +2126,12 @@ public final class JSONScanner implements JSONLexer {
         }
         multmin = negative ? MULTMIN_RADIX_TEN : N_MULTMAX_RADIX_TEN;
         if (i < max) {
-            digit = digits[buf[i++]];
+            digit = digits[charAt(i++)];
             result = -digit;
         }
         while (i < max) {
             // Accumulating negatively avoids surprises near MAX_VALUE
-            digit = digits[buf[i++]];
+            digit = digits[charAt(i++)];
             if (result < multmin) {
                 return new BigInteger(numberString());
             }
@@ -2122,7 +2184,7 @@ public final class JSONScanner implements JSONLexer {
         long multmin;
         int digit;
 
-        if (buf[np] == '-') {
+        if (charAt(np) == '-') {
             negative = true;
             limit = Long.MIN_VALUE;
             i++;
@@ -2131,12 +2193,12 @@ public final class JSONScanner implements JSONLexer {
         }
         multmin = negative ? MULTMIN_RADIX_TEN : N_MULTMAX_RADIX_TEN;
         if (i < max) {
-            digit = digits[buf[i++]];
+            digit = digits[charAt(i++)];
             result = -digit;
         }
         while (i < max) {
             // Accumulating negatively avoids surprises near MAX_VALUE
-            char ch = buf[i++];
+            char ch = charAt(i++);
 
             if (ch == 'L' || ch == 'S' || ch == 'B') {
                 break;
@@ -2172,7 +2234,7 @@ public final class JSONScanner implements JSONLexer {
         int multmin;
         int digit;
 
-        if (buf[np] == '-') {
+        if (charAt(np) == '-') {
             negative = true;
             limit = Integer.MIN_VALUE;
             i++;
@@ -2181,12 +2243,12 @@ public final class JSONScanner implements JSONLexer {
         }
         multmin = negative ? INT_MULTMIN_RADIX_TEN : INT_N_MULTMAX_RADIX_TEN;
         if (i < max) {
-            digit = digits[buf[i++]];
+            digit = digits[charAt(i++)];
             result = -digit;
         }
         while (i < max) {
             // Accumulating negatively avoids surprises near MAX_VALUE
-            char ch = buf[i++];
+            char ch = charAt(i++);
 
             if (ch == 'L' || ch == 'S' || ch == 'B') {
                 break;
@@ -2216,14 +2278,15 @@ public final class JSONScanner implements JSONLexer {
     }
 
     public final String numberString() {
-        char ch = buf[np + sp - 1];
+        char ch = charAt(np + sp - 1);
 
         int sp = this.sp;
         if (ch == 'L' || ch == 'S' || ch == 'B' || ch == 'F' || ch == 'D') {
             sp--;
         }
 
-        return new String(buf, np, sp);
+        return text.substring(np, np + sp);
+//        return new String(buf, np, sp);
     }
 
     public float floatValue() {
@@ -2235,13 +2298,15 @@ public final class JSONScanner implements JSONLexer {
     }
 
     public Number decimalValue(boolean decimal) {
-        char ch = buf[np + sp - 1];
+        char ch = charAt(np + sp - 1);
         if (ch == 'F') {
-            return Float.parseFloat(new String(buf, np, sp - 1));
+            return Float.parseFloat(text.substring(np, np + sp -1));
+//            return Float.parseFloat(new String(buf, np, sp - 1));
         }
 
         if (ch == 'D') {
-            return Double.parseDouble(new String(buf, np, sp - 1));
+            return Double.parseDouble(text.substring(np, np + sp -1));
+//            return Double.parseDouble(new String(buf, np, sp - 1));
         }
 
         if (decimal) {
@@ -2252,14 +2317,15 @@ public final class JSONScanner implements JSONLexer {
     }
 
     public BigDecimal decimalValue() {
-        char ch = buf[np + sp - 1];
+        char ch = charAt(np + sp - 1);
 
         int sp = this.sp;
         if (ch == 'L' || ch == 'S' || ch == 'B' || ch == 'F' || ch == 'D') {
             sp--;
         }
 
-        return new BigDecimal(buf, np, sp);
+        return new BigDecimal(text.substring(np, np + sp));
+//        return new BigDecimal(buf, np, sp);
     }
 
     public void config(Feature feature, boolean state) {
@@ -2275,16 +2341,16 @@ public final class JSONScanner implements JSONLexer {
     public final int ISO8601_LEN_2 = "0000-00-00T00:00:00.000".length();
 
     public boolean scanISO8601DateIfMatch() {
-        int rest = buflen - bp;
+        int rest = text.length() - bp;
 
         if (rest < ISO8601_LEN_0) {
             return false;
         }
 
-        char y0 = buf[bp];
-        char y1 = buf[bp + 1];
-        char y2 = buf[bp + 2];
-        char y3 = buf[bp + 3];
+        char y0 = charAt(bp);
+        char y1 = charAt(bp + 1);
+        char y2 = charAt(bp + 2);
+        char y3 = charAt(bp + 3);
         if (y0 != '1' && y0 != '2') {
             return false;
         }
@@ -2298,12 +2364,12 @@ public final class JSONScanner implements JSONLexer {
             return false;
         }
 
-        if (buf[bp + 4] != '-') {
+        if (charAt(bp + 4) != '-') {
             return false;
         }
 
-        char M0 = buf[bp + 5];
-        char M1 = buf[bp + 6];
+        char M0 = charAt(bp + 5);
+        char M1 = charAt(bp + 6);
         if (M0 == '0') {
             if (M1 < '1' || M1 > '9') {
                 return false;
@@ -2316,12 +2382,12 @@ public final class JSONScanner implements JSONLexer {
             return false;
         }
 
-        if (buf[bp + 7] != '-') {
+        if (charAt(bp + 7) != '-') {
             return false;
         }
 
-        char d0 = buf[bp + 8];
-        char d1 = buf[bp + 9];
+        char d0 = charAt(bp + 8);
+        char d1 = charAt(bp + 9);
         if (d0 == '0') {
             if (d1 < '1' || d1 > '9') {
                 return false;
@@ -2347,7 +2413,7 @@ public final class JSONScanner implements JSONLexer {
         calendar.set(Calendar.MONTH, month);
         calendar.set(Calendar.DAY_OF_MONTH, day);
 
-        char t = buf[bp + 10];
+        char t = charAt(bp + 10);
         if (t == 'T') {
             if (rest < ISO8601_LEN_1) {
                 return false;
@@ -2358,7 +2424,7 @@ public final class JSONScanner implements JSONLexer {
             calendar.set(Calendar.SECOND, 0);
             calendar.set(Calendar.MILLISECOND, 0);
 
-            ch = buf[bp += 10];
+            ch = charAt(bp += 10);
 
             token = JSONToken.LITERAL_ISO8601_DATE;
             return true;
@@ -2366,8 +2432,8 @@ public final class JSONScanner implements JSONLexer {
             return false;
         }
 
-        char h0 = buf[bp + 11];
-        char h1 = buf[bp + 12];
+        char h0 = charAt(bp + 11);
+        char h1 = charAt(bp + 12);
         if (h0 == '0') {
             if (h1 < '0' || h1 > '9') {
                 return false;
@@ -2384,12 +2450,12 @@ public final class JSONScanner implements JSONLexer {
             return false;
         }
 
-        if (buf[bp + 13] != ':') {
+        if (charAt(bp + 13) != ':') {
             return false;
         }
 
-        char m0 = buf[bp + 14];
-        char m1 = buf[bp + 15];
+        char m0 = charAt(bp + 14);
+        char m1 = charAt(bp + 15);
         if (m0 >= '0' && m0 <= '5') {
             if (m1 < '0' || m1 > '9') {
                 return false;
@@ -2402,12 +2468,12 @@ public final class JSONScanner implements JSONLexer {
             return false;
         }
 
-        if (buf[bp + 16] != ':') {
+        if (charAt(bp + 16) != ':') {
             return false;
         }
 
-        char s0 = buf[bp + 17];
-        char s1 = buf[bp + 18];
+        char s0 = charAt(bp + 17);
+        char s1 = charAt(bp + 18);
         if (s0 >= '0' && s0 <= '5') {
             if (s1 < '0' || s1 > '9') {
                 return false;
@@ -2427,7 +2493,7 @@ public final class JSONScanner implements JSONLexer {
         calendar.set(Calendar.MINUTE, minute);
         calendar.set(Calendar.SECOND, seconds);
 
-        char dot = buf[bp + 19];
+        char dot = charAt(bp + 19);
         if (dot == '.') {
             if (rest < ISO8601_LEN_2) {
                 return false;
@@ -2435,15 +2501,15 @@ public final class JSONScanner implements JSONLexer {
         } else {
             calendar.set(Calendar.MILLISECOND, 0);
 
-            ch = buf[bp += 19];
+            ch = charAt(bp += 19);
 
             token = JSONToken.LITERAL_ISO8601_DATE;
             return true;
         }
 
-        char S0 = buf[bp + 20];
-        char S1 = buf[bp + 21];
-        char S2 = buf[bp + 22];
+        char S0 = charAt(bp + 20);
+        char S1 = charAt(bp + 21);
+        char S2 = charAt(bp + 22);
         if (S0 < '0' || S0 > '9') {
             return false;
         }
@@ -2457,7 +2523,7 @@ public final class JSONScanner implements JSONLexer {
         int millis = digits[S0] * 100 + digits[S1] * 10 + digits[S2];
         calendar.set(Calendar.MILLISECOND, millis);
 
-        ch = buf[bp += 23];
+        ch = charAt(bp += 23);
 
         token = JSONToken.LITERAL_ISO8601_DATE;
         return true;

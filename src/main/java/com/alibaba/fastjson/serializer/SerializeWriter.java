@@ -1184,28 +1184,28 @@ public final class SerializeWriter extends Writer {
                     expandCapacity(newcount);
                 }
                 count = newcount;
-            }
+                
+                if (specialCount == 1) {
+                    System.arraycopy(buf, lastSpecialIndex + 1, buf, lastSpecialIndex + 2, valueEnd - lastSpecialIndex - 1);
+                    buf[lastSpecialIndex] = '\\';
+                    buf[++lastSpecialIndex] = replaceChars[(int) lastSpecial];
+                } else if (specialCount > 1) {
+                    System.arraycopy(buf, lastSpecialIndex + 1, buf, lastSpecialIndex + 2, valueEnd - lastSpecialIndex - 1);
+                    buf[lastSpecialIndex] = '\\';
+                    buf[++lastSpecialIndex] = replaceChars[(int) lastSpecial];
+                    valueEnd++;
+                    for (int i = lastSpecialIndex - 2; i >= valueStart; --i) {
+                        char ch = buf[i];
 
-            if (specialCount == 1) {
-                System.arraycopy(buf, lastSpecialIndex + 1, buf, lastSpecialIndex + 2, valueEnd - lastSpecialIndex - 1);
-                buf[lastSpecialIndex] = '\\';
-                buf[++lastSpecialIndex] = replaceChars[(int) lastSpecial];
-            } else if (specialCount > 1) {
-                System.arraycopy(buf, lastSpecialIndex + 1, buf, lastSpecialIndex + 2, valueEnd - lastSpecialIndex - 1);
-                buf[lastSpecialIndex] = '\\';
-                buf[++lastSpecialIndex] = replaceChars[(int) lastSpecial];
-                valueEnd++;
-                for (int i = lastSpecialIndex - 2; i >= valueStart; --i) {
-                    char ch = buf[i];
-
-                    if (ch == '\b' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\\'
-                        || ch == '"' //
-                        || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))
-                        || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
-                        System.arraycopy(buf, i + 1, buf, i + 2, valueEnd - i - 1);
-                        buf[i] = '\\';
-                        buf[i + 1] = replaceChars[(int) ch];
-                        valueEnd++;
+                        if (ch == '\b' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\\'
+                            || ch == '"' //
+                            || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))
+                            || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
+                            System.arraycopy(buf, i + 1, buf, i + 2, valueEnd - i - 1);
+                            buf[i] = '\\';
+                            buf[i + 1] = replaceChars[(int) ch];
+                            valueEnd++;
+                        }
                     }
                 }
             }

@@ -92,7 +92,11 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
         final JSONLexer lexer = parser.getLexer();
 
         if (lexer.token() != JSONToken.LBRACKET) {
-            throw new JSONException("exepct '[', but " + JSONToken.name(lexer.token()));
+        	String errorMessage = "exepct '[', but " + JSONToken.name(lexer.token());
+        	if (objectType != null) {
+        		errorMessage += ", type : " + objectType;
+        	}
+            throw new JSONException(errorMessage);
         }
 
         if (deserializer == null) {

@@ -846,7 +846,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitFieldInsn(GETFIELD, context.getClassName(), fieldInfo.getName() + "_asm_list_item_deser__",
                           getDesc(ObjectDeserializer.class));
         mw.visitVarInsn(ALOAD, 1);
-        mw.visitInsn(ACONST_NULL);
+        mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc(itemType)));
         mw.visitVarInsn(ILOAD, context.var("i"));
         mw.visitMethodInsn(INVOKESTATIC, getType(Integer.class), "valueOf", "(I)Ljava/lang/Integer;");
         mw.visitMethodInsn(INVOKEINTERFACE, getType(ObjectDeserializer.class), "deserialze",

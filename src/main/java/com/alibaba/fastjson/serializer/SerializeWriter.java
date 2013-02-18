@@ -640,6 +640,7 @@ public final class SerializeWriter extends Writer {
 
         if (text == null) {
             writeNull();
+            write(seperator);
             return;
         }
 

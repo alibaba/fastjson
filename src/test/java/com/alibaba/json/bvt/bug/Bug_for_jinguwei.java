@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.alibaba.fastjson.JSON;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
 
 public class Bug_for_jinguwei extends TestCase {
@@ -15,7 +16,7 @@ public class Bug_for_jinguwei extends TestCase {
         vo.getList().add(null);
         vo.getList().add(null);
 
-        System.out.println(JSON.toJSONString(vo));
+        Assert.assertEquals("{\"list\":[null,null]}", JSON.toJSONString(vo));
     }
 
     public static class VO {

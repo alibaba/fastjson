@@ -43,7 +43,7 @@ public class BenchmarkExecutor {
     }
 
     public void execute() {
-    	System.out.println(System.getProperty("java.vm.name"));
+    	System.out.println(System.getProperty("java.vm.name") + " " + System.getProperty("java.runtime.version"));
     	
         for (BenchmarkCase benchmarkCase : caseList) {
             for (Codec codec : codecList) {

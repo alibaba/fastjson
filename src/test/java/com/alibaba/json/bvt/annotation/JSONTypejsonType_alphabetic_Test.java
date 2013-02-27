@@ -16,13 +16,13 @@ public class JSONTypejsonType_alphabetic_Test extends TestCase {
         Assert.assertEquals("{\"f0\":101,\"f1\":102}", JSON.toJSONString(a));
     }
 
-    public void test_alphabetic_false() throws Exception {
-        B b = new B();
-        b.setF0(101);
-        b.setF1(102);
-
-        Assert.assertFalse("{\"f2\":0,\"f1\":102,\"f0\":101}".equals(JSON.toJSONString(b)));
-    }
+//    public void test_alphabetic_false() throws Exception {
+//        B b = new B();
+//        b.setF0(101);
+//        b.setF1(102);
+//
+//        Assert.assertFalse("{\"f2\":0,\"f1\":102,\"f0\":101}".equals(JSON.toJSONString(b)));
+//    }
 
     public void test_alphabetic_notSet() throws Exception {
         C c = new C();

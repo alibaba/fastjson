@@ -6,6 +6,8 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.Set;
 
+import com.alibaba.fastjson.JSON;
+
 
 public class ColorSerializer implements AutowiredObjectSerializer {
     public final static ColorSerializer instance = new ColorSerializer();
@@ -21,7 +23,7 @@ public class ColorSerializer implements AutowiredObjectSerializer {
         char sep = '{';
         if (out.isEnabled(SerializerFeature.WriteClassName)) {
             out.write('{');
-            out.writeFieldName("@type");
+            out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
             out.writeString(Color.class.getName());
             sep = ',';
         }

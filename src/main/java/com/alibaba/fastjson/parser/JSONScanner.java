@@ -809,7 +809,7 @@ public final class JSONScanner implements JSONLexer {
     public final static int     VALUE          = 3;
     public final static int     END            = 4;
 
-    private final static char[] typeFieldName  = "\"@type\":\"".toCharArray();
+    private final static char[] typeFieldName  = ("\"" + JSON.DEFAULT_TYPE_KEY + "\":\"").toCharArray();
 
     public int scanType(String type) {
         matchStat = UNKOWN;

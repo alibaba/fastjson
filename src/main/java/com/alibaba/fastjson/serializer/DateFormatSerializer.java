@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 
+import com.alibaba.fastjson.JSON;
+
 /**
  * @author wenshao<szujobs@hotmail.com>
  */
@@ -39,7 +41,7 @@ public class DateFormatSerializer implements ObjectSerializer {
         if (out.isEnabled(SerializerFeature.WriteClassName)) {
             if (object.getClass() != fieldType) {
                 out.write('{');
-                out.writeFieldName("@type");
+                out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
                 serializer.write(object.getClass().getName());
                 out.writeFieldValue(',', "val", pattern);
                 out.write('}');

@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.TypeUtils;
@@ -122,7 +123,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
             if (isWriteClassName(serializer, object, fieldType, fieldName)) {
                 Class<?> objClass = object.getClass();
                 if (objClass != fieldType) {
-                    out.writeFieldName("@type");
+                    out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
                     serializer.write(object.getClass());
                     commaFlag = true;
                 }

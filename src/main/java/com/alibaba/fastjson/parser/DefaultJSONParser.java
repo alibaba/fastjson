@@ -259,12 +259,12 @@ public class DefaultJSONParser extends AbstractJSONParser {
 
                 lexer.resetStringPosition();
 
-                if (key == "@type") {
+                if (key == JSON.DEFAULT_TYPE_KEY) {
                     String typeName = lexer.scanSymbol(symbolTable, '"');
                     Class<?> clazz = TypeUtils.loadClass(typeName);
 
                     if (clazz == null) {
-                        object.put("@type", typeName);
+                        object.put(JSON.DEFAULT_TYPE_KEY, typeName);
                         continue;
                     }
 

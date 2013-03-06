@@ -21,6 +21,7 @@ import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.util.IOUtils;
 
 /**
@@ -45,7 +46,7 @@ public class DateSerializer implements ObjectSerializer {
                     out.writeLongAndChar(((Date) object).getTime(), ')');
                 } else {
                     out.write('{');
-                    out.writeFieldName("@type");
+                    out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
                     serializer.write(object.getClass().getName());
                     out.writeFieldValue(',', "val", ((Date) object).getTime());
                     out.write('}');

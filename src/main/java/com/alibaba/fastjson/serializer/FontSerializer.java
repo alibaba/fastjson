@@ -6,6 +6,8 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.Set;
 
+import com.alibaba.fastjson.JSON;
+
 public class FontSerializer implements AutowiredObjectSerializer {
 
     public final static FontSerializer instance = new FontSerializer();
@@ -21,7 +23,7 @@ public class FontSerializer implements AutowiredObjectSerializer {
         char sep = '{';
         if (out.isEnabled(SerializerFeature.WriteClassName)) {
             out.write('{');
-            out.writeFieldName("@type");
+            out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
             out.writeString(Font.class.getName());
             sep = ',';
         }

@@ -2,6 +2,7 @@ package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.Type;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
@@ -88,7 +89,7 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
                 } else {
                     throw new JSONException("syntax error");
                 }
-            } else if (key == "@type") {
+            } else if (key == JSON.DEFAULT_TYPE_KEY) {
                 if (lexer.token() == JSONToken.NULL) {
                     // skip
                 } else if (lexer.token() == JSONToken.LITERAL_STRING) {

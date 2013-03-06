@@ -702,7 +702,7 @@ public class TypeUtils {
             }
 
             {
-                Object iClassObject = map.get("@type");
+                Object iClassObject = map.get(JSON.DEFAULT_TYPE_KEY);
                 if (iClassObject instanceof String) {
                     String className = (String) iClassObject;
 

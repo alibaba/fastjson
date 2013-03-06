@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
@@ -373,7 +374,7 @@ public class ASMSerializerFactory implements Opcodes {
 
             mw.visitLabel(writeClass_);
             mw.visitVarInsn(ALOAD, context.var("out"));
-            mw.visitLdcInsn("{\"@type\":\"" + clazz.getName() + "\"");
+            mw.visitLdcInsn("{\"" + JSON.DEFAULT_TYPE_KEY + "\":\"" + clazz.getName() + "\"");
             mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "write", "(Ljava/lang/String;)V");
             mw.visitVarInsn(BIPUSH, ',');
             mw.visitJumpInsn(GOTO, end_);

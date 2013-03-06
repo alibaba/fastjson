@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import com.alibaba.fastjson.JSON;
+
 /**
  * @author wenshao<szujobs@hotmail.com>
  */
@@ -69,7 +71,7 @@ public class MapSerializer implements ObjectSerializer {
             boolean first = true;
             
             if (out.isEnabled(SerializerFeature.WriteClassName)) {
-                out.writeFieldName("@type");
+                out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
                 out.writeString(object.getClass().getName());
                 first = false;
             }

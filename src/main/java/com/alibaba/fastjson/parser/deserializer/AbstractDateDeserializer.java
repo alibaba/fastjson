@@ -2,6 +2,7 @@ package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.Type;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
@@ -40,7 +41,7 @@ public abstract class AbstractDateDeserializer implements ObjectDeserializer {
             if (lexer.token() == JSONToken.LITERAL_STRING) {
                 key = lexer.stringVal();
                 
-                if ("@type".equals(key)) {
+                if (JSON.DEFAULT_TYPE_KEY.equals(key)) {
                     lexer.nextToken();
                     parser.accept(JSONToken.COLON);
                     

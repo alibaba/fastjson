@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.Set;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONScanner;
@@ -41,7 +42,7 @@ public class PointDeserializer implements AutowiredObjectDeserializer {
             if (lexer.token() == JSONToken.LITERAL_STRING) {
                 key = lexer.stringVal();
                 
-                if ("@type".equals(key)) {
+                if (JSON.DEFAULT_TYPE_KEY.equals(key)) {
                     parser.acceptType("java.awt.Point");
                     continue;
                 }

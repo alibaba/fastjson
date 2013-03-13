@@ -126,7 +126,6 @@
 					</execution>
 				</executions>
 				<configuration>
-					<skip>true</skip>
 					<show>public</show>
 					<charset>UTF-8</charset>
 					<encoding>UTF-8</encoding>
@@ -191,6 +190,13 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+			<scope>provided</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
 			<groupId>javax.ws.rs</groupId>
 			<artifactId>jsr311-api</artifactId>
 			<version>1.1.1</version>
@@ -199,7 +205,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>spring-web</artifactId>
+			<artifactId>spring-webmvc</artifactId>
 			<version>3.2.0.RELEASE</version>
 			<scope>provided</scope>
 			<optional>true</optional>

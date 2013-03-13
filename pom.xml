@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.alibaba</groupId>
 	<artifactId>fastjson</artifactId>
-	<version>1.1.28-SNAPSHOT</version>
+	<version>1.1.28</version>
 
 	<packaging>jar</packaging>
 	<name>fastjson</name>
@@ -140,7 +140,7 @@
 			<plugin>
 				<artifactId>maven-gpg-plugin</artifactId>
 				<configuration>
-					<skip>true</skip>
+					<skip>false</skip>
 				</configuration>
 				<executions>
 					<execution>

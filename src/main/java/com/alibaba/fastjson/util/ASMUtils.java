@@ -8,8 +8,10 @@ import java.lang.reflect.Type;
 public class ASMUtils {
 
     public static boolean isAndroid(String vmName) {
-        return "Dalvik".equals(vmName) 
-                || "Lemur".equals(vmName) // aliyun-vm name
+    	String lowerVMName = vmName.toLowerCase();
+    	
+        return lowerVMName.contains("dalvik") 
+                || lowerVMName.contains("lemur") // aliyun-vm name
                 ;
     }
 

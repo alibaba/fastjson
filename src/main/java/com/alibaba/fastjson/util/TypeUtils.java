@@ -864,6 +864,10 @@ public class TypeUtils {
             }
 
             JSONField annotation = method.getAnnotation(JSONField.class);
+            
+            if (annotation == null) {
+            	annotation = getSupperMethodAnnotation(clazz, method);
+            }
 
             if (annotation != null) {
                 if (!annotation.serialize()) {
@@ -1027,6 +1031,39 @@ public class TypeUtils {
 
         return fieldInfoList;
     }
+
+	public static JSONField getSupperMethodAnnotation(Class<?> clazz, Method method) {
+		for (Class<?> interfaceClass : clazz.getInterfaces()) {
+			for (Method interfaceMethod : interfaceClass.getMethods()) {
+				if (!interfaceMethod.getName().equals(method.getName())) {
+					continue;
+				}
+				
+				if (interfaceMethod.getParameterTypes().length != method.getParameterTypes().length) {
+					continue;
+				}
+				
+				boolean match = true;
+				for (int i = 0; i < interfaceMethod.getParameterTypes().length; ++i) {
+					if (!interfaceMethod.getParameterTypes()[i].equals(method.getParameterTypes()[i])) {
+						match = false;
+						break;
+					}
+				}
+				
+				if (!match) {
+					continue;
+				}
+				
+				JSONField annotation = interfaceMethod.getAnnotation(JSONField.class);
+				if (annotation != null) {
+					return annotation;
+				}
+			}
+		}
+		
+		return null;
+	}
 
     private static boolean isJSONTypeIgnore(Class<?> clazz, String propertyName) {
         JSONType jsonType = clazz.getAnnotation(JSONType.class);

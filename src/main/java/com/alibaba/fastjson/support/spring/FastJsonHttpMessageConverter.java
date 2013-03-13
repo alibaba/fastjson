@@ -22,16 +22,15 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
     private Charset             charset = UTF8;
 
     private SerializerFeature[] serializerFeature;
+    
+    @Override
+	protected boolean supports(Class<?> clazz) {
+		return true;
+	}
 
     @Override
-    protected boolean supports(Class<? extends Object> clazz) {
-        return true;
-    }
-
-    @SuppressWarnings("rawtypes")
-	@Override
-    protected Object readInternal(Class clazz, HttpInputMessage inputMessage) throws IOException,
-                                                                                     HttpMessageNotReadableException {
+    protected Object readInternal(Class<? extends Object> clazz,
+			HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -83,6 +82,5 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
         
         out.write(bytes);
     }
-
 
 }

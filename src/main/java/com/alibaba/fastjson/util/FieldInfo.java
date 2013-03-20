@@ -71,37 +71,6 @@ public class FieldInfo implements Comparable<FieldInfo> {
 		} else {
 			fieldClass = field.getType();
 			fieldType = field.getGenericType();
-			if (fieldType instanceof ParameterizedType) {
-				ParameterizedType parameterizedFieldType = (ParameterizedType) fieldType;
-
-				Type[] arguments = parameterizedFieldType
-						.getActualTypeArguments();
-				boolean changed = false;
-				for (int i = 0; i < arguments.length; ++i) {
-					Type feildTypeArguement = arguments[i];
-					if (feildTypeArguement instanceof TypeVariable) {
-						TypeVariable<?> typeVar = (TypeVariable<?>) feildTypeArguement;
-
-						if (type instanceof ParameterizedType) {
-							ParameterizedType parameterizedType = (ParameterizedType) type;
-							for (int j = 0; j < clazz.getTypeParameters().length; ++j) {
-								if (clazz.getTypeParameters()[j].getName()
-										.equals(typeVar.getName())) {
-									arguments[i] = parameterizedType
-											.getActualTypeArguments()[j];
-									changed = true;
-								}
-							}
-						}
-					}
-				}
-				if (changed) {
-					fieldType = new ParameterizedTypeImpl(arguments, //
-							parameterizedFieldType.getOwnerType(),//
-							parameterizedFieldType.getRawType() //
-					);
-				}
-			}
 			this.declaringClass = field.getDeclaringClass();
 		}
 

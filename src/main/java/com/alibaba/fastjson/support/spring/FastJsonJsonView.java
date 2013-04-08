@@ -49,6 +49,22 @@ public class FastJsonJsonView extends AbstractView {
 	public void setSerializerFeature(SerializerFeature[] serializerFeature) {
 		this.serializerFeature = serializerFeature;
 	}
+	
+    public Charset getCharset() {
+    	return this.charset;
+    }
+    
+    public void setCharset(Charset charset) {
+    	this.charset = charset;
+    }
+    
+    public SerializerFeature[] getFeatures() {
+    	return serializerFeature;
+    }
+    
+    public void setFeatures(SerializerFeature... features) {
+    	this.serializerFeature = features;
+    }
 
 	@Override
 	protected void renderMergedOutputModel(Map<String, Object> model,

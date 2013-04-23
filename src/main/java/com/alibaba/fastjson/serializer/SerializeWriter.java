@@ -797,6 +797,8 @@ public final class SerializeWriter extends Writer {
             buf[lastSpecialIndex] = '\\';
             buf[++lastSpecialIndex] = replaceChars[(int) lastSpecial];
             end++;
+
+            int lastEnd = end;
             for (int i = lastSpecialIndex - 2; i >= start; --i) {
                 char ch = buf[i];
 
@@ -804,10 +806,14 @@ public final class SerializeWriter extends Writer {
                     && CharTypes.specicalFlags_doubleQuotes[ch] //
                     || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))
                     || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
-                    System.arraycopy(buf, i + 1, buf, i + 2, end - i - 1);
-                    buf[i] = '\\';
-                    buf[i + 1] = replaceChars[(int) ch];
-                    end++;
+                    // leave enough space for leader specials
+                    // and only array copy part between this special pos and last one
+                    int newPos = i + 1 + (--specialCount);
+                    System.arraycopy(buf, i + 1, buf, newPos, lastEnd - i - 1);
+                    buf[newPos - 2] = '\\';
+                    buf[newPos - 1] = replaceChars[(int) ch];
+
+                    lastEnd = i;
                 }
             }
         }

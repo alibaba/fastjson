@@ -1169,6 +1169,7 @@ public final class SerializeWriter extends Writer {
         if (checkSpecial && !isEnabled(SerializerFeature.DisableCheckSpecialChar)) {
             int specialCount = 0;
             int lastSpecialIndex = -1;
+            int firstSpecialIndex = -1;
             char lastSpecial = '\0';
 
             for (int i = valueStart; i < valueEnd; ++i) {
@@ -1182,6 +1183,10 @@ public final class SerializeWriter extends Writer {
                     specialCount++;
                     lastSpecialIndex = i;
                     lastSpecial = ch;
+                    
+                    if (firstSpecialIndex == -1) {
+                        firstSpecialIndex = i;
+                    }
                 }
             }
 
@@ -1198,22 +1203,20 @@ public final class SerializeWriter extends Writer {
                     buf[lastSpecialIndex] = '\\';
                     buf[++lastSpecialIndex] = replaceChars[(int) lastSpecial];
                 } else if (specialCount > 1) {
-                    System.arraycopy(buf, lastSpecialIndex + 1, buf, lastSpecialIndex + 2, valueEnd - lastSpecialIndex
-                                                                                           - 1);
-                    buf[lastSpecialIndex] = '\\';
-                    buf[++lastSpecialIndex] = replaceChars[(int) lastSpecial];
-                    valueEnd++;
-                    for (int i = lastSpecialIndex - 2; i >= valueStart; --i) {
-                        char ch = buf[i];
+                	int textIndex = firstSpecialIndex - valueStart;
+                    int bufIndex = firstSpecialIndex;
+                    for (int i = textIndex; i < value.length(); ++i) {
+                        char ch = value.charAt(i);
 
-                        if (ch == '\b' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\\'
-                            || ch == '"' //
+                        if (ch < CharTypes.specicalFlags_doubleQuotes.length
+                            && CharTypes.specicalFlags_doubleQuotes[ch] //
                             || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))
                             || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
-                            System.arraycopy(buf, i + 1, buf, i + 2, valueEnd - i - 1);
-                            buf[i] = '\\';
-                            buf[i + 1] = replaceChars[(int) ch];
+                            buf[bufIndex++] = '\\';
+                            buf[bufIndex++] = replaceChars[(int) ch];
                             valueEnd++;
+                        } else {
+                            buf[bufIndex++] = ch;
                         }
                     }
                 }

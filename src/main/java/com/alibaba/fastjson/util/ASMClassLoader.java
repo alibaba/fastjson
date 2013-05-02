@@ -2,6 +2,7 @@ package com.alibaba.fastjson.util;
 
 import java.security.PrivilegedAction;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 
 public class ASMClassLoader extends ClassLoader {
@@ -18,7 +19,19 @@ public class ASMClassLoader extends ClassLoader {
     }
 
     public ASMClassLoader(){
-        super(Thread.currentThread().getContextClassLoader());
+        super(getParentClassLoader());
+    }
+    
+    static ClassLoader getParentClassLoader() {
+    	ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+    	try {
+			contextClassLoader.loadClass(JSON.class.getName());
+			return contextClassLoader;
+		} catch (ClassNotFoundException e) {
+			// skip
+		}
+    	
+    	return JSON.class.getClassLoader();
     }
 
     public Class<?> defineClassPublic(String name, byte[] b, int off, int len) throws ClassFormatError {

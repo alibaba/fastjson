@@ -52,9 +52,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.deserializer.ASMJavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.DefaultObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.IntegerDeserializer;
+import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ListResolveFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.MapResolveFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
@@ -272,7 +274,19 @@ public class DefaultJSONParser extends AbstractJSONParser {
                     if (lexer.token() == JSONToken.RBRACE) {
                         lexer.nextToken(JSONToken.COMMA);
                         try {
-                            return clazz.newInstance();
+                            Object instance = null;
+                            ObjectDeserializer deserializer = this.config.getDeserializer(clazz);
+                            if (deserializer instanceof ASMJavaBeanDeserializer) {
+                                instance = ((ASMJavaBeanDeserializer) deserializer).createInstance(this, clazz);
+                            } else if (deserializer instanceof JavaBeanDeserializer) {
+                                instance = ((JavaBeanDeserializer) deserializer).createInstance(this, clazz);
+                            }
+                            
+                            if (instance == null) {
+                                instance = clazz.newInstance();
+                            }
+                            
+                            return instance;
                         } catch (Exception e) {
                             throw new JSONException("create instance error", e);
                         }
@@ -287,7 +301,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                     ObjectDeserializer deserializer = config.getDeserializer(clazz);
                     return deserializer.deserialze(this, clazz, fieldName);
                 }
-                
+
                 if (key == "$ref") {
                     lexer.nextToken(JSONToken.LITERAL_STRING);
                     if (lexer.token() == JSONToken.LITERAL_STRING) {
@@ -334,7 +348,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                         throw new JSONException("illegal ref, " + JSONToken.name(lexer.token()));
                     }
                 }
-                
+
                 if (!setContextFlag) {
                     setContext(object, fieldName);
                     setContextFlag = true;
@@ -844,7 +858,8 @@ public class DefaultJSONParser extends AbstractJSONParser {
         }
 
         if (lexer.token() != JSONToken.LBRACKET) {
-            throw new JSONException("syntax error, expect [, actual " + JSONToken.name(lexer.token()) + ", pos " + lexer.pos());
+            throw new JSONException("syntax error, expect [, actual " + JSONToken.name(lexer.token()) + ", pos "
+                                    + lexer.pos());
         }
 
         lexer.nextToken(JSONToken.LITERAL_STRING);
@@ -977,17 +992,17 @@ public class DefaultJSONParser extends AbstractJSONParser {
         if (isEnabled(Feature.DisableCircularReferenceDetect)) {
             return null;
         }
-        
+
         this.context = new ParseContext(parent, object, fieldName);
         addContext(this.context);
 
         return this.context;
     }
-    
+
     public int getContextLength() {
         return contextArrayIndex;
     }
-    
+
     public void clearContext(ParseContext context, int start) {
         for (int i = start; i < contextArrayIndex; ++i) {
             contextArray[i] = null;

@@ -9,12 +9,12 @@ import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 
 public class AbstractSerializeTest extends TestCase {
-    
+
     protected void setUp() throws Exception {
         ObjectDeserializer serializerB = ParserConfig.getGlobalInstance().getDeserializer(B.class);
         ParserConfig.getGlobalInstance().putDeserializer(A.class, serializerB);
     }
-    
+
     protected void tearDown() throws Exception {
         ParserConfig.getGlobalInstance().putDeserializer(A.class, null);
     }
@@ -28,7 +28,7 @@ public class AbstractSerializeTest extends TestCase {
         B b = (B) JSON.parse(text);
         Assert.assertNotNull(b);
     }
-    
+
     public void test_mapping_1() throws Exception {
         String text = "{\"@type\":\"com.alibaba.json.bvt.parser.deser.AbstractSerializeTest$A\",\"id\":123}";
 
@@ -50,6 +50,30 @@ public class AbstractSerializeTest extends TestCase {
         Assert.assertNotNull(b);
         Assert.assertEquals(234, b.getId());
         Assert.assertEquals("abc", b.getName());
+    }
+
+    public void test_mapping_group() throws Exception {
+        String text = "{\"a\":{\"id\":234,\"name\":\"abc\"}}";
+
+        ObjectDeserializer serializerB = ParserConfig.getGlobalInstance().getDeserializer(B.class);
+        ParserConfig.getGlobalInstance().putDeserializer(A.class, serializerB);
+
+        G g = JSON.parseObject(text, G.class);
+        Assert.assertTrue(g.getA() instanceof B);
+    }
+
+    public static class G {
+
+        private A a;
+
+        public A getA() {
+            return a;
+        }
+
+        public void setA(A a) {
+            this.a = a;
+        }
+
     }
 
     public static abstract class A {

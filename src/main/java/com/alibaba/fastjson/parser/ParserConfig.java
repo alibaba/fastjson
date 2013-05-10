@@ -57,6 +57,7 @@ import java.util.regex.Pattern;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.asm.ASMException;
 import com.alibaba.fastjson.parser.deserializer.ASMDeserializerFactory;
 import com.alibaba.fastjson.parser.deserializer.ASMJavaBeanDeserializer;
@@ -308,6 +309,16 @@ public class ParserConfig {
         derializer = derializers.get(type);
         if (derializer != null) {
             return derializer;
+        }
+        
+        {
+            JSONType annotation = clazz.getAnnotation(JSONType.class);
+            if (annotation != null) {
+                Class<?> mappingTo = annotation.mappingTo();
+                if (mappingTo != Void.class) {
+                    return getDeserializer(mappingTo, mappingTo);
+                }
+            }
         }
 
         if (type instanceof WildcardType || type instanceof TypeVariable || type instanceof ParameterizedType) {

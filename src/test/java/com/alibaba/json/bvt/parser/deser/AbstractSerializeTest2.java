@@ -5,14 +5,12 @@ import junit.framework.TestCase;
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 
 public class AbstractSerializeTest2 extends TestCase {
 
     protected void setUp() throws Exception {
-        ObjectDeserializer serializerB = ParserConfig.getGlobalInstance().getDeserializer(B.class);
-        ParserConfig.getGlobalInstance().putDeserializer(A.class, serializerB);
     }
 
     protected void tearDown() throws Exception {
@@ -20,20 +18,14 @@ public class AbstractSerializeTest2 extends TestCase {
     }
 
     public void test_mapping_0() throws Exception {
-        String text = "{\"@type\":\"com.alibaba.json.bvt.parser.deser.AbstractSerializeTest$A\"}";
-
-        ObjectDeserializer serializerB = ParserConfig.getGlobalInstance().getDeserializer(B.class);
-        ParserConfig.getGlobalInstance().putDeserializer(A.class, serializerB);
+        String text = "{\"@type\":\"com.alibaba.json.bvt.parser.deser.AbstractSerializeTest2$A\"}";
 
         B b = (B) JSON.parse(text);
         Assert.assertNotNull(b);
     }
 
     public void test_mapping_1() throws Exception {
-        String text = "{\"@type\":\"com.alibaba.json.bvt.parser.deser.AbstractSerializeTest$A\",\"id\":123}";
-
-        ObjectDeserializer serializerB = ParserConfig.getGlobalInstance().getDeserializer(B.class);
-        ParserConfig.getGlobalInstance().putDeserializer(A.class, serializerB);
+        String text = "{\"@type\":\"com.alibaba.json.bvt.parser.deser.AbstractSerializeTest2$A\",\"id\":123}";
 
         B b = (B) JSON.parse(text);
         Assert.assertNotNull(b);
@@ -41,10 +33,7 @@ public class AbstractSerializeTest2 extends TestCase {
     }
 
     public void test_mapping_2() throws Exception {
-        String text = "{\"@type\":\"com.alibaba.json.bvt.parser.deser.AbstractSerializeTest$A\",\"id\":234,\"name\":\"abc\"}";
-
-        ObjectDeserializer serializerB = ParserConfig.getGlobalInstance().getDeserializer(B.class);
-        ParserConfig.getGlobalInstance().putDeserializer(A.class, serializerB);
+        String text = "{\"@type\":\"com.alibaba.json.bvt.parser.deser.AbstractSerializeTest2$A\",\"id\":234,\"name\":\"abc\"}";
 
         B b = (B) JSON.parse(text);
         Assert.assertNotNull(b);
@@ -54,9 +43,6 @@ public class AbstractSerializeTest2 extends TestCase {
 
     public void test_mapping_group() throws Exception {
         String text = "{\"a\":{\"id\":234,\"name\":\"abc\"}}";
-
-        ObjectDeserializer serializerB = ParserConfig.getGlobalInstance().getDeserializer(B.class);
-        ParserConfig.getGlobalInstance().putDeserializer(A.class, serializerB);
 
         G g = JSON.parseObject(text, G.class);
         Assert.assertTrue(g.getA() instanceof B);
@@ -76,6 +62,7 @@ public class AbstractSerializeTest2 extends TestCase {
 
     }
 
+    @JSONType(mappingTo = B.class)
     public static abstract class A {
 
         private int id;

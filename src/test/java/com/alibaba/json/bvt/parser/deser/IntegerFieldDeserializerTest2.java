@@ -25,13 +25,24 @@ public class IntegerFieldDeserializerTest2 extends TestCase {
 		Assert.assertNotNull("aa", map.get("value").getColumn1());
 	}
 	
-	public void f_test_integer_2() throws Exception {
+	public void test_integer_2() throws Exception {
 		String text = "[{\"value\":{\"column1\":\"aa\"}}]";
 		List<Map<String, Entity>> mapList = JSON.parseObject(text, new TypeReference<List<Map<String, Entity>>>(){});
 		Map<String, Entity> map = mapList.get(0);
 		Assert.assertNotNull(map);
 		Assert.assertNotNull(map.get("value"));
 		Assert.assertNotNull("aa", map.get("value").getColumn1());
+	}
+	
+	public void test_integer_3() throws Exception {
+		String text = "{\"value\":{\"valueA\":{\"column1\":\"aa\"}, \"valueB\":{\"column1\":\"bb\"}}}";
+		Map<String, Map<String, Entity>> mapmap = JSON.parseObject(text, new TypeReference<Map<String, Map<String, Entity>>>(){});
+		Map<String, Entity> map = mapmap.get("value");
+		Assert.assertNotNull(map);
+		Assert.assertNotNull(map.get("valueA"));
+		Assert.assertNotNull("aa", map.get("valueA").getColumn1());
+		Assert.assertNotNull(map.get("valueB"));
+		Assert.assertNotNull("bb", map.get("valueB").getColumn1());
 	}
 
 	public static class Entity implements Serializable {

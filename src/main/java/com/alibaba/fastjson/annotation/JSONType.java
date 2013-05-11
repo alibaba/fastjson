@@ -23,4 +23,6 @@ public @interface JSONType {
     SerializerFeature[] serialzeFeatures() default {};
     
     boolean alphabetic() default true;
+    
+    Class<?> mappingTo() default Void.class;
 }

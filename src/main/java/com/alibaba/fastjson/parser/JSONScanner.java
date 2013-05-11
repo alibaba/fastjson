@@ -1033,7 +1033,7 @@ public final class JSONScanner implements JSONLexer {
         }
         return null;
     }
-
+    
     public String scanFieldSymbol(char[] fieldName, final SymbolTable symbolTable) {
         matchStat = UNKOWN;
 
@@ -2534,16 +2534,10 @@ public final class JSONScanner implements JSONLexer {
     }
 
     public boolean isEOF() {
-        switch (token) {
-            case JSONToken.EOF:
-                return true;
-            case JSONToken.ERROR:
-                return false;
-            case JSONToken.RBRACE:
-                return false;
-            default:
-                return false;
-        }
+    	if (token == JSONToken.EOF) {
+    		return true;
+    	}
+    	return false;
     }
 
     public void close() {

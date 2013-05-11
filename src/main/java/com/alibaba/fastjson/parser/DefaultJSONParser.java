@@ -523,7 +523,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                         continue;
                     }
                 }
-
+                
                 if (lexer.token() == JSONToken.RBRACKET) {
                     break;
                 }

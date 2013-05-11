@@ -250,6 +250,10 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
                 parser.checkMapResolve(map, key);
 
                 parser.setContext(context, value, key);
+                
+                if (lexer.token() == JSONToken.EOF) {
+                	return map;
+                }
 
                 if (lexer.token() == JSONToken.RBRACE) {
                     lexer.nextToken();

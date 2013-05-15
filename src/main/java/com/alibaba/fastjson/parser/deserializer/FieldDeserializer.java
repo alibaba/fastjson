@@ -60,7 +60,9 @@ public abstract class FieldDeserializer {
             try {
                 if (fieldInfo.isGetOnly()) {
                     Collection collection = (Collection) method.invoke(object);
-                    collection.addAll((Collection) value);
+                    if (collection != null) {
+                        collection.addAll((Collection) value);
+                    }
                 } else {
                     method.invoke(object, value);
                 }

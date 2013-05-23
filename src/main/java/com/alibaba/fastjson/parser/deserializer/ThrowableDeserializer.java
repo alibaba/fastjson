@@ -23,6 +23,11 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         JSONScanner lexer = (JSONScanner) parser.getLexer();
+        
+        if (lexer.token() == JSONToken.NULL) {
+            lexer.nextToken();
+            return null;
+        }
 
         if (parser.getResolveStatus() == DefaultJSONParser.TypeNameRedirect) {
             parser.setResolveStatus(DefaultJSONParser.NONE);

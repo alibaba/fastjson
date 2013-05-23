@@ -445,9 +445,9 @@ public class TypeUtils {
         if (obj == null) {
             return null;
         }
-        
+
         if (clazz == null) {
-        	throw new IllegalArgumentException("clazz is null");
+            throw new IllegalArgumentException("clazz is null");
         }
 
         if (clazz == obj.getClass()) {
@@ -707,9 +707,9 @@ public class TypeUtils {
                     String className = (String) iClassObject;
 
                     clazz = (Class<T>) loadClass(className);
-                    
+
                     if (clazz == null) {
-                    	throw new ClassNotFoundException(className + " not found");
+                        throw new ClassNotFoundException(className + " not found");
                     }
                 }
             }
@@ -760,7 +760,7 @@ public class TypeUtils {
 
         mappings.put(className, clazz);
     }
-    
+
     public static void addBaseClassMappings() {
         mappings.put("byte", byte.class);
         mappings.put("short", short.class);
@@ -779,10 +779,10 @@ public class TypeUtils {
         mappings.put("[double", double[].class);
         mappings.put("[boolean", boolean[].class);
         mappings.put("[char", char[].class);
-        
+
         mappings.put(HashMap.class.getName(), HashMap.class);
     }
-    
+
     public static void clearClassMapping() {
         mappings.clear();
         addBaseClassMappings();
@@ -864,9 +864,9 @@ public class TypeUtils {
             }
 
             JSONField annotation = method.getAnnotation(JSONField.class);
-            
+
             if (annotation == null) {
-            	annotation = getSupperMethodAnnotation(clazz, method);
+                annotation = getSupperMethodAnnotation(clazz, method);
             }
 
             if (annotation != null) {
@@ -912,19 +912,25 @@ public class TypeUtils {
 
                 Field field = ParserConfig.getField(clazz, propertyName);
                 if (field == null) {
-                	field = ParserConfig.getField(clazz, methodName.substring(3));
+                    field = ParserConfig.getField(clazz, methodName.substring(3));
                 }
-                
+
                 if (field != null) {
                     JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
 
-                    if (fieldAnnotation != null && fieldAnnotation.name().length() != 0) {
-                        propertyName = fieldAnnotation.name();
+                    if (fieldAnnotation != null) {
+                        if (!fieldAnnotation.serialize()) {
+                            continue;
+                        }
+                        
+                        if (fieldAnnotation.name().length() != 0) {
+                            propertyName = fieldAnnotation.name();
 
-                        if (aliasMap != null) {
-                            propertyName = aliasMap.get(propertyName);
-                            if (propertyName == null) {
-                                continue;
+                            if (aliasMap != null) {
+                                propertyName = aliasMap.get(propertyName);
+                                if (propertyName == null) {
+                                    continue;
+                                }
                             }
                         }
                     }
@@ -1032,38 +1038,38 @@ public class TypeUtils {
         return fieldInfoList;
     }
 
-	public static JSONField getSupperMethodAnnotation(Class<?> clazz, Method method) {
-		for (Class<?> interfaceClass : clazz.getInterfaces()) {
-			for (Method interfaceMethod : interfaceClass.getMethods()) {
-				if (!interfaceMethod.getName().equals(method.getName())) {
-					continue;
-				}
-				
-				if (interfaceMethod.getParameterTypes().length != method.getParameterTypes().length) {
-					continue;
-				}
-				
-				boolean match = true;
-				for (int i = 0; i < interfaceMethod.getParameterTypes().length; ++i) {
-					if (!interfaceMethod.getParameterTypes()[i].equals(method.getParameterTypes()[i])) {
-						match = false;
-						break;
-					}
-				}
-				
-				if (!match) {
-					continue;
-				}
-				
-				JSONField annotation = interfaceMethod.getAnnotation(JSONField.class);
-				if (annotation != null) {
-					return annotation;
-				}
-			}
-		}
-		
-		return null;
-	}
+    public static JSONField getSupperMethodAnnotation(Class<?> clazz, Method method) {
+        for (Class<?> interfaceClass : clazz.getInterfaces()) {
+            for (Method interfaceMethod : interfaceClass.getMethods()) {
+                if (!interfaceMethod.getName().equals(method.getName())) {
+                    continue;
+                }
+
+                if (interfaceMethod.getParameterTypes().length != method.getParameterTypes().length) {
+                    continue;
+                }
+
+                boolean match = true;
+                for (int i = 0; i < interfaceMethod.getParameterTypes().length; ++i) {
+                    if (!interfaceMethod.getParameterTypes()[i].equals(method.getParameterTypes()[i])) {
+                        match = false;
+                        break;
+                    }
+                }
+
+                if (!match) {
+                    continue;
+                }
+
+                JSONField annotation = interfaceMethod.getAnnotation(JSONField.class);
+                if (annotation != null) {
+                    return annotation;
+                }
+            }
+        }
+
+        return null;
+    }
 
     private static boolean isJSONTypeIgnore(Class<?> clazz, String propertyName) {
         JSONType jsonType = clazz.getAnnotation(JSONType.class);

@@ -118,7 +118,7 @@ public final class JSONScanner implements JSONLexer {
             ch = charAt(++bp);
         }
     }
-    
+
     public final char charAt(int index) {
         if (index >= text.length()) {
             return EOI;
@@ -132,7 +132,7 @@ public final class JSONScanner implements JSONLexer {
     }
 
     public JSONScanner(char[] input, int inputLength, int features){
-        this (new String(input, 0, inputLength), features);
+        this(new String(input, 0, inputLength), features);
     }
 
     public boolean isResetFlag() {
@@ -587,7 +587,7 @@ public final class JSONScanner implements JSONLexer {
                     }
 
                     text.getChars(np + 1, np + 1 + sp, sbuf, 0);
-//                    System.arraycopy(buf, np + 1, sbuf, 0, sp);
+                    // System.arraycopy(buf, np + 1, sbuf, 0, sp);
                 }
 
                 ch = charAt(++bp);
@@ -686,7 +686,7 @@ public final class JSONScanner implements JSONLexer {
                     }
 
                     text.getChars(np + 1, np + 1 + sp, sbuf, 0);
-//                  System.arraycopy(buf, np + 1, sbuf, 0, sp);
+                    // System.arraycopy(buf, np + 1, sbuf, 0, sp);
                 }
 
                 ch = charAt(++bp);
@@ -795,10 +795,10 @@ public final class JSONScanner implements JSONLexer {
             && charAt(np + 3) == 'l') {
             return null;
         }
-        
+
         return text.substring(np, np + sp).intern();
 
-//        return symbolTable.addSymbol(buf, np, sp, hash);
+        // return symbolTable.addSymbol(buf, np, sp, hash);
     }
 
     public final static int     NOT_MATCH      = -1;
@@ -899,12 +899,12 @@ public final class JSONScanner implements JSONLexer {
 
         return true;
     }
-    
+
     static final boolean charArrayCompare(String src, int offset, char[] dest) {
         final int destLen = dest.length;
-         if (destLen + offset > src.length()) {
-             return false;
-         }
+        if (destLen + offset > src.length()) {
+            return false;
+        }
 
         for (int i = 0; i < destLen; ++i) {
             if (dest[i] != src.charAt(offset + i)) {
@@ -940,7 +940,7 @@ public final class JSONScanner implements JSONLexer {
 
             return stringDefaultValue();
         }
-        
+
         boolean hasSpecial = false;
         final String strVal;
         {
@@ -957,7 +957,7 @@ public final class JSONScanner implements JSONLexer {
                     break;
                 }
             }
-            
+
             if (hasSpecial) {
                 matchStat = NOT_MATCH;
 
@@ -967,34 +967,34 @@ public final class JSONScanner implements JSONLexer {
             bp = endIndex + 1;
             this.ch = ch = charAt(bp);
             strVal = stringVal;
-//                this.stringVal = stringVal;
-//                int pos = endIndex + 1;
-//                char ch = charAt(pos);
-//                if (ch != '\'') {
-//                    this.pos = pos;
-//                    this.ch = ch;
-//                    token = LITERAL_CHARS;
-//                    return;
-//                }
+            // this.stringVal = stringVal;
+            // int pos = endIndex + 1;
+            // char ch = charAt(pos);
+            // if (ch != '\'') {
+            // this.pos = pos;
+            // this.ch = ch;
+            // token = LITERAL_CHARS;
+            // return;
+            // }
         }
 
-//        final int start = index;
-//        for (;;) {
-//            ch = charAt(index++);
-//            if (ch == '\"') {
-//                bp = index;
-//                this.ch = ch = charAt(bp);
-//                strVal = text.substring(start, index - 1);
-////                strVal = new String(buf, start, index - start - 1);
-//                break;
-//            }
-//
-//            if (ch == '\\') {
-//                matchStat = NOT_MATCH;
-//
-//                return stringDefaultValue();
-//            }
-//        }
+        // final int start = index;
+        // for (;;) {
+        // ch = charAt(index++);
+        // if (ch == '\"') {
+        // bp = index;
+        // this.ch = ch = charAt(bp);
+        // strVal = text.substring(start, index - 1);
+        // // strVal = new String(buf, start, index - start - 1);
+        // break;
+        // }
+        //
+        // if (ch == '\\') {
+        // matchStat = NOT_MATCH;
+        //
+        // return stringDefaultValue();
+        // }
+        // }
 
         if (ch == ',') {
             this.ch = charAt(++bp);
@@ -1033,7 +1033,7 @@ public final class JSONScanner implements JSONLexer {
         }
         return null;
     }
-    
+
     public String scanFieldSymbol(char[] fieldName, final SymbolTable symbolTable) {
         matchStat = UNKOWN;
 
@@ -1058,7 +1058,7 @@ public final class JSONScanner implements JSONLexer {
             if (ch == '\"') {
                 bp = index;
                 this.ch = ch = charAt(bp);
-//                strVal = text.substring(start, index - 1).intern();
+                // strVal = text.substring(start, index - 1).intern();
                 strVal = symbolTable.addSymbol(text, start, index - start - 1, hash);
                 break;
             }
@@ -1151,7 +1151,7 @@ public final class JSONScanner implements JSONLexer {
                 ch = charAt(index++);
                 if (ch == '\"') {
                     strVal = text.substring(start, index - 1);
-//                    strVal = new String(buf, start, index - start - 1);
+                    // strVal = new String(buf, start, index - start - 1);
                     list.add(strVal);
                     ch = charAt(index++);
                     break;
@@ -1471,7 +1471,7 @@ public final class JSONScanner implements JSONLexer {
 
             bp = index - 1;
             String text = this.text.substring(start, index - 1);
-//            String text = new String(buf, start, index - start - 1);
+            // String text = new String(buf, start, index - start - 1);
             value = Float.parseFloat(text);
         } else {
             matchStat = NOT_MATCH;
@@ -1556,7 +1556,7 @@ public final class JSONScanner implements JSONLexer {
 
             bp = index - 1;
             String text = this.text.substring(start, index - 1);
-//            String text = new String(buf, start, index - start - 1);
+            // String text = new String(buf, start, index - start - 1);
             value = Double.parseDouble(text);
         } else {
             matchStat = NOT_MATCH;
@@ -1669,7 +1669,7 @@ public final class JSONScanner implements JSONLexer {
                     }
 
                     text.getChars(np + 1, np + 1 + sp, sbuf, 0);
-//                  System.arraycopy(buf, np + 1, sbuf, 0, sp);
+                    // System.arraycopy(buf, np + 1, sbuf, 0, sp);
                 }
 
                 ch = charAt(++bp);
@@ -1742,7 +1742,7 @@ public final class JSONScanner implements JSONLexer {
         this.ch = charAt(++bp);
 
         if (!hasSpecial) {
-//            return this.text.substring(np + 1, np + 1 + sp).intern();
+            // return this.text.substring(np + 1, np + 1 + sp).intern();
             return symbolTable.addSymbol(text, np + 1, sp, hash);
         } else {
             return symbolTable.addSymbol(sbuf, 0, sp, hash);
@@ -2026,17 +2026,17 @@ public final class JSONScanner implements JSONLexer {
      */
     public final String stringVal() {
         if (!hasSpecial) {
-//            return new String(buf, np + 1, sp);
+            // return new String(buf, np + 1, sp);
             return text.substring(np + 1, np + 1 + sp);
         } else {
             return new String(sbuf, 0, sp);
         }
     }
-    
+
     public final String subString(int offset, int count) {
         return text.substring(offset, offset + count);
     }
-    
+
     //
     public boolean isRef() {
         if (hasSpecial) {
@@ -2054,7 +2054,7 @@ public final class JSONScanner implements JSONLexer {
         if (symbolTable == null) {
             if (!hasSpecial) {
                 return text.substring(np + 1, np + 1 + sp);
-//                return new String(buf, np + 1, sp);
+                // return new String(buf, np + 1, sp);
             } else {
                 return new String(sbuf, 0, sp);
             }
@@ -2286,7 +2286,7 @@ public final class JSONScanner implements JSONLexer {
         }
 
         return text.substring(np, np + sp);
-//        return new String(buf, np, sp);
+        // return new String(buf, np, sp);
     }
 
     public float floatValue() {
@@ -2300,13 +2300,13 @@ public final class JSONScanner implements JSONLexer {
     public Number decimalValue(boolean decimal) {
         char ch = charAt(np + sp - 1);
         if (ch == 'F') {
-            return Float.parseFloat(text.substring(np, np + sp -1));
-//            return Float.parseFloat(new String(buf, np, sp - 1));
+            return Float.parseFloat(text.substring(np, np + sp - 1));
+            // return Float.parseFloat(new String(buf, np, sp - 1));
         }
 
         if (ch == 'D') {
-            return Double.parseDouble(text.substring(np, np + sp -1));
-//            return Double.parseDouble(new String(buf, np, sp - 1));
+            return Double.parseDouble(text.substring(np, np + sp - 1));
+            // return Double.parseDouble(new String(buf, np, sp - 1));
         }
 
         if (decimal) {
@@ -2325,7 +2325,7 @@ public final class JSONScanner implements JSONLexer {
         }
 
         return new BigDecimal(text.substring(np, np + sp));
-//        return new BigDecimal(buf, np, sp);
+        // return new BigDecimal(buf, np, sp);
     }
 
     public void config(Feature feature, boolean state) {
@@ -2341,7 +2341,48 @@ public final class JSONScanner implements JSONLexer {
     public final int ISO8601_LEN_2 = "0000-00-00T00:00:00.000".length();
 
     public boolean scanISO8601DateIfMatch() {
+        return scanISO8601DateIfMatch(true);
+    }
+
+    public boolean scanISO8601DateIfMatch(boolean strict) {
         int rest = text.length() - bp;
+
+        if (rest == 8) {
+            if (strict) {
+                return false;
+            }
+
+            char y0 = charAt(bp);
+            char y1 = charAt(bp + 1);
+            char y2 = charAt(bp + 2);
+            char y3 = charAt(bp + 3);
+            char M0 = charAt(bp + 4);
+            char M1 = charAt(bp + 5);
+            char d0 = charAt(bp + 6);
+            char d1 = charAt(bp + 7);
+            
+            if (!checkYear(y0, y1, y2, y3)) {
+                return false;
+            }
+
+            if (!checkMonth(M0, M1)) {
+                return false;
+            }
+
+            if (!checkDay(d0, d1)) {
+                return false;
+            }
+
+            setCalendar(y0, y1, y2, y3, M0, M1, d0, d1);
+            
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+
+            token = JSONToken.LITERAL_ISO8601_DATE;
+            return true;
+        }
 
         if (rest < ISO8601_LEN_0) {
             return false;
@@ -2351,16 +2392,7 @@ public final class JSONScanner implements JSONLexer {
         char y1 = charAt(bp + 1);
         char y2 = charAt(bp + 2);
         char y3 = charAt(bp + 3);
-        if (y0 != '1' && y0 != '2') {
-            return false;
-        }
-        if (y1 < '0' || y1 > '9') {
-            return false;
-        }
-        if (y2 < '0' || y2 > '9') {
-            return false;
-        }
-        if (y3 < '0' || y3 > '9') {
+        if (!checkYear(y0, y1, y2, y3)) {
             return false;
         }
 
@@ -2370,15 +2402,7 @@ public final class JSONScanner implements JSONLexer {
 
         char M0 = charAt(bp + 5);
         char M1 = charAt(bp + 6);
-        if (M0 == '0') {
-            if (M1 < '1' || M1 > '9') {
-                return false;
-            }
-        } else if (M0 == '1') {
-            if (M1 != '0' && M1 != '1' && M1 != '2') {
-                return false;
-            }
-        } else {
+        if (!checkMonth(M0, M1)) {
             return false;
         }
 
@@ -2388,33 +2412,14 @@ public final class JSONScanner implements JSONLexer {
 
         char d0 = charAt(bp + 8);
         char d1 = charAt(bp + 9);
-        if (d0 == '0') {
-            if (d1 < '1' || d1 > '9') {
-                return false;
-            }
-        } else if (d0 == '1' || d0 == '2') {
-            if (d1 < '0' || d1 > '9') {
-                return false;
-            }
-        } else if (d0 == '3') {
-            if (d1 != '0' && d1 != '1') {
-                return false;
-            }
-        } else {
+        if (!checkDay(d0, d1)) {
             return false;
         }
 
-        Locale local = Locale.getDefault();
-        calendar = Calendar.getInstance(TimeZone.getDefault(), local);
-        int year = digits[y0] * 1000 + digits[y1] * 100 + digits[y2] * 10 + digits[y3];
-        int month = digits[M0] * 10 + digits[M1] - 1;
-        int day = digits[d0] * 10 + digits[d1];
-        calendar.set(Calendar.YEAR, year);
-        calendar.set(Calendar.MONTH, month);
-        calendar.set(Calendar.DAY_OF_MONTH, day);
+        setCalendar(y0, y1, y2, y3, M0, M1, d0, d1);
 
         char t = charAt(bp + 10);
-        if (t == 'T') {
+        if (t == 'T' || (t == ' ' && !strict)) {
             if (rest < ISO8601_LEN_1) {
                 return false;
             }
@@ -2529,15 +2534,78 @@ public final class JSONScanner implements JSONLexer {
         return true;
     }
 
+    private void setCalendar(char y0, char y1, char y2, char y3, char M0, char M1, char d0, char d1) {
+        Locale local = Locale.getDefault();
+        calendar = Calendar.getInstance(TimeZone.getDefault(), local);
+        int year = digits[y0] * 1000 + digits[y1] * 100 + digits[y2] * 10 + digits[y3];
+        int month = digits[M0] * 10 + digits[M1] - 1;
+        int day = digits[d0] * 10 + digits[d1];
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.MONTH, month);
+        calendar.set(Calendar.DAY_OF_MONTH, day);
+    }
+
+    static boolean checkDay(char d0, char d1) {
+        if (d0 == '0') {
+            if (d1 < '1' || d1 > '9') {
+                return false;
+            }
+        } else if (d0 == '1' || d0 == '2') {
+            if (d1 < '0' || d1 > '9') {
+                return false;
+            }
+        } else if (d0 == '3') {
+            if (d1 != '0' && d1 != '1') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        return true;
+    }
+
+    static boolean checkMonth(char M0, char M1) {
+        if (M0 == '0') {
+            if (M1 < '1' || M1 > '9') {
+                return false;
+            }
+        } else if (M0 == '1') {
+            if (M1 != '0' && M1 != '1' && M1 != '2') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        return true;
+    }
+
+    static boolean checkYear(char y0, char y1, char y2, char y3) {
+        if (y0 != '1' && y0 != '2') {
+            return false;
+        }
+        if (y1 < '0' || y1 > '9') {
+            return false;
+        }
+        if (y2 < '0' || y2 > '9') {
+            return false;
+        }
+        if (y3 < '0' || y3 > '9') {
+            return false;
+        }
+        return true;
+    }
+
     public Calendar getCalendar() {
         return this.calendar;
     }
 
     public boolean isEOF() {
-    	if (token == JSONToken.EOF) {
-    		return true;
-    	}
-    	return false;
+        if (token == JSONToken.EOF) {
+            return true;
+        }
+        return false;
     }
 
     public void close() {

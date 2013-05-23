@@ -31,7 +31,7 @@ public class DateDeserializer extends AbstractDateDeserializer implements Object
             }
 
             JSONScanner dateLexer = new JSONScanner(strVal);
-            if (dateLexer.scanISO8601DateIfMatch()) {
+            if (dateLexer.scanISO8601DateIfMatch(false)) {
                 return (T) dateLexer.getCalendar().getTime();
             }
 

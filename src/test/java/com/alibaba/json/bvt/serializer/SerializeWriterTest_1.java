@@ -36,12 +36,6 @@ public class SerializeWriterTest_1 extends TestCase {
         Assert.assertEquals("'abc'", new String(out.toBytes("UTF-16"), "UTF-16"));
     }
     
-    public void test_4 () throws Exception {
-        SerializeWriter out = new SerializeWriter(1);
-        out.writeBooleanArray(new boolean[] {true, true, false, false});
-        Assert.assertEquals("[true,true,false,false]", new String(out.toBytes("UTF-16"), "UTF-16"));
-    }
-    
     public void test_5 () throws Exception {
         SerializeWriter out = new SerializeWriter(1);
         out.write((String) null);

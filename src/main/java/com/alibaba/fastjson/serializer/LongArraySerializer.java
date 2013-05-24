@@ -39,7 +39,14 @@ public class LongArraySerializer implements ObjectSerializer {
 
         long[] array = (long[]) object;
 
-        out.writeLongArray(array);
+        out.write('[');
+        for (int i = 0; i < array.length; ++i) {
+            if (i != 0) {
+                out.write(',');
+            }
+            out.writeLong(array[i]);
+        }
+        out.write(']');
     }
     
 

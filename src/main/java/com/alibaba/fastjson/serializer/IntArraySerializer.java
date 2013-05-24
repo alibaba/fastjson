@@ -39,6 +39,13 @@ public class IntArraySerializer implements ObjectSerializer {
 
         int[] array = (int[]) object;
 
-        out.writeIntArray(array);
+        out.write('[');
+        for (int i = 0; i < array.length; ++i) {
+            if (i != 0) {
+                out.write(',');
+            }
+            out.writeInt(array[i]);
+        }
+        out.write(']');
     }
 }

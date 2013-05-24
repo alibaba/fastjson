@@ -18,24 +18,6 @@ public class LongArraySerializerTest extends TestCase {
         Assert.assertEquals("{\"value\":[]}", JSON.toJSONString(new Entity(), SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullListAsEmpty));
     }
 
-    public void test_1() throws Exception {
-        SerializeWriter out = new SerializeWriter(1);
-        out.writeLongArray(new long[] { 1, 2, 3 });
-        Assert.assertEquals("[1,2,3]", out.toString());
-    }
-
-    public void test_2() throws Exception {
-        SerializeWriter out = new SerializeWriter(100);
-        out.writeLongArray(new long[] { 1, 2, 3 });
-        Assert.assertEquals("[1,2,3]", out.toString());
-    }
-
-    public void test_3() throws Exception {
-        SerializeWriter out = new SerializeWriter(100);
-        out.writeLongArray(new long[] { 1, 2, Long.MIN_VALUE });
-        Assert.assertEquals("[1,2,-9223372036854775808]", out.toString());
-    }
-    
     public static class Entity {
 
         private long[] value;

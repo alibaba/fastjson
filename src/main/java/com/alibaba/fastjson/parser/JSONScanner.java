@@ -2346,8 +2346,44 @@ public final class JSONScanner implements JSONLexer {
 
     public boolean scanISO8601DateIfMatch(boolean strict) {
         int rest = text.length() - bp;
+        
+        if ((!strict) && rest > 13) {
+            char c0 = charAt(bp);
+            char c1 = charAt(bp + 1);
+            char c2 = charAt(bp + 2);
+            char c3 = charAt(bp + 3);
+            char c4 = charAt(bp + 4);
+            char c5 = charAt(bp + 5);
+            
+            char c_r0 = charAt(bp + rest - 1);
+            char c_r1 = charAt(bp + rest - 2);
+            if (c0 == '/' && c1 == 'D' && c2 == 'a' && c3 == 't' && c4 == 'e' && c5 == '(' && c_r0 == '/' && c_r1 == ')') {
+                int plusIndex = -1;
+                for (int i = 6; i < rest; ++i) {
+                    char c = charAt(bp + i);
+                    if (c == '+') {
+                        plusIndex = i;
+                    } else if (c < '0' || c > '9') {
+                        break;
+                    }
+                }
+                if (plusIndex == -1) {
+                    return false;
+                }
+                int offset = bp + 6;
+                String numberText = this.subString(offset, plusIndex - offset);
+                long millis = Long.parseLong(numberText);
+                
+                Locale local = Locale.getDefault();
+                calendar = Calendar.getInstance(TimeZone.getDefault(), local);
+                calendar.setTimeInMillis(millis);
+                
+                token = JSONToken.LITERAL_ISO8601_DATE;
+                return true;
+            }
+        }
 
-        if (rest == 8) {
+        if (rest == 8 || rest == 14 || rest == 17) {
             if (strict) {
                 return false;
             }
@@ -2360,26 +2396,54 @@ public final class JSONScanner implements JSONLexer {
             char M1 = charAt(bp + 5);
             char d0 = charAt(bp + 6);
             char d1 = charAt(bp + 7);
-            
-            if (!checkYear(y0, y1, y2, y3)) {
-                return false;
-            }
 
-            if (!checkMonth(M0, M1)) {
-                return false;
-            }
-
-            if (!checkDay(d0, d1)) {
+            if (!checkDate(y0, y1, y2, y3, M0, M1, d0, d1)) {
                 return false;
             }
 
             setCalendar(y0, y1, y2, y3, M0, M1, d0, d1);
-            
-            calendar.set(Calendar.HOUR_OF_DAY, 0);
-            calendar.set(Calendar.MINUTE, 0);
-            calendar.set(Calendar.SECOND, 0);
-            calendar.set(Calendar.MILLISECOND, 0);
 
+            if (rest != 8) {
+                char h0 = charAt(bp + 8);
+                char h1 = charAt(bp + 9);
+                char m0 = charAt(bp + 10);
+                char m1 = charAt(bp + 11);
+                char s0 = charAt(bp + 12);
+                char s1 = charAt(bp + 13);
+
+               if(!checkTime(h0, h1, m0, m1, s0, s1)) {
+                   return false;
+               }
+
+                int millis;
+                if (rest == 17) {
+                    char S0 = charAt(bp + 14);
+                    char S1 = charAt(bp + 15);
+                    char S2 = charAt(bp + 16);
+                    if (S0 < '0' || S0 > '9') {
+                        return false;
+                    }
+                    if (S1 < '0' || S1 > '9') {
+                        return false;
+                    }
+                    if (S2 < '0' || S2 > '9') {
+                        return false;
+                    }
+
+                    millis = digits[S0] * 100 + digits[S1] * 10 + digits[S2];
+                } else {
+                    millis = 0;
+                }
+                
+                int hour = digits[h0] * 10 + digits[h1];
+                int minute = digits[m0] * 10 + digits[m1];
+                int seconds = digits[s0] * 10 + digits[s1];
+                
+                calendar.set(Calendar.HOUR_OF_DAY, hour);
+                calendar.set(Calendar.MINUTE, minute);
+                calendar.set(Calendar.SECOND, seconds);
+                calendar.set(Calendar.MILLISECOND, millis);
+            }
             token = JSONToken.LITERAL_ISO8601_DATE;
             return true;
         }
@@ -2388,31 +2452,22 @@ public final class JSONScanner implements JSONLexer {
             return false;
         }
 
-        char y0 = charAt(bp);
-        char y1 = charAt(bp + 1);
-        char y2 = charAt(bp + 2);
-        char y3 = charAt(bp + 3);
-        if (!checkYear(y0, y1, y2, y3)) {
-            return false;
-        }
-
         if (charAt(bp + 4) != '-') {
             return false;
         }
-
-        char M0 = charAt(bp + 5);
-        char M1 = charAt(bp + 6);
-        if (!checkMonth(M0, M1)) {
-            return false;
-        }
-
         if (charAt(bp + 7) != '-') {
             return false;
         }
 
+        char y0 = charAt(bp);
+        char y1 = charAt(bp + 1);
+        char y2 = charAt(bp + 2);
+        char y3 = charAt(bp + 3);
+        char M0 = charAt(bp + 5);
+        char M1 = charAt(bp + 6);
         char d0 = charAt(bp + 8);
         char d1 = charAt(bp + 9);
-        if (!checkDay(d0, d1)) {
+        if (!checkDate(y0, y1, y2, y3, M0, M1, d0, d1)) {
             return false;
         }
 
@@ -2437,59 +2492,21 @@ public final class JSONScanner implements JSONLexer {
             return false;
         }
 
-        char h0 = charAt(bp + 11);
-        char h1 = charAt(bp + 12);
-        if (h0 == '0') {
-            if (h1 < '0' || h1 > '9') {
-                return false;
-            }
-        } else if (h0 == '1') {
-            if (h1 < '0' || h1 > '9') {
-                return false;
-            }
-        } else if (h0 == '2') {
-            if (h1 < '0' || h1 > '4') {
-                return false;
-            }
-        } else {
-            return false;
-        }
-
         if (charAt(bp + 13) != ':') {
             return false;
         }
-
-        char m0 = charAt(bp + 14);
-        char m1 = charAt(bp + 15);
-        if (m0 >= '0' && m0 <= '5') {
-            if (m1 < '0' || m1 > '9') {
-                return false;
-            }
-        } else if (m0 == '6') {
-            if (m1 != '0') {
-                return false;
-            }
-        } else {
-            return false;
-        }
-
         if (charAt(bp + 16) != ':') {
             return false;
         }
 
+        char h0 = charAt(bp + 11);
+        char h1 = charAt(bp + 12);
+        char m0 = charAt(bp + 14);
+        char m1 = charAt(bp + 15);
         char s0 = charAt(bp + 17);
         char s1 = charAt(bp + 18);
-        if (s0 >= '0' && s0 <= '5') {
-            if (s1 < '0' || s1 > '9') {
-                return false;
-            }
-        } else if (s0 == '6') {
-            if (s1 != '0') {
-                return false;
-            }
-        } else {
-            return false;
-        }
+
+        checkTime(h0, h1, m0, m1, s0, s1);
 
         int hour = digits[h0] * 10 + digits[h1];
         int minute = digits[m0] * 10 + digits[m1];
@@ -2534,6 +2551,50 @@ public final class JSONScanner implements JSONLexer {
         return true;
     }
 
+    private boolean checkTime(char h0, char h1, char m0, char m1, char s0, char s1) {
+        if (h0 == '0') {
+            if (h1 < '0' || h1 > '9') {
+                return false;
+            }
+        } else if (h0 == '1') {
+            if (h1 < '0' || h1 > '9') {
+                return false;
+            }
+        } else if (h0 == '2') {
+            if (h1 < '0' || h1 > '4') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        if (m0 >= '0' && m0 <= '5') {
+            if (m1 < '0' || m1 > '9') {
+                return false;
+            }
+        } else if (m0 == '6') {
+            if (m1 != '0') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        if (s0 >= '0' && s0 <= '5') {
+            if (s1 < '0' || s1 > '9') {
+                return false;
+            }
+        } else if (s0 == '6') {
+            if (s1 != '0') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        return true;
+    }
+
     private void setCalendar(char y0, char y1, char y2, char y3, char M0, char M1, char d0, char d1) {
         Locale local = Locale.getDefault();
         calendar = Calendar.getInstance(TimeZone.getDefault(), local);
@@ -2545,7 +2606,32 @@ public final class JSONScanner implements JSONLexer {
         calendar.set(Calendar.DAY_OF_MONTH, day);
     }
 
-    static boolean checkDay(char d0, char d1) {
+    static boolean checkDate(char y0, char y1, char y2, char y3, char M0, char M1, int d0, int d1) {
+        if (y0 != '1' && y0 != '2') {
+            return false;
+        }
+        if (y1 < '0' || y1 > '9') {
+            return false;
+        }
+        if (y2 < '0' || y2 > '9') {
+            return false;
+        }
+        if (y3 < '0' || y3 > '9') {
+            return false;
+        }
+
+        if (M0 == '0') {
+            if (M1 < '1' || M1 > '9') {
+                return false;
+            }
+        } else if (M0 == '1') {
+            if (M1 != '0' && M1 != '1' && M1 != '2') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
         if (d0 == '0') {
             if (d1 < '1' || d1 > '9') {
                 return false;
@@ -2562,38 +2648,6 @@ public final class JSONScanner implements JSONLexer {
             return false;
         }
 
-        return true;
-    }
-
-    static boolean checkMonth(char M0, char M1) {
-        if (M0 == '0') {
-            if (M1 < '1' || M1 > '9') {
-                return false;
-            }
-        } else if (M0 == '1') {
-            if (M1 != '0' && M1 != '1' && M1 != '2') {
-                return false;
-            }
-        } else {
-            return false;
-        }
-
-        return true;
-    }
-
-    static boolean checkYear(char y0, char y1, char y2, char y3) {
-        if (y0 != '1' && y0 != '2') {
-            return false;
-        }
-        if (y1 < '0' || y1 > '9') {
-            return false;
-        }
-        if (y2 < '0' || y2 > '9') {
-            return false;
-        }
-        if (y3 < '0' || y3 > '9') {
-            return false;
-        }
         return true;
     }
 

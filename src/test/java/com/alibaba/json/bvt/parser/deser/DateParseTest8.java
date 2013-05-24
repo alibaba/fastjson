@@ -10,7 +10,7 @@ import junit.framework.TestCase;
 import com.alibaba.fastjson.JSON;
 
 
-public class DateParseTest7 extends TestCase {
+public class DateParseTest8 extends TestCase {
     public void test_date() throws Exception {
         System.out.println(System.currentTimeMillis());
         
@@ -18,7 +18,7 @@ public class DateParseTest7 extends TestCase {
         System.out.println(new Date().toString());
         
         //1369273142603
-        String text = "\"19790714130723\"";
+        String text = "\"19790714130723456\"";
         Date date = JSON.parseObject(text, Date.class);
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
@@ -30,6 +30,6 @@ public class DateParseTest7 extends TestCase {
         Assert.assertEquals(13, calendar.get(Calendar.HOUR_OF_DAY));
         Assert.assertEquals(7, calendar.get(Calendar.MINUTE));
         Assert.assertEquals(23, calendar.get(Calendar.SECOND));
-        Assert.assertEquals(0, calendar.get(Calendar.MILLISECOND));
+        Assert.assertEquals(456, calendar.get(Calendar.MILLISECOND));
     }
 }

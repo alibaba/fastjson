@@ -2403,6 +2403,7 @@ public final class JSONScanner implements JSONLexer {
 
             setCalendar(y0, y1, y2, y3, M0, M1, d0, d1);
 
+            int hour, minute, seconds, millis;
             if (rest != 8) {
                 char h0 = charAt(bp + 8);
                 char h1 = charAt(bp + 9);
@@ -2415,7 +2416,6 @@ public final class JSONScanner implements JSONLexer {
                    return false;
                }
 
-                int millis;
                 if (rest == 17) {
                     char S0 = charAt(bp + 14);
                     char S1 = charAt(bp + 15);
@@ -2435,15 +2435,21 @@ public final class JSONScanner implements JSONLexer {
                     millis = 0;
                 }
                 
-                int hour = digits[h0] * 10 + digits[h1];
-                int minute = digits[m0] * 10 + digits[m1];
-                int seconds = digits[s0] * 10 + digits[s1];
-                
-                calendar.set(Calendar.HOUR_OF_DAY, hour);
-                calendar.set(Calendar.MINUTE, minute);
-                calendar.set(Calendar.SECOND, seconds);
-                calendar.set(Calendar.MILLISECOND, millis);
+                hour = digits[h0] * 10 + digits[h1];
+                minute = digits[m0] * 10 + digits[m1];
+                seconds = digits[s0] * 10 + digits[s1];
+            } else {
+                hour = 0;
+               minute = 0;
+               seconds = 0;
+               millis = 0;
             }
+            
+            calendar.set(Calendar.HOUR_OF_DAY, hour);
+            calendar.set(Calendar.MINUTE, minute);
+            calendar.set(Calendar.SECOND, seconds);
+            calendar.set(Calendar.MILLISECOND, millis);
+            
             token = JSONToken.LITERAL_ISO8601_DATE;
             return true;
         }
@@ -2506,7 +2512,9 @@ public final class JSONScanner implements JSONLexer {
         char s0 = charAt(bp + 17);
         char s1 = charAt(bp + 18);
 
-        checkTime(h0, h1, m0, m1, s0, s1);
+        if (!checkTime(h0, h1, m0, m1, s0, s1)) {
+            return false;
+        }
 
         int hour = digits[h0] * 10 + digits[h1];
         int minute = digits[m0] * 10 + digits[m1];

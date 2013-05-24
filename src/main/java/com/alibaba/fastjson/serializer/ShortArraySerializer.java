@@ -38,6 +38,13 @@ public class ShortArraySerializer implements ObjectSerializer {
         }
         
         short[] array = (short[]) object;
-        out.writeShortArray(array);
+        out.write('[');
+        for (int i = 0; i < array.length; ++i) {
+            if (i != 0) {
+                out.write(',');
+            }
+            out.writeInt(array[i]);
+        }
+        out.write(']');
     }
 }

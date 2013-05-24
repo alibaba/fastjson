@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.CharTypes;
 import com.alibaba.fastjson.util.Base64;
 import com.alibaba.fastjson.util.IOUtils;
@@ -48,7 +49,14 @@ public final class SerializeWriter extends Writer {
 
     private int                                             features;
 
+    private final Writer                                    writer;
+
     public SerializeWriter(){
+        this((Writer) null);
+    }
+
+    public SerializeWriter(Writer writer){
+        this.writer = writer;
         this.features = JSON.DEFAULT_GENERATE_FEATURE;
 
         SoftReference<char[]> ref = bufLocal.get();
@@ -63,10 +71,13 @@ public final class SerializeWriter extends Writer {
         }
     }
 
-    /**
-     * Creates a new CharArrayWriter.
-     */
     public SerializeWriter(SerializerFeature... features){
+        this(null, features);
+    }
+
+    public SerializeWriter(Writer writer, SerializerFeature... features){
+        this.writer = writer;
+
         SoftReference<char[]> ref = bufLocal.get();
 
         if (ref != null) {
@@ -85,13 +96,17 @@ public final class SerializeWriter extends Writer {
         this.features = featuresValue;
     }
 
-    /**
-     * Creates a new CharArrayWriter with the specified initial size.
-     * 
-     * @param initialSize an int specifying the initial buffer size.
-     * @exception IllegalArgumentException if initialSize is negative
-     */
+    public int getBufferLength() {
+        return this.buf.length;
+    }
+
     public SerializeWriter(int initialSize){
+        this(null, initialSize);
+    }
+
+    public SerializeWriter(Writer writer, int initialSize){
+        this.writer = writer;
+
         if (initialSize <= 0) {
             throw new IllegalArgumentException("Negative initial size: " + initialSize);
         }
@@ -116,7 +131,12 @@ public final class SerializeWriter extends Writer {
     public void write(int c) {
         int newcount = count + 1;
         if (newcount > buf.length) {
-            expandCapacity(newcount);
+            if (writer == null) {
+                expandCapacity(newcount);
+            } else {
+                flush();
+                newcount = 1;
+            }
         }
         buf[count] = (char) c;
         count = newcount;
@@ -125,7 +145,12 @@ public final class SerializeWriter extends Writer {
     public void write(char c) {
         int newcount = count + 1;
         if (newcount > buf.length) {
-            expandCapacity(newcount);
+            if (writer == null) {
+                expandCapacity(newcount);
+            } else {
+                flush();
+                newcount = 1;
+            }
         }
         buf[count] = c;
         count = newcount;
@@ -147,7 +172,19 @@ public final class SerializeWriter extends Writer {
 
         int newcount = count + len;
         if (newcount > buf.length) {
-            expandCapacity(newcount);
+            if (writer == null) {
+                expandCapacity(newcount);
+            } else {
+                do {
+                    int rest = buf.length - count;
+                    System.arraycopy(c, off, buf, count, rest);
+                    count = buf.length;
+                    flush();
+                    len -= rest;
+                    off += rest;
+                } while (len > buf.length);
+                newcount = len;
+            }
         }
         System.arraycopy(c, off, buf, count, len);
         count = newcount;
@@ -175,7 +212,19 @@ public final class SerializeWriter extends Writer {
     public void write(String str, int off, int len) {
         int newcount = count + len;
         if (newcount > buf.length) {
-            expandCapacity(newcount);
+            if (writer == null) {
+                expandCapacity(newcount);
+            } else {
+                do {
+                    int rest = buf.length - count;
+                    str.getChars(off, off + rest, buf, count);
+                    count = buf.length;
+                    flush();
+                    len -= rest;
+                    off += rest;
+                } while (len > buf.length);
+                newcount = len;
+            }
         }
         str.getChars(off, off + len, buf, count);
         count = newcount;
@@ -188,15 +237,24 @@ public final class SerializeWriter extends Writer {
      * @throws IOException If an I/O error occurs.
      */
     public void writeTo(Writer out) throws IOException {
+        if (this.writer != null) {
+            throw new UnsupportedOperationException("writer not null");
+        }
         out.write(buf, 0, count);
     }
 
     public void writeTo(OutputStream out, String charset) throws IOException {
+        if (this.writer != null) {
+            throw new UnsupportedOperationException("writer not null");
+        }
         byte[] bytes = new String(buf, 0, count).getBytes(charset);
         out.write(bytes);
     }
 
     public void writeTo(OutputStream out, Charset charset) throws IOException {
+        if (this.writer != null) {
+            throw new UnsupportedOperationException("writer not null");
+        }
         byte[] bytes = new String(buf, 0, count).getBytes(charset);
         out.write(bytes);
     }
@@ -213,27 +271,11 @@ public final class SerializeWriter extends Writer {
         return this;
     }
 
-    /**
-     * Appends the specified character to this writer.
-     * <p>
-     * An invocation of this method of the form <tt>out.append(c)</tt> behaves in exactly the same way as the invocation
-     * 
-     * <pre>
-     * out.write(c)
-     * </pre>
-     * 
-     * @param c The 16-bit character to append
-     * @return This writer
-     * @since 1.5
-     */
     public SerializeWriter append(char c) {
         write(c);
         return this;
     }
 
-    /**
-     * Resets the buffer so that you can use it again without throwing away the already allocated buffer.
-     */
     public void reset() {
         count = 0;
     }
@@ -244,12 +286,20 @@ public final class SerializeWriter extends Writer {
      * @return an array of chars copied from the input data.
      */
     public char[] toCharArray() {
+        if (this.writer != null) {
+            throw new UnsupportedOperationException("writer not null");
+        }
+
         char[] newValue = new char[count];
         System.arraycopy(buf, 0, newValue, 0, count);
         return newValue;
     }
 
     public byte[] toBytes(String charsetName) {
+        if (this.writer != null) {
+            throw new UnsupportedOperationException("writer not null");
+        }
+
         if (charsetName == null) {
             charsetName = "UTF-8";
         }
@@ -260,28 +310,12 @@ public final class SerializeWriter extends Writer {
         return encoder.encode(buf, 0, count);
     }
 
-    /**
-     * Returns the current size of the buffer.
-     * 
-     * @return an int representing the current size of the buffer.
-     */
     public int size() {
         return count;
     }
 
-    /**
-     * Converts input data to a string.
-     * 
-     * @return the string.
-     */
     public String toString() {
         return new String(buf, 0, count);
-    }
-
-    /**
-     * Flush the stream.
-     */
-    public void flush() {
     }
 
     /**
@@ -289,63 +323,14 @@ public final class SerializeWriter extends Writer {
      * Invoking this method in this class will have no effect.
      */
     public void close() {
+        if (writer != null && count > 0) {
+            flush();
+        }
         if (buf.length <= 1024 * 8) {
             bufLocal.set(new SoftReference<char[]>(buf));
         }
 
         this.buf = null;
-    }
-
-    public void writeBooleanArray(boolean[] array) throws IOException {
-        int[] sizeArray = new int[array.length];
-        int totalSize = 2;
-        for (int i = 0; i < array.length; ++i) {
-            if (i != 0) {
-                totalSize++;
-            }
-            boolean val = array[i];
-            int size;
-            if (val) {
-                size = 4; // "true".length();
-            } else {
-                size = 5; // "false".length();
-            }
-            sizeArray[i] = size;
-            totalSize += size;
-        }
-
-        int newcount = count + totalSize;
-        if (newcount > buf.length) {
-            expandCapacity(newcount);
-        }
-
-        buf[count] = '[';
-
-        int currentSize = count + 1;
-        for (int i = 0; i < array.length; ++i) {
-            if (i != 0) {
-                buf[currentSize++] = ',';
-            }
-
-            boolean val = array[i];
-            if (val) {
-                // System.arraycopy("true".toCharArray(), 0, buf, currentSize,
-                // 4);
-                buf[currentSize++] = 't';
-                buf[currentSize++] = 'r';
-                buf[currentSize++] = 'u';
-                buf[currentSize++] = 'e';
-            } else {
-                buf[currentSize++] = 'f';
-                buf[currentSize++] = 'a';
-                buf[currentSize++] = 'l';
-                buf[currentSize++] = 's';
-                buf[currentSize++] = 'e';
-            }
-        }
-        buf[currentSize] = ']';
-
-        count = newcount;
     }
 
     public void write(String text) {
@@ -354,15 +339,7 @@ public final class SerializeWriter extends Writer {
             return;
         }
 
-        int length = text.length();
-        int newcount = count + length;
-        if (newcount > buf.length) {
-            expandCapacity(newcount);
-        }
-        text.getChars(0, length, buf, count);
-        count = newcount;
-        return;
-
+        write(text, 0, text.length());
     }
 
     public void writeInt(int i) {
@@ -375,45 +352,17 @@ public final class SerializeWriter extends Writer {
 
         int newcount = count + size;
         if (newcount > buf.length) {
-            expandCapacity(newcount);
+            if (writer == null) {
+                expandCapacity(newcount);
+            } else {
+                char[] chars = new char[size];
+                IOUtils.getChars(i, size, chars);
+                write(chars, 0, chars.length);
+                return;
+            }
         }
 
         IOUtils.getChars(i, newcount, buf);
-
-        count = newcount;
-    }
-
-    public void writeShortArray(short[] array) throws IOException {
-        int[] sizeArray = new int[array.length];
-        int totalSize = 2;
-        for (int i = 0; i < array.length; ++i) {
-            if (i != 0) {
-                totalSize++;
-            }
-            short val = array[i];
-            int size = IOUtils.stringSize(val);
-            sizeArray[i] = size;
-            totalSize += size;
-        }
-
-        int newcount = count + totalSize;
-        if (newcount > buf.length) {
-            expandCapacity(newcount);
-        }
-
-        buf[count] = '[';
-
-        int currentSize = count + 1;
-        for (int i = 0; i < array.length; ++i) {
-            if (i != 0) {
-                buf[currentSize++] = ',';
-            }
-
-            short val = array[i];
-            currentSize += sizeArray[i];
-            IOUtils.getChars(val, currentSize, buf);
-        }
-        buf[currentSize] = ']';
 
         count = newcount;
     }
@@ -433,6 +382,36 @@ public final class SerializeWriter extends Writer {
         int offset = count;
         int newcount = count + charsLen + 2;
         if (newcount > buf.length) {
+            if (writer != null) {
+                write('\"');
+
+                for (int s = 0; s < eLen;) {
+                    // Copy next three bytes into lower 24 bits of int, paying attension to sign.
+                    int i = (bytes[s++] & 0xff) << 16 | (bytes[s++] & 0xff) << 8 | (bytes[s++] & 0xff);
+
+                    // Encode the int into four chars
+                    write(CA[(i >>> 18) & 0x3f]);
+                    write(CA[(i >>> 12) & 0x3f]);
+                    write(CA[(i >>> 6) & 0x3f]);
+                    write(CA[i & 0x3f]);
+                }
+
+                // Pad and encode last bits if source isn't even 24 bits.
+                int left = bytesLen - eLen; // 0 - 2.
+                if (left > 0) {
+                    // Prepare the int
+                    int i = ((bytes[eLen] & 0xff) << 10) | (left == 2 ? ((bytes[bytesLen - 1] & 0xff) << 2) : 0);
+
+                    // Set last four chars
+                    write(CA[i >> 12]);
+                    write(CA[(i >>> 6) & 0x3f]);
+                    write(left == 2 ? CA[i & 0x3f] : '=');
+                    write('=');
+                }
+
+                write('\"');
+                return;
+            }
             expandCapacity(newcount);
         }
         count = newcount;
@@ -465,51 +444,6 @@ public final class SerializeWriter extends Writer {
         buf[newcount - 1] = '\"';
     }
 
-    public void writeIntArray(int[] array) {
-        int[] sizeArray = new int[array.length];
-        int totalSize = 2;
-        for (int i = 0; i < array.length; ++i) {
-            if (i != 0) {
-                totalSize++;
-            }
-            int val = array[i];
-            int size;
-            if (val == Integer.MIN_VALUE) {
-                size = "-2147483648".length();
-            } else {
-                size = (val < 0) ? IOUtils.stringSize(-val) + 1 : IOUtils.stringSize(val);
-            }
-            sizeArray[i] = size;
-            totalSize += size;
-        }
-
-        int newcount = count + totalSize;
-        if (newcount > buf.length) {
-            expandCapacity(newcount);
-        }
-
-        buf[count] = '[';
-
-        int currentSize = count + 1;
-        for (int i = 0; i < array.length; ++i) {
-            if (i != 0) {
-                buf[currentSize++] = ',';
-            }
-
-            int val = array[i];
-            if (val == Integer.MIN_VALUE) {
-                System.arraycopy("-2147483648".toCharArray(), 0, buf, currentSize, sizeArray[i]);
-                currentSize += sizeArray[i];
-            } else {
-                currentSize += sizeArray[i];
-                IOUtils.getChars(val, currentSize, buf);
-            }
-        }
-        buf[currentSize] = ']';
-
-        count = newcount;
-    }
-
     public void writeIntAndChar(int i, char c) {
         if (i == Integer.MIN_VALUE) {
             write("-2147483648");
@@ -523,6 +457,11 @@ public final class SerializeWriter extends Writer {
         int newcount1 = newcount0 + 1;
 
         if (newcount1 > buf.length) {
+            if (writer != null) {
+                writeInt(i);
+                write(c);
+                return;
+            }
             expandCapacity(newcount1);
         }
 
@@ -545,6 +484,11 @@ public final class SerializeWriter extends Writer {
         int newcount1 = newcount0 + 1;
 
         if (newcount1 > buf.length) {
+            if (writer != null) {
+                writeLong(i);
+                write(c);
+                return;
+            }
             expandCapacity(newcount1);
         }
 
@@ -564,7 +508,14 @@ public final class SerializeWriter extends Writer {
 
         int newcount = count + size;
         if (newcount > buf.length) {
-            expandCapacity(newcount);
+            if (writer == null) {
+                expandCapacity(newcount);
+            } else {
+                char[] chars = new char[size];
+                IOUtils.getChars(i, size, chars);
+                write(chars, 0, chars.length);
+                return;
+            }
         }
 
         IOUtils.getChars(i, newcount, buf);
@@ -573,60 +524,7 @@ public final class SerializeWriter extends Writer {
     }
 
     public void writeNull() {
-        int newcount = count + 4;
-        if (newcount > buf.length) {
-            expandCapacity(newcount);
-        }
-        buf[count] = 'n';
-        buf[count + 1] = 'u';
-        buf[count + 2] = 'l';
-        buf[count + 3] = 'l';
-        count = newcount;
-    }
-
-    public void writeLongArray(long[] array) {
-        int[] sizeArray = new int[array.length];
-        int totalSize = 2;
-        for (int i = 0; i < array.length; ++i) {
-            if (i != 0) {
-                totalSize++;
-            }
-            long val = array[i];
-            int size;
-            if (val == Long.MIN_VALUE) {
-                size = "-9223372036854775808".length();
-            } else {
-                size = (val < 0) ? IOUtils.stringSize(-val) + 1 : IOUtils.stringSize(val);
-            }
-            sizeArray[i] = size;
-            totalSize += size;
-        }
-
-        int newcount = count + totalSize;
-        if (newcount > buf.length) {
-            expandCapacity(newcount);
-        }
-
-        buf[count] = '[';
-
-        int currentSize = count + 1;
-        for (int i = 0; i < array.length; ++i) {
-            if (i != 0) {
-                buf[currentSize++] = ',';
-            }
-
-            long val = array[i];
-            if (val == Long.MIN_VALUE) {
-                System.arraycopy("-9223372036854775808".toCharArray(), 0, buf, currentSize, sizeArray[i]);
-                currentSize += sizeArray[i];
-            } else {
-                currentSize += sizeArray[i];
-                IOUtils.getChars(val, currentSize, buf);
-            }
-        }
-        buf[currentSize] = ']';
-
-        count = newcount;
+        write("null");
     }
 
     private void writeStringWithDoubleQuote(String text, final char seperator) {
@@ -653,6 +551,59 @@ public final class SerializeWriter extends Writer {
         }
 
         if (newcount > buf.length) {
+            if (writer != null) {
+                write('"');
+
+                for (int i = 0; i < text.length(); ++i) {
+                    char ch = text.charAt(i);
+
+                    if (isEnabled(SerializerFeature.BrowserCompatible)) {
+                        if (ch == '\b' || ch == '\f' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '"'
+                            || ch == '/' || ch == '\\') {
+                            write('\\');
+                            write(replaceChars[(int) ch]);
+                            continue;
+                        }
+
+                        if (ch < 32) {
+                            write('\\');
+                            write('u');
+                            write('0');
+                            write('0');
+                            write(CharTypes.ASCII_CHARS[ch * 2]);
+                            write(CharTypes.ASCII_CHARS[ch * 2 + 1]);
+                            continue;
+                        }
+
+                        if (ch >= 127) {
+                            write('\\');
+                            write('u');
+                            write(CharTypes.digits[(ch >>> 12) & 15]);
+                            write(CharTypes.digits[(ch >>> 8) & 15]);
+                            write(CharTypes.digits[(ch >>> 4) & 15]);
+                            write(CharTypes.digits[ch & 15]);
+                            continue;
+                        }
+                    } else {
+                        if (ch < CharTypes.specicalFlags_doubleQuotes.length
+                            && CharTypes.specicalFlags_doubleQuotes[ch] //
+                            || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))
+                            || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
+                            write('\\');
+                            write(replaceChars[(int) ch]);
+                            continue;
+                        }
+                    }
+
+                    write(ch);
+                }
+
+                write('"');
+                if (seperator != 0) {
+                    write(seperator);
+                }
+                return;
+            }
             expandCapacity(newcount);
         }
 
@@ -824,52 +775,6 @@ public final class SerializeWriter extends Writer {
         }
     }
 
-    public void writeKeyWithDoubleQuote(String text) {
-        writeKeyWithDoubleQuote(text, true);
-    }
-
-    public void writeKeyWithDoubleQuote(String text, boolean checkSpecial) {
-        final boolean[] specicalFlags_doubleQuotes = CharTypes.specicalFlags_doubleQuotes;
-
-        int len = text.length();
-        int newcount = count + len + 3;
-        if (newcount > buf.length) {
-            expandCapacity(newcount);
-        }
-
-        int start = count + 1;
-        int end = start + len;
-
-        buf[count] = '\"';
-        text.getChars(0, len, buf, start);
-
-        count = newcount;
-
-        if (checkSpecial) {
-            for (int i = start; i < end; ++i) {
-                char ch = buf[i];
-                if (ch < specicalFlags_doubleQuotes.length
-                    && specicalFlags_doubleQuotes[ch] //
-                    || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))
-                    || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
-                    newcount++;
-                    if (newcount > buf.length) {
-                        expandCapacity(newcount);
-                    }
-                    count = newcount;
-
-                    System.arraycopy(buf, i + 1, buf, i + 2, end - i - 1);
-                    buf[i] = '\\';
-                    buf[++i] = replaceChars[(int) ch];
-                    end++;
-                }
-            }
-        }
-
-        buf[count - 2] = '\"';
-        buf[count - 1] = ':';
-    }
-
     public void writeFieldNull(char seperator, String name) {
         write(seperator);
         writeFieldName(name);
@@ -941,6 +846,13 @@ public final class SerializeWriter extends Writer {
         int nameLen = name.length();
         int newcount = count + nameLen + 4 + intSize;
         if (newcount > buf.length) {
+            if (writer != null) {
+                write(seperator);
+                writeString(name);
+                write(':');
+                write(value);
+                return;
+            }
             expandCapacity(newcount);
         }
 
@@ -967,6 +879,10 @@ public final class SerializeWriter extends Writer {
     public void writeFieldValue1(char seperator, String name, boolean value) {
         write(seperator);
         writeFieldName(name);
+        write(value);
+    }
+
+    public void write(boolean value) {
         if (value) {
             write("true");
         } else {
@@ -987,6 +903,10 @@ public final class SerializeWriter extends Writer {
         int nameLen = name.length();
         int newcount = count + nameLen + 4 + intSize;
         if (newcount > buf.length) {
+            if (writer != null) {
+                writeFieldValue1(seperator, name, value);
+                return;
+            }
             expandCapacity(newcount);
         }
 
@@ -1026,6 +946,12 @@ public final class SerializeWriter extends Writer {
         int nameLen = name.length();
         int newcount = count + nameLen + 4 + intSize;
         if (newcount > buf.length) {
+            if (writer != null) {
+                write(seperator);
+                writeFieldName(name);
+                writeLong(value);
+                return;
+            }
             expandCapacity(newcount);
         }
 
@@ -1133,6 +1059,12 @@ public final class SerializeWriter extends Writer {
         }
 
         if (newcount > buf.length) {
+            if (writer != null) {
+                write(seperator);
+                writeStringWithDoubleQuote(name, ':', checkSpecial);
+                writeStringWithDoubleQuote(value, (char) 0, checkSpecial);
+                return;
+            }
             expandCapacity(newcount);
         }
 
@@ -1183,7 +1115,7 @@ public final class SerializeWriter extends Writer {
                     specialCount++;
                     lastSpecialIndex = i;
                     lastSpecial = ch;
-                    
+
                     if (firstSpecialIndex == -1) {
                         firstSpecialIndex = i;
                     }
@@ -1203,7 +1135,7 @@ public final class SerializeWriter extends Writer {
                     buf[lastSpecialIndex] = '\\';
                     buf[++lastSpecialIndex] = replaceChars[(int) lastSpecial];
                 } else if (specialCount > 1) {
-                	int textIndex = firstSpecialIndex - valueStart;
+                    int textIndex = firstSpecialIndex - valueStart;
                     int bufIndex = firstSpecialIndex;
                     for (int i = textIndex; i < value.length(); ++i) {
                         char ch = value.charAt(i);
@@ -1316,6 +1248,23 @@ public final class SerializeWriter extends Writer {
         int len = text.length();
         int newcount = count + len + 2;
         if (newcount > buf.length) {
+            if (writer != null) {
+                write('\'');
+                for (int i = 0; i < text.length(); ++i) {
+                    char ch = text.charAt(i);
+                    if (ch == '\b' || ch == '\n' || ch == '\r' || ch == '\f' || ch == '\\'
+                        || ch == '\'' //
+                        || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))
+                        || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
+                        write('\\');
+                        write(replaceChars[(int) ch]);
+                    } else {
+                        write(ch);
+                    }
+                }
+                write('\'');
+                return;
+            }
             expandCapacity(newcount);
         }
 
@@ -1386,56 +1335,18 @@ public final class SerializeWriter extends Writer {
 
         if (isEnabled(SerializerFeature.UseSingleQuotes)) {
             if (isEnabled(SerializerFeature.QuoteFieldNames)) {
-                writeKeyWithSingleQuote(key);
+                writeStringWithSingleQuote(key);
+                write(':');
             } else {
                 writeKeyWithSingleQuoteIfHasSpecial(key);
             }
         } else {
             if (isEnabled(SerializerFeature.QuoteFieldNames)) {
-                writeKeyWithDoubleQuote(key, checkSpecial);
+                writeStringWithDoubleQuote(key, ':', checkSpecial);
             } else {
                 writeKeyWithDoubleQuoteIfHasSpecial(key);
             }
         }
-    }
-
-    private void writeKeyWithSingleQuote(String text) {
-        final boolean[] specicalFlags_singleQuotes = CharTypes.specicalFlags_singleQuotes;
-
-        int len = text.length();
-        int newcount = count + len + 3;
-        if (newcount > buf.length) {
-            expandCapacity(newcount);
-        }
-
-        int start = count + 1;
-        int end = start + len;
-
-        buf[count] = '\'';
-        text.getChars(0, len, buf, start);
-        count = newcount;
-
-        for (int i = start; i < end; ++i) {
-            char ch = buf[i];
-            if (ch < specicalFlags_singleQuotes.length
-                && specicalFlags_singleQuotes[ch] //
-                || (ch == '\t' && isEnabled(SerializerFeature.WriteTabAsSpecial))
-                || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
-                newcount++;
-                if (newcount > buf.length) {
-                    expandCapacity(newcount);
-                }
-                count = newcount;
-
-                System.arraycopy(buf, i + 1, buf, i + 2, end - i - 1);
-                buf[i] = '\\';
-                buf[++i] = replaceChars[(int) ch];
-                end++;
-            }
-        }
-
-        buf[count - 2] = '\'';
-        buf[count - 1] = ':';
     }
 
     private void writeKeyWithDoubleQuoteIfHasSpecial(String text) {
@@ -1444,6 +1355,34 @@ public final class SerializeWriter extends Writer {
         int len = text.length();
         int newcount = count + len + 1;
         if (newcount > buf.length) {
+            if (writer != null) {
+                boolean hasSpecial = false;
+                for (int i = 0; i < len; ++i) {
+                    char ch = text.charAt(i);
+                    if (ch < specicalFlags_doubleQuotes.length && specicalFlags_doubleQuotes[ch]) {
+                        hasSpecial = true;
+                        break;
+                    }
+                }
+                
+                if (hasSpecial) {
+                    write('"');
+                }
+                for (int i = 0; i < len; ++i) {
+                    char ch = text.charAt(i);
+                    if (ch < specicalFlags_doubleQuotes.length && specicalFlags_doubleQuotes[ch]) {
+                        write('\\');
+                        write(replaceChars[(int) ch]);
+                    } else {
+                        write(ch);
+                    }
+                }
+                if (hasSpecial) {
+                    write('"');
+                }
+                write(':');
+                return;
+            }
             expandCapacity(newcount);
         }
 
@@ -1498,6 +1437,35 @@ public final class SerializeWriter extends Writer {
         int len = text.length();
         int newcount = count + len + 1;
         if (newcount > buf.length) {
+            if (writer != null) {
+                boolean hasSpecial = false;
+                for (int i = 0; i < len; ++i) {
+                    char ch = text.charAt(i);
+                    if (ch < specicalFlags_singleQuotes.length && specicalFlags_singleQuotes[ch]) {
+                        hasSpecial = true;
+                        break;
+                    }
+                }
+                
+                if (hasSpecial) {
+                    write('"');
+                }
+                for (int i = 0; i < len; ++i) {
+                    char ch = text.charAt(i);
+                    if (ch < specicalFlags_singleQuotes.length && specicalFlags_singleQuotes[ch]) {
+                        write('\\');
+                        write(replaceChars[(int) ch]);
+                    } else {
+                        write(ch);
+                    }
+                }
+                if (hasSpecial) {
+                    write('"');
+                }
+                write(':');
+                return;
+            }
+            
             expandCapacity(newcount);
         }
 
@@ -1544,5 +1512,18 @@ public final class SerializeWriter extends Writer {
         }
 
         buf[newcount - 1] = ':';
+    }
+
+    public void flush() {
+        if (writer == null) {
+            return;
+        }
+
+        try {
+            writer.write(buf, 0, count);
+        } catch (IOException e) {
+            throw new JSONException(e.getMessage(), e);
+        }
+        count = 0;
     }
 }

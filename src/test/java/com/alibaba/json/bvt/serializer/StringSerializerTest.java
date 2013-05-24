@@ -159,7 +159,7 @@ public class StringSerializerTest extends TestCase {
 	public void test_11_d() throws Exception {
 		SerializeWriter out = new SerializeWriter();
 
-		out.writeKeyWithDoubleQuote("123\na\nb\nc\nd\"'e");
+		out.writeString("123\na\nb\nc\nd\"'e", ':');
 		Assert.assertEquals("\"123\\na\\nb\\nc\\nd\\\"'e\":", out.toString());
 	}
 
@@ -174,7 +174,7 @@ public class StringSerializerTest extends TestCase {
 	public void test_12_d() throws Exception {
 		SerializeWriter out = new SerializeWriter(1);
 
-		out.writeKeyWithDoubleQuote("123\na\nb\nc\nd\"'e");
+		out.writeString("123\na\nb\nc\nd\"'e", ':');
 		Assert.assertEquals("\"123\\na\\nb\\nc\\nd\\\"'e\":", out.toString());
 	}
 

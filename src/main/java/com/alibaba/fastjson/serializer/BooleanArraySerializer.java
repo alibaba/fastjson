@@ -37,6 +37,14 @@ public class BooleanArraySerializer implements ObjectSerializer {
             return;
         }
         
-        out.writeBooleanArray((boolean[]) object);
+        boolean[] array = (boolean[]) object;
+        out.write('[');
+        for (int i = 0; i < array.length; ++i) {
+            if (i != 0) {
+                out.write(',');
+            }
+            out.write(array[i]);
+        }
+        out.write(']');
     }
 }

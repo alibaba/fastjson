@@ -14,6 +14,7 @@ public class DoubleTest extends TestCase {
         vo.setF3(Integer.MAX_VALUE);
         
         String text = JSON.toJSONString(vo);
+        System.out.println(text);
         
         VO vo1 = JSON.parseObject(text, VO.class);
         

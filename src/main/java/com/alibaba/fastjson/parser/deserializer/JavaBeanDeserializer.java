@@ -120,8 +120,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         return object;
     }
 
-    @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+        return deserialze(parser, type, fieldName, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName, Object object) {
         JSONScanner lexer = (JSONScanner) parser.getLexer(); // xxx
 
         if (lexer.token() == JSONToken.NULL) {
@@ -130,29 +134,34 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         }
 
         ParseContext context = parser.getContext();
+        if (object != null) {
+            context = context.getParentContext();
+        }
         ParseContext childContext = null;
-        Object object = null;
 
         try {
             Map<String, Object> fieldValues = null;
 
             if (lexer.token() == JSONToken.RBRACE) {
                 lexer.nextToken(JSONToken.COMMA);
-                return (T) createInstance(parser, type);
+                if (object == null) {
+                    object = createInstance(parser, type);
+                }
+                return (T) object;
             }
 
             if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {
-            	StringBuffer buf = (new StringBuffer()) //
-            			.append("syntax error, expect {, actual ") //
-            			.append(lexer.tokenName()) //
-            			.append(", pos ") //
-            			.append(lexer.pos()) //
-            			;
-            	if (fieldName instanceof String) {
-            		buf //
-            		.append(", fieldName ") //
-            		.append(fieldName);
-            	}
+                StringBuffer buf = (new StringBuffer()) //
+                .append("syntax error, expect {, actual ") //
+                .append(lexer.tokenName()) //
+                .append(", pos ") //
+                .append(lexer.pos()) //
+                ;
+                if (fieldName instanceof String) {
+                    buf //
+                    .append(", fieldName ") //
+                    .append(fieldName);
+                }
                 throw new JSONException(buf.toString());
             }
 
@@ -216,7 +225,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     }
                     lexer.nextToken(JSONToken.COMMA);
 
-                    childContext = parser.setContext(context, object, fieldName);
+                    parser.setContext(context, object, fieldName);
 
                     return (T) object;
                 }

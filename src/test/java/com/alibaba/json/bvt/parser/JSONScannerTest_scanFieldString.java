@@ -12,25 +12,25 @@ public class JSONScannerTest_scanFieldString extends TestCase {
         VO obj = JSON.parseObject(text, VO.class);
         Assert.assertEquals("1", obj.getValue());
     }
-    
+
     public void test_1() throws Exception {
         String text = "{\"value\":\"1\"}";
         VO obj = JSON.parseObject(text, VO.class);
         Assert.assertEquals("1", obj.getValue());
     }
-    
+
     public void test_2() throws Exception {
         String text = "{\"value\":\"1\\t\"}";
         VO obj = JSON.parseObject(text, VO.class);
         Assert.assertEquals("1\t", obj.getValue());
     }
-    
+
     public void test_3() throws Exception {
         String text = "{\"value\":\"1\\n\"}";
         VO obj = JSON.parseObject(text, VO.class);
         Assert.assertEquals("1\n", obj.getValue());
     }
-    
+
     public void test_error_0() {
         Exception error = null;
         try {
@@ -41,40 +41,6 @@ public class JSONScannerTest_scanFieldString extends TestCase {
         }
         Assert.assertNotNull(error);
     }
-    
-    public void test_error_1() {
-        Exception error = null;
-        try {
-            String text = "{\"value\":\"1\"}}";
-            JSON.parseObject(text, VO.class);
-        } catch (Exception ex) {
-            error = ex;
-        }
-        Assert.assertNotNull(error);
-    }
-    
-    public void test_error_2() {
-        Exception error = null;
-        try {
-            String text = "{\"value\":\"1\"}1";
-            JSON.parseObject(text, VO.class);
-        } catch (Exception ex) {
-            error = ex;
-        }
-        Assert.assertNotNull(error);
-    }
-    
-    public void test_error_3() {
-        Exception error = null;
-        try {
-            String text = "{\"value\":\"1\"1";
-            JSON.parseObject(text, VO.class);
-        } catch (Exception ex) {
-            error = ex;
-        }
-        Assert.assertNotNull(error);
-    }
-
 
     public static class VO {
 

@@ -22,34 +22,31 @@ import java.util.Calendar;
  * @author wenshao<szujobs@hotmail.com>
  */
 public interface JSONLexer {
-    boolean isResetFlag();
-    
-    void setResetFlag(boolean resetFlag);
 
     void nextToken();
 
     void nextToken(int expect);
 
     int token();
-    
+
     String tokenName();
 
     int pos();
-    
+
     int getBufferPosition();
 
     String stringVal();
 
     Number integerValue();
-    
+
     void nextTokenWithColon(int expect);
 
     BigDecimal decimalValue();
-    
+
     Number decimalValue(boolean decimal);
-    
+
     double doubleValue();
-    
+
     float floatValue();
 
     void config(Feature feature, boolean state);
@@ -89,8 +86,8 @@ public interface JSONLexer {
     int intValue() throws NumberFormatException;
 
     long longValue() throws NumberFormatException;
-    
+
     byte[] bytesValue();
-    
+
     void close();
 }

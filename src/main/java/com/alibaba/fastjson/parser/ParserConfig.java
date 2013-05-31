@@ -18,6 +18,7 @@ package com.alibaba.fastjson.parser;
 import java.io.Closeable;
 import java.io.File;
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -396,8 +397,16 @@ public class ParserConfig {
         }
 
         if (asmEnable) {
+            if (clazz.isInterface()) {
+                asmEnable = false;
+            }
             DeserializeBeanInfo beanInfo = DeserializeBeanInfo.computeSetters(clazz, type);
             if (beanInfo.getFieldList().size() > 200) {
+                asmEnable = false;
+            }
+            
+            Constructor<?> defaultConstructor = beanInfo.getDefaultConstructor();
+            if (defaultConstructor == null && !clazz.isInterface()) {
                 asmEnable = false;
             }
             

@@ -88,10 +88,6 @@ public final class JSONScanner implements JSONLexer {
 
     private Calendar                                        calendar     = null;
 
-    private boolean                                         resetFlag    = false;
-
-    public int                                              resetCount   = 0;
-
     public JSONScanner(String input){
         this(input, JSON.DEFAULT_PARSER_FEATURE);
     }
@@ -135,25 +131,8 @@ public final class JSONScanner implements JSONLexer {
         this(new String(input, 0, inputLength), features);
     }
 
-    public boolean isResetFlag() {
-        return resetFlag;
-    }
-
-    public void setResetFlag(boolean resetFlag) {
-        this.resetFlag = resetFlag;
-    }
-
     public final int getBufferPosition() {
         return bp;
-    }
-
-    public void reset(int mark, char mark_ch, int token) {
-        this.bp = mark;
-        this.ch = mark_ch;
-        this.token = token;
-
-        resetFlag = true;
-        resetCount++;
     }
 
     public boolean isBlankInput() {
@@ -917,6 +896,8 @@ public final class JSONScanner implements JSONLexer {
 
     public String scanFieldString(char[] fieldName) {
         matchStat = UNKOWN;
+        int startPos = this.bp;
+        char startChar = this.ch;
 
         // final int fieldNameLength = fieldName.length;
         // for (int i = 0; i < fieldNameLength; ++i) {
@@ -1014,6 +995,8 @@ public final class JSONScanner implements JSONLexer {
             } else if (ch == EOI) {
                 token = JSONToken.EOF;
             } else {
+                this.bp = startPos;
+                this.ch = startChar;
                 matchStat = NOT_MATCH;
                 return stringDefaultValue();
             }
@@ -1211,6 +1194,8 @@ public final class JSONScanner implements JSONLexer {
 
     public int scanFieldInt(char[] fieldName) {
         matchStat = UNKOWN;
+        int startPos = this.bp;
+        char startChar = this.ch;
 
         if (!charArrayCompare(text, bp, fieldName)) {
             matchStat = NOT_MATCH_NAME;
@@ -1246,7 +1231,7 @@ public final class JSONScanner implements JSONLexer {
         }
 
         if (ch == ',') {
-            ch = charAt(++bp);
+            this.ch = charAt(++bp);
             matchStat = VALUE;
             token = JSONToken.COMMA;
             return value;
@@ -1266,6 +1251,8 @@ public final class JSONScanner implements JSONLexer {
             } else if (ch == EOI) {
                 token = JSONToken.EOF;
             } else {
+                this.bp = startPos;
+                this.ch = startChar;
                 matchStat = NOT_MATCH;
                 return 0;
             }
@@ -1332,7 +1319,7 @@ public final class JSONScanner implements JSONLexer {
         }
 
         if (ch == ',') {
-            ch = charAt(++bp);
+            this.ch = charAt(++bp);
             matchStat = VALUE;
             token = JSONToken.COMMA;
         } else if (ch == '}') {
@@ -1363,6 +1350,8 @@ public final class JSONScanner implements JSONLexer {
 
     public long scanFieldLong(char[] fieldName) {
         matchStat = UNKOWN;
+        int startPos = this.bp;
+        char startChar = this.ch;
 
         if (!charArrayCompare(text, bp, fieldName)) {
             matchStat = NOT_MATCH_NAME;
@@ -1381,7 +1370,7 @@ public final class JSONScanner implements JSONLexer {
                 if (ch >= '0' && ch <= '9') {
                     value = value * 10 + digits[ch];
                 } else if (ch == '.') {
-                    token = NOT_MATCH;
+                    matchStat = NOT_MATCH;
                     return 0;
                 } else {
                     bp = index - 1;
@@ -1389,10 +1378,14 @@ public final class JSONScanner implements JSONLexer {
                 }
             }
             if (value < 0) {
+                this.bp = startPos;
+                this.ch = startChar;
                 matchStat = NOT_MATCH;
                 return 0;
             }
         } else {
+            this.bp = startPos;
+            this.ch = startChar;
             matchStat = NOT_MATCH;
             return 0;
         }
@@ -1416,6 +1409,8 @@ public final class JSONScanner implements JSONLexer {
             } else if (ch == EOI) {
                 token = JSONToken.EOF;
             } else {
+                this.bp = startPos;
+                this.ch = startChar;
                 matchStat = NOT_MATCH;
                 return 0;
             }
@@ -1551,6 +1546,20 @@ public final class JSONScanner implements JSONLexer {
                 } else {
                     matchStat = NOT_MATCH;
                     return 0;
+                }
+            }
+
+            if (ch == 'e' || ch == 'E') {
+                ch = charAt(index++);
+                if (ch == '+' || ch == '-') {
+                    ch = charAt(index++);
+                }
+                for (;;) {
+                    if (ch >= '0' && ch <= '9') {
+                        ch = charAt(index++);
+                    } else {
+                        break;
+                    }
                 }
             }
 
@@ -2346,7 +2355,7 @@ public final class JSONScanner implements JSONLexer {
 
     public boolean scanISO8601DateIfMatch(boolean strict) {
         int rest = text.length() - bp;
-        
+
         if ((!strict) && rest > 13) {
             char c0 = charAt(bp);
             char c1 = charAt(bp + 1);
@@ -2354,10 +2363,11 @@ public final class JSONScanner implements JSONLexer {
             char c3 = charAt(bp + 3);
             char c4 = charAt(bp + 4);
             char c5 = charAt(bp + 5);
-            
+
             char c_r0 = charAt(bp + rest - 1);
             char c_r1 = charAt(bp + rest - 2);
-            if (c0 == '/' && c1 == 'D' && c2 == 'a' && c3 == 't' && c4 == 'e' && c5 == '(' && c_r0 == '/' && c_r1 == ')') {
+            if (c0 == '/' && c1 == 'D' && c2 == 'a' && c3 == 't' && c4 == 'e' && c5 == '(' && c_r0 == '/'
+                && c_r1 == ')') {
                 int plusIndex = -1;
                 for (int i = 6; i < rest; ++i) {
                     char c = charAt(bp + i);
@@ -2373,11 +2383,11 @@ public final class JSONScanner implements JSONLexer {
                 int offset = bp + 6;
                 String numberText = this.subString(offset, plusIndex - offset);
                 long millis = Long.parseLong(numberText);
-                
+
                 Locale local = Locale.getDefault();
                 calendar = Calendar.getInstance(TimeZone.getDefault(), local);
                 calendar.setTimeInMillis(millis);
-                
+
                 token = JSONToken.LITERAL_ISO8601_DATE;
                 return true;
             }
@@ -2412,9 +2422,9 @@ public final class JSONScanner implements JSONLexer {
                 char s0 = charAt(bp + 12);
                 char s1 = charAt(bp + 13);
 
-               if(!checkTime(h0, h1, m0, m1, s0, s1)) {
-                   return false;
-               }
+                if (!checkTime(h0, h1, m0, m1, s0, s1)) {
+                    return false;
+                }
 
                 if (rest == 17) {
                     char S0 = charAt(bp + 14);
@@ -2434,22 +2444,22 @@ public final class JSONScanner implements JSONLexer {
                 } else {
                     millis = 0;
                 }
-                
+
                 hour = digits[h0] * 10 + digits[h1];
                 minute = digits[m0] * 10 + digits[m1];
                 seconds = digits[s0] * 10 + digits[s1];
             } else {
                 hour = 0;
-               minute = 0;
-               seconds = 0;
-               millis = 0;
+                minute = 0;
+                seconds = 0;
+                millis = 0;
             }
-            
+
             calendar.set(Calendar.HOUR_OF_DAY, hour);
             calendar.set(Calendar.MINUTE, minute);
             calendar.set(Calendar.SECOND, seconds);
             calendar.set(Calendar.MILLISECOND, millis);
-            
+
             token = JSONToken.LITERAL_ISO8601_DATE;
             return true;
         }

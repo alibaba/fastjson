@@ -37,11 +37,7 @@ public class JSONScannerTest_scanFieldBoolean extends TestCase {
         Assert.assertEquals(true, obj.getValue());
     }
     
-    public void test_4() throws Exception {
-        String text = "{\"value\":false,id:2}";
-        VO obj = JSON.parseObject(text, VO.class);
-        Assert.assertEquals(false, obj.getValue());
-    }
+
     
     public void test_5() throws Exception {
         String text = "{\"value\":false}";

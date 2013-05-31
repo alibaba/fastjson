@@ -46,17 +46,18 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
     public FieldDeserializer getFieldDeserializer(String name) {
         return serializer.getFieldDeserializerMap().get(name);
     }
-    
+
     public Type getFieldType(String name) {
         return serializer.getFieldDeserializerMap().get(name).getFieldType();
     }
 
-    public boolean parseField(DefaultJSONParser parser, String key, Object object, Type objectType, Map<String, Object> fieldValues) {
+    public boolean parseField(DefaultJSONParser parser, String key, Object object, Type objectType,
+                              Map<String, Object> fieldValues) {
         JSONScanner lexer = (JSONScanner) parser.getLexer(); // xxx
 
         Map<String, FieldDeserializer> feildDeserializerMap = serializer.getFieldDeserializerMap();
         FieldDeserializer fieldDeserializer = feildDeserializerMap.get(key);
-        
+
         if (fieldDeserializer == null) {
             for (Map.Entry<String, FieldDeserializer> entry : feildDeserializerMap.entrySet()) {
                 if (entry.getKey().equalsIgnoreCase(key)) {
@@ -88,7 +89,8 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
             super(mapping, clazz);
         }
 
-        public boolean parseField(DefaultJSONParser parser, String key, Object object, Type objectType, Map<String, Object> fieldValues) {
+        public boolean parseField(DefaultJSONParser parser, String key, Object object, Type objectType,
+                                  Map<String, Object> fieldValues) {
             return ASMJavaBeanDeserializer.this.parseField(parser, key, object, objectType, fieldValues);
         }
 
@@ -97,4 +99,10 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
         }
     }
 
+    public Object parseRest(DefaultJSONParser parser, Type type, Object fieldName, Object instance) {
+//        serializer.parseField(parser, key, object, objectType, fieldValues)
+        Object obj = serializer.deserialze(parser, type, fieldName, instance);
+        
+        return obj;
+    }
 }

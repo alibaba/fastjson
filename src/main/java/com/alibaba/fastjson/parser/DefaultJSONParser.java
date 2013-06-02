@@ -15,7 +15,7 @@
  */
 package com.alibaba.fastjson.parser;
 
-import static com.alibaba.fastjson.parser.JSONScanner.EOI;
+import static com.alibaba.fastjson.parser.JSONLexer.EOI;
 import static com.alibaba.fastjson.parser.JSONToken.EOF;
 import static com.alibaba.fastjson.parser.JSONToken.ERROR;
 import static com.alibaba.fastjson.parser.JSONToken.FALSE;
@@ -151,6 +151,14 @@ public class DefaultJSONParser extends AbstractJSONParser {
     public DefaultJSONParser(final char[] input, int length, final ParserConfig config, int features){
         this(input, new JSONScanner(input, length, features), config);
     }
+    
+    public DefaultJSONParser(final JSONLexer lexer) {
+        this (lexer, ParserConfig.getGlobalInstance());
+    }
+
+    public DefaultJSONParser(final JSONLexer lexer, final ParserConfig config){
+        this(null, lexer, config);
+    }
 
     public DefaultJSONParser(final Object input, final JSONLexer lexer, final ParserConfig config){
         this.lexer = lexer;
@@ -188,7 +196,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                 char ch = lexer.getCurrent();
                 if (isEnabled(Feature.AllowArbitraryCommas)) {
                     while (ch == ',') {
-                        lexer.incrementBufferPosition();
+                        lexer.next();
                         lexer.skipWhitespace();
                         ch = lexer.getCurrent();
                     }
@@ -204,7 +212,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                         throw new JSONException("expect ':' at " + lexer.pos() + ", name " + key);
                     }
                 } else if (ch == '}') {
-                    lexer.incrementBufferPosition();
+                    lexer.next();
                     lexer.resetStringPosition();
                     lexer.nextToken();
                     return object;
@@ -253,7 +261,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                 }
 
                 if (!isObjectKey) {
-                    lexer.incrementBufferPosition();
+                    lexer.next();
                     lexer.skipWhitespace();
                 }
 
@@ -437,10 +445,10 @@ public class DefaultJSONParser extends AbstractJSONParser {
                 lexer.skipWhitespace();
                 ch = lexer.getCurrent();
                 if (ch == ',') {
-                    lexer.incrementBufferPosition();
+                    lexer.next();
                     continue;
                 } else if (ch == '}') {
-                    lexer.incrementBufferPosition();
+                    lexer.next();
                     lexer.resetStringPosition();
                     lexer.nextToken();
 
@@ -1128,7 +1136,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
 
         try {
             if (isEnabled(Feature.AutoCloseSource)) {
-                if (!lexer.isEOF()) {
+                if (lexer.token() != JSONToken.EOF) {
                     throw new JSONException("not close json text, token : " + JSONToken.name(lexer.token()));
                 }
             }

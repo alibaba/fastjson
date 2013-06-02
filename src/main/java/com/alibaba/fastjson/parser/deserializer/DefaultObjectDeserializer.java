@@ -160,7 +160,7 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
                 char ch = lexer.getCurrent();
                 if (parser.isEnabled(Feature.AllowArbitraryCommas)) {
                     while (ch == ',') {
-                        lexer.incrementBufferPosition();
+                        lexer.next();
                         lexer.skipWhitespace();
                         ch = lexer.getCurrent();
                     }
@@ -175,7 +175,7 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
                         throw new JSONException("expect ':' at " + lexer.pos());
                     }
                 } else if (ch == '}') {
-                    lexer.incrementBufferPosition();
+                    lexer.next();
                     lexer.resetStringPosition();
                     lexer.nextToken(JSONToken.COMMA);
                     return map;
@@ -203,7 +203,7 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
                     }
                 }
 
-                lexer.incrementBufferPosition();
+                lexer.next();
                 lexer.skipWhitespace();
                 ch = lexer.getCurrent();
 

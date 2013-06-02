@@ -44,8 +44,8 @@ public class BenchmarkMain_EishayDecode {
     }
 
     static void decode(String text) {
-        //MediaContent content = JSON.parseObject(text, MediaContent.class);
+        MediaContent content = JSON.parseObject(text, MediaContent.class);
         
-        JSON.parseObject(text);
+//        JSON.parseObject(text);
     }
 }

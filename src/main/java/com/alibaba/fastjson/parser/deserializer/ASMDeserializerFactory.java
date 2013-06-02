@@ -29,7 +29,6 @@ import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
-import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParseContext;
 import com.alibaba.fastjson.parser.ParserConfig;
@@ -160,20 +159,19 @@ public class ASMDeserializerFactory implements Opcodes {
 
         mw.visitVarInsn(ALOAD, 1);
         mw.visitMethodInsn(INVOKEVIRTUAL, getType(DefaultJSONParser.class), "getLexer", "()" + getDesc(JSONLexer.class));
-        mw.visitTypeInsn(CHECKCAST, getType(JSONScanner.class)); // cast
         mw.visitVarInsn(ASTORE, context.var("lexer"));
 
         mw.visitVarInsn(ALOAD, context.var("lexer"));
         mw.visitFieldInsn(GETSTATIC, getType(Feature.class), "SortFeidFastMatch", "L" + getType(Feature.class) + ";");
-        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "isEnabled", "(" + "L" + getType(Feature.class)
+        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "isEnabled", "(" + "L" + getType(Feature.class)
                                                                                    + ";" + ")Z");
         mw.visitJumpInsn(IFEQ, super_);
 
         mw.visitVarInsn(ALOAD, context.var("lexer"));
         mw.visitLdcInsn(context.getClazz().getName());
-        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "scanType", "(Ljava/lang/String;)I");
+        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "scanType", "(Ljava/lang/String;)I");
 
-        mw.visitFieldInsn(GETSTATIC, getType(JSONScanner.class), "NOT_MATCH", "I");
+        mw.visitFieldInsn(GETSTATIC, getType(JSONLexer.class), "NOT_MATCH", "I");
         mw.visitJumpInsn(IF_ICMPEQ, super_);
 
         mw.visitVarInsn(ALOAD, 1); // parser
@@ -235,8 +233,8 @@ public class ASMDeserializerFactory implements Opcodes {
         }
 
         mw.visitVarInsn(ALOAD, context.var("lexer"));
-        mw.visitFieldInsn(GETFIELD, getType(JSONScanner.class), "matchStat", "I");
-        mw.visitFieldInsn(GETSTATIC, getType(JSONScanner.class), "END", "I");
+        mw.visitFieldInsn(GETFIELD, getType(JSONLexer.class), "matchStat", "I");
+        mw.visitFieldInsn(GETSTATIC, getType(JSONLexer.class), "END", "I");
         mw.visitJumpInsn(IF_ICMPEQ, return_);
 
         mw.visitInsn(ICONST_0); // UNKOWN
@@ -274,7 +272,7 @@ public class ASMDeserializerFactory implements Opcodes {
                     mw.visitVarInsn(ALOAD, context.var("lexer"));
                     mw.visitFieldInsn(GETSTATIC, getType(Feature.class), "InitStringFieldAsEmpty",
                                       "L" + getType(Feature.class) + ";");
-                    mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "isEnabled", "(" + "L"
+                    mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "isEnabled", "(" + "L"
                                                                                                + getType(Feature.class)
                                                                                                + ";" + ")Z");
                     mw.visitJumpInsn(IFEQ, flagEnd_);
@@ -282,7 +280,7 @@ public class ASMDeserializerFactory implements Opcodes {
                     mw.visitLabel(flagEnd_);
 
                     mw.visitVarInsn(ALOAD, context.var("lexer"));
-                    mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "stringDefaultValue",
+                    mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "stringDefaultValue",
                                        "()Ljava/lang/String;");
                 } else {
                     mw.visitInsn(ACONST_NULL);
@@ -304,48 +302,48 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitVarInsn(ALOAD, context.var("lexer"));
                 mw.visitVarInsn(ALOAD, 0);
                 mw.visitFieldInsn(GETFIELD, context.getClassName(), fieldInfo.getName() + "_asm_prefix__", "[C");
-                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "scanFieldBoolean", "([C)Z");
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "scanFieldBoolean", "([C)Z");
                 mw.visitVarInsn(ISTORE, context.var(fieldInfo.getName() + "_asm"));
             } else if (fieldClass == byte.class) {
                 mw.visitVarInsn(ALOAD, context.var("lexer"));
                 mw.visitVarInsn(ALOAD, 0);
                 mw.visitFieldInsn(GETFIELD, context.getClassName(), fieldInfo.getName() + "_asm_prefix__", "[C");
-                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "scanFieldInt", "([C)I");
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "scanFieldInt", "([C)I");
                 mw.visitVarInsn(ISTORE, context.var(fieldInfo.getName() + "_asm"));
 
             } else if (fieldClass == short.class) {
                 mw.visitVarInsn(ALOAD, context.var("lexer"));
                 mw.visitVarInsn(ALOAD, 0);
                 mw.visitFieldInsn(GETFIELD, context.getClassName(), fieldInfo.getName() + "_asm_prefix__", "[C");
-                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "scanFieldInt", "([C)I");
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "scanFieldInt", "([C)I");
                 mw.visitVarInsn(ISTORE, context.var(fieldInfo.getName() + "_asm"));
 
             } else if (fieldClass == int.class) {
                 mw.visitVarInsn(ALOAD, context.var("lexer"));
                 mw.visitVarInsn(ALOAD, 0);
                 mw.visitFieldInsn(GETFIELD, context.getClassName(), fieldInfo.getName() + "_asm_prefix__", "[C");
-                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "scanFieldInt", "([C)I");
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "scanFieldInt", "([C)I");
                 mw.visitVarInsn(ISTORE, context.var(fieldInfo.getName() + "_asm"));
 
             } else if (fieldClass == long.class) {
                 mw.visitVarInsn(ALOAD, context.var("lexer"));
                 mw.visitVarInsn(ALOAD, 0);
                 mw.visitFieldInsn(GETFIELD, context.getClassName(), fieldInfo.getName() + "_asm_prefix__", "[C");
-                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "scanFieldLong", "([C)J");
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "scanFieldLong", "([C)J");
                 mw.visitVarInsn(LSTORE, context.var(fieldInfo.getName() + "_asm", 2));
 
             } else if (fieldClass == float.class) {
                 mw.visitVarInsn(ALOAD, context.var("lexer"));
                 mw.visitVarInsn(ALOAD, 0);
                 mw.visitFieldInsn(GETFIELD, context.getClassName(), fieldInfo.getName() + "_asm_prefix__", "[C");
-                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "scanFieldFloat", "([C)F");
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "scanFieldFloat", "([C)F");
                 mw.visitVarInsn(FSTORE, context.var(fieldInfo.getName() + "_asm"));
 
             } else if (fieldClass == double.class) {
                 mw.visitVarInsn(ALOAD, context.var("lexer"));
                 mw.visitVarInsn(ALOAD, 0);
                 mw.visitFieldInsn(GETFIELD, context.getClassName(), fieldInfo.getName() + "_asm_prefix__", "[C");
-                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "scanFieldDouble", "([C)D");
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "scanFieldDouble", "([C)D");
                 mw.visitVarInsn(DSTORE, context.var(fieldInfo.getName() + "_asm", 2));
 
             } else if (fieldClass == String.class) {
@@ -356,7 +354,7 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitJumpInsn(IF_ICMPNE, notEnd_);
 
                 mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "stringDefaultValue",
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "stringDefaultValue",
                                    "()Ljava/lang/String;");
                 mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
                 mw.visitJumpInsn(GOTO, notMatch_);
@@ -366,7 +364,7 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitVarInsn(ALOAD, context.var("lexer"));
                 mw.visitVarInsn(ALOAD, 0);
                 mw.visitFieldInsn(GETFIELD, context.getClassName(), fieldInfo.getName() + "_asm_prefix__", "[C");
-                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "scanFieldString",
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "scanFieldString",
                                    "([C)Ljava/lang/String;");
                 mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
 
@@ -383,7 +381,7 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitMethodInsn(INVOKEVIRTUAL, getType(DefaultJSONParser.class), "getSymbolTable",
                                    "()" + getDesc(SymbolTable.class));
 
-                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "scanFieldSymbol",
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "scanFieldSymbol",
                                    "([C" + getDesc(SymbolTable.class) + ")Ljava/lang/String;");
                 mw.visitInsn(DUP);
                 mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm_enumName"));
@@ -411,7 +409,7 @@ public class ASMDeserializerFactory implements Opcodes {
 
                     if (itemClass == String.class) {
                         mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc(fieldClass))); // cast
-                        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "scanFieldStringArray",
+                        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "scanFieldStringArray",
                                            "([CLjava/lang/Class;)" + getDesc(Collection.class));
                         mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
                     } else {
@@ -437,7 +435,7 @@ public class ASMDeserializerFactory implements Opcodes {
             }
 
             mw.visitVarInsn(ALOAD, context.var("lexer"));
-            mw.visitFieldInsn(GETFIELD, getType(JSONScanner.class), "matchStat", "I");
+            mw.visitFieldInsn(GETFIELD, getType(JSONLexer.class), "matchStat", "I");
             Label flag_ = new Label();
             // mw.visitInsn(DUP);
             mw.visitJumpInsn(IFLE, flag_);
@@ -445,20 +443,20 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitLabel(flag_);
 
             mw.visitVarInsn(ALOAD, context.var("lexer"));
-            mw.visitFieldInsn(GETFIELD, getType(JSONScanner.class), "matchStat", "I");
+            mw.visitFieldInsn(GETFIELD, getType(JSONLexer.class), "matchStat", "I");
             mw.visitInsn(DUP);
             mw.visitVarInsn(ISTORE, context.var("matchStat"));
 
-            mw.visitFieldInsn(GETSTATIC, getType(JSONScanner.class), "NOT_MATCH", "I");
+            mw.visitFieldInsn(GETSTATIC, getType(JSONLexer.class), "NOT_MATCH", "I");
             mw.visitJumpInsn(IF_ICMPEQ, reset_);
 
             // mw.visitFieldInsn(GETSTATIC, getType(System.class), "out", "Ljava/io/PrintStream;");
             // mw.visitVarInsn(ALOAD, context.var("lexer"));
-            // mw.visitFieldInsn(GETFIELD, getType(JSONScanner.class), "matchStat", "I");
+            // mw.visitFieldInsn(GETFIELD, getType(JSONLexer.class), "matchStat", "I");
             // mw.visitMethodInsn(INVOKEVIRTUAL, getType(java.io.PrintStream.class), "println", "(I)V");
 
             mw.visitVarInsn(ALOAD, context.var("lexer"));
-            mw.visitFieldInsn(GETFIELD, getType(JSONScanner.class), "matchStat", "I");
+            mw.visitFieldInsn(GETFIELD, getType(JSONLexer.class), "matchStat", "I");
             mw.visitJumpInsn(IFLE, notMatch_);
 
             // increment matchedCount
@@ -468,8 +466,8 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitVarInsn(ISTORE, context.var("matchedCount"));
 
             mw.visitVarInsn(ALOAD, context.var("lexer"));
-            mw.visitFieldInsn(GETFIELD, getType(JSONScanner.class), "matchStat", "I");
-            mw.visitFieldInsn(GETSTATIC, getType(JSONScanner.class), "END", "I");
+            mw.visitFieldInsn(GETFIELD, getType(JSONLexer.class), "matchStat", "I");
+            mw.visitFieldInsn(GETSTATIC, getType(JSONLexer.class), "END", "I");
             mw.visitJumpInsn(IF_ICMPEQ, end_);
 
             // mw.visitFieldInsn(GETSTATIC, getType(System.class), "out", "Ljava/io/PrintStream;");
@@ -480,8 +478,8 @@ public class ASMDeserializerFactory implements Opcodes {
 
             if (i == fieldListSize - 1) {
                 mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitFieldInsn(GETFIELD, getType(JSONScanner.class), "matchStat", "I");
-                mw.visitFieldInsn(GETSTATIC, getType(JSONScanner.class), "END", "I");
+                mw.visitFieldInsn(GETFIELD, getType(JSONLexer.class), "matchStat", "I");
+                mw.visitFieldInsn(GETSTATIC, getType(JSONLexer.class), "END", "I");
                 mw.visitJumpInsn(IF_ICMPNE, reset_);
             }
         } // endFor
@@ -687,18 +685,18 @@ public class ASMDeserializerFactory implements Opcodes {
 
         // mw.visitFieldInsn(GETSTATIC, getType(System.class), "out", "Ljava/io/PrintStream;");
         // mw.visitVarInsn(ALOAD, context.var("lexer"));
-        // mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "token", "()I");
+        // mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "token", "()I");
         // mw.visitMethodInsn(INVOKEVIRTUAL, getType(java.io.PrintStream.class), "println", "(I)V");
 
         mw.visitVarInsn(ALOAD, context.var("lexer"));
-        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "token", "()I");
+        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "token", "()I");
         mw.visitFieldInsn(GETSTATIC, getType(JSONToken.class), "RBRACE", "I");
         mw.visitJumpInsn(IF_ICMPNE, reset_);
 
         // mw.visitLabel(nextToken_);
         mw.visitVarInsn(ALOAD, context.var("lexer"));
         mw.visitFieldInsn(GETSTATIC, getType(JSONToken.class), "COMMA", "I");
-        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "nextToken", "(I)V");
+        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "nextToken", "(I)V");
 
         mw.visitLabel(_end_if);
     }
@@ -708,7 +706,7 @@ public class ASMDeserializerFactory implements Opcodes {
         Label matched_ = new Label();
         Label _end_if = new Label();
 
-        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "matchField", "([C)Z");
+        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "matchField", "([C)Z");
         mw.visitJumpInsn(IFNE, matched_);
         mw.visitInsn(ACONST_NULL);
         mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
@@ -740,13 +738,13 @@ public class ASMDeserializerFactory implements Opcodes {
 
         Label valueNotNull_ = new Label();
         mw.visitVarInsn(ALOAD, context.var("lexer"));
-        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "token", "()I");
+        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "token", "()I");
         mw.visitFieldInsn(GETSTATIC, getType(JSONToken.class), "NULL", "I");
         mw.visitJumpInsn(IF_ICMPNE, valueNotNull_);
 
         mw.visitVarInsn(ALOAD, context.var("lexer"));
         mw.visitFieldInsn(GETSTATIC, getType(JSONToken.class), "COMMA", "I");
-        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "nextToken", "(I)V");
+        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "nextToken", "(I)V");
 
         mw.visitInsn(ACONST_NULL);
         mw.visitTypeInsn(CHECKCAST, getType(fieldClass)); // cast
@@ -756,7 +754,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitLabel(valueNotNull_);
         // if (lexer.token() != JSONToken.LBRACKET) reset
         mw.visitVarInsn(ALOAD, context.var("lexer"));
-        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "token", "()I");
+        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "token", "()I");
         mw.visitFieldInsn(GETSTATIC, getType(JSONToken.class), "LBRACKET", "I");
 
         mw.visitJumpInsn(IF_ICMPNE, reset_);
@@ -769,7 +767,7 @@ public class ASMDeserializerFactory implements Opcodes {
 
         mw.visitVarInsn(ALOAD, context.var("lexer"));
         mw.visitVarInsn(ILOAD, context.var("fastMatchToken"));
-        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "nextToken", "(I)V");
+        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "nextToken", "(I)V");
 
         if (fieldClass.isAssignableFrom(ArrayList.class)) {
             mw.visitTypeInsn(NEW, getType(ArrayList.class));
@@ -819,7 +817,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitLabel(loop_);
 
         mw.visitVarInsn(ALOAD, context.var("lexer"));
-        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "token", "()I");
+        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "token", "()I");
         mw.visitFieldInsn(GETSTATIC, getType(JSONToken.class), "RBRACKET", "I");
         mw.visitJumpInsn(IF_ICMPEQ, loop_end_);
 
@@ -859,13 +857,13 @@ public class ASMDeserializerFactory implements Opcodes {
         // continue;
         // }
         mw.visitVarInsn(ALOAD, context.var("lexer"));
-        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "token", "()I");
+        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "token", "()I");
         mw.visitFieldInsn(GETSTATIC, getType(JSONToken.class), "COMMA", "I");
         mw.visitJumpInsn(IF_ICMPNE, loop_);
 
         mw.visitVarInsn(ALOAD, context.var("lexer"));
         mw.visitVarInsn(ILOAD, context.var("fastMatchToken"));
-        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "nextToken", "(I)V");
+        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "nextToken", "(I)V");
         mw.visitJumpInsn(GOTO, loop_);
 
         mw.visitLabel(loop_end_);
@@ -880,13 +878,13 @@ public class ASMDeserializerFactory implements Opcodes {
         }
 
         mw.visitVarInsn(ALOAD, context.var("lexer"));
-        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "token", "()I");
+        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "token", "()I");
         mw.visitFieldInsn(GETSTATIC, getType(JSONToken.class), "RBRACKET", "I");
         mw.visitJumpInsn(IF_ICMPNE, reset_);
 
         mw.visitVarInsn(ALOAD, context.var("lexer"));
         mw.visitFieldInsn(GETSTATIC, getType(JSONToken.class), "COMMA", "I");
-        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "nextToken", "(I)V");
+        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "nextToken", "(I)V");
         // lexer.nextToken(JSONToken.COMMA);
 
         mw.visitLabel(_end_if);
@@ -900,7 +898,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ALOAD, context.var("lexer"));
         mw.visitVarInsn(ALOAD, 0);
         mw.visitFieldInsn(GETFIELD, context.getClassName(), fieldInfo.getName() + "_asm_prefix__", "[C");
-        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONScanner.class), "matchField", "([C)Z");
+        mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexer.class), "matchField", "([C)Z");
         mw.visitJumpInsn(IFNE, matched_);
         mw.visitInsn(ACONST_NULL);
         mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));

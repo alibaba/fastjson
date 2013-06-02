@@ -174,7 +174,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public final Object parseObject(final Map object, Object fieldName) {
-        JSONScanner lexer = (JSONScanner) this.lexer;
+        final JSONLexer lexer = this.lexer;
 
         if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {
             throw new JSONException("syntax error, expect {, actual " + lexer.tokenName());
@@ -281,11 +281,11 @@ public class DefaultJSONParser extends AbstractJSONParser {
                             } else if (deserializer instanceof JavaBeanDeserializer) {
                                 instance = ((JavaBeanDeserializer) deserializer).createInstance(this, clazz);
                             }
-                            
+
                             if (instance == null) {
                                 instance = clazz.newInstance();
                             }
-                            
+
                             return instance;
                         } catch (Exception e) {
                             throw new JSONException("create instance error", e);
@@ -537,7 +537,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                         continue;
                     }
                 }
-                
+
                 if (lexer.token() == JSONToken.RBRACKET) {
                     break;
                 }
@@ -774,7 +774,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
     }
 
     public void acceptType(String typeName) {
-        JSONScanner lexer = (JSONScanner) this.lexer;
+        JSONLexer lexer = this.lexer;
 
         lexer.nextTokenWithColon();
 

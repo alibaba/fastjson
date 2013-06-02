@@ -18,7 +18,6 @@ package com.alibaba.fastjson.parser;
 import static com.alibaba.fastjson.parser.JSONToken.COLON;
 import static com.alibaba.fastjson.parser.JSONToken.COMMA;
 import static com.alibaba.fastjson.parser.JSONToken.EOF;
-import static com.alibaba.fastjson.parser.JSONToken.ERROR;
 import static com.alibaba.fastjson.parser.JSONToken.LBRACE;
 import static com.alibaba.fastjson.parser.JSONToken.LBRACKET;
 import static com.alibaba.fastjson.parser.JSONToken.LITERAL_STRING;
@@ -46,23 +45,11 @@ import com.alibaba.fastjson.util.Base64;
 /**
  * @author wenshao<szujobs@hotmail.com>
  */
-public final class JSONScanner implements JSONLexer {
-
-    public final static byte                                EOI          = 0x1A;
+public final class JSONScanner extends JSONLexer {
 
     private final String                                    text;
-    private int                                             bp;
+
     private int                                             eofPos;
-
-    /**
-     * The current character.
-     */
-    private char                                            ch;
-
-    /**
-     * The token's position, 0-based offset from beginning of text.
-     */
-    private int                                             pos;
 
     /**
      * A character buffer for literals.
@@ -75,18 +62,9 @@ public final class JSONScanner implements JSONLexer {
      */
     private int                                             np;
 
-    /**
-     * The token, set by nextToken().
-     */
-    private int                                             token;
-
     private Keywords                                        keywods      = Keywords.DEFAULT_KEYWORDS;
 
     private final static ThreadLocal<SoftReference<char[]>> sbufRefLocal = new ThreadLocal<SoftReference<char[]>>();
-
-    private int                                             features     = JSON.DEFAULT_PARSER_FEATURE;
-
-    private Calendar                                        calendar     = null;
 
     public JSONScanner(String input){
         this(input, JSON.DEFAULT_PARSER_FEATURE);
@@ -131,10 +109,6 @@ public final class JSONScanner implements JSONLexer {
         this(new String(input, 0, inputLength), features);
     }
 
-    public final int getBufferPosition() {
-        return bp;
-    }
-
     public boolean isBlankInput() {
         for (int i = 0; i < text.length(); ++i) {
             if (!isWhitespace(charAt(i))) {
@@ -143,39 +117,6 @@ public final class JSONScanner implements JSONLexer {
         }
 
         return true;
-    }
-
-    public static final boolean isWhitespace(char ch) {
-        // 专门调整了判断顺序
-        return ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b';
-    }
-
-    /**
-     * Report an error at the current token position using the provided arguments.
-     */
-    private void lexError(String key, Object... args) {
-        token = ERROR;
-    }
-
-    /**
-     * Return the current token, set by nextToken().
-     */
-    public final int token() {
-        return token;
-    }
-
-    public final String tokenName() {
-        return JSONToken.name(token);
-    }
-
-    private static boolean[] whitespaceFlags = new boolean[256];
-    static {
-        whitespaceFlags[' '] = true;
-        whitespaceFlags['\n'] = true;
-        whitespaceFlags['\r'] = true;
-        whitespaceFlags['\t'] = true;
-        whitespaceFlags['\f'] = true;
-        whitespaceFlags['\b'] = true;
     }
 
     public final void skipWhitespace() {
@@ -187,10 +128,6 @@ public final class JSONScanner implements JSONLexer {
                 break;
             }
         }
-    }
-
-    public final char getCurrent() {
-        return ch;
     }
 
     public final void nextTokenWithColon() {
@@ -780,17 +717,9 @@ public final class JSONScanner implements JSONLexer {
         // return symbolTable.addSymbol(buf, np, sp, hash);
     }
 
-    public final static int     NOT_MATCH      = -1;
-    public final static int     NOT_MATCH_NAME = -2;
-    public final static int     UNKOWN         = 0;
-    public final static int     OBJECT         = 1;
-    public final static int     ARRAY          = 2;
-    public final static int     VALUE          = 3;
-    public final static int     END            = 4;
+    protected final static char[] typeFieldName = ("\"" + JSON.DEFAULT_TYPE_KEY + "\":\"").toCharArray();
 
-    private final static char[] typeFieldName  = ("\"" + JSON.DEFAULT_TYPE_KEY + "\":\"").toCharArray();
-
-    public int scanType(String type) {
+    public final int scanType(String type) {
         matchStat = UNKOWN;
 
         if (!charArrayCompare(text, bp, typeFieldName)) {
@@ -840,7 +769,7 @@ public final class JSONScanner implements JSONLexer {
         return matchStat;
     }
 
-    public boolean matchField(char[] fieldName) {
+    public final boolean matchField(char[] fieldName) {
         if (!charArrayCompare(text, bp, fieldName)) {
             return false;
         }
@@ -860,8 +789,6 @@ public final class JSONScanner implements JSONLexer {
 
         return true;
     }
-
-    public int matchStat = UNKOWN;
 
     // sun.misc.Unsafe.byteArrayCompare(byte[], int, int, byte[], int, int)
     static final boolean charArrayCompare(char[] src, int offset, char[] dest) {
@@ -1010,13 +937,6 @@ public final class JSONScanner implements JSONLexer {
         return strVal;
     }
 
-    public String stringDefaultValue() {
-        if (this.isEnabled(Feature.InitStringFieldAsEmpty)) {
-            return "";
-        }
-        return null;
-    }
-
     public String scanFieldSymbol(char[] fieldName, final SymbolTable symbolTable) {
         matchStat = UNKOWN;
 
@@ -1082,10 +1002,6 @@ public final class JSONScanner implements JSONLexer {
         }
 
         return strVal;
-    }
-
-    public ArrayList<String> scanFieldStringArray(char[] fieldName) {
-        return (ArrayList<String>) scanFieldStringArray(fieldName, null);
     }
 
     @SuppressWarnings("unchecked")
@@ -2023,14 +1939,6 @@ public final class JSONScanner implements JSONLexer {
     }
 
     /**
-     * Return the current token's position: a 0-based offset from beginning of the raw input stream (before unicode
-     * translation)
-     */
-    public final int pos() {
-        return pos;
-    }
-
-    /**
      * The value of a literal token, recorded as a string. For integers, leading 0x and 'l' suffixes are suppressed.
      */
     public final String stringVal() {
@@ -2073,27 +1981,6 @@ public final class JSONScanner implements JSONLexer {
             return symbolTable.addSymbol(text, np + 1, sp);
         } else {
             return symbolTable.addSymbol(sbuf, 0, sp);
-        }
-    }
-
-    private static final long  MULTMIN_RADIX_TEN       = Long.MIN_VALUE / 10;
-    private static final long  N_MULTMAX_RADIX_TEN     = -Long.MAX_VALUE / 10;
-
-    private static final int   INT_MULTMIN_RADIX_TEN   = Integer.MIN_VALUE / 10;
-    private static final int   INT_N_MULTMAX_RADIX_TEN = -Integer.MAX_VALUE / 10;
-
-    private final static int[] digits                  = new int[(int) 'f' + 1];
-
-    static {
-        for (int i = '0'; i <= '9'; ++i) {
-            digits[i] = i - '0';
-        }
-
-        for (int i = 'a'; i <= 'f'; ++i) {
-            digits[i] = (i - 'a') + 10;
-        }
-        for (int i = 'A'; i <= 'F'; ++i) {
-            digits[i] = (i - 'A') + 10;
         }
     }
 
@@ -2298,14 +2185,6 @@ public final class JSONScanner implements JSONLexer {
         // return new String(buf, np, sp);
     }
 
-    public float floatValue() {
-        return Float.parseFloat(numberString());
-    }
-
-    public double doubleValue() {
-        return Double.parseDouble(numberString());
-    }
-
     public Number decimalValue(boolean decimal) {
         char ch = charAt(np + sp - 1);
         if (ch == 'F') {
@@ -2335,14 +2214,6 @@ public final class JSONScanner implements JSONLexer {
 
         return new BigDecimal(text.substring(np, np + sp));
         // return new BigDecimal(buf, np, sp);
-    }
-
-    public void config(Feature feature, boolean state) {
-        features = Feature.config(features, feature, state);
-    }
-
-    public boolean isEnabled(Feature feature) {
-        return Feature.isEnabled(this.features, feature);
     }
 
     public final int ISO8601_LEN_0 = "0000-00-00".length();
@@ -2667,17 +2538,6 @@ public final class JSONScanner implements JSONLexer {
         }
 
         return true;
-    }
-
-    public Calendar getCalendar() {
-        return this.calendar;
-    }
-
-    public boolean isEOF() {
-        if (token == JSONToken.EOF) {
-            return true;
-        }
-        return false;
     }
 
     public void close() {

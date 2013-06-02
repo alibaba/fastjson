@@ -6,7 +6,7 @@ import java.util.Map;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
-import com.alibaba.fastjson.parser.JSONScanner;
+import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.FieldInfo;
 
@@ -53,7 +53,7 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
 
     public boolean parseField(DefaultJSONParser parser, String key, Object object, Type objectType,
                               Map<String, Object> fieldValues) {
-        JSONScanner lexer = (JSONScanner) parser.getLexer(); // xxx
+        JSONLexer lexer = parser.getLexer(); // xxx
 
         Map<String, FieldDeserializer> feildDeserializerMap = serializer.getFieldDeserializerMap();
         FieldDeserializer fieldDeserializer = feildDeserializerMap.get(key);

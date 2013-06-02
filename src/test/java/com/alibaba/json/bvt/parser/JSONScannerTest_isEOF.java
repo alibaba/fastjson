@@ -6,6 +6,7 @@ import junit.framework.TestCase;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.JSONScanner;
+import com.alibaba.fastjson.parser.JSONToken;
 
 public class JSONScannerTest_isEOF extends TestCase {
 
@@ -18,20 +19,20 @@ public class JSONScannerTest_isEOF extends TestCase {
     public void test_1() throws Exception {
         JSONScanner lexer = new JSONScanner("  ");
         lexer.nextToken();
-        Assert.assertTrue(lexer.isEOF());
+        Assert.assertTrue(lexer.token() == JSONToken.EOF);
     }
 
     public void test_2() throws Exception {
         JSONScanner lexer = new JSONScanner("1  ");
         lexer.nextToken();
         lexer.nextToken();
-        Assert.assertTrue(lexer.isEOF());
+        Assert.assertTrue(lexer.token() == JSONToken.EOF);
     }
 
     public void test_3() throws Exception {
         JSONScanner lexer = new JSONScanner(" {}");
         lexer.nextToken();
-        Assert.assertTrue(!lexer.isEOF());
+        Assert.assertTrue(lexer.token() != JSONToken.EOF);
     }
 
 }

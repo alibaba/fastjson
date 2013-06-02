@@ -121,7 +121,7 @@ public abstract class JSONLexer {
         return matchStat;
     }
 
-    public final void nextToken() {
+    public void nextToken() {
         sp = 0;
 
         for (;;) {
@@ -228,7 +228,7 @@ public abstract class JSONLexer {
 
     }
 
-    public final void nextToken(int expect) {
+    public void nextToken(int expect) {
         sp = 0;
 
         for (;;) {
@@ -359,7 +359,7 @@ public abstract class JSONLexer {
         }
     }
 
-    public final void nextTokenWithColon() {
+    public void nextTokenWithColon() {
         sp = 0;
 
         for (;;) {
@@ -401,7 +401,7 @@ public abstract class JSONLexer {
         return null;
     }
 
-    public final Number integerValue() throws NumberFormatException {
+    public Number integerValue() throws NumberFormatException {
         long result = 0;
         boolean negative = false;
         int i = np, max = np + sp;
@@ -489,7 +489,7 @@ public abstract class JSONLexer {
         }
     }
 
-    public final void nextTokenWithColon(int expect) {
+    public void nextTokenWithColon(int expect) {
         sp = 0;
 
         for (;;) {
@@ -597,7 +597,7 @@ public abstract class JSONLexer {
 
     public abstract char next();
 
-    public final String scanSymbol(final SymbolTable symbolTable) {
+    public String scanSymbol(final SymbolTable symbolTable) {
         skipWhitespace();
 
         if (ch == '"') {
@@ -643,15 +643,15 @@ public abstract class JSONLexer {
     }
 
     public abstract String scanSymbolUnQuoted(final SymbolTable symbolTable);
-    
-    protected abstract void copyTo(int offset, int count, char[] dest); 
+
+    protected abstract void copyTo(int offset, int count, char[] dest);
 
     public void scanString() {
         np = bp;
         hasSpecial = false;
 
         int offset = 0;
-        
+
         char chLocal;
         for (;;) {
             chLocal = charAt(bp + (offset++));
@@ -748,7 +748,7 @@ public abstract class JSONLexer {
         return this.calendar;
     }
 
-    public final int intValue() {
+    public int intValue() {
         int result = 0;
         boolean negative = false;
         int i = np, max = np + sp;
@@ -1331,7 +1331,7 @@ public abstract class JSONLexer {
         return value;
     }
 
-    public final float scanFieldFloat(char[] fieldName) {
+    public float scanFieldFloat(char[] fieldName) {
         matchStat = UNKOWN;
 
         if (!charArrayCompare(fieldName)) {
@@ -1418,7 +1418,7 @@ public abstract class JSONLexer {
         return value;
     }
 
-    public final double scanFieldDouble(char[] fieldName) {
+    public double scanFieldDouble(char[] fieldName) {
         matchStat = UNKOWN;
 
         if (!charArrayCompare(fieldName)) {
@@ -1519,7 +1519,7 @@ public abstract class JSONLexer {
         return value;
     }
 
-    public final void scanTrue() {
+    public void scanTrue() {
         if (ch != 't') {
             throw new JSONException("error parse true");
         }
@@ -1548,7 +1548,7 @@ public abstract class JSONLexer {
         }
     }
 
-    public final void scanTreeSet() {
+    public void scanTreeSet() {
         if (ch != 'T') {
             throw new JSONException("error parse true");
         }
@@ -1591,7 +1591,7 @@ public abstract class JSONLexer {
         }
     }
 
-    public final void scanNullOrNew() {
+    public void scanNullOrNew() {
         if (ch != 'n') {
             throw new JSONException("error parse null or new");
         }
@@ -1636,7 +1636,7 @@ public abstract class JSONLexer {
         }
     }
 
-    public final void scanFalse() {
+    public void scanFalse() {
         if (ch != 'f') {
             throw new JSONException("error parse false");
         }
@@ -1693,7 +1693,7 @@ public abstract class JSONLexer {
         return true;
     }
 
-    public final void skipWhitespace() {
+    public void skipWhitespace() {
         for (;;) {
             if (whitespaceFlags[ch]) {
                 next();
@@ -1706,7 +1706,7 @@ public abstract class JSONLexer {
 
     public abstract void scanStringSingleQuote();
 
-    public final void scanSet() {
+    public void scanSet() {
         if (ch != 'S') {
             throw new JSONException("error parse true");
         }
@@ -1732,7 +1732,7 @@ public abstract class JSONLexer {
     /**
      * Append a character to sbuf.
      */
-    protected final void putChar(char ch) {
+    protected void putChar(char ch) {
         if (sp == sbuf.length) {
             char[] newsbuf = new char[sbuf.length * 2];
             System.arraycopy(sbuf, 0, newsbuf, 0, sbuf.length);
@@ -1741,7 +1741,7 @@ public abstract class JSONLexer {
         sbuf[sp++] = ch;
     }
 
-    public final void scanNumber() {
+    public void scanNumber() {
         np = bp;
 
         if (ch == '-') {
@@ -1824,7 +1824,7 @@ public abstract class JSONLexer {
         }
     }
 
-    public final long longValue() throws NumberFormatException {
+    public long longValue() throws NumberFormatException {
         long result = 0;
         boolean negative = false;
         int i = np, max = np + sp;
@@ -1874,7 +1874,7 @@ public abstract class JSONLexer {
         }
     }
 
-    public final Number decimalValue(boolean decimal) {
+    public Number decimalValue(boolean decimal) {
         char chLocal = charAt(np + sp - 1);
         if (chLocal == 'F') {
             return Float.parseFloat(numberString());
@@ -1893,7 +1893,7 @@ public abstract class JSONLexer {
         }
     }
 
-    public final BigDecimal decimalValue() {
+    public BigDecimal decimalValue() {
         return new BigDecimal(numberString());
     }
 }

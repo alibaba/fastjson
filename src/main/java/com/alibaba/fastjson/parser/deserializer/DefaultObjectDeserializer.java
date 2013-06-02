@@ -26,7 +26,6 @@ import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
-import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParseContext;
 import com.alibaba.fastjson.util.ASMClassLoader;
@@ -41,7 +40,7 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
 
     public Object parseMap(DefaultJSONParser parser, Map<Object, Object> map, Type keyType, Type valueType,
                            Object fieldName) {
-        JSONScanner lexer = (JSONScanner) parser.getLexer();
+        JSONLexer lexer = parser.getLexer();
 
         if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {
             throw new JSONException("syntax error, expect {, actual " + lexer.tokenName());
@@ -148,7 +147,7 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
 
     @SuppressWarnings("rawtypes")
     public Map parseMap(DefaultJSONParser parser, Map<String, Object> map, Type valueType, Object fieldName) {
-        JSONScanner lexer = (JSONScanner) parser.getLexer();
+        JSONLexer lexer = parser.getLexer();
 
         if (lexer.token() != JSONToken.LBRACE) {
             throw new JSONException("syntax error, expect {, actual " + lexer.token());
@@ -271,7 +270,7 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
         Class<?> clazz = object.getClass();
         Map<String, FieldDeserializer> setters = parser.getConfig().getFieldDeserializers(clazz);
 
-        JSONScanner lexer = (JSONScanner) parser.getLexer(); // xxx
+        JSONLexer lexer = parser.getLexer(); // xxx
 
         if (lexer.token() == JSONToken.RBRACE) {
             lexer.nextToken(JSONToken.COMMA);

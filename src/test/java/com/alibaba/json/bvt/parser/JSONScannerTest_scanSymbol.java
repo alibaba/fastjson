@@ -18,14 +18,14 @@ public class JSONScannerTest_scanSymbol extends TestCase {
         JSONScanner lexer = new JSONScanner("\"value\":\"aa\\n\"");
         String text = lexer.scanFieldSymbol("\"value\":".toCharArray(), new SymbolTable());
         Assert.assertNull(text);
-        Assert.assertEquals(JSONScanner.NOT_MATCH, lexer.matchStat);
+        Assert.assertEquals(JSONScanner.NOT_MATCH, lexer.matchStat());
     }
 
     public void test_1() throws Exception {
         JSONScanner lexer = new JSONScanner("\"value\":\"aa\"},");
         String text = lexer.scanFieldSymbol("\"value\":".toCharArray(), new SymbolTable());
         Assert.assertEquals("aa", text);
-        Assert.assertEquals(JSONScanner.END, lexer.matchStat);
+        Assert.assertEquals(JSONScanner.END, lexer.matchStat());
         Assert.assertEquals(JSONToken.COMMA, lexer.token());
     }
     
@@ -33,7 +33,7 @@ public class JSONScannerTest_scanSymbol extends TestCase {
         JSONScanner lexer = new JSONScanner("\"value\":\"aa\"}]");
         String text = lexer.scanFieldSymbol("\"value\":".toCharArray(), new SymbolTable());
         Assert.assertEquals("aa", text);
-        Assert.assertEquals(JSONScanner.END, lexer.matchStat);
+        Assert.assertEquals(JSONScanner.END, lexer.matchStat());
         Assert.assertEquals(JSONToken.RBRACKET, lexer.token());
     }
     
@@ -41,7 +41,7 @@ public class JSONScannerTest_scanSymbol extends TestCase {
         JSONScanner lexer = new JSONScanner("\"value\":\"aa\"}}");
         String text = lexer.scanFieldSymbol("\"value\":".toCharArray(), new SymbolTable());
         Assert.assertEquals("aa", text);
-        Assert.assertEquals(JSONScanner.END, lexer.matchStat);
+        Assert.assertEquals(JSONScanner.END, lexer.matchStat());
         Assert.assertEquals(JSONToken.RBRACE, lexer.token());
     }
     
@@ -49,7 +49,7 @@ public class JSONScannerTest_scanSymbol extends TestCase {
     	JSONScanner lexer = new JSONScanner("\"value\":\"aa\"}");
     	String text = lexer.scanFieldSymbol("\"value\":".toCharArray(), new SymbolTable());
     	Assert.assertEquals("aa", text);
-    	Assert.assertEquals(JSONScanner.END, lexer.matchStat);
+    	Assert.assertEquals(JSONScanner.END, lexer.matchStat());
     	Assert.assertEquals(JSONToken.EOF, lexer.token());
     }
     
@@ -57,13 +57,13 @@ public class JSONScannerTest_scanSymbol extends TestCase {
     	JSONScanner lexer = new JSONScanner("\"value\":\"aa\"}{");
     	String text = lexer.scanFieldSymbol("\"value\":".toCharArray(), new SymbolTable());
     	Assert.assertEquals(null, text);
-    	Assert.assertEquals(JSONScanner.NOT_MATCH, lexer.matchStat);
+    	Assert.assertEquals(JSONScanner.NOT_MATCH, lexer.matchStat());
     }
     
     public void test_7() throws Exception {
     	JSONScanner lexer = new JSONScanner("\"value\":\"aa\"");
     	String text = lexer.scanFieldSymbol("\"value\":".toCharArray(), new SymbolTable());
     	Assert.assertEquals(null, text);
-    	Assert.assertEquals(JSONScanner.NOT_MATCH, lexer.matchStat);
+    	Assert.assertEquals(JSONScanner.NOT_MATCH, lexer.matchStat());
     }
 }

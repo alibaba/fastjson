@@ -15,7 +15,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.Feature;
-import com.alibaba.fastjson.parser.JSONScanner;
+import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParseContext;
 import com.alibaba.fastjson.parser.ParserConfig;
@@ -126,7 +126,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName, Object object) {
-        JSONScanner lexer = (JSONScanner) parser.getLexer(); // xxx
+        JSONLexer lexer = parser.getLexer(); // xxx
 
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken(JSONToken.COMMA);
@@ -326,7 +326,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
     public boolean parseField(DefaultJSONParser parser, String key, Object object, Type objectType,
                               Map<String, Object> fieldValues) {
-        JSONScanner lexer = (JSONScanner) parser.getLexer(); // xxx
+        JSONLexer lexer = parser.getLexer(); // xxx
 
         FieldDeserializer fieldDeserializer = feildDeserializerMap.get(key);
 

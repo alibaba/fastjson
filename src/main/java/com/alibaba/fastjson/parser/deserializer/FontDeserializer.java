@@ -7,7 +7,7 @@ import java.util.Set;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.JSONScanner;
+import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 
 public class FontDeserializer implements AutowiredObjectDeserializer {
@@ -16,7 +16,7 @@ public class FontDeserializer implements AutowiredObjectDeserializer {
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-        JSONScanner lexer = (JSONScanner) parser.getLexer();
+        JSONLexer lexer = parser.getLexer();
         
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken(JSONToken.COMMA);

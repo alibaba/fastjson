@@ -360,6 +360,11 @@ public class DefaultJSONParser extends AbstractJSONParser {
                 if (!setContextFlag) {
                     setContext(object, fieldName);
                     setContextFlag = true;
+
+                    // fix Issue #40
+                    if (this.context != null && !(fieldName instanceof Integer)) {
+                        this.popContext();
+                    }
                 }
 
                 Object value;
@@ -389,7 +394,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                     }
 
                     object.put(key, value);
-                } else if (ch == '[') { // 减少潜套，兼容android
+                } else if (ch == '[') { // 减少嵌套，兼容android
                     lexer.nextToken();
                     JSONArray list = new JSONArray();
                     this.parseArray(list, key);
@@ -404,7 +409,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                     } else {
                         throw new JSONException("syntax error");
                     }
-                } else if (ch == '{') { // 减少潜套，兼容android
+                } else if (ch == '{') { // 减少嵌套，兼容android
                     lexer.nextToken();
                     Object obj = this.parseObject(new JSONObject(), key);
                     checkMapResolve(object, key.toString());

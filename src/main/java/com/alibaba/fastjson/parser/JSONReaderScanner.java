@@ -78,6 +78,7 @@ public final class JSONReaderScanner extends JSONLexer {
 
             textLength += rest;
             index -= bp;
+            np -= bp;
             bp = 0;
         }
 
@@ -85,10 +86,10 @@ public final class JSONReaderScanner extends JSONLexer {
     }
 
     public final int indexOf(char ch, int startIndex) {
-        int offset = startIndex - bp;
+        int offset = startIndex;
         for (;; ++offset) {
             if (ch == charAt(offset)) {
-                return bp + offset;
+                return offset;
             }
             if (ch == EOI) {
                 return -1;
@@ -109,10 +110,16 @@ public final class JSONReaderScanner extends JSONLexer {
             }
 
             if (sp > 0) {
-                System.arraycopy(text, textLength - sp, text, 0, sp);
+                if (this.token == JSONToken.LITERAL_STRING) {
+                    System.arraycopy(text, np + 1, text, 0, sp);
+                    np = -1;
+                } else {
+                    System.arraycopy(text, textLength - sp, text, 0, sp);
+                    np = 0;
+                }
             }
             index = bp = sp;
-            np = 0;
+           
 
             try {
                 int startPos = bp;
@@ -185,6 +192,105 @@ public final class JSONReaderScanner extends JSONLexer {
 
     public JSONReaderScanner(char[] input, int inputLength, int features){
         this(new CharArrayReader(input, 0, inputLength), features);
+    }
+    
+    public void scanString() {
+        np = bp;
+        hasSpecial = false;
+
+        int offset = 0;
+        
+        char chLocal;
+        for (;;) {
+            chLocal = charAt(bp + (++offset));
+
+            if (chLocal == '\"') {
+                break;
+            }
+
+            if (chLocal == '\\') {
+                if (!hasSpecial) {
+                    hasSpecial = true;
+
+                    if (sp >= sbuf.length) {
+                        int newCapcity = sbuf.length * 2;
+                        if (sp > newCapcity) {
+                            newCapcity = sp;
+                        }
+                        char[] newsbuf = new char[newCapcity];
+                        System.arraycopy(sbuf, 0, newsbuf, 0, sbuf.length);
+                        sbuf = newsbuf;
+                    }
+
+                    copyTo(bp + 1, sp, sbuf);
+                }
+
+                chLocal = charAt(bp + (++offset));
+
+                switch (chLocal) {
+                    case '"':
+                        putChar('"');
+                        break;
+                    case '\\':
+                        putChar('\\');
+                        break;
+                    case '/':
+                        putChar('/');
+                        break;
+                    case 'b':
+                        putChar('\b');
+                        break;
+                    case 'f':
+                    case 'F':
+                        putChar('\f');
+                        break;
+                    case 'n':
+                        putChar('\n');
+                        break;
+                    case 'r':
+                        putChar('\r');
+                        break;
+                    case 't':
+                        putChar('\t');
+                        break;
+                    case 'x':
+                        char x1 = chLocal = charAt(++bp);
+                        char x2 = chLocal = charAt(++bp);
+
+                        int x_val = digits[x1] * 16 + digits[x2];
+                        char x_char = (char) x_val;
+                        putChar(x_char);
+                        break;
+                    case 'u':
+                        char u1 = chLocal = charAt(++bp);
+                        char u2 = chLocal = charAt(++bp);
+                        char u3 = chLocal = charAt(++bp);
+                        char u4 = chLocal = charAt(++bp);
+                        int val = Integer.parseInt(new String(new char[] { u1, u2, u3, u4 }), 16);
+                        putChar((char) val);
+                        break;
+                    default:
+                        this.ch = chLocal;
+                        throw new JSONException("unclosed string : " + chLocal);
+                }
+                continue;
+            }
+
+            if (!hasSpecial) {
+                sp++;
+                continue;
+            }
+
+            if (sp == sbuf.length) {
+                putChar(chLocal);
+            } else {
+                sbuf[sp++] = chLocal;
+            }
+        }
+
+        bp += offset;
+        token = LITERAL_STRING;
+        this.next();
     }
 
     public final void scanStringSingleQuote() {

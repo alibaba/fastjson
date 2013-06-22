@@ -21,7 +21,6 @@ import static com.alibaba.fastjson.parser.JSONToken.EOF;
 import static com.alibaba.fastjson.parser.JSONToken.ERROR;
 import static com.alibaba.fastjson.parser.JSONToken.LBRACE;
 import static com.alibaba.fastjson.parser.JSONToken.LBRACKET;
-import static com.alibaba.fastjson.parser.JSONToken.LITERAL_STRING;
 import static com.alibaba.fastjson.parser.JSONToken.LPAREN;
 import static com.alibaba.fastjson.parser.JSONToken.RBRACE;
 import static com.alibaba.fastjson.parser.JSONToken.RBRACKET;
@@ -121,7 +120,7 @@ public abstract class JSONLexer {
         return matchStat;
     }
 
-    public void nextToken() {
+    public final void nextToken() {
         sp = 0;
 
         for (;;) {
@@ -228,7 +227,7 @@ public abstract class JSONLexer {
 
     }
 
-    public void nextToken(int expect) {
+    public final void nextToken(int expect) {
         sp = 0;
 
         for (;;) {
@@ -359,7 +358,7 @@ public abstract class JSONLexer {
         }
     }
 
-    public void nextTokenWithColon() {
+    public final void nextTokenWithColon() {
         sp = 0;
 
         for (;;) {
@@ -401,7 +400,7 @@ public abstract class JSONLexer {
         return null;
     }
 
-    public Number integerValue() throws NumberFormatException {
+    public final Number integerValue() throws NumberFormatException {
         long result = 0;
         boolean negative = false;
         int i = np, max = np + sp;
@@ -489,7 +488,7 @@ public abstract class JSONLexer {
         }
     }
 
-    public void nextTokenWithColon(int expect) {
+    public final void nextTokenWithColon(int expect) {
         sp = 0;
 
         for (;;) {
@@ -597,7 +596,7 @@ public abstract class JSONLexer {
 
     public abstract char next();
 
-    public String scanSymbol(final SymbolTable symbolTable) {
+    public final String scanSymbol(final SymbolTable symbolTable) {
         skipWhitespace();
 
         if (ch == '"') {
@@ -643,112 +642,16 @@ public abstract class JSONLexer {
     }
 
     public abstract String scanSymbolUnQuoted(final SymbolTable symbolTable);
+    
+    protected abstract void copyTo(int offset, int count, char[] dest); 
 
-    protected abstract void copyTo(int offset, int count, char[] dest);
-
-    public void scanString() {
-        np = bp;
-        hasSpecial = false;
-
-        int offset = 0;
-
-        char chLocal;
-        for (;;) {
-            chLocal = charAt(bp + (offset++));
-
-            if (chLocal == '\"') {
-                break;
-            }
-
-            if (chLocal == '\\') {
-                if (!hasSpecial) {
-                    hasSpecial = true;
-
-                    if (sp >= sbuf.length) {
-                        int newCapcity = sbuf.length * 2;
-                        if (sp > newCapcity) {
-                            newCapcity = sp;
-                        }
-                        char[] newsbuf = new char[newCapcity];
-                        System.arraycopy(sbuf, 0, newsbuf, 0, sbuf.length);
-                        sbuf = newsbuf;
-                    }
-
-                    copyTo(bp + 1, sp, sbuf);
-                }
-
-                chLocal = charAt(bp + (offset++));
-
-                switch (chLocal) {
-                    case '"':
-                        putChar('"');
-                        break;
-                    case '\\':
-                        putChar('\\');
-                        break;
-                    case '/':
-                        putChar('/');
-                        break;
-                    case 'b':
-                        putChar('\b');
-                        break;
-                    case 'f':
-                    case 'F':
-                        putChar('\f');
-                        break;
-                    case 'n':
-                        putChar('\n');
-                        break;
-                    case 'r':
-                        putChar('\r');
-                        break;
-                    case 't':
-                        putChar('\t');
-                        break;
-                    case 'x':
-                        char x1 = chLocal = charAt(++bp);
-                        char x2 = chLocal = charAt(++bp);
-
-                        int x_val = digits[x1] * 16 + digits[x2];
-                        char x_char = (char) x_val;
-                        putChar(x_char);
-                        break;
-                    case 'u':
-                        char u1 = chLocal = charAt(++bp);
-                        char u2 = chLocal = charAt(++bp);
-                        char u3 = chLocal = charAt(++bp);
-                        char u4 = chLocal = charAt(++bp);
-                        int val = Integer.parseInt(new String(new char[] { u1, u2, u3, u4 }), 16);
-                        putChar((char) val);
-                        break;
-                    default:
-                        this.ch = chLocal;
-                        throw new JSONException("unclosed string : " + chLocal);
-                }
-                continue;
-            }
-
-            if (!hasSpecial) {
-                sp++;
-                continue;
-            }
-
-            if (sp == sbuf.length) {
-                putChar(chLocal);
-            } else {
-                sbuf[sp++] = chLocal;
-            }
-        }
-
-        token = LITERAL_STRING;
-        this.next();
-    }
+    public abstract void scanString();
 
     public Calendar getCalendar() {
         return this.calendar;
     }
 
-    public int intValue() {
+    public final int intValue() {
         int result = 0;
         boolean negative = false;
         int i = np, max = np + sp;
@@ -1331,7 +1234,7 @@ public abstract class JSONLexer {
         return value;
     }
 
-    public float scanFieldFloat(char[] fieldName) {
+    public final float scanFieldFloat(char[] fieldName) {
         matchStat = UNKOWN;
 
         if (!charArrayCompare(fieldName)) {
@@ -1418,7 +1321,7 @@ public abstract class JSONLexer {
         return value;
     }
 
-    public double scanFieldDouble(char[] fieldName) {
+    public final double scanFieldDouble(char[] fieldName) {
         matchStat = UNKOWN;
 
         if (!charArrayCompare(fieldName)) {
@@ -1519,7 +1422,7 @@ public abstract class JSONLexer {
         return value;
     }
 
-    public void scanTrue() {
+    public final void scanTrue() {
         if (ch != 't') {
             throw new JSONException("error parse true");
         }
@@ -1548,7 +1451,7 @@ public abstract class JSONLexer {
         }
     }
 
-    public void scanTreeSet() {
+    public final void scanTreeSet() {
         if (ch != 'T') {
             throw new JSONException("error parse true");
         }
@@ -1591,7 +1494,7 @@ public abstract class JSONLexer {
         }
     }
 
-    public void scanNullOrNew() {
+    public final void scanNullOrNew() {
         if (ch != 'n') {
             throw new JSONException("error parse null or new");
         }
@@ -1636,7 +1539,7 @@ public abstract class JSONLexer {
         }
     }
 
-    public void scanFalse() {
+    public final void scanFalse() {
         if (ch != 'f') {
             throw new JSONException("error parse false");
         }
@@ -1693,7 +1596,7 @@ public abstract class JSONLexer {
         return true;
     }
 
-    public void skipWhitespace() {
+    public final void skipWhitespace() {
         for (;;) {
             if (whitespaceFlags[ch]) {
                 next();
@@ -1706,7 +1609,7 @@ public abstract class JSONLexer {
 
     public abstract void scanStringSingleQuote();
 
-    public void scanSet() {
+    public final void scanSet() {
         if (ch != 'S') {
             throw new JSONException("error parse true");
         }
@@ -1732,7 +1635,7 @@ public abstract class JSONLexer {
     /**
      * Append a character to sbuf.
      */
-    protected void putChar(char ch) {
+    protected final void putChar(char ch) {
         if (sp == sbuf.length) {
             char[] newsbuf = new char[sbuf.length * 2];
             System.arraycopy(sbuf, 0, newsbuf, 0, sbuf.length);
@@ -1741,7 +1644,7 @@ public abstract class JSONLexer {
         sbuf[sp++] = ch;
     }
 
-    public void scanNumber() {
+    public final void scanNumber() {
         np = bp;
 
         if (ch == '-') {
@@ -1824,7 +1727,7 @@ public abstract class JSONLexer {
         }
     }
 
-    public long longValue() throws NumberFormatException {
+    public final long longValue() throws NumberFormatException {
         long result = 0;
         boolean negative = false;
         int i = np, max = np + sp;
@@ -1874,7 +1777,7 @@ public abstract class JSONLexer {
         }
     }
 
-    public Number decimalValue(boolean decimal) {
+    public final Number decimalValue(boolean decimal) {
         char chLocal = charAt(np + sp - 1);
         if (chLocal == 'F') {
             return Float.parseFloat(numberString());
@@ -1893,7 +1796,7 @@ public abstract class JSONLexer {
         }
     }
 
-    public BigDecimal decimalValue() {
+    public final BigDecimal decimalValue() {
         return new BigDecimal(numberString());
     }
 }

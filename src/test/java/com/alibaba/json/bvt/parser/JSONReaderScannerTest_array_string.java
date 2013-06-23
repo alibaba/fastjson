@@ -3,7 +3,7 @@ package com.alibaba.json.bvt.parser;
 import java.io.Reader;
 import java.io.StringReader;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSONArray;

@@ -3,7 +3,7 @@ package com.alibaba.json.bvt.serializer;
 import java.io.IOException;
 import java.io.Writer;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;

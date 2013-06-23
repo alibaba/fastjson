@@ -105,33 +105,60 @@ public final class JSONScanner extends JSONLexer {
                 chLocal = charAt(++bp);
 
                 switch (chLocal) {
-                    case '"':
-                        putChar('"');
+                    case '0':
+                        putChar('\0');
                         break;
-                    case '\\':
-                        putChar('\\');
+                    case '1':
+                        putChar('\1');
                         break;
-                    case '/':
-                        putChar('/');
+                    case '2':
+                        putChar('\2');
                         break;
-                    case '\'':
-                        putChar('\'');
+                    case '3':
+                        putChar('\3');
                         break;
-                    case 'b':
+                    case '4':
+                        putChar('\4');
+                        break;
+                    case '5':
+                        putChar('\5');
+                        break;
+                    case '6':
+                        putChar('\6');
+                        break;
+                    case '7':
+                        putChar('\7');
+                        break;
+                    case 'b': // 8
                         putChar('\b');
                         break;
-                    case 'f':
+                    case 't': // 9
+                        putChar('\t');
+                        break;
+                    case 'n': // 10
+                        putChar('\n');
+                        break;
+                    case 'v': // 11
+                        putChar('\u000B');
+                        break;
+                    case 'f': // 12
                     case 'F':
                         putChar('\f');
                         break;
-                    case 'n':
-                        putChar('\n');
-                        break;
-                    case 'r':
+                    case 'r': // 13
                         putChar('\r');
                         break;
-                    case 't':
-                        putChar('\t');
+                    case '"': // 34
+                        putChar('"');
+                        break;
+                    case '\'': // 39
+                        putChar('\'');
+                        break;
+                    case '/': // 47
+                        putChar('/');
+                        break;
+                    case '\\':  // 92
+                        putChar('\\');
                         break;
                     case 'x':
                         char x1 = chLocal = charAt(++bp);

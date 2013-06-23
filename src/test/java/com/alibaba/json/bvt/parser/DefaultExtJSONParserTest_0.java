@@ -3,7 +3,7 @@ package com.alibaba.json.bvt.parser;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSONException;

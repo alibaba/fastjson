@@ -20,7 +20,7 @@ import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.util.HashMap;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;

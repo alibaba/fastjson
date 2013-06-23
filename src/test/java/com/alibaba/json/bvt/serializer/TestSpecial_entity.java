@@ -32,6 +32,26 @@ public class TestSpecial_entity extends TestCase {
         Assert.assertEquals("{\"name\":\"\\5\"}", JSON.toJSONString(new VO("\5")));
     }
 
+    public void test_6() throws Exception {
+        Assert.assertEquals("{\"name\":\"\\6\"}", JSON.toJSONString(new VO("\6")));
+    }
+
+    public void test_7() throws Exception {
+        Assert.assertEquals("{\"name\":\"\\7\"}", JSON.toJSONString(new VO("\7")));
+    }
+
+    public void test_8() throws Exception {
+        Assert.assertEquals("{\"name\":\"\\b\"}", JSON.toJSONString(new VO("\b")));
+    }
+
+    public void test_9() throws Exception {
+        Assert.assertEquals("{\"name\":\"\\t\"}", JSON.toJSONString(new VO("\t")));
+    }
+    
+    public void test_10() throws Exception {
+        Assert.assertEquals("{\"name\":\"\\n\"}", JSON.toJSONString(new VO("\n")));
+    }
+
     public static class VO {
 
         private String name;

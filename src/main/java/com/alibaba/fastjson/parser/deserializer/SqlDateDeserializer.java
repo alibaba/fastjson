@@ -33,19 +33,24 @@ public class SqlDateDeserializer extends AbstractDateDeserializer implements Obj
             long longVal;
 
             JSONScanner dateLexer = new JSONScanner(strVal);
-            if (dateLexer.scanISO8601DateIfMatch()) {
-                longVal = dateLexer.getCalendar().getTimeInMillis();
-            } else {
+            try {
+                if (dateLexer.scanISO8601DateIfMatch()) {
+                    longVal = dateLexer.getCalendar().getTimeInMillis();
+                } else {
 
-                DateFormat dateFormat = parser.getDateFormat();
-                try {
-                    java.util.Date date = (java.util.Date) dateFormat.parse(strVal);
-                    return (T) new java.sql.Date(date.getTime());
-                } catch (ParseException e) {
-                    // skip
+                    DateFormat dateFormat = parser.getDateFormat();
+                    try {
+                        java.util.Date date = (java.util.Date) dateFormat.parse(strVal);
+                        java.sql.Date sqlDate = new java.sql.Date(date.getTime());
+                        return (T) sqlDate;
+                    } catch (ParseException e) {
+                        // skip
+                    }
+
+                    longVal = Long.parseLong(strVal);
                 }
-
-                longVal = Long.parseLong(strVal);
+            } finally {
+                dateLexer.close();
             }
             return (T) new java.sql.Date(longVal);
         } else {

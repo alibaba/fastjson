@@ -3,7 +3,7 @@ package com.alibaba.json;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;

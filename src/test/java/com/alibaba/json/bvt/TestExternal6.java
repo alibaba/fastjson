@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;

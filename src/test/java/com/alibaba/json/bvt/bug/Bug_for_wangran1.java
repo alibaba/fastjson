@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import junit.framework.TestCase;
 
 public class Bug_for_wangran1 extends TestCase {

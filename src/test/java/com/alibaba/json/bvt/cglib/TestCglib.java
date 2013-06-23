@@ -2,7 +2,7 @@ package com.alibaba.json.bvt.cglib;
 
 import java.lang.reflect.Method;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import junit.framework.TestCase;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;

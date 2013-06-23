@@ -31,6 +31,7 @@ public abstract class AbstractDateDeserializer implements ObjectDeserializer {
                 if (iso8601Lexer.scanISO8601DateIfMatch()) {
                     val = iso8601Lexer.getCalendar().getTime();
                 }
+                iso8601Lexer.close();
             }
         } else if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken();

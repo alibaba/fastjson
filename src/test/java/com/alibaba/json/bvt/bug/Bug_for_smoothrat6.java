@@ -3,7 +3,7 @@ package com.alibaba.json.bvt.bug;
 import java.util.HashSet;
 import java.util.Set;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;

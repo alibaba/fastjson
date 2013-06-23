@@ -43,50 +43,14 @@ import com.alibaba.fastjson.JSONException;
  */
 public abstract class JSONLexer implements Closeable {
 
-    public final static byte     EOI                     = 0x1A;
-    public final static int      NOT_MATCH               = -1;
-    public final static int      NOT_MATCH_NAME          = -2;
-    public final static int      UNKOWN                  = 0;
-    public final static int      OBJECT                  = 1;
-    public final static int      ARRAY                   = 2;
-    public final static int      VALUE                   = 3;
-    public final static int      END                     = 4;
-
-    protected static boolean[]   whitespaceFlags         = new boolean[256];
-    static {
-        whitespaceFlags[' '] = true;
-        whitespaceFlags['\n'] = true;
-        whitespaceFlags['\r'] = true;
-        whitespaceFlags['\t'] = true;
-        whitespaceFlags['\f'] = true;
-        whitespaceFlags['\b'] = true;
-    }
-
-    protected static final long  MULTMIN_RADIX_TEN       = Long.MIN_VALUE / 10;
-    protected static final long  N_MULTMAX_RADIX_TEN     = -Long.MAX_VALUE / 10;
-
-    protected static final int   INT_MULTMIN_RADIX_TEN   = Integer.MIN_VALUE / 10;
-    protected static final int   INT_N_MULTMAX_RADIX_TEN = -Integer.MAX_VALUE / 10;
-
-    protected final static int[] digits                  = new int[(int) 'f' + 1];
-
-    static {
-        for (int i = '0'; i <= '9'; ++i) {
-            digits[i] = i - '0';
-        }
-
-        for (int i = 'a'; i <= 'f'; ++i) {
-            digits[i] = (i - 'a') + 10;
-        }
-        for (int i = 'A'; i <= 'F'; ++i) {
-            digits[i] = (i - 'A') + 10;
-        }
-    }
-
-    public static final boolean isWhitespace(char ch) {
-        // 专门调整了判断顺序
-        return ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b';
-    }
+    public final static byte EOI            = 0x1A;
+    public final static int  NOT_MATCH      = -1;
+    public final static int  NOT_MATCH_NAME = -2;
+    public final static int  UNKOWN         = 0;
+    public final static int  OBJECT         = 1;
+    public final static int  ARRAY          = 2;
+    public final static int  VALUE          = 3;
+    public final static int  END            = 4;
 
     protected void lexError(String key, Object... args) {
         token = ERROR;
@@ -94,7 +58,7 @@ public abstract class JSONLexer implements Closeable {
 
     protected int                                           token;
     protected int                                           pos;
-    protected int                                           features     = JSON.DEFAULT_PARSER_FEATURE;
+    protected int                                           features       = JSON.DEFAULT_PARSER_FEATURE;
 
     protected char                                          ch;
     protected int                                           bp;
@@ -114,19 +78,19 @@ public abstract class JSONLexer implements Closeable {
 
     protected boolean                                       hasSpecial;
 
-    protected Calendar                                      calendar     = null;
+    protected Calendar                                      calendar       = null;
 
-    public int                                              matchStat    = UNKOWN;
+    public int                                              matchStat      = UNKOWN;
 
-    private final static ThreadLocal<SoftReference<char[]>> sbufRefLocal = new ThreadLocal<SoftReference<char[]>>();
-    protected Keywords                                      keywods      = Keywords.DEFAULT_KEYWORDS;
+    private final static ThreadLocal<SoftReference<char[]>> SBUF_REF_LOCAL = new ThreadLocal<SoftReference<char[]>>();
+    protected Keywords                                      keywods        = Keywords.DEFAULT_KEYWORDS;
 
     public JSONLexer(){
-        SoftReference<char[]> sbufRef = sbufRefLocal.get();
+        SoftReference<char[]> sbufRef = SBUF_REF_LOCAL.get();
 
         if (sbufRef != null) {
             sbuf = sbufRef.get();
-            sbufRefLocal.set(null);
+            SBUF_REF_LOCAL.set(null);
         }
 
         if (sbuf == null) {
@@ -724,7 +688,7 @@ public abstract class JSONLexer implements Closeable {
 
     public void close() {
         if (sbuf.length <= 1024 * 8) {
-            sbufRefLocal.set(new SoftReference<char[]>(sbuf));
+            SBUF_REF_LOCAL.set(new SoftReference<char[]>(sbuf));
         }
         this.sbuf = null;
     }
@@ -1821,5 +1785,41 @@ public abstract class JSONLexer implements Closeable {
 
     public final BigDecimal decimalValue() {
         return new BigDecimal(numberString());
+    }
+
+    public static final boolean isWhitespace(char ch) {
+        // 专门调整了判断顺序
+        return ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b';
+    }
+
+    protected static boolean[]   whitespaceFlags         = new boolean[256];
+    static {
+        whitespaceFlags[' '] = true;
+        whitespaceFlags['\n'] = true;
+        whitespaceFlags['\r'] = true;
+        whitespaceFlags['\t'] = true;
+        whitespaceFlags['\f'] = true;
+        whitespaceFlags['\b'] = true;
+    }
+
+    protected static final long  MULTMIN_RADIX_TEN       = Long.MIN_VALUE / 10;
+    protected static final long  N_MULTMAX_RADIX_TEN     = -Long.MAX_VALUE / 10;
+
+    protected static final int   INT_MULTMIN_RADIX_TEN   = Integer.MIN_VALUE / 10;
+    protected static final int   INT_N_MULTMAX_RADIX_TEN = -Integer.MAX_VALUE / 10;
+
+    protected final static int[] digits                  = new int[(int) 'f' + 1];
+
+    static {
+        for (int i = '0'; i <= '9'; ++i) {
+            digits[i] = i - '0';
+        }
+
+        for (int i = 'a'; i <= 'f'; ++i) {
+            digits[i] = (i - 'a') + 10;
+        }
+        for (int i = 'A'; i <= 'F'; ++i) {
+            digits[i] = (i - 'A') + 10;
+        }
     }
 }

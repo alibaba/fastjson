@@ -3,7 +3,7 @@ package com.alibaba.json.bvt.bug;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;

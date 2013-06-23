@@ -2,7 +2,7 @@ package com.alibaba.json.bvt;
 
 import groovy.lang.GroovyClassLoader;
 import groovy.lang.GroovyObject;
-import junit.framework.Assert;
+import org.junit.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;

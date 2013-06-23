@@ -62,6 +62,7 @@ public class TimeDeserializer implements ObjectDeserializer {
             } else {
                 longVal = Long.parseLong(strVal);
             }
+            dateLexer.close();
             return (T) new java.sql.Time(longVal);
         }
         

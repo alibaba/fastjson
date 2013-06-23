@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;

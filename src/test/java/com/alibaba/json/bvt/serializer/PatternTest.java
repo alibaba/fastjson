@@ -2,7 +2,7 @@ package com.alibaba.json.bvt.serializer;
 
 import java.util.regex.Pattern;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;

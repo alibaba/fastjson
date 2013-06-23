@@ -3,7 +3,7 @@ package com.alibaba.json.bvt.writeClassName;
 import java.util.Collection;
 import java.util.Collections;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;

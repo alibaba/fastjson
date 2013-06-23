@@ -35,8 +35,8 @@ import com.alibaba.fastjson.util.IOUtils;
  */
 public final class JSONReaderScanner extends JSONLexer {
 
-    public final static int                                 BUF_INIT_LEN = 1024;
-    private final static ThreadLocal<SoftReference<char[]>> textRefLocal = new ThreadLocal<SoftReference<char[]>>();
+    public final static int                                 BUF_INIT_LEN  = 1024;
+    private final static ThreadLocal<SoftReference<char[]>> BUF_REF_LOCAL = new ThreadLocal<SoftReference<char[]>>();
 
     private Reader                                          reader;
     private char[]                                          buf;
@@ -62,10 +62,10 @@ public final class JSONReaderScanner extends JSONLexer {
         this.reader = reader;
         this.features = features;
 
-        SoftReference<char[]> bufRef = textRefLocal.get();
+        SoftReference<char[]> bufRef = BUF_REF_LOCAL.get();
         if (bufRef != null) {
             this.buf = bufRef.get();
-            textRefLocal.set(null);
+            BUF_REF_LOCAL.set(null);
         }
 
         if (this.buf == null) {
@@ -722,9 +722,9 @@ public final class JSONReaderScanner extends JSONLexer {
     public void close() {
         super.close();
 
-        textRefLocal.set(new SoftReference<char[]>(buf));
+        BUF_REF_LOCAL.set(new SoftReference<char[]>(buf));
         this.buf = null;
-        
+
         IOUtils.close(reader);
     }
 

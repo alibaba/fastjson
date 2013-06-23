@@ -5,7 +5,7 @@ import java.io.InputStream;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.util.IOUtils;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import junit.framework.TestCase;
 
 public class Bug_for_wuyexiong extends TestCase {

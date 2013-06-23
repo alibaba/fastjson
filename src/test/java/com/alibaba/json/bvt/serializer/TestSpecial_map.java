@@ -45,4 +45,14 @@ public class TestSpecial_map extends TestCase {
     public void test_8() throws Exception {
         Assert.assertEquals("{\"name\":\"\\b\"}", JSON.toJSONString(Collections.singletonMap("name", "\b")));
     }
+    
+    public void test_9() throws Exception {
+        Assert.assertEquals("{\"name\":\"\\t\"}", JSON.toJSONString(Collections.singletonMap("name", "\t")));
+    }
+    
+    public void test_10() throws Exception {
+        Assert.assertEquals("{\"name\":\"\\n\"}", JSON.toJSONString(Collections.singletonMap("name", "\n")));
+    }
+    
+    
 }

@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSONAware;

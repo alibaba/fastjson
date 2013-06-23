@@ -10,11 +10,16 @@
 	<name>fastjson</name>
 	<description>Fastjson is a JSON processor (JSON parser + JSON generator) written in Java</description>
 
-	<url>https://github.com/AlibabaTech/fastjson</url>
+	<url>https://github.com/alibaba/fastjson</url>
 	<inceptionYear>2012</inceptionYear>
 
 	<properties>
+		<junit.version>4.11</junit.version>
+
+		<gpg.skip>true</gpg.skip>
+
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<jdk.version>1.5</jdk.version>
 	</properties>
 
 	<developers>
@@ -76,8 +81,8 @@
 				<version>2.5.1</version>
 				<configuration>
 					<encoding>UTF-8</encoding>
-					<source>1.5</source>
-					<target>1.5</target>
+					<source>${jdk.version}</source>
+					<target>${jdk.version}</target>
 				</configuration>
 				<dependencies>
 					<dependency>
@@ -139,7 +144,7 @@
 			<plugin>
 				<artifactId>maven-gpg-plugin</artifactId>
 				<configuration>
-					<skip>false</skip>
+					<skip>${gpg.skip}</skip>
 				</configuration>
 				<executions>
 					<execution>
@@ -212,18 +217,19 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>2.1.0</version>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-core-lgpl</artifactId>
-			<version>1.9.8</version>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.2.2</version>
 			<scope>test</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>cglib</groupId>
 			<artifactId>cglib-nodep</artifactId>
@@ -233,26 +239,14 @@
 
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-mapper-lgpl</artifactId>
-			<version>1.9.7</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-jaxrs</artifactId>
-			<version>1.9.7</version>
+			<version>1.9.9</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-smile</artifactId>
-			<version>1.9.7</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>1.4</version>
+			<version>1.9.9</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -261,6 +255,14 @@
 			<version>1.1</version>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>1.4</version>
+			<scope>test</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>net.sf.json-lib</groupId>
 			<artifactId>json-lib</artifactId>
@@ -274,41 +276,36 @@
 			<version>1.2.5</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.5</version>
-			<scope>test</scope>
-		</dependency>
+
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>2.2.2</version>
+			<version>2.2.4</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.minidev</groupId>
 			<artifactId>json-smart</artifactId>
-			<version>1.0.6.3</version>
+			<version>1.1.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.owlike</groupId>
 			<artifactId>genson</artifactId>
-			<version>0.93</version>
+			<version>0.97</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.clojure</groupId>
 			<artifactId>clojure</artifactId>
-			<version>1.2.1</version>
+			<version>1.5.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.groovy</groupId>
 			<artifactId>groovy</artifactId>
-			<version>2.0.0</version>
+			<version>2.1.5</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

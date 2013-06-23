@@ -33,38 +33,37 @@ public class JSONWriter {
         }
     }
 
+    @Deprecated
     public void writeStartObject() {
-        if (context == null) {
-            context = new JSONStreamContext(null, JSONStreamState.BeginObject);
-        } else {
-            if (context.getState() == JSONStreamState.PropertyKey) {
-                writer.write(':');
-            } else if (context.getState() == JSONStreamState.ArrayValue) {
-                writer.write(',');
-            } else if (context.getState() == JSONStreamState.BeginObject) {
-                // skip
-            } else if (context.getState() == JSONStreamState.BeginArray) {
-                // skip
-            } else {
-                throw new JSONException("illegal state : " + context.getState());
-            }
-            context = new JSONStreamContext(context, JSONStreamState.BeginObject);
+        startObject();
+    }
+
+    @Deprecated
+    public void writeEndObject() {
+        endObject();
+    }
+
+    @Deprecated
+    public void writeStartArray() {
+        startArray();
+    }
+
+    @Deprecated
+    public void writeEndArray() {
+        endArray();
+    }
+
+    public void startObject() {
+        if (context != null) {
+            beginStructure();
         }
+        context = new JSONStreamContext(context, JSONStreamState.BeginObject);
         writer.write('{');
     }
 
-    public void writeEndObject() {
+    public void endObject() {
         writer.write('}');
-        context = context.getParent();
-        if (context == null) {
-            // skip
-        } else if (context.getState() == JSONStreamState.PropertyKey) {
-            context.setState(JSONStreamState.PropertyValue);
-        } else if (context.getState() == JSONStreamState.BeginArray) {
-            context.setState(JSONStreamState.ArrayValue);
-        } else if (context.getState() == JSONStreamState.ArrayValue) {
-            // skip
-        }
+        endStructure();
     }
 
     public void writeKey(String key) {
@@ -91,36 +90,61 @@ public class JSONWriter {
         context.setState(JSONStreamState.PropertyValue);
     }
 
-    public void writeStartArray() {
-        if (context == null) {
-            context = new JSONStreamContext(null, JSONStreamState.BeginArray);
-        } else {
-            if (context.getState() == JSONStreamState.PropertyKey) {
-                writer.write(':');
-            } else if (context.getState() == JSONStreamState.ArrayValue) {
-                writer.write(',');
-            } else if (context.getState() == JSONStreamState.BeginArray) {
-                // skipe
-            } else {
-                throw new JSONException("illegal state : " + context.getState());
-            }
-            context = new JSONStreamContext(context, JSONStreamState.BeginArray);
+    public void startArray() {
+        if (context != null) {
+            beginStructure();
         }
+
+        context = new JSONStreamContext(context, JSONStreamState.BeginArray);
         writer.write('[');
     }
 
-    public void writeEndArray() {
+    private void beginStructure() {
+        final JSONStreamState state = context.getState();
+        switch (state) {
+            case PropertyKey:
+                writer.write(':');
+                break;
+            case ArrayValue:
+                writer.write(',');
+                break;
+            case BeginObject:
+                break;
+            case BeginArray:
+                break;
+            default:
+                throw new JSONException("illegal state : " + state);
+        }
+    }
+
+    public void endArray() {
         writer.write(']');
+        endStructure();
+    }
+
+    private void endStructure() {
         context = context.getParent();
 
         if (context == null) {
             // skip
-        } else if (context.getState() == JSONStreamState.PropertyKey) {
-            context.setState(JSONStreamState.PropertyValue);
-        } else if (context.getState() == JSONStreamState.BeginArray) {
-            context.setState(JSONStreamState.ArrayValue);
-        } else if (context.getState() == JSONStreamState.ArrayValue) {
-            // skip
+        } else {
+            final JSONStreamState state = context.getState();
+            JSONStreamState newState = null;
+            switch (state) {
+                case PropertyKey:
+                    newState = JSONStreamState.PropertyValue;
+                    break;
+                case BeginArray:
+                    newState = JSONStreamState.ArrayValue;
+                    break;
+                case ArrayValue:
+                    break;
+                default:
+                    break;
+            }
+            if (newState != null) {
+                context.setState(newState);
+            }
         }
     }
 }

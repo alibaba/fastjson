@@ -1,11 +1,13 @@
 package com.alibaba.json.test;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
+
+import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
+@SuppressWarnings("deprecation")
 public class TestWriteSlashAsSpecial extends TestCase {
 
     private int defaultValue = JSON.DEFAULT_GENERATE_FEATURE;

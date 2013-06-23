@@ -31,8 +31,8 @@ public class JSONObjectTest2 extends TestCase {
 
         Assert.assertEquals(obj.getByteValue("d"), 0);
         Assert.assertEquals(obj.getShortValue("d"), 0);
-        Assert.assertEquals(obj.getFloatValue("d"), 0F);
-        Assert.assertEquals(obj.getDoubleValue("d"), 0D);
+        Assert.assertTrue(obj.getFloatValue("d") == 0F);
+        Assert.assertTrue(obj.getDoubleValue("d") == 0D);
         Assert.assertEquals(obj.getBigInteger("d"), null);
         Assert.assertEquals(obj.getSqlDate("d"), null);
         Assert.assertEquals(obj.getTimestamp("d"), null);

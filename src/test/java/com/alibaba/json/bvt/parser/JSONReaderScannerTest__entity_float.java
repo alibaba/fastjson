@@ -4,10 +4,10 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.List;
 
-import org.junit.Assert;
 import junit.framework.TestCase;
 
-import com.alibaba.fastjson.JSONArray;
+import org.junit.Assert;
+
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONReaderScanner;
 
@@ -31,8 +31,9 @@ public class JSONReaderScannerTest__entity_float extends TestCase {
         DefaultJSONParser parser = new DefaultJSONParser(scanner);
         List<VO> array = parser.parseArray(VO.class);
         for (int i = 0; i < array.size(); ++i) {
-            Assert.assertEquals((float) i, array.get(i).getId());
+            Assert.assertTrue((float) i == array.get(i).getId());
         }
+        parser.close();
     }
 
     public static class VO {

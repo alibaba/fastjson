@@ -11,37 +11,37 @@ public class JSONScannerTest_scanFieldDouble extends TestCase {
     public void test_0() throws Exception {
         String text = "{\"value\":1.0}";
         VO obj = JSON.parseObject(text, VO.class);
-        Assert.assertEquals(1D, obj.getValue());
+        Assert.assertTrue(1D == obj.getValue());
     }
 
     public void test_1() throws Exception {
         String text = "{\"value\":\"1\"}";
         VO obj = JSON.parseObject(text, VO.class);
-        Assert.assertEquals(1D, obj.getValue());
+        Assert.assertTrue(1D == obj.getValue());
     }
 
     public void test_2() throws Exception {
         String text = "{\"f1\":2,\"value\":1.0}";
         VO obj = JSON.parseObject(text, VO.class);
-        Assert.assertEquals(1D, obj.getValue());
+        Assert.assertTrue(1D == obj.getValue());
     }
 
     public void test_3() throws Exception {
         String text = "{\"value\":1.01}";
         VO obj = JSON.parseObject(text, VO.class);
-        Assert.assertEquals(1.01D, obj.getValue());
+        Assert.assertTrue(1.01D == obj.getValue());
     }
 
     public void test_4() throws Exception {
         String text = "{\"value\":1.}";
         VO obj = JSON.parseObject(text, VO.class);
-        Assert.assertEquals(1D, obj.getValue());
+        Assert.assertTrue(1D == obj.getValue());
     }
 
     public void test_5() throws Exception {
         String text = "{\"value\":922337203685477580723}";
         VO obj = JSON.parseObject(text, VO.class);
-        Assert.assertEquals(922337203685477580723D, obj.getValue());
+        Assert.assertTrue(922337203685477580723D == obj.getValue());
     }
 
     public void test_error_2() throws Exception {

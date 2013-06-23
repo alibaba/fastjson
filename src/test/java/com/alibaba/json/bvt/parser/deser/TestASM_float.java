@@ -1,7 +1,8 @@
 package com.alibaba.json.bvt.parser.deser;
 
-import org.junit.Assert;
 import junit.framework.TestCase;
+
+import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 
@@ -12,7 +13,7 @@ public class TestASM_float extends TestCase {
         String text = JSON.toJSONString(v);
         V0 v1 = JSON.parseObject(text, V0.class);
         
-        Assert.assertEquals(v.getValue(), v1.getValue());
+        Assert.assertTrue(v.getValue() == v1.getValue());
     }
 
     public static class V0 {

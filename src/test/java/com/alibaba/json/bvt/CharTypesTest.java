@@ -1,7 +1,8 @@
 package com.alibaba.json.bvt;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
+
+import org.junit.Assert;
 
 import com.alibaba.fastjson.parser.CharTypes;
 
@@ -14,7 +15,7 @@ public class CharTypesTest extends TestCase {
         Assert.assertTrue(CharTypes.isSpecial_doubleQuotes('\f'));
         Assert.assertTrue(CharTypes.isSpecial_doubleQuotes('\"'));
         Assert.assertFalse(CharTypes.isSpecial_doubleQuotes('0'));
-        Assert.assertFalse(CharTypes.isSpecial_doubleQuotes('\0'));
+        Assert.assertTrue(CharTypes.isSpecial_doubleQuotes('\0'));
         Assert.assertFalse(CharTypes.isSpecial_doubleQuotes('中'));
         Assert.assertFalse(CharTypes.isSpecial_doubleQuotes('中'));
     }

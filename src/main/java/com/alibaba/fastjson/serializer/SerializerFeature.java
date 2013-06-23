@@ -64,6 +64,7 @@ public enum SerializerFeature {
     /**
      * @since 1.1.1
      */
+    @Deprecated
     WriteTabAsSpecial,
     /**
      * @since 1.1.2

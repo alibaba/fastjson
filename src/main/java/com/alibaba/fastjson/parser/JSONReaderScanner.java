@@ -730,7 +730,7 @@ public final class JSONReaderScanner extends JSONLexer {
 
     @Override
     public boolean isEOF() {
-        return bp == buf.length || ch == EOI && bp + 1 == buf.length;
+        return bufLength == -1 || bp == buf.length || ch == EOI && bp + 1 == buf.length;
     }
 
     public final boolean isRef() {

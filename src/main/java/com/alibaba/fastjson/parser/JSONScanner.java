@@ -17,7 +17,6 @@ package com.alibaba.fastjson.parser;
 
 import static com.alibaba.fastjson.parser.JSONToken.LITERAL_STRING;
 
-import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -36,11 +35,7 @@ import com.alibaba.fastjson.util.Base64;
  */
 public final class JSONScanner extends JSONLexer {
 
-    private final String                                    text;
-
-    private final Keywords                                        keywods      = Keywords.DEFAULT_KEYWORDS;
-
-    private final static ThreadLocal<SoftReference<char[]>> sbufRefLocal = new ThreadLocal<SoftReference<char[]>>();
+    private final String text;
 
     public JSONScanner(String input){
         this(input, JSON.DEFAULT_PARSER_FEATURE);
@@ -48,17 +43,6 @@ public final class JSONScanner extends JSONLexer {
 
     public JSONScanner(String input, int features){
         this.features = features;
-
-        SoftReference<char[]> sbufRef = sbufRefLocal.get();
-
-        if (sbufRef != null) {
-            sbuf = sbufRef.get();
-            sbufRefLocal.set(null);
-        }
-
-        if (sbuf == null) {
-            sbuf = new char[64];
-        }
 
         text = input;
         bp = -1;
@@ -853,14 +837,6 @@ public final class JSONScanner extends JSONLexer {
         return true;
     }
 
-    public void close() {
-        if (sbuf.length <= 1024 * 8) {
-            sbufRefLocal.set(new SoftReference<char[]>(sbuf));
-        }
-
-        this.sbuf = null;
-    }
-
     @Override
     public boolean isEOF() {
         return bp == text.length() || ch == EOI && bp + 1 == text.length();
@@ -877,7 +853,7 @@ public final class JSONScanner extends JSONLexer {
 
         return charAt(np + 1) == '$' && charAt(np + 2) == 'r' && charAt(np + 3) == 'e' && charAt(np + 4) == 'f';
     }
-    
+
     public int scanFieldInt(char[] fieldName) {
         matchStat = UNKOWN;
         int startPos = this.bp;
@@ -947,7 +923,7 @@ public final class JSONScanner extends JSONLexer {
 
         return value;
     }
-    
+
     public String scanFieldString(char[] fieldName) {
         matchStat = UNKOWN;
         int startPos = this.bp;
@@ -1063,7 +1039,7 @@ public final class JSONScanner extends JSONLexer {
 
         return strVal;
     }
-    
+
     public String scanFieldSymbol(char[] fieldName, final SymbolTable symbolTable) {
         matchStat = UNKOWN;
 
@@ -1130,7 +1106,7 @@ public final class JSONScanner extends JSONLexer {
 
         return strVal;
     }
-    
+
     @SuppressWarnings("unchecked")
     public Collection<String> scanFieldStringArray(char[] fieldName, Class<?> type) {
         matchStat = UNKOWN;
@@ -1234,7 +1210,7 @@ public final class JSONScanner extends JSONLexer {
 
         return list;
     }
-    
+
     public long scanFieldLong(char[] fieldName) {
         matchStat = UNKOWN;
         int startPos = this.bp;
@@ -1309,7 +1285,7 @@ public final class JSONScanner extends JSONLexer {
 
         return value;
     }
-    
+
     public boolean scanFieldBoolean(char[] fieldName) {
         matchStat = UNKOWN;
 
@@ -1395,7 +1371,7 @@ public final class JSONScanner extends JSONLexer {
 
         return value;
     }
-    
+
     public final void scanString() {
         np = bp;
         hasSpecial = false;
@@ -1422,7 +1398,7 @@ public final class JSONScanner extends JSONLexer {
                     }
 
                     text.getChars(np + 1, np + 1 + sp, sbuf, 0);
-//                  System.arraycopy(buf, np + 1, sbuf, 0, sp);
+                    // System.arraycopy(buf, np + 1, sbuf, 0, sp);
                 }
 
                 ch = charAt(++bp);

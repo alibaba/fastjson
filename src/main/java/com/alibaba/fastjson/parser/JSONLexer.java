@@ -26,6 +26,8 @@ import static com.alibaba.fastjson.parser.JSONToken.RBRACE;
 import static com.alibaba.fastjson.parser.JSONToken.RBRACKET;
 import static com.alibaba.fastjson.parser.JSONToken.RPAREN;
 
+import java.io.Closeable;
+import java.lang.ref.SoftReference;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -39,7 +41,7 @@ import com.alibaba.fastjson.JSONException;
 /**
  * @author wenshao<szujobs@hotmail.com>
  */
-public abstract class JSONLexer {
+public abstract class JSONLexer implements Closeable {
 
     public final static byte     EOI                     = 0x1A;
     public final static int      NOT_MATCH               = -1;
@@ -90,33 +92,49 @@ public abstract class JSONLexer {
         token = ERROR;
     }
 
-    protected int      token;
-    protected int      pos;
-    protected int      features  = JSON.DEFAULT_PARSER_FEATURE;
+    protected int                                           token;
+    protected int                                           pos;
+    protected int                                           features     = JSON.DEFAULT_PARSER_FEATURE;
 
-    protected char     ch;
-    protected int      bp;
+    protected char                                          ch;
+    protected int                                           bp;
 
-    protected int      eofPos;
+    protected int                                           eofPos;
 
     /**
      * A character buffer for literals.
      */
-    protected char[]   sbuf;
-    protected int      sp;
+    protected char[]                                        sbuf;
+    protected int                                           sp;
 
     /**
      * number start position
      */
-    protected int      np;
+    protected int                                           np;
 
-    protected boolean  hasSpecial;
+    protected boolean                                       hasSpecial;
 
-    protected Calendar calendar  = null;
+    protected Calendar                                      calendar     = null;
 
-    public int         matchStat = UNKOWN;
+    public int                                              matchStat    = UNKOWN;
 
-    public int matchStat() {
+    private final static ThreadLocal<SoftReference<char[]>> sbufRefLocal = new ThreadLocal<SoftReference<char[]>>();
+    protected Keywords                                      keywods      = Keywords.DEFAULT_KEYWORDS;
+
+    public JSONLexer(){
+        SoftReference<char[]> sbufRef = sbufRefLocal.get();
+
+        if (sbufRef != null) {
+            sbuf = sbufRef.get();
+            sbufRefLocal.set(null);
+        }
+
+        if (sbuf == null) {
+            sbuf = new char[64];
+        }
+    }
+
+    public final int matchStat() {
         return matchStat;
     }
 
@@ -642,8 +660,8 @@ public abstract class JSONLexer {
     }
 
     public abstract String scanSymbolUnQuoted(final SymbolTable symbolTable);
-    
-    protected abstract void copyTo(int offset, int count, char[] dest); 
+
+    protected abstract void copyTo(int offset, int count, char[] dest);
 
     public abstract void scanString();
 
@@ -704,7 +722,12 @@ public abstract class JSONLexer {
 
     public abstract byte[] bytesValue();
 
-    public abstract void close();
+    public void close() {
+        if (sbuf.length <= 1024 * 8) {
+            sbufRefLocal.set(new SoftReference<char[]>(sbuf));
+        }
+        this.sbuf = null;
+    }
 
     public abstract boolean isRef();
 

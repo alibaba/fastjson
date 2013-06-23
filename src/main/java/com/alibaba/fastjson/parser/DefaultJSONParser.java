@@ -31,6 +31,7 @@ import static com.alibaba.fastjson.parser.JSONToken.SET;
 import static com.alibaba.fastjson.parser.JSONToken.TREE_SET;
 import static com.alibaba.fastjson.parser.JSONToken.TRUE;
 
+import java.io.Closeable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -66,7 +67,7 @@ import com.alibaba.fastjson.util.TypeUtils;
 /**
  * @author wenshao<szujobs@hotmail.com>
  */
-public class DefaultJSONParser extends AbstractJSONParser {
+public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 
     protected final Object             input;
     protected final SymbolTable        symbolTable;
@@ -151,9 +152,9 @@ public class DefaultJSONParser extends AbstractJSONParser {
     public DefaultJSONParser(final char[] input, int length, final ParserConfig config, int features){
         this(input, new JSONScanner(input, length, features), config);
     }
-    
-    public DefaultJSONParser(final JSONLexer lexer) {
-        this (lexer, ParserConfig.getGlobalInstance());
+
+    public DefaultJSONParser(final JSONLexer lexer){
+        this(lexer, ParserConfig.getGlobalInstance());
     }
 
     public DefaultJSONParser(final JSONLexer lexer, final ParserConfig config){
@@ -378,6 +379,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                         if (iso8601Lexer.scanISO8601DateIfMatch()) {
                             value = iso8601Lexer.getCalendar().getTime();
                         }
+                        iso8601Lexer.close();
                     }
 
                     if (object.getClass() == JSONObject.class) {
@@ -913,6 +915,7 @@ public class DefaultJSONParser extends AbstractJSONParser {
                             } else {
                                 value = stringLiteral;
                             }
+                            iso8601Lexer.close();
                         } else {
                             value = stringLiteral;
                         }
@@ -1073,8 +1076,12 @@ public class DefaultJSONParser extends AbstractJSONParser {
 
                 if (lexer.isEnabled(Feature.AllowISO8601DateFormat)) {
                     JSONScanner iso8601Lexer = new JSONScanner(stringLiteral);
-                    if (iso8601Lexer.scanISO8601DateIfMatch()) {
-                        return iso8601Lexer.getCalendar().getTime();
+                    try {
+                        if (iso8601Lexer.scanISO8601DateIfMatch()) {
+                            return iso8601Lexer.getCalendar().getTime();
+                        }
+                    } finally {
+                        iso8601Lexer.close();
                     }
                 }
 

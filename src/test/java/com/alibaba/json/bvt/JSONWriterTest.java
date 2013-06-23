@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSONWriter;
 
+@SuppressWarnings("deprecation")
 public class JSONWriterTest extends TestCase {
 
     public void test_0() throws Exception {

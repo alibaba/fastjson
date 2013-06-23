@@ -1,56 +1,24 @@
 package com.alibaba.fastjson;
 
+import java.io.Closeable;
+import java.io.Flushable;
 import java.io.IOException;
 import java.io.Writer;
 
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 
-public class JSONWriter {
+public class JSONWriter implements Closeable, Flushable {
 
     private SerializeWriter   writer;
-    private final Writer      out;
 
     private JSONSerializer    serializer;
 
     private JSONStreamContext context;
 
     public JSONWriter(Writer out){
-        this.out = out;
-        writer = new SerializeWriter();
+        writer = new SerializeWriter(out);
         serializer = new JSONSerializer(writer);
-    }
-
-    public void flush() throws IOException {
-        writer.writeTo(out);
-        writer = new SerializeWriter();
-        serializer = new JSONSerializer(writer);
-    }
-
-    public void close() throws IOException {
-        if (writer.size() != 0) {
-            flush();
-        }
-    }
-
-    @Deprecated
-    public void writeStartObject() {
-        startObject();
-    }
-
-    @Deprecated
-    public void writeEndObject() {
-        endObject();
-    }
-
-    @Deprecated
-    public void writeStartArray() {
-        startArray();
-    }
-
-    @Deprecated
-    public void writeEndArray() {
-        endArray();
     }
 
     public void startObject() {
@@ -146,5 +114,33 @@ public class JSONWriter {
                 context.setState(newState);
             }
         }
+    }
+
+    public void flush() throws IOException {
+        writer.flush();
+    }
+
+    public void close() throws IOException {
+        writer.close();
+    }
+
+    @Deprecated
+    public void writeStartObject() {
+        startObject();
+    }
+
+    @Deprecated
+    public void writeEndObject() {
+        endObject();
+    }
+
+    @Deprecated
+    public void writeStartArray() {
+        startArray();
+    }
+
+    @Deprecated
+    public void writeEndArray() {
+        endArray();
     }
 }

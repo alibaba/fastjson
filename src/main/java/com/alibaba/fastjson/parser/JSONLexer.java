@@ -326,6 +326,9 @@ public abstract class JSONLexer implements Closeable {
                         return;
                     }
                     break;
+                case JSONToken.IDENTIFIER:
+                    nextIdent();
+                    return;
                 default:
                     break;
             }
@@ -337,6 +340,17 @@ public abstract class JSONLexer implements Closeable {
 
             nextToken();
             break;
+        }
+    }
+    
+    public final void nextIdent() {
+        while (isWhitespace(ch)) {
+            next();
+        }
+        if (ch == '_' || Character.isLetter(ch)) {
+            scanIdent();            
+        } else {
+            nextToken();
         }
     }
 

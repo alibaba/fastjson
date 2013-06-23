@@ -1041,6 +1041,15 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
     public Object parse() {
         return parse(null);
     }
+    
+    public Object parseKey() {
+        if (lexer.token() == JSONToken.IDENTIFIER) {
+            String value = lexer.stringVal();
+            lexer.nextToken(JSONToken.COMMA);
+            return value;
+        }
+        return parse(null);
+    }
 
     public Object parse(Object fieldName) {
         final JSONLexer lexer = getLexer();
@@ -1137,6 +1146,16 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
         final JSONLexer lexer = getLexer();
         if (lexer.token() == token) {
             lexer.nextToken();
+        } else {
+            throw new JSONException("syntax error, expect " + JSONToken.name(token) + ", actual "
+                                    + JSONToken.name(lexer.token()));
+        }
+    }
+    
+    public final void accept(final int token, int nextExpectToken) {
+        final JSONLexer lexer = getLexer();
+        if (lexer.token() == token) {
+            lexer.nextToken(nextExpectToken);
         } else {
             throw new JSONException("syntax error, expect " + JSONToken.name(token) + ", actual "
                                     + JSONToken.name(lexer.token()));

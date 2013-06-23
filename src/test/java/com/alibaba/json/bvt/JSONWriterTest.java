@@ -105,12 +105,14 @@ public class JSONWriterTest extends TestCase {
             writer.writeEndArray();
 
             writer.writeEndArray();
+            
+            writer.writeValue(1);
         }
 
         writer.writeEndArray();
 
         writer.flush();
 
-        Assert.assertEquals("[{},{},[],[[],[]]]", out.toString());
+        Assert.assertEquals("[{},{},[],[[],[]],1]", out.toString());
     }
 }

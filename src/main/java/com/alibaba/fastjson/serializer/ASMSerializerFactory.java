@@ -639,7 +639,7 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitMethodInsn(INVOKEVIRTUAL, getType(method.getDeclaringClass()), method.getName(), getDesc(method));
         } else {
             mw.visitVarInsn(ALOAD, context.var("entity"));
-            mw.visitFieldInsn(GETFIELD, getType(property.getDeclaringClass()), property.getName(),
+            mw.visitFieldInsn(GETFIELD, getType(property.getDeclaringClass()), property.getField().getName(),
                               getDesc(property.getFieldClass()));
         }
     }

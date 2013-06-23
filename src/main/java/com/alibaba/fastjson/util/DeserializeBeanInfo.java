@@ -240,7 +240,14 @@ public class DeserializeBeanInfo {
                 continue;
             }
 
-            beanInfo.add(new FieldInfo(field.getName(), null, field, clazz, type));
+            String propertyName = field.getName();
+            
+            JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
+
+            if (fieldAnnotation != null && fieldAnnotation.name().length() != 0) {
+                propertyName = fieldAnnotation.name();
+            }
+            beanInfo.add(new FieldInfo(propertyName, null, field, clazz, type));
         }
         
         for (Method method : clazz.getMethods()) {

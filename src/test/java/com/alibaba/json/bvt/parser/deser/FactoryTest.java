@@ -14,7 +14,7 @@ public class FactoryTest extends TestCase {
         Assert.assertEquals(true, vo.isB());
         Assert.assertEquals(33, vo.getI());
         Assert.assertEquals(34L, vo.getL());
-        Assert.assertEquals(45f, vo.getF());
+        Assert.assertTrue(45f == vo.getF());
         JSON.parseObject("{\"b\":1,\"i\":33,\"l\":34,\"f\":45.}", VO.class);
     }
     
@@ -23,7 +23,7 @@ public class FactoryTest extends TestCase {
         Assert.assertEquals(true, vo.isB());
         Assert.assertEquals(33, vo.getI());
         Assert.assertEquals(34L, vo.getL());
-        Assert.assertEquals(45f, vo.getF());
+        Assert.assertTrue(45f == vo.getF());
         JSON.parseObject("{\"b\":1,\"i\":33,\"l\":34,\"f\":45.}", V1.class);
     }
 

@@ -17,8 +17,8 @@ public class JSONArrayTest2 extends TestCase {
         array.add(time);
         Assert.assertEquals(0, array.getByteValue(0));
         Assert.assertEquals(0, array.getShortValue(0));
-        Assert.assertEquals(0F, array.getFloatValue(0));
-        Assert.assertEquals(0D, array.getDoubleValue(0));
+        Assert.assertTrue(0F == array.getFloatValue(0));
+        Assert.assertTrue(0D == array.getDoubleValue(0));
         Assert.assertEquals(new BigInteger("1"), array.getBigInteger(1));
         Assert.assertEquals("1", array.getString(1));
         Assert.assertEquals(new java.util.Date(time), array.getDate(2));
@@ -28,8 +28,8 @@ public class JSONArrayTest2 extends TestCase {
         JSONArray array2 = (JSONArray) array.clone();
         Assert.assertEquals(0, array2.getByteValue(0));
         Assert.assertEquals(0, array2.getShortValue(0));
-        Assert.assertEquals(0F, array2.getFloatValue(0));
-        Assert.assertEquals(0D, array2.getDoubleValue(0));
+        Assert.assertTrue(0F == array2.getFloatValue(0));
+        Assert.assertTrue(0D == array2.getDoubleValue(0));
         Assert.assertEquals(new BigInteger("1"), array2.getBigInteger(1));
         Assert.assertEquals("1", array2.getString(1));
         Assert.assertEquals(new java.util.Date(time), array2.getDate(2));

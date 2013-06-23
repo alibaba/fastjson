@@ -12,7 +12,7 @@ public class TestASM_double extends TestCase {
         String text = JSON.toJSONString(v);
         V0 v1 = JSON.parseObject(text, V0.class);
         
-        Assert.assertEquals(v.getValue(), v1.getValue());
+        Assert.assertTrue(v.getValue() == v1.getValue());
     }
 
     public static class V0 {

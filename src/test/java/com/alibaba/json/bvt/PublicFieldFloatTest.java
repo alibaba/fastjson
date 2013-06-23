@@ -20,6 +20,6 @@ public class PublicFieldFloatTest extends TestCase {
         
         VO vo1 = JSON.parseObject(str, VO.class);
         
-        Assert.assertEquals(vo1.id, vo.id);
+        Assert.assertTrue(vo1.id == vo.id);
     }
 }

@@ -16,7 +16,7 @@ public class FloatFieldTest extends TestCase {
 
         User user1 = JSON.parseObject(text, User.class);
 
-        Assert.assertEquals(user1.getValue(), user.getValue());
+        Assert.assertTrue(user1.getValue() == user.getValue());
     }
 
     public static class User {

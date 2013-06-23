@@ -26,14 +26,18 @@ public class DoubleSerializer implements ObjectSerializer {
 
     public final static DoubleSerializer instance      = new DoubleSerializer();
 
-    private DecimalFormat                decimalFomrat = null;
+    private DecimalFormat                decimalFormat = null;
 
     public DoubleSerializer(){
 
     }
 
-    public DoubleSerializer(DecimalFormat decimalFomrat){
-        this.decimalFomrat = decimalFomrat;
+    public DoubleSerializer(DecimalFormat decimalFormat){
+        this.decimalFormat = decimalFormat;
+    }
+
+    public DoubleSerializer(String decimalFormat){
+        this(new DecimalFormat(decimalFormat));
     }
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
@@ -56,13 +60,13 @@ public class DoubleSerializer implements ObjectSerializer {
             out.writeNull();
         } else {
             String doubleText;
-            if (decimalFomrat == null) {
+            if (decimalFormat == null) {
                 doubleText = Double.toString(doubleValue);
                 if (doubleText.endsWith(".0")) {
                     doubleText = doubleText.substring(0, doubleText.length() - 2);
                 }
             } else {
-                doubleText = decimalFomrat.format(doubleValue);
+                doubleText = decimalFormat.format(doubleValue);
             }
             out.append(doubleText);
 

@@ -117,11 +117,11 @@ public class JSONArrayTest extends TestCase {
         Assert.assertEquals(123, array.getShort(0).shortValue());
         Assert.assertEquals(123, array.getShortValue(0));
 
-        Assert.assertEquals(123F, array.getFloat(0).floatValue());
-        Assert.assertEquals(123F, array.getFloatValue(0));
+        Assert.assertTrue(123F == array.getFloat(0).floatValue());
+        Assert.assertTrue(123F == array.getFloatValue(0));
 
-        Assert.assertEquals(123D, array.getDouble(0).doubleValue());
-        Assert.assertEquals(123D, array.getDoubleValue(0));
+        Assert.assertTrue(123D == array.getDouble(0).doubleValue());
+        Assert.assertTrue(123D == array.getDoubleValue(0));
 
         Assert.assertEquals(123, array.getIntValue(0));
         Assert.assertEquals(123, array.getLongValue(0));

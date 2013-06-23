@@ -16,96 +16,92 @@ import org.springframework.http.converter.HttpMessageNotWritableException;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
-public class FastJsonHttpMessageConverter extends
-		AbstractHttpMessageConverter<Object> {
+public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<Object> {
 
-	public final static Charset UTF8 = Charset.forName("UTF-8");
+    public final static Charset UTF8    = Charset.forName("UTF-8");
 
-	private Charset charset = UTF8;
+    private Charset             charset = UTF8;
 
-	private SerializerFeature[] serializerFeature;
+    private SerializerFeature[] features;
 
-	public FastJsonHttpMessageConverter() {
-		super(new MediaType("application", "json", UTF8), new MediaType(
-				"application", "*+json", UTF8));
-	}
+    public FastJsonHttpMessageConverter(){
+        super(new MediaType("application", "json", UTF8), new MediaType("application", "*+json", UTF8));
+    }
 
-	@Override
-	protected boolean supports(Class<?> clazz) {
-		return true;
-	}
+    @Override
+    protected boolean supports(Class<?> clazz) {
+        return true;
+    }
 
-	public Charset getCharset() {
-		return this.charset;
-	}
+    public Charset getCharset() {
+        return this.charset;
+    }
 
-	public void setCharset(Charset charset) {
-		this.charset = charset;
-	}
+    public void setCharset(Charset charset) {
+        this.charset = charset;
+    }
 
-	public SerializerFeature[] getFeatures() {
-		return serializerFeature;
-	}
+    public SerializerFeature[] getFeatures() {
+        return features;
+    }
 
-	public void setFeatures(SerializerFeature... features) {
-		this.serializerFeature = features;
-	}
+    public void setFeatures(SerializerFeature... features) {
+        this.features = features;
+    }
 
-	@Override
-	protected Object readInternal(Class<? extends Object> clazz,
-			HttpInputMessage inputMessage) throws IOException,
-			HttpMessageNotReadableException {
+    @Override
+    protected Object readInternal(Class<? extends Object> clazz, HttpInputMessage inputMessage) throws IOException,
+                                                                                               HttpMessageNotReadableException {
 
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-		InputStream in = inputMessage.getBody();
+        InputStream in = inputMessage.getBody();
 
-		byte[] buf = new byte[1024];
-		for (;;) {
-			int len = in.read(buf);
-			if (len == -1) {
-				break;
-			}
+        byte[] buf = new byte[1024];
+        for (;;) {
+            int len = in.read(buf);
+            if (len == -1) {
+                break;
+            }
 
-			if (len > 0) {
-				baos.write(buf, 0, len);
-			}
-		}
+            if (len > 0) {
+                baos.write(buf, 0, len);
+            }
+        }
 
-		byte[] bytes = baos.toByteArray();
-		if (charset == UTF8) {
-			return JSON.parseObject(bytes, clazz);
-		} else {
-			return JSON.parseObject(bytes, 0, bytes.length,
-					charset.newDecoder(), clazz);
-		}
-	}
+        byte[] bytes = baos.toByteArray();
+        if (charset == UTF8) {
+            return JSON.parseObject(bytes, clazz);
+        } else {
+            return JSON.parseObject(bytes, 0, bytes.length, charset.newDecoder(), clazz);
+        }
+    }
 
-	@Override
-	protected void writeInternal(Object obj, HttpOutputMessage outputMessage)
-			throws IOException, HttpMessageNotWritableException {
+    @Override
+    protected void writeInternal(Object obj, HttpOutputMessage outputMessage) throws IOException,
+                                                                             HttpMessageNotWritableException {
 
-		OutputStream out = outputMessage.getBody();
-		byte[] bytes;
+        OutputStream out = outputMessage.getBody();
+        byte[] bytes;
 
-		if (charset == UTF8) {
-			if (serializerFeature != null) {
-				bytes = JSON.toJSONBytes(obj, serializerFeature);
-			} else {
-				bytes = JSON.toJSONBytes(obj);
-			}
+        if (charset == UTF8) {
+            if (features != null) {
+                bytes = JSON.toJSONBytes(obj, features);
+            } else {
+                bytes = JSON.toJSONBytes(obj);
+            }
 
-		} else {
-			String text;
-			if (serializerFeature != null) {
-				text = JSON.toJSONString(obj, serializerFeature);
-			} else {
-				text = JSON.toJSONString(obj);
-			}
-			bytes = text.getBytes(charset);
-		}
+        } else {
+            String text;
+            if (features != null) {
+                text = JSON.toJSONString(obj, features);
+            } else {
+                text = JSON.toJSONString(obj);
+            }
+            bytes = text.getBytes(charset);
+        }
 
-		out.write(bytes);
-	}
+        out.write(bytes);
+    }
 
 }

@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.alibaba</groupId>
 	<artifactId>fastjson</artifactId>
-	<version>1.1.32-SNAPSHOT</version>
+	<version>1.1.32</version>
 
 	<packaging>jar</packaging>
 	<name>fastjson</name>
@@ -16,7 +16,7 @@
 	<properties>
 		<junit.version>4.11</junit.version>
 
-		<gpg.skip>true</gpg.skip>
+		<gpg.skip>false</gpg.skip>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk.version>1.5</jdk.version>

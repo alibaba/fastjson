@@ -35,20 +35,10 @@ public class JSONReader implements Closeable {
 
     public void startObject() {
         if (context == null) {
-            context = new JSONStreamContext(null, JSONStreamState.BeginObject);
+            context = new JSONStreamContext(null, JSONStreamState.StartObject);
         } else {
-            if (context.getState() == JSONStreamState.PropertyKey) {
-                parser.accept(JSONToken.COLON);
-            } else if (context.getState() == JSONStreamState.ArrayValue) {
-                parser.accept(JSONToken.COMMA);
-            } else if (context.getState() == JSONStreamState.BeginObject) {
-                // skip
-            } else if (context.getState() == JSONStreamState.BeginArray) {
-                // skip
-            } else {
-                throw new JSONException("illegal state : " + context.getState());
-            }
-            context = new JSONStreamContext(context, JSONStreamState.BeginObject);
+            startStructure();
+            context = new JSONStreamContext(context, JSONStreamState.StartObject);
         }
 
         this.parser.accept(JSONToken.LBRACE, JSONToken.IDENTIFIER);
@@ -61,18 +51,11 @@ public class JSONReader implements Closeable {
 
     public void startArray() {
         if (context == null) {
-            context = new JSONStreamContext(null, JSONStreamState.BeginArray);
+            context = new JSONStreamContext(null, JSONStreamState.StartArray);
         } else {
-            if (context.getState() == JSONStreamState.PropertyKey) {
-                parser.accept(JSONToken.COLON);
-            } else if (context.getState() == JSONStreamState.ArrayValue) {
-                parser.accept(JSONToken.COMMA);
-            } else if (context.getState() == JSONStreamState.BeginArray) {
-                // skipe
-            } else {
-                throw new JSONException("illegal state : " + context.getState());
-            }
-            context = new JSONStreamContext(context, JSONStreamState.BeginArray);
+            startStructure();
+
+            context = new JSONStreamContext(context, JSONStreamState.StartArray);
         }
         this.parser.accept(JSONToken.LBRACKET);
     }
@@ -82,17 +65,44 @@ public class JSONReader implements Closeable {
         endStructure();
     }
 
+    private void startStructure() {
+        JSONStreamState state = context.getState();
+        switch (state) {
+            case PropertyKey:
+                parser.accept(JSONToken.COLON);
+                break;
+            case ArrayValue:
+                parser.accept(JSONToken.COMMA);
+                break;
+            case StartArray:
+            case StartObject:
+                break;
+            default:
+                throw new JSONException("illegal state : " + context.getState());
+        }
+    }
+
     private void endStructure() {
         context = context.getParent();
 
         if (context == null) {
             // skip
-        } else if (context.getState() == JSONStreamState.PropertyKey) {
-            context.setState(JSONStreamState.PropertyValue);
-        } else if (context.getState() == JSONStreamState.BeginArray) {
-            context.setState(JSONStreamState.ArrayValue);
-        } else if (context.getState() == JSONStreamState.ArrayValue) {
-            // skip
+        } else {
+            final JSONStreamState state = context.getState();
+            JSONStreamState newState = null;
+            switch (state) {
+                case PropertyKey:
+                    newState = JSONStreamState.PropertyValue;
+                    break;
+                case StartArray:
+                    newState = JSONStreamState.ArrayValue;
+                    break;
+                default:
+                    break;
+            }
+            if (newState != null) {
+                context.setState(newState);
+            }
         }
     }
 
@@ -104,10 +114,10 @@ public class JSONReader implements Closeable {
         final int token = parser.getLexer().token();
         final JSONStreamState state = context.getState();
         switch (state) {
-            case BeginArray:
+            case StartArray:
             case ArrayValue:
                 return token != JSONToken.RBRACKET;
-            case BeginObject:
+            case StartObject:
             case PropertyValue:
                 return token != JSONToken.RBRACE;
             default:
@@ -199,7 +209,7 @@ public class JSONReader implements Closeable {
         readBefore();
         Object object;
         switch (context.getState()) {
-            case BeginObject:
+            case StartObject:
             case PropertyValue:
                 object = parser.parseKey();
                 break;
@@ -237,9 +247,9 @@ public class JSONReader implements Closeable {
             case ArrayValue:
                 parser.accept(JSONToken.COMMA);
                 break;
-            case BeginObject:
+            case StartObject:
                 break;
-            case BeginArray:
+            case StartArray:
                 break;
             default:
                 throw new JSONException("illegal state : " + state);
@@ -250,7 +260,7 @@ public class JSONReader implements Closeable {
         JSONStreamState state = context.getState();
         JSONStreamState newStat = null;
         switch (state) {
-            case BeginObject:
+            case StartObject:
                 newStat = JSONStreamState.PropertyKey;
                 break;
             case PropertyKey:
@@ -261,7 +271,7 @@ public class JSONReader implements Closeable {
                 break;
             case ArrayValue:
                 break;
-            case BeginArray:
+            case StartArray:
                 newStat = JSONStreamState.ArrayValue;
                 break;
             default:

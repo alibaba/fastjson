@@ -7,6 +7,7 @@ import java.io.Writer;
 
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.SerializeWriter;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class JSONWriter implements Closeable, Flushable {
 
@@ -20,12 +21,16 @@ public class JSONWriter implements Closeable, Flushable {
         writer = new SerializeWriter(out);
         serializer = new JSONSerializer(writer);
     }
+    
+    public void config(SerializerFeature feature, boolean state) {
+        this.writer.config(feature, state);
+    }
 
     public void startObject() {
         if (context != null) {
             beginStructure();
         }
-        context = new JSONStreamContext(context, JSONStreamState.BeginObject);
+        context = new JSONStreamContext(context, JSONStreamState.StartObject);
         writer.write('{');
     }
 
@@ -43,9 +48,19 @@ public class JSONWriter implements Closeable, Flushable {
     }
 
     public void writeValue(Object object) {
+        writeObject(object);
+    }
+
+    public void writeObject(Object object) {
         switch (context.getState()) {
+            case StartObject:
+            case StartArray:
+                break;
             case PropertyKey:
                 writer.write(':');
+                break;
+            case PropertyValue:
+                writer.write(',');
                 break;
             case ArrayValue:
                 writer.write(',');
@@ -55,7 +70,33 @@ public class JSONWriter implements Closeable, Flushable {
         }
 
         serializer.write(object);
-        context.setState(JSONStreamState.PropertyValue);
+
+        if (context == null) {
+            // skip
+        } else {
+            JSONStreamState state = context.getState();
+            JSONStreamState newState = null;
+            switch (state) {
+                case PropertyKey:
+                    newState = JSONStreamState.PropertyValue;
+                    break;
+                case StartObject:
+                case PropertyValue:
+                    newState = JSONStreamState.PropertyKey;
+                    break;
+                case StartArray:
+                    newState = JSONStreamState.ArrayValue;
+                    break;
+                case ArrayValue:
+                    break;
+                default:
+                    break;
+            }
+
+            if (newState != null) {
+                context.setState(newState);
+            }
+        }
     }
 
     public void startArray() {
@@ -63,7 +104,7 @@ public class JSONWriter implements Closeable, Flushable {
             beginStructure();
         }
 
-        context = new JSONStreamContext(context, JSONStreamState.BeginArray);
+        context = new JSONStreamContext(context, JSONStreamState.StartArray);
         writer.write('[');
     }
 
@@ -76,9 +117,9 @@ public class JSONWriter implements Closeable, Flushable {
             case ArrayValue:
                 writer.write(',');
                 break;
-            case BeginObject:
+            case StartObject:
                 break;
-            case BeginArray:
+            case StartArray:
                 break;
             default:
                 throw new JSONException("illegal state : " + state);
@@ -102,7 +143,7 @@ public class JSONWriter implements Closeable, Flushable {
                 case PropertyKey:
                     newState = JSONStreamState.PropertyValue;
                     break;
-                case BeginArray:
+                case StartArray:
                     newState = JSONStreamState.ArrayValue;
                     break;
                 case ArrayValue:

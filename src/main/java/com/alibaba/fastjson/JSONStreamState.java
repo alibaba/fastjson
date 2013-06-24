@@ -1,9 +1,9 @@
 package com.alibaba.fastjson;
 
 enum JSONStreamState {
-    BeginObject, //
+    StartObject, //
     PropertyKey, //
     PropertyValue, //
-    BeginArray, //
+    StartArray, //
     ArrayValue
 }

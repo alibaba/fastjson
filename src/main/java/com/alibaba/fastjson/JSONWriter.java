@@ -22,7 +22,7 @@ public class JSONWriter implements Closeable, Flushable {
         writer = new SerializeWriter(out);
         serializer = new JSONSerializer(writer);
     }
-    
+
     public void config(SerializerFeature feature, boolean state) {
         this.writer.config(feature, state);
     }
@@ -41,63 +41,25 @@ public class JSONWriter implements Closeable, Flushable {
     }
 
     public void writeKey(String key) {
-        if (context.getState() == PropertyValue) {
-            writer.write(',');
-        }
-        writer.writeString(key);
-        context.setState(PropertyKey);
+        writeObject(key);
     }
 
     public void writeValue(Object object) {
         writeObject(object);
     }
 
-    public void writeObject(Object object) {
-        switch (context.getState()) {
-            case StartObject:
-            case StartArray:
-                break;
-            case PropertyKey:
-                writer.write(':');
-                break;
-            case PropertyValue:
-                writer.write(',');
-                break;
-            case ArrayValue:
-                writer.write(',');
-                break;
-            default:
-                break;
-        }
+    public void writeObject(String object) {
+        beforeWrite();
 
         serializer.write(object);
 
-        if (context == null) {
-            // skip
-        } else {
-            final int state = context.getState();
-            int newState = -1;
-            switch (state) {
-                case PropertyKey:
-                    newState = PropertyValue;
-                    break;
-                case StartObject:
-                case PropertyValue:
-                    newState = PropertyKey;
-                    break;
-                case StartArray:
-                    newState = ArrayValue;
-                    break;
-                case ArrayValue:
-                    break;
-                default:
-                    break;
-            }
+        afterWriter();
+    }
 
-            if (newState != -1) {
-                context.setState(newState);
-            }
-        }
+    public void writeObject(Object object) {
+        beforeWrite();
+        serializer.write(object);
+        afterWriter();
     }
 
     public void startArray() {
@@ -155,6 +117,54 @@ public class JSONWriter implements Closeable, Flushable {
             if (newState != -1) {
                 context.setState(newState);
             }
+        }
+    }
+
+    private void beforeWrite() {
+        switch (context.getState()) {
+            case StartObject:
+            case StartArray:
+                break;
+            case PropertyKey:
+                writer.write(':');
+                break;
+            case PropertyValue:
+                writer.write(',');
+                break;
+            case ArrayValue:
+                writer.write(',');
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void afterWriter() {
+        if (context == null) {
+            return;
+        }
+        
+        final int state = context.getState();
+        int newState = -1;
+        switch (state) {
+            case PropertyKey:
+                newState = PropertyValue;
+                break;
+            case StartObject:
+            case PropertyValue:
+                newState = PropertyKey;
+                break;
+            case StartArray:
+                newState = ArrayValue;
+                break;
+            case ArrayValue:
+                break;
+            default:
+                break;
+        }
+
+        if (newState != -1) {
+            context.setState(newState);
         }
     }
 

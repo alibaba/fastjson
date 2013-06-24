@@ -5,6 +5,7 @@ import java.io.Reader;
 import java.lang.reflect.Type;
 import java.util.Map;
 
+import static com.alibaba.fastjson.JSONStreamContext.*;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
@@ -35,10 +36,10 @@ public class JSONReader implements Closeable {
 
     public void startObject() {
         if (context == null) {
-            context = new JSONStreamContext(null, JSONStreamState.StartObject);
+            context = new JSONStreamContext(null, JSONStreamContext.StartObject);
         } else {
             startStructure();
-            context = new JSONStreamContext(context, JSONStreamState.StartObject);
+            context = new JSONStreamContext(context, JSONStreamContext.StartObject);
         }
 
         this.parser.accept(JSONToken.LBRACE, JSONToken.IDENTIFIER);
@@ -51,11 +52,11 @@ public class JSONReader implements Closeable {
 
     public void startArray() {
         if (context == null) {
-            context = new JSONStreamContext(null, JSONStreamState.StartArray);
+            context = new JSONStreamContext(null, StartArray);
         } else {
             startStructure();
 
-            context = new JSONStreamContext(context, JSONStreamState.StartArray);
+            context = new JSONStreamContext(context, StartArray);
         }
         this.parser.accept(JSONToken.LBRACKET);
     }
@@ -66,7 +67,7 @@ public class JSONReader implements Closeable {
     }
 
     private void startStructure() {
-        JSONStreamState state = context.getState();
+        int state = context.getState();
         switch (state) {
             case PropertyKey:
                 parser.accept(JSONToken.COLON);
@@ -88,19 +89,19 @@ public class JSONReader implements Closeable {
         if (context == null) {
             // skip
         } else {
-            final JSONStreamState state = context.getState();
-            JSONStreamState newState = null;
+            final int state = context.getState();
+            int newState = -1;
             switch (state) {
                 case PropertyKey:
-                    newState = JSONStreamState.PropertyValue;
+                    newState = PropertyValue;
                     break;
                 case StartArray:
-                    newState = JSONStreamState.ArrayValue;
+                    newState = ArrayValue;
                     break;
                 default:
                     break;
             }
-            if (newState != null) {
+            if (newState != -1) {
                 context.setState(newState);
             }
         }
@@ -112,7 +113,7 @@ public class JSONReader implements Closeable {
         }
 
         final int token = parser.getLexer().token();
-        final JSONStreamState state = context.getState();
+        final int state = context.getState();
         switch (state) {
             case StartArray:
             case ArrayValue:
@@ -235,7 +236,7 @@ public class JSONReader implements Closeable {
     }
 
     private void readBefore() {
-        JSONStreamState state = context.getState();
+        int state = context.getState();
         // before
         switch (state) {
             case PropertyKey:
@@ -257,27 +258,27 @@ public class JSONReader implements Closeable {
     }
 
     private void readAfter() {
-        JSONStreamState state = context.getState();
-        JSONStreamState newStat = null;
+        int state = context.getState();
+        int newStat = -1;
         switch (state) {
             case StartObject:
-                newStat = JSONStreamState.PropertyKey;
+                newStat = PropertyKey;
                 break;
             case PropertyKey:
-                newStat = JSONStreamState.PropertyValue;
+                newStat = PropertyValue;
                 break;
             case PropertyValue:
-                newStat = JSONStreamState.PropertyKey;
+                newStat = PropertyKey;
                 break;
             case ArrayValue:
                 break;
             case StartArray:
-                newStat = JSONStreamState.ArrayValue;
+                newStat = ArrayValue;
                 break;
             default:
                 throw new JSONException("illegal state : " + state);
         }
-        if (newStat != null) {
+        if (newStat != -1) {
             context.setState(newStat);
         }
     }

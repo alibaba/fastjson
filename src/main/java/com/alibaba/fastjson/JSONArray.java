@@ -47,10 +47,10 @@ import com.alibaba.fastjson.util.TypeUtils;
  */
 public class JSONArray extends JSON implements List<Object>, JSONAware, Cloneable, RandomAccess, Serializable {
 
-    private static final long    serialVersionUID = 1L;
-    private final List<Object>   list;
+    private static final long  serialVersionUID = 1L;
+    private final List<Object> list;
     protected transient Object relatedArray;
-    protected transient Type     componentType;
+    protected transient Type   componentType;
 
     public JSONArray(){
         this.list = new ArrayList<Object>(10);

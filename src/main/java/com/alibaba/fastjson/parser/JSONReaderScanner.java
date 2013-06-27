@@ -218,6 +218,9 @@ public final class JSONReaderScanner extends JSONLexer {
                     case '"':
                         putChar('"');
                         break;
+                    case '\'':
+                        putChar('\'');
+                        break;
                     case '\\':
                         putChar('\\');
                         break;
@@ -281,103 +284,105 @@ public final class JSONReaderScanner extends JSONLexer {
     }
 
     public final void scanStringSingleQuote() {
-        np = bp;
-        hasSpecial = false;
-        char chLocal;
-        for (;;) {
-            next();
-            chLocal = charAt(++bp);
+    	 np = bp;
+         hasSpecial = false;
 
-            if (chLocal == '\'') {
-                break;
-            }
+         int offset = 0;
 
-            if (chLocal == EOI) {
-                throw new JSONException("unclosed single-quote string");
-            }
+         char chLocal;
+         for (;;) {
+             chLocal = charAt(bp + (++offset));
 
-            if (chLocal == '\\') {
-                if (!hasSpecial) {
-                    hasSpecial = true;
+             if (chLocal == '\'') {
+                 break;
+             }
 
-                    if (sp > sbuf.length) {
-                        char[] newsbuf = new char[sp * 2];
-                        System.arraycopy(sbuf, 0, newsbuf, 0, sbuf.length);
-                        sbuf = newsbuf;
-                    }
+             if (chLocal == '\\') {
+                 if (!hasSpecial) {
+                     hasSpecial = true;
 
-                    // text.getChars(np + 1, np + 1 + sp, sbuf, 0);
-                    System.arraycopy(buf, np + 1, sbuf, 0, sp);
-                }
+                     if (sp >= sbuf.length) {
+                         int newCapcity = sbuf.length * 2;
+                         if (sp > newCapcity) {
+                             newCapcity = sp;
+                         }
+                         char[] newsbuf = new char[newCapcity];
+                         System.arraycopy(sbuf, 0, newsbuf, 0, sbuf.length);
+                         sbuf = newsbuf;
+                     }
 
-                chLocal = charAt(++bp);
+                     copyTo(bp + 1, sp, sbuf);
+                 }
 
-                switch (chLocal) {
-                    case '"':
-                        putChar('"');
-                        break;
-                    case '\\':
-                        putChar('\\');
-                        break;
-                    case '/':
-                        putChar('/');
-                        break;
-                    case '\'':
-                        putChar('\'');
-                        break;
-                    case 'b':
-                        putChar('\b');
-                        break;
-                    case 'f':
-                    case 'F':
-                        putChar('\f');
-                        break;
-                    case 'n':
-                        putChar('\n');
-                        break;
-                    case 'r':
-                        putChar('\r');
-                        break;
-                    case 't':
-                        putChar('\t');
-                        break;
-                    case 'x':
-                        char x1 = chLocal = charAt(++bp);
-                        char x2 = chLocal = charAt(++bp);
+                 chLocal = charAt(bp + (++offset));
 
-                        int x_val = digits[x1] * 16 + digits[x2];
-                        char x_char = (char) x_val;
-                        putChar(x_char);
-                        break;
-                    case 'u':
-                        char c1 = chLocal = charAt(++bp);
-                        char c2 = chLocal = charAt(++bp);
-                        char c3 = chLocal = charAt(++bp);
-                        char c4 = chLocal = charAt(++bp);
-                        int val = Integer.parseInt(new String(new char[] { c1, c2, c3, c4 }), 16);
-                        putChar((char) val);
-                        break;
-                    default:
-                        this.ch = chLocal;
-                        throw new JSONException("unclosed single-quote string");
-                }
-                continue;
-            }
+                 switch (chLocal) {
+                     case '"':
+                         putChar('"');
+                         break;
+                     case '\'':
+                         putChar('\'');
+                         break;
+                     case '\\':
+                         putChar('\\');
+                         break;
+                     case '/':
+                         putChar('/');
+                         break;
+                     case 'b':
+                         putChar('\b');
+                         break;
+                     case 'f':
+                     case 'F':
+                         putChar('\f');
+                         break;
+                     case 'n':
+                         putChar('\n');
+                         break;
+                     case 'r':
+                         putChar('\r');
+                         break;
+                     case 't':
+                         putChar('\t');
+                         break;
+                     case 'x':
+                         char x1 = chLocal = charAt(++bp);
+                         char x2 = chLocal = charAt(++bp);
 
-            if (!hasSpecial) {
-                sp++;
-                continue;
-            }
+                         int x_val = digits[x1] * 16 + digits[x2];
+                         char x_char = (char) x_val;
+                         putChar(x_char);
+                         break;
+                     case 'u':
+                         char u1 = chLocal = charAt(++bp);
+                         char u2 = chLocal = charAt(++bp);
+                         char u3 = chLocal = charAt(++bp);
+                         char u4 = chLocal = charAt(++bp);
+                         int val = Integer.parseInt(new String(new char[] { u1, u2, u3, u4 }), 16);
+                         putChar((char) val);
+                         break;
+                     default:
+                         this.ch = chLocal;
+                         throw new JSONException("unclosed string : " + chLocal);
+                 }
+                 continue;
+             }
 
-            if (sp == sbuf.length) {
-                putChar(chLocal);
-            } else {
-                sbuf[sp++] = chLocal;
-            }
-        }
+             if (!hasSpecial) {
+                 sp++;
+                 continue;
+             }
 
-        token = LITERAL_STRING;
-        this.next();
+             if (sp == sbuf.length) {
+                 putChar(chLocal);
+             } else {
+                 sbuf[sp++] = chLocal;
+             }
+         }
+
+         bp += offset;
+         token = LITERAL_STRING;
+         this.next();
     }
 
     protected final void copyTo(int offset, int count, char[] dest) {
@@ -731,17 +736,5 @@ public final class JSONReaderScanner extends JSONLexer {
     @Override
     public boolean isEOF() {
         return bufLength == -1 || bp == buf.length || ch == EOI && bp + 1 == buf.length;
-    }
-
-    public final boolean isRef() {
-        if (hasSpecial) {
-            return false;
-        }
-
-        if (sp != 4) {
-            return false;
-        }
-
-        return charAt(np + 1) == '$' && charAt(np + 2) == 'r' && charAt(np + 3) == 'e' && charAt(np + 4) == 'f';
     }
 }

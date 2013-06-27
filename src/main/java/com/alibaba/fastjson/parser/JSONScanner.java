@@ -869,18 +869,6 @@ public final class JSONScanner extends JSONLexer {
         return bp == text.length() || ch == EOI && bp + 1 == text.length();
     }
 
-    public final boolean isRef() {
-        if (hasSpecial) {
-            return false;
-        }
-
-        if (sp != 4) {
-            return false;
-        }
-
-        return charAt(np + 1) == '$' && charAt(np + 2) == 'r' && charAt(np + 3) == 'e' && charAt(np + 4) == 'f';
-    }
-
     public int scanFieldInt(char[] fieldName) {
         matchStat = UNKOWN;
         int startPos = this.bp;

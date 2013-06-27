@@ -6,15 +6,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
+
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.parser.DefaultExtJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 
+@SuppressWarnings("deprecation")
 public class DefaultExtJSONParser_parseArray_2 extends TestCase {
 
-    public void test_0() throws Exception {
+	public void test_0() throws Exception {
         DefaultExtJSONParser parser = new DefaultExtJSONParser("[['1']]");
         parser.config(Feature.AllowISO8601DateFormat, false);
         List<List<Integer>> list = (List<List<Integer>>) parser.parseArrayWithType(new TypeReference<List<List<Integer>>>() {

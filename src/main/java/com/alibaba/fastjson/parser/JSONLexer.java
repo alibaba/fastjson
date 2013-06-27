@@ -707,7 +707,17 @@ public abstract class JSONLexer implements Closeable {
         this.sbuf = null;
     }
 
-    public abstract boolean isRef();
+    public final boolean isRef() {
+        if (hasSpecial) {
+            return false;
+        }
+
+        if (sp != 4) {
+            return false;
+        }
+
+        return charAt(np + 1) == '$' && charAt(np + 2) == 'r' && charAt(np + 3) == 'e' && charAt(np + 4) == 'f';
+    }
 
     public abstract int scanType(String type);
 

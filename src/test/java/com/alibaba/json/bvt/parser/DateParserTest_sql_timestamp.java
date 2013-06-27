@@ -1,6 +1,7 @@
 package com.alibaba.json.bvt.parser;
 
 import org.junit.Assert;
+
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
@@ -8,6 +9,7 @@ import com.alibaba.fastjson.parser.DefaultExtJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 
+@SuppressWarnings("deprecation")
 public class DateParserTest_sql_timestamp extends TestCase {
 
     public void f_test_date_0() throws Exception {
@@ -16,6 +18,7 @@ public class DateParserTest_sql_timestamp extends TestCase {
         java.sql.Timestamp date = parser.parseObject(java.sql.Timestamp.class);
 
         Assert.assertEquals(new java.sql.Timestamp(1294552193254L), date);
+        parser.close();
     }
 
     public void test_date_1() throws Exception {
@@ -26,6 +29,7 @@ public class DateParserTest_sql_timestamp extends TestCase {
         java.sql.Timestamp date = parser.parseObject(java.sql.Timestamp.class);
 
         Assert.assertEquals(new java.sql.Timestamp(1294552193254L), date);
+        parser.close();
     }
 
     public void test_date_2() throws Exception {
@@ -35,6 +39,7 @@ public class DateParserTest_sql_timestamp extends TestCase {
         java.sql.Timestamp date = parser.parseObject(java.sql.Timestamp.class);
 
         Assert.assertEquals(new java.sql.Timestamp(1294552193254L), date);
+        parser.close();
     }
 
     public void test_date_3() throws Exception {
@@ -45,6 +50,7 @@ public class DateParserTest_sql_timestamp extends TestCase {
         java.sql.Timestamp date = parser.parseObject(java.sql.Timestamp.class);
 
         Assert.assertEquals(new java.sql.Timestamp(1294552193000L), date);
+        parser.close();
     }
 
     public void test_date_4() throws Exception {
@@ -55,5 +61,6 @@ public class DateParserTest_sql_timestamp extends TestCase {
         java.sql.Timestamp date = parser.parseObject(java.sql.Timestamp.class);
 
         Assert.assertEquals(new java.sql.Timestamp(1294502400000L), date);
+        parser.close();
     }
 }

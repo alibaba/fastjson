@@ -22,6 +22,8 @@ public class JSONReaderTest_object_object extends TestCase {
         while (reader.hasNext()) {
             String key = (String) reader.readObject();
             Object value = reader.readObject();
+            Assert.assertNotNull(key);
+            Assert.assertNotNull(value);
             count++;
         }
         Assert.assertEquals(10, count);
@@ -38,11 +40,48 @@ public class JSONReaderTest_object_object extends TestCase {
         while (reader.hasNext()) {
             String key = (String) reader.readObject();
             Object value = reader.readObject();
+            
+            Assert.assertNotNull(key);
+            Assert.assertNotNull(value);
+            
             count++;
         }
         Assert.assertEquals(10, count);
 
         reader.endObject();
+        reader.close();
+    }
+
+    public void test_read_2() throws Exception {
+        JSONReader reader = new JSONReader(new JSONScanner("{{}:{},{}:{}}"));
+        reader.startObject();
+
+        Assert.assertTrue(reader.hasNext());
+        reader.startObject();
+        reader.endObject();
+
+        reader.startObject();
+        reader.endObject();
+
+        Assert.assertTrue(reader.hasNext());
+        reader.startObject();
+        reader.endObject();
+
+        reader.startObject();
+        reader.endObject();
+        
+        Assert.assertFalse(reader.hasNext());
+
+        reader.endObject();
+
+        Exception error = null;
+        try {
+            reader.hasNext();
+        } catch (Exception ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+
         reader.close();
     }
 }

@@ -91,6 +91,9 @@ public final class JSONReaderScanner extends JSONLexer {
     public final char charAt(int index) {
         if (index >= bufLength) {
             if (bufLength == -1) {
+                if (index < sp) {
+                    return buf[index];
+                }
                 return EOI;
             }
 

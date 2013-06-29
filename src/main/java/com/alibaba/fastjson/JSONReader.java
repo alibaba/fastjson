@@ -16,6 +16,7 @@ import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONReaderScanner;
 import com.alibaba.fastjson.parser.JSONToken;
+import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.TypeUtils;
 
 public class JSONReader implements Closeable {
@@ -77,6 +78,7 @@ public class JSONReader implements Closeable {
             case PropertyKey:
                 parser.accept(JSONToken.COLON);
                 break;
+            case PropertyValue:
             case ArrayValue:
                 parser.accept(JSONToken.COMMA);
                 break;
@@ -102,6 +104,10 @@ public class JSONReader implements Closeable {
                     break;
                 case StartArray:
                     newState = ArrayValue;
+                    break;
+                case PropertyValue:
+                case StartObject:
+                    newState = PropertyKey;
                     break;
                 default:
                     break;
@@ -132,7 +138,7 @@ public class JSONReader implements Closeable {
     }
 
     public void close() {
-        parser.close();
+        IOUtils.close(parser);
     }
 
     public Integer readInteger() {

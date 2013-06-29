@@ -2,15 +2,13 @@ package com.alibaba.fastjson.parser.deserializer;
 
 import java.awt.Font;
 import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.Set;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 
-public class FontDeserializer implements AutowiredObjectDeserializer {
+public class FontDeserializer implements ObjectDeserializer {
 
     public final static FontDeserializer instance = new FontDeserializer();
 
@@ -80,9 +78,5 @@ public class FontDeserializer implements AutowiredObjectDeserializer {
 
     public int getFastMatchToken() {
         return JSONToken.LBRACE;
-    }
-
-    public Set<Type> getAutowiredFor() {
-        return Collections.<Type>singleton(Font.class);
     }
 }

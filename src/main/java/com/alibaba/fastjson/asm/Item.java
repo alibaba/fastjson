@@ -174,8 +174,6 @@ final class Item {
             case ClassWriter.INT:
             case ClassWriter.FLOAT:
                 return i.intVal == intVal;
-            case ClassWriter.TYPE_UNINIT:
-                return i.intVal == intVal && i.strVal1.equals(strVal1);
             case ClassWriter.NAME_TYPE:
                 return i.strVal1.equals(strVal1) && i.strVal2.equals(strVal2);
                 // case ClassWriter.FIELD:

@@ -1,6 +1,7 @@
 package com.alibaba.json.bvt.parser.deser;
 
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -13,6 +14,13 @@ public class DateFormatDeserializerTest extends TestCase {
     public void test_dateFormat_empty() throws Exception {
         VO vo = JSON.parseObject("{\"format\":\"\"}", VO.class);
         Assert.assertEquals(null, vo.getFormat());
+    }
+    
+    public void test_dateFormat_array() throws Exception {
+        List<SimpleDateFormat> list = JSON.parseArray("[\"\",null,\"yyyy\"]", SimpleDateFormat.class);
+        Assert.assertEquals(null, list.get(0));
+        Assert.assertEquals(null, list.get(1));
+        Assert.assertEquals(new SimpleDateFormat("yyyy"), list.get(2));
     }
 
     public void test_dateFormat_null() throws Exception {

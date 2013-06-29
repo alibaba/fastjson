@@ -31,6 +31,6 @@ public class DateFormatDeserializer extends AbstractDateDeserializer implements 
     }
 
     public int getFastMatchToken() {
-        return JSONToken.LITERAL_INT;
+        return JSONToken.LITERAL_STRING;
     }
 }

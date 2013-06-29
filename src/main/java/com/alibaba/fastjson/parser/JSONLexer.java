@@ -160,9 +160,6 @@ public abstract class JSONLexer implements Closeable {
                 case 'n': // new,null
                     scanNullOrNew();
                     return;
-                case 'D': // Date
-                    scanIdent();
-                    return;
                 case '(':
                     next();
                     token = LPAREN;
@@ -454,14 +451,6 @@ public abstract class JSONLexer implements Closeable {
         if (negative) {
             if (i > np + 1) {
                 if (result >= Integer.MIN_VALUE && type != 'L') {
-                    if (type == 'S') {
-                        return (short) result;
-                    }
-
-                    if (type == 'B') {
-                        return (byte) result;
-                    }
-
                     return (int) result;
                 }
                 return result;
@@ -992,10 +981,6 @@ public abstract class JSONLexer implements Closeable {
     }
 
     public final boolean isRef() {
-        if (hasSpecial) {
-            return false;
-        }
-
         if (sp != 4) {
             return false;
         }

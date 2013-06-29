@@ -21,6 +21,7 @@ import static com.alibaba.fastjson.parser.JSONToken.EOF;
 import static com.alibaba.fastjson.parser.JSONToken.ERROR;
 import static com.alibaba.fastjson.parser.JSONToken.LBRACE;
 import static com.alibaba.fastjson.parser.JSONToken.LBRACKET;
+import static com.alibaba.fastjson.parser.JSONToken.LITERAL_STRING;
 import static com.alibaba.fastjson.parser.JSONToken.LPAREN;
 import static com.alibaba.fastjson.parser.JSONToken.RBRACE;
 import static com.alibaba.fastjson.parser.JSONToken.RBRACKET;
@@ -342,13 +343,13 @@ public abstract class JSONLexer implements Closeable {
             break;
         }
     }
-    
+
     public final void nextIdent() {
         while (isWhitespace(ch)) {
             next();
         }
         if (ch == '_' || Character.isLetter(ch)) {
-            scanIdent();            
+            scanIdent();
         } else {
             nextToken();
         }
@@ -582,8 +583,6 @@ public abstract class JSONLexer implements Closeable {
 
     public abstract boolean isEOF();
 
-    public abstract String symbol(SymbolTable symbolTable);
-
     public final char getCurrent() {
         return ch;
     }
@@ -631,17 +630,302 @@ public abstract class JSONLexer implements Closeable {
         return scanSymbolUnQuoted(symbolTable);
     }
 
-    public abstract String scanSymbol(final SymbolTable symbolTable, final char quote);
+//    public abstract String scanSymbol(final SymbolTable symbolTable, final char quote);
+    
+    protected abstract void arrayCopy(int srcPos, char[] dest, int destPos, int length);
+    
+    public final String scanSymbol(final SymbolTable symbolTable, final char quote) {
+        int hash = 0;
+
+        np = bp;
+        sp = 0;
+        boolean hasSpecial = false;
+        char chLocal;
+        for (;;) {
+            chLocal = charAt(++bp);
+
+            if (chLocal == quote) {
+                break;
+            }
+
+            if (chLocal == EOI) {
+                throw new JSONException("unclosed.str");
+            }
+
+            if (chLocal == '\\') {
+                if (!hasSpecial) {
+                    hasSpecial = true;
+
+                    if (sp >= sbuf.length) {
+                        int newCapcity = sbuf.length * 2;
+                        if (sp > newCapcity) {
+                            newCapcity = sp;
+                        }
+                        char[] newsbuf = new char[newCapcity];
+                        System.arraycopy(sbuf, 0, newsbuf, 0, sbuf.length);
+                        sbuf = newsbuf;
+                    }
+
+                    // text.getChars(np + 1, np + 1 + sp, sbuf, 0);
+//                    System.arraycopy(this.buf, np + 1, sbuf, 0, sp);
+                    arrayCopy(np + 1, sbuf, 0, sp);
+                }
+
+                chLocal = charAt(++bp);
+
+                switch (chLocal) {
+                    case '"':
+                        hash = 31 * hash + (int) '"';
+                        putChar('"');
+                        break;
+                    case '\\':
+                        hash = 31 * hash + (int) '\\';
+                        putChar('\\');
+                        break;
+                    case '/':
+                        hash = 31 * hash + (int) '/';
+                        putChar('/');
+                        break;
+                    case 'b':
+                        hash = 31 * hash + (int) '\b';
+                        putChar('\b');
+                        break;
+                    case 'f':
+                    case 'F':
+                        hash = 31 * hash + (int) '\f';
+                        putChar('\f');
+                        break;
+                    case 'n':
+                        hash = 31 * hash + (int) '\n';
+                        putChar('\n');
+                        break;
+                    case 'r':
+                        hash = 31 * hash + (int) '\r';
+                        putChar('\r');
+                        break;
+                    case 't':
+                        hash = 31 * hash + (int) '\t';
+                        putChar('\t');
+                        break;
+                    case 'u':
+                        char c1 = chLocal = charAt(++bp);
+                        char c2 = chLocal = charAt(++bp);
+                        char c3 = chLocal = charAt(++bp);
+                        char c4 = chLocal = charAt(++bp);
+                        int val = Integer.parseInt(new String(new char[] { c1, c2, c3, c4 }), 16);
+                        hash = 31 * hash + val;
+                        putChar((char) val);
+                        break;
+                    default:
+                        this.ch = chLocal;
+                        throw new JSONException("unclosed.str.lit");
+                }
+                continue;
+            }
+
+            hash = 31 * hash + chLocal;
+
+            if (!hasSpecial) {
+                sp++;
+                continue;
+            }
+
+            if (sp == sbuf.length) {
+                putChar(chLocal);
+            } else {
+                sbuf[sp++] = chLocal;
+            }
+        }
+
+        token = LITERAL_STRING;
+        this.next();
+
+        if (!hasSpecial) {
+            // return this.text.substring(np + 1, np + 1 + sp).intern();
+            return addSymbol(np + 1, sp, hash, symbolTable);
+        } else {
+            return symbolTable.addSymbol(sbuf, 0, sp, hash);
+        }
+    }
 
     public final void resetStringPosition() {
         this.sp = 0;
     }
 
-    public abstract String scanSymbolUnQuoted(final SymbolTable symbolTable);
+    public final String scanSymbolUnQuoted(final SymbolTable symbolTable) {
+        final boolean[] firstIdentifierFlags = CharTypes.firstIdentifierFlags;
+        final char first = ch;
+
+        final boolean firstFlag = ch >= firstIdentifierFlags.length || firstIdentifierFlags[first];
+        if (!firstFlag) {
+            throw new JSONException("illegal identifier : " + ch);
+        }
+
+        final boolean[] identifierFlags = CharTypes.identifierFlags;
+
+        int hash = first;
+
+        np = bp;
+        sp = 1;
+        char chLocal;
+        for (;;) {
+            chLocal = charAt(++bp);
+
+            if (chLocal < identifierFlags.length) {
+                if (!identifierFlags[chLocal]) {
+                    break;
+                }
+            }
+
+            hash = 31 * hash + chLocal;
+
+            sp++;
+            continue;
+        }
+
+        this.ch = charAt(bp);
+        token = JSONToken.IDENTIFIER;
+
+        final int NULL_HASH = 3392903;
+        if (sp == 4 && hash == NULL_HASH && charAt(np) == 'n' && charAt(np + 1) == 'u' && charAt(np + 2) == 'l'
+            && charAt(np + 3) == 'l') {
+            return null;
+        }
+
+        // return text.substring(np, np + sp).intern();
+
+        return this.addSymbol(np, sp, hash, symbolTable);
+//        return symbolTable.addSymbol(buf, np, sp, hash);
+    }
 
     protected abstract void copyTo(int offset, int count, char[] dest);
 
-    public abstract void scanString();
+    public final void scanString() {
+        np = bp;
+        hasSpecial = false;
+        char ch;
+        for (;;) {
+            ch = charAt(++bp);
+
+            if (ch == '\"') {
+                break;
+            }
+
+            if (ch == '\\') {
+                if (!hasSpecial) {
+                    hasSpecial = true;
+
+                    if (sp >= sbuf.length) {
+                        int newCapcity = sbuf.length * 2;
+                        if (sp > newCapcity) {
+                            newCapcity = sp;
+                        }
+                        char[] newsbuf = new char[newCapcity];
+                        System.arraycopy(sbuf, 0, newsbuf, 0, sbuf.length);
+                        sbuf = newsbuf;
+                    }
+
+                    copyTo(np + 1, sp, sbuf);
+//                    text.getChars(np + 1, np + 1 + sp, sbuf, 0);
+                    // System.arraycopy(buf, np + 1, sbuf, 0, sp);
+                }
+
+                ch = charAt(++bp);
+
+                switch (ch) {
+                    case '0':
+                        putChar('\0');
+                        break;
+                    case '1':
+                        putChar('\1');
+                        break;
+                    case '2':
+                        putChar('\2');
+                        break;
+                    case '3':
+                        putChar('\3');
+                        break;
+                    case '4':
+                        putChar('\4');
+                        break;
+                    case '5':
+                        putChar('\5');
+                        break;
+                    case '6':
+                        putChar('\6');
+                        break;
+                    case '7':
+                        putChar('\7');
+                        break;
+                    case 'b': // 8
+                        putChar('\b');
+                        break;
+                    case 't': // 9
+                        putChar('\t');
+                        break;
+                    case 'n': // 10
+                        putChar('\n');
+                        break;
+                    case 'v': // 11
+                        putChar('\u000B');
+                        break;
+                    case 'f': // 12
+                    case 'F':
+                        putChar('\f');
+                        break;
+                    case 'r': // 13
+                        putChar('\r');
+                        break;
+                    case '"': // 34
+                        putChar('"');
+                        break;
+                    case '\'': // 39
+                        putChar('\'');
+                        break;
+                    case '/': // 47
+                        putChar('/');
+                        break;
+                    case '\\':  // 92
+                        putChar('\\');
+                        break;
+                    case 'x':
+                        char x1 = ch = charAt(++bp);
+                        char x2 = ch = charAt(++bp);
+
+                        int x_val = digits[x1] * 16 + digits[x2];
+                        char x_char = (char) x_val;
+                        putChar(x_char);
+                        break;
+                    case 'u':
+                        char u1 = ch = charAt(++bp);
+                        char u2 = ch = charAt(++bp);
+                        char u3 = ch = charAt(++bp);
+                        char u4 = ch = charAt(++bp);
+                        int val = Integer.parseInt(new String(new char[] { u1, u2, u3, u4 }), 16);
+                        putChar((char) val);
+                        break;
+                    default:
+                        this.ch = ch;
+                        throw new JSONException("unclosed string : " + ch);
+                }
+                continue;
+            }
+
+            if (!hasSpecial) {
+                sp++;
+                continue;
+            }
+
+            if (sp == sbuf.length) {
+                putChar(ch);
+            } else {
+                sbuf[sp++] = ch;
+            }
+        }
+
+        token = JSONToken.LITERAL_STRING;
+        this.ch = charAt(++bp);
+    }
 
     public Calendar getCalendar() {
         return this.calendar;
@@ -719,9 +1003,77 @@ public abstract class JSONLexer implements Closeable {
         return charAt(np + 1) == '$' && charAt(np + 2) == 'r' && charAt(np + 3) == 'e' && charAt(np + 4) == 'f';
     }
 
-    public abstract int scanType(String type);
+    protected final static char[] typeFieldName = ("\"" + JSON.DEFAULT_TYPE_KEY + "\":\"").toCharArray();
+    public final int scanType(String type) {
+        matchStat = UNKOWN;
 
-    public abstract boolean matchField(char[] fieldName);
+        if (!charArrayCompare(typeFieldName)) {
+            return NOT_MATCH_NAME;
+        }
+
+        int bpLocal = this.bp + typeFieldName.length;
+
+        final int typeLength = type.length();
+        for (int i = 0; i < typeLength; ++i) {
+            if (type.charAt(i) != charAt(bpLocal + i)) {
+                return NOT_MATCH;
+            }
+        }
+        bpLocal += typeLength;
+        if (charAt(bpLocal) != '"') {
+            return NOT_MATCH;
+        }
+
+        this.ch = charAt(++bpLocal);
+
+        if (ch == ',') {
+            this.ch = charAt(++bpLocal);
+            this.bp = bpLocal;
+            token = JSONToken.COMMA;
+            return VALUE;
+        } else if (ch == '}') {
+            ch = charAt(++bpLocal);
+            if (ch == ',') {
+                token = JSONToken.COMMA;
+                this.ch = charAt(++bpLocal);
+            } else if (ch == ']') {
+                token = JSONToken.RBRACKET;
+                this.ch = charAt(++bpLocal);
+            } else if (ch == '}') {
+                token = JSONToken.RBRACE;
+                this.ch = charAt(++bpLocal);
+            } else if (ch == EOI) {
+                token = JSONToken.EOF;
+            } else {
+                return NOT_MATCH;
+            }
+            matchStat = END;
+        }
+
+        this.bp = bpLocal;
+        return matchStat;
+    }
+
+    public final boolean matchField(char[] fieldName) {
+        if (!charArrayCompare(fieldName)) {
+            return false;
+        }
+
+        bp = bp + fieldName.length;
+        ch = charAt(bp);
+
+        if (ch == '{') {
+            next();
+            token = JSONToken.LBRACE;
+        } else if (ch == '[') {
+            next();
+            token = JSONToken.LBRACKET;
+        } else {
+            nextToken();
+        }
+
+        return true;
+    }
 
     public abstract int indexOf(char ch, int startIndex);
 
@@ -1584,7 +1936,29 @@ public abstract class JSONLexer implements Closeable {
         }
     }
 
-    public abstract void scanIdent();
+    public final void scanIdent() {
+        np = bp - 1;
+        hasSpecial = false;
+
+        for (;;) {
+            sp++;
+
+            next();
+            if (Character.isLetterOrDigit(ch)) {
+                continue;
+            }
+
+            String ident = stringVal();
+
+            Integer tok = keywods.getKeyword(ident);
+            if (tok != null) {
+                token = tok;
+            } else {
+                token = JSONToken.IDENTIFIER;
+            }
+            return;
+        }
+    }
 
     public abstract String stringVal();
 
@@ -1618,7 +1992,132 @@ public abstract class JSONLexer implements Closeable {
         }
     }
 
-    public abstract void scanStringSingleQuote();
+    public final void scanStringSingleQuote() {
+        np = bp;
+        hasSpecial = false;
+        char chLocal;
+        for (;;) {
+            chLocal = charAt(++bp);
+
+            if (chLocal == '\'') {
+                break;
+            }
+
+            if (chLocal == EOI) {
+                throw new JSONException("unclosed single-quote string");
+            }
+
+            if (chLocal == '\\') {
+                if (!hasSpecial) {
+                    hasSpecial = true;
+
+                    if (sp > sbuf.length) {
+                        char[] newsbuf = new char[sp * 2];
+                        System.arraycopy(sbuf, 0, newsbuf, 0, sbuf.length);
+                        sbuf = newsbuf;
+                    }
+
+                    //text.getChars(offset, offset + count, dest, 0);
+                    this.copyTo(np + 1, sp, sbuf);
+                    // System.arraycopy(buf, np + 1, sbuf, 0, sp);
+                }
+
+                chLocal = charAt(++bp);
+
+                switch (chLocal) {
+                    case '0':
+                        putChar('\0');
+                        break;
+                    case '1':
+                        putChar('\1');
+                        break;
+                    case '2':
+                        putChar('\2');
+                        break;
+                    case '3':
+                        putChar('\3');
+                        break;
+                    case '4':
+                        putChar('\4');
+                        break;
+                    case '5':
+                        putChar('\5');
+                        break;
+                    case '6':
+                        putChar('\6');
+                        break;
+                    case '7':
+                        putChar('\7');
+                        break;
+                    case 'b': // 8
+                        putChar('\b');
+                        break;
+                    case 't': // 9
+                        putChar('\t');
+                        break;
+                    case 'n': // 10
+                        putChar('\n');
+                        break;
+                    case 'v': // 11
+                        putChar('\u000B');
+                        break;
+                    case 'f': // 12
+                    case 'F':
+                        putChar('\f');
+                        break;
+                    case 'r': // 13
+                        putChar('\r');
+                        break;
+                    case '"': // 34
+                        putChar('"');
+                        break;
+                    case '\'': // 39
+                        putChar('\'');
+                        break;
+                    case '/': // 47
+                        putChar('/');
+                        break;
+                    case '\\': // 92
+                        putChar('\\');
+                        break;
+                    case 'x':
+                        char x1 = chLocal = charAt(++bp);
+                        char x2 = chLocal = charAt(++bp);
+
+                        int x_val = digits[x1] * 16 + digits[x2];
+                        char x_char = (char) x_val;
+                        putChar(x_char);
+                        break;
+                    case 'u':
+                        char c1 = chLocal = charAt(++bp);
+                        char c2 = chLocal = charAt(++bp);
+                        char c3 = chLocal = charAt(++bp);
+                        char c4 = chLocal = charAt(++bp);
+                        int val = Integer.parseInt(new String(new char[] { c1, c2, c3, c4 }), 16);
+                        putChar((char) val);
+                        break;
+                    default:
+                        this.ch = chLocal;
+                        throw new JSONException("unclosed single-quote string");
+                }
+                continue;
+            }
+
+            if (!hasSpecial) {
+                sp++;
+                continue;
+            }
+
+            if (sp == sbuf.length) {
+                putChar(chLocal);
+            } else {
+                sbuf[sp++] = chLocal;
+            }
+        }
+
+        token = LITERAL_STRING;
+        this.next();
+    }
 
     public final void scanSet() {
         if (ch != 'S') {
@@ -1809,6 +2308,21 @@ public abstract class JSONLexer implements Closeable {
 
     public final BigDecimal decimalValue() {
         return new BigDecimal(numberString());
+    }
+
+    public final Number numberValue() {
+        char type = charAt(np + sp - 1);
+
+        String str = this.numberString();
+
+        switch (type) {
+            case 'D':
+                return Double.parseDouble(str);
+            case 'F':
+                return Float.parseFloat(str);
+            default:
+                return new BigDecimal(str);
+        }
     }
 
     public static final boolean isWhitespace(char ch) {

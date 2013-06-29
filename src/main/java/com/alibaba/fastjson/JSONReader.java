@@ -1,11 +1,16 @@
 package com.alibaba.fastjson;
 
+import static com.alibaba.fastjson.JSONStreamContext.ArrayValue;
+import static com.alibaba.fastjson.JSONStreamContext.PropertyKey;
+import static com.alibaba.fastjson.JSONStreamContext.PropertyValue;
+import static com.alibaba.fastjson.JSONStreamContext.StartArray;
+import static com.alibaba.fastjson.JSONStreamContext.StartObject;
+
 import java.io.Closeable;
 import java.io.Reader;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import static com.alibaba.fastjson.JSONStreamContext.*;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
@@ -19,7 +24,7 @@ public class JSONReader implements Closeable {
     private JSONStreamContext       context;
 
     public JSONReader(Reader reader){
-        this(new DefaultJSONParser(new JSONReaderScanner(reader)));
+        this(new JSONReaderScanner(reader));
     }
 
     public JSONReader(JSONLexer lexer){
@@ -67,7 +72,7 @@ public class JSONReader implements Closeable {
     }
 
     private void startStructure() {
-        int state = context.getState();
+        final int state = context.getState();
         switch (state) {
             case PropertyKey:
                 parser.accept(JSONToken.COLON);

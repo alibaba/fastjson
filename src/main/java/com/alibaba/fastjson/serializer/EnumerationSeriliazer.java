@@ -50,20 +50,6 @@ public class EnumerationSeriliazer implements ObjectSerializer {
 
                 Class<?> clazz = item.getClass();
 
-                if (clazz == Integer.class) {
-                    out.writeInt(((Integer) item).intValue());
-                    continue;
-                }
-
-                if (clazz == Long.class) {
-                    out.writeLong(((Long) item).longValue());
-
-                    if (out.isEnabled(SerializerFeature.WriteClassName)) {
-                        out.write('L');
-                    }
-                    continue;
-                }
-
                 ObjectSerializer itemSerializer = serializer.getObjectWriter(clazz);
                 itemSerializer.write(serializer, item, i - 1, elementType);
             }

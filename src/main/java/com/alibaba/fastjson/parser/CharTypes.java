@@ -121,27 +121,4 @@ public final class CharTypes {
             '1', 'C', '1', 'D', '1', 'E', '1', 'F', '2', '0', '2', '1', '2', '2', '2', '3', '2', '4', '2', '5', '2',
             '6', '2', '7', '2', '8', '2', '9', '2', 'A', '2', 'B', '2', 'C', '2', 'D', '2', 'E', '2', 'F', };
 
-    public final static boolean isEmoji(char ch) {
-        if (ch >= '\uE001' && ch <= '\uE05A') {
-            return true;
-        }
-
-        if (ch >= '\uE101' && ch <= '\uE15A') {
-            return true;
-        }
-
-        if (ch >= '\uE201' && ch <= '\uE253') {
-            return true;
-        }
-
-        if (ch >= '\uE401' && ch <= '\uE44C') {
-            return true;
-        }
-
-        if (ch >= '\uE501' && ch <= '\uE537') {
-            return true;
-        }
-
-        return false;
-    }
 }

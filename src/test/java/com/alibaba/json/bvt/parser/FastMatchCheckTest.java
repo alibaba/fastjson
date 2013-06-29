@@ -1,11 +1,11 @@
 package com.alibaba.json.bvt.parser;
 
-import org.junit.Assert;
 import junit.framework.TestCase;
+
+import org.junit.Assert;
 
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.deserializer.ArrayDeserializer;
-import com.alibaba.fastjson.parser.deserializer.ArrayListStringDeserializer;
 import com.alibaba.fastjson.parser.deserializer.AtomicIntegerArrayDeserializer;
 import com.alibaba.fastjson.parser.deserializer.AtomicLongArrayDeserializer;
 import com.alibaba.fastjson.parser.deserializer.CharacterDeserializer;
@@ -22,7 +22,6 @@ import com.alibaba.fastjson.parser.deserializer.TimestampDeserializer;
 public class FastMatchCheckTest extends TestCase {
     public void test_match() throws Exception {
         Assert.assertEquals(JSONToken.LBRACKET, AtomicIntegerArrayDeserializer.instance.getFastMatchToken());
-        Assert.assertEquals(JSONToken.LBRACKET, ArrayListStringDeserializer.instance.getFastMatchToken());
         Assert.assertEquals(JSONToken.LBRACKET, AtomicLongArrayDeserializer.instance.getFastMatchToken());
         Assert.assertEquals(JSONToken.LITERAL_STRING, InetAddressDeserializer.instance.getFastMatchToken());
         Assert.assertEquals(JSONToken.LITERAL_STRING, LocaleDeserializer.instance.getFastMatchToken());

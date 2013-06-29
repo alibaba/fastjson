@@ -1,7 +1,6 @@
 package com.alibaba.fastjson.util;
 
 import java.io.BufferedReader;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -12,8 +11,8 @@ import java.util.Set;
 
 public class ServiceLoader {
 
-    private static final String PREFIX = "META-INF/services/";
-    
+    private static final String      PREFIX     = "META-INF/services/";
+
     private static final Set<String> loadedUrls = new HashSet<String>();
 
     @SuppressWarnings("unchecked")
@@ -75,15 +74,8 @@ public class ServiceLoader {
                 set.add(line);
             }
         } finally {
-            close(reader);
-            close(is);
+            IOUtils.close(reader);
+            IOUtils.close(is);
         }
     }
-
-    public static void close(Closeable x) throws IOException {
-        if (x != null) {
-            x.close();
-        }
-    }
-
 }

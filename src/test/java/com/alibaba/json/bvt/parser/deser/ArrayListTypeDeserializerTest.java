@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Assert;
+
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
@@ -65,6 +66,7 @@ public class ArrayListTypeDeserializerTest extends TestCase {
             return value;
         }
 
+        @SuppressWarnings("unused")
         public void setValue(ArrayList<Integer> value) {
             this.value = value;
         }

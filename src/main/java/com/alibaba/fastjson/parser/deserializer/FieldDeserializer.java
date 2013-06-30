@@ -1,5 +1,6 @@
 package com.alibaba.fastjson.parser.deserializer;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -22,6 +23,10 @@ public abstract class FieldDeserializer {
 
     public Method getMethod() {
         return fieldInfo.getMethod();
+    }
+    
+    public Field getField() {
+        return fieldInfo.getField();
     }
 
     public Class<?> getFieldClass() {

@@ -184,6 +184,10 @@ public class DeserializeBeanInfo {
             }
 
             JSONField annotation = method.getAnnotation(JSONField.class);
+            
+            if (annotation == null) {
+                annotation = TypeUtils.getSupperMethodAnnotation(clazz, method);
+            }
 
             if (annotation != null) {
                 if (!annotation.deserialize()) {

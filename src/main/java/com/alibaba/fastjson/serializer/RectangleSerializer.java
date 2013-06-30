@@ -3,12 +3,10 @@ package com.alibaba.fastjson.serializer;
 import java.awt.Rectangle;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.Set;
 
 import com.alibaba.fastjson.JSON;
 
-public class RectangleSerializer implements AutowiredObjectSerializer {
+public class RectangleSerializer implements ObjectSerializer {
 
     public final static RectangleSerializer instance = new RectangleSerializer();
 
@@ -36,7 +34,4 @@ public class RectangleSerializer implements AutowiredObjectSerializer {
 
     }
 
-    public Set<Type> getAutowiredFor() {
-        return Collections.<Type>singleton(Rectangle.class);
-    }
 }

@@ -1,4 +1,4 @@
-package com.alibaba.fastjson;
+package com.alibaba.json.bvt.parser;
 
 import java.io.StringReader;
 
@@ -6,6 +6,7 @@ import junit.framework.TestCase;
 
 import org.junit.Assert;
 
+import com.alibaba.fastjson.JSONReader;
 import com.alibaba.fastjson.parser.JSONScanner;
 
 public class JSONReaderTest_object_object extends TestCase {

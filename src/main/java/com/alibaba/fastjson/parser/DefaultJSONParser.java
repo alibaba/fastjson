@@ -43,6 +43,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -292,7 +293,11 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                             }
 
                             if (instance == null) {
-                                instance = clazz.newInstance();
+                                if (clazz == Cloneable.class) {
+                                    instance = new HashMap();
+                                } else {
+                                    instance = clazz.newInstance();
+                                }
                             }
 
                             return instance;
@@ -1041,7 +1046,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
     public Object parse() {
         return parse(null);
     }
-    
+
     public Object parseKey() {
         if (lexer.token() == JSONToken.IDENTIFIER) {
             String value = lexer.stringVal();
@@ -1151,7 +1156,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                                     + JSONToken.name(lexer.token()));
         }
     }
-    
+
     public final void accept(final int token, int nextExpectToken) {
         final JSONLexer lexer = getLexer();
         if (lexer.token() == token) {

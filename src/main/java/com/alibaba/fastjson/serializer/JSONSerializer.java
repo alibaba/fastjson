@@ -137,18 +137,6 @@ public class JSONSerializer {
         }
     }
 
-    public void setContext(SerialContext parent, Object object) {
-        if (isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {
-            return;
-        }
-
-        this.context = new SerialContext(parent, object, null);
-        if (references == null) {
-            references = new IdentityHashMap<Object, SerialContext>();
-        }
-        this.references.put(object, context);
-    }
-
     public boolean isWriteClassName() {
         return isEnabled(SerializerFeature.WriteClassName);
     }
@@ -172,14 +160,6 @@ public class JSONSerializer {
         return true;
     }
 
-    public Collection<SerialContext> getReferences() {
-        if (references == null) {
-            references = new IdentityHashMap<Object, SerialContext>();
-        }
-
-        return references.values();
-    }
-
     public SerialContext getSerialContext(Object object) {
         if (references == null) {
             return null;
@@ -189,10 +169,6 @@ public class JSONSerializer {
     }
 
     public boolean containsReference(Object value) {
-        if (isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {
-            return false;
-        }
-
         if (references == null) {
             return false;
         }

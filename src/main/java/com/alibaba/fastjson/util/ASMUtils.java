@@ -8,11 +8,10 @@ import java.lang.reflect.Type;
 public class ASMUtils {
 
     public static boolean isAndroid(String vmName) {
-    	String lowerVMName = vmName.toLowerCase();
-    	
-        return lowerVMName.contains("dalvik") 
-                || lowerVMName.contains("lemur") // aliyun-vm name
-                ;
+        String lowerVMName = vmName.toLowerCase();
+
+        return lowerVMName.contains("dalvik") || lowerVMName.contains("lemur") // aliyun-vm name
+        ;
     }
 
     public static boolean isAndroid() {
@@ -28,17 +27,6 @@ public class ASMUtils {
         }
         buf.append(")");
         buf.append(getDesc(method.getReturnType()));
-        return buf.toString();
-    }
-
-    public static String getDesc(Constructor<?> constructor) {
-        StringBuffer buf = new StringBuffer();
-        buf.append("(");
-        java.lang.Class<?>[] types = constructor.getParameterTypes();
-        for (int i = 0; i < types.length; ++i) {
-            buf.append(getDesc(types[i]));
-        }
-        buf.append(")V");
         return buf.toString();
     }
 

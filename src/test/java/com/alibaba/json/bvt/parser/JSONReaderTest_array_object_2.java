@@ -1,4 +1,4 @@
-package com.alibaba.fastjson;
+package com.alibaba.json.bvt.parser;
 
 import java.io.StringReader;
 
@@ -6,11 +6,12 @@ import junit.framework.TestCase;
 
 import org.junit.Assert;
 
+import com.alibaba.fastjson.JSONReader;
 import com.alibaba.fastjson.parser.JSONScanner;
 
-public class JSONReaderTest_array_array_2 extends TestCase {
+public class JSONReaderTest_array_object_2 extends TestCase {
 
-    String text = "[[],[],[],[],[], [],[],[],[],[]]";
+    String text = "[{},{},{},{},{} ,{},{},{},{},{}]";
 
     public void test_read() throws Exception {
 
@@ -19,8 +20,8 @@ public class JSONReaderTest_array_array_2 extends TestCase {
 
         int count = 0;
         while (reader.hasNext()) {
-            reader.startArray();
-            reader.endArray();
+            reader.startObject();
+            reader.endObject();
             count++;
         }
         Assert.assertEquals(10, count);
@@ -35,8 +36,8 @@ public class JSONReaderTest_array_array_2 extends TestCase {
 
         int count = 0;
         while (reader.hasNext()) {
-            reader.startArray();
-            reader.endArray();
+            reader.startObject();
+            reader.endObject();
             count++;
         }
         Assert.assertEquals(10, count);

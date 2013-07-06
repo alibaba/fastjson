@@ -1,10 +1,12 @@
-package com.alibaba.fastjson;
+package com.alibaba.json.bvt.parser;
 
 import java.io.StringReader;
 
 import junit.framework.TestCase;
 
 import org.junit.Assert;
+
+import com.alibaba.fastjson.JSONReader;
 
 public class JSONReader_top extends TestCase {
 

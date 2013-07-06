@@ -43,7 +43,6 @@ import java.util.Set;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.util.AntiCollisionHashMap;
 import com.alibaba.fastjson.util.TypeUtils;
 
 /**
@@ -76,7 +75,7 @@ public class JSONObject extends JSON implements Map<String, Object>, JSONAware, 
         if (ordered) {
             map = new LinkedHashMap<String, Object>(initialCapacity);
         } else {
-            map = new AntiCollisionHashMap<String, Object>(initialCapacity);
+            map = new HashMap<String, Object>(initialCapacity);
         }
     }
 

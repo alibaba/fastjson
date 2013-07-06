@@ -25,7 +25,7 @@ import com.alibaba.fastjson.util.FieldInfo;
 /**
  * @author wenshao<szujobs@hotmail.com>
  */
-public abstract class FieldSerializer implements Comparable<FieldSerializer> {
+public abstract class FieldSerializer {
 
     protected final FieldInfo fieldInfo;
     private final String      double_quoted_fieldPrefix;
@@ -82,10 +82,6 @@ public abstract class FieldSerializer implements Comparable<FieldSerializer> {
         } else {
             out.write(un_quoted_fieldPrefix);
         }
-    }
-
-    public int compareTo(FieldSerializer o) {
-        return this.getName().compareTo(o.getName());
     }
 
     public Object getPropertyValue(Object object) throws Exception {

@@ -27,8 +27,9 @@ public class InetSocketAddressDeserializer implements ObjectDeserializer {
         InetAddress address = null;
         int port = 0;
         for (;;) {
-            String key = lexer.symbol(parser.getSymbolTable());
-            lexer.nextToken();
+            String key = lexer.stringVal();
+            lexer.nextToken(JSONToken.COLON);
+           
 
             if (key.equals("address")) {
                 parser.accept(JSONToken.COLON);

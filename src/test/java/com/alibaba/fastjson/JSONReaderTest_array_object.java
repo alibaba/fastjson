@@ -42,4 +42,20 @@ public class JSONReaderTest_array_object extends TestCase {
         reader.endArray();
         reader.close();
     }
+    
+    public void test_read_3() throws Exception {
+        JSONReader reader = new JSONReader(new JSONScanner(text));
+        reader.startArray();
+
+        int count = 0;
+        while (reader.hasNext()) {
+            reader.startObject();
+            reader.endObject();
+            count++;
+        }
+        Assert.assertEquals(10, count);
+
+        reader.endArray();
+        reader.close();
+    }
 }

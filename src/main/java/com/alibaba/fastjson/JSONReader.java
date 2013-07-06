@@ -1,16 +1,22 @@
 package com.alibaba.fastjson;
 
+import static com.alibaba.fastjson.JSONStreamContext.ArrayValue;
+import static com.alibaba.fastjson.JSONStreamContext.PropertyKey;
+import static com.alibaba.fastjson.JSONStreamContext.PropertyValue;
+import static com.alibaba.fastjson.JSONStreamContext.StartArray;
+import static com.alibaba.fastjson.JSONStreamContext.StartObject;
+
 import java.io.Closeable;
 import java.io.Reader;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import static com.alibaba.fastjson.JSONStreamContext.*;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONReaderScanner;
 import com.alibaba.fastjson.parser.JSONToken;
+import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.TypeUtils;
 
 public class JSONReader implements Closeable {
@@ -19,7 +25,7 @@ public class JSONReader implements Closeable {
     private JSONStreamContext       context;
 
     public JSONReader(Reader reader){
-        this(new DefaultJSONParser(new JSONReaderScanner(reader)));
+        this(new JSONReaderScanner(reader));
     }
 
     public JSONReader(JSONLexer lexer){
@@ -67,11 +73,12 @@ public class JSONReader implements Closeable {
     }
 
     private void startStructure() {
-        int state = context.getState();
+        final int state = context.getState();
         switch (state) {
             case PropertyKey:
                 parser.accept(JSONToken.COLON);
                 break;
+            case PropertyValue:
             case ArrayValue:
                 parser.accept(JSONToken.COMMA);
                 break;
@@ -97,6 +104,10 @@ public class JSONReader implements Closeable {
                     break;
                 case StartArray:
                     newState = ArrayValue;
+                    break;
+                case PropertyValue:
+                case StartObject:
+                    newState = PropertyKey;
                     break;
                 default:
                     break;
@@ -127,7 +138,7 @@ public class JSONReader implements Closeable {
     }
 
     public void close() {
-        parser.close();
+        IOUtils.close(parser);
     }
 
     public Integer readInteger() {

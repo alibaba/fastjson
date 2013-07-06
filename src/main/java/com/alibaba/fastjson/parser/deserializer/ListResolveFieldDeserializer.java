@@ -47,17 +47,8 @@ public final class ListResolveFieldDeserializer extends FieldDeserializer {
         }
     }
 
-    public DefaultJSONParser getParser() {
-        return parser;
-    }
-
-    @Override
     public void parseField(DefaultJSONParser parser, Object object, Type objectType, Map<String, Object> fieldValues) {
 
     }
 
-    @Override
-    public int getFastMatchToken() {
-        return 0;
-    }
 }

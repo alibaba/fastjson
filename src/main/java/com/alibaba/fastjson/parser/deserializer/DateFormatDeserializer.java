@@ -13,6 +13,10 @@ public class DateFormatDeserializer extends AbstractDateDeserializer implements 
 
     @SuppressWarnings("unchecked")
     protected <T> T cast(DefaultJSONParser parser, Type clazz, Object fieldName, Object val) {
+        
+        if (val == null) {
+            return null;
+        }
 
         if (val instanceof String) {
             String strVal = (String) val;
@@ -27,6 +31,6 @@ public class DateFormatDeserializer extends AbstractDateDeserializer implements 
     }
 
     public int getFastMatchToken() {
-        return JSONToken.LITERAL_INT;
+        return JSONToken.LITERAL_STRING;
     }
 }

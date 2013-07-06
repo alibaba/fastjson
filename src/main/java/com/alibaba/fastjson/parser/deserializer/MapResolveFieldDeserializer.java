@@ -27,9 +27,4 @@ public final class MapResolveFieldDeserializer extends FieldDeserializer {
     public void parseField(DefaultJSONParser parser, Object object, Type objectType, Map<String, Object> fieldValues) {
 
     }
-
-    @Override
-    public int getFastMatchToken() {
-        return 0;
-    }
 }

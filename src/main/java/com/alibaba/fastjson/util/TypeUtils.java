@@ -16,6 +16,7 @@
 package com.alibaba.fastjson.util;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -224,7 +225,7 @@ public class TypeUtils {
             return (Date) value;
         }
 
-        long longValue = 0;
+        long longValue = -1;
 
         if (value instanceof Number) {
             longValue = ((Number) value).longValue();
@@ -260,7 +261,7 @@ public class TypeUtils {
             longValue = Long.parseLong(strVal);
         }
 
-        if (longValue <= 0) {
+        if (longValue < 0) {
             throw new JSONException("can not cast to Date, value : " + value);
         }
 
@@ -706,10 +707,14 @@ public class TypeUtils {
                 if (iClassObject instanceof String) {
                     String className = (String) iClassObject;
 
-                    clazz = (Class<T>) loadClass(className);
+                    Class<?> loadClazz = (Class<T>) loadClass(className);
 
-                    if (clazz == null) {
+                    if (loadClazz == null) {
                         throw new ClassNotFoundException(className + " not found");
+                    }
+
+                    if (!loadClazz.equals(clazz)) {
+                        return (T) castToJavaBean(map, loadClazz, mapping);
                     }
                 }
             }
@@ -726,19 +731,37 @@ public class TypeUtils {
                 return (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
                                                   new Class<?>[] { clazz }, object);
             }
+            
+            if (mapping == null) {
+                mapping = ParserConfig.getGlobalInstance();
+            }
 
             Map<String, FieldDeserializer> setters = mapping.getFieldDeserializers(clazz);
-
-            T object = clazz.newInstance();
+            
+            Constructor<T> constructor = clazz.getDeclaredConstructor();
+            if (!constructor.isAccessible()) {
+                constructor.setAccessible(true);
+            }
+            T object = constructor.newInstance();
 
             for (Map.Entry<String, FieldDeserializer> entry : setters.entrySet()) {
                 String key = entry.getKey();
-                Method method = entry.getValue().getMethod();
+                FieldDeserializer fieldDeser = entry.getValue();
 
                 if (map.containsKey(key)) {
                     Object value = map.get(key);
-                    value = cast(value, method.getGenericParameterTypes()[0], mapping);
-                    method.invoke(object, new Object[] { value });
+                    Method method = fieldDeser.getMethod();
+                    if (method != null) {
+                        Type paramType = method.getGenericParameterTypes()[0];
+                        value = cast(value, paramType, mapping);
+                        method.invoke(object, new Object[] { value });
+                    } else {
+                        Field field = fieldDeser.getField();
+                        Type paramType = field.getGenericType();
+                        value = cast(value, paramType, mapping);
+                        field.set(object, value);
+                    }
+
                 }
             }
 
@@ -995,31 +1018,27 @@ public class TypeUtils {
                 continue;
             }
 
-            if (!Modifier.isPublic(field.getModifiers())) {
-                continue;
-            }
-
             JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
-            
+
             String propertyName = field.getName();
             if (fieldAnnotation != null) {
                 if (!fieldAnnotation.serialize()) {
                     continue;
                 }
-                
+
                 if (fieldAnnotation.name().length() != 0) {
                     propertyName = fieldAnnotation.name();
-
-                    if (aliasMap != null) {
-                        propertyName = aliasMap.get(propertyName);
-                        if (propertyName == null) {
-                            continue;
-                        }
-                    }
+                }
+            }
+            
+            if (aliasMap != null) {
+                propertyName = aliasMap.get(propertyName);
+                if (propertyName == null) {
+                    continue;
                 }
             }
 
-            if (!fieldInfoMap.containsKey(field.getName())) {
+            if (!fieldInfoMap.containsKey(propertyName)) {
                 fieldInfoMap.put(propertyName, new FieldInfo(propertyName, null, field));
             }
         }

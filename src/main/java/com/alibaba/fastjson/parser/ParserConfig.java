@@ -63,9 +63,6 @@ import com.alibaba.fastjson.asm.ASMException;
 import com.alibaba.fastjson.parser.deserializer.ASMDeserializerFactory;
 import com.alibaba.fastjson.parser.deserializer.ASMJavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ArrayDeserializer;
-import com.alibaba.fastjson.parser.deserializer.ArrayListStringDeserializer;
-import com.alibaba.fastjson.parser.deserializer.ArrayListStringFieldDeserializer;
-import com.alibaba.fastjson.parser.deserializer.ArrayListTypeDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ArrayListTypeFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.AtomicIntegerArrayDeserializer;
 import com.alibaba.fastjson.parser.deserializer.AtomicLongArrayDeserializer;
@@ -353,16 +350,7 @@ public class ParserConfig {
             return ArrayDeserializer.instance;
         } else if (clazz == Set.class || clazz == HashSet.class || clazz == Collection.class || clazz == List.class
                    || clazz == ArrayList.class) {
-            if (type instanceof ParameterizedType) {
-                Type itemType = ((ParameterizedType) type).getActualTypeArguments()[0];
-                if (itemType == String.class) {
-                    derializer = ArrayListStringDeserializer.instance;
-                } else {
-                    derializer = new ArrayListTypeDeserializer(clazz, itemType);
-                }
-            } else {
-                derializer = CollectionDeserializer.instance;
-            }
+            derializer = CollectionDeserializer.instance;
         } else if (Collection.class.isAssignableFrom(clazz)) {
             derializer = CollectionDeserializer.instance;
         } else if (Map.class.isAssignableFrom(clazz)) {
@@ -500,14 +488,6 @@ public class ParserConfig {
         }
 
         if (fieldClass == List.class || fieldClass == ArrayList.class) {
-            Type fieldType = fieldInfo.getFieldType();
-            if (fieldType instanceof ParameterizedType) {
-                Type itemType = ((ParameterizedType) fieldType).getActualTypeArguments()[0];
-                if (itemType == String.class) {
-                    return new ArrayListStringFieldDeserializer(mapping, clazz, fieldInfo);
-                }
-            }
-
             return new ArrayListTypeFieldDeserializer(mapping, clazz, fieldInfo);
         }
 

@@ -619,10 +619,10 @@ public abstract class JSONLexer implements Closeable {
         return scanSymbolUnQuoted(symbolTable);
     }
 
-//    public abstract String scanSymbol(final SymbolTable symbolTable, final char quote);
-    
+    // public abstract String scanSymbol(final SymbolTable symbolTable, final char quote);
+
     protected abstract void arrayCopy(int srcPos, char[] dest, int destPos, int length);
-    
+
     public final String scanSymbol(final SymbolTable symbolTable, final char quote) {
         int hash = 0;
 
@@ -656,7 +656,7 @@ public abstract class JSONLexer implements Closeable {
                     }
 
                     // text.getChars(np + 1, np + 1 + sp, sbuf, 0);
-//                    System.arraycopy(this.buf, np + 1, sbuf, 0, sp);
+                    // System.arraycopy(this.buf, np + 1, sbuf, 0, sp);
                     arrayCopy(np + 1, sbuf, 0, sp);
                 }
 
@@ -784,7 +784,7 @@ public abstract class JSONLexer implements Closeable {
         // return text.substring(np, np + sp).intern();
 
         return this.addSymbol(np, sp, hash, symbolTable);
-//        return symbolTable.addSymbol(buf, np, sp, hash);
+        // return symbolTable.addSymbol(buf, np, sp, hash);
     }
 
     protected abstract void copyTo(int offset, int count, char[] dest);
@@ -815,7 +815,7 @@ public abstract class JSONLexer implements Closeable {
                     }
 
                     copyTo(np + 1, sp, sbuf);
-//                    text.getChars(np + 1, np + 1 + sp, sbuf, 0);
+                    // text.getChars(np + 1, np + 1 + sp, sbuf, 0);
                     // System.arraycopy(buf, np + 1, sbuf, 0, sp);
                 }
 
@@ -874,7 +874,7 @@ public abstract class JSONLexer implements Closeable {
                     case '/': // 47
                         putChar('/');
                         break;
-                    case '\\':  // 92
+                    case '\\': // 92
                         putChar('\\');
                         break;
                     case 'x':
@@ -989,6 +989,7 @@ public abstract class JSONLexer implements Closeable {
     }
 
     protected final static char[] typeFieldName = ("\"" + JSON.DEFAULT_TYPE_KEY + "\":\"").toCharArray();
+
     public final int scanType(String type) {
         matchStat = UNKOWN;
 
@@ -1224,10 +1225,6 @@ public abstract class JSONLexer implements Closeable {
         }
 
         return strVal;
-    }
-
-    public ArrayList<String> scanFieldStringArray(char[] fieldName) {
-        return (ArrayList<String>) scanFieldStringArray(fieldName, null);
     }
 
     @SuppressWarnings("unchecked")
@@ -2002,7 +1999,7 @@ public abstract class JSONLexer implements Closeable {
                         sbuf = newsbuf;
                     }
 
-                    //text.getChars(offset, offset + count, dest, 0);
+                    // text.getChars(offset, offset + count, dest, 0);
                     this.copyTo(np + 1, sp, sbuf);
                     // System.arraycopy(buf, np + 1, sbuf, 0, sp);
                 }

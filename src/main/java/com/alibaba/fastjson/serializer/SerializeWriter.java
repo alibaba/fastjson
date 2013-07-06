@@ -871,12 +871,6 @@ public final class SerializeWriter extends Writer {
         }
     }
 
-    public void writeFieldValue1(char seperator, String name, boolean value) {
-        write(seperator);
-        writeFieldName(name);
-        write(value);
-    }
-
     public void write(boolean value) {
         if (value) {
             write("true");

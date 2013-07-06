@@ -16,7 +16,7 @@ public class StackTraceElementDeserializerTest extends TestCase {
         Assert.assertNull(JSON.parseObject("{\"className\":\"int\",\"methodName\":\"parseInt\"}",
                                            StackTraceElement.class).getFileName());
         
-        Assert.assertEquals(StackTraceElement.class, ((StackTraceElement) JSON.parse("{\"@type\":\"java.lang.StackTraceElement\",\"className\":\"int\",\"methodName\":\"parseInt\"}")).getClass());
+        Assert.assertEquals(StackTraceElement.class, ((StackTraceElement) JSON.parse("{\"@type\":\"java.lang.StackTraceElement\",\"className\":\"int\",\"methodName\":\"parseInt\",\"nativeMethod\":null}")).getClass());
     }
 
     public void test_stack_error() throws Exception {
@@ -113,6 +113,16 @@ public class StackTraceElementDeserializerTest extends TestCase {
         Exception error = null;
         try {
             JSON.parseObject("{\"className\":33}", StackTraceElement.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_stack_error_10() throws Exception {
+        Exception error = null;
+        try {
+            JSON.parseObject("{\"lineNumber\":true}", StackTraceElement.class);
         } catch (JSONException ex) {
             error = ex;
         }

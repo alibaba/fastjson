@@ -58,7 +58,7 @@ public class DateFormatSerializerTest extends TestCase {
         JSON.parseObject(out.toString(), VO.class);
     }
 
-    public static class VO {
+    private static class VO {
 
         private SimpleDateFormat format;
 

@@ -56,7 +56,7 @@ public class JSONSerializer {
     private int                                    indentCount        = 0;
     private String                                 indent             = "\t";
 
-    private String                                 dateFormatPatterm  = JSON.DEFFAULT_DATE_FORMAT;
+    private String                                 dateFormatPattern  = JSON.DEFFAULT_DATE_FORMAT;
     private DateFormat                             dateFormat;
 
     private IdentityHashMap<Object, SerialContext> references         = null;
@@ -85,12 +85,15 @@ public class JSONSerializer {
     }
 
     public String getDateFormatPattern() {
-        return dateFormatPatterm;
+        if (dateFormat instanceof SimpleDateFormat) {
+            return ((SimpleDateFormat) dateFormat).toPattern();
+        }
+        return dateFormatPattern;
     }
 
     public DateFormat getDateFormat() {
         if (dateFormat == null) {
-            dateFormat = new SimpleDateFormat(dateFormatPatterm);
+            dateFormat = new SimpleDateFormat(dateFormatPattern);
         }
 
         return dateFormat;
@@ -98,10 +101,13 @@ public class JSONSerializer {
 
     public void setDateFormat(DateFormat dateFormat) {
         this.dateFormat = dateFormat;
+        if (dateFormatPattern != null) {
+            dateFormatPattern = null;
+        }
     }
 
     public void setDateFormat(String dateFormat) {
-        this.dateFormatPatterm = dateFormat;
+        this.dateFormatPattern = dateFormat;
         if (this.dateFormat != null) {
             this.dateFormat = null;
         }

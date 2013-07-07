@@ -47,6 +47,7 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
+import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 
@@ -361,7 +362,22 @@ public class TypeUtils {
                 return null;
             }
 
-            return Long.parseLong(strVal);
+            try {
+                return Long.parseLong(strVal);
+            } catch (NumberFormatException ex) {
+                //
+            }
+
+            JSONScanner dateParser = new JSONScanner(strVal);
+            Calendar calendar = null;
+            if (dateParser.scanISO8601DateIfMatch(false)) {
+                calendar = dateParser.getCalendar();
+            }
+            dateParser.close();
+            
+            if (calendar != null) {
+                return calendar.getTimeInMillis();
+            }
         }
 
         throw new JSONException("can not cast to long, value : " + value);
@@ -731,13 +747,13 @@ public class TypeUtils {
                 return (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
                                                   new Class<?>[] { clazz }, object);
             }
-            
+
             if (mapping == null) {
                 mapping = ParserConfig.getGlobalInstance();
             }
 
             Map<String, FieldDeserializer> setters = mapping.getFieldDeserializers(clazz);
-            
+
             Constructor<T> constructor = clazz.getDeclaredConstructor();
             if (!constructor.isAccessible()) {
                 constructor.setAccessible(true);
@@ -1030,7 +1046,7 @@ public class TypeUtils {
                     propertyName = fieldAnnotation.name();
                 }
             }
-            
+
             if (aliasMap != null) {
                 propertyName = aliasMap.get(propertyName);
                 if (propertyName == null) {

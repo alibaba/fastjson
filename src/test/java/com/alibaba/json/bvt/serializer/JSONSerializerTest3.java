@@ -15,9 +15,13 @@ public class JSONSerializerTest3 extends TestCase {
 
         serializer.setDateFormat("yyyy");
         Assert.assertEquals("yyyy", ((SimpleDateFormat) serializer.getDateFormat()).toPattern());
+        Assert.assertEquals("yyyy",  serializer.getDateFormatPattern());
         
         serializer.setDateFormat("yyyy-MM");
         Assert.assertEquals("yyyy-MM", ((SimpleDateFormat) serializer.getDateFormat()).toPattern());
+        
+        serializer.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
+        Assert.assertEquals("yyyy-MM-dd",  serializer.getDateFormatPattern());
     }
 
 }

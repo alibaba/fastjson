@@ -25,10 +25,6 @@ public class ParseContext {
         return parent;
     }
 
-    public Object getFieldName() {
-        return fieldName;
-    }
-
     public String getPath() {
         if (parent == null) {
             return "$";
@@ -36,12 +32,12 @@ public class ParseContext {
             if (fieldName instanceof Integer) {
                 return parent.getPath() + "[" + fieldName + "]";
             } else {
-                return parent.getPath() + "." + fieldName;    
+                return parent.getPath() + "." + fieldName;
             }
-            
+
         }
     }
-    
+
     public String toString() {
         return this.getPath();
     }

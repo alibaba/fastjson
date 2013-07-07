@@ -34,12 +34,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
     private DeserializeBeanInfo                  beanInfo;
 
-    public JavaBeanDeserializer(DeserializeBeanInfo beanInfo){
-        this.beanInfo = beanInfo;
-        this.clazz = beanInfo.getClazz();
-        this.type = beanInfo.getType();
-    }
-
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz){
         this(config, clazz, clazz);
     }

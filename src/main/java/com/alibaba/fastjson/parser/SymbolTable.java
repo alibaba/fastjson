@@ -48,12 +48,6 @@ public class SymbolTable {
         int hash = hash(buffer, offset, len);
         return addSymbol(buffer, offset, len, hash);
     }
-    
-    public String addSymbol(String buffer, int offset, int len) {
-        // search for identical symbol
-        int hash = hash(buffer, offset, len);
-        return addSymbol(buffer, offset, len, hash);
-    }
 
     /**
      * Adds the specified symbol to the symbol table and returns a reference to the unique symbol. If the symbol already
@@ -129,7 +123,7 @@ public class SymbolTable {
         size++;
         return entry.symbol;
     }
-    
+
     public String addSymbol(String buffer, int offset, int len, int hash) {
         // int bucket = indexFor(hash, tableSize);
         final int bucket = hash & indexMask;
@@ -179,12 +173,12 @@ public class SymbolTable {
             }
             if (entryIndex >= MAX_BUCKET_LENTH) {
                 return buffer.substring(offset, offset + len);
-//                return new String(buffer, offset, len);
+                // return new String(buffer, offset, len);
             }
         }
 
         if (size >= MAX_SIZE) {
-//            return new String(buffer, offset, len);
+            // return new String(buffer, offset, len);
             return buffer.substring(offset, offset + len);
         }
 
@@ -208,16 +202,6 @@ public class SymbolTable {
 
         for (int i = 0; i < len; i++) {
             h = 31 * h + buffer[off++];
-        }
-        return h;
-    }
-    
-    public static final int hash(String buffer, int offset, int len) {
-        int h = 0;
-        int off = offset;
-
-        for (int i = 0; i < len; i++) {
-            h = 31 * h + buffer.charAt(off++);
         }
         return h;
     }

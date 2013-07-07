@@ -1020,18 +1020,6 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
         return this.context;
     }
 
-    public int getContextLength() {
-        return contextArrayIndex;
-    }
-
-    public void clearContext(ParseContext context, int start) {
-        for (int i = start; i < contextArrayIndex; ++i) {
-            contextArray[i] = null;
-        }
-        contextArrayIndex = start;
-        this.context = context;
-    }
-
     private void addContext(ParseContext context) {
         int i = contextArrayIndex++;
         if (i >= contextArray.length) {

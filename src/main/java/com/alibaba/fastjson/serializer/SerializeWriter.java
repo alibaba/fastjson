@@ -164,7 +164,11 @@ public final class SerializeWriter extends Writer {
      * @param len the number of chars that are written
      */
     public void write(char c[], int off, int len) {
-        if (off < 0 || off > c.length || len < 0 || off + len > c.length || off + len < 0) {
+        if (off < 0 //
+            || off > c.length //
+            || len < 0 //
+            || off + len > c.length //
+            || off + len < 0) {
             throw new IndexOutOfBoundsException();
         } else if (len == 0) {
             return;
@@ -243,12 +247,8 @@ public final class SerializeWriter extends Writer {
         out.write(buf, 0, count);
     }
 
-    public void writeTo(OutputStream out, String charset) throws IOException {
-        if (this.writer != null) {
-            throw new UnsupportedOperationException("writer not null");
-        }
-        byte[] bytes = new String(buf, 0, count).getBytes(charset);
-        out.write(bytes);
+    public void writeTo(OutputStream out, String charsetName) throws IOException {
+        writeTo(out, Charset.forName(charsetName));
     }
 
     public void writeTo(OutputStream out, Charset charset) throws IOException {

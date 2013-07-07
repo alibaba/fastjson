@@ -1,9 +1,11 @@
 package com.alibaba.json.bvt.parser;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.junit.Assert;
 import junit.framework.TestCase;
+
+import org.junit.Assert;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
@@ -46,5 +48,15 @@ public class DefaultJSONParserTest_date extends TestCase {
         parser.config(Feature.AllowISO8601DateFormat, true);
         JSONObject json = parser.parseObject();
         Assert.assertEquals("xxxxx", json.get("1234567890abcdefghijklmnopqrst1234567890abcdefghijklmnopqrst1234567890abcdefghijklmnopqrst1234567890abcdefghijklmnopqrst1234567890abcdefghijklmnopqrst1234567890abcdefghijklmnopqrst\t"));
+    }
+    
+    public void test_dateFormat() throws Exception {
+        DefaultJSONParser parser = new DefaultJSONParser("{}");
+        parser.setDateFormat("yyyy-DD-mm");
+        parser.setDateFomrat(new SimpleDateFormat("yyyy-DD-mm"));
+        parser.getDateFomartPattern();
+        parser.getDateFormat();
+        parser.parse();
+        parser.close();
     }
 }

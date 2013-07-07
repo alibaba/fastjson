@@ -1,10 +1,12 @@
 package com.alibaba.json.bvt.parser.deser;
 
-import org.junit.Assert;
 import junit.framework.TestCase;
 
+import org.junit.Assert;
+
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.BooleanDeserializer;
 
@@ -23,8 +25,11 @@ public class BooleanDeserializerTest extends TestCase {
         Assert.assertEquals(null, JSON.parseObject("null", Boolean.class));
 
         {
-            DefaultExtJSONParser parser = new DefaultExtJSONParser("null", ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
+            DefaultJSONParser parser = new DefaultJSONParser("null", ParserConfig.getGlobalInstance(),
+                                                             JSON.DEFAULT_PARSER_FEATURE);
             Assert.assertEquals(null, BooleanDeserializer.instance.deserialze(parser, null, null));
+            parser.close();
         }
+        Assert.assertEquals(JSONToken.TRUE, BooleanDeserializer.instance.getFastMatchToken());
     }
 }

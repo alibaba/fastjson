@@ -404,23 +404,21 @@ public abstract class JSONLexer implements Closeable {
 
         char type = ' ';
 
-        if (max > 0) {
-            switch (charAt(max - 1)) {
-                case 'L':
-                    max--;
-                    type = 'L';
-                    break;
-                case 'S':
-                    max--;
-                    type = 'S';
-                    break;
-                case 'B':
-                    max--;
-                    type = 'B';
-                    break;
-                default:
-                    break;
-            }
+        switch (charAt(max - 1)) {
+            case 'L':
+                max--;
+                type = 'L';
+                break;
+            case 'S':
+                max--;
+                type = 'S';
+                break;
+            case 'B':
+                max--;
+                type = 'B';
+                break;
+            default:
+                break;
         }
 
         if (charAt(np) == '-') {

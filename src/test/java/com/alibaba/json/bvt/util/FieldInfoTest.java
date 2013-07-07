@@ -5,8 +5,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import org.junit.Assert;
 import junit.framework.TestCase;
+
+import org.junit.Assert;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.util.FieldInfo;
@@ -30,6 +31,7 @@ public class FieldInfoTest extends TestCase {
         Assert.assertEquals(actualFieldType.getActualTypeArguments()[0], ValueObject.class);
         Assert.assertEquals(actualFieldType.getRawType(), List.class);
         Assert.assertEquals(fieldInfoOfListField.getFieldClass(), List.class);
+        Assert.assertEquals(null, ((ParameterizedTypeImpl) type).getOwnerType());
 
         Method method = GenericSetterEntity.class.getMethod("setValue", Object.class);
         type = new ParameterizedTypeImpl(new Type[] { ValueObject.class }, null, GenericSetterEntity.class);

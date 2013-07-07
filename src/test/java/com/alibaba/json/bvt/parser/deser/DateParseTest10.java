@@ -24,8 +24,9 @@ public class DateParseTest10 extends TestCase {
             return value;
         }
 
-        public void setValue(long value) {
+        public VO setValue(long value) {
             this.value = value;
+            return this;
         }
 
     }

@@ -23,8 +23,9 @@ public class TestASM_int extends TestCase {
             return i;
         }
 
-        public void setI(int i) {
+        public V0 setI(int i) {
             this.i = i;
+            return this;
         }
 
     }

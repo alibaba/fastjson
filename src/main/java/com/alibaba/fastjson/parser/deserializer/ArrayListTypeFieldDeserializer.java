@@ -62,9 +62,11 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public final void parseArray(DefaultJSONParser parser, Type objectType, Collection array) {
-        Type itemType = this.itemType;;
+        Type itemType = this.itemType;
+        ObjectDeserializer itemTypeDeser = this.deserializer;
         
-        if (itemType instanceof TypeVariable && objectType instanceof ParameterizedType) {
+        if (itemType instanceof TypeVariable //
+            && objectType instanceof ParameterizedType) {
             TypeVariable typeVar = (TypeVariable) itemType;
             ParameterizedType paramType = (ParameterizedType) objectType;
 
@@ -86,21 +88,24 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
             if (paramIndex != -1) {
                 itemType = paramType.getActualTypeArguments()[paramIndex];
+                if (!itemType.equals(this.itemType)) {
+                    itemTypeDeser = parser.getConfig().getDeserializer(itemType);
+                }
             }
         }
 
         final JSONLexer lexer = parser.getLexer();
 
         if (lexer.token() != JSONToken.LBRACKET) {
-        	String errorMessage = "exepct '[', but " + JSONToken.name(lexer.token());
-        	if (objectType != null) {
-        		errorMessage += ", type : " + objectType;
-        	}
+            String errorMessage = "exepct '[', but " + JSONToken.name(lexer.token());
+            if (objectType != null) {
+                errorMessage += ", type : " + objectType;
+            }
             throw new JSONException(errorMessage);
         }
 
-        if (deserializer == null) {
-            deserializer = parser.getConfig().getDeserializer(itemType);
+        if (itemTypeDeser == null) {
+            itemTypeDeser = deserializer = parser.getConfig().getDeserializer(itemType);
             itemFastMatchToken = deserializer.getFastMatchToken();
         }
 
@@ -118,7 +123,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
                 break;
             }
 
-            Object val = deserializer.deserialze(parser, itemType, i);
+            Object val = itemTypeDeser.deserialze(parser, itemType, i);
             array.add(val);
 
             parser.checkListResolve(array);

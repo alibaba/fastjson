@@ -1,6 +1,7 @@
 package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.Type;
+import java.util.concurrent.atomic.AtomicLong;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
@@ -13,25 +14,29 @@ public class LongDeserializer implements ObjectDeserializer {
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        return (T) deserialze(parser);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T> T deserialze(DefaultJSONParser parser) {
         final JSONLexer lexer = parser.getLexer();
+
+        Long longObject;
         if (lexer.token() == JSONToken.LITERAL_INT) {
             long longValue = lexer.longValue();
             lexer.nextToken(JSONToken.COMMA);
-            return (T) Long.valueOf(longValue);
+            longObject = Long.valueOf(longValue);
+        } else {
+
+            Object value = parser.parse();
+
+            if (value == null) {
+                return null;
+            }
+
+            longObject = TypeUtils.castToLong(value);
         }
-
-        Object value = parser.parse();
-
-        if (value == null) {
-            return null;
+        
+        if (clazz == AtomicLong.class) {
+            return (T) new AtomicLong(longObject.longValue());
         }
-
-        return (T) TypeUtils.castToLong(value);
+        
+        return (T) longObject;
     }
 
     public int getFastMatchToken() {

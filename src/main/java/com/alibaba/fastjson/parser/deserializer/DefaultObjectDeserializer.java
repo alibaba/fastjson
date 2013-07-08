@@ -320,13 +320,13 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
                 Type fieldType = method.getGenericParameterTypes()[0];
                 if (fieldClass == int.class) {
                     lexer.nextTokenWithColon(JSONToken.LITERAL_INT);
-                    args[0] = IntegerDeserializer.deserialze(parser);
+                    args[0] = IntegerDeserializer.instance.deserialze(parser, fieldType, null);
                 } else if (fieldClass == String.class) {
                     lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
                     args[0] = StringDeserializer.deserialze(parser);
                 } else if (fieldClass == long.class) {
                     lexer.nextTokenWithColon(JSONToken.LITERAL_INT);
-                    args[0] = LongDeserializer.deserialze(parser);
+                    args[0] = LongDeserializer.instance.deserialze(parser, fieldType, null);
                 } else if (fieldClass == List.class) {
                     lexer.nextTokenWithColon(JSONToken.LBRACE);
                     args[0] = CollectionDeserializer.instance.deserialze(parser, fieldType, null);

@@ -17,6 +17,8 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.File;
 import java.io.Serializable;
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -170,9 +172,12 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 		put(AtomicBoolean.class, AtomicBooleanSerializer.instance);
 		put(AtomicInteger.class, AtomicIntegerSerializer.instance);
 		put(AtomicLong.class, AtomicLongSerializer.instance);
-		put(AtomicReference.class, AtomicReferenceSerializer.instance);
+		put(AtomicReference.class, ReferenceSerializer.instance);
 		put(AtomicIntegerArray.class, AtomicIntegerArraySerializer.instance);
 		put(AtomicLongArray.class, AtomicLongArraySerializer.instance);
+		
+		put(WeakReference.class, ReferenceSerializer.instance);
+		put(SoftReference.class, ReferenceSerializer.instance);
 
 		// awt
 		try {

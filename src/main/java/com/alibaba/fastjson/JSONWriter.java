@@ -98,25 +98,25 @@ public class JSONWriter implements Closeable, Flushable {
         context = context.getParent();
 
         if (context == null) {
-            // skip
-        } else {
-            final int state = context.getState();
-            int newState = -1;
-            switch (state) {
-                case PropertyKey:
-                    newState = PropertyValue;
-                    break;
-                case StartArray:
-                    newState = ArrayValue;
-                    break;
-                case ArrayValue:
-                    break;
-                default:
-                    break;
-            }
-            if (newState != -1) {
-                context.setState(newState);
-            }
+            return;
+        }
+        
+        final int state = context.getState();
+        int newState = -1;
+        switch (state) {
+            case PropertyKey:
+                newState = PropertyValue;
+                break;
+            case StartArray:
+                newState = ArrayValue;
+                break;
+            case ArrayValue:
+                break;
+            default:
+                break;
+        }
+        if (newState != -1) {
+            context.setState(newState);
         }
     }
 
@@ -143,7 +143,7 @@ public class JSONWriter implements Closeable, Flushable {
         if (context == null) {
             return;
         }
-        
+
         final int state = context.getState();
         int newState = -1;
         switch (state) {

@@ -90,15 +90,15 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
                     throw new JSONException("syntax error");
                 }
             } else if (key == JSON.DEFAULT_TYPE_KEY) {
-                if (lexer.token() == JSONToken.NULL) {
-                    // skip
-                } else if (lexer.token() == JSONToken.LITERAL_STRING) {
+               if (lexer.token() == JSONToken.LITERAL_STRING) {
                     String elementType = lexer.stringVal();
                     if (!elementType.equals("java.lang.StackTraceElement")) {
                         throw new JSONException("syntax error : " + elementType);    
                     }
                 } else {
-                    throw new JSONException("syntax error");
+                    if (lexer.token() != JSONToken.NULL) {
+                        throw new JSONException("syntax error");
+                    }
                 }
             } else {
                 throw new JSONException("syntax error : " + key);

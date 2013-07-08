@@ -9,6 +9,10 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONCreator;
@@ -65,17 +69,17 @@ public class DeserializeBeanInfo {
     public List<FieldInfo> getFieldList() {
         return fieldList;
     }
-    
+
     public FieldInfo getField(String propertyName) {
         for (FieldInfo item : this.fieldList) {
             if (item.getName().equals(propertyName)) {
                 return item;
             }
         }
-        
+
         return null;
     }
-    
+
     public boolean add(FieldInfo field) {
         for (FieldInfo item : this.fieldList) {
             if (item.getName().equals(field.getName())) {
@@ -83,10 +87,10 @@ public class DeserializeBeanInfo {
             }
         }
         fieldList.add(field);
-        
+
         return true;
     }
-    
+
     public static DeserializeBeanInfo computeSetters(Class<?> clazz) {
         return computeSetters(clazz, clazz);
     }
@@ -160,7 +164,7 @@ public class DeserializeBeanInfo {
                 }
                 return beanInfo;
             }
-            
+
             throw new JSONException("default constructor not found. " + clazz);
         }
 
@@ -184,7 +188,7 @@ public class DeserializeBeanInfo {
             }
 
             JSONField annotation = method.getAnnotation(JSONField.class);
-            
+
             if (annotation == null) {
                 annotation = TypeUtils.getSupperMethodAnnotation(clazz, method);
             }
@@ -231,7 +235,7 @@ public class DeserializeBeanInfo {
             if (!Modifier.isPublic(field.getModifiers())) {
                 continue;
             }
-            
+
             boolean contains = false;
             for (FieldInfo item : beanInfo.getFieldList()) {
                 if (item.getName().equals(field.getName())) {
@@ -239,13 +243,13 @@ public class DeserializeBeanInfo {
                     continue;
                 }
             }
-            
+
             if (contains) {
                 continue;
             }
 
             String propertyName = field.getName();
-            
+
             JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
 
             if (fieldAnnotation != null && fieldAnnotation.name().length() != 0) {
@@ -253,7 +257,7 @@ public class DeserializeBeanInfo {
             }
             beanInfo.add(new FieldInfo(propertyName, null, field, clazz, type));
         }
-        
+
         for (Method method : clazz.getMethods()) {
             String methodName = method.getName();
             if (methodName.length() < 4) {
@@ -263,25 +267,28 @@ public class DeserializeBeanInfo {
             if (Modifier.isStatic(method.getModifiers())) {
                 continue;
             }
-            
+
             if (methodName.startsWith("get") && Character.isUpperCase(methodName.charAt(3))) {
                 if (method.getParameterTypes().length != 0) {
                     continue;
                 }
-                
-                if (!Collection.class.isAssignableFrom(method.getReturnType())) {
-                    continue;
+
+                if (Collection.class.isAssignableFrom(method.getReturnType()) //
+                    || Map.class.isAssignableFrom(method.getReturnType()) //
+                    || AtomicBoolean.class == method.getReturnType() //
+                    || AtomicInteger.class == method.getReturnType() //
+                    || AtomicLong.class == method.getReturnType() //
+                ) {
+                    String propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+
+                    FieldInfo fieldInfo = beanInfo.getField(propertyName);
+                    if (fieldInfo != null) {
+                        continue;
+                    }
+
+                    beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type));
+                    method.setAccessible(true);
                 }
-                
-                String propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
-                
-                FieldInfo fieldInfo = beanInfo.getField(propertyName);
-                if (fieldInfo != null) {
-                    continue;
-                }
-                
-                beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type));
-                method.setAccessible(true);
             }
         }
 
@@ -308,18 +315,19 @@ public class DeserializeBeanInfo {
                 break;
             }
         }
-        
+
         if (defaultConstructor == null) {
             if (clazz.isMemberClass() && !Modifier.isStatic(clazz.getModifiers())) {
                 for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
-                    if (constructor.getParameterTypes().length == 1 && constructor.getParameterTypes()[0].equals(clazz.getDeclaringClass())) {
+                    if (constructor.getParameterTypes().length == 1
+                        && constructor.getParameterTypes()[0].equals(clazz.getDeclaringClass())) {
                         defaultConstructor = constructor;
                         break;
                     }
                 }
             }
         }
-        
+
         return defaultConstructor;
     }
 

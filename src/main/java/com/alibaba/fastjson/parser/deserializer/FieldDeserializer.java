@@ -5,6 +5,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
@@ -24,7 +27,7 @@ public abstract class FieldDeserializer {
     public Method getMethod() {
         return fieldInfo.getMethod();
     }
-    
+
     public Field getField() {
         return fieldInfo.getField();
     }
@@ -66,9 +69,31 @@ public abstract class FieldDeserializer {
         if (method != null) {
             try {
                 if (fieldInfo.isGetOnly()) {
-                    Collection collection = (Collection) method.invoke(object);
-                    if (collection != null) {
-                        collection.addAll((Collection) value);
+                    if (fieldInfo.getFieldClass() == AtomicInteger.class) {
+                        AtomicInteger atomic = (AtomicInteger) method.invoke(object);
+                        if (atomic != null) {
+                            atomic.set(((AtomicInteger) value).get());
+                        }
+                    } else if (fieldInfo.getFieldClass() == AtomicLong.class) {
+                        AtomicLong atomic = (AtomicLong) method.invoke(object);
+                        if (atomic != null) {
+                            atomic.set(((AtomicLong) value).get());
+                        }
+                    } else if (fieldInfo.getFieldClass() == AtomicBoolean.class) {
+                        AtomicBoolean atomic = (AtomicBoolean) method.invoke(object);
+                        if (atomic != null) {
+                            atomic.set(((AtomicBoolean) value).get());
+                        }
+                    } else if (Map.class.isAssignableFrom(method.getReturnType())) {
+                        Map map = (Map) method.invoke(object);
+                        if (map != null) {
+                            map.putAll((Map) value);
+                        }
+                    } else {
+                        Collection collection = (Collection) method.invoke(object);
+                        if (collection != null) {
+                            collection.addAll((Collection) value);
+                        }
                     }
                 } else {
                     method.invoke(object, value);

@@ -94,27 +94,27 @@ public class JSONReader implements Closeable {
         context = context.getParent();
 
         if (context == null) {
-            // skip
-        } else {
-            final int state = context.getState();
-            int newState = -1;
-            switch (state) {
-                case PropertyKey:
-                    newState = PropertyValue;
-                    break;
-                case StartArray:
-                    newState = ArrayValue;
-                    break;
-                case PropertyValue:
-                case StartObject:
-                    newState = PropertyKey;
-                    break;
-                default:
-                    break;
-            }
-            if (newState != -1) {
-                context.setState(newState);
-            }
+            return;
+        }
+        
+        final int state = context.getState();
+        int newState = -1;
+        switch (state) {
+            case PropertyKey:
+                newState = PropertyValue;
+                break;
+            case StartArray:
+                newState = ArrayValue;
+                break;
+            case PropertyValue:
+            case StartObject:
+                newState = PropertyKey;
+                break;
+            default:
+                break;
+        }
+        if (newState != -1) {
+            context.setState(newState);
         }
     }
 

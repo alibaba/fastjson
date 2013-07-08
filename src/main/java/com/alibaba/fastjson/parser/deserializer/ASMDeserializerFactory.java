@@ -1124,8 +1124,10 @@ public class ASMDeserializerFactory implements Opcodes {
             }
 
             if (fieldClass.isEnum()) {
+                return;
+            }
 
-            } else if (Collection.class.isAssignableFrom(fieldClass)) {
+            if (Collection.class.isAssignableFrom(fieldClass)) {
                 FieldVisitor fw = cw.visitField(ACC_PUBLIC, fieldInfo.getName() + "_asm_list_item_deser__",
                                                 getDesc(ObjectDeserializer.class));
                 fw.visitEnd();

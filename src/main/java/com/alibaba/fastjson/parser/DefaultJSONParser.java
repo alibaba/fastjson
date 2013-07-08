@@ -563,7 +563,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                 }
 
                 if (int.class == type) {
-                    Object val = IntegerDeserializer.deserialze(this);
+                    Object val = IntegerDeserializer.instance.deserialze(this, null, null);
                     array.add(val);
                 } else if (String.class == type) {
                     String value;

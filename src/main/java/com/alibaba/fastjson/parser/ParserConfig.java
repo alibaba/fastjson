@@ -18,6 +18,8 @@ package com.alibaba.fastjson.parser;
 import java.io.Closeable;
 import java.io.File;
 import java.io.Serializable;
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -51,8 +53,12 @@ import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 import com.alibaba.fastjson.JSONArray;
@@ -104,6 +110,7 @@ import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.PatternDeserializer;
 import com.alibaba.fastjson.parser.deserializer.PointDeserializer;
 import com.alibaba.fastjson.parser.deserializer.RectangleDeserializer;
+import com.alibaba.fastjson.parser.deserializer.ReferenceDeserializer;
 import com.alibaba.fastjson.parser.deserializer.SqlDateDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StackTraceElementDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StringDeserializer;
@@ -224,6 +231,14 @@ public class ParserConfig {
         derializers.put(Class.class, ClassDerializer.instance);
         derializers.put(char[].class, CharArrayDeserializer.instance);
 
+        derializers.put(AtomicBoolean.class, BooleanDeserializer.instance);
+        derializers.put(AtomicInteger.class, IntegerDeserializer.instance);
+        derializers.put(AtomicLong.class, LongDeserializer.instance);
+        derializers.put(AtomicReference.class, ReferenceDeserializer.instance);
+        
+        derializers.put(WeakReference.class, ReferenceDeserializer.instance);
+        derializers.put(SoftReference.class, ReferenceDeserializer.instance);
+
         derializers.put(UUID.class, UUIDDeserializer.instance);
         derializers.put(TimeZone.class, TimeZoneDeserializer.instance);
         derializers.put(Locale.class, LocaleDeserializer.instance);
@@ -308,7 +323,7 @@ public class ParserConfig {
         if (derializer != null) {
             return derializer;
         }
-        
+
         {
             JSONType annotation = clazz.getAnnotation(JSONType.class);
             if (annotation != null) {
@@ -392,12 +407,12 @@ public class ParserConfig {
             if (beanInfo.getFieldList().size() > 200) {
                 asmEnable = false;
             }
-            
+
             Constructor<?> defaultConstructor = beanInfo.getDefaultConstructor();
             if (defaultConstructor == null && !clazz.isInterface()) {
                 asmEnable = false;
             }
-            
+
             for (FieldInfo fieldInfo : beanInfo.getFieldList()) {
                 if (fieldInfo.isGetOnly()) {
                     asmEnable = false;
@@ -428,9 +443,9 @@ public class ParserConfig {
 
         try {
             return ASMDeserializerFactory.getInstance().createJavaBeanDeserializer(this, clazz, type);
-//        } catch (VerifyError e) {
-//            e.printStackTrace();
-//            return new JavaBeanDeserializer(this, clazz, type);
+            // } catch (VerifyError e) {
+            // e.printStackTrace();
+            // return new JavaBeanDeserializer(this, clazz, type);
         } catch (NoSuchMethodException error) {
             return new JavaBeanDeserializer(this, clazz, type);
         } catch (ASMException asmError) {

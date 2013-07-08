@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import junit.framework.TestCase;
 
@@ -13,32 +13,32 @@ import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 
-public class ConcurrentHashMapTest extends TestCase {
+public class ConcurrentHashMapTest3 extends TestCase {
 
     public void test_concurrentHashmap() throws Exception {
         OffsetSerializeWrapper wrapper = new OffsetSerializeWrapper();
-        wrapper.getOffsetTable().put(new MessageQueue(), new AtomicLong(123));
+        wrapper.getOffsetTable().put(new MessageQueue(), new AtomicBoolean(true));
         String text = JSON.toJSONString(wrapper);
-        Assert.assertEquals("{\"offsetTable\":{{\"items\":[]}:123}}", text);
+        Assert.assertEquals("{\"offsetTable\":{{\"items\":[]}:true}}", text);
         
         OffsetSerializeWrapper wrapper2 = JSON.parseObject(text, OffsetSerializeWrapper.class);
         Assert.assertEquals(1, wrapper2.getOffsetTable().size());
         
-        Iterator<Map.Entry<MessageQueue, AtomicLong>> iter = wrapper2.getOffsetTable().entrySet().iterator();
-        Map.Entry<MessageQueue, AtomicLong> entry = iter.next();
+        Iterator<Map.Entry<MessageQueue, AtomicBoolean>> iter = wrapper2.getOffsetTable().entrySet().iterator();
+        Map.Entry<MessageQueue, AtomicBoolean> entry = iter.next();
         Assert.assertEquals(0, entry.getKey().getItems().size());
-        Assert.assertEquals(123L, entry.getValue().longValue());
+        Assert.assertEquals(true, entry.getValue().get());
     }
 
     public static class OffsetSerializeWrapper {
 
-        private ConcurrentHashMap<MessageQueue, AtomicLong> offsetTable = new ConcurrentHashMap<MessageQueue, AtomicLong>();
+        private ConcurrentHashMap<MessageQueue, AtomicBoolean> offsetTable = new ConcurrentHashMap<MessageQueue, AtomicBoolean>();
 
-        public ConcurrentHashMap<MessageQueue, AtomicLong> getOffsetTable() {
+        public ConcurrentHashMap<MessageQueue, AtomicBoolean> getOffsetTable() {
             return offsetTable;
         }
 
-        public void setOffsetTable(ConcurrentHashMap<MessageQueue, AtomicLong> offsetTable) {
+        public void setOffsetTable(ConcurrentHashMap<MessageQueue, AtomicBoolean> offsetTable) {
             this.offsetTable = offsetTable;
         }
 

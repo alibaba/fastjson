@@ -944,6 +944,8 @@ public class TypeUtils {
                     propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
                 } else if (c3 == '_') {
                     propertyName = methodName.substring(4);
+                } else if (c3 == 'f') {
+                    propertyName = methodName.substring(3);
                 } else {
                     continue;
                 }
@@ -994,12 +996,19 @@ public class TypeUtils {
                 if (methodName.length() < 3) {
                     continue;
                 }
+                
+                char c2 = methodName.charAt(2);
 
-                if (!Character.isUpperCase(methodName.charAt(2))) {
+                String propertyName;
+                if (Character.isUpperCase(c2)) {
+                    propertyName = Character.toLowerCase(methodName.charAt(2)) + methodName.substring(3);
+                } else if (c2 == '_') {
+                    propertyName = methodName.substring(3);
+                } else if (c2 == 'f') {
+                    propertyName = methodName.substring(2);
+                } else {
                     continue;
                 }
-
-                String propertyName = Character.toLowerCase(methodName.charAt(2)) + methodName.substring(3);
 
                 Field field = ParserConfig.getField(clazz, propertyName);
                 if (field != null) {

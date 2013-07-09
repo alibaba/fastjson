@@ -28,11 +28,10 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.IdentityHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONAware;
@@ -60,7 +59,7 @@ public class JSONSerializer {
     private String                                 dateFormatPattern  = JSON.DEFFAULT_DATE_FORMAT;
     private DateFormat                             dateFormat;
 
-    private ConcurrentHashMap<String, SerialContext> references         = null;
+    private HashMap<String, SerialContext> references         = null;
     private SerialContext                          context;
 
     public JSONSerializer(){
@@ -129,7 +128,7 @@ public class JSONSerializer {
 
         this.context = new SerialContext(parent, object, fieldName);
         if (references == null) {
-            references = new ConcurrentHashMap<String, SerialContext>();
+            references = new HashMap<String, SerialContext>();
         }
         this.references.put(context.getPath(), context);
     }
@@ -209,7 +208,7 @@ public class JSONSerializer {
 
         SerialContext valueContext = references.get(context.getPath());
         SerialContext parentContext = null;
-        if (context != null) parentContext = valueContext.getParent();
+        if (valueContext != null) parentContext = valueContext.getParent();
 
         if (parentContext != null) {
             if (object == parentContext.getObject()) {

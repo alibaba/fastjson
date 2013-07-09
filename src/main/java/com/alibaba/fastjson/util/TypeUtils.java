@@ -941,7 +941,11 @@ public class TypeUtils {
 
                 String propertyName;
                 if (Character.isUpperCase(c3)) {
-                    propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+                    if (Character.isUpperCase(methodName.charAt(4))) {
+                        propertyName = methodName.substring(3);
+                    } else {
+                        propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+                    }
                 } else if (c3 == '_') {
                     propertyName = methodName.substring(4);
                 } else if (c3 == 'f') {
@@ -958,7 +962,7 @@ public class TypeUtils {
 
                 Field field = ParserConfig.getField(clazz, propertyName);
                 if (field == null) {
-                    field = ParserConfig.getField(clazz, methodName.substring(3));
+                    field = ParserConfig.getField(clazz, propertyName);
                 }
 
                 if (field != null) {
@@ -1011,6 +1015,7 @@ public class TypeUtils {
                 }
 
                 Field field = ParserConfig.getField(clazz, propertyName);
+                
                 if (field != null) {
                     JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
 

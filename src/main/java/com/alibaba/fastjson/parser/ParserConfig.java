@@ -235,7 +235,7 @@ public class ParserConfig {
         derializers.put(AtomicInteger.class, IntegerDeserializer.instance);
         derializers.put(AtomicLong.class, LongDeserializer.instance);
         derializers.put(AtomicReference.class, ReferenceDeserializer.instance);
-        
+
         derializers.put(WeakReference.class, ReferenceDeserializer.instance);
         derializers.put(SoftReference.class, ReferenceDeserializer.instance);
 
@@ -522,6 +522,17 @@ public class ParserConfig {
     }
 
     public static Field getField(Class<?> clazz, String fieldName) {
+        Field field = getField0(clazz, fieldName);
+        if (field == null) {
+            field = getField0(clazz, "_" + fieldName);
+        }
+        if (field == null) {
+            field = getField0(clazz, "m_" + fieldName);
+        }
+        return field;
+    }
+
+    private static Field getField0(Class<?> clazz, String fieldName) {
         for (Field item : clazz.getDeclaredFields()) {
             if (fieldName.equals(item.getName())) {
                 return item;

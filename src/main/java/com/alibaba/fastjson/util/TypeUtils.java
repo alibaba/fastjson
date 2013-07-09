@@ -374,7 +374,7 @@ public class TypeUtils {
                 calendar = dateParser.getCalendar();
             }
             dateParser.close();
-            
+
             if (calendar != null) {
                 return calendar.getTimeInMillis();
             }
@@ -937,11 +937,16 @@ public class TypeUtils {
                     continue;
                 }
 
-                if (!Character.isUpperCase(methodName.charAt(3))) {
+                char c3 = methodName.charAt(3);
+
+                String propertyName;
+                if (Character.isUpperCase(c3)) {
+                    propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+                } else if (c3 == '_') {
+                    propertyName = methodName.substring(4);
+                } else {
                     continue;
                 }
-
-                String propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
 
                 boolean ignore = isJSONTypeIgnore(clazz, propertyName);
 

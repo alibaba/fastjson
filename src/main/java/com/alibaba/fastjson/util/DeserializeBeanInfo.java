@@ -206,25 +206,35 @@ public class DeserializeBeanInfo {
                 }
             }
 
-            if (methodName.startsWith("set") && Character.isUpperCase(methodName.charAt(3))) {
-                String propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
-
-                Field field = getField(clazz, propertyName);
-                if (field != null) {
-
-                    JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
-
-                    if (fieldAnnotation != null && fieldAnnotation.name().length() != 0) {
-                        propertyName = fieldAnnotation.name();
-
-                        beanInfo.add(new FieldInfo(propertyName, method, field, clazz, type));
-                        continue;
-                    }
-                }
-
-                beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type));
-                method.setAccessible(true);
+            if (!methodName.startsWith("set")) {
+                continue;
             }
+
+            char c3 = methodName.charAt(3);
+
+            String propertyName;
+            if (Character.isUpperCase(c3)) {
+                propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+            } else if (c3 == '_') {
+                propertyName = methodName.substring(4);
+            } else {
+                continue;
+            }
+            Field field = getField(clazz, propertyName);
+            if (field != null) {
+
+                JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
+
+                if (fieldAnnotation != null && fieldAnnotation.name().length() != 0) {
+                    propertyName = fieldAnnotation.name();
+
+                    beanInfo.add(new FieldInfo(propertyName, method, field, clazz, type));
+                    continue;
+                }
+            }
+
+            beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type));
+            method.setAccessible(true);
         }
 
         for (Field field : clazz.getFields()) {

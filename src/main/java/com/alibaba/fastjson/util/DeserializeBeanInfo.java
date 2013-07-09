@@ -217,6 +217,8 @@ public class DeserializeBeanInfo {
                 propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
             } else if (c3 == '_') {
                 propertyName = methodName.substring(4);
+            } else if (c3 == 'f') {
+                propertyName = methodName.substring(3);
             } else {
                 continue;
             }

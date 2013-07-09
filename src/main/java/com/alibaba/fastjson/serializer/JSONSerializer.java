@@ -28,7 +28,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
@@ -59,7 +59,7 @@ public class JSONSerializer {
     private String                                 dateFormatPattern  = JSON.DEFFAULT_DATE_FORMAT;
     private DateFormat                             dateFormat;
 
-    private HashMap<String, SerialContext> references         = null;
+    private IdentityHashMap<String, SerialContext> references         = null;
     private SerialContext                          context;
 
     public JSONSerializer(){
@@ -128,7 +128,7 @@ public class JSONSerializer {
 
         this.context = new SerialContext(parent, object, fieldName);
         if (references == null) {
-            references = new HashMap<String, SerialContext>();
+            references = new IdentityHashMap<String, SerialContext>();
         }
         this.references.put(context.getPath(), context);
     }
@@ -185,16 +185,10 @@ public class JSONSerializer {
         if (references == null) {
             return false;
         }
-        
-        if (context==null) {
-            return false;
-        }
 
-        SerialContext valueContext = references.get(context.getPath());
-
-        while (valueContext != null && valueContext.getParent() != null) {
-            valueContext = valueContext.getParent();
-            if (valueContext.getObject() == value) {
+        while (context != null && context.getParent() != null) {
+            context = context.getParent();
+            if (context.getObject() == value) {
                 return true;
             }
         }
@@ -206,9 +200,8 @@ public class JSONSerializer {
             return;
         }
 
-        SerialContext valueContext = references.get(context.getPath());
         SerialContext parentContext = null;
-        if (valueContext != null) parentContext = valueContext.getParent();
+        if (context != null) parentContext = context.getParent();
 
         if (parentContext != null) {
             if (object == parentContext.getObject()) {

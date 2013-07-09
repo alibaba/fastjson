@@ -7,6 +7,8 @@ public class SerialContext {
     private final Object        object;
 
     private final Object        fieldName;
+    
+    private       String        path;
 
     public SerialContext(SerialContext parent, Object object, Object fieldName){
         this.parent = parent;
@@ -27,16 +29,20 @@ public class SerialContext {
     }
 
     public String getPath() {
+        if (path != null) {
+            return path;
+        }
         if (parent == null) {
-            return "$";
+            path = "$";
         } else {
             if (fieldName instanceof Integer) {
-                return parent.getPath() + "[" + fieldName + "]";
+                path = parent.getPath() + "[" + fieldName + "]";
             } else {
-                return parent.getPath() + "." + fieldName;
+                path = parent.getPath() + "." + fieldName;
             }
 
         }
+        return path;
     }
 
     public String toString() {

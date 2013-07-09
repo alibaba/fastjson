@@ -93,8 +93,11 @@ public class JavaBeanSerializer implements ObjectSerializer {
             out.writeNull();
             return;
         }
+        
+        SerialContext parent = serializer.getContext();
+        serializer.setContext(parent, object, fieldName);
 
-        if (serializer.containsReference(object)) {
+        if (serializer.containsReference(parent, object)) {
             writeReference(serializer, object);
             return;
         }
@@ -106,9 +109,6 @@ public class JavaBeanSerializer implements ObjectSerializer {
         } else {
             getters = this.getters;    
         }
-
-        SerialContext parent = serializer.getContext();
-        serializer.setContext(parent, object, fieldName);
 
         try {
             out.append('{');
@@ -193,7 +193,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
     }
 
     public void writeReference(JSONSerializer serializer, Object object) {
-        serializer.writeReference(object);
+        serializer.writeReference(serializer.getContext(), object);
     }
 
     public FieldSerializer createFieldSerializer(FieldInfo fieldInfo) {

@@ -170,15 +170,14 @@ public class JSONSerializer {
         if (references == null) {
             return null;
         }
-        SerialContext valueContext = references.get(context.getPath());
 
-        while (valueContext != null && valueContext.getParent() != null) {
-            valueContext = valueContext.getParent();
-            if (valueContext.getObject() == object) {
+        while (context != null && context.getParent() != null) {
+            context = context.getParent();
+            if (context.getObject() == object) {
                 break;
             }
         }
-        return valueContext;
+        return context;
     }
 
     public boolean containsReference(SerialContext context, Object value) {

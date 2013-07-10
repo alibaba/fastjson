@@ -78,8 +78,8 @@ public final class ListSerializer implements ObjectSerializer {
                     Object item = list.get(i);
 
                     if (item != null) {
-                        if (serializer.containsReference(item)) {
-                            serializer.writeReference(item);
+                        if (serializer.containsReference(context, item)) {
+                            serializer.writeReference(context, item);
                         } else {
                             itemSerializer = serializer.getObjectWriter(item.getClass());
                             SerialContext itemContext = new SerialContext(context, object, fieldName);
@@ -119,8 +119,8 @@ public final class ListSerializer implements ObjectSerializer {
                         SerialContext itemContext = new SerialContext(context, object, fieldName);
                         serializer.setContext(itemContext);
 
-                        if (serializer.containsReference(item)) {
-                            serializer.writeReference(item);
+                        if (serializer.containsReference(context, item)) {
+                            serializer.writeReference(context, item);
                         } else {
                             itemSerializer = serializer.getObjectWriter(item.getClass());
                             itemSerializer.write(serializer, item, i, elementType);
@@ -151,8 +151,8 @@ public final class ListSerializer implements ObjectSerializer {
                     SerialContext itemContext = new SerialContext(context, object, fieldName);
                     serializer.setContext(itemContext);
 
-                    if (serializer.containsReference(item)) {
-                        serializer.writeReference(item);
+                    if (serializer.containsReference(context, item)) {
+                        serializer.writeReference(context, item);
                     } else {
                         itemSerializer = serializer.getObjectWriter(item.getClass());
                         itemSerializer.write(serializer, item, end, elementType);

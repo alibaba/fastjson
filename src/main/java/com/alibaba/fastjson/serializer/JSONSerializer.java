@@ -59,7 +59,7 @@ public class JSONSerializer {
     private String                                 dateFormatPattern  = JSON.DEFFAULT_DATE_FORMAT;
     private DateFormat                             dateFormat;
 
-    private IdentityHashMap<Object, SerialContext> references         = null;
+    private IdentityHashMap<String, SerialContext> references         = null;
     private SerialContext                          context;
 
     public JSONSerializer(){
@@ -128,9 +128,9 @@ public class JSONSerializer {
 
         this.context = new SerialContext(parent, object, fieldName);
         if (references == null) {
-            references = new IdentityHashMap<Object, SerialContext>();
+            references = new IdentityHashMap<String, SerialContext>();
         }
-        this.references.put(object, context);
+        this.references.put(context.getPath(), context);
     }
 
     public void setContext(Object object, Object fieldName) {
@@ -166,41 +166,54 @@ public class JSONSerializer {
         return true;
     }
 
-    public SerialContext getSerialContext(Object object) {
+    public SerialContext getSerialContext(SerialContext context, Object object) {
         if (references == null) {
             return null;
         }
 
-        return references.get(object);
+        while (context != null && context.getParent() != null) {
+            context = context.getParent();
+            if (context.getObject() == object) {
+                break;
+            }
+        }
+        return context;
     }
 
-    public boolean containsReference(Object value) {
+    public boolean containsReference(SerialContext context, Object value) {
         if (references == null) {
             return false;
         }
 
-        return references.containsKey(value);
+        while (context != null && context.getParent() != null) {
+            context = context.getParent();
+            if (context.getObject() == value) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    public void writeReference(Object object) {
+    public void writeReference(SerialContext context, Object object) {
         if (isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {
             return;
         }
 
-        SerialContext context = this.getContext();
-        Object current = context.getObject();
-
-        if (object == current) {
-            out.write("{\"$ref\":\"@\"}");
-            return;
-        }
-
-        SerialContext parentContext = context.getParent();
+        SerialContext parentContext = null;
+        if (context != null) parentContext = context.getParent();
 
         if (parentContext != null) {
             if (object == parentContext.getObject()) {
-                out.write("{\"$ref\":\"..\"}");
+                out.write("{\"$ref\":\"@\"}");
                 return;
+            }
+
+            parentContext = parentContext.getParent();
+            if (parentContext != null) {
+                if (object == parentContext.getObject()) {
+                    out.write("{\"$ref\":\"..\"}");
+                    return;
+                }
             }
         }
 
@@ -217,7 +230,7 @@ public class JSONSerializer {
             return;
         }
 
-        SerialContext refContext = this.getSerialContext(object);
+        SerialContext refContext = this.getSerialContext(context, object);
 
         String path = refContext.getPath();
 

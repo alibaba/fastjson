@@ -52,14 +52,15 @@ public class MapSerializer implements ObjectSerializer {
 	            }
         	}
         }
-        
-        if (serializer.containsReference(object)) {
-        	serializer.writeReference(object);
-            return;
-        }
 
         SerialContext parent = serializer.getContext();
         serializer.setContext(parent, object, fieldName);
+        
+        if (serializer.containsReference(parent, object)) {
+            serializer.writeReference(parent, object);
+            return;
+        }
+        
         try {
             out.write('{');
             

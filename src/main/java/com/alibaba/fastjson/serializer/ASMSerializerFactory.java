@@ -65,7 +65,7 @@ public class ASMSerializerFactory implements Opcodes {
         public String getClassName() {
             return className;
         }
-
+        
         public int obj() {
             return 2;
         }
@@ -298,15 +298,30 @@ public class ASMSerializerFactory implements Opcodes {
         }
 
         {
+            mw.visitVarInsn(ALOAD, context.serializer());
+            mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "getContext",
+                               "()Lcom/alibaba/fastjson/serializer/SerialContext;");
+            mw.visitVarInsn(ASTORE, context.var("parent"));
+
+            mw.visitVarInsn(ALOAD, context.serializer());
+            mw.visitVarInsn(ALOAD, context.var("parent"));
+            mw.visitVarInsn(ALOAD, context.obj());
+            mw.visitVarInsn(ALOAD, context.paramFieldName());
+            mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "setContext",
+                               "(Lcom/alibaba/fastjson/serializer/SerialContext;Ljava/lang/Object;Ljava/lang/Object;)V");
+        }
+        
+        {
             // if (serializer.containsReference(object)) {
 
             Label endRef_ = new Label();
             Label notNull_ = new Label();
 
             mw.visitVarInsn(ALOAD, context.serializer());
+            mw.visitVarInsn(ALOAD, context.var("parent"));
             mw.visitVarInsn(ALOAD, context.obj());
             mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "containsReference",
-                               "(Ljava/lang/Object;)Z");
+                               "(Lcom/alibaba/fastjson/serializer/SerialContext;Ljava/lang/Object;)Z");
             mw.visitJumpInsn(IFEQ, endRef_);
 
             mw.visitVarInsn(ALOAD, 0);
@@ -327,20 +342,6 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitInsn(RETURN);
 
             mw.visitLabel(endRef_);
-        }
-
-        {
-            mw.visitVarInsn(ALOAD, context.serializer());
-            mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "getContext",
-                               "()Lcom/alibaba/fastjson/serializer/SerialContext;");
-            mw.visitVarInsn(ASTORE, context.var("parent"));
-
-            mw.visitVarInsn(ALOAD, context.serializer());
-            mw.visitVarInsn(ALOAD, context.var("parent"));
-            mw.visitVarInsn(ALOAD, context.obj());
-            mw.visitVarInsn(ALOAD, context.paramFieldName());
-            mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "setContext",
-                               "(Lcom/alibaba/fastjson/serializer/SerialContext;Ljava/lang/Object;Ljava/lang/Object;)V");
         }
 
         // SEPERATO

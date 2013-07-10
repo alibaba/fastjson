@@ -382,10 +382,6 @@ public class ParserConfig {
     }
 
     public ObjectDeserializer createJavaBeanDeserializer(Class<?> clazz, Type type) {
-        if (clazz == Class.class) {
-            return this.defaultSerializer;
-        }
-
         boolean asmEnable = this.asmEnable;
         if (asmEnable && !Modifier.isPublic(clazz.getModifiers())) {
             asmEnable = false;
@@ -446,8 +442,6 @@ public class ParserConfig {
             // } catch (VerifyError e) {
             // e.printStackTrace();
             // return new JavaBeanDeserializer(this, clazz, type);
-        } catch (NoSuchMethodException error) {
-            return new JavaBeanDeserializer(this, clazz, type);
         } catch (ASMException asmError) {
             return new JavaBeanDeserializer(this, clazz, type);
         } catch (Exception e) {

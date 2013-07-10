@@ -38,6 +38,8 @@ public class FieldInfoTest extends TestCase {
         FieldInfo fieldInfoOfSetter = new FieldInfo("value", method, null, GenericSetterEntity.class, type);
         Assert.assertEquals(fieldInfoOfSetter.getFieldType(), ValueObject.class);
         Assert.assertEquals(fieldInfoOfSetter.getFieldClass(), ValueObject.class);
+        
+        fieldInfoOfSetter.toString();
 
         method = GenericListSetterEntity.class.getMethod("setValue", List.class);
         type = new ParameterizedTypeImpl(new Type[] { ValueObject.class }, null, GenericListSetterEntity.class);

@@ -1337,6 +1337,13 @@ public final class SerializeWriter extends Writer {
         int newcount = count + len + 1;
         if (newcount > buf.length) {
             if (writer != null) {
+                if (len == 0) {
+                    write('"');
+                    write('"');
+                    write(':');
+                    return;
+                }
+                
                 boolean hasSpecial = false;
                 for (int i = 0; i < len; ++i) {
                     char ch = text.charAt(i);
@@ -1365,6 +1372,17 @@ public final class SerializeWriter extends Writer {
                 return;
             }
             expandCapacity(newcount);
+        }
+        
+        if (len == 0) {
+            int newCount = count + 3;
+            if (newCount > buf.length) {
+                expandCapacity(count + 3);
+            }
+            buf[count++] = '"';
+            buf[count++] = '"';
+            buf[count++] = ':';
+            return;
         }
 
         int start = count;
@@ -1419,6 +1437,13 @@ public final class SerializeWriter extends Writer {
         int newcount = count + len + 1;
         if (newcount > buf.length) {
             if (writer != null) {
+                if (len == 0) {
+                    write('\'');
+                    write('\'');
+                    write(':');
+                    return;
+                }
+                
                 boolean hasSpecial = false;
                 for (int i = 0; i < len; ++i) {
                     char ch = text.charAt(i);
@@ -1429,7 +1454,7 @@ public final class SerializeWriter extends Writer {
                 }
 
                 if (hasSpecial) {
-                    write('"');
+                    write('\'');
                 }
                 for (int i = 0; i < len; ++i) {
                     char ch = text.charAt(i);
@@ -1441,13 +1466,24 @@ public final class SerializeWriter extends Writer {
                     }
                 }
                 if (hasSpecial) {
-                    write('"');
+                    write('\'');
                 }
                 write(':');
                 return;
             }
 
             expandCapacity(newcount);
+        }
+        
+        if (len == 0) {
+            int newCount = count + 3;
+            if (newCount > buf.length) {
+                expandCapacity(count + 3);
+            }
+            buf[count++] = '\'';
+            buf[count++] = '\'';
+            buf[count++] = ':';
+            return;
         }
 
         int start = count;
@@ -1502,6 +1538,7 @@ public final class SerializeWriter extends Writer {
 
         try {
             writer.write(buf, 0, count);
+            writer.flush();
         } catch (IOException e) {
             throw new JSONException(e.getMessage(), e);
         }

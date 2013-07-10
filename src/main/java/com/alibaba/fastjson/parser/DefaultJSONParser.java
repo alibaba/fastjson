@@ -950,6 +950,8 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                     case RBRACKET:
                         lexer.nextToken(JSONToken.COMMA);
                         return;
+                    case EOF:
+                        throw new JSONException("unclosed jsonArray");
                     default:
                         value = parse();
                         break;

@@ -467,9 +467,6 @@ public class ClassWriter {
         return new MethodWriter(this, access, name, desc, signature, exceptions);
     }
 
-    public void visitEnd() {
-    }
-
     // ------------------------------------------------------------------------
     // Other public methods
     // ------------------------------------------------------------------------

@@ -315,6 +315,12 @@
 			<version>3.1.1.RELEASE</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.javassist</groupId>
+			<artifactId>javassist</artifactId>
+			<version>3.18.0-GA</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 </project>
 

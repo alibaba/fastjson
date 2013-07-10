@@ -30,7 +30,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     private final List<FieldDeserializer>        fieldDeserializers   = new ArrayList<FieldDeserializer>();
 
     private final Class<?>                       clazz;
-    private final Type                           type;
 
     private DeserializeBeanInfo                  beanInfo;
 
@@ -40,7 +39,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz, Type type){
         this.clazz = clazz;
-        this.type = type;
 
         beanInfo = DeserializeBeanInfo.computeSetters(clazz, type);
 
@@ -55,10 +53,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
     public Class<?> getClazz() {
         return clazz;
-    }
-
-    public Type getType() {
-        return type;
     }
 
     private void addFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {

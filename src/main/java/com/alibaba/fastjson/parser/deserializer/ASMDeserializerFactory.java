@@ -1124,7 +1124,7 @@ public class ASMDeserializerFactory implements Opcodes {
             }
 
             if (fieldClass.isEnum()) {
-                return;
+                continue;
             }
 
             if (Collection.class.isAssignableFrom(fieldClass)) {

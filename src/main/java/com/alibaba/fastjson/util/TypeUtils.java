@@ -941,7 +941,7 @@ public class TypeUtils {
 
                 String propertyName;
                 if (Character.isUpperCase(c3)) {
-                    if (Character.isUpperCase(methodName.charAt(4))) {
+                    if (methodName.length() > 4 && Character.isUpperCase(methodName.charAt(4))) {
                         propertyName = methodName.substring(3);
                     } else {
                         propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);

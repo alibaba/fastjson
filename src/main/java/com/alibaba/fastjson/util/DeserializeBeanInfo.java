@@ -124,11 +124,7 @@ public class DeserializeBeanInfo {
                     Class<?> fieldClass = creatorConstructor.getParameterTypes()[i];
                     Type fieldType = creatorConstructor.getGenericParameterTypes()[i];
                     Field field = getField(clazz, fieldAnnotation.name());
-                    if (field != null) {
-                        field.setAccessible(true);
-                    }
-                    FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, null,
-                                                        field);
+                    FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, field);
                     beanInfo.add(fieldInfo);
                 }
                 return beanInfo;
@@ -155,11 +151,7 @@ public class DeserializeBeanInfo {
                     Class<?> fieldClass = factoryMethod.getParameterTypes()[i];
                     Type fieldType = factoryMethod.getGenericParameterTypes()[i];
                     Field field = getField(clazz, fieldAnnotation.name());
-                    if (field != null) {
-                        field.setAccessible(true);
-                    }
-                    FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, null,
-                                                        field);
+                    FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, field);
                     beanInfo.add(fieldInfo);
                 }
                 return beanInfo;
@@ -214,12 +206,11 @@ public class DeserializeBeanInfo {
 
             String propertyName;
             if (Character.isUpperCase(c3)) {
-                if (Character.isUpperCase(methodName.charAt(4))) {
+                if (methodName.length() > 4 && Character.isUpperCase(methodName.charAt(4))) {
                     propertyName = methodName.substring(3);
                 } else {
                     propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
                 }
-                propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
             } else if (c3 == '_') {
                 propertyName = methodName.substring(4);
             } else if (c3 == 'f') {

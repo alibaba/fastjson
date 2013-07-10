@@ -199,7 +199,9 @@ public class Base64 {
     public final static byte[] decodeFast(String s) {
         // Check special case
         int sLen = s.length();
-        if (sLen == 0) return new byte[0];
+        if (sLen == 0) {
+            return new byte[0];
+        }
 
         int sIx = 0, eIx = sLen - 1; // Start and end index after trimming.
 

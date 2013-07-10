@@ -143,10 +143,6 @@ public class JSONSerializer {
         }
     }
 
-    public boolean isWriteClassName() {
-        return isEnabled(SerializerFeature.WriteClassName);
-    }
-
     public final boolean isWriteClassName(Type fieldType, Object obj) {
         boolean result = out.isEnabled(SerializerFeature.WriteClassName);
 
@@ -183,10 +179,6 @@ public class JSONSerializer {
     }
 
     public void writeReference(Object object) {
-        if (isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {
-            return;
-        }
-
         SerialContext context = this.getContext();
         Object current = context.getObject();
 

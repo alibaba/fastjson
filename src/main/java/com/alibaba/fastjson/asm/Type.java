@@ -212,13 +212,13 @@ public class Type {
                 while (desc.charAt(c++) != ';') {
                 }
                 n += 1;
-            } else if (car == '[') {
-                while ((car = desc.charAt(c)) == '[') {
-                    ++c;
-                }
-                if (car == 'D' || car == 'J') {
-                    n -= 1;
-                }
+//            } else if (car == '[') {
+//                while ((car = desc.charAt(c)) == '[') {
+//                    ++c;
+//                }
+//                if (car == 'D' || car == 'J') {
+//                    n -= 1;
+//                }
             } else if (car == 'D' || car == 'J') {
                 n += 2;
             } else {
@@ -312,20 +312,7 @@ public class Type {
      * 
      * @return the descriptor corresponding to this Java type.
      */
-    public String getDescriptor() {
-        StringBuffer buf = new StringBuffer();
-
-        if (this.buf == null) {
-            // descriptor is in byte 3 of 'off' for primitive types (buf == null)
-            buf.append((char) ((off & 0xFF000000) >>> 24));
-        } else if (sort == ARRAY) {
-            buf.append(this.buf, off, len);
-        } else { // sort == OBJECT
-            buf.append('L');
-            buf.append(this.buf, off, len);
-            buf.append(';');
-        }
-
-        return buf.toString();
+    String getDescriptor() {
+        return new String(this.buf, off, len);
     }
 }

@@ -102,20 +102,16 @@ public class MapDeserializer implements ObjectDeserializer {
             return createMap(parameterizedType.getRawType());
         }
 
-        if (type instanceof Class<?>) {
-            Class<?> clazz = (Class<?>) type;
-            if (clazz.isInterface()) {
-                throw new JSONException("unsupport type " + type);
-            }
-            
-            try {
-                return (Map<Object, Object>) clazz.newInstance();
-            } catch (Exception e) {
-                throw new JSONException("unsupport type " + type, e);
-            }
+        Class<?> clazz = (Class<?>) type;
+        if (clazz.isInterface()) {
+            throw new JSONException("unsupport type " + type);
         }
         
-        throw new JSONException("unsupport type " + type);
+        try {
+            return (Map<Object, Object>) clazz.newInstance();
+        } catch (Exception e) {
+            throw new JSONException("unsupport type " + type, e);
+        }
     }
 
     public int getFastMatchToken() {

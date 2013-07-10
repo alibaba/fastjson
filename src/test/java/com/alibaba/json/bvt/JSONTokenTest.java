@@ -29,5 +29,7 @@ public class JSONTokenTest extends TestCase {
         Assert.assertEquals("fieldName", JSONToken.name(JSONToken.FIELD_NAME));
         Assert.assertEquals("EOF", JSONToken.name(JSONToken.EOF));
         Assert.assertEquals("Unkown", JSONToken.name(Integer.MAX_VALUE));
+        Assert.assertEquals("Set", JSONToken.name(JSONToken.SET));
+        Assert.assertEquals("TreeSet", JSONToken.name(JSONToken.TREE_SET));
     }
 }

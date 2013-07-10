@@ -112,6 +112,9 @@ public class JSONWriter implements Closeable, Flushable {
                 break;
             case ArrayValue:
                 break;
+            case StartObject:
+                newState = PropertyKey;
+                break;
             default:
                 break;
         }
@@ -121,6 +124,10 @@ public class JSONWriter implements Closeable, Flushable {
     }
 
     private void beforeWrite() {
+        if (context == null) {
+            return;
+        }
+        
         switch (context.getState()) {
             case StartObject:
             case StartArray:

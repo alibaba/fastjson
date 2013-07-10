@@ -797,6 +797,10 @@ public abstract class JSONLexer implements Closeable {
             if (ch == '\"') {
                 break;
             }
+            
+            if (ch == EOI) {
+                throw new JSONException("unclosed string : " + ch);
+            }
 
             if (ch == '\\') {
                 if (!hasSpecial) {
@@ -1148,7 +1152,7 @@ public abstract class JSONLexer implements Closeable {
         return strVal;
     }
 
-    public String scanFieldSymbol(char[] fieldName, final SymbolTable symbolTable) {
+    public final String scanFieldSymbol(char[] fieldName, final SymbolTable symbolTable) {
         matchStat = UNKOWN;
 
         if (!charArrayCompare(fieldName)) {
@@ -2204,6 +2208,7 @@ public abstract class JSONLexer implements Closeable {
             }
 
             if (ch == 'D' || ch == 'F') {
+                sp++;
                 next();
             }
 

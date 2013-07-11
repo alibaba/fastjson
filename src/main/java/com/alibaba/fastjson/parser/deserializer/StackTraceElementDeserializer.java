@@ -104,15 +104,10 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
                 throw new JSONException("syntax error : " + key);
             }
 
-            if (lexer.token() == JSONToken.COMMA) {
-                continue;
-            }
-
             if (lexer.token() == JSONToken.RBRACE) {
                 lexer.nextToken(JSONToken.COMMA);
                 break;
             }
-
         }
         return (T) new StackTraceElement(declaringClass, methodName, fileName, lineNumber);
     }

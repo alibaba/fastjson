@@ -64,28 +64,16 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
                     lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
                     if (lexer.token() == JSONToken.LITERAL_STRING) {
                         String ref = lexer.stringVal();
-                        if ("@".equals(ref)) {
-                            object = context.getObject();
-                        } else if ("..".equals(ref)) {
+                        if ("..".equals(ref)) {
                             ParseContext parentContext = context.getParentContext();
-                            if (parentContext.getObject() != null) {
-                                object = parentContext.getObject();
-                            } else {
-                                parser.addResolveTask(new ResolveTask(parentContext, ref));
-                                parser.setResolveStatus(DefaultJSONParser.NeedToResolve);
-                            }
+                            object = parentContext.getObject();
                         } else if ("$".equals(ref)) {
                             ParseContext rootContext = context;
                             while (rootContext.getParentContext() != null) {
                                 rootContext = rootContext.getParentContext();
                             }
 
-                            if (rootContext.getObject() != null) {
-                                object = rootContext.getObject();
-                            } else {
-                                parser.addResolveTask(new ResolveTask(rootContext, ref));
-                                parser.setResolveStatus(DefaultJSONParser.NeedToResolve);
-                            }
+                            object = rootContext.getObject();
                         } else {
                             parser.addResolveTask(new ResolveTask(context, ref));
                             parser.setResolveStatus(DefaultJSONParser.NeedToResolve);
@@ -127,10 +115,6 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
                 lexer.nextToken(valueDeserializer.getFastMatchToken());
 
                 Object value = valueDeserializer.deserialze(parser, valueType, key);
-
-                if (map.size() == 0 && context != null && context.getObject() != map) {
-                    parser.setContext(context, map, fieldName);
-                }
 
                 map.put(key, value);
 
@@ -249,12 +233,12 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
                 parser.checkMapResolve(map, key);
 
                 parser.setContext(context, value, key);
-                
+
                 final int tok = lexer.token();
                 if (tok == JSONToken.EOF || tok == JSONToken.RBRACKET) {
-                	return map;
+                    return map;
                 }
-                
+
                 if (tok == JSONToken.RBRACE) {
                     lexer.nextToken();
                     return map;
@@ -271,11 +255,6 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
         Map<String, FieldDeserializer> setters = parser.getConfig().getFieldDeserializers(clazz);
 
         JSONLexer lexer = parser.getLexer(); // xxx
-
-        if (lexer.token() == JSONToken.RBRACE) {
-            lexer.nextToken(JSONToken.COMMA);
-            return;
-        }
 
         if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {
             throw new JSONException("syntax error, expect {, actual " + lexer.tokenName());
@@ -376,16 +355,23 @@ public class DefaultObjectDeserializer implements ObjectDeserializer {
 
         if (type instanceof GenericArrayType) {
             Type componentType = ((GenericArrayType) type).getGenericComponentType();
+            if (componentType instanceof TypeVariable) {
+                TypeVariable<?> componentVar = (TypeVariable<?>)componentType;
+                componentType = componentVar.getBounds()[0];
+            }
+            
             List<Object> list = new ArrayList<Object>();
             parser.parseArray(componentType, list);
+            Class<?> componentClass;
             if (componentType instanceof Class) {
-                Class<?> componentClass = (Class<?>) componentType;
+                componentClass = (Class<?>) componentType;
                 Object[] array = (Object[]) Array.newInstance(componentClass, list.size());
-
                 list.toArray(array);
-
                 return (T) array;
+            } else {
+                return (T) list.toArray();
             }
+            
         }
 
         throw new JSONException("not support type : " + type);

@@ -221,10 +221,6 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static <T> int handleResovleTask(DefaultJSONParser parser, T value) {
-        if (parser.isEnabled(Feature.DisableCircularReferenceDetect)) {
-            return 0;
-        }
-
         int size = parser.getResolveTaskList().size();
         for (int i = 0; i < size; ++i) {
             ResolveTask task = parser.getResolveTaskList().get(i);

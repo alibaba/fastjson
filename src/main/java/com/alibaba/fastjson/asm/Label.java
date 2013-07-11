@@ -204,8 +204,7 @@ public class Label {
      * @throws IllegalArgumentException if this label has already been resolved, or if it has not been created by the
      * given code writer.
      */
-    boolean resolve(final MethodWriter owner, final int position, final byte[] data) {
-        boolean needUpdate = false;
+    void resolve(final MethodWriter owner, final int position, final byte[] data) {
         this.status |= RESOLVED;
         this.position = position;
         int i = 0;
@@ -217,7 +216,6 @@ public class Label {
             data[reference] = (byte) offset;
 
         }
-        return needUpdate;
     }
 
 }

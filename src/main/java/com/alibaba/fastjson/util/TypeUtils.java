@@ -475,6 +475,11 @@ public class TypeUtils {
             if (clazz == Map.class) {
                 return (T) obj;
             }
+            
+            Map map = (Map) obj;
+            if (clazz == Object.class && !map.containsKey(JSON.DEFAULT_TYPE_KEY)) {
+                return (T) obj;
+            }
 
             return castToJavaBean((Map<String, Object>) obj, clazz, mapping);
         }

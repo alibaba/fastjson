@@ -7,7 +7,7 @@ import com.alibaba.fastjson.parser.DefaultExtJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 
-public class DefaultObjectDeserializerTest_3 extends TestCase {
+public class DefaultObjectDeserializerTest4 extends TestCase {
 
     public void test_0() throws Exception {
         DefaultExtJSONParser parser = new DefaultExtJSONParser("{\"id\":3, \"name\":\"xx\"}", ParserConfig.getGlobalInstance());

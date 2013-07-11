@@ -143,15 +143,9 @@ public class ParserConfig {
 
     private final IdentityHashMap<Type, ObjectDeserializer> derializers       = new IdentityHashMap<Type, ObjectDeserializer>();
 
-    private DefaultObjectDeserializer                       defaultSerializer = new DefaultObjectDeserializer();
-
     private boolean                                         asmEnable         = !ASMUtils.isAndroid();
 
     protected final SymbolTable                             symbolTable       = new SymbolTable();
-
-    public DefaultObjectDeserializer getDefaultSerializer() {
-        return defaultSerializer;
-    }
 
     public ParserConfig(){
         primitiveClasses.add(boolean.class);
@@ -256,10 +250,10 @@ public class ParserConfig {
         derializers.put(AtomicLongArray.class, AtomicLongArrayDeserializer.instance);
         derializers.put(StackTraceElement.class, StackTraceElementDeserializer.instance);
 
-        derializers.put(Serializable.class, defaultSerializer);
-        derializers.put(Cloneable.class, defaultSerializer);
-        derializers.put(Comparable.class, defaultSerializer);
-        derializers.put(Closeable.class, defaultSerializer);
+        derializers.put(Serializable.class, DefaultObjectDeserializer.instance);
+        derializers.put(Cloneable.class, DefaultObjectDeserializer.instance);
+        derializers.put(Comparable.class, DefaultObjectDeserializer.instance);
+        derializers.put(Closeable.class, DefaultObjectDeserializer.instance);
 
         try {
             derializers.put(Class.forName("java.awt.Point"), PointDeserializer.instance);
@@ -306,7 +300,7 @@ public class ParserConfig {
             }
         }
 
-        return this.defaultSerializer;
+        return DefaultObjectDeserializer.instance;
     }
 
     public ObjectDeserializer getDeserializer(Class<?> clazz, Type type) {

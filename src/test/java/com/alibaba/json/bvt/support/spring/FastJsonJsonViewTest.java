@@ -1,6 +1,7 @@
 package com.alibaba.json.bvt.support.spring;
 
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,5 +40,19 @@ public class FastJsonJsonViewTest extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         view.render(model, request, response);
+        
+        view.setRenderedAttributes(null);
+        
+        view.setCharset(Charset.forName("UTF-8"));
+        view.render(model, request, response);
+        
+        view.setUpdateContentLength(true);
+        view.setFeatures(SerializerFeature.BrowserCompatible);
+        view.render(model, request, response);
+        
+        view.setCharset(Charset.forName("GBK"));
+        view.render(Collections.singletonMap("abc", "cde"), request, response);
+        
+        view.setDisableCaching(true);
     }
 }

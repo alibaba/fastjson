@@ -330,7 +330,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                         } else if ("..".equals(ref)) {
                             ParseContext parentContext = context.getParentContext();
                             if (parentContext.getObject() != null) {
-                                refValue = this.getContext().getObject();
+                                refValue = parentContext.getObject();
                             } else {
                                 addResolveTask(new ResolveTask(parentContext, ref));
                                 setResolveStatus(DefaultJSONParser.NeedToResolve);
@@ -772,9 +772,6 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                 } else if (fieldClass == long.class) {
                     lexer.nextTokenWithColon(JSONToken.LITERAL_INT);
                     args[0] = LongDeserializer.instance.deserialze(this, fieldType, null);
-                } else if (fieldClass == List.class) {
-                    lexer.nextTokenWithColon(JSONToken.LBRACE);
-                    args[0] = CollectionDeserializer.instance.deserialze(this, fieldType, null);
                 } else {
                     ObjectDeserializer fieldValueDeserializer = config.getDeserializer(fieldClass, fieldType);
 

@@ -30,16 +30,6 @@ public class ClassFieldTest extends TestCase {
         Assert.assertNotNull(error);
     }
 
-    public void test_null() throws Exception {
-        Exception error = null;
-        try {
-            ASMClassLoader.forName(null);
-        } catch (Exception ex) {
-            error = ex;
-        }
-        Assert.assertNotNull(error);
-    }
-
     public static class User {
 
         private Class<?> value;

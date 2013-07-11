@@ -9,6 +9,7 @@ import org.junit.Assert;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.deserializer.CalendarDeserializer;
+import com.alibaba.json.bvt.parser.deser.DateParseTest14.VO;
 
 
 public class DateParseTest9 extends TestCase {
@@ -18,5 +19,25 @@ public class DateParseTest9 extends TestCase {
         Assert.assertEquals(date.getTime(), 1242357713797L);
         
         Assert.assertEquals(JSONToken.LITERAL_INT, CalendarDeserializer.instance.getFastMatchToken());
+    }
+    
+    public void test_error() throws Exception {
+        Exception error = null;
+        try {
+            JSON.parseObject("{\"date\":\"/Date(1242357713797A0800)/\"}", VO.class);
+        } catch (Exception ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_error_1() throws Exception {
+        Exception error = null;
+        try {
+            JSON.parseObject("{\"date\":\"/Date(1242357713797#0800)/\"}", VO.class);
+        } catch (Exception ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
     }
 }

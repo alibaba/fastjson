@@ -558,8 +558,14 @@ public final class SerializeWriter extends Writer {
                     char ch = text.charAt(i);
 
                     if (isEnabled(SerializerFeature.BrowserCompatible)) {
-                        if (ch == '\b' || ch == '\f' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '"'
-                            || ch == '/' || ch == '\\') {
+                        if (ch == '\b' //
+                            || ch == '\f' //
+                            || ch == '\n' //
+                            || ch == '\r' //
+                            || ch == '\t' //
+                            || ch == '"' //
+                            || ch == '/' //
+                            || ch == '\\') {
                             write('\\');
                             write(replaceChars[(int) ch]);
                             continue;
@@ -620,13 +626,19 @@ public final class SerializeWriter extends Writer {
             for (int i = start; i < end; ++i) {
                 char ch = buf[i];
 
-                if (ch == '"' || ch == '/' || ch == '\\') {
+                if (ch == '"' //
+                    || ch == '/' //
+                    || ch == '\\') {
                     lastSpecialIndex = i;
                     newcount += 1;
                     continue;
                 }
 
-                if (ch == '\b' || ch == '\f' || ch == '\n' || ch == '\r' || ch == '\t') {
+                if (ch == '\b' //
+                    || ch == '\f' //
+                    || ch == '\n' //
+                    || ch == '\r' //
+                    || ch == '\t') {
                     lastSpecialIndex = i;
                     newcount += 1;
                     continue;
@@ -653,7 +665,11 @@ public final class SerializeWriter extends Writer {
             for (int i = lastSpecialIndex; i >= start; --i) {
                 char ch = buf[i];
 
-                if (ch == '\b' || ch == '\f' || ch == '\n' || ch == '\r' || ch == '\t') {
+                if (ch == '\b' //
+                    || ch == '\f'//
+                    || ch == '\n' //
+                    || ch == '\r' //
+                    || ch == '\t') {
                     System.arraycopy(buf, i + 1, buf, i + 2, end - i - 1);
                     buf[i] = '\\';
                     buf[i + 1] = replaceChars[(int) ch];
@@ -661,7 +677,9 @@ public final class SerializeWriter extends Writer {
                     continue;
                 }
 
-                if (ch == '"' || ch == '/' || ch == '\\') {
+                if (ch == '"' //
+                    || ch == '/' //
+                    || ch == '\\') {
                     System.arraycopy(buf, i + 1, buf, i + 2, end - i - 1);
                     buf[i] = '\\';
                     buf[i + 1] = ch;
@@ -1343,7 +1361,7 @@ public final class SerializeWriter extends Writer {
                     write(':');
                     return;
                 }
-                
+
                 boolean hasSpecial = false;
                 for (int i = 0; i < len; ++i) {
                     char ch = text.charAt(i);
@@ -1373,7 +1391,7 @@ public final class SerializeWriter extends Writer {
             }
             expandCapacity(newcount);
         }
-        
+
         if (len == 0) {
             int newCount = count + 3;
             if (newCount > buf.length) {
@@ -1443,7 +1461,7 @@ public final class SerializeWriter extends Writer {
                     write(':');
                     return;
                 }
-                
+
                 boolean hasSpecial = false;
                 for (int i = 0; i < len; ++i) {
                     char ch = text.charAt(i);
@@ -1474,7 +1492,7 @@ public final class SerializeWriter extends Writer {
 
             expandCapacity(newcount);
         }
-        
+
         if (len == 0) {
             int newCount = count + 3;
             if (newCount > buf.length) {

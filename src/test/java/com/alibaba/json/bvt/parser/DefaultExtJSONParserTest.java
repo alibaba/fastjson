@@ -39,16 +39,19 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
+
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.DefaultExtJSONParser;
 import com.alibaba.fastjson.parser.Feature;
+import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.TypeUtils;
 
 public class DefaultExtJSONParserTest extends TestCase {
 
     public void test_parseObject() {
+        new DefaultExtJSONParser("".toCharArray(), 0, ParserConfig.getGlobalInstance(), 0).close();
         User user = new User();
         user.setName("校长");
         user.setAge(3);

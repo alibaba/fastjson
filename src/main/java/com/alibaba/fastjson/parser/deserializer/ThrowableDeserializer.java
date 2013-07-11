@@ -95,10 +95,6 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
                 otherValues.put(key, parser.parse());
             }
 
-            if (lexer.token() == JSONToken.COMMA) {
-                continue;
-            }
-
             if (lexer.token() == JSONToken.RBRACE) {
                 lexer.nextToken(JSONToken.COMMA);
                 break;

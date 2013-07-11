@@ -1,16 +1,16 @@
 package com.alibaba.json.bvt.serializer;
 
 import org.junit.Assert;
+
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.PropertyPreFilter;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 
 /**
- * 
  * @author wenshao
- *
  */
 public class PropertyPathTest extends TestCase {
 
@@ -23,7 +23,7 @@ public class PropertyPathTest extends TestCase {
 
         C c = new C();
         c.setId(345);
-        
+
         D d = new D();
         d.setId(456);
 
@@ -31,19 +31,23 @@ public class PropertyPathTest extends TestCase {
         b.setC(c);
         b.setD(d);
 
-        Assert.assertEquals("{\"b\":{\"c\":{\"id\":345},\"d\":{\"id\":456},\"id\":234},\"id\":123}", JSON.toJSONString(a));
-        Assert.assertEquals("{\"b\":{\"c\":{\"id\":345},\"id\":234},\"id\":123}", JSON.toJSONString(a, new MyPropertyPreFilter()));
+        Assert.assertEquals("{\"b\":{\"c\":{\"id\":345},\"d\":{\"id\":456},\"id\":234},\"id\":123}",
+                            JSON.toJSONString(a));
+        Assert.assertEquals("{\"b\":{\"c\":{\"id\":345},\"id\":234},\"id\":123}",
+                            JSON.toJSONString(a, new MyPropertyPreFilter()));
+        Assert.assertEquals("{'b':{'c':{'id':345},'id':234},'id':123}",
+                            JSON.toJSONString(a, new MyPropertyPreFilter(), SerializerFeature.UseSingleQuotes));
     }
 
     public static class MyPropertyPreFilter implements PropertyPreFilter {
 
         public boolean apply(JSONSerializer serializer, Object source, String name) {
             String path = serializer.getContext().getPath() + "." + name;
-            
+
             if (path.startsWith("$.b.d")) {
                 return false;
             }
-            
+
             return true;
         }
 

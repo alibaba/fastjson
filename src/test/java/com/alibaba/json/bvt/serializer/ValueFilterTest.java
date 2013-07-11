@@ -3,9 +3,11 @@ package com.alibaba.json.bvt.serializer;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Assert;
 import junit.framework.TestCase;
 
+import org.junit.Assert;
+
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.ValueFilter;
@@ -35,6 +37,22 @@ public class ValueFilterTest extends TestCase {
 
         String text = out.toString();
         Assert.assertEquals("{\"id\":\"AAA\"}", text);
+    }
+    
+    public void test_toJSONString() throws Exception {
+        ValueFilter filter = new ValueFilter() {
+
+            public Object process(Object source, String name, Object value) {
+                if (name.equals("id")) {
+                    return "AAA";
+                }
+
+                return value;
+            }
+
+        };
+        
+        Assert.assertEquals("{\"id\":\"AAA\"}", JSON.toJSONString(new A(), filter));
     }
 
     public void test_valuefilter_1() throws Exception {

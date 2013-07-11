@@ -144,11 +144,6 @@ class MethodWriter implements MethodVisitor {
      */
     private int        maxLocals;
 
-    /**
-     * Indicates if some jump instructions are too small and need to be resized.
-     */
-    private boolean    resize;
-
     // ------------------------------------------------------------------------
 
     /*
@@ -286,7 +281,7 @@ class MethodWriter implements MethodVisitor {
 
     public void visitLabel(final Label label) {
         // resolves previous forward references to label, if any
-        resize |= label.resolve(this, code.length, code.data);
+        label.resolve(this, code.length, code.data);
     }
 
     public void visitLdcInsn(final Object cst) {
@@ -305,11 +300,11 @@ class MethodWriter implements MethodVisitor {
 
     public void visitIincInsn(final int var, final int increment) {
         // adds the instruction to the bytecode of the method
-        if ((var > 255) || (increment > 127) || (increment < -128)) {
-            code.putByte(196 /* WIDE */).put12(Opcodes.IINC, var).putShort(increment);
-        } else {
+//        if ((var > 255) || (increment > 127) || (increment < -128)) {
+//            code.putByte(196 /* WIDE */).put12(Opcodes.IINC, var).putShort(increment);
+//        } else {
             code.putByte(Opcodes.IINC).put11(var, increment);
-        }
+//        }
     }
 
     public void visitMaxs(final int maxStack, final int maxLocals) {
@@ -338,10 +333,6 @@ class MethodWriter implements MethodVisitor {
      * @return the size of the bytecode of this method.
      */
     final int getSize() {
-        if (resize) {
-            // replaces the temporary jump opcodes introduced by Label.resolve.
-            throw new UnsupportedOperationException();
-        }
         int size = 8;
         if (code.length > 0) {
             cw.newUTF8("Code");

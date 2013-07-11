@@ -1,15 +1,26 @@
 package com.alibaba.json.bvt.parser.deser;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.alibaba.fastjson.JSON;
-
 import junit.framework.TestCase;
+
+import org.junit.Assert;
+
+import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.parser.ParserConfig;
 
 public class DateTest extends TestCase {
 
     public void test() throws Exception {
-        VO vo = JSON.parseObject("{\"date\":\"2012-04-01T12:04:05.555\"}", VO.class);
+        DefaultJSONParser parser = new DefaultJSONParser("{\"date\":\"2012/04-01\"}", ParserConfig.getGlobalInstance(),
+                                                         0);
+        parser.setDateFormat("yyyy/MM-dd");
+        VO vo = parser.parseObject(VO.class);
+        
+        Assert.assertEquals(new SimpleDateFormat("yyyy/MM-dd").parse("2012/04-01"), vo.getDate());
+        
+        parser.close();
     }
 
     public static class VO {

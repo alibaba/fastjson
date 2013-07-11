@@ -25,10 +25,6 @@ public class NumberDeserializer implements ObjectDeserializer {
             long val = lexer.longValue();
             lexer.nextToken(JSONToken.COMMA);
 
-            if (clazz == double.class || clazz == Double.class) {
-                return (T) Double.valueOf(val);
-            }
-
             if (clazz == short.class || clazz == Short.class) {
                 return (T) Short.valueOf((short) val);
             }

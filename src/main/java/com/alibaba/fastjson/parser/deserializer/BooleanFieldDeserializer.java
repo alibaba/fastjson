@@ -52,7 +52,9 @@ public class BooleanFieldDeserializer extends FieldDeserializer {
                 return;
             }
 
-            setValue(object, null);
+            if (object != null) {
+                setValue(object, null);
+            }
             return;
         }
 

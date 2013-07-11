@@ -37,12 +37,6 @@ public class MapDeserializer implements ObjectDeserializer {
 
         try {
             parser.setContext(context, map, fieldName);
-
-            if (lexer.token() == JSONToken.RBRACE) {
-                lexer.nextToken(JSONToken.COMMA);
-                return (T) map;
-            }
-
             return (T) deserialze(parser, type, fieldName, map);
         } finally {
             parser.setContext(context);

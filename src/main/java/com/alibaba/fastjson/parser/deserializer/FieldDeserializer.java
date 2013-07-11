@@ -101,9 +101,13 @@ public abstract class FieldDeserializer {
             } catch (Exception e) {
                 throw new JSONException("set property error, " + fieldInfo.getName(), e);
             }
-        } else if (fieldInfo.getField() != null) {
+            return;
+        }
+
+        final Field field = fieldInfo.getField();
+        if (field != null) {
             try {
-                fieldInfo.getField().set(object, value);
+                field.set(object, value);
             } catch (Exception e) {
                 throw new JSONException("set property error, " + fieldInfo.getName(), e);
             }

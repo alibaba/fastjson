@@ -87,7 +87,6 @@ import com.alibaba.fastjson.parser.deserializer.ColorDeserializer;
 import com.alibaba.fastjson.parser.deserializer.DateDeserializer;
 import com.alibaba.fastjson.parser.deserializer.DateFormatDeserializer;
 import com.alibaba.fastjson.parser.deserializer.DefaultFieldDeserializer;
-import com.alibaba.fastjson.parser.deserializer.DefaultObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.EnumDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FileDeserializer;
@@ -250,10 +249,10 @@ public class ParserConfig {
         derializers.put(AtomicLongArray.class, AtomicLongArrayDeserializer.instance);
         derializers.put(StackTraceElement.class, StackTraceElementDeserializer.instance);
 
-        derializers.put(Serializable.class, DefaultObjectDeserializer.instance);
-        derializers.put(Cloneable.class, DefaultObjectDeserializer.instance);
-        derializers.put(Comparable.class, DefaultObjectDeserializer.instance);
-        derializers.put(Closeable.class, DefaultObjectDeserializer.instance);
+        derializers.put(Serializable.class, JavaObjectDeserializer.instance);
+        derializers.put(Cloneable.class, JavaObjectDeserializer.instance);
+        derializers.put(Comparable.class, JavaObjectDeserializer.instance);
+        derializers.put(Closeable.class, JavaObjectDeserializer.instance);
 
         try {
             derializers.put(Class.forName("java.awt.Point"), PointDeserializer.instance);
@@ -300,7 +299,7 @@ public class ParserConfig {
             }
         }
 
-        return DefaultObjectDeserializer.instance;
+        return JavaObjectDeserializer.instance;
     }
 
     public ObjectDeserializer getDeserializer(Class<?> clazz, Type type) {

@@ -32,6 +32,7 @@ import static com.alibaba.fastjson.parser.JSONToken.TREE_SET;
 import static com.alibaba.fastjson.parser.JSONToken.TRUE;
 
 import java.io.Closeable;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -55,11 +56,12 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.deserializer.ASMJavaBeanDeserializer;
-import com.alibaba.fastjson.parser.deserializer.DefaultObjectDeserializer;
+import com.alibaba.fastjson.parser.deserializer.CollectionDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.IntegerDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ListResolveFieldDeserializer;
+import com.alibaba.fastjson.parser.deserializer.LongDeserializer;
 import com.alibaba.fastjson.parser.deserializer.MapResolveFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StringDeserializer;
@@ -73,8 +75,6 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
     protected final Object             input;
     protected final SymbolTable        symbolTable;
     protected ParserConfig             config;
-
-    private DefaultObjectDeserializer  derializer        = new DefaultObjectDeserializer();
 
     private final static Set<Class<?>> primitiveClasses  = new HashSet<Class<?>>();
 
@@ -719,7 +719,85 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
     }
 
     public void parseObject(Object object) {
-        derializer.parseObject(this, object);
+        Class<?> clazz = object.getClass();
+        Map<String, FieldDeserializer> setters = config.getFieldDeserializers(clazz);
+
+        if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {
+            throw new JSONException("syntax error, expect {, actual " + lexer.tokenName());
+        }
+
+        final Object[] args = new Object[1];
+
+        for (;;) {
+            // lexer.scanSymbol
+            String key = lexer.scanSymbol(symbolTable);
+
+            if (key == null) {
+                if (lexer.token() == JSONToken.RBRACE) {
+                    lexer.nextToken(JSONToken.COMMA);
+                    break;
+                }
+                if (lexer.token() == JSONToken.COMMA) {
+                    if (isEnabled(Feature.AllowArbitraryCommas)) {
+                        continue;
+                    }
+                }
+            }
+
+            FieldDeserializer fieldDeser = setters.get(key);
+            if (fieldDeser == null) {
+                if (!isEnabled(Feature.IgnoreNotMatch)) {
+                    throw new JSONException("setter not found, class " + clazz.getName() + ", property " + key);
+                }
+
+                lexer.nextTokenWithColon();
+                parse(); // skip
+
+                if (lexer.token() == JSONToken.RBRACE) {
+                    lexer.nextToken();
+                    return;
+                }
+
+                continue;
+            } else {
+                Method method = fieldDeser.getMethod();
+                Class<?> fieldClass = method.getParameterTypes()[0];
+                Type fieldType = method.getGenericParameterTypes()[0];
+                if (fieldClass == int.class) {
+                    lexer.nextTokenWithColon(JSONToken.LITERAL_INT);
+                    args[0] = IntegerDeserializer.instance.deserialze(this, fieldType, null);
+                } else if (fieldClass == String.class) {
+                    lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
+                    args[0] = StringDeserializer.deserialze(this);
+                } else if (fieldClass == long.class) {
+                    lexer.nextTokenWithColon(JSONToken.LITERAL_INT);
+                    args[0] = LongDeserializer.instance.deserialze(this, fieldType, null);
+                } else if (fieldClass == List.class) {
+                    lexer.nextTokenWithColon(JSONToken.LBRACE);
+                    args[0] = CollectionDeserializer.instance.deserialze(this, fieldType, null);
+                } else {
+                    ObjectDeserializer fieldValueDeserializer = config.getDeserializer(fieldClass, fieldType);
+
+                    lexer.nextTokenWithColon(fieldValueDeserializer.getFastMatchToken());
+                    args[0] = fieldValueDeserializer.deserialze(this, fieldType, null);
+                }
+
+                try {
+                    method.invoke(object, args);
+                } catch (Exception e) {
+                    throw new JSONException("set proprety error, " + method.getName(), e);
+                }
+            }
+
+            if (lexer.token() == JSONToken.COMMA) {
+                continue;
+            }
+
+            if (lexer.token() == JSONToken.RBRACE) {
+                lexer.nextToken(JSONToken.COMMA);
+                return;
+            }
+        }
     }
 
     public Object parseArrayWithType(Type collectionType) {

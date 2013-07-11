@@ -9,7 +9,7 @@ import com.alibaba.fastjson.parser.ParserConfig;
 
 public class DefaultObjectDeserializerTest12 extends TestCase {
 
-    public void test_0() throws Exception {
+    public void test_a() throws Exception {
         A a = new A();
         DefaultJSONParser parser = new DefaultJSONParser("{\"values\":[]}", ParserConfig.getGlobalInstance());
         parser.parseObject(a);

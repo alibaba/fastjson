@@ -21,7 +21,6 @@ import com.alibaba.fastjson.annotation.JSONField;
 public class DeserializeBeanInfo {
 
     private final Class<?>        clazz;
-    private final Type            type;
     private Constructor<?>        defaultConstructor;
     private Constructor<?>        creatorConstructor;
     private Method                factoryMethod;
@@ -31,7 +30,6 @@ public class DeserializeBeanInfo {
     public DeserializeBeanInfo(Class<?> clazz){
         super();
         this.clazz = clazz;
-        this.type = clazz;
     }
 
     public Constructor<?> getDefaultConstructor() {
@@ -62,10 +60,6 @@ public class DeserializeBeanInfo {
         return clazz;
     }
 
-    public Type getType() {
-        return type;
-    }
-
     public List<FieldInfo> getFieldList() {
         return fieldList;
     }
@@ -89,10 +83,6 @@ public class DeserializeBeanInfo {
         fieldList.add(field);
 
         return true;
-    }
-
-    public static DeserializeBeanInfo computeSetters(Class<?> clazz) {
-        return computeSetters(clazz, clazz);
     }
 
     public static DeserializeBeanInfo computeSetters(Class<?> clazz, Type type) {
@@ -237,10 +227,6 @@ public class DeserializeBeanInfo {
 
         for (Field field : clazz.getFields()) {
             if (Modifier.isStatic(field.getModifiers())) {
-                continue;
-            }
-
-            if (!Modifier.isPublic(field.getModifiers())) {
                 continue;
             }
 

@@ -44,6 +44,9 @@ public class SimplePropertyPreFilterTest extends TestCase {
     
     public void test_name_a() throws Exception {
         SimplePropertyPreFilter filter = new SimplePropertyPreFilter(VO.class, "name");
+        Assert.assertEquals(VO.class, filter.getClazz());
+        Assert.assertEquals(1, filter.getIncludes().size());
+        Assert.assertTrue(filter.apply(null, null, null));
         Assert.assertEquals("{\"id\":123,\"name\":\"sandzhangtoo\"}", JSON.toJSONString(a, filter));
     }
     

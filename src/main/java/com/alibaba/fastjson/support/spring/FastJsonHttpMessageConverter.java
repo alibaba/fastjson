@@ -18,9 +18,9 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<Object> {
 
-    public final static Charset UTF8    = Charset.forName("UTF-8");
+    public final static Charset UTF8     = Charset.forName("UTF-8");
 
-    private Charset             charset = UTF8;
+    private Charset             charset  = UTF8;
 
     private SerializerFeature[] features = new SerializerFeature[0];
 
@@ -70,11 +70,7 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
         }
 
         byte[] bytes = baos.toByteArray();
-        if (charset == UTF8) {
-            return JSON.parseObject(bytes, clazz);
-        } else {
-            return JSON.parseObject(bytes, 0, bytes.length, charset.newDecoder(), clazz);
-        }
+        return JSON.parseObject(bytes, 0, bytes.length, charset.newDecoder(), clazz);
     }
 
     @Override
@@ -82,25 +78,8 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
                                                                              HttpMessageNotWritableException {
 
         OutputStream out = outputMessage.getBody();
-        byte[] bytes;
-
-        if (charset == UTF8) {
-            if (features != null) {
-                bytes = JSON.toJSONBytes(obj, features);
-            } else {
-                bytes = JSON.toJSONBytes(obj);
-            }
-
-        } else {
-            String text;
-            if (features != null) {
-                text = JSON.toJSONString(obj, features);
-            } else {
-                text = JSON.toJSONString(obj);
-            }
-            bytes = text.getBytes(charset);
-        }
-
+        String text = JSON.toJSONString(obj, features);
+        byte[] bytes = text.getBytes(charset);
         out.write(bytes);
     }
 

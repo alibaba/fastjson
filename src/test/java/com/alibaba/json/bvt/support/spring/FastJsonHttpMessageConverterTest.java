@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 
 import junit.framework.TestCase;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 
 public class FastJsonHttpMessageConverterTest extends TestCase {
@@ -22,9 +24,14 @@ public class FastJsonHttpMessageConverterTest extends TestCase {
     public void test_read() throws Exception {
         FastJsonHttpMessageConverter converter = new FastJsonHttpMessageConverter();
         converter.setCharset(Charset.forName("UTF-8"));
+        converter.setFeatures(SerializerFeature.BrowserCompatible);
         Assert.assertEquals(Charset.forName("UTF-8"), converter.getCharset());
 
-        Assert.assertEquals(0, converter.getFeatures().length);
+        Assert.assertEquals(1, converter.getFeatures().length);
+        
+        Method method = FastJsonHttpMessageConverter.class.getDeclaredMethod("supports", Class.class);
+        method.setAccessible(true);
+        method.invoke(converter, int.class);
 
         HttpInputMessage input = new HttpInputMessage() {
 

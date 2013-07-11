@@ -3,7 +3,6 @@ package com.alibaba.fastjson.util;
 import java.security.PrivilegedAction;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONException;
 
 public class ASMClassLoader extends ClassLoader {
 
@@ -40,15 +39,6 @@ public class ASMClassLoader extends ClassLoader {
         return clazz;
     }
 
-    public static Class<?> forName(String className) {
-        try {
-            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            return classLoader.loadClass(className);
-        } catch (ClassNotFoundException e) {
-            throw new JSONException("class nout found : " + className);
-        }
-    }
-    
     public boolean isExternalClass(Class<?> clazz) {
         ClassLoader classLoader = clazz.getClassLoader();
 

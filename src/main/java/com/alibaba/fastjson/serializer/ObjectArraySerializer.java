@@ -28,11 +28,12 @@ public class ObjectArraySerializer implements ObjectSerializer {
     public ObjectArraySerializer(){
     }
 
-    public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType)
+                                                                                                       throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         Object[] array = (Object[]) object;
-        
+
         if (object == null) {
             if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {
                 out.write("[]");
@@ -41,7 +42,7 @@ public class ObjectArraySerializer implements ObjectSerializer {
             }
             return;
         }
-        
+
         int size = array.length;
 
         int end = size - 1;
@@ -53,12 +54,12 @@ public class ObjectArraySerializer implements ObjectSerializer {
 
         SerialContext context = serializer.getContext();
         serializer.setContext(context, object, fieldName);
-        
+
         try {
             Class<?> preClazz = null;
             ObjectSerializer preWriter = null;
             out.append('[');
-            
+
             if (out.isEnabled(SerializerFeature.PrettyFormat)) {
                 serializer.incrementIndent();
                 serializer.println();
@@ -74,34 +75,41 @@ public class ObjectArraySerializer implements ObjectSerializer {
                 out.write(']');
                 return;
             }
-            
+
             for (int i = 0; i < end; ++i) {
                 Object item = array[i];
-    
+
                 if (item == null) {
                     out.append("null,");
                 } else {
-                    Class<?> clazz = item.getClass();
-    
-                    if (clazz == preClazz) {
-                        preWriter.write(serializer, item, null, null);
+                    if (serializer.containsReference(item)) {
+                        serializer.writeReference(item);
                     } else {
-                        preClazz = clazz;
-                        preWriter = serializer.getObjectWriter(clazz);
-    
-                        preWriter.write(serializer, item, null, null);
+                        Class<?> clazz = item.getClass();
+
+                        if (clazz == preClazz) {
+                            preWriter.write(serializer, item, null, null);
+                        } else {
+                            preClazz = clazz;
+                            preWriter = serializer.getObjectWriter(clazz);
+
+                            preWriter.write(serializer, item, null, null);
+                        }
                     }
-    
                     out.append(',');
                 }
             }
-    
+
             Object item = array[end];
-    
+
             if (item == null) {
                 out.append("null]");
             } else {
-                serializer.write(item);
+                if (serializer.containsReference(item)) {
+                    serializer.writeReference(item);
+                } else {
+                    serializer.write(item);
+                }
                 out.append(']');
             }
         } finally {

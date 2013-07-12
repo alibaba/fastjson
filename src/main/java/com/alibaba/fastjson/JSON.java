@@ -658,5 +658,5 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return TypeUtils.cast(json, clazz, ParserConfig.getGlobalInstance());
     }
 
-    public final static String VERSION = "1.1.30";
+    public final static String VERSION = "1.1.33";
 }

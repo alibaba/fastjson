@@ -32,6 +32,10 @@ public class DeserializeBeanInfo {
         this.clazz = clazz;
     }
 
+    public Class<?> getClazz() {
+        return clazz;
+    }
+
     public Constructor<?> getDefaultConstructor() {
         return defaultConstructor;
     }

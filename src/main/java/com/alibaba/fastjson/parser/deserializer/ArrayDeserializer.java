@@ -5,6 +5,8 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.concurrent.atomic.AtomicIntegerArray;
+import java.util.concurrent.atomic.AtomicLongArray;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
@@ -22,6 +24,30 @@ public class ArrayDeserializer implements ObjectDeserializer {
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken(JSONToken.COMMA);
             return null;
+        }
+        
+        if (type == AtomicIntegerArray.class) {
+            JSONArray array = new JSONArray();
+            parser.parseArray(array);
+
+            AtomicIntegerArray atomicArray = new AtomicIntegerArray(array.size());
+            for (int i = 0; i < array.size(); ++i) {
+                atomicArray.set(i, array.getInteger(i));
+            }
+
+            return (T) atomicArray;
+        }
+        
+        if (type == AtomicLongArray.class) {
+            JSONArray array = new JSONArray();
+            parser.parseArray(array);
+
+            AtomicLongArray atomicArray = new AtomicLongArray(array.size());
+            for (int i = 0; i < array.size(); ++i) {
+                atomicArray.set(i, array.getLong(i));
+            }
+
+            return (T) atomicArray;
         }
 
         if (lexer.token() == JSONToken.LITERAL_STRING) {

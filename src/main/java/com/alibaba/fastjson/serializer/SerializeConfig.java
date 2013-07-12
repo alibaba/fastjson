@@ -16,6 +16,7 @@
 package com.alibaba.fastjson.serializer;
 
 import java.io.File;
+import java.io.StringWriter;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Type;
@@ -102,6 +103,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
         put(Appendable.class, AppendableSerializer.instance);
         put(StringBuffer.class, AppendableSerializer.instance);
         put(StringBuilder.class, AppendableSerializer.instance);
+        put(StringWriter.class, AppendableSerializer.instance);
         put(Pattern.class, PatternSerializer.instance);
         put(Charset.class, CharsetSerializer.instance);
 

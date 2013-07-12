@@ -12,18 +12,6 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class SerializeConfigTest extends TestCase {
 
-    public void test_0() throws Exception {
-        SerializeConfig config = new SerializeConfig();
-
-        Exception error = null;
-        try {
-            config.createJavaBeanSerializer(int.class);
-        } catch (Exception ex) {
-            error = ex;
-        }
-        Assert.assertNotNull(error);
-    }
-
     public void test_1() throws Exception {
         SerializeConfig config = new SerializeConfig();
 

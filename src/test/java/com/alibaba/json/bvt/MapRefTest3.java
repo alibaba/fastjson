@@ -1,13 +1,16 @@
 package com.alibaba.json.bvt;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Assert;
 import junit.framework.TestCase;
+
+import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class MapRefTest3 extends TestCase {
@@ -26,6 +29,10 @@ public class MapRefTest3 extends TestCase {
             
             text = JSON.toJSONString(map, SerializerFeature.WriteClassName);
         }
+        
+//        Field field = ParserConfig.class.getDeclaredField("global");
+//        field.setAccessible(true);
+//        field.set(null, new ParserConfig());
         
         System.out.println(text);
         Map<String, Object> map = JSON.parseObject(text, new TypeReference<Map<String, Object>>() {});

@@ -15,7 +15,6 @@ public class AtomicLongArrayFieldTest extends TestCase {
         V0 v = new V0();
 
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
 
         String text = JSON.toJSONString(v, mapping, SerializerFeature.WriteMapNullValue);
         Assert.assertEquals("{\"value\":null}", text);
@@ -29,7 +28,6 @@ public class AtomicLongArrayFieldTest extends TestCase {
         V0 v = new V0();
 
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
 
         String text = JSON.toJSONString(v, mapping, SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullListAsEmpty);
         Assert.assertEquals("{\"value\":[]}", text);
@@ -39,7 +37,6 @@ public class AtomicLongArrayFieldTest extends TestCase {
         V0 v = JSON.parseObject("{\"value\":[1,2]}", V0.class);
 
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
 
         String text = JSON.toJSONString(v, mapping, SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullListAsEmpty);
         Assert.assertEquals("{\"value\":[1,2]}", text);

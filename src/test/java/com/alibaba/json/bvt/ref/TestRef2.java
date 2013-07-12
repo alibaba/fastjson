@@ -18,7 +18,7 @@ public class TestRef2 extends TestCase {
         System.out.println(text);
 
         ParserConfig config = new ParserConfig();
-        config.setAsmEnable(false);
+        
         Entity entity2 = JSON.parseObject(text, Entity.class, config, 0);
 
         Assert.assertEquals(entity2, entity2.getChild().getParent());

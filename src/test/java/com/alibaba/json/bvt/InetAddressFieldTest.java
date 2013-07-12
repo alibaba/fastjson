@@ -16,7 +16,7 @@ public class InetAddressFieldTest extends TestCase {
         user.setValue(InetAddress.getLocalHost());
 
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
+        
         String text = JSON.toJSONString(user, mapping, SerializerFeature.WriteMapNullValue);
 
         User user1 = JSON.parseObject(text, User.class);
@@ -29,7 +29,7 @@ public class InetAddressFieldTest extends TestCase {
         user.setValue(null);
 
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
+        
         String text = JSON.toJSONString(user, mapping, SerializerFeature.WriteMapNullValue);
 
         User user1 = JSON.parseObject(text, User.class);

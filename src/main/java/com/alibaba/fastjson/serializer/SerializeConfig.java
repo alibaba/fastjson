@@ -16,10 +16,8 @@
 package com.alibaba.fastjson.serializer;
 
 import java.io.File;
-import java.io.Serializable;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -42,10 +40,6 @@ import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.annotation.JSONType;
-import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.IdentityHashMap;
 
 /**
@@ -56,66 +50,8 @@ import com.alibaba.fastjson.util.IdentityHashMap;
 public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 	private final static SerializeConfig globalInstance = new SerializeConfig();
 
-	private boolean asm = !ASMUtils.isAndroid();;
-
-	private final ASMSerializerFactory asmFactory = new ASMSerializerFactory();
-	
-
-	private String typeKey = JSON.DEFAULT_TYPE_KEY;
-	
-	public String getTypeKey() {
-		return typeKey;
-	}
-
-	public void setTypeKey(String typeKey) {
-		this.typeKey = typeKey;
-	}
-
-	public final ObjectSerializer createASMSerializer(Class<?> clazz)
-			throws Exception {
-		return asmFactory.createJavaBeanSerializer(clazz);
-	}
-
 	public ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
-		if (!Modifier.isPublic(clazz.getModifiers())) {
-			return new JavaBeanSerializer(clazz);
-		}
-
-		boolean asm = this.asm;
-
-		if (asm && asmFactory.isExternalClass(clazz)
-				|| clazz == Serializable.class || clazz == Object.class) {
-			asm = false;
-		}
-
-		{
-			JSONType annotation = clazz.getAnnotation(JSONType.class);
-			if (annotation != null && annotation.asm() == false) {
-				asm = false;
-			}
-		}
-
-		if (asm) {
-			try {
-				return createASMSerializer(clazz);
-			} catch (ClassCastException e) {
-				// skip
-				return new JavaBeanSerializer(clazz);
-			} catch (Throwable e) {
-				throw new JSONException("create asm serializer error, class "
-						+ clazz, e);
-			}
-		}
-
 		return new JavaBeanSerializer(clazz);
-	}
-
-	public boolean isAsmEnable() {
-		return asm;
-	}
-
-	public void setAsmEnable(boolean asmEnable) {
-		this.asm = asmEnable;
 	}
 
 	public final static SerializeConfig getGlobalInstance() {
@@ -175,7 +111,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 		put(AtomicReference.class, ReferenceSerializer.instance);
 		put(AtomicIntegerArray.class, AtomicIntegerArraySerializer.instance);
 		put(AtomicLongArray.class, AtomicLongArraySerializer.instance);
-		
+
 		put(WeakReference.class, ReferenceSerializer.instance);
 		put(SoftReference.class, ReferenceSerializer.instance);
 

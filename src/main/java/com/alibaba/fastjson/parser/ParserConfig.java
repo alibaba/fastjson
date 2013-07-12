@@ -65,9 +65,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONType;
-import com.alibaba.fastjson.asm.ASMException;
-import com.alibaba.fastjson.parser.deserializer.ASMDeserializerFactory;
-import com.alibaba.fastjson.parser.deserializer.ASMJavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ArrayDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ArrayListTypeFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.AtomicIntegerArrayDeserializer;
@@ -375,102 +372,10 @@ public class ParserConfig {
     }
 
     public ObjectDeserializer createJavaBeanDeserializer(Class<?> clazz, Type type) {
-        boolean asmEnable = this.asmEnable;
-        if (asmEnable && !Modifier.isPublic(clazz.getModifiers())) {
-            asmEnable = false;
-        }
-
-        if (clazz.getTypeParameters().length != 0) {
-            asmEnable = false;
-        }
-
-        if (ASMDeserializerFactory.getInstance().isExternalClass(clazz)) {
-            asmEnable = false;
-        }
-
-        if (asmEnable) {
-            if (clazz.isInterface()) {
-                asmEnable = false;
-            }
-            DeserializeBeanInfo beanInfo = DeserializeBeanInfo.computeSetters(clazz, type);
-            if (beanInfo.getFieldList().size() > 200) {
-                asmEnable = false;
-            }
-
-            Constructor<?> defaultConstructor = beanInfo.getDefaultConstructor();
-            if (defaultConstructor == null && !clazz.isInterface()) {
-                asmEnable = false;
-            }
-
-            for (FieldInfo fieldInfo : beanInfo.getFieldList()) {
-                if (fieldInfo.isGetOnly()) {
-                    asmEnable = false;
-                    break;
-                }
-
-                Class<?> fieldClass = fieldInfo.getFieldClass();
-                if (!Modifier.isPublic(fieldClass.getModifiers())) {
-                    asmEnable = false;
-                    break;
-                }
-
-                if (fieldClass.isMemberClass() && !Modifier.isStatic(fieldClass.getModifiers())) {
-                    asmEnable = false;
-                }
-            }
-        }
-
-        if (asmEnable) {
-            if (clazz.isMemberClass() && !Modifier.isStatic(clazz.getModifiers())) {
-                asmEnable = false;
-            }
-        }
-
-        if (!asmEnable) {
-            return new JavaBeanDeserializer(this, clazz, type);
-        }
-
-        try {
-            return ASMDeserializerFactory.getInstance().createJavaBeanDeserializer(this, clazz, type);
-            // } catch (VerifyError e) {
-            // e.printStackTrace();
-            // return new JavaBeanDeserializer(this, clazz, type);
-        } catch (ASMException asmError) {
-            return new JavaBeanDeserializer(this, clazz, type);
-        } catch (Exception e) {
-            throw new JSONException("create asm deserializer error, " + clazz.getName(), e);
-        }
+    	return new JavaBeanDeserializer(this, clazz, type);
     }
 
     public FieldDeserializer createFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
-        boolean asmEnable = this.asmEnable;
-
-        if (!Modifier.isPublic(clazz.getModifiers())) {
-            asmEnable = false;
-        }
-
-        if (fieldInfo.getFieldClass() == Class.class) {
-            asmEnable = false;
-        }
-
-        if (ASMDeserializerFactory.getInstance().isExternalClass(clazz)) {
-            asmEnable = false;
-        }
-
-        if (!asmEnable) {
-            return createFieldDeserializerWithoutASM(mapping, clazz, fieldInfo);
-        }
-
-        try {
-            return ASMDeserializerFactory.getInstance().createFieldDeserializer(mapping, clazz, fieldInfo);
-        } catch (Throwable e) {
-            // skip
-        }
-
-        return createFieldDeserializerWithoutASM(mapping, clazz, fieldInfo);
-    }
-
-    public FieldDeserializer createFieldDeserializerWithoutASM(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
         Class<?> fieldClass = fieldInfo.getFieldClass();
 
         if (fieldClass == boolean.class || fieldClass == Boolean.class) {
@@ -537,8 +442,6 @@ public class ParserConfig {
 
         if (deserizer instanceof JavaBeanDeserializer) {
             return ((JavaBeanDeserializer) deserizer).getFieldDeserializerMap();
-        } else if (deserizer instanceof ASMJavaBeanDeserializer) {
-            return ((ASMJavaBeanDeserializer) deserizer).getInnterSerializer().getFieldDeserializerMap();
         } else {
             return Collections.emptyMap();
         }

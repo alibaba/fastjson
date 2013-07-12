@@ -734,6 +734,15 @@ public abstract class JSONLexer implements Closeable {
                         hash = 31 * hash + (int) '\\';
                         putChar('\\');
                         break;
+                    case 'x':
+                        char x1 = ch = charAt(++bp);
+                        char x2 = ch = charAt(++bp);
+
+                        int x_val = digits[x1] * 16 + digits[x2];
+                        char x_char = (char) x_val;
+                        hash = 31 * hash + (int) x_char;
+                        putChar(x_char);
+                        break;
                     case 'u':
                         char c1 = chLocal = charAt(++bp);
                         char c2 = chLocal = charAt(++bp);

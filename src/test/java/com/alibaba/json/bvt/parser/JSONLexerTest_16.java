@@ -55,4 +55,8 @@ public class JSONLexerTest_16 extends TestCase {
     public void test_39() throws Exception {
         Assert.assertEquals(123, JSON.parseObject("{\"\\'\":123}").get("\'"));
     }
+    
+    public void test_40() throws Exception {
+        Assert.assertEquals(123, JSON.parseObject("{\"\\xFF\":123}").get("\u00FF"));
+    }
 }

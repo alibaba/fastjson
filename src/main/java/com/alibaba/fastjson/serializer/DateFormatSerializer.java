@@ -43,7 +43,9 @@ public class DateFormatSerializer implements ObjectSerializer {
                 out.write('{');
                 out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
                 serializer.write(object.getClass().getName());
-                out.writeFieldValue(',', "val", pattern);
+                out.write(',');
+                out.writeFieldName("val");
+                out.writeString(pattern);
                 out.write('}');
                 return;
             }

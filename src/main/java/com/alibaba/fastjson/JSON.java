@@ -21,6 +21,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -104,7 +105,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static final Object parse(byte[] input, Feature... features) {
-        return parse(input, 0, input.length, ThreadLocalCache.getUTF8Decoder(), features);
+        return parse(input, 0, input.length, Charset.forName("UTF-8").newDecoder(), features);
     }
 
     public static final Object parse(byte[] input, int off, int len, CharsetDecoder charsetDecoder, Feature... features) {
@@ -246,7 +247,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     @SuppressWarnings("unchecked")
     public static final <T> T parseObject(byte[] input, Type clazz, Feature... features) {
-        return (T) parseObject(input, 0, input.length, ThreadLocalCache.getUTF8Decoder(), clazz, features);
+        return (T) parseObject(input, 0, input.length, Charset.forName("UTF-8").newDecoder(), clazz, features);
     }
 
     @SuppressWarnings("unchecked")

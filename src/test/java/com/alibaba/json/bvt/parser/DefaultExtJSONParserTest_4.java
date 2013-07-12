@@ -8,7 +8,7 @@ import org.junit.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 
@@ -19,7 +19,7 @@ public class DefaultExtJSONParserTest_4 extends TestCase {
         String[] tests = { "[1,2,3]", "[1,,2,3]", "[1,2,,,3]", "[1 2,,,3]", "[1 2 3]", "[1, 2, 3,,]", "[,,1, 2, 3,,]", };
 
         for (String t : tests) {
-            DefaultExtJSONParser ext = new DefaultExtJSONParser(t);
+            DefaultJSONParser ext = new DefaultJSONParser(t);
             ext.config(Feature.AllowArbitraryCommas, true);
             List<Object> extRes = ext.parseArray(Object.class);
             Assert.assertEquals(res, extRes);
@@ -42,7 +42,7 @@ public class DefaultExtJSONParserTest_4 extends TestCase {
                 "{,,'a':1,,,,'b':2,'c':3,,,,,}", };
 
         for (String t : tests) {
-            DefaultExtJSONParser ext = new DefaultExtJSONParser(t);
+            DefaultJSONParser ext = new DefaultJSONParser(t);
             ext.config(Feature.AllowArbitraryCommas, true);
 
             JSONObject extRes = ext.parseObject();
@@ -65,7 +65,7 @@ public class DefaultExtJSONParserTest_4 extends TestCase {
                 "{,,'a':1,,,,'b':2,,'c':3,,,,,}", };
 
         for (String t : tests) {
-            DefaultExtJSONParser ext = new DefaultExtJSONParser(t);
+            DefaultJSONParser ext = new DefaultJSONParser(t);
             ext.config(Feature.AllowArbitraryCommas, true);
 
             A extRes = ext.parseObject(A.class);

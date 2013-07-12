@@ -125,18 +125,6 @@ public final class JSONReaderScanner extends JSONLexer {
         return buf[index];
     }
 
-    public final int indexOf(char ch, int startIndex) {
-        int offset = startIndex;
-        for (;; ++offset) {
-            if (ch == charAt(offset)) {
-                return offset;
-            }
-            if (ch == EOI) {
-                return -1;
-            }
-        }
-    }
-
     public final String addSymbol(int offset, int len, int hash, final SymbolTable symbolTable) {
         return symbolTable.addSymbol(buf, offset, len, hash);
     }
@@ -186,17 +174,6 @@ public final class JSONReaderScanner extends JSONLexer {
         System.arraycopy(buf, offset, dest, 0, count);
     }
 
-
-    public final boolean charArrayCompare(char[] chars) {
-        for (int i = 0; i < chars.length; ++i) {
-            if (charAt(bp + i) != chars[i]) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     public byte[] bytesValue() {
         return Base64.decodeFast(buf, np + 1, sp);
     }
@@ -215,11 +192,6 @@ public final class JSONReaderScanner extends JSONLexer {
         } else {
             return new String(sbuf, 0, sp);
         }
-    }
-
-    public final String subString(int offset, int count) {
-        return new String(buf, offset, count);
-        // return text.substring(offset, offset + count);
     }
 
     public final String numberString() {

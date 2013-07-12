@@ -864,25 +864,6 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
         throw new JSONException("TODO : " + collectionType);
     }
 
-    public void acceptType(String typeName) {
-        JSONLexer lexer = this.lexer;
-
-        lexer.nextTokenWithColon();
-
-        if (lexer.token() != JSONToken.LITERAL_STRING) {
-            throw new JSONException("type not match error");
-        }
-
-        if (typeName.equals(lexer.stringVal())) {
-            lexer.nextToken();
-            if (lexer.token() == JSONToken.COMMA) {
-                lexer.nextToken();
-            }
-        } else {
-            throw new JSONException("type not match error");
-        }
-    }
-
     public int getResolveStatus() {
         return resolveStatus;
     }

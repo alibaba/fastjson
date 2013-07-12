@@ -77,7 +77,6 @@ import com.alibaba.fastjson.parser.deserializer.CharacterDeserializer;
 import com.alibaba.fastjson.parser.deserializer.CharsetDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ClassDerializer;
 import com.alibaba.fastjson.parser.deserializer.CollectionDeserializer;
-import com.alibaba.fastjson.parser.deserializer.ColorDeserializer;
 import com.alibaba.fastjson.parser.deserializer.DateDeserializer;
 import com.alibaba.fastjson.parser.deserializer.DateFormatDeserializer;
 import com.alibaba.fastjson.parser.deserializer.DefaultFieldDeserializer;
@@ -85,7 +84,6 @@ import com.alibaba.fastjson.parser.deserializer.EnumDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FileDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FloatDeserializer;
-import com.alibaba.fastjson.parser.deserializer.FontDeserializer;
 import com.alibaba.fastjson.parser.deserializer.InetAddressDeserializer;
 import com.alibaba.fastjson.parser.deserializer.InetSocketAddressDeserializer;
 import com.alibaba.fastjson.parser.deserializer.IntegerDeserializer;
@@ -101,8 +99,6 @@ import com.alibaba.fastjson.parser.deserializer.MapDeserializer;
 import com.alibaba.fastjson.parser.deserializer.NumberDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.PatternDeserializer;
-import com.alibaba.fastjson.parser.deserializer.PointDeserializer;
-import com.alibaba.fastjson.parser.deserializer.RectangleDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ReferenceDeserializer;
 import com.alibaba.fastjson.parser.deserializer.SqlDateDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StackTraceElementDeserializer;
@@ -115,7 +111,6 @@ import com.alibaba.fastjson.parser.deserializer.TimestampDeserializer;
 import com.alibaba.fastjson.parser.deserializer.URIDeserializer;
 import com.alibaba.fastjson.parser.deserializer.URLDeserializer;
 import com.alibaba.fastjson.parser.deserializer.UUIDDeserializer;
-import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.ServiceLoader;
@@ -129,15 +124,13 @@ public class ParserConfig {
         return global;
     }
 
-    private final Set<Class<?>>                             primitiveClasses  = new HashSet<Class<?>>();
+    private final Set<Class<?>>                             primitiveClasses = new HashSet<Class<?>>();
 
-    private static ParserConfig                             global            = new ParserConfig();
+    private static ParserConfig                             global           = new ParserConfig();
 
-    private final IdentityHashMap<Type, ObjectDeserializer> derializers       = new IdentityHashMap<Type, ObjectDeserializer>();
+    private final IdentityHashMap<Type, ObjectDeserializer> derializers      = new IdentityHashMap<Type, ObjectDeserializer>();
 
-    private boolean                                         asmEnable         = !ASMUtils.isAndroid();
-
-    protected final SymbolTable                             symbolTable       = new SymbolTable();
+    protected final SymbolTable                             symbolTable      = new SymbolTable();
 
     public ParserConfig(){
         primitiveClasses.add(boolean.class);
@@ -247,22 +240,6 @@ public class ParserConfig {
         derializers.put(Comparable.class, JavaObjectDeserializer.instance);
         derializers.put(Closeable.class, JavaObjectDeserializer.instance);
 
-        try {
-            derializers.put(Class.forName("java.awt.Point"), PointDeserializer.instance);
-            derializers.put(Class.forName("java.awt.Font"), FontDeserializer.instance);
-            derializers.put(Class.forName("java.awt.Rectangle"), RectangleDeserializer.instance);
-            derializers.put(Class.forName("java.awt.Color"), ColorDeserializer.instance);
-        } catch (Throwable e) {
-            // skip
-        }
-    }
-
-    public boolean isAsmEnable() {
-        return asmEnable;
-    }
-
-    public void setAsmEnable(boolean asmEnable) {
-        this.asmEnable = asmEnable;
     }
 
     public SymbolTable getSymbolTable() {
@@ -368,7 +345,7 @@ public class ParserConfig {
     }
 
     public ObjectDeserializer createJavaBeanDeserializer(Class<?> clazz, Type type) {
-    	return new JavaBeanDeserializer(this, clazz, type);
+        return new JavaBeanDeserializer(this, clazz, type);
     }
 
     public FieldDeserializer createFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {

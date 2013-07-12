@@ -661,38 +661,78 @@ public abstract class JSONLexer implements Closeable {
                 chLocal = charAt(++bp);
 
                 switch (chLocal) {
-                    case '"':
-                        hash = 31 * hash + (int) '"';
-                        putChar('"');
+                    case '0':
+                        hash = 31 * hash + (int) chLocal;
+                        putChar('\0');
                         break;
-                    case '\\':
-                        hash = 31 * hash + (int) '\\';
-                        putChar('\\');
+                    case '1':
+                        hash = 31 * hash + (int) chLocal;
+                        putChar('\1');
                         break;
-                    case '/':
-                        hash = 31 * hash + (int) '/';
-                        putChar('/');
+                    case '2':
+                        hash = 31 * hash + (int) chLocal;
+                        putChar('\2');
                         break;
-                    case 'b':
+                    case '3':
+                        hash = 31 * hash + (int) chLocal;
+                        putChar('\3');
+                        break;
+                    case '4':
+                        hash = 31 * hash + (int) chLocal;
+                        putChar('\4');
+                        break;
+                    case '5':
+                        hash = 31 * hash + (int) chLocal;
+                        putChar('\5');
+                        break;
+                    case '6':
+                        hash = 31 * hash + (int) chLocal;
+                        putChar('\6');
+                        break;
+                    case '7':
+                        hash = 31 * hash + (int) chLocal;
+                        putChar('\7');
+                        break;
+                    case 'b': // 8
                         hash = 31 * hash + (int) '\b';
                         putChar('\b');
                         break;
-                    case 'f':
+                    case 't': // 9
+                        hash = 31 * hash + (int) '\t';
+                        putChar('\t');
+                        break;
+                    case 'n': // 10
+                        hash = 31 * hash + (int) '\n';
+                        putChar('\n');
+                        break;
+                    case 'v': // 11
+                        hash = 31 * hash + (int) '\u000B';
+                        putChar('\u000B');
+                        break;
+                    case 'f': // 12
                     case 'F':
                         hash = 31 * hash + (int) '\f';
                         putChar('\f');
                         break;
-                    case 'n':
-                        hash = 31 * hash + (int) '\n';
-                        putChar('\n');
-                        break;
-                    case 'r':
+                    case 'r': // 13
                         hash = 31 * hash + (int) '\r';
                         putChar('\r');
                         break;
-                    case 't':
-                        hash = 31 * hash + (int) '\t';
-                        putChar('\t');
+                    case '"': // 34
+                        hash = 31 * hash + (int) '"';
+                        putChar('"');
+                        break;
+                    case '\'': // 39
+                        hash = 31 * hash + (int) '\'';
+                        putChar('\'');
+                        break;
+                    case '/': // 47
+                        hash = 31 * hash + (int) '/';
+                        putChar('/');
+                        break;
+                    case '\\': // 92
+                        hash = 31 * hash + (int) '\\';
+                        putChar('\\');
                         break;
                     case 'u':
                         char c1 = chLocal = charAt(++bp);
@@ -797,7 +837,7 @@ public abstract class JSONLexer implements Closeable {
             if (ch == '\"') {
                 break;
             }
-            
+
             if (ch == EOI) {
                 throw new JSONException("unclosed string : " + ch);
             }

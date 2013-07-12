@@ -84,49 +84,16 @@ public class MapSerializer implements ObjectSerializer {
                 if (entryKey == null || entryKey instanceof String) {
                     String key = (String) entryKey;
                     
-                    List<PropertyPreFilter> namePreFilters = serializer.getPropertyPreFiltersDirect();
-                    if (namePreFilters != null) {
-                        boolean apply = true;
-                        for (PropertyPreFilter nameFilter : namePreFilters) {
-                            if (!nameFilter.apply(serializer, object, key)) {
-                                apply = false;
-                                break;
-                            }
-                        }
-
-                        if (!apply) {
-                            continue;
-                        }
+                    if (!FilterUtils.applyName(serializer, object, key)) {
+                        continue;
                     }
                     
-                    List<PropertyFilter> propertyFilters = serializer.getPropertyFiltersDirect();
-                    if (propertyFilters != null) {
-                        boolean apply = true;
-                        for (PropertyFilter propertyFilter : propertyFilters) {
-                            if (!propertyFilter.apply(object, key, value)) {
-                                apply = false;
-                                break;
-                            }
-                        }
-
-                        if (!apply) {
-                            continue;
-                        }
+                    if (!FilterUtils.apply(serializer, object, key, value)) {
+                        continue;
                     }
-
-                    List<NameFilter> nameFilters = serializer.getNameFiltersDirect();
-                    if (nameFilters != null) {
-                        for (NameFilter nameFilter : nameFilters) {
-                            key = nameFilter.process(object, key, value);
-                        }
-                    }
-
-                    List<ValueFilter> valueFilters = serializer.getValueFiltersDirect();
-                    if (valueFilters != null) {
-                        for (ValueFilter valueFilter : valueFilters) {
-                            value = valueFilter.process(object, key, value);
-                        }
-                    }
+                    
+                    key = FilterUtils.processKey(serializer, object, key, value);
+                    value = FilterUtils.processValue(serializer, object, key, value);
 
                     if (value == null) {
                         if (!serializer.isEnabled(SerializerFeature.WriteMapNullValue)) {

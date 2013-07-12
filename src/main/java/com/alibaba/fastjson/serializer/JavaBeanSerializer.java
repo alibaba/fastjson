@@ -140,6 +140,10 @@ public class JavaBeanSerializer implements ObjectSerializer {
                         }
                     }
                 }
+                
+                if (!FilterUtils.applyName(serializer, object, fieldSerializer.getName())) {
+                    continue;
+                }
 
                 Object propertyValue = fieldSerializer.getPropertyValue(object);
 

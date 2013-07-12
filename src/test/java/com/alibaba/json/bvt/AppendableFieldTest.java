@@ -13,7 +13,6 @@ public class AppendableFieldTest extends TestCase {
         V0 v = new V0();
 
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
 
         String text = JSON.toJSONString(v, mapping, SerializerFeature.WriteMapNullValue);
         Assert.assertEquals("{\"value\":null}", text);
@@ -23,8 +22,6 @@ public class AppendableFieldTest extends TestCase {
         V0 v = new V0();
 
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
-        Assert.assertTrue(!mapping.isAsmEnable());
 
         String text = JSON.toJSONString(v, mapping, SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullStringAsEmpty);
         Assert.assertEquals("{\"value\":\"\"}", text);

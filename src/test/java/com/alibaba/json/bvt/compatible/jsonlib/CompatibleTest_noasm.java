@@ -97,7 +97,7 @@ public class CompatibleTest_noasm extends TestCase {
     private static final SerializeConfig   mapping;
     static {
         mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
+        
         mapping.put(Date.class, new JSONLibDataFormatSerializer()); // 使用和json-lib兼容的日期输出格式
     }
 

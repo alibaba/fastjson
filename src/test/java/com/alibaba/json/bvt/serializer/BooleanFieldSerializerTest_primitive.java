@@ -25,7 +25,6 @@ public class BooleanFieldSerializerTest_primitive extends TestCase {
         Entity v = new Entity();
 
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
 
         String text = JSON.toJSONString(v, mapping, SerializerFeature.WriteMapNullValue);
         Assert.assertEquals("{\"value\":false}", text);
@@ -76,7 +75,7 @@ public class BooleanFieldSerializerTest_primitive extends TestCase {
         }
 
         ParserConfig config = new ParserConfig();
-        config.setAsmEnable(false);
+        
 
         DefaultExtJSONParser parser = new DefaultExtJSONParser(input, config, featureValues);
         T value = (T) parser.parseObject(clazz);

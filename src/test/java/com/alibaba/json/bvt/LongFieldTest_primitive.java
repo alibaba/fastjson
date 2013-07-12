@@ -25,7 +25,7 @@ public class LongFieldTest_primitive extends TestCase {
 		V0 v = new V0();
 
 		SerializeConfig mapping = new SerializeConfig();
-		mapping.setAsmEnable(false);
+		
 
 		String text = JSON.toJSONString(v, mapping,
 				SerializerFeature.WriteMapNullValue);
@@ -40,14 +40,14 @@ public class LongFieldTest_primitive extends TestCase {
 		V0 v = new V0();
 
 		SerializeConfig mapping = new SerializeConfig();
-		mapping.setAsmEnable(true);
+		
 
 		String text = JSON.toJSONString(v, mapping,
 				SerializerFeature.WriteMapNullValue);
 		Assert.assertEquals("{\"value\":123}", text);
 
 		ParserConfig config = new ParserConfig();
-		config.setAsmEnable(false);
+		
 
 		V0 v1 = JSON.parseObject(text, V0.class, config,
 				JSON.DEFAULT_PARSER_FEATURE);
@@ -59,7 +59,7 @@ public class LongFieldTest_primitive extends TestCase {
 		V0 v = new V0();
 
 		SerializeConfig mapping = new SerializeConfig();
-		mapping.setAsmEnable(false);
+		
 
 		String text = JSON.toJSONString(v, mapping,
 				SerializerFeature.WriteMapNullValue,

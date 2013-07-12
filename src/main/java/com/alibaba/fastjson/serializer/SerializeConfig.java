@@ -90,22 +90,22 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
         put(Class.class, ClassSerializer.instance);
 
         put(SimpleDateFormat.class, DateFormatSerializer.instance);
-        put(Locale.class, LocaleSerializer.instance);
+        put(Locale.class, ToStringSerializer.instance);
         put(TimeZone.class, TimeZoneSerializer.instance);
-        put(UUID.class, UUIDSerializer.instance);
+        put(UUID.class, ToStringSerializer.instance);
         put(InetAddress.class, InetAddressSerializer.instance);
         put(Inet4Address.class, InetAddressSerializer.instance);
         put(Inet6Address.class, InetAddressSerializer.instance);
         put(InetSocketAddress.class, InetSocketAddressSerializer.instance);
         put(File.class, FileSerializer.instance);
-        put(URI.class, URISerializer.instance);
-        put(URL.class, URLSerializer.instance);
+        put(URI.class, ToStringSerializer.instance);
+        put(URL.class, ToStringSerializer.instance);
         put(Appendable.class, AppendableSerializer.instance);
         put(StringBuffer.class, AppendableSerializer.instance);
         put(StringBuilder.class, AppendableSerializer.instance);
         put(StringWriter.class, AppendableSerializer.instance);
         put(Pattern.class, PatternSerializer.instance);
-        put(Charset.class, CharsetSerializer.instance);
+        put(Charset.class, ToStringSerializer.instance);
 
         // atomic
         put(AtomicBoolean.class, AtomicBooleanSerializer.instance);

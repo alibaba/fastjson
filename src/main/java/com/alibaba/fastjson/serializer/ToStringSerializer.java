@@ -21,9 +21,9 @@ import java.lang.reflect.Type;
 /**
  * @author wenshao<szujobs@hotmail.com>
  */
-public class URLSerializer implements ObjectSerializer {
+public class ToStringSerializer implements ObjectSerializer {
 
-    public final static URLSerializer instance = new URLSerializer();
+    public final static ToStringSerializer instance = new ToStringSerializer();
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         if (object == null) {

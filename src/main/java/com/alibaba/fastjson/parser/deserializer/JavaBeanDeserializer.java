@@ -51,10 +51,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         return feildDeserializerMap;
     }
 
-    public Class<?> getClazz() {
-        return clazz;
-    }
-
     private void addFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
         FieldDeserializer fieldDeserializer = createFieldDeserializer(mapping, clazz, fieldInfo);
 

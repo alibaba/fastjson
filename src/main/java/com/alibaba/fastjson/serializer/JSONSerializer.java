@@ -135,16 +135,6 @@ public class JSONSerializer {
         this.references.put(object, context);
     }
 
-    public void setContext(Object object, Object fieldName) {
-        this.setContext(context, object, fieldName);
-    }
-
-    public void popContext() {
-        if (context != null) {
-            this.context = this.context.getParent();
-        }
-    }
-
     public final boolean isWriteClassName(Type fieldType, Object obj) {
         boolean result = out.isEnabled(SerializerFeature.WriteClassName);
 

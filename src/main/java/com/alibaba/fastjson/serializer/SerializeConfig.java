@@ -48,84 +48,74 @@ import com.alibaba.fastjson.util.IdentityHashMap;
  * @author wenshao<szujobs@hotmail.com>
  */
 public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
-	private final static SerializeConfig globalInstance = new SerializeConfig();
 
-	public ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
-		return new JavaBeanSerializer(clazz);
-	}
+    private final static SerializeConfig globalInstance = new SerializeConfig();
 
-	public final static SerializeConfig getGlobalInstance() {
-		return globalInstance;
-	}
+    public ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
+        return new JavaBeanSerializer(clazz);
+    }
 
-	public SerializeConfig() {
-		this(DEFAULT_TABLE_SIZE);
-	}
+    public final static SerializeConfig getGlobalInstance() {
+        return globalInstance;
+    }
 
-	public SerializeConfig(int tableSize) {
-		super(tableSize);
+    public SerializeConfig(){
+        this(DEFAULT_TABLE_SIZE);
+    }
 
-		put(Boolean.class, BooleanSerializer.instance);
-		put(Character.class, CharacterSerializer.instance);
-		put(Byte.class, ByteSerializer.instance);
-		put(Short.class, ShortSerializer.instance);
-		put(Integer.class, IntegerSerializer.instance);
-		put(Long.class, LongSerializer.instance);
-		put(Float.class, FloatSerializer.instance);
-		put(Double.class, DoubleSerializer.instance);
-		put(BigDecimal.class, BigDecimalSerializer.instance);
-		put(BigInteger.class, BigIntegerSerializer.instance);
-		put(String.class, StringSerializer.instance);
-		put(byte[].class, ByteArraySerializer.instance);
-		put(short[].class, ShortArraySerializer.instance);
-		put(int[].class, IntArraySerializer.instance);
-		put(long[].class, LongArraySerializer.instance);
-		put(float[].class, FloatArraySerializer.instance);
-		put(double[].class, DoubleArraySerializer.instance);
-		put(boolean[].class, BooleanArraySerializer.instance);
-		put(char[].class, CharArraySerializer.instance);
-		put(Object[].class, ObjectArraySerializer.instance);
-		put(Class.class, ClassSerializer.instance);
+    public SerializeConfig(int tableSize){
+        super(tableSize);
 
-		put(SimpleDateFormat.class, DateFormatSerializer.instance);
-		put(Locale.class, LocaleSerializer.instance);
-		put(TimeZone.class, TimeZoneSerializer.instance);
-		put(UUID.class, UUIDSerializer.instance);
-		put(InetAddress.class, InetAddressSerializer.instance);
-		put(Inet4Address.class, InetAddressSerializer.instance);
-		put(Inet6Address.class, InetAddressSerializer.instance);
-		put(InetSocketAddress.class, InetSocketAddressSerializer.instance);
-		put(File.class, FileSerializer.instance);
-		put(URI.class, URISerializer.instance);
-		put(URL.class, URLSerializer.instance);
-		put(Appendable.class, AppendableSerializer.instance);
-		put(StringBuffer.class, AppendableSerializer.instance);
-		put(StringBuilder.class, AppendableSerializer.instance);
-		put(Pattern.class, PatternSerializer.instance);
-		put(Charset.class, CharsetSerializer.instance);
+        put(Boolean.class, BooleanSerializer.instance);
+        put(Character.class, CharacterSerializer.instance);
+        put(Byte.class, ByteSerializer.instance);
+        put(Short.class, ShortSerializer.instance);
+        put(Integer.class, IntegerSerializer.instance);
+        put(Long.class, LongSerializer.instance);
+        put(Float.class, FloatSerializer.instance);
+        put(Double.class, DoubleSerializer.instance);
+        put(BigDecimal.class, BigDecimalSerializer.instance);
+        put(BigInteger.class, BigIntegerSerializer.instance);
+        put(String.class, StringSerializer.instance);
+        put(byte[].class, ByteArraySerializer.instance);
+        put(short[].class, ShortArraySerializer.instance);
+        put(int[].class, IntArraySerializer.instance);
+        put(long[].class, LongArraySerializer.instance);
+        put(float[].class, FloatArraySerializer.instance);
+        put(double[].class, DoubleArraySerializer.instance);
+        put(boolean[].class, BooleanArraySerializer.instance);
+        put(char[].class, CharArraySerializer.instance);
+        put(Object[].class, ObjectArraySerializer.instance);
+        put(Class.class, ClassSerializer.instance);
 
-		// atomic
-		put(AtomicBoolean.class, AtomicBooleanSerializer.instance);
-		put(AtomicInteger.class, AtomicIntegerSerializer.instance);
-		put(AtomicLong.class, AtomicLongSerializer.instance);
-		put(AtomicReference.class, ReferenceSerializer.instance);
-		put(AtomicIntegerArray.class, AtomicIntegerArraySerializer.instance);
-		put(AtomicLongArray.class, AtomicLongArraySerializer.instance);
+        put(SimpleDateFormat.class, DateFormatSerializer.instance);
+        put(Locale.class, LocaleSerializer.instance);
+        put(TimeZone.class, TimeZoneSerializer.instance);
+        put(UUID.class, UUIDSerializer.instance);
+        put(InetAddress.class, InetAddressSerializer.instance);
+        put(Inet4Address.class, InetAddressSerializer.instance);
+        put(Inet6Address.class, InetAddressSerializer.instance);
+        put(InetSocketAddress.class, InetSocketAddressSerializer.instance);
+        put(File.class, FileSerializer.instance);
+        put(URI.class, URISerializer.instance);
+        put(URL.class, URLSerializer.instance);
+        put(Appendable.class, AppendableSerializer.instance);
+        put(StringBuffer.class, AppendableSerializer.instance);
+        put(StringBuilder.class, AppendableSerializer.instance);
+        put(Pattern.class, PatternSerializer.instance);
+        put(Charset.class, CharsetSerializer.instance);
 
-		put(WeakReference.class, ReferenceSerializer.instance);
-		put(SoftReference.class, ReferenceSerializer.instance);
+        // atomic
+        put(AtomicBoolean.class, AtomicBooleanSerializer.instance);
+        put(AtomicInteger.class, AtomicIntegerSerializer.instance);
+        put(AtomicLong.class, AtomicLongSerializer.instance);
+        put(AtomicReference.class, ReferenceSerializer.instance);
+        put(AtomicIntegerArray.class, AtomicIntegerArraySerializer.instance);
+        put(AtomicLongArray.class, AtomicLongArraySerializer.instance);
 
-		// awt
-		try {
-			put(Class.forName("java.awt.Color"), ColorSerializer.instance);
-			put(Class.forName("java.awt.Font"), FontSerializer.instance);
-			put(Class.forName("java.awt.Point"), PointSerializer.instance);
-			put(Class.forName("java.awt.Rectangle"),
-					RectangleSerializer.instance);
-		} catch (Throwable e) {
-			// skip
-		}
+        put(WeakReference.class, ReferenceSerializer.instance);
+        put(SoftReference.class, ReferenceSerializer.instance);
 
-	}
+    }
 
 }

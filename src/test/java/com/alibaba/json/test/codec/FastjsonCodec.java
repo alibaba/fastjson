@@ -3,7 +3,7 @@ package com.alibaba.json.test.codec;
 import java.util.Collection;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
@@ -21,13 +21,13 @@ public class FastjsonCodec implements Codec {
     }
 
     public <T> T decodeObject(String text, Class<T> clazz) {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser(text, config);
+        DefaultJSONParser parser = new DefaultJSONParser(text, config);
         parser.config(Feature.DisableCircularReferenceDetect, true);
         return parser.parseObject(clazz);
     }
 
     public <T> Collection<T> decodeArray(String text, Class<T> clazz) throws Exception {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser(text, config);
+        DefaultJSONParser parser = new DefaultJSONParser(text, config);
         parser.config(Feature.DisableCircularReferenceDetect, true);
         return parser.parseArray(clazz);
     }

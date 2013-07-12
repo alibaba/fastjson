@@ -1,11 +1,11 @@
 package com.alibaba.json.bvt;
 
-import org.junit.Assert;
 import junit.framework.TestCase;
+
+import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.util.ASMClassLoader;
 
 public class ClassFieldTest extends TestCase {
 

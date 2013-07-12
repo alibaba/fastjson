@@ -71,29 +71,6 @@ public final class JSONScanner extends JSONLexer {
         text.getChars(offset, offset + count, dest, 0);
     }
 
-    static final boolean charArrayCompare(String src, int offset, char[] dest) {
-        final int destLen = dest.length;
-        if (destLen + offset > src.length()) {
-            return false;
-        }
-
-        for (int i = 0; i < destLen; ++i) {
-            if (dest[i] != src.charAt(offset + i)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    public final boolean charArrayCompare(char[] chars) {
-        return charArrayCompare(text, bp, chars);
-    }
-
-    public final int indexOf(char ch, int startIndex) {
-        return text.indexOf(ch, startIndex);
-    }
-
     public final String addSymbol(int offset, int len, int hash, final SymbolTable symbolTable) {
         return symbolTable.addSymbol(text, offset, len, hash);
     }

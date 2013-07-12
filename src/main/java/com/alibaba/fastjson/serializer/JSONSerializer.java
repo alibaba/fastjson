@@ -33,11 +33,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONStreamAware;
-import com.alibaba.fastjson.util.ServiceLoader;
 
 /**
  * @author wenshao<szujobs@hotmail.com>
@@ -378,49 +376,6 @@ public class JSONSerializer {
         ObjectSerializer writer = config.get(clazz);
 
         if (writer == null) {
-            try {
-                final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-                for (Object o : ServiceLoader.load(AutowiredObjectSerializer.class, classLoader)) {
-                    if (!(o instanceof AutowiredObjectSerializer)) {
-                        continue;
-                    }
-
-                    AutowiredObjectSerializer autowired = (AutowiredObjectSerializer) o;
-                    for (Type forType : autowired.getAutowiredFor()) {
-                        config.put(forType, autowired);
-                    }
-                }
-            } catch (ClassCastException ex) {
-                // skip
-            }
-
-            writer = config.get(clazz);
-        }
-
-        if (writer == null) {
-            final ClassLoader classLoader = JSON.class.getClassLoader();
-            if (classLoader != Thread.currentThread().getContextClassLoader()) {
-                try {
-                    for (Object o : ServiceLoader.load(AutowiredObjectSerializer.class, classLoader)) {
-
-                        if (!(o instanceof AutowiredObjectSerializer)) {
-                            continue;
-                        }
-
-                        AutowiredObjectSerializer autowired = (AutowiredObjectSerializer) o;
-                        for (Type forType : autowired.getAutowiredFor()) {
-                            config.put(forType, autowired);
-                        }
-                    }
-                } catch (ClassCastException ex) {
-                    // skip
-                }
-
-                writer = config.get(clazz);
-            }
-        }
-
-        if (writer == null) {
             if (Map.class.isAssignableFrom(clazz)) {
                 config.put(clazz, MapSerializer.instance);
             } else if (List.class.isAssignableFrom(clazz)) {
@@ -443,8 +398,6 @@ public class JSONSerializer {
                 config.put(clazz, new ExceptionSerializer(clazz));
             } else if (TimeZone.class.isAssignableFrom(clazz)) {
                 config.put(clazz, TimeZoneSerializer.instance);
-            } else if (Appendable.class.isAssignableFrom(clazz)) {
-                config.put(clazz, AppendableSerializer.instance);
             } else if (Charset.class.isAssignableFrom(clazz)) {
                 config.put(clazz, CharsetSerializer.instance);
             } else if (Enumeration.class.isAssignableFrom(clazz)) {

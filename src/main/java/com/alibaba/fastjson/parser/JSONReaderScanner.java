@@ -151,8 +151,8 @@ public final class JSONReaderScanner extends JSONLexer {
 
             if (sp > 0) {
                 if (this.token == JSONToken.LITERAL_STRING) {
-                    System.arraycopy(buf, np + 1, buf, 0, sp);
-                    np = -1;
+                    System.arraycopy(buf, buf.length - sp, buf, 0, sp);
+                    np = -1 + sp;
                 } else {
                     System.arraycopy(buf, bufLength - sp, buf, 0, sp);
                     np = 0;
@@ -185,7 +185,6 @@ public final class JSONReaderScanner extends JSONLexer {
     protected final void copyTo(int offset, int count, char[] dest) {
         System.arraycopy(buf, offset, dest, 0, count);
     }
-
 
     public final boolean charArrayCompare(char[] chars) {
         for (int i = 0; i < chars.length; ++i) {

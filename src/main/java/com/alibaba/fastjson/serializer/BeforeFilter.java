@@ -17,9 +17,9 @@ public abstract class BeforeFilter implements SerializeFilter {
 
     protected final void writeKeyValue(String key, Object value) {
         JSONSerializer serializer = serializerLocal.get();
-        char comma = seperatorLocal.get();
-        serializer.writeKeyValue(comma, key, value);
-        if (comma != ',') {
+        char seperator = seperatorLocal.get();
+        serializer.writeKeyValue(seperator, key, value);
+        if (seperator != ',') {
             seperatorLocal.set(COMMA);
         }
     }

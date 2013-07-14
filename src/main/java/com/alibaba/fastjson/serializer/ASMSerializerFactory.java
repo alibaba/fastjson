@@ -386,6 +386,8 @@ public class ASMSerializerFactory implements Opcodes {
         }
 
         mw.visitVarInsn(ISTORE, context.var("seperator"));
+        
+        _before(mw, context);
 
         for (int i = 0; i < size; ++i) {
             FieldInfo property = getters.get(i);
@@ -1063,6 +1065,15 @@ public class ASMSerializerFactory implements Opcodes {
         }
 
         _seperator(mw, context);
+    }
+    
+    private void _before(MethodVisitor mw, Context context) {
+        mw.visitVarInsn(ALOAD, context.serializer());
+        mw.visitVarInsn(ALOAD, context.obj());
+        mw.visitVarInsn(ILOAD, context.var("seperator"));
+        mw.visitMethodInsn(INVOKESTATIC, getType(FilterUtils.class), "writeBefore",
+                "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;C)C");
+        mw.visitVarInsn(ISTORE, context.var("seperator"));
     }
 
     private void _apply(MethodVisitor mw, FieldInfo property, Context context) {

@@ -3,7 +3,17 @@ package com.alibaba.fastjson.serializer;
 import java.util.List;
 
 public class FilterUtils {
+    public static char writeBefore(JSONSerializer serializer, Object object, char seperator) {
+        List<BeforeFilter> beforeFilters = serializer.getBeforeFilters();
+        if (beforeFilters != null) {
+            for (BeforeFilter beforeFilter : beforeFilters) {
+                seperator = beforeFilter.writeBefore(serializer, object, seperator);
+            }
+        }
+        return seperator;
+    }
 
+    
     public static Object processValue(JSONSerializer serializer, Object object, String key, Object propertyValue) {
         List<ValueFilter> valueFilters = serializer.getValueFiltersDirect();
         if (valueFilters != null) {

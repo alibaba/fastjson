@@ -3,16 +3,16 @@ package com.alibaba.fastjson.serializer;
 import java.util.List;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.deserializer.RedundantProcessor;
+import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 
 public class FilterUtils {
 
     public static void processRedundant(DefaultJSONParser parser, Object object, String key, Object value) {
-        List<RedundantProcessor> redudantProcessors = parser.getRedudantProcessorsDirect();
+        List<ExtraProcessor> redudantProcessors = parser.getRedudantProcessorsDirect();
         if (redudantProcessors == null) {
             return;
         }
-        for (RedundantProcessor process : redudantProcessors) {
+        for (ExtraProcessor process : redudantProcessors) {
             process.process(object, key, value);
         }
     }

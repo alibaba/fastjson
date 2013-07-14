@@ -8,12 +8,12 @@ import junit.framework.TestCase;
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.parser.deserializer.RedundantProcessor;
+import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 
 public class RedundantTest extends TestCase {
 
     public void test_0() throws Exception {
-        RedundantProcessor processor = new RedundantProcessor() {
+        ExtraProcessor processor = new ExtraProcessor() {
             public void process(Object object, String key, Object value) {
                 VO vo = (VO) object;
                 vo.getAttributes().put(key, value);

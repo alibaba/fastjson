@@ -63,7 +63,7 @@ import com.alibaba.fastjson.parser.deserializer.ListResolveFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.LongDeserializer;
 import com.alibaba.fastjson.parser.deserializer.MapResolveFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
-import com.alibaba.fastjson.parser.deserializer.RedundantProcessor;
+import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 import com.alibaba.fastjson.parser.deserializer.StringDeserializer;
 import com.alibaba.fastjson.util.TypeUtils;
 
@@ -96,7 +96,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 
     private int                        resolveStatus      = NONE;
 
-    private List<RedundantProcessor>   redudantProcessors = null;
+    private List<ExtraProcessor>   redudantProcessors = null;
 
     static {
         primitiveClasses.add(boolean.class);
@@ -1073,14 +1073,14 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
         return resolveTaskList.get(resolveTaskList.size() - 1);
     }
 
-    public List<RedundantProcessor> getRedudantProcessors() {
+    public List<ExtraProcessor> getRedudantProcessors() {
         if (redudantProcessors == null) {
-            redudantProcessors = new ArrayList<RedundantProcessor>(2);
+            redudantProcessors = new ArrayList<ExtraProcessor>(2);
         }
         return redudantProcessors;
     }
     
-    public List<RedundantProcessor> getRedudantProcessorsDirect() {
+    public List<ExtraProcessor> getRedudantProcessorsDirect() {
         return redudantProcessors;
     }
     

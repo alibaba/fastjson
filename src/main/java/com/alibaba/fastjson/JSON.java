@@ -36,7 +36,7 @@ import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ParseProcess;
-import com.alibaba.fastjson.parser.deserializer.RedundantProcessor;
+import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 import com.alibaba.fastjson.serializer.BeforeFilter;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.NameFilter;
@@ -231,8 +231,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         DefaultJSONParser parser = new DefaultJSONParser(input, config, featureValues);
 
-        if (processor instanceof RedundantProcessor) {
-            parser.getRedudantProcessors().add((RedundantProcessor) processor);
+        if (processor instanceof ExtraProcessor) {
+            parser.getRedudantProcessors().add((ExtraProcessor) processor);
         }
 
         T value = (T) parser.parseObject(clazz);

@@ -8,6 +8,7 @@ import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.serializer.FilterUtils;
 import com.alibaba.fastjson.util.FieldInfo;
 
 public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
@@ -73,7 +74,8 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
             }
 
             lexer.nextTokenWithColon();
-            parser.parse(); // skip
+            Object value = parser.parse();
+            FilterUtils.processRedundant(parser, object, key, value);
 
             return false;
         }
@@ -101,8 +103,8 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
 
     public Object parseRest(DefaultJSONParser parser, Type type, Object fieldName, Object instance) {
 //        serializer.parseField(parser, key, object, objectType, fieldValues)
-        Object obj = serializer.deserialze(parser, type, fieldName, instance);
+        Object value = serializer.deserialze(parser, type, fieldName, instance);
         
-        return obj;
+        return value;
     }
 }

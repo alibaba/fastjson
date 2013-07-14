@@ -19,6 +19,7 @@ import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParseContext;
 import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.serializer.FilterUtils;
 import com.alibaba.fastjson.util.DeserializeBeanInfo;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.TypeUtils;
@@ -333,7 +334,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             }
 
             lexer.nextTokenWithColon();
-            parser.parse(); // skip
+            Object value = parser.parse(); // skip
+            FilterUtils.processRedundant(parser, object, key, value);
 
             return false;
         }

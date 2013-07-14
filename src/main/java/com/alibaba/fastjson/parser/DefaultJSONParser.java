@@ -63,6 +63,7 @@ import com.alibaba.fastjson.parser.deserializer.ListResolveFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.LongDeserializer;
 import com.alibaba.fastjson.parser.deserializer.MapResolveFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
+import com.alibaba.fastjson.parser.deserializer.RedundantProcessor;
 import com.alibaba.fastjson.parser.deserializer.StringDeserializer;
 import com.alibaba.fastjson.util.TypeUtils;
 
@@ -75,25 +76,27 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
     protected final SymbolTable        symbolTable;
     protected ParserConfig             config;
 
-    private final static Set<Class<?>> primitiveClasses  = new HashSet<Class<?>>();
+    private final static Set<Class<?>> primitiveClasses   = new HashSet<Class<?>>();
 
-    private String                     dateFormatPattern = JSON.DEFFAULT_DATE_FORMAT;
+    private String                     dateFormatPattern  = JSON.DEFFAULT_DATE_FORMAT;
     private DateFormat                 dateFormat;
 
     protected final JSONLexer          lexer;
 
     protected ParseContext             context;
 
-    private ParseContext[]             contextArray      = new ParseContext[8];
-    private int                        contextArrayIndex = 0;
+    private ParseContext[]             contextArray       = new ParseContext[8];
+    private int                        contextArrayIndex  = 0;
 
-    private final List<ResolveTask>    resolveTaskList   = new ArrayList<ResolveTask>();
+    private List<ResolveTask>          resolveTaskList;
 
-    public final static int            NONE              = 0;
-    public final static int            NeedToResolve     = 1;
-    public final static int            TypeNameRedirect  = 2;
+    public final static int            NONE               = 0;
+    public final static int            NeedToResolve      = 1;
+    public final static int            TypeNameRedirect   = 2;
 
-    private int                        resolveStatus     = NONE;
+    private int                        resolveStatus      = NONE;
+
+    private List<RedundantProcessor>   redudantProcessors = null;
 
     static {
         primitiveClasses.add(boolean.class);
@@ -1049,10 +1052,20 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
     }
 
     public List<ResolveTask> getResolveTaskList() {
+        if (resolveTaskList == null) {
+            resolveTaskList = new ArrayList<ResolveTask>(2);
+        }
+        return resolveTaskList;
+    }
+
+    public List<ResolveTask> getResolveTaskListDirect() {
         return resolveTaskList;
     }
 
     public void addResolveTask(ResolveTask task) {
+        if (resolveTaskList == null) {
+            resolveTaskList = new ArrayList<ResolveTask>(2);
+        }
         resolveTaskList.add(task);
     }
 
@@ -1060,6 +1073,17 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
         return resolveTaskList.get(resolveTaskList.size() - 1);
     }
 
+    public List<RedundantProcessor> getRedudantProcessors() {
+        if (redudantProcessors == null) {
+            redudantProcessors = new ArrayList<RedundantProcessor>(2);
+        }
+        return redudantProcessors;
+    }
+    
+    public List<RedundantProcessor> getRedudantProcessorsDirect() {
+        return redudantProcessors;
+    }
+    
     public void setContext(ParseContext context) {
         if (isEnabled(Feature.DisableCircularReferenceDetect)) {
             return;

@@ -35,6 +35,7 @@ import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
+import com.alibaba.fastjson.serializer.BeforeFilter;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.NameFilter;
 import com.alibaba.fastjson.serializer.PropertyFilter;
@@ -440,6 +441,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
                 if (filter instanceof PropertyFilter) {
                     serializer.getPropertyFilters().add((PropertyFilter) filter);
+                }
+                
+                if (filter instanceof BeforeFilter) {
+                    serializer.getBeforeFilters().add((BeforeFilter) filter);
                 }
             }
 

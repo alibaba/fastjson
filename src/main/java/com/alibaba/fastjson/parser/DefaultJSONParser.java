@@ -56,6 +56,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.deserializer.ASMJavaBeanDeserializer;
+import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
+import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.IntegerDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
@@ -63,7 +65,6 @@ import com.alibaba.fastjson.parser.deserializer.ListResolveFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.LongDeserializer;
 import com.alibaba.fastjson.parser.deserializer.MapResolveFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
-import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 import com.alibaba.fastjson.parser.deserializer.StringDeserializer;
 import com.alibaba.fastjson.util.TypeUtils;
 
@@ -96,7 +97,8 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 
     private int                        resolveStatus      = NONE;
 
-    private List<ExtraProcessor>   redudantProcessors = null;
+    private List<ExtraTypeProvider>    extraTypeProviders = null;
+    private List<ExtraProcessor>       extraProcessors    = null;
 
     static {
         primitiveClasses.add(boolean.class);
@@ -1073,17 +1075,28 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
         return resolveTaskList.get(resolveTaskList.size() - 1);
     }
 
-    public List<ExtraProcessor> getRedudantProcessors() {
-        if (redudantProcessors == null) {
-            redudantProcessors = new ArrayList<ExtraProcessor>(2);
+    public List<ExtraProcessor> getExtraProcessors() {
+        if (extraProcessors == null) {
+            extraProcessors = new ArrayList<ExtraProcessor>(2);
         }
-        return redudantProcessors;
+        return extraProcessors;
+    }
+
+    public List<ExtraProcessor> getExtraProcessorsDirect() {
+        return extraProcessors;
+    }
+
+    public List<ExtraTypeProvider> getExtraTypeProviders() {
+        if (extraTypeProviders == null) {
+            extraTypeProviders = new ArrayList<ExtraTypeProvider>(2);
+        }
+        return extraTypeProviders;
     }
     
-    public List<ExtraProcessor> getRedudantProcessorsDirect() {
-        return redudantProcessors;
+    public List<ExtraTypeProvider> getExtraTypeProvidersDirect() {
+        return extraTypeProviders;
     }
-    
+
     public void setContext(ParseContext context) {
         if (isEnabled(Feature.DisableCircularReferenceDetect)) {
             return;

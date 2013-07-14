@@ -3,12 +3,9 @@ package com.alibaba.fastjson.parser.deserializer;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.serializer.FilterUtils;
 import com.alibaba.fastjson.util.FieldInfo;
 
 public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
@@ -69,14 +66,7 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
         }
 
         if (fieldDeserializer == null) {
-            if (!parser.isEnabled(Feature.IgnoreNotMatch)) {
-                throw new JSONException("setter not found, class " + serializer.getClass() + ", property " + key);
-            }
-
-            lexer.nextTokenWithColon();
-            Object value = parser.parse();
-            FilterUtils.processRedundant(parser, object, key, value);
-
+            this.serializer.parseExtra(parser, object, key);
             return false;
         }
 

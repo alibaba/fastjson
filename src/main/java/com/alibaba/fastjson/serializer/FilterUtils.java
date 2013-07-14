@@ -1,19 +1,33 @@
 package com.alibaba.fastjson.serializer;
 
+import java.lang.reflect.Type;
 import java.util.List;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
+import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
 
 public class FilterUtils {
-
-    public static void processRedundant(DefaultJSONParser parser, Object object, String key, Object value) {
-        List<ExtraProcessor> redudantProcessors = parser.getRedudantProcessorsDirect();
-        if (redudantProcessors == null) {
+    public static Type getExtratype(DefaultJSONParser parser, Object object, String key) {
+        List<ExtraTypeProvider> extraTypeProviders = parser.getExtraTypeProvidersDirect();
+        if (extraTypeProviders == null) {
+            return null;
+        }
+        
+        Type type = null;
+        for (ExtraTypeProvider extraProvider : extraTypeProviders) {
+            type = extraProvider.getExtraType(object, key);
+        }
+        return type;
+    }
+    
+    public static void processExtra(DefaultJSONParser parser, Object object, String key, Object value) {
+        List<ExtraProcessor> extraProcessors = parser.getExtraProcessorsDirect();
+        if (extraProcessors == null) {
             return;
         }
-        for (ExtraProcessor process : redudantProcessors) {
-            process.process(object, key, value);
+        for (ExtraProcessor process : extraProcessors) {
+            process.processExtra(object, key, value);
         }
     }
 

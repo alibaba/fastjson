@@ -329,13 +329,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         }
 
         if (fieldDeserializer == null) {
-            if (!parser.isEnabled(Feature.IgnoreNotMatch)) {
-                throw new JSONException("setter not found, class " + clazz.getName() + ", property " + key);
-            }
-
-            lexer.nextTokenWithColon();
-            Object value = parser.parse(); // skip
-            FilterUtils.processRedundant(parser, object, key, value);
+            parseExtra(parser, object, key);
 
             return false;
         }
@@ -345,6 +339,24 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         fieldDeserializer.parseField(parser, object, objectType, fieldValues);
 
         return true;
+    }
+
+    void parseExtra(DefaultJSONParser parser, Object object, String key) {
+        final JSONLexer lexer = parser.getLexer(); // xxx
+        if (!lexer.isEnabled(Feature.IgnoreNotMatch)) {
+            throw new JSONException("setter not found, class " + clazz.getName() + ", property " + key);
+        }
+
+        lexer.nextTokenWithColon();
+        Type type = FilterUtils.getExtratype(parser, object, key);
+        Object value;
+        if (type == null) {
+            value = parser.parse(); // skip
+        } else {
+            value = parser.parseObject(type);
+        }
+        
+        FilterUtils.processExtra(parser, object, key, value);
     }
 
     public int getFastMatchToken() {

@@ -15,6 +15,8 @@
  */
 package com.alibaba.fastjson.parser;
 
+import com.alibaba.fastjson.JSON;
+
 /**
  * @author wenshao<szujobs@hotmail.com>
  */
@@ -35,7 +37,7 @@ public class SymbolTable {
     public SymbolTable(){
         this(DEFAULT_TABLE_SIZE);
         this.addSymbol("$ref", 0, 4, "$ref".hashCode());
-        this.addSymbol("@type", 0, 4, "@type".hashCode());
+        this.addSymbol(JSON.DEFAULT_TYPE_KEY, 0, 4, JSON.DEFAULT_TYPE_KEY.hashCode());
     }
 
     public SymbolTable(int tableSize){

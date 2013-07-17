@@ -1041,7 +1041,7 @@ public abstract class JSONLexer implements Closeable {
 
     protected final static char[] typeFieldName = ("\"" + JSON.DEFAULT_TYPE_KEY + "\":\"").toCharArray();
 
-    public final int scanType(String type) {
+    public int scanType(String type) {
         matchStat = UNKOWN;
 
         if (!charArrayCompare(typeFieldName)) {
@@ -1201,7 +1201,7 @@ public abstract class JSONLexer implements Closeable {
         return strVal;
     }
 
-    public final String scanFieldSymbol(char[] fieldName, final SymbolTable symbolTable) {
+    public String scanFieldSymbol(char[] fieldName, final SymbolTable symbolTable) {
         matchStat = UNKOWN;
 
         if (!charArrayCompare(fieldName)) {

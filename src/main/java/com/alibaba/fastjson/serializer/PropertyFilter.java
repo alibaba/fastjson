@@ -21,10 +21,10 @@ package com.alibaba.fastjson.serializer;
 public interface PropertyFilter extends SerializeFilter {
 
     /**
-     * @param source the owner of the property
+     * @param object the owner of the property
      * @param name the name of the property
      * @param value the value of the property
      * @return true if the property will be filtered out, false otherwise
      */
-    boolean apply(Object source, String name, Object value);
+    boolean apply(Object object, String name, Object value);
 }

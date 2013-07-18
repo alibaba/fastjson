@@ -108,8 +108,8 @@ public class ValueFilterTest extends TestCase {
         ValueFilter filter = new ValueFilter() {
 
             public Object process(Object source, String name, Object value) {
-                if (name.equals("name")) {
-                    return null;
+                if (name.equals("id")) {
+                    return 123;
                 }
 
                 return value;
@@ -117,16 +117,11 @@ public class ValueFilterTest extends TestCase {
 
         };
 
-        SerializeWriter out = new SerializeWriter();
-        JSONSerializer serializer = new JSONSerializer(out);
-        serializer.getValueFilters().add(filter);
-
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put("name", "AA");
-        serializer.write(map);
+        map.put("id", 0);
 
-        String text = out.toString();
-        Assert.assertEquals("{}", text);
+        String text = JSON.toJSONString(map, filter);
+        Assert.assertEquals("{\"id\":123}", text);
     }
 
     public static class Bean {

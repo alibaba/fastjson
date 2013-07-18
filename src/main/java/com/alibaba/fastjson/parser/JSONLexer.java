@@ -549,6 +549,84 @@ public abstract class JSONLexer implements Closeable {
             break;
         }
     }
+    
+    public final void nextTokenWithComma(int expect) {
+        sp = 0;
+
+        for (;;) {
+            if (ch == ',') {
+                next();
+                break;
+            }
+
+            if (isWhitespace(ch)) {
+                next();
+                continue;
+            }
+
+            throw new JSONException("not match ',', actual " + ch);
+        }
+
+        for (;;) {
+            if (expect == JSONToken.LITERAL_INT) {
+                if (ch >= '0' && ch <= '9') {
+                    pos = bp;
+                    scanNumber();
+                    return;
+                }
+
+                if (ch == '"') {
+                    pos = bp;
+                    scanString();
+                    return;
+                }
+            } else if (expect == JSONToken.LITERAL_STRING) {
+                if (ch == '"') {
+                    pos = bp;
+                    scanString();
+                    return;
+                }
+
+                if (ch >= '0' && ch <= '9') {
+                    pos = bp;
+                    scanNumber();
+                    return;
+                }
+
+            } else if (expect == JSONToken.LBRACE) {
+                if (ch == '{') {
+                    token = JSONToken.LBRACE;
+                    next();
+                    return;
+                }
+                if (ch == '[') {
+                    token = JSONToken.LBRACKET;
+                    next();
+                    return;
+                }
+            } else if (expect == JSONToken.LBRACKET) {
+                if (ch == '[') {
+                    token = JSONToken.LBRACKET;
+                    next();
+                    return;
+                }
+
+                if (ch == '{') {
+                    token = JSONToken.LBRACE;
+                    next();
+                    return;
+                }
+            }
+
+            if (isWhitespace(ch)) {
+                next();
+                continue;
+            }
+
+            nextToken();
+            break;
+        }
+    }
 
     public float floatValue() {
         return Float.parseFloat(numberString());

@@ -4,14 +4,25 @@ import java.lang.management.ManagementFactory;
 import java.util.List;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.json.test.TestUtils;
 import com.alibaba.json.test.benchmark.decode.EishayDecodeBytes;
 
+import data.media.Image;
+import data.media.Media;
 import data.media.MediaContent;
+import data.media.writeAsArray.ImageSerializer;
+import data.media.writeAsArray.MediaContentSerializer;
+import data.media.writeAsArray.MediaSerializer;
 
 public class BenchmarkMain_EishayEncode {
 
     public static void main(String[] args) throws Exception {
+//        SerializeConfig config = SerializeConfig.getGlobalInstance();
+//        config.put(MediaContent.class, new MediaContentSerializer());
+//        config.put(Media.class, new MediaSerializer());
+//        config.put(Image.class, new ImageSerializer());
+
         System.out.println(System.getProperty("java.vm.name") + " " + System.getProperty("java.runtime.version"));
         List<String> arguments = ManagementFactory.getRuntimeMXBean().getInputArguments();
         System.out.println(arguments);

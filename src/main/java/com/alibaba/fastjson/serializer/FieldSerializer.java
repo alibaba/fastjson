@@ -72,6 +72,10 @@ public abstract class FieldSerializer {
 
     public void writePrefix(JSONSerializer serializer) throws IOException {
         SerializeWriter out = serializer.getWriter();
+        
+        if (out.isEnabled(SerializerFeature.WriteObjectAsArray)) {
+            return;
+        }
 
         if (serializer.isEnabled(SerializerFeature.QuoteFieldNames)) {
             if (serializer.isEnabled(SerializerFeature.UseSingleQuotes)) {

@@ -110,8 +110,11 @@ public class JavaBeanSerializer implements ObjectSerializer {
         SerialContext parent = serializer.getContext();
         serializer.setContext(parent, object, fieldName);
 
+        final boolean writeObjectAsArray = out.isEnabled(SerializerFeature.WriteObjectAsArray);
+        
         try {
-            out.append('{');
+            final char startSeperator = writeObjectAsArray ? '[' : '{';
+            out.append(startSeperator);
 
             if (getters.length > 0 && out.isEnabled(SerializerFeature.PrettyFormat)) {
                 serializer.incrementIndent();
@@ -193,7 +196,8 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 serializer.println();
             }
 
-            out.append('}');
+            final char endSeperator = writeObjectAsArray ? ']' : '}';
+            out.append(endSeperator);
         } catch (Exception e) {
             throw new JSONException("write javaBean error", e);
         } finally {

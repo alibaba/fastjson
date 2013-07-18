@@ -196,11 +196,7 @@ public class DeserializeBeanInfo {
 
             String propertyName;
             if (Character.isUpperCase(c3)) {
-                if (methodName.length() > 4 && Character.isUpperCase(methodName.charAt(4))) {
-                    propertyName = methodName.substring(3);
-                } else {
-                    propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
-                }
+                propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
             } else if (c3 == '_') {
                 propertyName = methodName.substring(4);
             } else if (c3 == 'f') {

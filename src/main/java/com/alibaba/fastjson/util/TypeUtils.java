@@ -962,9 +962,6 @@ public class TypeUtils {
                 }
 
                 Field field = ParserConfig.getField(clazz, propertyName);
-                if (field == null) {
-                    field = ParserConfig.getField(clazz, propertyName);
-                }
 
                 if (field != null) {
                     JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
@@ -1016,6 +1013,10 @@ public class TypeUtils {
                 }
 
                 Field field = ParserConfig.getField(clazz, propertyName);
+                
+                if (field == null) {
+                    field = ParserConfig.getField(clazz, methodName);
+                }
                 
                 if (field != null) {
                     JSONField fieldAnnotation = field.getAnnotation(JSONField.class);

@@ -104,6 +104,11 @@ public enum SerializerFeature {
      * @since 1.1.19
      */
     DisableCheckSpecialChar,
+    
+    /**
+     * @since 1.1.35
+     */
+    WriteJavaBeanAsArray
     ;
 
     private SerializerFeature(){

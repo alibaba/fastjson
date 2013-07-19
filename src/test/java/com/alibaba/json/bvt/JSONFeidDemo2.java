@@ -23,7 +23,7 @@ public class JSONFeidDemo2 extends TestCase {
 		System.out.println(text);
 
 		assertEquals(
-				"{\"IM_PREQ_NO\":\"111111\",\"TB_PR_INFO\":[{\"PREQ_NO\":\"t1\"},{\"PREQ_NO\":\"t2\"}]}",
+				"{\"iM_PREQ_NO\":\"111111\",\"tB_PR_INFO\":[{\"PREQ_NO\":\"t1\"},{\"PREQ_NO\":\"t2\"}]}",
 				text);
 
 	}

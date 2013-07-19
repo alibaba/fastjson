@@ -475,7 +475,7 @@ public class TypeUtils {
             if (clazz == Map.class) {
                 return (T) obj;
             }
-            
+
             Map map = (Map) obj;
             if (clazz == Object.class && !map.containsKey(JSON.DEFAULT_TYPE_KEY)) {
                 return (T) obj;
@@ -854,11 +854,15 @@ public class TypeUtils {
         }
 
         try {
-            clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
-            addClassMapping(className, clazz);
+            if (classLoader != null) {
+                clazz = classLoader.loadClass(className);
 
-            return clazz;
+                addClassMapping(className, clazz);
+
+                return clazz;
+            }
         } catch (Throwable e) {
             // skip
         }
@@ -998,7 +1002,7 @@ public class TypeUtils {
                 if (methodName.length() < 3) {
                     continue;
                 }
-                
+
                 char c2 = methodName.charAt(2);
 
                 String propertyName;
@@ -1013,11 +1017,11 @@ public class TypeUtils {
                 }
 
                 Field field = ParserConfig.getField(clazz, propertyName);
-                
+
                 if (field == null) {
                     field = ParserConfig.getField(clazz, methodName);
                 }
-                
+
                 if (field != null) {
                     JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
 

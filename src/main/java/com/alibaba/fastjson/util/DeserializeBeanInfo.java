@@ -204,9 +204,14 @@ public class DeserializeBeanInfo {
             } else {
                 continue;
             }
-            Field field = getField(clazz, propertyName);
-            if (field != null) {
 
+            Field field = getField(clazz, propertyName);
+            if (field == null && method.getParameterTypes()[0] == boolean.class) {
+                String isFieldName = "is" + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
+                field = getField(clazz, isFieldName);
+            }
+
+            if (field != null) {
                 JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
 
                 if (fieldAnnotation != null && fieldAnnotation.name().length() != 0) {

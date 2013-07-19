@@ -90,4 +90,5 @@ public abstract class FieldSerializer {
 
     public abstract void writeProperty(JSONSerializer serializer, Object propertyValue) throws Exception;
 
+    public abstract void writeValue(JSONSerializer serializer, Object propertyValue) throws Exception;
 }

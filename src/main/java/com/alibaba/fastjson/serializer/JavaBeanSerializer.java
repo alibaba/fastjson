@@ -61,24 +61,24 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
     public JavaBeanSerializer(Class<?> clazz, Map<String, String> aliasMap){
         {
-        	List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
-	        List<FieldInfo> fieldInfoList = TypeUtils.computeGetters(clazz, aliasMap, false);
-	
-	        for (FieldInfo fieldInfo : fieldInfoList) {
-	            getterList.add(createFieldSerializer(fieldInfo));
-	        }
-	
-	        getters = getterList.toArray(new FieldSerializer[getterList.size()]);
+            List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
+            List<FieldInfo> fieldInfoList = TypeUtils.computeGetters(clazz, aliasMap, false);
+
+            for (FieldInfo fieldInfo : fieldInfoList) {
+                getterList.add(createFieldSerializer(fieldInfo));
+            }
+
+            getters = getterList.toArray(new FieldSerializer[getterList.size()]);
         }
         {
-        	List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
-	        List<FieldInfo> fieldInfoList = TypeUtils.computeGetters(clazz, aliasMap, true);
-	
-	        for (FieldInfo fieldInfo : fieldInfoList) {
-	            getterList.add(createFieldSerializer(fieldInfo));
-	        }
-	
-	        sortedGetters = getterList.toArray(new FieldSerializer[getterList.size()]);
+            List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
+            List<FieldInfo> fieldInfoList = TypeUtils.computeGetters(clazz, aliasMap, true);
+
+            for (FieldInfo fieldInfo : fieldInfoList) {
+                getterList.add(createFieldSerializer(fieldInfo));
+            }
+
+            sortedGetters = getterList.toArray(new FieldSerializer[getterList.size()]);
         }
     }
 
@@ -104,14 +104,23 @@ public class JavaBeanSerializer implements ObjectSerializer {
         if (out.isEnabled(SerializerFeature.SortField)) {
             getters = this.sortedGetters;
         } else {
-            getters = this.getters;    
+            getters = this.getters;
         }
 
         SerialContext parent = serializer.getContext();
         serializer.setContext(parent, object, fieldName);
 
+        boolean writeAsArray;
+        if (out.isEnabled(SerializerFeature.WriteJavaBeanAsArray)) {
+            writeAsArray = true;
+        } else {
+            writeAsArray = false;
+        }
+
         try {
-            out.append('{');
+            final char startSeperator = writeAsArray ? '[' : '{';
+            final char endSeperator = writeAsArray ? ']' : '}';
+            out.append(startSeperator);
 
             if (getters.length > 0 && out.isEnabled(SerializerFeature.PrettyFormat)) {
                 serializer.incrementIndent();
@@ -128,9 +137,9 @@ public class JavaBeanSerializer implements ObjectSerializer {
                     commaFlag = true;
                 }
             }
-            
-            char seperator = commaFlag ? ',':'\0';
-            
+
+            char seperator = commaFlag ? ',' : '\0';
+
             char newSeperator = FilterUtils.writeBefore(serializer, object, seperator);
             commaFlag = newSeperator == ',';
 
@@ -145,7 +154,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                         }
                     }
                 }
-                
+
                 if (!FilterUtils.applyName(serializer, object, fieldSerializer.getName())) {
                     continue;
                 }
@@ -161,7 +170,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 Object originalValue = propertyValue;
                 propertyValue = FilterUtils.processValue(serializer, object, fieldSerializer.getName(), propertyValue);
 
-                if (propertyValue == null) {
+                if (propertyValue == null && !writeAsArray) {
                     if ((!fieldSerializer.isWriteNull())
                         && (!serializer.isEnabled(SerializerFeature.WriteMapNullValue))) {
                         continue;
@@ -176,13 +185,21 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 }
 
                 if (key != fieldSerializer.getName()) {
-                    out.writeFieldName(key);
+                    if (!writeAsArray) {
+                        out.writeFieldName(key);
+                    }
                     serializer.write(propertyValue);
                 } else if (originalValue != propertyValue) {
-                    fieldSerializer.writePrefix(serializer);
+                    if (!writeAsArray) {
+                        fieldSerializer.writePrefix(serializer);
+                    }
                     serializer.write(propertyValue);
                 } else {
-                    fieldSerializer.writeProperty(serializer, propertyValue);
+                    if (!writeAsArray) {
+                        fieldSerializer.writeProperty(serializer, propertyValue);
+                    } else {
+                        fieldSerializer.writeValue(serializer, propertyValue);
+                    }
                 }
 
                 commaFlag = true;
@@ -193,7 +210,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 serializer.println();
             }
 
-            out.append('}');
+            out.append(endSeperator);
         } catch (Exception e) {
             throw new JSONException("write javaBean error", e);
         } finally {

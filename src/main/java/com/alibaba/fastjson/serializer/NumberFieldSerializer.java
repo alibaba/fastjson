@@ -17,21 +17,23 @@ package com.alibaba.fastjson.serializer;
 
 import com.alibaba.fastjson.util.FieldInfo;
 
-
 /**
  * @author wenshao<szujobs@hotmail.com>
  */
-class NumberFieldSerializer extends FieldSerializer {
+final class NumberFieldSerializer extends FieldSerializer {
 
     public NumberFieldSerializer(FieldInfo fieldInfo){
         super(fieldInfo);
     }
 
-    @Override
     public void writeProperty(JSONSerializer serializer, Object propertyValue) throws Exception {
-        SerializeWriter out = serializer.getWriter();
-
         writePrefix(serializer);
+        this.writeValue(serializer, propertyValue);
+    }
+
+    @Override
+    public void writeValue(JSONSerializer serializer, Object propertyValue) throws Exception {
+        SerializeWriter out = serializer.getWriter();
 
         Object value = propertyValue;
 
@@ -43,7 +45,7 @@ class NumberFieldSerializer extends FieldSerializer {
             }
             return;
         }
-        
+
         out.append(value.toString());
     }
 }

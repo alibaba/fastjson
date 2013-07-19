@@ -63,10 +63,13 @@ public class ObjectFieldSerializer extends FieldSerializer {
         }
     }
 
-    @Override
     public void writeProperty(JSONSerializer serializer, Object propertyValue) throws Exception {
         writePrefix(serializer);
+        writeValue(serializer, propertyValue);
+    }
 
+    @Override
+    public void writeValue(JSONSerializer serializer, Object propertyValue) throws Exception {
         if (format != null) {
             serializer.writeWithFormat(propertyValue, format);
             return;

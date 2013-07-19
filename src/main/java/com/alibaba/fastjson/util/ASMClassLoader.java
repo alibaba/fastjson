@@ -20,17 +20,18 @@ public class ASMClassLoader extends ClassLoader {
     public ASMClassLoader(){
         super(getParentClassLoader());
     }
-    
+
     static ClassLoader getParentClassLoader() {
-    	ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-    	try {
-			contextClassLoader.loadClass(JSON.class.getName());
-			return contextClassLoader;
-		} catch (ClassNotFoundException e) {
-			// skip
-		}
-    	
-    	return JSON.class.getClassLoader();
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+        if (contextClassLoader != null) {
+            try {
+                contextClassLoader.loadClass(JSON.class.getName());
+                return contextClassLoader;
+            } catch (ClassNotFoundException e) {
+                // skip
+            }
+        }
+        return JSON.class.getClassLoader();
     }
 
     public Class<?> defineClassPublic(String name, byte[] b, int off, int len) throws ClassFormatError {
@@ -51,7 +52,7 @@ public class ASMClassLoader extends ClassLoader {
             if (current == classLoader) {
                 return false;
             }
-            
+
             current = current.getParent();
         }
 

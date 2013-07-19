@@ -14,7 +14,7 @@ public class JSONFieldTest5 extends TestCase {
         vo.setID(123);
 
         String text = JSON.toJSONString(vo);
-        Assert.assertEquals("{\"ID\":123}", text);
+        Assert.assertEquals("{\"iD\":123}", text);
         
         Assert.assertEquals(123, JSON.parseObject(text, VO.class).getID());
     }

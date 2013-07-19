@@ -85,7 +85,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
     protected boolean isWriteClassName(JSONSerializer serializer, Object obj, Type fieldType, Object fieldName) {
         return serializer.isWriteClassName(fieldType, obj);
     }
-
+    
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
@@ -110,12 +110,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
         SerialContext parent = serializer.getContext();
         serializer.setContext(parent, object, fieldName);
 
-        boolean writeAsArray;
-        if (out.isEnabled(SerializerFeature.WriteJavaBeanAsArray)) {
-            writeAsArray = true;
-        } else {
-            writeAsArray = false;
-        }
+        final boolean writeAsArray = serializer.isWriteAsArray(object, fieldType);
 
         try {
             final char startSeperator = writeAsArray ? '[' : '{';

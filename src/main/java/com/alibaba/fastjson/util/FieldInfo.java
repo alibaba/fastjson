@@ -9,6 +9,8 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 public class FieldInfo implements Comparable<FieldInfo> {
 
     private final String   name;
@@ -213,6 +215,20 @@ public class FieldInfo implements Comparable<FieldInfo> {
         }
 
         return annotation;
+    }
+    
+    public String getFormat() {
+        String format = null;
+        JSONField annotation = getAnnotation(JSONField.class);
+
+        if (annotation != null) {
+            format = annotation.format();
+
+            if (format.trim().length() == 0) {
+                format = null;
+            }
+        }
+        return format;
     }
 
     public Object get(Object javaObject) throws IllegalAccessException, InvocationTargetException {

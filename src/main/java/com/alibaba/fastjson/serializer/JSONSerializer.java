@@ -520,4 +520,15 @@ public class JSONSerializer {
     public void close() {
         this.out.close();
     }
+    
+    public final boolean isWriteAsArray(Object object, Type fieldType) {
+        boolean writeAsArray;
+        if (out.isEnabled(SerializerFeature.WriteJavaBeanAsArray)) {
+            writeAsArray = true;
+        } else {
+            writeAsArray = false;
+        }
+        
+        return writeAsArray;
+    }
 }

@@ -1524,6 +1524,7 @@ public abstract class JSONLexer implements Closeable {
         return list;
     }
 
+    @SuppressWarnings("unchecked")
     public Collection<String> scanStringArray(Class<?> type, int expectNextChar) {
         matchStat = UNKOWN;
 

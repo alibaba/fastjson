@@ -376,6 +376,10 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                         this.popContext();
                     }
                 }
+                
+                if (object.getClass() == JSONObject.class) {
+                    key = (key == null) ? "null" : key.toString(); 
+                }
 
                 Object value;
                 if (ch == '"') {
@@ -391,11 +395,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                         iso8601Lexer.close();
                     }
 
-                    if (object.getClass() == JSONObject.class) {
-                        object.put(key.toString(), value);
-                    } else {
-                        object.put(key, value);
-                    }
+                    object.put(key, value);
                 } else if (ch >= '0' && ch <= '9' || ch == '-') {
                     lexer.scanNumber();
                     if (lexer.token() == JSONToken.LITERAL_INT) {

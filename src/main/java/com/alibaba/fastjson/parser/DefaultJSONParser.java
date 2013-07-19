@@ -446,6 +446,10 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                 } else {
                     lexer.nextToken();
                     value = parse();
+                    
+                    if (object.getClass() == JSONObject.class) {
+                        key = key.toString();
+                    }
                     object.put(key, value);
 
                     if (lexer.token() == JSONToken.RBRACE) {

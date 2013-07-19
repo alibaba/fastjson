@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
@@ -17,6 +18,10 @@ public class ServiceLoader {
 
     @SuppressWarnings("unchecked")
     public static <T> Set<T> load(Class<T> clazz, ClassLoader classLoader) {
+        if (classLoader == null) {
+            return Collections.emptySet();
+        }
+        
         Set<T> services = new HashSet<T>();
 
         String className = clazz.getName();

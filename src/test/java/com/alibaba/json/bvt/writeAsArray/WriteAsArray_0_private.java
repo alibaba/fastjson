@@ -14,9 +14,9 @@ public class WriteAsArray_0_private extends TestCase {
         vo.setId(123);
         vo.setName("wenshao");
         
-        String text = JSON.toJSONString(vo, SerializerFeature.WriteJavaBeanAsArray);
+        String text = JSON.toJSONString(vo, SerializerFeature.BeanToArray);
         Assert.assertEquals("[123,\"wenshao\"]", text);
-        VO vo2 = JSON.parseObject(text, VO.class, Feature.SupportArrayToJavaBeanMapping);
+        VO vo2 = JSON.parseObject(text, VO.class, Feature.SupportArrayToBean);
         Assert.assertEquals(vo.getId(), vo2.getId());
         Assert.assertEquals(vo.getName(), vo2.getName());
     }

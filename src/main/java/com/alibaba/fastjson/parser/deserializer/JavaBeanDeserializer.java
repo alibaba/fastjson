@@ -193,7 +193,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 return (T) object;
             }
 
-            if (lexer.token() == JSONToken.LBRACKET && lexer.isEnabled(Feature.SupportArrayToJavaBeanMapping)) {
+            if (lexer.token() == JSONToken.LBRACKET && lexer.isEnabled(Feature.SupportArrayToBean)) {
                 return deserialzeArrayMapping(parser, type, fieldName, object);
             }
 

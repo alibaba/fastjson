@@ -46,6 +46,6 @@ public class BenchmarkMain_EishayEncode {
     }
 
     static String encode(Object text) {
-        return JSON.toJSONString(text, SerializerFeature.WriteJavaBeanAsArray);
+        return JSON.toJSONString(text, SerializerFeature.BeanToArray);
     }
 }

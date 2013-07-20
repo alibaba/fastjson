@@ -444,6 +444,77 @@ public final class SerializeWriter extends Writer {
         buf[newcount - 1] = '\"';
     }
 
+    public void writeFloatAndChar(float value, char c) {
+        String text = Float.toString(value);
+        if (text.endsWith(".0")) {
+            text = text.substring(0, text.length() - 2);
+        }
+        write(text);
+        write(c);
+    }
+
+    public void writeDoubleAndChar(double value, char c) {
+        String text = Double.toString(value);
+        if (text.endsWith(".0")) {
+            text = text.substring(0, text.length() - 2);
+        }
+        write(text);
+        write(c);
+    }
+
+    public void writeBooleanAndChar(boolean value, char c) {
+        if (value) {
+            if (c == ',') {
+                write("true,");
+            } else if (c == ']') {
+                write("true]");
+            } else {
+                write("true");
+                write(c);
+            }
+        } else {
+            if (c == ',') {
+                write("false,");
+            } else if (c == ']') {
+                write("false]");
+            } else {
+                write("false");
+                write(c);
+            }
+        }
+    }
+
+    public void writeCharacterAndChar(char value, char c) {
+        writeString(Character.toString(value));
+        write(c);
+    }
+
+    public void writeEnum(Enum<?> value, char c) {
+        if (value == null) {
+            writeNull();
+            write(',');
+            return;
+        }
+
+        if (isEnabled(SerializerFeature.WriteEnumUsingToString)) {
+            if (isEnabled(SerializerFeature.UseSingleQuotes)) {
+                write('\'');
+                write(value.name());
+                write('\'');
+                write(c);
+
+            } else {
+                write('\"');
+                write(value.name());
+                write('\"');
+                write(c);
+            }
+            return;
+        }
+        
+        writeIntAndChar(value.ordinal(), c);
+    }
+
     public void writeIntAndChar(int i, char c) {
         if (i == Integer.MIN_VALUE) {
             write("-2147483648");

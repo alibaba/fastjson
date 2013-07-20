@@ -298,40 +298,56 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitLdcInsn(property.getName());
             mw.visitVarInsn(ASTORE, context.fieldName());
 
-            if (propertyClass == byte.class) {
-                throw new JSONException("TODO : " + propertyClass);
-            } else if (propertyClass == short.class) {
-                throw new JSONException("TODO : " + propertyClass);
-            } else if (propertyClass == int.class) {
+            if (propertyClass == byte.class //
+                || propertyClass == short.class //
+                || propertyClass == int.class) {
+
                 mw.visitVarInsn(ALOAD, context.var("out"));
                 _get(mw, context, property);
                 mw.visitVarInsn(BIPUSH, seperator);
                 mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "writeIntAndChar", "(IC)V");
+
             } else if (propertyClass == long.class) {
                 mw.visitVarInsn(ALOAD, context.var("out"));
                 _get(mw, context, property);
                 mw.visitVarInsn(BIPUSH, seperator);
                 mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "writeLongAndChar", "(JC)V");
+
             } else if (propertyClass == float.class) {
-                throw new JSONException("TODO : " + propertyClass);
+                mw.visitVarInsn(ALOAD, context.var("out"));
+                _get(mw, context, property);
+                mw.visitVarInsn(BIPUSH, seperator);
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "writeFloatAndChar", "(FC)V");
+
             } else if (propertyClass == double.class) {
-                throw new JSONException("TODO : " + propertyClass);
+                mw.visitVarInsn(ALOAD, context.var("out"));
+                _get(mw, context, property);
+                mw.visitVarInsn(BIPUSH, seperator);
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "writeDoubleAndChar", "(DC)V");
+
             } else if (propertyClass == boolean.class) {
-                throw new JSONException("TODO : " + propertyClass);
+                mw.visitVarInsn(ALOAD, context.var("out"));
+                _get(mw, context, property);
+                mw.visitVarInsn(BIPUSH, seperator);
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "writeBooleanAndChar", "(ZC)V");
             } else if (propertyClass == char.class) {
-                throw new JSONException("TODO : " + propertyClass);
+                mw.visitVarInsn(ALOAD, context.var("out"));
+                _get(mw, context, property);
+                mw.visitVarInsn(BIPUSH, seperator);
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "writeCharacterAndChar", "(CC)V");
+
             } else if (propertyClass == String.class) {
                 mw.visitVarInsn(ALOAD, context.var("out"));
                 _get(mw, context, property);
                 mw.visitVarInsn(BIPUSH, seperator);
                 mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "writeString",
                                    "(Ljava/lang/String;C)V");
-            } else if (propertyClass == BigDecimal.class) {
-                throw new JSONException("TODO : " + propertyClass);
-            } else if (List.class.isAssignableFrom(propertyClass)) {
-                throw new JSONException("TODO : " + propertyClass);
             } else if (propertyClass.isEnum()) {
-                throw new JSONException("TODO : " + propertyClass);
+                mw.visitVarInsn(ALOAD, context.var("out"));
+                _get(mw, context, property);
+                mw.visitVarInsn(BIPUSH, seperator);
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "writeEnum",
+                                   "(Ljava/lang/Enum;C)V");
             } else {
                 String format = property.getFormat();
 
@@ -356,7 +372,7 @@ public class ASMSerializerFactory implements Opcodes {
                                            "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;)V");
                     }
                 }
-                
+
                 mw.visitVarInsn(ALOAD, context.var("out"));
                 mw.visitVarInsn(BIPUSH, seperator);
                 mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "write", "(C)V");

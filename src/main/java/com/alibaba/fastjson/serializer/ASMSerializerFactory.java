@@ -289,6 +289,14 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "write", "(C)V");
 
         int size = getters.size();
+        
+        if (size == 0) {
+            mw.visitVarInsn(ALOAD, context.var("out"));
+            mw.visitVarInsn(BIPUSH, ']');
+            mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "write", "(C)V");
+            return;
+        }
+        
         for (int i = 0; i < size; ++i) {
             final char seperator = (i == size - 1) ? ']' : ',';
 

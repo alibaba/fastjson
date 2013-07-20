@@ -8,6 +8,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -25,7 +26,8 @@ public class DeserializeBeanInfo {
     private Constructor<?>        creatorConstructor;
     private Method                factoryMethod;
 
-    private final List<FieldInfo> fieldList = new ArrayList<FieldInfo>();
+    private final List<FieldInfo> fieldList       = new ArrayList<FieldInfo>();
+    private final List<FieldInfo> sortedFieldList = new ArrayList<FieldInfo>();
 
     public DeserializeBeanInfo(Class<?> clazz){
         super();
@@ -64,6 +66,10 @@ public class DeserializeBeanInfo {
         return fieldList;
     }
 
+    public List<FieldInfo> getSortedFieldList() {
+        return sortedFieldList;
+    }
+
     public FieldInfo getField(String propertyName) {
         for (FieldInfo item : this.fieldList) {
             if (item.getName().equals(propertyName)) {
@@ -81,6 +87,8 @@ public class DeserializeBeanInfo {
             }
         }
         fieldList.add(field);
+        sortedFieldList.add(field);
+        Collections.sort(sortedFieldList);
 
         return true;
     }

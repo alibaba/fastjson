@@ -25,8 +25,8 @@ public class MediaContentDeserializer implements ObjectDeserializer {
         parser.accept(JSONToken.LBRACKET, JSONToken.LBRACKET);
         Media media = mediaDeser.deserialze(parser, Media.class, "media");
         parser.accept(JSONToken.COMMA, JSONToken.LBRACKET);
-        parser.accept(JSONToken.LBRACKET, JSONToken.LBRACKET);
         
+        parser.accept(JSONToken.LBRACKET, JSONToken.LBRACKET);
         List<Image> images = new ArrayList<Image>();
         int index = 0;
         for (;;) {
@@ -40,7 +40,8 @@ public class MediaContentDeserializer implements ObjectDeserializer {
             }
         }
         parser.accept(JSONToken.RBRACKET, JSONToken.RBRACKET);
-        parser.accept(JSONToken.RBRACKET, JSONToken.COMMA);
+        
+        parser.accept(JSONToken.RBRACKET, JSONToken.EOF);
         
         MediaContent content = new MediaContent();
         content.setMedia(media);

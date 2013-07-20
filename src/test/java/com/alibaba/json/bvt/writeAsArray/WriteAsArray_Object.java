@@ -5,7 +5,9 @@ import junit.framework.TestCase;
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.json.bvt.writeAsArray.WriteAsArray_enum_public.VO;
 
 public class WriteAsArray_Object extends TestCase {
 
@@ -19,9 +21,13 @@ public class WriteAsArray_Object extends TestCase {
 
         String text = JSON.toJSONString(vo, SerializerFeature.WriteJavaBeanAsArray);
         Assert.assertEquals("[[123,\"wenshao\"]]", text);
+        
+        VO vo2 = JSON.parseObject(text, VO.class, Feature.SupportArrayToJavaBeanMapping);
+        Assert.assertEquals(vo.getA().getId(), vo2.getA().getId());
+        Assert.assertEquals(vo.getA().getName(), vo2.getA().getName());
     }
 
-    public static class VO {
+    private static class VO {
 
         private A a;
 
@@ -35,7 +41,7 @@ public class WriteAsArray_Object extends TestCase {
 
     }
 
-    public static class A {
+    private static class A {
 
         private int    id;
         private String name;

@@ -4,8 +4,10 @@ import java.lang.management.ManagementFactory;
 import java.util.List;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializeConfig;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.json.test.TestUtils;
 import com.alibaba.json.test.benchmark.decode.EishayDecodeBytes;
 
@@ -20,18 +22,18 @@ import data.media.writeAsArray.MediaSerializer;
 public class BenchmarkMain_EishayDecode_WriteAsArray {
 
     public static void main(String[] args) throws Exception {
-        SerializeConfig config = SerializeConfig.getGlobalInstance();
-        config.put(MediaContent.class, new MediaContentSerializer());
-        config.put(Media.class, new MediaSerializer());
-        config.put(Image.class, new ImageSerializer());
+//        SerializeConfig config = SerializeConfig.getGlobalInstance();
+//        config.put(MediaContent.class, new MediaContentSerializer());
+//        config.put(Media.class, new MediaSerializer());
+//        config.put(Image.class, new ImageSerializer());
 
-        ParserConfig.getGlobalInstance().putDeserializer(MediaContent.class, new MediaContentDeserializer());
+//        ParserConfig.getGlobalInstance().putDeserializer(MediaContent.class, new MediaContentDeserializer());
         
         System.out.println(System.getProperty("java.vm.name") + " " + System.getProperty("java.runtime.version"));
         List<String> arguments = ManagementFactory.getRuntimeMXBean().getInputArguments();
         System.out.println(arguments);
 
-        String text = EishayDecodeBytes.instance.getText();
+        String text = JSON.toJSONString(EishayDecodeBytes.instance.getContent(), SerializerFeature.WriteJavaBeanAsArray);
         System.out.println(text);
         
         for (int i = 0; i < 10; ++i) {
@@ -59,7 +61,7 @@ public class BenchmarkMain_EishayDecode_WriteAsArray {
     }
 
     static void decode(String text) {
-        MediaContent content = JSON.parseObject(text, MediaContent.class);
+        MediaContent content = JSON.parseObject(text, MediaContent.class, Feature.SupportArrayToJavaBeanMapping);
         
 //        JSON.parseObject(text);
     }

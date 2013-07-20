@@ -4,6 +4,7 @@ import java.lang.management.ManagementFactory;
 import java.util.List;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.json.test.TestUtils;
 import com.alibaba.json.test.benchmark.decode.EishayDecodeBytes;
 
@@ -45,6 +46,6 @@ public class BenchmarkMain_EishayEncode {
     }
 
     static String encode(Object text) {
-        return JSON.toJSONString(text);
+        return JSON.toJSONString(text, SerializerFeature.WriteJavaBeanAsArray);
     }
 }

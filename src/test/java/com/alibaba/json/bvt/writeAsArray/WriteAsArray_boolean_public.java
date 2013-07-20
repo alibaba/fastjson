@@ -13,7 +13,7 @@ public class WriteAsArray_boolean_public extends TestCase {
         vo.setId(true);
         vo.setName("wenshao");
         
-        String text = JSON.toJSONString(vo, SerializerFeature.WriteJavaBeanAsArray);
+        String text = JSON.toJSONString(vo, SerializerFeature.BeanToArray);
         Assert.assertEquals("[true,\"wenshao\"]", text);
     }
     

@@ -33,7 +33,7 @@ public class BenchmarkMain_EishayDecode_WriteAsArray {
         List<String> arguments = ManagementFactory.getRuntimeMXBean().getInputArguments();
         System.out.println(arguments);
 
-        String text = JSON.toJSONString(EishayDecodeBytes.instance.getContent(), SerializerFeature.WriteJavaBeanAsArray);
+        String text = JSON.toJSONString(EishayDecodeBytes.instance.getContent(), SerializerFeature.BeanToArray);
         System.out.println(text);
         
         for (int i = 0; i < 10; ++i) {
@@ -61,7 +61,7 @@ public class BenchmarkMain_EishayDecode_WriteAsArray {
     }
 
     static void decode(String text) {
-        MediaContent content = JSON.parseObject(text, MediaContent.class, Feature.SupportArrayToJavaBeanMapping);
+        MediaContent content = JSON.parseObject(text, MediaContent.class, Feature.SupportArrayToBean);
         
 //        JSON.parseObject(text);
     }

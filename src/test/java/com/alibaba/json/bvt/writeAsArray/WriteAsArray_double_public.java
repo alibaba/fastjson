@@ -13,7 +13,7 @@ public class WriteAsArray_double_public extends TestCase {
         vo.setId(123D);
         vo.setName("wenshao");
         
-        String text = JSON.toJSONString(vo, SerializerFeature.WriteJavaBeanAsArray);
+        String text = JSON.toJSONString(vo, SerializerFeature.BeanToArray);
         Assert.assertEquals("[123,\"wenshao\"]", text);
     }
     

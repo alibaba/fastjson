@@ -108,7 +108,7 @@ public enum SerializerFeature {
     /**
      * @since 1.1.35
      */
-    WriteJavaBeanAsArray
+    BeanToArray
     ;
 
     private SerializerFeature(){

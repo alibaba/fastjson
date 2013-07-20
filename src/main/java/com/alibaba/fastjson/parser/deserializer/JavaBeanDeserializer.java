@@ -26,10 +26,10 @@ import com.alibaba.fastjson.util.TypeUtils;
 
 public class JavaBeanDeserializer implements ObjectDeserializer {
 
-    private final Map<String, FieldDeserializer> feildDeserializerMap = new IdentityHashMap<String, FieldDeserializer>();
+    private final Map<String, FieldDeserializer> feildDeserializerMap     = new IdentityHashMap<String, FieldDeserializer>();
 
-    private final List<FieldDeserializer>        fieldDeserializers   = new ArrayList<FieldDeserializer>();
-
+    private final List<FieldDeserializer>        fieldDeserializers       = new ArrayList<FieldDeserializer>();
+    private final List<FieldDeserializer>        sortedFieldDeserializers = new ArrayList<FieldDeserializer>();
     private final Class<?>                       clazz;
 
     private DeserializeBeanInfo                  beanInfo;
@@ -46,6 +46,11 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         for (FieldInfo fieldInfo : beanInfo.getFieldList()) {
             addFieldDeserializer(config, clazz, fieldInfo);
         }
+
+        for (FieldInfo fieldInfo : beanInfo.getSortedFieldList()) {
+            FieldDeserializer fieldDeserializer = feildDeserializerMap.get(fieldInfo.getName().intern());
+            sortedFieldDeserializers.add(fieldDeserializer);
+        }
     }
 
     public Map<String, FieldDeserializer> getFieldDeserializerMap() {
@@ -57,9 +62,10 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     }
 
     private void addFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
+        String interName = fieldInfo.getName().intern();
         FieldDeserializer fieldDeserializer = createFieldDeserializer(mapping, clazz, fieldInfo);
 
-        feildDeserializerMap.put(fieldInfo.getName().intern(), fieldDeserializer);
+        feildDeserializerMap.put(interName, fieldDeserializer);
         fieldDeserializers.add(fieldDeserializer);
     }
 
@@ -113,9 +119,57 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         return deserialze(parser, type, fieldName, null);
     }
 
+    @SuppressWarnings({ "unchecked" })
+    public <T> T deserialzeArrayMapping(DefaultJSONParser parser, Type type, Object fieldName, Object object) {
+        final JSONLexer lexer = parser.getLexer(); // xxx
+        if (lexer.token() != JSONToken.LBRACKET) {
+            throw new JSONException("error");
+        }
+
+        object = createInstance(parser, type);
+
+        int size = sortedFieldDeserializers.size();
+        for (int i = 0; i < size; ++i) {
+            final char seperator = (i == size - 1) ? ']' : ',';
+            FieldDeserializer fieldDeser = sortedFieldDeserializers.get(i);
+            Class<?> fieldClass = fieldDeser.getFieldClass();
+            if (fieldClass == int.class) {
+                int value = lexer.scanInt(seperator);
+                fieldDeser.setValue(object, value);
+            } else if (fieldClass == String.class) {
+                String value = lexer.scanString(seperator);
+                fieldDeser.setValue(object, value);
+            } else if (fieldClass == long.class) {
+                long value = lexer.scanLong(seperator);
+                fieldDeser.setValue(object, value);
+            } else if (fieldClass.isEnum()) {
+                Enum<?> value = lexer.scanEnum(fieldClass, parser.getSymbolTable(), seperator);
+                fieldDeser.setValue(object, value);
+            } else {
+                lexer.nextToken(JSONToken.LBRACKET);
+                Object value = parser.parseObject(fieldDeser.getFieldType());
+                fieldDeser.setValue(object, value);
+
+                if (seperator == ']') {
+                    if (lexer.token() != JSONToken.RBRACKET) {
+                        throw new JSONException("syntax error");
+                    }
+                    lexer.nextToken(JSONToken.COMMA);
+                } else if (seperator == ',') {
+                    if (lexer.token() != JSONToken.COMMA) {
+                        throw new JSONException("syntax error");
+                    }
+                }
+            }
+        }
+        lexer.nextToken(JSONToken.COMMA);
+
+        return (T) object;
+    }
+
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName, Object object) {
-        JSONLexer lexer = parser.getLexer(); // xxx
+        final JSONLexer lexer = parser.getLexer(); // xxx
 
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken(JSONToken.COMMA);
@@ -137,6 +191,10 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     object = createInstance(parser, type);
                 }
                 return (T) object;
+            }
+
+            if (lexer.token() == JSONToken.LBRACKET && lexer.isEnabled(Feature.SupportArrayToJavaBeanMapping)) {
+                return deserialzeArrayMapping(parser, type, fieldName, object);
             }
 
             if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {
@@ -355,7 +413,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         } else {
             value = parser.parseObject(type);
         }
-        
+
         FilterUtils.processExtra(parser, object, key, value);
     }
 

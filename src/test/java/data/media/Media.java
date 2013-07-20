@@ -11,27 +11,28 @@ public class Media implements java.io.Serializable {
         JAVA, FLASH
     }
 
-    public String       uri;
-    public String       title;     // Can be unset.
-    public int          width;
-    public int          height;
-    public String       format;
-    public long         duration;
-    public long         size;
-    public int          bitrate;   // Can be unset.
+    private String       uri;
+    private String       title;     // Can be unset.
+    private int          width;
+    private int          height;
+    private String       format;
+    private long         duration;
+    private long         size;
+    private int          bitrate;   // Can be unset.
     // required by JSONiJ
-    public boolean      hasBitrate;
-    public List<String> persons;
+    private boolean      hasBitrate;
+    private List<String> persons;
 
-    public Player       player;
+    private Player       player;
 
     // msgpack requires this
-    public String       copyright; // Can be unset.
+    public String        copyright; // Can be unset.
 
     public Media(){
     }
 
-    public Media(String uri, String title, int width, int height, String format, long duration, long size, int bitrate, boolean hasBitrate, List<String> persons, Player player, String copyright){
+    public Media(String uri, String title, int width, int height, String format, long duration, long size, int bitrate,
+                 boolean hasBitrate, List<String> persons, Player player, String copyright){
         this.uri = uri;
         this.title = title;
         this.width = width;

@@ -1365,11 +1365,40 @@ public abstract class JSONLexer implements Closeable {
         return strVal;
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public Enum<?> scanEnum(Class<?> enumClass, final SymbolTable symbolTable, char serperator) {
+        String name = scanSymbolWithSeperator(symbolTable, serperator);
+        if (name == null) {
+            return null;
+        }
+        return Enum.valueOf((Class<? extends Enum>) enumClass, name);
+    }
+
     public String scanSymbolWithSeperator(final SymbolTable symbolTable, char serperator) {
         matchStat = UNKOWN;
 
         int offset = 0;
         char chLocal = charAt(bp + (offset++));
+
+        if (chLocal == 'n') {
+            if (charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
+                offset += 3;
+                chLocal = charAt(bp + (offset++));
+            } else {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+
+            if (chLocal == serperator) {
+                bp += (offset - 1);
+                this.next();
+                matchStat = VALUE;
+                return null;
+            } else {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+        }
 
         if (chLocal != '"') {
             matchStat = NOT_MATCH;
@@ -1525,7 +1554,7 @@ public abstract class JSONLexer implements Closeable {
     }
 
     @SuppressWarnings("unchecked")
-    public Collection<String> scanStringArray(Class<?> type, int expectNextChar) {
+    public Collection<String> scanStringArray(Class<?> type, char seperator) {
         matchStat = UNKOWN;
 
         Collection<String> list;
@@ -1545,6 +1574,26 @@ public abstract class JSONLexer implements Closeable {
         int offset = 0;
         char chLocal = charAt(bp + (offset++));
 
+        if (chLocal == 'n') {
+            if (charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
+                offset += 3;
+                chLocal = charAt(bp + (offset++));
+            } else {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+
+            if (chLocal == seperator) {
+                bp += (offset - 1);
+                this.next();
+                matchStat = VALUE;
+                return null;
+            } else {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+        }
+
         if (chLocal != '[') {
             matchStat = NOT_MATCH;
             return null;
@@ -1553,29 +1602,36 @@ public abstract class JSONLexer implements Closeable {
         chLocal = charAt(bp + (offset++));
 
         for (;;) {
-            if (chLocal != '"') {
+            if (chLocal == 'n' //
+                && charAt(bp + offset) == 'u' //
+                && charAt(bp + offset + 1) == 'l' //
+                && charAt(bp + offset + 2) == 'l') {
+                offset += 3;
+                chLocal = charAt(bp + (offset++));
+            } else if (chLocal != '"') {
                 matchStat = NOT_MATCH;
                 return null;
-            }
+            } else {
 
-            String strVal;
-            // int start = index;
-            int startOffset = offset;
-            for (;;) {
-                chLocal = charAt(bp + (offset++));
-                if (chLocal == '\"') {
-                    int start = bp + startOffset;
-                    int len = bp + offset - start - 1;
-                    strVal = subString(start, len);
-                    list.add(strVal);
-
+                String strVal;
+                // int start = index;
+                int startOffset = offset;
+                for (;;) {
                     chLocal = charAt(bp + (offset++));
-                    break;
-                }
+                    if (chLocal == '\"') {
+                        int start = bp + startOffset;
+                        int len = bp + offset - start - 1;
+                        strVal = subString(start, len);
+                        list.add(strVal);
 
-                if (chLocal == '\\') {
-                    matchStat = NOT_MATCH;
-                    return null;
+                        chLocal = charAt(bp + (offset++));
+                        break;
+                    }
+
+                    if (chLocal == '\\') {
+                        matchStat = NOT_MATCH;
+                        return null;
+                    }
                 }
             }
 
@@ -1593,7 +1649,7 @@ public abstract class JSONLexer implements Closeable {
             return null;
         }
 
-        if (chLocal == expectNextChar) {
+        if (chLocal == seperator) {
             bp += (offset - 1);
             this.next();
             matchStat = VALUE;
@@ -1675,6 +1731,49 @@ public abstract class JSONLexer implements Closeable {
         }
 
         return value;
+    }
+
+    public boolean scanBoolean(char expectNext) {
+        matchStat = UNKOWN;
+
+        int offset = 0;
+        char chLocal = charAt(bp + (offset++));
+
+        boolean value = false;
+        if (chLocal == 't') {
+            if (charAt(bp + offset) == 'r' //
+                && charAt(bp + offset + 1) == 'u' //
+                && charAt(bp + offset + 2) == 'e') {
+                offset += 3;
+                chLocal = charAt(bp + (offset++));
+                value = true;
+            } else {
+                matchStat = NOT_MATCH;
+                return false;
+            }
+        } else if (chLocal == 'f') {
+            if (charAt(bp + offset) == 'a' //
+                && charAt(bp + offset + 1) == 'l' //
+                && charAt(bp + offset + 2) == 's' //
+                && charAt(bp + offset + 3) == 'e') {
+                offset += 4;
+                chLocal = charAt(bp + (offset++));
+                value = false;
+            } else {
+                matchStat = NOT_MATCH;
+                return false;
+            }
+        }
+
+        if (chLocal == expectNext) {
+            bp += (offset - 1);
+            this.next();
+            matchStat = VALUE;
+            return value;
+        } else {
+            matchStat = NOT_MATCH;
+            return value;
+        }
     }
 
     public int scanInt(char expectNext) {
@@ -2011,6 +2110,61 @@ public abstract class JSONLexer implements Closeable {
         return value;
     }
 
+    public final float scanFloat(char seperator) {
+        matchStat = UNKOWN;
+
+        int offset = 0;
+        char chLocal = charAt(bp + (offset++));
+
+        float value;
+        if (chLocal >= '0' && chLocal <= '9') {
+            for (;;) {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal >= '0' && chLocal <= '9') {
+                    continue;
+                } else {
+                    break;
+                }
+            }
+
+            if (chLocal == '.') {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal >= '0' && chLocal <= '9') {
+                    for (;;) {
+                        chLocal = charAt(bp + (offset++));
+                        if (chLocal >= '0' && chLocal <= '9') {
+                            continue;
+                        } else {
+                            break;
+                        }
+                    }
+                } else {
+                    matchStat = NOT_MATCH;
+                    return 0;
+                }
+            }
+
+            int start = bp;
+            int count = bp + offset - start - 1;
+            String text = this.subString(start, count);
+            value = Float.parseFloat(text);
+        } else {
+            matchStat = NOT_MATCH;
+            return 0;
+        }
+
+        if (chLocal == seperator) {
+            bp += (offset - 1);
+            this.next();
+            matchStat = VALUE;
+            token = JSONToken.COMMA;
+            return value;
+        } else {
+            matchStat = NOT_MATCH;
+            return value;
+        }
+    }
+
     public final double scanFieldDouble(char[] fieldName) {
         matchStat = UNKOWN;
 
@@ -2110,6 +2264,75 @@ public abstract class JSONLexer implements Closeable {
         }
 
         return value;
+    }
+
+    public final double scanFieldDouble(char seperator) {
+        matchStat = UNKOWN;
+
+        int offset = 0;
+        char chLocal = charAt(bp + (offset++));
+
+        double value;
+        if (chLocal >= '0' && chLocal <= '9') {
+            for (;;) {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal >= '0' && chLocal <= '9') {
+                    continue;
+                } else {
+                    break;
+                }
+            }
+
+            if (chLocal == '.') {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal >= '0' && chLocal <= '9') {
+                    for (;;) {
+                        chLocal = charAt(bp + (offset++));
+                        if (chLocal >= '0' && chLocal <= '9') {
+                            continue;
+                        } else {
+                            break;
+                        }
+                    }
+                } else {
+                    matchStat = NOT_MATCH;
+                    return 0;
+                }
+            }
+
+            if (chLocal == 'e' || chLocal == 'E') {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal == '+' || chLocal == '-') {
+                    chLocal = charAt(bp + (offset++));
+                }
+                for (;;) {
+                    if (chLocal >= '0' && chLocal <= '9') {
+                        chLocal = charAt(bp + (offset++));
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+            int start = bp;
+            int count = bp + offset - start - 1;
+            String text = this.subString(start, count);
+            value = Double.parseDouble(text);
+        } else {
+            matchStat = NOT_MATCH;
+            return 0;
+        }
+
+        if (chLocal == seperator) {
+            bp += (offset - 1);
+            this.next();
+            matchStat = VALUE;
+            token = JSONToken.COMMA;
+            return value;
+        } else {
+            matchStat = NOT_MATCH;
+            return value;
+        }
     }
 
     public final void scanTrue() {

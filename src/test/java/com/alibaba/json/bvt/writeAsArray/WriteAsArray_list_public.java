@@ -8,6 +8,7 @@ import junit.framework.TestCase;
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class WriteAsArray_list_public extends TestCase {
@@ -16,9 +17,16 @@ public class WriteAsArray_list_public extends TestCase {
         VO vo = new VO();
         vo.setId(123);
         vo.setName("wenshao");
+        vo.getValues().add("x");
 
         String text = JSON.toJSONString(vo, SerializerFeature.WriteJavaBeanAsArray);
-        Assert.assertEquals("[123,\"wenshao\",[]]", text);
+        Assert.assertEquals("[123,\"wenshao\",[\"x\"]]", text);
+        
+        VO vo2 = JSON.parseObject(text, VO.class, Feature.SupportArrayToJavaBeanMapping);
+        Assert.assertEquals(vo.getId(), vo2.getId());
+        Assert.assertEquals(vo.getName(), vo2.getName());
+        Assert.assertEquals(vo.getValues().size(), vo2.getValues().size());
+        Assert.assertEquals(vo.getValues().get(0), vo2.getValues().get(0));
     }
 
     public static class VO {

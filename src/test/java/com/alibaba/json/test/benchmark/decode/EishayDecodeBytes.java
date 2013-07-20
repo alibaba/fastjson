@@ -48,17 +48,17 @@ public class EishayDecodeBytes extends BenchmarkCase {
         content = new MediaContent();
 
         Media media = new Media();
-        media.uri = "http://javaone.com/keynote.mpg";
-        media.title = "Javaone Keynote";
-        media.width = 640;
-        media.height = 480;
-        media.format = "video/mpg4";
-        media.duration = 18000000;
-        media.size = 58982400;
-        media.bitrate = 262144;
-        media.persons = Arrays.asList("Bill Gates", "Steve Jobs");
-        media.player = Player.JAVA;
-        media.copyright = null;
+        media.setUri("http://javaone.com/keynote.mpg");
+        media.setTitle("Javaone Keynote");
+        media.setWidth(640);
+        media.setHeight(480);
+        media.setFormat("video/mpg4");
+        media.setDuration(18000000);
+        media.setSize(58982400);
+        media.setBitrate(262144);
+        media.setPersons(Arrays.asList("Bill Gates", "Steve Jobs"));
+        media.setPlayer(Player.JAVA);
+        media.setCopyright(null);
 
         content.setMedia(media);
 

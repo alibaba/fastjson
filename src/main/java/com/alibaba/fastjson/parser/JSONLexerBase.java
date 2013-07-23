@@ -42,16 +42,7 @@ import com.alibaba.fastjson.JSONException;
 /**
  * @author wenshao<szujobs@hotmail.com>
  */
-public abstract class JSONLexer implements Closeable {
-
-    public final static byte EOI            = 0x1A;
-    public final static int  NOT_MATCH      = -1;
-    public final static int  NOT_MATCH_NAME = -2;
-    public final static int  UNKOWN         = 0;
-    public final static int  OBJECT         = 1;
-    public final static int  ARRAY          = 2;
-    public final static int  VALUE          = 3;
-    public final static int  END            = 4;
+public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     protected void lexError(String key, Object... args) {
         token = ERROR;
@@ -86,7 +77,7 @@ public abstract class JSONLexer implements Closeable {
     private final static ThreadLocal<SoftReference<char[]>> SBUF_REF_LOCAL = new ThreadLocal<SoftReference<char[]>>();
     protected Keywords                                      keywods        = Keywords.DEFAULT_KEYWORDS;
 
-    public JSONLexer(){
+    public JSONLexerBase(){
         SoftReference<char[]> sbufRef = SBUF_REF_LOCAL.get();
 
         if (sbufRef != null) {
@@ -2514,7 +2505,7 @@ public abstract class JSONLexer implements Closeable {
 
     public abstract String subString(int offset, int count);
 
-    public abstract boolean charArrayCompare(char[] chars);
+    protected abstract boolean charArrayCompare(char[] chars);
 
     public final boolean isBlankInput() {
         for (int i = 0;; ++i) {
@@ -2542,7 +2533,7 @@ public abstract class JSONLexer implements Closeable {
         }
     }
 
-    public final void scanStringSingleQuote() {
+    private final void scanStringSingleQuote() {
         np = bp;
         hasSpecial = false;
         char chLocal;

@@ -31,7 +31,7 @@ import com.alibaba.fastjson.util.Base64;
 /**
  * @author wenshao<szujobs@hotmail.com>
  */
-public final class JSONScanner extends JSONLexer {
+public final class JSONScanner extends JSONLexerBase {
 
     private final String text;
 

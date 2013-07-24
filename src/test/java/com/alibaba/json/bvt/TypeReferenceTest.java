@@ -14,6 +14,7 @@ public class TypeReferenceTest extends TestCase {
 
     @SuppressWarnings("rawtypes")
     public void test_0() throws Exception {
+        System.out.println(System.getProperties());
         String text;
 
         {
@@ -95,4 +96,6 @@ public class TypeReferenceTest extends TestCase {
         }
 
     }
+    
+     
 }

@@ -126,10 +126,11 @@ public final class JSONReaderScanner extends JSONLexerBase {
     }
 
     public final int indexOf(char ch, int startIndex) {
-        int offset = startIndex;
+        int offset = startIndex - bp;
         for (;; ++offset) {
-            if (ch == charAt(offset)) {
-                return offset;
+            final int index = bp + offset;
+            if (ch == charAt(index)) {
+                return offset + bp;
             }
             if (ch == EOI) {
                 return -1;
@@ -150,14 +151,15 @@ public final class JSONReaderScanner extends JSONLexerBase {
             }
 
             if (sp > 0) {
-                if (this.token == JSONToken.LITERAL_STRING) {
-                    System.arraycopy(buf, buf.length - sp, buf, 0, sp);
-                    np = -1 + sp;
-                } else {
-                    System.arraycopy(buf, bufLength - sp, buf, 0, sp);
-                    np = 0;
+                int offset;
+                offset = bufLength - sp;
+                if (ch == '"') {
+                    offset--;
                 }
+                System.arraycopy(buf, offset, buf, 0, sp);
             }
+            np = -1;
+
             index = bp = sp;
 
             try {
@@ -209,7 +211,14 @@ public final class JSONReaderScanner extends JSONLexerBase {
      */
     public final String stringVal() {
         if (!hasSpecial) {
-            return new String(buf, np + 1, sp);
+            int offset = np + 1;
+            if (offset < 0) {
+                throw new IllegalStateException();
+            }
+            if (offset > buf.length - sp) {
+                throw new IllegalStateException();
+            }
+            return new String(buf, offset, sp);
             // return text.substring(np + 1, np + 1 + sp);
         } else {
             return new String(sbuf, 0, sp);
@@ -217,19 +226,27 @@ public final class JSONReaderScanner extends JSONLexerBase {
     }
 
     public final String subString(int offset, int count) {
+        if (count < 0) {
+            throw new StringIndexOutOfBoundsException(count);
+        }
         return new String(buf, offset, count);
         // return text.substring(offset, offset + count);
     }
 
     public final String numberString() {
-        char chLocal = charAt(np + sp - 1);
+        int offset = np;
+        if (offset == -1) {
+            offset = 0;
+        }
+        char chLocal = charAt(offset + sp - 1);
 
         int sp = this.sp;
         if (chLocal == 'L' || chLocal == 'S' || chLocal == 'B' || chLocal == 'F' || chLocal == 'D') {
             sp--;
         }
 
-        return new String(buf, np, sp);
+        String value = new String(buf, offset, sp);
+        return value;
     }
 
     public void close() {

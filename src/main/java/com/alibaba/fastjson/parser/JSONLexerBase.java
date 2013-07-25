@@ -396,6 +396,9 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     public final Number integerValue() throws NumberFormatException {
         long result = 0;
         boolean negative = false;
+        if (np == -1) {
+            np = 0;
+        }
         int i = np, max = np + sp;
         long limit;
         long multmin;
@@ -636,7 +639,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         boolean hasSpecial = false;
         char chLocal;
         for (;;) {
-            chLocal = charAt(++bp);
+            chLocal = next();
 
             if (chLocal == quote) {
                 break;
@@ -665,7 +668,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                     arrayCopy(np + 1, sbuf, 0, sp);
                 }
 
-                chLocal = charAt(++bp);
+                chLocal = next();
 
                 switch (chLocal) {
                     case '0':
@@ -742,8 +745,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                         putChar('\\');
                         break;
                     case 'x':
-                        char x1 = ch = charAt(++bp);
-                        char x2 = ch = charAt(++bp);
+                        char x1 = ch = next();
+                        char x2 = ch = next();
 
                         int x_val = digits[x1] * 16 + digits[x2];
                         char x_char = (char) x_val;
@@ -751,10 +754,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                         putChar(x_char);
                         break;
                     case 'u':
-                        char c1 = chLocal = charAt(++bp);
-                        char c2 = chLocal = charAt(++bp);
-                        char c3 = chLocal = charAt(++bp);
-                        char c4 = chLocal = charAt(++bp);
+                        char c1 = chLocal = next();
+                        char c2 = chLocal = next();
+                        char c3 = chLocal = next();
+                        char c4 = chLocal = next();
                         int val = Integer.parseInt(new String(new char[] { c1, c2, c3, c4 }), 16);
                         hash = 31 * hash + val;
                         putChar((char) val);
@@ -781,14 +784,25 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
 
         token = LITERAL_STRING;
-        this.next();
-
+        
+        String value;
         if (!hasSpecial) {
             // return this.text.substring(np + 1, np + 1 + sp).intern();
-            return addSymbol(np + 1, sp, hash, symbolTable);
+            int offset;
+            if (np == -1) {
+                offset = 0;
+            } else {
+                offset = np + 1;
+            }
+            value = addSymbol(offset, sp, hash, symbolTable);
         } else {
-            return symbolTable.addSymbol(sbuf, 0, sp, hash);
+            value = symbolTable.addSymbol(sbuf, 0, sp, hash);
         }
+        
+        sp = 0;
+        this.next();
+        
+        return value;
     }
 
     public final void resetStringPosition() {
@@ -812,7 +826,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         sp = 1;
         char chLocal;
         for (;;) {
-            chLocal = charAt(++bp);
+            chLocal = next();
 
             if (chLocal < identifierFlags.length) {
                 if (!identifierFlags[chLocal]) {
@@ -848,7 +862,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         hasSpecial = false;
         char ch;
         for (;;) {
-            ch = charAt(++bp);
+            ch = next();
 
             if (ch == '\"') {
                 break;
@@ -877,7 +891,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                     // System.arraycopy(buf, np + 1, sbuf, 0, sp);
                 }
 
-                ch = charAt(++bp);
+                ch = next();
 
                 switch (ch) {
                     case '0':
@@ -936,18 +950,18 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                         putChar('\\');
                         break;
                     case 'x':
-                        char x1 = ch = charAt(++bp);
-                        char x2 = ch = charAt(++bp);
+                        char x1 = ch = next();
+                        char x2 = ch = next();
 
                         int x_val = digits[x1] * 16 + digits[x2];
                         char x_char = (char) x_val;
                         putChar(x_char);
                         break;
                     case 'u':
-                        char u1 = ch = charAt(++bp);
-                        char u2 = ch = charAt(++bp);
-                        char u3 = ch = charAt(++bp);
-                        char u4 = ch = charAt(++bp);
+                        char u1 = ch = next();
+                        char u2 = ch = next();
+                        char u3 = ch = next();
+                        char u4 = ch = next();
                         int val = Integer.parseInt(new String(new char[] { u1, u2, u3, u4 }), 16);
                         putChar((char) val);
                         break;
@@ -971,7 +985,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
 
         token = JSONToken.LITERAL_STRING;
-        this.ch = charAt(++bp);
+        this.ch = next();
     }
 
     public Calendar getCalendar() {
@@ -1151,7 +1165,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 throw new JSONException("unclosed str");
             }
 
-            String stringVal = subString(bp + fieldName.length + 1, endIndex - startIndex);
+            int startIndex2 = bp + fieldName.length + 1; // must re compute
+            String stringVal = subString(startIndex2, endIndex - startIndex2);
             for (int i = bp + fieldName.length + 1; i < endIndex; ++i) {
                 if (charAt(i) == '\\') {
                     hasSpecial = true;
@@ -2538,7 +2553,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         hasSpecial = false;
         char chLocal;
         for (;;) {
-            chLocal = charAt(++bp);
+            chLocal = next();
 
             if (chLocal == '\'') {
                 break;
@@ -2563,7 +2578,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                     // System.arraycopy(buf, np + 1, sbuf, 0, sp);
                 }
 
-                chLocal = charAt(++bp);
+                chLocal = next();
 
                 switch (chLocal) {
                     case '0':
@@ -2622,18 +2637,18 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                         putChar('\\');
                         break;
                     case 'x':
-                        char x1 = chLocal = charAt(++bp);
-                        char x2 = chLocal = charAt(++bp);
+                        char x1 = chLocal = next();
+                        char x2 = chLocal = next();
 
                         int x_val = digits[x1] * 16 + digits[x2];
                         char x_char = (char) x_val;
                         putChar(x_char);
                         break;
                     case 'u':
-                        char c1 = chLocal = charAt(++bp);
-                        char c2 = chLocal = charAt(++bp);
-                        char c3 = chLocal = charAt(++bp);
-                        char c4 = chLocal = charAt(++bp);
+                        char c1 = chLocal = next();
+                        char c2 = chLocal = next();
+                        char c3 = chLocal = next();
+                        char c4 = chLocal = next();
                         int val = Integer.parseInt(new String(new char[] { c1, c2, c3, c4 }), 16);
                         putChar((char) val);
                         break;

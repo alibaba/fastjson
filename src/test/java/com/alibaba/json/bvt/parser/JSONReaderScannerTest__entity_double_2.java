@@ -31,7 +31,7 @@ public class JSONReaderScannerTest__entity_double_2 extends TestCase {
         DefaultJSONParser parser = new DefaultJSONParser(scanner);
         List<VO> array = parser.parseArray(VO.class);
         for (int i = 0; i < array.size(); ++i) {
-            Assert.assertTrue((double) i == array.get(i).getId());
+            Assert.assertTrue(Integer.toString(i), (double) i == array.get(i).getId());
         }
         parser.close();
     }

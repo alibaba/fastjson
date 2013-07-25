@@ -52,12 +52,4 @@ public class JSONReader_string extends TestCase {
         reader.close();
     }
 
-    public void test_obj() throws Exception {
-        JSONReader reader = new JSONReader(new StringReader("\"abc\""));
-
-        Assert.assertEquals("abc", reader.readString());
-
-        reader.close();
-    }
-
 }

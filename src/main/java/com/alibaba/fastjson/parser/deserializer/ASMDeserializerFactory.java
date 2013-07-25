@@ -724,7 +724,10 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitVarInsn(ALOAD, context.var("instance"));
             mw.visitVarInsn(LLOAD, context.var(fieldInfo.getName() + "_asm", 2));
             if (fieldInfo.getMethod() != null) {
-                mw.visitMethodInsn(INVOKEVIRTUAL, getType(context.getClazz()), fieldInfo.getMethod().getName(), "(J)V");
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(context.getClazz()), fieldInfo.getMethod().getName(), getDesc(fieldInfo.getMethod()));
+                if (!fieldInfo.getMethod().getReturnType().equals(Void.TYPE)) {
+                    mw.visitInsn(POP);
+                }
             } else {
                 mw.visitFieldInsn(PUTFIELD, getType(fieldInfo.getDeclaringClass()), fieldInfo.getField().getName(),
                                   getDesc(fieldInfo.getFieldClass()));

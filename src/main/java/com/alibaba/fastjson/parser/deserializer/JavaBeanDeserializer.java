@@ -334,6 +334,9 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             if (object == null) {
                 if (fieldValues == null) {
                     object = createInstance(parser, type);
+                    if (childContext == null) {
+                        childContext = parser.setContext(context, object, fieldName);
+                    }
                     return (T) object;
                 }
 

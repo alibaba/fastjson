@@ -108,7 +108,7 @@ public class ObjectArraySerializer implements ObjectSerializer {
                 if (serializer.containsReference(item)) {
                     serializer.writeReference(item);
                 } else {
-                    serializer.write(item);
+                    serializer.writeWithFieldName(item, end);
                 }
                 out.append(']');
             }

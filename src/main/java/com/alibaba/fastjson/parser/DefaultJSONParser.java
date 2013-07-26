@@ -32,7 +32,6 @@ import static com.alibaba.fastjson.parser.JSONToken.TREE_SET;
 import static com.alibaba.fastjson.parser.JSONToken.TRUE;
 
 import java.io.Closeable;
-import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -734,8 +733,6 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
             throw new JSONException("syntax error, expect {, actual " + lexer.tokenName());
         }
 
-        final Object[] args = new Object[1];
-
         for (;;) {
             // lexer.scanSymbol
             String key = lexer.scanSymbol(symbolTable);
@@ -768,30 +765,26 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 
                 continue;
             } else {
-                Method method = fieldDeser.getMethod();
-                Class<?> fieldClass = method.getParameterTypes()[0];
-                Type fieldType = method.getGenericParameterTypes()[0];
+                Class<?> fieldClass = fieldDeser.getFieldClass();
+                Type fieldType = fieldDeser.getFieldType();
+                Object fieldValue;
                 if (fieldClass == int.class) {
                     lexer.nextTokenWithColon(JSONToken.LITERAL_INT);
-                    args[0] = IntegerDeserializer.instance.deserialze(this, fieldType, null);
+                    fieldValue = IntegerDeserializer.instance.deserialze(this, fieldType, null);
                 } else if (fieldClass == String.class) {
                     lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
-                    args[0] = StringDeserializer.deserialze(this);
+                    fieldValue = StringDeserializer.deserialze(this);
                 } else if (fieldClass == long.class) {
                     lexer.nextTokenWithColon(JSONToken.LITERAL_INT);
-                    args[0] = LongDeserializer.instance.deserialze(this, fieldType, null);
+                    fieldValue = LongDeserializer.instance.deserialze(this, fieldType, null);
                 } else {
                     ObjectDeserializer fieldValueDeserializer = config.getDeserializer(fieldClass, fieldType);
 
                     lexer.nextTokenWithColon(fieldValueDeserializer.getFastMatchToken());
-                    args[0] = fieldValueDeserializer.deserialze(this, fieldType, null);
+                    fieldValue = fieldValueDeserializer.deserialze(this, fieldType, null);
                 }
 
-                try {
-                    method.invoke(object, args);
-                } catch (Exception e) {
-                    throw new JSONException("set proprety error, " + method.getName(), e);
-                }
+                fieldDeser.setValue(object, fieldValue);
             }
 
             if (lexer.token() == JSONToken.COMMA) {

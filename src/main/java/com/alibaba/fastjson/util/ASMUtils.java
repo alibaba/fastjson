@@ -15,7 +15,8 @@ public class ASMUtils {
     public static boolean isAndroid(String vmName) {
         String lowerVMName = vmName.toLowerCase();
 
-        return lowerVMName.contains("dalvik") || lowerVMName.contains("lemur") // aliyun-vm name
+        return lowerVMName.contains("dalvik") //
+               || lowerVMName.contains("lemur") // aliyun-vm name
         ;
     }
 

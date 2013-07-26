@@ -15,6 +15,7 @@
  */
 package com.alibaba.fastjson.util;
 
+import java.beans.Introspector;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -55,6 +56,8 @@ import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
  * @author wenshao<szujobs@hotmail.com>
  */
 public class TypeUtils {
+
+    public static boolean compatibleWithJavaBean = false;
 
     public static final String castToString(Object value) {
         if (value == null) {
@@ -950,7 +953,11 @@ public class TypeUtils {
 
                 String propertyName;
                 if (Character.isUpperCase(c3)) {
-                    propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+                    if (compatibleWithJavaBean) {
+                        propertyName = Introspector.decapitalize(methodName.substring(3));
+                    } else {
+                        propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+                    }
                 } else if (c3 == '_') {
                     propertyName = methodName.substring(4);
                 } else if (c3 == 'f') {
@@ -1007,7 +1014,11 @@ public class TypeUtils {
 
                 String propertyName;
                 if (Character.isUpperCase(c2)) {
-                    propertyName = Character.toLowerCase(methodName.charAt(2)) + methodName.substring(3);
+                    if (compatibleWithJavaBean) {
+                        propertyName = Introspector.decapitalize(methodName.substring(2));
+                    } else {
+                        propertyName = Character.toLowerCase(methodName.charAt(2)) + methodName.substring(3);
+                    }
                 } else if (c2 == '_') {
                     propertyName = methodName.substring(3);
                 } else if (c2 == 'f') {

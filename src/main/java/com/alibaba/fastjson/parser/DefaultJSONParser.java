@@ -55,6 +55,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.deserializer.ASMJavaBeanDeserializer;
+import com.alibaba.fastjson.parser.deserializer.CollectionResolveFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
@@ -909,12 +910,19 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
     @SuppressWarnings("rawtypes")
     public void checkListResolve(Collection array) {
         if (resolveStatus == NeedToResolve) {
-            final int index = array.size() - 1;
-            final List list = (List) array;
-            ResolveTask task = getLastResolveTask();
-            task.setFieldDeserializer(new ListResolveFieldDeserializer(this, list, index));
-            task.setOwnerContext(context);
-            setResolveStatus(DefaultJSONParser.NONE);
+            if (array instanceof List) {
+                final int index = array.size() - 1;
+                final List list = (List) array;
+                ResolveTask task = getLastResolveTask();
+                task.setFieldDeserializer(new ListResolveFieldDeserializer(this, list, index));
+                task.setOwnerContext(context);
+                setResolveStatus(DefaultJSONParser.NONE);
+            } else {
+                ResolveTask task = getLastResolveTask();
+                task.setFieldDeserializer(new CollectionResolveFieldDeserializer(this, array));
+                task.setOwnerContext(context);
+                setResolveStatus(DefaultJSONParser.NONE);
+            }
         }
     }
 

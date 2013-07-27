@@ -179,6 +179,10 @@ public class JSONReader implements Closeable {
 
         return TypeUtils.castToString(object);
     }
+    
+    public <T> T readObject(TypeReference<T> typeRef) {
+        return readObject(typeRef.getType());
+    }
 
     public <T> T readObject(Type type) {
         if (context == null) {

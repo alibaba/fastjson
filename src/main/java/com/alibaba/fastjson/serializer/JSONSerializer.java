@@ -49,6 +49,7 @@ public class JSONSerializer {
     private final SerializeWriter                  out;
 
     private List<BeforeFilter>                     beforeFilters      = null;
+    private List<AfterFilter>                      afterFilters       = null;
     private List<PropertyFilter>                   propertyFilters    = null;
     private List<ValueFilter>                      valueFilters       = null;
     private List<NameFilter>                       nameFilters        = null;
@@ -252,7 +253,7 @@ public class JSONSerializer {
             out.write(indent);
         }
     }
-    
+
     public List<BeforeFilter> getBeforeFilters() {
         if (beforeFilters == null) {
             beforeFilters = new ArrayList<BeforeFilter>();
@@ -260,9 +261,21 @@ public class JSONSerializer {
 
         return beforeFilters;
     }
-    
+
     public List<BeforeFilter> getBeforeFiltersDirect() {
         return beforeFilters;
+    }
+    
+    public List<AfterFilter> getAfterFilters() {
+        if (afterFilters == null) {
+            afterFilters = new ArrayList<AfterFilter>();
+        }
+
+        return afterFilters;
+    }
+
+    public List<AfterFilter> getAfterFiltersDirect() {
+        return afterFilters;
     }
 
     public List<NameFilter> getNameFilters() {
@@ -362,7 +375,7 @@ public class JSONSerializer {
     public final void writeWithFieldName(Object object, Object fieldName) {
         writeWithFieldName(object, fieldName, null);
     }
-    
+
     protected final void writeKeyValue(char seperator, String key, Object value) {
         if (seperator != '\0') {
             out.write(seperator);
@@ -520,7 +533,7 @@ public class JSONSerializer {
     public void close() {
         this.out.close();
     }
-    
+
     public final boolean isWriteAsArray(Object object, Type fieldType) {
         boolean writeAsArray;
         if (out.isEnabled(SerializerFeature.BeanToArray)) {
@@ -528,7 +541,7 @@ public class JSONSerializer {
         } else {
             writeAsArray = false;
         }
-        
+
         return writeAsArray;
     }
 }

@@ -32,10 +32,20 @@ public class FilterUtils {
     }
 
     public static char writeBefore(JSONSerializer serializer, Object object, char seperator) {
-        List<BeforeFilter> beforeFilters = serializer.getBeforeFilters();
+        List<BeforeFilter> beforeFilters = serializer.getBeforeFiltersDirect();
         if (beforeFilters != null) {
             for (BeforeFilter beforeFilter : beforeFilters) {
                 seperator = beforeFilter.writeBefore(serializer, object, seperator);
+            }
+        }
+        return seperator;
+    }
+    
+    public static char writeAfter(JSONSerializer serializer, Object object, char seperator) {
+        List<AfterFilter> afterFilters = serializer.getAfterFiltersDirect();
+        if (afterFilters != null) {
+            for (AfterFilter afterFilter : afterFilters) {
+                seperator = afterFilter.writeAfter(serializer, object, seperator);
             }
         }
         return seperator;

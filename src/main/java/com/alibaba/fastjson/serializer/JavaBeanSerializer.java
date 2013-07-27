@@ -199,6 +199,8 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
                 commaFlag = true;
             }
+            
+            FilterUtils.writeAfter(serializer, object, commaFlag ? ',' : '\0');
 
             if (getters.length > 0 && out.isEnabled(SerializerFeature.PrettyFormat)) {
                 serializer.decrementIdent();

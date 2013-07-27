@@ -289,14 +289,14 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "write", "(C)V");
 
         int size = getters.size();
-        
+
         if (size == 0) {
             mw.visitVarInsn(ALOAD, context.var("out"));
             mw.visitVarInsn(BIPUSH, ']');
             mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "write", "(C)V");
             return;
         }
-        
+
         for (int i = 0; i < size; ++i) {
             final char seperator = (i == size - 1) ? ']' : ',';
 
@@ -354,8 +354,7 @@ public class ASMSerializerFactory implements Opcodes {
                 mw.visitVarInsn(ALOAD, context.var("out"));
                 _get(mw, context, property);
                 mw.visitVarInsn(BIPUSH, seperator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "writeEnum",
-                                   "(Ljava/lang/Enum;C)V");
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "writeEnum", "(Ljava/lang/Enum;C)V");
             } else {
                 String format = property.getFormat();
 
@@ -580,22 +579,18 @@ public class ASMSerializerFactory implements Opcodes {
             }
         }
 
-        Label _if = new Label();
+        _after(mw, context);
+        
         Label _else = new Label();
         Label _end_if = new Label();
 
-        mw.visitLabel(_if);
-
-        // if (seperator == '{')
         mw.visitVarInsn(ILOAD, context.var("seperator"));
         mw.visitIntInsn(BIPUSH, '{');
         mw.visitJumpInsn(IF_ICMPNE, _else);
 
         mw.visitVarInsn(ALOAD, context.var("out"));
-        mw.visitLdcInsn("{}");
-        mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "write", "(Ljava/lang/String;)V");
-
-        mw.visitJumpInsn(GOTO, _end_if);
+        mw.visitVarInsn(BIPUSH, '{');
+        mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "write", "(C)V");
 
         mw.visitLabel(_else);
 
@@ -1216,6 +1211,15 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitVarInsn(ALOAD, context.obj());
         mw.visitVarInsn(ILOAD, context.var("seperator"));
         mw.visitMethodInsn(INVOKESTATIC, getType(FilterUtils.class), "writeBefore",
+                           "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;C)C");
+        mw.visitVarInsn(ISTORE, context.var("seperator"));
+    }
+
+    private void _after(MethodVisitor mw, Context context) {
+        mw.visitVarInsn(ALOAD, context.serializer());
+        mw.visitVarInsn(ALOAD, context.obj());
+        mw.visitVarInsn(ILOAD, context.var("seperator"));
+        mw.visitMethodInsn(INVOKESTATIC, getType(FilterUtils.class), "writeAfter",
                            "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;C)C");
         mw.visitVarInsn(ISTORE, context.var("seperator"));
     }

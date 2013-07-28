@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.alibaba</groupId>
 	<artifactId>fastjson</artifactId>
-	<version>1.1.35-SNAPSHOT</version>
+	<version>1.1.35</version>
 
 	<packaging>jar</packaging>
 	<name>fastjson</name>
@@ -16,8 +16,8 @@
 	<properties>
 		<junit.version>4.11</junit.version>
 
-		<gpg.skip>true</gpg.skip>
-		<javadoc.skip>true</javadoc.skip>
+		<gpg.skip>false</gpg.skip>
+		<javadoc.skip>false</javadoc.skip>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk.version>1.5</jdk.version>
 	</properties>
@@ -212,7 +212,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
-			<version>3.2.0.RELEASE</version>
+			<version>3.2.2.RELEASE</version>
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
@@ -313,7 +313,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
-			<version>3.1.1.RELEASE</version>
+			<version>3.2.2.RELEASE</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

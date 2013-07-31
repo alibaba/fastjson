@@ -136,15 +136,15 @@ public class ParserConfig {
         return global;
     }
 
-    private final Set<Class<?>>                             primitiveClasses  = new HashSet<Class<?>>();
+    private final Set<Class<?>>                             primitiveClasses = new HashSet<Class<?>>();
 
-    private static ParserConfig                             global            = new ParserConfig();
+    private static ParserConfig                             global           = new ParserConfig();
 
-    private final IdentityHashMap<Type, ObjectDeserializer> derializers       = new IdentityHashMap<Type, ObjectDeserializer>();
+    private final IdentityHashMap<Type, ObjectDeserializer> derializers      = new IdentityHashMap<Type, ObjectDeserializer>();
 
-    private boolean                                         asmEnable         = !ASMUtils.isAndroid();
+    private boolean                                         asmEnable        = !ASMUtils.isAndroid();
 
-    protected final SymbolTable                             symbolTable       = new SymbolTable();
+    protected final SymbolTable                             symbolTable      = new SymbolTable();
 
     public ParserConfig(){
         primitiveClasses.add(boolean.class);
@@ -376,8 +376,20 @@ public class ParserConfig {
 
     public ObjectDeserializer createJavaBeanDeserializer(Class<?> clazz, Type type) {
         boolean asmEnable = this.asmEnable;
-        if (asmEnable && !Modifier.isPublic(clazz.getModifiers())) {
-            asmEnable = false;
+        if (asmEnable) {
+            Class<?> superClass = clazz;
+
+            for (;;) {
+               if(!Modifier.isPublic(superClass.getModifiers())) {
+                   asmEnable = false;
+                   break;
+               }
+               
+               superClass = superClass.getSuperclass();
+               if (superClass == Object.class) {
+                   break;
+               }
+            }
         }
 
         if (clazz.getTypeParameters().length != 0) {
@@ -445,8 +457,20 @@ public class ParserConfig {
     public FieldDeserializer createFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
         boolean asmEnable = this.asmEnable;
 
-        if (!Modifier.isPublic(clazz.getModifiers())) {
-            asmEnable = false;
+        if (asmEnable) {
+            Class<?> superClass = clazz;
+
+            for (;;) {
+               if(!Modifier.isPublic(superClass.getModifiers())) {
+                   asmEnable = false;
+                   break;
+               }
+               
+               superClass = superClass.getSuperclass();
+               if (superClass == Object.class) {
+                   break;
+               }
+            }
         }
 
         if (fieldInfo.getFieldClass() == Class.class) {

@@ -428,7 +428,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         try {
             JSONSerializer serializer = new JSONSerializer(out);
-            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
+            for (SerializerFeature feature : features) {
                 serializer.config(feature, true);
             }
 

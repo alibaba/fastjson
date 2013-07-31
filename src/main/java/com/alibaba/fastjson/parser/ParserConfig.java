@@ -386,7 +386,7 @@ public class ParserConfig {
                }
                
                superClass = superClass.getSuperclass();
-               if (superClass == Object.class) {
+               if (superClass == Object.class || superClass == null) {
                    break;
                }
             }
@@ -467,7 +467,7 @@ public class ParserConfig {
                }
                
                superClass = superClass.getSuperclass();
-               if (superClass == Object.class) {
+               if (superClass == Object.class || superClass == null) {
                    break;
                }
             }

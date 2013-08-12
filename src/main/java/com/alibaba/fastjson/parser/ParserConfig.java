@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Currency;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -121,6 +122,7 @@ import com.alibaba.fastjson.parser.deserializer.TimestampDeserializer;
 import com.alibaba.fastjson.parser.deserializer.URIDeserializer;
 import com.alibaba.fastjson.parser.deserializer.URLDeserializer;
 import com.alibaba.fastjson.parser.deserializer.UUIDDeserializer;
+import com.alibaba.fastjson.serializer.CurrencyCodec;
 import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.DeserializeBeanInfo;
 import com.alibaba.fastjson.util.FieldInfo;
@@ -235,6 +237,7 @@ public class ParserConfig {
         derializers.put(UUID.class, UUIDDeserializer.instance);
         derializers.put(TimeZone.class, TimeZoneDeserializer.instance);
         derializers.put(Locale.class, LocaleDeserializer.instance);
+        derializers.put(Currency.class, CurrencyCodec.instance);
         derializers.put(InetAddress.class, InetAddressDeserializer.instance);
         derializers.put(Inet4Address.class, InetAddressDeserializer.instance);
         derializers.put(Inet6Address.class, InetAddressDeserializer.instance);
@@ -447,6 +450,8 @@ public class ParserConfig {
             // } catch (VerifyError e) {
             // e.printStackTrace();
             // return new JavaBeanDeserializer(this, clazz, type);
+        } catch (NoSuchMethodException ex) {
+            return new JavaBeanDeserializer(this, clazz, type);
         } catch (ASMException asmError) {
             return new JavaBeanDeserializer(this, clazz, type);
         } catch (Exception e) {

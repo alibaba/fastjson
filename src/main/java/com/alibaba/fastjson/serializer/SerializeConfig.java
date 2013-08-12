@@ -31,6 +31,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
+import java.util.Currency;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -153,6 +154,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 
 		put(SimpleDateFormat.class, DateFormatSerializer.instance);
 		put(Locale.class, LocaleSerializer.instance);
+		put(Currency.class, CurrencyCodec.instance);
 		put(TimeZone.class, TimeZoneSerializer.instance);
 		put(UUID.class, UUIDSerializer.instance);
 		put(InetAddress.class, InetAddressSerializer.instance);

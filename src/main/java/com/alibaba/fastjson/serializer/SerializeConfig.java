@@ -130,17 +130,17 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 	public SerializeConfig(int tableSize) {
 		super(tableSize);
 
-		put(Boolean.class, BooleanSerializer.instance);
-		put(Character.class, CharacterSerializer.instance);
+		put(Boolean.class, BooleanCodec.instance);
+		put(Character.class, CharacterCodec.instance);
 		put(Byte.class, ByteSerializer.instance);
 		put(Short.class, ShortSerializer.instance);
-		put(Integer.class, IntegerSerializer.instance);
-		put(Long.class, LongSerializer.instance);
-		put(Float.class, FloatSerializer.instance);
+		put(Integer.class, IntegerCodec.instance);
+		put(Long.class, LongCodec.instance);
+		put(Float.class, FloatCodec.instance);
 		put(Double.class, DoubleSerializer.instance);
-		put(BigDecimal.class, BigDecimalSerializer.instance);
-		put(BigInteger.class, BigIntegerSerializer.instance);
-		put(String.class, StringSerializer.instance);
+		put(BigDecimal.class, BigDecimalCodec.instance);
+		put(BigInteger.class, BigIntegerCodec.instance);
+		put(String.class, StringCodec.instance);
 		put(byte[].class, ByteArraySerializer.instance);
 		put(short[].class, ShortArraySerializer.instance);
 		put(int[].class, IntArraySerializer.instance);
@@ -153,41 +153,41 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 		put(Class.class, ClassSerializer.instance);
 
 		put(SimpleDateFormat.class, DateFormatSerializer.instance);
-		put(Locale.class, LocaleSerializer.instance);
+		put(Locale.class, LocaleCodec.instance);
 		put(Currency.class, CurrencyCodec.instance);
-		put(TimeZone.class, TimeZoneSerializer.instance);
-		put(UUID.class, UUIDSerializer.instance);
-		put(InetAddress.class, InetAddressSerializer.instance);
-		put(Inet4Address.class, InetAddressSerializer.instance);
-		put(Inet6Address.class, InetAddressSerializer.instance);
-		put(InetSocketAddress.class, InetSocketAddressSerializer.instance);
-		put(File.class, FileSerializer.instance);
-		put(URI.class, URISerializer.instance);
-		put(URL.class, URLSerializer.instance);
+		put(TimeZone.class, TimeZoneCodec.instance);
+		put(UUID.class, UUIDCodec.instance);
+		put(InetAddress.class, InetAddressCodec.instance);
+		put(Inet4Address.class, InetAddressCodec.instance);
+		put(Inet6Address.class, InetAddressCodec.instance);
+		put(InetSocketAddress.class, InetSocketAddressCodec.instance);
+		put(File.class, FileCodec.instance);
+		put(URI.class, URICodec.instance);
+		put(URL.class, URLCodec.instance);
 		put(Appendable.class, AppendableSerializer.instance);
 		put(StringBuffer.class, AppendableSerializer.instance);
 		put(StringBuilder.class, AppendableSerializer.instance);
-		put(Pattern.class, PatternSerializer.instance);
-		put(Charset.class, CharsetSerializer.instance);
+		put(Pattern.class, PatternCodec.instance);
+		put(Charset.class, CharsetCodec.instance);
 
 		// atomic
 		put(AtomicBoolean.class, AtomicBooleanSerializer.instance);
 		put(AtomicInteger.class, AtomicIntegerSerializer.instance);
 		put(AtomicLong.class, AtomicLongSerializer.instance);
-		put(AtomicReference.class, ReferenceSerializer.instance);
-		put(AtomicIntegerArray.class, AtomicIntegerArraySerializer.instance);
-		put(AtomicLongArray.class, AtomicLongArraySerializer.instance);
+		put(AtomicReference.class, ReferenceCodec.instance);
+		put(AtomicIntegerArray.class, AtomicIntegerArrayCodec.instance);
+		put(AtomicLongArray.class, AtomicLongArrayCodec.instance);
 		
-		put(WeakReference.class, ReferenceSerializer.instance);
-		put(SoftReference.class, ReferenceSerializer.instance);
+		put(WeakReference.class, ReferenceCodec.instance);
+		put(SoftReference.class, ReferenceCodec.instance);
 
 		// awt
 		try {
-			put(Class.forName("java.awt.Color"), ColorSerializer.instance);
-			put(Class.forName("java.awt.Font"), FontSerializer.instance);
-			put(Class.forName("java.awt.Point"), PointSerializer.instance);
+			put(Class.forName("java.awt.Color"), ColorCodec.instance);
+			put(Class.forName("java.awt.Font"), FontCodec.instance);
+			put(Class.forName("java.awt.Point"), PointCodec.instance);
 			put(Class.forName("java.awt.Rectangle"),
-					RectangleSerializer.instance);
+					RectangleCodec.instance);
 		} catch (Throwable e) {
 			// skip
 		}

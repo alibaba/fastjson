@@ -1,24 +1,36 @@
 package com.alibaba.json.bvt.bug;
 
-import java.io.InputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
-
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONReader;
+import com.alibaba.fastjson.JSONWriter;
 
 public class Bug12 extends TestCase {
 
     public void test_0() throws Exception {
-        String resource = "2.json";
-        InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
-        String text = IOUtils.toString(new InputStreamReader(is, "UTF-8"));
-        is.close();
-        
-        Object obj = JSON.parse(text);
-        Assert.assertNotNull(obj);
+        File folder = new File("D:\\wenshao\\downloads\\json_src");
+        for (File file : folder.listFiles()) {
+            File outfile = new File(folder, file.getName() + ".json");
+
+            JSONReader reader = new JSONReader(new InputStreamReader(new FileInputStream(file)));
+            JSONWriter writer = new JSONWriter(new FileWriter(outfile));
+            for (int i = 0; i < 40; ++i) {
+                Object obj = reader.readObject();
+                
+                if (obj == null) {
+                    break;
+                }
+                writer.writeObject(obj);
+            }
+
+            reader.close();
+            writer.close();
+        }
+       
     }
 }

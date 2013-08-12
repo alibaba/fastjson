@@ -415,7 +415,7 @@ public class JSONSerializer {
     }
 
     public final void write(String text) {
-        StringSerializer.instance.write(this, text);
+        StringCodec.instance.write(this, text);
     }
 
     public ObjectSerializer getObjectWriter(Class<?> clazz) {
@@ -486,15 +486,15 @@ public class JSONSerializer {
             } else if (Throwable.class.isAssignableFrom(clazz)) {
                 config.put(clazz, new ExceptionSerializer(clazz));
             } else if (TimeZone.class.isAssignableFrom(clazz)) {
-                config.put(clazz, TimeZoneSerializer.instance);
+                config.put(clazz, TimeZoneCodec.instance);
             } else if (Appendable.class.isAssignableFrom(clazz)) {
                 config.put(clazz, AppendableSerializer.instance);
             } else if (Charset.class.isAssignableFrom(clazz)) {
-                config.put(clazz, CharsetSerializer.instance);
+                config.put(clazz, CharsetCodec.instance);
             } else if (Enumeration.class.isAssignableFrom(clazz)) {
                 config.put(clazz, EnumerationSeriliazer.instance);
             } else if (Calendar.class.isAssignableFrom(clazz)) {
-                config.put(clazz, CalendarSerializer.instance);
+                config.put(clazz, CalendarCodec.instance);
             } else if (Clob.class.isAssignableFrom(clazz)) {
                 config.put(clazz, ClobSeriliazer.instance);
             } else {

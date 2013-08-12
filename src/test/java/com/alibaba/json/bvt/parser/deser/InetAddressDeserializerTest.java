@@ -1,13 +1,14 @@
 package com.alibaba.json.bvt.parser.deser;
 
-import org.junit.Assert;
 import junit.framework.TestCase;
+
+import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.DefaultExtJSONParser;
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.parser.deserializer.InetAddressDeserializer;
-import com.alibaba.fastjson.parser.deserializer.StringDeserializer;
+import com.alibaba.fastjson.serializer.InetAddressCodec;
+import com.alibaba.fastjson.serializer.StringCodec;
 
 public class InetAddressDeserializerTest extends TestCase {
 
@@ -15,7 +16,7 @@ public class InetAddressDeserializerTest extends TestCase {
         String input = "null";
         DefaultExtJSONParser parser = new DefaultExtJSONParser(input, ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
 
-        InetAddressDeserializer deser = new InetAddressDeserializer();
+        InetAddressCodec deser = new InetAddressCodec();
 
         Assert.assertNull(deser.deserialze(parser, null, null));
     }
@@ -24,7 +25,7 @@ public class InetAddressDeserializerTest extends TestCase {
         String input = "null";
         DefaultExtJSONParser parser = new DefaultExtJSONParser(input, ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
         
-        StringDeserializer deser = new StringDeserializer();
+        StringCodec deser = new StringCodec();
         
         Assert.assertNull(deser.deserialze(parser, null, null));
     }
@@ -33,7 +34,7 @@ public class InetAddressDeserializerTest extends TestCase {
         String input = "'[&中国-^]'";
         DefaultExtJSONParser parser = new DefaultExtJSONParser(input, ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
 
-        InetAddressDeserializer deser = new InetAddressDeserializer();
+        InetAddressCodec deser = new InetAddressCodec();
 
         Throwable error = null;
 

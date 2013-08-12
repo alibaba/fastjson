@@ -7,7 +7,7 @@ import junit.framework.TestCase;
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.ColorSerializer;
+import com.alibaba.fastjson.serializer.ColorCodec;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
@@ -15,7 +15,7 @@ public class ColorSerializerTest extends TestCase {
 
     public void test_null() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
-        Assert.assertEquals(ColorSerializer.class, serializer.getObjectWriter(Color.class).getClass());
+        Assert.assertEquals(ColorCodec.class, serializer.getObjectWriter(Color.class).getClass());
 
         VO vo = new VO();
 
@@ -24,7 +24,7 @@ public class ColorSerializerTest extends TestCase {
 
     public void test_rgb() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
-        Assert.assertEquals(ColorSerializer.class, serializer.getObjectWriter(Color.class).getClass());
+        Assert.assertEquals(ColorCodec.class, serializer.getObjectWriter(Color.class).getClass());
 
         VO vo = new VO();
         vo.setValue(new Color(1,1,1,0));

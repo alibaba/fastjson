@@ -2,17 +2,18 @@ package com.alibaba.json.bvt.parser.deser;
 
 import java.awt.Font;
 
-import org.junit.Assert;
 import junit.framework.TestCase;
+
+import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.parser.deserializer.FontDeserializer;
+import com.alibaba.fastjson.serializer.FontCodec;
 
 
 public class FontDeserializerTest extends TestCase {
     public void test_0 () throws Exception {
-        FontDeserializer.instance.getFastMatchToken();
+        FontCodec.instance.getFastMatchToken();
         
         Assert.assertNull(JSON.parseObject("null", StackTraceElement.class));
         Assert.assertNull(JSON.parseArray("null", StackTraceElement.class));

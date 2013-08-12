@@ -71,58 +71,58 @@ import com.alibaba.fastjson.parser.deserializer.ASMDeserializerFactory;
 import com.alibaba.fastjson.parser.deserializer.ASMJavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ArrayDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ArrayListTypeFieldDeserializer;
-import com.alibaba.fastjson.parser.deserializer.AtomicIntegerArrayDeserializer;
-import com.alibaba.fastjson.parser.deserializer.AtomicLongArrayDeserializer;
 import com.alibaba.fastjson.parser.deserializer.AutowiredObjectDeserializer;
-import com.alibaba.fastjson.parser.deserializer.BigDecimalDeserializer;
-import com.alibaba.fastjson.parser.deserializer.BigIntegerDeserializer;
-import com.alibaba.fastjson.parser.deserializer.BooleanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.BooleanFieldDeserializer;
-import com.alibaba.fastjson.parser.deserializer.CalendarDeserializer;
 import com.alibaba.fastjson.parser.deserializer.CharArrayDeserializer;
-import com.alibaba.fastjson.parser.deserializer.CharacterDeserializer;
-import com.alibaba.fastjson.parser.deserializer.CharsetDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ClassDerializer;
 import com.alibaba.fastjson.parser.deserializer.CollectionDeserializer;
-import com.alibaba.fastjson.parser.deserializer.ColorDeserializer;
 import com.alibaba.fastjson.parser.deserializer.DateDeserializer;
 import com.alibaba.fastjson.parser.deserializer.DateFormatDeserializer;
 import com.alibaba.fastjson.parser.deserializer.DefaultFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.EnumDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
-import com.alibaba.fastjson.parser.deserializer.FileDeserializer;
-import com.alibaba.fastjson.parser.deserializer.FloatDeserializer;
-import com.alibaba.fastjson.parser.deserializer.FontDeserializer;
-import com.alibaba.fastjson.parser.deserializer.InetAddressDeserializer;
-import com.alibaba.fastjson.parser.deserializer.InetSocketAddressDeserializer;
-import com.alibaba.fastjson.parser.deserializer.IntegerDeserializer;
 import com.alibaba.fastjson.parser.deserializer.IntegerFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JSONArrayDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JSONObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaObjectDeserializer;
-import com.alibaba.fastjson.parser.deserializer.LocaleDeserializer;
-import com.alibaba.fastjson.parser.deserializer.LongDeserializer;
 import com.alibaba.fastjson.parser.deserializer.LongFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.MapDeserializer;
 import com.alibaba.fastjson.parser.deserializer.NumberDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
-import com.alibaba.fastjson.parser.deserializer.PatternDeserializer;
-import com.alibaba.fastjson.parser.deserializer.PointDeserializer;
-import com.alibaba.fastjson.parser.deserializer.RectangleDeserializer;
-import com.alibaba.fastjson.parser.deserializer.ReferenceDeserializer;
 import com.alibaba.fastjson.parser.deserializer.SqlDateDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StackTraceElementDeserializer;
-import com.alibaba.fastjson.parser.deserializer.StringDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StringFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ThrowableDeserializer;
 import com.alibaba.fastjson.parser.deserializer.TimeDeserializer;
-import com.alibaba.fastjson.parser.deserializer.TimeZoneDeserializer;
 import com.alibaba.fastjson.parser.deserializer.TimestampDeserializer;
-import com.alibaba.fastjson.parser.deserializer.URIDeserializer;
-import com.alibaba.fastjson.parser.deserializer.URLDeserializer;
-import com.alibaba.fastjson.parser.deserializer.UUIDDeserializer;
+import com.alibaba.fastjson.serializer.AtomicIntegerArrayCodec;
+import com.alibaba.fastjson.serializer.AtomicLongArrayCodec;
+import com.alibaba.fastjson.serializer.BigDecimalCodec;
+import com.alibaba.fastjson.serializer.BigIntegerCodec;
+import com.alibaba.fastjson.serializer.BooleanCodec;
+import com.alibaba.fastjson.serializer.CalendarCodec;
+import com.alibaba.fastjson.serializer.CharacterCodec;
+import com.alibaba.fastjson.serializer.CharsetCodec;
+import com.alibaba.fastjson.serializer.ColorCodec;
 import com.alibaba.fastjson.serializer.CurrencyCodec;
+import com.alibaba.fastjson.serializer.FileCodec;
+import com.alibaba.fastjson.serializer.FloatCodec;
+import com.alibaba.fastjson.serializer.FontCodec;
+import com.alibaba.fastjson.serializer.InetAddressCodec;
+import com.alibaba.fastjson.serializer.InetSocketAddressCodec;
+import com.alibaba.fastjson.serializer.IntegerCodec;
+import com.alibaba.fastjson.serializer.LocaleCodec;
+import com.alibaba.fastjson.serializer.LongCodec;
+import com.alibaba.fastjson.serializer.PatternCodec;
+import com.alibaba.fastjson.serializer.PointCodec;
+import com.alibaba.fastjson.serializer.RectangleCodec;
+import com.alibaba.fastjson.serializer.ReferenceCodec;
+import com.alibaba.fastjson.serializer.StringCodec;
+import com.alibaba.fastjson.serializer.TimeZoneCodec;
+import com.alibaba.fastjson.serializer.URICodec;
+import com.alibaba.fastjson.serializer.URLCodec;
+import com.alibaba.fastjson.serializer.UUIDCodec;
 import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.DeserializeBeanInfo;
 import com.alibaba.fastjson.util.FieldInfo;
@@ -187,7 +187,7 @@ public class ParserConfig {
         derializers.put(java.sql.Date.class, SqlDateDeserializer.instance);
         derializers.put(java.sql.Time.class, TimeDeserializer.instance);
         derializers.put(java.util.Date.class, DateDeserializer.instance);
-        derializers.put(Calendar.class, CalendarDeserializer.instance);
+        derializers.put(Calendar.class, CalendarCodec.instance);
 
         derializers.put(JSONObject.class, JSONObjectDeserializer.instance);
         derializers.put(JSONArray.class, JSONArrayDeserializer.instance);
@@ -204,52 +204,52 @@ public class ParserConfig {
         derializers.put(ArrayList.class, CollectionDeserializer.instance);
 
         derializers.put(Object.class, JavaObjectDeserializer.instance);
-        derializers.put(String.class, StringDeserializer.instance);
-        derializers.put(char.class, CharacterDeserializer.instance);
-        derializers.put(Character.class, CharacterDeserializer.instance);
+        derializers.put(String.class, StringCodec.instance);
+        derializers.put(char.class, CharacterCodec.instance);
+        derializers.put(Character.class, CharacterCodec.instance);
         derializers.put(byte.class, NumberDeserializer.instance);
         derializers.put(Byte.class, NumberDeserializer.instance);
         derializers.put(short.class, NumberDeserializer.instance);
         derializers.put(Short.class, NumberDeserializer.instance);
-        derializers.put(int.class, IntegerDeserializer.instance);
-        derializers.put(Integer.class, IntegerDeserializer.instance);
-        derializers.put(long.class, LongDeserializer.instance);
-        derializers.put(Long.class, LongDeserializer.instance);
-        derializers.put(BigInteger.class, BigIntegerDeserializer.instance);
-        derializers.put(BigDecimal.class, BigDecimalDeserializer.instance);
-        derializers.put(float.class, FloatDeserializer.instance);
-        derializers.put(Float.class, FloatDeserializer.instance);
+        derializers.put(int.class, IntegerCodec.instance);
+        derializers.put(Integer.class, IntegerCodec.instance);
+        derializers.put(long.class, LongCodec.instance);
+        derializers.put(Long.class, LongCodec.instance);
+        derializers.put(BigInteger.class, BigIntegerCodec.instance);
+        derializers.put(BigDecimal.class, BigDecimalCodec.instance);
+        derializers.put(float.class, FloatCodec.instance);
+        derializers.put(Float.class, FloatCodec.instance);
         derializers.put(double.class, NumberDeserializer.instance);
         derializers.put(Double.class, NumberDeserializer.instance);
-        derializers.put(boolean.class, BooleanDeserializer.instance);
-        derializers.put(Boolean.class, BooleanDeserializer.instance);
+        derializers.put(boolean.class, BooleanCodec.instance);
+        derializers.put(Boolean.class, BooleanCodec.instance);
         derializers.put(Class.class, ClassDerializer.instance);
         derializers.put(char[].class, CharArrayDeserializer.instance);
 
-        derializers.put(AtomicBoolean.class, BooleanDeserializer.instance);
-        derializers.put(AtomicInteger.class, IntegerDeserializer.instance);
-        derializers.put(AtomicLong.class, LongDeserializer.instance);
-        derializers.put(AtomicReference.class, ReferenceDeserializer.instance);
+        derializers.put(AtomicBoolean.class, BooleanCodec.instance);
+        derializers.put(AtomicInteger.class, IntegerCodec.instance);
+        derializers.put(AtomicLong.class, LongCodec.instance);
+        derializers.put(AtomicReference.class, ReferenceCodec.instance);
 
-        derializers.put(WeakReference.class, ReferenceDeserializer.instance);
-        derializers.put(SoftReference.class, ReferenceDeserializer.instance);
+        derializers.put(WeakReference.class, ReferenceCodec.instance);
+        derializers.put(SoftReference.class, ReferenceCodec.instance);
 
-        derializers.put(UUID.class, UUIDDeserializer.instance);
-        derializers.put(TimeZone.class, TimeZoneDeserializer.instance);
-        derializers.put(Locale.class, LocaleDeserializer.instance);
+        derializers.put(UUID.class, UUIDCodec.instance);
+        derializers.put(TimeZone.class, TimeZoneCodec.instance);
+        derializers.put(Locale.class, LocaleCodec.instance);
         derializers.put(Currency.class, CurrencyCodec.instance);
-        derializers.put(InetAddress.class, InetAddressDeserializer.instance);
-        derializers.put(Inet4Address.class, InetAddressDeserializer.instance);
-        derializers.put(Inet6Address.class, InetAddressDeserializer.instance);
-        derializers.put(InetSocketAddress.class, InetSocketAddressDeserializer.instance);
-        derializers.put(File.class, FileDeserializer.instance);
-        derializers.put(URI.class, URIDeserializer.instance);
-        derializers.put(URL.class, URLDeserializer.instance);
-        derializers.put(Pattern.class, PatternDeserializer.instance);
-        derializers.put(Charset.class, CharsetDeserializer.instance);
+        derializers.put(InetAddress.class, InetAddressCodec.instance);
+        derializers.put(Inet4Address.class, InetAddressCodec.instance);
+        derializers.put(Inet6Address.class, InetAddressCodec.instance);
+        derializers.put(InetSocketAddress.class, InetSocketAddressCodec.instance);
+        derializers.put(File.class, FileCodec.instance);
+        derializers.put(URI.class, URICodec.instance);
+        derializers.put(URL.class, URLCodec.instance);
+        derializers.put(Pattern.class, PatternCodec.instance);
+        derializers.put(Charset.class, CharsetCodec.instance);
         derializers.put(Number.class, NumberDeserializer.instance);
-        derializers.put(AtomicIntegerArray.class, AtomicIntegerArrayDeserializer.instance);
-        derializers.put(AtomicLongArray.class, AtomicLongArrayDeserializer.instance);
+        derializers.put(AtomicIntegerArray.class, AtomicIntegerArrayCodec.instance);
+        derializers.put(AtomicLongArray.class, AtomicLongArrayCodec.instance);
         derializers.put(StackTraceElement.class, StackTraceElementDeserializer.instance);
 
         derializers.put(Serializable.class, JavaObjectDeserializer.instance);
@@ -258,10 +258,10 @@ public class ParserConfig {
         derializers.put(Closeable.class, JavaObjectDeserializer.instance);
 
         try {
-            derializers.put(Class.forName("java.awt.Point"), PointDeserializer.instance);
-            derializers.put(Class.forName("java.awt.Font"), FontDeserializer.instance);
-            derializers.put(Class.forName("java.awt.Rectangle"), RectangleDeserializer.instance);
-            derializers.put(Class.forName("java.awt.Color"), ColorDeserializer.instance);
+            derializers.put(Class.forName("java.awt.Point"), PointCodec.instance);
+            derializers.put(Class.forName("java.awt.Font"), FontCodec.instance);
+            derializers.put(Class.forName("java.awt.Rectangle"), RectangleCodec.instance);
+            derializers.put(Class.forName("java.awt.Color"), ColorCodec.instance);
         } catch (Throwable e) {
             // skip
         }
@@ -383,15 +383,15 @@ public class ParserConfig {
             Class<?> superClass = clazz;
 
             for (;;) {
-               if(!Modifier.isPublic(superClass.getModifiers())) {
-                   asmEnable = false;
-                   break;
-               }
-               
-               superClass = superClass.getSuperclass();
-               if (superClass == Object.class || superClass == null) {
-                   break;
-               }
+                if (!Modifier.isPublic(superClass.getModifiers())) {
+                    asmEnable = false;
+                    break;
+                }
+
+                superClass = superClass.getSuperclass();
+                if (superClass == Object.class || superClass == null) {
+                    break;
+                }
             }
         }
 
@@ -466,15 +466,15 @@ public class ParserConfig {
             Class<?> superClass = clazz;
 
             for (;;) {
-               if(!Modifier.isPublic(superClass.getModifiers())) {
-                   asmEnable = false;
-                   break;
-               }
-               
-               superClass = superClass.getSuperclass();
-               if (superClass == Object.class || superClass == null) {
-                   break;
-               }
+                if (!Modifier.isPublic(superClass.getModifiers())) {
+                    asmEnable = false;
+                    break;
+                }
+
+                superClass = superClass.getSuperclass();
+                if (superClass == Object.class || superClass == null) {
+                    break;
+                }
             }
         }
 

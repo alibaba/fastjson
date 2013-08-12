@@ -8,7 +8,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.parser.deserializer.BooleanDeserializer;
+import com.alibaba.fastjson.serializer.BooleanCodec;
 
 public class BooleanDeserializerTest extends TestCase {
 
@@ -27,9 +27,9 @@ public class BooleanDeserializerTest extends TestCase {
         {
             DefaultJSONParser parser = new DefaultJSONParser("null", ParserConfig.getGlobalInstance(),
                                                              JSON.DEFAULT_PARSER_FEATURE);
-            Assert.assertEquals(null, BooleanDeserializer.instance.deserialze(parser, null, null));
+            Assert.assertEquals(null, BooleanCodec.instance.deserialze(parser, null, null));
             parser.close();
         }
-        Assert.assertEquals(JSONToken.TRUE, BooleanDeserializer.instance.getFastMatchToken());
+        Assert.assertEquals(JSONToken.TRUE, BooleanCodec.instance.getFastMatchToken());
     }
 }

@@ -1,13 +1,14 @@
 package com.alibaba.json.bvt.parser.deser;
 
-import org.junit.Assert;
 import junit.framework.TestCase;
+
+import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.DefaultExtJSONParser;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.parser.deserializer.IntegerDeserializer;
+import com.alibaba.fastjson.serializer.IntegerCodec;
 
 public class IntegerDeserializerTest extends TestCase {
 
@@ -19,7 +20,7 @@ public class IntegerDeserializerTest extends TestCase {
         Assert.assertEquals(null, JSON.parseObject("null", Integer.class));
 
         DefaultExtJSONParser parser = new DefaultExtJSONParser("null", ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
-        Assert.assertEquals(null, IntegerDeserializer.instance.deserialze(parser, null, null));
-        Assert.assertEquals(JSONToken.LITERAL_INT, IntegerDeserializer.instance.getFastMatchToken());
+        Assert.assertEquals(null, IntegerCodec.instance.deserialze(parser, null, null));
+        Assert.assertEquals(JSONToken.LITERAL_INT, IntegerCodec.instance.getFastMatchToken());
     }
 }

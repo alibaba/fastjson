@@ -7,7 +7,7 @@ import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.JSONSerializer;
-import com.alibaba.fastjson.serializer.RectangleSerializer;
+import com.alibaba.fastjson.serializer.RectangleCodec;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 
@@ -15,7 +15,7 @@ public class RectangleSerializerTest extends TestCase {
     
     public void test_null() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
-        Assert.assertEquals(RectangleSerializer.class, serializer.getObjectWriter(Rectangle.class).getClass());
+        Assert.assertEquals(RectangleCodec.class, serializer.getObjectWriter(Rectangle.class).getClass());
         
         VO vo = new VO();
         

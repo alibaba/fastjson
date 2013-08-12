@@ -8,13 +8,13 @@ import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.parser.deserializer.ReferenceDeserializer;
+import com.alibaba.fastjson.serializer.ReferenceCodec;
 
 public class ReferenceDeserializerTest extends TestCase {
 
     public void test_0() throws Exception {
         ParserConfig config = new ParserConfig();
-        config.putDeserializer(MyRef.class, ReferenceDeserializer.instance);
+        config.putDeserializer(MyRef.class, ReferenceCodec.instance);
         Exception error = null;
         try {
             JSON.parseObject("{\"ref\":{}}", VO.class, config, 0);

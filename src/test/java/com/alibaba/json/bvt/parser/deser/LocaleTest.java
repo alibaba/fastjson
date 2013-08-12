@@ -2,13 +2,14 @@ package com.alibaba.json.bvt.parser.deser;
 
 import java.util.Locale;
 
-import org.junit.Assert;
 import junit.framework.TestCase;
+
+import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.DefaultExtJSONParser;
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.parser.deserializer.LocaleDeserializer;
+import com.alibaba.fastjson.serializer.LocaleCodec;
 
 public class LocaleTest extends TestCase {
 
@@ -33,7 +34,7 @@ public class LocaleTest extends TestCase {
         String input = "null";
         DefaultExtJSONParser parser = new DefaultExtJSONParser(input, ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
 
-        LocaleDeserializer deser = new LocaleDeserializer();
+        LocaleCodec deser = new LocaleCodec();
 
         Assert.assertNull(deser.deserialze(parser, null, null));
     }

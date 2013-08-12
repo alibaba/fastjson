@@ -2,15 +2,16 @@ package com.alibaba.json.bvt.parser.deser;
 
 import java.net.URL;
 
-import org.junit.Assert;
 import junit.framework.TestCase;
+
+import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultExtJSONParser;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.parser.deserializer.URLDeserializer;
+import com.alibaba.fastjson.serializer.URLCodec;
 
 public class URLDeserializerTest extends TestCase {
 
@@ -20,8 +21,8 @@ public class URLDeserializerTest extends TestCase {
         Assert.assertEquals(null, JSON.parseObject("null", URL.class));
 
         DefaultExtJSONParser parser = new DefaultExtJSONParser("null", ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
-        Assert.assertEquals(null, URLDeserializer.instance.deserialze(parser, null, null));
-        Assert.assertEquals(JSONToken.LITERAL_STRING, URLDeserializer.instance.getFastMatchToken());
+        Assert.assertEquals(null, URLCodec.instance.deserialze(parser, null, null));
+        Assert.assertEquals(JSONToken.LITERAL_STRING, URLCodec.instance.getFastMatchToken());
 
     }
 

@@ -59,13 +59,13 @@ import com.alibaba.fastjson.parser.deserializer.CollectionResolveFieldDeserializ
 import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
-import com.alibaba.fastjson.parser.deserializer.IntegerDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ListResolveFieldDeserializer;
-import com.alibaba.fastjson.parser.deserializer.LongDeserializer;
 import com.alibaba.fastjson.parser.deserializer.MapResolveFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
-import com.alibaba.fastjson.parser.deserializer.StringDeserializer;
+import com.alibaba.fastjson.serializer.IntegerCodec;
+import com.alibaba.fastjson.serializer.LongCodec;
+import com.alibaba.fastjson.serializer.StringCodec;
 import com.alibaba.fastjson.util.TypeUtils;
 
 /**
@@ -545,10 +545,10 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 
         ObjectDeserializer deserializer = null;
         if (int.class == type) {
-            deserializer = IntegerDeserializer.instance;
+            deserializer = IntegerCodec.instance;
             lexer.nextToken(JSONToken.LITERAL_INT);
         } else if (String.class == type) {
-            deserializer = StringDeserializer.instance;
+            deserializer = StringCodec.instance;
             lexer.nextToken(JSONToken.LITERAL_STRING);
         } else {
             deserializer = config.getDeserializer(type);
@@ -571,7 +571,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                 }
 
                 if (int.class == type) {
-                    Object val = IntegerDeserializer.instance.deserialze(this, null, null);
+                    Object val = IntegerCodec.instance.deserialze(this, null, null);
                     array.add(val);
                 } else if (String.class == type) {
                     String value;
@@ -771,13 +771,13 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                 Object fieldValue;
                 if (fieldClass == int.class) {
                     lexer.nextTokenWithColon(JSONToken.LITERAL_INT);
-                    fieldValue = IntegerDeserializer.instance.deserialze(this, fieldType, null);
+                    fieldValue = IntegerCodec.instance.deserialze(this, fieldType, null);
                 } else if (fieldClass == String.class) {
                     lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
-                    fieldValue = StringDeserializer.deserialze(this);
+                    fieldValue = StringCodec.deserialze(this);
                 } else if (fieldClass == long.class) {
                     lexer.nextTokenWithColon(JSONToken.LITERAL_INT);
-                    fieldValue = LongDeserializer.instance.deserialze(this, fieldType, null);
+                    fieldValue = LongCodec.instance.deserialze(this, fieldType, null);
                 } else {
                     ObjectDeserializer fieldValueDeserializer = config.getDeserializer(fieldClass, fieldType);
 

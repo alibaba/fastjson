@@ -112,9 +112,12 @@ public class MapSerializer implements ObjectSerializer {
                     if (!first) {
                         out.write(',');
                     }
-
-                    serializer.write(entryKey);
-                    out.write(':');
+                    if(entryKey.getClass().isPrimitive() || entryKey instanceof Number){
+                    	out.writeFieldName(String.valueOf(entryKey));
+                    }eles{
+                        serializer.write(entryKey);
+                    	out.write(':');	
+                    }
                 }
 
                 first = false;

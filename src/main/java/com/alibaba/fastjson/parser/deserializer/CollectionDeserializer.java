@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.TreeSet;
@@ -37,6 +38,14 @@ public class CollectionDeserializer implements ObjectDeserializer {
             list = new TreeSet();
         } else if (rawClass.isAssignableFrom(ArrayList.class)) {
             list = new ArrayList();
+        } else if (rawClass.isAssignableFrom(EnumSet.class)) {
+            Type itemType;
+            if (type instanceof ParameterizedType) {
+                itemType = ((ParameterizedType) type).getActualTypeArguments()[0];
+            } else {
+                itemType = Object.class;
+            }
+            list = EnumSet.noneOf((Class<Enum>)itemType);
         } else {
             try {
                 list = (Collection) rawClass.newInstance();

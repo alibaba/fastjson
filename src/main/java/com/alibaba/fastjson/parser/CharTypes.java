@@ -52,49 +52,63 @@ public final class CharTypes {
         }
     }
 
-    public final static boolean[] specicalFlags_doubleQuotes = new boolean[128];
-    public final static boolean[] specicalFlags_singleQuotes = new boolean[128];
-
-    public static boolean isSpecial_doubleQuotes(char ch) {
-        return ch < specicalFlags_doubleQuotes.length && specicalFlags_doubleQuotes[ch];
-    }
+    public final static byte[] specicalFlags_doubleQuotes = new byte[256];
+    public final static byte[] specicalFlags_singleQuotes = new byte[256];
 
     public final static char[] replaceChars = new char[128];
     static {
-        specicalFlags_doubleQuotes['\0'] = true;
-        specicalFlags_doubleQuotes['\1'] = true;
-        specicalFlags_doubleQuotes['\2'] = true;
-        specicalFlags_doubleQuotes['\3'] = true;
-        specicalFlags_doubleQuotes['\4'] = true;
-        specicalFlags_doubleQuotes['\5'] = true;
-        specicalFlags_doubleQuotes['\6'] = true;
-        specicalFlags_doubleQuotes['\7'] = true;
-        specicalFlags_doubleQuotes['\b'] = true; // 8
-        specicalFlags_doubleQuotes['\t'] = true; // 9
-        specicalFlags_doubleQuotes['\n'] = true; // 10
-        specicalFlags_doubleQuotes['\u000B'] = true; // 11
-        specicalFlags_doubleQuotes['\f'] = true;
-        specicalFlags_doubleQuotes['\r'] = true;
-        specicalFlags_doubleQuotes['\"'] = true;
-        specicalFlags_doubleQuotes['\\'] = true;
+        specicalFlags_doubleQuotes['\0'] = 1;
+        specicalFlags_doubleQuotes['\1'] = 1;
+        specicalFlags_doubleQuotes['\2'] = 1;
+        specicalFlags_doubleQuotes['\3'] = 1;
+        specicalFlags_doubleQuotes['\4'] = 1;
+        specicalFlags_doubleQuotes['\5'] = 1;
+        specicalFlags_doubleQuotes['\6'] = 1;
+        specicalFlags_doubleQuotes['\7'] = 1;
+        specicalFlags_doubleQuotes['\b'] = 1; // 8
+        specicalFlags_doubleQuotes['\t'] = 1; // 9
+        specicalFlags_doubleQuotes['\n'] = 1; // 10
+        specicalFlags_doubleQuotes['\u000B'] = 1; // 11
+        specicalFlags_doubleQuotes['\f'] = 1;
+        specicalFlags_doubleQuotes['\r'] = 1;
+        specicalFlags_doubleQuotes['\"'] = 1;
+        specicalFlags_doubleQuotes['\\'] = 1;
 
-        specicalFlags_singleQuotes['\0'] = true;
-        specicalFlags_singleQuotes['\1'] = true;
-        specicalFlags_singleQuotes['\2'] = true;
-        specicalFlags_singleQuotes['\3'] = true;
-        specicalFlags_singleQuotes['\4'] = true;
-        specicalFlags_singleQuotes['\5'] = true;
-        specicalFlags_singleQuotes['\6'] = true;
-        specicalFlags_singleQuotes['\7'] = true;
-        specicalFlags_singleQuotes['\b'] = true; // 8
-        specicalFlags_singleQuotes['\t'] = true; // 9
-        specicalFlags_singleQuotes['\n'] = true; // 10
-        specicalFlags_singleQuotes['\u000B'] = true; // 11
-        specicalFlags_singleQuotes['\f'] = true; // 12
-        specicalFlags_singleQuotes['\r'] = true;
-        specicalFlags_singleQuotes['\''] = true;
-        specicalFlags_singleQuotes['\\'] = true;
-
+        specicalFlags_singleQuotes['\0'] = 1;
+        specicalFlags_singleQuotes['\1'] = 1;
+        specicalFlags_singleQuotes['\2'] = 1;
+        specicalFlags_singleQuotes['\3'] = 1;
+        specicalFlags_singleQuotes['\4'] = 1;
+        specicalFlags_singleQuotes['\5'] = 1;
+        specicalFlags_singleQuotes['\6'] = 1;
+        specicalFlags_singleQuotes['\7'] = 1;
+        specicalFlags_singleQuotes['\b'] = 1; // 8
+        specicalFlags_singleQuotes['\t'] = 1; // 9
+        specicalFlags_singleQuotes['\n'] = 1; // 10
+        specicalFlags_singleQuotes['\u000B'] = 1; // 11
+        specicalFlags_singleQuotes['\f'] = 1; // 12
+        specicalFlags_singleQuotes['\r'] = 1; // 13
+        specicalFlags_singleQuotes['\u000E'] = 4; // 14
+        specicalFlags_singleQuotes['\u000F'] = 4; // 15 
+        specicalFlags_singleQuotes['\u0010'] = 4; // 16
+        specicalFlags_singleQuotes['\u0011'] = 4; // 17
+        specicalFlags_singleQuotes['\u0012'] = 4; // 18
+        specicalFlags_singleQuotes['\u0013'] = 4; // 19
+        specicalFlags_singleQuotes['\u0014'] = 4; // 20
+        specicalFlags_singleQuotes['\u0015'] = 4; // 21
+        specicalFlags_singleQuotes['\u0016'] = 4; // 22
+        specicalFlags_singleQuotes['\u0017'] = 4; // 23
+        specicalFlags_singleQuotes['\u0018'] = 4; // 24
+        specicalFlags_singleQuotes['\u0019'] = 4; // 25
+        specicalFlags_singleQuotes['\u0020'] = 4; // 26
+        specicalFlags_singleQuotes['\\'] = 1;
+        specicalFlags_singleQuotes['\''] = 1;
+        
+        for (int i = 0x7F; i <= 0xA0; ++i) {
+            specicalFlags_doubleQuotes[i] = 4;
+            specicalFlags_singleQuotes[i] = 4;
+        }
+        
         replaceChars['\0'] = '0';
         replaceChars['\1'] = '1';
         replaceChars['\2'] = '2';

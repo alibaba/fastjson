@@ -659,7 +659,7 @@ public final class SerializeWriter extends Writer {
                         }
                     } else {
                         if (ch < CharTypes.specicalFlags_doubleQuotes.length
-                            && CharTypes.specicalFlags_doubleQuotes[ch] //
+                            && CharTypes.specicalFlags_doubleQuotes[ch] != 0 //
                             || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
                             write('\\');
                             write(replaceChars[(int) ch]);
@@ -816,7 +816,7 @@ public final class SerializeWriter extends Writer {
                     continue;
                 }
 
-                if (ch < CharTypes.specicalFlags_doubleQuotes.length && CharTypes.specicalFlags_doubleQuotes[ch] //
+                if (ch < CharTypes.specicalFlags_doubleQuotes.length && CharTypes.specicalFlags_doubleQuotes[ch] != 0 //
                     || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
                     specialCount++;
                     lastSpecialIndex = i;
@@ -861,7 +861,8 @@ public final class SerializeWriter extends Writer {
             for (int i = textIndex; i < text.length(); ++i) {
                 char ch = text.charAt(i);
 
-                if (ch < CharTypes.specicalFlags_doubleQuotes.length && CharTypes.specicalFlags_doubleQuotes[ch] //
+                if (ch < CharTypes.specicalFlags_doubleQuotes.length //
+                    && CharTypes.specicalFlags_doubleQuotes[ch] != 0 //
                     || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
                     buf[bufIndex++] = '\\';
                     buf[bufIndex++] = replaceChars[(int) ch];
@@ -1265,8 +1266,8 @@ public final class SerializeWriter extends Writer {
                     for (int i = textIndex; i < value.length(); ++i) {
                         char ch = value.charAt(i);
 
-                        if (ch < CharTypes.specicalFlags_doubleQuotes.length
-                            && CharTypes.specicalFlags_doubleQuotes[ch] //
+                        if (ch < CharTypes.specicalFlags_doubleQuotes.length //
+                            && CharTypes.specicalFlags_doubleQuotes[ch] != 0 //
                             || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
                             buf[bufIndex++] = '\\';
                             buf[bufIndex++] = replaceChars[(int) ch];
@@ -1467,7 +1468,7 @@ public final class SerializeWriter extends Writer {
     }
 
     private void writeKeyWithDoubleQuoteIfHasSpecial(String text) {
-        final boolean[] specicalFlags_doubleQuotes = CharTypes.specicalFlags_doubleQuotes;
+        final byte[] specicalFlags_doubleQuotes = CharTypes.specicalFlags_doubleQuotes;
 
         int len = text.length();
         int newcount = count + len + 1;
@@ -1483,7 +1484,7 @@ public final class SerializeWriter extends Writer {
                 boolean hasSpecial = false;
                 for (int i = 0; i < len; ++i) {
                     char ch = text.charAt(i);
-                    if (ch < specicalFlags_doubleQuotes.length && specicalFlags_doubleQuotes[ch]) {
+                    if (ch < specicalFlags_doubleQuotes.length && specicalFlags_doubleQuotes[ch] != 0) {
                         hasSpecial = true;
                         break;
                     }
@@ -1494,7 +1495,7 @@ public final class SerializeWriter extends Writer {
                 }
                 for (int i = 0; i < len; ++i) {
                     char ch = text.charAt(i);
-                    if (ch < specicalFlags_doubleQuotes.length && specicalFlags_doubleQuotes[ch]) {
+                    if (ch < specicalFlags_doubleQuotes.length && specicalFlags_doubleQuotes[ch] != 0) {
                         write('\\');
                         write(replaceChars[(int) ch]);
                     } else {
@@ -1531,7 +1532,7 @@ public final class SerializeWriter extends Writer {
 
         for (int i = start; i < end; ++i) {
             char ch = buf[i];
-            if (ch < specicalFlags_doubleQuotes.length && specicalFlags_doubleQuotes[ch]) {
+            if (ch < specicalFlags_doubleQuotes.length && specicalFlags_doubleQuotes[ch] != 0) {
                 if (!hasSpecial) {
                     newcount += 3;
                     if (newcount > buf.length) {
@@ -1567,7 +1568,7 @@ public final class SerializeWriter extends Writer {
     }
 
     private void writeKeyWithSingleQuoteIfHasSpecial(String text) {
-        final boolean[] specicalFlags_singleQuotes = CharTypes.specicalFlags_singleQuotes;
+        final byte[] specicalFlags_singleQuotes = CharTypes.specicalFlags_singleQuotes;
 
         int len = text.length();
         int newcount = count + len + 1;
@@ -1583,7 +1584,7 @@ public final class SerializeWriter extends Writer {
                 boolean hasSpecial = false;
                 for (int i = 0; i < len; ++i) {
                     char ch = text.charAt(i);
-                    if (ch < specicalFlags_singleQuotes.length && specicalFlags_singleQuotes[ch]) {
+                    if (ch < specicalFlags_singleQuotes.length && specicalFlags_singleQuotes[ch] != 0) {
                         hasSpecial = true;
                         break;
                     }
@@ -1594,7 +1595,7 @@ public final class SerializeWriter extends Writer {
                 }
                 for (int i = 0; i < len; ++i) {
                     char ch = text.charAt(i);
-                    if (ch < specicalFlags_singleQuotes.length && specicalFlags_singleQuotes[ch]) {
+                    if (ch < specicalFlags_singleQuotes.length && specicalFlags_singleQuotes[ch] != 0) {
                         write('\\');
                         write(replaceChars[(int) ch]);
                     } else {
@@ -1632,7 +1633,7 @@ public final class SerializeWriter extends Writer {
 
         for (int i = start; i < end; ++i) {
             char ch = buf[i];
-            if (ch < specicalFlags_singleQuotes.length && specicalFlags_singleQuotes[ch]) {
+            if (ch < specicalFlags_singleQuotes.length && specicalFlags_singleQuotes[ch] != 0) {
                 if (!hasSpecial) {
                     newcount += 3;
                     if (newcount > buf.length) {

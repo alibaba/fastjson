@@ -259,6 +259,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         for (int i = 0; i < size; ++i) {
             ResolveTask task = resolveTaskList.get(i);
             FieldDeserializer fieldDeser = task.getFieldDeserializer();
+            
+            if (fieldDeser == null) {
+                continue;
+            }
 
             Object object = null;
             if (task.getOwnerContext() != null) {
@@ -698,5 +702,5 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return TypeUtils.cast(json, clazz, ParserConfig.getGlobalInstance());
     }
 
-    public final static String VERSION = "1.1.35";
+    public final static String VERSION = "1.1.37";
 }

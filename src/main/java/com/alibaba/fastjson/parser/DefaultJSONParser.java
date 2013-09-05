@@ -459,9 +459,6 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                     lexer.next();
                     lexer.resetStringPosition();
                     lexer.nextToken();
-
-//                    this.setContext(object, fieldName);ds
-
                     return object;
                 } else {
                     throw new JSONException("syntax error, position at " + lexer.pos() + ", name " + key);

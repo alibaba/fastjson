@@ -194,9 +194,9 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
             throw new JSONException("syntax error, expect {, actual " + lexer.tokenName());
         }
 
-        ParseContext context = this.getContext();
+        ParseContext objContext = this.getContext();
+        setContext(object, fieldName);
         try {
-            boolean setContextFlag = false;
             for (;;) {
                 lexer.skipWhitespace();
                 char ch = lexer.getCurrent();
@@ -332,7 +332,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                                 refValue = this.getContext().getObject();
                             }
                         } else if ("..".equals(ref)) {
-                            ParseContext parentContext = context.getParentContext();
+                            ParseContext parentContext = objContext.getParentContext();
                             if (parentContext.getObject() != null) {
                                 refValue = parentContext.getObject();
                             } else {
@@ -340,7 +340,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                                 setResolveStatus(DefaultJSONParser.NeedToResolve);
                             }
                         } else if ("$".equals(ref)) {
-                            ParseContext rootContext = context;
+                            ParseContext rootContext = objContext;
                             while (rootContext.getParentContext() != null) {
                                 rootContext = rootContext.getParentContext();
                             }
@@ -352,7 +352,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                                 setResolveStatus(DefaultJSONParser.NeedToResolve);
                             }
                         } else {
-                            addResolveTask(new ResolveTask(context, ref));
+                            addResolveTask(new ResolveTask(objContext, ref));
                             setResolveStatus(DefaultJSONParser.NeedToResolve);
                         }
 
@@ -367,15 +367,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                     }
                 }
 
-                if (!setContextFlag) {
-                    setContext(object, fieldName);
-                    setContextFlag = true;
 
-                    // fix Issue #40
-                    if (this.context != null && !(fieldName instanceof Integer)) {
-                        this.popContext();
-                    }
-                }
                 
                 if (object.getClass() == JSONObject.class) {
                     key = (key == null) ? "null" : key.toString(); 
@@ -431,12 +423,8 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                         object.put(key, obj);
                     }
 
-                    setContext(context, obj, key);
-
                     if (lexer.token() == JSONToken.RBRACE) {
                         lexer.nextToken();
-
-                        setContext(context);
                         return object;
                     } else if (lexer.token() == JSONToken.COMMA) {
                         continue;
@@ -472,7 +460,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                     lexer.resetStringPosition();
                     lexer.nextToken();
 
-                    this.setContext(object, fieldName);
+//                    this.setContext(object, fieldName);ds
 
                     return object;
                 } else {
@@ -481,7 +469,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 
             }
         } finally {
-            this.setContext(context);
+            this.setContext(objContext);
         }
 
     }

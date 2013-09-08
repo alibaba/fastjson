@@ -15,7 +15,6 @@
  */
 package com.alibaba.fastjson.serializer;
 
-
 /**
  * @author wenshao<szujobs@hotmail.com>
  */
@@ -84,32 +83,36 @@ public enum SerializerFeature {
      * @since 1.1.9
      */
     WriteSlashAsSpecial,
-    
+
     /**
      * @since 1.1.10
      */
     BrowserCompatible,
-    
+
     /**
      * @since 1.1.14
      */
     WriteDateUseDateFormat,
-    
+
     /**
      * @since 1.1.15
      */
     NotWriteRootClassName,
-    
+
     /**
      * @since 1.1.19
      */
     DisableCheckSpecialChar,
-    
+
     /**
      * @since 1.1.35
      */
-    BeanToArray
-    ;
+    BeanToArray,
+
+    /**
+     * @since 1.1.37
+     */
+    WriteNonStringKeyAsString;
 
     private SerializerFeature(){
         mask = (1 << ordinal());

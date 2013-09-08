@@ -18,6 +18,7 @@ package com.alibaba.fastjson.serializer;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -43,17 +44,17 @@ public class MapSerializer implements ObjectSerializer {
         Map<?, ?> map = (Map<?, ?>) object;
 
         if (out.isEnabled(SerializerFeature.SortField)) {
-        	if ((!(map instanceof SortedMap)) && !(map instanceof LinkedHashMap)) {
-	            try {
-	                map = new TreeMap(map);
-	            } catch (Exception ex) {
-	                // skip
-	            }
-        	}
+            if ((!(map instanceof SortedMap)) && !(map instanceof LinkedHashMap)) {
+                try {
+                    map = new TreeMap(map);
+                } catch (Exception ex) {
+                    // skip
+                }
+            }
         }
-        
+
         if (serializer.containsReference(object)) {
-        	serializer.writeReference(object);
+            serializer.writeReference(object);
             return;
         }
 
@@ -61,44 +62,89 @@ public class MapSerializer implements ObjectSerializer {
         serializer.setContext(parent, object, fieldName);
         try {
             out.write('{');
-            
+
             serializer.incrementIndent();
 
             Class<?> preClazz = null;
             ObjectSerializer preWriter = null;
 
             boolean first = true;
-            
+
             if (out.isEnabled(SerializerFeature.WriteClassName)) {
                 out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
                 out.writeString(object.getClass().getName());
                 first = false;
             }
-            
+
             for (Map.Entry entry : map.entrySet()) {
                 Object value = entry.getValue();
 
                 Object entryKey = entry.getKey();
 
-                if (entryKey == null || entryKey instanceof String) {
-                    String key = (String) entryKey;
-                    
-                    if (!FilterUtils.applyName(serializer, object, key)) {
-                        continue;
-                    }
-                    
-                    if (!FilterUtils.apply(serializer, object, key, value)) {
-                        continue;
-                    }
-                    
-                    key = FilterUtils.processKey(serializer, object, key, value);
-                    value = FilterUtils.processValue(serializer, object, key, value);
-
-                    if (value == null) {
-                        if (!serializer.isEnabled(SerializerFeature.WriteMapNullValue)) {
-                            continue;
+                {
+                    List<PropertyPreFilter> preFilters = serializer.getPropertyPreFiltersDirect();
+                    if (preFilters != null && preFilters.size() > 0) {
+                        if (entryKey == null || entryKey instanceof String) {
+                            if (!FilterUtils.applyName(serializer, object, (String) entryKey)) {
+                                continue;
+                            }
+                        } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
+                            String strKey = JSON.toJSONString(entryKey);
+                            if (!FilterUtils.applyName(serializer, object, strKey)) {
+                                continue;
+                            }
                         }
                     }
+                }
+                
+                {
+                    List<PropertyFilter> propertyFilters = serializer.getPropertyFiltersDirect();
+                    if (propertyFilters != null && propertyFilters.size() > 0) {
+                        if (entryKey == null || entryKey instanceof String) {
+                            if (!FilterUtils.apply(serializer, object, (String) entryKey, value)) {
+                                continue;
+                            }
+                        } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
+                            String strKey = JSON.toJSONString(entryKey);
+                            if (!FilterUtils.apply(serializer, object, strKey, value)) {
+                                continue;
+                            }
+                        }
+                    }
+                }
+                
+                {
+                    List<NameFilter> nameFilters = serializer.getNameFiltersDirect();
+                    if (nameFilters != null && nameFilters.size() > 0) {
+                        if (entryKey == null || entryKey instanceof String) {
+                            entryKey = FilterUtils.processKey(serializer, object, (String) entryKey, value);
+                        } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
+                            String strKey = JSON.toJSONString(entryKey);
+                            entryKey = FilterUtils.processKey(serializer, object, strKey, value);
+                        }
+                    }
+                }
+                
+                {
+                    List<ValueFilter> valueFilters = serializer.getValueFiltersDirect();
+                    if (valueFilters != null && valueFilters.size() > 0) {
+                        if (entryKey == null || entryKey instanceof String) {
+                            value = FilterUtils.processValue(serializer, object, (String) entryKey, value);
+                        } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
+                            String strKey = JSON.toJSONString(entryKey);
+                            value = FilterUtils.processValue(serializer, object, strKey, value);
+                        }
+                    }
+                }
+                
+                if (value == null) {
+                    if (!serializer.isEnabled(SerializerFeature.WriteMapNullValue)) {
+                        continue;
+                    }
+                }
+
+                if (entryKey instanceof String) {
+                    String key = (String) entryKey;
 
                     if (!first) {
                         out.write(',');
@@ -113,7 +159,14 @@ public class MapSerializer implements ObjectSerializer {
                         out.write(',');
                     }
 
-                    serializer.write(entryKey);
+                    if (out.isEnabled(SerializerFeature.BrowserCompatible)
+                        || out.isEnabled(SerializerFeature.WriteNonStringKeyAsString)) {
+                        String strEntryKey = JSON.toJSONString(entryKey);
+                        serializer.write(strEntryKey);
+                    } else {
+                        serializer.write(entryKey);
+                    }
+
                     out.write(':');
                 }
 
@@ -138,7 +191,7 @@ public class MapSerializer implements ObjectSerializer {
         } finally {
             serializer.setContext(parent);
         }
-        
+
         serializer.decrementIdent();
         if (out.isEnabled(SerializerFeature.PrettyFormat) && map.size() > 0) {
             serializer.println();

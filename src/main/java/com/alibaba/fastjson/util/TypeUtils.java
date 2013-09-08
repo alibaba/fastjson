@@ -59,6 +59,19 @@ public class TypeUtils {
 
     public static boolean compatibleWithJavaBean = false;
 
+    static {
+        try {
+            String prop = System.getProperty("fastjson.compatibleWithJavaBean");
+            if ("true".equals(prop)) {
+                compatibleWithJavaBean = true;
+            } else if ("false".equals(prop)) {
+                compatibleWithJavaBean = false;
+            }
+        } catch (Throwable ex) {
+            // skip
+        }
+    }
+
     public static final String castToString(Object value) {
         if (value == null) {
             return null;

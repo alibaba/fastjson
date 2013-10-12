@@ -358,7 +358,7 @@ public class ParserConfig {
         if (clazz.isEnum()) {
             derializer = new EnumDeserializer(clazz);
         } else if (clazz.isArray()) {
-            return ArrayDeserializer.instance;
+            derializer = ArrayDeserializer.instance;
         } else if (clazz == Set.class || clazz == HashSet.class || clazz == Collection.class || clazz == List.class
                    || clazz == ArrayList.class) {
             derializer = CollectionDeserializer.instance;

@@ -2539,7 +2539,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     public final void skipWhitespace() {
         for (;;) {
-            if (whitespaceFlags[ch]) {
+            if (ch < whitespaceFlags.length && whitespaceFlags[ch]) {
                 next();
                 continue;
             } else {

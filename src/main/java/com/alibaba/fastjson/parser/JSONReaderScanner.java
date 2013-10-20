@@ -33,7 +33,8 @@ import com.alibaba.fastjson.util.IOUtils;
  */
 public final class JSONReaderScanner extends JSONLexerBase {
 
-    public final static int                                 BUF_INIT_LEN  = 8192;
+    public static int                                       BUF_INIT_LEN  = 8192;
+    
     private final static ThreadLocal<SoftReference<char[]>> BUF_REF_LOCAL = new ThreadLocal<SoftReference<char[]>>();
 
     private Reader                                          reader;

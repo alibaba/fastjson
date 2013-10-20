@@ -1270,8 +1270,17 @@ public final class SerializeWriter extends Writer {
                             && CharTypes.specicalFlags_doubleQuotes[ch] != 0 //
                             || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
                             buf[bufIndex++] = '\\';
-                            buf[bufIndex++] = replaceChars[(int) ch];
-                            valueEnd++;
+                            if (CharTypes.specicalFlags_doubleQuotes[ch] == 1) {
+                                buf[bufIndex++] = replaceChars[(int) ch];
+                                valueEnd++;
+                            } else {
+                                buf[bufIndex++] = 'u';
+                                buf[bufIndex++] = CharTypes.digits[(ch >>> 12) & 15];
+                                buf[bufIndex++] = CharTypes.digits[(ch >>> 8) & 15];
+                                buf[bufIndex++] = CharTypes.digits[(ch >>> 4) & 15];
+                                buf[bufIndex++] = CharTypes.digits[ch & 15];
+                                valueEnd+=5;
+                            }
                         } else {
                             buf[bufIndex++] = ch;
                         }

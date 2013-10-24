@@ -56,6 +56,8 @@ import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
  * @author wenshao<szujobs@hotmail.com>
  */
 public class TypeUtils {
+	
+	private TypeUtils() {}
 
     public static boolean compatibleWithJavaBean = false;
 

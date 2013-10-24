@@ -11,6 +11,8 @@ import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 
 public class ASMUtils {
+	
+	private ASMUtils() { }
 
     public static boolean isAndroid(String vmName) {
         String lowerVMName = vmName.toLowerCase();

@@ -178,6 +178,10 @@ public final class JSONReaderScanner extends JSONLexerBase {
             if (bufLength == -1) {
                 return ch = EOI;
             }
+            
+            if (bufLength > 0) {
+                np = 0;
+            }            
 
             bufLength += bp;
         }

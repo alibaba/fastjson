@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -46,10 +47,12 @@ public class ServiceLoader {
         for (String serviceName : serviceNames) {
             try {
                 Class<?> serviceClass = classLoader.loadClass(serviceName);
-                T service = (T) serviceClass.newInstance();
+                Constructor<?> construtor=serviceClass.getDeclaredConstructor();
+                construtor.setAccessible(true);
+                T service = (T) construtor.newInstance();
                 services.add(service);
             } catch (Exception e) {
-                // skip
+                System.err.println("InstantiationException "+serviceName);
             }
         }
 

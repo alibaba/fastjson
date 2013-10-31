@@ -61,6 +61,11 @@ public class MapSerializer implements ObjectSerializer {
         SerialContext parent = serializer.getContext();
         serializer.setContext(parent, object, fieldName);
         try {
+            if (map.size() == 0) {
+                out.write('{');
+                out.write('}');
+                return;
+            }
             out.write('{');
 
             serializer.incrementIndent();

@@ -795,15 +795,14 @@ public final class SerializeWriter extends Writer {
         if (checkSpecial) {
             for (int i = start; i < end; ++i) {
                 char ch = buf[i];
-                if (ch >= ']') {
-                    if (ch == '\u2028') {
-                        specialCount++;
-                        lastSpecialIndex = i;
-                        lastSpecial = ch;
-                        newcount += 4;
-                        if (firstSpecialIndex == -1) {
-                            firstSpecialIndex = i;
-                        }
+
+                if(ch == '\u2028') {
+                    specialCount++;
+                    lastSpecialIndex = i;
+                    lastSpecial = ch;
+                    newcount += 4;
+                    if(firstSpecialIndex == -1) {
+                        firstSpecialIndex = i;
                     }
                     continue;
                 }
@@ -812,13 +811,9 @@ public final class SerializeWriter extends Writer {
                     continue;
                 }
 
-                if (ch >= '0' && ch != '\\') {
-                    continue;
-                }
-
                 if (ch < CharTypes.specicalFlags_doubleQuotes.length && CharTypes.specicalFlags_doubleQuotes[ch] != 0 //
                     || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
-                    specialCount++;
+                    specialCount += ch == '/' ? 1 : CharTypes.specicalFlags_doubleQuotes[ch];
                     lastSpecialIndex = i;
                     lastSpecial = ch;
 
@@ -864,9 +859,21 @@ public final class SerializeWriter extends Writer {
                 if (ch < CharTypes.specicalFlags_doubleQuotes.length //
                     && CharTypes.specicalFlags_doubleQuotes[ch] != 0 //
                     || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
-                    buf[bufIndex++] = '\\';
-                    buf[bufIndex++] = replaceChars[(int) ch];
-                    end++;
+
+                    if (CharTypes.specicalFlags_doubleQuotes[ch] == 1) {
+                        buf[bufIndex++] = '\\';
+                        buf[bufIndex++] = replaceChars[(int) ch];
+                        end++;
+                    } else {
+                        System.arraycopy(buf, bufIndex + 1, buf, bufIndex + 6, end - bufIndex - 1);
+                        buf[bufIndex++] = '\\';
+                        buf[bufIndex++] = 'u';
+                        buf[bufIndex++] = CharTypes.digits[(ch >>> 12) & 15];
+                        buf[bufIndex++] = CharTypes.digits[(ch >>> 8) & 15];
+                        buf[bufIndex++] = CharTypes.digits[(ch >>> 4) & 15];
+                        buf[bufIndex++] = CharTypes.digits[ch & 15];
+                        end += 5;
+                    }
                 } else {
                     buf[bufIndex++] = ch;
                 }
@@ -1231,13 +1238,9 @@ public final class SerializeWriter extends Writer {
                 }
 
                 if (isSpecial(ch, this.features)) {
-                    specialCount++;
+                    specialCount += ch == '/' ? 1 : CharTypes.specicalFlags_doubleQuotes[ch];
                     lastSpecialIndex = i;
                     lastSpecial = ch;
-
-                    if (ch == '\u000B') {
-                        newcount += 4;
-                    }
 
                     if (firstSpecialIndex == -1) {
                         firstSpecialIndex = i;

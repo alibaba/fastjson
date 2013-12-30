@@ -9,7 +9,7 @@ import com.alibaba.fastjson.JSON;
 public class TestSpecial_entity extends TestCase {
 
     public void test_0() throws Exception {
-        Assert.assertEquals("{\"name\":\"\\0\"}", JSON.toJSONString(new VO("\0")));
+        Assert.assertEquals("{\"name\":\"\\u0000\"}", JSON.toJSONString(new VO("\0")));
     }
 
     public void test_1() throws Exception {

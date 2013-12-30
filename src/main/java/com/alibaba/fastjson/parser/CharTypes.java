@@ -57,7 +57,7 @@ public final class CharTypes {
 
     public final static char[] replaceChars = new char[128];
     static {
-        specicalFlags_doubleQuotes['\0'] = 1;
+        specicalFlags_doubleQuotes['\0'] = 5;
         specicalFlags_doubleQuotes['\1'] = 1;
         specicalFlags_doubleQuotes['\2'] = 1;
         specicalFlags_doubleQuotes['\3'] = 1;
@@ -68,7 +68,7 @@ public final class CharTypes {
         specicalFlags_doubleQuotes['\b'] = 1; // 8
         specicalFlags_doubleQuotes['\t'] = 1; // 9
         specicalFlags_doubleQuotes['\n'] = 1; // 10
-        specicalFlags_doubleQuotes['\u000B'] = 4; // 11
+        specicalFlags_doubleQuotes['\u000B'] = 5; // 11
         specicalFlags_doubleQuotes['\f'] = 1;
         specicalFlags_doubleQuotes['\r'] = 1;
         specicalFlags_doubleQuotes['\"'] = 1;
@@ -105,8 +105,8 @@ public final class CharTypes {
         specicalFlags_singleQuotes['\''] = 1;
         
         for (int i = 0x7F; i <= 0xA0; ++i) {
-            specicalFlags_doubleQuotes[i] = 4;
-            specicalFlags_singleQuotes[i] = 4;
+            specicalFlags_doubleQuotes[i] = 5;
+            specicalFlags_singleQuotes[i] = 5;
         }
         
         replaceChars['\0'] = '0';

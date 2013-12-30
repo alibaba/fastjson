@@ -1216,6 +1216,7 @@ public final class SerializeWriter extends Writer {
                     if (firstSpecialIndex == -1) {
                         firstSpecialIndex = i;
                     }
+                    continue;
                 }
 
                 if (ch >= ']') {
@@ -1225,7 +1226,7 @@ public final class SerializeWriter extends Writer {
                         lastSpecial = ch;
                         newcount += 4;
                     }
-                    
+
                     continue;
                 }
 
@@ -1233,6 +1234,10 @@ public final class SerializeWriter extends Writer {
                     specialCount++;
                     lastSpecialIndex = i;
                     lastSpecial = ch;
+
+                    if (ch == '\u000B') {
+                        newcount += 4;
+                    }
 
                     if (firstSpecialIndex == -1) {
                         firstSpecialIndex = i;
@@ -1286,10 +1291,20 @@ public final class SerializeWriter extends Writer {
                                 buf[bufIndex++] = CharTypes.digits[(ch >>> 8) & 15];
                                 buf[bufIndex++] = CharTypes.digits[(ch >>> 4) & 15];
                                 buf[bufIndex++] = CharTypes.digits[ch & 15];
-                                valueEnd+=5;
+                                valueEnd += 5;
                             }
                         } else {
-                            buf[bufIndex++] = ch;
+                            if (ch == '\u2028') {
+                                buf[bufIndex++] = '\\';
+                                buf[bufIndex++] = 'u';
+                                buf[bufIndex++] = CharTypes.digits[(ch >>> 12) & 15];
+                                buf[bufIndex++] = CharTypes.digits[(ch >>> 8) & 15];
+                                buf[bufIndex++] = CharTypes.digits[(ch >>> 4) & 15];
+                                buf[bufIndex++] = CharTypes.digits[ch & 15];
+                                valueEnd += 5;
+                            } else {
+                                buf[bufIndex++] = ch;
+                            }
                         }
                     }
                 }

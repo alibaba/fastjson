@@ -68,7 +68,7 @@ public final class CharTypes {
         specicalFlags_doubleQuotes['\b'] = 1; // 8
         specicalFlags_doubleQuotes['\t'] = 1; // 9
         specicalFlags_doubleQuotes['\n'] = 1; // 10
-        specicalFlags_doubleQuotes['\u000B'] = 1; // 11
+        specicalFlags_doubleQuotes['\u000B'] = 4; // 11
         specicalFlags_doubleQuotes['\f'] = 1;
         specicalFlags_doubleQuotes['\r'] = 1;
         specicalFlags_doubleQuotes['\"'] = 1;
@@ -85,7 +85,7 @@ public final class CharTypes {
         specicalFlags_singleQuotes['\b'] = 1; // 8
         specicalFlags_singleQuotes['\t'] = 1; // 9
         specicalFlags_singleQuotes['\n'] = 1; // 10
-        specicalFlags_singleQuotes['\u000B'] = 1; // 11
+        specicalFlags_singleQuotes['\u000B'] = 4; // 11
         specicalFlags_singleQuotes['\f'] = 1; // 12
         specicalFlags_singleQuotes['\r'] = 1; // 13
         specicalFlags_singleQuotes['\u000E'] = 4; // 14

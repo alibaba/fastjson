@@ -42,11 +42,11 @@ import com.alibaba.fastjson.util.FieldInfo;
 
 public class ASMDeserializerFactory implements Opcodes {
 
-    private static final ASMDeserializerFactory instance    = new ASMDeserializerFactory();
+    private static final ASMDeserializerFactory instance = new ASMDeserializerFactory();
 
-    private ASMClassLoader                      classLoader = new ASMClassLoader();
+    private final ASMClassLoader                classLoader;
 
-    private final AtomicLong                    seed        = new AtomicLong();
+    private final AtomicLong                    seed     = new AtomicLong();
 
     public String getGenClassName(Class<?> clazz) {
         return "Fastjson_ASM_" + clazz.getSimpleName() + "_" + seed.incrementAndGet();
@@ -60,7 +60,11 @@ public class ASMDeserializerFactory implements Opcodes {
     }
 
     public ASMDeserializerFactory(){
+        classLoader = new ASMClassLoader();
+    }
 
+    public ASMDeserializerFactory(ClassLoader parentClassLoader){
+        classLoader = new ASMClassLoader(parentClassLoader);
     }
 
     public final static ASMDeserializerFactory getInstance() {
@@ -183,9 +187,8 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitMethodInsn(INVOKEVIRTUAL, getType(DefaultJSONParser.class), "getSymbolTable",
                                    "()" + getDesc(SymbolTable.class));
                 mw.visitVarInsn(BIPUSH, seperator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexerBase.class), "scanEnum", "(Ljava/lang/Class;"
-                                                                                        + getDesc(SymbolTable.class)
-                                                                                        + "C)Ljava/lang/Enum;");
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexerBase.class), "scanEnum",
+                                   "(Ljava/lang/Class;" + getDesc(SymbolTable.class) + "C)Ljava/lang/Enum;");
                 mw.visitTypeInsn(CHECKCAST, getType(fieldClass)); // cast
                 mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
             } else if (Collection.class.isAssignableFrom(fieldClass)) {
@@ -485,7 +488,8 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitVarInsn(ALOAD, context.var("lexer"));
                 mw.visitVarInsn(ALOAD, 0);
                 mw.visitFieldInsn(GETFIELD, context.getClassName(), fieldInfo.getName() + "_asm_prefix__", "[C");
-                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexerBase.class), "scanFieldString", "([C)Ljava/lang/String;");
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexerBase.class), "scanFieldString",
+                                   "([C)Ljava/lang/String;");
                 mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
 
             } else if (fieldClass.isEnum()) {
@@ -656,7 +660,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ALOAD, context.var("lexer"));
         mw.visitFieldInsn(GETSTATIC, getType(Feature.class), feature.name(), "L" + getType(Feature.class) + ";");
         mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexerBase.class), "isEnabled", "(" + "L" + getType(Feature.class)
-                                                                                 + ";" + ")Z");
+                                                                                     + ";" + ")Z");
     }
 
     private void defineVarLexer(Context context, MethodVisitor mw) {
@@ -724,7 +728,8 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitVarInsn(ALOAD, context.var("instance"));
             mw.visitVarInsn(LLOAD, context.var(fieldInfo.getName() + "_asm", 2));
             if (fieldInfo.getMethod() != null) {
-                mw.visitMethodInsn(INVOKEVIRTUAL, getType(context.getClazz()), fieldInfo.getMethod().getName(), getDesc(fieldInfo.getMethod()));
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(context.getClazz()), fieldInfo.getMethod().getName(),
+                                   getDesc(fieldInfo.getMethod()));
                 if (!fieldInfo.getMethod().getReturnType().equals(Void.TYPE)) {
                     mw.visitInsn(POP);
                 }

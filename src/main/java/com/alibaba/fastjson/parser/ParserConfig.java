@@ -148,7 +148,17 @@ public class ParserConfig {
 
     protected final SymbolTable                             symbolTable      = new SymbolTable();
 
-    public ParserConfig(){
+    protected ASMDeserializerFactory                        asmFactory       = ASMDeserializerFactory.getInstance();
+    
+    public ParserConfig() {
+        this(ASMDeserializerFactory.getInstance());
+    }
+    
+    public ParserConfig(ClassLoader parentClassLoader){
+        this(new ASMDeserializerFactory(parentClassLoader));
+    }
+
+    public ParserConfig(ASMDeserializerFactory asmFactory){
         primitiveClasses.add(boolean.class);
         primitiveClasses.add(Boolean.class);
 
@@ -399,7 +409,7 @@ public class ParserConfig {
             asmEnable = false;
         }
 
-        if (ASMDeserializerFactory.getInstance().isExternalClass(clazz)) {
+        if (asmFactory.isExternalClass(clazz)) {
             asmEnable = false;
         }
 
@@ -446,7 +456,7 @@ public class ParserConfig {
         }
 
         try {
-            return ASMDeserializerFactory.getInstance().createJavaBeanDeserializer(this, clazz, type);
+            return asmFactory.createJavaBeanDeserializer(this, clazz, type);
             // } catch (VerifyError e) {
             // e.printStackTrace();
             // return new JavaBeanDeserializer(this, clazz, type);
@@ -482,7 +492,7 @@ public class ParserConfig {
             asmEnable = false;
         }
 
-        if (ASMDeserializerFactory.getInstance().isExternalClass(clazz)) {
+        if (asmFactory.isExternalClass(clazz)) {
             asmEnable = false;
         }
 
@@ -491,7 +501,7 @@ public class ParserConfig {
         }
 
         try {
-            return ASMDeserializerFactory.getInstance().createFieldDeserializer(mapping, clazz, fieldInfo);
+            return asmFactory.createFieldDeserializer(mapping, clazz, fieldInfo);
         } catch (Throwable e) {
             // skip
         }

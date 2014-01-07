@@ -24,6 +24,26 @@ public class ASMUtils {
         return isAndroid(System.getProperty("java.vm.name"));
     }
 
+    private static Boolean lessThanAndroid23;
+
+    public static boolean isLessThanAndroid23() {
+        if (lessThanAndroid23 != null) {
+            return lessThanAndroid23;
+        }
+        
+        try {
+            Class<?> clazz = Class.forName("android.os.SystemProperties");
+            Method method = clazz.getMethod("getInt", String.class, int.class);
+            Integer sdkInt = (Integer) method.invoke(null, "ro.build.version.sdk", 0);
+            lessThanAndroid23 = sdkInt.intValue() < 9;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            lessThanAndroid23 = false;
+        }
+        return lessThanAndroid23;
+    }
+
     public static String getDesc(Method method) {
         StringBuffer buf = new StringBuffer();
         buf.append("(");

@@ -55,7 +55,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         Type fieldType;
         Class<?> fieldClass;
         if (method != null) {
-            if (method.getParameterTypes().length == 1) {
+            if (method.getParameterTypes().length == 1 && !ASMUtils.isLessThanAndroid23()) {
                 fieldClass = method.getParameterTypes()[0];
                 fieldType = method.getGenericParameterTypes()[0];
             } else {

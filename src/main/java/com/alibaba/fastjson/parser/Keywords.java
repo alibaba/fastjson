@@ -33,6 +33,7 @@ public class Keywords {
         map.put("new", JSONToken.NEW);
         map.put("true", JSONToken.TRUE);
         map.put("false", JSONToken.FALSE);
+        map.put("undefined", JSONToken.UNDEFINED);
         DEFAULT_KEYWORDS = new Keywords(map);
     }
 

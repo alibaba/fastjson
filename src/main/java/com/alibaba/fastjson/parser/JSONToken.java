@@ -63,6 +63,8 @@ public class JSONToken {
 
     public final static int SET                  = 21;
     public final static int TREE_SET             = 22;
+    
+    public final static int UNDEFINED            = 23; // undefined
 
     public static String name(int value) {
         switch (value) {
@@ -110,6 +112,8 @@ public class JSONToken {
                 return "Set";
             case TREE_SET:
                 return "TreeSet";
+            case UNDEFINED:
+                return "undefined";
             default:
                 return "Unkown";
         }

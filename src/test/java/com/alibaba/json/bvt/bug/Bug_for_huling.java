@@ -16,10 +16,10 @@ public class Bug_for_huling extends TestCase {
         
         String text = JSON.toJSONString(vo);
         System.out.println(text);
-        Assert.assertEquals("{\"value\":\"\\0\\0\"}", text);
+        Assert.assertEquals("{\"value\":\"\\u0000\\u0000\"}", text);
 
         VO vo2 = JSON.parseObject(text, VO.class);
-        Assert.assertEquals("\0\0", vo2.getValue());
+        Assert.assertEquals("\u0000\u0000", vo2.getValue());
     }
 
     public static class VO {

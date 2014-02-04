@@ -2,6 +2,7 @@ package com.alibaba.json.bvt.serializer;
 
 import java.util.Collections;
 
+import com.alibaba.fastjson.serializer.SerializeWriter;
 import junit.framework.TestCase;
 
 import org.junit.Assert;
@@ -11,7 +12,7 @@ import com.alibaba.fastjson.JSON;
 public class TestSpecial_map extends TestCase {
 
     public void test_0() throws Exception {
-        Assert.assertEquals("{\"name\":\"\\0\"}", JSON.toJSONString(Collections.singletonMap("name", "\0")));
+        Assert.assertEquals("{\"name\":\"\\u0000\"}", JSON.toJSONString(Collections.singletonMap("name", "\0")));
     }
 
     public void test_1() throws Exception {
@@ -53,6 +54,13 @@ public class TestSpecial_map extends TestCase {
     public void test_10() throws Exception {
         Assert.assertEquals("{\"name\":\"\\n\"}", JSON.toJSONString(Collections.singletonMap("name", "\n")));
     }
-    
-    
+
+    public void test_11() throws Exception {
+        Assert.assertEquals("\"\\u0000\\u0000\"", JSON.toJSONString("\0\0"));
+    }
+
+    public void test_12() throws Exception {
+        Assert.assertEquals("{\"name\":\"\\u0080\"}", JSON.toJSONString(Collections.singletonMap("name", "\u0080")));
+    }
+
 }

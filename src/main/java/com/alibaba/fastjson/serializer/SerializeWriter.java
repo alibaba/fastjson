@@ -1224,7 +1224,7 @@ public final class SerializeWriter extends Writer {
                         if (firstSpecialIndex == -1) {
                             firstSpecialIndex = i;
                         }
-                        
+
                         specialCount++;
                         lastSpecialIndex = i;
                         lastSpecial = ch;
@@ -1239,7 +1239,9 @@ public final class SerializeWriter extends Writer {
                     lastSpecialIndex = i;
                     lastSpecial = ch;
 
-                    if (ch == '\u000B') {
+                    if (ch < CharTypes.specicalFlags_doubleQuotes.length //
+                        && CharTypes.specicalFlags_doubleQuotes[ch] == 4 //
+                    ) {
                         newcount += 4;
                     }
 
@@ -1269,12 +1271,29 @@ public final class SerializeWriter extends Writer {
                         buf[++lastSpecialIndex] = '2';
                         buf[++lastSpecialIndex] = '8';
                     } else {
-                        int srcPos = lastSpecialIndex + 1;
-                        int destPos = lastSpecialIndex + 2;
-                        int LengthOfCopy = valueEnd - lastSpecialIndex - 1;
-                        System.arraycopy(buf, srcPos, buf, destPos, LengthOfCopy);
-                        buf[lastSpecialIndex] = '\\';
-                        buf[++lastSpecialIndex] = replaceChars[(int) lastSpecial];
+                        final char ch = lastSpecial;
+                        if (ch < CharTypes.specicalFlags_doubleQuotes.length //
+                            && CharTypes.specicalFlags_doubleQuotes[ch] == 1) {
+                            int srcPos = lastSpecialIndex + 1;
+                            int destPos = lastSpecialIndex + 2;
+                            int LengthOfCopy = valueEnd - lastSpecialIndex - 1;
+                            System.arraycopy(buf, srcPos, buf, destPos, LengthOfCopy);
+                            buf[lastSpecialIndex] = '\\';
+                            buf[++lastSpecialIndex] = replaceChars[(int) ch];
+                        } else {
+                            int srcPos = lastSpecialIndex + 1;
+                            int destPos = lastSpecialIndex + 6;
+                            int LengthOfCopy = valueEnd - lastSpecialIndex - 1;
+                            System.arraycopy(buf, srcPos, buf, destPos, LengthOfCopy);
+                            
+                            int bufIndex = lastSpecialIndex;
+                            buf[bufIndex++] = '\\';
+                            buf[bufIndex++] = 'u';
+                            buf[bufIndex++] = CharTypes.digits[(ch >>> 12) & 15];
+                            buf[bufIndex++] = CharTypes.digits[(ch >>> 8) & 15];
+                            buf[bufIndex++] = CharTypes.digits[(ch >>> 4) & 15];
+                            buf[bufIndex++] = CharTypes.digits[ch & 15];
+                        }
                     }
                 } else if (specialCount > 1) {
                     int textIndex = firstSpecialIndex - valueStart;

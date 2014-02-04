@@ -1221,6 +1221,10 @@ public final class SerializeWriter extends Writer {
 
                 if (ch >= ']') {
                     if (ch >= 0x7F && ch <= 0xA0) {
+                        if (firstSpecialIndex == -1) {
+                            firstSpecialIndex = i;
+                        }
+                        
                         specialCount++;
                         lastSpecialIndex = i;
                         lastSpecial = ch;

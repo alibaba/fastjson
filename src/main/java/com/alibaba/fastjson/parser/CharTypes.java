@@ -57,14 +57,14 @@ public final class CharTypes {
 
     public final static char[] replaceChars = new char[128];
     static {
-        specicalFlags_doubleQuotes['\0'] = 1;
-        specicalFlags_doubleQuotes['\1'] = 1;
-        specicalFlags_doubleQuotes['\2'] = 1;
-        specicalFlags_doubleQuotes['\3'] = 1;
-        specicalFlags_doubleQuotes['\4'] = 1;
-        specicalFlags_doubleQuotes['\5'] = 1;
-        specicalFlags_doubleQuotes['\6'] = 1;
-        specicalFlags_doubleQuotes['\7'] = 1;
+        specicalFlags_doubleQuotes['\0'] = 4;
+        specicalFlags_doubleQuotes['\1'] = 4;
+        specicalFlags_doubleQuotes['\2'] = 4;
+        specicalFlags_doubleQuotes['\3'] = 4;
+        specicalFlags_doubleQuotes['\4'] = 4;
+        specicalFlags_doubleQuotes['\5'] = 4;
+        specicalFlags_doubleQuotes['\6'] = 4;
+        specicalFlags_doubleQuotes['\7'] = 4;
         specicalFlags_doubleQuotes['\b'] = 1; // 8
         specicalFlags_doubleQuotes['\t'] = 1; // 9
         specicalFlags_doubleQuotes['\n'] = 1; // 10
@@ -74,14 +74,14 @@ public final class CharTypes {
         specicalFlags_doubleQuotes['\"'] = 1;
         specicalFlags_doubleQuotes['\\'] = 1;
 
-        specicalFlags_singleQuotes['\0'] = 1;
-        specicalFlags_singleQuotes['\1'] = 1;
-        specicalFlags_singleQuotes['\2'] = 1;
-        specicalFlags_singleQuotes['\3'] = 1;
-        specicalFlags_singleQuotes['\4'] = 1;
-        specicalFlags_singleQuotes['\5'] = 1;
-        specicalFlags_singleQuotes['\6'] = 1;
-        specicalFlags_singleQuotes['\7'] = 1;
+        specicalFlags_singleQuotes['\0'] = 4;
+        specicalFlags_singleQuotes['\1'] = 4;
+        specicalFlags_singleQuotes['\2'] = 4;
+        specicalFlags_singleQuotes['\3'] = 4;
+        specicalFlags_singleQuotes['\4'] = 4;
+        specicalFlags_singleQuotes['\5'] = 4;
+        specicalFlags_singleQuotes['\6'] = 4;
+        specicalFlags_singleQuotes['\7'] = 4;
         specicalFlags_singleQuotes['\b'] = 1; // 8
         specicalFlags_singleQuotes['\t'] = 1; // 9
         specicalFlags_singleQuotes['\n'] = 1; // 10

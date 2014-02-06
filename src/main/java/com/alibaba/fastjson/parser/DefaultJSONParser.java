@@ -26,6 +26,7 @@ import static com.alibaba.fastjson.parser.JSONToken.LITERAL_INT;
 import static com.alibaba.fastjson.parser.JSONToken.LITERAL_STRING;
 import static com.alibaba.fastjson.parser.JSONToken.NEW;
 import static com.alibaba.fastjson.parser.JSONToken.NULL;
+import static com.alibaba.fastjson.parser.JSONToken.UNDEFINED;
 import static com.alibaba.fastjson.parser.JSONToken.RBRACKET;
 import static com.alibaba.fastjson.parser.JSONToken.SET;
 import static com.alibaba.fastjson.parser.JSONToken.TREE_SET;
@@ -1031,6 +1032,10 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                         value = null;
                         lexer.nextToken(JSONToken.LITERAL_STRING);
                         break;
+                    case UNDEFINED:
+                        value = null;
+                        lexer.nextToken(JSONToken.LITERAL_STRING);
+                        break;
                     case RBRACKET:
                         lexer.nextToken(JSONToken.COMMA);
                         return;
@@ -1207,6 +1212,9 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 
                 return stringLiteral;
             case NULL:
+                lexer.nextToken();
+                return null;
+            case UNDEFINED:
                 lexer.nextToken();
                 return null;
             case TRUE:

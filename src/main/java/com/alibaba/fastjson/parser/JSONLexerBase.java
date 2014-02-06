@@ -151,6 +151,9 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 case 'n': // new,null
                     scanNullOrNew();
                     return;
+                case 'u': // new,null
+                    scanUndefined();
+                    return;
                 case '(':
                     next();
                     token = LPAREN;
@@ -2455,6 +2458,59 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             token = JSONToken.NEW;
         } else {
             throw new JSONException("scan true error");
+        }
+    }
+    
+    public final void scanUndefined() {
+    	if (ch != 'u') {
+            throw new JSONException("error parse false");
+        }
+        next();
+
+        if (ch != 'n') {
+            throw new JSONException("error parse false");
+        }
+        next();
+
+        if (ch != 'd') {
+            throw new JSONException("error parse false");
+        }
+        next();
+
+        if (ch != 'e') {
+            throw new JSONException("error parse false");
+        }
+        next();
+
+        if (ch != 'f') {
+            throw new JSONException("error parse false");
+        }
+        next();
+        
+        if (ch != 'i') {
+            throw new JSONException("error parse false");
+        }
+        next();
+        
+        if (ch != 'n') {
+            throw new JSONException("error parse false");
+        }
+        next();
+        
+        if (ch != 'e') {
+            throw new JSONException("error parse false");
+        }
+        next();
+        if (ch != 'd') {
+            throw new JSONException("error parse false");
+        }
+        next();
+
+        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
+            || ch == '\f' || ch == '\b') {
+            token = JSONToken.UNDEFINED;
+        } else {
+            throw new JSONException("scan false error");
         }
     }
 

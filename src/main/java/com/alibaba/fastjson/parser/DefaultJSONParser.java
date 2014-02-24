@@ -632,7 +632,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
             }
 
             lexer.nextToken(JSONToken.COMMA);
-            return new Object[0];
+            return JSON.EMPTY_OBJECT_ARRAY;
         }
 
         lexer.nextToken(JSONToken.LITERAL_INT);

@@ -324,7 +324,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static final <T> T parseObject(String text, Class<T> clazz) {
-        return parseObject(text, clazz, new Feature[0]);
+        return parseObject(text, clazz, Feature.EMPTY_ARRAY);
     }
 
     public static final JSONArray parseArray(String text) {
@@ -403,7 +403,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     // ======================
 
     public static final String toJSONString(Object object) {
-        return toJSONString(object, new SerializerFeature[0]);
+        return toJSONString(object, SerializerFeature.EMPTY_ARRAY);
     }
 
     public static final String toJSONString(Object object, SerializerFeature... features) {
@@ -703,4 +703,5 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public final static String VERSION = "1.1.39";
+    public final static Object[] EMPTY_OBJECT_ARRAY = new Object[0];
 }

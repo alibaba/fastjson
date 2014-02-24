@@ -22,7 +22,7 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
 
     private Charset             charset  = UTF8;
 
-    private SerializerFeature[] features = new SerializerFeature[0];
+    private SerializerFeature[] features = SerializerFeature.EMPTY_ARRAY;
 
     public FastJsonHttpMessageConverter(){
         super(new MediaType("application", "json", UTF8), new MediaType("application", "*+json", UTF8));

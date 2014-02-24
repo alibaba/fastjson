@@ -11,6 +11,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 
 public class FieldInfo implements Comparable<FieldInfo> {
@@ -248,7 +249,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
     public Object get(Object javaObject) throws IllegalAccessException, InvocationTargetException {
         if (method != null) {
-            Object value = method.invoke(javaObject, new Object[0]);
+            Object value = method.invoke(javaObject, JSON.EMPTY_OBJECT_ARRAY);
             return value;
         }
 

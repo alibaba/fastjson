@@ -114,6 +114,8 @@ public enum SerializerFeature {
      */
     WriteNonStringKeyAsString;
 
+    public static final SerializerFeature[] EMPTY_ARRAY = new SerializerFeature[0];
+
     private SerializerFeature(){
         mask = (1 << ordinal());
     }

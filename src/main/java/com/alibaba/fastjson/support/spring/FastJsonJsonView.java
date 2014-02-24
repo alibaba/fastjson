@@ -28,7 +28,7 @@ public class FastJsonJsonView extends AbstractView {
 
     private Charset             charset              = UTF8;
 
-    private SerializerFeature[] serializerFeatures    = new SerializerFeature[0];
+    private SerializerFeature[] serializerFeatures    = SerializerFeature.EMPTY_ARRAY;
 
     private Set<String>         renderedAttributes;
 

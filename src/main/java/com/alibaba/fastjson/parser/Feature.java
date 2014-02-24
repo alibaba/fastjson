@@ -86,6 +86,8 @@ public enum Feature {
     SupportArrayToBean
     ;
 
+    public static final Feature[] EMPTY_ARRAY = new Feature[0];
+
     private Feature(){
         mask = (1 << ordinal());
     }

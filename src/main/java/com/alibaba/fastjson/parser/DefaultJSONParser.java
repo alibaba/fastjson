@@ -402,7 +402,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                     if (lexer.token() == JSONToken.LITERAL_INT) {
                         value = lexer.integerValue();
                     } else {
-                        value = lexer.numberValue();
+                        value = lexer.decimalValue(isEnabled(Feature.UseBigDecimal));
                     }
 
                     object.put(key, value);

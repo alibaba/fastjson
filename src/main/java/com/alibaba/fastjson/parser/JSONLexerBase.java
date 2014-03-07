@@ -2923,6 +2923,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         return new BigDecimal(numberString());
     }
 
+    @Deprecated
     public final Number numberValue() {
         char type = charAt(np + sp - 1);
 

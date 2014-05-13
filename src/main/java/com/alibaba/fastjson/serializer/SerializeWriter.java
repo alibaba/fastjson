@@ -1403,7 +1403,7 @@ public final class SerializeWriter extends Writer {
             return false;
         }
 
-        if (ch <= 13 || ch == '\\' || ch == '"') {
+        if (ch <= 0x1F || ch == '\\' || ch == '"') {
             return true;
         }
 

@@ -88,21 +88,13 @@ public final class CharTypes {
         specicalFlags_singleQuotes['\u000B'] = 4; // 11
         specicalFlags_singleQuotes['\f'] = 1; // 12
         specicalFlags_singleQuotes['\r'] = 1; // 13
-        specicalFlags_singleQuotes['\u000E'] = 4; // 14
-        specicalFlags_singleQuotes['\u000F'] = 4; // 15 
-        specicalFlags_singleQuotes['\u0010'] = 4; // 16
-        specicalFlags_singleQuotes['\u0011'] = 4; // 17
-        specicalFlags_singleQuotes['\u0012'] = 4; // 18
-        specicalFlags_singleQuotes['\u0013'] = 4; // 19
-        specicalFlags_singleQuotes['\u0014'] = 4; // 20
-        specicalFlags_singleQuotes['\u0015'] = 4; // 21
-        specicalFlags_singleQuotes['\u0016'] = 4; // 22
-        specicalFlags_singleQuotes['\u0017'] = 4; // 23
-        specicalFlags_singleQuotes['\u0018'] = 4; // 24
-        specicalFlags_singleQuotes['\u0019'] = 4; // 25
-        specicalFlags_singleQuotes['\u0020'] = 4; // 26
         specicalFlags_singleQuotes['\\'] = 1;
         specicalFlags_singleQuotes['\''] = 1;
+        
+        for (int i = 0x0E; i <= 0x1F; ++i) {
+            specicalFlags_doubleQuotes[i] = 4;
+            specicalFlags_singleQuotes[i] = 4;
+        }
         
         for (int i = 0x7F; i <= 0xA0; ++i) {
             specicalFlags_doubleQuotes[i] = 4;

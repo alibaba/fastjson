@@ -11,35 +11,35 @@ import com.alibaba.fastjson.JSON;
 public class TestSpecial_map extends TestCase {
 
     public void test_0() throws Exception {
-        Assert.assertEquals("{\"name\":\"\\0\"}", JSON.toJSONString(Collections.singletonMap("name", "\0")));
+        Assert.assertEquals("{\"name\":\"\\u0000\"}", JSON.toJSONString(Collections.singletonMap("name", "\0")));
     }
 
     public void test_1() throws Exception {
-        Assert.assertEquals("{\"name\":\"\\1\"}", JSON.toJSONString(Collections.singletonMap("name", "\1")));
+        Assert.assertEquals("{\"name\":\"\\u0001\"}", JSON.toJSONString(Collections.singletonMap("name", "\1")));
     }
 
     public void test_2() throws Exception {
-        Assert.assertEquals("{\"name\":\"\\2\"}", JSON.toJSONString(Collections.singletonMap("name", "\2")));
+        Assert.assertEquals("{\"name\":\"\\u0002\"}", JSON.toJSONString(Collections.singletonMap("name", "\2")));
     }
 
     public void test_3() throws Exception {
-        Assert.assertEquals("{\"name\":\"\\3\"}", JSON.toJSONString(Collections.singletonMap("name", "\3")));
+        Assert.assertEquals("{\"name\":\"\\u0003\"}", JSON.toJSONString(Collections.singletonMap("name", "\3")));
     }
 
     public void test_4() throws Exception {
-        Assert.assertEquals("{\"name\":\"\\4\"}", JSON.toJSONString(Collections.singletonMap("name", "\4")));
+        Assert.assertEquals("{\"name\":\"\\u0004\"}", JSON.toJSONString(Collections.singletonMap("name", "\4")));
     }
     
     public void test_5() throws Exception {
-        Assert.assertEquals("{\"name\":\"\\5\"}", JSON.toJSONString(Collections.singletonMap("name", "\5")));
+        Assert.assertEquals("{\"name\":\"\\u0005\"}", JSON.toJSONString(Collections.singletonMap("name", "\5")));
     }
     
     public void test_6() throws Exception {
-        Assert.assertEquals("{\"name\":\"\\6\"}", JSON.toJSONString(Collections.singletonMap("name", "\6")));
+        Assert.assertEquals("{\"name\":\"\\u0006\"}", JSON.toJSONString(Collections.singletonMap("name", "\6")));
     }
     
     public void test_7() throws Exception {
-        Assert.assertEquals("{\"name\":\"\\7\"}", JSON.toJSONString(Collections.singletonMap("name", "\7")));
+        Assert.assertEquals("{\"name\":\"\\u0007\"}", JSON.toJSONString(Collections.singletonMap("name", "\7")));
     }
     
     public void test_8() throws Exception {

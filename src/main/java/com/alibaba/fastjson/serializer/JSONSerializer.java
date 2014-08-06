@@ -501,7 +501,8 @@ public class JSONSerializer {
                 boolean isCglibProxy = false;
                 boolean isJavassistProxy = false;
                 for (Class<?> item : clazz.getInterfaces()) {
-                    if (item.getName().equals("net.sf.cglib.proxy.Factory")) {
+                    if (item.getName().equals("net.sf.cglib.proxy.Factory")
+                        || item.getName().equals("org.springframework.cglib.proxy.Factory")) {
                         isCglibProxy = true;
                         break;
                     } else if (item.getName().equals("javassist.util.proxy.ProxyObject")) {

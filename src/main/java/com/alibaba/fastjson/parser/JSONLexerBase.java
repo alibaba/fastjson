@@ -454,6 +454,14 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         if (negative) {
             if (i > np + 1) {
                 if (result >= Integer.MIN_VALUE && type != 'L') {
+                    if (type == 'S') {
+                        return (short) result;
+                    }
+
+                    if (type == 'B') {
+                        return (byte) result;
+                    }
+                    
                     return (int) result;
                 }
                 return result;

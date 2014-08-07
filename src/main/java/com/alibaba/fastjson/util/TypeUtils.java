@@ -1200,6 +1200,30 @@ public class TypeUtils {
 
         return false;
     }
+    
+    public static boolean isGenericParamType(Type type) {
+        if (type instanceof ParameterizedType) {
+            return true;
+        }
+        
+        if (type instanceof Class) {
+            return isGenericParamType(((Class<?>) type).getGenericSuperclass());
+        }
+        
+        return false;
+    }
+    
+    public static Type getGenericParamType(Type type) {
+        if (type instanceof ParameterizedType) {
+            return type;
+        }
+        
+        if (type instanceof Class) {
+            return getGenericParamType(((Class<?>) type).getGenericSuperclass());
+        }
+        
+        return type;
+    }
 
     public static Class<?> getClass(Type type) {
         if (type.getClass() == Class.class) {

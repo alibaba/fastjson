@@ -1,7 +1,9 @@
 package com.alibaba.fastjson.util;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -55,7 +57,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         Type fieldType;
         Class<?> fieldClass;
         if (method != null) {
-            if (method.getParameterTypes().length == 1 && !ASMUtils.isLessThanAndroid23()) {
+            if (method.getParameterTypes().length == 1) {
                 fieldClass = method.getParameterTypes()[0];
                 fieldType = method.getGenericParameterTypes()[0];
             } else {
@@ -98,17 +100,30 @@ public class FieldInfo implements Comparable<FieldInfo> {
         if (clazz == null || type == null) {
             return fieldType;
         }
+        
+        if (fieldType instanceof GenericArrayType) {
+            GenericArrayType genericArrayType = (GenericArrayType) fieldType;
+            Type componentType = genericArrayType.getGenericComponentType();
+            Type componentTypeX = getFieldType(clazz, type, componentType);
+            if (componentType != componentTypeX) {
+                Type fieldTypeX = Array.newInstance(TypeUtils.getClass(componentTypeX), 0).getClass();
+                return fieldTypeX;
+            }
+            
+            return fieldType;
+        }
 
-        if (!(type instanceof ParameterizedType)) {
+        if (!TypeUtils.isGenericParamType(type)) {
             return fieldType;
         }
 
         if (fieldType instanceof TypeVariable) {
-            ParameterizedType paramType = (ParameterizedType) type;
+            ParameterizedType paramType = (ParameterizedType) TypeUtils.getGenericParamType(type);
+            Class<?> parameterizedClass = TypeUtils.getClass(paramType);
             TypeVariable<?> typeVar = (TypeVariable<?>) fieldType;
 
-            for (int i = 0; i < clazz.getTypeParameters().length; ++i) {
-                if (clazz.getTypeParameters()[i].getName().equals(typeVar.getName())) {
+            for (int i = 0; i < parameterizedClass.getTypeParameters().length; ++i) {
+                if (parameterizedClass.getTypeParameters()[i].getName().equals(typeVar.getName())) {
                     fieldType = paramType.getActualTypeArguments()[i];
                     return fieldType;
                 }
@@ -216,7 +231,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
         return annotation;
     }
-    
+
     public String getFormat() {
         String format = null;
         JSONField annotation = getAnnotation(JSONField.class);

@@ -177,7 +177,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         }
 
         ParseContext context = parser.getContext();
-        if (object != null) {
+        if (object != null && context != null) {
             context = context.getParentContext();
         }
         ParseContext childContext = null;

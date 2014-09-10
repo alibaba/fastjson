@@ -61,6 +61,12 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     public static String DEFAULT_TYPE_KEY     = "@type";
 
+    /**
+     * asm生成代码dump路径
+     */
+    public static String dumpClass = null;
+
+
     public static int    DEFAULT_PARSER_FEATURE;
     static {
         int features = 0;

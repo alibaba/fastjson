@@ -3,6 +3,8 @@ package com.alibaba.fastjson.parser.deserializer;
 import static com.alibaba.fastjson.util.ASMUtils.getDesc;
 import static com.alibaba.fastjson.util.ASMUtils.getType;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -19,6 +21,7 @@ import java.util.Map;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.asm.ASMException;
 import com.alibaba.fastjson.asm.ClassWriter;
 import com.alibaba.fastjson.asm.FieldVisitor;
@@ -94,9 +97,20 @@ public class ASMDeserializerFactory implements Opcodes {
         _deserialzeArrayMapping(cw, new Context(className, config, beanInfo, 4));
         byte[] code = cw.toByteArray();
 
-        // org.apache.commons.io.IOUtils.write(code, new java.io.FileOutputStream(
-        // "/usr/alibaba/workspace-3.7/fastjson-asm/target/classes/"
-        // + className + ".class"));
+        if(JSON.DUMP_CLASS != null){
+            FileOutputStream fos=null;
+            try {
+                fos=new FileOutputStream(JSON.DUMP_CLASS+ File.separator
+                        + className + ".class");
+                fos.write(code);
+            }catch (Exception ex){
+                System.err.println("FASTJSON dump class:"+className+"失败:"+ex.getMessage());
+            }finally {
+                if(fos!=null){
+                    fos.close();
+                }
+            }
+        }
 
         Class<?> exampleClass = classLoader.defineClassPublic(className, code, 0, code.length);
 

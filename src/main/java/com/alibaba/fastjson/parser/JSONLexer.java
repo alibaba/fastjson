@@ -54,6 +54,7 @@ public interface JSONLexer {
 
     void scanString();
 
+    @Deprecated
     Number numberValue();
 
     int intValue();

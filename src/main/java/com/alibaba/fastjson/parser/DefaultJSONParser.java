@@ -378,7 +378,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                     }
                 }
                 
-                if (object.getClass() == JSONObject.class) {
+                if (JSONObject.class.isAssignableFrom(object.getClass())) {
                     key = (key == null) ? "null" : key.toString(); 
                 }
 
@@ -409,6 +409,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                 } else if (ch == '[') { // 减少嵌套，兼容android
                     lexer.nextToken();
                     JSONArray list = new JSONArray();
+                    list.setComponentType(object.getClass());
                     this.parseArray(list, key);
                     value = list;
                     object.put(key, value);
@@ -423,10 +424,20 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                     }
                 } else if (ch == '{') { // 减少嵌套，兼容android
                     lexer.nextToken();
-                    Object obj = this.parseObject(new JSONObject(), key);
+                    JSONObject jsonObject = null;
+                    if (JSONObject.class.isAssignableFrom(object.getClass())) {
+                        try {
+                            jsonObject = (JSONObject) object.getClass().getConstructor().newInstance();
+                        } catch (Exception e) {
+                        }
+                    }
+                    if (jsonObject == null) {
+                        jsonObject = new JSONObject();
+                    }
+                    Object obj = this.parseObject(jsonObject, key);
                     checkMapResolve(object, key.toString());
 
-                    if (object.getClass() == JSONObject.class) {
+                    if (JSONObject.class.isAssignableFrom(object.getClass())) {
                         object.put(key.toString(), obj);
                     } else {
                         object.put(key, obj);
@@ -448,7 +459,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                     lexer.nextToken();
                     value = parse();
                     
-                    if (object.getClass() == JSONObject.class) {
+                    if (JSONObject.class.isAssignableFrom(object.getClass())) {
                         key = key.toString();
                     }
                     object.put(key, value);
@@ -1020,7 +1031,19 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                         lexer.nextToken(JSONToken.COMMA);
                         break;
                     case LBRACE:
-                        JSONObject object = new JSONObject();
+                        JSONObject object = null;
+                        if (JSONArray.class.isAssignableFrom(array.getClass())) {
+                            try {
+                                Class<?> clazz = (Class<?>) ((JSONArray) array).getComponentType();
+                                if (JSONObject.class.isAssignableFrom(clazz)) {
+                                    object = (JSONObject) clazz.getConstructor().newInstance();
+                                }
+                            } catch (Exception e) {
+                            }
+                        }
+                        if (object == null) {
+                            object = new JSONObject();
+                        }
                         value = parseObject(object, i);
                         break;
                     case LBRACKET:

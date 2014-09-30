@@ -64,33 +64,44 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
     public final void parseArray(DefaultJSONParser parser, Type objectType, Collection array) {
         Type itemType = this.itemType;
         ObjectDeserializer itemTypeDeser = this.deserializer;
-        
-        if (itemType instanceof TypeVariable //
-            && objectType instanceof ParameterizedType) {
-            TypeVariable typeVar = (TypeVariable) itemType;
-            ParameterizedType paramType = (ParameterizedType) objectType;
 
-            Class<?> objectClass = null;
-            if (paramType.getRawType() instanceof Class) {
-                objectClass = (Class<?>) paramType.getRawType();
-            }
-
-            int paramIndex = -1;
-            if (objectClass != null) {
-                for (int i = 0, size = objectClass.getTypeParameters().length; i < size; ++i) {
-                    TypeVariable item = objectClass.getTypeParameters()[i];
-                    if (item.getName().equals(typeVar.getName())) {
-                        paramIndex = i;
+        Type tempType = objectType;
+        if (itemType instanceof TypeVariable) {
+            while (!(tempType.equals(Object.class))){
+                if(!(tempType instanceof ParameterizedType)){
+                    if (tempType instanceof Class) {
+                        tempType = ((Class) tempType).getGenericSuperclass();
+                        continue;
+                    } else {
                         break;
                     }
                 }
-            }
+                TypeVariable typeVar = (TypeVariable) itemType;
+                ParameterizedType paramType = (ParameterizedType) tempType;
 
-            if (paramIndex != -1) {
-                itemType = paramType.getActualTypeArguments()[paramIndex];
-                if (!itemType.equals(this.itemType)) {
-                    itemTypeDeser = parser.getConfig().getDeserializer(itemType);
+                Class<?> objectClass = null;
+                if (paramType.getRawType() instanceof Class) {
+                    objectClass = (Class<?>) paramType.getRawType();
                 }
+
+                int paramIndex = -1;
+                if (objectClass != null) {
+                    for (int i = 0, size = objectClass.getTypeParameters().length; i < size; ++i) {
+                        TypeVariable item = objectClass.getTypeParameters()[i];
+                        if (item.getName().equals(typeVar.getName())) {
+                            paramIndex = i;
+                            break;
+                        }
+                    }
+                }
+
+                if (paramIndex != -1) {
+                    itemType = paramType.getActualTypeArguments()[paramIndex];
+                    if (!itemType.equals(this.itemType)) {
+                        itemTypeDeser = parser.getConfig().getDeserializer(itemType);
+                    }
+                }
+                break;
             }
         }
 

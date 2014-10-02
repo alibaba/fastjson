@@ -424,4 +424,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         return JSONToken.LBRACE;
     }
 
+    
+    public List<FieldDeserializer> getSortedFieldDeserializers() {
+        return sortedFieldDeserializers;
+    }
 }

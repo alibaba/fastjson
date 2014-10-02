@@ -23,6 +23,10 @@ public abstract class FieldDeserializer {
         this.clazz = clazz;
         this.fieldInfo = fieldInfo;
     }
+    
+    public FieldInfo getFieldInfo() {
+        return fieldInfo;
+    }
 
     public Method getMethod() {
         return fieldInfo.getMethod();

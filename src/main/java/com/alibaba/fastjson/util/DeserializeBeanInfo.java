@@ -123,7 +123,7 @@ public class DeserializeBeanInfo {
                     Class<?> fieldClass = creatorConstructor.getParameterTypes()[i];
                     Type fieldType = creatorConstructor.getGenericParameterTypes()[i];
                     Field field = getField(clazz, fieldAnnotation.name());
-                    FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, field);
+                    FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, field, fieldAnnotation.ordinal());
                     beanInfo.add(fieldInfo);
                 }
                 return beanInfo;
@@ -150,7 +150,7 @@ public class DeserializeBeanInfo {
                     Class<?> fieldClass = factoryMethod.getParameterTypes()[i];
                     Type fieldType = factoryMethod.getGenericParameterTypes()[i];
                     Field field = getField(clazz, fieldAnnotation.name());
-                    FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, field);
+                    FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, field, fieldAnnotation.ordinal());
                     beanInfo.add(fieldInfo);
                 }
                 return beanInfo;
@@ -160,6 +160,7 @@ public class DeserializeBeanInfo {
         }
 
         for (Method method : clazz.getMethods()) {
+            int ordinal = 0;
             String methodName = method.getName();
             if (methodName.length() < 4) {
                 continue;
@@ -188,10 +189,12 @@ public class DeserializeBeanInfo {
                 if (!annotation.deserialize()) {
                     continue;
                 }
-
+                
+                ordinal = annotation.ordinal();
+                
                 if (annotation.name().length() != 0) {
                     String propertyName = annotation.name();
-                    beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type));
+                    beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal));
                     method.setAccessible(true);
                     continue;
                 }
@@ -226,16 +229,21 @@ public class DeserializeBeanInfo {
 
             if (field != null) {
                 JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
+                
+                if (fieldAnnotation != null) {
+                    ordinal = fieldAnnotation.ordinal();
+                    
+                    if (fieldAnnotation.name().length() != 0) {
+                        propertyName = fieldAnnotation.name();
 
-                if (fieldAnnotation != null && fieldAnnotation.name().length() != 0) {
-                    propertyName = fieldAnnotation.name();
-
-                    beanInfo.add(new FieldInfo(propertyName, method, field, clazz, type));
-                    continue;
+                        beanInfo.add(new FieldInfo(propertyName, method, field, clazz, type, ordinal));
+                        continue;
+                    }
                 }
+
             }
 
-            beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type));
+            beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal));
             method.setAccessible(true);
         }
 
@@ -256,14 +264,19 @@ public class DeserializeBeanInfo {
                 continue;
             }
 
+            int ordinal = 0;
             String propertyName = field.getName();
 
             JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
 
-            if (fieldAnnotation != null && fieldAnnotation.name().length() != 0) {
-                propertyName = fieldAnnotation.name();
+            if (fieldAnnotation != null) {
+                ordinal = fieldAnnotation.ordinal();
+                
+                if (fieldAnnotation.name().length() != 0) {
+                    propertyName = fieldAnnotation.name();
+                }
             }
-            beanInfo.add(new FieldInfo(propertyName, null, field, clazz, type));
+            beanInfo.add(new FieldInfo(propertyName, null, field, clazz, type, ordinal));
         }
 
         for (Method method : clazz.getMethods()) {

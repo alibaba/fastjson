@@ -948,7 +948,7 @@ public class TypeUtils {
                         }
                     }
 
-                    fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, null));
+                    fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, null, annotation.ordinal()));
                     continue;
                 }
             }
@@ -964,6 +964,7 @@ public class TypeUtils {
 
                 char c3 = methodName.charAt(3);
 
+                int ordinal = 0;
                 String propertyName;
                 if (Character.isUpperCase(c3)) {
                     if (compatibleWithJavaBean) {
@@ -994,6 +995,8 @@ public class TypeUtils {
                         if (!fieldAnnotation.serialize()) {
                             continue;
                         }
+                        
+                        ordinal = fieldAnnotation.ordinal();
 
                         if (fieldAnnotation.name().length() != 0) {
                             propertyName = fieldAnnotation.name();
@@ -1015,7 +1018,7 @@ public class TypeUtils {
                     }
                 }
 
-                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field));
+                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field, ordinal));
             }
 
             if (methodName.startsWith("is")) {
@@ -1026,6 +1029,7 @@ public class TypeUtils {
                 char c2 = methodName.charAt(2);
 
                 String propertyName;
+                int ordinal = 0;
                 if (Character.isUpperCase(c2)) {
                     if (compatibleWithJavaBean) {
                         propertyName = Introspector.decapitalize(methodName.substring(2));
@@ -1054,6 +1058,7 @@ public class TypeUtils {
                             continue;
                         }
 
+                        ordinal = fieldAnnotation.ordinal();
                         if (fieldAnnotation.name().length() != 0) {
                             propertyName = fieldAnnotation.name();
 
@@ -1074,7 +1079,7 @@ public class TypeUtils {
                     }
                 }
 
-                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field));
+                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field, ordinal));
             }
         }
 
@@ -1085,12 +1090,14 @@ public class TypeUtils {
 
             JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
 
+            int ordinal = 0;
             String propertyName = field.getName();
             if (fieldAnnotation != null) {
                 if (!fieldAnnotation.serialize()) {
                     continue;
                 }
 
+                ordinal = fieldAnnotation.ordinal();
                 if (fieldAnnotation.name().length() != 0) {
                     propertyName = fieldAnnotation.name();
                 }
@@ -1104,7 +1111,7 @@ public class TypeUtils {
             }
 
             if (!fieldInfoMap.containsKey(propertyName)) {
-                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, null, field));
+                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, null, field, ordinal));
             }
         }
 

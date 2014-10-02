@@ -19,18 +19,24 @@ public class FieldInfo implements Comparable<FieldInfo> {
     private final Method   method;
     private final Field    field;
 
+    private int            ordinal = 0;
     private final Class<?> fieldClass;
     private final Type     fieldType;
     private final Class<?> declaringClass;
     private boolean        getOnly = false;
 
     public FieldInfo(String name, Class<?> declaringClass, Class<?> fieldClass, Type fieldType, Field field){
+        this(name, declaringClass, fieldClass, fieldType, field, 0);
+    }
+    
+    public FieldInfo(String name, Class<?> declaringClass, Class<?> fieldClass, Type fieldType, Field field,  int ordinal){
         this.name = name;
         this.declaringClass = declaringClass;
         this.fieldClass = fieldClass;
         this.fieldType = fieldType;
         this.method = null;
         this.field = field;
+        this.ordinal = ordinal;
 
         if (field != null) {
             field.setAccessible(true);
@@ -40,11 +46,20 @@ public class FieldInfo implements Comparable<FieldInfo> {
     public FieldInfo(String name, Method method, Field field){
         this(name, method, field, null, null);
     }
+    
+    public FieldInfo(String name, Method method, Field field, int ordinal){
+        this(name, method, field, null, null, ordinal);
+    }
+    
+    public FieldInfo(String name, Method method, Field field, Class<?> clazz, Type type) {
+        this(name, method, field, clazz, type, 0);
+    }
 
-    public FieldInfo(String name, Method method, Field field, Class<?> clazz, Type type){
+    public FieldInfo(String name, Method method, Field field, Class<?> clazz, Type type, int ordinal){
         this.name = name;
         this.method = method;
         this.field = field;
+        this.ordinal = ordinal;
 
         if (method != null) {
             method.setAccessible(true);
@@ -214,6 +229,14 @@ public class FieldInfo implements Comparable<FieldInfo> {
     }
 
     public int compareTo(FieldInfo o) {
+        if (this.ordinal < o.ordinal) {
+            return -1;
+        }
+        
+        if (this.ordinal > o.ordinal) {
+            return 1;
+        }
+        
         return this.name.compareTo(o.name);
     }
 

@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.lang.ref.SoftReference;
+import java.util.Arrays;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
@@ -166,11 +167,15 @@ public final class JSONReaderScanner extends JSONLexerBase {
             try {
                 int startPos = bp;
                 int readLength = buf.length - startPos;
+                if (readLength == 0) {
+                    buf = Arrays.copyOf(buf, buf.length * 2);
+                    readLength = buf.length - startPos;
+                }
                 bufLength = reader.read(buf, bp, readLength);
             } catch (IOException e) {
                 throw new JSONException(e.getMessage(), e);
             }
-
+            
             if (bufLength == 0) {
                 throw new JSONException("illegal stat, textLength is zero");
             }

@@ -1294,6 +1294,36 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
             lexer.close();
         }
     }
+    
+    public void handleResovleTask(Object value) {
+        if (resolveTaskList == null) {
+            return;
+        }
+        
+        int size = resolveTaskList.size();
+        for (int i = 0; i < size; ++i) {
+            ResolveTask task = resolveTaskList.get(i);
+            FieldDeserializer fieldDeser = task.getFieldDeserializer();
+            
+            if (fieldDeser == null) {
+                continue;
+            }
+
+            Object object = null;
+            if (task.getOwnerContext() != null) {
+                object = task.getOwnerContext().getObject();
+            }
+
+            String ref = task.getReferenceValue();
+            Object refValue;
+            if (ref.startsWith("$")) {
+                refValue = getObject(ref);
+            } else {
+                refValue = task.getContext().getObject();
+            }
+            fieldDeser.setValue(object, refValue);
+        }
+    }
 
     public static class ResolveTask {
 

@@ -514,6 +514,10 @@ public class TypeUtils {
 
                 return (T) array;
             }
+            
+            if (clazz == byte[].class) {
+                return (T) castToBytes(obj);
+            }
         }
 
         if (clazz.isAssignableFrom(obj.getClass())) {

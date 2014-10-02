@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -218,6 +219,16 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
     public String getName() {
         return name;
+    }
+    
+    public String gerQualifiedName() {
+        Member member;
+        if (method != null) {
+            member = method;
+        } else {
+            member = field;
+        }
+        return member.getDeclaringClass().getName() + "." + member.getName();
     }
 
     public Method getMethod() {

@@ -43,8 +43,8 @@
 	</developers>
 
 	<scm>
-		<url>https://wenshao@github.com/AlibabaTech/fastjson.git</url>
-		<connection>scm:git:https://wenshao@github.com/AlibabaTech/fastjson.git</connection>
+		<url>https://wenshao@github.com/alibaba/fastjson.git</url>
+		<connection>scm:git:https://wenshao@github.com/alibaba/fastjson.git</connection>
 	</scm>
 
 	<distributionManagement>
@@ -167,40 +167,6 @@
 		</plugins>
 	</build>
 
-	<repositories>
-		<repository>
-			<id>central</id>
-			<name>released internal lib</name>
-			<url>http://repo2.maven.org/maven2/</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>gson</id>
-			<name>gson</name>
-			<url>http://google-gson.googlecode.com/svn/mavenrepo</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>jackson</id>
-			<name>jackson</name>
-			<url>http://repository.codehaus.org/</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>maven2-repository.java.net</id>
-			<name>Java.net Repository for Maven</name>
-			<url>http://download.java.net/maven/2/</url>
-			<layout>default</layout>
-		</repository>
-	</repositories>
-
-
 	<dependencies>
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -234,7 +200,7 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>2.2.2</version>
+			<version>2.4.2</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -248,13 +214,13 @@
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-jaxrs</artifactId>
-			<version>1.9.9</version>
+			<version>1.9.13</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-smile</artifactId>
-			<version>1.9.9</version>
+			<version>1.9.13</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -288,7 +254,7 @@
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>2.2.4</version>
+			<version>2.3</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

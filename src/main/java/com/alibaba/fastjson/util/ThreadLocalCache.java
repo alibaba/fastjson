@@ -69,24 +69,6 @@ public class ThreadLocalCache {
 		}
 		return 1 << 32 - Integer.numberOfLeadingZeros(length-1);
     }
-    
-    @Deprecated
-    private static int getAllocateLength(int init, int max, int length) {
-        int value = init;
-        for (;;) {
-            if (value >= length) {
-                return value;
-            }
-
-            value *= 2;
-
-            if (value > max) {
-                break;
-            }
-        }
-
-        return length;
-    }
 
     // /////////
     public final static int                                 BYTES_CACH_INIT_SIZE = 1024;                                    // 1k, 2^10;

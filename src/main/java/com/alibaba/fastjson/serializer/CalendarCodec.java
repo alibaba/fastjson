@@ -24,6 +24,10 @@ public class CalendarCodec implements ObjectSerializer, ObjectDeserializer {
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         Date date = DateDeserializer.instance.deserialze(parser, type, fieldName);
         
+        if (date == null) {
+            return null;
+        }
+        
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         

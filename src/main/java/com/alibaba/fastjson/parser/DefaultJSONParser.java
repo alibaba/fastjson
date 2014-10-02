@@ -26,11 +26,11 @@ import static com.alibaba.fastjson.parser.JSONToken.LITERAL_INT;
 import static com.alibaba.fastjson.parser.JSONToken.LITERAL_STRING;
 import static com.alibaba.fastjson.parser.JSONToken.NEW;
 import static com.alibaba.fastjson.parser.JSONToken.NULL;
-import static com.alibaba.fastjson.parser.JSONToken.UNDEFINED;
 import static com.alibaba.fastjson.parser.JSONToken.RBRACKET;
 import static com.alibaba.fastjson.parser.JSONToken.SET;
 import static com.alibaba.fastjson.parser.JSONToken.TREE_SET;
 import static com.alibaba.fastjson.parser.JSONToken.TRUE;
+import static com.alibaba.fastjson.parser.JSONToken.UNDEFINED;
 
 import java.io.Closeable;
 import java.lang.reflect.ParameterizedType;
@@ -330,7 +330,13 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                         Object refValue = null;
                         if ("@".equals(ref)) {
                             if (this.getContext() != null) {
-                                refValue = this.getContext().getObject();
+                                ParseContext thisContext = this.getContext();
+                                Object thisObj = thisContext.getObject();
+                                if (thisObj instanceof Object[] || thisObj instanceof Collection<?>) {
+                                    refValue = thisObj;
+                                } else if (thisContext.getParentContext() != null) {
+                                    refValue = thisContext.getParentContext().getObject();
+                                }
                             }
                         } else if ("..".equals(ref)) {
                             ParseContext parentContext = context.getParentContext();
@@ -423,7 +429,21 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                     }
                 } else if (ch == '{') { // 减少嵌套，兼容android
                     lexer.nextToken();
-                    Object obj = this.parseObject(new JSONObject(), key);
+                    
+                    final boolean parentIsArray = fieldName != null && fieldName.getClass() == Integer.class;
+                    
+                    JSONObject input = new JSONObject();
+                    ParseContext ctxLocal = null;
+                    
+                    if (!parentIsArray) {
+                        ctxLocal = setContext(context, input, key);
+                    }
+                    
+                    Object obj = this.parseObject(input, key);
+                    if (ctxLocal != null && input != obj) {
+                        ctxLocal.setObject(object);
+                    }
+                    
                     checkMapResolve(object, key.toString());
 
                     if (object.getClass() == JSONObject.class) {
@@ -432,8 +452,10 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                         object.put(key, obj);
                     }
 
-                    setContext(context, obj, key);
-
+                    if (parentIsArray) {
+                        setContext(context, obj, key);
+                    }
+                    
                     if (lexer.token() == JSONToken.RBRACE) {
                         lexer.nextToken();
 

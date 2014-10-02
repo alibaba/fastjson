@@ -1,19 +1,18 @@
 package com.alibaba.json.bvt.util;
 
+import static com.alibaba.fastjson.util.ThreadLocalCache.CHARS_CACH_INIT_SIZE;
+import static com.alibaba.fastjson.util.ThreadLocalCache.CHARS_CACH_INIT_SIZE_EXP;
+import static com.alibaba.fastjson.util.ThreadLocalCache.CHARS_CACH_MAX_SIZE;
+import static com.alibaba.fastjson.util.ThreadLocalCache.CHARS_CACH_MAX_SIZE_EXP;
+
 import java.lang.reflect.Method;
 import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.alibaba.fastjson.util.ThreadLocalCache;
-
-import static com.alibaba.fastjson.util.ThreadLocalCache.CHARS_CACH_INIT_SIZE;
-import static com.alibaba.fastjson.util.ThreadLocalCache.CHARS_CACH_INIT_SIZE_EXP;
-import static com.alibaba.fastjson.util.ThreadLocalCache.CHARS_CACH_MAX_SIZE;
-import static com.alibaba.fastjson.util.ThreadLocalCache.CHARS_CACH_MAX_SIZE_EXP;
 
 /**
  * Test new {@link #getAllocateLengthExp(int, int, int)} comparing with old
@@ -37,7 +36,7 @@ public class TheradLocalCacheUnitTest {
 
 	@Test
 	public void getAllocateLengthNewImplementationRandomTest() throws Exception {
-		Random random = ThreadLocalRandom.current();
+		Random random = new Random();
 		for (int i = 0; i < 100000000; i++) {
 			int length = Math.abs(random.nextInt());
 			testSample(length);

@@ -29,14 +29,12 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
-import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ParseProcess;
 import com.alibaba.fastjson.serializer.AfterFilter;
 import com.alibaba.fastjson.serializer.BeforeFilter;
@@ -106,7 +104,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         DefaultJSONParser parser = new DefaultJSONParser(text, ParserConfig.getGlobalInstance(), features);
         Object value = parser.parse();
 
-        handleResovleTask(parser, value);
+        parser.handleResovleTask(value);
 
         parser.close();
 
@@ -145,7 +143,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         DefaultJSONParser parser = new DefaultJSONParser(chars, position, ParserConfig.getGlobalInstance(), features);
         Object value = parser.parse();
 
-        handleResovleTask(parser, value);
+        parser.handleResovleTask(value);
 
         parser.close();
 
@@ -213,7 +211,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         DefaultJSONParser parser = new DefaultJSONParser(input, ParserConfig.getGlobalInstance(), featureValues);
         T value = (T) parser.parseObject(clazz);
 
-        handleResovleTask(parser, value);
+        parser.handleResovleTask(value);
 
         parser.close();
 
@@ -248,42 +246,14 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         T value = (T) parser.parseObject(clazz);
 
-        handleResovleTask(parser, value);
+        parser.handleResovleTask(value);
 
         parser.close();
 
         return (T) value;
     }
 
-    public static void handleResovleTask(DefaultJSONParser parser, Object value) {
-        List<ResolveTask> resolveTaskList = parser.getResolveTaskListDirect();
-        if (resolveTaskList == null) {
-            return;
-        }
-        int size = resolveTaskList.size();
-        for (int i = 0; i < size; ++i) {
-            ResolveTask task = resolveTaskList.get(i);
-            FieldDeserializer fieldDeser = task.getFieldDeserializer();
-            
-            if (fieldDeser == null) {
-                continue;
-            }
 
-            Object object = null;
-            if (task.getOwnerContext() != null) {
-                object = task.getOwnerContext().getObject();
-            }
-
-            String ref = task.getReferenceValue();
-            Object refValue;
-            if (ref.startsWith("$")) {
-                refValue = parser.getObject(ref);
-            } else {
-                refValue = task.getContext().getObject();
-            }
-            fieldDeser.setValue(object, refValue);
-        }
-    }
 
     @SuppressWarnings("unchecked")
     public static final <T> T parseObject(byte[] input, Type clazz, Feature... features) {
@@ -321,7 +291,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         DefaultJSONParser parser = new DefaultJSONParser(input, length, ParserConfig.getGlobalInstance(), featureValues);
         T value = (T) parser.parseObject(clazz);
 
-        handleResovleTask(parser, value);
+        parser.handleResovleTask(value);
 
         parser.close();
 
@@ -351,7 +321,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             array = new JSONArray();
             parser.parseArray(array);
 
-            handleResovleTask(parser, array);
+            parser.handleResovleTask(array);
         }
 
         parser.close();
@@ -375,7 +345,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             list = new ArrayList<T>();
             parser.parseArray(clazz, list);
 
-            handleResovleTask(parser, list);
+            parser.handleResovleTask(list);
         }
 
         parser.close();
@@ -398,7 +368,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             list = Arrays.asList(objectArray);
         }
 
-        handleResovleTask(parser, list);
+        parser.handleResovleTask(list);
 
         parser.close();
 

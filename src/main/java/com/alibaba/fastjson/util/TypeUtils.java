@@ -905,6 +905,7 @@ public class TypeUtils {
 
         for (Method method : clazz.getMethods()) {
             String methodName = method.getName();
+            int ordinal = 0;
 
             if (Modifier.isStatic(method.getModifiers())) {
                 continue;
@@ -938,6 +939,7 @@ public class TypeUtils {
                     continue;
                 }
 
+                ordinal = annotation.ordinal();
                 if (annotation.name().length() != 0) {
                     String propertyName = annotation.name();
 
@@ -964,7 +966,6 @@ public class TypeUtils {
 
                 char c3 = methodName.charAt(3);
 
-                int ordinal = 0;
                 String propertyName;
                 if (Character.isUpperCase(c3)) {
                     if (compatibleWithJavaBean) {
@@ -1029,7 +1030,6 @@ public class TypeUtils {
                 char c2 = methodName.charAt(2);
 
                 String propertyName;
-                int ordinal = 0;
                 if (Character.isUpperCase(c2)) {
                     if (compatibleWithJavaBean) {
                         propertyName = Introspector.decapitalize(methodName.substring(2));

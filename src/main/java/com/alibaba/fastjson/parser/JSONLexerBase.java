@@ -2931,22 +2931,6 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         return new BigDecimal(numberString());
     }
 
-    @Deprecated
-    public final Number numberValue() {
-        char type = charAt(np + sp - 1);
-
-        String str = this.numberString();
-
-        switch (type) {
-            case 'D':
-                return Double.parseDouble(str);
-            case 'F':
-                return Float.parseFloat(str);
-            default:
-                return new BigDecimal(str);
-        }
-    }
-
     public static final boolean isWhitespace(char ch) {
         // 专门调整了判断顺序
         return ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b';

@@ -16,7 +16,7 @@
 package com.alibaba.fastjson.serializer;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public enum SerializerFeature {
     QuoteFieldNames,

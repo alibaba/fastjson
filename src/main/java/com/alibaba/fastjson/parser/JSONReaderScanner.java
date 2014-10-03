@@ -30,7 +30,7 @@ import com.alibaba.fastjson.util.IOUtils;
 //这个类，为了性能优化做了很多特别处理，一切都是为了性能！！！
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public final class JSONReaderScanner extends JSONLexerBase {
 

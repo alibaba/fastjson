@@ -26,7 +26,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.util.IOUtils;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public class DateSerializer implements ObjectSerializer {
 

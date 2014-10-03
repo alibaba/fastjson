@@ -18,7 +18,7 @@ package com.alibaba.fastjson.parser;
 import com.alibaba.fastjson.JSON;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public class SymbolTable {
 

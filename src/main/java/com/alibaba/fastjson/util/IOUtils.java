@@ -25,7 +25,7 @@ import java.nio.charset.CoderResult;
 import com.alibaba.fastjson.JSONException;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public class IOUtils {
 

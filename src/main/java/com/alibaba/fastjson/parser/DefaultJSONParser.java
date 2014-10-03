@@ -70,7 +70,7 @@ import com.alibaba.fastjson.serializer.StringCodec;
 import com.alibaba.fastjson.util.TypeUtils;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 

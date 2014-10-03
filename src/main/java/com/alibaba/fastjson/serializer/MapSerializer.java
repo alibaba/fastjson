@@ -26,7 +26,7 @@ import java.util.TreeMap;
 import com.alibaba.fastjson.JSON;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public class MapSerializer implements ObjectSerializer {
 

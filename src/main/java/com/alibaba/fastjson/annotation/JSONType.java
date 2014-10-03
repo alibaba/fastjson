@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })

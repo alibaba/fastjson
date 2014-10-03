@@ -47,7 +47,7 @@ public class Label {
     /**
      * Field used to associate user information to a label. Warning: this field is used by the ASM tree package. In
      * order to use it with the ASM tree package you must override the
-     * {@link com.alibaba.fastjson.asm.tree.MethodNode#getLabelNode} method.
+     *com.alibaba.fastjson.asm.tree.MethodNode#getLabelNode method.
      */
     public Object    info;
 
@@ -74,7 +74,7 @@ public class Label {
      * reference, while the second is the position of the first byte of the forward reference itself. In fact the sign
      * of the first integer indicates if this reference uses 2 or 4 bytes, and its absolute value gives the position of
      * the bytecode instruction. This array is also used as a bitset to store the subroutines to which a basic block
-     * belongs. This information is needed in {@linked MethodWriter#visitMaxs}, after all forward references have been
+     * belongs. This information is needed in MethodWriter#visitMaxs, after all forward references have been
      * resolved. Hence the same array can be used for both purposes without problems.
      */
     private int[]    srcAndRefPositions;
@@ -90,7 +90,7 @@ public class Label {
      * stack map frames are similar and use two steps. The first step, during the visit of each instruction, builds
      * information about the state of the local variables and the operand stack at the end of each basic block, called
      * the "output frame", <i>relatively</i> to the frame state at the beginning of the basic block, which is called the
-     * "input frame", and which is <i>unknown</i> during this step. The second step, in {@link MethodWriter#visitMaxs},
+     * "input frame", and which is <i>unknown</i> during this step. The second step, in link MethodWriter#visitMaxs,
      * is a fix point algorithm that computes information about the input frame of each basic block, from the input
      * state of the first basic block (known from the method signature), and by the using the previously computed
      * relative output frames. The algorithm used to compute the maximum stack size only computes the relative output
@@ -117,7 +117,7 @@ public class Label {
 
     /**
      * The successor of this label, in the order they are visited. This linked list does not include labels used for
-     * debug info only. If {@link ClassWriter#COMPUTE_FRAMES} option is used then, in addition, it does not contain
+     * debug info only. If ClassWriter#COMPUTE_FRAMES option is used then, in addition, it does not contain
      * successive labels that denote the same bytecode position (in this case only the first label appears in this
      * list).
      */

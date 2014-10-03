@@ -30,15 +30,6 @@
 package com.alibaba.fastjson.asm;
 
 /**
- * A visitor to visit a Java method. The methods of this interface must be called in the following order: [
- * <tt>visitAnnotationDefault</tt> ] ( <tt>visitAnnotation</tt> | <tt>visitParameterAnnotation</tt> |
- * <tt>visitAttribute</tt> )* [ <tt>visitCode</tt> ( <tt>visitFrame</tt> | <tt>visit</tt><i>X</i>Insn</tt> |
- * <tt>visitLabel</tt> | <tt>visitTryCatchBlock</tt> | <tt>visitLocalVariable</tt> | <tt>visitLineNumber</tt>)*
- * <tt>visitMaxs</tt> ] <tt>visitEnd</tt>. In addition, the <tt>visit</tt><i>X</i>Insn</tt> and <tt>visitLabel</tt>
- * methods must be called in the sequential order of the bytecode instructions of the visited code,
- * <tt>visitTryCatchBlock</tt> must be called <i>before</i> the labels passed as arguments have been visited, and the
- * <tt>visitLocalVariable</tt> and <tt>visitLineNumber</tt> methods must be called <i>after</i> the labels passed as
- * arguments have been visited.
  * 
  * @author Eric Bruneton
  */

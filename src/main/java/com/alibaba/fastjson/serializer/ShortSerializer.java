@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public class ShortSerializer implements ObjectSerializer {
 

@@ -53,7 +53,7 @@ import com.alibaba.fastjson.util.IdentityHashMap;
 /**
  * circular references detect
  * 
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 	private final static SerializeConfig globalInstance = new SerializeConfig();

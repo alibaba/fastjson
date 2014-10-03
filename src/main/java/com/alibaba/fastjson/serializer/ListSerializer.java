@@ -21,7 +21,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public final class ListSerializer implements ObjectSerializer {
 

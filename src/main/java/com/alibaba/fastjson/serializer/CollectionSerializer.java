@@ -23,7 +23,7 @@ import java.util.HashSet;
 import java.util.TreeSet;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public class CollectionSerializer implements ObjectSerializer {
 

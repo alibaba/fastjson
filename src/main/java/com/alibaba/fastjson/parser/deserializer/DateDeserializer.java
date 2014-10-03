@@ -3,6 +3,7 @@ package com.alibaba.fastjson.parser.deserializer;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.util.Calendar;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
@@ -33,7 +34,13 @@ public class DateDeserializer extends AbstractDateDeserializer implements Object
             JSONScanner dateLexer = new JSONScanner(strVal);
             try {
                 if (dateLexer.scanISO8601DateIfMatch(false)) {
-                    return (T) dateLexer.getCalendar().getTime();
+                    Calendar calendar = dateLexer.getCalendar();
+                    
+                    if (clazz == Calendar.class) {
+                        return (T) calendar;
+                    }
+                    
+                    return (T) calendar.getTime();
                 }
             } finally {
                 dateLexer.close();

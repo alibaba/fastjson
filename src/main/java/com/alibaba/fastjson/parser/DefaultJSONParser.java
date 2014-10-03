@@ -377,11 +377,6 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                 if (!setContextFlag) {
                     setContext(object, fieldName);
                     setContextFlag = true;
-
-                    // fix Issue #40
-                    if (this.context != null && !(fieldName instanceof Integer)) {
-                        this.popContext();
-                    }
                 }
                 
                 if (object.getClass() == JSONObject.class) {

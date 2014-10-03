@@ -13,8 +13,12 @@ import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 public class ASMUtils {
 
     public static boolean isAndroid(String vmName) {
+        if (vmName == null) { // default is false
+            return false;
+        }
+        
         String lowerVMName = vmName.toLowerCase();
-
+        
         return lowerVMName.contains("dalvik") //
                || lowerVMName.contains("lemur") // aliyun-vm name
         ;

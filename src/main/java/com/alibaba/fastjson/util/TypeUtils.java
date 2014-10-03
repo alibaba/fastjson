@@ -468,6 +468,10 @@ public class TypeUtils {
             if ("1".equals(str)) {
                 return Boolean.TRUE;
             }
+            
+            if ("0".equals(str)) {
+                return Boolean.FALSE;
+            }
         }
 
         throw new JSONException("can not cast to int, value : " + value);

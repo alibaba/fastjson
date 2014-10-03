@@ -26,6 +26,7 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.TypeUtils;
 
@@ -37,7 +38,9 @@ public class JavaBeanSerializer implements ObjectSerializer {
     // serializers
     private final FieldSerializer[] getters;
     private final FieldSerializer[] sortedGetters;
-
+    
+    private int features = JSON.DEFAULT_GENERATE_FEATURE;
+    
     public FieldSerializer[] getGetters() {
         return getters;
     }
@@ -80,6 +83,15 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
             sortedGetters = getterList.toArray(new FieldSerializer[getterList.size()]);
         }
+        
+        {
+            JSONType annotation = clazz.getAnnotation(JSONType.class);
+            if (annotation != null) {
+                for (SerializerFeature feature : annotation.serialzeFeatures()) {
+                    features = SerializerFeature.config(features, feature, true);
+                }
+            }
+        }
     }
 
     protected boolean isWriteClassName(JSONSerializer serializer, Object obj, Type fieldType, Object fieldName) {
@@ -94,8 +106,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
             return;
         }
 
-        if (serializer.containsReference(object)) {
-            writeReference(serializer, object);
+        if (writeReference(serializer, object)) {
             return;
         }
 
@@ -233,9 +244,18 @@ public class JavaBeanSerializer implements ObjectSerializer {
             serializer.setContext(parent);
         }
     }
-
-    public void writeReference(JSONSerializer serializer, Object object) {
+    
+    public boolean writeReference(JSONSerializer serializer, Object object) {
+        if (SerializerFeature.isEnabled(features, SerializerFeature.DisableCircularReferenceDetect)) {
+            return false;
+        }
+        
+        if (!serializer.containsReference(object)) {
+            return false;
+        }
+        
         serializer.writeReference(object);
+        return true;
     }
 
     public FieldSerializer createFieldSerializer(FieldInfo fieldInfo) {

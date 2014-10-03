@@ -438,12 +438,6 @@ public class ASMSerializerFactory implements Opcodes {
             Label endRef_ = new Label();
             Label notNull_ = new Label();
 
-            mw.visitVarInsn(ALOAD, context.serializer());
-            mw.visitVarInsn(ALOAD, context.obj());
-            mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "containsReference",
-                               "(Ljava/lang/Object;)Z");
-            mw.visitJumpInsn(IFEQ, endRef_);
-
             mw.visitVarInsn(ALOAD, 0);
             mw.visitFieldInsn(GETFIELD, context.getClassName(), "nature", getDesc(JavaBeanSerializer.class));
             mw.visitJumpInsn(IFNONNULL, notNull_);
@@ -457,7 +451,9 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitVarInsn(ALOAD, 1);
             mw.visitVarInsn(ALOAD, 2);
             mw.visitMethodInsn(INVOKEVIRTUAL, getType(JavaBeanSerializer.class), "writeReference",
-                               "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;)V");
+                               "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;)Z");
+            
+            mw.visitJumpInsn(IFEQ, endRef_);
 
             mw.visitInsn(RETURN);
 

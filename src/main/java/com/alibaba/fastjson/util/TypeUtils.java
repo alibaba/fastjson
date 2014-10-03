@@ -36,10 +36,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -673,18 +676,28 @@ public class TypeUtils {
     public static final <T> T cast(Object obj, ParameterizedType type, ParserConfig mapping) {
         Type rawTye = type.getRawType();
 
-        if (rawTye == List.class || rawTye == ArrayList.class) {
+        if (rawTye == Set.class 
+                || rawTye == HashSet.class //
+                ||  rawTye == TreeSet.class //
+                || rawTye == List.class || rawTye == ArrayList.class) {
             Type itemType = type.getActualTypeArguments()[0];
 
             if (obj instanceof Iterable) {
-                List list = new ArrayList();
-
+                Collection collection; 
+                if (rawTye == Set.class || rawTye == HashSet.class) {
+                    collection = new HashSet();
+                } else if (rawTye == TreeSet.class) {
+                    collection = new TreeSet();
+                } else {
+                    collection = new ArrayList();    
+                }
+                
                 for (Iterator it = ((Iterable) obj).iterator(); it.hasNext();) {
                     Object item = it.next();
-                    list.add(cast(item, itemType, mapping));
+                    collection.add(cast(item, itemType, mapping));
                 }
 
-                return (T) list;
+                return (T) collection;
             }
         }
 

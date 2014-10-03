@@ -29,6 +29,8 @@ import com.alibaba.fastjson.JSONException;
  */
 public class IOUtils {
 
+	private IOUtils() { }
+	
     public static void close(Closeable x) {
         if (x != null) {
             try {

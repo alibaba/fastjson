@@ -378,9 +378,9 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                     setContext(object, fieldName);
                     setContextFlag = true;
                 }
-                
+
                 if (object.getClass() == JSONObject.class) {
-                    key = (key == null) ? "null" : key.toString(); 
+                    key = (key == null) ? "null" : key.toString();
                 }
 
                 Object value;
@@ -424,21 +424,21 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                     }
                 } else if (ch == '{') { // 减少嵌套，兼容android
                     lexer.nextToken();
-                    
+
                     final boolean parentIsArray = fieldName != null && fieldName.getClass() == Integer.class;
-                    
+
                     JSONObject input = new JSONObject();
                     ParseContext ctxLocal = null;
-                    
+
                     if (!parentIsArray) {
                         ctxLocal = setContext(context, input, key);
                     }
-                    
+
                     Object obj = this.parseObject(input, key);
                     if (ctxLocal != null && input != obj) {
                         ctxLocal.setObject(object);
                     }
-                    
+
                     checkMapResolve(object, key.toString());
 
                     if (object.getClass() == JSONObject.class) {
@@ -450,7 +450,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                     if (parentIsArray) {
                         setContext(context, obj, key);
                     }
-                    
+
                     if (lexer.token() == JSONToken.RBRACE) {
                         lexer.nextToken();
 
@@ -464,7 +464,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                 } else {
                     lexer.nextToken();
                     value = parse();
-                    
+
                     if (object.getClass() == JSONObject.class) {
                         key = key.toString();
                     }
@@ -523,6 +523,21 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken();
             return null;
+        }
+
+        if (lexer.token() == JSONToken.LITERAL_STRING) {
+            type = TypeUtils.unwrap(type);
+            if (type == byte[].class) {
+                byte[] bytes = lexer.bytesValue();
+                lexer.nextToken();
+                return (T) bytes;
+            }
+
+            if (type == char[].class) {
+                String strVal = lexer.stringVal();
+                lexer.nextToken();
+                return (T) strVal.toCharArray();
+            }
         }
 
         ObjectDeserializer derializer = config.getDeserializer(type);
@@ -1119,7 +1134,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
         }
         return extraTypeProviders;
     }
-    
+
     public List<ExtraTypeProvider> getExtraTypeProvidersDirect() {
         return extraTypeProviders;
     }
@@ -1311,17 +1326,17 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
             lexer.close();
         }
     }
-    
+
     public void handleResovleTask(Object value) {
         if (resolveTaskList == null) {
             return;
         }
-        
+
         int size = resolveTaskList.size();
         for (int i = 0; i < size; ++i) {
             ResolveTask task = resolveTaskList.get(i);
             FieldDeserializer fieldDeser = task.getFieldDeserializer();
-            
+
             if (fieldDeser == null) {
                 continue;
             }

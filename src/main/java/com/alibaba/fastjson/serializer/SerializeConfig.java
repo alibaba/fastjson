@@ -76,7 +76,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 			throws Exception {
 		return asmFactory.createJavaBeanSerializer(clazz);
 	}
-
+	
 	public ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
 		if (!Modifier.isPublic(clazz.getModifiers())) {
 			return new JavaBeanSerializer(clazz);
@@ -95,13 +95,19 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 				asm = false;
 			}
 		}
+		
+		if (asm && !ASMUtils.checkName(clazz.getName())) {
+		    asm = false;
+		}
 
 		if (asm) {
 			try {
-				return createASMSerializer(clazz);
+			    ObjectSerializer asmSerializer = createASMSerializer(clazz);
+			    if (asmSerializer != null) {
+			        return asmSerializer;
+			    }
 			} catch (ClassCastException e) {
 				// skip
-				return new JavaBeanSerializer(clazz);
 			} catch (Throwable e) {
 				throw new JSONException("create asm serializer error, class "
 						+ clazz, e);

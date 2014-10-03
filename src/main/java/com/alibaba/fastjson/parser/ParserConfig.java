@@ -412,6 +412,10 @@ public class ParserConfig {
         if (asmFactory.isExternalClass(clazz)) {
             asmEnable = false;
         }
+        
+        if (asmEnable) {
+            asmEnable = ASMUtils.checkName(clazz.getName());
+        }
 
         if (asmEnable) {
             if (clazz.isInterface()) {
@@ -440,6 +444,10 @@ public class ParserConfig {
                 }
 
                 if (fieldClass.isMemberClass() && !Modifier.isStatic(fieldClass.getModifiers())) {
+                    asmEnable = false;
+                }
+                
+                if (!ASMUtils.checkName(fieldInfo.getMember().getName())) {
                     asmEnable = false;
                 }
             }

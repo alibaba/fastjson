@@ -19,6 +19,7 @@ import java.beans.Introspector;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -679,7 +680,8 @@ public class TypeUtils {
         if (rawTye == Set.class 
                 || rawTye == HashSet.class //
                 ||  rawTye == TreeSet.class //
-                || rawTye == List.class || rawTye == ArrayList.class) {
+                || rawTye == List.class //
+                || rawTye == ArrayList.class) {
             Type itemType = type.getActualTypeArguments()[0];
 
             if (obj instanceof Iterable) {
@@ -1244,6 +1246,20 @@ public class TypeUtils {
         
         if (type instanceof Class) {
             return getGenericParamType(((Class<?>) type).getGenericSuperclass());
+        }
+        
+        return type;
+    }
+    
+    public static Type unwrap(Type type) {
+        if (type instanceof GenericArrayType) {
+            Type componentType = ((GenericArrayType) type).getGenericComponentType();
+            if (componentType == byte.class) {
+                return byte[].class;
+            }
+            if (componentType == char.class) {
+                return char[].class;
+            }
         }
         
         return type;

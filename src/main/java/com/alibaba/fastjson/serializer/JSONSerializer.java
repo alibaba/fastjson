@@ -475,6 +475,8 @@ public class JSONSerializer {
                 config.put(clazz, DateSerializer.instance);
             } else if (JSONAware.class.isAssignableFrom(clazz)) {
                 config.put(clazz, JSONAwareSerializer.instance);
+            } else if (JSONSerializable.class.isAssignableFrom(clazz)) {
+                config.put(clazz, JSONSerializableSerializer.instance);
             } else if (JSONStreamAware.class.isAssignableFrom(clazz)) {
                 config.put(clazz, JSONStreamAwareSerializer.instance);
             } else if (clazz.isEnum() || (clazz.getSuperclass() != null && clazz.getSuperclass().isEnum())) {

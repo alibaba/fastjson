@@ -48,7 +48,7 @@ import com.alibaba.fastjson.util.TypeUtils;
 /**
  * @author wenshao<szujobs@hotmail.com>
  */
-public class JSONObject extends JSON implements Map<String, Object>, JSONAware, Cloneable, Serializable, InvocationHandler {
+public class JSONObject extends JSON implements Map<String, Object>, Cloneable, Serializable, InvocationHandler {
 
     private static final long         serialVersionUID         = 1L;
     private static final int          DEFAULT_INITIAL_CAPACITY = 16;

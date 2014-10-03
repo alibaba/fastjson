@@ -16,7 +16,7 @@
 package com.alibaba.fastjson;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public class JSONException extends RuntimeException {
 

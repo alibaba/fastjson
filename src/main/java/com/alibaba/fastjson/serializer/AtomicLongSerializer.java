@@ -20,7 +20,7 @@ import java.lang.reflect.Type;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public class AtomicLongSerializer implements ObjectSerializer {
 

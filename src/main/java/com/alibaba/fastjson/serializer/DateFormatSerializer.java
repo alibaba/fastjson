@@ -22,7 +22,7 @@ import java.text.SimpleDateFormat;
 import com.alibaba.fastjson.JSON;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public class DateFormatSerializer implements ObjectSerializer {
 

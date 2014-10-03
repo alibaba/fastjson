@@ -21,7 +21,7 @@ import java.lang.reflect.Type;
 import com.alibaba.fastjson.JSONAware;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public class JSONAwareSerializer implements ObjectSerializer {
 

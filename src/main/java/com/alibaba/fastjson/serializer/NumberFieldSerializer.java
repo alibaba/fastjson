@@ -18,7 +18,7 @@ package com.alibaba.fastjson.serializer;
 import com.alibaba.fastjson.util.FieldInfo;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 final class NumberFieldSerializer extends FieldSerializer {
 

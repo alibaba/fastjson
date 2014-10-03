@@ -21,7 +21,7 @@ import java.lang.reflect.Type;
 import com.alibaba.fastjson.JSONStreamAware;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public class JSONStreamAwareSerializer implements ObjectSerializer {
 

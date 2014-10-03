@@ -40,7 +40,7 @@ import com.alibaba.fastjson.JSONStreamAware;
 import com.alibaba.fastjson.util.ServiceLoader;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public class JSONSerializer {
 

@@ -20,7 +20,7 @@ import java.lang.reflect.Type;
 import java.text.DecimalFormat;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public class DoubleSerializer implements ObjectSerializer {
 

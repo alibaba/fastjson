@@ -1,6 +1,5 @@
 package com.alibaba.fastjson.parser.deserializer;
 
-import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;

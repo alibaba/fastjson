@@ -289,6 +289,7 @@ public class ParserConfig {
             derializers.put(Class.forName("java.time.ZoneId"), Jdk8DateCodec.instance);
             derializers.put(Class.forName("java.time.Period"), Jdk8DateCodec.instance);
             derializers.put(Class.forName("java.time.Duration"), Jdk8DateCodec.instance);
+            derializers.put(Class.forName("java.time.Instant"), Jdk8DateCodec.instance);
         } catch (Throwable e) {
             
         }

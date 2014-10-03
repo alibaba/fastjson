@@ -3,6 +3,7 @@ package com.alibaba.fastjson.parser.deserializer;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -66,6 +67,10 @@ public class Jdk8DateCodec implements ObjectSerializer, ObjectDeserializer {
                 Duration duration = Duration.parse(text);
                 
                 return (T) duration;
+            } else if (type == Instant.class) {
+                Instant instant = Instant.parse(text);
+                
+                return (T) instant;
             }
         } else {
             throw new UnsupportedOperationException();

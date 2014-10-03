@@ -211,6 +211,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 		    put(Class.forName("java.time.ZoneRegion"), Jdk8DateCodec.instance);
 		    put(Class.forName("java.time.Period"), Jdk8DateCodec.instance);
 		    put(Class.forName("java.time.Duration"), Jdk8DateCodec.instance);
+		    put(Class.forName("java.time.Instant"), Jdk8DateCodec.instance);
 		} catch (Throwable e) {
 		    // skip
 		}

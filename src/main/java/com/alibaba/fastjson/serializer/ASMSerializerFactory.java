@@ -120,6 +120,12 @@ public class ASMSerializerFactory implements Opcodes {
         }
 
         List<FieldInfo> getters = TypeUtils.computeGetters(clazz, aliasMap, false);
+        
+        for (FieldInfo getter : getters) {
+            if (!ASMUtils.checkName(getter.getMember().getName())) {
+                return null;
+            }
+        }
 
         String className = getGenClassName(clazz);
 

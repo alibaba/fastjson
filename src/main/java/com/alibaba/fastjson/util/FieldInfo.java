@@ -222,13 +222,16 @@ public class FieldInfo implements Comparable<FieldInfo> {
     }
     
     public String gerQualifiedName() {
-        Member member;
-        if (method != null) {
-            member = method;
-        } else {
-            member = field;
-        }
+        Member member = getMember();
         return member.getDeclaringClass().getName() + "." + member.getName();
+    }
+    
+    public Member getMember() {
+        if (method != null) {
+            return method;
+        } else {
+            return field;
+        }
     }
 
     public Method getMethod() {

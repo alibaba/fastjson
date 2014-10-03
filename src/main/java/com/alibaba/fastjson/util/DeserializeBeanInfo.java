@@ -1,6 +1,5 @@
 package com.alibaba.fastjson.util;
 
-import java.beans.Introspector;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -209,7 +208,7 @@ public class DeserializeBeanInfo {
             String propertyName;
             if (Character.isUpperCase(c3)) {
                 if (TypeUtils.compatibleWithJavaBean) {
-                    propertyName = Introspector.decapitalize(methodName.substring(3));
+                    propertyName = TypeUtils.decapitalize(methodName.substring(3));
                 } else {
                     propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
                 }

@@ -1276,4 +1276,19 @@ public class TypeUtils {
 
         return Object.class;
     }
+    
+    public static Field getField(Class<?> clazz, String fieldName) {
+        for (Field field : clazz.getDeclaredFields()) {
+            if (fieldName.equals(field.getName())) {
+                return field;
+            }
+        }
+        
+        Class<?> superClass = clazz.getSuperclass();
+        if(superClass != null && superClass != Object.class) {
+            return getField(superClass, fieldName);
+        }
+
+        return null;
+    }
 }

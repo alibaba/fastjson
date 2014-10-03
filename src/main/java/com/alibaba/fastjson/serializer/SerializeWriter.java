@@ -369,8 +369,12 @@ public final class SerializeWriter extends Writer {
 
     public void writeByteArray(byte[] bytes) {
         int bytesLen = bytes.length;
+        final boolean singleQuote = isEnabled(SerializerFeature.UseSingleQuotes);
+        final char quote = singleQuote ? '\'' : '"';
+        
         if (bytesLen == 0) {
-            write("\"\"");
+            String emptyString = singleQuote ? "''" : "\"\"";
+            write(emptyString);
             return;
         }
 
@@ -383,7 +387,7 @@ public final class SerializeWriter extends Writer {
         int newcount = count + charsLen + 2;
         if (newcount > buf.length) {
             if (writer != null) {
-                write('\"');
+                write(quote);
 
                 for (int s = 0; s < eLen;) {
                     // Copy next three bytes into lower 24 bits of int, paying attension to sign.
@@ -409,13 +413,13 @@ public final class SerializeWriter extends Writer {
                     write('=');
                 }
 
-                write('\"');
+                write(quote);
                 return;
             }
             expandCapacity(newcount);
         }
         count = newcount;
-        buf[offset++] = '\"';
+        buf[offset++] = quote;
 
         // Encode even 24-bits
         for (int s = 0, d = offset; s < eLen;) {
@@ -441,7 +445,7 @@ public final class SerializeWriter extends Writer {
             buf[newcount - 3] = left == 2 ? CA[i & 0x3f] : '=';
             buf[newcount - 2] = '=';
         }
-        buf[newcount - 1] = '\"';
+        buf[newcount - 1] = quote;
     }
 
     public void writeFloatAndChar(float value, char c) {

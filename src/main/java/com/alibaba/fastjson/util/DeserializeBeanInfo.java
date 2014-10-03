@@ -122,7 +122,7 @@ public class DeserializeBeanInfo {
 
                     Class<?> fieldClass = creatorConstructor.getParameterTypes()[i];
                     Type fieldType = creatorConstructor.getGenericParameterTypes()[i];
-                    Field field = getField(clazz, fieldAnnotation.name());
+                    Field field = TypeUtils.getField(clazz, fieldAnnotation.name());
                     FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, field, fieldAnnotation.ordinal());
                     beanInfo.add(fieldInfo);
                 }
@@ -149,7 +149,7 @@ public class DeserializeBeanInfo {
 
                     Class<?> fieldClass = factoryMethod.getParameterTypes()[i];
                     Type fieldType = factoryMethod.getGenericParameterTypes()[i];
-                    Field field = getField(clazz, fieldAnnotation.name());
+                    Field field = TypeUtils.getField(clazz, fieldAnnotation.name());
                     FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, field, fieldAnnotation.ordinal());
                     beanInfo.add(fieldInfo);
                 }
@@ -221,10 +221,10 @@ public class DeserializeBeanInfo {
                 continue;
             }
 
-            Field field = getField(clazz, propertyName);
+            Field field = TypeUtils.getField(clazz, propertyName);
             if (field == null && method.getParameterTypes()[0] == boolean.class) {
                 String isFieldName = "is" + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
-                field = getField(clazz, isFieldName);
+                field = TypeUtils.getField(clazz, isFieldName);
             }
 
             if (field != null) {
@@ -314,14 +314,6 @@ public class DeserializeBeanInfo {
         }
 
         return beanInfo;
-    }
-
-    public static Field getField(Class<?> clazz, String fieldName) {
-        try {
-            return clazz.getDeclaredField(fieldName);
-        } catch (Exception e) {
-            return null;
-        }
     }
 
     public static Constructor<?> getDefaultConstructor(Class<?> clazz) {

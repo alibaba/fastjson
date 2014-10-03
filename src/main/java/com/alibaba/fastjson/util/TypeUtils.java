@@ -15,7 +15,6 @@
  */
 package com.alibaba.fastjson.util;
 
-import java.beans.Introspector;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -992,7 +991,7 @@ public class TypeUtils {
                 String propertyName;
                 if (Character.isUpperCase(c3)) {
                     if (compatibleWithJavaBean) {
-                        propertyName = Introspector.decapitalize(methodName.substring(3));
+                        propertyName = decapitalize(methodName.substring(3));
                     } else {
                         propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
                     }
@@ -1055,7 +1054,7 @@ public class TypeUtils {
                 String propertyName;
                 if (Character.isUpperCase(c2)) {
                     if (compatibleWithJavaBean) {
-                        propertyName = Introspector.decapitalize(methodName.substring(2));
+                        propertyName = decapitalize(methodName.substring(2));
                     } else {
                         propertyName = Character.toLowerCase(methodName.charAt(2)) + methodName.substring(3);
                     }
@@ -1294,5 +1293,18 @@ public class TypeUtils {
         }
 
         return null;
+    }
+    
+    public static String decapitalize(String name) {
+        if (name == null || name.length() == 0) {
+            return name;
+        }
+        if (name.length() > 1 && Character.isUpperCase(name.charAt(1)) &&
+                Character.isUpperCase(name.charAt(0))){
+            return name;
+        }
+        char chars[] = name.toCharArray();
+        chars[0] = Character.toLowerCase(chars[0]);
+        return new String(chars);
     }
 }

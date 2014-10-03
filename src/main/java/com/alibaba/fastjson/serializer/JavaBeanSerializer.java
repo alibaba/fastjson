@@ -171,6 +171,25 @@ public class JavaBeanSerializer implements ObjectSerializer {
                         continue;
                     }
                 }
+                
+                if (propertyValue != null && serializer.isEnabled(SerializerFeature.NotWriteDefaultValue)) {
+                    Class<?> fieldCLass = fieldSerializer.fieldInfo.getFieldClass();
+                    if (fieldCLass == byte.class && propertyValue instanceof Byte && ((Byte)propertyValue).byteValue() == 0) {
+                        continue;
+                    } else if (fieldCLass == short.class && propertyValue instanceof Short && ((Short)propertyValue).shortValue() == 0) {
+                        continue;
+                    } else if (fieldCLass == int.class && propertyValue instanceof Integer && ((Integer)propertyValue).intValue() == 0) {
+                        continue;
+                    } else if (fieldCLass == long.class && propertyValue instanceof Long && ((Long)propertyValue).longValue() == 0L) {
+                        continue;
+                    } else if (fieldCLass == float.class && propertyValue instanceof Float && ((Float)propertyValue).floatValue() == 0F) {
+                        continue;
+                    } else if (fieldCLass == double.class && propertyValue instanceof Double && ((Double)propertyValue).doubleValue() == 0D) {
+                        continue;
+                    } else if (fieldCLass == boolean.class && propertyValue instanceof Boolean && !((Boolean)propertyValue).booleanValue()) {
+                        continue;
+                    }
+                }
 
                 if (commaFlag) {
                     out.append(',');

@@ -1138,7 +1138,9 @@ public class ASMSerializerFactory implements Opcodes {
                 mw.visitJumpInsn(IFNE, _end);
             }
         }
-
+        
+        _notWriteDefault(mw, property, context, _end);
+        
         _apply(mw, property, context);
         mw.visitJumpInsn(IFEQ, _end);
 
@@ -1228,6 +1230,49 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitMethodInsn(INVOKESTATIC, getType(FilterUtils.class), "writeAfter",
                            "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;C)C");
         mw.visitVarInsn(ISTORE, context.var("seperator"));
+    }
+    
+    private void _notWriteDefault(MethodVisitor mw, FieldInfo property, Context context, Label _end) {
+        Label elseLabel = new Label();
+        
+        mw.visitVarInsn(ALOAD, context.var("out"));
+        mw.visitFieldInsn(GETSTATIC, getType(SerializerFeature.class), "NotWriteDefaultValue",
+                          "L" + getType(SerializerFeature.class) + ";");
+        mw.visitMethodInsn(INVOKEVIRTUAL, getType(SerializeWriter.class), "isEnabled",
+                           "(" + "L" + getType(SerializerFeature.class) + ";" + ")Z");
+        mw.visitJumpInsn(IFEQ, elseLabel);
+        
+        Class<?> propertyClass = property.getFieldClass();
+        if (propertyClass == boolean.class) {
+            mw.visitVarInsn(ILOAD, context.var("boolean"));
+            mw.visitJumpInsn(IFEQ, _end);
+        } else if (propertyClass == byte.class) {
+            mw.visitVarInsn(ILOAD, context.var("byte"));
+            mw.visitJumpInsn(IFEQ, _end);
+        } else if (propertyClass == short.class) {
+            mw.visitVarInsn(ILOAD, context.var("short"));
+            mw.visitJumpInsn(IFEQ, _end);
+        } else if (propertyClass == int.class) {
+            mw.visitVarInsn(ILOAD, context.var("int"));
+            mw.visitJumpInsn(IFEQ, _end);
+        } else if (propertyClass == long.class) {
+            mw.visitVarInsn(LLOAD, context.var("long"));
+            mw.visitInsn(LCONST_0);
+            mw.visitInsn(LCMP);
+            mw.visitJumpInsn(IFEQ, _end);
+        } else if (propertyClass == float.class) {
+            mw.visitVarInsn(FLOAD, context.var("float"));
+            mw.visitInsn(FCONST_0);
+            mw.visitInsn(FCMPL);
+            mw.visitJumpInsn(IFEQ, _end);
+        } else if (propertyClass == double.class) {
+            mw.visitVarInsn(DLOAD, context.var("double"));
+            mw.visitInsn(DCONST_0);
+            mw.visitInsn(DCMPL);
+            mw.visitJumpInsn(IFEQ, _end);
+        }
+        
+        mw.visitLabel(elseLabel);
     }
 
     private void _apply(MethodVisitor mw, FieldInfo property, Context context) {

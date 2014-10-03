@@ -112,7 +112,13 @@ public enum SerializerFeature {
     /**
      * @since 1.1.37
      */
-    WriteNonStringKeyAsString;
+    WriteNonStringKeyAsString,
+    
+    /**
+     * @since 1.1.42
+     */
+    NotWriteDefaultValue
+    ;
 
     private SerializerFeature(){
         mask = (1 << ordinal());

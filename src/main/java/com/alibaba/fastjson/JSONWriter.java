@@ -182,24 +182,4 @@ public class JSONWriter implements Closeable, Flushable {
     public void close() throws IOException {
         writer.close();
     }
-
-    @Deprecated
-    public void writeStartObject() {
-        startObject();
-    }
-
-    @Deprecated
-    public void writeEndObject() {
-        endObject();
-    }
-
-    @Deprecated
-    public void writeStartArray() {
-        startArray();
-    }
-
-    @Deprecated
-    public void writeEndArray() {
-        endArray();
-    }
 }

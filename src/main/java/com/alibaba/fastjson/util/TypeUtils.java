@@ -1001,6 +1001,8 @@ public class TypeUtils {
                     propertyName = methodName.substring(4);
                 } else if (c3 == 'f') {
                     propertyName = methodName.substring(3);
+                } else if (methodName.length()>=5 && Character.isUpperCase(methodName.charAt(4))){
+                    propertyName = Introspector.decapitalize(methodName.substring(3));
                 } else {
                     continue;
                 }

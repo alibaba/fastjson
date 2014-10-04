@@ -53,12 +53,6 @@ public class FastjsonCodec implements Codec {
 
         JSONSerializer serializer = new JSONSerializer(out);
         serializer.write(object);
-        serializer.getPropertyFilters().add(new PropertyFilter() {
-            
-            public boolean apply(Object source, String name, Object value) {
-                return true;
-            }
-        });
 
         String text = out.toString();
 
@@ -69,7 +63,7 @@ public class FastjsonCodec implements Codec {
 
     @SuppressWarnings("unchecked")
     public <T> T decodeObject(byte[] input, Class<T> clazz) throws Exception {
-        return (T) JSON.parseObject(input, clazz);
+        return (T) JSON.parseObject(input, clazz, Feature.DisableCircularReferenceDetect);
     }
 
 }

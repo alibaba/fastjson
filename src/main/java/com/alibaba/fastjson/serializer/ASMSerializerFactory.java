@@ -467,11 +467,11 @@ public class ASMSerializerFactory implements Opcodes {
         {
             Label endWriteAsArray_ = new Label();
 
+            mw.visitVarInsn(ALOAD, 0);
+            mw.visitFieldInsn(GETFIELD, context.getClassName(), "nature", getDesc(JavaBeanSerializer.class));
             mw.visitVarInsn(ALOAD, context.serializer());
-            mw.visitVarInsn(ALOAD, context.obj());
-            mw.visitVarInsn(ALOAD, context.paramFieldType());
-            mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "isWriteAsArray",
-                               "(Ljava/lang/Object;Ljava/lang/reflect/Type;)Z");
+            mw.visitMethodInsn(INVOKEVIRTUAL, getType(JavaBeanSerializer.class), "isWriteAsArray",
+                               "(Lcom/alibaba/fastjson/serializer/JSONSerializer;)Z");
             mw.visitJumpInsn(IFEQ, endWriteAsArray_);
 
             // /////

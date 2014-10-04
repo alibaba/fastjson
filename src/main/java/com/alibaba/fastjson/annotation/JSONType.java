@@ -5,6 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 /**
@@ -21,6 +22,7 @@ public @interface JSONType {
     String[] ignores() default {};
 
     SerializerFeature[] serialzeFeatures() default {};
+    Feature[] parseFeatures() default {};
     
     boolean alphabetic() default true;
     

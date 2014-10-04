@@ -537,14 +537,4 @@ public class JSONSerializer {
         this.out.close();
     }
 
-    public final boolean isWriteAsArray(Object object, Type fieldType) {
-        boolean writeAsArray;
-        if (out.isEnabled(SerializerFeature.BeanToArray)) {
-            writeAsArray = true;
-        } else {
-            writeAsArray = false;
-        }
-
-        return writeAsArray;
-    }
 }

@@ -15,6 +15,7 @@
  */
 package com.alibaba.fastjson.parser;
 
+
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
@@ -108,5 +109,19 @@ public enum Feature {
         }
 
         return features;
+    }
+    
+    public static int of(Feature[] features) {
+        if (features == null) {
+            return 0;
+        }
+        
+        int value = 0;
+        
+        for (Feature feature: features) {
+            value |= feature.getMask();
+        }
+        
+        return value;
     }
 }

@@ -51,6 +51,7 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
+import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
@@ -1317,6 +1318,16 @@ public class TypeUtils {
         }
         
         return SerializerFeature.of(annotation.serialzeFeatures());
+    }
+    
+    public static int getParserFeatures(Class<?> clazz) {
+        JSONType annotation = clazz.getAnnotation(JSONType.class);
+        
+        if (annotation == null) {
+            return 0;
+        }
+        
+        return Feature.of(annotation.parseFeatures());
     }
     
     public static String decapitalize(String name) {

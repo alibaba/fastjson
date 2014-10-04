@@ -193,7 +193,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 return (T) object;
             }
 
-            if (lexer.token() == JSONToken.LBRACKET && lexer.isEnabled(Feature.SupportArrayToBean)) {
+            if (lexer.token() == JSONToken.LBRACKET && isSupportArrayToBean(lexer)) {
                 return deserialzeArrayMapping(parser, type, fieldName, object);
             }
 
@@ -427,5 +427,9 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     
     public List<FieldDeserializer> getSortedFieldDeserializers() {
         return sortedFieldDeserializers;
+    }
+    
+    public final boolean isSupportArrayToBean(JSONLexer lexer) {
+        return Feature.isEnabled(beanInfo.getParserFeatures(), Feature.SupportArrayToBean) || lexer.isEnabled(Feature.SupportArrayToBean);
     }
 }

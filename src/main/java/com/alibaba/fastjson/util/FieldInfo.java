@@ -25,12 +25,13 @@ public class FieldInfo implements Comparable<FieldInfo> {
     private final Type     fieldType;
     private final Class<?> declaringClass;
     private boolean        getOnly = false;
+    private int            serialzeFeatures;
 
     public FieldInfo(String name, Class<?> declaringClass, Class<?> fieldClass, Type fieldType, Field field){
-        this(name, declaringClass, fieldClass, fieldType, field, 0);
+        this(name, declaringClass, fieldClass, fieldType, field, 0, 0);
     }
-    
-    public FieldInfo(String name, Class<?> declaringClass, Class<?> fieldClass, Type fieldType, Field field,  int ordinal){
+
+    public FieldInfo(String name, Class<?> declaringClass, Class<?> fieldClass, Type fieldType, Field field, int ordinal, int serialzeFeatures){
         this.name = name;
         this.declaringClass = declaringClass;
         this.fieldClass = fieldClass;
@@ -38,6 +39,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.method = null;
         this.field = field;
         this.ordinal = ordinal;
+        this.serialzeFeatures = serialzeFeatures;
 
         if (field != null) {
             field.setAccessible(true);
@@ -47,20 +49,21 @@ public class FieldInfo implements Comparable<FieldInfo> {
     public FieldInfo(String name, Method method, Field field){
         this(name, method, field, null, null);
     }
-    
-    public FieldInfo(String name, Method method, Field field, int ordinal){
-        this(name, method, field, null, null, ordinal);
-    }
-    
-    public FieldInfo(String name, Method method, Field field, Class<?> clazz, Type type) {
-        this(name, method, field, clazz, type, 0);
+
+    public FieldInfo(String name, Method method, Field field, int ordinal, int serialzeFeatures){
+        this(name, method, field, null, null, ordinal, serialzeFeatures);
     }
 
-    public FieldInfo(String name, Method method, Field field, Class<?> clazz, Type type, int ordinal){
+    public FieldInfo(String name, Method method, Field field, Class<?> clazz, Type type){
+        this(name, method, field, clazz, type, 0, 0);
+    }
+
+    public FieldInfo(String name, Method method, Field field, Class<?> clazz, Type type, int ordinal, int serialzeFeatures){
         this.name = name;
         this.method = method;
         this.field = field;
         this.ordinal = ordinal;
+        this.serialzeFeatures = serialzeFeatures;
 
         if (method != null) {
             method.setAccessible(true);
@@ -116,7 +119,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         if (clazz == null || type == null) {
             return fieldType;
         }
-        
+
         if (fieldType instanceof GenericArrayType) {
             GenericArrayType genericArrayType = (GenericArrayType) fieldType;
             Type componentType = genericArrayType.getGenericComponentType();
@@ -125,7 +128,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
                 Type fieldTypeX = Array.newInstance(TypeUtils.getClass(componentTypeX), 0).getClass();
                 return fieldTypeX;
             }
-            
+
             return fieldType;
         }
 
@@ -220,12 +223,12 @@ public class FieldInfo implements Comparable<FieldInfo> {
     public String getName() {
         return name;
     }
-    
+
     public String gerQualifiedName() {
         Member member = getMember();
         return member.getDeclaringClass().getName() + "." + member.getName();
     }
-    
+
     public Member getMember() {
         if (method != null) {
             return method;
@@ -246,11 +249,11 @@ public class FieldInfo implements Comparable<FieldInfo> {
         if (this.ordinal < o.ordinal) {
             return -1;
         }
-        
+
         if (this.ordinal > o.ordinal) {
             return 1;
         }
-        
+
         return this.name.compareTo(o.name);
     }
 
@@ -312,6 +315,11 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
     public boolean isGetOnly() {
         return getOnly;
+    }
+
+    
+    public int getSerialzeFeatures() {
+        return serialzeFeatures;
     }
 
 }

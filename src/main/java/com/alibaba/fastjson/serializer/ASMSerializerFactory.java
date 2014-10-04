@@ -49,9 +49,11 @@ public class ASMSerializerFactory implements Opcodes {
     static class Context {
 
         private final String className;
+        private final int beanSerializeFeatures;
 
-        public Context(String className){
+        public Context(String className, int beanSerializeFeatures){
             this.className = className;
+            this.beanSerializeFeatures = beanSerializeFeatures;
         }
 
         private int                  variantIndex = 8;
@@ -128,6 +130,13 @@ public class ASMSerializerFactory implements Opcodes {
         }
 
         String className = getGenClassName(clazz);
+        int beanSerializeFeatures = 0;
+        {
+            JSONType jsonType = TypeUtils.getJSONType(clazz);
+            if (jsonType != null) {
+                beanSerializeFeatures = SerializerFeature.of(jsonType.serialzeFeatures());
+            }
+        }
 
         ClassWriter cw = new ClassWriter();
         cw.visit(V1_5, ACC_PUBLIC + ACC_SUPER, className, "java/lang/Object",
@@ -180,7 +189,7 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitEnd();
 
         {
-            Context context = new Context(className);
+            Context context = new Context(className, beanSerializeFeatures);
 
             mw = cw.visitMethod(ACC_PUBLIC,
                                 "write",
@@ -229,7 +238,7 @@ public class ASMSerializerFactory implements Opcodes {
         {
 
             // sortField support
-            Context context = new Context(className);
+            Context context = new Context(className, beanSerializeFeatures);
 
             mw = cw.visitMethod(ACC_PUBLIC,
                                 "write1",
@@ -254,7 +263,7 @@ public class ASMSerializerFactory implements Opcodes {
 
         // writeAsArray
         {
-            Context context = new Context(className);
+            Context context = new Context(className, beanSerializeFeatures);
 
             mw = cw.visitMethod(ACC_PUBLIC,
                                 "writeAsArray",
@@ -380,9 +389,10 @@ public class ASMSerializerFactory implements Opcodes {
                         mw.visitVarInsn(ALOAD, 0);
                         mw.visitFieldInsn(GETFIELD, context.getClassName(), property.getName() + "_asm_fieldType",
                                           "Ljava/lang/reflect/Type;");
+                        mw.visitLdcInsn(property.getSerialzeFeatures());
 
                         mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "writeWithFieldName",
-                                           "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;)V");
+                                           "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;I)V");
                     }
                 }
 
@@ -494,8 +504,9 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitVarInsn(ALOAD, context.var("parent"));
             mw.visitVarInsn(ALOAD, context.obj());
             mw.visitVarInsn(ALOAD, context.paramFieldName());
+            mw.visitLdcInsn(context.beanSerializeFeatures);
             mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "setContext",
-                               "(Lcom/alibaba/fastjson/serializer/SerialContext;Ljava/lang/Object;Ljava/lang/Object;)V");
+                               "(Lcom/alibaba/fastjson/serializer/SerialContext;Ljava/lang/Object;Ljava/lang/Object;I)V");
         }
 
         // SEPERATO
@@ -1055,8 +1066,9 @@ public class ASMSerializerFactory implements Opcodes {
 
                 if (elementClass != null && Modifier.isPublic(elementClass.getModifiers())) {
                     mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc((Class<?>) elementType)));
+                    mw.visitLdcInsn(property.getSerialzeFeatures());
                     mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "writeWithFieldName",
-                                       "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;)V");
+                                       "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;I)V");
                 } else {
                     mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "writeWithFieldName",
                                        "(Ljava/lang/Object;Ljava/lang/Object;)V");
@@ -1094,8 +1106,9 @@ public class ASMSerializerFactory implements Opcodes {
 
                 if (elementClass != null && Modifier.isPublic(elementClass.getModifiers())) {
                     mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc((Class<?>) elementType)));
+                    mw.visitLdcInsn(property.getSerialzeFeatures());
                     mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "writeWithFieldName",
-                                       "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;)V");
+                                       "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;I)V");
                 } else {
                     mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "writeWithFieldName",
                                        "(Ljava/lang/Object;Ljava/lang/Object;)V");
@@ -1201,9 +1214,10 @@ public class ASMSerializerFactory implements Opcodes {
                 mw.visitVarInsn(ALOAD, 0);
                 mw.visitFieldInsn(GETFIELD, context.getClassName(), fieldInfo.getName() + "_asm_fieldType",
                                   "Ljava/lang/reflect/Type;");
+                mw.visitLdcInsn(fieldInfo.getSerialzeFeatures());
 
                 mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONSerializer.class), "writeWithFieldName",
-                                   "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;)V");
+                                   "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;I)V");
             }
         }
 

@@ -32,7 +32,7 @@ public class EnumerationSeriliazer implements ObjectSerializer {
         Enumeration<?> e = (Enumeration<?>) object;
         
         SerialContext context = serializer.getContext();
-        serializer.setContext(context, object, fieldName);
+        serializer.setContext(context, object, fieldName, 0);
 
         try {
             int i = 0;

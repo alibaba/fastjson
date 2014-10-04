@@ -59,7 +59,7 @@ public class MapSerializer implements ObjectSerializer {
         }
 
         SerialContext parent = serializer.getContext();
-        serializer.setContext(parent, object, fieldName);
+        serializer.setContext(parent, object, fieldName, 0);
         try {
             out.write('{');
 

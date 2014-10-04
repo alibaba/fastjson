@@ -8,10 +8,13 @@ public class SerialContext {
 
     private final Object        fieldName;
 
-    public SerialContext(SerialContext parent, Object object, Object fieldName){
+    private int                 features;
+
+    public SerialContext(SerialContext parent, Object object, Object fieldName, int features){
         this.parent = parent;
         this.object = object;
         this.fieldName = fieldName;
+        this.features = features;
     }
 
     public SerialContext getParent() {
@@ -41,5 +44,9 @@ public class SerialContext {
 
     public String toString() {
         return getPath();
+    }
+    
+    public boolean isEnabled(SerializerFeature feature) {
+        return SerializerFeature.isEnabled(features, feature);
     }
 }

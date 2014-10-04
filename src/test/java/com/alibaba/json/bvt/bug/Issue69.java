@@ -17,6 +17,7 @@ public class Issue69 extends TestCase {
         System.out.println(text);
     }
 
+    @JSONType(serialzeFeatures={SerializerFeature.DisableCircularReferenceDetect})
     public static class VO {
 
         private Entry a;
@@ -41,7 +42,6 @@ public class Issue69 extends TestCase {
 
     }
 
-    @JSONType(serialzeFeatures={SerializerFeature.DisableCircularReferenceDetect})
     public static class Entry {
         private int id;
 

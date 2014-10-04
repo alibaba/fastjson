@@ -54,6 +54,7 @@ import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -927,7 +928,7 @@ public class TypeUtils {
 
         for (Method method : clazz.getMethods()) {
             String methodName = method.getName();
-            int ordinal = 0;
+            int ordinal = 0, serialzeFeatures = 0;
 
             if (Modifier.isStatic(method.getModifiers())) {
                 continue;
@@ -962,6 +963,8 @@ public class TypeUtils {
                 }
 
                 ordinal = annotation.ordinal();
+                serialzeFeatures = SerializerFeature.of(annotation.serialzeFeatures());
+                
                 if (annotation.name().length() != 0) {
                     String propertyName = annotation.name();
 
@@ -972,7 +975,7 @@ public class TypeUtils {
                         }
                     }
 
-                    fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, null, annotation.ordinal()));
+                    fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, null, ordinal, serialzeFeatures));
                     continue;
                 }
             }
@@ -1022,7 +1025,8 @@ public class TypeUtils {
                         }
                         
                         ordinal = fieldAnnotation.ordinal();
-
+                        serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                        
                         if (fieldAnnotation.name().length() != 0) {
                             propertyName = fieldAnnotation.name();
 
@@ -1043,7 +1047,7 @@ public class TypeUtils {
                     }
                 }
 
-                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field, ordinal));
+                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field, ordinal, serialzeFeatures));
             }
 
             if (methodName.startsWith("is")) {
@@ -1083,6 +1087,8 @@ public class TypeUtils {
                         }
 
                         ordinal = fieldAnnotation.ordinal();
+                        serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                        
                         if (fieldAnnotation.name().length() != 0) {
                             propertyName = fieldAnnotation.name();
 
@@ -1103,7 +1109,7 @@ public class TypeUtils {
                     }
                 }
 
-                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field, ordinal));
+                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field, ordinal, serialzeFeatures));
             }
         }
 
@@ -1114,7 +1120,7 @@ public class TypeUtils {
 
             JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
 
-            int ordinal = 0;
+            int ordinal = 0, serialzeFeatures = 0;
             String propertyName = field.getName();
             if (fieldAnnotation != null) {
                 if (!fieldAnnotation.serialize()) {
@@ -1122,6 +1128,8 @@ public class TypeUtils {
                 }
 
                 ordinal = fieldAnnotation.ordinal();
+                serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                
                 if (fieldAnnotation.name().length() != 0) {
                     propertyName = fieldAnnotation.name();
                 }
@@ -1135,7 +1143,7 @@ public class TypeUtils {
             }
 
             if (!fieldInfoMap.containsKey(propertyName)) {
-                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, null, field, ordinal));
+                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, null, field, ordinal, serialzeFeatures));
             }
         }
 
@@ -1295,6 +1303,10 @@ public class TypeUtils {
         }
 
         return null;
+    }
+    
+    public static JSONType getJSONType(Class<?> clazz) {
+        return clazz.getAnnotation(JSONType.class);
     }
     
     public static String decapitalize(String name) {

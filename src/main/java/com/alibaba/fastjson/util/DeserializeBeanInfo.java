@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONCreator;
 import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class DeserializeBeanInfo {
 
@@ -122,7 +123,9 @@ public class DeserializeBeanInfo {
                     Class<?> fieldClass = creatorConstructor.getParameterTypes()[i];
                     Type fieldType = creatorConstructor.getGenericParameterTypes()[i];
                     Field field = TypeUtils.getField(clazz, fieldAnnotation.name());
-                    FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, field, fieldAnnotation.ordinal());
+                    final int ordinal = fieldAnnotation.ordinal();
+                    final int serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                    FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, field, ordinal, serialzeFeatures);
                     beanInfo.add(fieldInfo);
                 }
                 return beanInfo;
@@ -149,7 +152,15 @@ public class DeserializeBeanInfo {
                     Class<?> fieldClass = factoryMethod.getParameterTypes()[i];
                     Type fieldType = factoryMethod.getGenericParameterTypes()[i];
                     Field field = TypeUtils.getField(clazz, fieldAnnotation.name());
-                    FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, field, fieldAnnotation.ordinal());
+                    final int ordinal = fieldAnnotation.ordinal();
+                    final int serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                    FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name() //
+                                                        , clazz //
+                                                        , fieldClass //
+                                                        , fieldType //
+                                                        , field //
+                                                        , ordinal //
+                                                        , serialzeFeatures);
                     beanInfo.add(fieldInfo);
                 }
                 return beanInfo;
@@ -159,7 +170,7 @@ public class DeserializeBeanInfo {
         }
 
         for (Method method : clazz.getMethods()) {
-            int ordinal = 0;
+            int ordinal = 0, serialzeFeatures = 0;
             String methodName = method.getName();
             if (methodName.length() < 4) {
                 continue;
@@ -190,10 +201,11 @@ public class DeserializeBeanInfo {
                 }
                 
                 ordinal = annotation.ordinal();
+                serialzeFeatures = SerializerFeature.of(annotation.serialzeFeatures());
                 
                 if (annotation.name().length() != 0) {
                     String propertyName = annotation.name();
-                    beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal));
+                    beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures));
                     method.setAccessible(true);
                     continue;
                 }
@@ -233,18 +245,18 @@ public class DeserializeBeanInfo {
                 
                 if (fieldAnnotation != null) {
                     ordinal = fieldAnnotation.ordinal();
+                    serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
                     
                     if (fieldAnnotation.name().length() != 0) {
                         propertyName = fieldAnnotation.name();
-
-                        beanInfo.add(new FieldInfo(propertyName, method, field, clazz, type, ordinal));
+                        beanInfo.add(new FieldInfo(propertyName, method, field, clazz, type, ordinal, serialzeFeatures));
                         continue;
                     }
                 }
 
             }
 
-            beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal));
+            beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures));
             method.setAccessible(true);
         }
 
@@ -265,19 +277,20 @@ public class DeserializeBeanInfo {
                 continue;
             }
 
-            int ordinal = 0;
+            int ordinal = 0, serialzeFeatures = 0;
             String propertyName = field.getName();
 
             JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
 
             if (fieldAnnotation != null) {
                 ordinal = fieldAnnotation.ordinal();
+                serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
                 
                 if (fieldAnnotation.name().length() != 0) {
                     propertyName = fieldAnnotation.name();
                 }
             }
-            beanInfo.add(new FieldInfo(propertyName, null, field, clazz, type, ordinal));
+            beanInfo.add(new FieldInfo(propertyName, null, field, clazz, type, ordinal, serialzeFeatures));
         }
 
         for (Method method : clazz.getMethods()) {

@@ -52,7 +52,7 @@ public class CollectionSerializer implements ObjectSerializer {
         Collection<?> collection = (Collection<?>) object;
 
         SerialContext context = serializer.getContext();
-        serializer.setContext(context, object, fieldName);
+        serializer.setContext(context, object, fieldName, 0);
 
         if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
             if (HashSet.class == collection.getClass()) {

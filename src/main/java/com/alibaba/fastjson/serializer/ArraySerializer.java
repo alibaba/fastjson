@@ -48,7 +48,7 @@ public class ArraySerializer implements ObjectSerializer {
         int size = array.length;
 
         SerialContext context = serializer.getContext();
-        serializer.setContext(context, object, fieldName);
+        serializer.setContext(context, object, fieldName, 0);
 
         try {
             out.append('[');

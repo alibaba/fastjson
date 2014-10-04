@@ -14,7 +14,7 @@ public class DoubleFieldTest_A extends TestCase {
         user.setValue(1001D);
 
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
+        
         String text = JSON.toJSONString(user, mapping, SerializerFeature.WriteMapNullValue);
         System.out.println(text);
 
@@ -28,7 +28,7 @@ public class DoubleFieldTest_A extends TestCase {
         user.setValue(null);
 
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
+        
         String text = JSON.toJSONString(user, mapping, SerializerFeature.WriteMapNullValue);
         System.out.println(text);
 

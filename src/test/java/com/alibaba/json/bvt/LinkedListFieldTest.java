@@ -15,7 +15,7 @@ public class LinkedListFieldTest extends TestCase {
         V0 v = new V0();
 
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
+        
 
         String text = JSON.toJSONString(v, mapping, SerializerFeature.WriteMapNullValue);
         Assert.assertEquals("{\"value\":null}", text);
@@ -29,7 +29,7 @@ public class LinkedListFieldTest extends TestCase {
         V0 v = new V0();
 
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
+        
 
         Assert.assertEquals("{\"value\":[]}", JSON.toJSONString(v, mapping, SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullListAsEmpty));
         Assert.assertEquals("{value:[]}", JSON.toJSONStringZ(v, mapping, SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullListAsEmpty));

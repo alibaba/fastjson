@@ -27,7 +27,7 @@ public class NumberFieldTest extends TestCase {
         v.setValue(1001L);
         
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
+        
 
         String text = JSON.toJSONString(v, mapping, SerializerFeature.WriteMapNullValue);
         Assert.assertEquals("{\"value\":1001}", text);
@@ -41,7 +41,7 @@ public class NumberFieldTest extends TestCase {
         V0 v = new V0();
 
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
+        
 
         String text = JSON.toJSONString(v, mapping, SerializerFeature.WriteMapNullValue);
         Assert.assertEquals("{\"value\":null}", text);
@@ -56,7 +56,7 @@ public class NumberFieldTest extends TestCase {
         v.setValue(Long.MAX_VALUE);
         
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
+        
 
         String text = JSON.toJSONString(v, mapping, SerializerFeature.WriteMapNullValue);
         Assert.assertEquals("{\"value\":" + Long.MAX_VALUE + "}", text);
@@ -71,7 +71,7 @@ public class NumberFieldTest extends TestCase {
         v.setValue(Long.MAX_VALUE);
         
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(true);
+        
 
         String text = JSON.toJSONString(v, mapping, SerializerFeature.WriteMapNullValue);
         Assert.assertEquals("{\"value\":" + Long.MAX_VALUE + "}", text);
@@ -86,7 +86,7 @@ public class NumberFieldTest extends TestCase {
         v.setValue(new BigDecimal("3.2"));
         
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
+        
 
         String text = JSON.toJSONString(v, mapping, SerializerFeature.WriteMapNullValue);
         Assert.assertEquals("{\"value\":3.2}", text);
@@ -101,7 +101,7 @@ public class NumberFieldTest extends TestCase {
         v.setValue(new BigDecimal("3.2"));
         
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(true);
+        
         
         String text = JSON.toJSONString(v, mapping, SerializerFeature.WriteMapNullValue);
         Assert.assertEquals("{\"value\":3.2}", text);
@@ -116,7 +116,7 @@ public class NumberFieldTest extends TestCase {
         v.setValue(Long.MIN_VALUE);
         
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
+        
 
         String text = JSON.toJSONString(v, mapping, SerializerFeature.WriteMapNullValue);
         Assert.assertEquals("{\"value\":" + Long.MIN_VALUE + "}", text);
@@ -131,7 +131,7 @@ public class NumberFieldTest extends TestCase {
         v.setValue(Long.MIN_VALUE);
         
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(true);
+        
         
         String text = JSON.toJSONString(v, mapping, SerializerFeature.WriteMapNullValue);
         Assert.assertEquals("{\"value\":" + Long.MIN_VALUE + "}", text);
@@ -145,7 +145,7 @@ public class NumberFieldTest extends TestCase {
         V0 v = new V0();
 
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
+        
 
         String text = JSON.toJSONString(v, mapping, SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullNumberAsZero);
         Assert.assertEquals("{\"value\":0}", text);
@@ -159,7 +159,7 @@ public class NumberFieldTest extends TestCase {
         V0 v = new V0();
 
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(true);
+        
 
         String text = JSON.toJSONString(v, mapping, SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullNumberAsZero);
         Assert.assertEquals("{\"value\":0}", text);

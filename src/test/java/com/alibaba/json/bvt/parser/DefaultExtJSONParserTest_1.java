@@ -7,19 +7,19 @@ import org.junit.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.json.test.entity.TestEntity;
 
 public class DefaultExtJSONParserTest_1 extends TestCase {
 
     public void test_0() throws Exception {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("{\"f1\":true}");
+        DefaultJSONParser parser = new DefaultJSONParser("{\"f1\":true}");
         TestEntity entity = parser.parseObject(TestEntity.class);
         Assert.assertEquals(true, entity.isF1());
     }
 
     public void test_1() throws Exception {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("{\"f2\":true}");
+        DefaultJSONParser parser = new DefaultJSONParser("{\"f2\":true}");
         TestEntity entity = parser.parseObject(TestEntity.class);
         Assert.assertEquals(Boolean.TRUE, entity.getF2());
     }
@@ -50,7 +50,7 @@ public class DefaultExtJSONParserTest_1 extends TestCase {
 
         TestEntity b = new TestEntity();
         {
-            DefaultExtJSONParser parser = new DefaultExtJSONParser(text);
+            DefaultJSONParser parser = new DefaultJSONParser(text);
             parser.parseObject(b);
         }
 

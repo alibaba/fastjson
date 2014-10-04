@@ -14,7 +14,7 @@ public class DateFieldTest7 extends TestCase {
 	public void test_0() throws Exception {
 		SerializeConfig config = new SerializeConfig();
 		config.put(Date.class, new SimpleDateFormatSerializer("yyyy-MM-dd"));
-		config.setAsmEnable(false);
+		
 
 		Entity object = new Entity();
 		object.setValue(new Date());

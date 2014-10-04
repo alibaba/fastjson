@@ -13,7 +13,7 @@ public class ByteArrayTest extends TestCase {
         VO vo = new VO();
 
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
+        
         SerializerFeature[] features = { SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullListAsEmpty };
         String text1 = JSON.toJSONString(vo, mapping, features);
 
@@ -28,7 +28,7 @@ public class ByteArrayTest extends TestCase {
         vo.setValue(new byte[] {1, 2, 3});
 
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
+        
         SerializerFeature[] features = { SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullListAsEmpty };
         String text1 = JSON.toJSONString(vo, mapping, features);
 

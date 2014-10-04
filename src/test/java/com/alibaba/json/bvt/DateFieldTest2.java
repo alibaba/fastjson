@@ -29,7 +29,7 @@ public class DateFieldTest2 extends TestCase {
         v.setValue(new Date());
 
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
+        
 
         String text = JSON.toJSONString(v, mapping, SerializerFeature.WriteMapNullValue);
         Assert.assertEquals("{\"value\":" + JSON.toJSONString(new SimpleDateFormat("yyyy-MM-dd").format(v.getValue())) + "}", text);
@@ -40,7 +40,7 @@ public class DateFieldTest2 extends TestCase {
         v.setValue(new Date());
 
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(true);
+        
 
         String text = JSON.toJSONString(v, mapping, SerializerFeature.WriteMapNullValue);
         Assert.assertEquals("{\"value\":" + JSON.toJSONString(new SimpleDateFormat("yyyy-MM-dd").format(v.getValue())) + "}", text);
@@ -50,7 +50,7 @@ public class DateFieldTest2 extends TestCase {
         V0 v = new V0();
 
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(true);
+        
 
         String text = JSON.toJSONString(v, mapping, SerializerFeature.WriteMapNullValue);
         Assert.assertEquals("{\"value\":null}", text);
@@ -64,7 +64,7 @@ public class DateFieldTest2 extends TestCase {
         V0 v = new V0();
 
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
+        
 
         String text = JSON.toJSONString(v, mapping, SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullNumberAsZero);
         Assert.assertEquals("{\"value\":null}", text);

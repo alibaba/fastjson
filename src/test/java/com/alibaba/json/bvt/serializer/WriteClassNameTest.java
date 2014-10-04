@@ -15,7 +15,6 @@ public class WriteClassNameTest extends TestCase {
         object.setAverage(3.21F);
         
         SerializeConfig config = new SerializeConfig();
-        config.setAsmEnable(false);
         String text = JSON.toJSONString(object, config, SerializerFeature.WriteClassName);
         System.out.println(text);
     }

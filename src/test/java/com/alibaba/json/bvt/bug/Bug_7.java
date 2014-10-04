@@ -34,22 +34,5 @@ public class Bug_7 extends TestCase {
         Assert.assertEquals("[214748364812,2147483648123]", json.toJSONString());
     }
 
-    public void test_AtomicIntegerArray() throws Exception {
-        AtomicIntegerArray array = new AtomicIntegerArray(3);
-        array.set(0, 1);
-        array.set(1, 2);
-        array.set(2, 3);
-        String text = JSON.toJSONString(array);
-        Assert.assertEquals("[1,2,3]", text);
-    }
-
-    public void test_AtomicLongArray() throws Exception {
-        AtomicLongArray array = new AtomicLongArray(3);
-        array.set(0, 1);
-        array.set(1, 2);
-        array.set(2, 3);
-        String text = JSON.toJSONString(array);
-        Assert.assertEquals("[1,2,3]", text);
-    }
 }
    

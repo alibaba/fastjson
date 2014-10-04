@@ -1,12 +1,11 @@
 package com.alibaba.json.bvt.parser;
 
-import org.junit.Assert;
 import junit.framework.TestCase;
 
+import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.util.ThreadLocalCache;
 
 public class TestUTF8_2 extends TestCase {
 
@@ -39,7 +38,6 @@ public class TestUTF8_2 extends TestCase {
     }
     
     public void test_utf_4() throws Exception {
-        ThreadLocalCache.clearChars();
         
         byte[] bytes = decodeHex("C2FF".toCharArray());
         String content = new String(bytes, "UTF-8");

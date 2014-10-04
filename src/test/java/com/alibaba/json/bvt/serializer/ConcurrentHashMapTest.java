@@ -17,28 +17,28 @@ public class ConcurrentHashMapTest extends TestCase {
 
     public void test_concurrentHashmap() throws Exception {
         OffsetSerializeWrapper wrapper = new OffsetSerializeWrapper();
-        wrapper.getOffsetTable().put(new MessageQueue(), new AtomicLong(123));
+        wrapper.getOffsetTable().put(new MessageQueue(), new Long(123));
         String text = JSON.toJSONString(wrapper);
         Assert.assertEquals("{\"offsetTable\":{{\"items\":[]}:123}}", text);
         
         OffsetSerializeWrapper wrapper2 = JSON.parseObject(text, OffsetSerializeWrapper.class);
         Assert.assertEquals(1, wrapper2.getOffsetTable().size());
         
-        Iterator<Map.Entry<MessageQueue, AtomicLong>> iter = wrapper2.getOffsetTable().entrySet().iterator();
-        Map.Entry<MessageQueue, AtomicLong> entry = iter.next();
+        Iterator<Map.Entry<MessageQueue, Long>> iter = wrapper2.getOffsetTable().entrySet().iterator();
+        Map.Entry<MessageQueue, Long> entry = iter.next();
         Assert.assertEquals(0, entry.getKey().getItems().size());
         Assert.assertEquals(123L, entry.getValue().longValue());
     }
 
     public static class OffsetSerializeWrapper {
 
-        private ConcurrentHashMap<MessageQueue, AtomicLong> offsetTable = new ConcurrentHashMap<MessageQueue, AtomicLong>();
+        private ConcurrentHashMap<MessageQueue, Long> offsetTable = new ConcurrentHashMap<MessageQueue, Long>();
 
-        public ConcurrentHashMap<MessageQueue, AtomicLong> getOffsetTable() {
+        public ConcurrentHashMap<MessageQueue, Long> getOffsetTable() {
             return offsetTable;
         }
 
-        public void setOffsetTable(ConcurrentHashMap<MessageQueue, AtomicLong> offsetTable) {
+        public void setOffsetTable(ConcurrentHashMap<MessageQueue, Long> offsetTable) {
             this.offsetTable = offsetTable;
         }
 

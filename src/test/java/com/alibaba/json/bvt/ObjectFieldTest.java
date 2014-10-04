@@ -12,7 +12,7 @@ public class ObjectFieldTest extends TestCase {
     public void test_codec_null() throws Exception {
 
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
+        
 
         {
             V0 v = new V0();
@@ -38,7 +38,7 @@ public class ObjectFieldTest extends TestCase {
     public void test_codec_null_1() throws Exception {
 
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
+        
         {
             V0 v = new V0();
 

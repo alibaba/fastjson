@@ -14,7 +14,7 @@ public class IntegerArrayFieldTest extends TestCase {
         user.setValue(new Integer[] { Integer.valueOf(1), Integer.valueOf(2) });
 
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
+        
         String text = JSON.toJSONString(user, mapping, SerializerFeature.WriteMapNullValue);
 
         User user1 = JSON.parseObject(text, User.class);
@@ -28,7 +28,7 @@ public class IntegerArrayFieldTest extends TestCase {
         user.setValue(null);
 
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
+        
         String text = JSON.toJSONString(user, mapping, SerializerFeature.WriteMapNullValue);
 
         User user1 = JSON.parseObject(text, User.class);
@@ -41,7 +41,7 @@ public class IntegerArrayFieldTest extends TestCase {
         user.setValue(null);
 
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setAsmEnable(false);
+        
         String text = JSON.toJSONString(user, mapping, SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullListAsEmpty);
 
         User user1 = JSON.parseObject(text, User.class);

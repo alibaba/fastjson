@@ -12,7 +12,7 @@ public class FeaturesTest extends TestCase {
 
     public void test_0() throws Exception {
         SerializeConfig config = new SerializeConfig();
-        config.setAsmEnable(false);
+        
         
         String text = JSON.toJSONString(new Entity(), config);
         Assert.assertEquals("{\"value\":null}", text);
@@ -20,7 +20,7 @@ public class FeaturesTest extends TestCase {
     
     public void test_1() throws Exception {
         SerializeConfig config = new SerializeConfig();
-        config.setAsmEnable(true);
+        
         
         String text = JSON.toJSONString(new Entity(), config);
         Assert.assertEquals("{\"value\":null}", text);

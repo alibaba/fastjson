@@ -1,11 +1,12 @@
 package com.alibaba.json.bvt.parser;
 
-import org.junit.Assert;
 import junit.framework.TestCase;
 
-import com.alibaba.fastjson.parser.CharTypes;
+import org.junit.Assert;
+
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
+import com.alibaba.fastjson.util.IOUtils;
 
 public class FeatureTest extends TestCase {
 
@@ -20,7 +21,7 @@ public class FeatureTest extends TestCase {
     }
 
     public void test_config() throws Exception {
-        new CharTypes();
+        new IOUtils();
 
         DefaultJSONParser parser = new DefaultJSONParser("");
 

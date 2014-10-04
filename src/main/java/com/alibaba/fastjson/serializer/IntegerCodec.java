@@ -48,6 +48,15 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
         }
         
         out.writeInt(value.intValue());
+        
+        if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
+            Class<?> clazz = value.getClass();
+            if (clazz == Byte.class) {
+                out.write('B');
+            } else if (clazz == Short.class) {
+                out.write('S');
+            }
+        }
     }
     
     @SuppressWarnings("unchecked")

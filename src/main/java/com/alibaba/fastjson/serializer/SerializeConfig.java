@@ -139,8 +139,8 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 
 		put(Boolean.class, BooleanCodec.instance);
 		put(Character.class, CharacterCodec.instance);
-		put(Byte.class, ByteSerializer.instance);
-		put(Short.class, ShortSerializer.instance);
+		put(Byte.class, IntegerCodec.instance);
+		put(Short.class, IntegerCodec.instance);
 		put(Integer.class, IntegerCodec.instance);
 		put(Long.class, LongCodec.instance);
 		put(Float.class, FloatCodec.instance);

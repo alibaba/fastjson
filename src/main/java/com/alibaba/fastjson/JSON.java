@@ -85,10 +85,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     static {
         int features = 0;
-        features |= com.alibaba.fastjson.serializer.SerializerFeature.QuoteFieldNames.getMask();
-        features |= com.alibaba.fastjson.serializer.SerializerFeature.SkipTransientField.getMask();
-        features |= com.alibaba.fastjson.serializer.SerializerFeature.WriteEnumUsingToString.getMask();
-        features |= com.alibaba.fastjson.serializer.SerializerFeature.SortField.getMask();
+        features |= SerializerFeature.QuoteFieldNames.getMask();
+        features |= SerializerFeature.SkipTransientField.getMask();
+        features |= SerializerFeature.WriteEnumUsingToString.getMask();
+        features |= SerializerFeature.SortField.getMask();
         // features |=
         // com.alibaba.fastjson.serializer.SerializerFeature.WriteSlashAsSpecial.getMask();
         DEFAULT_GENERATE_FEATURE = features;

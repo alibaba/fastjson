@@ -143,4 +143,18 @@ public enum SerializerFeature {
 
         return features;
     }
+    
+    public static int of(SerializerFeature[] features) {
+        if (features == null) {
+            return 0;
+        }
+        
+        int value = 0;
+        
+        for (SerializerFeature feature: features) {
+            value |= feature.getMask();
+        }
+        
+        return value;
+    }
 }

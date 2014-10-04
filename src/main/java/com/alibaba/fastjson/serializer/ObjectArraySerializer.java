@@ -53,7 +53,7 @@ public class ObjectArraySerializer implements ObjectSerializer {
         }
 
         SerialContext context = serializer.getContext();
-        serializer.setContext(context, object, fieldName);
+        serializer.setContext(context, object, fieldName, 0);
 
         try {
             Class<?> preClazz = null;

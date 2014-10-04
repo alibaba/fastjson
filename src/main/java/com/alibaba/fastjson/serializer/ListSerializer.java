@@ -59,7 +59,7 @@ public final class ListSerializer implements ObjectSerializer {
         }
 
         SerialContext context = serializer.getContext();
-        serializer.setContext(context, object, fieldName);
+        serializer.setContext(context, object, fieldName, 0);
 
         ObjectSerializer itemSerializer = null;
         try {
@@ -79,7 +79,7 @@ public final class ListSerializer implements ObjectSerializer {
                             serializer.writeReference(item);
                         } else {
                             itemSerializer = serializer.getObjectWriter(item.getClass());
-                            SerialContext itemContext = new SerialContext(context, object, fieldName);
+                            SerialContext itemContext = new SerialContext(context, object, fieldName, 0);
                             serializer.setContext(itemContext);
                             itemSerializer.write(serializer, item, i, elementType);
                         }
@@ -117,7 +117,7 @@ public final class ListSerializer implements ObjectSerializer {
                             out.writeLong(val);
                         }
                     } else {
-                        SerialContext itemContext = new SerialContext(context, object, fieldName);
+                        SerialContext itemContext = new SerialContext(context, object, fieldName, 0);
                         serializer.setContext(itemContext);
 
                         if (serializer.containsReference(item)) {

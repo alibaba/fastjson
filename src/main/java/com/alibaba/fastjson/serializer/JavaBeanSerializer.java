@@ -119,7 +119,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
         }
 
         SerialContext parent = serializer.getContext();
-        serializer.setContext(parent, object, fieldName);
+        serializer.setContext(parent, object, fieldName, 0);
 
         final boolean writeAsArray = serializer.isWriteAsArray(object, fieldType);
 
@@ -246,8 +246,11 @@ public class JavaBeanSerializer implements ObjectSerializer {
     }
     
     public boolean writeReference(JSONSerializer serializer, Object object) {
-        if (SerializerFeature.isEnabled(features, SerializerFeature.DisableCircularReferenceDetect)) {
-            return false;
+        {
+            SerialContext context = serializer.getContext();
+            if (context != null && context.isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {
+                return false;
+            }
         }
         
         if (!serializer.containsReference(object)) {

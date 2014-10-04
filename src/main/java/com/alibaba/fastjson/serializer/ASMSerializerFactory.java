@@ -130,13 +130,7 @@ public class ASMSerializerFactory implements Opcodes {
         }
 
         String className = getGenClassName(clazz);
-        int beanSerializeFeatures = 0;
-        {
-            JSONType jsonType = TypeUtils.getJSONType(clazz);
-            if (jsonType != null) {
-                beanSerializeFeatures = SerializerFeature.of(jsonType.serialzeFeatures());
-            }
-        }
+        int beanSerializeFeatures = TypeUtils.getSerializeFeatures(clazz);
 
         ClassWriter cw = new ClassWriter();
         cw.visit(V1_5, ACC_PUBLIC + ACC_SUPER, className, "java/lang/Object",

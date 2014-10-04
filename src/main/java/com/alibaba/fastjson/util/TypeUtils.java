@@ -1309,6 +1309,16 @@ public class TypeUtils {
         return clazz.getAnnotation(JSONType.class);
     }
     
+    public static int getSerializeFeatures(Class<?> clazz) {
+        JSONType annotation = clazz.getAnnotation(JSONType.class);
+        
+        if (annotation == null) {
+            return 0;
+        }
+        
+        return SerializerFeature.of(annotation.serialzeFeatures());
+    }
+    
     public static String decapitalize(String name) {
         if (name == null || name.length() == 0) {
             return name;

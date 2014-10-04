@@ -60,8 +60,6 @@ import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
  */
 public class TypeUtils {
 	
-	private TypeUtils() {}
-
     public static boolean compatibleWithJavaBean = false;
 
     static {
@@ -1002,7 +1000,7 @@ public class TypeUtils {
                 } else if (c3 == 'f') {
                     propertyName = methodName.substring(3);
                 } else if (methodName.length()>=5 && Character.isUpperCase(methodName.charAt(4))){
-                    propertyName = Introspector.decapitalize(methodName.substring(3));
+                    propertyName = decapitalize(methodName.substring(3));
                 } else {
                     continue;
                 }

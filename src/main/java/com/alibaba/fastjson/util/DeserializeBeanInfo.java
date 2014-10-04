@@ -216,6 +216,8 @@ public class DeserializeBeanInfo {
                 propertyName = methodName.substring(4);
             } else if (c3 == 'f') {
                 propertyName = methodName.substring(3);
+            } else if (methodName.length()>=5 && Character.isUpperCase(methodName.charAt(4))){
+                propertyName = TypeUtils.decapitalize(methodName.substring(3));
             } else {
                 continue;
             }

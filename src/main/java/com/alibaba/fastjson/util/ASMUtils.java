@@ -12,8 +12,6 @@ import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 
 public class ASMUtils {
 	
-	private ASMUtils() { }
-
     public static boolean isAndroid(String vmName) {
         if (vmName == null) { // default is false
             return false;

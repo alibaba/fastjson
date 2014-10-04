@@ -10,11 +10,6 @@ import com.alibaba.fastjson.util.IOUtils;
 
 public class ByteArraySerializerTest extends TestCase {
 
-    public void test_b_0() {
-        char[] buf = new char[4];
-        IOUtils.getChars((byte) -127, 4, buf);
-    }
-
     public void test_0() {
         Assert.assertEquals("\"\"", JSON.toJSONString(new byte[0]));
         Assert.assertEquals("\"AQI=\"", JSON.toJSONString(new byte[] { 1, 2 }));

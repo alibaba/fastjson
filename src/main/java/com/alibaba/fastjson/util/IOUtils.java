@@ -16,13 +16,6 @@
 package com.alibaba.fastjson.util;
 
 import java.io.Closeable;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.CharacterCodingException;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CoderResult;
-
-import com.alibaba.fastjson.JSONException;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -205,70 +198,6 @@ public class IOUtils {
     }
 
     /**
-     * Places characters representing the integer i into the character array buf. The characters are placed into the
-     * buffer backwards starting with the least significant digit at the specified index (exclusive), and working
-     * backwards from there. Will fail if i == Integer.MIN_VALUE
-     */
-    public static void getChars(int i, int index, char[] buf) {
-        int q, r;
-        int charPos = index;
-        char sign = 0;
-
-        if (i < 0) {
-            sign = '-';
-            i = -i;
-        }
-
-        // Generate two digits per iteration
-        while (i >= 65536) {
-            q = i / 100;
-            // really: r = i - (q * 100);
-            r = i - ((q << 6) + (q << 5) + (q << 2));
-            i = q;
-            buf[--charPos] = DigitOnes[r];
-            buf[--charPos] = DigitTens[r];
-        }
-
-        // Fall thru to fast mode for smaller numbers
-        // assert(i <= 65536, i);
-        for (;;) {
-            q = (i * 52429) >>> (16 + 3);
-            r = i - ((q << 3) + (q << 1)); // r = i-(q*10) ...
-            buf[--charPos] = digits[r];
-            i = q;
-            if (i == 0) break;
-        }
-        if (sign != 0) {
-            buf[--charPos] = sign;
-        }
-    }
-
-    public static void getChars(byte b, int index, char[] buf) {
-        int i = b;
-        int q, r;
-        int charPos = index;
-        char sign = 0;
-
-        if (i < 0) {
-            sign = '-';
-            i = -i;
-        }
-
-        // Fall thru to fast mode for smaller numbers
-        // assert(i <= 65536, i);
-        for (;;) {
-            q = (i * 52429) >>> (16 + 3);
-            r = i - ((q << 3) + (q << 1)); // r = i-(q*10) ...
-            buf[--charPos] = digits[r];
-            i = q;
-            if (i == 0) break;
-        }
-        if (sign != 0) {
-            buf[--charPos] = sign;
-        }
-    }
-
-    /**
      * All possible chars for representing a number as a String
      */
     final static char[] digits    = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
@@ -297,23 +226,4 @@ public class IOUtils {
         }
     }
 
-    public static void decode(CharsetDecoder charsetDecoder, ByteBuffer byteBuf, CharBuffer charByte) {
-        try {
-            CoderResult cr = charsetDecoder.decode(byteBuf, charByte, true);
-
-            if (!cr.isUnderflow()) {
-                cr.throwException();
-            }
-
-            cr = charsetDecoder.flush(charByte);
-
-            if (!cr.isUnderflow()) {
-                cr.throwException();
-            }
-        } catch (CharacterCodingException x) {
-            // Substitution is always enabled,
-            // so this shouldn't happen
-            throw new JSONException(x.getMessage(), x);
-        }
-    }
 }

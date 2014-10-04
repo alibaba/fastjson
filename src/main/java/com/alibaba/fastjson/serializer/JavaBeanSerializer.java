@@ -26,7 +26,6 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.TypeUtils;
 
@@ -114,7 +113,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
         SerialContext parent = serializer.getContext();
         serializer.setContext(parent, object, fieldName, features);
 
-        final boolean writeAsArray = serializer.isWriteAsArray(object, fieldType);
+        final boolean writeAsArray = isWriteAsArray(serializer);
 
         try {
             final char startSeperator = writeAsArray ? '[' : '{';
@@ -262,5 +261,20 @@ public class JavaBeanSerializer implements ObjectSerializer {
         }
 
         return new ObjectFieldSerializer(fieldInfo);
+    }
+    
+    public boolean isWriteAsArray(JSONSerializer serializer) {
+        if (SerializerFeature.isEnabled(features, SerializerFeature.BeanToArray)) {
+            return true;
+        }
+        
+        boolean writeAsArray;
+        if (serializer.isEnabled(SerializerFeature.BeanToArray)) {
+            writeAsArray = true;
+        } else {
+            writeAsArray = false;
+        }
+
+        return writeAsArray;
     }
 }

@@ -90,6 +90,10 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
             return ASMJavaBeanDeserializer.this.createFieldDeserializer(mapping, clazz, fieldInfo);
         }
     }
+    
+    public boolean isSupportArrayToBean(JSONLexer lexer) {
+        return serializer.isSupportArrayToBean(lexer);
+    }
 
     public Object parseRest(DefaultJSONParser parser, Type type, Object fieldName, Object instance) {
 //        serializer.parseField(parser, key, object, objectType, fieldValues)

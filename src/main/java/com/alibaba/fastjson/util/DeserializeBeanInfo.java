@@ -30,9 +30,12 @@ public class DeserializeBeanInfo {
     private final List<FieldInfo> fieldList       = new ArrayList<FieldInfo>();
     private final List<FieldInfo> sortedFieldList = new ArrayList<FieldInfo>();
 
+    private int                   parserFeatures  = 0;
+
     public DeserializeBeanInfo(Class<?> clazz){
         super();
         this.clazz = clazz;
+        this.parserFeatures = TypeUtils.getParserFeatures(clazz);
     }
 
     public Constructor<?> getDefaultConstructor() {
@@ -125,7 +128,8 @@ public class DeserializeBeanInfo {
                     Field field = TypeUtils.getField(clazz, fieldAnnotation.name());
                     final int ordinal = fieldAnnotation.ordinal();
                     final int serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
-                    FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, field, ordinal, serialzeFeatures);
+                    FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, field,
+                                                        ordinal, serialzeFeatures);
                     beanInfo.add(fieldInfo);
                 }
                 return beanInfo;
@@ -199,10 +203,10 @@ public class DeserializeBeanInfo {
                 if (!annotation.deserialize()) {
                     continue;
                 }
-                
+
                 ordinal = annotation.ordinal();
                 serialzeFeatures = SerializerFeature.of(annotation.serialzeFeatures());
-                
+
                 if (annotation.name().length() != 0) {
                     String propertyName = annotation.name();
                     beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures));
@@ -228,7 +232,7 @@ public class DeserializeBeanInfo {
                 propertyName = methodName.substring(4);
             } else if (c3 == 'f') {
                 propertyName = methodName.substring(3);
-            } else if (methodName.length()>=5 && Character.isUpperCase(methodName.charAt(4))){
+            } else if (methodName.length() >= 5 && Character.isUpperCase(methodName.charAt(4))) {
                 propertyName = TypeUtils.decapitalize(methodName.substring(3));
             } else {
                 continue;
@@ -242,11 +246,11 @@ public class DeserializeBeanInfo {
 
             if (field != null) {
                 JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
-                
+
                 if (fieldAnnotation != null) {
                     ordinal = fieldAnnotation.ordinal();
                     serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
-                    
+
                     if (fieldAnnotation.name().length() != 0) {
                         propertyName = fieldAnnotation.name();
                         beanInfo.add(new FieldInfo(propertyName, method, field, clazz, type, ordinal, serialzeFeatures));
@@ -285,7 +289,7 @@ public class DeserializeBeanInfo {
             if (fieldAnnotation != null) {
                 ordinal = fieldAnnotation.ordinal();
                 serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
-                
+
                 if (fieldAnnotation.name().length() != 0) {
                     propertyName = fieldAnnotation.name();
                 }
@@ -400,4 +404,8 @@ public class DeserializeBeanInfo {
         return factoryMethod;
     }
 
+    
+    public int getParserFeatures() {
+        return parserFeatures;
+    }
 }

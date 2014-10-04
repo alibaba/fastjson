@@ -323,6 +323,14 @@ public class ASMDeserializerFactory implements Opcodes {
 
         {
             Label next_ = new Label();
+            
+            mw.visitVarInsn(ALOAD, 0);
+            mw.visitVarInsn(ALOAD, context.var("lexer"));
+            mw.visitMethodInsn(INVOKESPECIAL, getType(ASMJavaBeanDeserializer.class), "isSupportArrayToBean",
+                               "(Lcom/alibaba/fastjson/parser/JSONLexer;)Z");
+            mw.visitJumpInsn(IFEQ, next_);
+            //isSupportArrayToBean
+            
             mw.visitVarInsn(ALOAD, context.var("lexer"));
             mw.visitMethodInsn(INVOKEVIRTUAL, getType(JSONLexerBase.class), "token", "()I");
             mw.visitFieldInsn(GETSTATIC, getType(JSONToken.class), "LBRACKET", "I");

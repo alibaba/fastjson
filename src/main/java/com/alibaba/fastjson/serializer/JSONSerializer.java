@@ -125,10 +125,6 @@ public class JSONSerializer {
         this.context = context;
     }
     
-    public void setContext(SerialContext parent, Object object, Object fieldName) {
-        this.setContext(parent, object, fieldName, 0);
-    }
-
     public void setContext(SerialContext parent, Object object, Object fieldName, int features) {
         if (isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {
             return;

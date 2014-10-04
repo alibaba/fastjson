@@ -39,7 +39,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
     private final FieldSerializer[] getters;
     private final FieldSerializer[] sortedGetters;
     
-    private int features = JSON.DEFAULT_GENERATE_FEATURE;
+    private int features = 0;
     
     public FieldSerializer[] getGetters() {
         return getters;
@@ -63,6 +63,8 @@ public class JavaBeanSerializer implements ObjectSerializer {
     }
 
     public JavaBeanSerializer(Class<?> clazz, Map<String, String> aliasMap){
+        this.features = TypeUtils.getSerializeFeatures(clazz);
+        
         {
             List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
             List<FieldInfo> fieldInfoList = TypeUtils.computeGetters(clazz, aliasMap, false);
@@ -82,15 +84,6 @@ public class JavaBeanSerializer implements ObjectSerializer {
             }
 
             sortedGetters = getterList.toArray(new FieldSerializer[getterList.size()]);
-        }
-        
-        {
-            JSONType annotation = clazz.getAnnotation(JSONType.class);
-            if (annotation != null) {
-                for (SerializerFeature feature : annotation.serialzeFeatures()) {
-                    features = SerializerFeature.config(features, feature, true);
-                }
-            }
         }
     }
 
@@ -119,7 +112,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
         }
 
         SerialContext parent = serializer.getContext();
-        serializer.setContext(parent, object, fieldName, 0);
+        serializer.setContext(parent, object, fieldName, features);
 
         final boolean writeAsArray = serializer.isWriteAsArray(object, fieldType);
 

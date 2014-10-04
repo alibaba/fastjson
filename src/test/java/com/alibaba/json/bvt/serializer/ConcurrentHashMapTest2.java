@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.TestCase;
 
@@ -17,28 +16,28 @@ public class ConcurrentHashMapTest2 extends TestCase {
 
     public void test_concurrentHashmap() throws Exception {
         OffsetSerializeWrapper wrapper = new OffsetSerializeWrapper();
-        wrapper.getOffsetTable().put(new MessageQueue(), new AtomicInteger(123));
+        wrapper.getOffsetTable().put(new MessageQueue(), new Integer(123));
         String text = JSON.toJSONString(wrapper);
         Assert.assertEquals("{\"offsetTable\":{{\"items\":[]}:123}}", text);
         
         OffsetSerializeWrapper wrapper2 = JSON.parseObject(text, OffsetSerializeWrapper.class);
         Assert.assertEquals(1, wrapper2.getOffsetTable().size());
         
-        Iterator<Map.Entry<MessageQueue, AtomicInteger>> iter = wrapper2.getOffsetTable().entrySet().iterator();
-        Map.Entry<MessageQueue, AtomicInteger> entry = iter.next();
+        Iterator<Map.Entry<MessageQueue, Integer>> iter = wrapper2.getOffsetTable().entrySet().iterator();
+        Map.Entry<MessageQueue, Integer> entry = iter.next();
         Assert.assertEquals(0, entry.getKey().getItems().size());
         Assert.assertEquals(123, entry.getValue().intValue());
     }
 
     public static class OffsetSerializeWrapper {
 
-        private ConcurrentHashMap<MessageQueue, AtomicInteger> offsetTable = new ConcurrentHashMap<MessageQueue, AtomicInteger>();
+        private ConcurrentHashMap<MessageQueue, Integer> offsetTable = new ConcurrentHashMap<MessageQueue, Integer>();
 
-        public ConcurrentHashMap<MessageQueue, AtomicInteger> getOffsetTable() {
+        public ConcurrentHashMap<MessageQueue, Integer> getOffsetTable() {
             return offsetTable;
         }
 
-        public void setOffsetTable(ConcurrentHashMap<MessageQueue, AtomicInteger> offsetTable) {
+        public void setOffsetTable(ConcurrentHashMap<MessageQueue, Integer> offsetTable) {
             this.offsetTable = offsetTable;
         }
 

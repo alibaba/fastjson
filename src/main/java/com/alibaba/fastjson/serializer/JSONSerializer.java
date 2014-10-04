@@ -20,7 +20,6 @@ import java.io.Writer;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
-import java.sql.Clob;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -33,11 +32,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONStreamAware;
-import com.alibaba.fastjson.util.ServiceLoader;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -74,11 +71,6 @@ public class JSONSerializer {
 
     public JSONSerializer(SerializeConfig config){
         this(new SerializeWriter(), config);
-    }
-
-    @Deprecated
-    public JSONSerializer(JSONSerializerMap mapping){
-        this(new SerializeWriter(), mapping);
     }
 
     public JSONSerializer(SerializeWriter out, SerializeConfig config){
@@ -124,7 +116,7 @@ public class JSONSerializer {
     public void setContext(SerialContext context) {
         this.context = context;
     }
-    
+
     public void setContext(SerialContext parent, Object object, Object fieldName, int features) {
         if (isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {
             return;
@@ -265,7 +257,7 @@ public class JSONSerializer {
     public List<BeforeFilter> getBeforeFiltersDirect() {
         return beforeFilters;
     }
-    
+
     public List<AfterFilter> getAfterFilters() {
         if (afterFilters == null) {
             afterFilters = new ArrayList<AfterFilter>();
@@ -422,49 +414,6 @@ public class JSONSerializer {
         ObjectSerializer writer = config.get(clazz);
 
         if (writer == null) {
-            try {
-                final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-                for (Object o : ServiceLoader.load(AutowiredObjectSerializer.class, classLoader)) {
-                    if (!(o instanceof AutowiredObjectSerializer)) {
-                        continue;
-                    }
-
-                    AutowiredObjectSerializer autowired = (AutowiredObjectSerializer) o;
-                    for (Type forType : autowired.getAutowiredFor()) {
-                        config.put(forType, autowired);
-                    }
-                }
-            } catch (ClassCastException ex) {
-                // skip
-            }
-
-            writer = config.get(clazz);
-        }
-
-        if (writer == null) {
-            final ClassLoader classLoader = JSON.class.getClassLoader();
-            if (classLoader != Thread.currentThread().getContextClassLoader()) {
-                try {
-                    for (Object o : ServiceLoader.load(AutowiredObjectSerializer.class, classLoader)) {
-
-                        if (!(o instanceof AutowiredObjectSerializer)) {
-                            continue;
-                        }
-
-                        AutowiredObjectSerializer autowired = (AutowiredObjectSerializer) o;
-                        for (Type forType : autowired.getAutowiredFor()) {
-                            config.put(forType, autowired);
-                        }
-                    }
-                } catch (ClassCastException ex) {
-                    // skip
-                }
-
-                writer = config.get(clazz);
-            }
-        }
-
-        if (writer == null) {
             if (Map.class.isAssignableFrom(clazz)) {
                 config.put(clazz, MapSerializer.instance);
             } else if (List.class.isAssignableFrom(clazz)) {
@@ -497,8 +446,6 @@ public class JSONSerializer {
                 config.put(clazz, EnumerationSeriliazer.instance);
             } else if (Calendar.class.isAssignableFrom(clazz)) {
                 config.put(clazz, CalendarCodec.instance);
-            } else if (Clob.class.isAssignableFrom(clazz)) {
-                config.put(clazz, ClobSeriliazer.instance);
             } else {
                 boolean isCglibProxy = false;
                 boolean isJavassistProxy = false;

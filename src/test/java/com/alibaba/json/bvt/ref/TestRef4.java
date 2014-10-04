@@ -32,12 +32,10 @@ public class TestRef4 extends TestCase {
         jobs.setReportTo(sdh5724);
 
         SerializeConfig serializeConfig = new SerializeConfig();
-        serializeConfig.setAsmEnable(false);
         String text = JSON.toJSONString(admin, serializeConfig, SerializerFeature.PrettyFormat);
         System.out.println(text);
         
         ParserConfig config = new ParserConfig();
-        config.setAsmEnable(false);
         
         JSON.parseObject(text, Group.class, config, 0);
     }

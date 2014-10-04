@@ -16,13 +16,11 @@
 package com.alibaba.fastjson;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -49,8 +47,6 @@ import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.ValueFilter;
 import com.alibaba.fastjson.util.FieldInfo;
-import com.alibaba.fastjson.util.IOUtils;
-import com.alibaba.fastjson.util.ThreadLocalCache;
 import com.alibaba.fastjson.util.TypeUtils;
 
 /**
@@ -115,42 +111,11 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static final Object parse(byte[] input, Feature... features) {
-        return parse(input, 0, input.length, ThreadLocalCache.getUTF8Decoder(), features);
-    }
-
-    public static final Object parse(byte[] input, int off, int len, CharsetDecoder charsetDecoder, Feature... features) {
-        if (input == null || input.length == 0) {
-            return null;
+        try {
+            return parseObject(new String(input, "UTF-8"), features);
+        } catch (UnsupportedEncodingException e) {
+            throw new JSONException("parseObject error", e);
         }
-
-        int featureValues = DEFAULT_PARSER_FEATURE;
-        for (Feature featrue : features) {
-            featureValues = Feature.config(featureValues, featrue, true);
-        }
-
-        return parse(input, off, len, charsetDecoder, featureValues);
-    }
-
-    public static final Object parse(byte[] input, int off, int len, CharsetDecoder charsetDecoder, int features) {
-        charsetDecoder.reset();
-
-        int scaleLength = (int) (len * (double) charsetDecoder.maxCharsPerByte());
-        char[] chars = ThreadLocalCache.getChars(scaleLength);
-
-        ByteBuffer byteBuf = ByteBuffer.wrap(input, off, len);
-        CharBuffer charBuf = CharBuffer.wrap(chars);
-        IOUtils.decode(charsetDecoder, byteBuf, charBuf);
-
-        int position = charBuf.position();
-
-        DefaultJSONParser parser = new DefaultJSONParser(chars, position, ParserConfig.getGlobalInstance(), features);
-        Object value = parser.parse();
-
-        parser.handleResovleTask(value);
-
-        parser.close();
-
-        return value;
     }
 
     public static final Object parse(String text, Feature... features) {
@@ -258,24 +223,11 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     @SuppressWarnings("unchecked")
     public static final <T> T parseObject(byte[] input, Type clazz, Feature... features) {
-        return (T) parseObject(input, 0, input.length, ThreadLocalCache.getUTF8Decoder(), clazz, features);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static final <T> T parseObject(byte[] input, int off, int len, CharsetDecoder charsetDecoder, Type clazz,
-                                          Feature... features) {
-        charsetDecoder.reset();
-
-        int scaleLength = (int) (len * (double) charsetDecoder.maxCharsPerByte());
-        char[] chars = ThreadLocalCache.getChars(scaleLength);
-
-        ByteBuffer byteBuf = ByteBuffer.wrap(input, off, len);
-        CharBuffer charByte = CharBuffer.wrap(chars);
-        IOUtils.decode(charsetDecoder, byteBuf, charByte);
-
-        int position = charByte.position();
-
-        return (T) parseObject(chars, position, clazz, features);
+        try {
+            return (T) parseObject(new String(input, "UTF-8"), clazz, features);
+        } catch (UnsupportedEncodingException e) {
+            throw new JSONException("parseObject error", e);
+        }
     }
 
     @SuppressWarnings("unchecked")

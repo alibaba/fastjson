@@ -4,11 +4,11 @@ import junit.framework.TestCase;
 
 import org.junit.Assert;
 
-import com.alibaba.fastjson.parser.CharTypes;
+import com.alibaba.fastjson.util.IOUtils;
 
 public class CharTypesTest extends TestCase {
-    static byte[] specicalFlags_singleQuotes = CharTypes.specicalFlags_singleQuotes;
-    static byte[] specicalFlags_doubleQuotes = CharTypes.specicalFlags_doubleQuotes;
+    static byte[] specicalFlags_singleQuotes = IOUtils.specicalFlags_singleQuotes;
+    static byte[] specicalFlags_doubleQuotes = IOUtils.specicalFlags_doubleQuotes;
 
     public void test_0() throws Exception {
         

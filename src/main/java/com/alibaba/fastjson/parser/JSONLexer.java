@@ -1,7 +1,6 @@
 package com.alibaba.fastjson.parser;
 
 import java.math.BigDecimal;
-import java.util.Collection;
 
 public interface JSONLexer {
 
@@ -86,6 +85,5 @@ public interface JSONLexer {
 
     String scanSymbolWithSeperator(final SymbolTable symbolTable, char serperator);
 
-    Collection<String> scanStringArray(Class<?> type, char seperator);
 
 }

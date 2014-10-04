@@ -24,7 +24,6 @@ public class JSONCreatorTest extends TestCase {
         String text = JSON.toJSONString(entity);
         
         ParserConfig config = new ParserConfig();
-        config.setAsmEnable(false);
         
         Entity entity2 = JSON.parseObject(text, Entity.class, config, 0);
         Assert.assertEquals(entity.getId(), entity2.getId());

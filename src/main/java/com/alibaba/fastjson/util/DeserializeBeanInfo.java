@@ -11,9 +11,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONCreator;
@@ -317,9 +314,6 @@ public class DeserializeBeanInfo {
 
                 if (Collection.class.isAssignableFrom(method.getReturnType()) //
                     || Map.class.isAssignableFrom(method.getReturnType()) //
-                    || AtomicBoolean.class == method.getReturnType() //
-                    || AtomicInteger.class == method.getReturnType() //
-                    || AtomicLong.class == method.getReturnType() //
                 ) {
                     String propertyName;
                     

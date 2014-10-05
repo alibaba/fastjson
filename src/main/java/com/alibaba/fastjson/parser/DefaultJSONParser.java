@@ -784,6 +784,16 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
             }
 
             FieldDeserializer fieldDeser = setters.get(key);
+            
+            if (fieldDeser == null && key != null) {
+                for (Map.Entry<String, FieldDeserializer> entry : setters.entrySet()) {
+                    if (key.equalsIgnoreCase((entry.getKey()))) {
+                        fieldDeser = entry.getValue();
+                        break;
+                    }
+                }
+            }
+            
             if (fieldDeser == null) {
                 if (!isEnabled(Feature.IgnoreNotMatch)) {
                     throw new JSONException("setter not found, class " + clazz.getName() + ", property " + key);

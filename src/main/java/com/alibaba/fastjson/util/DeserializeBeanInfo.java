@@ -294,7 +294,13 @@ public class DeserializeBeanInfo {
                     propertyName = fieldAnnotation.name();
                 }
             }
-            beanInfo.add(new FieldInfo(propertyName, null, field, clazz, type, ordinal, serialzeFeatures));
+            FieldInfo newFieldInfo = new FieldInfo(propertyName, null, field, clazz, type, ordinal, serialzeFeatures);
+            FieldInfo oldFieldInfo = beanInfo.getField(propertyName);
+            
+            if (oldFieldInfo != null && newFieldInfo.isGetOnly()) {
+                continue;
+            }
+            beanInfo.add(newFieldInfo);
         }
 
         for (Method method : clazz.getMethods()) {
@@ -320,12 +326,13 @@ public class DeserializeBeanInfo {
                 ) {
                     String propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
 
-                    FieldInfo fieldInfo = beanInfo.getField(propertyName);
-                    if (fieldInfo != null) {
+                    FieldInfo newFieldInfo = new FieldInfo(propertyName, method, null, clazz, type);
+                    FieldInfo oldFieldInfo = beanInfo.getField(propertyName);
+                    if (oldFieldInfo != null && newFieldInfo.isGetOnly()) {
                         continue;
                     }
-
-                    beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type));
+                    
+                    beanInfo.add(newFieldInfo);
                     method.setAccessible(true);
                 }
             }

@@ -71,16 +71,6 @@ public class DeserializeBeanInfo {
         return sortedFieldList;
     }
 
-    public FieldInfo getField(String propertyName) {
-        for (FieldInfo item : this.fieldList) {
-            if (item.getName().equals(propertyName)) {
-                return item;
-            }
-        }
-
-        return null;
-    }
-
     public boolean add(FieldInfo field) {
         for (FieldInfo item : this.fieldList) {
             if (item.getName().equals(field.getName())) {

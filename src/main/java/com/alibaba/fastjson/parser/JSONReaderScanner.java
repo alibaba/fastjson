@@ -195,16 +195,6 @@ public final class JSONReaderScanner extends JSONLexerBase {
         System.arraycopy(buf, offset, dest, 0, count);
     }
 
-    public final boolean charArrayCompare(char[] chars) {
-        for (int i = 0; i < chars.length; ++i) {
-            if (charAt(bp + i) != chars[i]) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     public byte[] bytesValue() {
         return Base64.decodeFast(buf, np + 1, sp);
     }

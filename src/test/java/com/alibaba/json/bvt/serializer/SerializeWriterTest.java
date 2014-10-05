@@ -76,22 +76,10 @@ public class SerializeWriterTest extends TestCase {
         Assert.assertEquals(Long.toString(Long.MAX_VALUE), out.toString());
     }
 
-    public void test_15() throws Exception {
-        SerializeWriter out = new SerializeWriter(1);
-        out.writeIntAndChar(Integer.MAX_VALUE, ',');
-        Assert.assertEquals(Integer.toString(Integer.MAX_VALUE) + ",", out.toString());
-    }
-
     public void test_15_long() throws Exception {
         SerializeWriter out = new SerializeWriter(1);
         out.writeLongAndChar(Long.MAX_VALUE, ',');
         Assert.assertEquals(Long.toString(Long.MAX_VALUE) + ",", out.toString());
-    }
-
-    public void test_16() throws Exception {
-        SerializeWriter out = new SerializeWriter(1);
-        out.writeIntAndChar(Integer.MIN_VALUE, ',');
-        Assert.assertEquals(Integer.toString(Integer.MIN_VALUE) + ",", out.toString());
     }
 
     public void test_16_long() throws Exception {

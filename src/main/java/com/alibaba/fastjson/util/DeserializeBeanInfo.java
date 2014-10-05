@@ -87,6 +87,9 @@ public class DeserializeBeanInfo {
     public boolean add(FieldInfo field) {
         for (FieldInfo item : this.fieldList) {
             if (item.getName().equals(field.getName())) {
+                if (item.isGetOnly() && !field.isGetOnly()) {
+                    continue;
+                }
                 return false;
             }
         }
@@ -318,7 +321,14 @@ public class DeserializeBeanInfo {
                     || AtomicInteger.class == method.getReturnType() //
                     || AtomicLong.class == method.getReturnType() //
                 ) {
-                    String propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+                    String propertyName;
+                    
+                    JSONField annotation = method.getAnnotation(JSONField.class);
+                    if (annotation != null && annotation.name().length() > 0) {
+                        propertyName = annotation.name();
+                    } else {
+                        propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+                    }
 
                     FieldInfo fieldInfo = beanInfo.getField(propertyName);
                     if (fieldInfo != null) {

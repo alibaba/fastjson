@@ -1004,6 +1004,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     }
 
     public final int intValue() {
+        if (np == -1) {
+            np = 0;
+        }
+        
         int result = 0;
         boolean negative = false;
         int i = np, max = np + sp;

@@ -22,9 +22,9 @@ import com.alibaba.fastjson.JSON;
  */
 public class SymbolTable {
 
-    public static final int DEFAULT_TABLE_SIZE = 256;
+    public static final int DEFAULT_TABLE_SIZE = 512;
     public static final int MAX_BUCKET_LENTH   = 8;
-    public static final int MAX_SIZE           = 2048;
+    public static final int MAX_SIZE           = 4096;
 
     private final Entry[]   buckets;
     private final String[]  symbols;
@@ -37,7 +37,7 @@ public class SymbolTable {
     public SymbolTable(){
         this(DEFAULT_TABLE_SIZE);
         this.addSymbol("$ref", 0, 4, "$ref".hashCode());
-        this.addSymbol(JSON.DEFAULT_TYPE_KEY, 0, 4, JSON.DEFAULT_TYPE_KEY.hashCode());
+        this.addSymbol(JSON.DEFAULT_TYPE_KEY, 0, 5, JSON.DEFAULT_TYPE_KEY.hashCode());
     }
 
     public SymbolTable(int tableSize){

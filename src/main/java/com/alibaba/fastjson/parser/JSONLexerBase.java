@@ -34,7 +34,9 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
@@ -44,7 +46,18 @@ import com.alibaba.fastjson.util.IOUtils;
  * @author wenshao[szujobs@hotmail.com]
  */
 public abstract class JSONLexerBase implements JSONLexer, Closeable {
+    private final static Map<String, Integer> DEFAULT_KEYWORDS;
 
+    static {
+        Map<String, Integer> map = new HashMap<String, Integer>();
+        map.put("null", JSONToken.NULL);
+        map.put("new", JSONToken.NEW);
+        map.put("true", JSONToken.TRUE);
+        map.put("false", JSONToken.FALSE);
+        map.put("undefined", JSONToken.UNDEFINED);
+        DEFAULT_KEYWORDS = map;
+    }
+    
     protected void lexError(String key, Object... args) {
         token = ERROR;
     }
@@ -76,7 +89,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     public int                                              matchStat      = UNKOWN;
 
     private final static ThreadLocal<SoftReference<char[]>> SBUF_REF_LOCAL = new ThreadLocal<SoftReference<char[]>>();
-    protected Keywords                                      keywods        = Keywords.DEFAULT_KEYWORDS;
+    protected Map<String, Integer>                          keywods        = DEFAULT_KEYWORDS;
 
     public JSONLexerBase(){
         SoftReference<char[]> sbufRef = SBUF_REF_LOCAL.get();
@@ -2575,7 +2588,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
             String ident = stringVal();
 
-            Integer tok = keywods.getKeyword(ident);
+            Integer tok = keywods.get(ident);
             if (tok != null) {
                 token = tok;
             } else {

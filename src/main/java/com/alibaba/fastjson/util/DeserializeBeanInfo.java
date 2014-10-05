@@ -87,6 +87,10 @@ public class DeserializeBeanInfo {
     public boolean add(FieldInfo field) {
         for (FieldInfo item : this.fieldList) {
             if (item.getName().equals(field.getName())) {
+                if (item.isGetOnly() && !field.isGetOnly()) {
+                    continue;
+                }
+                
                 return false;
             }
         }
@@ -259,7 +263,6 @@ public class DeserializeBeanInfo {
                 }
 
             }
-
             beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures));
             method.setAccessible(true);
         }
@@ -294,13 +297,7 @@ public class DeserializeBeanInfo {
                     propertyName = fieldAnnotation.name();
                 }
             }
-            FieldInfo newFieldInfo = new FieldInfo(propertyName, null, field, clazz, type, ordinal, serialzeFeatures);
-            FieldInfo oldFieldInfo = beanInfo.getField(propertyName);
-            
-            if (oldFieldInfo != null && newFieldInfo.isGetOnly()) {
-                continue;
-            }
-            beanInfo.add(newFieldInfo);
+            beanInfo.add(new FieldInfo(propertyName, null, field, clazz, type, ordinal, serialzeFeatures));
         }
 
         for (Method method : clazz.getMethods()) {
@@ -324,15 +321,16 @@ public class DeserializeBeanInfo {
                     || AtomicInteger.class == method.getReturnType() //
                     || AtomicLong.class == method.getReturnType() //
                 ) {
-                    String propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
-
-                    FieldInfo newFieldInfo = new FieldInfo(propertyName, method, null, clazz, type);
-                    FieldInfo oldFieldInfo = beanInfo.getField(propertyName);
-                    if (oldFieldInfo != null && newFieldInfo.isGetOnly()) {
-                        continue;
-                    }
+                    String propertyName;
                     
-                    beanInfo.add(newFieldInfo);
+                    JSONField annotation = method.getAnnotation(JSONField.class);
+                    if (annotation != null && annotation.name().length() > 0) {
+                        propertyName = annotation.name();
+                    } else {
+                        propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+                    }
+
+                    beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type));
                     method.setAccessible(true);
                 }
             }

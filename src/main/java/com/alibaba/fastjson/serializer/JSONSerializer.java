@@ -438,8 +438,6 @@ public class JSONSerializer {
                 config.put(clazz, new ExceptionSerializer(clazz));
             } else if (TimeZone.class.isAssignableFrom(clazz)) {
                 config.put(clazz, TimeZoneCodec.instance);
-            } else if (Appendable.class.isAssignableFrom(clazz)) {
-                config.put(clazz, AppendableSerializer.instance);
             } else if (Charset.class.isAssignableFrom(clazz)) {
                 config.put(clazz, CharsetCodec.instance);
             } else if (Enumeration.class.isAssignableFrom(clazz)) {

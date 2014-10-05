@@ -102,9 +102,6 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
         put(InetSocketAddress.class, InetSocketAddressCodec.instance);
         put(URI.class, URICodec.instance);
         put(URL.class, URLCodec.instance);
-        put(Appendable.class, AppendableSerializer.instance);
-        put(StringBuffer.class, AppendableSerializer.instance);
-        put(StringBuilder.class, AppendableSerializer.instance);
         put(Pattern.class, PatternCodec.instance);
         put(Charset.class, CharsetCodec.instance);
 

@@ -59,10 +59,6 @@ public class DeserializeBeanInfo {
         this.factoryMethod = factoryMethod;
     }
 
-    public Class<?> getClazz() {
-        return clazz;
-    }
-
     public List<FieldInfo> getFieldList() {
         return fieldList;
     }

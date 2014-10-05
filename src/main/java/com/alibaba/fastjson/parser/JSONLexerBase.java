@@ -102,10 +102,6 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
     }
 
-    public final int matchStat() {
-        return matchStat;
-    }
-
     public final void nextToken() {
         sp = 0;
 

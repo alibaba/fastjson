@@ -82,10 +82,6 @@ public class BooleanCodec implements ObjectSerializer, ObjectDeserializer {
             boolObj = TypeUtils.castToBoolean(value);
         }
 
-        if (clazz == AtomicBoolean.class) {
-            return (T) new AtomicBoolean(boolObj.booleanValue());
-        }
-
         return (T) boolObj;
     }
 

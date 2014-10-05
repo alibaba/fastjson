@@ -21,10 +21,6 @@ public abstract class FieldDeserializer {
         this.fieldInfo = fieldInfo;
     }
     
-    public FieldInfo getFieldInfo() {
-        return fieldInfo;
-    }
-
     public Method getMethod() {
         return fieldInfo.getMethod();
     }

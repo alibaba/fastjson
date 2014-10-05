@@ -83,10 +83,6 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
             intObj = TypeUtils.castToInt(value);
         }
         
-        if (clazz == AtomicInteger.class) {
-            return (T) new AtomicInteger(intObj.intValue());
-        }
-        
         return (T) intObj;
     }
 

@@ -1082,17 +1082,6 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
         return context;
     }
 
-    public List<ResolveTask> getResolveTaskList() {
-        if (resolveTaskList == null) {
-            resolveTaskList = new ArrayList<ResolveTask>(2);
-        }
-        return resolveTaskList;
-    }
-
-    public List<ResolveTask> getResolveTaskListDirect() {
-        return resolveTaskList;
-    }
-
     public void addResolveTask(ResolveTask task) {
         if (resolveTaskList == null) {
             resolveTaskList = new ArrayList<ResolveTask>(2);

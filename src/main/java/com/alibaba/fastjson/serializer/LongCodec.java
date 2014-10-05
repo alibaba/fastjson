@@ -76,10 +76,6 @@ public class LongCodec implements ObjectSerializer, ObjectDeserializer {
             longObject = TypeUtils.castToLong(value);
         }
         
-        if (clazz == AtomicLong.class) {
-            return (T) new AtomicLong(longObject.longValue());
-        }
-        
         return (T) longObject;
     }
 

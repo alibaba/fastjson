@@ -22,7 +22,6 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.ref.SoftReference;
-import java.math.BigDecimal;
 import java.nio.charset.Charset;
 
 import com.alibaba.fastjson.JSON;
@@ -449,104 +448,6 @@ public final class SerializeWriter extends Writer {
         buf[newcount - 1] = quote;
     }
 
-    public void writeFloatAndChar(float value, char c) {
-        String text = Float.toString(value);
-        if (text.endsWith(".0")) {
-            text = text.substring(0, text.length() - 2);
-        }
-        write(text);
-        write(c);
-    }
-
-    public void writeDoubleAndChar(double value, char c) {
-        String text = Double.toString(value);
-        if (text.endsWith(".0")) {
-            text = text.substring(0, text.length() - 2);
-        }
-        write(text);
-        write(c);
-    }
-
-    public void writeBooleanAndChar(boolean value, char c) {
-        if (value) {
-            if (c == ',') {
-                write("true,");
-            } else if (c == ']') {
-                write("true]");
-            } else {
-                write("true");
-                write(c);
-            }
-        } else {
-            if (c == ',') {
-                write("false,");
-            } else if (c == ']') {
-                write("false]");
-            } else {
-                write("false");
-                write(c);
-            }
-        }
-    }
-
-    public void writeCharacterAndChar(char value, char c) {
-        writeString(Character.toString(value));
-        write(c);
-    }
-
-    public void writeEnum(Enum<?> value, char c) {
-        if (value == null) {
-            writeNull();
-            write(',');
-            return;
-        }
-
-        if (isEnabled(SerializerFeature.WriteEnumUsingToString)) {
-            if (isEnabled(SerializerFeature.UseSingleQuotes)) {
-                write('\'');
-                write(value.name());
-                write('\'');
-                write(c);
-
-            } else {
-                write('\"');
-                write(value.name());
-                write('\"');
-                write(c);
-            }
-            return;
-        }
-
-        writeIntAndChar(value.ordinal(), c);
-    }
-
-    public void writeIntAndChar(int i, char c) {
-        if (i == Integer.MIN_VALUE) {
-            write("-2147483648");
-            write(c);
-            return;
-        }
-
-        int size = (i < 0) ? IOUtils.stringSize(-i) + 1 : IOUtils.stringSize(i);
-
-        int newcount0 = count + size;
-        int newcount1 = newcount0 + 1;
-
-        if (newcount1 > buf.length) {
-            if (writer != null) {
-                writeInt(i);
-                write(c);
-                return;
-            }
-            expandCapacity(newcount1);
-        }
-
-        IOUtils.getChars(i, newcount0, buf);
-        buf[newcount0] = c;
-
-        count = newcount1;
-    }
-
     public void writeLongAndChar(long i, char c) throws IOException {
         if (i == Long.MIN_VALUE) {
             write("-9223372036854775808");
@@ -935,156 +836,12 @@ public final class SerializeWriter extends Writer {
         }
     }
 
-    public void writeFieldNull(char seperator, String name) {
-        write(seperator);
-        writeFieldName(name);
-        writeNull();
-    }
-
-    public void writeFieldEmptyList(char seperator, String key) {
-        write(seperator);
-        writeFieldName(key);
-        write("[]");
-    }
-
-    public void writeFieldNullString(char seperator, String name) {
-        write(seperator);
-        writeFieldName(name);
-        if (isEnabled(SerializerFeature.WriteNullStringAsEmpty)) {
-            writeString("");
-        } else {
-            writeNull();
-        }
-    }
-
-    public void writeFieldNullBoolean(char seperator, String name) {
-        write(seperator);
-        writeFieldName(name);
-        if (isEnabled(SerializerFeature.WriteNullBooleanAsFalse)) {
-            write("false");
-        } else {
-            writeNull();
-        }
-    }
-
-    public void writeFieldNullList(char seperator, String name) {
-        write(seperator);
-        writeFieldName(name);
-        if (isEnabled(SerializerFeature.WriteNullListAsEmpty)) {
-            write("[]");
-        } else {
-            writeNull();
-        }
-    }
-
-    public void writeFieldNullNumber(char seperator, String name) {
-        write(seperator);
-        writeFieldName(name);
-        if (isEnabled(SerializerFeature.WriteNullNumberAsZero)) {
-            write('0');
-        } else {
-            writeNull();
-        }
-    }
-
-    public void writeFieldValue(char seperator, String name, char value) {
-        write(seperator);
-        writeFieldName(name);
-        if (value == 0) {
-            writeString("\u0000");
-        } else {
-            writeString(Character.toString(value));
-        }
-    }
-
-    public void writeFieldValue(char seperator, String name, boolean value) {
-
-        char keySeperator = isEnabled(SerializerFeature.UseSingleQuotes) ? '\'' : '"';
-
-        int intSize = value ? 4 : 5;
-
-        int nameLen = name.length();
-        int newcount = count + nameLen + 4 + intSize;
-        if (newcount > buf.length) {
-            if (writer != null) {
-                write(seperator);
-                writeString(name);
-                write(':');
-                write(value);
-                return;
-            }
-            expandCapacity(newcount);
-        }
-
-        int start = count;
-        count = newcount;
-
-        buf[start] = seperator;
-
-        int nameEnd = start + nameLen + 1;
-
-        buf[start + 1] = keySeperator;
-
-        name.getChars(0, nameLen, buf, start + 2);
-
-        buf[nameEnd + 1] = keySeperator;
-
-        if (value) {
-            System.arraycopy(":true".toCharArray(), 0, buf, nameEnd + 2, 5);
-        } else {
-            System.arraycopy(":false".toCharArray(), 0, buf, nameEnd + 2, 6);
-        }
-    }
-
     public void write(boolean value) {
         if (value) {
             write("true");
         } else {
             write("false");
         }
-    }
-
-    public void writeFieldValue(char seperator, String name, int value) {
-        if (value == Integer.MIN_VALUE || (!isEnabled(SerializerFeature.QuoteFieldNames))) {
-            writeFieldValue1(seperator, name, value);
-            return;
-        }
-
-        char keySeperator = isEnabled(SerializerFeature.UseSingleQuotes) ? '\'' : '"';
-
-        int intSize = (value < 0) ? IOUtils.stringSize(-value) + 1 : IOUtils.stringSize(value);
-
-        int nameLen = name.length();
-        int newcount = count + nameLen + 4 + intSize;
-        if (newcount > buf.length) {
-            if (writer != null) {
-                writeFieldValue1(seperator, name, value);
-                return;
-            }
-            expandCapacity(newcount);
-        }
-
-        int start = count;
-        count = newcount;
-
-        buf[start] = seperator;
-
-        int nameEnd = start + nameLen + 1;
-
-        buf[start + 1] = keySeperator;
-
-        name.getChars(0, nameLen, buf, start + 2);
-
-        buf[nameEnd + 1] = keySeperator;
-        buf[nameEnd + 2] = ':';
-
-        IOUtils.getChars(value, count, buf);
-    }
-
-    public void writeFieldValue1(char seperator, String name, int value) {
-        write(seperator);
-        writeFieldName(name);
-        writeInt(value);
     }
 
     public void writeFieldValue(char seperator, String name, long value) {
@@ -1130,42 +887,6 @@ public final class SerializeWriter extends Writer {
         write(seperator);
         writeFieldName(name);
         writeLong(value);
-    }
-
-    public void writeFieldValue(char seperator, String name, float value) {
-        write(seperator);
-        writeFieldName(name);
-        if (value == 0) {
-            write('0');
-        } else if (Float.isNaN(value)) {
-            writeNull();
-        } else if (Float.isInfinite(value)) {
-            writeNull();
-        } else {
-            String text = Float.toString(value);
-            if (text.endsWith(".0")) {
-                text = text.substring(0, text.length() - 2);
-            }
-            write(text);
-        }
-    }
-
-    public void writeFieldValue(char seperator, String name, double value) {
-        write(seperator);
-        writeFieldName(name);
-        if (value == 0) {
-            write('0');
-        } else if (Double.isNaN(value)) {
-            writeNull();
-        } else if (Double.isInfinite(value)) {
-            writeNull();
-        } else {
-            String text = Double.toString(value);
-            if (text.endsWith(".0")) {
-                text = text.substring(0, text.length() - 2);
-            }
-            write(text);
-        }
     }
 
     public void writeFieldValue(char seperator, String name, String value) {
@@ -1413,49 +1134,6 @@ public final class SerializeWriter extends Writer {
         }
 
         return false;
-    }
-
-    // writeStringWithSingleQuote
-
-    public void writeFieldValue(char seperator, String name, Enum<?> value) {
-        if (value == null) {
-            write(seperator);
-            writeFieldName(name);
-            writeNull();
-            return;
-        }
-
-        if (isEnabled(SerializerFeature.WriteEnumUsingToString)) {
-            if (isEnabled(SerializerFeature.UseSingleQuotes)) {
-                writeFieldValue(seperator, name, value.name());
-            } else {
-                writeFieldValueStringWithDoubleQuote(seperator, name, value.name(), false);
-                return;
-            }
-
-            // writeStringWithDoubleQuote
-        } else {
-            writeFieldValue(seperator, name, value.ordinal());
-        }
-    }
-
-    public void writeFieldValue(char seperator, String name, BigDecimal value) {
-        write(seperator);
-        writeFieldName(name);
-        if (value == null) {
-            writeNull();
-        } else {
-            write(value.toString());
-        }
-    }
-
-    public void writeString(String text, char seperator) {
-        if (isEnabled(SerializerFeature.UseSingleQuotes)) {
-            writeStringWithSingleQuote(text);
-            write(seperator);
-        } else {
-            writeStringWithDoubleQuote(text, seperator);
-        }
     }
 
     public void writeString(String text) {

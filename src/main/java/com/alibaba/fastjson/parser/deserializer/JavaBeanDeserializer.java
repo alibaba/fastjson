@@ -57,10 +57,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         return feildDeserializerMap;
     }
 
-    public Class<?> getClazz() {
-        return clazz;
-    }
-
     private void addFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
         String interName = fieldInfo.getName().intern();
         FieldDeserializer fieldDeserializer = createFieldDeserializer(mapping, clazz, fieldInfo);
@@ -424,12 +420,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         return JSONToken.LBRACE;
     }
 
-    
-    public List<FieldDeserializer> getSortedFieldDeserializers() {
-        return sortedFieldDeserializers;
-    }
-    
     public final boolean isSupportArrayToBean(JSONLexer lexer) {
-        return Feature.isEnabled(beanInfo.getParserFeatures(), Feature.SupportArrayToBean) || lexer.isEnabled(Feature.SupportArrayToBean);
+        return Feature.isEnabled(beanInfo.getParserFeatures(), Feature.SupportArrayToBean)
+               || lexer.isEnabled(Feature.SupportArrayToBean);
     }
 }

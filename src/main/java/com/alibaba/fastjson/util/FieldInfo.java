@@ -35,7 +35,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.ordinal = ordinal;
 
         if (field != null) {
-            field.setAccessible(true);
+            TypeUtils.setAccessible(field);
         }
     }
 
@@ -59,11 +59,11 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.ordinal = ordinal;
 
         if (method != null) {
-            method.setAccessible(true);
+            TypeUtils.setAccessible(method);
         }
 
         if (field != null) {
-            field.setAccessible(true);
+            TypeUtils.setAccessible(field);
         }
 
         Type fieldType;
@@ -285,11 +285,11 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
     public void setAccessible(boolean flag) throws SecurityException {
         if (method != null) {
-            method.setAccessible(flag);
+            TypeUtils.setAccessible(method);
             return;
         }
 
-        field.setAccessible(flag);
+        TypeUtils.setAccessible(field);
     }
 
     public boolean isGetOnly() {

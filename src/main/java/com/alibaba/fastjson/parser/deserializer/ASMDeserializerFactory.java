@@ -30,7 +30,6 @@ import com.alibaba.fastjson.asm.MethodVisitor;
 import com.alibaba.fastjson.asm.Opcodes;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.parser.SymbolTable;
 import com.alibaba.fastjson.util.ASMClassLoader;
 import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.DeserializeBeanInfo;

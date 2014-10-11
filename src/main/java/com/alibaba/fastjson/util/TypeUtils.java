@@ -15,6 +15,7 @@
  */
 package com.alibaba.fastjson.util;
 
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -28,6 +29,7 @@ import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.security.AccessControlException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -63,6 +65,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 public class TypeUtils {
 	
     public static boolean compatibleWithJavaBean = false;
+    private static boolean setAccessibleEnable    = true;
 
     static {
         try {
@@ -1341,5 +1344,21 @@ public class TypeUtils {
         char chars[] = name.toCharArray();
         chars[0] = Character.toLowerCase(chars[0]);
         return new String(chars);
+    }
+    
+    static void setAccessible(AccessibleObject obj) {
+        if (!setAccessibleEnable) {
+            return;
+        }
+        
+        if (obj.isAccessible()) {
+            return;
+        }
+        
+        try {
+            obj.setAccessible(true);
+        } catch (AccessControlException error) {
+            setAccessibleEnable = false;
+        }
     }
 }

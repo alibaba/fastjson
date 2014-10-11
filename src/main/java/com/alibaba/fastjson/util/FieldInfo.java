@@ -26,7 +26,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
     private final Class<?> declaringClass;
     private boolean        getOnly = false;
     private int            serialzeFeatures;
-
+    
     public FieldInfo(String name, Class<?> declaringClass, Class<?> fieldClass, Type fieldType, Field field){
         this(name, declaringClass, fieldClass, fieldType, field, 0, 0);
     }
@@ -42,10 +42,10 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.serialzeFeatures = serialzeFeatures;
 
         if (field != null) {
-            field.setAccessible(true);
+            TypeUtils.setAccessible(field);
         }
     }
-
+    
     public FieldInfo(String name, Method method, Field field){
         this(name, method, field, null, null);
     }
@@ -66,11 +66,11 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.serialzeFeatures = serialzeFeatures;
 
         if (method != null) {
-            method.setAccessible(true);
+            TypeUtils.setAccessible(method);
         }
 
         if (field != null) {
-            field.setAccessible(true);
+            TypeUtils.setAccessible(field);
         }
 
         Type fieldType;
@@ -306,11 +306,11 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
     public void setAccessible(boolean flag) throws SecurityException {
         if (method != null) {
-            method.setAccessible(flag);
+            TypeUtils.setAccessible(method);
             return;
         }
 
-        field.setAccessible(flag);
+        TypeUtils.setAccessible(field);
     }
 
     public boolean isGetOnly() {

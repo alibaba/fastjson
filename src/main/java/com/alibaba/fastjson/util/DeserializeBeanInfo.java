@@ -105,12 +105,12 @@ public class DeserializeBeanInfo {
 
         Constructor<?> defaultConstructor = getDefaultConstructor(clazz);
         if (defaultConstructor != null) {
-            defaultConstructor.setAccessible(true);
+            TypeUtils.setAccessible(defaultConstructor);
             beanInfo.setDefaultConstructor(defaultConstructor);
         } else if (defaultConstructor == null && !(clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers()))) {
             Constructor<?> creatorConstructor = getCreatorConstructor(clazz);
             if (creatorConstructor != null) {
-                creatorConstructor.setAccessible(true);
+                TypeUtils.setAccessible(creatorConstructor);
                 beanInfo.setCreatorConstructor(creatorConstructor);
 
                 for (int i = 0; i < creatorConstructor.getParameterTypes().length; ++i) {
@@ -140,7 +140,7 @@ public class DeserializeBeanInfo {
 
             Method factoryMethod = getFactoryMethod(clazz);
             if (factoryMethod != null) {
-                factoryMethod.setAccessible(true);
+                TypeUtils.setAccessible(factoryMethod);
                 beanInfo.setFactoryMethod(factoryMethod);
 
                 for (int i = 0; i < factoryMethod.getParameterTypes().length; ++i) {
@@ -213,7 +213,7 @@ public class DeserializeBeanInfo {
                 if (annotation.name().length() != 0) {
                     String propertyName = annotation.name();
                     beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures));
-                    method.setAccessible(true);
+                    TypeUtils.setAccessible(method);
                     continue;
                 }
             }
@@ -264,7 +264,7 @@ public class DeserializeBeanInfo {
             }
 
             beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures));
-            method.setAccessible(true);
+            TypeUtils.setAccessible(method);
         }
 
         for (Field field : clazz.getFields()) {
@@ -336,7 +336,7 @@ public class DeserializeBeanInfo {
                     }
 
                     beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type));
-                    method.setAccessible(true);
+                    TypeUtils.setAccessible(method);
                 }
             }
         }

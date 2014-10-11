@@ -60,7 +60,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 
 	private boolean asm = !ASMUtils.isAndroid();;
 
-	private final ASMSerializerFactory asmFactory = new ASMSerializerFactory();
+	private ASMSerializerFactory asmFactory;
 	
 
 	private String typeKey = JSON.DEFAULT_TYPE_KEY;
@@ -136,6 +136,12 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 
 	public SerializeConfig(int tableSize) {
 		super(tableSize);
+		
+		try {
+		    asmFactory = new ASMSerializerFactory();
+		} catch (ExceptionInInitializerError error) {
+		    asm = false;
+		}
 
 		put(Boolean.class, BooleanCodec.instance);
 		put(Character.class, CharacterCodec.instance);

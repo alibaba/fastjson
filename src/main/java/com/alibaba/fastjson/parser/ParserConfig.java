@@ -149,17 +149,39 @@ public class ParserConfig {
 
     protected final SymbolTable                             symbolTable      = new SymbolTable();
 
-    protected ASMDeserializerFactory                        asmFactory       = ASMDeserializerFactory.getInstance();
+    protected ASMDeserializerFactory                        asmFactory;
     
     public ParserConfig() {
-        this(ASMDeserializerFactory.getInstance());
+        this(null, null);
     }
     
     public ParserConfig(ClassLoader parentClassLoader){
-        this(new ASMDeserializerFactory(parentClassLoader));
+        this(null, parentClassLoader);
+    }
+    
+    public ParserConfig(ASMDeserializerFactory asmFactory){
+        this(asmFactory, null);
     }
 
-    public ParserConfig(ASMDeserializerFactory asmFactory){
+    private ParserConfig(ASMDeserializerFactory asmFactory, ClassLoader parentClassLoader){
+        if (asmFactory == null) {
+            try {
+                if (parentClassLoader == null) {
+                    asmFactory = ASMDeserializerFactory.getInstance();    
+                } else {
+                    asmFactory = new ASMDeserializerFactory(parentClassLoader);
+                }
+            } catch (NoClassDefFoundError error) {
+                // skip
+            }
+        }
+        
+        this.asmFactory = asmFactory;
+        
+        if (asmFactory == null) {
+            asmEnable = false;
+        }
+        
         primitiveClasses.add(boolean.class);
         primitiveClasses.add(Boolean.class);
 
@@ -427,7 +449,7 @@ public class ParserConfig {
             asmEnable = false;
         }
 
-        if (asmFactory.isExternalClass(clazz)) {
+        if (asmEnable && asmFactory != null && asmFactory.isExternalClass(clazz)) {
             asmEnable = false;
         }
         
@@ -518,7 +540,7 @@ public class ParserConfig {
             asmEnable = false;
         }
 
-        if (asmFactory.isExternalClass(clazz)) {
+        if (asmEnable && asmFactory != null && asmFactory.isExternalClass(clazz)) {
             asmEnable = false;
         }
 

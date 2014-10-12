@@ -21,7 +21,7 @@ public class ListSerializerTest3 extends TestCase {
         }
 
         long start = System.currentTimeMillis();
-        listSerializer.write(new JSONSerializer(out), list, null, null);
+        listSerializer.write(new JSONSerializer(out), list, null, null, 0);
         long end = System.currentTimeMillis();
 
         System.out.println("arrayList time: " + (end - start));
@@ -38,7 +38,7 @@ public class ListSerializerTest3 extends TestCase {
         }
 
         long start = System.currentTimeMillis();
-        listSerializer.write(new JSONSerializer(out), list, null, null);
+        listSerializer.write(new JSONSerializer(out), list, null, null, 0);
         long end = System.currentTimeMillis();
 
         System.out.println("linkedList time: " + (end - start));

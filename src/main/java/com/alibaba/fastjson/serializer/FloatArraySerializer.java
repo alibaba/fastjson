@@ -28,7 +28,7 @@ public class FloatArraySerializer implements ObjectSerializer {
     public FloatArraySerializer(){
     }
 
-    public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.getWriter();
         
         if (object == null) {

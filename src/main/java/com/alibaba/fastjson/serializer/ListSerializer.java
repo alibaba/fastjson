@@ -27,7 +27,7 @@ public final class ListSerializer implements ObjectSerializer {
 
     public static final ListSerializer instance = new ListSerializer();
 
-    public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType)
+    public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
                                                                                                        throws IOException {
 
         boolean writeClassName = serializer.isEnabled(SerializerFeature.WriteClassName);
@@ -79,9 +79,9 @@ public final class ListSerializer implements ObjectSerializer {
                             serializer.writeReference(item);
                         } else {
                             itemSerializer = serializer.getObjectWriter(item.getClass());
-                            SerialContext itemContext = new SerialContext(context, object, fieldName, 0);
+                            SerialContext itemContext = new SerialContext(context, object, fieldName, 0, 0);
                             serializer.setContext(itemContext);
-                            itemSerializer.write(serializer, item, i, elementType);
+                            itemSerializer.write(serializer, item, i, elementType, 0);
                         }
                     } else {
                         serializer.getWriter().writeNull();
@@ -117,14 +117,14 @@ public final class ListSerializer implements ObjectSerializer {
                             out.writeLong(val);
                         }
                     } else {
-                        SerialContext itemContext = new SerialContext(context, object, fieldName, 0);
+                        SerialContext itemContext = new SerialContext(context, object, fieldName, 0, 0);
                         serializer.setContext(itemContext);
 
                         if (serializer.containsReference(item)) {
                             serializer.writeReference(item);
                         } else {
                             itemSerializer = serializer.getObjectWriter(item.getClass());
-                            itemSerializer.write(serializer, item, i, elementType);
+                            itemSerializer.write(serializer, item, i, elementType, 0);
                         }
                     }
                 }

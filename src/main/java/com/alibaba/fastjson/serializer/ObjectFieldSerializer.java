@@ -88,6 +88,8 @@ public class ObjectFieldSerializer extends FieldSerializer {
         }
         
         final RuntimeSerializerInfo runtimeInfo = this.runtimeInfo;
+        
+        final int fieldFeatures = fieldInfo.getSerialzeFeatures();
 
         if (propertyValue == null) {
             if (writeNumberAsZero && Number.class.isAssignableFrom(runtimeInfo.runtimeFieldClass)) {
@@ -104,7 +106,7 @@ public class ObjectFieldSerializer extends FieldSerializer {
                 return;
             }
 
-            runtimeInfo.fieldSerializer.write(serializer, null, fieldInfo.getName(), null);
+            runtimeInfo.fieldSerializer.write(serializer, null, fieldInfo.getName(), null, fieldFeatures);
             return;
         }
 
@@ -115,12 +117,12 @@ public class ObjectFieldSerializer extends FieldSerializer {
 
         Class<?> valueClass = propertyValue.getClass();
         if (valueClass == runtimeInfo.runtimeFieldClass) {
-            runtimeInfo.fieldSerializer.write(serializer, propertyValue, fieldInfo.getName(), fieldInfo.getFieldType());
+            runtimeInfo.fieldSerializer.write(serializer, propertyValue, fieldInfo.getName(), fieldInfo.getFieldType(), fieldFeatures);
             return;
         }
 
         ObjectSerializer valueSerializer = serializer.getObjectWriter(valueClass);
-        valueSerializer.write(serializer, propertyValue, fieldInfo.getName(), fieldInfo.getFieldType());
+        valueSerializer.write(serializer, propertyValue, fieldInfo.getName(), fieldInfo.getFieldType(), fieldFeatures);
     }
 
     static class RuntimeSerializerInfo {

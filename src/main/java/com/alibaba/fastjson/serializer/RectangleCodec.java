@@ -15,7 +15,7 @@ public class RectangleCodec implements ObjectSerializer, ObjectDeserializer {
 
     public final static RectangleCodec instance = new RectangleCodec();
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.getWriter();
         Rectangle rectangle = (Rectangle) object;
         if (rectangle == null) {

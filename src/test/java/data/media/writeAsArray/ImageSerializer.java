@@ -11,7 +11,7 @@ import data.media.Image;
 
 public class ImageSerializer implements ObjectSerializer {
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         Image image = (Image) object;
 
         SerializeWriter out = serializer.getWriter();

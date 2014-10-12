@@ -27,7 +27,7 @@ public class JSONAwareSerializer implements ObjectSerializer {
 
     public static JSONAwareSerializer instance = new JSONAwareSerializer();
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         JSONAware aware = (JSONAware) object;

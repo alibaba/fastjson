@@ -26,7 +26,7 @@ public class ClassSerializer implements ObjectSerializer {
     public final static ClassSerializer instance = new ClassSerializer();
 
     @SuppressWarnings("rawtypes")
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         Class clazz = (Class) object;

@@ -30,7 +30,7 @@ public class StringCodec implements ObjectSerializer, ObjectDeserializer {
 
     public static StringCodec instance = new StringCodec();
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         write(serializer, (String) object);
     }
 

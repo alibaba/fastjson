@@ -90,7 +90,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
         return serializer.isWriteClassName(fieldType, obj);
     }
     
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         if (object == null) {
@@ -98,7 +98,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
             return;
         }
 
-        if (writeReference(serializer, object)) {
+        if (writeReference(serializer, object, features)) {
             return;
         }
 
@@ -111,7 +111,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
         }
 
         SerialContext parent = serializer.getContext();
-        serializer.setContext(parent, object, fieldName, features);
+        serializer.setContext(parent, object, fieldName, this.features, features);
 
         final boolean writeAsArray = isWriteAsArray(serializer);
 
@@ -237,10 +237,10 @@ public class JavaBeanSerializer implements ObjectSerializer {
         }
     }
     
-    public boolean writeReference(JSONSerializer serializer, Object object) {
+    public boolean writeReference(JSONSerializer serializer, Object object, int fieldFeatures) {
         {
             SerialContext context = serializer.getContext();
-            if (context != null && context.isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {
+            if (context != null && SerializerFeature.isEnabled(context.getFeatures(), fieldFeatures, SerializerFeature.DisableCircularReferenceDetect)) {
                 return false;
             }
         }

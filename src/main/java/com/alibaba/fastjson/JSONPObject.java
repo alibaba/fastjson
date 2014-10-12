@@ -43,7 +43,7 @@ public class JSONPObject implements JSONSerializable {
         return null;
     }
 
-    public void write(JSONSerializer serializer, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter writer = serializer.getWriter();
         writer.write(function);
         writer.write('(');

@@ -126,11 +126,15 @@ public class JSONSerializer {
     }
     
     public void setContext(SerialContext parent, Object object, Object fieldName, int features) {
+        this.setContext(parent, object, fieldName, features, 0);
+    }
+    
+    public void setContext(SerialContext parent, Object object, Object fieldName, int features, int fieldFeatures) {
         if (isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {
             return;
         }
 
-        this.context = new SerialContext(parent, object, fieldName, features);
+        this.context = new SerialContext(parent, object, fieldName, features, fieldFeatures);
         if (references == null) {
             references = new IdentityHashMap<Object, SerialContext>();
         }
@@ -366,7 +370,7 @@ public class JSONSerializer {
         ObjectSerializer writer = getObjectWriter(clazz);
 
         try {
-            writer.write(this, object, null, null);
+            writer.write(this, object, null, null, 0);
         } catch (IOException e) {
             throw new JSONException(e.getMessage(), e);
         }
@@ -384,7 +388,7 @@ public class JSONSerializer {
         write(value);
     }
 
-    public final void writeWithFieldName(Object object, Object fieldName, Type fieldType, int features) {
+    public final void writeWithFieldName(Object object, Object fieldName, Type fieldType, int fieldFeatures) {
         try {
             if (object == null) {
                 out.writeNull();
@@ -395,7 +399,7 @@ public class JSONSerializer {
 
             ObjectSerializer writer = getObjectWriter(clazz);
 
-            writer.write(this, object, fieldName, fieldType);
+            writer.write(this, object, fieldName, fieldType, fieldFeatures);
         } catch (IOException e) {
             throw new JSONException(e.getMessage(), e);
         }

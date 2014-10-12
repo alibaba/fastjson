@@ -17,27 +17,15 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
-import java.nio.charset.Charset;
-import java.sql.Clob;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.JSONStreamAware;
-import com.alibaba.fastjson.util.ServiceLoader;
 
 /**
  * @author wenshao[szujobs@hotmail.com]

@@ -32,7 +32,7 @@ public class LongCodec implements ObjectSerializer, ObjectDeserializer {
 
     public static LongCodec instance = new LongCodec();
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         if (object == null) {

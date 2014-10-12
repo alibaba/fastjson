@@ -31,7 +31,7 @@ public class AtomicLongArrayCodec implements ObjectSerializer, ObjectDeserialize
 
     public final static AtomicLongArrayCodec instance = new AtomicLongArrayCodec();
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         if (object == null) {

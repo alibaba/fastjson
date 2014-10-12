@@ -22,5 +22,5 @@ import java.lang.reflect.Type;
  * @author wenshao[szujobs@hotmail.com]
  */
 public interface JSONSerializable {
-    void write(JSONSerializer serializer, Object fieldName, Type fieldType) throws IOException;
+    void write(JSONSerializer serializer, Object fieldName, Type fieldType, int features) throws IOException;
 }

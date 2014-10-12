@@ -31,7 +31,7 @@ public class ArraySerializer implements ObjectSerializer {
         this.compObjectSerializer = compObjectSerializer;
     }
 
-    public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType)
+    public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
                                                                                                        throws IOException {
         SerializeWriter out = serializer.getWriter();
 
@@ -61,10 +61,10 @@ public class ArraySerializer implements ObjectSerializer {
                 if (item == null) {
                     out.append("null");
                 } else if (item.getClass() == componentType) {
-                	compObjectSerializer.write(serializer, item, i, null);
+                	compObjectSerializer.write(serializer, item, i, null, 0);
                 } else {
                 	ObjectSerializer itemSerializer = serializer.getObjectWriter(item.getClass());
-                	itemSerializer.write(serializer, item, i, null);
+                	itemSerializer.write(serializer, item, i, null, 0);
                 }
             }
             out.append(']');

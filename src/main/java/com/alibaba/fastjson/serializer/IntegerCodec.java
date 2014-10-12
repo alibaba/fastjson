@@ -33,7 +33,7 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
 
     public static IntegerCodec instance = new IntegerCodec();
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         Number value = (Number) object;

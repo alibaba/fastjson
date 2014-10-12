@@ -15,7 +15,7 @@ public class ColorCodec implements ObjectSerializer, ObjectDeserializer {
 
     public final static ColorCodec instance = new ColorCodec();
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.getWriter();
         Color color = (Color) object;
         if (color == null) {

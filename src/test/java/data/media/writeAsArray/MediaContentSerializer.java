@@ -15,13 +15,13 @@ public class MediaContentSerializer implements ObjectSerializer {
     private MediaSerializer mediaSerilaizer = new MediaSerializer(); 
     private ImageSerializer imageSerilaizer = new ImageSerializer(); 
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         MediaContent entity = (MediaContent) object;
 
         SerializeWriter out = serializer.getWriter();
         out.write('[');
         
-        mediaSerilaizer.write(serializer, entity.getMedia(), "media", Media.class);
+        mediaSerilaizer.write(serializer, entity.getMedia(), "media", Media.class, 0);
         out.write(',');
         
         out.write('[');
@@ -30,7 +30,7 @@ public class MediaContentSerializer implements ObjectSerializer {
                 out.write(',');
             }
             Image image = entity.getImages().get(i);
-            imageSerilaizer.write(serializer, image, i, fieldType);
+            imageSerilaizer.write(serializer, image, i, fieldType, 0);
         }
         out.write(']');
         

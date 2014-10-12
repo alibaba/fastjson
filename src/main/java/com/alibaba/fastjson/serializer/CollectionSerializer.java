@@ -29,7 +29,7 @@ public class CollectionSerializer implements ObjectSerializer {
 
     public final static CollectionSerializer instance = new CollectionSerializer();
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         if (object == null) {
@@ -93,7 +93,7 @@ public class CollectionSerializer implements ObjectSerializer {
                 }
 
                 ObjectSerializer itemSerializer = serializer.getObjectWriter(clazz);
-                itemSerializer.write(serializer, item, i - 1, elementType);
+                itemSerializer.write(serializer, item, i - 1, elementType, 0);
             }
             out.append(']');
         } finally {

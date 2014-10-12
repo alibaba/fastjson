@@ -1,12 +1,16 @@
 package com.alibaba.fastjson;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.alibaba.fastjson.serializer.ASMJavaBeanSerializer;
+import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.JavaBeanSerializer;
 import com.alibaba.fastjson.serializer.ObjectSerializer;
 import com.alibaba.fastjson.serializer.SerializeConfig;
@@ -15,12 +19,15 @@ import com.alibaba.fastjson.serializer.SerializeConfig;
  * @author wenshao[szujobs@hotmail.com]
  * @since 1.2.0
  */
-public class JSONPath {
+public class JSONPath implements ObjectSerializer {
 
-    private final String    path;
-    private Segement[]      pathSegments;
+    private static int                   CACHE_SIZE = 1024;
+    private static Map<String, JSONPath> pathCache      = new ConcurrentHashMap<String, JSONPath>(128, 0.75f, 1);
 
-    private SerializeConfig serializeConfig;
+    private final String                 path;
+    private Segement[]                   pathSegments;
+
+    private SerializeConfig              serializeConfig;
 
     public JSONPath(String path){
         this(path, SerializeConfig.getGlobalInstance());
@@ -47,6 +54,18 @@ public class JSONPath {
             currentObject = pathSegments[i].eval(this, rootObject, currentObject);
         }
         return currentObject;
+    }
+
+    public static Object eval(Object rootObject, String path) {
+        JSONPath jsonpath = pathCache.get(path);
+        if (jsonpath == null) {
+            jsonpath = new JSONPath(path);
+            if (pathCache.size() < CACHE_SIZE) {
+                pathCache.putIfAbsent(path, jsonpath);
+                jsonpath = pathCache.get(path);
+            }
+        }
+        return jsonpath.eval(rootObject);
     }
 
     public String getPath() {
@@ -202,6 +221,7 @@ public class JSONPath {
 
         public final static SizeSegement instance = new SizeSegement();
 
+        @SuppressWarnings("rawtypes")
         public Integer eval(JSONPath path, Object rootObject, Object currentObject) {
             if (currentObject == null) {
                 return 0;
@@ -417,5 +437,10 @@ public class JSONPath {
             return fieldValues;
         }
         throw new JSONPathException("jsonpath error, path " + path + ", segement " + propertyName);
+    }
+
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
+                                                                                                               throws IOException {
+        serializer.write(path);
     }
 }

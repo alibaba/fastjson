@@ -150,6 +150,8 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 		
 		try {
 		    asmFactory = new ASMSerializerFactory();
+		} catch (NoClassDefFoundError eror) {
+		    asm = false;
 		} catch (ExceptionInInitializerError error) {
 		    asm = false;
 		}

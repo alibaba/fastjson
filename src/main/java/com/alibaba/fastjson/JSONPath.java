@@ -1,5 +1,6 @@
 package com.alibaba.fastjson;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -8,6 +9,10 @@ import com.alibaba.fastjson.serializer.JavaBeanSerializer;
 import com.alibaba.fastjson.serializer.ObjectSerializer;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 
+/**
+ * @author wenshao[szujobs@hotmail.com]
+ * @since 1.2.0
+ */
 public class JSONPath {
 
     private final String    path;
@@ -207,9 +212,21 @@ public class JSONPath {
             } catch (Exception e) {
                 throw new JSONPathException("jsonpath error, path " + path + ", segement " + propertyName, e);
             }
-        } else {
-            throw new JSONPathException("jsonpath error, path " + path + ", segement " + propertyName);
         }
-
+        
+        if (currentObject instanceof List) {
+            List list = (List) currentObject;
+            
+            List<Object> fieldValues = new ArrayList<Object>(list.size());
+            
+            for (int i = 0; i < list.size(); ++i) {
+                Object obj = list.get(i);
+                Object itemValue = getPropertyValue(obj, propertyName, strictMode);
+                fieldValues.add(itemValue);
+            }
+            
+            return fieldValues;
+        }
+        throw new JSONPathException("jsonpath error, path " + path + ", segement " + propertyName);
     }
 }

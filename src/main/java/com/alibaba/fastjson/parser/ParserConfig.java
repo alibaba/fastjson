@@ -36,6 +36,7 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.security.AccessControlException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -171,6 +172,10 @@ public class ParserConfig {
                 } else {
                     asmFactory = new ASMDeserializerFactory(parentClassLoader);
                 }
+            } catch (ExceptionInInitializerError error) {
+                // skip
+            } catch (AccessControlException error) {
+                // skip
             } catch (NoClassDefFoundError error) {
                 // skip
             }

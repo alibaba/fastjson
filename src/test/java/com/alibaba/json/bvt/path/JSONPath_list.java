@@ -18,6 +18,7 @@ public class JSONPath_list extends TestCase {
         List list = new ArrayList();
         list.add(map);
         Assert.assertSame(map.get("val"), new JSONPath("$[0].val").eval(list));
+        Assert.assertSame(map.get("val"), new JSONPath("$[-1].val").eval(list));
     }
 
 }

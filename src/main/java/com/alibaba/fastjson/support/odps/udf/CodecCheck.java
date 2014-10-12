@@ -1,4 +1,4 @@
-package com.alibaba.fastjson.support.odps;
+package com.alibaba.fastjson.support.odps.udf;
 
 import com.alibaba.fastjson.JSON;
 import com.aliyun.odps.udf.UDF;

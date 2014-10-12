@@ -90,6 +90,10 @@ public class JSONPath {
         if ("$".equals(pathSegement)) {
             return RootSegement.instance;
         }
+        
+        if ("*".equals(pathSegement)) {
+            return WildCardSegement.instance;
+        }
 
         if (pathSegement.charAt(0) == '[' && pathSegement.charAt(pathSegement.length() - 1) == ']') {
             String indexText = pathSegement.substring(1, pathSegement.length() - 1);
@@ -133,7 +137,7 @@ public class JSONPath {
         }
     }
 
-    class PropertySegement implements Segement {
+    static class PropertySegement implements Segement {
 
         private final String propertyName;
 
@@ -142,11 +146,20 @@ public class JSONPath {
         }
 
         public Object eval(JSONPath path, Object rootObject, Object currentObject) {
-            return getPropertyValue(currentObject, propertyName, true);
+            return path.getPropertyValue(currentObject, propertyName, true);
         }
     }
+    
+    static class WildCardSegement implements Segement {
+        public static WildCardSegement instance = new WildCardSegement();
 
-    class ArrayAccessSegement implements Segement {
+        public Object eval(JSONPath path, Object rootObject, Object currentObject) {
+            return path.getPropertyValues(currentObject);
+        }
+        
+    }
+
+    static class ArrayAccessSegement implements Segement {
 
         private final int index;
 
@@ -155,7 +168,7 @@ public class JSONPath {
         }
 
         public Object eval(JSONPath path, Object rootObject, Object currentObject) {
-            return getArrayItem(currentObject, index);
+            return path.getArrayItem(currentObject, index);
         }
     }
 
@@ -183,6 +196,30 @@ public class JSONPath {
 
         throw new UnsupportedOperationException();
     }
+    
+    protected List<Object> getPropertyValues(final Object currentObject) {
+        final Class<?> currentClass = currentObject.getClass();
+        
+        JavaBeanSerializer beanSerializer = null;
+        {
+            ObjectSerializer serializer = serializeConfig.getObjectWriter(currentClass);
+            if (serializer instanceof JavaBeanSerializer) {
+                beanSerializer = (JavaBeanSerializer) serializer;
+            } else if (serializer instanceof ASMJavaBeanSerializer) {
+                beanSerializer = ((ASMJavaBeanSerializer) serializer).getJavaBeanSerializer();
+            }
+        }
+        
+        if (beanSerializer != null) {
+            try {
+                return beanSerializer.getFieldValues(currentObject);
+            } catch (Exception e) {
+                throw new JSONPathException("jsonpath error, path " + path, e);
+            }
+        }
+        
+        throw new UnsupportedOperationException();
+    }
 
     @SuppressWarnings("rawtypes")
     protected Object getPropertyValue(final Object currentObject, final String propertyName, boolean strictMode) {
@@ -195,7 +232,7 @@ public class JSONPath {
             return map.get(propertyName);
         }
 
-        Class<?> currentClass = currentObject.getClass();
+        final Class<?> currentClass = currentObject.getClass();
 
         JavaBeanSerializer beanSerializer = null;
         {

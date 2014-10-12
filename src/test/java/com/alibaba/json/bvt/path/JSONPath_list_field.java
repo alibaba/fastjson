@@ -26,7 +26,6 @@ public class JSONPath_list_field extends TestCase {
         private String name;
 
         public Entity(String name){
-            super();
             this.name = name;
         }
 

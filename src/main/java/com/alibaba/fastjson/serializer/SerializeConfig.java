@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -30,9 +31,16 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.sql.Clob;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Collection;
 import java.util.Currency;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -44,11 +52,14 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONStreamAware;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.deserializer.Jdk8DateCodec;
 import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.IdentityHashMap;
+import com.alibaba.fastjson.util.ServiceLoader;
 
 /**
  * circular references detect
@@ -75,7 +86,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 
 	public final ObjectSerializer createASMSerializer(Class<?> clazz)
 			throws Exception {
-		return asmFactory.createJavaBeanSerializer(clazz);
+		return asmFactory.createJavaBeanSerializer(clazz, null);
 	}
 	
 	public ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
@@ -224,4 +235,118 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 
 	}
 
+	public ObjectSerializer getObjectWriter(Class<?> clazz) {
+        ObjectSerializer writer = get(clazz);
+
+        if (writer == null) {
+            try {
+                final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+                for (Object o : ServiceLoader.load(AutowiredObjectSerializer.class, classLoader)) {
+                    if (!(o instanceof AutowiredObjectSerializer)) {
+                        continue;
+                    }
+
+                    AutowiredObjectSerializer autowired = (AutowiredObjectSerializer) o;
+                    for (Type forType : autowired.getAutowiredFor()) {
+                        put(forType, autowired);
+                    }
+                }
+            } catch (ClassCastException ex) {
+                // skip
+            }
+
+            writer = get(clazz);
+        }
+
+        if (writer == null) {
+            final ClassLoader classLoader = JSON.class.getClassLoader();
+            if (classLoader != Thread.currentThread().getContextClassLoader()) {
+                try {
+                    for (Object o : ServiceLoader.load(AutowiredObjectSerializer.class, classLoader)) {
+
+                        if (!(o instanceof AutowiredObjectSerializer)) {
+                            continue;
+                        }
+
+                        AutowiredObjectSerializer autowired = (AutowiredObjectSerializer) o;
+                        for (Type forType : autowired.getAutowiredFor()) {
+                            put(forType, autowired);
+                        }
+                    }
+                } catch (ClassCastException ex) {
+                    // skip
+                }
+
+                writer = get(clazz);
+            }
+        }
+
+        if (writer == null) {
+            if (Map.class.isAssignableFrom(clazz)) {
+                put(clazz, MapSerializer.instance);
+            } else if (List.class.isAssignableFrom(clazz)) {
+                put(clazz, ListSerializer.instance);
+            } else if (Collection.class.isAssignableFrom(clazz)) {
+                put(clazz, CollectionSerializer.instance);
+            } else if (Date.class.isAssignableFrom(clazz)) {
+                put(clazz, DateSerializer.instance);
+            } else if (JSONAware.class.isAssignableFrom(clazz)) {
+                put(clazz, JSONAwareSerializer.instance);
+            } else if (JSONSerializable.class.isAssignableFrom(clazz)) {
+                put(clazz, JSONSerializableSerializer.instance);
+            } else if (JSONStreamAware.class.isAssignableFrom(clazz)) {
+                put(clazz, JSONStreamAwareSerializer.instance);
+            } else if (clazz.isEnum() || (clazz.getSuperclass() != null && clazz.getSuperclass().isEnum())) {
+                put(clazz, EnumSerializer.instance);
+            } else if (clazz.isArray()) {
+                Class<?> componentType = clazz.getComponentType();
+                ObjectSerializer compObjectSerializer = getObjectWriter(componentType);
+                put(clazz, new ArraySerializer(componentType, compObjectSerializer));
+            } else if (Throwable.class.isAssignableFrom(clazz)) {
+                put(clazz, new ExceptionSerializer(clazz));
+            } else if (TimeZone.class.isAssignableFrom(clazz)) {
+                put(clazz, TimeZoneCodec.instance);
+            } else if (Appendable.class.isAssignableFrom(clazz)) {
+                put(clazz, AppendableSerializer.instance);
+            } else if (Charset.class.isAssignableFrom(clazz)) {
+                put(clazz, CharsetCodec.instance);
+            } else if (Enumeration.class.isAssignableFrom(clazz)) {
+                put(clazz, EnumerationSeriliazer.instance);
+            } else if (Calendar.class.isAssignableFrom(clazz)) {
+                put(clazz, CalendarCodec.instance);
+            } else if (Clob.class.isAssignableFrom(clazz)) {
+                put(clazz, ClobSeriliazer.instance);
+            } else {
+                boolean isCglibProxy = false;
+                boolean isJavassistProxy = false;
+                for (Class<?> item : clazz.getInterfaces()) {
+                    if (item.getName().equals("net.sf.cglib.proxy.Factory")
+                        || item.getName().equals("org.springframework.cglib.proxy.Factory")) {
+                        isCglibProxy = true;
+                        break;
+                    } else if (item.getName().equals("javassist.util.proxy.ProxyObject")) {
+                        isJavassistProxy = true;
+                        break;
+                    }
+                }
+
+                if (isCglibProxy || isJavassistProxy) {
+                    Class<?> superClazz = clazz.getSuperclass();
+
+                    ObjectSerializer superWriter = getObjectWriter(superClazz);
+                    put(clazz, superWriter);
+                    return superWriter;
+                }
+
+                if (Proxy.isProxyClass(clazz)) {
+                    put(clazz, createJavaBeanSerializer(clazz));
+                } else {
+                    put(clazz, createJavaBeanSerializer(clazz));
+                }
+            }
+
+            writer = get(clazz);
+        }
+        return writer;
+    }
 }

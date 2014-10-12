@@ -35,11 +35,12 @@ import com.alibaba.fastjson.util.TypeUtils;
 public class JavaBeanSerializer implements ObjectSerializer {
 
     // serializers
-    private final FieldSerializer[] getters;
-    private final FieldSerializer[] sortedGetters;
-    
-    private int features = 0;
-    
+    private final FieldSerializer[]                getters;
+    private final FieldSerializer[]                sortedGetters;
+    private transient Map<String, FieldSerializer> getterMap;
+
+    private int                                    features = 0;
+
     public FieldSerializer[] getGetters() {
         return getters;
     }
@@ -63,7 +64,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
     public JavaBeanSerializer(Class<?> clazz, Map<String, String> aliasMap){
         this.features = TypeUtils.getSerializeFeatures(clazz);
-        
+
         {
             List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
             List<FieldInfo> fieldInfoList = TypeUtils.computeGetters(clazz, aliasMap, false);
@@ -89,8 +90,9 @@ public class JavaBeanSerializer implements ObjectSerializer {
     protected boolean isWriteClassName(JSONSerializer serializer, Object obj, Type fieldType, Object fieldName) {
         return serializer.isWriteClassName(fieldType, obj);
     }
-    
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
+
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
+                                                                                                               throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         if (object == null) {
@@ -174,22 +176,29 @@ public class JavaBeanSerializer implements ObjectSerializer {
                         continue;
                     }
                 }
-                
+
                 if (propertyValue != null && serializer.isEnabled(SerializerFeature.NotWriteDefaultValue)) {
                     Class<?> fieldCLass = fieldSerializer.fieldInfo.getFieldClass();
-                    if (fieldCLass == byte.class && propertyValue instanceof Byte && ((Byte)propertyValue).byteValue() == 0) {
+                    if (fieldCLass == byte.class && propertyValue instanceof Byte
+                        && ((Byte) propertyValue).byteValue() == 0) {
                         continue;
-                    } else if (fieldCLass == short.class && propertyValue instanceof Short && ((Short)propertyValue).shortValue() == 0) {
+                    } else if (fieldCLass == short.class && propertyValue instanceof Short
+                               && ((Short) propertyValue).shortValue() == 0) {
                         continue;
-                    } else if (fieldCLass == int.class && propertyValue instanceof Integer && ((Integer)propertyValue).intValue() == 0) {
+                    } else if (fieldCLass == int.class && propertyValue instanceof Integer
+                               && ((Integer) propertyValue).intValue() == 0) {
                         continue;
-                    } else if (fieldCLass == long.class && propertyValue instanceof Long && ((Long)propertyValue).longValue() == 0L) {
+                    } else if (fieldCLass == long.class && propertyValue instanceof Long
+                               && ((Long) propertyValue).longValue() == 0L) {
                         continue;
-                    } else if (fieldCLass == float.class && propertyValue instanceof Float && ((Float)propertyValue).floatValue() == 0F) {
+                    } else if (fieldCLass == float.class && propertyValue instanceof Float
+                               && ((Float) propertyValue).floatValue() == 0F) {
                         continue;
-                    } else if (fieldCLass == double.class && propertyValue instanceof Double && ((Double)propertyValue).doubleValue() == 0D) {
+                    } else if (fieldCLass == double.class && propertyValue instanceof Double
+                               && ((Double) propertyValue).doubleValue() == 0D) {
                         continue;
-                    } else if (fieldCLass == boolean.class && propertyValue instanceof Boolean && !((Boolean)propertyValue).booleanValue()) {
+                    } else if (fieldCLass == boolean.class && propertyValue instanceof Boolean
+                               && !((Boolean) propertyValue).booleanValue()) {
                         continue;
                     }
                 }
@@ -221,7 +230,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
                 commaFlag = true;
             }
-            
+
             FilterUtils.writeAfter(serializer, object, commaFlag ? ',' : '\0');
 
             if (getters.length > 0 && out.isEnabled(SerializerFeature.PrettyFormat)) {
@@ -236,19 +245,21 @@ public class JavaBeanSerializer implements ObjectSerializer {
             serializer.setContext(parent);
         }
     }
-    
+
     public boolean writeReference(JSONSerializer serializer, Object object, int fieldFeatures) {
         {
             SerialContext context = serializer.getContext();
-            if (context != null && SerializerFeature.isEnabled(context.getFeatures(), fieldFeatures, SerializerFeature.DisableCircularReferenceDetect)) {
+            if (context != null
+                && SerializerFeature.isEnabled(context.getFeatures(), fieldFeatures,
+                                               SerializerFeature.DisableCircularReferenceDetect)) {
                 return false;
             }
         }
-        
+
         if (!serializer.containsReference(object)) {
             return false;
         }
-        
+
         serializer.writeReference(object);
         return true;
     }
@@ -262,12 +273,12 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
         return new ObjectFieldSerializer(fieldInfo);
     }
-    
+
     public boolean isWriteAsArray(JSONSerializer serializer) {
         if (SerializerFeature.isEnabled(features, SerializerFeature.BeanToArray)) {
             return true;
         }
-        
+
         boolean writeAsArray;
         if (serializer.isEnabled(SerializerFeature.BeanToArray)) {
             writeAsArray = true;
@@ -276,5 +287,27 @@ public class JavaBeanSerializer implements ObjectSerializer {
         }
 
         return writeAsArray;
+    }
+    
+    public Map<String, FieldSerializer> getGetterMap() {
+        if (getterMap == null) {
+            HashMap<String, FieldSerializer> map = new HashMap<String, FieldSerializer>(getters.length);
+            for (FieldSerializer getter : sortedGetters) {
+                map.put(getter.getName(), getter);
+            }
+            getterMap = map;
+        }
+        return getterMap;
+    }
+    
+    public Object getFieldValue(Object object, String name) throws Exception {
+        Map<String, FieldSerializer> map = getGetterMap();
+        
+        FieldSerializer getter = map.get(name);
+        if (getter == null) {
+            return null;
+        }
+        
+        return getter.getPropertyValue(object);
     }
 }

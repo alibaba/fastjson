@@ -214,6 +214,74 @@ public class JSONPath implements ObjectSerializer {
 
                 skipWhitespace();
 
+                if (op == BinaryCompareOperator.IN || op == BinaryCompareOperator.NOT_IN) {
+                    final boolean not = (op == BinaryCompareOperator.NOT_IN);
+                    accept('(');
+
+                    List<Object> valueList = new ArrayList<Object>();
+                    {
+                        Object value = readValue();
+                        valueList.add(value);
+
+                        for (;;) {
+                            skipWhitespace();
+                            if (ch != ',') {
+                                break;
+                            }
+                            next();
+                            skipWhitespace();
+
+                            value = readValue();
+                            valueList.add(value);
+                        }
+
+                        accept(')');
+                        if (predicateFlag) {
+                            accept(')');
+                        }
+                        accept(']');
+                    }
+
+                    boolean isInt = true;
+                    boolean isString = true;
+                    for (Object item : valueList) {
+                        if (item == null) {
+                            if (isInt) {
+                                isInt = false;
+                            }
+                            continue;
+                        }
+
+                        Class<?> clazz = item.getClass();
+                        if (isInt
+                            && !(clazz == Byte.class || clazz == Short.class || clazz == Integer.class || clazz == Long.class)) {
+                            isInt = false;
+                        }
+
+                        if (isString && clazz != String.class) {
+                            isString = false;
+                        }
+                    }
+
+                    if (isInt) {
+                        long[] values = new long[valueList.size()];
+                        for (int i = 0; i < values.length; ++i) {
+                            values[i] = ((Number) valueList.get(i)).longValue();
+                        }
+
+                        return new IntInSegement(propertyName, values, not);
+                    }
+
+                    if (isString) {
+                        String[] values = new String[valueList.size()];
+                        valueList.toArray(values);
+
+                        return new StringInSegement(propertyName, values, not);
+                    }
+
+                    throw new UnsupportedOperationException();
+                }
+
                 if (ch == '\'' || ch == '"') {
                     String strValue = readString();
                     if (predicateFlag) {
@@ -284,19 +352,8 @@ public class JSONPath implements ObjectSerializer {
                     return new StringCompareFilterAccessSegement(propertyName, strValue, op);
                 }
 
-                if (ch == '-' || ch == '+' || (ch >= '0' && ch <= '9')) {
-                    int beginIndex = pos - 1;
-                    if (ch == '+' || ch == '-') {
-                        next();
-                    }
-
-                    while (ch >= '0' && ch <= '9') {
-                        next();
-                    }
-
-                    int endIndex = pos - 1;
-                    String text = path.substring(beginIndex, endIndex);
-                    long value = Long.parseLong(text);
+                if (isDigitFirst(ch)) {
+                    long value = readLongValue();
 
                     if (predicateFlag) {
                         accept(')');
@@ -344,6 +401,48 @@ public class JSONPath implements ObjectSerializer {
             return buildArraySegement(text);
         }
 
+        protected long readLongValue() {
+            int beginIndex = pos - 1;
+            if (ch == '+' || ch == '-') {
+                next();
+            }
+
+            while (ch >= '0' && ch <= '9') {
+                next();
+            }
+
+            int endIndex = pos - 1;
+            String text = path.substring(beginIndex, endIndex);
+            long value = Long.parseLong(text);
+            return value;
+        }
+
+        protected Object readValue() {
+            if (isDigitFirst(ch)) {
+                return readLongValue();
+            }
+
+            if (ch == '"' || ch == '\'') {
+                return readString();
+            }
+
+            if (ch == 'n') {
+                String name = readName();
+
+                if ("null".equals(name)) {
+                    return null;
+                } else {
+                    throw new JSONPathException(path);
+                }
+            }
+
+            throw new UnsupportedOperationException();
+        }
+
+        static boolean isDigitFirst(char ch) {
+            return ch == '-' || ch == '+' || (ch >= '0' && ch <= '9');
+        }
+
         protected BinaryCompareOperator readOp() {
             BinaryCompareOperator op = null;
             if (ch == '=') {
@@ -383,6 +482,8 @@ public class JSONPath implements ObjectSerializer {
                         op = BinaryCompareOperator.NOT_LIKE;
                     } else if ("rlike".equalsIgnoreCase(name)) {
                         op = BinaryCompareOperator.NOT_RLIKE;
+                    } else if ("in".equalsIgnoreCase(name)) {
+                        op = BinaryCompareOperator.NOT_IN;
                     } else {
                         throw new UnsupportedOperationException();
                     }
@@ -391,6 +492,8 @@ public class JSONPath implements ObjectSerializer {
                         op = BinaryCompareOperator.LIKE;
                     } else if ("rlike".equalsIgnoreCase(name)) {
                         op = BinaryCompareOperator.RLIKE;
+                    } else if ("in".equalsIgnoreCase(name)) {
+                        op = BinaryCompareOperator.IN;
                     } else {
                         throw new UnsupportedOperationException();
                     }
@@ -742,6 +845,67 @@ public class JSONPath implements ObjectSerializer {
         }
     }
 
+    static class IntInSegement extends FilterAccessSegement {
+
+        private final String propertyName;
+        private final long[] values;
+        private final boolean not;
+
+        public IntInSegement(String propertyName, long[] values, boolean not){
+            this.propertyName = propertyName;
+            this.values = values;
+            this.not = not;
+        }
+
+        @Override
+        public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
+            Object propertyValue = path.getPropertyValue(item, propertyName, false);
+
+            if (propertyValue == null) {
+                return false;
+            }
+
+            if (propertyValue instanceof Number) {
+                long longPropertyValue = ((Number) propertyValue).longValue();
+                for (long value : values) {
+                    if (value == longPropertyValue) {
+                        return !not;
+                    }
+                }
+            }
+
+            return not;
+        }
+    }
+
+    static class StringInSegement extends FilterAccessSegement {
+
+        private final String   propertyName;
+        private final String[] values;
+        private final boolean not;
+
+        public StringInSegement(String propertyName, String[] values, boolean not){
+            this.propertyName = propertyName;
+            this.values = values;
+            this.not = not;
+        }
+
+        @Override
+        public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
+            Object propertyValue = path.getPropertyValue(item, propertyName, false);
+
+            for (String value : values) {
+                if (value == propertyValue) {
+                    return !not;
+                } else if (value != null && value.equals(propertyValue)) {
+                    return !not;
+                }
+            }
+
+            return not;
+        }
+    }
+
     static class IntCompareFilterAccessSegement extends FilterAccessSegement {
 
         private final String                propertyName;
@@ -938,7 +1102,7 @@ public class JSONPath implements ObjectSerializer {
     }
 
     static enum BinaryCompareOperator {
-        EQ, NE, GT, GE, LT, LE, LIKE, NOT_LIKE, RLIKE, NOT_RLIKE
+        EQ, NE, GT, GE, LT, LE, LIKE, NOT_LIKE, RLIKE, NOT_RLIKE, IN, NOT_IN
     }
 
     static abstract class FilterAccessSegement implements Segement {

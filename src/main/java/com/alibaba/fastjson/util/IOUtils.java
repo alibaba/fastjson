@@ -326,4 +326,12 @@ public class IOUtils {
         whitespaceFlags['\f'] = true;
         whitespaceFlags['\b'] = true;
     }
+    
+    public static boolean firstIdentifier(char ch) {
+        return ch < IOUtils.firstIdentifierFlags.length && IOUtils.firstIdentifierFlags[ch];
+    }
+    
+    public static boolean isIdent(char ch) {
+        return ch < identifierFlags.length && identifierFlags[ch];
+    }
 }

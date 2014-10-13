@@ -11,12 +11,25 @@ import com.alibaba.fastjson.JSONPath;
 
 public class JSONPath_list_field extends TestCase {
 
-    public void test_list_map() throws Exception {
+    public void test_list_field() throws Exception {
+        JSONPath path = new JSONPath("$.name");
         List<Entity> entities = new ArrayList<Entity>();
         entities.add(new Entity("wenshao"));
         entities.add(new Entity("ljw2083"));
 
-        List<String> names = (List<String>) new JSONPath("$.name").eval(entities);
+        List<String> names = (List<String>)path.eval(entities);
+        Assert.assertSame(entities.get(0).getName(), names.get(0));
+        Assert.assertSame(entities.get(1).getName(), names.get(1));
+    }
+    
+    public void test_list_field_simple() throws Exception {
+        JSONPath path = new JSONPath("name");
+        
+        List<Entity> entities = new ArrayList<Entity>();
+        entities.add(new Entity("wenshao"));
+        entities.add(new Entity("ljw2083"));
+        
+        List<String> names = (List<String>) path.eval(entities);
         Assert.assertSame(entities.get(0).getName(), names.get(0));
         Assert.assertSame(entities.get(1).getName(), names.get(1));
     }

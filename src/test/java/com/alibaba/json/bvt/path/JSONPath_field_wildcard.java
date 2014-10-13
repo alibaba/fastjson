@@ -11,9 +11,19 @@ import com.alibaba.fastjson.JSONPath;
 public class JSONPath_field_wildcard extends TestCase {
 
     public void test_list_map() throws Exception {
+        JSONPath path = new JSONPath("$.*");
         Entity entity = new Entity(123, "wenshao");
 
-        List<Object> fieldValues = (List<Object>) new JSONPath("$.*").eval(entity);
+        List<Object> fieldValues = (List<Object>) path.eval(entity);
+        Assert.assertSame(entity.getId(), fieldValues.get(0));
+        Assert.assertSame(entity.getName(), fieldValues.get(1));
+    }
+    
+    public void test_list_map_none_root() throws Exception {
+        JSONPath path = new JSONPath("*");
+        Entity entity = new Entity(123, "wenshao");
+        
+        List<Object> fieldValues = (List<Object>) path.eval(entity);
         Assert.assertSame(entity.getId(), fieldValues.get(0));
         Assert.assertSame(entity.getName(), fieldValues.get(1));
     }

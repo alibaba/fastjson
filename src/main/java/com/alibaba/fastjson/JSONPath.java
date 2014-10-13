@@ -5,15 +5,18 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.alibaba.fastjson.serializer.ASMJavaBeanSerializer;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.JavaBeanSerializer;
 import com.alibaba.fastjson.serializer.ObjectSerializer;
 import com.alibaba.fastjson.serializer.SerializeConfig;
+import com.alibaba.fastjson.util.IOUtils;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -21,13 +24,13 @@ import com.alibaba.fastjson.serializer.SerializeConfig;
  */
 public class JSONPath implements ObjectSerializer {
 
-    private static int                   CACHE_SIZE = 1024;
-    private static Map<String, JSONPath> pathCache      = new ConcurrentHashMap<String, JSONPath>(128, 0.75f, 1);
+    private static int                             CACHE_SIZE = 1024;
+    private static ConcurrentMap<String, JSONPath> pathCache  = new ConcurrentHashMap<String, JSONPath>(128, 0.75f, 1);
 
-    private final String                 path;
-    private Segement[]                   pathSegments;
+    private final String                           path;
+    private Segement[]                             pathSegments;
 
-    private SerializeConfig              serializeConfig;
+    private SerializeConfig                        serializeConfig;
 
     public JSONPath(String path){
         this(path, SerializeConfig.getGlobalInstance());
@@ -47,7 +50,10 @@ public class JSONPath implements ObjectSerializer {
             return null;
         }
 
-        this.pathSegments = explain(path);
+        if (pathSegments == null) {
+            JSONPathParser parser = new JSONPathParser(path);
+            this.pathSegments = parser.explain();
+        }
 
         Object currentObject = rootObject;
         for (int i = 0; i < pathSegments.length; ++i) {
@@ -72,126 +78,327 @@ public class JSONPath implements ObjectSerializer {
         return path;
     }
 
-    public Segement[] explain(String path) {
-        if (path == null || path.isEmpty()) {
-            throw new IllegalArgumentException();
+    static class JSONPathParser {
+
+        private final String path;
+        private int          pos;
+        private char         ch;
+
+        public JSONPathParser(String path){
+            this.path = path;
+            next();
         }
 
-        Segement[] segements = new Segement[16];
-        int len = 0;
-        int beginIndex = 0;
-        for (int i = 0; i < path.length(); ++i) {
-            char ch = path.charAt(i);
+        void next() {
+            ch = path.charAt(pos++);
+        }
 
-            if (ch == '.') {
-                segements[len++] = buildSegement(len, path.substring(beginIndex, i));
-                beginIndex = i + 1;
-            } else if (ch == '[') {
-                segements[len++] = buildSegement(len, path.substring(beginIndex, i));
-                beginIndex = i;
-            } else if (i == path.length() - 1) {
-                segements[len++] = buildSegement(len, path.substring(beginIndex, path.length()));
+        boolean isEOF() {
+            return pos >= path.length();
+        }
+
+        Segement readSegement() {
+            while (!isEOF()) {
+                skipWhitespace();
+
+                if (ch == '@') {
+                    next();
+                    return SelfSegement.instance;
+                }
+
+                if (ch == '$') {
+                    next();
+                    return RootSegement.instance;
+                }
+
+                if (ch == '.') {
+                    next();
+                    if (ch == '*') {
+                        if (!isEOF()) {
+                            next();
+                        }
+
+                        return WildCardSegement.instance;
+                    }
+
+                    String propertyName = readName();
+                    if (ch == '(') {
+                        next();
+                        if (ch == ')') {
+                            if (!isEOF()) {
+                                next();
+                            }
+
+                            if ("size".equals(propertyName)) {
+                                return SizeSegement.instance;
+                            }
+
+                            throw new UnsupportedOperationException();
+                        }
+
+                        throw new UnsupportedOperationException();
+                    }
+
+                    return new PropertySegement(propertyName);
+                }
+
+                if (ch == '[') {
+                    return parseArrayAccess();
+                }
+
+                throw new UnsupportedOperationException();
+            }
+
+            return null;
+        }
+
+        public final void skipWhitespace() {
+            for (;;) {
+                if (ch < IOUtils.whitespaceFlags.length && IOUtils.whitespaceFlags[ch]) {
+                    next();
+                    continue;
+                } else {
+                    break;
+                }
             }
         }
 
-        if (len == segements.length) {
-            return segements;
-        }
+        Segement parseArrayAccess() {
+            accept('[');
 
-        Segement[] result = new Segement[len];
-        System.arraycopy(segements, 0, result, 0, len);
-        return result;
-    }
+            if (ch == '?') {
+                next();
+                accept('(');
+                accept('@');
+                accept('.');
 
-    Segement buildArraySegement(int level, String indexText) {
-        int commaIndex = indexText.indexOf(',');
+                String propertyName = readName();
 
-        if (indexText.length() > 2 && indexText.charAt(0) == '\'' //
-            && indexText.charAt(indexText.length() - 1) == '\'') {
+                skipWhitespace();
 
-            if (commaIndex == -1) {
-                String propertyName = indexText.substring(1, indexText.length() - 1);
-                return new PropertySegement(propertyName);
+                if (ch == ')') {
+                    next();
+                    accept(']');
+
+                    return new NotNullFilterAccessSegement(propertyName);
+                }
+
+                BinaryCompareOperator op;
+                if (ch == '=') {
+                    next();
+                    op = BinaryCompareOperator.EQ;
+                } else if (ch == '!') {
+                    next();
+                    accept('=');
+                    op = BinaryCompareOperator.EQ;
+                } else if (ch == '<') {
+                    next();
+                    if (ch == '=') {
+                        next();
+                        op = BinaryCompareOperator.LE;
+                    } else {
+                        op = BinaryCompareOperator.LT;
+                    }
+                } else if (ch == '>') {
+                    next();
+                    if (ch == '=') {
+                        next();
+                        op = BinaryCompareOperator.GE;
+                    } else {
+                        op = BinaryCompareOperator.GT;
+                    }
+                } else {
+                    throw new UnsupportedOperationException();
+                }
+
+                skipWhitespace();
+
+                if (ch == '-' || ch == '+' || (ch >= '0' && ch <= '9')) {
+                    int beginIndex = pos - 1;
+                    boolean negative = false;
+                    if (ch == '+') {
+                        next();
+                    } else if (ch == '-') {
+                        negative = true;
+                    }
+
+                    while (ch >= '0' && ch <= '9') {
+                        next();
+                    }
+
+                    String text = path.substring(beginIndex, isEOF() ? pos : pos - 1);
+                    long value = Long.parseLong(text);
+
+                    next();
+                    accept(']');
+
+                    return new IntCompareFilterAccessSegement(propertyName, value, op);
+                }
+
+                throw new UnsupportedOperationException();
+                // accept(')');
             }
 
-            String[] indexesText = indexText.split(",");
-            String[] propertyNames = new String[indexesText.length];
-            for (int i = 0; i < indexesText.length; ++i) {
-                String indexesTextItem = indexesText[i];
-                propertyNames[i] = indexesTextItem.substring(1, indexesTextItem.length() - 1);
+            int start = pos - 1;
+            while (ch != ']' && !isEOF()) {
+                next();
             }
 
-            return new MultiPropertySegement(propertyNames);
-        }
+            String text = path.substring(start, pos - 1);
 
-        int colonIndex = indexText.indexOf(':');
-        if (commaIndex == -1 && colonIndex == -1) {
-            int index = Integer.parseInt(indexText);
-            return new ArrayAccessSegement(index);
-        }
-
-        if (commaIndex != -1) {
-            String[] indexesText = indexText.split(",");
-            int[] indexes = new int[indexesText.length];
-            for (int i = 0; i < indexesText.length; ++i) {
-                indexes[i] = Integer.parseInt(indexesText[i]);
-            }
-            return new MultiArrayAccessSegement(indexes);
-        }
-
-        if (colonIndex != -1) {
-            String[] indexesText = indexText.split(":");
-            int[] indexes = new int[indexesText.length];
-            for (int i = 0; i < indexesText.length; ++i) {
-                indexes[i] = Integer.parseInt(indexesText[i]);
+            if (!isEOF()) {
+                accept(']');
             }
 
-            int start = indexes[0];
-            int end = indexes[1];
-            int step;
-            if (indexes.length == 3) {
-                step = indexes[2];
-            } else {
-                step = 1;
+            return buildArraySegement(text);
+        }
+
+        String readName() {
+            final boolean firstFlag = ch >= IOUtils.firstIdentifierFlags.length || IOUtils.firstIdentifierFlags[ch];
+
+            if (!firstFlag) {
+                throw new JSONPathException("illeal jsonpath syntax. " + path);
             }
 
-            if (end < start) {
-                throw new UnsupportedOperationException("end must greater than or equals start. start " + start
-                                                        + ",  end " + end);
+            int beginIndex = pos - 1;
+            while (!isEOF()) {
+                boolean identifierFlag = ch >= IOUtils.identifierFlags.length || IOUtils.identifierFlags[ch];
+                if (!identifierFlag) {
+                    break;
+                }
+                next();
             }
 
-            if (step <= 0) {
-                throw new UnsupportedOperationException("step must greater than zero : " + step);
+            String propertyName = path.substring(beginIndex, isEOF() ? pos : pos - 1);
+
+            return propertyName;
+        }
+
+        void accept(char expect) {
+            if (ch != expect) {
+                throw new JSONPathException("expect '" + expect + ", but '" + ch + "'");
             }
-            return new RangeArrayAccessSegement(start, end, step);
+
+            if (!isEOF()) {
+                next();
+            }
         }
 
-        throw new UnsupportedOperationException();
-    }
+        public Segement[] explain() {
+            if (path == null || path.isEmpty()) {
+                throw new IllegalArgumentException();
+            }
 
-    Segement buildSegement(int level, String pathSegement) {
-        if ("@".equals(pathSegement)) {
-            return SelfSegement.instance;
+            Segement[] segements = new Segement[8];
+            int len = 0;
+
+            for (;;) {
+                Segement segment = readSegement();
+                if (segment == null) {
+                    break;
+                }
+                segements[len++] = segment;
+            }
+
+            if (len == segements.length) {
+                return segements;
+            }
+
+            Segement[] result = new Segement[len];
+            System.arraycopy(segements, 0, result, 0, len);
+            return result;
         }
 
-        if ("$".equals(pathSegement)) {
-            return RootSegement.instance;
-        }
+        Segement buildArraySegement(String indexText) {
+            final int indexTextLen = indexText.length();
+            final char firstChar = indexText.charAt(0);
+            final char lastChar = indexText.charAt(indexTextLen - 1);
 
-        if ("*".equals(pathSegement)) {
-            return WildCardSegement.instance;
-        }
+            if (firstChar == '?') {
+                if (indexTextLen < 3 || lastChar != ')' || indexText.charAt(1) != '(') {
+                    throw new UnsupportedOperationException();
+                }
 
-        if ("length()".equals(pathSegement) || "size()".equals(pathSegement)) {
-            return SizeSegement.instance;
-        }
+                throw new UnsupportedOperationException();
+            }
 
-        if (pathSegement.charAt(0) == '[' && pathSegement.charAt(pathSegement.length() - 1) == ']') {
-            String indexText = pathSegement.substring(1, pathSegement.length() - 1);
-            return buildArraySegement(level, indexText);
-        }
+            int commaIndex = indexText.indexOf(',');
 
-        return new PropertySegement(pathSegement);
+            if (indexText.length() > 2 && firstChar == '\'' && lastChar == '\'') {
+
+                if (commaIndex == -1) {
+                    String propertyName = indexText.substring(1, indexTextLen - 1);
+                    return new PropertySegement(propertyName);
+                }
+
+                String[] indexesText = indexText.split(",");
+                String[] propertyNames = new String[indexesText.length];
+                for (int i = 0; i < indexesText.length; ++i) {
+                    String indexesTextItem = indexesText[i];
+                    propertyNames[i] = indexesTextItem.substring(1, indexesTextItem.length() - 1);
+                }
+
+                return new MultiPropertySegement(propertyNames);
+            }
+
+            int colonIndex = indexText.indexOf(':');
+            if (commaIndex == -1 && colonIndex == -1) {
+                int index = Integer.parseInt(indexText);
+                return new ArrayAccessSegement(index);
+            }
+
+            if (commaIndex != -1) {
+                String[] indexesText = indexText.split(",");
+                int[] indexes = new int[indexesText.length];
+                for (int i = 0; i < indexesText.length; ++i) {
+                    indexes[i] = Integer.parseInt(indexesText[i]);
+                }
+                return new MultiArrayAccessSegement(indexes);
+            }
+
+            if (colonIndex != -1) {
+                String[] indexesText = indexText.split(":");
+                int[] indexes = new int[indexesText.length];
+                for (int i = 0; i < indexesText.length; ++i) {
+                    String str = indexesText[i];
+                    if (str.isEmpty()) {
+                        if (i == 0) {
+                            indexes[i] = 0;
+                        } else {
+                            throw new UnsupportedOperationException();
+                        }
+                    } else {
+                        indexes[i] = Integer.parseInt(str);
+                    }
+                }
+
+                int start = indexes[0];
+                int end;
+                if (indexes.length > 1) {
+                    end = indexes[1];
+                } else {
+                    end = -1;
+                }
+                int step;
+                if (indexes.length == 3) {
+                    step = indexes[2];
+                } else {
+                    step = 1;
+                }
+
+                if (end >= 0 && end < start) {
+                    throw new UnsupportedOperationException("end must greater than or equals start. start " + start
+                                                            + ",  end " + end);
+                }
+
+                if (step <= 0) {
+                    throw new UnsupportedOperationException("step must greater than zero : " + step);
+                }
+                return new RangeArrayAccessSegement(start, end, step);
+            }
+
+            throw new UnsupportedOperationException();
+        }
     }
 
     static interface Segement {
@@ -335,6 +542,9 @@ public class JSONPath implements ObjectSerializer {
 
         public Object eval(JSONPath path, Object rootObject, Object currentObject) {
             int size = SizeSegement.instance.eval(path, rootObject, currentObject);
+            int start = this.start >= 0 ? this.start : this.start + size;
+            int end = this.end >= 0 ? this.end : this.end + size;
+
             List<Object> items = new ArrayList<Object>((end - start) / step + 1);
             for (int i = start; i <= end && i < size; i += step) {
                 Object item = path.getArrayItem(currentObject, i);
@@ -342,6 +552,99 @@ public class JSONPath implements ObjectSerializer {
             }
             return items;
         }
+    }
+
+    static class NotNullFilterAccessSegement extends FilterAccessSegement {
+
+        private final String propertyName;
+
+        public NotNullFilterAccessSegement(String propertyName){
+            this.propertyName = propertyName;
+        }
+
+        @Override
+        public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
+            Object propertyValue = path.getPropertyValue(item, propertyName, false);
+
+            return propertyValue != null;
+        }
+    }
+
+    static class IntCompareFilterAccessSegement extends FilterAccessSegement {
+
+        private final String                propertyName;
+        private final long                  value;
+        private final BinaryCompareOperator op;
+
+        public IntCompareFilterAccessSegement(String propertyName, long value, BinaryCompareOperator op){
+            this.propertyName = propertyName;
+            this.value = value;
+            this.op = op;
+        }
+
+        @Override
+        public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
+            Object propertyValue = path.getPropertyValue(item, propertyName, false);
+
+            if (propertyValue == null) {
+                return false;
+            }
+
+            if (!(propertyValue instanceof Number)) {
+                return false;
+            }
+
+            long longValue = ((Number) propertyValue).longValue();
+
+            if (op == BinaryCompareOperator.EQ) {
+                return longValue == value;
+            } else if (op == BinaryCompareOperator.NE) {
+                return longValue != value;
+            } else if (op == BinaryCompareOperator.GE) {
+                return longValue >= value;
+            } else if (op == BinaryCompareOperator.GT) {
+                return longValue > value;
+            } else if (op == BinaryCompareOperator.LE) {
+                return longValue <= value;
+            } else if (op == BinaryCompareOperator.LT) {
+                return longValue < value;
+            }
+
+            return false;
+        }
+    }
+
+    static enum BinaryCompareOperator {
+        EQ, NE, GT, GE, LT, LE
+    }
+
+    static abstract class FilterAccessSegement implements Segement {
+
+        @SuppressWarnings("rawtypes")
+        public Object eval(JSONPath path, Object rootObject, Object currentObject) {
+            if (currentObject == null) {
+                return null;
+            }
+
+            List<Object> items = new ArrayList<Object>();
+
+            if (currentObject instanceof Iterable) {
+                Iterator it = ((Iterable) currentObject).iterator();
+                while (it.hasNext()) {
+                    Object item = it.next();
+
+                    if (apply(path, rootObject, currentObject, item)) {
+                        items.add(item);
+                    }
+                }
+
+                return items;
+            }
+
+            throw new UnsupportedOperationException();
+        }
+
+        public abstract boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item);
     }
 
     @SuppressWarnings("rawtypes")

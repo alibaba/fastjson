@@ -46,6 +46,7 @@ import com.alibaba.fastjson.util.IOUtils;
  * @author wenshao[szujobs@hotmail.com]
  */
 public abstract class JSONLexerBase implements JSONLexer, Closeable {
+
     private final static Map<String, Integer> DEFAULT_KEYWORDS;
 
     static {
@@ -57,7 +58,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         map.put("undefined", JSONToken.UNDEFINED);
         DEFAULT_KEYWORDS = map;
     }
-    
+
     protected void lexError(String key, Object... args) {
         token = ERROR;
     }
@@ -475,7 +476,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                     if (type == 'B') {
                         return (byte) result;
                     }
-                    
+
                     return (int) result;
                 }
                 return result;
@@ -809,7 +810,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
 
         token = LITERAL_STRING;
-        
+
         String value;
         if (!hasSpecial) {
             // return this.text.substring(np + 1, np + 1 + sp).intern();
@@ -823,10 +824,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         } else {
             value = symbolTable.addSymbol(sbuf, 0, sp, hash);
         }
-        
+
         sp = 0;
         this.next();
-        
+
         return value;
     }
 
@@ -1021,7 +1022,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         if (np == -1) {
             np = 0;
         }
-        
+
         int result = 0;
         boolean negative = false;
         int i = np, max = np + sp;
@@ -2486,9 +2487,9 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             throw new JSONException("scan true error");
         }
     }
-    
+
     public final void scanUndefined() {
-    	if (ch != 'u') {
+        if (ch != 'u') {
             throw new JSONException("error parse false");
         }
         next();
@@ -2512,17 +2513,17 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             throw new JSONException("error parse false");
         }
         next();
-        
+
         if (ch != 'i') {
             throw new JSONException("error parse false");
         }
         next();
-        
+
         if (ch != 'n') {
             throw new JSONException("error parse false");
         }
         next();
-        
+
         if (ch != 'e') {
             throw new JSONException("error parse false");
         }
@@ -2621,7 +2622,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     public final void skipWhitespace() {
         for (;;) {
-            if (ch < whitespaceFlags.length && whitespaceFlags[ch]) {
+            if (ch < IOUtils.whitespaceFlags.length && IOUtils.whitespaceFlags[ch]) {
                 next();
                 continue;
             } else {
@@ -2952,16 +2953,6 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     public static final boolean isWhitespace(char ch) {
         // 专门调整了判断顺序
         return ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b';
-    }
-
-    protected static boolean[]   whitespaceFlags         = new boolean[256];
-    static {
-        whitespaceFlags[' '] = true;
-        whitespaceFlags['\n'] = true;
-        whitespaceFlags['\r'] = true;
-        whitespaceFlags['\t'] = true;
-        whitespaceFlags['\f'] = true;
-        whitespaceFlags['\b'] = true;
     }
 
     protected static final long  MULTMIN_RADIX_TEN       = Long.MIN_VALUE / 10;

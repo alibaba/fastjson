@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.alibaba.fastjson.serializer.ASMJavaBeanSerializer;
 import com.alibaba.fastjson.serializer.JSONSerializer;
@@ -51,8 +53,12 @@ public class JSONPath implements ObjectSerializer {
         }
 
         if (pathSegments == null) {
-            JSONPathParser parser = new JSONPathParser(path);
-            this.pathSegments = parser.explain();
+            if ("*".equals(path)) {
+                this.pathSegments = new Segement[] { WildCardSegement.instance };
+            } else {
+                JSONPathParser parser = new JSONPathParser(path);
+                this.pathSegments = parser.explain();
+            }
         }
 
         Object currentObject = rootObject;
@@ -83,6 +89,7 @@ public class JSONPath implements ObjectSerializer {
         private final String path;
         private int          pos;
         private char         ch;
+        private int          level;
 
         public JSONPathParser(String path){
             this.path = path;
@@ -108,7 +115,7 @@ public class JSONPath implements ObjectSerializer {
 
                 if (ch == '$') {
                     next();
-                    return RootSegement.instance;
+                    continue;
                 }
 
                 if (ch == '.') {
@@ -146,6 +153,13 @@ public class JSONPath implements ObjectSerializer {
                     return parseArrayAccess();
                 }
 
+                if (level == 0) {
+                    String propertyName = readName();
+
+                    skipWhitespace();
+                    return new PropertySegement(propertyName);
+                }
+
                 throw new UnsupportedOperationException();
             }
 
@@ -166,73 +180,150 @@ public class JSONPath implements ObjectSerializer {
         Segement parseArrayAccess() {
             accept('[');
 
+            boolean predicateFlag = false;
+
             if (ch == '?') {
                 next();
                 accept('(');
-                accept('@');
-                accept('.');
+                if (ch == '@') {
+                    next();
+                    accept('.');
+                }
 
+                predicateFlag = true;
+            }
+
+            if (predicateFlag || IOUtils.firstIdentifier(ch)) {
                 String propertyName = readName();
 
                 skipWhitespace();
 
-                if (ch == ')') {
+                if (predicateFlag && ch == ')') {
                     next();
                     accept(']');
 
                     return new NotNullFilterAccessSegement(propertyName);
                 }
 
-                BinaryCompareOperator op;
-                if (ch == '=') {
+                if (ch == ']') {
                     next();
-                    op = BinaryCompareOperator.EQ;
-                } else if (ch == '!') {
-                    next();
-                    accept('=');
-                    op = BinaryCompareOperator.EQ;
-                } else if (ch == '<') {
-                    next();
-                    if (ch == '=') {
-                        next();
-                        op = BinaryCompareOperator.LE;
-                    } else {
-                        op = BinaryCompareOperator.LT;
-                    }
-                } else if (ch == '>') {
-                    next();
-                    if (ch == '=') {
-                        next();
-                        op = BinaryCompareOperator.GE;
-                    } else {
-                        op = BinaryCompareOperator.GT;
-                    }
-                } else {
-                    throw new UnsupportedOperationException();
+                    return new NotNullFilterAccessSegement(propertyName);
                 }
+
+                BinaryCompareOperator op = readOp();
 
                 skipWhitespace();
 
+                if (ch == '\'' || ch == '"') {
+                    String strValue = readString();
+                    if (predicateFlag) {
+                        accept(')');
+                    }
+                    accept(']');
+
+                    if (op == BinaryCompareOperator.RLIKE) {
+                        return new RlikeSegement(propertyName, strValue, false);
+                    }
+
+                    if (op == BinaryCompareOperator.NOT_RLIKE) {
+                        return new RlikeSegement(propertyName, strValue, true);
+                    }
+
+                    if (op == BinaryCompareOperator.LIKE || op == BinaryCompareOperator.NOT_LIKE) {
+                        while (strValue.indexOf("%%") != -1) {
+                            strValue = strValue.replaceAll("%%", "%");
+                        }
+
+                        final boolean not = (op == BinaryCompareOperator.NOT_LIKE);
+
+                        int p0 = strValue.indexOf('%');
+                        if (p0 == -1) {
+                            if (op == BinaryCompareOperator.LIKE) {
+                                op = BinaryCompareOperator.EQ;
+                            } else {
+                                op = BinaryCompareOperator.NE;
+                            }
+                        } else {
+                            String[] items = strValue.split("%");
+
+                            String startsWithValue = null;
+                            String endsWithValue = null;
+                            String[] containsValues = null;
+                            if (p0 == 0) {
+                                if (strValue.charAt(strValue.length() - 1) == '%') {
+                                    containsValues = new String[items.length - 1];
+                                    System.arraycopy(items, 1, containsValues, 0, containsValues.length);
+                                } else {
+                                    endsWithValue = items[items.length - 1];
+                                    if (items.length > 2) {
+                                        containsValues = new String[items.length - 2];
+                                        System.arraycopy(items, 1, containsValues, 0, containsValues.length);
+                                    }
+                                }
+                            } else if (strValue.charAt(strValue.length() - 1) == '%') {
+                                containsValues = items;
+                            } else {
+                                if (items.length == 1) {
+                                    startsWithValue = items[0];
+                                } else if (items.length == 2) {
+                                    startsWithValue = items[0];
+                                    endsWithValue = items[1];
+                                } else {
+                                    startsWithValue = items[0];
+                                    endsWithValue = items[items.length - 1];
+                                    containsValues = new String[items.length - 2];
+                                    System.arraycopy(items, 1, containsValues, 0, containsValues.length);
+                                }
+                            }
+
+                            return new MatchSegement(propertyName, startsWithValue, endsWithValue, containsValues, not);
+
+                        }
+                    }
+
+                    return new StringCompareFilterAccessSegement(propertyName, strValue, op);
+                }
+
                 if (ch == '-' || ch == '+' || (ch >= '0' && ch <= '9')) {
                     int beginIndex = pos - 1;
-                    boolean negative = false;
-                    if (ch == '+') {
+                    if (ch == '+' || ch == '-') {
                         next();
-                    } else if (ch == '-') {
-                        negative = true;
                     }
 
                     while (ch >= '0' && ch <= '9') {
                         next();
                     }
 
-                    String text = path.substring(beginIndex, isEOF() ? pos : pos - 1);
+                    int endIndex = pos - 1;
+                    String text = path.substring(beginIndex, endIndex);
                     long value = Long.parseLong(text);
 
-                    next();
+                    if (predicateFlag) {
+                        accept(')');
+                    }
                     accept(']');
 
                     return new IntCompareFilterAccessSegement(propertyName, value, op);
+                }
+
+                if (ch == 'n') {
+                    String name = readName();
+                    if ("null".equals(name)) {
+                        if (predicateFlag) {
+                            accept(')');
+                        }
+                        accept(']');
+
+                        if (op == BinaryCompareOperator.EQ) {
+                            return new NullFilterAccessSegement(propertyName);
+                        }
+
+                        if (op == BinaryCompareOperator.NE) {
+                            return new NotNullFilterAccessSegement(propertyName);
+                        }
+
+                        throw new UnsupportedOperationException();
+                    }
                 }
 
                 throw new UnsupportedOperationException();
@@ -253,25 +344,99 @@ public class JSONPath implements ObjectSerializer {
             return buildArraySegement(text);
         }
 
-        String readName() {
-            final boolean firstFlag = ch >= IOUtils.firstIdentifierFlags.length || IOUtils.firstIdentifierFlags[ch];
+        protected BinaryCompareOperator readOp() {
+            BinaryCompareOperator op = null;
+            if (ch == '=') {
+                next();
+                op = BinaryCompareOperator.EQ;
+            } else if (ch == '!') {
+                next();
+                accept('=');
+                op = BinaryCompareOperator.NE;
+            } else if (ch == '<') {
+                next();
+                if (ch == '=') {
+                    next();
+                    op = BinaryCompareOperator.LE;
+                } else {
+                    op = BinaryCompareOperator.LT;
+                }
+            } else if (ch == '>') {
+                next();
+                if (ch == '=') {
+                    next();
+                    op = BinaryCompareOperator.GE;
+                } else {
+                    op = BinaryCompareOperator.GT;
+                }
+            }
 
-            if (!firstFlag) {
+            if (op == null) {
+                String name = readName();
+
+                if ("not".equalsIgnoreCase(name)) {
+                    skipWhitespace();
+
+                    name = readName();
+
+                    if ("like".equalsIgnoreCase(name)) {
+                        op = BinaryCompareOperator.NOT_LIKE;
+                    } else if ("rlike".equalsIgnoreCase(name)) {
+                        op = BinaryCompareOperator.NOT_RLIKE;
+                    } else {
+                        throw new UnsupportedOperationException();
+                    }
+                } else {
+                    if ("like".equalsIgnoreCase(name)) {
+                        op = BinaryCompareOperator.LIKE;
+                    } else if ("rlike".equalsIgnoreCase(name)) {
+                        op = BinaryCompareOperator.RLIKE;
+                    } else {
+                        throw new UnsupportedOperationException();
+                    }
+                }
+            }
+            return op;
+        }
+
+        String readName() {
+            if (!IOUtils.firstIdentifier(ch)) {
                 throw new JSONPathException("illeal jsonpath syntax. " + path);
             }
 
             int beginIndex = pos - 1;
             while (!isEOF()) {
-                boolean identifierFlag = ch >= IOUtils.identifierFlags.length || IOUtils.identifierFlags[ch];
+                boolean identifierFlag = IOUtils.isIdent(ch);
                 if (!identifierFlag) {
                     break;
                 }
                 next();
             }
 
-            String propertyName = path.substring(beginIndex, isEOF() ? pos : pos - 1);
+            int endIndex = pos - 1;
+            if (isEOF() && IOUtils.isIdent(ch)) {
+                endIndex = pos;
+            }
+
+            String propertyName = path.substring(beginIndex, endIndex);
 
             return propertyName;
+        }
+
+        String readString() {
+            char quoate = ch;
+            next();
+
+            int beginIndex = pos - 1;
+            while (ch != quoate && !isEOF()) {
+                next();
+            }
+
+            String strValue = path.substring(beginIndex, isEOF() ? pos : pos - 1);
+
+            accept(quoate);
+
+            return strValue;
         }
 
         void accept(char expect) {
@@ -290,22 +455,21 @@ public class JSONPath implements ObjectSerializer {
             }
 
             Segement[] segements = new Segement[8];
-            int len = 0;
 
             for (;;) {
                 Segement segment = readSegement();
                 if (segment == null) {
                     break;
                 }
-                segements[len++] = segment;
+                segements[level++] = segment;
             }
 
-            if (len == segements.length) {
+            if (level == segements.length) {
                 return segements;
             }
 
-            Segement[] result = new Segement[len];
-            System.arraycopy(segements, 0, result, 0, len);
+            Segement[] result = new Segement[level];
+            System.arraycopy(segements, 0, result, 0, level);
             return result;
         }
 
@@ -313,14 +477,6 @@ public class JSONPath implements ObjectSerializer {
             final int indexTextLen = indexText.length();
             final char firstChar = indexText.charAt(0);
             final char lastChar = indexText.charAt(indexTextLen - 1);
-
-            if (firstChar == '?') {
-                if (indexTextLen < 3 || lastChar != ')' || indexText.charAt(1) != '(') {
-                    throw new UnsupportedOperationException();
-                }
-
-                throw new UnsupportedOperationException();
-            }
 
             int commaIndex = indexText.indexOf(',');
 
@@ -406,14 +562,14 @@ public class JSONPath implements ObjectSerializer {
         Object eval(JSONPath path, Object rootObject, Object currentObject);
     }
 
-    static class RootSegement implements Segement {
-
-        public final static RootSegement instance = new RootSegement();
-
-        public Object eval(JSONPath path, Object rootObject, Object currentObject) {
-            return rootObject;
-        }
-    }
+    // static class RootSegement implements Segement {
+    //
+    // public final static RootSegement instance = new RootSegement();
+    //
+    // public Object eval(JSONPath path, Object rootObject, Object currentObject) {
+    // return rootObject;
+    // }
+    // }
 
     static class SelfSegement implements Segement {
 
@@ -570,6 +726,22 @@ public class JSONPath implements ObjectSerializer {
         }
     }
 
+    static class NullFilterAccessSegement extends FilterAccessSegement {
+
+        private final String propertyName;
+
+        public NullFilterAccessSegement(String propertyName){
+            this.propertyName = propertyName;
+        }
+
+        @Override
+        public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
+            Object propertyValue = path.getPropertyValue(item, propertyName, false);
+
+            return propertyValue == null;
+        }
+    }
+
     static class IntCompareFilterAccessSegement extends FilterAccessSegement {
 
         private final String                propertyName;
@@ -612,10 +784,161 @@ public class JSONPath implements ObjectSerializer {
 
             return false;
         }
+
+    }
+
+    static class MatchSegement extends FilterAccessSegement {
+
+        private final String   propertyName;
+        private final String   startsWithValue;
+        private final String   endsWithValue;
+        private final String[] containsValues;
+        private final int      minLength;
+        private final boolean  not;
+
+        public MatchSegement(String propertyName, String startsWithValue, String endsWithValue,
+                             String[] containsValues, boolean not){
+            this.propertyName = propertyName;
+            this.startsWithValue = startsWithValue;
+            this.endsWithValue = endsWithValue;
+            this.containsValues = containsValues;
+            this.not = not;
+
+            int len = 0;
+            if (startsWithValue != null) {
+                len += startsWithValue.length();
+            }
+
+            if (endsWithValue != null) {
+                len += endsWithValue.length();
+            }
+
+            if (containsValues != null) {
+                for (String item : containsValues) {
+                    len += item.length();
+                }
+            }
+
+            this.minLength = len;
+        }
+
+        @Override
+        public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
+            Object propertyValue = path.getPropertyValue(item, propertyName, false);
+
+            if (propertyValue == null) {
+                return false;
+            }
+
+            final String strPropertyValue = propertyValue.toString();
+
+            if (strPropertyValue.length() < minLength) {
+                return not;
+            }
+
+            int start = 0;
+            if (startsWithValue != null) {
+                if (!strPropertyValue.startsWith(startsWithValue)) {
+                    return not;
+                }
+                start += startsWithValue.length();
+            }
+
+            if (containsValues != null) {
+                for (String containsValue : containsValues) {
+                    int index = strPropertyValue.indexOf(containsValue, start);
+                    if (index == -1) {
+                        return not;
+                    }
+                    start = index + containsValue.length();
+                }
+            }
+
+            if (endsWithValue != null) {
+                if (!strPropertyValue.endsWith(endsWithValue)) {
+                    return not;
+                }
+            }
+
+            return !not;
+        }
+    }
+
+    static class RlikeSegement extends FilterAccessSegement {
+
+        private final String  propertyName;
+        private final Pattern pattern;
+        private final boolean not;
+
+        public RlikeSegement(String propertyName, String pattern, boolean not){
+            this.propertyName = propertyName;
+            this.pattern = Pattern.compile(pattern);
+            this.not = not;
+        }
+
+        @Override
+        public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
+            Object propertyValue = path.getPropertyValue(item, propertyName, false);
+
+            if (propertyValue == null) {
+                return false;
+            }
+
+            String strPropertyValue = propertyValue.toString();
+            Matcher m = pattern.matcher(strPropertyValue);
+            boolean match = m.matches();
+
+            if (not) {
+                match = !match;
+            }
+
+            return match;
+        }
+    }
+
+    static class StringCompareFilterAccessSegement extends FilterAccessSegement {
+
+        private final String                propertyName;
+        private final String                value;
+        private final BinaryCompareOperator op;
+
+        public StringCompareFilterAccessSegement(String propertyName, String value, BinaryCompareOperator op){
+            this.propertyName = propertyName;
+            this.value = value;
+            this.op = op;
+        }
+
+        @Override
+        public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
+            Object propertyValue = path.getPropertyValue(item, propertyName, false);
+
+            if (propertyValue == null) {
+                return false;
+            }
+
+            if (op == BinaryCompareOperator.EQ) {
+                return value.equals(propertyValue);
+            } else if (op == BinaryCompareOperator.NE) {
+                return !value.equals(propertyValue);
+            }
+
+            int compareResult = value.compareTo(propertyValue.toString());
+            if (op == BinaryCompareOperator.GE) {
+                return compareResult <= 0;
+            } else if (op == BinaryCompareOperator.GT) {
+                return compareResult < 0;
+            } else if (op == BinaryCompareOperator.LE) {
+                return compareResult >= 0;
+            } else if (op == BinaryCompareOperator.LT) {
+                return compareResult > 0;
+            }
+
+            return false;
+        }
     }
 
     static enum BinaryCompareOperator {
-        EQ, NE, GT, GE, LT, LE
+        EQ, NE, GT, GE, LT, LE, LIKE, NOT_LIKE, RLIKE, NOT_RLIKE
     }
 
     static abstract class FilterAccessSegement implements Segement {
@@ -672,7 +995,8 @@ public class JSONPath implements ObjectSerializer {
         throw new UnsupportedOperationException();
     }
 
-    protected List<Object> getPropertyValues(final Object currentObject) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    protected Collection<Object> getPropertyValues(final Object currentObject) {
         final Class<?> currentClass = currentObject.getClass();
 
         JavaBeanSerializer beanSerializer = null;
@@ -691,6 +1015,11 @@ public class JSONPath implements ObjectSerializer {
             } catch (Exception e) {
                 throw new JSONPathException("jsonpath error, path " + path, e);
             }
+        }
+
+        if (currentObject instanceof Map) {
+            Map map = (Map) currentObject;
+            return map.values();
         }
 
         throw new UnsupportedOperationException();

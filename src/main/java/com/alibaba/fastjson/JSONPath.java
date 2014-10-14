@@ -202,12 +202,12 @@ public class JSONPath implements ObjectSerializer {
                     next();
                     accept(']');
 
-                    return new NotNullFilterAccessSegement(propertyName);
+                    return new FilterSegement(new NotNullSegement(propertyName));
                 }
 
                 if (ch == ']') {
                     next();
-                    return new NotNullFilterAccessSegement(propertyName);
+                    return new FilterSegement(new NotNullSegement(propertyName));
                 }
 
                 BinaryCompareOperator op = readOp();
@@ -243,6 +243,7 @@ public class JSONPath implements ObjectSerializer {
                     }
 
                     boolean isInt = true;
+                    boolean isIntObj = true;
                     boolean isString = true;
                     for (Object item : valueList) {
                         if (item == null) {
@@ -256,6 +257,7 @@ public class JSONPath implements ObjectSerializer {
                         if (isInt
                             && !(clazz == Byte.class || clazz == Short.class || clazz == Integer.class || clazz == Long.class)) {
                             isInt = false;
+                            isIntObj = false;
                         }
 
                         if (isString && clazz != String.class) {
@@ -263,20 +265,53 @@ public class JSONPath implements ObjectSerializer {
                         }
                     }
 
+                    if (valueList.size() == 1 && valueList.get(0) == null) {
+                        if (not) {
+                            return new FilterSegement(new NotNullSegement(propertyName));
+                        } else {
+                            return new FilterSegement(new NullSegement(propertyName));
+                        }
+                    }
+
                     if (isInt) {
+                        if (valueList.size() == 1) {
+                            long value = ((Number) valueList.get(0)).longValue();
+                            BinaryCompareOperator intOp = not ? BinaryCompareOperator.NE : BinaryCompareOperator.EQ;
+                            return new FilterSegement(new IntOpSegement(propertyName, value, intOp));
+                        }
+
                         long[] values = new long[valueList.size()];
                         for (int i = 0; i < values.length; ++i) {
                             values[i] = ((Number) valueList.get(i)).longValue();
                         }
 
-                        return new IntInSegement(propertyName, values, not);
+                        return new FilterSegement(new IntInSegement(propertyName, values, not));
                     }
 
                     if (isString) {
+                        if (valueList.size() == 1) {
+                            String value = (String) valueList.get(0);
+
+                            BinaryCompareOperator intOp = not ? BinaryCompareOperator.NE : BinaryCompareOperator.EQ;
+                            return new FilterSegement(new StringOpSegement(propertyName, value, intOp));
+                        }
+
                         String[] values = new String[valueList.size()];
                         valueList.toArray(values);
 
-                        return new StringInSegement(propertyName, values, not);
+                        return new FilterSegement(new StringInSegement(propertyName, values, not));
+                    }
+
+                    if (isIntObj) {
+                        Long[] values = new Long[valueList.size()];
+                        for (int i = 0; i < values.length; ++i) {
+                            Number item = (Number) valueList.get(i);
+                            if (item != null) {
+                                values[i] = item.longValue();
+                            }
+                        }
+
+                        return new FilterSegement(new IntObjInSegement(propertyName, values, not));
                     }
 
                     throw new UnsupportedOperationException();
@@ -290,11 +325,11 @@ public class JSONPath implements ObjectSerializer {
                     accept(']');
 
                     if (op == BinaryCompareOperator.RLIKE) {
-                        return new RlikeSegement(propertyName, strValue, false);
+                        return new FilterSegement(new RlikeSegement(propertyName, strValue, false));
                     }
 
                     if (op == BinaryCompareOperator.NOT_RLIKE) {
-                        return new RlikeSegement(propertyName, strValue, true);
+                        return new FilterSegement(new RlikeSegement(propertyName, strValue, true));
                     }
 
                     if (op == BinaryCompareOperator.LIKE || op == BinaryCompareOperator.NOT_LIKE) {
@@ -344,12 +379,13 @@ public class JSONPath implements ObjectSerializer {
                                 }
                             }
 
-                            return new MatchSegement(propertyName, startsWithValue, endsWithValue, containsValues, not);
+                            return new FilterSegement(new MatchSegement(propertyName, startsWithValue, endsWithValue,
+                                                                        containsValues, not));
 
                         }
                     }
 
-                    return new StringCompareFilterAccessSegement(propertyName, strValue, op);
+                    return new FilterSegement(new StringOpSegement(propertyName, strValue, op));
                 }
 
                 if (isDigitFirst(ch)) {
@@ -360,7 +396,7 @@ public class JSONPath implements ObjectSerializer {
                     }
                     accept(']');
 
-                    return new IntCompareFilterAccessSegement(propertyName, value, op);
+                    return new FilterSegement(new IntOpSegement(propertyName, value, op));
                 }
 
                 if (ch == 'n') {
@@ -372,11 +408,11 @@ public class JSONPath implements ObjectSerializer {
                         accept(']');
 
                         if (op == BinaryCompareOperator.EQ) {
-                            return new NullFilterAccessSegement(propertyName);
+                            return new FilterSegement(new NullSegement(propertyName));
                         }
 
                         if (op == BinaryCompareOperator.NE) {
-                            return new NotNullFilterAccessSegement(propertyName);
+                            return new FilterSegement(new NotNullSegement(propertyName));
                         }
 
                         throw new UnsupportedOperationException();
@@ -612,7 +648,7 @@ public class JSONPath implements ObjectSerializer {
                 for (int i = 0; i < indexesText.length; ++i) {
                     indexes[i] = Integer.parseInt(indexesText[i]);
                 }
-                return new MultiArrayAccessSegement(indexes);
+                return new MultiIndexSegement(indexes);
             }
 
             if (colonIndex != -1) {
@@ -653,7 +689,7 @@ public class JSONPath implements ObjectSerializer {
                 if (step <= 0) {
                     throw new UnsupportedOperationException("step must greater than zero : " + step);
                 }
-                return new RangeArrayAccessSegement(start, end, step);
+                return new RangeSegement(start, end, step);
             }
 
             throw new UnsupportedOperationException();
@@ -769,11 +805,11 @@ public class JSONPath implements ObjectSerializer {
         }
     }
 
-    static class MultiArrayAccessSegement implements Segement {
+    static class MultiIndexSegement implements Segement {
 
         private final int[] indexes;
 
-        public MultiArrayAccessSegement(int[] indexes){
+        public MultiIndexSegement(int[] indexes){
             this.indexes = indexes;
         }
 
@@ -787,13 +823,13 @@ public class JSONPath implements ObjectSerializer {
         }
     }
 
-    static class RangeArrayAccessSegement implements Segement {
+    static class RangeSegement implements Segement {
 
         private final int start;
         private final int end;
         private final int step;
 
-        public RangeArrayAccessSegement(int start, int end, int step){
+        public RangeSegement(int start, int end, int step){
             this.start = start;
             this.end = end;
             this.step = step;
@@ -813,15 +849,14 @@ public class JSONPath implements ObjectSerializer {
         }
     }
 
-    static class NotNullFilterAccessSegement extends FilterAccessSegement {
+    static class NotNullSegement implements Filter {
 
         private final String propertyName;
 
-        public NotNullFilterAccessSegement(String propertyName){
+        public NotNullSegement(String propertyName){
             this.propertyName = propertyName;
         }
 
-        @Override
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
             Object propertyValue = path.getPropertyValue(item, propertyName, false);
 
@@ -829,15 +864,14 @@ public class JSONPath implements ObjectSerializer {
         }
     }
 
-    static class NullFilterAccessSegement extends FilterAccessSegement {
+    static class NullSegement implements Filter {
 
         private final String propertyName;
 
-        public NullFilterAccessSegement(String propertyName){
+        public NullSegement(String propertyName){
             this.propertyName = propertyName;
         }
 
-        @Override
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
             Object propertyValue = path.getPropertyValue(item, propertyName, false);
 
@@ -845,10 +879,10 @@ public class JSONPath implements ObjectSerializer {
         }
     }
 
-    static class IntInSegement extends FilterAccessSegement {
+    static class IntInSegement implements Filter {
 
-        private final String propertyName;
-        private final long[] values;
+        private final String  propertyName;
+        private final long[]  values;
         private final boolean not;
 
         public IntInSegement(String propertyName, long[] values, boolean not){
@@ -857,7 +891,6 @@ public class JSONPath implements ObjectSerializer {
             this.not = not;
         }
 
-        @Override
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
             Object propertyValue = path.getPropertyValue(item, propertyName, false);
 
@@ -878,11 +911,53 @@ public class JSONPath implements ObjectSerializer {
         }
     }
 
-    static class StringInSegement extends FilterAccessSegement {
+    static class IntObjInSegement implements Filter {
+
+        private final String  propertyName;
+        private final Long[]  values;
+        private final boolean not;
+
+        public IntObjInSegement(String propertyName, Long[] values, boolean not){
+            this.propertyName = propertyName;
+            this.values = values;
+            this.not = not;
+        }
+
+        public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
+            Object propertyValue = path.getPropertyValue(item, propertyName, false);
+
+            if (propertyValue == null) {
+                for (Long value : values) {
+                    if (value == null) {
+                        return !not;
+                    }
+                }
+
+                return not;
+            }
+
+            if (propertyValue instanceof Number) {
+                long longPropertyValue = ((Number) propertyValue).longValue();
+                for (Long value : values) {
+                    if (value == null) {
+                        continue;
+                    }
+
+                    if (value.longValue() == longPropertyValue) {
+                        return !not;
+                    }
+                }
+            }
+
+            return not;
+        }
+    }
+
+    static class StringInSegement implements Filter {
 
         private final String   propertyName;
         private final String[] values;
-        private final boolean not;
+        private final boolean  not;
 
         public StringInSegement(String propertyName, String[] values, boolean not){
             this.propertyName = propertyName;
@@ -890,7 +965,6 @@ public class JSONPath implements ObjectSerializer {
             this.not = not;
         }
 
-        @Override
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
             Object propertyValue = path.getPropertyValue(item, propertyName, false);
 
@@ -906,19 +980,18 @@ public class JSONPath implements ObjectSerializer {
         }
     }
 
-    static class IntCompareFilterAccessSegement extends FilterAccessSegement {
+    static class IntOpSegement implements Filter {
 
         private final String                propertyName;
         private final long                  value;
         private final BinaryCompareOperator op;
 
-        public IntCompareFilterAccessSegement(String propertyName, long value, BinaryCompareOperator op){
+        public IntOpSegement(String propertyName, long value, BinaryCompareOperator op){
             this.propertyName = propertyName;
             this.value = value;
             this.op = op;
         }
 
-        @Override
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
             Object propertyValue = path.getPropertyValue(item, propertyName, false);
 
@@ -951,7 +1024,7 @@ public class JSONPath implements ObjectSerializer {
 
     }
 
-    static class MatchSegement extends FilterAccessSegement {
+    static class MatchSegement implements Filter {
 
         private final String   propertyName;
         private final String   startsWithValue;
@@ -986,7 +1059,6 @@ public class JSONPath implements ObjectSerializer {
             this.minLength = len;
         }
 
-        @Override
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
             Object propertyValue = path.getPropertyValue(item, propertyName, false);
 
@@ -1028,7 +1100,7 @@ public class JSONPath implements ObjectSerializer {
         }
     }
 
-    static class RlikeSegement extends FilterAccessSegement {
+    static class RlikeSegement implements Filter {
 
         private final String  propertyName;
         private final Pattern pattern;
@@ -1040,7 +1112,6 @@ public class JSONPath implements ObjectSerializer {
             this.not = not;
         }
 
-        @Override
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
             Object propertyValue = path.getPropertyValue(item, propertyName, false);
 
@@ -1060,30 +1131,29 @@ public class JSONPath implements ObjectSerializer {
         }
     }
 
-    static class StringCompareFilterAccessSegement extends FilterAccessSegement {
+    static class StringOpSegement implements Filter {
 
         private final String                propertyName;
         private final String                value;
         private final BinaryCompareOperator op;
 
-        public StringCompareFilterAccessSegement(String propertyName, String value, BinaryCompareOperator op){
+        public StringOpSegement(String propertyName, String value, BinaryCompareOperator op){
             this.propertyName = propertyName;
             this.value = value;
             this.op = op;
         }
 
-        @Override
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
             Object propertyValue = path.getPropertyValue(item, propertyName, false);
-
-            if (propertyValue == null) {
-                return false;
-            }
 
             if (op == BinaryCompareOperator.EQ) {
                 return value.equals(propertyValue);
             } else if (op == BinaryCompareOperator.NE) {
                 return !value.equals(propertyValue);
+            }
+
+            if (propertyValue == null) {
+                return false;
             }
 
             int compareResult = value.compareTo(propertyValue.toString());
@@ -1105,7 +1175,14 @@ public class JSONPath implements ObjectSerializer {
         EQ, NE, GT, GE, LT, LE, LIKE, NOT_LIKE, RLIKE, NOT_RLIKE, IN, NOT_IN
     }
 
-    static abstract class FilterAccessSegement implements Segement {
+    static public class FilterSegement implements Segement {
+
+        private final Filter filter;
+
+        public FilterSegement(Filter filter){
+            super();
+            this.filter = filter;
+        }
 
         @SuppressWarnings("rawtypes")
         public Object eval(JSONPath path, Object rootObject, Object currentObject) {
@@ -1120,7 +1197,7 @@ public class JSONPath implements ObjectSerializer {
                 while (it.hasNext()) {
                     Object item = it.next();
 
-                    if (apply(path, rootObject, currentObject, item)) {
+                    if (filter.apply(path, rootObject, currentObject, item)) {
                         items.add(item);
                     }
                 }
@@ -1128,10 +1205,17 @@ public class JSONPath implements ObjectSerializer {
                 return items;
             }
 
-            throw new UnsupportedOperationException();
-        }
+            if (filter.apply(path, rootObject, currentObject, currentObject)) {
+                return currentObject;
+            }
 
-        public abstract boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item);
+            return null;
+        }
+    }
+
+    static interface Filter {
+
+        boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item);
     }
 
     @SuppressWarnings("rawtypes")

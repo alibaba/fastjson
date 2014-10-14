@@ -5,8 +5,8 @@ import com.alibaba.fastjson.JSONPath;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.aliyun.odps.udf.UDF;
 
-public class GetJSONObject extends UDF {
-    public GetJSONObject(){
+public class JSONExtract extends UDF {
+    public JSONExtract(){
         SerializeConfig.getGlobalInstance().setAsmEnable(false);
     }
 

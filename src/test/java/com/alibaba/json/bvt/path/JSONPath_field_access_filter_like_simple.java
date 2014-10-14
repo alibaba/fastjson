@@ -35,9 +35,10 @@ public class JSONPath_field_access_filter_like_simple extends TestCase {
         entities.add(new Entity(null, null));
 
         List<Object> result = (List<Object>) path.eval(entities);
-        Assert.assertEquals(2, result.size());
+        Assert.assertEquals(3, result.size());
         Assert.assertSame(entities.get(1), result.get(0));
         Assert.assertSame(entities.get(2), result.get(1));
+        Assert.assertSame(entities.get(3), result.get(2));
     }
     
     public void test_list_like_left_match() throws Exception {

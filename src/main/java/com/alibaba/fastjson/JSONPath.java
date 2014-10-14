@@ -47,19 +47,25 @@ public class JSONPath implements ObjectSerializer {
         this.serializeConfig = serializeConfig;
     }
 
+    protected void init() {
+        if (pathSegments != null) {
+            return;
+        }
+
+        if ("*".equals(path)) {
+            this.pathSegments = new Segement[] { WildCardSegement.instance };
+        } else {
+            JSONPathParser parser = new JSONPathParser(path);
+            this.pathSegments = parser.explain();
+        }
+    }
+
     public Object eval(Object rootObject) {
         if (rootObject == null) {
             return null;
         }
 
-        if (pathSegments == null) {
-            if ("*".equals(path)) {
-                this.pathSegments = new Segement[] { WildCardSegement.instance };
-            } else {
-                JSONPathParser parser = new JSONPathParser(path);
-                this.pathSegments = parser.explain();
-            }
-        }
+        init();
 
         Object currentObject = rootObject;
         for (int i = 0; i < pathSegments.length; ++i) {
@@ -68,7 +74,33 @@ public class JSONPath implements ObjectSerializer {
         return currentObject;
     }
 
+    public int size(Object rootObject) {
+        if (rootObject == null) {
+            return -1;
+        }
+
+        init();
+
+        Object currentObject = rootObject;
+        for (int i = 0; i < pathSegments.length; ++i) {
+            currentObject = pathSegments[i].eval(this, rootObject, currentObject);
+        }
+
+        return evalSize(currentObject);
+    }
+
     public static Object eval(Object rootObject, String path) {
+        JSONPath jsonpath = compile(path);
+        return jsonpath.eval(rootObject);
+    }
+
+    public static int size(Object rootObject, String path) {
+        JSONPath jsonpath = compile(path);
+        Object result = jsonpath.eval(rootObject);
+        return jsonpath.evalSize(result);
+    }
+
+    public static JSONPath compile(String path) {
         JSONPath jsonpath = pathCache.get(path);
         if (jsonpath == null) {
             jsonpath = new JSONPath(path);
@@ -77,7 +109,7 @@ public class JSONPath implements ObjectSerializer {
                 jsonpath = pathCache.get(path);
             }
         }
-        return jsonpath.eval(rootObject);
+        return jsonpath;
     }
 
     public String getPath() {
@@ -723,29 +755,8 @@ public class JSONPath implements ObjectSerializer {
 
         public final static SizeSegement instance = new SizeSegement();
 
-        @SuppressWarnings("rawtypes")
         public Integer eval(JSONPath path, Object rootObject, Object currentObject) {
-            if (currentObject == null) {
-                return 0;
-            }
-
-            if (currentObject instanceof Collection) {
-                return ((Collection) currentObject).size();
-            }
-
-            if (currentObject instanceof Object[]) {
-                return ((Object[]) currentObject).length;
-            }
-
-            if (currentObject.getClass().isArray()) {
-                return Array.getLength(currentObject);
-            }
-
-            if (currentObject instanceof Map) {
-                return ((Map) currentObject).size();
-            }
-
-            throw new UnsupportedOperationException();
+            return path.evalSize(currentObject);
         }
     }
 
@@ -1247,15 +1258,7 @@ public class JSONPath implements ObjectSerializer {
     protected Collection<Object> getPropertyValues(final Object currentObject) {
         final Class<?> currentClass = currentObject.getClass();
 
-        JavaBeanSerializer beanSerializer = null;
-        {
-            ObjectSerializer serializer = serializeConfig.getObjectWriter(currentClass);
-            if (serializer instanceof JavaBeanSerializer) {
-                beanSerializer = (JavaBeanSerializer) serializer;
-            } else if (serializer instanceof ASMJavaBeanSerializer) {
-                beanSerializer = ((ASMJavaBeanSerializer) serializer).getJavaBeanSerializer();
-            }
-        }
+        JavaBeanSerializer beanSerializer = getJavaBeanSerializer(currentClass);
 
         if (beanSerializer != null) {
             try {
@@ -1286,15 +1289,7 @@ public class JSONPath implements ObjectSerializer {
 
         final Class<?> currentClass = currentObject.getClass();
 
-        JavaBeanSerializer beanSerializer = null;
-        {
-            ObjectSerializer serializer = serializeConfig.getObjectWriter(currentClass);
-            if (serializer instanceof JavaBeanSerializer) {
-                beanSerializer = (JavaBeanSerializer) serializer;
-            } else if (serializer instanceof ASMJavaBeanSerializer) {
-                beanSerializer = ((ASMJavaBeanSerializer) serializer).getJavaBeanSerializer();
-            }
-        }
+        JavaBeanSerializer beanSerializer = getJavaBeanSerializer(currentClass);
         if (beanSerializer != null) {
             try {
                 return beanSerializer.getFieldValue(currentObject, propertyName);
@@ -1317,6 +1312,69 @@ public class JSONPath implements ObjectSerializer {
             return fieldValues;
         }
         throw new JSONPathException("jsonpath error, path " + path + ", segement " + propertyName);
+    }
+
+    protected JavaBeanSerializer getJavaBeanSerializer(final Class<?> currentClass) {
+        JavaBeanSerializer beanSerializer = null;
+        {
+            ObjectSerializer serializer = serializeConfig.getObjectWriter(currentClass);
+            if (serializer instanceof JavaBeanSerializer) {
+                beanSerializer = (JavaBeanSerializer) serializer;
+            } else if (serializer instanceof ASMJavaBeanSerializer) {
+                beanSerializer = ((ASMJavaBeanSerializer) serializer).getJavaBeanSerializer();
+            }
+        }
+        return beanSerializer;
+    }
+
+    @SuppressWarnings("rawtypes")
+    int evalSize(Object currentObject) {
+        if (currentObject == null) {
+            return -1;
+        }
+
+        if (currentObject instanceof Collection) {
+            return ((Collection) currentObject).size();
+        }
+
+        if (currentObject instanceof Object[]) {
+            return ((Object[]) currentObject).length;
+        }
+
+        if (currentObject.getClass().isArray()) {
+            return Array.getLength(currentObject);
+        }
+
+        if (currentObject instanceof Map) {
+            int count = 0;
+
+            for (Object value : ((Map) currentObject).values()) {
+                if (value != null) {
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        JavaBeanSerializer beanSerializer = getJavaBeanSerializer(currentObject.getClass());
+
+        if (beanSerializer == null) {
+            return -1;
+        }
+
+        try {
+            List<Object> values = beanSerializer.getFieldValues(currentObject);
+
+            int count = 0;
+            for (int i = 0; i < values.size(); ++i) {
+                if (values.get(i) != null) {
+                    count++;
+                }
+            }
+            return count;
+        } catch (Exception e) {
+            throw new JSONException("evalSize error : " + path, e);
+        }
     }
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)

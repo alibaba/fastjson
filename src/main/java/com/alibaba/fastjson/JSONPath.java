@@ -30,7 +30,7 @@ public class JSONPath implements ObjectSerializer {
     private static ConcurrentMap<String, JSONPath> pathCache  = new ConcurrentHashMap<String, JSONPath>(128, 0.75f, 1);
 
     private final String                           path;
-    private Segement[]                             pathSegments;
+    private Segement[]                             segments;
 
     private SerializeConfig                        serializeConfig;
 
@@ -48,15 +48,15 @@ public class JSONPath implements ObjectSerializer {
     }
 
     protected void init() {
-        if (pathSegments != null) {
+        if (segments != null) {
             return;
         }
 
         if ("*".equals(path)) {
-            this.pathSegments = new Segement[] { WildCardSegement.instance };
+            this.segments = new Segement[] { WildCardSegement.instance };
         } else {
             JSONPathParser parser = new JSONPathParser(path);
-            this.pathSegments = parser.explain();
+            this.segments = parser.explain();
         }
     }
 
@@ -68,10 +68,55 @@ public class JSONPath implements ObjectSerializer {
         init();
 
         Object currentObject = rootObject;
-        for (int i = 0; i < pathSegments.length; ++i) {
-            currentObject = pathSegments[i].eval(this, rootObject, currentObject);
+        for (int i = 0; i < segments.length; ++i) {
+            currentObject = segments[i].eval(this, rootObject, currentObject);
         }
         return currentObject;
+    }
+
+    public boolean contains(Object rootObject) {
+        if (rootObject == null) {
+            return false;
+        }
+
+        init();
+
+        Object currentObject = rootObject;
+        for (int i = 0; i < segments.length; ++i) {
+            currentObject = segments[i].eval(this, rootObject, currentObject);
+            if (currentObject == null) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @SuppressWarnings("rawtypes")
+    public boolean containsValue(Object rootObject, Object value) {
+        Object currentObject = eval(rootObject);
+
+        if (currentObject == value) {
+            return true;
+        }
+
+        if (currentObject == null) {
+            return false;
+        }
+
+        if (currentObject instanceof Iterable) {
+            Iterator it = ((Iterable) currentObject).iterator();
+            while (it.hasNext()) {
+                Object item = it.next();
+                if (eq(item, value)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        return eq(currentObject, value);
     }
 
     public int size(Object rootObject) {
@@ -82,11 +127,85 @@ public class JSONPath implements ObjectSerializer {
         init();
 
         Object currentObject = rootObject;
-        for (int i = 0; i < pathSegments.length; ++i) {
-            currentObject = pathSegments[i].eval(this, rootObject, currentObject);
+        for (int i = 0; i < segments.length; ++i) {
+            currentObject = segments[i].eval(this, rootObject, currentObject);
         }
 
         return evalSize(currentObject);
+    }
+
+    public void array_put(Object rootObject, Object... values) {
+        if (values == null || values.length == 0) {
+            return;
+        }
+
+        if (rootObject == null) {
+            return;
+        }
+
+        init();
+
+        Object currentObject = rootObject;
+        Object parentObject = null;
+        for (int i = 0; i < segments.length; ++i) {
+            if (i == segments.length - 1) {
+                parentObject = currentObject;
+            }
+            currentObject = segments[i].eval(this, rootObject, currentObject);
+        }
+
+        Object result = currentObject;
+
+        if (result == null) {
+            throw new JSONPathException("value not found in path " + path);
+        }
+
+        if (result instanceof Collection) {
+            Collection collection = (Collection) result;
+            for (Object value : values) {
+                collection.add(value);
+            }
+            return;
+        }
+
+        Class<?> resultClass = result.getClass();
+
+        Object newResult;
+        if (resultClass.isArray()) {
+            int length = Array.getLength(result);
+            Object descArray = Array.newInstance(resultClass.getComponentType(), length + values.length);
+
+            System.arraycopy(result, 0, descArray, 0, length);
+            for (int i = 0; i < values.length; ++i) {
+                Object value = values[i];
+
+                long intValue;
+                if (value instanceof Number) {
+                    intValue = ((Number) value).longValue();
+                } else {
+                    throw new UnsupportedOperationException();
+                }
+                Array.set(descArray, length + i, value);
+
+            }
+            newResult = descArray;
+        } else {
+            throw new UnsupportedOperationException();
+        }
+
+        Segement lastSegement = segments[segments.length - 1];
+        if (lastSegement instanceof PropertySegement) {
+            PropertySegement propertySegement = (PropertySegement) lastSegement;
+            propertySegement.setValue(this, parentObject, newResult);
+            return;
+        }
+
+        if (lastSegement instanceof ArrayAccessSegement) {
+            ((ArrayAccessSegement) lastSegement).setValue(this, parentObject, newResult);
+            return;
+        }
+
+        throw new UnsupportedOperationException();
     }
 
     public static Object eval(Object rootObject, String path) {
@@ -98,6 +217,20 @@ public class JSONPath implements ObjectSerializer {
         JSONPath jsonpath = compile(path);
         Object result = jsonpath.eval(rootObject);
         return jsonpath.evalSize(result);
+    }
+
+    public static boolean contains(Object rootObject, String path) {
+        if (rootObject == null) {
+            return false;
+        }
+
+        JSONPath jsonpath = compile(path);
+        return jsonpath.contains(rootObject);
+    }
+
+    public static boolean containsValue(Object rootObject, String path, Object value) {
+        JSONPath jsonpath = compile(path);
+        return jsonpath.containsValue(rootObject, value);
     }
 
     public static JSONPath compile(String path) {
@@ -188,7 +321,6 @@ public class JSONPath implements ObjectSerializer {
                 if (level == 0) {
                     String propertyName = readName();
 
-                    skipWhitespace();
                     return new PropertySegement(propertyName);
                 }
 
@@ -242,12 +374,38 @@ public class JSONPath implements ObjectSerializer {
                     return new FilterSegement(new NotNullSegement(propertyName));
                 }
 
-                BinaryCompareOperator op = readOp();
+                Operator op = readOp();
 
                 skipWhitespace();
 
-                if (op == BinaryCompareOperator.IN || op == BinaryCompareOperator.NOT_IN) {
-                    final boolean not = (op == BinaryCompareOperator.NOT_IN);
+                if (op == Operator.BETWEEN || op == Operator.NOT_BETWEEN) {
+                    final boolean not = (op == Operator.NOT_BETWEEN);
+
+                    Object startValue = readValue();
+
+                    String name = readName();
+
+                    if (!"and".equalsIgnoreCase(name)) {
+                        throw new JSONPathException(path);
+                    }
+
+                    Object endValue = readValue();
+
+                    if (startValue == null || endValue == null) {
+                        throw new JSONPathException(path);
+                    }
+
+                    if (isInt(startValue.getClass()) && isInt(endValue.getClass())) {
+                        Filter filter = new IntBetweenSegement(propertyName, ((Number) startValue).longValue(),
+                                                               ((Number) endValue).longValue(), not);
+                        return new FilterSegement(filter);
+                    }
+
+                    throw new JSONPathException(path);
+                }
+
+                if (op == Operator.IN || op == Operator.NOT_IN) {
+                    final boolean not = (op == Operator.NOT_IN);
                     accept('(');
 
                     List<Object> valueList = new ArrayList<Object>();
@@ -261,7 +419,6 @@ public class JSONPath implements ObjectSerializer {
                                 break;
                             }
                             next();
-                            skipWhitespace();
 
                             value = readValue();
                             valueList.add(value);
@@ -308,7 +465,7 @@ public class JSONPath implements ObjectSerializer {
                     if (isInt) {
                         if (valueList.size() == 1) {
                             long value = ((Number) valueList.get(0)).longValue();
-                            BinaryCompareOperator intOp = not ? BinaryCompareOperator.NE : BinaryCompareOperator.EQ;
+                            Operator intOp = not ? Operator.NE : Operator.EQ;
                             return new FilterSegement(new IntOpSegement(propertyName, value, intOp));
                         }
 
@@ -324,7 +481,7 @@ public class JSONPath implements ObjectSerializer {
                         if (valueList.size() == 1) {
                             String value = (String) valueList.get(0);
 
-                            BinaryCompareOperator intOp = not ? BinaryCompareOperator.NE : BinaryCompareOperator.EQ;
+                            Operator intOp = not ? Operator.NE : Operator.EQ;
                             return new FilterSegement(new StringOpSegement(propertyName, value, intOp));
                         }
 
@@ -356,27 +513,27 @@ public class JSONPath implements ObjectSerializer {
                     }
                     accept(']');
 
-                    if (op == BinaryCompareOperator.RLIKE) {
+                    if (op == Operator.RLIKE) {
                         return new FilterSegement(new RlikeSegement(propertyName, strValue, false));
                     }
 
-                    if (op == BinaryCompareOperator.NOT_RLIKE) {
+                    if (op == Operator.NOT_RLIKE) {
                         return new FilterSegement(new RlikeSegement(propertyName, strValue, true));
                     }
 
-                    if (op == BinaryCompareOperator.LIKE || op == BinaryCompareOperator.NOT_LIKE) {
+                    if (op == Operator.LIKE || op == Operator.NOT_LIKE) {
                         while (strValue.indexOf("%%") != -1) {
                             strValue = strValue.replaceAll("%%", "%");
                         }
 
-                        final boolean not = (op == BinaryCompareOperator.NOT_LIKE);
+                        final boolean not = (op == Operator.NOT_LIKE);
 
                         int p0 = strValue.indexOf('%');
                         if (p0 == -1) {
-                            if (op == BinaryCompareOperator.LIKE) {
-                                op = BinaryCompareOperator.EQ;
+                            if (op == Operator.LIKE) {
+                                op = Operator.EQ;
                             } else {
-                                op = BinaryCompareOperator.NE;
+                                op = Operator.NE;
                             }
                         } else {
                             String[] items = strValue.split("%");
@@ -439,11 +596,11 @@ public class JSONPath implements ObjectSerializer {
                         }
                         accept(']');
 
-                        if (op == BinaryCompareOperator.EQ) {
+                        if (op == Operator.EQ) {
                             return new FilterSegement(new NullSegement(propertyName));
                         }
 
-                        if (op == BinaryCompareOperator.NE) {
+                        if (op == Operator.NE) {
                             return new FilterSegement(new NotNullSegement(propertyName));
                         }
 
@@ -486,6 +643,8 @@ public class JSONPath implements ObjectSerializer {
         }
 
         protected Object readValue() {
+            skipWhitespace();
+
             if (isDigitFirst(ch)) {
                 return readLongValue();
             }
@@ -511,30 +670,30 @@ public class JSONPath implements ObjectSerializer {
             return ch == '-' || ch == '+' || (ch >= '0' && ch <= '9');
         }
 
-        protected BinaryCompareOperator readOp() {
-            BinaryCompareOperator op = null;
+        protected Operator readOp() {
+            Operator op = null;
             if (ch == '=') {
                 next();
-                op = BinaryCompareOperator.EQ;
+                op = Operator.EQ;
             } else if (ch == '!') {
                 next();
                 accept('=');
-                op = BinaryCompareOperator.NE;
+                op = Operator.NE;
             } else if (ch == '<') {
                 next();
                 if (ch == '=') {
                     next();
-                    op = BinaryCompareOperator.LE;
+                    op = Operator.LE;
                 } else {
-                    op = BinaryCompareOperator.LT;
+                    op = Operator.LT;
                 }
             } else if (ch == '>') {
                 next();
                 if (ch == '=') {
                     next();
-                    op = BinaryCompareOperator.GE;
+                    op = Operator.GE;
                 } else {
-                    op = BinaryCompareOperator.GT;
+                    op = Operator.GT;
                 }
             }
 
@@ -547,21 +706,25 @@ public class JSONPath implements ObjectSerializer {
                     name = readName();
 
                     if ("like".equalsIgnoreCase(name)) {
-                        op = BinaryCompareOperator.NOT_LIKE;
+                        op = Operator.NOT_LIKE;
                     } else if ("rlike".equalsIgnoreCase(name)) {
-                        op = BinaryCompareOperator.NOT_RLIKE;
+                        op = Operator.NOT_RLIKE;
                     } else if ("in".equalsIgnoreCase(name)) {
-                        op = BinaryCompareOperator.NOT_IN;
+                        op = Operator.NOT_IN;
+                    } else if ("between".equalsIgnoreCase(name)) {
+                        op = Operator.NOT_BETWEEN;
                     } else {
                         throw new UnsupportedOperationException();
                     }
                 } else {
                     if ("like".equalsIgnoreCase(name)) {
-                        op = BinaryCompareOperator.LIKE;
+                        op = Operator.LIKE;
                     } else if ("rlike".equalsIgnoreCase(name)) {
-                        op = BinaryCompareOperator.RLIKE;
+                        op = Operator.RLIKE;
                     } else if ("in".equalsIgnoreCase(name)) {
-                        op = BinaryCompareOperator.IN;
+                        op = Operator.IN;
+                    } else if ("between".equalsIgnoreCase(name)) {
+                        op = Operator.BETWEEN;
                     } else {
                         throw new UnsupportedOperationException();
                     }
@@ -571,6 +734,8 @@ public class JSONPath implements ObjectSerializer {
         }
 
         String readName() {
+            skipWhitespace();
+
             if (!IOUtils.firstIdentifier(ch)) {
                 throw new JSONPathException("illeal jsonpath syntax. " + path);
             }
@@ -771,6 +936,10 @@ public class JSONPath implements ObjectSerializer {
         public Object eval(JSONPath path, Object rootObject, Object currentObject) {
             return path.getPropertyValue(currentObject, propertyName, true);
         }
+
+        public void setValue(JSONPath path, Object parent, Object value) {
+            path.setPropertyValue(parent, propertyName, value);
+        }
     }
 
     static class MultiPropertySegement implements Segement {
@@ -813,6 +982,10 @@ public class JSONPath implements ObjectSerializer {
 
         public Object eval(JSONPath path, Object rootObject, Object currentObject) {
             return path.getArrayItem(currentObject, index);
+        }
+
+        public void setValue(JSONPath path, Object currentObject, Object value) {
+            path.setArrayItem(path, currentObject, index, value);
         }
     }
 
@@ -922,6 +1095,38 @@ public class JSONPath implements ObjectSerializer {
         }
     }
 
+    static class IntBetweenSegement implements Filter {
+
+        private final String  propertyName;
+        private final long    startValue;
+        private final long    endValue;
+        private final boolean not;
+
+        public IntBetweenSegement(String propertyName, long startValue, long endValue, boolean not){
+            this.propertyName = propertyName;
+            this.startValue = startValue;
+            this.endValue = endValue;
+            this.not = not;
+        }
+
+        public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
+            Object propertyValue = path.getPropertyValue(item, propertyName, false);
+
+            if (propertyValue == null) {
+                return false;
+            }
+
+            if (propertyValue instanceof Number) {
+                long longPropertyValue = ((Number) propertyValue).longValue();
+                if (longPropertyValue >= startValue && longPropertyValue <= endValue) {
+                    return !not;
+                }
+            }
+
+            return not;
+        }
+    }
+
     static class IntObjInSegement implements Filter {
 
         private final String  propertyName;
@@ -993,11 +1198,11 @@ public class JSONPath implements ObjectSerializer {
 
     static class IntOpSegement implements Filter {
 
-        private final String                propertyName;
-        private final long                  value;
-        private final BinaryCompareOperator op;
+        private final String   propertyName;
+        private final long     value;
+        private final Operator op;
 
-        public IntOpSegement(String propertyName, long value, BinaryCompareOperator op){
+        public IntOpSegement(String propertyName, long value, Operator op){
             this.propertyName = propertyName;
             this.value = value;
             this.op = op;
@@ -1016,17 +1221,17 @@ public class JSONPath implements ObjectSerializer {
 
             long longValue = ((Number) propertyValue).longValue();
 
-            if (op == BinaryCompareOperator.EQ) {
+            if (op == Operator.EQ) {
                 return longValue == value;
-            } else if (op == BinaryCompareOperator.NE) {
+            } else if (op == Operator.NE) {
                 return longValue != value;
-            } else if (op == BinaryCompareOperator.GE) {
+            } else if (op == Operator.GE) {
                 return longValue >= value;
-            } else if (op == BinaryCompareOperator.GT) {
+            } else if (op == Operator.GT) {
                 return longValue > value;
-            } else if (op == BinaryCompareOperator.LE) {
+            } else if (op == Operator.LE) {
                 return longValue <= value;
-            } else if (op == BinaryCompareOperator.LT) {
+            } else if (op == Operator.LT) {
                 return longValue < value;
             }
 
@@ -1144,11 +1349,11 @@ public class JSONPath implements ObjectSerializer {
 
     static class StringOpSegement implements Filter {
 
-        private final String                propertyName;
-        private final String                value;
-        private final BinaryCompareOperator op;
+        private final String   propertyName;
+        private final String   value;
+        private final Operator op;
 
-        public StringOpSegement(String propertyName, String value, BinaryCompareOperator op){
+        public StringOpSegement(String propertyName, String value, Operator op){
             this.propertyName = propertyName;
             this.value = value;
             this.op = op;
@@ -1157,9 +1362,9 @@ public class JSONPath implements ObjectSerializer {
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
             Object propertyValue = path.getPropertyValue(item, propertyName, false);
 
-            if (op == BinaryCompareOperator.EQ) {
+            if (op == Operator.EQ) {
                 return value.equals(propertyValue);
-            } else if (op == BinaryCompareOperator.NE) {
+            } else if (op == Operator.NE) {
                 return !value.equals(propertyValue);
             }
 
@@ -1168,13 +1373,13 @@ public class JSONPath implements ObjectSerializer {
             }
 
             int compareResult = value.compareTo(propertyValue.toString());
-            if (op == BinaryCompareOperator.GE) {
+            if (op == Operator.GE) {
                 return compareResult <= 0;
-            } else if (op == BinaryCompareOperator.GT) {
+            } else if (op == Operator.GT) {
                 return compareResult < 0;
-            } else if (op == BinaryCompareOperator.LE) {
+            } else if (op == Operator.LE) {
                 return compareResult >= 0;
-            } else if (op == BinaryCompareOperator.LT) {
+            } else if (op == Operator.LT) {
                 return compareResult > 0;
             }
 
@@ -1182,8 +1387,8 @@ public class JSONPath implements ObjectSerializer {
         }
     }
 
-    static enum BinaryCompareOperator {
-        EQ, NE, GT, GE, LT, LE, LIKE, NOT_LIKE, RLIKE, NOT_RLIKE, IN, NOT_IN
+    static enum Operator {
+        EQ, NE, GT, GE, LT, LE, LIKE, NOT_LIKE, RLIKE, NOT_RLIKE, IN, NOT_IN, BETWEEN, NOT_BETWEEN
     }
 
     static public class FilterSegement implements Segement {
@@ -1250,6 +1455,53 @@ public class JSONPath implements ObjectSerializer {
                 return null;
             }
         }
+        
+        if (currentObject.getClass().isArray()) {
+            int arrayLenth = Array.getLength(currentObject);
+            
+            if (index >= 0) {
+                if (index < arrayLenth) {
+                    return Array.get(currentObject, index);
+                }
+                return null;
+            } else {
+                if (Math.abs(index) <= arrayLenth) {
+                    return Array.get(currentObject, arrayLenth + index);
+                }
+                return null;
+            }
+        }
+
+        throw new UnsupportedOperationException();
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public void setArrayItem(JSONPath path, Object currentObject, int index, Object value) {
+        if (currentObject instanceof List) {
+            List list = (List) currentObject;
+            if (index >= 0) {
+                list.set(index, value);
+            } else {
+                list.set(list.size() + index, value);
+            }
+            return;
+        }
+        
+        if (currentObject.getClass().isArray()) {
+            int arrayLenth = Array.getLength(currentObject);
+            
+            if (index >= 0) {
+                if (index < arrayLenth) {
+                    Array.set(currentObject, index, value);
+                }
+            } else {
+                if (Math.abs(index) <= arrayLenth) {
+                    Array.set(currentObject, arrayLenth + index, value);
+                }
+            }
+            
+            return;
+        }
 
         throw new UnsupportedOperationException();
     }
@@ -1274,6 +1526,60 @@ public class JSONPath implements ObjectSerializer {
         }
 
         throw new UnsupportedOperationException();
+    }
+
+    static boolean eq(Object a, Object b) {
+        if (a == b) {
+            return true;
+        }
+
+        if (a == null || b == null) {
+            return false;
+        }
+
+        if (a.getClass() == b.getClass()) {
+            return a.equals(b);
+        }
+
+        if (a instanceof Number) {
+            if (b instanceof Number) {
+                return eqNotNull((Number) a, (Number) b);
+            }
+
+            return false;
+        }
+
+        return a.equals(b);
+    }
+
+    @SuppressWarnings("rawtypes")
+    static boolean eqNotNull(Number a, Number b) {
+        Class clazzA = a.getClass();
+        boolean isIntA = isInt(clazzA);
+
+        Class clazzB = a.getClass();
+        boolean isIntB = isInt(clazzB);
+
+        if (isIntA && isIntB) {
+            return a.longValue() == b.longValue();
+        }
+
+        boolean isDoubleA = isDouble(clazzA);
+        boolean isDoubleB = isDouble(clazzB);
+
+        if ((isDoubleA && isDoubleB) || (isDoubleA && isIntA) || (isDoubleB && isIntA)) {
+            return a.doubleValue() == b.doubleValue();
+        }
+
+        return false;
+    }
+
+    protected static boolean isDouble(Class<?> clazzA) {
+        return clazzA == Float.class || clazzA == Double.class;
+    }
+
+    protected static boolean isInt(Class<?> clazzA) {
+        return clazzA == Byte.class || clazzA == Short.class || clazzA == Integer.class || clazzA == Long.class;
     }
 
     @SuppressWarnings("rawtypes")
@@ -1312,6 +1618,15 @@ public class JSONPath implements ObjectSerializer {
             return fieldValues;
         }
         throw new JSONPathException("jsonpath error, path " + path + ", segement " + propertyName);
+    }
+
+    protected void setPropertyValue(Object parent, String name, Object value) {
+        if (parent instanceof Map) {
+            ((Map) parent).put(name, value);
+            return;
+        }
+
+        throw new UnsupportedOperationException();
     }
 
     protected JavaBeanSerializer getJavaBeanSerializer(final Class<?> currentClass) {

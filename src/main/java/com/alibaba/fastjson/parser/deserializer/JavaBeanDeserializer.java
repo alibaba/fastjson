@@ -56,6 +56,22 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     public Map<String, FieldDeserializer> getFieldDeserializerMap() {
         return feildDeserializerMap;
     }
+    
+    public FieldDeserializer getFieldDeserializer(String name) {
+        FieldDeserializer feildDeser = feildDeserializerMap.get(name);
+        
+        if (feildDeser != null) {
+            return feildDeser;
+        }
+        
+        for (Map.Entry<String, FieldDeserializer> entry : feildDeserializerMap.entrySet()) {
+            if (name.equals(entry.getKey())) {
+                return entry.getValue();
+            }
+        }
+        
+        return null;
+    }
 
     public Class<?> getClazz() {
         return clazz;

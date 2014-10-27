@@ -190,6 +190,11 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public final Object parseObject(final Map object, Object fieldName) {
         final JSONLexer lexer = this.lexer;
+        
+        if (lexer.token() == JSONToken.NULL) {
+            lexer.next();
+            return null;
+        }
 
         if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {
             throw new JSONException("syntax error, expect {, actual " + lexer.tokenName());

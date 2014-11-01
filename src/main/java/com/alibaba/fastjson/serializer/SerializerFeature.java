@@ -120,7 +120,7 @@ public enum SerializerFeature {
     NotWriteDefaultValue,
 
     /**
-     * @since 1.1.43
+     * @since ???
      */
     WriteNonStringValueAsString,
     ;

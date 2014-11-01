@@ -177,16 +177,23 @@ public class MapSerializer implements ObjectSerializer {
                     continue;
                 }
 
-                Class<?> clazz = value.getClass();
+                if(out.isEnabled(SerializerFeature.WriteNonStringValueAsString)) {
+                    String strEntryValue = JSON.toJSONString(value);
+                    preWriter = serializer.getObjectWriter(String.class);
+                    preWriter.write(serializer, strEntryValue, entryKey, null, 0);
+                }else{
+                    Class<?> clazz = value.getClass();
 
-                if (clazz == preClazz) {
-                    preWriter.write(serializer, value, entryKey, null, 0);
-                } else {
-                    preClazz = clazz;
-                    preWriter = serializer.getObjectWriter(clazz);
+                    if (clazz == preClazz) {
+                        preWriter.write(serializer, value, entryKey, null, 0);
+                    } else {
+                        preClazz = clazz;
+                        preWriter = serializer.getObjectWriter(clazz);
 
-                    preWriter.write(serializer, value, entryKey, null, 0);
+                        preWriter.write(serializer, value, entryKey, null, 0);
+                    }
                 }
+
             }
         } finally {
             serializer.setContext(parent);

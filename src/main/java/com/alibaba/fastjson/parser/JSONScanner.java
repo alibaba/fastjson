@@ -24,6 +24,7 @@ import java.util.TimeZone;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.Base64;
 
 //这个类，为了性能优化做了很多特别处理，一切都是为了性能！！！
@@ -167,17 +168,26 @@ public final class JSONScanner extends JSONLexerBase {
      */
     public final String stringVal() {
         if (!hasSpecial) {
-            // return new String(buf, np + 1, sp);
-            return text.substring(np + 1, np + 1 + sp);
+            //return text.substring(np + 1, np + 1 + sp);
+            return this.subString(np + 1, sp);
         } else {
             return new String(sbuf, 0, sp);
         }
     }
 
     public final String subString(int offset, int count) {
-        return text.substring(offset, offset + count);
+        //if (ASMUtils.isAndroid()) {
+            if (true) {
+            char[] chars = new char[count];
+            for (int i = offset; i < offset + count; ++i) {
+                chars[i - offset] = text.charAt(i);
+            }
+            return new String(chars);
+        } else {
+            return text.substring(offset, offset + count);
+        }
     }
-
+    
     public final String numberString() {
         char chLocal = charAt(np + sp - 1);
 
@@ -186,8 +196,8 @@ public final class JSONScanner extends JSONLexerBase {
             sp--;
         }
 
-        return text.substring(np, np + sp);
-        // return new String(buf, np, sp);
+        // return text.substring(np, np + sp);
+        return this.subString(np, sp);
     }
 
     public final int ISO8601_LEN_0 = "0000-00-00".length();
@@ -881,8 +891,8 @@ public final class JSONScanner extends JSONLexerBase {
             for (;;) {
                 ch = charAt(index++);
                 if (ch == '\"') {
-                    strVal = text.substring(start, index - 1);
-                    // strVal = new String(buf, start, index - start - 1);
+                    strVal = this.subString(start, index - start - 1);
+                    // strVal = text.substring(start, index - 1);
                     list.add(strVal);
                     ch = charAt(index++);
                     break;

@@ -176,14 +176,14 @@ public class SymbolTable {
                 }
             }
             if (entryIndex >= MAX_BUCKET_LENTH) {
-                return buffer.substring(offset, offset + len);
-                // return new String(buffer, offset, len);
+                // return buffer.substring(offset, offset + len);
+                return subString(buffer, offset, len);
             }
         }
 
         if (size >= MAX_SIZE) {
-            // return new String(buffer, offset, len);
-            return buffer.substring(offset, offset + len);
+            // return buffer.substring(offset, offset + len);
+            return subString(buffer, offset, len);
         }
 
         Entry entry = new Entry(buffer, offset, len, hash, buckets[bucket]);
@@ -194,6 +194,14 @@ public class SymbolTable {
         }
         size++;
         return entry.symbol;
+    }
+    
+    private static String subString(String src, int offset, int len) {
+        char[] chars = new char[len];
+        for (int i = offset; i < offset + len; ++i) {
+            chars[i - offset] = src.charAt(i);
+        }
+        return new String(chars);
     }
 
     public int size() {
@@ -233,7 +241,8 @@ public class SymbolTable {
         }
 
         public Entry(String text, int offset, int length, int hash, Entry next){
-            symbol = text.substring(offset, offset + length).intern();
+            // symbol = text.substring(offset, offset + length).intern();
+            symbol = subString(text, offset, length).intern();
             characters = symbol.toCharArray();
             this.next = next;
             this.hashCode = hash;

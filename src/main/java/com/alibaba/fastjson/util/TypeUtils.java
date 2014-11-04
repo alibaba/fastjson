@@ -89,6 +89,11 @@ public class TypeUtils {
             if (strVal.length() == 0) {
                 return null;
             }
+            
+            if ("null".equals(strVal)) {
+                return null;
+            }
+            
             return Byte.parseByte(strVal);
         }
 
@@ -135,6 +140,11 @@ public class TypeUtils {
             if (strVal.length() == 0) {
                 return null;
             }
+            
+            if ("null".equals(strVal)) {
+                return null;
+            }
+            
             return Short.parseShort(strVal);
         }
 
@@ -197,6 +207,10 @@ public class TypeUtils {
             if (strVal.length() == 0) {
                 return null;
             }
+            
+            if ("null".equals(strVal)) {
+                return null;
+            }
 
             return Float.parseFloat(strVal);
         }
@@ -218,6 +232,11 @@ public class TypeUtils {
             if (strVal.length() == 0) {
                 return null;
             }
+            
+            if ("null".equals(strVal)) {
+                return null;
+            }
+            
             return Double.parseDouble(strVal);
         }
 
@@ -372,6 +391,10 @@ public class TypeUtils {
             if (strVal.length() == 0) {
                 return null;
             }
+            
+            if ("null".equals(strVal)) {
+                return null;
+            }
 
             try {
                 return Long.parseLong(strVal);
@@ -412,6 +435,10 @@ public class TypeUtils {
             if (strVal.length() == 0) {
                 return null;
             }
+            
+            if ("null".equals(strVal)) {
+                return null;
+            }
 
             return Integer.parseInt(strVal);
         }
@@ -444,24 +471,28 @@ public class TypeUtils {
         }
 
         if (value instanceof String) {
-            String str = (String) value;
-            if (str.length() == 0) {
+            String strVal = (String) value;
+            if (strVal.length() == 0) {
                 return null;
             }
 
-            if ("true".equals(str)) {
+            if ("true".equalsIgnoreCase(strVal)) {
                 return Boolean.TRUE;
             }
-            if ("false".equals(str)) {
+            if ("false".equalsIgnoreCase(strVal)) {
                 return Boolean.FALSE;
             }
 
-            if ("1".equals(str)) {
+            if ("1".equals(strVal)) {
                 return Boolean.TRUE;
             }
             
-            if ("0".equals(str)) {
+            if ("0".equals(strVal)) {
                 return Boolean.FALSE;
+            }
+            
+            if ("null".equals(strVal)) {
+                return null;
             }
         }
 

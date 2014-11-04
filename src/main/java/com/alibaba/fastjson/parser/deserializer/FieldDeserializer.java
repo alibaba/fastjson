@@ -78,6 +78,9 @@ public abstract class FieldDeserializer {
                         }
                     }
                 } else {
+                    if (value == null && fieldInfo.getFieldClass().isPrimitive()) {
+                        return;
+                    }
                     method.invoke(object, value);
                 }
             } catch (Exception e) {

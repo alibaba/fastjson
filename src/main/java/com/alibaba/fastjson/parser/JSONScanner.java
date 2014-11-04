@@ -176,8 +176,7 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     public final String subString(int offset, int count) {
-        //if (ASMUtils.isAndroid()) {
-            if (true) {
+        if (ASMUtils.isAndroid()) {
             char[] chars = new char[count];
             for (int i = offset; i < offset + count; ++i) {
                 chars[i - offset] = text.charAt(i);

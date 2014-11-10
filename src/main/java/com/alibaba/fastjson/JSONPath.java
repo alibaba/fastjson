@@ -788,21 +788,28 @@ public class JSONPath implements ObjectSerializer {
                 throw new JSONPathException("illeal jsonpath syntax. " + path);
             }
 
-            int beginIndex = pos - 1;
+            StringBuffer buf = new StringBuffer();
             while (!isEOF()) {
+                if (ch == '\\') {
+                    next();
+                    buf.append(ch);
+                    next();
+                    continue;
+                }
+                
                 boolean identifierFlag = IOUtils.isIdent(ch);
                 if (!identifierFlag) {
                     break;
                 }
+                buf.append(ch);
                 next();
             }
 
-            int endIndex = pos - 1;
             if (isEOF() && IOUtils.isIdent(ch)) {
-                endIndex = pos;
+                buf.append(ch);
             }
 
-            String propertyName = path.substring(beginIndex, endIndex);
+            String propertyName = buf.toString();
 
             return propertyName;
         }

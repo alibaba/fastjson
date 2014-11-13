@@ -2393,7 +2393,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         next();
 
         if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
-            || ch == '\f' || ch == '\b') {
+            || ch == '\f' || ch == '\b' || ch == ':') {
             token = JSONToken.TRUE;
         } else {
             throw new JSONException("scan true error");
@@ -2568,7 +2568,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         next();
 
         if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
-            || ch == '\f' || ch == '\b') {
+            || ch == '\f' || ch == '\b' || ch == ':') {
             token = JSONToken.FALSE;
         } else {
             throw new JSONException("scan false error");

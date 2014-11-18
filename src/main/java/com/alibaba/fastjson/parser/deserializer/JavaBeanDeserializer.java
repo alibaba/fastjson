@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
@@ -209,8 +210,16 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 return (T) object;
             }
 
-            if (lexer.token() == JSONToken.LBRACKET && isSupportArrayToBean(lexer)) {
-                return deserialzeArrayMapping(parser, type, fieldName, object);
+            if (lexer.token() == JSONToken.LBRACKET) {
+                if (type == JSON.class) {
+                    JSONArray array = new JSONArray();
+                    parser.parseArray(array);
+                    return (T) array;
+                }
+
+                if (isSupportArrayToBean(lexer)) {
+                    return deserialzeArrayMapping(parser, type, fieldName, object);
+                }
             }
 
             if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {

@@ -169,6 +169,10 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName, Object object) {
+        if (type == JSON.class || type == JSONObject.class) {
+            return (T) parser.parse();
+        }
+        
         final JSONLexer lexer = parser.getLexer(); // xxx
 
         if (lexer.token() == JSONToken.NULL) {

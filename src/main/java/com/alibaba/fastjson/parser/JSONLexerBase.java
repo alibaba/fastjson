@@ -166,6 +166,9 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 case 'n': // new,null
                     scanNullOrNew();
                     return;
+                case 'N': // new,null
+                    scanNULL();
+                    return;
                 case 'u': // new,null
                     scanUndefined();
                     return;
@@ -2452,12 +2455,12 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         if (ch == 'u') {
             next();
             if (ch != 'l') {
-                throw new JSONException("error parse true");
+                throw new JSONException("error parse l");
             }
             next();
 
             if (ch != 'l') {
-                throw new JSONException("error parse true");
+                throw new JSONException("error parse l");
             }
             next();
 
@@ -2487,7 +2490,35 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             throw new JSONException("scan true error");
         }
     }
+    
+    public final void scanNULL() {
+        if (ch != 'N') {
+            throw new JSONException("error parse NULL");
+        }
+        next();
 
+        if (ch == 'U') {
+            next();
+            if (ch != 'L') {
+                throw new JSONException("error parse U");
+            }
+            next();
+
+            if (ch != 'L') {
+                throw new JSONException("error parse NULL");
+            }
+            next();
+
+            if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
+                || ch == '\f' || ch == '\b') {
+                token = JSONToken.NULL;
+            } else {
+                throw new JSONException("scan NULL error");
+            }
+            return;
+        }
+    }
+    
     public final void scanUndefined() {
         if (ch != 'u') {
             throw new JSONException("error parse false");

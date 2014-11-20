@@ -186,7 +186,7 @@ public final class JSONScanner extends JSONLexerBase {
             return text.substring(offset, offset + count);
         }
     }
-
+    
     public final String numberString() {
         char chLocal = charAt(np + sp - 1);
 
@@ -992,7 +992,7 @@ public final class JSONScanner extends JSONLexerBase {
         }
 
         if (ch == ',') {
-            ch = charAt(++bp);
+            this.ch = charAt(++bp);
             matchStat = VALUE;
             token = JSONToken.COMMA;
             return value;

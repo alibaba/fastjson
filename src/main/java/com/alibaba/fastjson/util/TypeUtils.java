@@ -103,7 +103,7 @@ public class TypeUtils {
                 return null;
             }
             
-            if ("null".equals(strVal)) {
+            if ("null".equals(strVal) || "NULL".equals(strVal)) {
                 return null;
             }
             
@@ -155,7 +155,7 @@ public class TypeUtils {
                 return null;
             }
             
-            if ("null".equals(strVal)) {
+            if ("null".equals(strVal) || "NULL".equals(strVal)) {
                 return null;
             }
             
@@ -222,7 +222,7 @@ public class TypeUtils {
                 return null;
             }
             
-            if ("null".equals(strVal)) {
+            if ("null".equals(strVal) || "NULL".equals(strVal)) {
                 return null;
             }
 
@@ -247,7 +247,7 @@ public class TypeUtils {
                 return null;
             }
             
-            if ("null".equals(strVal)) {
+            if ("null".equals(strVal) || "NULL".equals(strVal)) {
                 return null;
             }
             
@@ -406,7 +406,7 @@ public class TypeUtils {
                 return null;
             }
             
-            if ("null".equals(strVal)) {
+            if ("null".equals(strVal) || "NULL".equals(strVal)) {
                 return null;
             }
 
@@ -455,6 +455,10 @@ public class TypeUtils {
                 return null;
             }
 
+            if ("null".equals(strVal) || "NULL".equals(strVal)) {
+                return null;
+            }
+            
             return Integer.parseInt(strVal);
         }
 
@@ -487,6 +491,7 @@ public class TypeUtils {
 
         if (value instanceof String) {
             String strVal = (String) value;
+
             if (strVal.length() == 0) {
                 return null;
             }
@@ -506,12 +511,12 @@ public class TypeUtils {
                 return Boolean.FALSE;
             }
             
-            if ("null".equals(strVal)) {
+            if ("null".equals(strVal) || "NULL".equals(strVal)) {
                 return null;
             }
         }
 
-        throw new JSONException("can not cast to int, value : " + value);
+        throw new JSONException("can not cast to boolean, value : " + value);
     }
 
     public static final <T> T castToJavaBean(Object obj, Class<T> clazz) {

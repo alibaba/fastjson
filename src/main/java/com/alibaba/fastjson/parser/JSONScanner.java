@@ -992,7 +992,7 @@ public final class JSONScanner extends JSONLexerBase {
         }
 
         if (ch == ',') {
-            ch = charAt(++bp);
+            this.ch = charAt(++bp);
             matchStat = VALUE;
             token = JSONToken.COMMA;
             return value;

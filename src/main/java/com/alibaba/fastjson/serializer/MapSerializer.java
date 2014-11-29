@@ -43,15 +43,15 @@ public class MapSerializer implements ObjectSerializer {
 
         Map<?, ?> map = (Map<?, ?>) object;
 
-        if (out.isEnabled(SerializerFeature.SortField)) {
-            if ((!(map instanceof SortedMap)) && !(map instanceof LinkedHashMap)) {
-                try {
-                    map = new TreeMap(map);
-                } catch (Exception ex) {
-                    // skip
-                }
-            }
-        }
+//        if (out.isEnabled(SerializerFeature.SortField)) {
+//            if ((!(map instanceof SortedMap)) && !(map instanceof LinkedHashMap)) {
+//                try {
+//                    map = new TreeMap(map);
+//                } catch (Exception ex) {
+//                    // skip
+//                }
+//            }
+//        }
 
         if (serializer.containsReference(object)) {
             serializer.writeReference(object);

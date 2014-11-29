@@ -1,6 +1,6 @@
 package com.alibaba.json.bvt.bug;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.junit.Assert;
@@ -22,7 +22,7 @@ public class Bug_for_melin extends TestCase {
     }
     
     public void test_for_melin_() throws Exception {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new LinkedHashMap<String, Object>();
         map.put("id", 123);
         map.put("name", "\\");
         

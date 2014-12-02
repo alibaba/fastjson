@@ -1232,7 +1232,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                 parseArray(array, fieldName);
                 return array;
             case LBRACE:
-                JSONObject object = new JSONObject();
+                JSONObject object = new JSONObject(isEnabled(Feature.OrderedField));
                 return parseObject(object, fieldName);
             case LITERAL_INT:
                 Number intValue = lexer.integerValue();

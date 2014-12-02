@@ -84,7 +84,13 @@ public enum Feature {
      * @since 1.1.35
      * 
      */
-    SupportArrayToBean
+    SupportArrayToBean,
+    
+    /**
+     * @since 1.2.3
+     * 
+     */
+    OrderedField
     ;
 
     private Feature(){

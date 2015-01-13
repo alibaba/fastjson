@@ -28,8 +28,13 @@ public class TypeUtilsTest_castToDate extends TestCase {
         }
         Assert.assertNotNull(error);
     }
-    
+
     public void test_castToDate_zero() throws Exception {
         Assert.assertEquals(new Date(0), TypeUtils.castToDate("0"));
     }
+
+    public void test_castToDate_negative() throws Exception {
+        Assert.assertEquals(new Date(-1), TypeUtils.castToDate(-1));
+    }
+
 }

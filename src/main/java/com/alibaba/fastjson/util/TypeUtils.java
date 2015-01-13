@@ -274,6 +274,7 @@ public class TypeUtils {
 
         if (value instanceof Number) {
             longValue = ((Number) value).longValue();
+            return new Date(longValue);
         }
 
         if (value instanceof String) {

@@ -475,6 +475,15 @@ public final class JSONScanner extends JSONLexerBase {
                }
            }
            
+        } else if (timeZoneFlag == 'Z') {// UTC
+            timzeZoneLength = 1;
+            if (calendar.getTimeZone().getRawOffset() != 0) {
+                String[] timeZoneIDs = TimeZone.getAvailableIDs(0);
+                if (timeZoneIDs.length > 0) {
+                    TimeZone timeZone = TimeZone.getTimeZone(timeZoneIDs[0]);
+                    calendar.setTimeZone(timeZone);
+                }
+            }
         }
         
         char end = charAt(bp + (20 + millisLen + timzeZoneLength)) ;

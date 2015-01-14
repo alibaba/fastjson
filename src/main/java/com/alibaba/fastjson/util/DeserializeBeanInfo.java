@@ -90,6 +90,12 @@ public class DeserializeBeanInfo {
                 if (item.isGetOnly() && !field.isGetOnly()) {
                     continue;
                 }
+
+                if (item.getFieldClass().isAssignableFrom(field.getFieldClass())) {
+                    fieldList.remove(item);
+                    break;
+                }
+
                 return false;
             }
         }
@@ -322,7 +328,7 @@ public class DeserializeBeanInfo {
                     || AtomicLong.class == method.getReturnType() //
                 ) {
                     String propertyName;
-                    
+
                     JSONField annotation = method.getAnnotation(JSONField.class);
                     if (annotation != null && annotation.name().length() > 0) {
                         propertyName = annotation.name();
@@ -414,7 +420,6 @@ public class DeserializeBeanInfo {
         return factoryMethod;
     }
 
-    
     public int getParserFeatures() {
         return parserFeatures;
     }

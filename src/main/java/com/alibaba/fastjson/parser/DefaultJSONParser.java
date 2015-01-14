@@ -432,7 +432,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 
                     final boolean parentIsArray = fieldName != null && fieldName.getClass() == Integer.class;
 
-                    JSONObject input = new JSONObject();
+                    JSONObject input = new JSONObject(isEnabled(Feature.OrderedField));
                     ParseContext ctxLocal = null;
 
                     if (!parentIsArray) {
@@ -991,7 +991,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
     }
 
     public JSONObject parseObject() {
-        JSONObject object = new JSONObject();
+        JSONObject object = new JSONObject(isEnabled(Feature.OrderedField));
         parseObject(object);
         return object;
     }
@@ -1067,7 +1067,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                         lexer.nextToken(JSONToken.COMMA);
                         break;
                     case LBRACE:
-                        JSONObject object = new JSONObject();
+                        JSONObject object = new JSONObject(isEnabled(Feature.OrderedField));
                         value = parseObject(object, i);
                         break;
                     case LBRACKET:

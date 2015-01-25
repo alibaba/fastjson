@@ -482,20 +482,6 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitVarInsn(DSTORE, context.var(fieldInfo.getName() + "_asm", 2));
 
             } else if (fieldClass == String.class) {
-                Label notEnd_ = new Label();
-
-                mw.visitIntInsn(ILOAD, context.var("matchStat"));
-                mw.visitInsn(ICONST_4); // END
-                mw.visitJumpInsn(IF_ICMPNE, notEnd_);
-
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/parser/JSONLexerBase", "stringDefaultValue",
-                                   "()Ljava/lang/String;");
-                mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
-                mw.visitJumpInsn(GOTO, notMatch_);
-
-                mw.visitLabel(notEnd_);
-
                 mw.visitVarInsn(ALOAD, context.var("lexer"));
                 mw.visitVarInsn(ALOAD, 0);
                 mw.visitFieldInsn(GETFIELD, context.getClassName(), fieldInfo.getName() + "_asm_prefix__", "[C");

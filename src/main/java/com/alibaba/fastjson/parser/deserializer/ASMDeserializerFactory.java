@@ -785,7 +785,6 @@ public class ASMDeserializerFactory implements Opcodes {
     }
 
     private void _deserialize_endCheck(Context context, MethodVisitor mw, Label reset_) {
-        Label _end_if = new Label();
         // Label nextToken_ = new Label();
 
         // mw.visitFieldInsn(GETSTATIC, getType(System.class), "out", "Ljava/io/PrintStream;");
@@ -809,8 +808,6 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ALOAD, context.var("lexer"));
         mw.visitFieldInsn(GETSTATIC, "com/alibaba/fastjson/parser/JSONToken", "COMMA", "I");
         mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/parser/JSONLexerBase", "nextToken", "(I)V");
-
-        mw.visitLabel(_end_if);
     }
 
     private void _deserialze_list_obj(Context context, MethodVisitor mw, Label reset_, FieldInfo fieldInfo,

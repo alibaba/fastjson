@@ -22,7 +22,6 @@ import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.asm.ASMException;
 import com.alibaba.fastjson.asm.ClassWriter;
 import com.alibaba.fastjson.asm.FieldVisitor;
 import com.alibaba.fastjson.asm.Label;
@@ -34,6 +33,7 @@ import com.alibaba.fastjson.util.ASMClassLoader;
 import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.DeserializeBeanInfo;
 import com.alibaba.fastjson.util.FieldInfo;
+import com.alibaba.fastjson.util.TypeUtils;
 
 public class ASMDeserializerFactory implements Opcodes {
 
@@ -198,7 +198,7 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitTypeInsn(CHECKCAST, getType(fieldClass)); // cast
                 mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
             } else if (Collection.class.isAssignableFrom(fieldClass)) {
-                Class<?> itemClass = getCollectionItemClass(fieldType);
+                Class<?> itemClass = TypeUtils.getCollectionItemClass(fieldType);
                 if (itemClass == String.class) {
                     mw.visitVarInsn(ALOAD, context.var("lexer"));
                     mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc(fieldClass)));
@@ -519,7 +519,7 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitVarInsn(ALOAD, 0);
                 mw.visitFieldInsn(GETFIELD, context.getClassName(), fieldInfo.getName() + "_asm_prefix__", "[C");
 
-                Class<?> itemClass = getCollectionItemClass(fieldType);
+                Class<?> itemClass = TypeUtils.getCollectionItemClass(fieldType);
 
                 if (itemClass == String.class) {
                     mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc(fieldClass))); // cast
@@ -632,25 +632,6 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitEnd();
     }
 
-    private Class<?> getCollectionItemClass(Type fieldType) {
-        if (fieldType instanceof ParameterizedType) {
-            Class<?> itemClass;
-            Type actualTypeArgument = ((ParameterizedType) fieldType).getActualTypeArguments()[0];
-
-            if (actualTypeArgument instanceof Class) {
-                itemClass = (Class<?>) actualTypeArgument;
-                if (!Modifier.isPublic(itemClass.getModifiers())) {
-                    throw new ASMException("can not create ASMParser");
-                }
-            } else {
-                throw new ASMException("can not create ASMParser");
-            }
-            return itemClass;
-        }
-
-        return Object.class;
-    }
-
     private void _isEnable(Context context, MethodVisitor mw, Feature feature) {
         mw.visitVarInsn(ALOAD, context.var("lexer"));
         mw.visitFieldInsn(GETSTATIC, "com/alibaba/fastjson/parser/Feature", feature.name(), "Lcom/alibaba/fastjson/parser/Feature;");
@@ -749,7 +730,7 @@ public class ASMDeserializerFactory implements Opcodes {
             _set(context, mw, fieldInfo);
         } else if (Collection.class.isAssignableFrom(fieldClass)) {
             mw.visitVarInsn(ALOAD, context.var("instance"));
-            Type itemType = getCollectionItemClass(fieldType);
+            Type itemType = TypeUtils.getCollectionItemClass(fieldType);
             if (itemType == String.class) {
                 mw.visitVarInsn(ALOAD, context.var(fieldInfo.getName() + "_asm"));
                 mw.visitTypeInsn(CHECKCAST, getType(fieldClass)); // cast

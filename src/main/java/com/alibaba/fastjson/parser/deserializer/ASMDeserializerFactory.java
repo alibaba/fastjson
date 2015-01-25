@@ -812,17 +812,11 @@ public class ASMDeserializerFactory implements Opcodes {
 
     private void _deserialze_list_obj(Context context, MethodVisitor mw, Label reset_, FieldInfo fieldInfo,
                                       Class<?> fieldClass, Class<?> itemType, int i) {
-        Label matched_ = new Label();
         Label _end_if = new Label();
 
         mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/parser/JSONLexerBase", "matchField", "([C)Z");
-        mw.visitJumpInsn(IFNE, matched_);
-        mw.visitInsn(ACONST_NULL);
-        mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
+        mw.visitJumpInsn(IFEQ, _end_if);
 
-        mw.visitJumpInsn(GOTO, _end_if);
-
-        mw.visitLabel(matched_);
         _setFlag(mw, context, i);
 
         Label valueNotNull_ = new Label();
@@ -835,9 +829,6 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitFieldInsn(GETSTATIC, "com/alibaba/fastjson/parser/JSONToken", "COMMA", "I");
         mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/parser/JSONLexerBase", "nextToken", "(I)V");
 
-        mw.visitInsn(ACONST_NULL);
-        mw.visitTypeInsn(CHECKCAST, getType(fieldClass)); // cast
-        mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
         // loop_end_
 
         mw.visitLabel(valueNotNull_);

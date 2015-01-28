@@ -1,7 +1,8 @@
 package com.alibaba.json.test.benchmark;
 
 import com.alibaba.json.test.benchmark.decode.EishayDecode;
-import com.alibaba.json.test.codec.FastjsonBeanToArrayCodec;
+import com.alibaba.json.test.codec.FastjsonCodec;
+import com.alibaba.json.test.codec.FastjsonGenCodec;
 
 public class BenchmarkMain {
 	public static void main(String[] args) throws Exception {
@@ -9,8 +10,9 @@ public class BenchmarkMain {
 
         BenchmarkExecutor executor = new BenchmarkExecutor();
         executor.setExecuteCount(5);
-//        executor.getCodecList().add(new FastjsonCodec());
-        executor.getCodecList().add(new FastjsonBeanToArrayCodec());
+        executor.getCodecList().add(new FastjsonCodec());
+//        executor.getCodecList().add(new FastjsonGenCodec());
+//        executor.getCodecList().add(new FastjsonBeanToArrayCodec());
 //        executor.getCodecList().add(new JacksonCodec());
 //        executor.getCodecList().add(new Jackson2Codec());
         //

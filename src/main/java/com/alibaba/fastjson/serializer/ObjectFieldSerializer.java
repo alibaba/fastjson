@@ -15,10 +15,10 @@
  */
 package com.alibaba.fastjson.serializer;
 
-import java.util.Collection;
-
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.util.FieldInfo;
+
+import java.util.Collection;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -31,6 +31,7 @@ public class ObjectFieldSerializer extends FieldSerializer {
     boolean                       writeNullBooleanAsFalse = false;
     boolean                       writeNullListAsEmpty    = false;
     boolean                       writeEnumUsingToString  = false;
+    boolean                       writeEnumUsingName      = false;
 
     private RuntimeSerializerInfo runtimeInfo;
 
@@ -57,6 +58,8 @@ public class ObjectFieldSerializer extends FieldSerializer {
                     writeNullListAsEmpty = true;
                 } else if (feature == SerializerFeature.WriteEnumUsingToString) {
                     writeEnumUsingToString = true;
+                }else if(feature == SerializerFeature.WriteEnumUsingName){
+                    writeEnumUsingName = true;
                 }
             }
         }
@@ -110,9 +113,15 @@ public class ObjectFieldSerializer extends FieldSerializer {
             return;
         }
 
-        if (writeEnumUsingToString == true && runtimeInfo.runtimeFieldClass.isEnum()) {
-            serializer.getWriter().writeString(((Enum<?>) propertyValue).name());
-            return;
+        if(runtimeInfo.runtimeFieldClass.isEnum()){
+            if(writeEnumUsingName){
+                serializer.getWriter().writeString(((Enum<?>) propertyValue).name());
+                return;
+            }
+            if(writeEnumUsingToString){
+                serializer.getWriter().writeString(((Enum<?>) propertyValue).toString());
+                return;
+            }
         }
 
         Class<?> valueClass = propertyValue.getClass();

@@ -29,9 +29,13 @@ public enum SerializerFeature {
      */
     WriteMapNullValue,
     /**
-     * 
+     * 用枚举toString()值输出
      */
     WriteEnumUsingToString,
+    /**
+     * 用枚举name()输出
+     */
+    WriteEnumUsingName,
     /**
      * 
      */

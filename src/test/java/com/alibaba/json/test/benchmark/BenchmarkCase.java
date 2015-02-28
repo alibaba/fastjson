@@ -14,6 +14,10 @@ public abstract class BenchmarkCase {
     public String getName() {
         return name;
     }
-
+    
+    public void init(Codec codec) throws Exception {
+        
+    }
+    
     public abstract void execute(Codec codec) throws Exception;
 }

@@ -43,9 +43,9 @@ import java.util.RandomAccess;
 import com.alibaba.fastjson.util.TypeUtils;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
-public class JSONArray extends JSON implements List<Object>, JSONAware, Cloneable, RandomAccess, Serializable {
+public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAccess, Serializable {
 
     private static final long  serialVersionUID = 1L;
     private final List<Object> list;

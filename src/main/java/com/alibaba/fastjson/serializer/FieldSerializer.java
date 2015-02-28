@@ -19,11 +19,12 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.util.FieldInfo;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public abstract class FieldSerializer {
 
@@ -85,7 +86,11 @@ public abstract class FieldSerializer {
     }
 
     public Object getPropertyValue(Object object) throws Exception {
-        return fieldInfo.get(object);
+        try {
+            return fieldInfo.get(object);
+        } catch (Exception ex) {
+            throw new JSONException("get property error。 " + fieldInfo.gerQualifiedName(), ex);
+        }
     }
 
     public abstract void writeProperty(JSONSerializer serializer, Object propertyValue) throws Exception;

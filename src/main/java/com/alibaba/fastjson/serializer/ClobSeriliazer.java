@@ -11,7 +11,7 @@ public class ClobSeriliazer implements ObjectSerializer {
 
     public final static ClobSeriliazer instance = new ClobSeriliazer();
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         try {
             if (object == null) {
                 serializer.writeNull();

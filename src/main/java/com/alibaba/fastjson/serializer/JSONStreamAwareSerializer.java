@@ -21,13 +21,13 @@ import java.lang.reflect.Type;
 import com.alibaba.fastjson.JSONStreamAware;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public class JSONStreamAwareSerializer implements ObjectSerializer {
 
     public static JSONStreamAwareSerializer instance = new JSONStreamAwareSerializer();
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         JSONStreamAware aware = (JSONStreamAware) object;

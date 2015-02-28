@@ -17,7 +17,7 @@ package com.alibaba.fastjson.parser;
 
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 @Deprecated
 public class DefaultExtJSONParser extends DefaultJSONParser {

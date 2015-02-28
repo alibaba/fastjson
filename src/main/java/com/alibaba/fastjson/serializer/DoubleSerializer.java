@@ -20,7 +20,7 @@ import java.lang.reflect.Type;
 import java.text.DecimalFormat;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public class DoubleSerializer implements ObjectSerializer {
 
@@ -40,7 +40,7 @@ public class DoubleSerializer implements ObjectSerializer {
         this(new DecimalFormat(decimalFormat));
     }
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         if (object == null) {

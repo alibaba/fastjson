@@ -56,6 +56,22 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     public Map<String, FieldDeserializer> getFieldDeserializerMap() {
         return feildDeserializerMap;
     }
+    
+    public FieldDeserializer getFieldDeserializer(String name) {
+        FieldDeserializer feildDeser = feildDeserializerMap.get(name);
+        
+        if (feildDeser != null) {
+            return feildDeser;
+        }
+        
+        for (Map.Entry<String, FieldDeserializer> entry : feildDeserializerMap.entrySet()) {
+            if (name.equals(entry.getKey())) {
+                return entry.getValue();
+            }
+        }
+        
+        return null;
+    }
 
     public Class<?> getClazz() {
         return clazz;
@@ -169,6 +185,10 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName, Object object) {
+        if (type == JSON.class || type == JSONObject.class) {
+            return (T) parser.parse();
+        }
+        
         final JSONLexer lexer = parser.getLexer(); // xxx
 
         if (lexer.token() == JSONToken.NULL) {
@@ -193,7 +213,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 return (T) object;
             }
 
-            if (lexer.token() == JSONToken.LBRACKET && lexer.isEnabled(Feature.SupportArrayToBean)) {
+            if (lexer.token() == JSONToken.LBRACKET && isSupportArrayToBean(lexer)) {
                 return deserialzeArrayMapping(parser, type, fieldName, object);
             }
 
@@ -424,4 +444,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         return JSONToken.LBRACE;
     }
 
+    
+    public List<FieldDeserializer> getSortedFieldDeserializers() {
+        return sortedFieldDeserializers;
+    }
+    
+    public final boolean isSupportArrayToBean(JSONLexer lexer) {
+        return Feature.isEnabled(beanInfo.getParserFeatures(), Feature.SupportArrayToBean) || lexer.isEnabled(Feature.SupportArrayToBean);
+    }
 }

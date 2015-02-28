@@ -20,13 +20,13 @@ import java.lang.reflect.Type;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public class AtomicIntegerSerializer implements ObjectSerializer {
 
     public final static AtomicIntegerSerializer instance = new AtomicIntegerSerializer();
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         AtomicInteger val = (AtomicInteger) object;

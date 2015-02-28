@@ -63,7 +63,7 @@ public class PropertyPathTest3 extends TestCase {
 		}
 
 		public boolean apply(JSONSerializer serializer, Object source, String name) {
-			SerialContext nowContext = new SerialContext(serializer.getContext(), source, name);
+			SerialContext nowContext = new SerialContext(serializer.getContext(), source, name, 0, 0);
 			String nowPath = getLinkedPath(nowContext);
 			System.out.println("path->" + nowPath);
 			//只输出children.id

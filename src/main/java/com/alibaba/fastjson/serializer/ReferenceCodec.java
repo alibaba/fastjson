@@ -28,14 +28,14 @@ import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public class ReferenceCodec implements ObjectSerializer, ObjectDeserializer {
 
     public final static ReferenceCodec instance = new ReferenceCodec();
 
     @SuppressWarnings("rawtypes")
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         Object item;
         if (object instanceof AtomicReference) {
             AtomicReference val = (AtomicReference) object;

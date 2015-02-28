@@ -19,7 +19,7 @@ import java.lang.reflect.Type;
 import java.util.Set;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public interface AutowiredObjectSerializer extends ObjectSerializer {
     Set<Type> getAutowiredFor();

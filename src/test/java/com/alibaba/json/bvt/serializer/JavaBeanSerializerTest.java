@@ -23,7 +23,7 @@ public class JavaBeanSerializerTest extends TestCase {
         a.getL0().add("B");
 
         JavaBeanSerializer serializer = new JavaBeanSerializer(A.class);
-        serializer.write(new JSONSerializer(out), a, null, null);
+        serializer.write(new JSONSerializer(out), a, null, null, 0);
 
         Assert.assertEquals("{\"l0\":[\"A\",\"B\"]}", out.toString());
     }
@@ -36,7 +36,7 @@ public class JavaBeanSerializerTest extends TestCase {
         a.getL0().add("B");
 
         JavaBeanSerializer serializer = new JavaBeanSerializer(B.class);
-        serializer.write(new JSONSerializer(out), a, null, null);
+        serializer.write(new JSONSerializer(out), a, null, null, 0);
 
         Assert.assertEquals("{\"l0\":[\"A\",\"B\"],\"l1\":[]}", out.toString());
     }
@@ -45,7 +45,7 @@ public class JavaBeanSerializerTest extends TestCase {
         SerializeWriter out = new SerializeWriter();
 
         JavaBeanSerializer serializer = new JavaBeanSerializer(F.class);
-        serializer.write(new JSONSerializer(out), new F(new E(123)), null, null);
+        serializer.write(new JSONSerializer(out), new F(new E(123)), null, null, 0);
 
         Assert.assertEquals("{\"e\":{\"id\":123}}", out.toString());
     }
@@ -54,7 +54,7 @@ public class JavaBeanSerializerTest extends TestCase {
         SerializeWriter out = new SerializeWriter();
 
         JavaBeanSerializer serializer = new JavaBeanSerializer(F.class);
-        serializer.write(new JSONSerializer(out), new F(null), null, null);
+        serializer.write(new JSONSerializer(out), new F(null), null, null, 0);
 
         for (FieldSerializer getter : serializer.getGetters()) {
             getter.getName();
@@ -69,7 +69,7 @@ public class JavaBeanSerializerTest extends TestCase {
         try {
             SerializeWriter out = new SerializeWriter();
             JavaBeanSerializer serializer = new JavaBeanSerializer(C.class);
-            serializer.write(new JSONSerializer(out), new C(), null, null);
+            serializer.write(new JSONSerializer(out), new C(), null, null, 0);
         } catch (JSONException e) {
             error = e;
         }
@@ -81,7 +81,7 @@ public class JavaBeanSerializerTest extends TestCase {
         try {
             SerializeWriter out = new SerializeWriter();
             JavaBeanSerializer serializer = new JavaBeanSerializer(D.class);
-            serializer.write(new JSONSerializer(out), new D(), null, null);
+            serializer.write(new JSONSerializer(out), new D(), null, null, 0);
         } catch (JSONException e) {
             error = e;
         }

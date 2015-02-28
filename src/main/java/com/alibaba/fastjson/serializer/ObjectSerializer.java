@@ -19,9 +19,9 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public interface ObjectSerializer {
 
-    void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException;
+    void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException;
 }

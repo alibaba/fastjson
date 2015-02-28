@@ -12,7 +12,7 @@ public class CurrencyCodec implements ObjectSerializer, ObjectDeserializer {
 
     public final static CurrencyCodec instance = new CurrencyCodec();
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         final SerializeWriter out = serializer.getWriter();
         if (object == null) {
             out.writeNull();

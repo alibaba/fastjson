@@ -17,30 +17,18 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
-import java.nio.charset.Charset;
-import java.sql.Clob;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.JSONStreamAware;
-import com.alibaba.fastjson.util.ServiceLoader;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public class JSONSerializer {
 
@@ -124,13 +112,17 @@ public class JSONSerializer {
     public void setContext(SerialContext context) {
         this.context = context;
     }
-
-    public void setContext(SerialContext parent, Object object, Object fieldName) {
+    
+    public void setContext(SerialContext parent, Object object, Object fieldName, int features) {
+        this.setContext(parent, object, fieldName, features, 0);
+    }
+    
+    public void setContext(SerialContext parent, Object object, Object fieldName, int features, int fieldFeatures) {
         if (isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {
             return;
         }
 
-        this.context = new SerialContext(parent, object, fieldName);
+        this.context = new SerialContext(parent, object, fieldName, features, fieldFeatures);
         if (references == null) {
             references = new IdentityHashMap<Object, SerialContext>();
         }
@@ -138,7 +130,7 @@ public class JSONSerializer {
     }
 
     public void setContext(Object object, Object fieldName) {
-        this.setContext(context, object, fieldName);
+        this.setContext(context, object, fieldName, 0);
     }
 
     public void popContext() {
@@ -366,14 +358,14 @@ public class JSONSerializer {
         ObjectSerializer writer = getObjectWriter(clazz);
 
         try {
-            writer.write(this, object, null, null);
+            writer.write(this, object, null, null, 0);
         } catch (IOException e) {
             throw new JSONException(e.getMessage(), e);
         }
     }
 
     public final void writeWithFieldName(Object object, Object fieldName) {
-        writeWithFieldName(object, fieldName, null);
+        writeWithFieldName(object, fieldName, null, 0);
     }
 
     protected final void writeKeyValue(char seperator, String key, Object value) {
@@ -384,7 +376,7 @@ public class JSONSerializer {
         write(value);
     }
 
-    public final void writeWithFieldName(Object object, Object fieldName, Type fieldType) {
+    public final void writeWithFieldName(Object object, Object fieldName, Type fieldType, int fieldFeatures) {
         try {
             if (object == null) {
                 out.writeNull();
@@ -395,7 +387,7 @@ public class JSONSerializer {
 
             ObjectSerializer writer = getObjectWriter(clazz);
 
-            writer.write(this, object, fieldName, fieldType);
+            writer.write(this, object, fieldName, fieldType, fieldFeatures);
         } catch (IOException e) {
             throw new JSONException(e.getMessage(), e);
         }
@@ -419,130 +411,11 @@ public class JSONSerializer {
     }
 
     public ObjectSerializer getObjectWriter(Class<?> clazz) {
-        ObjectSerializer writer = config.get(clazz);
-
-        if (writer == null) {
-            try {
-                final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-                for (Object o : ServiceLoader.load(AutowiredObjectSerializer.class, classLoader)) {
-                    if (!(o instanceof AutowiredObjectSerializer)) {
-                        continue;
-                    }
-
-                    AutowiredObjectSerializer autowired = (AutowiredObjectSerializer) o;
-                    for (Type forType : autowired.getAutowiredFor()) {
-                        config.put(forType, autowired);
-                    }
-                }
-            } catch (ClassCastException ex) {
-                // skip
-            }
-
-            writer = config.get(clazz);
-        }
-
-        if (writer == null) {
-            final ClassLoader classLoader = JSON.class.getClassLoader();
-            if (classLoader != Thread.currentThread().getContextClassLoader()) {
-                try {
-                    for (Object o : ServiceLoader.load(AutowiredObjectSerializer.class, classLoader)) {
-
-                        if (!(o instanceof AutowiredObjectSerializer)) {
-                            continue;
-                        }
-
-                        AutowiredObjectSerializer autowired = (AutowiredObjectSerializer) o;
-                        for (Type forType : autowired.getAutowiredFor()) {
-                            config.put(forType, autowired);
-                        }
-                    }
-                } catch (ClassCastException ex) {
-                    // skip
-                }
-
-                writer = config.get(clazz);
-            }
-        }
-
-        if (writer == null) {
-            if (Map.class.isAssignableFrom(clazz)) {
-                config.put(clazz, MapSerializer.instance);
-            } else if (List.class.isAssignableFrom(clazz)) {
-                config.put(clazz, ListSerializer.instance);
-            } else if (Collection.class.isAssignableFrom(clazz)) {
-                config.put(clazz, CollectionSerializer.instance);
-            } else if (Date.class.isAssignableFrom(clazz)) {
-                config.put(clazz, DateSerializer.instance);
-            } else if (JSONAware.class.isAssignableFrom(clazz)) {
-                config.put(clazz, JSONAwareSerializer.instance);
-            } else if (JSONStreamAware.class.isAssignableFrom(clazz)) {
-                config.put(clazz, JSONStreamAwareSerializer.instance);
-            } else if (clazz.isEnum() || (clazz.getSuperclass() != null && clazz.getSuperclass().isEnum())) {
-                config.put(clazz, EnumSerializer.instance);
-            } else if (clazz.isArray()) {
-                Class<?> componentType = clazz.getComponentType();
-                ObjectSerializer compObjectSerializer = getObjectWriter(componentType);
-                config.put(clazz, new ArraySerializer(componentType, compObjectSerializer));
-            } else if (Throwable.class.isAssignableFrom(clazz)) {
-                config.put(clazz, new ExceptionSerializer(clazz));
-            } else if (TimeZone.class.isAssignableFrom(clazz)) {
-                config.put(clazz, TimeZoneCodec.instance);
-            } else if (Appendable.class.isAssignableFrom(clazz)) {
-                config.put(clazz, AppendableSerializer.instance);
-            } else if (Charset.class.isAssignableFrom(clazz)) {
-                config.put(clazz, CharsetCodec.instance);
-            } else if (Enumeration.class.isAssignableFrom(clazz)) {
-                config.put(clazz, EnumerationSeriliazer.instance);
-            } else if (Calendar.class.isAssignableFrom(clazz)) {
-                config.put(clazz, CalendarCodec.instance);
-            } else if (Clob.class.isAssignableFrom(clazz)) {
-                config.put(clazz, ClobSeriliazer.instance);
-            } else {
-                boolean isCglibProxy = false;
-                boolean isJavassistProxy = false;
-                for (Class<?> item : clazz.getInterfaces()) {
-                    if (item.getName().equals("net.sf.cglib.proxy.Factory")
-                        || item.getName().equals("org.springframework.cglib.proxy.Factory")) {
-                        isCglibProxy = true;
-                        break;
-                    } else if (item.getName().equals("javassist.util.proxy.ProxyObject")) {
-                        isJavassistProxy = true;
-                        break;
-                    }
-                }
-
-                if (isCglibProxy || isJavassistProxy) {
-                    Class<?> superClazz = clazz.getSuperclass();
-
-                    ObjectSerializer superWriter = getObjectWriter(superClazz);
-                    config.put(clazz, superWriter);
-                    return superWriter;
-                }
-
-                if (Proxy.isProxyClass(clazz)) {
-                    config.put(clazz, config.createJavaBeanSerializer(clazz));
-                } else {
-                    config.put(clazz, config.createJavaBeanSerializer(clazz));
-                }
-            }
-
-            writer = config.get(clazz);
-        }
-        return writer;
+        return config.getObjectWriter(clazz);
     }
 
     public void close() {
         this.out.close();
     }
 
-    public final boolean isWriteAsArray(Object object, Type fieldType) {
-        boolean writeAsArray;
-        if (out.isEnabled(SerializerFeature.BeanToArray)) {
-            writeAsArray = true;
-        } else {
-            writeAsArray = false;
-        }
-
-        return writeAsArray;
-    }
 }

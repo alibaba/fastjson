@@ -11,7 +11,7 @@ import data.media.Media;
 
 public class MediaSerializer implements ObjectSerializer {
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         Media media = (Media) object;
 
         SerializeWriter out = serializer.getWriter();

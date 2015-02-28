@@ -16,11 +16,11 @@ import java.util.concurrent.ConcurrentMap;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParseContext;
-import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.util.TypeUtils;
 
 public class MapDeserializer implements ObjectDeserializer {
@@ -132,7 +132,7 @@ public class MapDeserializer implements ObjectDeserializer {
                     String typeName = lexer.scanSymbol(parser.getSymbolTable(), '"');
                     Class<?> clazz = TypeUtils.loadClass(typeName);
 
-                    if (clazz == map.getClass()) {
+                    if (Map.class.isAssignableFrom(clazz) ) {
                         lexer.nextToken(JSONToken.COMMA);
                         if (lexer.token() == JSONToken.RBRACE) {
                             lexer.nextToken(JSONToken.COMMA);

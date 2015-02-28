@@ -15,7 +15,7 @@ public class PointCodec implements ObjectSerializer, ObjectDeserializer {
 
     public final static PointCodec instance = new PointCodec();
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.getWriter();
         Point font = (Point) object;
         if (font == null) {

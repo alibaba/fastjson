@@ -10,7 +10,7 @@ import com.alibaba.fastjson.parser.SymbolTable;
 /**
  * test symbol
  * 
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public class JSONScannerTest_symbol extends TestCase {
 

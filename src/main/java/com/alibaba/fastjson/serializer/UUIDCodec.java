@@ -27,7 +27,7 @@ public class UUIDCodec implements ObjectSerializer, ObjectDeserializer {
 
     public final static UUIDCodec instance = new UUIDCodec();
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         if (object == null) {
             serializer.writeNull();
             return;

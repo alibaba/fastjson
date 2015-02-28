@@ -15,7 +15,7 @@ public class FontCodec implements ObjectSerializer, ObjectDeserializer {
 
     public final static FontCodec instance = new FontCodec();
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.getWriter();
         Font font = (Font) object;
         if (font == null) {

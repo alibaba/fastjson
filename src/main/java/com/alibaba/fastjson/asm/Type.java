@@ -38,57 +38,57 @@ package com.alibaba.fastjson.asm;
 public class Type {
 
     /**
-     * The sort of the <tt>void</tt> type. See {@link #getSort getSort}.
+     * The sort of the <tt>void</tt> type.
      */
     public static final int  VOID         = 0;
 
     /**
-     * The sort of the <tt>boolean</tt> type. See {@link #getSort getSort}.
+     * The sort of the <tt>boolean</tt> type.
      */
     public static final int  BOOLEAN      = 1;
 
     /**
-     * The sort of the <tt>char</tt> type. See {@link #getSort getSort}.
+     * The sort of the <tt>char</tt> type.
      */
     public static final int  CHAR         = 2;
 
     /**
-     * The sort of the <tt>byte</tt> type. See {@link #getSort getSort}.
+     * The sort of the <tt>byte</tt> type.
      */
     public static final int  BYTE         = 3;
 
     /**
-     * The sort of the <tt>short</tt> type. See {@link #getSort getSort}.
+     * The sort of the <tt>short</tt> type.
      */
     public static final int  SHORT        = 4;
 
     /**
-     * The sort of the <tt>int</tt> type. See {@link #getSort getSort}.
+     * The sort of the <tt>int</tt> type.
      */
     public static final int  INT          = 5;
 
     /**
-     * The sort of the <tt>float</tt> type. See {@link #getSort getSort}.
+     * The sort of the <tt>float</tt> type.
      */
     public static final int  FLOAT        = 6;
 
     /**
-     * The sort of the <tt>long</tt> type. See {@link #getSort getSort}.
+     * The sort of the <tt>long</tt> type.
      */
     public static final int  LONG         = 7;
 
     /**
-     * The sort of the <tt>double</tt> type. See {@link #getSort getSort}.
+     * The sort of the <tt>double</tt> type.
      */
     public static final int  DOUBLE       = 8;
 
     /**
-     * The sort of array reference types. See {@link #getSort getSort}.
+     * The sort of array reference types.
      */
     public static final int  ARRAY        = 9;
 
     /**
-     * The sort of object reference type. See {@link #getSort getSort}.
+     * The sort of object reference type.
      */
     public static final int  OBJECT       = 10;
 
@@ -192,14 +192,6 @@ public class Type {
         return getType(typeDescriptor.toCharArray(), 0);
     }
 
-    /**
-     * Computes the size of the arguments and of the return value of a method.
-     * 
-     * @param desc the descriptor of a method.
-     * @return the size of the arguments of the method (plus one for the implicit this argument), argSize, and the size
-     * of its return value, retSize, packed into a single int i = <tt>(argSize << 2) | retSize</tt> (argSize is
-     * therefore equal to <tt>i >> 2</tt>, and retSize to <tt>i & 0x03</tt>).
-     */
     public static int getArgumentsAndReturnSizes(final String desc) {
         int n = 1;
         int c = 1;

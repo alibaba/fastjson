@@ -18,6 +18,7 @@ package com.alibaba.fastjson;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -29,14 +30,12 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
-import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ParseProcess;
 import com.alibaba.fastjson.serializer.AfterFilter;
 import com.alibaba.fastjson.serializer.BeforeFilter;
@@ -55,18 +54,19 @@ import com.alibaba.fastjson.util.ThreadLocalCache;
 import com.alibaba.fastjson.util.TypeUtils;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public abstract class JSON implements JSONStreamAware, JSONAware {
 
     public static String DEFAULT_TYPE_KEY     = "@type";
 
+    public static int    DEFAULT_PARSER_FEATURE;
+
     /**
      * asm生成代码dump路径
      */
-    public static String DUMP_CLASS = null;
+    public static String DUMP_CLASS           = null;
 
-    public static int    DEFAULT_PARSER_FEATURE;
     static {
         int features = 0;
         features |= Feature.AutoCloseSource.getMask();
@@ -83,12 +83,13 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     public static String DEFFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     public static int    DEFAULT_GENERATE_FEATURE;
+
     static {
         int features = 0;
-        features |= com.alibaba.fastjson.serializer.SerializerFeature.QuoteFieldNames.getMask();
-        features |= com.alibaba.fastjson.serializer.SerializerFeature.SkipTransientField.getMask();
-        features |= com.alibaba.fastjson.serializer.SerializerFeature.WriteEnumUsingToString.getMask();
-        features |= com.alibaba.fastjson.serializer.SerializerFeature.SortField.getMask();
+        features |= SerializerFeature.QuoteFieldNames.getMask();
+        features |= SerializerFeature.SkipTransientField.getMask();
+        features |= SerializerFeature.WriteEnumUsingToString.getMask();
+        features |= SerializerFeature.SortField.getMask();
         // features |=
         // com.alibaba.fastjson.serializer.SerializerFeature.WriteSlashAsSpecial.getMask();
         DEFAULT_GENERATE_FEATURE = features;
@@ -106,7 +107,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         DefaultJSONParser parser = new DefaultJSONParser(text, ParserConfig.getGlobalInstance(), features);
         Object value = parser.parse();
 
-        handleResovleTask(parser, value);
+        parser.handleResovleTask(value);
 
         parser.close();
 
@@ -145,7 +146,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         DefaultJSONParser parser = new DefaultJSONParser(chars, position, ParserConfig.getGlobalInstance(), features);
         Object value = parser.parse();
 
-        handleResovleTask(parser, value);
+        parser.handleResovleTask(value);
 
         parser.close();
 
@@ -213,7 +214,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         DefaultJSONParser parser = new DefaultJSONParser(input, ParserConfig.getGlobalInstance(), featureValues);
         T value = (T) parser.parseObject(clazz);
 
-        handleResovleTask(parser, value);
+        parser.handleResovleTask(value);
 
         parser.close();
 
@@ -241,48 +242,18 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         if (processor instanceof ExtraTypeProvider) {
             parser.getExtraTypeProviders().add((ExtraTypeProvider) processor);
         }
-        
+
         if (processor instanceof ExtraProcessor) {
             parser.getExtraProcessors().add((ExtraProcessor) processor);
         }
 
         T value = (T) parser.parseObject(clazz);
 
-        handleResovleTask(parser, value);
+        parser.handleResovleTask(value);
 
         parser.close();
 
         return (T) value;
-    }
-
-    public static void handleResovleTask(DefaultJSONParser parser, Object value) {
-        List<ResolveTask> resolveTaskList = parser.getResolveTaskListDirect();
-        if (resolveTaskList == null) {
-            return;
-        }
-        int size = resolveTaskList.size();
-        for (int i = 0; i < size; ++i) {
-            ResolveTask task = resolveTaskList.get(i);
-            FieldDeserializer fieldDeser = task.getFieldDeserializer();
-            
-            if (fieldDeser == null) {
-                continue;
-            }
-
-            Object object = null;
-            if (task.getOwnerContext() != null) {
-                object = task.getOwnerContext().getObject();
-            }
-
-            String ref = task.getReferenceValue();
-            Object refValue;
-            if (ref.startsWith("$")) {
-                refValue = parser.getObject(ref);
-            } else {
-                refValue = task.getContext().getObject();
-            }
-            fieldDeser.setValue(object, refValue);
-        }
     }
 
     @SuppressWarnings("unchecked")
@@ -321,7 +292,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         DefaultJSONParser parser = new DefaultJSONParser(input, length, ParserConfig.getGlobalInstance(), featureValues);
         T value = (T) parser.parseObject(clazz);
 
-        handleResovleTask(parser, value);
+        parser.handleResovleTask(value);
 
         parser.close();
 
@@ -351,7 +322,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             array = new JSONArray();
             parser.parseArray(array);
 
-            handleResovleTask(parser, array);
+            parser.handleResovleTask(array);
         }
 
         parser.close();
@@ -375,7 +346,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             list = new ArrayList<T>();
             parser.parseArray(clazz, list);
 
-            handleResovleTask(parser, list);
+            parser.handleResovleTask(list);
         }
 
         parser.close();
@@ -398,7 +369,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             list = Arrays.asList(objectArray);
         }
 
-        handleResovleTask(parser, list);
+        parser.handleResovleTask(list);
 
         parser.close();
 
@@ -406,7 +377,6 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     // ======================
-
     public static final String toJSONString(Object object) {
         return toJSONString(object, new SerializerFeature[0]);
     }
@@ -466,31 +436,28 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
             serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
 
-            if (filter != null) {
-                if (filter instanceof PropertyPreFilter) {
-                    serializer.getPropertyPreFilters().add((PropertyPreFilter) filter);
-                }
+            setFilter(serializer, filter);
 
-                if (filter instanceof NameFilter) {
-                    serializer.getNameFilters().add((NameFilter) filter);
-                }
+            serializer.write(object);
 
-                if (filter instanceof ValueFilter) {
-                    serializer.getValueFilters().add((ValueFilter) filter);
-                }
+            return out.toString();
+        } finally {
+            out.close();
+        }
+    }
 
-                if (filter instanceof PropertyFilter) {
-                    serializer.getPropertyFilters().add((PropertyFilter) filter);
-                }
+    public static final String toJSONString(Object object, SerializeFilter[] filters, SerializerFeature... features) {
+        SerializeWriter out = new SerializeWriter();
 
-                if (filter instanceof BeforeFilter) {
-                    serializer.getBeforeFilters().add((BeforeFilter) filter);
-                }
-                
-                if (filter instanceof AfterFilter) {
-                    serializer.getAfterFilters().add((AfterFilter) filter);
-                }
+        try {
+            JSONSerializer serializer = new JSONSerializer(out);
+            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
+                serializer.config(feature, true);
             }
+
+            serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
+
+            setFilter(serializer, filters);
 
             serializer.write(object);
 
@@ -518,6 +485,11 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static final String toJSONString(Object object, SerializeConfig config, SerializerFeature... features) {
+        return toJSONString(object, config, (SerializeFilter) null, features);
+    }
+
+    public static final String toJSONString(Object object, SerializeConfig config, SerializeFilter filter,
+                                            SerializerFeature... features) {
         SerializeWriter out = new SerializeWriter();
 
         try {
@@ -525,6 +497,28 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
                 serializer.config(feature, true);
             }
+
+            setFilter(serializer, filter);
+
+            serializer.write(object);
+
+            return out.toString();
+        } finally {
+            out.close();
+        }
+    }
+
+    public static final String toJSONString(Object object, SerializeConfig config, SerializeFilter[] filters,
+                                            SerializerFeature... features) {
+        SerializeWriter out = new SerializeWriter();
+
+        try {
+            JSONSerializer serializer = new JSONSerializer(out, config);
+            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
+                serializer.config(feature, true);
+            }
+
+            setFilter(serializer, filters);
 
             serializer.write(object);
 
@@ -589,7 +583,6 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     // ======================================
-
     @Override
     public String toString() {
         return toJSONString();
@@ -618,7 +611,6 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     // ///////
-
     public static final Object toJSON(Object javaObject) {
         return toJSON(javaObject, ParserConfig.getGlobalInstance());
     }
@@ -698,7 +690,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             }
 
             return json;
-        } catch (Exception e) {
+        } catch (IllegalAccessException e) {
+            throw new JSONException("toJSON error", e);
+        } catch (InvocationTargetException e) {
             throw new JSONException("toJSON error", e);
         }
     }
@@ -707,5 +701,41 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return TypeUtils.cast(json, clazz, ParserConfig.getGlobalInstance());
     }
 
-    public final static String VERSION = "1.1.41";
+    private static void setFilter(JSONSerializer serializer, SerializeFilter... filters) {
+        for (SerializeFilter filter : filters) {
+            setFilter(serializer, filter);
+        }
+    }
+
+    private static void setFilter(JSONSerializer serializer, SerializeFilter filter) {
+        if (filter == null) {
+            return;
+        }
+        
+        if (filter instanceof PropertyPreFilter) {
+            serializer.getPropertyPreFilters().add((PropertyPreFilter) filter);
+        }
+
+        if (filter instanceof NameFilter) {
+            serializer.getNameFilters().add((NameFilter) filter);
+        }
+
+        if (filter instanceof ValueFilter) {
+            serializer.getValueFilters().add((ValueFilter) filter);
+        }
+
+        if (filter instanceof PropertyFilter) {
+            serializer.getPropertyFilters().add((PropertyFilter) filter);
+        }
+
+        if (filter instanceof BeforeFilter) {
+            serializer.getBeforeFilters().add((BeforeFilter) filter);
+        }
+
+        if (filter instanceof AfterFilter) {
+            serializer.getAfterFilters().add((AfterFilter) filter);
+        }
+    }
+
+    public final static String VERSION = "1.2.4";
 }

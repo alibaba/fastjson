@@ -17,7 +17,7 @@ public class ListSerializerTest extends TestCase {
         SerializeWriter out = new SerializeWriter();
 
         ListSerializer listSerializer = new ListSerializer();
-        listSerializer.write(new JSONSerializer(out), Collections.EMPTY_LIST, null, null);
+        listSerializer.write(new JSONSerializer(out), Collections.EMPTY_LIST, null, null, 0);
 
         Assert.assertEquals("[]", out.toString());
     }
@@ -29,7 +29,7 @@ public class ListSerializerTest extends TestCase {
         List<Object> list = new ArrayList<Object>();
         list.add(1);
         list.add(2);
-        listSerializer.write(new JSONSerializer(out), list, null, null);
+        listSerializer.write(new JSONSerializer(out), list, null, null, 0);
 
         Assert.assertEquals("[1,2]", out.toString());
     }
@@ -42,7 +42,7 @@ public class ListSerializerTest extends TestCase {
         list.add(1);
         list.add(2);
         list.add(3);
-        listSerializer.write(new JSONSerializer(out), list, null, null);
+        listSerializer.write(new JSONSerializer(out), list, null, null, 0);
 
         Assert.assertEquals("[1,2,3]", out.toString());
     }
@@ -56,7 +56,7 @@ public class ListSerializerTest extends TestCase {
         list.add(2L);
         list.add(3L);
         list.add(Collections.emptyMap());
-        listSerializer.write(new JSONSerializer(out), list, null, null);
+        listSerializer.write(new JSONSerializer(out), list, null, null, 0);
 
         Assert.assertEquals("[1,2,3,{}]", out.toString());
     }
@@ -71,7 +71,7 @@ public class ListSerializerTest extends TestCase {
         list.add(null);
         list.add(Collections.emptyMap());
         list.add(21474836480L);
-        listSerializer.write(new JSONSerializer(out), list, null, null);
+        listSerializer.write(new JSONSerializer(out), list, null, null, 0);
 
         Assert.assertEquals("[1,21474836480,null,{},21474836480]", out.toString());
     }

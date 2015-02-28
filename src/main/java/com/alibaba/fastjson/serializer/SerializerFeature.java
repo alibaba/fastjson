@@ -16,7 +16,7 @@
 package com.alibaba.fastjson.serializer;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public enum SerializerFeature {
     QuoteFieldNames,
@@ -112,7 +112,13 @@ public enum SerializerFeature {
     /**
      * @since 1.1.37
      */
-    WriteNonStringKeyAsString;
+    WriteNonStringKeyAsString,
+    
+    /**
+     * @since 1.1.42
+     */
+    NotWriteDefaultValue
+    ;
 
     private SerializerFeature(){
         mask = (1 << ordinal());
@@ -127,6 +133,12 @@ public enum SerializerFeature {
     public static boolean isEnabled(int features, SerializerFeature feature) {
         return (features & feature.getMask()) != 0;
     }
+    
+    public static boolean isEnabled(int features, int fieaturesB, SerializerFeature feature) {
+        int mask = feature.getMask();
+        
+        return (features & mask) != 0 || (fieaturesB & mask) != 0;
+    }
 
     public static int config(int features, SerializerFeature feature, boolean state) {
         if (state) {
@@ -136,5 +148,19 @@ public enum SerializerFeature {
         }
 
         return features;
+    }
+    
+    public static int of(SerializerFeature[] features) {
+        if (features == null) {
+            return 0;
+        }
+        
+        int value = 0;
+        
+        for (SerializerFeature feature: features) {
+            value |= feature.getMask();
+        }
+        
+        return value;
     }
 }

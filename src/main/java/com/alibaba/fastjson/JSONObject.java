@@ -46,9 +46,9 @@ import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.TypeUtils;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
-public class JSONObject extends JSON implements Map<String, Object>, JSONAware, Cloneable, Serializable, InvocationHandler {
+public class JSONObject extends JSON implements Map<String, Object>, Cloneable, Serializable, InvocationHandler {
 
     private static final long         serialVersionUID         = 1L;
     private static final int          DEFAULT_INITIAL_CAPACITY = 16;
@@ -334,6 +334,10 @@ public class JSONObject extends JSON implements Map<String, Object>, JSONAware, 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Class<?>[] parameterTypes = method.getParameterTypes();
         if (parameterTypes.length == 1) {
+            if (method.getName().equals("equals")) {
+                return this.equals(args[0]);
+            }
+            
             Class<?> returnType = method.getReturnType();
             if (returnType != void.class) {
                 throw new JSONException("illegal setter");
@@ -349,6 +353,7 @@ public class JSONObject extends JSON implements Map<String, Object>, JSONAware, 
 
             if (name == null) {
                 name = method.getName();
+                
                 if (!name.startsWith("set")) {
                     throw new JSONException("illegal setter");
                 }
@@ -392,6 +397,10 @@ public class JSONObject extends JSON implements Map<String, Object>, JSONAware, 
                         throw new JSONException("illegal getter");
                     }
                     name = Character.toLowerCase(name.charAt(0)) + name.substring(1);
+                } else if (name.startsWith("hashCode")) {
+                    return this.hashCode();
+                } else if (name.startsWith("toString")) {
+                    return this.toString();
                 } else {
                     throw new JSONException("illegal getter");
                 }

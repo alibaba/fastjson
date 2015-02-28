@@ -9,7 +9,7 @@ import java.util.Enumeration;
 public class EnumerationSeriliazer implements ObjectSerializer {
     public static EnumerationSeriliazer instance = new EnumerationSeriliazer();
     
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         if (object == null) {
@@ -32,7 +32,7 @@ public class EnumerationSeriliazer implements ObjectSerializer {
         Enumeration<?> e = (Enumeration<?>) object;
         
         SerialContext context = serializer.getContext();
-        serializer.setContext(context, object, fieldName);
+        serializer.setContext(context, object, fieldName, 0);
 
         try {
             int i = 0;
@@ -51,7 +51,7 @@ public class EnumerationSeriliazer implements ObjectSerializer {
                 Class<?> clazz = item.getClass();
 
                 ObjectSerializer itemSerializer = serializer.getObjectWriter(clazz);
-                itemSerializer.write(serializer, item, i - 1, elementType);
+                itemSerializer.write(serializer, item, i - 1, elementType, 0);
             }
             out.append(']');
         } finally {

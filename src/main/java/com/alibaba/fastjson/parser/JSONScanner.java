@@ -24,16 +24,19 @@ import java.util.TimeZone;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.Base64;
 
 //这个类，为了性能优化做了很多特别处理，一切都是为了性能！！！
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public final class JSONScanner extends JSONLexerBase {
 
     private final String text;
+    
+    private boolean isAndroid = ASMUtils.isAndroid();
 
     public JSONScanner(String input){
         this(input, JSON.DEFAULT_PARSER_FEATURE);
@@ -167,17 +170,25 @@ public final class JSONScanner extends JSONLexerBase {
      */
     public final String stringVal() {
         if (!hasSpecial) {
-            // return new String(buf, np + 1, sp);
-            return text.substring(np + 1, np + 1 + sp);
+            // return text.substring(np + 1, np + 1 + sp);
+            return this.subString(np + 1, sp);
         } else {
             return new String(sbuf, 0, sp);
         }
     }
 
     public final String subString(int offset, int count) {
-        return text.substring(offset, offset + count);
+        if (isAndroid) {
+            char[] chars = new char[count];
+            for (int i = offset; i < offset + count; ++i) {
+                chars[i - offset] = text.charAt(i);
+            }
+            return new String(chars);
+        } else {
+            return text.substring(offset, offset + count);
+        }
     }
-
+    
     public final String numberString() {
         char chLocal = charAt(np + sp - 1);
 
@@ -186,8 +197,8 @@ public final class JSONScanner extends JSONLexerBase {
             sp--;
         }
 
-        return text.substring(np, np + sp);
-        // return new String(buf, np, sp);
+        // return text.substring(np, np + sp);
+        return this.subString(np, sp);
     }
 
     public final int ISO8601_LEN_0 = "0000-00-00".length();
@@ -392,23 +403,96 @@ public final class JSONScanner extends JSONLexerBase {
             return true;
         }
 
+        
         char S0 = charAt(bp + 20);
-        char S1 = charAt(bp + 21);
-        char S2 = charAt(bp + 22);
         if (S0 < '0' || S0 > '9') {
             return false;
         }
-        if (S1 < '0' || S1 > '9') {
-            return false;
-        }
-        if (S2 < '0' || S2 > '9') {
-            return false;
+        int millis = digits[S0];
+        int millisLen = 1;
+        
+        {
+            char S1 = charAt(bp + 21);
+            if (S1 >= '0' && S1 <= '9') {
+                millis = millis * 10 + digits[S1];
+                millisLen = 2;
+            }
         }
 
-        int millis = digits[S0] * 100 + digits[S1] * 10 + digits[S2];
+        if (millisLen == 2) {
+            char S2 = charAt(bp + 22);
+            if (S2 >= '0' && S2 <= '9') {
+                millis = millis * 10 + digits[S2];
+                millisLen = 3;
+            }
+        }
+
         calendar.set(Calendar.MILLISECOND, millis);
 
-        ch = charAt(bp += 23);
+        int timzeZoneLength = 0;
+        char timeZoneFlag = charAt(bp + 20 + millisLen);
+        if (timeZoneFlag == '+' || timeZoneFlag == '-') {
+           char t0 = charAt(bp + 20 + millisLen + 1);
+           if (t0 < '0' || t0 > '1') {
+               return false;
+           }
+           
+           char t1 = charAt(bp + 20 + millisLen + 2);
+           if (t1 < '0' || t1 > '9') {
+               return false;
+           }
+           
+           char t2 = charAt(bp + 20 + millisLen + 3);
+           if (t2 == ':') { // ThreeLetterISO8601TimeZone
+               char t3 = charAt(bp + 20 + millisLen + 4);
+               if (t3 != '0') {
+                   return false;
+               }
+               
+               char t4 = charAt(bp + 20 + millisLen + 5);
+               if (t4 != '0') {
+                   return false;
+               }
+               timzeZoneLength = 6;
+           } else if (t2 == '0') { //TwoLetterISO8601TimeZone
+               char t3 = charAt(bp + 20 + millisLen + 4);
+               if (t3 != '0') {
+                   return false;
+               }
+               timzeZoneLength = 5;
+           } else {
+               timzeZoneLength = 3;
+           }
+           
+           int timeZoneOffset = (digits[t0] * 10 + digits[t1]) * 3600 * 1000;
+           if (timeZoneFlag == '-') {
+               timeZoneOffset = -timeZoneOffset;
+           }
+           
+           if (calendar.getTimeZone().getRawOffset() != timeZoneOffset) {
+               String[] timeZoneIDs = TimeZone.getAvailableIDs(timeZoneOffset);
+               if (timeZoneIDs.length > 0) {
+                   TimeZone timeZone = TimeZone.getTimeZone(timeZoneIDs[0]);
+                   calendar.setTimeZone(timeZone);
+               }
+           }
+           
+        } else if (timeZoneFlag == 'Z') {// UTC
+            timzeZoneLength = 1;
+            if (calendar.getTimeZone().getRawOffset() != 0) {
+                String[] timeZoneIDs = TimeZone.getAvailableIDs(0);
+                if (timeZoneIDs.length > 0) {
+                    TimeZone timeZone = TimeZone.getTimeZone(timeZoneIDs[0]);
+                    calendar.setTimeZone(timeZone);
+                }
+            }
+        }
+        
+        char end = charAt(bp + (20 + millisLen + timzeZoneLength)) ;
+        if (end != EOI && end != '"') {
+            return false;
+        }
+        ch = charAt(bp += (20 + millisLen + timzeZoneLength));
 
         token = JSONToken.LITERAL_ISO8601_DATE;
         return true;
@@ -817,8 +901,8 @@ public final class JSONScanner extends JSONLexerBase {
             for (;;) {
                 ch = charAt(index++);
                 if (ch == '\"') {
-                    strVal = text.substring(start, index - 1);
-                    // strVal = new String(buf, start, index - start - 1);
+                    // strVal = text.substring(start, index - 1);
+                    strVal = this.subString(start, index - start - 1);
                     list.add(strVal);
                     ch = charAt(index++);
                     break;
@@ -919,7 +1003,7 @@ public final class JSONScanner extends JSONLexerBase {
         }
 
         if (ch == ',') {
-            ch = charAt(++bp);
+            this.ch = charAt(++bp);
             matchStat = VALUE;
             token = JSONToken.COMMA;
             return value;

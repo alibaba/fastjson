@@ -29,7 +29,7 @@ import com.alibaba.fastjson.util.IOUtils;
 //这个类，为了性能优化做了很多特别处理，一切都是为了性能！！！
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public final class JSONReaderScanner extends JSONLexerBase {
 
@@ -166,11 +166,17 @@ public final class JSONReaderScanner extends JSONLexerBase {
             try {
                 int startPos = bp;
                 int readLength = buf.length - startPos;
+                if (readLength == 0) {
+                    char[] newBuf = new char[buf.length * 2];
+                    System.arraycopy(buf, 0, newBuf, 0, buf.length);
+                    buf = newBuf;
+                    readLength = buf.length - startPos;
+                }
                 bufLength = reader.read(buf, bp, readLength);
             } catch (IOException e) {
                 throw new JSONException(e.getMessage(), e);
             }
-
+            
             if (bufLength == 0) {
                 throw new JSONException("illegal stat, textLength is zero");
             }

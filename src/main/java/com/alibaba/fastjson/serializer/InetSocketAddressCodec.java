@@ -15,7 +15,7 @@ public class InetSocketAddressCodec implements ObjectSerializer, ObjectDeseriali
 
     public static InetSocketAddressCodec instance = new InetSocketAddressCodec();
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         if (object == null) {
             serializer.writeNull();
             return;

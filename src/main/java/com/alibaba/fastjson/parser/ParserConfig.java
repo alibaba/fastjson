@@ -36,6 +36,7 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.security.AccessControlException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -86,6 +87,7 @@ import com.alibaba.fastjson.parser.deserializer.JSONArrayDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JSONObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaObjectDeserializer;
+import com.alibaba.fastjson.parser.deserializer.Jdk8DateCodec;
 import com.alibaba.fastjson.parser.deserializer.LongFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.MapDeserializer;
 import com.alibaba.fastjson.parser.deserializer.NumberDeserializer;
@@ -130,7 +132,7 @@ import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.ServiceLoader;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public class ParserConfig {
 
@@ -148,17 +150,43 @@ public class ParserConfig {
 
     protected final SymbolTable                             symbolTable      = new SymbolTable();
 
-    protected ASMDeserializerFactory                        asmFactory       = ASMDeserializerFactory.getInstance();
+    protected ASMDeserializerFactory                        asmFactory;
     
     public ParserConfig() {
-        this(ASMDeserializerFactory.getInstance());
+        this(null, null);
     }
     
     public ParserConfig(ClassLoader parentClassLoader){
-        this(new ASMDeserializerFactory(parentClassLoader));
+        this(null, parentClassLoader);
+    }
+    
+    public ParserConfig(ASMDeserializerFactory asmFactory){
+        this(asmFactory, null);
     }
 
-    public ParserConfig(ASMDeserializerFactory asmFactory){
+    private ParserConfig(ASMDeserializerFactory asmFactory, ClassLoader parentClassLoader){
+        if (asmFactory == null) {
+            try {
+                if (parentClassLoader == null) {
+                    asmFactory = ASMDeserializerFactory.getInstance();    
+                } else {
+                    asmFactory = new ASMDeserializerFactory(parentClassLoader);
+                }
+            } catch (ExceptionInInitializerError error) {
+                // skip
+            } catch (AccessControlException error) {
+                // skip
+            } catch (NoClassDefFoundError error) {
+                // skip
+            }
+        }
+        
+        this.asmFactory = asmFactory;
+        
+        if (asmFactory == null) {
+            asmEnable = false;
+        }
+        
         primitiveClasses.add(boolean.class);
         primitiveClasses.add(Boolean.class);
 
@@ -215,6 +243,8 @@ public class ParserConfig {
 
         derializers.put(Object.class, JavaObjectDeserializer.instance);
         derializers.put(String.class, StringCodec.instance);
+        derializers.put(StringBuffer.class, StringCodec.instance);
+        derializers.put(StringBuilder.class, StringCodec.instance);
         derializers.put(char.class, CharacterCodec.instance);
         derializers.put(Character.class, CharacterCodec.instance);
         derializers.put(byte.class, NumberDeserializer.instance);
@@ -274,6 +304,23 @@ public class ParserConfig {
             derializers.put(Class.forName("java.awt.Color"), ColorCodec.instance);
         } catch (Throwable e) {
             // skip
+        }
+        
+        try {
+            derializers.put(Class.forName("java.time.LocalDateTime"), Jdk8DateCodec.instance);
+            derializers.put(Class.forName("java.time.LocalDate"), Jdk8DateCodec.instance);
+            derializers.put(Class.forName("java.time.LocalTime"), Jdk8DateCodec.instance);
+            derializers.put(Class.forName("java.time.ZonedDateTime"), Jdk8DateCodec.instance);
+            derializers.put(Class.forName("java.time.OffsetDateTime"), Jdk8DateCodec.instance);
+            derializers.put(Class.forName("java.time.OffsetTime"), Jdk8DateCodec.instance);
+            derializers.put(Class.forName("java.time.ZoneOffset"), Jdk8DateCodec.instance);
+            derializers.put(Class.forName("java.time.ZoneRegion"), Jdk8DateCodec.instance);
+            derializers.put(Class.forName("java.time.ZoneId"), Jdk8DateCodec.instance);
+            derializers.put(Class.forName("java.time.Period"), Jdk8DateCodec.instance);
+            derializers.put(Class.forName("java.time.Duration"), Jdk8DateCodec.instance);
+            derializers.put(Class.forName("java.time.Instant"), Jdk8DateCodec.instance);
+        } catch (Throwable e) {
+            
         }
     }
 
@@ -409,8 +456,12 @@ public class ParserConfig {
             asmEnable = false;
         }
 
-        if (asmFactory.isExternalClass(clazz)) {
+        if (asmEnable && asmFactory != null && asmFactory.isExternalClass(clazz)) {
             asmEnable = false;
+        }
+        
+        if (asmEnable) {
+            asmEnable = ASMUtils.checkName(clazz.getName());
         }
 
         if (asmEnable) {
@@ -440,6 +491,10 @@ public class ParserConfig {
                 }
 
                 if (fieldClass.isMemberClass() && !Modifier.isStatic(fieldClass.getModifiers())) {
+                    asmEnable = false;
+                }
+                
+                if (!ASMUtils.checkName(fieldInfo.getMember().getName())) {
                     asmEnable = false;
                 }
             }
@@ -492,7 +547,7 @@ public class ParserConfig {
             asmEnable = false;
         }
 
-        if (asmFactory.isExternalClass(clazz)) {
+        if (asmEnable && asmFactory != null && asmFactory.isExternalClass(clazz)) {
             asmEnable = false;
         }
 

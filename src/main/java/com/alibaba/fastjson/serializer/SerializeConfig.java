@@ -56,7 +56,6 @@ import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONStreamAware;
 import com.alibaba.fastjson.annotation.JSONType;
-import com.alibaba.fastjson.parser.deserializer.Jdk8DateCodec;
 import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.ServiceLoader;
@@ -217,24 +216,6 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 		} catch (Throwable e) {
 			// skip
 		}
-		
-		// jdk8
-		try {
-		    put(Class.forName("java.time.LocalDateTime"), Jdk8DateCodec.instance);
-		    put(Class.forName("java.time.LocalDate"), Jdk8DateCodec.instance);
-		    put(Class.forName("java.time.LocalTime"), Jdk8DateCodec.instance);
-		    put(Class.forName("java.time.ZonedDateTime"), Jdk8DateCodec.instance);
-		    put(Class.forName("java.time.OffsetDateTime"), Jdk8DateCodec.instance);
-		    put(Class.forName("java.time.OffsetTime"), Jdk8DateCodec.instance);
-		    put(Class.forName("java.time.ZoneOffset"), Jdk8DateCodec.instance);
-		    put(Class.forName("java.time.ZoneRegion"), Jdk8DateCodec.instance);
-		    put(Class.forName("java.time.Period"), Jdk8DateCodec.instance);
-		    put(Class.forName("java.time.Duration"), Jdk8DateCodec.instance);
-		    put(Class.forName("java.time.Instant"), Jdk8DateCodec.instance);
-		} catch (Throwable e) {
-		    // skip
-		}
-
 	}
 
 	public ObjectSerializer getObjectWriter(Class<?> clazz) {

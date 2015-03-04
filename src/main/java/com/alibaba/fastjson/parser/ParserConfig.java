@@ -87,7 +87,6 @@ import com.alibaba.fastjson.parser.deserializer.JSONArrayDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JSONObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaObjectDeserializer;
-import com.alibaba.fastjson.parser.deserializer.Jdk8DateCodec;
 import com.alibaba.fastjson.parser.deserializer.LongFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.MapDeserializer;
 import com.alibaba.fastjson.parser.deserializer.NumberDeserializer;
@@ -302,23 +301,6 @@ public class ParserConfig {
             derializers.put(Class.forName("java.awt.Color"), ColorCodec.instance);
         } catch (Throwable e) {
             // skip
-        }
-        
-        try {
-            derializers.put(Class.forName("java.time.LocalDateTime"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.LocalDate"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.LocalTime"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.ZonedDateTime"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.OffsetDateTime"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.OffsetTime"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.ZoneOffset"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.ZoneRegion"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.ZoneId"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.Period"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.Duration"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.Instant"), Jdk8DateCodec.instance);
-        } catch (Throwable e) {
-            
         }
     }
 

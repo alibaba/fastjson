@@ -737,5 +737,5 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
     }
 
-    public final static String VERSION = "1.2.4";
+    public final static String VERSION = "1.2.5";
 }

@@ -115,6 +115,12 @@ public final class SerializeWriter extends Writer {
     public void config(SerializerFeature feature, boolean state) {
         if (state) {
             features |= feature.getMask();
+            //由于枚举序列化特性WriteEnumUsingToString和WriteEnumUsingName不能共存，需要检查
+            if(feature == SerializerFeature.WriteEnumUsingToString){
+                features &= ~SerializerFeature.WriteEnumUsingName.getMask();
+            }else if(feature == SerializerFeature.WriteEnumUsingName){
+                features &= ~SerializerFeature.WriteEnumUsingToString.getMask();
+            }
         } else {
             features &= ~feature.getMask();
         }
@@ -499,23 +505,32 @@ public final class SerializeWriter extends Writer {
             return;
         }
 
-        if (isEnabled(SerializerFeature.WriteEnumUsingToString)) {
-            if (isEnabled(SerializerFeature.UseSingleQuotes)) {
-                write('\'');
-                write(value.name());
-                write('\'');
-                write(c);
+        if (isEnabled(SerializerFeature.WriteEnumUsingName)) {
+            writeEnumValue(value.name(),c);
+            return;
+        }
 
-            } else {
-                write('\"');
-                write(value.name());
-                write('\"');
-                write(c);
-            }
+        if (isEnabled(SerializerFeature.WriteEnumUsingToString)) {
+            writeEnumValue(value.toString(),c);
             return;
         }
 
         writeIntAndChar(value.ordinal(), c);
+    }
+
+    private void writeEnumValue(String value,char c){
+        if (isEnabled(SerializerFeature.UseSingleQuotes)) {
+            write('\'');
+            write(value);
+            write('\'');
+            write(c);
+
+        } else {
+            write('\"');
+            write(value);
+            write('\"');
+            write(c);
+        }
     }
 
     public void writeIntAndChar(int i, char c) {
@@ -1423,17 +1438,20 @@ public final class SerializeWriter extends Writer {
             return;
         }
 
-        if (isEnabled(SerializerFeature.WriteEnumUsingToString)) {
-            if (isEnabled(SerializerFeature.UseSingleQuotes)) {
-                writeFieldValue(seperator, name, value.name());
-            } else {
-                writeFieldValueStringWithDoubleQuote(seperator, name, value.name(), false);
-                return;
-            }
-
-            // writeStringWithDoubleQuote
+        if (isEnabled(SerializerFeature.WriteEnumUsingName)) {
+            writeEnumFieldValue(seperator,name,value.name());
+        }else if(isEnabled(SerializerFeature.WriteEnumUsingToString)){
+            writeEnumFieldValue(seperator,name,value.toString());
         } else {
             writeFieldValue(seperator, name, value.ordinal());
+        }
+    }
+
+    private void writeEnumFieldValue(char seperator,String name,String value){
+        if (isEnabled(SerializerFeature.UseSingleQuotes)) {
+            writeFieldValue(seperator, name, value);
+        } else {
+            writeFieldValueStringWithDoubleQuote(seperator, name, value, false);
         }
     }
 

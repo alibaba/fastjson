@@ -114,8 +114,17 @@ public class DateSerializer implements ObjectSerializer {
                     IOUtils.getChars(year, 4, buf);
                 }
             }
-
+            
             out.write(buf);
+            
+            int timeZone = calendar.getTimeZone().getRawOffset()/(3600*1000);
+            if (timeZone == 0) {
+                out.append("Z");
+            } else if (timeZone > 0) {
+                out.append("+").append(String.format("%02d", timeZone)).append(":00");
+            } else {
+                out.append("-").append(String.format("%02d", -timeZone)).append(":00");
+            }
 
             if (serializer.isEnabled(SerializerFeature.UseSingleQuotes)) {
                 out.append('\'');

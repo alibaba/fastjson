@@ -243,6 +243,8 @@ public class ParserConfig {
 
         derializers.put(Object.class, JavaObjectDeserializer.instance);
         derializers.put(String.class, StringCodec.instance);
+        derializers.put(StringBuffer.class, StringCodec.instance);
+        derializers.put(StringBuilder.class, StringCodec.instance);
         derializers.put(char.class, CharacterCodec.instance);
         derializers.put(Character.class, CharacterCodec.instance);
         derializers.put(byte.class, NumberDeserializer.instance);

@@ -30,7 +30,8 @@ public class StringCodec implements ObjectSerializer, ObjectDeserializer {
 
     public static StringCodec instance = new StringCodec();
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
+                                                                                                               throws IOException {
         write(serializer, (String) object);
     }
 
@@ -48,12 +49,48 @@ public class StringCodec implements ObjectSerializer, ObjectDeserializer {
 
         out.writeString(value);
     }
-    
+
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
+        if (clazz == StringBuffer.class) {
+            final JSONLexer lexer = parser.getLexer();
+            if (lexer.token() == JSONToken.LITERAL_STRING) {
+                String val = lexer.stringVal();
+                lexer.nextToken(JSONToken.COMMA);
+
+                return (T) new StringBuffer(val);
+            }
+
+            Object value = parser.parse();
+
+            if (value == null) {
+                return null;
+            }
+
+            return (T) new StringBuffer(value.toString());
+        }
+
+        if (clazz == StringBuilder.class) {
+            final JSONLexer lexer = parser.getLexer();
+            if (lexer.token() == JSONToken.LITERAL_STRING) {
+                String val = lexer.stringVal();
+                lexer.nextToken(JSONToken.COMMA);
+
+                return (T) new StringBuilder(val);
+            }
+
+            Object value = parser.parse();
+
+            if (value == null) {
+                return null;
+            }
+
+            return (T) new StringBuilder(value.toString());
+        }
+
         return (T) deserialze(parser);
     }
-    
+
     @SuppressWarnings("unchecked")
     public static <T> T deserialze(DefaultJSONParser parser) {
         final JSONLexer lexer = parser.getLexer();
@@ -62,7 +99,7 @@ public class StringCodec implements ObjectSerializer, ObjectDeserializer {
             lexer.nextToken(JSONToken.COMMA);
             return (T) val;
         }
-        
+
         if (lexer.token() == JSONToken.LITERAL_INT) {
             String val = lexer.numberString();
             lexer.nextToken(JSONToken.COMMA);

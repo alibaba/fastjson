@@ -90,7 +90,13 @@ public enum Feature {
      * @since 1.2.3
      * 
      */
-    OrderedField
+    OrderedField,
+    
+    /**
+     * @since 1.2.5
+     * 
+     */
+    DisableSpecialKeyDetect
     ;
 
     private Feature(){

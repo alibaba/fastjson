@@ -26,8 +26,8 @@ public class EnumTest2 extends TestCase {
         
         Date date = new Date(1308841916550L);
         Assert.assertEquals("1308841916550", JSON.toJSONString(date, mapping)); // 1308841916550
-        Assert.assertEquals("\"2011-06-23T23:11:56.550\"", JSON.toJSONString(date, mapping, SerializerFeature.UseISO8601DateFormat)); // "2011-06-23T23:11:56.550"
+        Assert.assertEquals("\"2011-06-23T23:11:56.550+08:00\"", JSON.toJSONString(date, mapping, SerializerFeature.UseISO8601DateFormat)); // "2011-06-23T23:11:56.550"
         SerializerFeature[] features = {SerializerFeature.UseISO8601DateFormat, SerializerFeature.UseSingleQuotes };
-        Assert.assertEquals("'2011-06-23T23:11:56.550'", JSON.toJSONString(date, mapping, features)); // '2011-06-23T23:11:56.550'
+        Assert.assertEquals("'2011-06-23T23:11:56.550+08:00'", JSON.toJSONString(date, mapping, features)); // '2011-06-23T23:11:56.550'
     }
 }

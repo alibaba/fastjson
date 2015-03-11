@@ -17,6 +17,7 @@ public class JSONSerializerTest2 extends TestCase {
 
         int size = serializer.getMapping().size();
         serializer.config(SerializerFeature.WriteEnumUsingToString, false);
+        serializer.config(SerializerFeature.WriteEnumUsingName, false);
         serializer.write(Type.A);
 
         Assert.assertTrue(size < serializer.getMapping().size());
@@ -27,6 +28,7 @@ public class JSONSerializerTest2 extends TestCase {
     public void test_1() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
         serializer.config(SerializerFeature.WriteEnumUsingToString, false);
+        serializer.config(SerializerFeature.WriteEnumUsingName, false);
         serializer.write(new A(Type.B));
 
         Assert.assertEquals("{\"type\":" + Integer.toString(Type.B.ordinal()) + "}", serializer.getWriter().toString());

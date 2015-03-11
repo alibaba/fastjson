@@ -88,7 +88,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         int features = 0;
         features |= SerializerFeature.QuoteFieldNames.getMask();
         features |= SerializerFeature.SkipTransientField.getMask();
-        features |= SerializerFeature.WriteEnumUsingToString.getMask();
+        features |= SerializerFeature.WriteEnumUsingName.getMask();
         features |= SerializerFeature.SortField.getMask();
         // features |=
         // com.alibaba.fastjson.serializer.SerializerFeature.WriteSlashAsSpecial.getMask();
@@ -737,5 +737,5 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
     }
 
-    public final static String VERSION = "1.2.4";
+    public final static String VERSION = "1.2.5";
 }

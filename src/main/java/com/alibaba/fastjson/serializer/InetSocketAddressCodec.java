@@ -38,7 +38,7 @@ public class InetSocketAddressCodec implements ObjectSerializer, ObjectDeseriali
     }
     
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type clazz, Object fieldName) {
         JSONLexer lexer = parser.getLexer();
 
         if (lexer.token() == JSONToken.NULL) {

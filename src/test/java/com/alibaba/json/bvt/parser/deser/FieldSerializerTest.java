@@ -17,7 +17,7 @@ public class FieldSerializerTest extends TestCase {
     private static class Entity {
 
         private transient int id;
-        @JSONField(name = "v", serialzeFeatures = { SerializerFeature.WriteMapNullValue })
+        @JSONField(name = "v", serializeFeatures = { SerializerFeature.WriteMapNullValue })
         private String        value;
 
         public int getId() {

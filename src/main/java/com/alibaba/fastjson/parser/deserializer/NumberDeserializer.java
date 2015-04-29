@@ -13,7 +13,7 @@ public class NumberDeserializer implements ObjectDeserializer {
     public final static NumberDeserializer instance = new NumberDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type clazz, Object fieldName) {
         final JSONLexer lexer = parser.getLexer();
         if (lexer.token() == JSONToken.LITERAL_INT) {
             if (clazz == double.class || clazz  == Double.class) {

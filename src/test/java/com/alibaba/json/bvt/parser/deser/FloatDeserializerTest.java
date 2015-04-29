@@ -20,7 +20,7 @@ public class FloatDeserializerTest extends TestCase {
         Assert.assertEquals(null, JSON.parseObject("null", Float.class));
 
         DefaultExtJSONParser parser = new DefaultExtJSONParser("null", ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
-        Assert.assertEquals(null, FloatCodec.instance.deserialze(parser, null, null));
+        Assert.assertEquals(null, FloatCodec.instance.deserialize(parser, null, null));
         Assert.assertEquals(JSONToken.LITERAL_INT, FloatCodec.instance.getFastMatchToken());
     }
 }

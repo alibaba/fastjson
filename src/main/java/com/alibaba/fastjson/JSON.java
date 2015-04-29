@@ -75,12 +75,12 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         features |= Feature.AllowUnQuotedFieldNames.getMask();
         features |= Feature.AllowSingleQuotes.getMask();
         features |= Feature.AllowArbitraryCommas.getMask();
-        features |= Feature.SortFeidFastMatch.getMask();
+        features |= Feature.SortFieldFastMatch.getMask();
         features |= Feature.IgnoreNotMatch.getMask();
         DEFAULT_PARSER_FEATURE = features;
     }
 
-    public static String DEFFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    public static String DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     public static int    DEFAULT_GENERATE_FEATURE;
 
@@ -124,8 +124,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
 
         int featureValues = DEFAULT_PARSER_FEATURE;
-        for (Feature featrue : features) {
-            featureValues = Feature.config(featureValues, featrue, true);
+        for (Feature feature : features) {
+            featureValues = Feature.config(featureValues, feature, true);
         }
 
         return parse(input, off, len, charsetDecoder, featureValues);
@@ -155,8 +155,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     public static final Object parse(String text, Feature... features) {
         int featureValues = DEFAULT_PARSER_FEATURE;
-        for (Feature featrue : features) {
-            featureValues = Feature.config(featureValues, featrue, true);
+        for (Feature feature : features) {
+            featureValues = Feature.config(featureValues, feature, true);
         }
 
         return parse(text, featureValues);
@@ -207,8 +207,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             return null;
         }
 
-        for (Feature featrue : features) {
-            featureValues = Feature.config(featureValues, featrue, true);
+        for (Feature feature : features) {
+            featureValues = Feature.config(featureValues, feature, true);
         }
 
         DefaultJSONParser parser = new DefaultJSONParser(input, ParserConfig.getGlobalInstance(), featureValues);
@@ -233,8 +233,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             return null;
         }
 
-        for (Feature featrue : features) {
-            featureValues = Feature.config(featureValues, featrue, true);
+        for (Feature feature : features) {
+            featureValues = Feature.config(featureValues, feature, true);
         }
 
         DefaultJSONParser parser = new DefaultJSONParser(input, config, featureValues);
@@ -285,8 +285,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
 
         int featureValues = DEFAULT_PARSER_FEATURE;
-        for (Feature featrue : features) {
-            featureValues = Feature.config(featureValues, featrue, true);
+        for (Feature feature : features) {
+            featureValues = Feature.config(featureValues, feature, true);
         }
 
         DefaultJSONParser parser = new DefaultJSONParser(input, length, ParserConfig.getGlobalInstance(), featureValues);

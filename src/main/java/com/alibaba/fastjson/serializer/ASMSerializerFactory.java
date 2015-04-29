@@ -628,7 +628,7 @@ public class ASMSerializerFactory implements Opcodes {
         boolean writeEnumUsingToString = false;
         JSONField annotation = property.getAnnotation(JSONField.class);
         if (annotation != null) {
-            for (SerializerFeature feature : annotation.serialzeFeatures()) {
+            for (SerializerFeature feature : annotation.serializeFeatures()) {
                 if (feature == SerializerFeature.WriteEnumUsingToString) {
                     writeEnumUsingToString = true;
                 }
@@ -1473,7 +1473,7 @@ public class ASMSerializerFactory implements Opcodes {
         boolean writeNullListAsEmpty = false;
         JSONField annotation = fieldInfo.getAnnotation(JSONField.class);
         if (annotation != null) {
-            for (SerializerFeature feature : annotation.serialzeFeatures()) {
+            for (SerializerFeature feature : annotation.serializeFeatures()) {
                 if (feature == SerializerFeature.WriteMapNullValue) {
                     writeNull = true;
                 } else if (feature == SerializerFeature.WriteNullNumberAsZero) {

@@ -9,7 +9,7 @@ public class JSONObjectDeserializer implements ObjectDeserializer {
     public final static JSONObjectDeserializer instance = new JSONObjectDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type clazz, Object fieldName) {
         return (T) parser.parseObject();
     }
 

@@ -19,7 +19,7 @@ public class Bug_for_field extends TestCase {
 
     public static class VO {
 
-        @JSONField(name = "ID", serialzeFeatures={SerializerFeature.WriteClassName})
+        @JSONField(name = "ID", serializeFeatures={SerializerFeature.WriteClassName})
         private long id;
 
         public long getId() {

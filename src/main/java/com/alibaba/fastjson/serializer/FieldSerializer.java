@@ -47,7 +47,7 @@ public abstract class FieldSerializer {
 
         JSONField annotation = fieldInfo.getAnnotation(JSONField.class);
         if (annotation != null) {
-            for (SerializerFeature feature : annotation.serialzeFeatures()) {
+            for (SerializerFeature feature : annotation.serializeFeatures()) {
                 if (feature == SerializerFeature.WriteMapNullValue) {
                     writeNull = true;
                 }

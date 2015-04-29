@@ -12,12 +12,12 @@ public class CharArrayDeserializer implements ObjectDeserializer {
     public final static CharArrayDeserializer instance = new CharArrayDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        return (T) deserialze(parser);
+    public <T> T deserialize(DefaultJSONParser parser, Type clazz, Object fieldName) {
+        return (T) deserialize(parser);
     }
     
     @SuppressWarnings("unchecked")
-    public static <T> T deserialze(DefaultJSONParser parser) {
+    public static <T> T deserialize(DefaultJSONParser parser) {
         final JSONLexer lexer = parser.getLexer();
         if (lexer.token() == JSONToken.LITERAL_STRING) {
             String val = lexer.stringVal();

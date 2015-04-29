@@ -40,7 +40,7 @@ public class WriteAsArray_jsonType extends TestCase {
 
     }
 
-    @JSONType(serialzeFeatures=SerializerFeature.BeanToArray, parseFeatures=Feature.SupportArrayToBean)
+    @JSONType(serializeFeatures=SerializerFeature.BeanToArray, parseFeatures=Feature.SupportArrayToBean)
     public static class VO {
         @JSONField(ordinal=1)
         private int    id;

@@ -22,7 +22,7 @@ public class UUIDDeserializerTest extends TestCase {
         Assert.assertEquals(null, JSON.parseObject("null", UUID.class));
 
         DefaultExtJSONParser parser = new DefaultExtJSONParser("null", ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
-        Assert.assertEquals(null, UUIDCodec.instance.deserialze(parser, null, null));
+        Assert.assertEquals(null, UUIDCodec.instance.deserialize(parser, null, null));
         Assert.assertEquals(JSONToken.LITERAL_STRING, UUIDCodec.instance.getFastMatchToken());
 
     }

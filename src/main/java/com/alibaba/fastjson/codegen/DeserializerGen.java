@@ -1,5 +1,9 @@
 package com.alibaba.fastjson.codegen;
 
+import com.alibaba.fastjson.util.DeserializeBeanInfo;
+import com.alibaba.fastjson.util.FieldInfo;
+import com.alibaba.fastjson.util.TypeUtils;
+
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
@@ -12,10 +16,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
-
-import com.alibaba.fastjson.util.DeserializeBeanInfo;
-import com.alibaba.fastjson.util.FieldInfo;
-import com.alibaba.fastjson.util.TypeUtils;
 
 public class DeserializerGen extends ClassGen {
 
@@ -60,7 +60,7 @@ public class DeserializerGen extends ClassGen {
 
         genCreateInstance();
 
-        genDeserialze();
+        genDeserialize();
 
         endClass();
     }
@@ -81,7 +81,7 @@ public class DeserializerGen extends ClassGen {
         print("}");
     }
 
-    protected void genDeserialze() throws IOException {
+    protected void genDeserialize() throws IOException {
         if (beanInfo.getFieldList().size() == 0) {
             return;
         }
@@ -112,26 +112,26 @@ public class DeserializerGen extends ClassGen {
         Collections.sort(fieldList);
 
         println();
-        print("public Object deserialze(DefaultJSONParser parser, Type type, Object fieldName) {");
+        print("public Object deserialize(DefaultJSONParser parser, Type type, Object fieldName) {");
         incrementIndent();
         println();
 
         println("JSONLexerBase lexer = (JSONLexerBase) parser.getLexer();");
         println();
 
-        println("if (!lexer.isEnabled(Feature.SortFeidFastMatch)) {");
-        println("\treturn super.deserialze(parser, type, fieldName);");
+        println("if (!lexer.isEnabled(Feature.SortFieldFastMatch)) {");
+        println("\treturn super.deserialize(parser, type, fieldName);");
         println("}");
 
         println();
 
         println("if (isSupportArrayToBean(lexer)) {");
-        println("\t// deserialzeArrayMapping");
+        println("\t// deserializeArrayMapping");
         println("}");
 
         println();
         println("if (lexer.scanType(\"Department\") == JSONLexerBase.NOT_MATCH) {");
-        println("\treturn super.deserialze(parser, type, fieldName);");
+        println("\treturn super.deserialize(parser, type, fieldName);");
         println("}");
 
         println();
@@ -295,13 +295,13 @@ public class DeserializerGen extends ClassGen {
                     print(".class);");
                     println();
                 } else {
-                    genDeserialzeList(fieldInfo, i, itemClass);
+                    genDeserializeList(fieldInfo, i, itemClass);
                     if (i == fieldListSize - 1) {
                         genEndCheck();
                     }
                 }
             } else {
-                genDeserialzeObject(fieldInfo, i);
+                genDeserializeObject(fieldInfo, i);
 
                 if (i == fieldListSize - 1) {
                     genEndCheck();
@@ -318,11 +318,11 @@ public class DeserializerGen extends ClassGen {
             println("\trestFlag = true;");
             println("}");
 
-  
+
             println("if(lexer.matchStat != JSONLexerBase.END) {");
             println("\tendFlag = true;");
             println("}");
-            
+
 
             decrementIndent();
             println();
@@ -348,7 +348,7 @@ public class DeserializerGen extends ClassGen {
     private void genBatchSet(List<FieldInfo> fieldList, boolean flag) throws IOException {
         for (int i = 0, size = fieldList.size(); i < size; ++i) {
             FieldInfo fieldInfo = fieldList.get(i);
-            
+
             String varName = "_asm_flag_" + (i / 32);
             if (flag) {
                 print("if ((");
@@ -359,7 +359,7 @@ public class DeserializerGen extends ClassGen {
                 println();
                 incrementIndent();
             }
-            
+
             if (fieldInfo.getMethod() != null) {
                 print("\tinstance.");
                 print(fieldInfo.getMethod().getName());
@@ -390,7 +390,7 @@ public class DeserializerGen extends ClassGen {
         println("}");
     }
 
-    protected void genDeserialzeList(FieldInfo fieldInfo, int i, Class<?> itemClass) throws IOException {
+    protected void genDeserializeList(FieldInfo fieldInfo, int i, Class<?> itemClass) throws IOException {
         print("if (lexer.matchField(");
         printFieldPrefix(fieldInfo);
         print(")) {");
@@ -460,7 +460,7 @@ public class DeserializerGen extends ClassGen {
         printClassName(itemClass);
         print(" itemValue = ");
         printListFieldItemDeser(fieldInfo);
-        print(".deserialze(parser, ");
+        print(".deserialize(parser, ");
         printListFieldItemType(fieldInfo);
         println(", i);");
 
@@ -494,7 +494,7 @@ public class DeserializerGen extends ClassGen {
         println("}");
     }
 
-    protected void genDeserialzeObject(FieldInfo fieldInfo, int i) throws IOException {
+    protected void genDeserializeObject(FieldInfo fieldInfo, int i) throws IOException {
         print("if (lexer.matchField(");
         printFieldPrefix(fieldInfo);
         print(")) {");
@@ -518,7 +518,7 @@ public class DeserializerGen extends ClassGen {
 
         print("\t");
         printFieldDeser(fieldInfo);
-        print(".deserialze(parser, ");
+        print(".deserialize(parser, ");
         if (fieldInfo.getFieldType() instanceof Class) {
             printClassName(fieldInfo.getFieldClass());
             print(".class");

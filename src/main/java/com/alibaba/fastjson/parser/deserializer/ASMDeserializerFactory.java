@@ -85,8 +85,8 @@ public class ASMDeserializerFactory implements Opcodes {
 
         _init(cw, new Context(className, config, beanInfo, 3));
         _createInstance(cw, new Context(className, config, beanInfo, 3));
-        _deserialze(cw, new Context(className, config, beanInfo, 4));
-        _deserialzeArrayMapping(cw, new Context(className, config, beanInfo, 4));
+        _deserialize(cw, new Context(className, config, beanInfo, 4));
+        _deserializeArrayMapping(cw, new Context(className, config, beanInfo, 4));
         byte[] code = cw.toByteArray();
 
         if(JSON.DUMP_CLASS != null){
@@ -129,8 +129,8 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitJumpInsn(IFEQ, label);
     }
 
-    void _deserialzeArrayMapping(ClassWriter cw, Context context) {
-        MethodVisitor mw = cw.visitMethod(ACC_PUBLIC, "deserialzeArrayMapping"
+    void _deserializeArrayMapping(ClassWriter cw, Context context) {
+        MethodVisitor mw = cw.visitMethod(ACC_PUBLIC, "deserializeArrayMapping"
                                           , "(Lcom/alibaba/fastjson/parser/DefaultJSONParser;Ljava/lang/reflect/Type;Ljava/lang/Object;)Ljava/lang/Object;"
                                           , null, null);
 
@@ -269,7 +269,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitEnd();
     }
 
-    void _deserialze(ClassWriter cw, Context context) {
+    void _deserialize(ClassWriter cw, Context context) {
         if (context.getFieldInfoList().size() == 0) {
             return;
         }
@@ -298,7 +298,7 @@ public class ASMDeserializerFactory implements Opcodes {
 
         Collections.sort(context.getFieldInfoList());
 
-        MethodVisitor mw = cw.visitMethod(ACC_PUBLIC, "deserialze"
+        MethodVisitor mw = cw.visitMethod(ACC_PUBLIC, "deserialize"
                                           , "(Lcom/alibaba/fastjson/parser/DefaultJSONParser;Ljava/lang/reflect/Type;Ljava/lang/Object;)Ljava/lang/Object;"
                                           , null, null);
 
@@ -309,7 +309,7 @@ public class ASMDeserializerFactory implements Opcodes {
 
         defineVarLexer(context, mw);
 
-        _isEnable(context, mw, Feature.SortFeidFastMatch);
+        _isEnable(context, mw, Feature.SortFieldFastMatch);
         mw.visitJumpInsn(IFEQ, super_);
 
         {
@@ -331,12 +331,12 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitVarInsn(ALOAD, 1);
             mw.visitVarInsn(ALOAD, 2);
             mw.visitVarInsn(ALOAD, 3);
-            mw.visitMethodInsn(INVOKESPECIAL, context.getClassName(), "deserialzeArrayMapping",
+            mw.visitMethodInsn(INVOKESPECIAL, context.getClassName(), "deserializeArrayMapping",
                                "(Lcom/alibaba/fastjson/parser/DefaultJSONParser;Ljava/lang/reflect/Type;Ljava/lang/Object;)Ljava/lang/Object;");
             mw.visitInsn(ARETURN);
 
             mw.visitLabel(next_);
-            // deserialzeArrayMapping
+            // deserializeArrayMapping
         }
 
         mw.visitVarInsn(ALOAD, context.var("lexer"));
@@ -527,7 +527,7 @@ public class ASMDeserializerFactory implements Opcodes {
                                        "([CLjava/lang/Class;)" + getDesc(Collection.class));
                     mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
                 } else {
-                    _deserialze_list_obj(context, mw, reset_, fieldInfo, fieldClass, itemClass, i);
+                    _deserialize_list_obj(context, mw, reset_, fieldInfo, fieldClass, itemClass, i);
 
                     if (i == fieldListSize - 1) {
                         _deserialize_endCheck(context, mw, reset_);
@@ -535,7 +535,7 @@ public class ASMDeserializerFactory implements Opcodes {
                     continue;
                 }
             } else {
-                _deserialze_obj(context, mw, reset_, fieldInfo, fieldClass, i);
+                _deserialize_obj(context, mw, reset_, fieldInfo, fieldClass, i);
 
                 if (i == fieldListSize - 1) {
                     _deserialize_endCheck(context, mw, reset_);
@@ -624,7 +624,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ALOAD, 1);
         mw.visitVarInsn(ALOAD, 2);
         mw.visitVarInsn(ALOAD, 3);
-        mw.visitMethodInsn(INVOKESPECIAL, "com/alibaba/fastjson/parser/deserializer/ASMJavaBeanDeserializer", "deserialze",
+        mw.visitMethodInsn(INVOKESPECIAL, "com/alibaba/fastjson/parser/deserializer/ASMJavaBeanDeserializer", "deserialize",
                            "(Lcom/alibaba/fastjson/parser/DefaultJSONParser;Ljava/lang/reflect/Type;Ljava/lang/Object;)Ljava/lang/Object;");
         mw.visitInsn(ARETURN);
 
@@ -810,7 +810,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/parser/JSONLexerBase", "nextToken", "(I)V");
     }
 
-    private void _deserialze_list_obj(Context context, MethodVisitor mw, Label reset_, FieldInfo fieldInfo,
+    private void _deserialize_list_obj(Context context, MethodVisitor mw, Label reset_, FieldInfo fieldInfo,
                                       Class<?> fieldClass, Class<?> itemType, int i) {
         Label _end_if = new Label();
 
@@ -878,7 +878,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitFieldInsn(GETSTATIC, "com/alibaba/fastjson/parser/JSONToken", "RBRACKET", "I");
         mw.visitJumpInsn(IF_ICMPEQ, loop_end_);
 
-        // Object value = itemDeserializer.deserialze(parser, null);
+        // Object value = itemDeserializer.deserialize(parser, null);
         // array.add(value);
 
         mw.visitVarInsn(ALOAD, 0);
@@ -888,7 +888,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc(itemType)));
         mw.visitVarInsn(ILOAD, context.var("i"));
         mw.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
-        mw.visitMethodInsn(INVOKEINTERFACE, "com/alibaba/fastjson/parser/deserializer/ObjectDeserializer", "deserialze",
+        mw.visitMethodInsn(INVOKEINTERFACE, "com/alibaba/fastjson/parser/deserializer/ObjectDeserializer", "deserialize",
                            "(Lcom/alibaba/fastjson/parser/DefaultJSONParser;Ljava/lang/reflect/Type;Ljava/lang/Object;)Ljava/lang/Object;");
         mw.visitVarInsn(ASTORE, context.var("list_item_value"));
 
@@ -996,7 +996,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitTypeInsn(CHECKCAST, getType(fieldClass)); // cast
     }
 
-    private void _deserialze_obj(Context context, MethodVisitor mw, Label reset_, FieldInfo fieldInfo,
+    private void _deserialize_obj(Context context, MethodVisitor mw, Label reset_, FieldInfo fieldInfo,
                                  Class<?> fieldClass, int i) {
         Label matched_ = new Label();
         Label _end_if = new Label();
@@ -1074,7 +1074,7 @@ public class ASMDeserializerFactory implements Opcodes {
                                "(Ljava/lang/String;)Ljava/lang/reflect/Type;");
         }
         mw.visitLdcInsn(fieldInfo.getName());
-        mw.visitMethodInsn(INVOKEINTERFACE, "com/alibaba/fastjson/parser/deserializer/ObjectDeserializer", "deserialze",
+        mw.visitMethodInsn(INVOKEINTERFACE, "com/alibaba/fastjson/parser/deserializer/ObjectDeserializer", "deserialize",
                            "(Lcom/alibaba/fastjson/parser/DefaultJSONParser;Ljava/lang/reflect/Type;Ljava/lang/Object;)Ljava/lang/Object;");
         mw.visitTypeInsn(CHECKCAST, getType(fieldClass)); // cast
         mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));

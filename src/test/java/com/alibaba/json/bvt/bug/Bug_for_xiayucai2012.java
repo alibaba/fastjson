@@ -16,6 +16,6 @@ public class Bug_for_xiayucai2012 extends TestCase {
         JSONObject json = JSON.parseObject(text);
         Date date = json.getObject("date", Date.class);
         
-        Assert.assertEquals(new SimpleDateFormat(JSON.DEFFAULT_DATE_FORMAT).parse(json.getString("date")), date);
+        Assert.assertEquals(new SimpleDateFormat(JSON.DEFAULT_DATE_FORMAT).parse(json.getString("date")), date);
     }
 }

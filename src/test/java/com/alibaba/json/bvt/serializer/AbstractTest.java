@@ -31,7 +31,7 @@ public class AbstractTest extends TestCase {
     public static class ADeserializer implements ObjectDeserializer {
 
         @SuppressWarnings("unchecked")
-        public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+        public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
             JSONObject json = parser.parseObject();
             int num = json.getInteger("num");
             if (num == 1) {

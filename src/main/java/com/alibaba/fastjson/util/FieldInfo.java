@@ -25,13 +25,13 @@ public class FieldInfo implements Comparable<FieldInfo> {
     private final Type     fieldType;
     private final Class<?> declaringClass;
     private boolean        getOnly = false;
-    private int            serialzeFeatures;
+    private int            serializeFeatures;
     
     public FieldInfo(String name, Class<?> declaringClass, Class<?> fieldClass, Type fieldType, Field field){
         this(name, declaringClass, fieldClass, fieldType, field, 0, 0);
     }
 
-    public FieldInfo(String name, Class<?> declaringClass, Class<?> fieldClass, Type fieldType, Field field, int ordinal, int serialzeFeatures){
+    public FieldInfo(String name, Class<?> declaringClass, Class<?> fieldClass, Type fieldType, Field field, int ordinal, int serializeFeatures){
         this.name = name;
         this.declaringClass = declaringClass;
         this.fieldClass = fieldClass;
@@ -39,7 +39,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.method = null;
         this.field = field;
         this.ordinal = ordinal;
-        this.serialzeFeatures = serialzeFeatures;
+        this.serializeFeatures = serializeFeatures;
 
         if (field != null) {
             TypeUtils.setAccessible(field);
@@ -50,20 +50,20 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this(name, method, field, null, null);
     }
 
-    public FieldInfo(String name, Method method, Field field, int ordinal, int serialzeFeatures){
-        this(name, method, field, null, null, ordinal, serialzeFeatures);
+    public FieldInfo(String name, Method method, Field field, int ordinal, int serializeFeatures){
+        this(name, method, field, null, null, ordinal, serializeFeatures);
     }
 
     public FieldInfo(String name, Method method, Field field, Class<?> clazz, Type type){
         this(name, method, field, clazz, type, 0, 0);
     }
 
-    public FieldInfo(String name, Method method, Field field, Class<?> clazz, Type type, int ordinal, int serialzeFeatures){
+    public FieldInfo(String name, Method method, Field field, Class<?> clazz, Type type, int ordinal, int serializeFeatures){
         this.name = name;
         this.method = method;
         this.field = field;
         this.ordinal = ordinal;
-        this.serialzeFeatures = serialzeFeatures;
+        this.serializeFeatures = serializeFeatures;
 
         if (method != null) {
             TypeUtils.setAccessible(method);
@@ -319,7 +319,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
     
     public int getSerialzeFeatures() {
-        return serialzeFeatures;
+        return serializeFeatures;
     }
 
 }

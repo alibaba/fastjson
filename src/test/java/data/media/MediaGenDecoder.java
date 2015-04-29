@@ -3,11 +3,9 @@ package data.media;
 import java.lang.reflect.Type;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexerBase;
-import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParseContext;
 import com.alibaba.fastjson.parser.deserializer.ASMJavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
@@ -41,19 +39,19 @@ public class MediaGenDecoder extends ASMJavaBeanDeserializer implements ObjectDe
         return new Media();
         
     }
-    public Object deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+    public Object deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
         JSONLexerBase lexer = (JSONLexerBase) parser.getLexer();
         
-        if (!lexer.isEnabled(Feature.SortFeidFastMatch)) {
-            return super.deserialze(parser, type, fieldName);
+        if (!lexer.isEnabled(Feature.SortFieldFastMatch)) {
+            return super.deserialize(parser, type, fieldName);
         }
         
         if (isSupportArrayToBean(lexer)) {
-            // deserialzeArrayMapping
+            // deserializeArrayMapping
         }
         
         if (lexer.scanType("Department") == JSONLexerBase.NOT_MATCH) {
-            return super.deserialze(parser, type, fieldName);
+            return super.deserialize(parser, type, fieldName);
         }
         
         ParseContext mark_context = parser.getContext();

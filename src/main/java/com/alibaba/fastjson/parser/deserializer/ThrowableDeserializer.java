@@ -21,7 +21,7 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
         JSONLexer lexer = parser.getLexer();
         
         if (lexer.token() == JSONToken.NULL) {
@@ -87,7 +87,7 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
                 }
                 lexer.nextToken();
             } else if ("cause".equals(key)) {
-                cause = deserialze(parser, null, "cause");
+                cause = deserialize(parser, null, "cause");
             } else if ("stackTrace".equals(key)) {
                 stackTrace = parser.parseObject(StackTraceElement[].class);
             } else {

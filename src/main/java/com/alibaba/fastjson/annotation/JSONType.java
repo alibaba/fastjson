@@ -21,7 +21,7 @@ public @interface JSONType {
     
     String[] ignores() default {};
 
-    SerializerFeature[] serialzeFeatures() default {};
+    SerializerFeature[] serializeFeatures() default {};
     Feature[] parseFeatures() default {};
     
     boolean alphabetic() default true;

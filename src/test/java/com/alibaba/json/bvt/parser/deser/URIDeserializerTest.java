@@ -19,7 +19,7 @@ public class URIDeserializerTest extends TestCase {
         URICodec deser = new URICodec();
         Assert.assertEquals(JSONToken.LITERAL_STRING, deser.getFastMatchToken());
 
-        Assert.assertNull(deser.deserialze(parser, null, null));
+        Assert.assertNull(deser.deserialize(parser, null, null));
     }
 
 }

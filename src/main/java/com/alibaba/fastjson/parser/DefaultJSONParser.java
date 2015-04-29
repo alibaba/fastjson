@@ -80,7 +80,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 
     private final static Set<Class<?>> primitiveClasses   = new HashSet<Class<?>>();
 
-    private String                     dateFormatPattern  = JSON.DEFFAULT_DATE_FORMAT;
+    private String                     dateFormatPattern  = JSON.DEFAULT_DATE_FORMAT;
     private DateFormat                 dateFormat;
 
     protected final JSONLexer          lexer;
@@ -323,7 +323,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                     }
 
                     ObjectDeserializer deserializer = config.getDeserializer(clazz);
-                    return deserializer.deserialze(this, clazz, fieldName);
+                    return deserializer.deserialize(this, clazz, fieldName);
                 }
 
                 if (key == "$ref" && !isEnabled(Feature.DisableSpecialKeyDetect)) {
@@ -548,7 +548,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
         ObjectDeserializer derializer = config.getDeserializer(type);
 
         try {
-            return (T) derializer.deserialze(this, type, null);
+            return (T) derializer.deserialize(this, type, null);
         } catch (JSONException e) {
             throw e;
         } catch (Throwable e) {
@@ -609,7 +609,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                 }
 
                 if (int.class == type) {
-                    Object val = IntegerCodec.instance.deserialze(this, null, null);
+                    Object val = IntegerCodec.instance.deserialize(this, null, null);
                     array.add(val);
                 } else if (String.class == type) {
                     String value;
@@ -632,7 +632,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                         lexer.nextToken();
                         val = null;
                     } else {
-                        val = deserializer.deserialze(this, type, i);
+                        val = deserializer.deserialize(this, type, i);
                     }
                     array.add(val);
                     checkListResolve(array);
@@ -718,7 +718,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 
                         if (lexer.token() != JSONToken.RBRACKET) {
                             for (;;) {
-                                Object item = derializer.deserialze(this, type, null);
+                                Object item = derializer.deserialize(this, type, null);
                                 varList.add(item);
 
                                 if (lexer.token() == JSONToken.COMMA) {
@@ -734,7 +734,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                         value = TypeUtils.cast(varList, type, config);
                     } else {
                         ObjectDeserializer derializer = config.getDeserializer(type);
-                        value = derializer.deserialze(this, type, null);
+                        value = derializer.deserialize(this, type, null);
                     }
                 }
             }
@@ -819,18 +819,18 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                 Object fieldValue;
                 if (fieldClass == int.class) {
                     lexer.nextTokenWithColon(JSONToken.LITERAL_INT);
-                    fieldValue = IntegerCodec.instance.deserialze(this, fieldType, null);
+                    fieldValue = IntegerCodec.instance.deserialize(this, fieldType, null);
                 } else if (fieldClass == String.class) {
                     lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
-                    fieldValue = StringCodec.deserialze(this);
+                    fieldValue = StringCodec.deserialize(this);
                 } else if (fieldClass == long.class) {
                     lexer.nextTokenWithColon(JSONToken.LITERAL_INT);
-                    fieldValue = LongCodec.instance.deserialze(this, fieldType, null);
+                    fieldValue = LongCodec.instance.deserialize(this, fieldType, null);
                 } else {
                     ObjectDeserializer fieldValueDeserializer = config.getDeserializer(fieldClass, fieldType);
 
                     lexer.nextTokenWithColon(fieldValueDeserializer.getFastMatchToken());
-                    fieldValue = fieldValueDeserializer.deserialze(this, fieldType, null);
+                    fieldValue = fieldValueDeserializer.deserialize(this, fieldType, null);
                 }
 
                 fieldDeser.setValue(object, fieldValue);

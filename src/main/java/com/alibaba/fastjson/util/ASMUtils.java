@@ -123,7 +123,7 @@ public class ASMUtils {
 
         int index = 0;
         for (;;) {
-            Object item = deser.deserialze(parser, type, index);
+            Object item = deser.deserialize(parser, type, index);
             collection.add(item);
             index++;
             if (lexer.token() == JSONToken.COMMA) {

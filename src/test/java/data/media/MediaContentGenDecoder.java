@@ -29,19 +29,19 @@ public class MediaContentGenDecoder extends ASMJavaBeanDeserializer implements O
         return new MediaContent();
         
     }
-    public Object deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+    public Object deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
         JSONLexerBase lexer = (JSONLexerBase) parser.getLexer();
         
-        if (!lexer.isEnabled(Feature.SortFeidFastMatch)) {
-            return super.deserialze(parser, type, fieldName);
+        if (!lexer.isEnabled(Feature.SortFieldFastMatch)) {
+            return super.deserialize(parser, type, fieldName);
         }
         
         if (isSupportArrayToBean(lexer)) {
-            // deserialzeArrayMapping
+            // deserializeArrayMapping
         }
         
         if (lexer.scanType("Department") == JSONLexerBase.NOT_MATCH) {
-            return super.deserialze(parser, type, fieldName);
+            return super.deserialize(parser, type, fieldName);
         }
         
         ParseContext mark_context = parser.getContext();
@@ -81,7 +81,7 @@ public class MediaContentGenDecoder extends ASMJavaBeanDeserializer implements O
                             if (lexer.token() == JSONToken.RBRACKET) {
                                 break;
                             }
-                            data.media.Image itemValue = images_gen_list_item_deser__.deserialze(parser, images_gen_list_item_type__, i);
+                            data.media.Image itemValue = images_gen_list_item_deser__.deserialize(parser, images_gen_list_item_type__, i);
                             images_gen.add(itemValue);
                             parser.checkListResolve(images_gen);
                             if (lexer.token() == JSONToken.COMMA) {
@@ -118,7 +118,7 @@ public class MediaContentGenDecoder extends ASMJavaBeanDeserializer implements O
             if (media_gen_deser__ == null) {
                 media_gen_deser__ = parser.getConfig().getDeserializer(data.media.Media.class);
             }
-                media_gen_deser__.deserialze(parser, data.media.Media.class,"media");
+                media_gen_deser__.deserialize(parser, data.media.Media.class,"media");
                 if(parser.getResolveStatus() == DefaultJSONParser.NeedToResolve) {
                     ResolveTask resolveTask = parser.getLastResolveTask();
                     resolveTask.setOwnerContext(parser.getContext());

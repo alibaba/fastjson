@@ -38,7 +38,7 @@ public class UUIDCodec implements ObjectSerializer, ObjectDeserializer {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type clazz, Object fieldName) {
         
         String name = (String) parser.parse();
         

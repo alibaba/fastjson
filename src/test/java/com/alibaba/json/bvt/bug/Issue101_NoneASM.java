@@ -20,7 +20,7 @@ public class Issue101_NoneASM extends TestCase {
         Assert.assertEquals("{\"a\":{},\"b\":{},\"c\":{}}", text);
     }
 
-    @JSONType(serialzeFeatures=SerializerFeature.DisableCircularReferenceDetect)
+    @JSONType(serializeFeatures=SerializerFeature.DisableCircularReferenceDetect)
     private static class VO {
 
         private Object a;

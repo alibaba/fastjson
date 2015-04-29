@@ -15,24 +15,24 @@ public class TestNull extends TestCase {
     public void test_byte() throws Exception {
         DefaultExtJSONParser parser = new DefaultExtJSONParser("null", ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
 
-        Assert.assertNull(new NumberDeserializer().deserialze(parser, null, null));
+        Assert.assertNull(new NumberDeserializer().deserialize(parser, null, null));
     }
     
     public void test_char() throws Exception {
         DefaultExtJSONParser parser = new DefaultExtJSONParser("null", ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
         
-        Assert.assertNull(new CharacterCodec().deserialze(parser, null, null));
+        Assert.assertNull(new CharacterCodec().deserialize(parser, null, null));
     }
     
     public void test_short() throws Exception {
         DefaultExtJSONParser parser = new DefaultExtJSONParser("null", ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
         
-        Assert.assertNull(new NumberDeserializer().deserialze(parser, null, null));
+        Assert.assertNull(new NumberDeserializer().deserialize(parser, null, null));
     }
     
     public void test_null() throws Exception {
         DefaultExtJSONParser parser = new DefaultExtJSONParser("null", ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
         
-        Assert.assertNull(new NumberDeserializer().deserialze(parser, null, null));
+        Assert.assertNull(new NumberDeserializer().deserialize(parser, null, null));
     }
 }

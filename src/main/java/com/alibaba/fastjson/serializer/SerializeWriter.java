@@ -680,8 +680,16 @@ public final class SerializeWriter extends Writer {
                             && IOUtils.specicalFlags_doubleQuotes[ch] != 0 //
                             || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
                             write('\\');
-                            write(replaceChars[(int) ch]);
-                            continue;
+                            if (IOUtils.specicalFlags_doubleQuotes[ch] == 4) {
+                                write('u');
+                                write(IOUtils.DIGITS[ch >>> 12 & 15]);
+                                write(IOUtils.DIGITS[ch >>> 8 & 15]);
+                                write(IOUtils.DIGITS[ch >>> 4 & 15]);
+                                write(IOUtils.DIGITS[ch & 15]);
+                            } else {
+                                write(IOUtils.replaceChars[ch]);
+                            }
+		            continue;
                         }
                     }
 

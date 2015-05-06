@@ -49,14 +49,12 @@ public class SerializeWriterTest {
 
     @Test
     public void testWriteLiteSpecilaStr() throws UnsupportedEncodingException {
-        // make special chars
-
         this.doTestWrite(this.makeSpecialChars());
     }
 
     private String makeSpecialChars() {
         StringBuilder strBuilder = new StringBuilder(128);
-        for (char c = 127; c < 160; c++) {
+        for (char c = 128; c <= 160; c++) {
             strBuilder.append(c);
         }
         return strBuilder.toString();

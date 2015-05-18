@@ -208,6 +208,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
                         token = EOF;
                         pos = bp = eofPos;
+                    } else if (isEnabled(Feature.AllowUnQuotedFieldValues)) {
+                        scanStringUnQuoted();
                     } else {
                         lexError("illegal.char", String.valueOf((int) ch));
                         next();
@@ -1325,6 +1327,137 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             matchStat = NOT_MATCH;
             return strVal;
         }
+    }
+
+    public final void scanStringUnQuoted() {
+        bp--;
+        np = bp;
+        hasSpecial = false;
+        char ch;
+        for (;;) {
+            ch = next();
+
+            if (ch == ',') {
+                break;
+            }
+
+            if (ch == EOI) {
+                throw new JSONException("unclosed string : " + ch);
+            }
+
+            if (ch == '\\') {
+                if (!hasSpecial) {
+                    hasSpecial = true;
+
+                    if (sp >= sbuf.length) {
+                        int newCapcity = sbuf.length * 2;
+                        if (sp > newCapcity) {
+                            newCapcity = sp;
+                        }
+                        char[] newsbuf = new char[newCapcity];
+                        System.arraycopy(sbuf, 0, newsbuf, 0, sbuf.length);
+                        sbuf = newsbuf;
+                    }
+
+                    copyTo(np + 1, sp, sbuf);
+                    // text.getChars(np + 1, np + 1 + sp, sbuf, 0);
+                    // System.arraycopy(buf, np + 1, sbuf, 0, sp);
+                }
+
+                ch = next();
+
+                switch (ch) {
+                    case '0':
+                        putChar('\0');
+                        break;
+                    case '1':
+                        putChar('\1');
+                        break;
+                    case '2':
+                        putChar('\2');
+                        break;
+                    case '3':
+                        putChar('\3');
+                        break;
+                    case '4':
+                        putChar('\4');
+                        break;
+                    case '5':
+                        putChar('\5');
+                        break;
+                    case '6':
+                        putChar('\6');
+                        break;
+                    case '7':
+                        putChar('\7');
+                        break;
+                    case 'b': // 8
+                        putChar('\b');
+                        break;
+                    case 't': // 9
+                        putChar('\t');
+                        break;
+                    case 'n': // 10
+                        putChar('\n');
+                        break;
+                    case 'v': // 11
+                        putChar('\u000B');
+                        break;
+                    case 'f': // 12
+                    case 'F':
+                        putChar('\f');
+                        break;
+                    case 'r': // 13
+                        putChar('\r');
+                        break;
+                    case '"': // 34
+                        putChar('"');
+                        break;
+                    case '\'': // 39
+                        putChar('\'');
+                        break;
+                    case '/': // 47
+                        putChar('/');
+                        break;
+                    case '\\': // 92
+                        putChar('\\');
+                        break;
+                    case 'x':
+                        char x1 = ch = next();
+                        char x2 = ch = next();
+
+                        int x_val = digits[x1] * 16 + digits[x2];
+                        char x_char = (char) x_val;
+                        putChar(x_char);
+                        break;
+                    case 'u':
+                        char u1 = ch = next();
+                        char u2 = ch = next();
+                        char u3 = ch = next();
+                        char u4 = ch = next();
+                        int val = Integer.parseInt(new String(new char[] { u1, u2, u3, u4 }), 16);
+                        putChar((char) val);
+                        break;
+                    default:
+                        this.ch = ch;
+                        throw new JSONException("unclosed string : " + ch);
+                }
+                continue;
+            }
+
+            if (!hasSpecial) {
+                sp++;
+                continue;
+            }
+
+            if (sp == sbuf.length) {
+                putChar(ch);
+            } else {
+                sbuf[sp++] = ch;
+            }
+        }
+
+        token = JSONToken.LITERAL_STRING;
     }
 
     public String scanFieldSymbol(char[] fieldName, final SymbolTable symbolTable) {
@@ -2490,7 +2623,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             throw new JSONException("scan true error");
         }
     }
-    
+
     public final void scanNULL() {
         if (ch != 'N') {
             throw new JSONException("error parse NULL");
@@ -2518,7 +2651,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             return;
         }
     }
-    
+
     public final void scanUndefined() {
         if (ch != 'u') {
             throw new JSONException("error parse false");

@@ -32,6 +32,8 @@ public enum Feature {
 	 * 
 	 */
     AllowUnQuotedFieldNames,
+
+    AllowUnQuotedFieldValues,
     /**
 	 * 
 	 */

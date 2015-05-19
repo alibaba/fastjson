@@ -9,6 +9,7 @@ package com.dean.test;
 */
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializeWriter;
@@ -38,15 +39,16 @@ public class Test {
         try {
             JSONSerializer serializer = new JSONSerializer(out);
             serializer.config(SerializerFeature.QuoteFieldNames, false);
+            serializer.config(SerializerFeature.UnQuoteFieldValues, true);
 
             serializer.write(school);
 
             String json = out.toString();
             System.out.println(json);
 
-            School school1 = JSON.parseObject(json, School.class);
+            School school1 = JSON.parseObject(json, School.class, Feature.AllowUnQuotedFieldValues);
 
-            System.out.println(school1);
+            System.out.println(JSON.toJSONString(school1));
 
         } finally {
             out.close();

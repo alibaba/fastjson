@@ -21,7 +21,7 @@ package com.alibaba.fastjson.serializer;
 public enum SerializerFeature {
     QuoteFieldNames,
 
-    QuoteFieldValues,
+    UnQuoteFieldValues,
     /**
      * 
      */

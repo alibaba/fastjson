@@ -163,7 +163,7 @@ public final class SerializeWriter extends Writer {
 
     /**
      * Writes characters to the buffer.
-     * 
+     *
      * @param c the data to be written
      * @param off the start offset in the data
      * @param len the number of chars that are written
@@ -213,7 +213,7 @@ public final class SerializeWriter extends Writer {
 
     /**
      * Write a portion of a string to the buffer.
-     * 
+     *
      * @param str String to be written from
      * @param off Offset from which to start reading characters
      * @param len Number of characters to be written
@@ -241,7 +241,7 @@ public final class SerializeWriter extends Writer {
 
     /**
      * Writes the contents of the buffer to another character stream.
-     * 
+     *
      * @param out the output stream to write to
      * @throws IOException If an I/O error occurs.
      */
@@ -287,7 +287,7 @@ public final class SerializeWriter extends Writer {
 
     /**
      * Returns a copy of the input data.
-     * 
+     *
      * @return an array of chars copied from the input data.
      */
     public char[] toCharArray() {
@@ -376,7 +376,7 @@ public final class SerializeWriter extends Writer {
         int bytesLen = bytes.length;
         final boolean singleQuote = isEnabled(SerializerFeature.UseSingleQuotes);
         final char quote = singleQuote ? '\'' : '"';
-        
+
         if (bytesLen == 0) {
             String emptyString = singleQuote ? "''" : "\"\"";
             write(emptyString);
@@ -1247,10 +1247,10 @@ public final class SerializeWriter extends Writer {
             if (value == null) {
                 writeNull();
             } else {
-                if (isEnabled(SerializerFeature.QuoteFieldValues)) {
-                    writeString(value);
+                if (isEnabled(SerializerFeature.UnQuoteFieldValues)) {
+                    writeValueWithNoQuoteIfHasSpecial(value);
                 } else {
-                    writeValueWithDoubleQuoteIfHasSpecial(value);
+                    writeString(value);
                 }
             }
         }
@@ -1390,7 +1390,7 @@ public final class SerializeWriter extends Writer {
                             int destPos = lastSpecialIndex + 6;
                             int LengthOfCopy = valueEnd - lastSpecialIndex - 1;
                             System.arraycopy(buf, srcPos, buf, destPos, LengthOfCopy);
-                            
+
                             int bufIndex = lastSpecialIndex;
                             buf[bufIndex++] = '\\';
                             buf[bufIndex++] = 'u';
@@ -1736,17 +1736,16 @@ public final class SerializeWriter extends Writer {
         buf[count - 1] = ':';
     }
 
-    private void writeValueWithDoubleQuoteIfHasSpecial(String text) {
+    private void writeValueWithNoQuoteIfHasSpecial(String text) {
         final byte[] specicalFlags_doubleQuotes = IOUtils.specicalFlags_doubleQuotes;
 
         int len = text.length();
-        int newcount = count + len + 1;
+        int newcount = count + len;
         if (newcount > buf.length) {
             if (writer != null) {
                 if (len == 0) {
                     write('"');
                     write('"');
-                    write(':');
                     return;
                 }
 
@@ -1774,20 +1773,18 @@ public final class SerializeWriter extends Writer {
                 if (hasSpecial) {
                     write('"');
                 }
-                write(':');
                 return;
             }
             expandCapacity(newcount);
         }
 
         if (len == 0) {
-            int newCount = count + 3;
+            int newCount = count + 2;
             if (newCount > buf.length) {
-                expandCapacity(count + 3);
+                expandCapacity(count + 2);
             }
             buf[count++] = '"';
             buf[count++] = '"';
-            buf[count++] = ':';
             return;
         }
 
@@ -1803,13 +1800,13 @@ public final class SerializeWriter extends Writer {
             char ch = buf[i];
             if (ch < specicalFlags_doubleQuotes.length && specicalFlags_doubleQuotes[ch] != 0) {
                 if (!hasSpecial) {
-                    newcount += 3;
+                    newcount += 2;
                     if (newcount > buf.length) {
                         expandCapacity(newcount);
                     }
                     count = newcount;
 
-                    System.arraycopy(buf, i + 1, buf, i + 3, end - i - 1);
+                    System.arraycopy(buf, i + 1, buf, i + 2, end - i - 1);
                     System.arraycopy(buf, 0, buf, 1, i);
                     buf[start] = '"';
                     buf[++i] = '\\';
@@ -1833,7 +1830,6 @@ public final class SerializeWriter extends Writer {
             }
         }
 
-        buf[count - 1] = ':';
     }
 
     private void writeKeyWithSingleQuoteIfHasSpecial(String text) {

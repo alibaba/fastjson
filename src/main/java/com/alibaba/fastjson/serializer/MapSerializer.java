@@ -160,7 +160,8 @@ public class MapSerializer implements ObjectSerializer {
                     }
 
                     if (out.isEnabled(SerializerFeature.BrowserCompatible)
-                        || out.isEnabled(SerializerFeature.WriteNonStringKeyAsString)) {
+                        || out.isEnabled(SerializerFeature.WriteNonStringKeyAsString)
+                        || out.isEnabled(SerializerFeature.BrowserSecure)) {
                         String strEntryKey = JSON.toJSONString(entryKey);
                         serializer.write(strEntryKey);
                     } else {

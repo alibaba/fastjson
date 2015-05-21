@@ -121,7 +121,12 @@ public enum SerializerFeature {
     /**
      * @since 1.1.42
      */
-    NotWriteDefaultValue
+    NotWriteDefaultValue,
+    
+    /**
+     * @since 1.2.6
+     */
+    BrowserSecure,
     ;
 
     private SerializerFeature(){

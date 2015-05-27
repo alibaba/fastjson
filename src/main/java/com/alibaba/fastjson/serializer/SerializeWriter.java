@@ -642,7 +642,18 @@ public final class SerializeWriter extends Writer {
                 for (int i = 0; i < text.length(); ++i) {
                     char ch = text.charAt(i);
 
-                    if (isEnabled(SerializerFeature.BrowserCompatible)) {
+                    if (isEnabled(SerializerFeature.BrowserSecure)) {
+                        if (!(ch >= '0' && ch <= '9') && !(ch >= 'a' && ch <= 'z') && !(ch >= 'A' && ch <= 'Z')
+                            && !(ch == ',') && !(ch == '.') && !(ch == '_')) {
+                            write('\\');
+                            write('u');
+                            write(IOUtils.DIGITS[(ch >>> 12) & 15]);
+                            write(IOUtils.DIGITS[(ch >>> 8) & 15]);
+                            write(IOUtils.DIGITS[(ch >>> 4) & 15]);
+                            write(IOUtils.DIGITS[ch & 15]);
+                            continue;
+                        }
+                    } else if (isEnabled(SerializerFeature.BrowserCompatible)) {
                         if (ch == '\b' //
                             || ch == '\f' //
                             || ch == '\n' //
@@ -680,7 +691,15 @@ public final class SerializeWriter extends Writer {
                             && IOUtils.specicalFlags_doubleQuotes[ch] != 0 //
                             || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
                             write('\\');
-                            write(replaceChars[(int) ch]);
+                            if (IOUtils.specicalFlags_doubleQuotes[ch] == 4) {
+                                write('u');
+                                write(IOUtils.DIGITS[ch >>> 12 & 15]);
+                                write(IOUtils.DIGITS[ch >>> 8 & 15]);
+                                write(IOUtils.DIGITS[ch >>> 4 & 15]);
+                                write(IOUtils.DIGITS[ch & 15]);
+                            } else {
+                                write(IOUtils.replaceChars[ch]);
+                            }
                             continue;
                         }
                     }
@@ -705,6 +724,51 @@ public final class SerializeWriter extends Writer {
 
         count = newcount;
 
+        if (isEnabled(SerializerFeature.BrowserSecure)) {
+            int lastSpecialIndex = -1;
+
+            for (int i = start; i < end; ++i) {
+                char ch = buf[i];
+
+                if (!(ch >= '0' && ch <= '9') && !(ch >= 'a' && ch <= 'z') && !(ch >= 'A' && ch <= 'Z')
+                        && !(ch == ',') && !(ch == '.') && !(ch == '_')) {
+                    lastSpecialIndex = i;
+                    newcount += 5;
+                    continue;
+                }
+            }
+
+            if (newcount > buf.length) {
+                expandCapacity(newcount);
+            }
+            count = newcount;
+
+            for (int i = lastSpecialIndex; i >= start; --i) {
+                char ch = buf[i];
+
+                if (!(ch >= '0' && ch <= '9') && !(ch >= 'a' && ch <= 'z') && !(ch >= 'A' && ch <= 'Z') && !(ch == ',')
+                    && !(ch == '.') && !(ch == '_')) {
+                    System.arraycopy(buf, i + 1, buf, i + 6, end - i - 1);
+                    buf[i] = '\\';
+                    buf[i + 1] = 'u';
+                    buf[i + 2] = IOUtils.DIGITS[(ch >>> 12) & 15];
+                    buf[i + 3] = IOUtils.DIGITS[(ch >>> 8) & 15];
+                    buf[i + 4] = IOUtils.DIGITS[(ch >>> 4) & 15];
+                    buf[i + 5] = IOUtils.DIGITS[ch & 15];
+                    end += 5;
+                }
+            }
+
+            if (seperator != 0) {
+                buf[count - 2] = '\"';
+                buf[count - 1] = seperator;
+            } else {
+                buf[count - 1] = '\"';
+            }
+
+            return;
+        }
+        
         if (isEnabled(SerializerFeature.BrowserCompatible)) {
             int lastSpecialIndex = -1;
 
@@ -1192,7 +1256,11 @@ public final class SerializeWriter extends Writer {
                     writeString(value);
                 }
             } else {
-                if (isEnabled(SerializerFeature.BrowserCompatible)) {
+                if (isEnabled(SerializerFeature.BrowserSecure)) {
+                    write(seperator);
+                    writeStringWithDoubleQuote(name, ':');
+                    writeStringWithDoubleQuote(value, (char) 0);
+                } else if (isEnabled(SerializerFeature.BrowserCompatible)) {
                     write(seperator);
                     writeStringWithDoubleQuote(name, ':');
                     writeStringWithDoubleQuote(value, (char) 0);

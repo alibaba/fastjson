@@ -14,7 +14,7 @@ import com.alibaba.fastjson.annotation.JSONField;
  */
 public class Student {
 
-    @JSONField(name = "n")
+    @JSONField(name = "n\"m")
     private String name;
 
     @JSONField(name = "a")

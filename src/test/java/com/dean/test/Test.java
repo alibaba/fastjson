@@ -31,7 +31,7 @@ public class Test {
         List<Student> students = new ArrayList<Student>();
         students.add(student);
         School school = new School();
-        school.setName("zjgsu");
+        school.setName("zjg\n,\r\"su");
         school.setStudents(students);
 
         SerializeWriter out = new SerializeWriter();
@@ -48,7 +48,11 @@ public class Test {
 
             School school1 = JSON.parseObject(json, School.class, Feature.AllowUnQuotedFieldValues);
 
-            System.out.println(JSON.toJSONString(school1));
+            String json1 = JSON.toJSONString(school1);
+            System.out.println(json1);
+            School school2 = JSON.parseObject(json1, School.class);
+
+            System.out.println(school2);
 
         } finally {
             out.close();

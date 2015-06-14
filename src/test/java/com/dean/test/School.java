@@ -9,6 +9,7 @@ package com.dean.test;/**
 import com.alibaba.fastjson.annotation.JSONField;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author shuangxi.dsx
@@ -21,6 +22,9 @@ public class School {
 
     @JSONField(name = "ss")
     private List<Student> students;
+
+    @JSONField(name = "cr")
+    private Map<String, String> classRoom;
 
     public String getName() {
         return name;
@@ -36,5 +40,13 @@ public class School {
 
     public void setStudents(List<Student> students) {
         this.students = students;
+    }
+
+    public Map<String, String> getClassRoom() {
+        return classRoom;
+    }
+
+    public void setClassRoom(Map<String, String> classRoom) {
+        this.classRoom = classRoom;
     }
 }

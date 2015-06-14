@@ -16,7 +16,9 @@ import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author shuangxi.dsx
@@ -30,9 +32,13 @@ public class Test {
         student.setSex(true);
         List<Student> students = new ArrayList<Student>();
         students.add(student);
+
+        Map<String, String> classRoom = new HashMap<String, String>();
+        classRoom.put("aaa", "111");
         School school = new School();
         school.setName("zjg\n,\r\"su");
         school.setStudents(students);
+        school.setClassRoom(classRoom);
 
         SerializeWriter out = new SerializeWriter();
 

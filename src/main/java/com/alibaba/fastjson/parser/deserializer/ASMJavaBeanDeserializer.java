@@ -25,8 +25,8 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-        return (T) serializer.deserialze(parser, type, fieldName);
+    public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
+        return (T) serializer.deserialize(parser, type, fieldName);
     }
 
     public int getFastMatchToken() {
@@ -97,7 +97,7 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
 
     public Object parseRest(DefaultJSONParser parser, Type type, Object fieldName, Object instance) {
 //        serializer.parseField(parser, key, object, objectType, fieldValues)
-        Object value = serializer.deserialze(parser, type, fieldName, instance);
+        Object value = serializer.deserialize(parser, type, fieldName, instance);
         
         return value;
     }

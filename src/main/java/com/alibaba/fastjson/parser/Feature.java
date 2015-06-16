@@ -63,7 +63,7 @@ public enum Feature {
     /**
      * @since 1.1.3
      */
-    SortFeidFastMatch,
+    SortFieldFastMatch,
     
     /**
      * @since 1.1.3

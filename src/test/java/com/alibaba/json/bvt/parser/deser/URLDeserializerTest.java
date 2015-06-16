@@ -21,7 +21,7 @@ public class URLDeserializerTest extends TestCase {
         Assert.assertEquals(null, JSON.parseObject("null", URL.class));
 
         DefaultExtJSONParser parser = new DefaultExtJSONParser("null", ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
-        Assert.assertEquals(null, URLCodec.instance.deserialze(parser, null, null));
+        Assert.assertEquals(null, URLCodec.instance.deserialize(parser, null, null));
         Assert.assertEquals(JSONToken.LITERAL_STRING, URLCodec.instance.getFastMatchToken());
 
     }

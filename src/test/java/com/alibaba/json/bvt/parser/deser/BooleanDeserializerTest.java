@@ -27,7 +27,7 @@ public class BooleanDeserializerTest extends TestCase {
         {
             DefaultJSONParser parser = new DefaultJSONParser("null", ParserConfig.getGlobalInstance(),
                                                              JSON.DEFAULT_PARSER_FEATURE);
-            Assert.assertEquals(null, BooleanCodec.instance.deserialze(parser, null, null));
+            Assert.assertEquals(null, BooleanCodec.instance.deserialize(parser, null, null));
             parser.close();
         }
         Assert.assertEquals(JSONToken.TRUE, BooleanCodec.instance.getFastMatchToken());

@@ -23,7 +23,7 @@ public class CurrencyCodec implements ObjectSerializer, ObjectDeserializer {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
         String text = (String) parser.parse();
 
         if (text == null || text.length() == 0) {

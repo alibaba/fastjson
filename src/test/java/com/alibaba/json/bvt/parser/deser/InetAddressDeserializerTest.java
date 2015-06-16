@@ -18,7 +18,7 @@ public class InetAddressDeserializerTest extends TestCase {
 
         InetAddressCodec deser = new InetAddressCodec();
 
-        Assert.assertNull(deser.deserialze(parser, null, null));
+        Assert.assertNull(deser.deserialize(parser, null, null));
     }
     
     public void test_string_null() throws Exception {
@@ -27,7 +27,7 @@ public class InetAddressDeserializerTest extends TestCase {
         
         StringCodec deser = new StringCodec();
         
-        Assert.assertNull(deser.deserialze(parser, null, null));
+        Assert.assertNull(deser.deserialize(parser, null, null));
     }
 
     public void test_error_0() throws Exception {
@@ -40,7 +40,7 @@ public class InetAddressDeserializerTest extends TestCase {
 
         Object value = null;
         try {
-            value = deser.deserialze(parser, null, null);
+            value = deser.deserialize(parser, null, null);
         } catch (Throwable ex) {
             error = ex;
         }

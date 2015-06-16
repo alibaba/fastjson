@@ -25,7 +25,7 @@ public class Jdk8DateCodec implements ObjectSerializer, ObjectDeserializer {
     public static final Jdk8DateCodec instance = new Jdk8DateCodec();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
         JSONLexer lexer = parser.getLexer();
         if (lexer.token() == JSONToken.LITERAL_STRING) {
             String text = lexer.stringVal();

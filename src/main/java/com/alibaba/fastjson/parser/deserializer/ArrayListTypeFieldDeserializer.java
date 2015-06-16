@@ -123,7 +123,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
                 break;
             }
 
-            Object val = itemTypeDeser.deserialze(parser, itemType, i);
+            Object val = itemTypeDeser.deserialize(parser, itemType, i);
             array.add(val);
 
             parser.checkListResolve(array);

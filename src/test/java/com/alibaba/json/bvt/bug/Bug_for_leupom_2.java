@@ -43,7 +43,7 @@ public class Bug_for_leupom_2 extends TestCase {
             return value;
         }
 
-        @JSONField(serialzeFeatures={SerializerFeature.WriteEnumUsingToString})
+        @JSONField(serializeFeatures={SerializerFeature.WriteEnumUsingToString})
         public TimeUnit getUnit() {
             return unit;
         }

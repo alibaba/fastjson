@@ -16,7 +16,7 @@ public class ClassDerializer implements ObjectDeserializer {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
         JSONLexer lexer = parser.getLexer();
         
         if (lexer.token() == JSONToken.NULL) {

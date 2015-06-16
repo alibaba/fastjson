@@ -16,7 +16,7 @@ public class JavaObjectDeserializer implements ObjectDeserializer {
     public final static JavaObjectDeserializer instance = new JavaObjectDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
         if (type instanceof GenericArrayType) {
             Type componentType = ((GenericArrayType) type).getGenericComponentType();
             if (componentType instanceof TypeVariable) {

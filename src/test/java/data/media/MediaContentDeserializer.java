@@ -13,7 +13,7 @@ public class MediaContentDeserializer implements ObjectDeserializer {
     private final char[] mediaPrefix = "\"media\":".toCharArray();
     private final char[] imagePrefix = "\"images\":".toCharArray();
 
-    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type clazz, Object fieldName) {
         final JSONScanner lexer = (JSONScanner) parser.getLexer();
         
         MediaContent object = new MediaContent();
@@ -22,10 +22,10 @@ public class MediaContentDeserializer implements ObjectDeserializer {
         if (mediaDeserializer == null) {
             //mediaDeserializer = parser.getMapping().getDeserializer(ObjectDeserializer.class);
         }
-        mediaDeserializer.deserialze(parser, clazz, null);
+        mediaDeserializer.deserialize(parser, clazz, null);
         
         lexer.matchField(imagePrefix);
-        imageDeserializer.deserialze(parser, clazz, null);
+        imageDeserializer.deserialize(parser, clazz, null);
         
 //        if (lexer.token() != JSONToken.RBRACE)
         

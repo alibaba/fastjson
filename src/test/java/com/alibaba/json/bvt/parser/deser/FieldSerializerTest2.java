@@ -70,7 +70,7 @@ public class FieldSerializerTest2 extends TestCase {
     private static class Entity {
 
         private int id;
-        @JSONField(name = "v", serialzeFeatures = { SerializerFeature.WriteMapNullValue })
+        @JSONField(name = "v", serializeFeatures = { SerializerFeature.WriteMapNullValue })
         private String        value;
 
         public int getId() {

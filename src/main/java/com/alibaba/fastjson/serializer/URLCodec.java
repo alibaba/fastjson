@@ -42,7 +42,7 @@ public class URLCodec implements ObjectSerializer, ObjectDeserializer {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type clazz, Object fieldName) {
         
         String url = (String) parser.parse();
         

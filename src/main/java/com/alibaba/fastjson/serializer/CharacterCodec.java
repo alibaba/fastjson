@@ -48,7 +48,7 @@ public class CharacterCodec implements ObjectSerializer, ObjectDeserializer {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type clazz, Object fieldName) {
         Object value = parser.parse();
 
         if (value == null) {

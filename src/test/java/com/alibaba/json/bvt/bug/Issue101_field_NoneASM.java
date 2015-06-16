@@ -34,7 +34,7 @@ public class Issue101_field_NoneASM extends TestCase {
             this.a = a;
         }
 
-        @JSONField(serialzeFeatures=SerializerFeature.DisableCircularReferenceDetect)
+        @JSONField(serializeFeatures=SerializerFeature.DisableCircularReferenceDetect)
         public Object getB() {
             return b;
         }

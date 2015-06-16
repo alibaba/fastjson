@@ -47,7 +47,7 @@ public class ObjectFieldSerializer extends FieldSerializer {
                 format = null;
             }
 
-            for (SerializerFeature feature : annotation.serialzeFeatures()) {
+            for (SerializerFeature feature : annotation.serializeFeatures()) {
                 if (feature == SerializerFeature.WriteNullNumberAsZero) {
                     writeNumberAsZero = true;
                 } else if (feature == SerializerFeature.WriteNullStringAsEmpty) {

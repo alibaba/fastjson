@@ -13,7 +13,7 @@ import com.alibaba.fastjson.serializer.TimeZoneCodec;
 public class TimeZoneDeserializerTest extends TestCase {
     public void test_timezone() throws Exception {
         DefaultExtJSONParser parser = new DefaultExtJSONParser("null", ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
-        Assert.assertEquals(null, TimeZoneCodec.instance.deserialze(parser, null, null));
+        Assert.assertEquals(null, TimeZoneCodec.instance.deserialize(parser, null, null));
         Assert.assertEquals(JSONToken.LITERAL_STRING, TimeZoneCodec.instance.getFastMatchToken());
     }
 }

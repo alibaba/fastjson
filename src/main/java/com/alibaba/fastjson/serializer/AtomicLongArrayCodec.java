@@ -57,7 +57,7 @@ public class AtomicLongArrayCodec implements ObjectSerializer, ObjectDeserialize
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type clazz, Object fieldName) {
         if (parser.getLexer().token() == JSONToken.NULL) {
             parser.getLexer().nextToken(JSONToken.COMMA);
             return null;

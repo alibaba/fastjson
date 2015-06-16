@@ -30,7 +30,7 @@ public class FeaturesTest3 extends TestCase {
 
         private Integer value;
 
-        @JSONField(serialzeFeatures = { SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullNumberAsZero })
+        @JSONField(serializeFeatures = { SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullNumberAsZero })
         public Integer getValue() {
             return value;
         }

@@ -44,7 +44,7 @@ public @interface JSONField {
 
     boolean deserialize() default true;
 
-    SerializerFeature[] serialzeFeatures() default {};
+    SerializerFeature[] serializeFeatures() default {};
 
     Feature[] parseFeatures() default {};
 }

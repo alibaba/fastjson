@@ -131,11 +131,9 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
             if (isWriteClassName(serializer, object, fieldType, fieldName)) {
                 Class<?> objClass = object.getClass();
-                if (objClass != fieldType) {
-                    out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
-                    serializer.write(object.getClass());
-                    commaFlag = true;
-                }
+                out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
+                serializer.write(object.getClass());
+                commaFlag = true;
             }
 
             char seperator = commaFlag ? ',' : '\0';

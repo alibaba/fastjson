@@ -183,6 +183,9 @@ public class DeserializeBeanInfo {
         }
 
         for (Method method : clazz.getMethods()) {
+            if (method.getDeclaringClass() == Object.class) {
+                continue;
+            }
             int ordinal = 0, serialzeFeatures = 0;
             String methodName = method.getName();
             if (methodName.length() < 4) {
@@ -307,6 +310,9 @@ public class DeserializeBeanInfo {
         }
 
         for (Method method : clazz.getMethods()) {
+            if (method.getDeclaringClass() == Object.class) {
+                continue;
+            }
             String methodName = method.getName();
             if (methodName.length() < 4) {
                 continue;

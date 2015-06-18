@@ -22,6 +22,9 @@ public class Student {
 
     @JSONField(name = "s")
     private boolean sex;
+    
+    @JSONField(name = "l")
+    private String alias;
 
     public String getName() {
         return name;
@@ -46,4 +49,13 @@ public class Student {
     public void setSex(boolean sex) {
         this.sex = sex;
     }
+
+    public String getAlias() {
+        return alias;
+    }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
+    
 }

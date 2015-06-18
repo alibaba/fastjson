@@ -8,29 +8,34 @@ package com.alibaba.json.test.unquotefields;
 * Created by dean on 15/5/15.
 */
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.parser.Feature;
-import com.alibaba.fastjson.serializer.JSONSerializer;
-import com.alibaba.fastjson.serializer.SerializeConfig;
-import com.alibaba.fastjson.serializer.SerializeWriter;
-import com.alibaba.fastjson.serializer.SerializerFeature;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Test;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.parser.Feature;
+import com.alibaba.fastjson.serializer.JSONSerializer;
+import com.alibaba.fastjson.serializer.SerializeWriter;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+
 /**
  * @author shuangxi.dsx
  * @version $$Id: Test, v 0.1 15/5/15 21:18 shuangxi.dsx Exp $$
  */
-public class Test {
+public class UnQuoteFieldsTest {
 
-    public static void main(String[] args) {
+    @Test
+    public void test() {
         Student student = new Student();
-        student.setName("dean");
+        student.setName("de,an");
         student.setAge(26);
         student.setSex(true);
+        student.setAlias("张三");
         List<Student> students = new ArrayList<Student>();
         students.add(student);
 
@@ -51,19 +56,32 @@ public class Test {
             serializer.write(school);
 
             String json = out.toString();
-            System.out.println(json);
 
             School school1 = JSON.parseObject(json, School.class, Feature.AllowUnQuotedFieldValues);
 
-            String json1 = JSON.toJSONString(school1);
-            System.out.println(json1);
-            School school2 = JSON.parseObject(json1, School.class);
-
-            System.out.println(school2);
-
+            checkValues(school, school1);
+        } catch(Exception e) {
+            e.printStackTrace();
         } finally {
             out.close();
+           
         }
 
+    }
+
+    /**
+     * 
+     * @param school
+     * @param school1
+     */
+    private void checkValues(School school, School school1) {
+        assertEquals(school.getName(), school1.getName());
+        List<Student> students = school.getStudents();
+        List<Student> students1 = school1.getStudents();
+        Student student = students.get(0);
+        Student student1 = students1.get(0);
+        assertEquals(student.getName(), student1.getName());
+        assertEquals(student.getAge(), student1.getAge());
+        assertEquals(student.getAlias(), student1.getAlias());
     }
 }

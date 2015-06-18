@@ -7,7 +7,7 @@ import org.junit.Test;
 import static org.junit.Assert.fail;
 
 public class Bug89 {
-    @Test
+    @UnQuoteFieldsTest
     public void testBug89() {
         try {
             String s = "{\"a\":з」∠)_,\"}";

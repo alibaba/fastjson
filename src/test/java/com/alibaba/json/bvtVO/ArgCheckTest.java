@@ -6,7 +6,7 @@ import com.alibaba.fastjson.JSON;
 
 public class ArgCheckTest {
 
-    @Test
+    @UnQuoteFieldsTest
     public void testJSON() {
         TestDTO dto = new TestDTO();
         dto.setChannel("channel");

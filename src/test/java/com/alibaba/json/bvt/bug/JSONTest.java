@@ -11,7 +11,7 @@ import com.alibaba.fastjson.JSONObject;
 @SuppressWarnings("unchecked")
 public class JSONTest {
 
-    @UnQuoteFieldsTest
+    @Test
     public void testParseArray() throws Exception {
         List list = new ArrayList();
         OuterEntry entry = new OuterEntry();
@@ -26,7 +26,7 @@ public class JSONTest {
         JSONArray array = JSONArray.parseArray(arrayString);// 这一步出错
     }
 
-    @UnQuoteFieldsTest
+    @Test
     public void testInnerEntry() throws Exception {
         List list = new ArrayList();
         InnerEntry entry = new InnerEntry();

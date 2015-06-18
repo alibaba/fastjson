@@ -132,7 +132,7 @@ public class TestFastJson {
         return (T) ois.readObject();
     }
 
-    @UnQuoteFieldsTest
+    @Test
     public void testSerializePerformance() throws IOException {
         Object obj = createTest();
 

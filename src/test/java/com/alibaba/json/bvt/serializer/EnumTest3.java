@@ -24,7 +24,7 @@ import java.util.Map;
  * @author bohr.qiu@gmail.com
  */
 public class EnumTest3 {
-	@UnQuoteFieldsTest
+	@Test
 	public void testDefault() throws Exception {
 		String json = JSON.toJSONString(Sex.M);
 		Assert.assertEquals(json, "\"M\"");
@@ -52,7 +52,7 @@ public class EnumTest3 {
 		Assert.assertEquals(json, "{\"M\":{\"sex\":\"M\"}}");
 	}
 
-    @UnQuoteFieldsTest
+    @Test
     public void testDefault1() throws Exception {
         JSON.DUMP_CLASS = "/Users/bohr/Downloads/tmp";
         String json = JSON.toJSONString(Sex.M, SerializerFeature.WriteEnumUsingToString);
@@ -81,13 +81,13 @@ public class EnumTest3 {
         Assert.assertEquals(json, "{\"男\":{\"sex\":\"男\"}}");
     }
 
-    @UnQuoteFieldsTest
+    @Test
     public void testName() throws Exception {
         Assert.assertEquals("\"男\"", JSON.toJSONString(Sex.M, SerializerFeature.WriteEnumUsingToString));
         Assert.assertEquals("\"女\"", JSON.toJSONString(Sex.W, SerializerFeature.WriteEnumUsingToString));
     }
 
-    @UnQuoteFieldsTest
+    @Test
     public void testWriterSerializerFeature() throws Exception {
         SerializeWriter writer=new SerializeWriter();
         writer.config(SerializerFeature.WriteEnumUsingToString,true);

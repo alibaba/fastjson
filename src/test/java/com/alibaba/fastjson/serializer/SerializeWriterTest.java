@@ -29,7 +29,7 @@ public class SerializeWriterTest {
     public void tearDown() throws Exception {
     }
 
-    @UnQuoteFieldsTest
+    @Test
     public void testWriteLiteBasicStr() throws UnsupportedEncodingException {
         String targetStr = new String(IOUtils.DIGITS);
         this.doTestWrite(targetStr);
@@ -47,7 +47,7 @@ public class SerializeWriterTest {
         return result;
     }
 
-    @UnQuoteFieldsTest
+    @Test
     public void testWriteLiteSpecilaStr() throws UnsupportedEncodingException {
         this.doTestWrite(this.makeSpecialChars());
     }
@@ -60,7 +60,7 @@ public class SerializeWriterTest {
         return strBuilder.toString();
     }
 
-    @UnQuoteFieldsTest
+    @Test
     public void testWriteLargeBasicStr() throws UnsupportedEncodingException {
         String tmp = new String(IOUtils.DIGITS);
         StringBuilder builder = new StringBuilder();
@@ -70,7 +70,7 @@ public class SerializeWriterTest {
         this.doTestWrite(builder.toString());
     }
 
-    @UnQuoteFieldsTest
+    @Test
     public void testWriteLargeSpecialStr() throws UnsupportedEncodingException {
 
         String tmp = this.makeSpecialChars();

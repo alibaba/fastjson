@@ -11,7 +11,7 @@ import com.alibaba.fastjson.JSON;
 
 public class GenericTypeTest extends TestCase {
 	
-	@UnQuoteFieldsTest
+	@Test
     public void testEmbeddedGenericType() throws Exception {
          
     	String jsonString = "{\"g\":{\"b\":{\"s\":'1'}}}";

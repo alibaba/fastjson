@@ -34,7 +34,7 @@ public class TestASM2 extends TestCase {
         v.setId(123);
         v.setName("刘加大");
         String text = JSON.toJSONString(v);
-//        Assert.assertEquals("{\"id\":123,\"name\":\"刘加大\"}", text);
+        Assert.assertEquals("{\"id\":123,\"name\":\"刘加大\"}", text);
     }
 
     public void test_4() throws Exception {

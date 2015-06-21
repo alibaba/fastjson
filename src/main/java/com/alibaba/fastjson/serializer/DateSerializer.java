@@ -39,7 +39,19 @@ public class DateSerializer implements ObjectSerializer {
             out.writeNull();
             return;
         }
-
+        
+        Date date = (Date) object;
+        
+        if (out.isEnabled(SerializerFeature.WriteDateUseDateFormat)) {
+            DateFormat format = serializer.getDateFormat();
+            if (format == null) {
+                format = new SimpleDateFormat(JSON.DEFFAULT_DATE_FORMAT);
+            }
+            String text = format.format(date);
+            out.writeString(text);
+            return;
+        }
+        
         if (out.isEnabled(SerializerFeature.WriteClassName)) {
             if (object.getClass() != fieldType) {
                 if (object.getClass() == java.util.Date.class) {
@@ -54,18 +66,6 @@ public class DateSerializer implements ObjectSerializer {
                 }
                 return;
             }
-        }
-        
-        Date date = (Date) object;
-        
-        if (out.isEnabled(SerializerFeature.WriteDateUseDateFormat)) {
-            DateFormat format = serializer.getDateFormat();
-            if (format == null) {
-                format = new SimpleDateFormat(JSON.DEFFAULT_DATE_FORMAT);
-            }
-            String text = format.format(date);
-            out.writeString(text);
-            return;
         }
 
         long time = date.getTime();

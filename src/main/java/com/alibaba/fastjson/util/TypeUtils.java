@@ -654,8 +654,13 @@ public class TypeUtils {
 
         if (obj instanceof String) {
             String strVal = (String) obj;
+            
             if (strVal.length() == 0) {
                 return null;
+            }
+            
+            if (clazz == java.util.Currency.class) {
+                return (T) java.util.Currency.getInstance(strVal);
             }
         }
 

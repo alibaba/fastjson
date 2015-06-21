@@ -59,6 +59,7 @@ import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.derbysoft.spitfire.fastjson.dto.Currency;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -654,8 +655,13 @@ public class TypeUtils {
 
         if (obj instanceof String) {
             String strVal = (String) obj;
+            
             if (strVal.length() == 0) {
                 return null;
+            }
+            
+            if (clazz == java.util.Currency.class) {
+                return (T) java.util.Currency.getInstance(strVal);
             }
         }
 

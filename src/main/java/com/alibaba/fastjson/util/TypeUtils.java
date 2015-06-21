@@ -59,7 +59,6 @@ import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.derbysoft.spitfire.fastjson.dto.Currency;
 
 /**
  * @author wenshao[szujobs@hotmail.com]

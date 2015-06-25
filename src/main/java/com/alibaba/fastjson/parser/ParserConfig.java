@@ -66,6 +66,7 @@ import java.util.regex.Pattern;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.asm.ASMException;
 import com.alibaba.fastjson.parser.deserializer.ASMDeserializerFactory;
@@ -497,6 +498,11 @@ public class ParserConfig {
                 if (!ASMUtils.checkName(fieldInfo.getMember().getName())) {
                     asmEnable = false;
                 }
+                
+                JSONField annotation = fieldInfo.getAnnotation(JSONField.class);
+                if (annotation != null && !ASMUtils.checkName(annotation.name())) {
+                	asmEnable = false;
+				}
             }
         }
 
@@ -505,7 +511,7 @@ public class ParserConfig {
                 asmEnable = false;
             }
         }
-
+        
         if (!asmEnable) {
             return new JavaBeanDeserializer(this, clazz, type);
         }

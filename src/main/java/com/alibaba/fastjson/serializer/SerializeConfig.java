@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
@@ -55,6 +56,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONStreamAware;
+import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.deserializer.Jdk8DateCodec;
 import com.alibaba.fastjson.util.ASMUtils;
@@ -107,11 +109,19 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 				asm = false;
 			}
 		}
-		
+
 		if (asm && !ASMUtils.checkName(clazz.getName())) {
 		    asm = false;
 		}
-
+		
+		for(Field field : clazz.getDeclaredFields()){
+			JSONField annotation = field.getAnnotation(JSONField.class);
+			if (annotation != null && !ASMUtils.checkName(annotation.name())) {
+				asm = false;
+				break;
+			}
+		}
+		
 		if (asm) {
 			try {
 			    ObjectSerializer asmSerializer = createASMSerializer(clazz);

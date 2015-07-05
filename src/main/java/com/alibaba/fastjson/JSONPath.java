@@ -1682,6 +1682,16 @@ public class JSONPath implements ObjectSerializer {
             return true;
         }
 
+        if (parent instanceof List) {
+            for (Object element : (List) parent) {
+                if (element == null) {
+                    continue;
+                }
+                setPropertyValue(element, name, value);
+            }
+            return true;
+        }
+
         ObjectDeserializer derializer = parserConfig.getDeserializer(parent.getClass());
 
         JavaBeanDeserializer beanDerializer = null;

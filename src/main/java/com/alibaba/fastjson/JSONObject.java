@@ -55,6 +55,8 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
 
     private final Map<String, Object> map;
 
+    private boolean beLinkedHashMap;
+
     public JSONObject(){
         this(DEFAULT_INITIAL_CAPACITY, false);
     }
@@ -74,8 +76,10 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     public JSONObject(int initialCapacity, boolean ordered){
         if (ordered) {
             map = new LinkedHashMap<String, Object>(initialCapacity);
+            beLinkedHashMap = true;
         } else {
             map = new HashMap<String, Object>(initialCapacity);
+            beLinkedHashMap = false;
         }
     }
 
@@ -320,7 +324,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
 
     @Override
     public Object clone() {
-        return new JSONObject(new HashMap<String, Object>(map));
+        return  beLinkedHashMap?new JSONObject(new LinkedHashMap<String, Object>(map)):new JSONObject(new HashMap<String, Object>(map));
     }
 
     public boolean equals(Object obj) {

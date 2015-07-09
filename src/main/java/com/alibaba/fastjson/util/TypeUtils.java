@@ -283,8 +283,8 @@ public class TypeUtils {
 
             if (strVal.indexOf('-') != -1) {
                 String format;
-                if (strVal.length() == JSON.DEFFAULT_DATE_FORMAT.length()) {
-                    format = JSON.DEFFAULT_DATE_FORMAT;
+                if (strVal.length() == JSON.DEFAULT_DATE_FORMAT.length()) {
+                    format = JSON.DEFAULT_DATE_FORMAT;
                 } else if (strVal.length() == 10) {
                     format = "yyyy-MM-dd";
                 } else if (strVal.length() == "yyyy-MM-dd HH:mm:ss".length()) {

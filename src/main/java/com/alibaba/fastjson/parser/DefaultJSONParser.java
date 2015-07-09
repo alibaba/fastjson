@@ -80,7 +80,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 
     private final static Set<Class<?>> primitiveClasses   = new HashSet<Class<?>>();
 
-    private String                     dateFormatPattern  = JSON.DEFFAULT_DATE_FORMAT;
+    private String                     dateFormatPattern  = JSON.DEFAULT_DATE_FORMAT;
     private DateFormat                 dateFormat;
 
     protected final JSONLexer          lexer;

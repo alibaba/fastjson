@@ -11,8 +11,13 @@ public class JSONExtract extends UDF {
     }
 
     public String evaluate(String jsonString, String path) throws Exception {
-        Object json = JSON.parse(jsonString);
-        Object result = JSONPath.eval(json, path);
-        return JSON.toJSONString(result);
+        try {
+            Object json = JSON.parse(jsonString);
+            Object result = JSONPath.eval(json, path);
+            return JSON.toJSONString(result);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
     }
 }

@@ -20,7 +20,14 @@ public class JSONTuple extends UDTF {
     @Override
     public void process(Object[] args) throws UDFException {
         String jsonStr = (String) args[0];
-        Object object = JSON.parse(jsonStr);
+        Object object = null;
+        
+        try {
+            object = JSON.parse(jsonStr);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return;
+        }
         
         Object[] values = new Object[args.length - 1];
         for (int i = 1; i < args.length; ++i) {

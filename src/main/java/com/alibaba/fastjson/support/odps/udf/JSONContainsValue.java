@@ -12,22 +12,42 @@ public class JSONContainsValue extends UDF {
     }
 
     public Boolean evaluate(String jsonString, String path, String value) throws Exception {
-        Object json = JSON.parse(jsonString);
-        return JSONPath.containsValue(json, path, value);
+        try {
+            Object json = JSON.parse(jsonString);
+            return JSONPath.containsValue(json, path, value);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
     }
-    
+
     public Boolean evaluate(String jsonString, String path, Long value) throws Exception {
-        Object json = JSON.parse(jsonString);
-        return JSONPath.containsValue(json, path, value);
+        try {
+            Object json = JSON.parse(jsonString);
+            return JSONPath.containsValue(json, path, value);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
     }
-    
+
     public Boolean evaluate(String jsonString, String path, Boolean value) throws Exception {
-        Object json = JSON.parse(jsonString);
-        return JSONPath.containsValue(json, path, value);
+        try {
+            Object json = JSON.parse(jsonString);
+            return JSONPath.containsValue(json, path, value);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
     }
-    
+
     public Boolean evaluate(String jsonString, String path, Double value) throws Exception {
-        Object json = JSON.parse(jsonString);
-        return JSONPath.containsValue(json, path, value);
+        try {
+            Object json = JSON.parse(jsonString);
+            return JSONPath.containsValue(json, path, value);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
     }
 }

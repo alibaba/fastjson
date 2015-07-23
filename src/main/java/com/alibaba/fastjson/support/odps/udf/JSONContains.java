@@ -12,7 +12,12 @@ public class JSONContains extends UDF {
     }
 
     public Boolean evaluate(String jsonString, String path) throws Exception {
-        Object json = JSON.parse(jsonString);
-        return JSONPath.contains(json, path);
+        try {
+            Object json = JSON.parse(jsonString);
+            return JSONPath.contains(json, path);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
     }
 }

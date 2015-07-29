@@ -1044,6 +1044,7 @@ public class TypeUtils {
                 if (Character.isUpperCase(c3)) {
                     if (compatibleWithJavaBean) {
                         propertyName = decapitalize(methodName.substring(3));
+			   //Èç¹û			
                     } else {
                         propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
                     }

@@ -1056,7 +1056,13 @@ public class TypeUtils {
                 } else {
                     continue;
                 }
-
+ 
+               //过滤没有声明属性的方法
+               boolean  exists =  isExistsProperty(clazz, propertyName);
+               if(!exists){
+            	   continue;
+               }
+               
                 boolean ignore = isJSONTypeIgnore(clazz, propertyName);
 
                 if (ignore) {
@@ -1236,6 +1242,8 @@ public class TypeUtils {
         return fieldInfoList;
     }
 
+    
+
     public static JSONField getSupperMethodAnnotation(Class<?> clazz, Method method) {
         for (Class<?> interfaceClass : clazz.getInterfaces()) {
             for (Method interfaceMethod : interfaceClass.getMethods()) {
@@ -1269,11 +1277,22 @@ public class TypeUtils {
         return null;
     }
 
+   private static boolean  isExistsProperty(Class<?> clazz,String propertyName){
+	   // 取得本类的全部属性
+       Field[] fields = clazz.getDeclaredFields();
+       for(Field field:fields ){
+    	   if(field.getName().equalsIgnoreCase(propertyName)){
+    		   return true;
+    	   }
+       }
+       return false;
+    }
+   
     private static boolean isJSONTypeIgnore(Class<?> clazz, String propertyName) {
         JSONType jsonType = clazz.getAnnotation(JSONType.class);
 
         if (jsonType != null) {
-            // 1、新增 includes 支持，如果 JSONType 同时设置了includes 和 ignores 属性，则以includes为准。
+        	// 1、新增 includes 支持，如果 JSONType 同时设置了includes 和 ignores 属性，则以includes为准。
             // 2、个人认为对于大小写敏感的Java和JS而言，使用 equals() 比 equalsIgnoreCase() 更好，改动的唯一风险就是向后兼容性的问题
             // 不过，相信开发者应该都是严格按照大小写敏感的方式进行属性设置的
             String[] fields = jsonType.includes();

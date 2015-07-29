@@ -1278,7 +1278,6 @@ public class TypeUtils {
     }
 
    private static boolean  isExistsProperty(Class<?> clazz,String propertyName){
-	   // åå¾æ¬ç±»çå¨é¨å±æ§
        Field[] fields = clazz.getDeclaredFields();
        for(Field field:fields ){
     	   if(field.getName().equalsIgnoreCase(propertyName)){
@@ -1292,9 +1291,9 @@ public class TypeUtils {
         JSONType jsonType = clazz.getAnnotation(JSONType.class);
 
         if (jsonType != null) {
-        	// 1ãæ°å¢ includes æ¯æï¼å¦æ JSONType åæ¶è®¾ç½®äºincludes å ignores å±æ§ï¼åä»¥includesä¸ºåã
-            // 2ãä¸ªäººè®¤ä¸ºå¯¹äºå¤§å°åææçJavaåJSèè¨ï¼ä½¿ç¨ equals() æ¯ equalsIgnoreCase() æ´å¥½ï¼æ¹å¨çå¯ä¸é£é©å°±æ¯ååå¼å®¹æ§çé®é¢
-            // ä¸è¿ï¼ç¸ä¿¡å¼åèåºè¯¥é½æ¯ä¸¥æ ¼æç§å¤§å°åææçæ¹å¼è¿è¡å±æ§è®¾ç½®ç
+            // 1、新增 includes 支持，如果 JSONType 同时设置了includes 和 ignores 属性，则以includes为准。
+            // 2、个人认为对于大小写敏感的Java和JS而言，使用 equals() 比 equalsIgnoreCase() 更好，改动的唯一风险就是向后兼容性的问题
+            // 不过，相信开发者应该都是严格按照大小写敏感的方式进行属性设置的
             String[] fields = jsonType.includes();
             if (fields.length > 0) {
                 for (int i = 0; i < fields.length; i++) {

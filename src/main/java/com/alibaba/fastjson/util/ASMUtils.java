@@ -11,6 +11,8 @@ import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 
 public class ASMUtils {
+
+    public static final String JAVA_VM_NAME = System.getProperty("java.vm.name");
 	
     public static boolean isAndroid(String vmName) {
         if (vmName == null) { // default is false
@@ -25,7 +27,7 @@ public class ASMUtils {
     }
 
     public static boolean isAndroid() {
-        return isAndroid(System.getProperty("java.vm.name"));
+        return isAndroid(JAVA_VM_NAME);
     }
 
     public static String getDesc(Method method) {

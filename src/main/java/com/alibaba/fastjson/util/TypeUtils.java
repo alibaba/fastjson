@@ -1061,7 +1061,13 @@ public class TypeUtils {
                 } else {
                     continue;
                 }
-
+ 
+               //过滤没有声明属性的方法
+               boolean  exists =  isExistsProperty(clazz, propertyName);
+               if(!exists){
+            	   continue;
+               }
+               
                 boolean ignore = isJSONTypeIgnore(clazz, propertyName);
 
                 if (ignore) {
@@ -1254,6 +1260,8 @@ public class TypeUtils {
         return fieldInfoList;
     }
 
+    
+
     public static JSONField getSupperMethodAnnotation(Class<?> clazz, Method method) {
         for (Class<?> interfaceClass : clazz.getInterfaces()) {
             for (Method interfaceMethod : interfaceClass.getMethods()) {
@@ -1287,6 +1295,16 @@ public class TypeUtils {
         return null;
     }
 
+   private static boolean  isExistsProperty(Class<?> clazz,String propertyName){
+       Field[] fields = clazz.getDeclaredFields();
+       for(Field field:fields ){
+    	   if(field.getName().equalsIgnoreCase(propertyName)){
+    		   return true;
+    	   }
+       }
+       return false;
+    }
+   
     private static boolean isJSONTypeIgnore(Class<?> clazz, String propertyName) {
         JSONType jsonType = clazz.getAnnotation(JSONType.class);
 

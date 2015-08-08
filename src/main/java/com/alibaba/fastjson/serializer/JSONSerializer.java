@@ -42,6 +42,7 @@ public class JSONSerializer {
     private List<ValueFilter>                      valueFilters       = null;
     private List<NameFilter>                       nameFilters        = null;
     private List<PropertyPreFilter>                propertyPreFilters = null;
+    private List<LabelFilter>                      labelFilters       = null;
 
     private int                                    indentCount        = 0;
     private String                                 indent             = "\t";
@@ -292,6 +293,18 @@ public class JSONSerializer {
 
     public List<PropertyPreFilter> getPropertyPreFiltersDirect() {
         return propertyPreFilters;
+    }
+    
+    public List<LabelFilter> getLabelFilters() {
+        if (labelFilters == null) {
+            labelFilters = new ArrayList<LabelFilter>();
+        }
+        
+        return labelFilters;
+    }
+    
+    public List<LabelFilter> getLabelFiltersDirect() {
+        return labelFilters;
     }
 
     public List<PropertyFilter> getPropertyFilters() {

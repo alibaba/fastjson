@@ -70,6 +70,10 @@ public abstract class FieldSerializer {
     public Method getMethod() {
         return fieldInfo.getMethod();
     }
+    
+    public String getLabel() {
+        return fieldInfo.getLabel();
+    }
 
     public void writePrefix(JSONSerializer serializer) throws IOException {
         SerializeWriter out = serializer.getWriter();

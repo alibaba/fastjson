@@ -26,6 +26,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
     private final Class<?> declaringClass;
     private boolean        getOnly = false;
     private int            serialzeFeatures;
+    private String         label = "";
     
     public FieldInfo(String name, Class<?> declaringClass, Class<?> fieldClass, Type fieldType, Field field){
         this(name, declaringClass, fieldClass, fieldType, field, 0, 0);
@@ -49,9 +50,16 @@ public class FieldInfo implements Comparable<FieldInfo> {
     public FieldInfo(String name, Method method, Field field){
         this(name, method, field, null, null);
     }
-
+    
     public FieldInfo(String name, Method method, Field field, int ordinal, int serialzeFeatures){
+        this(name, method, field, ordinal, serialzeFeatures, null);
+    }
+
+    public FieldInfo(String name, Method method, Field field, int ordinal, int serialzeFeatures, String label){
         this(name, method, field, null, null, ordinal, serialzeFeatures);
+        if (label != null && label.length() > 0) {
+            this.label = label;
+        }
     }
 
     public FieldInfo(String name, Method method, Field field, Class<?> clazz, Type type){
@@ -113,6 +121,11 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
         this.fieldType = genericFieldType;
         this.fieldClass = fieldClass;
+    }
+    
+    
+    public String getLabel() {
+        return label;
     }
 
     public static Type getFieldType(Class<?> clazz, Type type, Type fieldType) {

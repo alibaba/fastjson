@@ -146,16 +146,26 @@ public class JavaBeanSerializer implements ObjectSerializer {
             for (int i = 0; i < getters.length; ++i) {
                 FieldSerializer fieldSerializer = getters[i];
 
+                Field field = fieldSerializer.getField();
                 if (serializer.isEnabled(SerializerFeature.SkipTransientField)) {
-                    Field field = fieldSerializer.getField();
                     if (field != null) {
                         if (Modifier.isTransient(field.getModifiers())) {
                             continue;
                         }
                     }
                 }
+                
+                if (serializer.isEnabled(SerializerFeature.IgoreNonFieldGetter)) {
+                    if (field == null) {
+                        continue;
+                    }
+                }
 
                 if (!FilterUtils.applyName(serializer, object, fieldSerializer.getName())) {
+                    continue;
+                }
+                
+                if (!FilterUtils.applyLabel(serializer, fieldSerializer.getLabel())) {
                     continue;
                 }
 

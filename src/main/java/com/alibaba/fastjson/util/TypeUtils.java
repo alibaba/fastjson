@@ -978,6 +978,7 @@ public class TypeUtils {
         for (Method method : clazz.getMethods()) {
             String methodName = method.getName();
             int ordinal = 0, serialzeFeatures = 0;
+            String label = null;
 
             if (Modifier.isStatic(method.getModifiers())) {
                 continue;
@@ -1024,8 +1025,12 @@ public class TypeUtils {
                         }
                     }
 
-                    fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, null, ordinal, serialzeFeatures));
+                    fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, null, ordinal, serialzeFeatures, annotation.label()));
                     continue;
+                }
+                
+                if (annotation.label().length() != 0) {
+                    label = annotation.label();
                 }
             }
 
@@ -1086,6 +1091,10 @@ public class TypeUtils {
                                 }
                             }
                         }
+                        
+                        if (fieldAnnotation.label().length() != 0) {
+                            label = fieldAnnotation.label();
+                        }
                     }
                 }
 
@@ -1096,7 +1105,7 @@ public class TypeUtils {
                     }
                 }
 
-                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field, ordinal, serialzeFeatures));
+                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field, ordinal, serialzeFeatures, label));
             }
 
             if (methodName.startsWith("is")) {
@@ -1148,6 +1157,10 @@ public class TypeUtils {
                                 }
                             }
                         }
+                        
+                        if (fieldAnnotation.label().length() != 0) {
+                            label = fieldAnnotation.label();
+                        }
                     }
                 }
 
@@ -1158,7 +1171,7 @@ public class TypeUtils {
                     }
                 }
 
-                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field, ordinal, serialzeFeatures));
+                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field, ordinal, serialzeFeatures, label));
             }
         }
 
@@ -1171,6 +1184,7 @@ public class TypeUtils {
 
             int ordinal = 0, serialzeFeatures = 0;
             String propertyName = field.getName();
+            String label = null;
             if (fieldAnnotation != null) {
                 if (!fieldAnnotation.serialize()) {
                     continue;
@@ -1182,8 +1196,12 @@ public class TypeUtils {
                 if (fieldAnnotation.name().length() != 0) {
                     propertyName = fieldAnnotation.name();
                 }
+                
+                if (fieldAnnotation.label().length() != 0) {
+                    label = fieldAnnotation.label();
+                }
             }
-
+            
             if (aliasMap != null) {
                 propertyName = aliasMap.get(propertyName);
                 if (propertyName == null) {
@@ -1192,7 +1210,7 @@ public class TypeUtils {
             }
 
             if (!fieldInfoMap.containsKey(propertyName)) {
-                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, null, field, ordinal, serialzeFeatures));
+                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, null, field, ordinal, serialzeFeatures, label));
             }
         }
 

@@ -8,7 +8,6 @@ import com.aliyun.odps.udf.OdpsType;
 import com.aliyun.odps.udf.UDFException;
 import com.aliyun.odps.udf.UDTF;
 
-@SuppressWarnings("deprecation")
 public class JSONTuple extends UDTF {
 
     public OdpsType[] initialize(OdpsType[] signature) throws Exception {

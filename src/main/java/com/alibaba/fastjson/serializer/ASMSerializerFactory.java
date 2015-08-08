@@ -1138,6 +1138,15 @@ public class ASMSerializerFactory implements Opcodes {
                 // if true
                 mw.visitJumpInsn(IFNE, _end);
             }
+        } else {
+            mw.visitVarInsn(ALOAD, context.var("out"));
+            mw.visitFieldInsn(GETSTATIC, "com/alibaba/fastjson/serializer/SerializerFeature", "IgoreNonFieldGetter",
+                              "Lcom/alibaba/fastjson/serializer/SerializerFeature;");
+            mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "isEnabled",
+                               "(Lcom/alibaba/fastjson/serializer/SerializerFeature;)Z");
+
+            // if true
+            mw.visitJumpInsn(IFNE, _end);
         }
         
         _notWriteDefault(mw, property, context, _end);
@@ -1165,6 +1174,17 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitVarInsn(ALOAD, context.fieldName());
         mw.visitMethodInsn(INVOKESTATIC, "com/alibaba/fastjson/serializer/FilterUtils", "applyName",
                            "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;Ljava/lang/String;)Z");
+        mw.visitJumpInsn(IFEQ, _end);
+        
+        _labelApply(mw, property, context, _end);
+    }
+    
+    private void _labelApply(MethodVisitor mw, FieldInfo property, Context context, Label _end) {
+        mw.visitVarInsn(ALOAD, context.serializer());
+        mw.visitLdcInsn(property.getLabel());
+        
+        mw.visitMethodInsn(INVOKESTATIC, "com/alibaba/fastjson/serializer/FilterUtils", "applyLabel",
+                "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/String;)Z");
         mw.visitJumpInsn(IFEQ, _end);
     }
 

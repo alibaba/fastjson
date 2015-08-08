@@ -866,7 +866,7 @@ public class TypeUtils {
                         method.invoke(object, new Object[] { value });
                     } else {
                         Field field = fieldDeser.getField();
-                        Type paramType = field.getGenericType();
+                        Type paramType = fieldDeser.getFieldType();
                         value = cast(value, paramType, mapping);
                         field.set(object, value);
                     }

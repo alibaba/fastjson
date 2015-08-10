@@ -400,14 +400,6 @@ public final class JSONScanner extends JSONLexerBase {
             ch = charAt(bp += 19);
 
             token = JSONToken.LITERAL_ISO8601_DATE;
-            //bugfix https://github.com/alibaba/fastjson/issues/376
-            if (calendar.getTimeZone().getRawOffset() != 0) {
-                String[] timeZoneIDs = TimeZone.getAvailableIDs(0);//没有+ 和 - 默认相对0
-                if (timeZoneIDs.length > 0) {
-                    TimeZone timeZone = TimeZone.getTimeZone(timeZoneIDs[0]);
-                    calendar.setTimeZone(timeZone);
-                }
-            }
             return true;
         }
 

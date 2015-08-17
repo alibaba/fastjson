@@ -2662,7 +2662,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
     }
 
-    private final void scanStringSingleQuote() {
+    private void scanStringSingleQuote() {
         np = bp;
         hasSpecial = false;
         char chLocal;
@@ -2981,7 +2981,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         return new BigDecimal(numberString());
     }
 
-    public static final boolean isWhitespace(char ch) {
+    public static boolean isWhitespace(char ch) {
         // 专门调整了判断顺序
         return ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b';
     }

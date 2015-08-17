@@ -134,7 +134,7 @@ public enum SerializerFeature {
     IgoreNonFieldGetter
     ;
 
-    private SerializerFeature(){
+    SerializerFeature(){
         mask = (1 << ordinal());
     }
 

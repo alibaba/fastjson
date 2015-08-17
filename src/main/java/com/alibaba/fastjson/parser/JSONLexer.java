@@ -5,14 +5,14 @@ import java.util.Collection;
 
 public interface JSONLexer {
 
-    public final static byte EOI            = 0x1A;
-    public final static int  NOT_MATCH      = -1;
-    public final static int  NOT_MATCH_NAME = -2;
-    public final static int  UNKOWN         = 0;
-    public final static int  OBJECT         = 1;
-    public final static int  ARRAY          = 2;
-    public final static int  VALUE          = 3;
-    public final static int  END            = 4;
+    byte EOI            = 0x1A;
+    int  NOT_MATCH      = -1;
+    int  NOT_MATCH_NAME = -2;
+    int  UNKOWN         = 0;
+    int  OBJECT         = 1;
+    int  ARRAY          = 2;
+    int  VALUE          = 3;
+    int  END            = 4;
 
     int token();
 

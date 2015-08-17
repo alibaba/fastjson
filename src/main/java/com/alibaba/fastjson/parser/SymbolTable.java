@@ -208,7 +208,7 @@ public class SymbolTable {
         return size;
     }
 
-    public static final int hash(char[] buffer, int offset, int len) {
+    public static int hash(char[] buffer, int offset, int len) {
         int h = 0;
         int off = offset;
 

@@ -13,7 +13,7 @@ public class IgnoreNonFieldGetterTest extends TestCase {
         VO vo = new VO();
         vo.setId(123);
         
-        String text = JSON.toJSONString(vo, SerializerFeature.IgoreNonFieldGetter);
+        String text = JSON.toJSONString(vo, SerializerFeature.IgnoreNonFieldGetter);
         Assert.assertEquals("{\"id\":123}", text);
         
     }

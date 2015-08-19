@@ -1140,7 +1140,7 @@ public class ASMSerializerFactory implements Opcodes {
             }
         } else {
             mw.visitVarInsn(ALOAD, context.var("out"));
-            mw.visitFieldInsn(GETSTATIC, "com/alibaba/fastjson/serializer/SerializerFeature", "IgoreNonFieldGetter",
+            mw.visitFieldInsn(GETSTATIC, "com/alibaba/fastjson/serializer/SerializerFeature", "IgnoreNonFieldGetter",
                               "Lcom/alibaba/fastjson/serializer/SerializerFeature;");
             mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "isEnabled",
                                "(Lcom/alibaba/fastjson/serializer/SerializerFeature;)Z");

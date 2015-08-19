@@ -131,7 +131,7 @@ public enum SerializerFeature {
     /**
      * @since 1.2.7
      */
-    IgoreNonFieldGetter
+    IgnoreNonFieldGetter
     ;
 
     private SerializerFeature(){

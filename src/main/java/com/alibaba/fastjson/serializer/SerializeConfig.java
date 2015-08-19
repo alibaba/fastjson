@@ -114,12 +114,18 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 		    asm = false;
 		}
 		
-		for(Field field : clazz.getDeclaredFields()){
-			JSONField annotation = field.getAnnotation(JSONField.class);
-			if (annotation != null && !ASMUtils.checkName(annotation.name())) {
-				asm = false;
-				break;
-			}
+		if (clazz.getDeclaredFields().length > 256) {
+		    asm = false;
+		}
+		
+		if (asm) {
+    		for(Field field : clazz.getDeclaredFields()){
+    			JSONField annotation = field.getAnnotation(JSONField.class);
+    			if (annotation != null && !ASMUtils.checkName(annotation.name())) {
+    				asm = false;
+    				break;
+    			}
+    		}
 		}
 		
 		if (asm) {

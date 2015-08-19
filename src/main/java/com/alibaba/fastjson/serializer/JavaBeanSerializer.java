@@ -155,7 +155,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                     }
                 }
                 
-                if (serializer.isEnabled(SerializerFeature.IgoreNonFieldGetter)) {
+                if (serializer.isEnabled(SerializerFeature.IgnoreNonFieldGetter)) {
                     if (field == null) {
                         continue;
                     }

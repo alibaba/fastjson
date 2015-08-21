@@ -1472,7 +1472,7 @@ public final class SerializeWriter extends Writer {
         buf[count - 1] = '\"';
     }
 
-    final static boolean isSpecial(char ch, int features) {
+    static boolean isSpecial(char ch, int features) {
         // if (ch > ']') {
         // return false;
         // }

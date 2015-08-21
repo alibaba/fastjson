@@ -343,7 +343,7 @@ public class JSONSerializer {
         return config;
     }
 
-    public static final void write(Writer out, Object object) {
+    public static void write(Writer out, Object object) {
         SerializeWriter writer = new SerializeWriter();
         try {
             JSONSerializer serializer = new JSONSerializer(writer);
@@ -356,7 +356,7 @@ public class JSONSerializer {
         }
     }
 
-    public static final void write(SerializeWriter out, Object object) {
+    public static void write(SerializeWriter out, Object object) {
         JSONSerializer serializer = new JSONSerializer(out);
         serializer.write(object);
     }

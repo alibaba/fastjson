@@ -81,7 +81,7 @@ public class TypeUtils {
         }
     }
 
-    public static final String castToString(Object value) {
+    public static String castToString(Object value) {
         if (value == null) {
             return null;
         }
@@ -89,7 +89,7 @@ public class TypeUtils {
         return value.toString();
     }
 
-    public static final Byte castToByte(Object value) {
+    public static Byte castToByte(Object value) {
         if (value == null) {
             return null;
         }
@@ -114,7 +114,7 @@ public class TypeUtils {
         throw new JSONException("can not cast to byte, value : " + value);
     }
 
-    public static final Character castToChar(Object value) {
+    public static Character castToChar(Object value) {
         if (value == null) {
             return null;
         }
@@ -140,7 +140,7 @@ public class TypeUtils {
         throw new JSONException("can not cast to byte, value : " + value);
     }
 
-    public static final Short castToShort(Object value) {
+    public static Short castToShort(Object value) {
         if (value == null) {
             return null;
         }
@@ -166,7 +166,7 @@ public class TypeUtils {
         throw new JSONException("can not cast to short, value : " + value);
     }
 
-    public static final BigDecimal castToBigDecimal(Object value) {
+    public static BigDecimal castToBigDecimal(Object value) {
         if (value == null) {
             return null;
         }
@@ -187,7 +187,7 @@ public class TypeUtils {
         return new BigDecimal(strVal);
     }
 
-    public static final BigInteger castToBigInteger(Object value) {
+    public static BigInteger castToBigInteger(Object value) {
         if (value == null) {
             return null;
         }
@@ -208,7 +208,7 @@ public class TypeUtils {
         return new BigInteger(strVal);
     }
 
-    public static final Float castToFloat(Object value) {
+    public static Float castToFloat(Object value) {
         if (value == null) {
             return null;
         }
@@ -233,7 +233,7 @@ public class TypeUtils {
         throw new JSONException("can not cast to float, value : " + value);
     }
 
-    public static final Double castToDouble(Object value) {
+    public static Double castToDouble(Object value) {
         if (value == null) {
             return null;
         }
@@ -258,7 +258,7 @@ public class TypeUtils {
         throw new JSONException("can not cast to double, value : " + value);
     }
 
-    public static final Date castToDate(Object value) {
+    public static Date castToDate(Object value) {
         if (value == null) {
             return null;
         }
@@ -315,7 +315,7 @@ public class TypeUtils {
         return new Date(longValue);
     }
 
-    public static final java.sql.Date castToSqlDate(Object value) {
+    public static java.sql.Date castToSqlDate(Object value) {
         if (value == null) {
             return null;
         }
@@ -354,7 +354,7 @@ public class TypeUtils {
         return new java.sql.Date(longValue);
     }
 
-    public static final java.sql.Timestamp castToTimestamp(Object value) {
+    public static java.sql.Timestamp castToTimestamp(Object value) {
         if (value == null) {
             return null;
         }
@@ -393,7 +393,7 @@ public class TypeUtils {
         return new java.sql.Timestamp(longValue);
     }
 
-    public static final Long castToLong(Object value) {
+    public static Long castToLong(Object value) {
         if (value == null) {
             return null;
         }
@@ -433,7 +433,7 @@ public class TypeUtils {
         throw new JSONException("can not cast to long, value : " + value);
     }
 
-    public static final Integer castToInt(Object value) {
+    public static Integer castToInt(Object value) {
         if (value == null) {
             return null;
         }
@@ -467,7 +467,7 @@ public class TypeUtils {
         throw new JSONException("can not cast to int, value : " + value);
     }
 
-    public static final byte[] castToBytes(Object value) {
+    public static byte[] castToBytes(Object value) {
         if (value instanceof byte[]) {
             return (byte[]) value;
         }
@@ -478,7 +478,7 @@ public class TypeUtils {
         throw new JSONException("can not cast to int, value : " + value);
     }
 
-    public static final Boolean castToBoolean(Object value) {
+    public static Boolean castToBoolean(Object value) {
         if (value == null) {
             return null;
         }
@@ -521,12 +521,12 @@ public class TypeUtils {
         throw new JSONException("can not cast to boolean, value : " + value);
     }
 
-    public static final <T> T castToJavaBean(Object obj, Class<T> clazz) {
+    public static <T> T castToJavaBean(Object obj, Class<T> clazz) {
         return cast(obj, clazz, ParserConfig.getGlobalInstance());
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static final <T> T cast(Object obj, Class<T> clazz, ParserConfig mapping) {
+    public static <T> T cast(Object obj, Class<T> clazz, ParserConfig mapping) {
         if (obj == null) {
             return null;
         }
@@ -668,7 +668,7 @@ public class TypeUtils {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static final <T> T castToEnum(Object obj, Class<T> clazz, ParserConfig mapping) {
+    public static <T> T castToEnum(Object obj, Class<T> clazz, ParserConfig mapping) {
         try {
             if (obj instanceof String) {
                 String name = (String) obj;
@@ -699,7 +699,7 @@ public class TypeUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static final <T> T cast(Object obj, Type type, ParserConfig mapping) {
+    public static <T> T cast(Object obj, Type type, ParserConfig mapping) {
         if (obj == null) {
             return null;
         }
@@ -727,7 +727,7 @@ public class TypeUtils {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static final <T> T cast(Object obj, ParameterizedType type, ParserConfig mapping) {
+    public static <T> T cast(Object obj, ParameterizedType type, ParserConfig mapping) {
         Type rawTye = type.getRawType();
 
         if (rawTye == Set.class 
@@ -792,7 +792,7 @@ public class TypeUtils {
     }
 
     @SuppressWarnings({ "unchecked" })
-    public static final <T> T castToJavaBean(Map<String, Object> map, Class<T> clazz, ParserConfig mapping) {
+    public static <T> T castToJavaBean(Map<String, Object> map, Class<T> clazz, ParserConfig mapping) {
         try {
             if (clazz == StackTraceElement.class) {
                 String declaringClass = (String) map.get("className");

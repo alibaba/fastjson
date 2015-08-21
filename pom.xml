@@ -191,13 +191,6 @@
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
-		<dependency>
-			<groupId>com.aliyun.odps</groupId>
-			<artifactId>odps-sdk-udf</artifactId>
-			<version>0.17.3</version>
-			<scope>provided</scope>
-			<optional>true</optional>
-		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>

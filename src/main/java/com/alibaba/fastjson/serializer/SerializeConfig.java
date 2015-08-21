@@ -71,7 +71,7 @@ import com.alibaba.fastjson.util.ServiceLoader;
 public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 	private final static SerializeConfig globalInstance = new SerializeConfig();
 
-	private boolean asm = !ASMUtils.isAndroid();;
+	private boolean asm = !ASMUtils.isAndroid();
 
 	private ASMSerializerFactory asmFactory;
 	
@@ -149,7 +149,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 		this.asm = asmEnable;
 	}
 
-	public final static SerializeConfig getGlobalInstance() {
+	public static SerializeConfig getGlobalInstance() {
 		return globalInstance;
 	}
 

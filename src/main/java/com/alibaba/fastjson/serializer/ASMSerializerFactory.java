@@ -125,6 +125,10 @@ public class ASMSerializerFactory implements Opcodes {
 
         List<FieldInfo> getters = TypeUtils.computeGetters(clazz, aliasMap, false);
         
+        if (getters.size() > 256) {
+            return null;
+        }
+        
         for (FieldInfo getter : getters) {
             if (!ASMUtils.checkName(getter.getMember().getName())) {
                 return null;

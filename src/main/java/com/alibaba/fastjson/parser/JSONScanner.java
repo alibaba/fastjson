@@ -130,7 +130,7 @@ public final class JSONScanner extends JSONLexerBase {
         return matchStat;
     }
 
-    static final boolean charArrayCompare(String src, int offset, char[] dest) {
+    static boolean charArrayCompare(String src, int offset, char[] dest) {
         final int destLen = dest.length;
         if (destLen + offset > src.length()) {
             return false;

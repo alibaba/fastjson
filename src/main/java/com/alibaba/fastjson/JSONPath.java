@@ -948,7 +948,7 @@ public class JSONPath implements ObjectSerializer {
         }
     }
 
-    static interface Segement {
+    interface Segement {
 
         Object eval(JSONPath path, Object rootObject, Object currentObject);
     }
@@ -1442,7 +1442,7 @@ public class JSONPath implements ObjectSerializer {
         }
     }
 
-    static enum Operator {
+    enum Operator {
         EQ, NE, GT, GE, LT, LE, LIKE, NOT_LIKE, RLIKE, NOT_RLIKE, IN, NOT_IN, BETWEEN, NOT_BETWEEN
     }
 
@@ -1484,7 +1484,7 @@ public class JSONPath implements ObjectSerializer {
         }
     }
 
-    static interface Filter {
+    interface Filter {
 
         boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item);
     }

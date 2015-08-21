@@ -30,7 +30,7 @@ public class Base64 {
      * @param chars The source array. Length 0 will return an empty array. <code>null</code> will throw an exception.
      * @return The decoded array of bytes. May be of length 0.
      */
-    public final static byte[] decodeFast(char[] chars, int offset, int charsLen) {
+    public static byte[] decodeFast(char[] chars, int offset, int charsLen) {
         // Check special case
         if (charsLen == 0) {
             return new byte[0];
@@ -85,7 +85,7 @@ public class Base64 {
         return bytes;
     }
     
-    public final static byte[] decodeFast(String chars, int offset, int charsLen) {
+    public static byte[] decodeFast(String chars, int offset, int charsLen) {
         // Check special case
         if (charsLen == 0) {
             return new byte[0];
@@ -151,7 +151,7 @@ public class Base64 {
      * @param s The source string. Length 0 will return an empty array. <code>null</code> will throw an exception.
      * @return The decoded array of bytes. May be of length 0.
      */
-    public final static byte[] decodeFast(String s) {
+    public static byte[] decodeFast(String s) {
         // Check special case
         int sLen = s.length();
         if (sLen == 0) {

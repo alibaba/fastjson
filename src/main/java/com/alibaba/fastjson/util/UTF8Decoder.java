@@ -40,7 +40,7 @@ public class UTF8Decoder extends CharsetDecoder {
     }
 
     // [C2..DF] [80..BF]
-    private static final boolean isMalformed2(int b1, int b2) {
+    private static boolean isMalformed2(int b1, int b2) {
         return (b1 & 0x1e) == 0x0 || (b2 & 0xc0) != 0x80;
     }
 
@@ -55,7 +55,7 @@ public class UTF8Decoder extends CharsetDecoder {
     // [F4] [80..8F] [80..BF] [80..BF]
     // only check 80-be range here, the [0xf0,0x80...] and [0xf4,0x90-...]
     // will be checked by Surrogate.neededFor(uc)
-    private static final boolean isMalformed4(int b2, int b3, int b4) {
+    private static boolean isMalformed4(int b2, int b3, int b4) {
         return (b2 & 0xc0) != 0x80 || (b3 & 0xc0) != 0x80 || (b4 & 0xc0) != 0x80;
     }
 
@@ -186,7 +186,7 @@ public class UTF8Decoder extends CharsetDecoder {
         return decodeArrayLoop(src, dst);
     }
 
-    static final void updatePositions(Buffer src, int sp, Buffer dst, int dp) {
+    static void updatePositions(Buffer src, int sp, Buffer dst, int dp) {
 //        src.position(sp - src.arrayOffset());
 //        dst.position(dp - dst.arrayOffset());
       src.position(sp);

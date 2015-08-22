@@ -1142,15 +1142,6 @@ public class ASMSerializerFactory implements Opcodes {
                 // if true
                 mw.visitJumpInsn(IFNE, _end);
             }
-        } else {
-            mw.visitVarInsn(ALOAD, context.var("out"));
-            mw.visitFieldInsn(GETSTATIC, "com/alibaba/fastjson/serializer/SerializerFeature", "IgnoreNonFieldGetter",
-                              "Lcom/alibaba/fastjson/serializer/SerializerFeature;");
-            mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "isEnabled",
-                               "(Lcom/alibaba/fastjson/serializer/SerializerFeature;)Z");
-
-            // if true
-            mw.visitJumpInsn(IFNE, _end);
         }
         
         _notWriteDefault(mw, property, context, _end);
@@ -1181,6 +1172,17 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitJumpInsn(IFEQ, _end);
         
         _labelApply(mw, property, context, _end);
+        
+        if (property.getField() == null) {
+            mw.visitVarInsn(ALOAD, context.var("out"));
+            mw.visitFieldInsn(GETSTATIC, "com/alibaba/fastjson/serializer/SerializerFeature", "IgnoreNonFieldGetter",
+                              "Lcom/alibaba/fastjson/serializer/SerializerFeature;");
+            mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "isEnabled",
+                               "(Lcom/alibaba/fastjson/serializer/SerializerFeature;)Z");
+
+            // if true
+            mw.visitJumpInsn(IFNE, _end);
+        }
     }
     
     private void _labelApply(MethodVisitor mw, FieldInfo property, Context context, Label _end) {

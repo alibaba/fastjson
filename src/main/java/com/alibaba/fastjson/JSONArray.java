@@ -141,6 +141,11 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
     }
 
     public Object set(int index, Object element) {
+        if (index == -1) {
+            list.add(element);
+            return null;
+        }
+        
         if (list.size() <= index) {
             for (int i = list.size(); i < index; ++i) {
                 list.add(null);

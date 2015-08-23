@@ -326,8 +326,7 @@ public class JSONPath implements ObjectSerializer {
                     return SelfSegement.instance;
                 }
 
-                if (ch == '$' //
-                    || (ch == '/' && level == 0)) {
+                if (ch == '$') {
                     next();
                     continue;
                 }
@@ -679,16 +678,26 @@ public class JSONPath implements ObjectSerializer {
             }
 
             int start = pos - 1;
-            while (ch != ']' && !isEOF()) {
+            while (ch != ']' && ch != '/' && !isEOF()) {
                 next();
             }
-
-            int end = acceptBracket ? pos - 1 : pos;
+            
+            int end;
+            if (acceptBracket) {
+                end = pos - 1;
+            } else {
+                if (ch == '/') {
+                    end = pos - 1;
+                } else {
+                    end = pos;
+                }
+            }
+            
             String text = path.substring(start, end);
 
             Segement segment = buildArraySegement(text);
 
-            if (!isEOF()) {
+            if (acceptBracket && !isEOF()) {
                 accept(']');
             }
 
@@ -804,10 +813,6 @@ public class JSONPath implements ObjectSerializer {
 
         String readName() {
             skipWhitespace();
-
-            // if (ch >= '0' && ch <= '9') {
-            //
-            // }
 
             if (!IOUtils.firstIdentifier(ch)) {
                 throw new JSONPathException("illeal jsonpath syntax. " + path);

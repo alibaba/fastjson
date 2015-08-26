@@ -318,6 +318,14 @@ public class JSONPath implements ObjectSerializer {
         }
 
         Segement readSegement() {
+            if (level == 0 && path.length() == 1) {
+                if (isDigitFirst(ch)) {
+                    int index = ch - '0';
+                    return new ArrayAccessSegement(index);
+                } else if ((ch >= 'a' && ch <= 'z') || ((ch >= 'A' && ch <= 'Z'))) {
+                    return new PropertySegement(Character.toString(ch));
+                }
+            }
             while (!isEOF()) {
                 skipWhitespace();
 

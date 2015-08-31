@@ -2911,10 +2911,15 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     public final long longValue() throws NumberFormatException {
         long result = 0;
         boolean negative = false;
-        int i = np, max = np + sp;
         long limit;
         long multmin;
         int digit;
+
+        if (np == -1) {
+            np = 0;
+        }
+
+        int i = np, max = np + sp;
 
         if (charAt(np) == '-') {
             negative = true;

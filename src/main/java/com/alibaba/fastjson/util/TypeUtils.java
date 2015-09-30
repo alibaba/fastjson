@@ -1134,6 +1134,9 @@ public class TypeUtils {
 
                 if (field == null) {
                     field = ParserConfig.getField(clazz, methodName);
+                    if(field != null){
+                        propertyName = methodName;
+                    }
                 }
 
                 if (field != null) {

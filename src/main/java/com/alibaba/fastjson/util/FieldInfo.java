@@ -237,7 +237,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         return name;
     }
 
-    public String gerQualifiedName() {
+    public String getQualifiedName() {
         Member member = getMember();
         return member.getDeclaringClass().getName() + "." + member.getName();
     }

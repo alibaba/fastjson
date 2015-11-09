@@ -93,7 +93,7 @@ public abstract class FieldSerializer {
         try {
             return fieldInfo.get(object);
         } catch (Exception ex) {
-            throw new JSONException("get property error。 " + fieldInfo.gerQualifiedName(), ex);
+            throw new JSONException("get property error。 " + fieldInfo.getQualifiedName(), ex);
         }
     }
 

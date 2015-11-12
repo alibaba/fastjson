@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONCreator;
 import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.annotation.JSONXSSFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class DeserializeBeanInfo {
@@ -255,6 +256,8 @@ public class DeserializeBeanInfo {
 
             if (field != null) {
                 JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
+                JSONXSSFilter xssFilter = field.getAnnotation(JSONXSSFilter.class);
+                boolean needXSSFilter = xssFilter != null ? xssFilter.needXssFilter() : false;
 
                 if (fieldAnnotation != null) {
                     ordinal = fieldAnnotation.ordinal();
@@ -262,11 +265,17 @@ public class DeserializeBeanInfo {
 
                     if (fieldAnnotation.name().length() != 0) {
                         propertyName = fieldAnnotation.name();
-                        beanInfo.add(new FieldInfo(propertyName, method, field, clazz, type, ordinal, serialzeFeatures));
+                        FieldInfo fieldInfo = new FieldInfo(propertyName, method, field, clazz, type, ordinal, serialzeFeatures);
+                        fieldInfo.setNeedXSSFilter(needXSSFilter);
+                        beanInfo.add(fieldInfo);
                         continue;
                     }
                 }
-
+                FieldInfo fieldInfo = new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures);
+                fieldInfo.setNeedXSSFilter(needXSSFilter);
+                beanInfo.add(fieldInfo);
+                TypeUtils.setAccessible(method);
+                continue;
             }
 
             beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures));

@@ -721,6 +721,13 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitVarInsn(DLOAD, context.var(fieldInfo.getName() + "_asm", 2));
             _set(context, mw, fieldInfo);
         } else if (fieldClass == String.class) {
+            if(fieldInfo.isNeedXSSFilter()){
+                mw.visitVarInsn(ALOAD, context.var(fieldInfo.getName() + "_asm"));
+                mw.visitMethodInsn(INVOKESTATIC, "org/apache/commons/lang3/StringEscapeUtils", "escapeHtml4",
+                        "(Ljava/lang/String;)Ljava/lang/String;");
+                mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
+            }
+
             mw.visitVarInsn(ALOAD, context.var("instance"));
             mw.visitVarInsn(ALOAD, context.var(fieldInfo.getName() + "_asm"));
             _set(context, mw, fieldInfo);

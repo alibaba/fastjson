@@ -27,6 +27,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
     private boolean        getOnly = false;
     private int            serialzeFeatures;
     private String         label = "";
+    private boolean        needXSSFilter = false;
     
     public FieldInfo(String name, Class<?> declaringClass, Class<?> fieldClass, Type fieldType, Field field){
         this(name, declaringClass, fieldClass, fieldType, field, 0, 0);
@@ -335,4 +336,11 @@ public class FieldInfo implements Comparable<FieldInfo> {
         return serialzeFeatures;
     }
 
+    public boolean isNeedXSSFilter() {
+        return needXSSFilter;
+    }
+
+    public void setNeedXSSFilter(boolean needXSSFilter) {
+        this.needXSSFilter = needXSSFilter;
+    }
 }

@@ -12,7 +12,7 @@
 
 	<groupId>com.alibaba</groupId>
 	<artifactId>fastjson</artifactId>
-	<version>1.2.8-SNAPSHOT</version>
+	<version>1.2.8</version>
 
 	<packaging>jar</packaging>
 	<name>fastjson</name>
@@ -296,6 +296,12 @@
 			<artifactId>javassist</artifactId>
 			<version>3.18.0-GA</version>
 			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.3.2</version>
 		</dependency>
 	</dependencies>
 </project>

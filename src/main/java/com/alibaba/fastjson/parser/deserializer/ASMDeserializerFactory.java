@@ -1,39 +1,20 @@
 package com.alibaba.fastjson.parser.deserializer;
 
-import static com.alibaba.fastjson.util.ASMUtils.getDesc;
-import static com.alibaba.fastjson.util.ASMUtils.getType;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.asm.*;
+import com.alibaba.fastjson.parser.Feature;
+import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.util.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.*;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.asm.ClassWriter;
-import com.alibaba.fastjson.asm.FieldVisitor;
-import com.alibaba.fastjson.asm.Label;
-import com.alibaba.fastjson.asm.MethodVisitor;
-import com.alibaba.fastjson.asm.Opcodes;
-import com.alibaba.fastjson.parser.Feature;
-import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.util.ASMClassLoader;
-import com.alibaba.fastjson.util.ASMUtils;
-import com.alibaba.fastjson.util.DeserializeBeanInfo;
-import com.alibaba.fastjson.util.FieldInfo;
-import com.alibaba.fastjson.util.TypeUtils;
+import static com.alibaba.fastjson.util.ASMUtils.getDesc;
+import static com.alibaba.fastjson.util.ASMUtils.getType;
 
 public class ASMDeserializerFactory implements Opcodes {
 
@@ -723,7 +704,7 @@ public class ASMDeserializerFactory implements Opcodes {
         } else if (fieldClass == String.class) {
             if(fieldInfo.isNeedXSSFilter()){
                 mw.visitVarInsn(ALOAD, context.var(fieldInfo.getName() + "_asm"));
-                mw.visitMethodInsn(INVOKESTATIC, "org/apache/commons/lang3/StringEscapeUtils", "escapeHtml4",
+                mw.visitMethodInsn(INVOKESTATIC, "org/owasp/esapi/ESAPI", "encodeForHTML",
                         "(Ljava/lang/String;)Ljava/lang/String;");
                 mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
             }

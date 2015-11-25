@@ -23,7 +23,7 @@
 
 	<properties>
 		<junit.version>4.11</junit.version>
-		<gpg.skip>false</gpg.skip>
+		<gpg.skip>true</gpg.skip>
 		<javadoc.skip>false</javadoc.skip>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk.version>1.5</jdk.version>
@@ -298,11 +298,13 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- esapi -->
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>3.3.2</version>
+			<groupId>org.owasp.esapi</groupId>
+			<artifactId>esapi</artifactId>
+			<version>2.1.0</version>
 		</dependency>
+
 	</dependencies>
 </project>
 

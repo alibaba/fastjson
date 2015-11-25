@@ -1,14 +1,14 @@
 package com.alibaba.fastjson.parser.deserializer;
 
-import java.lang.reflect.Type;
-import java.util.Map;
-
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.FieldInfo;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.owasp.esapi.ESAPI;
+
+import java.lang.reflect.Type;
+import java.util.Map;
 
 public class StringFieldDeserializer extends FieldDeserializer {
 
@@ -43,7 +43,7 @@ public class StringFieldDeserializer extends FieldDeserializer {
             fieldValues.put(fieldInfo.getName(), value);
         } else {
             if(fieldInfo.isNeedXSSFilter()){
-                value = StringEscapeUtils.escapeHtml4(value);
+                value = ESAPI.encoder().encodeForHTML(value);
             }
             setValue(object, value);
         }

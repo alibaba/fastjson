@@ -8,16 +8,27 @@ import com.alibaba.fastjson.annotation.JSONXSSFilter;
 public class TestObj {
 
     @JSONXSSFilter
-    private String a;
+    private String script;
+
+    @JSONXSSFilter
+    private String newLine;
 
     private String b;
 
-    public String getA() {
-        return a;
+    public String getScript() {
+        return script;
     }
 
-    public void setA(String a) {
-        this.a = a;
+    public void setScript(String script) {
+        this.script = script;
+    }
+
+    public String getNewLine() {
+        return newLine;
+    }
+
+    public void setNewLine(String newLine) {
+        this.newLine = newLine;
     }
 
     public String getB() {

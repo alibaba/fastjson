@@ -247,7 +247,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                     lexer.resetStringPosition();
                     lexer.scanNumber();
                     if (lexer.token() == JSONToken.LITERAL_INT) {
-                        key = lexer.integerValue();
+                        key = lexer.integerValue(isEnabled(Feature.UseBigInteger));
                     } else {
                         key = lexer.decimalValue(true);
                     }
@@ -406,7 +406,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                 } else if (ch >= '0' && ch <= '9' || ch == '-') {
                     lexer.scanNumber();
                     if (lexer.token() == JSONToken.LITERAL_INT) {
-                        value = lexer.integerValue();
+                        value = lexer.integerValue(isEnabled(Feature.UseBigInteger));
                     } else {
                         value = lexer.decimalValue(isEnabled(Feature.UseBigDecimal));
                     }
@@ -1035,7 +1035,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                 Object value;
                 switch (lexer.token()) {
                     case LITERAL_INT:
-                        value = lexer.integerValue();
+                        value = lexer.integerValue(isEnabled(Feature.UseBigInteger));
                         lexer.nextToken(JSONToken.COMMA);
                         break;
                     case LITERAL_FLOAT:
@@ -1240,7 +1240,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                 JSONObject object = new JSONObject(isEnabled(Feature.OrderedField));
                 return parseObject(object, fieldName);
             case LITERAL_INT:
-                Number intValue = lexer.integerValue();
+                Number intValue = lexer.integerValue(isEnabled(Feature.UseBigInteger));
                 lexer.nextToken();
                 return intValue;
             case LITERAL_FLOAT:
@@ -1284,7 +1284,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                 lexer.nextToken(JSONToken.LPAREN);
 
                 accept(JSONToken.LPAREN);
-                long time = ((Number) lexer.integerValue()).longValue();
+                long time = ((Number) lexer.integerValue(isEnabled(Feature.UseBigInteger))).longValue();
                 accept(JSONToken.LITERAL_INT);
 
                 accept(JSONToken.RPAREN);

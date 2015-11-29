@@ -59,19 +59,23 @@ import com.alibaba.fastjson.util.TypeUtils;
  */
 public abstract class JSON implements JSONStreamAware, JSONAware {
 
-    public static String DEFAULT_TYPE_KEY     = "@type";
+    public static String DEFAULT_TYPE_KEY = "@type";
 
-    public static int    DEFAULT_PARSER_FEATURE;
+    public static int DEFAULT_PARSER_FEATURE;
 
     /**
      * asm生成代码dump路径
      */
-    public static String DUMP_CLASS           = null;
+    public static String DUMP_CLASS = null;
 
     static {
         int features = 0;
         features |= Feature.AutoCloseSource.getMask();
         features |= Feature.InternFieldNames.getMask();
+        /**
+         * #462 建议增加选择是否使用BigInteger的功能
+         */
+        features |= Feature.UseBigInteger.getMask();
         features |= Feature.UseBigDecimal.getMask();
         features |= Feature.AllowUnQuotedFieldNames.getMask();
         features |= Feature.AllowSingleQuotes.getMask();
@@ -83,7 +87,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     public static String DEFFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
-    public static int    DEFAULT_GENERATE_FEATURE;
+    public static int DEFAULT_GENERATE_FEATURE;
 
     static {
         int features = 0;
@@ -189,7 +193,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(String text, Class<T> clazz, ParseProcess processor, Feature... features) {
         return (T) parseObject(text, (Type) clazz, ParserConfig.getGlobalInstance(), processor, DEFAULT_PARSER_FEATURE,
-                               features);
+                    features);
     }
 
     @SuppressWarnings("unchecked")
@@ -223,13 +227,13 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static <T> T parseObject(String input, Type clazz, ParserConfig config, int featureValues,
-                                          Feature... features) {
+                Feature... features) {
         return parseObject(input, clazz, config, null, featureValues, features);
     }
 
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(String input, Type clazz, ParserConfig config, ParseProcess processor,
-                                          int featureValues, Feature... features) {
+                int featureValues, Feature... features) {
         if (input == null) {
             return null;
         }
@@ -264,7 +268,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(byte[] input, int off, int len, CharsetDecoder charsetDecoder, Type clazz,
-                                          Feature... features) {
+                Feature... features) {
         charsetDecoder.reset();
 
         int scaleLength = (int) (len * (double) charsetDecoder.maxCharsPerByte());
@@ -403,7 +407,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
      * @since 1.1.14
      */
     public static String toJSONStringWithDateFormat(Object object, String dateFormat,
-                                                          SerializerFeature... features) {
+                SerializerFeature... features) {
         SerializeWriter out = new SerializeWriter();
 
         try {
@@ -490,7 +494,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static String toJSONString(Object object, SerializeConfig config, SerializeFilter filter,
-                                            SerializerFeature... features) {
+                SerializerFeature... features) {
         SerializeWriter out = new SerializeWriter();
 
         try {
@@ -510,7 +514,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static String toJSONString(Object object, SerializeConfig config, SerializeFilter[] filters,
-                                            SerializerFeature... features) {
+                SerializerFeature... features) {
         SerializeWriter out = new SerializeWriter();
 
         try {
@@ -712,7 +716,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         if (filter == null) {
             return;
         }
-        
+
         if (filter instanceof PropertyPreFilter) {
             serializer.getPropertyPreFilters().add((PropertyPreFilter) filter);
         }
@@ -736,7 +740,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         if (filter instanceof AfterFilter) {
             serializer.getAfterFilters().add((AfterFilter) filter);
         }
-        
+
         if (filter instanceof LabelFilter) {
             serializer.getLabelFilters().add((LabelFilter) filter);
         }

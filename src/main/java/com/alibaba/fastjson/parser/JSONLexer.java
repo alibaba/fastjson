@@ -39,6 +39,13 @@ public interface JSONLexer {
     int pos();
 
     Number integerValue();
+    
+    /**
+     * #462 建议增加选择是否使用BigInteger的功能 
+     * @param useBigInteger
+     * @return 
+     */
+    Number integerValue(boolean useBigInteger);
 
     BigDecimal decimalValue();
 

@@ -413,6 +413,20 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
         return null;
     }
+    
+    /**
+     * #462 建议增加选择是否使用BigInteger的功能 
+     * @param useBigInteger
+     * @return
+     * @throws NumberFormatException 
+     */
+    public final Number integerValue(boolean useBigInteger) throws NumberFormatException {
+        Number ret  =  integerValue() ;
+        if( ret instanceof BigInteger ) {
+            ret = ret.doubleValue();
+        }
+        return ret ; 
+    }
 
     public final Number integerValue() throws NumberFormatException {
         long result = 0;

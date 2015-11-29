@@ -49,6 +49,11 @@ public enum Feature {
      * {"a":1,,,"b":2}
      */
     AllowArbitraryCommas,
+    
+    /**
+     * #462 建议增加选择是否使用BigInteger的功能 
+     */
+    UseBigInteger,
 
     /**
      * 

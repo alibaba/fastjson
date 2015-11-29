@@ -51,7 +51,7 @@ public enum Feature {
     AllowArbitraryCommas,
     
     /**
-     * #462 建议增加选择是否使用BigInteger的功能 
+     * #462 建议增加选择是否使用BigInteger的功能  
      */
     UseBigInteger,
 

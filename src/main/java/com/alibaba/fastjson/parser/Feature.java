@@ -15,91 +15,83 @@
  */
 package com.alibaba.fastjson.parser;
 
-
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
 public enum Feature {
     /**
-	 * 
-	 */
+     *
+     */
     AutoCloseSource,
     /**
-	 * 
-	 */
+     *
+     */
     AllowComment,
     /**
-	 * 
-	 */
+     *
+     */
     AllowUnQuotedFieldNames,
     /**
-	 * 
-	 */
+     *
+     */
     AllowSingleQuotes,
     /**
-	 * 
-	 */
+     *
+     */
     InternFieldNames,
     /**
-	 * 
-	 */
+     *
+     */
     AllowISO8601DateFormat,
-
     /**
      * {"a":1,,,"b":2}
      */
     AllowArbitraryCommas,
-
     /**
-     * 
+     *
      */
     UseBigDecimal,
-    
+    /**
+     *
+     */
+    UseBigInteger,
     /**
      * @since 1.1.2
      */
     IgnoreNotMatch,
-
     /**
      * @since 1.1.3
      */
     SortFeidFastMatch,
-    
     /**
      * @since 1.1.3
      */
     DisableASM,
-    
     /**
      * @since 1.1.7
      */
     DisableCircularReferenceDetect,
-    
     /**
      * @since 1.1.10
      */
     InitStringFieldAsEmpty,
-    
     /**
      * @since 1.1.35
-     * 
+     *
      */
     SupportArrayToBean,
-    
     /**
      * @since 1.2.3
-     * 
+     *
      */
     OrderedField,
-    
     /**
      * @since 1.2.5
-     * 
+     *
      */
-    DisableSpecialKeyDetect
-    ;
+    DisableSpecialKeyDetect;
 
-    Feature(){
+    Feature() {
         mask = (1 << ordinal());
     }
 
@@ -122,18 +114,18 @@ public enum Feature {
 
         return features;
     }
-    
+
     public static int of(Feature[] features) {
         if (features == null) {
             return 0;
         }
-        
+
         int value = 0;
-        
-        for (Feature feature: features) {
+
+        for (Feature feature : features) {
             value |= feature.getMask();
         }
-        
+
         return value;
     }
 }

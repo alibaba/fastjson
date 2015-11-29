@@ -74,32 +74,32 @@ import com.alibaba.fastjson.util.TypeUtils;
  */
 public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 
-    protected final Object             input;
-    protected final SymbolTable        symbolTable;
-    protected ParserConfig             config;
+    protected final Object input;
+    protected final SymbolTable symbolTable;
+    protected ParserConfig config;
 
-    private final static Set<Class<?>> primitiveClasses   = new HashSet<Class<?>>();
+    private final static Set<Class<?>> primitiveClasses = new HashSet<Class<?>>();
 
-    private String                     dateFormatPattern  = JSON.DEFFAULT_DATE_FORMAT;
-    private DateFormat                 dateFormat;
+    private String dateFormatPattern = JSON.DEFFAULT_DATE_FORMAT;
+    private DateFormat dateFormat;
 
-    protected final JSONLexer          lexer;
+    protected final JSONLexer lexer;
 
-    protected ParseContext             context;
+    protected ParseContext context;
 
-    private ParseContext[]             contextArray       = new ParseContext[8];
-    private int                        contextArrayIndex  = 0;
+    private ParseContext[] contextArray = new ParseContext[8];
+    private int contextArrayIndex = 0;
 
-    private List<ResolveTask>          resolveTaskList;
+    private List<ResolveTask> resolveTaskList;
 
-    public final static int            NONE               = 0;
-    public final static int            NeedToResolve      = 1;
-    public final static int            TypeNameRedirect   = 2;
+    public final static int NONE = 0;
+    public final static int NeedToResolve = 1;
+    public final static int TypeNameRedirect = 2;
 
-    private int                        resolveStatus      = NONE;
+    private int resolveStatus = NONE;
 
-    private List<ExtraTypeProvider>    extraTypeProviders = null;
-    private List<ExtraProcessor>       extraProcessors    = null;
+    private List<ExtraTypeProvider> extraTypeProviders = null;
+    private List<ExtraProcessor> extraProcessors = null;
 
     static {
         primitiveClasses.add(boolean.class);
@@ -143,31 +143,31 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
         this.dateFormat = dateFormat;
     }
 
-    public DefaultJSONParser(String input){
+    public DefaultJSONParser(String input) {
         this(input, ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
     }
 
-    public DefaultJSONParser(final String input, final ParserConfig config){
+    public DefaultJSONParser(final String input, final ParserConfig config) {
         this(input, new JSONScanner(input, JSON.DEFAULT_PARSER_FEATURE), config);
     }
 
-    public DefaultJSONParser(final String input, final ParserConfig config, int features){
+    public DefaultJSONParser(final String input, final ParserConfig config, int features) {
         this(input, new JSONScanner(input, features), config);
     }
 
-    public DefaultJSONParser(final char[] input, int length, final ParserConfig config, int features){
+    public DefaultJSONParser(final char[] input, int length, final ParserConfig config, int features) {
         this(input, new JSONScanner(input, length, features), config);
     }
 
-    public DefaultJSONParser(final JSONLexer lexer){
+    public DefaultJSONParser(final JSONLexer lexer) {
         this(lexer, ParserConfig.getGlobalInstance());
     }
 
-    public DefaultJSONParser(final JSONLexer lexer, final ParserConfig config){
+    public DefaultJSONParser(final JSONLexer lexer, final ParserConfig config) {
         this(null, lexer, config);
     }
 
-    public DefaultJSONParser(final Object input, final JSONLexer lexer, final ParserConfig config){
+    public DefaultJSONParser(final Object input, final JSONLexer lexer, final ParserConfig config) {
         this.lexer = lexer;
         this.input = input;
         this.config = config;
@@ -187,10 +187,10 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
         return input.toString();
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public final Object parseObject(final Map object, Object fieldName) {
         final JSONLexer lexer = this.lexer;
-        
+
         if (lexer.token() == JSONToken.NULL) {
             lexer.next();
             return null;
@@ -200,7 +200,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
             throw new JSONException("syntax error, expect {, actual " + lexer.tokenName());
         }
 
-       ParseContext context = this.getContext();
+        ParseContext context = this.getContext();
         try {
             boolean setContextFlag = false;
             for (;;) {
@@ -247,7 +247,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                     lexer.resetStringPosition();
                     lexer.scanNumber();
                     if (lexer.token() == JSONToken.LITERAL_INT) {
-                        key = lexer.integerValue();
+                        key = lexer.integerValue(isEnabled(Feature.UseBigInteger));
                     } else {
                         key = lexer.decimalValue(true);
                     }
@@ -406,7 +406,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                 } else if (ch >= '0' && ch <= '9' || ch == '-') {
                     lexer.scanNumber();
                     if (lexer.token() == JSONToken.LITERAL_INT) {
-                        value = lexer.integerValue();
+                        value = lexer.integerValue(isEnabled(Feature.UseBigInteger));
                     } else {
                         value = lexer.decimalValue(isEnabled(Feature.UseBigDecimal));
                     }
@@ -576,7 +576,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
         parseArray(type, array, null);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public void parseArray(Type type, Collection array, Object fieldName) {
         if (lexer.token() == JSONToken.SET || lexer.token() == JSONToken.TREE_SET) {
             lexer.nextToken();
@@ -794,7 +794,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
             }
 
             FieldDeserializer fieldDeser = setters.get(key);
-            
+
             if (fieldDeser == null && key != null) {
                 for (Map.Entry<String, FieldDeserializer> entry : setters.entrySet()) {
                     if (key.equalsIgnoreCase((entry.getKey()))) {
@@ -803,7 +803,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                     }
                 }
             }
-            
+
             if (fieldDeser == null) {
                 if (!isEnabled(Feature.IgnoreNotMatch)) {
                     throw new JSONException("setter not found, class " + clazz.getName() + ", property " + key);
@@ -1006,7 +1006,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
         parseArray(array, null);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public final void parseArray(final Collection array, Object fieldName) {
         final JSONLexer lexer = getLexer();
 
@@ -1016,7 +1016,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 
         if (lexer.token() != JSONToken.LBRACKET) {
             throw new JSONException("syntax error, expect [, actual " + JSONToken.name(lexer.token()) + ", pos "
-                                    + lexer.pos());
+                        + lexer.pos());
         }
 
         lexer.nextToken(JSONToken.LITERAL_STRING);
@@ -1035,15 +1035,11 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                 Object value;
                 switch (lexer.token()) {
                     case LITERAL_INT:
-                        value = lexer.integerValue();
+                        value = lexer.integerValue(lexer.isEnabled(Feature.UseBigInteger));
                         lexer.nextToken(JSONToken.COMMA);
                         break;
                     case LITERAL_FLOAT:
-                        if (lexer.isEnabled(Feature.UseBigDecimal)) {
-                            value = lexer.decimalValue(true);
-                        } else {
-                            value = lexer.decimalValue(false);
-                        }
+                        value = lexer.decimalValue(lexer.isEnabled(Feature.UseBigDecimal));
                         lexer.nextToken(JSONToken.COMMA);
                         break;
                     case LITERAL_STRING:
@@ -1240,7 +1236,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                 JSONObject object = new JSONObject(isEnabled(Feature.OrderedField));
                 return parseObject(object, fieldName);
             case LITERAL_INT:
-                Number intValue = lexer.integerValue();
+                Number intValue = lexer.integerValue(isEnabled(Feature.UseBigInteger));
                 lexer.nextToken();
                 return intValue;
             case LITERAL_FLOAT:
@@ -1284,7 +1280,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                 lexer.nextToken(JSONToken.LPAREN);
 
                 accept(JSONToken.LPAREN);
-                long time = ((Number) lexer.integerValue()).longValue();
+                long time = ((Number) lexer.integerValue(isEnabled(Feature.UseBigInteger))).longValue();
                 accept(JSONToken.LITERAL_INT);
 
                 accept(JSONToken.RPAREN);
@@ -1319,7 +1315,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
             lexer.nextToken();
         } else {
             throw new JSONException("syntax error, expect " + JSONToken.name(token) + ", actual "
-                                    + JSONToken.name(lexer.token()));
+                        + JSONToken.name(lexer.token()));
         }
     }
 
@@ -1329,7 +1325,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
             lexer.nextToken(nextExpectToken);
         } else {
             throw new JSONException("syntax error, expect " + JSONToken.name(token) + ", actual "
-                                    + JSONToken.name(lexer.token()));
+                        + JSONToken.name(lexer.token()));
         }
     }
 
@@ -1380,11 +1376,11 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
     public static class ResolveTask {
 
         private final ParseContext context;
-        private final String       referenceValue;
-        private FieldDeserializer  fieldDeserializer;
-        private ParseContext       ownerContext;
+        private final String referenceValue;
+        private FieldDeserializer fieldDeserializer;
+        private ParseContext ownerContext;
 
-        public ResolveTask(ParseContext context, String referenceValue){
+        public ResolveTask(ParseContext context, String referenceValue) {
             this.context = context;
             this.referenceValue = referenceValue;
         }

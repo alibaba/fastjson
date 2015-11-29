@@ -73,6 +73,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         features |= Feature.AutoCloseSource.getMask();
         features |= Feature.InternFieldNames.getMask();
         features |= Feature.UseBigDecimal.getMask();
+        features |= Feature.UseBigInteger.getMask();
         features |= Feature.AllowUnQuotedFieldNames.getMask();
         features |= Feature.AllowSingleQuotes.getMask();
         features |= Feature.AllowArbitraryCommas.getMask();

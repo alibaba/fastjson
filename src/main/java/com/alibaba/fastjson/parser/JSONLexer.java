@@ -39,6 +39,8 @@ public interface JSONLexer {
     int pos();
 
     Number integerValue();
+    
+    Number integerValue(boolean useBigInteger);
 
     BigDecimal decimalValue();
 

@@ -470,12 +470,17 @@ public class ParserConfig {
                 asmEnable = false;
             }
             DeserializeBeanInfo beanInfo = DeserializeBeanInfo.computeSetters(clazz, type);
-            if (beanInfo.getFieldList().size() > 200) {
+            
+            if (beanInfo.getBuilderClass() != null) {
+                asmEnable = false;
+            }
+            
+            if (asmEnable && beanInfo.getFieldList().size() > 200) {
                 asmEnable = false;
             }
 
             Constructor<?> defaultConstructor = beanInfo.getDefaultConstructor();
-            if (defaultConstructor == null && !clazz.isInterface()) {
+            if (asmEnable && defaultConstructor == null && !clazz.isInterface()) {
                 asmEnable = false;
             }
 
@@ -530,11 +535,29 @@ public class ParserConfig {
         }
     }
 
-    public FieldDeserializer createFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
+    public FieldDeserializer createFieldDeserializer(ParserConfig mapping, DeserializeBeanInfo beanInfo, FieldInfo fieldInfo) {
         boolean asmEnable = this.asmEnable;
 
+        Class<?> clazz = beanInfo.getClazz();
+        Class<?> builderClass = beanInfo.getBuilderClass();
         if (asmEnable) {
             Class<?> superClass = clazz;
+
+            for (;;) {
+                if (!Modifier.isPublic(superClass.getModifiers())) {
+                    asmEnable = false;
+                    break;
+                }
+
+                superClass = superClass.getSuperclass();
+                if (superClass == Object.class || superClass == null) {
+                    break;
+                }
+            }
+        }
+        
+        if (asmEnable && builderClass != null) {
+            Class<?> superClass = builderClass;
 
             for (;;) {
                 if (!Modifier.isPublic(superClass.getModifiers())) {

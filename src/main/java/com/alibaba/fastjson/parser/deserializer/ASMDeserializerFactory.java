@@ -604,6 +604,13 @@ public class ASMDeserializerFactory implements Opcodes {
 
         _setContext(context, mw);
         mw.visitVarInsn(ALOAD, context.var("instance"));
+        
+        Method buildMethod = context.getBeanInfo().getBuildMethod();
+        if (buildMethod != null) {
+            mw.visitMethodInsn(INVOKEVIRTUAL, getType(context.getInstClass()), buildMethod.getName(),
+                    "()" + getDesc(buildMethod.getReturnType()));
+        }
+        
         mw.visitInsn(ARETURN);
 
         mw.visitLabel(reset_);
@@ -646,11 +653,13 @@ public class ASMDeserializerFactory implements Opcodes {
     }
 
     private void _createInstance(Context context, MethodVisitor mw) {
-        Constructor<?> defaultConstructor = context.getBeanInfo().getDefaultConstructor();
+        DeserializeBeanInfo beanInfo = context.getBeanInfo();
+        Constructor<?> defaultConstructor = beanInfo.getDefaultConstructor();
         if (Modifier.isPublic(defaultConstructor.getModifiers())) {
-            mw.visitTypeInsn(NEW, getType(context.getClazz()));
+            mw.visitTypeInsn(NEW, getType(context.getInstClass()));
             mw.visitInsn(DUP);
-            mw.visitMethodInsn(INVOKESPECIAL, getType(context.getClazz()), "<init>", "()V");
+            
+            mw.visitMethodInsn(INVOKESPECIAL, getType(defaultConstructor.getDeclaringClass()), "<init>", "()V");
 
             mw.visitVarInsn(ASTORE, context.var("instance"));
         } else {
@@ -658,7 +667,7 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitVarInsn(ALOAD, 1);
             mw.visitMethodInsn(INVOKESPECIAL, "com/alibaba/fastjson/parser/deserializer/ASMJavaBeanDeserializer", "createInstance",
                                "(Lcom/alibaba/fastjson/parser/DefaultJSONParser;)Ljava/lang/Object;");
-            mw.visitTypeInsn(CHECKCAST, getType(context.getClazz())); // cast
+            mw.visitTypeInsn(CHECKCAST, getType(context.getInstClass())); // cast
             mw.visitVarInsn(ASTORE, context.var("instance"));
         }
     }
@@ -703,7 +712,7 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitVarInsn(ALOAD, context.var("instance"));
             mw.visitVarInsn(LLOAD, context.var(fieldInfo.getName() + "_asm", 2));
             if (fieldInfo.getMethod() != null) {
-                mw.visitMethodInsn(INVOKEVIRTUAL, getType(context.getClazz()), fieldInfo.getMethod().getName(),
+                mw.visitMethodInsn(INVOKEVIRTUAL, getType(context.getInstClass()), fieldInfo.getMethod().getName(),
                                    getDesc(fieldInfo.getMethod()));
                 if (!fieldInfo.getMethod().getReturnType().equals(Void.TYPE)) {
                     mw.visitInsn(POP);
@@ -1245,6 +1254,15 @@ public class ASMDeserializerFactory implements Opcodes {
         public Class<?> getClazz() {
             return clazz;
         }
+        
+        public Class<?> getInstClass() {
+            Class<?> instClass = beanInfo.getBuilderClass();
+            if (instClass == null) {
+                instClass = clazz;
+            }
+            
+            return instClass;
+        }
 
         public int getVariantCount() {
             return variantIndex;
@@ -1338,9 +1356,9 @@ public class ASMDeserializerFactory implements Opcodes {
                                           , "(Lcom/alibaba/fastjson/parser/DefaultJSONParser;Ljava/lang/reflect/Type;)Ljava/lang/Object;",
                                           null, null);
 
-        mw.visitTypeInsn(NEW, getType(context.getClazz()));
+        mw.visitTypeInsn(NEW, getType(context.getInstClass()));
         mw.visitInsn(DUP);
-        mw.visitMethodInsn(INVOKESPECIAL, getType(context.getClazz()), "<init>", "()V");
+        mw.visitMethodInsn(INVOKESPECIAL, getType(context.getInstClass()), "<init>", "()V");
 
         mw.visitInsn(ARETURN);
         mw.visitMaxs(3, 3);

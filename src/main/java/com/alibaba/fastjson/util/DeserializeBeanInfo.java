@@ -557,7 +557,7 @@ public class DeserializeBeanInfo {
         return parserFeatures;
     }
 
-    private static Class<?> getBuilderClass(Class<?> clazz) {
+    public static Class<?> getBuilderClass(Class<?> clazz) {
         JSONType type = clazz.getAnnotation(JSONType.class);
         if (type == null) {
             return null;

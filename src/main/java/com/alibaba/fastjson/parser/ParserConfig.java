@@ -438,7 +438,10 @@ public class ParserConfig {
     public ObjectDeserializer createJavaBeanDeserializer(Class<?> clazz, Type type) {
         boolean asmEnable = this.asmEnable;
         if (asmEnable) {
-            Class<?> superClass = clazz;
+            Class<?> superClass = DeserializeBeanInfo.getBuilderClass(clazz);
+            if (superClass == null) {
+                superClass = clazz;
+            }
 
             for (;;) {
                 if (!Modifier.isPublic(superClass.getModifiers())) {
@@ -471,9 +474,6 @@ public class ParserConfig {
             }
             DeserializeBeanInfo beanInfo = DeserializeBeanInfo.computeSetters(clazz, type);
             
-            if (beanInfo.getBuilderClass() != null) {
-                asmEnable = false;
-            }
             
             if (asmEnable && beanInfo.getFieldList().size() > 200) {
                 asmEnable = false;
@@ -539,9 +539,11 @@ public class ParserConfig {
         boolean asmEnable = this.asmEnable;
 
         Class<?> clazz = beanInfo.getClazz();
-        Class<?> builderClass = beanInfo.getBuilderClass();
         if (asmEnable) {
-            Class<?> superClass = clazz;
+            Class<?> superClass = beanInfo.getBuilderClass();
+            if (superClass == null) {
+                superClass = clazz;
+            }
 
             for (;;) {
                 if (!Modifier.isPublic(superClass.getModifiers())) {
@@ -556,22 +558,6 @@ public class ParserConfig {
             }
         }
         
-        if (asmEnable && builderClass != null) {
-            Class<?> superClass = builderClass;
-
-            for (;;) {
-                if (!Modifier.isPublic(superClass.getModifiers())) {
-                    asmEnable = false;
-                    break;
-                }
-
-                superClass = superClass.getSuperclass();
-                if (superClass == Object.class || superClass == null) {
-                    break;
-                }
-            }
-        }
-
         if (fieldInfo.getFieldClass() == Class.class) {
             asmEnable = false;
         }

@@ -144,6 +144,14 @@ public final class JSONReaderScanner extends JSONLexerBase {
     }
 
     public final char next() {
+        ch = doNext();
+        if (ch == '/' && isEnabled(Feature.AllowComment)) {
+            skipComment();
+        }
+        return ch;
+    }
+
+    public final char doNext() {
         int index = ++bp;
 
         if (index >= bufLength) {

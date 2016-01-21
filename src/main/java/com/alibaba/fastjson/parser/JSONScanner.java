@@ -61,8 +61,15 @@ public final class JSONScanner extends JSONLexerBase {
 
         return text.charAt(index);
     }
-
     public final char next() {
+        ch = doNext();
+        if (ch == '/' && isEnabled(Feature.AllowComment)) {
+            skipComment();
+        }
+        return ch;
+    }
+
+    public final char doNext() {
         return ch = charAt(++bp);
     }
 

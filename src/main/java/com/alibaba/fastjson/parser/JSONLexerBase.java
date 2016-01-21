@@ -617,6 +617,34 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     public abstract char next();
 
+    public abstract char doNext();
+
+    protected void skipComment() {
+        doNext();
+        if (ch == '/') {
+            for (;;) {
+                doNext();
+                if (ch == '\n') {
+                    doNext();
+                    return;
+                }
+            }
+        } else if (ch == '*') {
+            for (;;) {
+                doNext();
+                if (ch == '*') {
+                    doNext();
+                    if (ch == '/') {
+                        doNext();
+                        return;
+                    }
+                }
+            }
+        } else {
+            throw new JSONException("invalid comment");
+        }
+    }
+
     public final String scanSymbol(final SymbolTable symbolTable) {
         skipWhitespace();
 

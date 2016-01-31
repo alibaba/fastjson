@@ -463,6 +463,10 @@ public class TypeUtils {
             
             return Integer.parseInt(strVal);
         }
+        
+        if (value instanceof Boolean) {
+            return ((Boolean) value).booleanValue() ? 1 : 0;
+        }
 
         throw new JSONException("can not cast to int, value : " + value);
     }

@@ -26,7 +26,7 @@
 		<gpg.skip>false</gpg.skip>
 		<javadoc.skip>false</javadoc.skip>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jdk.version>1.5</jdk.version>
+		<jdk.version>1.6</jdk.version>
 	</properties>
 
 	<developers>

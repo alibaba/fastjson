@@ -15,7 +15,10 @@
  */
 package com.alibaba.fastjson.serializer;
 
-import static com.alibaba.fastjson.util.IOUtils.replaceChars;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.util.Base64;
+import com.alibaba.fastjson.util.IOUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -24,10 +27,7 @@ import java.lang.ref.SoftReference;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.util.Base64;
-import com.alibaba.fastjson.util.IOUtils;
+import static com.alibaba.fastjson.util.IOUtils.replaceChars;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -561,8 +561,12 @@ public final class SerializeWriter extends Writer {
     }
 
     public void writeLongAndChar(long i, char c) throws IOException {
+        boolean needQuotationMark = needQuotationMark(i);
         if (i == Long.MIN_VALUE) {
-            write("-9223372036854775808");
+            if (needQuotationMark)
+                write("\"-9223372036854775808\"");
+            else
+                write("-9223372036854775808");
             write(c);
             return;
         }
@@ -570,6 +574,8 @@ public final class SerializeWriter extends Writer {
         int size = (i < 0) ? IOUtils.stringSize(-i) + 1 : IOUtils.stringSize(i);
 
         int newcount0 = count + size;
+        if (needQuotationMark)
+            newcount0 += 2;
         int newcount1 = newcount0 + 1;
 
         if (newcount1 > buf.length) {
@@ -581,33 +587,62 @@ public final class SerializeWriter extends Writer {
             expandCapacity(newcount1);
         }
 
-        IOUtils.getChars(i, newcount0, buf);
+        if (needQuotationMark) {
+            buf[count] = '"';
+            IOUtils.getChars(i, newcount0 - 1, buf);
+            buf[newcount0 - 1] = '"';
+        } else
+            IOUtils.getChars(i, newcount0, buf);
+
         buf[newcount0] = c;
 
         count = newcount1;
     }
 
+    private boolean needQuotationMark(long val) {
+        if (isEnabled(SerializerFeature.BrowserCompatible) && !isEnabled(SerializerFeature.WriteClassName))
+            return (val > 9007199254740991L || val < -9007199254740991L);
+        else
+            return false;
+    }
+
     public void writeLong(long i) {
+        boolean needQuotationMark = needQuotationMark(i);
         if (i == Long.MIN_VALUE) {
-            write("-9223372036854775808");
+            if (needQuotationMark)
+                write("\"-9223372036854775808\"");
+            else
+                write("-9223372036854775808");
             return;
         }
 
         int size = (i < 0) ? IOUtils.stringSize(-i) + 1 : IOUtils.stringSize(i);
 
         int newcount = count + size;
+        if (needQuotationMark)
+            newcount += 2;
         if (newcount > buf.length) {
             if (writer == null) {
                 expandCapacity(newcount);
             } else {
                 char[] chars = new char[size];
                 IOUtils.getChars(i, size, chars);
-                write(chars, 0, chars.length);
+                if (needQuotationMark) {
+                    write('"');
+                    write(chars, 0, chars.length);
+                    write('"');
+                } else
+                    write(chars, 0, chars.length);
                 return;
             }
         }
 
-        IOUtils.getChars(i, newcount, buf);
+        if (needQuotationMark) {
+            buf[count] = '"';
+            IOUtils.getChars(i, newcount - 1, buf);
+            buf[newcount - 1] = '"';
+        } else
+            IOUtils.getChars(i, newcount, buf);
 
         count = newcount;
     }

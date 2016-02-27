@@ -997,7 +997,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 
     public JSONObject parseObject() {
         JSONObject object = new JSONObject(isEnabled(Feature.OrderedField));
-        parseObject(object);
+        object = (JSONObject) parseObject(object);
         return object;
     }
 

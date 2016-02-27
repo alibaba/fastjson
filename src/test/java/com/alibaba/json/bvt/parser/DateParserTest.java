@@ -43,9 +43,9 @@ public class DateParserTest extends TestCase {
     }
 
     public void test_date_1() throws Exception {
-        int featrues = JSON.DEFAULT_PARSER_FEATURE;
-        featrues = Feature.config(featrues, Feature.AllowISO8601DateFormat, true);
-        DefaultJSONParser parser = new DefaultJSONParser("\"2011-01-09T13:49:53.254\"", ParserConfig.getGlobalInstance(), featrues);
+        int features = JSON.DEFAULT_PARSER_FEATURE;
+        features = Feature.config(features, Feature.AllowISO8601DateFormat, true);
+        DefaultJSONParser parser = new DefaultJSONParser("\"2011-01-09T13:49:53.254\"", ParserConfig.getGlobalInstance(), features);
 
         java.util.Date date = parser.parseObject(java.util.Date.class);
 
@@ -54,8 +54,8 @@ public class DateParserTest extends TestCase {
     }
 
     public void test_date_2() throws Exception {
-        int featrues = JSON.DEFAULT_PARSER_FEATURE;
-        DefaultJSONParser parser = new DefaultJSONParser("new Date(1294552193254)", ParserConfig.getGlobalInstance(), featrues);
+        int features = JSON.DEFAULT_PARSER_FEATURE;
+        DefaultJSONParser parser = new DefaultJSONParser("new Date(1294552193254)", ParserConfig.getGlobalInstance(), features);
 
         java.util.Date date = parser.parseObject(java.util.Date.class);
 
@@ -70,9 +70,9 @@ public class DateParserTest extends TestCase {
     }
 
     public void test_date_4() throws Exception {
-        int featrues = JSON.DEFAULT_PARSER_FEATURE;
-        featrues = Feature.config(featrues, Feature.AllowISO8601DateFormat, true);
-        DefaultJSONParser parser = new DefaultJSONParser("\"2011-01-09\"", ParserConfig.getGlobalInstance(), featrues);
+        int features = JSON.DEFAULT_PARSER_FEATURE;
+        features = Feature.config(features, Feature.AllowISO8601DateFormat, true);
+        DefaultJSONParser parser = new DefaultJSONParser("\"2011-01-09\"", ParserConfig.getGlobalInstance(), features);
 
         java.util.Date date = parser.parseObject(java.util.Date.class);
 
@@ -86,8 +86,8 @@ public class DateParserTest extends TestCase {
     }
 
     public void test_date_6() throws Exception {
-        int featrues = JSON.DEFAULT_PARSER_FEATURE;
-        featrues = Feature.config(featrues, Feature.AllowISO8601DateFormat, true);
+        int features = JSON.DEFAULT_PARSER_FEATURE;
+        features = Feature.config(features, Feature.AllowISO8601DateFormat, true);
 
         java.util.Date date = JSON.parseObject("{d:\"2011-01-09T13:49:53\"}", Entity.class, Feature.AllowISO8601DateFormat).getD();
 

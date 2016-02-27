@@ -59,8 +59,8 @@ public class BooleanFieldSerializerTest extends TestCase {
             return null;
         }
 
-        for (Feature featrue : features) {
-            featureValues = Feature.config(featureValues, featrue, true);
+        for (Feature feature : features) {
+            featureValues = Feature.config(featureValues, feature, true);
         }
 
         ParserConfig config = new ParserConfig();

@@ -41,6 +41,8 @@ public class ASMDeserializerFactory implements Opcodes {
 
     private final ASMClassLoader                classLoader;
 
+    private final Map<String, Class> classMap = new HashMap<String, Class>();
+
     private final AtomicLong                    seed     = new AtomicLong();
 
     public String getGenClassName(Class<?> clazz) {
@@ -104,12 +106,20 @@ public class ASMDeserializerFactory implements Opcodes {
             }
         }
 
-        Class<?> exampleClass = classLoader.defineClassPublic(className, code, 0, code.length);
+        Class<?> exampleClass = defineClassPublic(className, code, 0, code.length);
 
         Constructor<?> constructor = exampleClass.getConstructor(ParserConfig.class, Class.class);
         Object instance = constructor.newInstance(config, clazz);
 
         return (ObjectDeserializer) instance;
+    }
+
+    private Class<?> defineClassPublic(String name, byte[] b, int off, int len){
+        if(classMap.containsKey(name)){
+            return classMap.get(name);
+        } else {
+            return classLoader.defineClassPublic(name, b, off, len);
+        }
     }
 
     void _setFlag(MethodVisitor mw, Context context, int i) {
@@ -1212,7 +1222,7 @@ public class ASMDeserializerFactory implements Opcodes {
 
         byte[] code = cw.toByteArray();
 
-        Class<?> exampleClass = classLoader.defineClassPublic(className, code, 0, code.length);
+        Class<?> exampleClass = defineClassPublic(className, code, 0, code.length);
 
         Constructor<?> constructor = exampleClass.getConstructor(ParserConfig.class, Class.class, FieldInfo.class);
         Object instance = constructor.newInstance(mapping, clazz, fieldInfo);

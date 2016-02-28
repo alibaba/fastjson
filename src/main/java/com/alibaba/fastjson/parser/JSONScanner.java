@@ -36,7 +36,7 @@ public final class JSONScanner extends JSONLexerBase {
 
     private final String text;
     
-    private boolean isAndroid = ASMUtils.isAndroid();
+    private static boolean isAndroid = ASMUtils.isAndroid();
 
     public JSONScanner(String input){
         this(input, JSON.DEFAULT_PARSER_FEATURE);

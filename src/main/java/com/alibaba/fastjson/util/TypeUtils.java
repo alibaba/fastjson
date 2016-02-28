@@ -67,6 +67,12 @@ public class TypeUtils {
 	
     public static boolean compatibleWithJavaBean = false;
     private static boolean setAccessibleEnable    = true;
+    
+    private static boolean oracleTimestampMethodInited = false;
+    private static Method  oracleTimestampMethod;
+    
+    private static boolean oracleDateMethodInited = false;
+    private static Method  oracleDateMethod;
 
     static {
         try {
@@ -309,6 +315,47 @@ public class TypeUtils {
         }
 
         if (longValue < 0) {
+            Class<?> clazz = value.getClass();
+            if ("oracle.sql.TIMESTAMP".equals(clazz.getName())) {
+                if (oracleTimestampMethod == null && !oracleTimestampMethodInited) {
+                    try {
+                        oracleTimestampMethod = clazz.getMethod("toJdbc");
+                    } catch (NoSuchMethodException e) {
+                        // skip
+                    } finally {
+                        oracleTimestampMethodInited = true;
+                    }
+                }
+                
+                Object result;
+                try {
+                    result = oracleTimestampMethod.invoke(value);
+                } catch (Exception e) {
+                    throw new JSONException("can not cast oracle.sql.TIMESTAMP to Date", e);
+                }
+                return (Date) result;
+            }
+            
+            if ("oracle.sql.DATE".equals(clazz.getName())) {
+                if (oracleDateMethod == null && !oracleDateMethodInited) {
+                    try {
+                        oracleDateMethod = clazz.getMethod("toJdbc");
+                    } catch (NoSuchMethodException e) {
+                        // skip
+                    } finally {
+                        oracleDateMethodInited = true;
+                    }
+                }
+                
+                Object result;
+                try {
+                    result = oracleDateMethod.invoke(value);
+                } catch (Exception e) {
+                    throw new JSONException("can not cast oracle.sql.DATE to Date", e);
+                }
+                return (Date) result;
+            }
+            
             throw new JSONException("can not cast to Date, value : " + value);
         }
 

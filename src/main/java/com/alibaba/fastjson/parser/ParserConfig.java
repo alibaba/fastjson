@@ -93,6 +93,7 @@ import com.alibaba.fastjson.parser.deserializer.LongFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.MapDeserializer;
 import com.alibaba.fastjson.parser.deserializer.NumberDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
+import com.alibaba.fastjson.parser.deserializer.OptionalCodec;
 import com.alibaba.fastjson.parser.deserializer.SqlDateDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StackTraceElementDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StringFieldDeserializer;
@@ -152,6 +153,9 @@ public class ParserConfig {
     protected final SymbolTable                             symbolTable      = new SymbolTable();
 
     protected ASMDeserializerFactory                        asmFactory;
+    
+    private static boolean                                  awtError         = false;
+    private static boolean                                  jdk8Error        = false;
     
     public ParserConfig() {
         this(null, null);
@@ -298,30 +302,38 @@ public class ParserConfig {
         derializers.put(Comparable.class, JavaObjectDeserializer.instance);
         derializers.put(Closeable.class, JavaObjectDeserializer.instance);
 
-        try {
-            derializers.put(Class.forName("java.awt.Point"), PointCodec.instance);
-            derializers.put(Class.forName("java.awt.Font"), FontCodec.instance);
-            derializers.put(Class.forName("java.awt.Rectangle"), RectangleCodec.instance);
-            derializers.put(Class.forName("java.awt.Color"), ColorCodec.instance);
-        } catch (Throwable e) {
-            // skip
+        if (!awtError) {
+            try {
+                derializers.put(Class.forName("java.awt.Point"), PointCodec.instance);
+                derializers.put(Class.forName("java.awt.Font"), FontCodec.instance);
+                derializers.put(Class.forName("java.awt.Rectangle"), RectangleCodec.instance);
+                derializers.put(Class.forName("java.awt.Color"), ColorCodec.instance);
+            } catch (Throwable e) {
+                // skip
+                awtError = true;
+            }
         }
         
-        try {
-            derializers.put(Class.forName("java.time.LocalDateTime"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.LocalDate"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.LocalTime"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.ZonedDateTime"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.OffsetDateTime"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.OffsetTime"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.ZoneOffset"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.ZoneRegion"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.ZoneId"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.Period"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.Duration"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.Instant"), Jdk8DateCodec.instance);
-        } catch (Throwable e) {
-            
+        if (!jdk8Error) {
+            try {
+                derializers.put(Class.forName("java.time.LocalDateTime"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.LocalDate"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.LocalTime"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.ZonedDateTime"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.OffsetDateTime"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.OffsetTime"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.ZoneOffset"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.ZoneRegion"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.ZoneId"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.Period"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.Duration"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.Instant"), Jdk8DateCodec.instance);
+                
+                derializers.put(Class.forName("java.util.Optional"), OptionalCodec.instance);
+            } catch (Throwable e) {
+                // skip
+                jdk8Error = true;
+            }
         }
     }
 

@@ -59,6 +59,7 @@ import com.alibaba.fastjson.JSONStreamAware;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.deserializer.Jdk8DateCodec;
+import com.alibaba.fastjson.parser.deserializer.OptionalCodec;
 import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.ServiceLoader;
@@ -251,6 +252,8 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
     		    put(Class.forName("java.time.Period"), Jdk8DateCodec.instance);
     		    put(Class.forName("java.time.Duration"), Jdk8DateCodec.instance);
     		    put(Class.forName("java.time.Instant"), Jdk8DateCodec.instance);
+    		    
+    		    put(Class.forName("java.util.Optional"), OptionalCodec.instance);
     		} catch (Throwable e) {
     		    // skip
     		    jdk8Error = true;

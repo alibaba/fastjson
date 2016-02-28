@@ -363,7 +363,9 @@ public class DeserializeBeanInfo {
             char c3 = methodName.charAt(3);
 
             String propertyName;
-            if (Character.isUpperCase(c3)) {
+            if (Character.isUpperCase(c3) // 
+                    || c3 > 512 // for unicode method name
+                    ) {
                 if (TypeUtils.compatibleWithJavaBean) {
                     propertyName = TypeUtils.decapitalize(methodName.substring(3));
                 } else {

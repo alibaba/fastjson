@@ -933,6 +933,9 @@ public final class JSONScanner extends JSONLexerBase {
 
             if (ch == ']') {
                 ch = charAt(index++);
+                while (isWhitespace(ch)) {
+                    ch = charAt(index++);    
+                }
                 break;
             }
 
@@ -947,6 +950,11 @@ public final class JSONScanner extends JSONLexerBase {
             return list;
         } else if (ch == '}') {
             ch = charAt(bp);
+            while (isWhitespace(ch)) {
+                ch = charAt(index++);  
+                bp = index;
+            }
+            
             if (ch == ',') {
                 token = JSONToken.COMMA;
                 this.ch = charAt(++bp);

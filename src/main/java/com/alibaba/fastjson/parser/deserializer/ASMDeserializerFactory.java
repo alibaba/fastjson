@@ -41,7 +41,7 @@ public class ASMDeserializerFactory implements Opcodes {
 
     private final ASMClassLoader                classLoader;
 
-    private final Map<String, Class> classMap = new HashMap<String, Class>();
+    private final Map<String, Class<?>> classMap = new HashMap<String, Class<?>>();
 
     private final AtomicLong                    seed     = new AtomicLong();
 

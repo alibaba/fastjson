@@ -1050,7 +1050,9 @@ public class TypeUtils {
                 char c3 = methodName.charAt(3);
 
                 String propertyName;
-                if (Character.isUpperCase(c3)) {
+                if (Character.isUpperCase(c3) //
+                        || c3 > 512 // for unicode method name
+                        ) {
                     if (compatibleWithJavaBean) {
                         propertyName = decapitalize(methodName.substring(3));
                     } else {
@@ -1257,7 +1259,7 @@ public class TypeUtils {
 
         return fieldInfoList;
     }
-
+    
     public static JSONField getSupperMethodAnnotation(Class<?> clazz, Method method) {
         for (Class<?> interfaceClass : clazz.getInterfaces()) {
             for (Method interfaceMethod : interfaceClass.getMethods()) {

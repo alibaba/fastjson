@@ -18,14 +18,15 @@ public class JSONLexerAllowCommentTest extends TestCase {
     public void test_0() throws Exception {
         
         String jsonWithComment = "{ /*tes****\n\r\n*t*/\"a\":1 /*****test88888*****/ /*test*/ , /*test*/ //test\n //est\n \"b\":2}";
-        JSONObject object = JSON.parseObject(jsonWithComment, Feature.AllowComment);
+        JSONObject object = JSON.parseObject(jsonWithComment, Feature.AllowComment, Feature.OrderedField);
         System.out.println(object.toJSONString());
-        Assert.assertEquals("{\"b\":2,\"a\":1}",object.toJSONString());
+        Assert.assertEquals("{\"a\":1,\"b\":2}",object.toJSONString());
 
         DefaultJSONParser parser = new DefaultJSONParser(new JSONReaderScanner(jsonWithComment,
-            Feature.AllowComment.getMask()));
+            Feature.AllowComment.getMask() | Feature.OrderedField.getMask()));
+        
         JSONObject object1 = parser.parseObject();
-        Assert.assertEquals("{\"b\":2,\"a\":1}",object1.toJSONString());
+        Assert.assertEquals("{\"a\":1,\"b\":2}",object1.toJSONString());
         System.out.println(object1.toJSONString());
 
     }
@@ -37,12 +38,12 @@ public class JSONLexerAllowCommentTest extends TestCase {
         String text = IOUtils.toString(is);
         is.close();
 
-        JSONObject object = JSON.parseObject(text, Feature.AllowComment);
+        JSONObject object = JSON.parseObject(text, Feature.AllowComment, Feature.OrderedField);
         System.out.println(object.toJSONString());
 
         Assert
             .assertEquals(
-                "{\"hello\":\"asafsadf\",\"test\":1,\"object\":{\"teset\":1000},\"array\":[\"10000sfsaf\",100,{\"nihao\":{\"test\":\"sdfasdf\"}}]}",
+                "{\"hello\":\"asafsadf\",\"test\":1,\"array\":[\"10000sfsaf\",100,{\"nihao\":{\"test\":\"sdfasdf\"}}],\"object\":{\"teset\":1000}}",
                 object.toJSONString());
     }
 }

@@ -276,9 +276,9 @@ public class JSONPath implements ObjectSerializer {
         jsonpath.arrayAdd(rootObject, values);
     }
 
-    public static void set(Object rootObject, String path, Object value) {
+    public static boolean set(Object rootObject, String path, Object value) {
         JSONPath jsonpath = compile(path);
-        jsonpath.set(rootObject, value);
+        return jsonpath.set(rootObject, value);
     }
 
     public static JSONPath compile(String path) {

@@ -293,17 +293,37 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     public Object put(String key, Object value) {
         return map.put(key, value);
     }
+    
+    public JSONObject fluentPut(String key, Object value) {
+        map.put(key, value);
+        return this;
+    }
 
     public void putAll(Map<? extends String, ? extends Object> m) {
         map.putAll(m);
+    }
+
+    public JSONObject fluentPutAll(Map<? extends String, ? extends Object> m) {
+        map.putAll(m);
+        return this;
     }
 
     public void clear() {
         map.clear();
     }
 
+    public JSONObject fluentClear() {
+        map.clear();
+        return this;
+    }
+
     public Object remove(Object key) {
         return map.remove(key);
+    }
+
+    public JSONObject fluentRemove(Object key) {
+        map.remove(key);
+        return this;
     }
 
     public Set<String> keySet() {

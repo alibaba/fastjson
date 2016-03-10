@@ -167,7 +167,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
             return 0;
         }
 
-        return castToByte(value).byteValue();
+        return castToByte(value).byteValue(); // TODO 如果 value 是""、"null"或"NULL"，可能会存在报空指针的情况，是否需要加以处理？ 其他转换也存在类似情况
     }
 
     public Short getShort(String key) {

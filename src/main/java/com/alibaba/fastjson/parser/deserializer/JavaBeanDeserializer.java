@@ -219,7 +219,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             }
 
             if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {
-                StringBuffer buf = (new StringBuffer()) //
+                StringBuilder buf = new StringBuilder(72) // 单线程换StringBuilder，并设置初始化容量，避免内部逐步扩容开销
                 .append("syntax error, expect {, actual ") //
                 .append(lexer.tokenName()) //
                 .append(", pos ") //

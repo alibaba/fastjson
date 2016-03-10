@@ -320,7 +320,10 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
 
     @Override
     public Object clone() {
-        return new JSONObject(new HashMap<String, Object>(map));
+        return new JSONObject(map instanceof LinkedHashMap //
+                              ? new LinkedHashMap<String, Object>(map) //
+                                  : new HashMap<String, Object>(map)
+                                  );
     }
 
     public boolean equals(Object obj) {

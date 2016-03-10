@@ -615,7 +615,41 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     public abstract char charAt(int index);
 
-    public abstract char next();
+    public final char next() {
+        ch = doNext();
+        if (ch == '/' && isEnabled(Feature.AllowComment)) {
+            skipComment();
+        }
+        return ch;
+    }
+
+    public abstract char doNext();
+
+    protected void skipComment() {
+        doNext();
+        if (ch == '/') {
+            for (;;) {
+                doNext();
+                if (ch == '\n') {
+                    doNext();
+                    return;
+                }
+            }
+        } else if (ch == '*') {
+            for (;;) {
+                doNext();
+                if (ch == '*') {
+                    doNext();
+                    if (ch == '/') {
+                        doNext();
+                        return;
+                    }
+                }
+            }
+        } else {
+            throw new JSONException("invalid comment");
+        }
+    }
 
     public final String scanSymbol(final SymbolTable symbolTable) {
         skipWhitespace();
@@ -2662,7 +2696,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
     }
 
-    private final void scanStringSingleQuote() {
+    private void scanStringSingleQuote() {
         np = bp;
         hasSpecial = false;
         char chLocal;
@@ -2911,10 +2945,15 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     public final long longValue() throws NumberFormatException {
         long result = 0;
         boolean negative = false;
-        int i = np, max = np + sp;
         long limit;
         long multmin;
         int digit;
+
+        if (np == -1) {
+            np = 0;
+        }
+
+        int i = np, max = np + sp;
 
         if (charAt(np) == '-') {
             negative = true;
@@ -2981,7 +3020,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         return new BigDecimal(numberString());
     }
 
-    public static final boolean isWhitespace(char ch) {
+    public static boolean isWhitespace(char ch) {
         // 专门调整了判断顺序
         return ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b';
     }

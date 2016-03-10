@@ -34,11 +34,11 @@ public class JSONPath implements ObjectSerializer {
     private static int                             CACHE_SIZE = 1024;
     private static ConcurrentMap<String, JSONPath> pathCache  = new ConcurrentHashMap<String, JSONPath>(128, 0.75f, 1);
 
-    private final String                           path;
-    private Segement[]                             segments;
+    private final String path;
+    private Segement[]   segments;
 
-    private SerializeConfig                        serializeConfig;
-    private ParserConfig                           parserConfig;
+    private SerializeConfig serializeConfig;
+    private ParserConfig    parserConfig;
 
     public JSONPath(String path){
         this(path, SerializeConfig.getGlobalInstance(), ParserConfig.getGlobalInstance());
@@ -276,9 +276,9 @@ public class JSONPath implements ObjectSerializer {
         jsonpath.arrayAdd(rootObject, values);
     }
 
-    public static void set(Object rootObject, String path, Object value) {
+    public static boolean set(Object rootObject, String path, Object value) {
         JSONPath jsonpath = compile(path);
-        jsonpath.set(rootObject, value);
+        return jsonpath.set(rootObject, value);
     }
 
     public static JSONPath compile(String path) {
@@ -318,6 +318,14 @@ public class JSONPath implements ObjectSerializer {
         }
 
         Segement readSegement() {
+            if (level == 0 && path.length() == 1) {
+                if (isDigitFirst(ch)) {
+                    int index = ch - '0';
+                    return new ArrayAccessSegement(index);
+                } else if ((ch >= 'a' && ch <= 'z') || ((ch >= 'A' && ch <= 'Z'))) {
+                    return new PropertySegement(Character.toString(ch));
+                }
+            }
             while (!isEOF()) {
                 skipWhitespace();
 
@@ -331,7 +339,7 @@ public class JSONPath implements ObjectSerializer {
                     continue;
                 }
 
-                if (ch == '.') {
+                if (ch == '.' || ch == '/') {
                     next();
                     if (ch == '*') {
                         if (!isEOF()) {
@@ -339,6 +347,10 @@ public class JSONPath implements ObjectSerializer {
                         }
 
                         return WildCardSegement.instance;
+                    }
+                    
+                    if (isDigitFirst(ch)) {
+                        return parseArrayAccess(false);
                     }
 
                     String propertyName = readName();
@@ -363,7 +375,7 @@ public class JSONPath implements ObjectSerializer {
                 }
 
                 if (ch == '[') {
-                    return parseArrayAccess();
+                    return parseArrayAccess(true);
                 }
 
                 if (level == 0) {
@@ -389,8 +401,10 @@ public class JSONPath implements ObjectSerializer {
             }
         }
 
-        Segement parseArrayAccess() {
-            accept('[');
+        Segement parseArrayAccess(boolean acceptBracket) {
+            if (acceptBracket) {
+                accept('[');
+            }
 
             boolean predicateFlag = false;
 
@@ -412,12 +426,14 @@ public class JSONPath implements ObjectSerializer {
 
                 if (predicateFlag && ch == ')') {
                     next();
-                    accept(']');
+                    if (acceptBracket) {
+                        accept(']');
+                    }
 
                     return new FilterSegement(new NotNullSegement(propertyName));
                 }
 
-                if (ch == ']') {
+                if (acceptBracket && ch == ']') {
                     next();
                     return new FilterSegement(new NotNullSegement(propertyName));
                 }
@@ -476,7 +492,10 @@ public class JSONPath implements ObjectSerializer {
                         if (predicateFlag) {
                             accept(')');
                         }
-                        accept(']');
+
+                        if (acceptBracket) {
+                            accept(']');
+                        }
                     }
 
                     boolean isInt = true;
@@ -491,8 +510,8 @@ public class JSONPath implements ObjectSerializer {
                         }
 
                         Class<?> clazz = item.getClass();
-                        if (isInt
-                            && !(clazz == Byte.class || clazz == Short.class || clazz == Integer.class || clazz == Long.class)) {
+                        if (isInt && !(clazz == Byte.class || clazz == Short.class || clazz == Integer.class
+                                       || clazz == Long.class)) {
                             isInt = false;
                             isIntObj = false;
                         }
@@ -559,7 +578,10 @@ public class JSONPath implements ObjectSerializer {
                     if (predicateFlag) {
                         accept(')');
                     }
-                    accept(']');
+                    
+                    if (acceptBracket) {
+                        accept(']');
+                    }
 
                     if (op == Operator.RLIKE) {
                         return new FilterSegement(new RlikeSegement(propertyName, strValue, false));
@@ -631,7 +653,10 @@ public class JSONPath implements ObjectSerializer {
                     if (predicateFlag) {
                         accept(')');
                     }
-                    accept(']');
+                    
+                    if (acceptBracket) {
+                        accept(']');
+                    }
 
                     return new FilterSegement(new IntOpSegement(propertyName, value, op));
                 }
@@ -661,17 +686,30 @@ public class JSONPath implements ObjectSerializer {
             }
 
             int start = pos - 1;
-            while (ch != ']' && !isEOF()) {
+            while (ch != ']' && ch != '/' && !isEOF()) {
                 next();
             }
+            
+            int end;
+            if (acceptBracket) {
+                end = pos - 1;
+            } else {
+                if (ch == '/') {
+                    end = pos - 1;
+                } else {
+                    end = pos;
+                }
+            }
+            
+            String text = path.substring(start, end);
 
-            String text = path.substring(start, pos - 1);
+            Segement segment = buildArraySegement(text);
 
-            if (!isEOF()) {
+            if (acceptBracket && !isEOF()) {
                 accept(']');
             }
 
-            return buildArraySegement(text);
+            return segment;
         }
 
         protected long readLongValue() {
@@ -796,7 +834,7 @@ public class JSONPath implements ObjectSerializer {
                     next();
                     continue;
                 }
-                
+
                 boolean identifierFlag = IOUtils.isIdent(ch);
                 if (!identifierFlag) {
                     break;
@@ -948,7 +986,7 @@ public class JSONPath implements ObjectSerializer {
         }
     }
 
-    static interface Segement {
+    interface Segement {
 
         Object eval(JSONPath path, Object rootObject, Object currentObject);
     }
@@ -1304,8 +1342,8 @@ public class JSONPath implements ObjectSerializer {
         private final int      minLength;
         private final boolean  not;
 
-        public MatchSegement(String propertyName, String startsWithValue, String endsWithValue,
-                             String[] containsValues, boolean not){
+        public MatchSegement(String propertyName, String startsWithValue, String endsWithValue, String[] containsValues,
+                             boolean not){
             this.propertyName = propertyName;
             this.startsWithValue = startsWithValue;
             this.endsWithValue = endsWithValue;
@@ -1442,8 +1480,8 @@ public class JSONPath implements ObjectSerializer {
         }
     }
 
-    static enum Operator {
-        EQ, NE, GT, GE, LT, LE, LIKE, NOT_LIKE, RLIKE, NOT_RLIKE, IN, NOT_IN, BETWEEN, NOT_BETWEEN
+    enum Operator {
+                   EQ, NE, GT, GE, LT, LE, LIKE, NOT_LIKE, RLIKE, NOT_RLIKE, IN, NOT_IN, BETWEEN, NOT_BETWEEN
     }
 
     static public class FilterSegement implements Segement {
@@ -1484,7 +1522,7 @@ public class JSONPath implements ObjectSerializer {
         }
     }
 
-    static interface Filter {
+    interface Filter {
 
         boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item);
     }
@@ -1682,6 +1720,16 @@ public class JSONPath implements ObjectSerializer {
             return true;
         }
 
+        if (parent instanceof List) {
+            for (Object element : (List) parent) {
+                if (element == null) {
+                    continue;
+                }
+                setPropertyValue(element, name, value);
+            }
+            return true;
+        }
+
         ObjectDeserializer derializer = parserConfig.getDeserializer(parent.getClass());
 
         JavaBeanDeserializer beanDerializer = null;
@@ -1767,8 +1815,8 @@ public class JSONPath implements ObjectSerializer {
         }
     }
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
-                                                                                                               throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType,
+                      int features) throws IOException {
         serializer.write(path);
     }
 }

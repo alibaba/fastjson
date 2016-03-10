@@ -143,7 +143,9 @@ public final class JSONReaderScanner extends JSONLexerBase {
         return symbolTable.addSymbol(buf, offset, len, hash);
     }
 
-    public final char next() {
+
+
+    public final char doNext() {
         int index = ++bp;
 
         if (index >= bufLength) {

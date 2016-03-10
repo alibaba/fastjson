@@ -341,4 +341,22 @@ public class FilterUtils {
 
         return true;
     }
+    
+    public static boolean applyLabel(JSONSerializer serializer, String label) {
+        List<LabelFilter> viewFilters = serializer.getLabelFiltersDirect();
+
+        if (viewFilters != null) {
+            boolean apply = true;
+
+            for (LabelFilter propertyFilter : viewFilters) {
+                if (!propertyFilter.apply(label)) {
+                    return false;
+                }
+            }
+
+            return apply;
+        }
+
+        return true;
+    }
 }

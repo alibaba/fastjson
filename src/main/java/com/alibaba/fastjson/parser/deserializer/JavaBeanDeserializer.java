@@ -1,6 +1,7 @@
 package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -86,7 +87,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     }
 
     public FieldDeserializer createFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
-        return mapping.createFieldDeserializer(mapping, clazz, fieldInfo);
+        return mapping.createFieldDeserializer(mapping, beanInfo, fieldInfo);
     }
 
     public Object createInstance(DefaultJSONParser parser, Type type) {
@@ -385,7 +386,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 }
             }
 
-            return (T) object;
+            return (T) handleBuilder(object);
         } finally {
             if (childContext != null) {
                 childContext.setObject(object);
@@ -393,7 +394,24 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             parser.setContext(context);
         }
     }
-
+    
+    private Object handleBuilder(Object obj) {
+        Method buildMethod = beanInfo.getBuildMethod();
+        if (buildMethod == null) {
+            return obj;
+        }
+        
+        
+        Object builtObj;
+        try {
+            builtObj = buildMethod.invoke(obj);
+        } catch (Exception e) {
+            throw new JSONException("build object error", e);
+        }
+        
+        return builtObj;
+    }
+    
     public boolean parseField(DefaultJSONParser parser, String key, Object object, Type objectType,
                               Map<String, Object> fieldValues) {
         JSONLexer lexer = parser.getLexer(); // xxx

@@ -70,6 +70,10 @@ public abstract class FieldSerializer {
     public Method getMethod() {
         return fieldInfo.getMethod();
     }
+    
+    public String getLabel() {
+        return fieldInfo.getLabel();
+    }
 
     public void writePrefix(JSONSerializer serializer) throws IOException {
         SerializeWriter out = serializer.getWriter();
@@ -89,7 +93,7 @@ public abstract class FieldSerializer {
         try {
             return fieldInfo.get(object);
         } catch (Exception ex) {
-            throw new JSONException("get property error。 " + fieldInfo.gerQualifiedName(), ex);
+            throw new JSONException("get property error。 " + fieldInfo.getQualifiedName(), ex);
         }
     }
 

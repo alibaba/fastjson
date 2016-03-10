@@ -3,6 +3,8 @@ package com.alibaba.fastjson.serializer;
 import static com.alibaba.fastjson.util.ASMUtils.getDesc;
 import static com.alibaba.fastjson.util.ASMUtils.getType;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -122,6 +124,10 @@ public class ASMSerializerFactory implements Opcodes {
         }
 
         List<FieldInfo> getters = TypeUtils.computeGetters(clazz, aliasMap, false);
+        
+        if (getters.size() > 256) {
+            return null;
+        }
         
         for (FieldInfo getter : getters) {
             if (!ASMUtils.checkName(getter.getMember().getName())) {
@@ -276,10 +282,21 @@ public class ASMSerializerFactory implements Opcodes {
         }
 
         byte[] code = cw.toByteArray();
-        //
-        // org.apache.commons.io.IOUtils.write(code, new java.io.FileOutputStream(
-        // "/usr/alibaba/workspace-3.7/fastjson-asm/target/classes/"
-        // + className + ".class"));
+
+        if(JSON.DUMP_CLASS != null){
+            FileOutputStream fos=null;
+            try {
+                fos=new FileOutputStream(JSON.DUMP_CLASS+ File.separator
+                        + className + ".class");
+                fos.write(code);
+            }catch (Exception ex){
+                System.err.println("FASTJSON dump class:"+className+"失败:"+ex.getMessage());
+            }finally {
+                if(fos!=null){
+                    fos.close();
+                }
+            }
+        }
 
         Class<?> exampleClass = classLoader.defineClassPublic(className, code, 0, code.length);
         Object instance = exampleClass.newInstance();
@@ -1152,6 +1169,28 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitVarInsn(ALOAD, context.fieldName());
         mw.visitMethodInsn(INVOKESTATIC, "com/alibaba/fastjson/serializer/FilterUtils", "applyName",
                            "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;Ljava/lang/String;)Z");
+        mw.visitJumpInsn(IFEQ, _end);
+        
+        _labelApply(mw, property, context, _end);
+        
+        if (property.getField() == null) {
+            mw.visitVarInsn(ALOAD, context.var("out"));
+            mw.visitFieldInsn(GETSTATIC, "com/alibaba/fastjson/serializer/SerializerFeature", "IgnoreNonFieldGetter",
+                              "Lcom/alibaba/fastjson/serializer/SerializerFeature;");
+            mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "isEnabled",
+                               "(Lcom/alibaba/fastjson/serializer/SerializerFeature;)Z");
+
+            // if true
+            mw.visitJumpInsn(IFNE, _end);
+        }
+    }
+    
+    private void _labelApply(MethodVisitor mw, FieldInfo property, Context context, Label _end) {
+        mw.visitVarInsn(ALOAD, context.serializer());
+        mw.visitLdcInsn(property.getLabel());
+        
+        mw.visitMethodInsn(INVOKESTATIC, "com/alibaba/fastjson/serializer/FilterUtils", "applyLabel",
+                "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/String;)Z");
         mw.visitJumpInsn(IFEQ, _end);
     }
 

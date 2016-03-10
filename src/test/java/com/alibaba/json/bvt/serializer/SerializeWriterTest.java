@@ -1,11 +1,11 @@
 package com.alibaba.json.bvt.serializer;
 
-import java.io.StringWriter;
-
-import org.junit.Assert;
-import junit.framework.TestCase;
-
 import com.alibaba.fastjson.serializer.SerializeWriter;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import junit.framework.TestCase;
+import org.junit.Assert;
+
+import java.io.StringWriter;
 
 public class SerializeWriterTest extends TestCase {
 
@@ -64,6 +64,18 @@ public class SerializeWriterTest extends TestCase {
         Assert.assertEquals(Long.toString(Long.MIN_VALUE), out.toString());
     }
 
+    public void test_13_long_browser() throws Exception {
+        SerializeWriter out = new SerializeWriter(SerializerFeature.BrowserCompatible);
+        out.writeLong(Long.MIN_VALUE + 1);
+        Assert.assertEquals("\"" + Long.toString(Long.MIN_VALUE + 1) + "\"", out.toString());
+    }
+
+    public void test_13_long_browser2() throws Exception {
+        SerializeWriter out = new SerializeWriter(SerializerFeature.BrowserCompatible);
+        out.writeLong(Long.MIN_VALUE);
+        Assert.assertEquals("\"" + Long.toString(Long.MIN_VALUE) + "\"", out.toString());
+    }
+
     public void test_14() throws Exception {
         SerializeWriter out = new SerializeWriter(1);
         out.writeInt(Integer.MAX_VALUE);
@@ -98,6 +110,18 @@ public class SerializeWriterTest extends TestCase {
         SerializeWriter out = new SerializeWriter(1);
         out.writeLongAndChar(Long.MIN_VALUE, ',');
         Assert.assertEquals(Long.toString(Long.MIN_VALUE) + ",", out.toString());
+    }
+
+    public void test_16_long_browser() throws Exception {
+        SerializeWriter out = new SerializeWriter(SerializerFeature.BrowserCompatible);
+        out.writeLongAndChar(Long.MIN_VALUE + 1, ',');
+        Assert.assertEquals("\"" + Long.toString(Long.MIN_VALUE + 1) + "\",", out.toString());
+    }
+
+    public void test_16_long_browser2() throws Exception {
+        SerializeWriter out = new SerializeWriter(SerializerFeature.BrowserCompatible);
+        out.writeLongAndChar(Long.MIN_VALUE, ',');
+        Assert.assertEquals("\"" + Long.toString(Long.MIN_VALUE) + "\",", out.toString());
     }
 
     public void test_17() throws Exception {

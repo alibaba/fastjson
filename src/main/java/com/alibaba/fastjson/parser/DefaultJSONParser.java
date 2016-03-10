@@ -200,7 +200,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
             throw new JSONException("syntax error, expect {, actual " + lexer.tokenName());
         }
 
-        ParseContext context = this.getContext();
+       ParseContext context = this.getContext();
         try {
             boolean setContextFlag = false;
             for (;;) {
@@ -453,7 +453,8 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                     }
 
                     if (parentIsArray) {
-                        setContext(context, obj, key);
+                        //setContext(context, obj, key);
+                        setContext(obj, key);
                     }
 
                     if (lexer.token() == JSONToken.RBRACE) {
@@ -462,6 +463,9 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                         setContext(context);
                         return object;
                     } else if (lexer.token() == JSONToken.COMMA) {
+                        if (parentIsArray) {
+                            this.popContext();
+                        }
                         continue;
                     } else {
                         throw new JSONException("syntax error, " + lexer.tokenName());
@@ -495,7 +499,8 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                     lexer.resetStringPosition();
                     lexer.nextToken();
 
-                    this.setContext(object, fieldName);
+                    // this.setContext(object, fieldName);
+                    this.setContext(value, key);
 
                     return object;
                 } else {
@@ -992,7 +997,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 
     public JSONObject parseObject() {
         JSONObject object = new JSONObject(isEnabled(Feature.OrderedField));
-        parseObject(object);
+        object = (JSONObject) parseObject(object);
         return object;
     }
 

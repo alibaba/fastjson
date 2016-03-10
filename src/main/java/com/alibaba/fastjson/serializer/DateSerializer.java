@@ -24,6 +24,7 @@ import java.util.Date;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.util.IOUtils;
+import com.alibaba.fastjson.util.TypeUtils;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -31,7 +32,7 @@ import com.alibaba.fastjson.util.IOUtils;
 public class DateSerializer implements ObjectSerializer {
 
     public final static DateSerializer instance = new DateSerializer();
-
+    
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
@@ -39,7 +40,24 @@ public class DateSerializer implements ObjectSerializer {
             out.writeNull();
             return;
         }
-
+        
+        Date date;
+        if (object instanceof Date) {
+            date = (Date) object;
+        } else {
+            date = TypeUtils.castToDate(object);
+        }
+        
+        if (out.isEnabled(SerializerFeature.WriteDateUseDateFormat)) {
+            DateFormat format = serializer.getDateFormat();
+            if (format == null) {
+                format = new SimpleDateFormat(JSON.DEFFAULT_DATE_FORMAT);
+            }
+            String text = format.format(date);
+            out.writeString(text);
+            return;
+        }
+        
         if (out.isEnabled(SerializerFeature.WriteClassName)) {
             if (object.getClass() != fieldType) {
                 if (object.getClass() == java.util.Date.class) {
@@ -54,18 +72,6 @@ public class DateSerializer implements ObjectSerializer {
                 }
                 return;
             }
-        }
-        
-        Date date = (Date) object;
-        
-        if (out.isEnabled(SerializerFeature.WriteDateUseDateFormat)) {
-            DateFormat format = serializer.getDateFormat();
-            if (format == null) {
-                format = new SimpleDateFormat(JSON.DEFFAULT_DATE_FORMAT);
-            }
-            String text = format.format(date);
-            out.writeString(text);
-            return;
         }
 
         long time = date.getTime();

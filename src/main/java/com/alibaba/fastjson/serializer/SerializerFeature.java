@@ -121,10 +121,20 @@ public enum SerializerFeature {
     /**
      * @since 1.1.42
      */
-    NotWriteDefaultValue
+    NotWriteDefaultValue,
+    
+    /**
+     * @since 1.2.6
+     */
+    BrowserSecure,
+    
+    /**
+     * @since 1.2.7
+     */
+    IgnoreNonFieldGetter
     ;
 
-    private SerializerFeature(){
+    SerializerFeature(){
         mask = (1 << ordinal());
     }
 

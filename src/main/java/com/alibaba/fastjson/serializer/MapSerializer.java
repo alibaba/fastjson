@@ -17,11 +17,8 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import com.alibaba.fastjson.JSON;
 
@@ -32,7 +29,7 @@ public class MapSerializer implements ObjectSerializer {
 
     public static MapSerializer instance = new MapSerializer();
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({ "rawtypes"})
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
@@ -160,7 +157,8 @@ public class MapSerializer implements ObjectSerializer {
                     }
 
                     if (out.isEnabled(SerializerFeature.BrowserCompatible)
-                        || out.isEnabled(SerializerFeature.WriteNonStringKeyAsString)) {
+                        || out.isEnabled(SerializerFeature.WriteNonStringKeyAsString)
+                        || out.isEnabled(SerializerFeature.BrowserSecure)) {
                         String strEntryKey = JSON.toJSONString(entryKey);
                         serializer.write(strEntryKey);
                     } else {

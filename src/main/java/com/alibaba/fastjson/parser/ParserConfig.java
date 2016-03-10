@@ -66,6 +66,7 @@ import java.util.regex.Pattern;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.asm.ASMException;
 import com.alibaba.fastjson.parser.deserializer.ASMDeserializerFactory;
@@ -92,6 +93,7 @@ import com.alibaba.fastjson.parser.deserializer.LongFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.MapDeserializer;
 import com.alibaba.fastjson.parser.deserializer.NumberDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
+import com.alibaba.fastjson.parser.deserializer.OptionalCodec;
 import com.alibaba.fastjson.parser.deserializer.SqlDateDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StackTraceElementDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StringFieldDeserializer;
@@ -151,6 +153,9 @@ public class ParserConfig {
     protected final SymbolTable                             symbolTable      = new SymbolTable();
 
     protected ASMDeserializerFactory                        asmFactory;
+    
+    private static boolean                                  awtError         = false;
+    private static boolean                                  jdk8Error        = false;
     
     public ParserConfig() {
         this(null, null);
@@ -297,30 +302,38 @@ public class ParserConfig {
         derializers.put(Comparable.class, JavaObjectDeserializer.instance);
         derializers.put(Closeable.class, JavaObjectDeserializer.instance);
 
-        try {
-            derializers.put(Class.forName("java.awt.Point"), PointCodec.instance);
-            derializers.put(Class.forName("java.awt.Font"), FontCodec.instance);
-            derializers.put(Class.forName("java.awt.Rectangle"), RectangleCodec.instance);
-            derializers.put(Class.forName("java.awt.Color"), ColorCodec.instance);
-        } catch (Throwable e) {
-            // skip
+        if (!awtError) {
+            try {
+                derializers.put(Class.forName("java.awt.Point"), PointCodec.instance);
+                derializers.put(Class.forName("java.awt.Font"), FontCodec.instance);
+                derializers.put(Class.forName("java.awt.Rectangle"), RectangleCodec.instance);
+                derializers.put(Class.forName("java.awt.Color"), ColorCodec.instance);
+            } catch (Throwable e) {
+                // skip
+                awtError = true;
+            }
         }
         
-        try {
-            derializers.put(Class.forName("java.time.LocalDateTime"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.LocalDate"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.LocalTime"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.ZonedDateTime"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.OffsetDateTime"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.OffsetTime"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.ZoneOffset"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.ZoneRegion"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.ZoneId"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.Period"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.Duration"), Jdk8DateCodec.instance);
-            derializers.put(Class.forName("java.time.Instant"), Jdk8DateCodec.instance);
-        } catch (Throwable e) {
-            
+        if (!jdk8Error) {
+            try {
+                derializers.put(Class.forName("java.time.LocalDateTime"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.LocalDate"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.LocalTime"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.ZonedDateTime"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.OffsetDateTime"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.OffsetTime"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.ZoneOffset"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.ZoneRegion"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.ZoneId"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.Period"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.Duration"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.Instant"), Jdk8DateCodec.instance);
+                
+                derializers.put(Class.forName("java.util.Optional"), OptionalCodec.instance);
+            } catch (Throwable e) {
+                // skip
+                jdk8Error = true;
+            }
         }
     }
 
@@ -437,7 +450,10 @@ public class ParserConfig {
     public ObjectDeserializer createJavaBeanDeserializer(Class<?> clazz, Type type) {
         boolean asmEnable = this.asmEnable;
         if (asmEnable) {
-            Class<?> superClass = clazz;
+            Class<?> superClass = DeserializeBeanInfo.getBuilderClass(clazz);
+            if (superClass == null) {
+                superClass = clazz;
+            }
 
             for (;;) {
                 if (!Modifier.isPublic(superClass.getModifiers())) {
@@ -469,12 +485,14 @@ public class ParserConfig {
                 asmEnable = false;
             }
             DeserializeBeanInfo beanInfo = DeserializeBeanInfo.computeSetters(clazz, type);
-            if (beanInfo.getFieldList().size() > 200) {
+            
+            
+            if (asmEnable && beanInfo.getFieldList().size() > 200) {
                 asmEnable = false;
             }
 
             Constructor<?> defaultConstructor = beanInfo.getDefaultConstructor();
-            if (defaultConstructor == null && !clazz.isInterface()) {
+            if (asmEnable && defaultConstructor == null && !clazz.isInterface()) {
                 asmEnable = false;
             }
 
@@ -497,6 +515,11 @@ public class ParserConfig {
                 if (!ASMUtils.checkName(fieldInfo.getMember().getName())) {
                     asmEnable = false;
                 }
+                
+                JSONField annotation = fieldInfo.getAnnotation(JSONField.class);
+                if (annotation != null && !ASMUtils.checkName(annotation.name())) {
+                	asmEnable = false;
+				}
             }
         }
 
@@ -505,7 +528,7 @@ public class ParserConfig {
                 asmEnable = false;
             }
         }
-
+        
         if (!asmEnable) {
             return new JavaBeanDeserializer(this, clazz, type);
         }
@@ -524,11 +547,15 @@ public class ParserConfig {
         }
     }
 
-    public FieldDeserializer createFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
+    public FieldDeserializer createFieldDeserializer(ParserConfig mapping, DeserializeBeanInfo beanInfo, FieldInfo fieldInfo) {
         boolean asmEnable = this.asmEnable;
 
+        Class<?> clazz = beanInfo.getClazz();
         if (asmEnable) {
-            Class<?> superClass = clazz;
+            Class<?> superClass = beanInfo.getBuilderClass();
+            if (superClass == null) {
+                superClass = clazz;
+            }
 
             for (;;) {
                 if (!Modifier.isPublic(superClass.getModifiers())) {
@@ -542,7 +569,7 @@ public class ParserConfig {
                 }
             }
         }
-
+        
         if (fieldInfo.getFieldClass() == Class.class) {
             asmEnable = false;
         }

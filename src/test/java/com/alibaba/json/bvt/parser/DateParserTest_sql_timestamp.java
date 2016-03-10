@@ -22,9 +22,9 @@ public class DateParserTest_sql_timestamp extends TestCase {
     }
 
     public void test_date_1() throws Exception {
-        int featrues = JSON.DEFAULT_PARSER_FEATURE;
-        featrues = Feature.config(featrues, Feature.AllowISO8601DateFormat, true);
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("\"2011-01-09T13:49:53.254\"", ParserConfig.getGlobalInstance(), featrues);
+        int features = JSON.DEFAULT_PARSER_FEATURE;
+        features = Feature.config(features, Feature.AllowISO8601DateFormat, true);
+        DefaultExtJSONParser parser = new DefaultExtJSONParser("\"2011-01-09T13:49:53.254\"", ParserConfig.getGlobalInstance(), features);
 
         java.sql.Timestamp date = parser.parseObject(java.sql.Timestamp.class);
 
@@ -33,8 +33,8 @@ public class DateParserTest_sql_timestamp extends TestCase {
     }
 
     public void test_date_2() throws Exception {
-        int featrues = JSON.DEFAULT_PARSER_FEATURE;
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("new Date(1294552193254)", ParserConfig.getGlobalInstance(), featrues);
+        int features = JSON.DEFAULT_PARSER_FEATURE;
+        DefaultExtJSONParser parser = new DefaultExtJSONParser("new Date(1294552193254)", ParserConfig.getGlobalInstance(), features);
 
         java.sql.Timestamp date = parser.parseObject(java.sql.Timestamp.class);
 
@@ -43,9 +43,9 @@ public class DateParserTest_sql_timestamp extends TestCase {
     }
 
     public void test_date_3() throws Exception {
-        int featrues = JSON.DEFAULT_PARSER_FEATURE;
-        featrues = Feature.config(featrues, Feature.AllowISO8601DateFormat, true);
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("\"2011-01-09T13:49:53\"", ParserConfig.getGlobalInstance(), featrues);
+        int features = JSON.DEFAULT_PARSER_FEATURE;
+        features = Feature.config(features, Feature.AllowISO8601DateFormat, true);
+        DefaultExtJSONParser parser = new DefaultExtJSONParser("\"2011-01-09T13:49:53\"", ParserConfig.getGlobalInstance(), features);
 
         java.sql.Timestamp date = parser.parseObject(java.sql.Timestamp.class);
 
@@ -54,9 +54,9 @@ public class DateParserTest_sql_timestamp extends TestCase {
     }
 
     public void test_date_4() throws Exception {
-        int featrues = JSON.DEFAULT_PARSER_FEATURE;
-        featrues = Feature.config(featrues, Feature.AllowISO8601DateFormat, true);
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("\"2011-01-09\"", ParserConfig.getGlobalInstance(), featrues);
+        int features = JSON.DEFAULT_PARSER_FEATURE;
+        features = Feature.config(features, Feature.AllowISO8601DateFormat, true);
+        DefaultExtJSONParser parser = new DefaultExtJSONParser("\"2011-01-09\"", ParserConfig.getGlobalInstance(), features);
 
         java.sql.Timestamp date = parser.parseObject(java.sql.Timestamp.class);
 

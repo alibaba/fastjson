@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
@@ -55,8 +56,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONStreamAware;
+import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.deserializer.Jdk8DateCodec;
+import com.alibaba.fastjson.parser.deserializer.OptionalCodec;
 import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.ServiceLoader;
@@ -69,7 +72,11 @@ import com.alibaba.fastjson.util.ServiceLoader;
 public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 	private final static SerializeConfig globalInstance = new SerializeConfig();
 
-	private boolean asm = !ASMUtils.isAndroid();;
+	private static boolean awtError = false;
+	private static boolean jdk8Error = false;
+	private static boolean oracleJdbcError = false;
+	
+	private boolean asm = !ASMUtils.isAndroid();
 
 	private ASMSerializerFactory asmFactory;
 	
@@ -107,11 +114,21 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 				asm = false;
 			}
 		}
-		
+
 		if (asm && !ASMUtils.checkName(clazz.getName())) {
 		    asm = false;
 		}
-
+		
+		if (asm) {
+    		for(Field field : clazz.getDeclaredFields()){
+    			JSONField annotation = field.getAnnotation(JSONField.class);
+    			if (annotation != null && !ASMUtils.checkName(annotation.name())) {
+    				asm = false;
+    				break;
+    			}
+    		}
+		}
+		
 		if (asm) {
 			try {
 			    ObjectSerializer asmSerializer = createASMSerializer(clazz);
@@ -137,7 +154,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 		this.asm = asmEnable;
 	}
 
-	public final static SerializeConfig getGlobalInstance() {
+	public static SerializeConfig getGlobalInstance() {
 		return globalInstance;
 	}
 
@@ -208,33 +225,50 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 		put(SoftReference.class, ReferenceCodec.instance);
 
 		// awt
-		try {
-			put(Class.forName("java.awt.Color"), ColorCodec.instance);
-			put(Class.forName("java.awt.Font"), FontCodec.instance);
-			put(Class.forName("java.awt.Point"), PointCodec.instance);
-			put(Class.forName("java.awt.Rectangle"),
-					RectangleCodec.instance);
-		} catch (Throwable e) {
-			// skip
+		if (!awtError) {
+    		try {
+    			put(Class.forName("java.awt.Color"), ColorCodec.instance);
+    			put(Class.forName("java.awt.Font"), FontCodec.instance);
+    			put(Class.forName("java.awt.Point"), PointCodec.instance);
+    			put(Class.forName("java.awt.Rectangle"),
+    					RectangleCodec.instance);
+    		} catch (Throwable e) {
+    		    awtError = true;
+    			// skip
+    		}
 		}
 		
 		// jdk8
-		try {
-		    put(Class.forName("java.time.LocalDateTime"), Jdk8DateCodec.instance);
-		    put(Class.forName("java.time.LocalDate"), Jdk8DateCodec.instance);
-		    put(Class.forName("java.time.LocalTime"), Jdk8DateCodec.instance);
-		    put(Class.forName("java.time.ZonedDateTime"), Jdk8DateCodec.instance);
-		    put(Class.forName("java.time.OffsetDateTime"), Jdk8DateCodec.instance);
-		    put(Class.forName("java.time.OffsetTime"), Jdk8DateCodec.instance);
-		    put(Class.forName("java.time.ZoneOffset"), Jdk8DateCodec.instance);
-		    put(Class.forName("java.time.ZoneRegion"), Jdk8DateCodec.instance);
-		    put(Class.forName("java.time.Period"), Jdk8DateCodec.instance);
-		    put(Class.forName("java.time.Duration"), Jdk8DateCodec.instance);
-		    put(Class.forName("java.time.Instant"), Jdk8DateCodec.instance);
-		} catch (Throwable e) {
-		    // skip
+		if (!jdk8Error) {
+    		try {
+    		    put(Class.forName("java.time.LocalDateTime"), Jdk8DateCodec.instance);
+    		    put(Class.forName("java.time.LocalDate"), Jdk8DateCodec.instance);
+    		    put(Class.forName("java.time.LocalTime"), Jdk8DateCodec.instance);
+    		    put(Class.forName("java.time.ZonedDateTime"), Jdk8DateCodec.instance);
+    		    put(Class.forName("java.time.OffsetDateTime"), Jdk8DateCodec.instance);
+    		    put(Class.forName("java.time.OffsetTime"), Jdk8DateCodec.instance);
+    		    put(Class.forName("java.time.ZoneOffset"), Jdk8DateCodec.instance);
+    		    put(Class.forName("java.time.ZoneRegion"), Jdk8DateCodec.instance);
+    		    put(Class.forName("java.time.Period"), Jdk8DateCodec.instance);
+    		    put(Class.forName("java.time.Duration"), Jdk8DateCodec.instance);
+    		    put(Class.forName("java.time.Instant"), Jdk8DateCodec.instance);
+    		    
+    		    put(Class.forName("java.util.Optional"), OptionalCodec.instance);
+    		} catch (Throwable e) {
+    		    // skip
+    		    jdk8Error = true;
+    		}
 		}
-
+		
+		if (!oracleJdbcError) {
+		    try {
+                put(Class.forName("oracle.sql.DATE"), DateSerializer.instance);
+                put(Class.forName("oracle.sql.TIMESTAMP"), DateSerializer.instance);
+            } catch (Throwable e) {
+                // skip
+                oracleJdbcError = true;
+            }
+		}
 	}
 
 	public ObjectSerializer getObjectWriter(Class<?> clazz) {

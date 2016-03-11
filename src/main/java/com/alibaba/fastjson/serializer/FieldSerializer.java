@@ -50,6 +50,7 @@ public abstract class FieldSerializer {
             for (SerializerFeature feature : annotation.serialzeFeatures()) {
                 if (feature == SerializerFeature.WriteMapNullValue) {
                     writeNull = true;
+                    break;
                 }
             }
         }

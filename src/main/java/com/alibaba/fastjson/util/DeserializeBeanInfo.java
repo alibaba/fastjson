@@ -133,72 +133,73 @@ public class DeserializeBeanInfo {
         Class<?> builderClass = beanInfo.getBuilderClass();
 
         Constructor<?> defaultConstructor = getDefaultConstructor(builderClass == null ? clazz : builderClass);
-        if (defaultConstructor != null) {
+        if (defaultConstructor != null) { // 如果存在默认构造方法
             TypeUtils.setAccessible(defaultConstructor);
             beanInfo.setDefaultConstructor(defaultConstructor);
         } else if (defaultConstructor == null && !(clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers()))) {
             Constructor<?> creatorConstructor = getCreatorConstructor(clazz);
-            if (creatorConstructor != null) {
+            if (creatorConstructor != null) { // 基于标记 JSONCreator 注解的构造方法
                 TypeUtils.setAccessible(creatorConstructor);
                 beanInfo.setCreatorConstructor(creatorConstructor);
 
-                for (int i = 0; i < creatorConstructor.getParameterTypes().length; ++i) {
-                    Annotation[] paramAnnotations = creatorConstructor.getParameterAnnotations()[i];
-                    JSONField fieldAnnotation = null;
-                    for (Annotation paramAnnotation : paramAnnotations) {
-                        if (paramAnnotation instanceof JSONField) {
-                            fieldAnnotation = (JSONField) paramAnnotation;
-                            break;
-                        }
-                    }
-                    if (fieldAnnotation == null) {
-                        throw new JSONException("illegal json creator");
-                    }
-
-                    Class<?> fieldClass = creatorConstructor.getParameterTypes()[i];
-                    Type fieldType = creatorConstructor.getGenericParameterTypes()[i];
-                    Field field = TypeUtils.getField(clazz, fieldAnnotation.name());
-                    final int ordinal = fieldAnnotation.ordinal();
-                    final int serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
-                    FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, field,
-                                                        ordinal, serialzeFeatures);
-                    beanInfo.add(fieldInfo);
-                }
+                int count = creatorConstructor.getParameterCount();
+                if (count > 0) {
+                	Annotation[][] paramAnnotationArrays = creatorConstructor.getParameterAnnotations();
+                	for (int i = 0; i < count; ++i) {
+                		Annotation[] paramAnnotations = paramAnnotationArrays[i];
+                		JSONField fieldAnnotation = null;
+                		for (Annotation paramAnnotation : paramAnnotations) {
+                			if (paramAnnotation instanceof JSONField) {
+                				fieldAnnotation = (JSONField) paramAnnotation;
+                				break;
+                			}
+                		}
+                		if (fieldAnnotation == null) {
+                			throw new JSONException("illegal json creator");
+                		}
+                		Class<?> fieldClass = creatorConstructor.getParameterTypes()[i];
+                		Type fieldType = creatorConstructor.getGenericParameterTypes()[i];
+                		Field field = TypeUtils.getField(clazz, fieldAnnotation.name());
+                		final int ordinal = fieldAnnotation.ordinal();
+                		final int serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                		FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, field,
+                				ordinal, serialzeFeatures);
+                		beanInfo.add(fieldInfo);
+                	}
+				}
                 return beanInfo;
             }
 
-            Method factoryMethod = getFactoryMethod(clazz);
+            Method factoryMethod = getFactoryMethod(clazz); // 基于标记 JSONCreator 注解的工厂方法
             if (factoryMethod != null) {
                 TypeUtils.setAccessible(factoryMethod);
                 beanInfo.setFactoryMethod(factoryMethod);
-
-                for (int i = 0; i < factoryMethod.getParameterTypes().length; ++i) {
-                    Annotation[] paramAnnotations = factoryMethod.getParameterAnnotations()[i];
-                    JSONField fieldAnnotation = null;
-                    for (Annotation paramAnnotation : paramAnnotations) {
-                        if (paramAnnotation instanceof JSONField) {
-                            fieldAnnotation = (JSONField) paramAnnotation;
-                            break;
+                
+                int count = factoryMethod.getParameterCount();
+                if (count > 0) {
+                	Annotation[][] paramAnnotationArrays = factoryMethod.getParameterAnnotations();
+                	for (int i = 0; i < count; ++i) {
+                        Annotation[] paramAnnotations = paramAnnotationArrays[i];
+                        JSONField fieldAnnotation = null;
+                        for (Annotation paramAnnotation : paramAnnotations) {
+                            if (paramAnnotation instanceof JSONField) {
+                                fieldAnnotation = (JSONField) paramAnnotation;
+                                break;
+                            }
                         }
-                    }
-                    if (fieldAnnotation == null) {
-                        throw new JSONException("illegal json creator");
-                    }
+                        if (fieldAnnotation == null) {
+                            throw new JSONException("illegal json creator");
+                        }
 
-                    Class<?> fieldClass = factoryMethod.getParameterTypes()[i];
-                    Type fieldType = factoryMethod.getGenericParameterTypes()[i];
-                    Field field = TypeUtils.getField(clazz, fieldAnnotation.name());
-                    final int ordinal = fieldAnnotation.ordinal();
-                    final int serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
-                    FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name() //
-                    , clazz //
-                                                        , fieldClass //
-                                                        , fieldType //
-                                                        , field //
-                                                        , ordinal //
-                                                        , serialzeFeatures);
-                    beanInfo.add(fieldInfo);
-                }
+                        Class<?> fieldClass = factoryMethod.getParameterTypes()[i];
+                        Type fieldType = factoryMethod.getGenericParameterTypes()[i];
+                        Field field = TypeUtils.getField(clazz, fieldAnnotation.name());
+                        final int ordinal = fieldAnnotation.ordinal();
+                        final int serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                        FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, field, ordinal, serialzeFeatures);
+                        beanInfo.add(fieldInfo);
+                    }
+				}
                 return beanInfo;
             }
 
@@ -244,8 +245,7 @@ public class DeserializeBeanInfo {
 
                     if (annotation.name().length() != 0) {
                         String propertyName = annotation.name();
-                        beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures));
-                        TypeUtils.setAccessible(method);
+                        beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures));                        
                         continue;
                     }
                 }
@@ -270,8 +270,7 @@ public class DeserializeBeanInfo {
 
                 String propertyName = properNameBuilder.toString();
 
-                beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures));
-                TypeUtils.setAccessible(method);
+                beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures));                
             }
 
             if (builderClass != null) {
@@ -314,7 +313,7 @@ public class DeserializeBeanInfo {
             }
         }
 
-        for (Method method : clazz.getMethods()) {
+        for (Method method : clazz.getMethods()) { // 
             int ordinal = 0, serialzeFeatures = 0;
             String methodName = method.getName();
             if (methodName.length() < 4) {
@@ -330,7 +329,7 @@ public class DeserializeBeanInfo {
                 continue;
             }
 
-            if (method.getParameterTypes().length != 1) {
+            if (method.getParameterCount() != 1) {
                 continue;
             }
 
@@ -351,12 +350,11 @@ public class DeserializeBeanInfo {
                 if (annotation.name().length() != 0) {
                     String propertyName = annotation.name();
                     beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures));
-                    TypeUtils.setAccessible(method);
                     continue;
                 }
             }
 
-            if (!methodName.startsWith("set")) {
+            if (!methodName.startsWith("set")) { // TODO "set"的判断放在 JSONField 注解后面，意思是允许非 setter 方法标记 JSONField 注解？
                 continue;
             }
 
@@ -396,8 +394,7 @@ public class DeserializeBeanInfo {
 
                     if (fieldAnnotation.name().length() != 0) {
                         propertyName = fieldAnnotation.name();
-                        beanInfo.add(new FieldInfo(propertyName, method, field, clazz, type, ordinal,
-                                                   serialzeFeatures));
+                        beanInfo.add(new FieldInfo(propertyName, method, field, clazz, type, ordinal, serialzeFeatures));
                         continue;
                     }
                 }
@@ -405,10 +402,9 @@ public class DeserializeBeanInfo {
             }
 
             beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures));
-            TypeUtils.setAccessible(method);
         }
 
-        for (Field field : clazz.getFields()) {
+        for (Field field : clazz.getFields()) { // public fields
             if (Modifier.isStatic(field.getModifiers())) {
                 continue;
             }
@@ -417,7 +413,7 @@ public class DeserializeBeanInfo {
             for (FieldInfo item : beanInfo.getFieldList()) {
                 if (item.getName().equals(field.getName())) {
                     contains = true;
-                    continue;
+                    break; // 已经是 contains = true，无需继续遍历
                 }
             }
 
@@ -441,7 +437,7 @@ public class DeserializeBeanInfo {
             beanInfo.add(new FieldInfo(propertyName, null, field, clazz, type, ordinal, serialzeFeatures));
         }
 
-        for (Method method : clazz.getMethods()) {
+        for (Method method : clazz.getMethods()) { // getter methods
             String methodName = method.getName();
             if (methodName.length() < 4) {
                 continue;
@@ -452,7 +448,7 @@ public class DeserializeBeanInfo {
             }
 
             if (methodName.startsWith("get") && Character.isUpperCase(methodName.charAt(3))) {
-                if (method.getParameterTypes().length != 0) {
+                if (method.getParameterCount() != 0) {
                     continue;
                 }
 
@@ -477,7 +473,6 @@ public class DeserializeBeanInfo {
                     }
 
                     beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type));
-                    TypeUtils.setAccessible(method);
                 }
             }
         }
@@ -491,8 +486,10 @@ public class DeserializeBeanInfo {
         }
 
         Constructor<?> defaultConstructor = null;
-        for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
-            if (constructor.getParameterTypes().length == 0) {
+        final Constructor<?>[] constructors = clazz.getDeclaredConstructors();
+        
+        for (Constructor<?> constructor : constructors) {
+            if (constructor.getParameterCount() == 0) { // getParameterTypes() 内部是调用数组的克隆方法，开销相对较大
                 defaultConstructor = constructor;
                 break;
             }
@@ -500,9 +497,9 @@ public class DeserializeBeanInfo {
 
         if (defaultConstructor == null) {
             if (clazz.isMemberClass() && !Modifier.isStatic(clazz.getModifiers())) {
-                for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
-                    if (constructor.getParameterTypes().length == 1
-                        && constructor.getParameterTypes()[0].equals(clazz.getDeclaringClass())) {
+                for (Constructor<?> constructor : constructors) {
+                    if (constructor.getParameterCount() == 1 
+                    		&& constructor.getParameterTypes()[0].equals(clazz.getDeclaringClass())) {
                         defaultConstructor = constructor;
                         break;
                     }
@@ -520,11 +517,11 @@ public class DeserializeBeanInfo {
             JSONCreator annotation = constructor.getAnnotation(JSONCreator.class);
             if (annotation != null) {
                 if (creatorConstructor != null) {
-                    throw new JSONException("multi-json creator");
+                    throw new JSONException("multi-JSONCreator");
                 }
 
                 creatorConstructor = constructor;
-                break;
+                // 不应该break，否则多个构造方法上存在 JSONCreator 注解时，并不会触发上述异常抛出
             }
         }
         return creatorConstructor;
@@ -545,11 +542,11 @@ public class DeserializeBeanInfo {
             JSONCreator annotation = method.getAnnotation(JSONCreator.class);
             if (annotation != null) {
                 if (factoryMethod != null) {
-                    throw new JSONException("multi-json creator");
+                    throw new JSONException("multi-JSONCreator");
                 }
 
                 factoryMethod = method;
-                break;
+                // 不应该break，否则多个静态工厂方法上存在 JSONCreator 注解时，并不会触发上述异常抛出
             }
         }
         return factoryMethod;

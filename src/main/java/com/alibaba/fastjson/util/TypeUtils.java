@@ -1310,36 +1310,44 @@ public class TypeUtils {
         return fieldInfoList;
     }
 
-    public static JSONField getSupperMethodAnnotation(Class<?> clazz, Method method) {
-        for (Class<?> interfaceClass : clazz.getInterfaces()) {
-            for (Method interfaceMethod : interfaceClass.getMethods()) {
-                if (!interfaceMethod.getName().equals(method.getName())) {
-                    continue;
-                }
+    public static JSONField getSupperMethodAnnotation(final Class<?> clazz, final Method method) {
+    	Class<?>[] interfaces = clazz.getInterfaces();
+    	if (interfaces.length > 0) {
+    		int paramsCount = method.getParameterCount();
+    		Class<?>[] methodParamTypes = null;
+    		for (Class<?> interfaceClass : interfaces) {
+                for (Method interfaceMethod : interfaceClass.getMethods()) {
+                	if (interfaceMethod.getParameterCount() != paramsCount) {
+                		continue;					
+					}
+                    if (!interfaceMethod.getName().equals(method.getName())) {
+                        continue;
+                    }
+                    boolean match = true;
+                    if (paramsCount > 0) {						
+                    	Class<?>[] interfaceTypes = interfaceMethod.getParameterTypes();
+                    	if (methodParamTypes == null) {
+                    		methodParamTypes = method.getParameterTypes();							
+						}
+	                    for (int i = 0; i < paramsCount; ++i) {
+	                        if (!interfaceTypes[i].equals(methodParamTypes[i])) {
+	                            match = false;
+	                            break;
+	                        }
+	                    }
+                    }
 
-                if (interfaceMethod.getParameterTypes().length != method.getParameterTypes().length) {
-                    continue;
-                }
+                    if (!match) {
+                        continue;
+                    }
 
-                boolean match = true;
-                for (int i = 0; i < interfaceMethod.getParameterTypes().length; ++i) {
-                    if (!interfaceMethod.getParameterTypes()[i].equals(method.getParameterTypes()[i])) {
-                        match = false;
-                        break;
+                    JSONField annotation = interfaceMethod.getAnnotation(JSONField.class);
+                    if (annotation != null) {
+                        return annotation;
                     }
                 }
-
-                if (!match) {
-                    continue;
-                }
-
-                JSONField annotation = interfaceMethod.getAnnotation(JSONField.class);
-                if (annotation != null) {
-                    return annotation;
-                }
             }
-        }
-
+		}
         return null;
     }
 

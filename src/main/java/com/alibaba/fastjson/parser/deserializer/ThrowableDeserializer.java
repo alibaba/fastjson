@@ -127,18 +127,19 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
         Constructor<?> messageConstructor = null;
         Constructor<?> causeConstructor = null;
         for (Constructor<?> constructor : exClass.getConstructors()) {
-            if (constructor.getParameterTypes().length == 0) {
+            if (constructor.getParameterCount() == 0) {
                 defaultConstructor = constructor;
                 continue;
             }
 
-            if (constructor.getParameterTypes().length == 1 && constructor.getParameterTypes()[0] == String.class) {
+            if (constructor.getParameterCount() == 1 && constructor.getParameterTypes()[0] == String.class) {
                 messageConstructor = constructor;
                 continue;
             }
 
-            if (constructor.getParameterTypes().length == 2 && constructor.getParameterTypes()[0] == String.class
-                && constructor.getParameterTypes()[1] == Throwable.class) {
+            Class<?>[] types;
+            if (constructor.getParameterCount() == 2 && (types = constructor.getParameterTypes())[0] == String.class
+                && types[1] == Throwable.class) {
                 causeConstructor = constructor;
                 continue;
             }

@@ -84,7 +84,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         Type fieldType;
         Class<?> fieldClass;
         if (method != null) {
-            if (method.getParameterTypes().length == 1) {
+            if (method.getParameterCount() == 1) {
                 fieldClass = method.getParameterTypes()[0];
                 fieldType = method.getGenericParameterTypes()[0];
             } else {
@@ -128,7 +128,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         return label;
     }
 
-    public static Type getFieldType(Class<?> clazz, Type type, Type fieldType) {
+    public static Type getFieldType(final Class<?> clazz, final Type type, Type fieldType) {
         if (clazz == null || type == null) {
             return fieldType;
         }
@@ -152,10 +152,11 @@ public class FieldInfo implements Comparable<FieldInfo> {
         if (fieldType instanceof TypeVariable) {
             ParameterizedType paramType = (ParameterizedType) TypeUtils.getGenericParamType(type);
             Class<?> parameterizedClass = TypeUtils.getClass(paramType);
-            TypeVariable<?> typeVar = (TypeVariable<?>) fieldType;
-
-            for (int i = 0; i < parameterizedClass.getTypeParameters().length; ++i) {
-                if (parameterizedClass.getTypeParameters()[i].getName().equals(typeVar.getName())) {
+            final TypeVariable<?> typeVar = (TypeVariable<?>) fieldType;
+            
+            TypeVariable<?>[] typeVariables = parameterizedClass.getTypeParameters();
+            for (int i = 0; i < typeVariables.length; ++i) {
+                if (typeVariables[i].getName().equals(typeVar.getName())) {
                     fieldType = paramType.getActualTypeArguments()[i];
                     return fieldType;
                 }
@@ -167,16 +168,23 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
             Type[] arguments = parameterizedFieldType.getActualTypeArguments();
             boolean changed = false;
+            TypeVariable<?>[] typeVariables = null;
+            Type[] actualTypes = null;
             for (int i = 0; i < arguments.length; ++i) {
                 Type feildTypeArguement = arguments[i];
                 if (feildTypeArguement instanceof TypeVariable) {
                     TypeVariable<?> typeVar = (TypeVariable<?>) feildTypeArguement;
 
                     if (type instanceof ParameterizedType) {
-                        ParameterizedType parameterizedType = (ParameterizedType) type;
-                        for (int j = 0; j < clazz.getTypeParameters().length; ++j) {
-                            if (clazz.getTypeParameters()[j].getName().equals(typeVar.getName())) {
-                                arguments[i] = parameterizedType.getActualTypeArguments()[j];
+                        if (typeVariables == null) {
+                        	typeVariables = clazz.getTypeParameters();							
+						}
+                        for (int j = 0; j < typeVariables.length; ++j) {
+                            if (typeVariables[j].getName().equals(typeVar.getName())) {
+                            	if (actualTypes == null) {
+									actualTypes = ((ParameterizedType) type).getActualTypeArguments();
+								}
+                                arguments[i] = actualTypes[j];
                                 changed = true;
                             }
                         }

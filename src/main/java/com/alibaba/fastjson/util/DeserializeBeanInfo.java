@@ -404,7 +404,7 @@ public class DeserializeBeanInfo {
             beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures));
         }
 
-        for (Field field : clazz.getFields()) { // public fields
+        for (Field field : clazz.getFields()) { // public static fields
             if (Modifier.isStatic(field.getModifiers())) {
                 continue;
             }

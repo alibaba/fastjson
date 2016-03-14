@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -68,9 +69,12 @@ public class MapSerializer implements ObjectSerializer {
             boolean first = true;
 
             if (out.isEnabled(SerializerFeature.WriteClassName)) {
-                out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
-                out.writeString(object.getClass().getName());
-                first = false;
+                boolean containsKey = map.getClass() == JSONObject.class && map.containsKey(JSON.DEFAULT_TYPE_KEY);
+                if (!containsKey) {
+                    out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
+                    out.writeString(object.getClass().getName());
+                    first = false;
+                }
             }
 
             for (Map.Entry entry : map.entrySet()) {

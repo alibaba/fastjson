@@ -254,6 +254,9 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
     		    put(Class.forName("java.time.Instant"), Jdk8DateCodec.instance);
     		    
     		    put(Class.forName("java.util.Optional"), OptionalCodec.instance);
+    		    put(Class.forName("java.util.OptionalDouble"), OptionalCodec.instance);
+    		    put(Class.forName("java.util.OptionalInt"), OptionalCodec.instance);
+    		    put(Class.forName("java.util.OptionalLong"), OptionalCodec.instance);
     		} catch (Throwable e) {
     		    // skip
     		    jdk8Error = true;

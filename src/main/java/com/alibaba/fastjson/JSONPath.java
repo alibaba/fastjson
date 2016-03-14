@@ -826,7 +826,7 @@ public class JSONPath implements ObjectSerializer {
                 throw new JSONPathException("illeal jsonpath syntax. " + path);
             }
 
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             while (!isEOF()) {
                 if (ch == '\\') {
                     next();

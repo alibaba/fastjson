@@ -140,13 +140,13 @@ public class TypeUtils {
             }
 
             if (strVal.length() != 1) {
-                throw new JSONException("can not cast to byte, value : " + value);
+                throw new JSONException("can not cast to char, value : " + value);
             }
 
             return strVal.charAt(0);
         }
 
-        throw new JSONException("can not cast to byte, value : " + value);
+        throw new JSONException("can not cast to char, value : " + value);
     }
 
     public static Short castToShort(Object value) {
@@ -271,13 +271,13 @@ public class TypeUtils {
         if (value == null) {
             return null;
         }
+        
+        if (value instanceof Date) { // 使用频率最高的，应优先处理
+        	return (Date) value;
+        }
 
         if (value instanceof Calendar) {
             return ((Calendar) value).getTime();
-        }
-
-        if (value instanceof Date) {
-            return (Date) value;
         }
 
         long longValue = -1;
@@ -369,17 +369,17 @@ public class TypeUtils {
         if (value == null) {
             return null;
         }
+        
+        if (value instanceof java.sql.Date) {
+        	return (java.sql.Date) value;
+        }
+        
+        if (value instanceof java.util.Date) {
+        	return new java.sql.Date(((java.util.Date) value).getTime());
+        }
 
         if (value instanceof Calendar) {
             return new java.sql.Date(((Calendar) value).getTimeInMillis());
-        }
-
-        if (value instanceof java.sql.Date) {
-            return (java.sql.Date) value;
-        }
-
-        if (value instanceof java.util.Date) {
-            return new java.sql.Date(((java.util.Date) value).getTime());
         }
 
         long longValue = 0;
@@ -398,7 +398,7 @@ public class TypeUtils {
         }
 
         if (longValue <= 0) {
-            throw new JSONException("can not cast to Date, value : " + value);
+            throw new JSONException("can not cast to Date, value : " + value); // TODO 忽略 1970-01-01 之前的时间处理？
         }
 
         return new java.sql.Date(longValue);
@@ -500,10 +500,6 @@ public class TypeUtils {
             String strVal = (String) value;
 
             if (strVal.length() == 0) {
-                return null;
-            }
-
-            if ("null".equals(strVal)) {
                 return null;
             }
 
@@ -1314,36 +1310,44 @@ public class TypeUtils {
         return fieldInfoList;
     }
 
-    public static JSONField getSupperMethodAnnotation(Class<?> clazz, Method method) {
-        for (Class<?> interfaceClass : clazz.getInterfaces()) {
-            for (Method interfaceMethod : interfaceClass.getMethods()) {
-                if (!interfaceMethod.getName().equals(method.getName())) {
-                    continue;
-                }
+    public static JSONField getSupperMethodAnnotation(final Class<?> clazz, final Method method) {
+    	Class<?>[] interfaces = clazz.getInterfaces();
+    	if (interfaces.length > 0) {
+    		int paramsCount = method.getParameterCount();
+    		Class<?>[] methodParamTypes = null;
+    		for (Class<?> interfaceClass : interfaces) {
+                for (Method interfaceMethod : interfaceClass.getMethods()) {
+                	if (interfaceMethod.getParameterCount() != paramsCount) {
+                		continue;					
+					}
+                    if (!interfaceMethod.getName().equals(method.getName())) {
+                        continue;
+                    }
+                    boolean match = true;
+                    if (paramsCount > 0) {						
+                    	Class<?>[] interfaceTypes = interfaceMethod.getParameterTypes();
+                    	if (methodParamTypes == null) {
+                    		methodParamTypes = method.getParameterTypes();							
+						}
+	                    for (int i = 0; i < paramsCount; ++i) {
+	                        if (!interfaceTypes[i].equals(methodParamTypes[i])) {
+	                            match = false;
+	                            break;
+	                        }
+	                    }
+                    }
 
-                if (interfaceMethod.getParameterTypes().length != method.getParameterTypes().length) {
-                    continue;
-                }
+                    if (!match) {
+                        continue;
+                    }
 
-                boolean match = true;
-                for (int i = 0; i < interfaceMethod.getParameterTypes().length; ++i) {
-                    if (!interfaceMethod.getParameterTypes()[i].equals(method.getParameterTypes()[i])) {
-                        match = false;
-                        break;
+                    JSONField annotation = interfaceMethod.getAnnotation(JSONField.class);
+                    if (annotation != null) {
+                        return annotation;
                     }
                 }
-
-                if (!match) {
-                    continue;
-                }
-
-                JSONField annotation = interfaceMethod.getAnnotation(JSONField.class);
-                if (annotation != null) {
-                    return annotation;
-                }
             }
-        }
-
+		}
         return null;
     }
 

@@ -33,13 +33,13 @@ public class ASMUtils {
     }
 
     public static String getDesc(Method method) {
-        StringBuffer buf = new StringBuffer();
-        buf.append("(");
-        java.lang.Class<?>[] types = method.getParameterTypes();
+    	Class<?>[] types = method.getParameterTypes();
+        StringBuilder buf = new StringBuilder((types.length + 1) << 4);
+        buf.append('(');
         for (int i = 0; i < types.length; ++i) {
             buf.append(getDesc(types[i]));
         }
-        buf.append(")");
+        buf.append(')');
         buf.append(getDesc(method.getReturnType()));
         return buf.toString();
     }
@@ -60,7 +60,7 @@ public class ASMUtils {
         } else {
             if (!parameterType.isPrimitive()) {
                 String clsName = parameterType.getName();
-                return clsName.replaceAll("\\.", "/");
+                return clsName.replace('.', '/'); // 直接基于字符串替换，不使用正则替换
             } else {
                 return getPrimitiveLetter(parameterType);
             }

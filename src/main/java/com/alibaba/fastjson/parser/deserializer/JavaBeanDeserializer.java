@@ -108,7 +108,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         Object object;
         try {
             Constructor<?> constructor = beanInfo.getDefaultConstructor();
-            if (constructor.getParameterTypes().length == 0) {
+            if (constructor.getParameterCount() == 0) {
                 object = constructor.newInstance();
             } else {
                 object = constructor.newInstance(parser.getContext().getObject());
@@ -219,7 +219,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             }
 
             if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {
-                StringBuffer buf = (new StringBuffer()) //
+                StringBuilder buf = new StringBuilder(72) // 单线程换StringBuilder，并设置初始化容量，避免内部逐步扩容开销
                 .append("syntax error, expect {, actual ") //
                 .append(lexer.tokenName()) //
                 .append(", pos ") //

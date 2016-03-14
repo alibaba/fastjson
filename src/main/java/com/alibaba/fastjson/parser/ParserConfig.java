@@ -330,6 +330,9 @@ public class ParserConfig {
                 derializers.put(Class.forName("java.time.Instant"), Jdk8DateCodec.instance);
                 
                 derializers.put(Class.forName("java.util.Optional"), OptionalCodec.instance);
+                derializers.put(Class.forName("java.util.OptionalDouble"), OptionalCodec.instance);
+                derializers.put(Class.forName("java.util.OptionalInt"), OptionalCodec.instance);
+                derializers.put(Class.forName("java.util.OptionalLong"), OptionalCodec.instance);
             } catch (Throwable e) {
                 // skip
                 jdk8Error = true;

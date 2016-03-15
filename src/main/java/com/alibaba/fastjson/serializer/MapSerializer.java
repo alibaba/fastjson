@@ -17,6 +17,7 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -42,6 +44,9 @@ public class MapSerializer implements ObjectSerializer {
         }
 
         Map<?, ?> map = (Map<?, ?>) object;
+        Class<?> mapClass = map.getClass();
+        boolean containsKey = (mapClass == JSONObject.class || mapClass == HashMap.class || mapClass == LinkedHashMap.class) 
+                && map.containsKey(JSON.DEFAULT_TYPE_KEY);
 
         if (out.isEnabled(SerializerFeature.SortField)) {
             if ((!(map instanceof SortedMap)) && !(map instanceof LinkedHashMap)) {
@@ -71,9 +76,11 @@ public class MapSerializer implements ObjectSerializer {
             boolean first = true;
 
             if (out.isEnabled(SerializerFeature.WriteClassName)) {
-                out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
-                out.writeString(object.getClass().getName());
-                first = false;
+                if (!containsKey) {
+                    out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
+                    out.writeString(object.getClass().getName());
+                    first = false;
+                }
             }
 
             for (Map.Entry entry : map.entrySet()) {

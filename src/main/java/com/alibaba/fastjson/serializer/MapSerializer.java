@@ -18,6 +18,7 @@ package com.alibaba.fastjson.serializer;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -71,7 +72,7 @@ public class MapSerializer implements ObjectSerializer {
 
             if (out.isEnabled(SerializerFeature.WriteClassName)) {
                 Class<?> mapClass = map.getClass();
-                boolean containsKey = (mapClass == JSONObject.class || mapClass == HashMap.class) 
+                boolean containsKey = (mapClass == JSONObject.class || mapClass == HashMap.class || mapClass == LinkedHashMap.class) 
                         && map.containsKey(JSON.DEFAULT_TYPE_KEY);
                 if (!containsKey) {
                     out.writeFieldName(JSON.DEFAULT_TYPE_KEY);

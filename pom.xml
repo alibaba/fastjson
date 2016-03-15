@@ -2,17 +2,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
- <!--  
+ 
 	<parent>
-	    <groupId>com.alibaba</groupId>
-	   <artifactId>parent-pom</artifactId>
-	   <version>1.0.0-SNAPSHOT</version>
-	 </parent>
--->
+		<groupId>com.alibaba</groupId>
+		<artifactId>parent-pom</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
 
 	<groupId>com.alibaba</groupId>
 	<artifactId>fastjson</artifactId>
-	<version>1.1.46.android</version>
+	<version>1.1.47.android-SNAPSHOT</version>
 
 	<packaging>jar</packaging>
 	<name>fastjson</name>
@@ -23,11 +22,19 @@
 
 	<properties>
 		<junit.version>4.11</junit.version>
-		<gpg.skip>false</gpg.skip>
-		<javadoc.skip>false</javadoc.skip>
+		<gpg.skip>true</gpg.skip>
+		<javadoc.skip>true</javadoc.skip>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk.version>1.5</jdk.version>
 	</properties>
+	
+	<repositories>
+		<repository>
+			<id>local-file</id>
+			<url>file://${basedir}/lib/</url>
+			<layout>default</layout>
+		</repository>
+	</repositories>
 
 	<developers>
 		<developer>
@@ -46,17 +53,6 @@
 		<url>https://wenshao@github.com/alibaba/fastjson.git</url>
 		<connection>scm:git:https://wenshao@github.com/alibaba/fastjson.git</connection>
 	</scm>
-
-	<distributionManagement>
-		<repository>
-			<id>opensesame</id>
-			<url>dav:http://code.alibabatech.com/mvn/releases/</url>
-		</repository>
-		<snapshotRepository>
-			<id>opensesame</id>
-			<url>dav:http://code.alibabatech.com/mvn/snapshots/</url>
-		</snapshotRepository>
-	</distributionManagement>
 
 	<organization>
 		<name>Alibaba Group</name>

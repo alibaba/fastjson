@@ -43,6 +43,145 @@ public class ArraySerializer implements ObjectSerializer {
             }
             return;
         }
+        
+        
+        if (object instanceof boolean[]) {
+            boolean[] array = (boolean[]) object;
+            out.write('[');
+            for (int i = 0; i < array.length; ++i) {
+                if (i != 0) {
+                    out.write(',');
+                }
+                out.write(array[i]);
+            }
+            out.write(']');
+            return;
+        }
+        
+        if (object instanceof byte[]) {
+            byte[] array = (byte[]) object;
+            out.writeByteArray(array);
+            return;
+        }
+        
+        if (object instanceof char[]) {
+            char[] chars = (char[]) object;
+            out.writeString(new String(chars));
+            return;
+        }
+        
+        if (object instanceof double[]) {
+            double[] array = (double[]) object;
+            int size = array.length;
+
+            int end = size - 1;
+
+            if (end == -1) {
+                out.append("[]");
+                return;
+            }
+
+            out.append('[');
+            for (int i = 0; i < end; ++i) {
+                double item = array[i];
+
+                if (Double.isNaN(item)) {
+                    out.writeNull();
+                } else {
+                    out.append(Double.toString(item));
+                }
+
+                out.append(',');
+            }
+
+            double item = array[end];
+
+            if (Double.isNaN(item)) {
+                out.writeNull();
+            } else {
+                out.append(Double.toString(item));
+            }
+
+            out.append(']');
+            return;
+        }
+        
+        if (object instanceof float[]) {
+            float[] array = (float[]) object;
+            int size = array.length;
+
+            int end = size - 1;
+
+            if (end == -1) {
+                out.append("[]");
+                return;
+            }
+
+            out.append('[');
+            for (int i = 0; i < end; ++i) {
+                float item = array[i];
+
+                if (Float.isNaN(item)) {
+                    out.writeNull();
+                } else {
+                    out.append(Float.toString(item));
+                }
+
+                out.append(',');
+            }
+
+            float item = array[end];
+
+            if (Float.isNaN(item)) {
+                out.writeNull();
+            } else {
+                out.append(Float.toString(item));
+            }
+
+            out.append(']');
+            return;
+        }
+        
+        if (object instanceof int[]) {
+            int[] array = (int[]) object;
+
+            out.write('[');
+            for (int i = 0; i < array.length; ++i) {
+                if (i != 0) {
+                    out.write(',');
+                }
+                out.writeInt(array[i]);
+            }
+            out.write(']');
+            return;
+        }
+        
+        if (object instanceof long[]) {
+            long[] array = (long[]) object;
+
+            out.write('[');
+            for (int i = 0; i < array.length; ++i) {
+                if (i != 0) {
+                    out.write(',');
+                }
+                out.writeLong(array[i]);
+            }
+            out.write(']');
+            return;
+        }
+        
+        if (object instanceof short[]) {
+            short[] array = (short[]) object;
+            out.write('[');
+            for (int i = 0; i < array.length; ++i) {
+                if (i != 0) {
+                    out.write(',');
+                }
+                out.writeInt(array[i]);
+            }
+            out.write(']');
+            return;
+        }
 
         Object[] array = (Object[]) object;
         int size = array.length;

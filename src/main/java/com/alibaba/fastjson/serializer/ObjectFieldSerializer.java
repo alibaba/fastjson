@@ -104,7 +104,7 @@ public class ObjectFieldSerializer extends FieldSerializer {
                 return;
             }
 
-            runtimeInfo.fieldSerializer.write(serializer, null, fieldInfo.getName(), null);
+            runtimeInfo.fieldSerializer.write(serializer, null, fieldInfo.getName(), runtimeInfo.runtimeFieldClass);
             return;
         }
 

@@ -8,12 +8,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
-import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.JSONLibDataFormatSerializer;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+
+import junit.framework.TestCase;
 
 public class CompatibleTest0 extends TestCase {
 
@@ -37,12 +37,6 @@ public class CompatibleTest0 extends TestCase {
     }
 
     // {"media":{"size":58982400,"format":"video/mpg4","uri":"http://javaone.com/keynote.mpg","title":"Javaone Keynote","width":640,"height":480,"duration":18000000,"bitrate":262144,"persons":["Bill Gates","Steve Jobs"],"player":"JAVA"}{"images":[{"size":"LARGE","uri":"http://javaone.com/keynote_large.jpg","title":"Javaone Keynote","width":1024,"height":768},{"size":"SMALL","uri":"http://javaone.com/keynote_small.jpg","title":"Javaone Keynote","width":320,"height":240}]}
-
-    public void test_3() throws Exception {
-        V1 vo = new V1();
-        vo.setDate(new Date());
-        assertEquals(toCompatibleJSONString(vo), toJSONLibString(vo));
-    }
 
     public void test_4() throws Exception {
         V1 vo = new V1();
@@ -97,7 +91,6 @@ public class CompatibleTest0 extends TestCase {
 private static final SerializeConfig   mapping;
 static {
     mapping = new SerializeConfig();
-    mapping.put(Date.class, new JSONLibDataFormatSerializer()); // 使用和json-lib兼容的日期输出格式
 }
 
 private static final SerializerFeature[] features = { SerializerFeature.WriteMapNullValue, // 输出空置字段

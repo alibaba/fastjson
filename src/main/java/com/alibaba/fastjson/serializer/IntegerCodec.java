@@ -46,14 +46,24 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
             return;
         }
         
-        out.writeInt(value.intValue());
-        
+        Class<?> clazz = value.getClass();
+        if (clazz == long.class) {
+            out.writeLong(value.longValue());
+        } else {
+            out.writeInt(value.intValue());
+        }
         if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
-            Class<?> clazz = value.getClass();
             if (clazz == Byte.class) {
                 out.write('B');
             } else if (clazz == Short.class) {
                 out.write('S');
+            } else if (clazz == Long.class) {
+                long longValue = value.longValue();
+                if (longValue <= Integer.MAX_VALUE && longValue >= Integer.MIN_VALUE) {
+                    if (fieldType != Long.class) {
+                        out.write('L');
+                    }
+                }
             }
         }
     }
@@ -67,19 +77,32 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
             return null;
         }
 
-        Integer intObj;
+        Number intObj;
         if (lexer.token() == JSONToken.LITERAL_INT) {
-            int val = lexer.intValue();
+            if (clazz == long.class || clazz == Long.class) {
+                long longValue = lexer.longValue();
+                intObj = Long.valueOf(longValue);
+            } else {
+                int val = lexer.intValue();
+                intObj = Integer.valueOf(val);
+            }
             lexer.nextToken(JSONToken.COMMA);
-            intObj = Integer.valueOf(val);
         } else if (lexer.token() == JSONToken.LITERAL_FLOAT) {
             BigDecimal decimalValue = lexer.decimalValue();
             lexer.nextToken(JSONToken.COMMA);
-            intObj = Integer.valueOf(decimalValue.intValue());
+            if (clazz == long.class || clazz == Long.class) {
+                intObj = Long.valueOf(decimalValue.longValue());
+            } else {
+                intObj = Integer.valueOf(decimalValue.intValue());
+            }
         } else {
             Object value = parser.parse();
 
-            intObj = TypeUtils.castToInt(value);
+            if (clazz == long.class || clazz == Long.class) {
+                intObj = TypeUtils.castToLong(value);
+            } else {
+                intObj = TypeUtils.castToInt(value);
+            }
         }
         
         return (T) intObj;

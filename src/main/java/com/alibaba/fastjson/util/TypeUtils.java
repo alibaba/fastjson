@@ -168,6 +168,10 @@ public class TypeUtils {
         if (strVal.length() == 0) {
             return null;
         }
+        
+        if ("null".equals(strVal)) {
+            return null;
+        }
 
         return new BigDecimal(strVal);
     }

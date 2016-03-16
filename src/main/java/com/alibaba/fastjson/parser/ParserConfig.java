@@ -74,12 +74,9 @@ import com.alibaba.fastjson.parser.deserializer.LongFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.MapDeserializer;
 import com.alibaba.fastjson.parser.deserializer.NumberDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
-import com.alibaba.fastjson.parser.deserializer.SqlDateDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StackTraceElementDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StringFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ThrowableDeserializer;
-import com.alibaba.fastjson.parser.deserializer.TimeDeserializer;
-import com.alibaba.fastjson.parser.deserializer.TimestampDeserializer;
 import com.alibaba.fastjson.serializer.BigDecimalCodec;
 import com.alibaba.fastjson.serializer.BigIntegerCodec;
 import com.alibaba.fastjson.serializer.BooleanCodec;
@@ -156,9 +153,6 @@ public class ParserConfig {
         primitiveClasses.add(java.sql.Timestamp.class);
 
         derializers.put(SimpleDateFormat.class, DateFormatDeserializer.instance);
-        derializers.put(java.sql.Timestamp.class, TimestampDeserializer.instance);
-        derializers.put(java.sql.Date.class, SqlDateDeserializer.instance);
-        derializers.put(java.sql.Time.class, TimeDeserializer.instance);
         derializers.put(java.util.Date.class, DateDeserializer.instance);
         derializers.put(Calendar.class, CalendarCodec.instance);
 

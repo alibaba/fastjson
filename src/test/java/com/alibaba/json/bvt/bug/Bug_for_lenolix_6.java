@@ -4,10 +4,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+
+import junit.framework.TestCase;
 
 public class Bug_for_lenolix_6 extends TestCase {
 
@@ -16,8 +16,8 @@ public class Bug_for_lenolix_6 extends TestCase {
         map.put("id", 1);
         map.put("name", "leno.lix");
         map.put("birthday", new Date());
-        map.put("gmtCreate", new java.sql.Date(new Date().getTime()));
-        map.put("gmtModified", new java.sql.Timestamp(new Date().getTime()));
+        map.put("gmtCreate", new java.util.Date(new Date().getTime()));
+        map.put("gmtModified", new java.util.Date(new Date().getTime()));
 
         String userJSON = JSON.toJSONString(map, SerializerFeature.WriteClassName,
                 SerializerFeature.WriteMapNullValue);

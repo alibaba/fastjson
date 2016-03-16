@@ -17,9 +17,10 @@ public class Bug_for_lenolix_7 extends TestCase {
         user.setName("leno.lix");
         user.setIsBoy(true);
         user.setBirthDay(new Date());
-        user.setGmtCreate(new java.sql.Date(new Date().getTime()));
-        user.setGmtModified(new java.sql.Timestamp(new Date().getTime()));
-        String userJSON = JSON.toJSONString(user, SerializerFeature.WriteClassName, SerializerFeature.WriteMapNullValue);
+        user.setGmtCreate(new java.util.Date(new Date().getTime()));
+        user.setGmtModified(new java.util.Date(new Date().getTime()));
+        String userJSON = JSON.toJSONString(user, SerializerFeature.WriteClassName,
+                                            SerializerFeature.WriteMapNullValue);
 
         System.out.println(userJSON);
 
@@ -33,15 +34,15 @@ public class Bug_for_lenolix_7 extends TestCase {
              *
              */
 
-        private static final long  serialVersionUID = 6192533820796587011L;
+        private static final long serialVersionUID = 6192533820796587011L;
 
-        private Integer            id;
-        private String             name;
-        private Boolean            isBoy;
-        private Address            address;
-        private Date               birthDay;
-        private java.sql.Date      gmtCreate;
-        private java.sql.Timestamp gmtModified;
+        private Integer           id;
+        private String            name;
+        private Boolean           isBoy;
+        private Address           address;
+        private Date              birthDay;
+        private java.util.Date    gmtCreate;
+        private java.util.Date    gmtModified;
 
         public Integer getId() {
             return id;
@@ -83,19 +84,19 @@ public class Bug_for_lenolix_7 extends TestCase {
             this.birthDay = birthDay;
         }
 
-        public java.sql.Date getGmtCreate() {
+        public java.util.Date getGmtCreate() {
             return gmtCreate;
         }
 
-        public void setGmtCreate(java.sql.Date gmtCreate) {
+        public void setGmtCreate(java.util.Date gmtCreate) {
             this.gmtCreate = gmtCreate;
         }
 
-        public java.sql.Timestamp getGmtModified() {
+        public java.util.Date getGmtModified() {
             return gmtModified;
         }
 
-        public void setGmtModified(java.sql.Timestamp gmtModified) {
+        public void setGmtModified(java.util.Date gmtModified) {
             this.gmtModified = gmtModified;
         }
 

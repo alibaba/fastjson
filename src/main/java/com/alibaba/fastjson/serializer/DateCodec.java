@@ -18,20 +18,27 @@ package com.alibaba.fastjson.serializer;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.parser.JSONScanner;
+import com.alibaba.fastjson.parser.JSONToken;
+import com.alibaba.fastjson.parser.deserializer.AbstractDateDeserializer;
+import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.TypeUtils;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
-public class DateSerializer implements ObjectSerializer {
+public class DateCodec extends AbstractDateDeserializer implements ObjectSerializer, ObjectDeserializer {
 
-    public final static DateSerializer instance = new DateSerializer();
+    public final static DateCodec instance = new DateCodec();
     
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.getWriter();
@@ -140,5 +147,55 @@ public class DateSerializer implements ObjectSerializer {
         } else {
             out.writeLong(time);
         }
+    }
+    
+    @SuppressWarnings("unchecked")
+    protected <T> T cast(DefaultJSONParser parser, Type clazz, Object fieldName, Object val) {
+
+        if (val == null) {
+            return null;
+        }
+
+        if (val instanceof java.util.Date) {
+            return (T) val;
+        } else if (val instanceof Number) {
+            return (T) new java.util.Date(((Number) val).longValue());
+        } else if (val instanceof String) {
+            String strVal = (String) val;
+            if (strVal.length() == 0) {
+                return null;
+            }
+
+            JSONScanner dateLexer = new JSONScanner(strVal);
+            try {
+                if (dateLexer.scanISO8601DateIfMatch(false)) {
+                    Calendar calendar = dateLexer.getCalendar();
+                    
+                    if (clazz == Calendar.class) {
+                        return (T) calendar;
+                    }
+                    
+                    return (T) calendar.getTime();
+                }
+            } finally {
+                dateLexer.close();
+            }
+
+            DateFormat dateFormat = parser.getDateFormat();
+            try {
+                return (T) dateFormat.parse(strVal);
+            } catch (ParseException e) {
+                // skip
+            }
+
+            long longVal = Long.parseLong(strVal);
+            return (T) new java.util.Date(longVal);
+        }
+
+        throw new JSONException("parse error");
+    }
+
+    public int getFastMatchToken() {
+        return JSONToken.LITERAL_INT;
     }
 }

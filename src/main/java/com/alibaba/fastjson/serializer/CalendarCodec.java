@@ -7,7 +7,6 @@ import java.util.Date;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONToken;
-import com.alibaba.fastjson.parser.deserializer.DateDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.util.IOUtils;
 
@@ -93,7 +92,7 @@ public class CalendarCodec implements ObjectSerializer, ObjectDeserializer {
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-        Object value = DateDeserializer.instance.deserialze(parser, type, fieldName);
+        Object value = DateCodec.instance.deserialze(parser, type, fieldName);
 
         if (value instanceof Calendar) {
             return (T) value;

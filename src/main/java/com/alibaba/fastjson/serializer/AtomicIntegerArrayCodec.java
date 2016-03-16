@@ -18,6 +18,7 @@ package com.alibaba.fastjson.serializer;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.concurrent.atomic.AtomicIntegerArray;
+import java.util.concurrent.atomic.AtomicLongArray;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
@@ -43,15 +44,31 @@ public class AtomicIntegerArrayCodec implements ObjectSerializer, ObjectDeserial
             return;
         }
 
-        AtomicIntegerArray array = (AtomicIntegerArray) object;
+        if (object instanceof AtomicIntegerArray) {
+            AtomicIntegerArray array = (AtomicIntegerArray) object;
+            int len = array.length();
+            out.append('[');
+            for (int i = 0; i < len; ++i) {
+                int val = array.get(i);
+                if (i != 0) {
+                    out.write(',');
+                }
+                out.writeInt(val);
+            }
+            out.append(']');
+            
+            return;
+        }
+        
+        AtomicLongArray array = (AtomicLongArray) object;
         int len = array.length();
         out.append('[');
         for (int i = 0; i < len; ++i) {
-            int val = array.get(i);
+            long val = array.get(i);
             if (i != 0) {
                 out.write(',');
             }
-            out.writeInt(val);
+            out.writeLong(val);
         }
         out.append(']');
     }
@@ -66,9 +83,18 @@ public class AtomicIntegerArrayCodec implements ObjectSerializer, ObjectDeserial
         JSONArray array = new JSONArray();
         parser.parseArray(array);
 
-        AtomicIntegerArray atomicArray = new AtomicIntegerArray(array.size());
+        if (clazz == AtomicIntegerArray.class) {
+            AtomicIntegerArray atomicArray = new AtomicIntegerArray(array.size());
+            for (int i = 0; i < array.size(); ++i) {
+                atomicArray.set(i, array.getInteger(i));
+            }
+    
+            return (T) atomicArray;
+        }
+        
+        AtomicLongArray atomicArray = new AtomicLongArray(array.size());
         for (int i = 0; i < array.size(); ++i) {
-            atomicArray.set(i, array.getInteger(i));
+            atomicArray.set(i, array.getLong(i));
         }
 
         return (T) atomicArray;

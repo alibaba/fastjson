@@ -416,16 +416,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                               Map<String, Object> fieldValues) {
         JSONLexer lexer = parser.getLexer(); // xxx
 
-        FieldDeserializer fieldDeserializer = feildDeserializerMap.get(key);
-
-        if (fieldDeserializer == null) {
-            for (Map.Entry<String, FieldDeserializer> entry : feildDeserializerMap.entrySet()) {
-                if (entry.getKey().equalsIgnoreCase(key)) {
-                    fieldDeserializer = entry.getValue();
-                    break;
-                }
-            }
-        }
+        FieldDeserializer fieldDeserializer = smartMatch(key);
 
         if (fieldDeserializer == null) {
             parseExtra(parser, object, key);
@@ -438,6 +429,36 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         fieldDeserializer.parseField(parser, object, objectType, fieldValues);
 
         return true;
+    }
+
+    public FieldDeserializer smartMatch(String key) {
+        FieldDeserializer fieldDeserializer = feildDeserializerMap.get(key);
+
+        if (fieldDeserializer == null) {
+            for (Map.Entry<String, FieldDeserializer> entry : feildDeserializerMap.entrySet()) {
+                if (entry.getKey().equalsIgnoreCase(key)) {
+                    fieldDeserializer = entry.getValue();
+                    break;
+                }
+            }
+        }
+        
+        if (fieldDeserializer == null) {
+            if (key.length() > 1 && key.charAt(0) == '_') {
+                String key2 = key.substring(1);
+                fieldDeserializer = feildDeserializerMap.get(key2);
+                
+                if (fieldDeserializer == null) {
+                    for (Map.Entry<String, FieldDeserializer> entry : feildDeserializerMap.entrySet()) {
+                        if (entry.getKey().equalsIgnoreCase(key2)) {
+                            fieldDeserializer = entry.getValue();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return fieldDeserializer;
     }
 
     void parseExtra(DefaultJSONParser parser, Object object, String key) {

@@ -54,17 +54,7 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
                               Map<String, Object> fieldValues) {
         JSONLexer lexer = parser.getLexer(); // xxx
 
-        Map<String, FieldDeserializer> feildDeserializerMap = serializer.getFieldDeserializerMap();
-        FieldDeserializer fieldDeserializer = feildDeserializerMap.get(key);
-
-        if (fieldDeserializer == null) {
-            for (Map.Entry<String, FieldDeserializer> entry : feildDeserializerMap.entrySet()) {
-                if (entry.getKey().equalsIgnoreCase(key)) {
-                    fieldDeserializer = entry.getValue();
-                    break;
-                }
-            }
-        }
+        FieldDeserializer fieldDeserializer = serializer.smartMatch(key);
 
         if (fieldDeserializer == null) {
             this.serializer.parseExtra(parser, object, key);

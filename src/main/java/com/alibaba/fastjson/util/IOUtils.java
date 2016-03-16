@@ -313,7 +313,7 @@ public class IOUtils {
         } catch (CharacterCodingException x) {
             // Substitution is always enabled,
             // so this shouldn't happen
-            throw new JSONException(x.getMessage(), x);
+            throw new JSONException("utf8 decode error, " + x.getMessage(), x);
         }
     }
 

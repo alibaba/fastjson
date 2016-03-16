@@ -96,9 +96,6 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         DEFAULT_GENERATE_FEATURE = features;
     }
     
-    /** 长度为 0 的 SerializeFilter 数组  */
-    public static final SerializeFilter[] EMPTY_SERIALIZE_FILTERS = new SerializeFilter[0];
-
     public static Object parse(String text) {
         return parse(text, DEFAULT_PARSER_FEATURE);
     }
@@ -382,7 +379,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     // ======================
     public static String toJSONString(Object object) {
-        return toJSONString(object, EMPTY_SERIALIZE_FILTERS);
+        return toJSONString(object, new SerializerFeature[0]);
     }
 
     public static String toJSONString(Object object, SerializerFeature... features) {

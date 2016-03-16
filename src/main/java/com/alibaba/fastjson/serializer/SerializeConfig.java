@@ -191,11 +191,11 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 		put(float[].class, FloatArraySerializer.instance);
 		put(double[].class, DoubleArraySerializer.instance);
 		put(boolean[].class, BooleanArraySerializer.instance);
-		put(char[].class, CharArraySerializer.instance);
-		put(Object[].class, ObjectArraySerializer.instance);
-		put(Class.class, ClassSerializer.instance);
+		put(char[].class, CharArrayCodec.instance);
+		put(Object[].class, ObjectArrayCodec.instance);
+		put(Class.class, ClassCodec.instance);
 
-		put(SimpleDateFormat.class, DateFormatSerializer.instance);
+		put(SimpleDateFormat.class, DateFormatCodec.instance);
 		put(Locale.class, LocaleCodec.instance);
 		put(Currency.class, CurrencyCodec.instance);
 		put(TimeZone.class, TimeZoneCodec.instance);
@@ -214,12 +214,12 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 		put(Charset.class, CharsetCodec.instance);
 
 		// atomic
-		put(AtomicBoolean.class, AtomicBooleanSerializer.instance);
+		put(AtomicBoolean.class, AtomicIntegerSerializer.instance);
 		put(AtomicInteger.class, AtomicIntegerSerializer.instance);
-		put(AtomicLong.class, AtomicLongSerializer.instance);
+		put(AtomicLong.class, AtomicIntegerSerializer.instance);
 		put(AtomicReference.class, ReferenceCodec.instance);
 		put(AtomicIntegerArray.class, AtomicIntegerArrayCodec.instance);
-		put(AtomicLongArray.class, AtomicLongArrayCodec.instance);
+		put(AtomicLongArray.class, AtomicIntegerArrayCodec.instance);
 		
 		put(WeakReference.class, ReferenceCodec.instance);
 		put(SoftReference.class, ReferenceCodec.instance);
@@ -265,8 +265,8 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 		
 		if (!oracleJdbcError) {
 		    try {
-                put(Class.forName("oracle.sql.DATE"), DateSerializer.instance);
-                put(Class.forName("oracle.sql.TIMESTAMP"), DateSerializer.instance);
+                put(Class.forName("oracle.sql.DATE"), DateCodec.instance);
+                put(Class.forName("oracle.sql.TIMESTAMP"), DateCodec.instance);
             } catch (Throwable e) {
                 // skip
                 oracleJdbcError = true;
@@ -322,13 +322,13 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 
         if (writer == null) {
             if (Map.class.isAssignableFrom(clazz)) {
-                put(clazz, MapSerializer.instance);
+                put(clazz, MapCodec.instance);
             } else if (List.class.isAssignableFrom(clazz)) {
                 put(clazz, ListSerializer.instance);
             } else if (Collection.class.isAssignableFrom(clazz)) {
-                put(clazz, CollectionSerializer.instance);
+                put(clazz, CollectionCodec.instance);
             } else if (Date.class.isAssignableFrom(clazz)) {
-                put(clazz, DateSerializer.instance);
+                put(clazz, DateCodec.instance);
             } else if (JSONAware.class.isAssignableFrom(clazz)) {
                 put(clazz, JSONAwareSerializer.instance);
             } else if (JSONSerializable.class.isAssignableFrom(clazz)) {
@@ -350,7 +350,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
             } else if (Charset.class.isAssignableFrom(clazz)) {
                 put(clazz, CharsetCodec.instance);
             } else if (Enumeration.class.isAssignableFrom(clazz)) {
-                put(clazz, EnumerationSeriliazer.instance);
+                put(clazz, EnumerationSerializer.instance);
             } else if (Calendar.class.isAssignableFrom(clazz)) {
                 put(clazz, CalendarCodec.instance);
             } else if (Clob.class.isAssignableFrom(clazz)) {

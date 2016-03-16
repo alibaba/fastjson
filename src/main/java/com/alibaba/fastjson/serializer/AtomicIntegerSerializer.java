@@ -17,7 +17,9 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -29,8 +31,24 @@ public class AtomicIntegerSerializer implements ObjectSerializer {
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
-        AtomicInteger val = (AtomicInteger) object;
-        out.writeInt(val.get());
+        if (object instanceof AtomicInteger) {
+            AtomicInteger val = (AtomicInteger) object;
+            out.writeInt(val.get());
+            return;
+        }
+        
+        if (object instanceof AtomicLong) {
+            AtomicLong val = (AtomicLong) object;
+            out.writeLong(val.get());
+            return;
+        }
+        
+        AtomicBoolean val = (AtomicBoolean) object;
+        if (val.get()) {
+            out.append("true");
+        } else {
+            out.append("false");
+        }
     }
 
 }

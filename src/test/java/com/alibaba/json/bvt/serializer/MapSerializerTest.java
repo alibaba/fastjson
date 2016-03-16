@@ -10,7 +10,7 @@ import junit.framework.TestCase;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.JSONSerializer;
-import com.alibaba.fastjson.serializer.MapSerializer;
+import com.alibaba.fastjson.serializer.MapCodec;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
@@ -19,7 +19,7 @@ public class MapSerializerTest extends TestCase {
     public void test_empty_1() throws Exception {
         SerializeWriter out = new SerializeWriter();
 
-        MapSerializer mapSerializer = new MapSerializer();
+        MapCodec mapSerializer = new MapCodec();
         mapSerializer.write(new JSONSerializer(out), Collections.EMPTY_MAP, null, null, 0);
 
         Assert.assertEquals("{}", out.toString());
@@ -28,7 +28,7 @@ public class MapSerializerTest extends TestCase {
     public void test_singleton_1() throws Exception {
         SerializeWriter out = new SerializeWriter();
 
-        MapSerializer mapSerializer = new MapSerializer();
+        MapCodec mapSerializer = new MapCodec();
         mapSerializer.write(new JSONSerializer(out), Collections.singletonMap("A", 1), null, null, 0);
 
         Assert.assertEquals("{\"A\":1}", out.toString());
@@ -37,7 +37,7 @@ public class MapSerializerTest extends TestCase {
     public void test_int2_s() throws Exception {
         SerializeWriter out = new SerializeWriter();
 
-        MapSerializer mapSerializer = new MapSerializer();
+        MapCodec mapSerializer = new MapCodec();
         Map<String, Integer> map = new LinkedHashMap<String, Integer>();
         map.put("A", 1);
         map.put("B", 2);
@@ -49,7 +49,7 @@ public class MapSerializerTest extends TestCase {
     public void test_long2_s() throws Exception {
         SerializeWriter out = new SerializeWriter();
 
-        MapSerializer mapSerializer = new MapSerializer();
+        MapCodec mapSerializer = new MapCodec();
         Map<String, Long> map = new LinkedHashMap<String, Long>();
         map.put("A", 1L);
         map.put("B", 2L);
@@ -61,7 +61,7 @@ public class MapSerializerTest extends TestCase {
     public void test_string2_s() throws Exception {
         SerializeWriter out = new SerializeWriter();
 
-        MapSerializer mapSerializer = new MapSerializer();
+        MapCodec mapSerializer = new MapCodec();
         Map<String, String> map = new LinkedHashMap<String, String>();
         map.put("A", "1");
         map.put("B", "2");
@@ -76,7 +76,7 @@ public class MapSerializerTest extends TestCase {
         JSONSerializer serializer = new JSONSerializer(out);
         serializer.config(SerializerFeature.UseSingleQuotes, true);
 
-        MapSerializer mapSerializer = new MapSerializer();
+        MapCodec mapSerializer = new MapCodec();
         Map<String, String> map = new LinkedHashMap<String, String>();
         map.put("A", "1");
         map.put("B", "2");
@@ -88,7 +88,7 @@ public class MapSerializerTest extends TestCase {
     public void test_special_s() throws Exception {
         SerializeWriter out = new SerializeWriter();
 
-        MapSerializer mapSerializer = new MapSerializer();
+        MapCodec mapSerializer = new MapCodec();
         mapSerializer.write(new JSONSerializer(out), Collections.singletonMap("A\nB", 1), null, null, 0);
 
         Assert.assertEquals("{\"A\\nB\":1}", out.toString());
@@ -97,7 +97,7 @@ public class MapSerializerTest extends TestCase {
     public void test_special2_s() throws Exception {
         SerializeWriter out = new SerializeWriter();
 
-        MapSerializer mapSerializer = new MapSerializer();
+        MapCodec mapSerializer = new MapCodec();
         mapSerializer.write(new JSONSerializer(out), Collections.singletonMap("A\nB", 1), null, null, 0);
 
         Assert.assertEquals("{\"A\\nB\":1}", out.toString());
@@ -106,7 +106,7 @@ public class MapSerializerTest extends TestCase {
     public void test_special3_s() throws Exception {
         SerializeWriter out = new SerializeWriter();
 
-        MapSerializer mapSerializer = new MapSerializer();
+        MapCodec mapSerializer = new MapCodec();
         mapSerializer.write(new JSONSerializer(out), Collections.singletonMap("A\nB", Collections.EMPTY_MAP), null, null, 0);
 
         Assert.assertEquals("{\"A\\nB\":{}}", out.toString());
@@ -118,7 +118,7 @@ public class MapSerializerTest extends TestCase {
         map.put("TOP", "value");
         map.put("bytes", new byte[] { 1, 2 });
 
-        MapSerializer mapSerializer = new MapSerializer();
+        MapCodec mapSerializer = new MapCodec();
         mapSerializer.write(new JSONSerializer(out), map, null, null, 0);
 
         String text = out.toString();

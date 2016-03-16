@@ -1,7 +1,6 @@
 package com.alibaba.json.bvt.bug;
 
 import java.io.Serializable;
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -211,7 +210,7 @@ public class Bug_for_generic extends TestCase {
 
         private boolean           display;
 
-        private Date              foundTime;
+        private java.sql.Date     foundTime;
 
         private List<String>      args             = new ArrayList<String>();
 
@@ -271,11 +270,11 @@ public class Bug_for_generic extends TestCase {
             this.display = display;
         }
 
-        public Date getFoundTime() {
+        public java.sql.Date getFoundTime() {
             return foundTime;
         }
 
-        public void setFoundTime(Date foundTime) {
+        public void setFoundTime(java.sql.Date foundTime) {
             this.foundTime = foundTime;
         }
 

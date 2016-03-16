@@ -7,7 +7,7 @@ import java.util.List;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
-import com.alibaba.fastjson.serializer.CollectionSerializer;
+import com.alibaba.fastjson.serializer.CollectionCodec;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 
@@ -16,7 +16,7 @@ public class CollectionSerializerTest extends TestCase {
     public void test_0() throws Exception {
         SerializeWriter out = new SerializeWriter();
 
-        CollectionSerializer listSerializer = new CollectionSerializer();
+        CollectionCodec listSerializer = new CollectionCodec();
         listSerializer.write(new JSONSerializer(out), Collections.EMPTY_LIST, null, null, 0);
 
         Assert.assertEquals("[]", out.toString());
@@ -25,7 +25,7 @@ public class CollectionSerializerTest extends TestCase {
     public void test_1() throws Exception {
         SerializeWriter out = new SerializeWriter();
 
-        CollectionSerializer listSerializer = new CollectionSerializer();
+        CollectionCodec listSerializer = new CollectionCodec();
         listSerializer.write(new JSONSerializer(out), Collections.singletonList(1), null, null, 0);
 
         Assert.assertEquals("[1]", out.toString());
@@ -34,7 +34,7 @@ public class CollectionSerializerTest extends TestCase {
     public void test_2_s() throws Exception {
         SerializeWriter out = new SerializeWriter();
 
-        CollectionSerializer listSerializer = new CollectionSerializer();
+        CollectionCodec listSerializer = new CollectionCodec();
         List<Object> list = new ArrayList<Object>();
         list.add(1);
         list.add(2);
@@ -46,7 +46,7 @@ public class CollectionSerializerTest extends TestCase {
     public void test_3_s() throws Exception {
         SerializeWriter out = new SerializeWriter();
 
-        CollectionSerializer listSerializer = new CollectionSerializer();
+        CollectionCodec listSerializer = new CollectionCodec();
         List<Object> list = new ArrayList<Object>();
         list.add(1);
         list.add(2);
@@ -59,7 +59,7 @@ public class CollectionSerializerTest extends TestCase {
     public void test_4_s() throws Exception {
         SerializeWriter out = new SerializeWriter();
 
-        CollectionSerializer listSerializer = new CollectionSerializer();
+        CollectionCodec listSerializer = new CollectionCodec();
         List<Object> list = new ArrayList<Object>();
         list.add(1L);
         list.add(2L);
@@ -73,7 +73,7 @@ public class CollectionSerializerTest extends TestCase {
     public void test_5_s() throws Exception {
         SerializeWriter out = new SerializeWriter();
 
-        CollectionSerializer listSerializer = new CollectionSerializer();
+        CollectionCodec listSerializer = new CollectionCodec();
         List<Object> list = new ArrayList<Object>();
         list.add(1L);
         list.add(21474836480L);

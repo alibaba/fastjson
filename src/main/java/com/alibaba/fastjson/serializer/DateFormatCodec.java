@@ -20,13 +20,18 @@ import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.parser.JSONToken;
+import com.alibaba.fastjson.parser.deserializer.AbstractDateDeserializer;
+import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
-public class DateFormatSerializer implements ObjectSerializer {
+public class DateFormatCodec extends AbstractDateDeserializer implements ObjectDeserializer, ObjectSerializer {
 
-    public final static DateFormatSerializer instance = new DateFormatSerializer();
+    public final static DateFormatCodec instance = new DateFormatCodec();
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.getWriter();
@@ -50,5 +55,28 @@ public class DateFormatSerializer implements ObjectSerializer {
         }
         
         out.writeString(pattern);
+    }
+    
+    @SuppressWarnings("unchecked")
+    protected <T> T cast(DefaultJSONParser parser, Type clazz, Object fieldName, Object val) {
+        
+        if (val == null) {
+            return null;
+        }
+
+        if (val instanceof String) {
+            String strVal = (String) val;
+            if (strVal.length() == 0) {
+                return null;
+            }
+            
+            return (T) new SimpleDateFormat(strVal);
+        }
+
+        throw new JSONException("parse error");
+    }
+
+    public int getFastMatchToken() {
+        return JSONToken.LITERAL_STRING;
     }
 }

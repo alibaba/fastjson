@@ -30,7 +30,7 @@ public class ClassDerializer implements ObjectDeserializer {
         String className = lexer.stringVal();
         lexer.nextToken(JSONToken.COMMA);
 
-        return (T) TypeUtils.loadClass(className);
+        return (T) TypeUtils.loadClass(className, parser.getConfig().getDefaultClassLoader());
     }
 
     public int getFastMatchToken() {

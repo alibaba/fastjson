@@ -151,6 +151,8 @@ public class ParserConfig {
     private boolean                                         asmEnable        = !ASMUtils.isAndroid();
 
     protected final SymbolTable                             symbolTable      = new SymbolTable();
+    
+    protected ClassLoader                                   defaultClassLoader;
 
     protected ASMDeserializerFactory                        asmFactory;
     
@@ -330,6 +332,9 @@ public class ParserConfig {
                 derializers.put(Class.forName("java.time.Instant"), Jdk8DateCodec.instance);
                 
                 derializers.put(Class.forName("java.util.Optional"), OptionalCodec.instance);
+                derializers.put(Class.forName("java.util.OptionalDouble"), OptionalCodec.instance);
+                derializers.put(Class.forName("java.util.OptionalInt"), OptionalCodec.instance);
+                derializers.put(Class.forName("java.util.OptionalLong"), OptionalCodec.instance);
             } catch (Throwable e) {
                 // skip
                 jdk8Error = true;
@@ -665,4 +670,11 @@ public class ParserConfig {
         }
     }
 
+    public ClassLoader getDefaultClassLoader() {
+        return defaultClassLoader;
+    }
+    
+    public void setDefaultClassLoader(ClassLoader defaultClassLoader) {
+        this.defaultClassLoader = defaultClassLoader;
+    }
 }

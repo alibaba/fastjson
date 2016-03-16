@@ -118,6 +118,8 @@ public class ParserConfig {
     private final IdentityHashMap<Type, ObjectDeserializer> derializers      = new IdentityHashMap<Type, ObjectDeserializer>();
 
     protected final SymbolTable                             symbolTable      = new SymbolTable();
+    
+    public ClassLoader                                      defaultClassLoader;
 
     public ParserConfig(){
         primitiveClasses.add(boolean.class);
@@ -384,5 +386,12 @@ public class ParserConfig {
             return Collections.emptyMap();
         }
     }
+    
+    public ClassLoader getDefaultClassLoader() {
+        return defaultClassLoader;
+    }
 
+    public void setDefaultClassLoader(ClassLoader defaultClassLoader) {
+        this.defaultClassLoader = defaultClassLoader;
+    }
 }

@@ -66,7 +66,7 @@ public class TypeUtils {
 	
     public static boolean compatibleWithJavaBean = false;
     private static boolean setAccessibleEnable    = true;
-
+    
     public static final String castToString(Object value) {
         if (value == null) {
             return null;
@@ -892,12 +892,16 @@ public class TypeUtils {
         mappings.clear();
         addBaseClassMappings();
     }
-
+    
     public static Class<?> loadClass(String className) {
+        return loadClass(className, null);
+    }
+
+    public static Class<?> loadClass(String className, ClassLoader classLoader) {
         if (className == null || className.length() == 0) {
             return null;
         }
-
+        
         Class<?> clazz = mappings.get(className);
 
         if (clazz != null) {
@@ -905,18 +909,16 @@ public class TypeUtils {
         }
 
         if (className.charAt(0) == '[') {
-            Class<?> componentType = loadClass(className.substring(1));
+            Class<?> componentType = loadClass(className.substring(1), classLoader);
             return Array.newInstance(componentType, 0).getClass();
         }
 
         if (className.startsWith("L") && className.endsWith(";")) {
             String newClassName = className.substring(1, className.length() - 1);
-            return loadClass(newClassName);
+            return loadClass(newClassName, classLoader);
         }
-
+        
         try {
-            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-
             if (classLoader != null) {
                 clazz = classLoader.loadClass(className);
 
@@ -925,6 +927,22 @@ public class TypeUtils {
                 return clazz;
             }
         } catch (Throwable e) {
+            e.printStackTrace();
+            // skip
+        }
+
+        try {
+            ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+
+            if (contextClassLoader != null) {
+                clazz = contextClassLoader.loadClass(className);
+
+                addClassMapping(className, clazz);
+
+                return clazz;
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
             // skip
         }
 
@@ -935,6 +953,7 @@ public class TypeUtils {
 
             return clazz;
         } catch (Throwable e) {
+            e.printStackTrace();
             // skip
         }
 

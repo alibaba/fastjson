@@ -1330,28 +1330,22 @@ public class TypeUtils {
     public static JSONField getSupperMethodAnnotation(final Class<?> clazz, final Method method) {
     	Class<?>[] interfaces = clazz.getInterfaces();
     	if (interfaces.length > 0) {
-    		int paramsCount = method.getParameterCount();
-    		Class<?>[] methodParamTypes = null;
+    		Class<?>[] types = method.getParameterTypes(); 
     		for (Class<?> interfaceClass : interfaces) {
                 for (Method interfaceMethod : interfaceClass.getMethods()) {
-                	if (interfaceMethod.getParameterCount() != paramsCount) {
+                	Class<?>[] interfaceTypes = interfaceMethod.getParameterTypes(); 
+                	if (interfaceTypes.length != types.length) {
                 		continue;					
 					}
                     if (!interfaceMethod.getName().equals(method.getName())) {
                         continue;
                     }
                     boolean match = true;
-                    if (paramsCount > 0) {						
-                    	Class<?>[] interfaceTypes = interfaceMethod.getParameterTypes();
-                    	if (methodParamTypes == null) {
-                    		methodParamTypes = method.getParameterTypes();							
-						}
-	                    for (int i = 0; i < paramsCount; ++i) {
-	                        if (!interfaceTypes[i].equals(methodParamTypes[i])) {
-	                            match = false;
-	                            break;
-	                        }
-	                    }
+                    for (int i = 0; i < types.length; ++i) {
+                        if (!interfaceTypes[i].equals(types[i])) {
+                            match = false;
+                            break;
+                        }
                     }
 
                     if (!match) {

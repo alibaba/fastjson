@@ -17,68 +17,66 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
+import com.alibaba.fastjson.parser.deserializer.AbstractDateDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
-import com.alibaba.fastjson.util.TypeUtils;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
-public class LongCodec implements ObjectSerializer, ObjectDeserializer {
+public class DateFormatCodec extends AbstractDateDeserializer implements ObjectSerializer, ObjectDeserializer {
 
-    public static LongCodec instance = new LongCodec();
+    public final static DateFormatCodec instance = new DateFormatCodec();
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         SerializeWriter out = serializer.getWriter();
 
         if (object == null) {
-            if (out.isEnabled(SerializerFeature.WriteNullNumberAsZero)) {
-                out.write('0');
-            } else {
-                out.writeNull();
-            }
+            out.writeNull();
             return;
         }
+        
+        String pattern = ((SimpleDateFormat) object).toPattern();
 
-        long value = ((Long) object).longValue();
-        out.writeLong(value);
-
-        if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
-            if (value <= Integer.MAX_VALUE && value >= Integer.MIN_VALUE) {
-                if (fieldType != Long.class) {
-                    out.write('L');
-                }
+        if (out.isEnabled(SerializerFeature.WriteClassName)) {
+            if (object.getClass() != fieldType) {
+                out.write('{');
+                out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
+                serializer.write(object.getClass().getName());
+                out.writeFieldValue(',', "val", pattern);
+                out.write('}');
+                return;
             }
         }
+        
+        out.writeString(pattern);
     }
     
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        final JSONLexer lexer = parser.getLexer();
+    protected <T> T cast(DefaultJSONParser parser, Type clazz, Object fieldName, Object val) {
+        
+        if (val == null) {
+            return null;
+        }
 
-        Long longObject;
-        if (lexer.token() == JSONToken.LITERAL_INT) {
-            long longValue = lexer.longValue();
-            lexer.nextToken(JSONToken.COMMA);
-            longObject = Long.valueOf(longValue);
-        } else {
-
-            Object value = parser.parse();
-
-            if (value == null) {
+        if (val instanceof String) {
+            String strVal = (String) val;
+            if (strVal.length() == 0) {
                 return null;
             }
-
-            longObject = TypeUtils.castToLong(value);
+            
+            return (T) new SimpleDateFormat(strVal);
         }
-        
-        return (T) longObject;
+
+        throw new JSONException("parse error");
     }
 
     public int getFastMatchToken() {
-        return JSONToken.LITERAL_INT;
+        return JSONToken.LITERAL_STRING;
     }
 }

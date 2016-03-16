@@ -6,8 +6,8 @@ import java.lang.reflect.Type;
 import java.util.Enumeration;
 
 
-public class EnumerationSeriliazer implements ObjectSerializer {
-    public static EnumerationSeriliazer instance = new EnumerationSeriliazer();
+public class EnumerationSerialiazer implements ObjectSerializer {
+    public static EnumerationSerialiazer instance = new EnumerationSerialiazer();
     
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         SerializeWriter out = serializer.getWriter();

@@ -405,13 +405,13 @@ public class JSONSerializer {
 
         if (writer == null) {
             if (Map.class.isAssignableFrom(clazz)) {
-                config.put(clazz, MapSerializer.instance);
+                config.put(clazz, MapCodec.instance);
             } else if (List.class.isAssignableFrom(clazz)) {
                 config.put(clazz, ListSerializer.instance);
             } else if (Collection.class.isAssignableFrom(clazz)) {
-                config.put(clazz, CollectionSerializer.instance);
+                config.put(clazz, CollectionCodec.instance);
             } else if (Date.class.isAssignableFrom(clazz)) {
-                config.put(clazz, DateSerializer.instance);
+                config.put(clazz, DateCodec.instance);
             } else if (JSONAware.class.isAssignableFrom(clazz)) {
                 config.put(clazz, JSONAwareSerializer.instance);
             } else if (JSONSerializable.class.isAssignableFrom(clazz)) {
@@ -427,11 +427,11 @@ public class JSONSerializer {
             } else if (Throwable.class.isAssignableFrom(clazz)) {
                 config.put(clazz, new ExceptionSerializer(clazz));
             } else if (TimeZone.class.isAssignableFrom(clazz)) {
-                config.put(clazz, TimeZoneCodec.instance);
+                config.put(clazz, MiscCodec.instance);
             } else if (Charset.class.isAssignableFrom(clazz)) {
-                config.put(clazz, CharsetCodec.instance);
+                config.put(clazz, MiscCodec.instance);
             } else if (Enumeration.class.isAssignableFrom(clazz)) {
-                config.put(clazz, EnumerationSeriliazer.instance);
+                config.put(clazz, EnumerationSerialiazer.instance);
             } else if (Calendar.class.isAssignableFrom(clazz)) {
                 config.put(clazz, CalendarCodec.instance);
             } else {

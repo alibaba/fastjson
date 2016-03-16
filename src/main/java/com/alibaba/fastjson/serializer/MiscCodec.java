@@ -1,6 +1,17 @@
-package com.alibaba.fastjson.parser.deserializer;
+package com.alibaba.fastjson.serializer;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
+import java.util.Currency;
+import java.util.Locale;
+import java.util.TimeZone;
+import java.util.UUID;
+import java.util.regex.Pattern;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
@@ -8,19 +19,121 @@ import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
+import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
+import com.alibaba.fastjson.util.TypeUtils;
 
-public class StackTraceElementDeserializer implements ObjectDeserializer {
 
-    public final static StackTraceElementDeserializer instance = new StackTraceElementDeserializer();
+public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
+
+    public final static MiscCodec instance = new MiscCodec();
+
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+        if (object == null) {
+            if (fieldType == char.class || fieldType == Character.class) {
+                serializer.write("");
+            } else {
+                serializer.writeNull();
+            }
+            return;
+        }
+
+        if (object instanceof Pattern) {
+            Pattern p = (Pattern) object;
+            serializer.write(p.pattern());
+        } else if (object instanceof TimeZone ){
+            TimeZone timeZone = (TimeZone) object;
+            serializer.write(timeZone.getID());
+        } else if (object instanceof Currency) {
+            Currency currency = (Currency) object;
+            serializer.write(currency.getCurrencyCode());
+        } else if (object instanceof Class) {
+            Class<?> clazz = (Class<?>) object;
+            serializer.write(clazz.getName());
+        } else if (object instanceof Character) {
+            Character value = (Character) object;
+
+            char c = value.charValue();
+            if (c == 0) {
+                serializer.write("\u0000");
+            } else {
+                serializer.write(value.toString());
+            }
+        } else {
+            serializer.write(object.toString());
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
+    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
+        if (clazz == StackTraceElement.class) {
+            return (T) parseStackTraceElement(parser);
+        }
+        
+        Object objVal = parser.parse();
+        
+        if (objVal == null) {
+            return null;
+        }
+        
+        String strVal;
+        if (objVal instanceof String) {
+            strVal = (String) objVal;
+        } else {
+            throw new JSONException("except string value");
+        }
+        
+        if (strVal.length() == 0) {
+            return null;
+        }
+        
+        if (clazz == UUID.class) {
+            return (T) UUID.fromString(strVal);
+        } else if (clazz == Class.class) {
+            return (T) TypeUtils.loadClass(strVal, parser.getConfig().getDefaultClassLoader());
+        } else if (clazz == Locale.class) {
+            String[] items = strVal.split("_");
+            
+            if (items.length == 1) {
+                return (T) new Locale(items[0]);
+            }
+            
+            if (items.length == 2) {
+                return (T) new Locale(items[0], items[1]);
+            }
+            
+            return (T) new Locale(items[0], items[1], items[2]);
+        } else if (clazz == URI.class) {
+            return (T) URI.create(strVal);
+        } else if (clazz == URL.class) {
+            try {
+                return (T) new URL(strVal);
+            } catch (MalformedURLException e) {
+                throw new JSONException("create url error", e);
+            }
+        } else if (clazz == Pattern.class) {
+            return (T) Pattern.compile(strVal);
+        } else if (clazz == Charset.class) {
+            return (T) Charset.forName(strVal);
+        } else if (clazz == Currency.class) {
+            return (T) Currency.getInstance(strVal);
+        } else if (clazz == SimpleDateFormat.class) {
+            return (T) new SimpleDateFormat(strVal);
+        } else if (clazz == char.class || clazz == Character.class) {
+            return (T) TypeUtils.castToChar(strVal);
+        } else {
+            return (T) TimeZone.getTimeZone(strVal);
+        }
+    }
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+    protected <T> T parseStackTraceElement(DefaultJSONParser parser) {
         JSONLexer lexer = parser.getLexer();
+        
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken();
             return null;
         }
-
+        
         if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {
             throw new JSONException("syntax error: " + JSONToken.name(lexer.token()));
         }
@@ -113,6 +226,7 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
     }
 
     public int getFastMatchToken() {
-        return JSONToken.LBRACE;
+        return JSONToken.LITERAL_STRING;
     }
+
 }

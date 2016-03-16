@@ -18,10 +18,6 @@ package com.alibaba.fastjson.serializer;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.net.Inet4Address;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -70,40 +66,28 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
         super(tableSize);
 
         put(Boolean.class, BooleanCodec.instance);
-        put(Character.class, CharacterCodec.instance);
+        put(Character.class, MiscCodec.instance);
         put(Byte.class, IntegerCodec.instance);
         put(Short.class, IntegerCodec.instance);
         put(Integer.class, IntegerCodec.instance);
-        put(Long.class, LongCodec.instance);
-        put(Float.class, FloatCodec.instance);
-        put(Double.class, DoubleSerializer.instance);
+        put(Long.class, IntegerCodec.instance);
+        put(Float.class, NumberCodec.instance);
+        put(Double.class, NumberCodec.instance);
         put(BigDecimal.class, BigDecimalCodec.instance);
-        put(BigInteger.class, BigIntegerCodec.instance);
+        put(BigInteger.class, BigDecimalCodec.instance);
         put(String.class, StringCodec.instance);
-        put(byte[].class, ByteArraySerializer.instance);
-        put(short[].class, ShortArraySerializer.instance);
-        put(int[].class, IntArraySerializer.instance);
-        put(long[].class, LongArraySerializer.instance);
-        put(float[].class, FloatArraySerializer.instance);
-        put(double[].class, DoubleArraySerializer.instance);
-        put(boolean[].class, BooleanArraySerializer.instance);
-        put(char[].class, CharArraySerializer.instance);
-        put(Object[].class, ObjectArraySerializer.instance);
-        put(Class.class, ClassSerializer.instance);
+        put(Object[].class, ArrayCodec.instance);
+        put(Class.class, MiscCodec.instance);
 
-        put(SimpleDateFormat.class, DateFormatSerializer.instance);
-        put(Locale.class, LocaleCodec.instance);
-        put(Currency.class, CurrencyCodec.instance);
-        put(TimeZone.class, TimeZoneCodec.instance);
-        put(UUID.class, UUIDCodec.instance);
-        put(InetAddress.class, InetAddressCodec.instance);
-        put(Inet4Address.class, InetAddressCodec.instance);
-        put(Inet6Address.class, InetAddressCodec.instance);
-        put(InetSocketAddress.class, InetSocketAddressCodec.instance);
-        put(URI.class, URICodec.instance);
-        put(URL.class, URLCodec.instance);
-        put(Pattern.class, PatternCodec.instance);
-        put(Charset.class, CharsetCodec.instance);
+        put(SimpleDateFormat.class, DateFormatCodec.instance);
+        put(Locale.class, MiscCodec.instance);
+        put(Currency.class, MiscCodec.instance);
+        put(TimeZone.class, MiscCodec.instance);
+        put(UUID.class, MiscCodec.instance);
+        put(URI.class, MiscCodec.instance);
+        put(URL.class, MiscCodec.instance);
+        put(Pattern.class, MiscCodec.instance);
+        put(Charset.class, MiscCodec.instance);
 
     }
 

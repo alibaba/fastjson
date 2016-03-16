@@ -18,6 +18,7 @@ package com.alibaba.fastjson.serializer;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
@@ -43,6 +44,12 @@ public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
             }
             return;
         }
+        
+        if (object instanceof BigInteger) {
+            BigInteger val = (BigInteger) object;
+            out.write(val.toString());
+            return;
+        }
 
         BigDecimal val = (BigDecimal) object;
         out.write(val.toString());
@@ -54,28 +61,36 @@ public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        return (T) deserialze(parser);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T> T deserialze(DefaultJSONParser parser) {
         final JSONLexer lexer = parser.getLexer();
         if (lexer.token() == JSONToken.LITERAL_INT) {
-            long val = lexer.longValue();
+            String val = lexer.numberString();
             lexer.nextToken(JSONToken.COMMA);
-            return (T) new BigDecimal(val);
+            if (clazz == BigInteger.class) {
+                return (T) new BigInteger(val);
+            } else {
+                return (T) new BigDecimal(val);
+            }
         }
 
         if (lexer.token() == JSONToken.LITERAL_FLOAT) {
             BigDecimal val = lexer.decimalValue();
             lexer.nextToken(JSONToken.COMMA);
-            return (T) val;
+            
+            if (clazz == BigInteger.class) {
+                return (T) val.toBigInteger();
+            } else {
+                return (T) val;
+            }
         }
 
         Object value = parser.parse();
 
         if (value == null) {
             return null;
+        }
+        
+        if (clazz == BigInteger.class) {
+            return (T) TypeUtils.castToBigInteger(value);
         }
 
         return (T) TypeUtils.castToBigDecimal(value);

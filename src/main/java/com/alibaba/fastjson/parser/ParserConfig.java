@@ -24,10 +24,6 @@ import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.net.Inet4Address;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -54,14 +50,8 @@ import java.util.regex.Pattern;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONType;
-import com.alibaba.fastjson.parser.deserializer.ArrayDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ArrayListTypeFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.BooleanFieldDeserializer;
-import com.alibaba.fastjson.parser.deserializer.CharArrayDeserializer;
-import com.alibaba.fastjson.parser.deserializer.ClassDerializer;
-import com.alibaba.fastjson.parser.deserializer.CollectionDeserializer;
-import com.alibaba.fastjson.parser.deserializer.DateDeserializer;
-import com.alibaba.fastjson.parser.deserializer.DateFormatDeserializer;
 import com.alibaba.fastjson.parser.deserializer.DefaultFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.EnumDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
@@ -71,31 +61,21 @@ import com.alibaba.fastjson.parser.deserializer.JSONObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.LongFieldDeserializer;
-import com.alibaba.fastjson.parser.deserializer.MapDeserializer;
-import com.alibaba.fastjson.parser.deserializer.NumberDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
-import com.alibaba.fastjson.parser.deserializer.StackTraceElementDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StringFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ThrowableDeserializer;
+import com.alibaba.fastjson.serializer.ArrayCodec;
 import com.alibaba.fastjson.serializer.BigDecimalCodec;
-import com.alibaba.fastjson.serializer.BigIntegerCodec;
 import com.alibaba.fastjson.serializer.BooleanCodec;
 import com.alibaba.fastjson.serializer.CalendarCodec;
-import com.alibaba.fastjson.serializer.CharacterCodec;
-import com.alibaba.fastjson.serializer.CharsetCodec;
-import com.alibaba.fastjson.serializer.CurrencyCodec;
-import com.alibaba.fastjson.serializer.FloatCodec;
-import com.alibaba.fastjson.serializer.InetAddressCodec;
-import com.alibaba.fastjson.serializer.InetSocketAddressCodec;
+import com.alibaba.fastjson.serializer.CollectionCodec;
+import com.alibaba.fastjson.serializer.DateCodec;
+import com.alibaba.fastjson.serializer.DateFormatCodec;
 import com.alibaba.fastjson.serializer.IntegerCodec;
-import com.alibaba.fastjson.serializer.LocaleCodec;
-import com.alibaba.fastjson.serializer.LongCodec;
-import com.alibaba.fastjson.serializer.PatternCodec;
+import com.alibaba.fastjson.serializer.MapCodec;
+import com.alibaba.fastjson.serializer.MiscCodec;
+import com.alibaba.fastjson.serializer.NumberCodec;
 import com.alibaba.fastjson.serializer.StringCodec;
-import com.alibaba.fastjson.serializer.TimeZoneCodec;
-import com.alibaba.fastjson.serializer.URICodec;
-import com.alibaba.fastjson.serializer.URLCodec;
-import com.alibaba.fastjson.serializer.UUIDCodec;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.IdentityHashMap;
 
@@ -148,65 +128,58 @@ public class ParserConfig {
 
         primitiveClasses.add(String.class);
         primitiveClasses.add(java.util.Date.class);
-        primitiveClasses.add(java.sql.Date.class);
-        primitiveClasses.add(java.sql.Time.class);
-        primitiveClasses.add(java.sql.Timestamp.class);
 
-        derializers.put(SimpleDateFormat.class, DateFormatDeserializer.instance);
-        derializers.put(java.util.Date.class, DateDeserializer.instance);
+        derializers.put(SimpleDateFormat.class, DateFormatCodec.instance);
+        derializers.put(java.util.Date.class, DateCodec.instance);
         derializers.put(Calendar.class, CalendarCodec.instance);
 
         derializers.put(JSONObject.class, JSONObjectDeserializer.instance);
         derializers.put(JSONArray.class, JSONArrayDeserializer.instance);
 
-        derializers.put(Map.class, MapDeserializer.instance);
-        derializers.put(HashMap.class, MapDeserializer.instance);
-        derializers.put(LinkedHashMap.class, MapDeserializer.instance);
-        derializers.put(TreeMap.class, MapDeserializer.instance);
-        derializers.put(ConcurrentMap.class, MapDeserializer.instance);
-        derializers.put(ConcurrentHashMap.class, MapDeserializer.instance);
+        derializers.put(Map.class, MapCodec.instance);
+        derializers.put(HashMap.class, MapCodec.instance);
+        derializers.put(LinkedHashMap.class, MapCodec.instance);
+        derializers.put(TreeMap.class, MapCodec.instance);
+        derializers.put(ConcurrentMap.class, MapCodec.instance);
+        derializers.put(ConcurrentHashMap.class, MapCodec.instance);
 
-        derializers.put(Collection.class, CollectionDeserializer.instance);
-        derializers.put(List.class, CollectionDeserializer.instance);
-        derializers.put(ArrayList.class, CollectionDeserializer.instance);
+        derializers.put(Collection.class, CollectionCodec.instance);
+        derializers.put(List.class, CollectionCodec.instance);
+        derializers.put(ArrayList.class, CollectionCodec.instance);
 
         derializers.put(Object.class, JavaObjectDeserializer.instance);
         derializers.put(String.class, StringCodec.instance);
-        derializers.put(char.class, CharacterCodec.instance);
-        derializers.put(Character.class, CharacterCodec.instance);
-        derializers.put(byte.class, NumberDeserializer.instance);
-        derializers.put(Byte.class, NumberDeserializer.instance);
-        derializers.put(short.class, NumberDeserializer.instance);
-        derializers.put(Short.class, NumberDeserializer.instance);
+        derializers.put(char.class, MiscCodec.instance);
+        derializers.put(Character.class, MiscCodec.instance);
+        derializers.put(byte.class, NumberCodec.instance);
+        derializers.put(Byte.class, NumberCodec.instance);
+        derializers.put(short.class, NumberCodec.instance);
+        derializers.put(Short.class, NumberCodec.instance);
         derializers.put(int.class, IntegerCodec.instance);
         derializers.put(Integer.class, IntegerCodec.instance);
-        derializers.put(long.class, LongCodec.instance);
-        derializers.put(Long.class, LongCodec.instance);
-        derializers.put(BigInteger.class, BigIntegerCodec.instance);
+        derializers.put(long.class, IntegerCodec.instance);
+        derializers.put(Long.class, IntegerCodec.instance);
+        derializers.put(BigInteger.class, BigDecimalCodec.instance);
         derializers.put(BigDecimal.class, BigDecimalCodec.instance);
-        derializers.put(float.class, FloatCodec.instance);
-        derializers.put(Float.class, FloatCodec.instance);
-        derializers.put(double.class, NumberDeserializer.instance);
-        derializers.put(Double.class, NumberDeserializer.instance);
+        derializers.put(float.class, NumberCodec.instance);
+        derializers.put(Float.class, NumberCodec.instance);
+        derializers.put(double.class, NumberCodec.instance);
+        derializers.put(Double.class, NumberCodec.instance);
         derializers.put(boolean.class, BooleanCodec.instance);
         derializers.put(Boolean.class, BooleanCodec.instance);
-        derializers.put(Class.class, ClassDerializer.instance);
-        derializers.put(char[].class, CharArrayDeserializer.instance);
+        derializers.put(Class.class, MiscCodec.instance);
+        derializers.put(char[].class, ArrayCodec.instance);
 
-        derializers.put(UUID.class, UUIDCodec.instance);
-        derializers.put(TimeZone.class, TimeZoneCodec.instance);
-        derializers.put(Locale.class, LocaleCodec.instance);
-        derializers.put(Currency.class, CurrencyCodec.instance);
-        derializers.put(InetAddress.class, InetAddressCodec.instance);
-        derializers.put(Inet4Address.class, InetAddressCodec.instance);
-        derializers.put(Inet6Address.class, InetAddressCodec.instance);
-        derializers.put(InetSocketAddress.class, InetSocketAddressCodec.instance);
-        derializers.put(URI.class, URICodec.instance);
-        derializers.put(URL.class, URLCodec.instance);
-        derializers.put(Pattern.class, PatternCodec.instance);
-        derializers.put(Charset.class, CharsetCodec.instance);
-        derializers.put(Number.class, NumberDeserializer.instance);
-        derializers.put(StackTraceElement.class, StackTraceElementDeserializer.instance);
+        derializers.put(UUID.class, MiscCodec.instance);
+        derializers.put(TimeZone.class, MiscCodec.instance);
+        derializers.put(Locale.class, MiscCodec.instance);
+        derializers.put(Currency.class, MiscCodec.instance);
+        derializers.put(URI.class, MiscCodec.instance);
+        derializers.put(URL.class, MiscCodec.instance);
+        derializers.put(Pattern.class, MiscCodec.instance);
+        derializers.put(Charset.class, MiscCodec.instance);
+        derializers.put(Number.class, NumberCodec.instance);
+        derializers.put(StackTraceElement.class, MiscCodec.instance);
 
         derializers.put(Serializable.class, JavaObjectDeserializer.instance);
         derializers.put(Cloneable.class, JavaObjectDeserializer.instance);
@@ -286,14 +259,14 @@ public class ParserConfig {
         if (clazz.isEnum()) {
             derializer = new EnumDeserializer(clazz);
         } else if (clazz.isArray()) {
-            derializer = ArrayDeserializer.instance;
+            derializer = ArrayCodec.instance;
         } else if (clazz == Set.class || clazz == HashSet.class || clazz == Collection.class || clazz == List.class
                    || clazz == ArrayList.class) {
-            derializer = CollectionDeserializer.instance;
+            derializer = CollectionCodec.instance;
         } else if (Collection.class.isAssignableFrom(clazz)) {
-            derializer = CollectionDeserializer.instance;
+            derializer = CollectionCodec.instance;
         } else if (Map.class.isAssignableFrom(clazz)) {
-            derializer = MapDeserializer.instance;
+            derializer = MapCodec.instance;
         } else if (Throwable.class.isAssignableFrom(clazz)) {
             derializer = new ThrowableDeserializer(this, clazz);
         } else {

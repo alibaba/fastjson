@@ -71,10 +71,18 @@ public class FieldInfo implements Comparable<FieldInfo> {
         if (method != null) {
             if (method.getParameterTypes().length == 1) {
                 fieldClass = method.getParameterTypes()[0];
-                fieldType = method.getGenericParameterTypes()[0];
+                if (fieldClass == Class.class) {
+                    fieldType = fieldClass;
+                } else {
+                    fieldType = method.getGenericParameterTypes()[0];
+                }
             } else {
                 fieldClass = method.getReturnType();
-                fieldType = method.getGenericReturnType();
+                if (fieldClass == Class.class) {
+                    fieldType = fieldClass;
+                } else {
+                    fieldType = method.getGenericReturnType();
+                }
                 getOnly = true;
             }
             this.declaringClass = method.getDeclaringClass();

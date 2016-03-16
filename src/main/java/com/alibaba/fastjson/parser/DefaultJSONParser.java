@@ -64,7 +64,6 @@ import com.alibaba.fastjson.parser.deserializer.ListResolveFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.MapResolveFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.serializer.IntegerCodec;
-import com.alibaba.fastjson.serializer.LongCodec;
 import com.alibaba.fastjson.serializer.StringCodec;
 import com.alibaba.fastjson.util.TypeUtils;
 
@@ -821,7 +820,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                     fieldValue = StringCodec.deserialze(this);
                 } else if (fieldClass == long.class) {
                     lexer.nextTokenWithColon(JSONToken.LITERAL_INT);
-                    fieldValue = LongCodec.instance.deserialze(this, fieldType, null);
+                    fieldValue = IntegerCodec.instance.deserialze(this, fieldType, null);
                 } else {
                     ObjectDeserializer fieldValueDeserializer = config.getDeserializer(fieldClass, fieldType);
 

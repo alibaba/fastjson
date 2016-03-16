@@ -151,6 +151,8 @@ public class ParserConfig {
     private boolean                                         asmEnable        = !ASMUtils.isAndroid();
 
     protected final SymbolTable                             symbolTable      = new SymbolTable();
+    
+    protected ClassLoader                                   defaultClassLoader;
 
     protected ASMDeserializerFactory                        asmFactory;
     
@@ -668,4 +670,11 @@ public class ParserConfig {
         }
     }
 
+    public ClassLoader getDefaultClassLoader() {
+        return defaultClassLoader;
+    }
+    
+    public void setDefaultClassLoader(ClassLoader defaultClassLoader) {
+        this.defaultClassLoader = defaultClassLoader;
+    }
 }

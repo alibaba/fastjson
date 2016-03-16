@@ -971,6 +971,10 @@ public class TypeUtils {
     }
 
     public static Class<?> loadClass(String className) {
+        return loadClass(className, null);
+    }
+
+    public static Class<?> loadClass(String className, ClassLoader classLoader) {
         if (className == null || className.length() == 0) {
             return null;
         }
@@ -982,20 +986,33 @@ public class TypeUtils {
         }
 
         if (className.charAt(0) == '[') {
-            Class<?> componentType = loadClass(className.substring(1));
+            Class<?> componentType = loadClass(className.substring(1), classLoader);
             return Array.newInstance(componentType, 0).getClass();
         }
 
         if (className.startsWith("L") && className.endsWith(";")) {
             String newClassName = className.substring(1, className.length() - 1);
-            return loadClass(newClassName);
+            return loadClass(newClassName, classLoader);
+        }
+        
+        try {
+            if (classLoader != null) {
+                clazz = classLoader.loadClass(className);
+
+                addClassMapping(className, clazz);
+
+                return clazz;
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+            // skip
         }
 
         try {
-            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+            ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
 
-            if (classLoader != null) {
-                clazz = classLoader.loadClass(className);
+            if (contextClassLoader != null) {
+                clazz = contextClassLoader.loadClass(className);
 
                 addClassMapping(className, clazz);
 

@@ -108,7 +108,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         Object object;
         try {
             Constructor<?> constructor = beanInfo.getDefaultConstructor();
-            if (constructor.getParameterCount() == 0) {
+            if (constructor.getParameterTypes().length == 0) {
                 object = constructor.newInstance();
             } else {
                 object = constructor.newInstance(parser.getContext().getObject());

@@ -142,10 +142,10 @@ public class DeserializeBeanInfo {
                 TypeUtils.setAccessible(creatorConstructor);
                 beanInfo.setCreatorConstructor(creatorConstructor);
 
-                int count = creatorConstructor.getParameterCount();
-                if (count > 0) {
+                Class<?>[] types = creatorConstructor.getParameterTypes();
+                if (types.length > 0) {
                 	Annotation[][] paramAnnotationArrays = creatorConstructor.getParameterAnnotations();
-                	for (int i = 0; i < count; ++i) {
+                	for (int i = 0; i < types.length; ++i) {
                 		Annotation[] paramAnnotations = paramAnnotationArrays[i];
                 		JSONField fieldAnnotation = null;
                 		for (Annotation paramAnnotation : paramAnnotations) {
@@ -157,7 +157,7 @@ public class DeserializeBeanInfo {
                 		if (fieldAnnotation == null) {
                 			throw new JSONException("illegal json creator");
                 		}
-                		Class<?> fieldClass = creatorConstructor.getParameterTypes()[i];
+                		Class<?> fieldClass = types[i];
                 		Type fieldType = creatorConstructor.getGenericParameterTypes()[i];
                 		Field field = TypeUtils.getField(clazz, fieldAnnotation.name());
                 		final int ordinal = fieldAnnotation.ordinal();
@@ -174,11 +174,10 @@ public class DeserializeBeanInfo {
             if (factoryMethod != null) {
                 TypeUtils.setAccessible(factoryMethod);
                 beanInfo.setFactoryMethod(factoryMethod);
-                
-                int count = factoryMethod.getParameterCount();
-                if (count > 0) {
+                Class<?>[] types = factoryMethod.getParameterTypes();
+                if (types.length > 0) {
                 	Annotation[][] paramAnnotationArrays = factoryMethod.getParameterAnnotations();
-                	for (int i = 0; i < count; ++i) {
+                	for (int i = 0; i < types.length; ++i) {
                         Annotation[] paramAnnotations = paramAnnotationArrays[i];
                         JSONField fieldAnnotation = null;
                         for (Annotation paramAnnotation : paramAnnotations) {
@@ -191,7 +190,7 @@ public class DeserializeBeanInfo {
                             throw new JSONException("illegal json creator");
                         }
 
-                        Class<?> fieldClass = factoryMethod.getParameterTypes()[i];
+                        Class<?> fieldClass = types[i];
                         Type fieldType = factoryMethod.getGenericParameterTypes()[i];
                         Field field = TypeUtils.getField(clazz, fieldAnnotation.name());
                         final int ordinal = fieldAnnotation.ordinal();
@@ -328,8 +327,8 @@ public class DeserializeBeanInfo {
             if (!(method.getReturnType().equals(Void.TYPE) || method.getReturnType().equals(clazz))) {
                 continue;
             }
-
-            if (method.getParameterCount() != 1) {
+            Class<?>[] types = method.getParameterTypes();
+            if (types.length != 1) {
                 continue;
             }
 
@@ -380,7 +379,7 @@ public class DeserializeBeanInfo {
             }
 
             Field field = TypeUtils.getField(clazz, propertyName);
-            if (field == null && method.getParameterTypes()[0] == boolean.class) {
+            if (field == null && types[0] == boolean.class) {
                 String isFieldName = "is" + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
                 field = TypeUtils.getField(clazz, isFieldName);
             }
@@ -448,7 +447,7 @@ public class DeserializeBeanInfo {
             }
 
             if (methodName.startsWith("get") && Character.isUpperCase(methodName.charAt(3))) {
-                if (method.getParameterCount() != 0) {
+                if (method.getParameterTypes().length != 0) {
                     continue;
                 }
 
@@ -489,7 +488,7 @@ public class DeserializeBeanInfo {
         final Constructor<?>[] constructors = clazz.getDeclaredConstructors();
         
         for (Constructor<?> constructor : constructors) {
-            if (constructor.getParameterCount() == 0) { // getParameterTypes() 内部是调用数组的克隆方法，开销相对较大
+            if (constructor.getParameterTypes().length == 0) {
                 defaultConstructor = constructor;
                 break;
             }
@@ -497,9 +496,9 @@ public class DeserializeBeanInfo {
 
         if (defaultConstructor == null) {
             if (clazz.isMemberClass() && !Modifier.isStatic(clazz.getModifiers())) {
+            	Class<?>[] types;
                 for (Constructor<?> constructor : constructors) {
-                    if (constructor.getParameterCount() == 1 
-                    		&& constructor.getParameterTypes()[0].equals(clazz.getDeclaringClass())) {
+                    if ( (types = constructor.getParameterTypes()).length == 1 && types[0].equals(clazz.getDeclaringClass())) {
                         defaultConstructor = constructor;
                         break;
                     }

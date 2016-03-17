@@ -70,22 +70,26 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
                 throw new JSONException("create url error", e);
             }
         }
-        
+
         if (clazz == Pattern.class) {
             return (T) Pattern.compile(strVal);
         }
 
-        String[] items = strVal.split("_");
+        if (clazz == Locale.class) {
+            String[] items = strVal.split("_");
 
-        if (items.length == 1) {
-            return (T) new Locale(items[0]);
+            if (items.length == 1) {
+                return (T) new Locale(items[0]);
+            }
+
+            if (items.length == 2) {
+                return (T) new Locale(items[0], items[1]);
+            }
+
+            return (T) new Locale(items[0], items[1], items[2]);
         }
-
-        if (items.length == 2) {
-            return (T) new Locale(items[0], items[1]);
-        }
-
-        return (T) new Locale(items[0], items[1], items[2]);
+        
+        throw new JSONException("MiscCodec not support " + clazz);
     }
 
     public int getFastMatchToken() {

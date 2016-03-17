@@ -3,18 +3,18 @@ package com.alibaba.json.bvt.parser.deser;
 import java.awt.Font;
 import java.awt.Rectangle;
 
-import junit.framework.TestCase;
-
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.serializer.FontCodec;
+import com.alibaba.fastjson.serializer.AwtCodec;
+
+import junit.framework.TestCase;
 
 
 public class RectangleDeserializerTest extends TestCase {
     public void test_0 () throws Exception {
-        FontCodec.instance.getFastMatchToken();
+        AwtCodec.instance.getFastMatchToken();
         
         Assert.assertNull(JSON.parseObject("null", Rectangle.class));
         Assert.assertNull(JSON.parseArray("null", Rectangle.class));

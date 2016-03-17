@@ -444,8 +444,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         }
         
         if (fieldDeserializer == null) {
-            if (key.length() > 1 && key.charAt(0) == '_') {
-                String key2 = key.substring(1);
+            if (key.indexOf('_') != -1) {
+                String key2 = key.replaceAll("_", "");
                 fieldDeserializer = feildDeserializerMap.get(key2);
                 
                 if (fieldDeserializer == null) {

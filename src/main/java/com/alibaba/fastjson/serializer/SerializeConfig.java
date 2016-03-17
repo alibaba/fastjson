@@ -196,30 +196,30 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 		put(Class.class, ClassCodec.instance);
 
 		put(SimpleDateFormat.class, DateFormatCodec.instance);
-		put(Locale.class, LocaleCodec.instance);
+		put(Locale.class, MiscCodec.instance);
 		put(Currency.class, CurrencyCodec.instance);
 		put(TimeZone.class, TimeZoneCodec.instance);
-		put(UUID.class, UUIDCodec.instance);
+		put(UUID.class, MiscCodec.instance);
 		put(InetAddress.class, InetAddressCodec.instance);
 		put(Inet4Address.class, InetAddressCodec.instance);
 		put(Inet6Address.class, InetAddressCodec.instance);
 		put(InetSocketAddress.class, InetSocketAddressCodec.instance);
 		put(File.class, FileCodec.instance);
-		put(URI.class, URICodec.instance);
-		put(URL.class, URLCodec.instance);
+		put(URI.class, MiscCodec.instance);
+		put(URL.class, MiscCodec.instance);
 		put(Appendable.class, AppendableSerializer.instance);
 		put(StringBuffer.class, AppendableSerializer.instance);
 		put(StringBuilder.class, AppendableSerializer.instance);
-		put(Pattern.class, PatternCodec.instance);
+		put(Pattern.class, MiscCodec.instance);
 		put(Charset.class, CharsetCodec.instance);
 
 		// atomic
-		put(AtomicBoolean.class, AtomicIntegerSerializer.instance);
-		put(AtomicInteger.class, AtomicIntegerSerializer.instance);
-		put(AtomicLong.class, AtomicIntegerSerializer.instance);
+		put(AtomicBoolean.class, AtomicCodec.instance);
+		put(AtomicInteger.class, AtomicCodec.instance);
+		put(AtomicLong.class, AtomicCodec.instance);
 		put(AtomicReference.class, ReferenceCodec.instance);
-		put(AtomicIntegerArray.class, AtomicIntegerArrayCodec.instance);
-		put(AtomicLongArray.class, AtomicIntegerArrayCodec.instance);
+		put(AtomicIntegerArray.class, AtomicCodec.instance);
+		put(AtomicLongArray.class, AtomicCodec.instance);
 		
 		put(WeakReference.class, ReferenceCodec.instance);
 		put(SoftReference.class, ReferenceCodec.instance);

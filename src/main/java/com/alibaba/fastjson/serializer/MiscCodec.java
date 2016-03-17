@@ -18,7 +18,11 @@ package com.alibaba.fastjson.serializer;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
+import java.util.Locale;
+import java.util.UUID;
+import java.util.regex.Pattern;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
@@ -28,11 +32,12 @@ import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
-public class URLCodec implements ObjectSerializer, ObjectDeserializer {
+public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
 
-    public final static URLCodec instance = new URLCodec();
+    public final static MiscCodec instance = new MiscCodec();
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType,
+                      int features) throws IOException {
         if (object == null) {
             serializer.writeNull();
             return;
@@ -43,18 +48,44 @@ public class URLCodec implements ObjectSerializer, ObjectDeserializer {
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        
-        String url = (String) parser.parse();
-        
-        if (url == null) {
+
+        String strVal = (String) parser.parse();
+
+        if (strVal == null || strVal.length() == 0) {
             return null;
         }
-        
-        try {
-            return (T) new URL(url);
-        } catch (MalformedURLException e) {
-            throw new JSONException("create url error", e);
+
+        if (clazz == UUID.class) {
+            return (T) UUID.fromString(strVal);
         }
+
+        if (clazz == URI.class) {
+            return (T) URI.create(strVal);
+        }
+
+        if (clazz == URL.class) {
+            try {
+                return (T) new URL(strVal);
+            } catch (MalformedURLException e) {
+                throw new JSONException("create url error", e);
+            }
+        }
+        
+        if (clazz == Pattern.class) {
+            return (T) Pattern.compile(strVal);
+        }
+
+        String[] items = strVal.split("_");
+
+        if (items.length == 1) {
+            return (T) new Locale(items[0]);
+        }
+
+        if (items.length == 2) {
+            return (T) new Locale(items[0], items[1]);
+        }
+
+        return (T) new Locale(items[0], items[1], items[2]);
     }
 
     public int getFastMatchToken() {

@@ -17,7 +17,10 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
 
 import com.alibaba.fastjson.JSONArray;
@@ -28,12 +31,34 @@ import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
-public class AtomicIntegerArrayCodec implements ObjectSerializer, ObjectDeserializer {
+public class AtomicCodec implements ObjectSerializer, ObjectDeserializer {
 
-    public final static AtomicIntegerArrayCodec instance = new AtomicIntegerArrayCodec();
+    public final static AtomicCodec instance = new AtomicCodec();
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.getWriter();
+        
+        if (object instanceof AtomicInteger) {
+            AtomicInteger val = (AtomicInteger) object;
+            out.writeInt(val.get());
+            return;
+        }
+        
+        if (object instanceof AtomicLong) {
+            AtomicLong val = (AtomicLong) object;
+            out.writeLong(val.get());
+            return;
+        }
+        
+        if (object instanceof AtomicBoolean) {
+            AtomicBoolean val = (AtomicBoolean) object;
+            if (val.get()) {
+                out.append("true");
+            } else {
+                out.append("false");
+            }
+            return;
+        }
 
         if (object == null) {
             if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {

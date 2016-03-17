@@ -93,6 +93,7 @@ import com.alibaba.fastjson.parser.deserializer.StringFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ThrowableDeserializer;
 import com.alibaba.fastjson.parser.deserializer.TimeDeserializer;
 import com.alibaba.fastjson.serializer.AtomicCodec;
+import com.alibaba.fastjson.serializer.AwtCodec;
 import com.alibaba.fastjson.serializer.BigDecimalCodec;
 import com.alibaba.fastjson.serializer.BigIntegerCodec;
 import com.alibaba.fastjson.serializer.BooleanCodec;
@@ -102,13 +103,11 @@ import com.alibaba.fastjson.serializer.CharacterCodec;
 import com.alibaba.fastjson.serializer.CharsetCodec;
 import com.alibaba.fastjson.serializer.ClassCodec;
 import com.alibaba.fastjson.serializer.CollectionCodec;
-import com.alibaba.fastjson.serializer.ColorCodec;
 import com.alibaba.fastjson.serializer.CurrencyCodec;
 import com.alibaba.fastjson.serializer.DateCodec;
 import com.alibaba.fastjson.serializer.DateFormatCodec;
 import com.alibaba.fastjson.serializer.FileCodec;
 import com.alibaba.fastjson.serializer.FloatCodec;
-import com.alibaba.fastjson.serializer.FontCodec;
 import com.alibaba.fastjson.serializer.InetAddressCodec;
 import com.alibaba.fastjson.serializer.InetSocketAddressCodec;
 import com.alibaba.fastjson.serializer.IntegerCodec;
@@ -116,8 +115,6 @@ import com.alibaba.fastjson.serializer.LongCodec;
 import com.alibaba.fastjson.serializer.MapCodec;
 import com.alibaba.fastjson.serializer.MiscCodec;
 import com.alibaba.fastjson.serializer.ObjectArrayCodec;
-import com.alibaba.fastjson.serializer.PointCodec;
-import com.alibaba.fastjson.serializer.RectangleCodec;
 import com.alibaba.fastjson.serializer.ReferenceCodec;
 import com.alibaba.fastjson.serializer.StringCodec;
 import com.alibaba.fastjson.serializer.TimeZoneCodec;
@@ -300,10 +297,10 @@ public class ParserConfig {
 
         if (!awtError) {
             try {
-                derializers.put(Class.forName("java.awt.Point"), PointCodec.instance);
-                derializers.put(Class.forName("java.awt.Font"), FontCodec.instance);
-                derializers.put(Class.forName("java.awt.Rectangle"), RectangleCodec.instance);
-                derializers.put(Class.forName("java.awt.Color"), ColorCodec.instance);
+                derializers.put(Class.forName("java.awt.Point"), AwtCodec.instance);
+                derializers.put(Class.forName("java.awt.Font"), AwtCodec.instance);
+                derializers.put(Class.forName("java.awt.Rectangle"), AwtCodec.instance);
+                derializers.put(Class.forName("java.awt.Color"), AwtCodec.instance);
             } catch (Throwable e) {
                 // skip
                 awtError = true;

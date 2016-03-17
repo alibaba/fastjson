@@ -2,18 +2,18 @@ package com.alibaba.json.bvt.parser.deser;
 
 import java.awt.Color;
 
-import junit.framework.TestCase;
-
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.serializer.ColorCodec;
+import com.alibaba.fastjson.serializer.AwtCodec;
+
+import junit.framework.TestCase;
 
 
 public class ColorDeserializerTest extends TestCase {
     public void test_0 () throws Exception {
-        new ColorCodec().getFastMatchToken();
+        new AwtCodec().getFastMatchToken();
     }
     
     public void test_error() throws Exception {

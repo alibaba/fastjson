@@ -3,19 +3,20 @@ package com.alibaba.json.bvt.serializer;
 import java.awt.Rectangle;
 
 import org.junit.Assert;
-import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.AwtCodec;
 import com.alibaba.fastjson.serializer.JSONSerializer;
-import com.alibaba.fastjson.serializer.RectangleCodec;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+
+import junit.framework.TestCase;
 
 
 public class RectangleSerializerTest extends TestCase {
     
     public void test_null() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
-        Assert.assertEquals(RectangleCodec.class, serializer.getObjectWriter(Rectangle.class).getClass());
+        Assert.assertEquals(AwtCodec.class, serializer.getObjectWriter(Rectangle.class).getClass());
         
         VO vo = new VO();
         

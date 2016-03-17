@@ -380,7 +380,10 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                 }
 
                 if (!setContextFlag) {
-                    setContext(object, fieldName);
+                    ParseContext contextR = setContext(object, fieldName);
+                    if (context == null) {
+                        context = contextR;
+                    }
                     setContextFlag = true;
                 }
 

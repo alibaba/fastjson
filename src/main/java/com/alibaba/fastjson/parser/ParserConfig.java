@@ -49,6 +49,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
@@ -128,6 +129,7 @@ import com.alibaba.fastjson.util.ServiceLoader;
  * @author wenshao[szujobs@hotmail.com]
  */
 public class ParserConfig {
+    public final static String DENY_PROPERTY = "fastjson.parser.deny";
 
     public static ParserConfig getGlobalInstance() {
         return global;
@@ -149,6 +151,8 @@ public class ParserConfig {
     
     private static boolean                                  awtError         = false;
     private static boolean                                  jdk8Error        = false;
+    
+    private List<String>                                    denyList         = new ArrayList<String>();
     
     public ParserConfig() {
         this(null, null);
@@ -331,6 +335,19 @@ public class ParserConfig {
                 jdk8Error = true;
             }
         }
+        
+        configFromPropety(System.getProperties());
+    }
+    
+    public void configFromPropety(Properties properties) {
+        String property = properties.getProperty(DENY_PROPERTY);
+        if (property != null && property.length() > 0) {
+            String[] items = property.split(",");
+            for (int i = 0; i < items.length; ++i) {
+                String item = items[i];
+                this.addDeny(item);
+            }
+        }
     }
 
     public boolean isAsmEnable() {
@@ -402,6 +419,15 @@ public class ParserConfig {
 
         if (derializer != null) {
             return derializer;
+        }
+        
+        for (int i = 0; i < denyList.size(); ++i) {
+            String deny = denyList.get(i);
+            String className = clazz.getName();
+            className = className.replace('$', '.');
+            if (className.startsWith(deny)) {
+                throw new JSONException("parser deny : " + className);
+            }
         }
 
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -667,5 +693,12 @@ public class ParserConfig {
     
     public void setDefaultClassLoader(ClassLoader defaultClassLoader) {
         this.defaultClassLoader = defaultClassLoader;
+    }
+    
+    public void addDeny(String name) {
+        if (name == null || name.length() == 0) {
+            return;
+        }
+        this.denyList.add(name);
     }
 }

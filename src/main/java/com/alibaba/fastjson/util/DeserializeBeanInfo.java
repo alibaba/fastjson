@@ -106,18 +106,27 @@ public class DeserializeBeanInfo {
     }
 
     public boolean add(FieldInfo field) {
-        for (FieldInfo item : this.fieldList) {
+        for (int i = this.fieldList.size() - 1; i >= 0; --i) {
+            FieldInfo item = this.fieldList.get(i);
+            
             if (item.getName().equals(field.getName())) {
                 if (item.isGetOnly() && !field.isGetOnly()) {
                     continue;
                 }
 
                 if (item.getFieldClass().isAssignableFrom(field.getFieldClass())) {
-                    fieldList.remove(item);
+                    fieldList.remove(i);
                     break;
                 }
-
-                return false;
+                
+                int result = item.compareTo(field);
+                
+                if (result < 0) {
+                    fieldList.remove(i);
+                    break;
+                } else {
+                    return false;
+                }
             }
         }
         fieldList.add(field);
@@ -400,7 +409,7 @@ public class DeserializeBeanInfo {
 
             }
 
-            beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures));
+            beanInfo.add(new FieldInfo(propertyName, method, field, clazz, type, ordinal, serialzeFeatures));
         }
 
         for (Field field : clazz.getFields()) { // public static fields

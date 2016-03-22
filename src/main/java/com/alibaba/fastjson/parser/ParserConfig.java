@@ -336,6 +336,7 @@ public class ParserConfig {
             }
         }
         
+        addDeny("java.lang.Thread");
         configFromPropety(System.getProperties());
     }
     

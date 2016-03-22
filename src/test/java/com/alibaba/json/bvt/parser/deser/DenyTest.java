@@ -16,6 +16,7 @@ public class DenyTest extends TestCase {
 
         ParserConfig config = new ParserConfig();
 
+        config.addDeny(null);
         config.addDeny("com.alibaba.json.bvtVO.deny");
 
         Exception error = null;

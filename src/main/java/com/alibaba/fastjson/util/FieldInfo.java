@@ -266,6 +266,18 @@ public class FieldInfo implements Comparable<FieldInfo> {
     public Field getField() {
         return field;
     }
+    
+    protected Class<?> getDeclaredClass() {
+        if (this.method != null) {
+            return this.method.getDeclaringClass();
+        }
+        
+        if (this.field != null) {
+            return this.field.getDeclaringClass();
+        }
+        
+        return null;
+    }
 
     public int compareTo(FieldInfo o) {
         if (this.ordinal < o.ordinal) {
@@ -276,7 +288,58 @@ public class FieldInfo implements Comparable<FieldInfo> {
             return 1;
         }
 
-        return this.name.compareTo(o.name);
+        int result = this.name.compareTo(o.name);
+        
+        if (result != 0) {
+            return result;
+        }
+        
+        Class<?> thisDeclaringClass = this.getDeclaredClass();
+        Class<?> otherDeclaringClass = o.getDeclaredClass();
+        
+        if (thisDeclaringClass != null && otherDeclaringClass != null && thisDeclaringClass != otherDeclaringClass) {
+            if (thisDeclaringClass.isAssignableFrom(otherDeclaringClass)) {
+                return -1;
+            }
+            
+            if (otherDeclaringClass.isAssignableFrom(thisDeclaringClass)) {
+                return 1;
+            }
+        }
+        
+        if (this.isSameType() && !o.isSameType()) {
+            return 1;
+        }
+        
+        if (o.isSameType() && !this.isSameType()) {
+            return -1;
+        }
+        
+        if (o.fieldClass.isPrimitive() && !this.fieldClass.isPrimitive()) {
+            return 1;
+        }
+        
+        if (this.fieldClass.isPrimitive() && !o.fieldClass.isPrimitive()) {
+            return -1;
+        }
+        
+        if (o.fieldClass.getName().startsWith("java.") && !this.fieldClass.getName().startsWith("java.")) {
+            return 1;
+        }
+        
+        if (this.fieldClass.getName().startsWith("java.") && !o.fieldClass.getName().startsWith("java.")) {
+            return -1;
+        }
+        
+        return this.fieldClass.getName().compareTo(o.fieldClass.getName());
+    }
+    
+    private boolean isSameType() {
+        if (this.field != null) {
+            return this.field.getType() == fieldClass;
+        }
+        
+        return false;
     }
 
     public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {

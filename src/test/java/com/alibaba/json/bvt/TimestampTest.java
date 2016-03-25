@@ -14,7 +14,7 @@ public class TimestampTest extends TestCase {
     public void test_0 () throws Exception {
         long millis = (System.currentTimeMillis() / 1000) * 1000;
         
-        String text = "\"" + new SimpleDateFormat(JSON.DEFFAULT_DATE_FORMAT).format(new Date(millis)) + "\"";
+        String text = "\"" + new SimpleDateFormat(JSON.DEFAULT_DATE_FORMAT).format(new Date(millis)) + "\"";
         System.out.println(text);
         Assert.assertEquals(new Timestamp(millis), JSON.parseObject("" + millis, Timestamp.class));
         Assert.assertEquals(new Timestamp(millis), JSON.parseObject("\"" + millis + "\"", Timestamp.class));

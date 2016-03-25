@@ -13,10 +13,10 @@ import com.alibaba.fastjson.util.TypeUtils;
 public class TypeUtilsTest_castToDate extends TestCase {
 
     public void test_castToDate() throws Exception {
-        JSON.DEFFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
+        JSON.DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
         Date date = TypeUtils.castToDate("2012-07-15 12:12:11");
         Assert.assertEquals(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parseObject("2012-07-15 12:12:11"), date);
-        JSON.DEFFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+        JSON.DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     }
 
     public void test_castToDate_error() throws Exception {

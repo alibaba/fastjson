@@ -46,19 +46,4 @@ public class MediaContent implements java.io.Serializable
 		return sb.toString();
 	}
 
-    public void setMedia(Media media) {
-        this.media = media;
-    }
-
-    public void setImages(List<Image> images) {
-        this.images = images;
-    }
-
-    public Media getMedia() {
-        return media;
-    }
-
-    public List<Image> getImages() {
-        return images;
-    }
 }

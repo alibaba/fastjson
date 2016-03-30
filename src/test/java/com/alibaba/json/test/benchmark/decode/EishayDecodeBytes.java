@@ -48,40 +48,40 @@ public class EishayDecodeBytes extends BenchmarkCase {
         content = new MediaContent();
 
         Media media = new Media();
-        media.setUri("http://javaone.com/keynote.mpg");
-        media.setTitle("Javaone Keynote");
-        media.setWidth(640);
-        media.setHeight(480);
-        media.setFormat("video/mpg4");
-        media.setDuration(18000000);
-        media.setSize(58982400);
-        media.setBitrate(262144);
-        media.setPersons(Arrays.asList("Bill Gates", "Steve Jobs"));
-        media.setPlayer(Player.JAVA);
-        media.setCopyright(null);
+        media.uri = "http://javaone.com/keynote.mpg";
+        media.title  = "Javaone Keynote";
+        media.width = 640;
+        media.height = 480;
+        media.format = "video/mpg4";
+        media.duration = 18000000;
+        media.size = 58982400;
+        media.bitrate = 262144;
+        media.persons = Arrays.asList("Bill Gates", "Steve Jobs");
+        media.player = Player.JAVA;
+        media.copyright = null;
 
-        content.setMedia(media);
+        content.media = media;
 
         List<Image> images = new ArrayList<Image>();
         {
             Image image = new Image();
-            image.setUri("http://javaone.com/keynote_large.jpg");
-            image.setTitle("Javaone Keynote");
-            image.setWidth(1024);
-            image.setHeight(768);
-            image.setSize(Size.LARGE);
+            image.uri = "http://javaone.com/keynote_large.jpg";
+            image.title = "Javaone Keynote";
+            image.width = 1024;
+            image.height = 768;
+            image.size = Size.LARGE;
             images.add(image);
         }
         {
             Image image = new Image();
-            image.setUri("http://javaone.com/keynote_small.jpg");
-            image.setTitle("Javaone Keynote");
-            image.setWidth(320);
-            image.setHeight(240);
-            image.setSize(Size.SMALL);
+            image.uri = "http://javaone.com/keynote_small.jpg";
+            image.title = "Javaone Keynote";
+            image.width = 320;
+            image.height = 240;
+            image.size = Size.SMALL;
             images.add(image);
         }
-        content.setImages(images);
+        content.images  = images;
 
         try {
             text = JSON.toJSONString(content, SerializerFeature.WriteEnumUsingToString, SerializerFeature.SortField);

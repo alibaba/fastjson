@@ -1,3 +1,5 @@
+## 该fork分支为fastjson内部实现添加中文注释，为个人学习所用
+
 # fastjson
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.alibaba/fastjson/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.alibaba/fastjson/)

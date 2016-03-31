@@ -63,6 +63,12 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
+/**
+ * @author jingzz
+ * @time 2016年3月30日 下午1:51:24
+ * @name fastjson/com.alibaba.fastjson.util.TypeUtils
+ * @since 2016年3月30日 下午1:51:24
+ */
 public class TypeUtils {
 
     public static boolean   compatibleWithJavaBean      = false;
@@ -1039,9 +1045,18 @@ public class TypeUtils {
         return computeGetters(clazz, aliasMap, true);
     }
 
+    /**
+     * 通过getter方法获取属性
+     * @author jingzz（中文注释作者）
+     * @param clazz
+     * @param aliasMap
+     * @param sorted
+     * @return
+     */
     public static List<FieldInfo> computeGetters(Class<?> clazz, Map<String, String> aliasMap, boolean sorted) {
         Map<String, FieldInfo> fieldInfoMap = new LinkedHashMap<String, FieldInfo>();
 
+        //TODO  by 荆忠志 通过getter方法获取属性值
         for (Method method : clazz.getMethods()) {
             String methodName = method.getName();
             int ordinal = 0, serialzeFeatures = 0;
@@ -1206,7 +1221,8 @@ public class TypeUtils {
                 if (field == null) {
                     field = ParserConfig.getField(clazz, methodName);
                 }
-
+                
+                
                 if (field != null) {
                     JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
 
@@ -1247,6 +1263,8 @@ public class TypeUtils {
             }
         }
 
+        
+         //TODO  by 荆忠志 序列化无getter方法但有JSONField注解的属性
         for (Field field : clazz.getFields()) {
             if (Modifier.isStatic(field.getModifiers())) {
                 continue;

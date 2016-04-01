@@ -1296,7 +1296,12 @@ public class TypeUtils {
         }
         
         if (type instanceof Class) {
-            return isGenericParamType(((Class<?>) type).getGenericSuperclass());
+            Type superType = ((Class<?>) type).getGenericSuperclass();
+            if (superType == Object.class) {
+                return false;
+            }
+            
+            return isGenericParamType(superType);
         }
         
         return false;

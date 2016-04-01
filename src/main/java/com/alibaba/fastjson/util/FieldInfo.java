@@ -147,6 +147,10 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
             return fieldType;
         }
+        
+        if (fieldType instanceof Class) {
+            return fieldType;
+        }
 
         if (!TypeUtils.isGenericParamType(type)) {
             return fieldType;

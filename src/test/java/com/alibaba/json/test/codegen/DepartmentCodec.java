@@ -96,8 +96,8 @@ public class DepartmentCodec extends ASMJavaBeanDeserializer implements ObjectDe
                 matchedCount++;
                 if(parser.getResolveStatus() == DefaultJSONParser.NeedToResolve) {
                     ResolveTask resolveTask = parser.getLastResolveTask();
-                    resolveTask.setOwnerContext(parser.getContext());
-                    resolveTask.setFieldDeserializer(this.getFieldDeserializer("leader"));
+                    resolveTask.ownerContext = parser.getContext();
+                    resolveTask.fieldDeserializer = this.getFieldDeserializer("leader");
                     parser.setResolveStatus(DefaultJSONParser.NONE);
                 }
             }

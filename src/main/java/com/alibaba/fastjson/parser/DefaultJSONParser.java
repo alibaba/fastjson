@@ -970,13 +970,13 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                 final int index = array.size() - 1;
                 final List list = (List) array;
                 ResolveTask task = getLastResolveTask();
-                task.setFieldDeserializer(new ListResolveFieldDeserializer(this, list, index));
-                task.setOwnerContext(context);
+                task.fieldDeserializer = new ListResolveFieldDeserializer(this, list, index);
+                task.ownerContext = context;
                 setResolveStatus(DefaultJSONParser.NONE);
             } else {
                 ResolveTask task = getLastResolveTask();
-                task.setFieldDeserializer(new CollectionResolveFieldDeserializer(this, array));
-                task.setOwnerContext(context);
+                task.fieldDeserializer  = new CollectionResolveFieldDeserializer(this, array);
+                task.ownerContext = context;
                 setResolveStatus(DefaultJSONParser.NONE);
             }
         }
@@ -987,8 +987,8 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
         if (resolveStatus == NeedToResolve) {
             MapResolveFieldDeserializer fieldResolver = new MapResolveFieldDeserializer(object, fieldName);
             ResolveTask task = getLastResolveTask();
-            task.setFieldDeserializer(fieldResolver);
-            task.setOwnerContext(context);
+            task.fieldDeserializer = fieldResolver;
+            task.ownerContext = context;
             setResolveStatus(DefaultJSONParser.NONE);
         }
     }
@@ -1358,23 +1358,23 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
         int size = resolveTaskList.size();
         for (int i = 0; i < size; ++i) {
             ResolveTask task = resolveTaskList.get(i);
-            FieldDeserializer fieldDeser = task.getFieldDeserializer();
+            FieldDeserializer fieldDeser = task.fieldDeserializer;
 
             if (fieldDeser == null) {
                 continue;
             }
 
             Object object = null;
-            if (task.getOwnerContext() != null) {
-                object = task.getOwnerContext().object;
+            if (task.ownerContext != null) {
+                object = task.ownerContext.object;
             }
 
-            String ref = task.getReferenceValue();
+            String ref = task.referenceValue;
             Object refValue;
             if (ref.startsWith("$")) {
                 refValue = getObject(ref);
             } else {
-                refValue = task.getContext().object;
+                refValue = task.context.object;
             }
             fieldDeser.setValue(object, refValue);
         }
@@ -1384,38 +1384,13 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 
         private final ParseContext context;
         private final String       referenceValue;
-        private FieldDeserializer  fieldDeserializer;
-        private ParseContext       ownerContext;
+        public FieldDeserializer  fieldDeserializer;
+        public ParseContext       ownerContext;
 
         public ResolveTask(ParseContext context, String referenceValue){
             this.context = context;
             this.referenceValue = referenceValue;
         }
-
-        public ParseContext getContext() {
-            return context;
-        }
-
-        public String getReferenceValue() {
-            return referenceValue;
-        }
-
-        public FieldDeserializer getFieldDeserializer() {
-            return fieldDeserializer;
-        }
-
-        public void setFieldDeserializer(FieldDeserializer fieldDeserializer) {
-            this.fieldDeserializer = fieldDeserializer;
-        }
-
-        public ParseContext getOwnerContext() {
-            return ownerContext;
-        }
-
-        public void setOwnerContext(ParseContext ownerContext) {
-            this.ownerContext = ownerContext;
-        }
-
     }
 
 }

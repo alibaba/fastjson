@@ -33,8 +33,8 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
         Object value = fieldValueDeserilizer.deserialze(parser, getFieldType(), fieldInfo.name);
         if (parser.getResolveStatus() == DefaultJSONParser.NeedToResolve) {
             ResolveTask task = parser.getLastResolveTask();
-            task.setFieldDeserializer(this);
-            task.setOwnerContext(parser.getContext());
+            task.fieldDeserializer = this;
+            task.ownerContext = parser.getContext();
             parser.setResolveStatus(DefaultJSONParser.NONE);
         } else {
             if (object == null) {

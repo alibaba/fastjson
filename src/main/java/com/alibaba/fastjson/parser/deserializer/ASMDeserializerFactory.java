@@ -1047,10 +1047,6 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitFieldInsn(GETSTATIC, "com/alibaba/fastjson/parser/DefaultJSONParser", "NeedToResolve", "I");
         mw.visitJumpInsn(IF_ICMPNE, _end_if);
 
-        // ResolveTask task = parser.getLastResolveTask();
-        // task.setFieldDeserializer(this);
-        // task.setOwnerContext(parser.getContext());
-
         mw.visitVarInsn(ALOAD, 1);
         mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/parser/DefaultJSONParser", "getLastResolveTask",
                            "()Lcom/alibaba/fastjson/parser/DefaultJSONParser$ResolveTask;");
@@ -1060,17 +1056,14 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ALOAD, 1);
         mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/parser/DefaultJSONParser", "getContext", "()"
                                                                                           + "Lcom/alibaba/fastjson/parser/ParseContext;");
-        mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/parser/DefaultJSONParser$ResolveTask"
-                           , "setOwnerContext"
-                           , "(Lcom/alibaba/fastjson/parser/ParseContext;)V");
+        mw.visitFieldInsn(PUTFIELD, "com/alibaba/fastjson/parser/DefaultJSONParser$ResolveTask", "ownerContext", "Lcom/alibaba/fastjson/parser/ParseContext;");
 
         mw.visitVarInsn(ALOAD, context.var("resolveTask"));
         mw.visitVarInsn(ALOAD, 0);
         mw.visitLdcInsn(fieldInfo.name);
         mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/parser/deserializer/ASMJavaBeanDeserializer", "getFieldDeserializer",
                            "(Ljava/lang/String;)Lcom/alibaba/fastjson/parser/deserializer/FieldDeserializer;");
-        mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/parser/DefaultJSONParser$ResolveTask", "setFieldDeserializer",
-                           "(Lcom/alibaba/fastjson/parser/deserializer/FieldDeserializer;)V");
+        mw.visitFieldInsn(PUTFIELD, "com/alibaba/fastjson/parser/DefaultJSONParser$ResolveTask", "fieldDeserializer", "Lcom/alibaba/fastjson/parser/deserializer/FieldDeserializer;");
 
         mw.visitVarInsn(ALOAD, 1);
         mw.visitFieldInsn(GETSTATIC, "com/alibaba/fastjson/parser/DefaultJSONParser", "NONE", "I");

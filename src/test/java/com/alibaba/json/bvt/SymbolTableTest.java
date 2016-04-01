@@ -36,7 +36,7 @@ public class SymbolTableTest extends TestCase {
             }
         }
 
-        SymbolTable table = new SymbolTable();
+        SymbolTable table = new SymbolTable(512);
         for (int i = 0; i < symbols.length; ++i) {
             String symbol = symbols[i];
             char[] charArray = symbol.toCharArray();

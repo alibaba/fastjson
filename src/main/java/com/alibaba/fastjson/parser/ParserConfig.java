@@ -95,7 +95,7 @@ public class ParserConfig {
 
     private final IdentityHashMap<Type, ObjectDeserializer> derializers      = new IdentityHashMap<Type, ObjectDeserializer>();
 
-    public final SymbolTable                                symbolTable      = new SymbolTable();
+    public final SymbolTable                                symbolTable      = new SymbolTable(512);
     
     public ClassLoader                                      defaultClassLoader;
 

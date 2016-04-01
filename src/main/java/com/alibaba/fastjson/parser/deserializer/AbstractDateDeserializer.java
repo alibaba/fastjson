@@ -28,7 +28,7 @@ public abstract class AbstractDateDeserializer implements ObjectDeserializer {
             
             if ((lexer.features & Feature.AllowISO8601DateFormat.mask) != 0) {
                 JSONScanner iso8601Lexer = new JSONScanner(strVal);
-                if (iso8601Lexer.scanISO8601DateIfMatch()) {
+                if (iso8601Lexer.scanISO8601DateIfMatch(true)) {
                     val = iso8601Lexer.getCalendar().getTime();
                 }
                 iso8601Lexer.close();

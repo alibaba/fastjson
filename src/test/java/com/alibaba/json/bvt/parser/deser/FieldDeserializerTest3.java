@@ -44,10 +44,10 @@ public class FieldDeserializerTest3 extends TestCase {
 
     private static class Entity {
 
-        private String value;
+        private String _value;
 
         public String getValue() {
-            return value;
+            return _value;
         }
 
         public void setValue(String value) {

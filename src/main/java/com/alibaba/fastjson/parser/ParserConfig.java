@@ -233,7 +233,7 @@ public class ParserConfig {
             return derializer;
         }
 
-        {
+        if (!isPrimitive(clazz)) {
             JSONType annotation = clazz.getAnnotation(JSONType.class);
             if (annotation != null) {
                 Class<?> mappingTo = annotation.mappingTo();

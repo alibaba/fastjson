@@ -17,7 +17,6 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.text.DateFormat;

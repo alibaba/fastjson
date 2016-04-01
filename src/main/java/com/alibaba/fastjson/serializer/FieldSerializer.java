@@ -45,7 +45,7 @@ public abstract class FieldSerializer {
 
         this.un_quoted_fieldPrefix = fieldInfo.getName() + ":";
 
-        JSONField annotation = fieldInfo.getAnnotation(JSONField.class);
+        JSONField annotation = fieldInfo.getAnnotation();
         if (annotation != null) {
             for (SerializerFeature feature : annotation.serialzeFeatures()) {
                 if (feature == SerializerFeature.WriteMapNullValue) {

@@ -514,7 +514,7 @@ public class ParserConfig {
                 asmEnable = false;
             }
 
-            Constructor<?> defaultConstructor = beanInfo.getDefaultConstructor();
+            Constructor<?> defaultConstructor = beanInfo.defaultConstructor;
             if (asmEnable && defaultConstructor == null && !clazz.isInterface()) {
                 asmEnable = false;
             }
@@ -525,7 +525,7 @@ public class ParserConfig {
                     break;
                 }
 
-                Class<?> fieldClass = fieldInfo.getFieldClass();
+                Class<?> fieldClass = fieldInfo.fieldClass;
                 if (!Modifier.isPublic(fieldClass.getModifiers())) {
                     asmEnable = false;
                     break;
@@ -539,7 +539,7 @@ public class ParserConfig {
                     asmEnable = false;
                 }
                 
-                JSONField annotation = fieldInfo.getAnnotation(JSONField.class);
+                JSONField annotation = fieldInfo.getAnnotation();
                 if (annotation != null && !ASMUtils.checkName(annotation.name())) {
                 	asmEnable = false;
 				}
@@ -593,7 +593,7 @@ public class ParserConfig {
             }
         }
         
-        if (fieldInfo.getFieldClass() == Class.class) {
+        if (fieldInfo.fieldClass == Class.class) {
             asmEnable = false;
         }
 
@@ -615,7 +615,7 @@ public class ParserConfig {
     }
 
     public FieldDeserializer createFieldDeserializerWithoutASM(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
-        Class<?> fieldClass = fieldInfo.getFieldClass();
+        Class<?> fieldClass = fieldInfo.fieldClass;
 
         if (fieldClass == boolean.class || fieldClass == Boolean.class) {
             return new BooleanFieldDeserializer(mapping, clazz, fieldInfo);
@@ -645,7 +645,7 @@ public class ParserConfig {
     }
 
     public ObjectDeserializer getDeserializer(FieldInfo fieldInfo) {
-        return getDeserializer(fieldInfo.getFieldClass(), fieldInfo.getFieldType());
+        return getDeserializer(fieldInfo.fieldClass, fieldInfo.fieldType);
     }
 
     public boolean isPrimitive(Class<?> clazz) {

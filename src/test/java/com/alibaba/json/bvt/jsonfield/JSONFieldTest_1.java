@@ -44,9 +44,9 @@ public class JSONFieldTest_1 extends TestCase {
 
         List<FieldDeserializer> fieldDeserList = javaBeanDeser.getSortedFieldDeserializers();
         Assert.assertEquals(3, fieldDeserList.size());
-        Assert.assertEquals("f2", fieldDeserList.get(0).getFieldInfo().getName());
-        Assert.assertEquals("f1", fieldDeserList.get(1).getFieldInfo().getName());
-        Assert.assertEquals("f0", fieldDeserList.get(2).getFieldInfo().getName());
+        Assert.assertEquals("f2", fieldDeserList.get(0).getFieldInfo().name);
+        Assert.assertEquals("f1", fieldDeserList.get(1).getFieldInfo().name);
+        Assert.assertEquals("f0", fieldDeserList.get(2).getFieldInfo().name);
     }
 
     public static class VO {

@@ -26,7 +26,7 @@ public class LongArraySerializer implements ObjectSerializer {
     public static LongArraySerializer instance = new LongArraySerializer();
 
     public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
         
         if (object == null) {
             if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {

@@ -32,7 +32,7 @@ public class FloatCodec implements ObjectSerializer, ObjectDeserializer {
     public static FloatCodec instance = new FloatCodec();
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
         
         if (object == null) {
             if (serializer.isEnabled(SerializerFeature.WriteNullNumberAsZero)) {

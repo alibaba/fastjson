@@ -33,7 +33,7 @@ final class NumberFieldSerializer extends FieldSerializer {
 
     @Override
     public void writeValue(JSONSerializer serializer, Object propertyValue) throws Exception {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         Object value = propertyValue;
 

@@ -31,7 +31,7 @@ public class PropertyPathTest2 extends TestCase {
     public static class MyPropertyPreFilter implements PropertyPreFilter {
 
         public boolean apply(JSONSerializer serializer, Object source, String name) {
-            String path = serializer.getContext().getPath() + "." + name;
+            String path = serializer.getContext().toString() + "." + name;
 
             if (path.endsWith("].children")) {
                 return false;

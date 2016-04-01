@@ -13,7 +13,7 @@ public class FileCodec implements ObjectSerializer, ObjectDeserializer {
     public static FileCodec instance = new FileCodec();
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
         
         if (object == null) {
             out.writeNull();

@@ -33,7 +33,7 @@ public class BooleanCodec implements ObjectSerializer, ObjectDeserializer {
     public final static BooleanCodec instance = new BooleanCodec();
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         Boolean value = (Boolean) object;
         if (value == null) {

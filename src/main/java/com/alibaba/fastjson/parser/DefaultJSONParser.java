@@ -336,29 +336,29 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                         if ("@".equals(ref)) {
                             if (this.getContext() != null) {
                                 ParseContext thisContext = this.getContext();
-                                Object thisObj = thisContext.getObject();
+                                Object thisObj = thisContext.object;
                                 if (thisObj instanceof Object[] || thisObj instanceof Collection<?>) {
                                     refValue = thisObj;
-                                } else if (thisContext.getParentContext() != null) {
-                                    refValue = thisContext.getParentContext().getObject();
+                                } else if (thisContext.parent != null) {
+                                    refValue = thisContext.parent.object;
                                 }
                             }
                         } else if ("..".equals(ref)) {
-                            ParseContext parentContext = context.getParentContext();
-                            if (parentContext.getObject() != null) {
-                                refValue = parentContext.getObject();
+                            ParseContext parentContext = context.parent;
+                            if (parentContext.object != null) {
+                                refValue = parentContext.object;
                             } else {
                                 addResolveTask(new ResolveTask(parentContext, ref));
                                 setResolveStatus(DefaultJSONParser.NeedToResolve);
                             }
                         } else if ("$".equals(ref)) {
                             ParseContext rootContext = context;
-                            while (rootContext.getParentContext() != null) {
-                                rootContext = rootContext.getParentContext();
+                            while (rootContext.parent != null) {
+                                rootContext = rootContext.parent;
                             }
 
-                            if (rootContext.getObject() != null) {
-                                refValue = rootContext.getObject();
+                            if (rootContext.object != null) {
+                                refValue = rootContext.object;
                             } else {
                                 addResolveTask(new ResolveTask(rootContext, ref));
                                 setResolveStatus(DefaultJSONParser.NeedToResolve);
@@ -444,7 +444,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 
                     Object obj = this.parseObject(input, key);
                     if (ctxLocal != null && input != obj) {
-                        ctxLocal.setObject(object);
+                        ctxLocal.object = object;
                     }
 
                     checkMapResolve(object, key.toString());
@@ -956,7 +956,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
     public Object getObject(String path) {
         for (int i = 0; i < contextArrayIndex; ++i) {
             if (path.equals(contextArray[i].getPath())) {
-                return contextArray[i].getObject();
+                return contextArray[i].object;
             }
         }
 
@@ -1174,7 +1174,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
             return;
         }
 
-        this.context = this.context.getParentContext();
+        this.context = this.context.parent;
         contextArray[contextArrayIndex - 1] = null;
         contextArrayIndex--;
     }
@@ -1366,7 +1366,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 
             Object object = null;
             if (task.getOwnerContext() != null) {
-                object = task.getOwnerContext().getObject();
+                object = task.getOwnerContext().object;
             }
 
             String ref = task.getReferenceValue();
@@ -1374,7 +1374,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
             if (ref.startsWith("$")) {
                 refValue = getObject(ref);
             } else {
-                refValue = task.getContext().getObject();
+                refValue = task.getContext().object;
             }
             fieldDeser.setValue(object, refValue);
         }

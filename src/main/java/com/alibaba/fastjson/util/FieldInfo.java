@@ -1,6 +1,5 @@
 package com.alibaba.fastjson.util;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
@@ -16,17 +15,20 @@ import com.alibaba.fastjson.annotation.JSONField;
 
 public class FieldInfo implements Comparable<FieldInfo> {
 
-    private final String   name;
-    private final Method   method;
-    private final Field    field;
+    public final String   name;
+    public final Method   method;
+    public final Field    field;
 
     private int            ordinal = 0;
-    private final Class<?> fieldClass;
-    private final Type     fieldType;
-    private final Class<?> declaringClass;
+    public final Class<?> fieldClass;
+    public final Type     fieldType;
+    public final Class<?> declaringClass;
     private boolean        getOnly = false;
     private int            serialzeFeatures;
     private String         label = "";
+    
+    private JSONField      fieldAnnotation;
+    private JSONField      methodAnnotation;
     
     public FieldInfo(String name, Class<?> declaringClass, Class<?> fieldClass, Type fieldType, Field field){
         this(name, declaringClass, fieldClass, fieldType, field, 0, 0);
@@ -48,30 +50,32 @@ public class FieldInfo implements Comparable<FieldInfo> {
     }
     
     public FieldInfo(String name, Method method, Field field){
-        this(name, method, field, null, null);
+        this(name, method, field, 0, 0);
     }
     
     public FieldInfo(String name, Method method, Field field, int ordinal, int serialzeFeatures){
-        this(name, method, field, ordinal, serialzeFeatures, null);
+        this(name, method, field, ordinal, serialzeFeatures, null, null, null);
     }
 
-    public FieldInfo(String name, Method method, Field field, int ordinal, int serialzeFeatures, String label){
-        this(name, method, field, null, null, ordinal, serialzeFeatures);
+    public FieldInfo(String name, Method method, Field field, int ordinal, int serialzeFeatures, String label, JSONField methodAnnotation, JSONField fieldAnnotation){
+        this(name, method, field, null, null, ordinal, serialzeFeatures, methodAnnotation, fieldAnnotation);
         if (label != null && label.length() > 0) {
             this.label = label;
         }
     }
 
-    public FieldInfo(String name, Method method, Field field, Class<?> clazz, Type type){
-        this(name, method, field, clazz, type, 0, 0);
+    public FieldInfo(String name, Method method, Field field, Class<?> clazz, Type type, JSONField methodAnnotation){
+        this(name, method, field, clazz, type, 0, 0, methodAnnotation, null);
     }
 
-    public FieldInfo(String name, Method method, Field field, Class<?> clazz, Type type, int ordinal, int serialzeFeatures){
+    public FieldInfo(String name, Method method, Field field, Class<?> clazz, Type type, int ordinal, int serialzeFeatures, JSONField fieldAnnotation, JSONField methodAnnotation){
         this.name = name;
         this.method = method;
         this.field = field;
         this.ordinal = ordinal;
         this.serialzeFeatures = serialzeFeatures;
+        this.fieldAnnotation = fieldAnnotation;
+        this.methodAnnotation = methodAnnotation;
 
         if (method != null) {
             TypeUtils.setAccessible(method);
@@ -110,13 +114,17 @@ public class FieldInfo implements Comparable<FieldInfo> {
             }
         }
 
-        Type genericFieldType = getFieldType(clazz, type, fieldType);
-
-        if (genericFieldType != fieldType) {
-            if (genericFieldType instanceof ParameterizedType) {
-                fieldClass = TypeUtils.getClass(genericFieldType);
-            } else if (genericFieldType instanceof Class) {
-                fieldClass = TypeUtils.getClass(genericFieldType);
+        Type genericFieldType = fieldType;
+        
+        if (!(fieldType instanceof Class)) {
+            genericFieldType = getFieldType(clazz, type, fieldType);
+    
+            if (genericFieldType != fieldType) {
+                if (genericFieldType instanceof ParameterizedType) {
+                    fieldClass = TypeUtils.getClass(genericFieldType);
+                } else if (genericFieldType instanceof Class) {
+                    fieldClass = TypeUtils.getClass(genericFieldType);
+                }
             }
         }
 
@@ -230,27 +238,6 @@ public class FieldInfo implements Comparable<FieldInfo> {
         return this.name;
     }
 
-    public Class<?> getDeclaringClass() {
-        return declaringClass;
-    }
-
-    public Class<?> getFieldClass() {
-        return fieldClass;
-    }
-
-    public Type getFieldType() {
-        return fieldType;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getQualifiedName() {
-        Member member = getMember();
-        return member.getDeclaringClass().getName() + "." + member.getName();
-    }
-
     public Member getMember() {
         if (method != null) {
             return method;
@@ -259,14 +246,6 @@ public class FieldInfo implements Comparable<FieldInfo> {
         }
     }
 
-    public Method getMethod() {
-        return method;
-    }
-
-    public Field getField() {
-        return field;
-    }
-    
     protected Class<?> getDeclaredClass() {
         if (this.method != null) {
             return this.method.getDeclaringClass();
@@ -341,25 +320,18 @@ public class FieldInfo implements Comparable<FieldInfo> {
         
         return false;
     }
-
-    public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
-        T annotation = null;
-        if (method != null) {
-            annotation = method.getAnnotation(annotationClass);
+    
+    public JSONField getAnnotation() {
+        if (this.fieldAnnotation != null) {
+            return this.fieldAnnotation;
         }
-
-        if (annotation == null) {
-            if (field != null) {
-                annotation = field.getAnnotation(annotationClass);
-            }
-        }
-
-        return annotation;
+        
+        return this.methodAnnotation;
     }
 
     public String getFormat() {
         String format = null;
-        JSONField annotation = getAnnotation(JSONField.class);
+        JSONField annotation = getAnnotation();
 
         if (annotation != null) {
             format = annotation.format();

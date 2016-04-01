@@ -49,12 +49,12 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
         ParseContext context = parser.getContext();
 
-        parser.setContext(context, object, fieldInfo.getName());
+        parser.setContext(context, object, fieldInfo.name);
         parseArray(parser, objectType, list);
         parser.setContext(context);
 
         if (object == null) {
-            fieldValues.put(fieldInfo.getName(), list);
+            fieldValues.put(fieldInfo.name, list);
         } else {
             setValue(object, list);
         }

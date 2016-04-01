@@ -25,58 +25,33 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 public class DeserializeBeanInfo {
 
     private final Class<?>        clazz;
-    private final Class<?>        builderClass;
-    private Constructor<?>        defaultConstructor;
-    private Constructor<?>        creatorConstructor;
-    private Method                factoryMethod;
-    private Method                buildMethod;
+    public final Class<?>         builderClass;
+    public final Constructor<?>   defaultConstructor;
+    public final Constructor<?>   creatorConstructor;
+    public final Method           factoryMethod;
+    public Method                 buildMethod;
+    
+    public final int             defaultConstructorParameterSize;
 
     private final List<FieldInfo> fieldList       = new ArrayList<FieldInfo>();
     private final List<FieldInfo> sortedFieldList = new ArrayList<FieldInfo>();
 
     private int                   parserFeatures  = 0;
 
-    public DeserializeBeanInfo(Class<?> clazz){
-        this(clazz, getBuilderClass(clazz));
-    }
-
-    public DeserializeBeanInfo(Class<?> clazz, Class<?> builderClass){
-        super();
+    public DeserializeBeanInfo(Class<?> clazz
+                               , Class<?> builderClass
+                               , Constructor<?> defaultConstructor
+                               , Constructor<?> creatorConstructor
+                               , Method factoryMethod
+                               , Method buildMethod){
         this.clazz = clazz;
         this.builderClass = builderClass;
-        this.parserFeatures = TypeUtils.getParserFeatures(clazz);
-    }
-
-    public Constructor<?> getDefaultConstructor() {
-        return defaultConstructor;
-    }
-
-    public void setDefaultConstructor(Constructor<?> defaultConstructor) {
         this.defaultConstructor = defaultConstructor;
-    }
-
-    public Constructor<?> getCreatorConstructor() {
-        return creatorConstructor;
-    }
-
-    public void setCreatorConstructor(Constructor<?> createConstructor) {
-        this.creatorConstructor = createConstructor;
-    }
-
-    public Method getFactoryMethod() {
-        return factoryMethod;
-    }
-
-    public void setFactoryMethod(Method factoryMethod) {
+        this.creatorConstructor = creatorConstructor;
         this.factoryMethod = factoryMethod;
-    }
-
-    public Method getBuildMethod() {
-        return buildMethod;
-    }
-
-    public void setBuildMethod(Method buildMethod) {
-        this.buildMethod = buildMethod;
+        this.parserFeatures = TypeUtils.getParserFeatures(clazz);
+        
+        defaultConstructorParameterSize = defaultConstructor != null ? defaultConstructor.getParameterTypes().length : 0;
     }
 
     public Class<?> getClazz() {
@@ -97,7 +72,7 @@ public class DeserializeBeanInfo {
 
     public FieldInfo getField(String propertyName) {
         for (FieldInfo item : this.fieldList) {
-            if (item.getName().equals(propertyName)) {
+            if (item.name.equals(propertyName)) {
                 return item;
             }
         }
@@ -109,12 +84,12 @@ public class DeserializeBeanInfo {
         for (int i = this.fieldList.size() - 1; i >= 0; --i) {
             FieldInfo item = this.fieldList.get(i);
             
-            if (item.getName().equals(field.getName())) {
+            if (item.name.equals(field.name)) {
                 if (item.isGetOnly() && !field.isGetOnly()) {
                     continue;
                 }
 
-                if (item.getFieldClass().isAssignableFrom(field.getFieldClass())) {
+                if (item.fieldClass.isAssignableFrom(field.fieldClass)) {
                     fieldList.remove(i);
                     break;
                 }
@@ -137,19 +112,19 @@ public class DeserializeBeanInfo {
     }
 
     public static DeserializeBeanInfo computeSetters(Class<?> clazz, Type type) {
-        DeserializeBeanInfo beanInfo = new DeserializeBeanInfo(clazz);
+        DeserializeBeanInfo beanInfo = null;
 
-        Class<?> builderClass = beanInfo.getBuilderClass();
+        Class<?> builderClass = getBuilderClass(clazz);
 
         Constructor<?> defaultConstructor = getDefaultConstructor(builderClass == null ? clazz : builderClass);
         if (defaultConstructor != null) { // 如果存在默认构造方法
             TypeUtils.setAccessible(defaultConstructor);
-            beanInfo.setDefaultConstructor(defaultConstructor);
+            beanInfo = new DeserializeBeanInfo(clazz, builderClass, defaultConstructor, null, null, null);
         } else if (defaultConstructor == null && !(clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers()))) {
             Constructor<?> creatorConstructor = getCreatorConstructor(clazz);
             if (creatorConstructor != null) { // 基于标记 JSONCreator 注解的构造方法
                 TypeUtils.setAccessible(creatorConstructor);
-                beanInfo.setCreatorConstructor(creatorConstructor);
+                beanInfo = new DeserializeBeanInfo(clazz, builderClass, null, creatorConstructor, null, null);
 
                 Class<?>[] types = creatorConstructor.getParameterTypes();
                 if (types.length > 0) {
@@ -182,7 +157,8 @@ public class DeserializeBeanInfo {
             Method factoryMethod = getFactoryMethod(clazz); // 基于标记 JSONCreator 注解的工厂方法
             if (factoryMethod != null) {
                 TypeUtils.setAccessible(factoryMethod);
-                beanInfo.setFactoryMethod(factoryMethod);
+                
+                beanInfo = new DeserializeBeanInfo(clazz, builderClass, null, null, factoryMethod, null);
                 Class<?>[] types = factoryMethod.getParameterTypes();
                 if (types.length > 0) {
                 	Annotation[][] paramAnnotationArrays = factoryMethod.getParameterAnnotations();
@@ -213,7 +189,10 @@ public class DeserializeBeanInfo {
 
             throw new JSONException("default constructor not found. " + clazz);
         }
-
+        
+        if (beanInfo == null) {
+            beanInfo = new DeserializeBeanInfo(clazz, builderClass, null, null, null, null);
+        }
         if (builderClass != null) {
             String withPrefix = null;
 
@@ -253,7 +232,7 @@ public class DeserializeBeanInfo {
 
                     if (annotation.name().length() != 0) {
                         String propertyName = annotation.name();
-                        beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures));                        
+                        beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures, annotation, null));                        
                         continue;
                     }
                 }
@@ -278,7 +257,7 @@ public class DeserializeBeanInfo {
 
                 String propertyName = properNameBuilder.toString();
 
-                beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures));                
+                beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures, annotation, null));                
             }
 
             if (builderClass != null) {
@@ -316,7 +295,7 @@ public class DeserializeBeanInfo {
                     throw new JSONException("buildMethod not found.");
                 }
 
-                beanInfo.setBuildMethod(buildMethod);
+                beanInfo.buildMethod = buildMethod;
                 TypeUtils.setAccessible(buildMethod);
             }
         }
@@ -357,7 +336,7 @@ public class DeserializeBeanInfo {
 
                 if (annotation.name().length() != 0) {
                     String propertyName = annotation.name();
-                    beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures));
+                    beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures, annotation, null));
                     continue;
                 }
             }
@@ -393,8 +372,9 @@ public class DeserializeBeanInfo {
                 field = TypeUtils.getField(clazz, isFieldName);
             }
 
+            JSONField fieldAnnotation = null;
             if (field != null) {
-                JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
+                fieldAnnotation = field.getAnnotation(JSONField.class);
 
                 if (fieldAnnotation != null) {
                     ordinal = fieldAnnotation.ordinal();
@@ -402,14 +382,14 @@ public class DeserializeBeanInfo {
 
                     if (fieldAnnotation.name().length() != 0) {
                         propertyName = fieldAnnotation.name();
-                        beanInfo.add(new FieldInfo(propertyName, method, field, clazz, type, ordinal, serialzeFeatures));
+                        beanInfo.add(new FieldInfo(propertyName, method, field, clazz, type, ordinal, serialzeFeatures, annotation, fieldAnnotation));
                         continue;
                     }
                 }
 
             }
 
-            beanInfo.add(new FieldInfo(propertyName, method, field, clazz, type, ordinal, serialzeFeatures));
+            beanInfo.add(new FieldInfo(propertyName, method, field, clazz, type, ordinal, serialzeFeatures, annotation, fieldAnnotation));
         }
 
         for (Field field : clazz.getFields()) { // public static fields
@@ -419,7 +399,7 @@ public class DeserializeBeanInfo {
 
             boolean contains = false;
             for (FieldInfo item : beanInfo.getFieldList()) {
-                if (item.getName().equals(field.getName())) {
+                if (item.name.equals(field.getName())) {
                     contains = true;
                     break; // 已经是 contains = true，无需继续遍历
                 }
@@ -442,7 +422,7 @@ public class DeserializeBeanInfo {
                     propertyName = fieldAnnotation.name();
                 }
             }
-            beanInfo.add(new FieldInfo(propertyName, null, field, clazz, type, ordinal, serialzeFeatures));
+            beanInfo.add(new FieldInfo(propertyName, null, field, clazz, type, ordinal, serialzeFeatures, null, fieldAnnotation));
         }
 
         for (Method method : clazz.getMethods()) { // getter methods
@@ -480,7 +460,7 @@ public class DeserializeBeanInfo {
                         continue;
                     }
 
-                    beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type));
+                    beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, annotation));
                 }
             }
         }

@@ -1093,7 +1093,7 @@ public class TypeUtils {
                     }
 
                     fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, null, ordinal, serialzeFeatures,
-                                                                 annotation.label()));
+                                                                 annotation.label(), annotation, null));
                     continue;
                 }
 
@@ -1139,9 +1139,9 @@ public class TypeUtils {
                 }
 
                 Field field = ParserConfig.getField(clazz, propertyName);
-
+                JSONField fieldAnnotation = null;
                 if (field != null) {
-                    JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
+                    fieldAnnotation = field.getAnnotation(JSONField.class);
 
                     if (fieldAnnotation != null) {
                         if (!fieldAnnotation.serialize()) {
@@ -1176,7 +1176,7 @@ public class TypeUtils {
                 }
 
                 fieldInfoMap.put(propertyName,
-                                 new FieldInfo(propertyName, method, field, ordinal, serialzeFeatures, label));
+                                 new FieldInfo(propertyName, method, field, ordinal, serialzeFeatures, label, annotation, fieldAnnotation));
             }
 
             if (methodName.startsWith("is")) {
@@ -1207,8 +1207,9 @@ public class TypeUtils {
                     field = ParserConfig.getField(clazz, methodName);
                 }
 
+                JSONField fieldAnnotation = null;
                 if (field != null) {
-                    JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
+                    fieldAnnotation = field.getAnnotation(JSONField.class);
 
                     if (fieldAnnotation != null) {
                         if (!fieldAnnotation.serialize()) {
@@ -1243,7 +1244,7 @@ public class TypeUtils {
                 }
 
                 fieldInfoMap.put(propertyName,
-                                 new FieldInfo(propertyName, method, field, ordinal, serialzeFeatures, label));
+                                 new FieldInfo(propertyName, method, field, ordinal, serialzeFeatures, label, annotation, fieldAnnotation));
             }
         }
 
@@ -1283,7 +1284,7 @@ public class TypeUtils {
 
             if (!fieldInfoMap.containsKey(propertyName)) {
                 fieldInfoMap.put(propertyName,
-                                 new FieldInfo(propertyName, null, field, ordinal, serialzeFeatures, label));
+                                 new FieldInfo(propertyName, null, field, ordinal, serialzeFeatures, label, null, fieldAnnotation));
             }
         }
 
@@ -1402,7 +1403,11 @@ public class TypeUtils {
         }
 
         if (type instanceof Class) {
-            return isGenericParamType(((Class<?>) type).getGenericSuperclass());
+            Type superType = ((Class<?>) type).getGenericSuperclass();
+            if (superType == Object.class) {
+                return false;
+            }
+            return isGenericParamType(superType);
         }
 
         return false;

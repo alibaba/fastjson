@@ -29,19 +29,19 @@ public abstract class FieldDeserializer {
     }
 
     public Method getMethod() {
-        return fieldInfo.getMethod();
+        return fieldInfo.method;
     }
 
     public Field getField() {
-        return fieldInfo.getField();
+        return fieldInfo.field;
     }
 
     public Class<?> getFieldClass() {
-        return fieldInfo.getFieldClass();
+        return fieldInfo.fieldClass;
     }
 
     public Type getFieldType() {
-        return fieldInfo.getFieldType();
+        return fieldInfo.fieldType;
     }
 
     public abstract void parseField(DefaultJSONParser parser, Object object, Type objectType,
@@ -69,21 +69,21 @@ public abstract class FieldDeserializer {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void setValue(Object object, Object value) {
-        Method method = fieldInfo.getMethod();
+        Method method = fieldInfo.method;
         if (method != null) {
             try {
                 if (fieldInfo.isGetOnly()) {
-                    if (fieldInfo.getFieldClass() == AtomicInteger.class) {
+                    if (fieldInfo.fieldClass == AtomicInteger.class) {
                         AtomicInteger atomic = (AtomicInteger) method.invoke(object);
                         if (atomic != null) {
                             atomic.set(((AtomicInteger) value).get());
                         }
-                    } else if (fieldInfo.getFieldClass() == AtomicLong.class) {
+                    } else if (fieldInfo.fieldClass == AtomicLong.class) {
                         AtomicLong atomic = (AtomicLong) method.invoke(object);
                         if (atomic != null) {
                             atomic.set(((AtomicLong) value).get());
                         }
-                    } else if (fieldInfo.getFieldClass() == AtomicBoolean.class) {
+                    } else if (fieldInfo.fieldClass == AtomicBoolean.class) {
                         AtomicBoolean atomic = (AtomicBoolean) method.invoke(object);
                         if (atomic != null) {
                             atomic.set(((AtomicBoolean) value).get());
@@ -100,23 +100,23 @@ public abstract class FieldDeserializer {
                         }
                     }
                 } else {
-                    if (value == null && fieldInfo.getFieldClass().isPrimitive()) {
+                    if (value == null && fieldInfo.fieldClass.isPrimitive()) {
                         return;
                     }
                     method.invoke(object, value);
                 }
             } catch (Exception e) {
-                throw new JSONException("set property error, " + fieldInfo.getName(), e);
+                throw new JSONException("set property error, " + fieldInfo.name, e);
             }
             return;
         }
 
-        final Field field = fieldInfo.getField();
+        final Field field = fieldInfo.field;
         if (field != null) {
             try {
                 field.set(object, value);
             } catch (Exception e) {
-                throw new JSONException("set property error, " + fieldInfo.getName(), e);
+                throw new JSONException("set property error, " + fieldInfo.name, e);
             }
         }
     }

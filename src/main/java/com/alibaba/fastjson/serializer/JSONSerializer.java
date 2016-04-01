@@ -34,7 +34,7 @@ public class JSONSerializer {
 
     private final SerializeConfig                  config;
 
-    private final SerializeWriter                  out;
+    public final SerializeWriter                  out;
 
     private List<BeforeFilter>                     beforeFilters      = null;
     private List<AfterFilter>                      afterFilters       = null;
@@ -136,7 +136,7 @@ public class JSONSerializer {
 
     public void popContext() {
         if (context != null) {
-            this.context = this.context.getParent();
+            this.context = this.context.parent;
         }
     }
 
@@ -149,7 +149,7 @@ public class JSONSerializer {
 
         if (fieldType == null) {
             if (this.isEnabled(SerializerFeature.NotWriteRootClassName)) {
-                boolean isRoot = context.getParent() == null;
+                boolean isRoot = context.parent == null;
                 if (isRoot) {
                     return false;
                 }
@@ -177,17 +177,17 @@ public class JSONSerializer {
 
     public void writeReference(Object object) {
         SerialContext context = this.getContext();
-        Object current = context.getObject();
+        Object current = context.object;
 
         if (object == current) {
             out.write("{\"$ref\":\"@\"}");
             return;
         }
 
-        SerialContext parentContext = context.getParent();
+        SerialContext parentContext = context.parent;
 
         if (parentContext != null) {
-            if (object == parentContext.getObject()) {
+            if (object == parentContext.object) {
                 out.write("{\"$ref\":\"..\"}");
                 return;
             }
@@ -195,20 +195,20 @@ public class JSONSerializer {
 
         SerialContext rootContext = context;
         for (;;) {
-            if (rootContext.getParent() == null) {
+            if (rootContext.parent == null) {
                 break;
             }
-            rootContext = rootContext.getParent();
+            rootContext = rootContext.parent;
         }
 
-        if (object == rootContext.getObject()) {
+        if (object == rootContext.object) {
             out.write("{\"$ref\":\"$\"}");
             return;
         }
 
         SerialContext refContext = this.getSerialContext(object);
 
-        String path = refContext.getPath();
+        String path = refContext.toString();
 
         out.write("{\"$ref\":\"");
         out.write(path);

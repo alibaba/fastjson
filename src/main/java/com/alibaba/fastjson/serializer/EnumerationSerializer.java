@@ -10,7 +10,7 @@ public class EnumerationSerializer implements ObjectSerializer {
     public static EnumerationSerializer instance = new EnumerationSerializer();
     
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         if (object == null) {
             if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {

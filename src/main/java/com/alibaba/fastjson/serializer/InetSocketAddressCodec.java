@@ -21,7 +21,7 @@ public class InetSocketAddressCodec implements ObjectSerializer, ObjectDeseriali
             return;
         }
 
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
         InetSocketAddress address = (InetSocketAddress) object;
 
         InetAddress inetAddress = address.getAddress();

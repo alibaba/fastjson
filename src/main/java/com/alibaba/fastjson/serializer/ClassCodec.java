@@ -34,7 +34,7 @@ public class ClassCodec implements ObjectSerializer, ObjectDeserializer {
 
     @SuppressWarnings("rawtypes")
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         Class clazz = (Class) object;
         out.writeString(clazz.getName());

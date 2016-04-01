@@ -93,7 +93,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
                                                                                                                throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         if (object == null) {
             out.writeNull();
@@ -146,7 +146,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
             for (int i = 0; i < getters.length; ++i) {
                 FieldSerializer fieldSerializer = getters[i];
 
-                Field field = fieldSerializer.getField();
+                Field field = fieldSerializer.fieldInfo.field;
                 if (serializer.isEnabled(SerializerFeature.SkipTransientField)) {
                     if (field != null) {
                         if (Modifier.isTransient(field.getModifiers())) {
@@ -161,7 +161,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                     }
                 }
 
-                if (!FilterUtils.applyName(serializer, object, fieldSerializer.getName())) {
+                if (!FilterUtils.applyName(serializer, object, fieldSerializer.fieldInfo.name)) {
                     continue;
                 }
                 
@@ -171,14 +171,14 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
                 Object propertyValue = fieldSerializer.getPropertyValue(object);
 
-                if (!FilterUtils.apply(serializer, object, fieldSerializer.getName(), propertyValue)) {
+                if (!FilterUtils.apply(serializer, object, fieldSerializer.fieldInfo.name, propertyValue)) {
                     continue;
                 }
 
-                String key = FilterUtils.processKey(serializer, object, fieldSerializer.getName(), propertyValue);
+                String key = FilterUtils.processKey(serializer, object, fieldSerializer.fieldInfo.name, propertyValue);
 
                 Object originalValue = propertyValue;
-                propertyValue = FilterUtils.processValue(serializer, object, fieldSerializer.getName(), propertyValue);
+                propertyValue = FilterUtils.processValue(serializer, object, fieldSerializer.fieldInfo.name, propertyValue);
 
                 if (propertyValue == null && !writeAsArray) {
                     if ((!fieldSerializer.isWriteNull())
@@ -188,7 +188,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 }
 
                 if (propertyValue != null && serializer.isEnabled(SerializerFeature.NotWriteDefaultValue)) {
-                    Class<?> fieldCLass = fieldSerializer.fieldInfo.getFieldClass();
+                    Class<?> fieldCLass = fieldSerializer.fieldInfo.fieldClass;
                     if (fieldCLass == byte.class && propertyValue instanceof Byte
                         && ((Byte) propertyValue).byteValue() == 0) {
                         continue;
@@ -220,7 +220,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                     }
                 }
 
-                if (key != fieldSerializer.getName()) {
+                if (key != fieldSerializer.fieldInfo.name) {
                     if (!writeAsArray) {
                         out.writeFieldName(key);
                     }
@@ -275,7 +275,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
     }
 
     public FieldSerializer createFieldSerializer(FieldInfo fieldInfo) {
-        Class<?> clazz = fieldInfo.getFieldClass();
+        Class<?> clazz = fieldInfo.fieldClass;
 
         if (clazz == Number.class) {
             return new NumberFieldSerializer(fieldInfo);
@@ -303,7 +303,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
         if (getterMap == null) {
             HashMap<String, FieldSerializer> map = new HashMap<String, FieldSerializer>(getters.length);
             for (FieldSerializer getter : sortedGetters) {
-                map.put(getter.getName(), getter);
+                map.put(getter.fieldInfo.name, getter);
             }
             getterMap = map;
         }

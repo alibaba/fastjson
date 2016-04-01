@@ -49,7 +49,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         }
 
         for (FieldInfo fieldInfo : beanInfo.getSortedFieldList()) {
-            FieldDeserializer fieldDeserializer = feildDeserializerMap.get(fieldInfo.getName().intern());
+            FieldDeserializer fieldDeserializer = feildDeserializerMap.get(fieldInfo.name.intern());
             sortedFieldDeserializers.add(fieldDeserializer);
         }
     }
@@ -79,7 +79,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     }
 
     private void addFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
-        String interName = fieldInfo.getName().intern();
+        String interName = fieldInfo.name.intern();
         FieldDeserializer fieldDeserializer = createFieldDeserializer(mapping, clazz, fieldInfo);
 
         feildDeserializerMap.put(interName, fieldDeserializer);
@@ -101,17 +101,17 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             }
         }
 
-        if (beanInfo.getDefaultConstructor() == null) {
+        if (beanInfo.defaultConstructor == null) {
             return null;
         }
 
         Object object;
         try {
-            Constructor<?> constructor = beanInfo.getDefaultConstructor();
-            if (constructor.getParameterTypes().length == 0) {
+            Constructor<?> constructor = beanInfo.defaultConstructor;
+            if (beanInfo.defaultConstructorParameterSize == 0) {
                 object = constructor.newInstance();
             } else {
-                object = constructor.newInstance(parser.getContext().getObject());
+                object = constructor.newInstance(parser.getContext().object);
             }
         } catch (Exception e) {
             throw new JSONException("create instance error, class " + clazz.getName(), e);
@@ -119,7 +119,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
         if (parser.isEnabled(Feature.InitStringFieldAsEmpty)) {
             for (FieldInfo fieldInfo : beanInfo.getFieldList()) {
-                if (fieldInfo.getFieldClass() == String.class) {
+                if (fieldInfo.fieldClass == String.class) {
                     try {
                         fieldInfo.set(object, "");
                     } catch (Exception e) {
@@ -199,7 +199,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
         ParseContext context = parser.getContext();
         if (object != null && context != null) {
-            context = context.getParentContext();
+            context = context.parent;
         }
         ParseContext childContext = null;
 
@@ -258,23 +258,23 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     if (lexer.token() == JSONToken.LITERAL_STRING) {
                         String ref = lexer.stringVal();
                         if ("@".equals(ref)) {
-                            object = context.getObject();
+                            object = context.object;
                         } else if ("..".equals(ref)) {
-                            ParseContext parentContext = context.getParentContext();
-                            if (parentContext.getObject() != null) {
-                                object = parentContext.getObject();
+                            ParseContext parentContext = context.parent;
+                            if (parentContext.object != null) {
+                                object = parentContext.object;
                             } else {
                                 parser.addResolveTask(new ResolveTask(parentContext, ref));
                                 parser.setResolveStatus(DefaultJSONParser.NeedToResolve);
                             }
                         } else if ("$".equals(ref)) {
                             ParseContext rootContext = context;
-                            while (rootContext.getParentContext() != null) {
-                                rootContext = rootContext.getParentContext();
+                            while (rootContext.parent != null) {
+                                rootContext = rootContext.parent;
                             }
 
-                            if (rootContext.getObject() != null) {
-                                object = rootContext.getObject();
+                            if (rootContext.object != null) {
+                                object = rootContext.object;
                             } else {
                                 parser.addResolveTask(new ResolveTask(rootContext, ref));
                                 parser.setResolveStatus(DefaultJSONParser.NeedToResolve);
@@ -366,22 +366,22 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 Object[] params = new Object[size];
                 for (int i = 0; i < size; ++i) {
                     FieldInfo fieldInfo = fieldInfoList.get(i);
-                    params[i] = fieldValues.get(fieldInfo.getName());
+                    params[i] = fieldValues.get(fieldInfo.name);
                 }
 
-                if (beanInfo.getCreatorConstructor() != null) {
+                if (beanInfo.creatorConstructor != null) {
                     try {
-                        object = beanInfo.getCreatorConstructor().newInstance(params);
+                        object = beanInfo.creatorConstructor.newInstance(params);
                     } catch (Exception e) {
                         throw new JSONException("create instance error, "
-                                                + beanInfo.getCreatorConstructor().toGenericString(), e);
+                                                + beanInfo.creatorConstructor.toGenericString(), e);
                     }
-                } else if (beanInfo.getFactoryMethod() != null) {
+                } else if (beanInfo.factoryMethod != null) {
                     try {
-                        object = beanInfo.getFactoryMethod().invoke(null, params);
+                        object = beanInfo.factoryMethod.invoke(null, params);
                     } catch (Exception e) {
                         throw new JSONException("create factory method error, "
-                                                + beanInfo.getFactoryMethod().toString(), e);
+                                                + beanInfo.factoryMethod.toString(), e);
                     }
                 }
             }
@@ -389,14 +389,14 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             return (T) handleBuilder(object);
         } finally {
             if (childContext != null) {
-                childContext.setObject(object);
+                childContext.object = object;
             }
             parser.setContext(context);
         }
     }
     
     private Object handleBuilder(Object obj) {
-        Method buildMethod = beanInfo.getBuildMethod();
+        Method buildMethod = beanInfo.buildMethod;
         if (buildMethod == null) {
             return obj;
         }

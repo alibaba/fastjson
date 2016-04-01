@@ -41,7 +41,7 @@ public class DoubleSerializer implements ObjectSerializer {
     }
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         if (object == null) {
             if (serializer.isEnabled(SerializerFeature.WriteNullNumberAsZero)) {

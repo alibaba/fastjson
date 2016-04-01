@@ -88,7 +88,8 @@ public class ParserConfig {
         return global;
     }
 
-    private final Set<Class<?>>                             primitiveClasses = new HashSet<Class<?>>();
+    private static Object                                   PRESENT          = new Object();
+    private final Map<Class<?>, Object>                     primitiveClasses = new java.util.IdentityHashMap<Class<?>, Object>();
 
     public static ParserConfig                              global           = new ParserConfig();
 
@@ -99,35 +100,35 @@ public class ParserConfig {
     public ClassLoader                                      defaultClassLoader;
 
     public ParserConfig(){
-        primitiveClasses.add(boolean.class);
-        primitiveClasses.add(Boolean.class);
+        primitiveClasses.put(boolean.class, PRESENT);
+        primitiveClasses.put(Boolean.class, PRESENT);
 
-        primitiveClasses.add(char.class);
-        primitiveClasses.add(Character.class);
+        primitiveClasses.put(char.class, PRESENT);
+        primitiveClasses.put(Character.class, PRESENT);
 
-        primitiveClasses.add(byte.class);
-        primitiveClasses.add(Byte.class);
+        primitiveClasses.put(byte.class, PRESENT);
+        primitiveClasses.put(Byte.class, PRESENT);
 
-        primitiveClasses.add(short.class);
-        primitiveClasses.add(Short.class);
+        primitiveClasses.put(short.class, PRESENT);
+        primitiveClasses.put(Short.class, PRESENT);
 
-        primitiveClasses.add(int.class);
-        primitiveClasses.add(Integer.class);
+        primitiveClasses.put(int.class, PRESENT);
+        primitiveClasses.put(Integer.class, PRESENT);
 
-        primitiveClasses.add(long.class);
-        primitiveClasses.add(Long.class);
+        primitiveClasses.put(long.class, PRESENT);
+        primitiveClasses.put(Long.class, PRESENT);
 
-        primitiveClasses.add(float.class);
-        primitiveClasses.add(Float.class);
+        primitiveClasses.put(float.class, PRESENT);
+        primitiveClasses.put(Float.class, PRESENT);
 
-        primitiveClasses.add(double.class);
-        primitiveClasses.add(Double.class);
+        primitiveClasses.put(double.class, PRESENT);
+        primitiveClasses.put(Double.class, PRESENT);
 
-        primitiveClasses.add(BigInteger.class);
-        primitiveClasses.add(BigDecimal.class);
+        primitiveClasses.put(BigInteger.class, PRESENT);
+        primitiveClasses.put(BigDecimal.class, PRESENT);
 
-        primitiveClasses.add(String.class);
-        primitiveClasses.add(java.util.Date.class);
+        primitiveClasses.put(String.class, PRESENT);
+        primitiveClasses.put(java.util.Date.class, PRESENT);
 
         derializers.put(SimpleDateFormat.class, DateFormatCodec.instance);
         derializers.put(java.util.Date.class, DateCodec.instance);
@@ -275,7 +276,7 @@ public class ParserConfig {
     }
 
     public FieldDeserializer createFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
-        Class<?> fieldClass = fieldInfo.getFieldClass();
+        Class<?> fieldClass = fieldInfo.fieldClass;
 
         if (fieldClass == boolean.class || fieldClass == Boolean.class) {
             return new BooleanFieldDeserializer(mapping, clazz, fieldInfo);
@@ -305,11 +306,11 @@ public class ParserConfig {
     }
 
     public ObjectDeserializer getDeserializer(FieldInfo fieldInfo) {
-        return getDeserializer(fieldInfo.getFieldClass(), fieldInfo.getFieldType());
+        return getDeserializer(fieldInfo.fieldClass, fieldInfo.fieldType);
     }
 
     public boolean isPrimitive(Class<?> clazz) {
-        return primitiveClasses.contains(clazz);
+        return primitiveClasses.containsKey(clazz);
     }
 
     public static Field getField(Class<?> clazz, String fieldName) {

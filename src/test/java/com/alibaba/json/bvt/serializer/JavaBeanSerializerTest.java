@@ -5,13 +5,13 @@ import java.util.Collection;
 import java.util.List;
 
 import org.junit.Assert;
-import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.serializer.FieldSerializer;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.JavaBeanSerializer;
 import com.alibaba.fastjson.serializer.SerializeWriter;
+
+import junit.framework.TestCase;
 
 public class JavaBeanSerializerTest extends TestCase {
 
@@ -55,11 +55,6 @@ public class JavaBeanSerializerTest extends TestCase {
 
         JavaBeanSerializer serializer = new JavaBeanSerializer(F.class);
         serializer.write(new JSONSerializer(out), new F(null), null, null);
-
-        for (FieldSerializer getter : serializer.getGetters()) {
-            getter.getName();
-            getter.getMethod();
-        }
 
         Assert.assertEquals("{}", out.toString());
     }

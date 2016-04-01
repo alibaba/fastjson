@@ -12,7 +12,7 @@ public final class MapResolveFieldDeserializer extends FieldDeserializer {
     private final Map map;
 
     public MapResolveFieldDeserializer(Map map, String index){
-        super(null, null);
+        super(null, null, 0);
         this.key = index;
         this.map = map;
     }

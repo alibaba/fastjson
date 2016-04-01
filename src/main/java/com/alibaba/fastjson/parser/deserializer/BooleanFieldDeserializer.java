@@ -13,7 +13,7 @@ import com.alibaba.fastjson.util.TypeUtils;
 public class BooleanFieldDeserializer extends FieldDeserializer {
 
     public BooleanFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo){
-        super(clazz, fieldInfo);
+        super(clazz, fieldInfo, JSONToken.TRUE);
     }
 
     @Override
@@ -21,33 +21,34 @@ public class BooleanFieldDeserializer extends FieldDeserializer {
         Boolean value;
 
         final JSONLexer lexer = parser.lexer;
-        if (lexer.token() == JSONToken.TRUE) {
+        final int token = lexer.token();
+        if (token == JSONToken.TRUE) {
             lexer.nextToken(JSONToken.COMMA);
             if (object == null) {
-                fieldValues.put(fieldInfo.getName(), Boolean.TRUE);
+                fieldValues.put(fieldInfo.name, Boolean.TRUE);
             } else {
-                setValue(object, true);
+                setValue(object, Boolean.TRUE);
             }
             return;
         }
 
-        if (lexer.token() == JSONToken.LITERAL_INT) {
+        if (token == JSONToken.LITERAL_INT) {
             int val = lexer.intValue();
             lexer.nextToken(JSONToken.COMMA);
             boolean booleanValue = val == 1;
             if (object == null) {
-                fieldValues.put(fieldInfo.getName(), booleanValue);
+                fieldValues.put(fieldInfo.name, booleanValue);
             } else {
-                setValue(object, booleanValue);
+                setValue(object, booleanValue ? Boolean.TRUE : Boolean.FALSE);
             }
             return;
         }
 
-        if (lexer.token() == JSONToken.NULL) {
+        if (token == JSONToken.NULL) {
             value = null;
             lexer.nextToken(JSONToken.COMMA);
 
-            if (getFieldClass() == boolean.class) {
+            if (fieldInfo.fieldClass == boolean.class) {
                 // skip
                 return;
             }
@@ -58,12 +59,12 @@ public class BooleanFieldDeserializer extends FieldDeserializer {
             return;
         }
 
-        if (lexer.token() == JSONToken.FALSE) {
+        if (token == JSONToken.FALSE) {
             lexer.nextToken(JSONToken.COMMA);
             if (object == null) {
-                fieldValues.put(fieldInfo.getName(), Boolean.FALSE);
+                fieldValues.put(fieldInfo.name, Boolean.FALSE);
             } else {
-                setValue(object, false);
+                setValue(object, Boolean.FALSE);
             }
             return;
         }
@@ -72,19 +73,15 @@ public class BooleanFieldDeserializer extends FieldDeserializer {
 
         value = TypeUtils.castToBoolean(obj);
 
-        if (value == null && getFieldClass() == boolean.class) {
+        if (value == null && fieldInfo.fieldClass == boolean.class) {
             // skip
             return;
         }
 
         if (object == null) {
-            fieldValues.put(fieldInfo.getName(), value);
+            fieldValues.put(fieldInfo.name, value);
         } else {
             setValue(object, value);
         }
-    }
-
-    public int getFastMatchToken() {
-        return JSONToken.TRUE;
     }
 }

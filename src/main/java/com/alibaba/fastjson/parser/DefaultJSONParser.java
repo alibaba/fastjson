@@ -89,7 +89,7 @@ public class DefaultJSONParser implements Closeable {
     public final static int            NeedToResolve      = 1;
     public final static int            TypeNameRedirect   = 2;
 
-    private int                        resolveStatus      = NONE;
+    public int                        resolveStatus      = NONE;
 
     private List<ExtraTypeProvider>    extraTypeProviders = null;
     private List<ExtraProcessor>       extraProcessors    = null;
@@ -173,7 +173,7 @@ public class DefaultJSONParser implements Closeable {
             for (;;) {
                 lexer.skipWhitespace();
                 char ch = lexer.ch;
-                if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
+                if ((lexer.features & Feature.AllowArbitraryCommas.mask) != 0) {
                     while (ch == ',') {
                         lexer.next();
                         lexer.skipWhitespace();
@@ -196,7 +196,7 @@ public class DefaultJSONParser implements Closeable {
                     lexer.nextToken();
                     return object;
                 } else if (ch == '\'') {
-                    if (!lexer.isEnabled(Feature.AllowSingleQuotes)) {
+                    if ((lexer.features & Feature.AllowSingleQuotes.mask) == 0) {
                         throw new JSONException("syntax error");
                     }
 
@@ -227,7 +227,7 @@ public class DefaultJSONParser implements Closeable {
                     key = parse();
                     isObjectKey = true;
                 } else {
-                    if (!lexer.isEnabled(Feature.AllowUnQuotedFieldNames)) {
+                    if ((lexer.features & Feature.AllowUnQuotedFieldNames.mask) == 0) {
                         throw new JSONException("syntax error");
                     }
 
@@ -281,7 +281,7 @@ public class DefaultJSONParser implements Closeable {
                         }
                     }
 
-                    this.setResolveStatus(TypeNameRedirect);
+                    this.resolveStatus = TypeNameRedirect;
 
                     if (this.context != null && !(fieldName instanceof Integer)) {
                         this.popContext();
@@ -314,7 +314,7 @@ public class DefaultJSONParser implements Closeable {
                                 refValue = parentContext.object;
                             } else {
                                 addResolveTask(new ResolveTask(parentContext, ref));
-                                setResolveStatus(DefaultJSONParser.NeedToResolve);
+                                resolveStatus = DefaultJSONParser.NeedToResolve;
                             }
                         } else if ("$".equals(ref)) {
                             ParseContext rootContext = context;
@@ -326,11 +326,11 @@ public class DefaultJSONParser implements Closeable {
                                 refValue = rootContext.object;
                             } else {
                                 addResolveTask(new ResolveTask(rootContext, ref));
-                                setResolveStatus(DefaultJSONParser.NeedToResolve);
+                                resolveStatus = DefaultJSONParser.NeedToResolve;
                             }
                         } else {
                             addResolveTask(new ResolveTask(context, ref));
-                            setResolveStatus(DefaultJSONParser.NeedToResolve);
+                            resolveStatus = DefaultJSONParser.NeedToResolve;
                         }
 
                         if (lexer.token != JSONToken.RBRACE) {
@@ -362,7 +362,7 @@ public class DefaultJSONParser implements Closeable {
                     String strValue = lexer.stringVal();
                     value = strValue;
 
-                    if (lexer.isEnabled(Feature.AllowISO8601DateFormat)) {
+                    if ((lexer.features & Feature.AllowISO8601DateFormat.mask) != 0) {
                         JSONScanner iso8601Lexer = new JSONScanner(strValue);
                         if (iso8601Lexer.scanISO8601DateIfMatch()) {
                             value = iso8601Lexer.getCalendar().getTime();
@@ -376,7 +376,8 @@ public class DefaultJSONParser implements Closeable {
                     if (lexer.token == JSONToken.LITERAL_INT) {
                         value = lexer.integerValue();
                     } else {
-                        value = lexer.decimalValue(lexer.isEnabled(Feature.UseBigDecimal));
+                        boolean useBigDecimal = (lexer.features & Feature.UseBigDecimal.mask) != 0;
+                        value = lexer.decimalValue(useBigDecimal);
                     }
 
                     object.put(key, value);
@@ -556,7 +557,7 @@ public class DefaultJSONParser implements Closeable {
         this.setContext(array, fieldName);
         try {
             for (int i = 0;; ++i) {
-                if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
+                if ((lexer.features & Feature.AllowArbitraryCommas.mask) != 0) {
                     while (lexer.token == JSONToken.COMMA) {
                         lexer.nextToken();
                         continue;
@@ -741,7 +742,7 @@ public class DefaultJSONParser implements Closeable {
                     break;
                 }
                 if (lexer.token == JSONToken.COMMA) {
-                    if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
+                    if ((lexer.features & Feature.AllowArbitraryCommas.mask) != 0) {
                         continue;
                     }
                 }
@@ -758,7 +759,7 @@ public class DefaultJSONParser implements Closeable {
             }
 
             if (fieldDeser == null) {
-                if (!lexer.isEnabled(Feature.IgnoreNotMatch)) {
+                if ((lexer.features & Feature.IgnoreNotMatch.mask) == 0) {
                     throw new JSONException("setter not found, class " + clazz.getName() + ", property " + key);
                 }
 
@@ -772,8 +773,8 @@ public class DefaultJSONParser implements Closeable {
 
                 continue;
             } else {
-                Class<?> fieldClass = fieldDeser.getFieldClass();
-                Type fieldType = fieldDeser.getFieldType();
+                Class<?> fieldClass = fieldDeser.fieldInfo.fieldClass;
+                Type fieldType = fieldDeser.fieldInfo.fieldType;
                 Object fieldValue;
                 if (fieldClass == int.class) {
                     lexer.nextTokenWithColon(JSONToken.LITERAL_INT);
@@ -876,14 +877,6 @@ public class DefaultJSONParser implements Closeable {
         throw new JSONException("TODO : " + collectionType);
     }
 
-    public int getResolveStatus() {
-        return resolveStatus;
-    }
-
-    public void setResolveStatus(int resolveStatus) {
-        this.resolveStatus = resolveStatus;
-    }
-
     public Object getObject(String path) {
         for (int i = 0; i < contextArrayIndex; ++i) {
             if (path.equals(contextArray[i].toString())) {
@@ -901,14 +894,14 @@ public class DefaultJSONParser implements Closeable {
                 final int index = array.size() - 1;
                 final List list = (List) array;
                 ResolveTask task = getLastResolveTask();
-                task.setFieldDeserializer(new ListResolveFieldDeserializer(this, list, index));
-                task.setOwnerContext(context);
-                setResolveStatus(DefaultJSONParser.NONE);
+                task.fieldDeserializer = new ListResolveFieldDeserializer(this, list, index);
+                task.ownerContext = context;
+                resolveStatus = DefaultJSONParser.NONE;
             } else {
                 ResolveTask task = getLastResolveTask();
-                task.setFieldDeserializer(new CollectionResolveFieldDeserializer(this, array));
-                task.setOwnerContext(context);
-                setResolveStatus(DefaultJSONParser.NONE);
+                task.fieldDeserializer = new CollectionResolveFieldDeserializer(this, array);
+                task.ownerContext = context;
+                resolveStatus = DefaultJSONParser.NONE;
             }
         }
     }
@@ -918,9 +911,9 @@ public class DefaultJSONParser implements Closeable {
         if (resolveStatus == NeedToResolve) {
             MapResolveFieldDeserializer fieldResolver = new MapResolveFieldDeserializer(object, fieldName);
             ResolveTask task = getLastResolveTask();
-            task.setFieldDeserializer(fieldResolver);
-            task.setOwnerContext(context);
-            setResolveStatus(DefaultJSONParser.NONE);
+            task.fieldDeserializer = fieldResolver;
+            task.ownerContext = context;
+            resolveStatus = DefaultJSONParser.NONE;
         }
     }
 
@@ -957,7 +950,7 @@ public class DefaultJSONParser implements Closeable {
         this.setContext(array, fieldName);
         try {
             for (int i = 0;; ++i) {
-                if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
+                if ((lexer.features & Feature.AllowArbitraryCommas.mask) != 0) {
                     while (lexer.token == JSONToken.COMMA) {
                         lexer.nextToken();
                         continue;
@@ -971,7 +964,7 @@ public class DefaultJSONParser implements Closeable {
                         lexer.nextToken(JSONToken.COMMA);
                         break;
                     case LITERAL_FLOAT:
-                        if (lexer.isEnabled(Feature.UseBigDecimal)) {
+                        if ((lexer.features & Feature.UseBigDecimal.mask) != 0) {
                             value = lexer.decimalValue(true);
                         } else {
                             value = lexer.decimalValue(false);
@@ -982,7 +975,7 @@ public class DefaultJSONParser implements Closeable {
                         String stringLiteral = lexer.stringVal();
                         lexer.nextToken(JSONToken.COMMA);
 
-                        if (lexer.isEnabled(Feature.AllowISO8601DateFormat)) {
+                        if ((lexer.features & Feature.AllowISO8601DateFormat.mask) != 0) {
                             JSONScanner iso8601Lexer = new JSONScanner(stringLiteral);
                             if (iso8601Lexer.scanISO8601DateIfMatch()) {
                                 value = iso8601Lexer.getCalendar().getTime();
@@ -1073,14 +1066,14 @@ public class DefaultJSONParser implements Closeable {
     }
 
     public void setContext(ParseContext context) {
-        if (lexer.isEnabled(Feature.DisableCircularReferenceDetect)) {
+        if ((lexer.features & Feature.DisableCircularReferenceDetect.mask) != 0) {
             return;
         }
         this.context = context;
     }
 
     public void popContext() {
-        if (lexer.isEnabled(Feature.DisableCircularReferenceDetect)) {
+        if ((lexer.features & Feature.DisableCircularReferenceDetect.mask) != 0) {
             return;
         }
 
@@ -1090,7 +1083,7 @@ public class DefaultJSONParser implements Closeable {
     }
 
     public ParseContext setContext(Object object, Object fieldName) {
-        if (lexer.isEnabled(Feature.DisableCircularReferenceDetect)) {
+        if ((lexer.features & Feature.DisableCircularReferenceDetect.mask) != 0) {
             return null;
         }
 
@@ -1098,7 +1091,7 @@ public class DefaultJSONParser implements Closeable {
     }
 
     public ParseContext setContext(ParseContext parent, Object object, Object fieldName) {
-        if (lexer.isEnabled(Feature.DisableCircularReferenceDetect)) {
+        if ((lexer.features & Feature.DisableCircularReferenceDetect.mask) != 0) {
             return null;
         }
 
@@ -1156,14 +1149,15 @@ public class DefaultJSONParser implements Closeable {
                 lexer.nextToken();
                 return intValue;
             case LITERAL_FLOAT:
-                Object value = lexer.decimalValue(lexer.isEnabled(Feature.UseBigDecimal));
+                boolean useBigDecimal = (lexer.features & Feature.UseBigDecimal.mask) != 0;
+                Object value = lexer.decimalValue(useBigDecimal);
                 lexer.nextToken();
                 return value;
             case LITERAL_STRING:
                 String stringLiteral = lexer.stringVal();
                 lexer.nextToken(JSONToken.COMMA);
 
-                if (lexer.isEnabled(Feature.AllowISO8601DateFormat)) {
+                if ((lexer.features & Feature.AllowISO8601DateFormat.mask) != 0) {
                     JSONScanner iso8601Lexer = new JSONScanner(stringLiteral);
                     try {
                         if (iso8601Lexer.scanISO8601DateIfMatch()) {
@@ -1237,7 +1231,7 @@ public class DefaultJSONParser implements Closeable {
 
     public void close() {
         try {
-            if (lexer.isEnabled(Feature.AutoCloseSource)) {
+            if ((lexer.features & Feature.AutoCloseSource.mask) != 0) {
                 if (lexer.token != JSONToken.EOF) {
                     throw new JSONException("not close json text, token : " + JSONToken.name(lexer.token));
                 }
@@ -1255,23 +1249,23 @@ public class DefaultJSONParser implements Closeable {
         int size = resolveTaskList.size();
         for (int i = 0; i < size; ++i) {
             ResolveTask task = resolveTaskList.get(i);
-            FieldDeserializer fieldDeser = task.getFieldDeserializer();
+            FieldDeserializer fieldDeser = task.fieldDeserializer;
 
             if (fieldDeser == null) {
                 continue;
             }
 
             Object object = null;
-            if (task.getOwnerContext() != null) {
-                object = task.getOwnerContext().object;
+            if (task.ownerContext != null) {
+                object = task.ownerContext.object;
             }
 
-            String ref = task.getReferenceValue();
+            String ref = task.referenceValue;
             Object refValue;
             if (ref.startsWith("$")) {
                 refValue = getObject(ref);
             } else {
-                refValue = task.getContext().object;
+                refValue = task.context.object;
             }
             fieldDeser.setValue(object, refValue);
         }
@@ -1281,38 +1275,13 @@ public class DefaultJSONParser implements Closeable {
 
         private final ParseContext context;
         private final String       referenceValue;
-        private FieldDeserializer  fieldDeserializer;
-        private ParseContext       ownerContext;
+        public FieldDeserializer  fieldDeserializer;
+        public ParseContext       ownerContext;
 
         public ResolveTask(ParseContext context, String referenceValue){
             this.context = context;
             this.referenceValue = referenceValue;
         }
-
-        public ParseContext getContext() {
-            return context;
-        }
-
-        public String getReferenceValue() {
-            return referenceValue;
-        }
-
-        public FieldDeserializer getFieldDeserializer() {
-            return fieldDeserializer;
-        }
-
-        public void setFieldDeserializer(FieldDeserializer fieldDeserializer) {
-            this.fieldDeserializer = fieldDeserializer;
-        }
-
-        public ParseContext getOwnerContext() {
-            return ownerContext;
-        }
-
-        public void setOwnerContext(ParseContext ownerContext) {
-            this.ownerContext = ownerContext;
-        }
-
     }
 
 

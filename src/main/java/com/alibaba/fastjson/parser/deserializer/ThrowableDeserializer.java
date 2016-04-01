@@ -29,8 +29,8 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
             return null;
         }
 
-        if (parser.getResolveStatus() == DefaultJSONParser.TypeNameRedirect) {
-            parser.setResolveStatus(DefaultJSONParser.NONE);
+        if (parser.resolveStatus == DefaultJSONParser.TypeNameRedirect) {
+            parser.resolveStatus = DefaultJSONParser.NONE;
         } else {
             if (lexer.token() != JSONToken.LBRACE) {
                 throw new JSONException("syntax error");
@@ -61,7 +61,7 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
                     break;
                 }
                 if (lexer.token() == JSONToken.COMMA) {
-                    if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
+                    if ((lexer.features & Feature.AllowArbitraryCommas.mask) != 0) {
                         continue;
                     }
                 }

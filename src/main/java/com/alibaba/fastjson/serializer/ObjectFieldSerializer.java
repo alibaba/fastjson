@@ -37,7 +37,7 @@ public class ObjectFieldSerializer extends FieldSerializer {
     public ObjectFieldSerializer(FieldInfo fieldInfo){
         super(fieldInfo);
 
-        JSONField annotation = fieldInfo.getAnnotation(JSONField.class);
+        JSONField annotation = fieldInfo.getAnnotation();
 
         if (annotation != null) {
             format = annotation.format();

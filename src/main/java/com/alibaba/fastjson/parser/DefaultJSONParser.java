@@ -37,8 +37,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -48,7 +46,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeSet;
 
 import com.alibaba.fastjson.JSON;
@@ -73,15 +70,13 @@ import com.alibaba.fastjson.util.TypeUtils;
 public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 
     protected final Object             input;
-    public final SymbolTable        symbolTable;
+    public final SymbolTable           symbolTable;
     protected ParserConfig             config;
-
-    private final static Set<Class<?>> primitiveClasses   = new HashSet<Class<?>>();
 
     private String                     dateFormatPattern  = JSON.DEFFAULT_DATE_FORMAT;
     private DateFormat                 dateFormat;
 
-    public final JSONLexer          lexer;
+    public final JSONLexer             lexer;
 
     protected ParseContext             context;
 
@@ -98,28 +93,6 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 
     private List<ExtraTypeProvider>    extraTypeProviders = null;
     private List<ExtraProcessor>       extraProcessors    = null;
-
-    static {
-        primitiveClasses.add(boolean.class);
-        primitiveClasses.add(byte.class);
-        primitiveClasses.add(short.class);
-        primitiveClasses.add(int.class);
-        primitiveClasses.add(long.class);
-        primitiveClasses.add(float.class);
-        primitiveClasses.add(double.class);
-
-        primitiveClasses.add(Boolean.class);
-        primitiveClasses.add(Byte.class);
-        primitiveClasses.add(Short.class);
-        primitiveClasses.add(Integer.class);
-        primitiveClasses.add(Long.class);
-        primitiveClasses.add(Float.class);
-        primitiveClasses.add(Double.class);
-
-        primitiveClasses.add(BigInteger.class);
-        primitiveClasses.add(BigDecimal.class);
-        primitiveClasses.add(String.class);
-    }
 
     public String getDateFomartPattern() {
         return dateFormatPattern;

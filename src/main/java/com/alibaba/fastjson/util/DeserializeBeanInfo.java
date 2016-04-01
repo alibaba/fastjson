@@ -194,7 +194,7 @@ public class DeserializeBeanInfo {
 
                 if (annotation.name().length() != 0) {
                     String propertyName = annotation.name();
-                    beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures));
+                    beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures, annotation, null));
                     TypeUtils.setAccessible(method);
                     continue;
                 }
@@ -238,13 +238,13 @@ public class DeserializeBeanInfo {
 
                     if (fieldAnnotation.name().length() != 0) {
                         propertyName = fieldAnnotation.name();
-                        beanInfo.add(new FieldInfo(propertyName, method, field, clazz, type, ordinal, serialzeFeatures));
+                        beanInfo.add(new FieldInfo(propertyName, method, field, clazz, type, ordinal, serialzeFeatures, annotation, fieldAnnotation));
                         continue;
                     }
                 }
 
             }
-            beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures));
+            beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures, annotation, null));
             TypeUtils.setAccessible(method);
         }
 
@@ -278,7 +278,7 @@ public class DeserializeBeanInfo {
                     propertyName = fieldAnnotation.name();
                 }
             }
-            beanInfo.add(new FieldInfo(propertyName, null, field, clazz, type, ordinal, serialzeFeatures));
+            beanInfo.add(new FieldInfo(propertyName, null, field, clazz, type, ordinal, serialzeFeatures, null, fieldAnnotation));
         }
 
         for (Method method : clazz.getMethods()) {
@@ -308,7 +308,7 @@ public class DeserializeBeanInfo {
                         propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
                     }
 
-                    beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type));
+                    beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, annotation));
                     TypeUtils.setAccessible(method);
                 }
             }

@@ -1,6 +1,5 @@
 package com.alibaba.fastjson.util;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
@@ -11,6 +10,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+
+import com.alibaba.fastjson.annotation.JSONField;
 
 public class FieldInfo implements Comparable<FieldInfo> {
 
@@ -23,6 +24,9 @@ public class FieldInfo implements Comparable<FieldInfo> {
     private final Type     fieldType;
     private final Class<?> declaringClass;
     private boolean        getOnly = false;
+    
+    private JSONField      fieldAnnotation;
+    private JSONField      methodAnnotation;
 
     public FieldInfo(String name, Class<?> declaringClass, Class<?> fieldClass, Type fieldType, Field field,
                      int ordinal, int serialzeFeatures){
@@ -40,23 +44,25 @@ public class FieldInfo implements Comparable<FieldInfo> {
     }
 
     public FieldInfo(String name, Method method, Field field){
-        this(name, method, field, null, null);
+        this(name, method, field, null, null, null);
     }
 
-    public FieldInfo(String name, Method method, Field field, int ordinal, int serialzeFeatures){
-        this(name, method, field, null, null, ordinal, serialzeFeatures);
+    public FieldInfo(String name, Method method, Field field, int ordinal, int serialzeFeatures, JSONField methodAnnotation, JSONField fieldAnnotation){
+        this(name, method, field, null, null, ordinal, serialzeFeatures, methodAnnotation, fieldAnnotation);
     }
 
-    public FieldInfo(String name, Method method, Field field, Class<?> clazz, Type type){
-        this(name, method, field, clazz, type, 0, 0);
+    public FieldInfo(String name, Method method, Field field, Class<?> clazz, Type type, JSONField methodAnnotation){
+        this(name, method, field, clazz, type, 0, 0, methodAnnotation, null);
     }
 
     public FieldInfo(String name, Method method, Field field, Class<?> clazz, Type type, int ordinal,
-                     int serialzeFeatures){
+                     int serialzeFeatures, JSONField methodAnnotation, JSONField fieldAnnotation){
         this.name = name;
         this.method = method;
         this.field = field;
         this.ordinal = ordinal;
+        this.methodAnnotation = methodAnnotation;
+        this.fieldAnnotation = fieldAnnotation;
 
         if (method != null) {
             TypeUtils.setAccessible(method);
@@ -257,20 +263,13 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
         return this.name.compareTo(o.name);
     }
-
-    public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
-        T annotation = null;
-        if (method != null) {
-            annotation = method.getAnnotation(annotationClass);
+    
+    public JSONField getAnnotation() {
+        if (this.fieldAnnotation != null) {
+            return this.fieldAnnotation;
         }
-
-        if (annotation == null) {
-            if (field != null) {
-                annotation = field.getAnnotation(annotationClass);
-            }
-        }
-
-        return annotation;
+        
+        return this.methodAnnotation;
     }
 
     public Object get(Object javaObject) throws IllegalAccessException, InvocationTargetException {

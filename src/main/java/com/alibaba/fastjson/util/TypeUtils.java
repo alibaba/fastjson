@@ -1020,7 +1020,7 @@ public class TypeUtils {
                         }
                     }
 
-                    fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, null, ordinal, serialzeFeatures));
+                    fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, null, ordinal, serialzeFeatures, annotation, null));
                     continue;
                 }
             }
@@ -1060,9 +1060,9 @@ public class TypeUtils {
                 }
 
                 Field field = ParserConfig.getField(clazz, propertyName);
-
+                JSONField fieldAnnotation = null;
                 if (field != null) {
-                    JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
+                    fieldAnnotation = field.getAnnotation(JSONField.class);
 
                     if (fieldAnnotation != null) {
                         if (!fieldAnnotation.serialize()) {
@@ -1092,7 +1092,7 @@ public class TypeUtils {
                     }
                 }
 
-                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field, ordinal, serialzeFeatures));
+                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field, ordinal, serialzeFeatures, annotation, fieldAnnotation));
             }
 
             if (methodName.startsWith("is")) {
@@ -1123,8 +1123,9 @@ public class TypeUtils {
                     field = ParserConfig.getField(clazz, methodName);
                 }
 
+                JSONField fieldAnnotation = null;
                 if (field != null) {
-                    JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
+                    fieldAnnotation = field.getAnnotation(JSONField.class);
 
                     if (fieldAnnotation != null) {
                         if (!fieldAnnotation.serialize()) {
@@ -1154,7 +1155,7 @@ public class TypeUtils {
                     }
                 }
 
-                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field, ordinal, serialzeFeatures));
+                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field, ordinal, serialzeFeatures, annotation, fieldAnnotation));
             }
         }
 
@@ -1188,7 +1189,7 @@ public class TypeUtils {
             }
 
             if (!fieldInfoMap.containsKey(propertyName)) {
-                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, null, field, ordinal, serialzeFeatures));
+                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, null, field, ordinal, serialzeFeatures, null, fieldAnnotation));
             }
         }
 

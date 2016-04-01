@@ -6,6 +6,7 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -17,6 +18,8 @@ public class FieldInfo implements Comparable<FieldInfo> {
     public final String   name;
     public final Method   method;
     public final Field    field;
+    
+    public final boolean publicField;
 
     private int            ordinal = 0;
     public final Class<?> fieldClass;
@@ -36,6 +39,8 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.method = null;
         this.field = field;
         this.ordinal = ordinal;
+        
+        publicField = field != null ? Modifier.isPublic(field.getModifiers()) : false;
 
         if (field != null) {
             TypeUtils.setAccessible(field);
@@ -76,9 +81,12 @@ public class FieldInfo implements Comparable<FieldInfo> {
         }
 
         if (field != null) {
+            publicField = Modifier.isPublic(field.getModifiers());
             TypeUtils.setAccessible(field);
+        } else {
+            publicField = false;
         }
-
+        
         Type fieldType;
         Class<?> fieldClass;
         if (method != null) {
@@ -247,12 +255,12 @@ public class FieldInfo implements Comparable<FieldInfo> {
     }
 
     public Object get(Object javaObject) throws IllegalAccessException, InvocationTargetException {
-        if (method != null) {
-            Object value = method.invoke(javaObject, new Object[0]);
-            return value;
+        if (field != null && (publicField || method == null)) {
+            return field.get(javaObject);
         }
-
-        return field.get(javaObject);
+        
+        Object value = method.invoke(javaObject, new Object[0]);
+        return value;
     }
 
     public void set(Object javaObject, Object value) throws IllegalAccessException, InvocationTargetException {

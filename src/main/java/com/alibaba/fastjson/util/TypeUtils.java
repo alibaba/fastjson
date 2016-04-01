@@ -990,6 +990,10 @@ public class TypeUtils {
             if (method.getReturnType() == ClassLoader.class) {
                 continue;
             }
+            
+            if (method.getDeclaringClass() == Object.class) {
+                continue;
+            }
 
             if (method.getName().equals("getMetaClass")
                 && method.getReturnType().getName().equals("groovy.lang.MetaClass")) {

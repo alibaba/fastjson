@@ -33,7 +33,7 @@ public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
     public final static BigDecimalCodec instance = new BigDecimalCodec();
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         if (object == null) {
             if (out.isEnabled(SerializerFeature.WriteNullNumberAsZero)) {

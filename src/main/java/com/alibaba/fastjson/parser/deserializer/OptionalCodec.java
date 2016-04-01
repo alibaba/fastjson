@@ -95,7 +95,7 @@ public class OptionalCodec implements ObjectSerializer, ObjectDeserializer {
             OptionalInt optional = (OptionalInt) object;
             if (optional.isPresent()) {
                 int value = optional.getAsInt();
-                serializer.getWriter().writeInt(value);
+                serializer.out.writeInt(value);
             } else {
                 serializer.writeNull();
             }
@@ -106,7 +106,7 @@ public class OptionalCodec implements ObjectSerializer, ObjectDeserializer {
             OptionalLong optional = (OptionalLong) object;
             if (optional.isPresent()) {
                 long value = optional.getAsLong();
-                serializer.getWriter().writeLong(value);
+                serializer.out.writeLong(value);
             } else {
                 serializer.writeNull();
             }

@@ -39,7 +39,7 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
     public final static CollectionCodec instance = new CollectionCodec();
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         if (object == null) {
             if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {

@@ -24,7 +24,7 @@ public class BooleanFieldDeserializer extends FieldDeserializer {
         if (lexer.token() == JSONToken.TRUE) {
             lexer.nextToken(JSONToken.COMMA);
             if (object == null) {
-                fieldValues.put(fieldInfo.getName(), Boolean.TRUE);
+                fieldValues.put(fieldInfo.name, Boolean.TRUE);
             } else {
                 setValue(object, true);
             }
@@ -36,7 +36,7 @@ public class BooleanFieldDeserializer extends FieldDeserializer {
             lexer.nextToken(JSONToken.COMMA);
             boolean booleanValue = val == 1;
             if (object == null) {
-                fieldValues.put(fieldInfo.getName(), booleanValue);
+                fieldValues.put(fieldInfo.name, booleanValue);
             } else {
                 setValue(object, booleanValue);
             }
@@ -61,7 +61,7 @@ public class BooleanFieldDeserializer extends FieldDeserializer {
         if (lexer.token() == JSONToken.FALSE) {
             lexer.nextToken(JSONToken.COMMA);
             if (object == null) {
-                fieldValues.put(fieldInfo.getName(), Boolean.FALSE);
+                fieldValues.put(fieldInfo.name, Boolean.FALSE);
             } else {
                 setValue(object, false);
             }
@@ -78,7 +78,7 @@ public class BooleanFieldDeserializer extends FieldDeserializer {
         }
 
         if (object == null) {
-            fieldValues.put(fieldInfo.getName(), value);
+            fieldValues.put(fieldInfo.name, value);
         } else {
             setValue(object, value);
         }

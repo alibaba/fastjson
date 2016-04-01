@@ -31,7 +31,7 @@ public class CharacterCodec implements ObjectSerializer, ObjectDeserializer {
     public final static CharacterCodec instance = new CharacterCodec();
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         Character value = (Character) object;
         if (value == null) {

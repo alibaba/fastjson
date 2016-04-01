@@ -26,7 +26,7 @@ public class BooleanArraySerializer implements ObjectSerializer {
     public static BooleanArraySerializer instance = new BooleanArraySerializer();
 
     public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
         
         if (object == null) {
             if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {

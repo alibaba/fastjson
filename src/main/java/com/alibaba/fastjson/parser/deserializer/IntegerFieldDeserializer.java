@@ -25,7 +25,7 @@ public class IntegerFieldDeserializer extends FieldDeserializer {
             int val = lexer.intValue();
             lexer.nextToken(JSONToken.COMMA);
             if (object == null) {
-                fieldValues.put(fieldInfo.getName(), val);
+                fieldValues.put(fieldInfo.name, val);
             } else {
                 setValue(object, val);
             }
@@ -45,7 +45,7 @@ public class IntegerFieldDeserializer extends FieldDeserializer {
         }
 
         if (object == null) {
-            fieldValues.put(fieldInfo.getName(), value);
+            fieldValues.put(fieldInfo.name, value);
         } else {
             setValue(object, value);
         }

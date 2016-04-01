@@ -39,7 +39,7 @@ public class StringFieldDeserializer extends FieldDeserializer {
         }
 
         if (object == null) {
-            fieldValues.put(fieldInfo.getName(), value);
+            fieldValues.put(fieldInfo.name, value);
         } else {
             setValue(object, value);
         }

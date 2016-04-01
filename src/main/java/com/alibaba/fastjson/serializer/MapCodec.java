@@ -51,7 +51,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
 
     @SuppressWarnings({ "rawtypes"})
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         if (object == null) {
             out.writeNull();
@@ -408,15 +408,15 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                     if (lexer.token() == JSONToken.LITERAL_STRING) {
                         String ref = lexer.stringVal();
                         if ("..".equals(ref)) {
-                            ParseContext parentContext = context.getParentContext();
-                            object = parentContext.getObject();
+                            ParseContext parentContext = context.parent;
+                            object = parentContext.object;
                         } else if ("$".equals(ref)) {
                             ParseContext rootContext = context;
-                            while (rootContext.getParentContext() != null) {
-                                rootContext = rootContext.getParentContext();
+                            while (rootContext.parent != null) {
+                                rootContext = rootContext.parent;
                             }
 
-                            object = rootContext.getObject();
+                            object = rootContext.object;
                         } else {
                             parser.addResolveTask(new ResolveTask(context, ref));
                             parser.setResolveStatus(DefaultJSONParser.NeedToResolve);

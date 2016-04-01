@@ -36,7 +36,7 @@ public class AtomicCodec implements ObjectSerializer, ObjectDeserializer {
     public final static AtomicCodec instance = new AtomicCodec();
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
         
         if (object instanceof AtomicInteger) {
             AtomicInteger val = (AtomicInteger) object;

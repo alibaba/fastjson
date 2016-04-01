@@ -41,7 +41,7 @@ public class ObjectArrayCodec implements ObjectSerializer, ObjectDeserializer {
 
     public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
                                                                                                        throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         Object[] array = (Object[]) object;
 
@@ -149,7 +149,7 @@ public class ObjectArrayCodec implements ObjectSerializer, ObjectDeserializer {
             componentType = clazz.getGenericComponentType();
             if (componentType instanceof TypeVariable) {
                 TypeVariable typeVar = (TypeVariable) componentType;
-                Type objType = parser.getContext().getType();
+                Type objType = parser.getContext().type;
                 if (objType instanceof ParameterizedType) {
                     ParameterizedType objParamType = (ParameterizedType) objType;
                     Type objRawType = objParamType.getRawType();

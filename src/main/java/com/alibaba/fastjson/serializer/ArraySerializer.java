@@ -33,7 +33,7 @@ public class ArraySerializer implements ObjectSerializer {
 
     public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
                                                                                                        throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         if (object == null) {
             if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {

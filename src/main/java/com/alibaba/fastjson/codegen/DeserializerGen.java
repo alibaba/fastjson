@@ -87,8 +87,8 @@ public class DeserializerGen extends ClassGen {
         }
 
         for (FieldInfo fieldInfo : beanInfo.getFieldList()) {
-            Class<?> fieldClass = fieldInfo.getFieldClass();
-            Type fieldType = fieldInfo.getFieldType();
+            Class<?> fieldClass = fieldInfo.fieldClass;
+            Type fieldType = fieldInfo.fieldType;
 
             if (fieldClass == char.class) {
                 return;
@@ -141,7 +141,7 @@ public class DeserializerGen extends ClassGen {
 
         print(clazz.getSimpleName());
         print(" instance = ");
-        Constructor<?> defaultConstructor = beanInfo.getDefaultConstructor();
+        Constructor<?> defaultConstructor = beanInfo.defaultConstructor;
         if (Modifier.isPublic(defaultConstructor.getModifiers())) {
             print("new ");
             print(clazz.getSimpleName());
@@ -176,7 +176,7 @@ public class DeserializerGen extends ClassGen {
 
         for (int i = 0; i < fieldListSize; ++i) {
             FieldInfo fieldInfo = fieldList.get(i);
-            Class<?> fieldClass = fieldInfo.getFieldClass();
+            Class<?> fieldClass = fieldInfo.fieldClass;
 
             if (fieldClass == boolean.class) {
                 print("boolean ");
@@ -229,8 +229,8 @@ public class DeserializerGen extends ClassGen {
             println();
 
             FieldInfo fieldInfo = fieldList.get(i);
-            Class<?> fieldClass = fieldInfo.getFieldClass();
-            Type fieldType = fieldInfo.getFieldType();
+            Class<?> fieldClass = fieldInfo.fieldClass;
+            Type fieldType = fieldInfo.fieldType;
 
             if (fieldClass == boolean.class) {
                 printFieldVarName(fieldInfo);
@@ -360,15 +360,15 @@ public class DeserializerGen extends ClassGen {
                 incrementIndent();
             }
             
-            if (fieldInfo.getMethod() != null) {
+            if (fieldInfo.method != null) {
                 print("\tinstance.");
-                print(fieldInfo.getMethod().getName());
+                print(fieldInfo.method.getName());
                 print("(");
                 printFieldVarName(fieldInfo);
                 println(");");
             } else {
                 print("\tinstance.");
-                print(fieldInfo.getField().getName());
+                print(fieldInfo.field.getName());
                 print(" = ");
                 printFieldVarName(fieldInfo);
                 println(";");
@@ -426,7 +426,7 @@ public class DeserializerGen extends ClassGen {
         print("\t\t\t");
         printFieldVarName(fieldInfo);
         print(" = ");
-        Class<?> fieldClass = fieldInfo.getFieldClass();
+        Class<?> fieldClass = fieldInfo.fieldClass;
         if (fieldClass.isAssignableFrom(ArrayList.class)) {
             print("new java.util.ArrayList();");
         } else if (fieldClass.isAssignableFrom(LinkedList.class)) {
@@ -446,7 +446,7 @@ public class DeserializerGen extends ClassGen {
         print("\t\t\tparser.setContext(");
         printFieldVarName(fieldInfo);
         print(", \"");
-        print(fieldInfo.getName());
+        print(fieldInfo.name);
         print("\");");
         println();
 
@@ -512,30 +512,30 @@ public class DeserializerGen extends ClassGen {
         print("\t");
         printFieldDeser(fieldInfo);
         print(" = parser.getConfig().getDeserializer(");
-        printClassName(fieldInfo.getFieldClass());
+        printClassName(fieldInfo.fieldClass);
         println(".class);");
         println("}");
 
         print("\t");
         printFieldDeser(fieldInfo);
         print(".deserialze(parser, ");
-        if (fieldInfo.getFieldType() instanceof Class) {
-            printClassName(fieldInfo.getFieldClass());
+        if (fieldInfo.fieldType instanceof Class) {
+            printClassName(fieldInfo.fieldClass);
             print(".class");
         } else {
             print("getFieldType(\"");
-            println(fieldInfo.getName());
+            println(fieldInfo.name);
             print("\")");
         }
         print(",\"");
-        print(fieldInfo.getName());
+        print(fieldInfo.name);
         println("\");");
 
         println("\tif(parser.getResolveStatus() == DefaultJSONParser.NeedToResolve) {");
         println("\t\tResolveTask resolveTask = parser.getLastResolveTask();");
         println("\t\tresolveTask.setOwnerContext(parser.getContext());");
         print("\t\tresolveTask.setFieldDeserializer(this.getFieldDeserializer(\"");
-        print(fieldInfo.getName());
+        print(fieldInfo.name);
         println("\"));");
         println("\t\tparser.setResolveStatus(DefaultJSONParser.NONE);");
         println("\t}");
@@ -543,32 +543,32 @@ public class DeserializerGen extends ClassGen {
     }
 
     private void printFieldVarName(FieldInfo fieldInfo) throws IOException {
-        print(fieldInfo.getName());
+        print(fieldInfo.name);
         print("_gen");
     }
 
     private void printFieldVarEnumName(FieldInfo fieldInfo) throws IOException {
-        print(fieldInfo.getName());
+        print(fieldInfo.name);
         print("_gen_enum_name");
     }
 
     private void printFieldPrefix(FieldInfo fieldInfo) throws IOException {
-        print(fieldInfo.getName());
+        print(fieldInfo.name);
         print("_gen_prefix__");
     }
 
     private void printListFieldItemDeser(FieldInfo fieldInfo) throws IOException {
-        print(fieldInfo.getName());
+        print(fieldInfo.name);
         print("_gen_list_item_deser__");
     }
 
     private void printFieldDeser(FieldInfo fieldInfo) throws IOException {
-        print(fieldInfo.getName());
+        print(fieldInfo.name);
         print("_gen_deser__");
     }
 
     private void printListFieldItemType(FieldInfo fieldInfo) throws IOException {
-        print(fieldInfo.getName());
+        print(fieldInfo.name);
         print("_gen_list_item_type__");
     }
 
@@ -587,7 +587,7 @@ public class DeserializerGen extends ClassGen {
             print("private char[] ");
             printFieldPrefix(fieldInfo);
             print(" = \"\\\"");
-            print(fieldInfo.getName());
+            print(fieldInfo.name);
             print("\\\":\".toCharArray();");
             println();
         }
@@ -597,7 +597,7 @@ public class DeserializerGen extends ClassGen {
         boolean fieldDeserFlag = false;
         for (int i = 0, size = beanInfo.getFieldList().size(); i < size; ++i) {
             FieldInfo fieldInfo = beanInfo.getFieldList().get(i);
-            Class<?> fieldClass = fieldInfo.getFieldClass();
+            Class<?> fieldClass = fieldInfo.fieldClass;
 
             if (fieldClass.isPrimitive()) {
                 continue;
@@ -621,7 +621,7 @@ public class DeserializerGen extends ClassGen {
                 print("private Type ");
                 printListFieldItemType(fieldInfo);
                 print(" = ");
-                Class<?> fieldItemClass = TypeUtils.getCollectionItemClass(fieldInfo.getFieldType());
+                Class<?> fieldItemClass = TypeUtils.getCollectionItemClass(fieldInfo.fieldType);
                 printClassName(fieldItemClass);
                 println(".class;");
             }

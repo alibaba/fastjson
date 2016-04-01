@@ -75,16 +75,16 @@ public class PropertyPathTest3 extends TestCase {
 	/** 输出结果 类似a.b.c.d等格式，忽略[] */
 	private static String getLinkedPath(SerialContext serialContext) {
 		//这里有点bad smell，即要考虑parent为null,又要考虑fieldName为null，且对collection判断只能从fieldName，而不能从object入手
-		boolean isCollection = serialContext.getFieldName() instanceof Integer;
-		boolean isFieldNameNull = serialContext.getFieldName() == null;
-		if(serialContext.getParent() == null)
-			return isCollection ? "" : isFieldNameNull ? "" : String.valueOf(serialContext.getFieldName());
-		String parentLinkedPath = getLinkedPath(serialContext.getParent());
+		boolean isCollection = serialContext.fieldName instanceof Integer;
+		boolean isFieldNameNull = serialContext.fieldName == null;
+		if(serialContext.parent == null)
+			return isCollection ? "" : isFieldNameNull ? "" : String.valueOf(serialContext.fieldName);
+		String parentLinkedPath = getLinkedPath(serialContext.parent);
 		if(isCollection || isFieldNameNull)
 			return parentLinkedPath;
 		return
-			parentLinkedPath.length() == 0 ? String.valueOf(serialContext.getFieldName()) :
-				parentLinkedPath + "." + serialContext.getFieldName();
+			parentLinkedPath.length() == 0 ? String.valueOf(serialContext.fieldName) :
+				parentLinkedPath + "." + serialContext.fieldName;
 	}
 
 	public static class Person {

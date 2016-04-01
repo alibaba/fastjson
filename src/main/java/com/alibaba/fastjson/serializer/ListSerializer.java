@@ -32,7 +32,7 @@ public final class ListSerializer implements ObjectSerializer {
 
         boolean writeClassName = serializer.isEnabled(SerializerFeature.WriteClassName);
 
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         Type elementType = null;
         if (writeClassName) {
@@ -84,7 +84,7 @@ public final class ListSerializer implements ObjectSerializer {
                             itemSerializer.write(serializer, item, i, elementType, 0);
                         }
                     } else {
-                        serializer.getWriter().writeNull();
+                        serializer.out.writeNull();
                     }
                     i++;
                 }

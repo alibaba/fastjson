@@ -364,7 +364,7 @@ public class DefaultJSONParser implements Closeable {
 
                     if ((lexer.features & Feature.AllowISO8601DateFormat.mask) != 0) {
                         JSONScanner iso8601Lexer = new JSONScanner(strValue);
-                        if (iso8601Lexer.scanISO8601DateIfMatch()) {
+                        if (iso8601Lexer.scanISO8601DateIfMatch(true)) {
                             value = iso8601Lexer.getCalendar().getTime();
                         }
                         iso8601Lexer.close();
@@ -977,7 +977,7 @@ public class DefaultJSONParser implements Closeable {
 
                         if ((lexer.features & Feature.AllowISO8601DateFormat.mask) != 0) {
                             JSONScanner iso8601Lexer = new JSONScanner(stringLiteral);
-                            if (iso8601Lexer.scanISO8601DateIfMatch()) {
+                            if (iso8601Lexer.scanISO8601DateIfMatch(true)) {
                                 value = iso8601Lexer.getCalendar().getTime();
                             } else {
                                 value = stringLiteral;
@@ -1160,7 +1160,7 @@ public class DefaultJSONParser implements Closeable {
                 if ((lexer.features & Feature.AllowISO8601DateFormat.mask) != 0) {
                     JSONScanner iso8601Lexer = new JSONScanner(stringLiteral);
                     try {
-                        if (iso8601Lexer.scanISO8601DateIfMatch()) {
+                        if (iso8601Lexer.scanISO8601DateIfMatch(true)) {
                             return iso8601Lexer.getCalendar().getTime();
                         }
                     } finally {

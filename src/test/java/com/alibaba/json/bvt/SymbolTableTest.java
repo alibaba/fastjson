@@ -27,22 +27,27 @@ public class SymbolTableTest extends TestCase {
             symbols_char[i] = symbols[i].toCharArray();
         }
 
-        SymbolTable table = new SymbolTable();
+        SymbolTable table = new SymbolTable(512);
         for (int i = 0; i < symbols.length; ++i) {
             String symbol = symbols[i];
             char[] charArray = symbol.toCharArray();
-            table.addSymbol(charArray, 0, charArray.length);
+            addSymbol(table, charArray, 0, charArray.length);
             //System.out.println((table.hash(symbol) & table.getIndexMask()) + "\t\t:" + symbol + "\t\t" + table.hash(symbol));
         }
 
         String symbol = "name";
-        table.addSymbol(symbol.toCharArray(), 0, symbol.length());
-        table.addSymbol(symbol.toCharArray(), 0, symbol.length());
+        addSymbol(table, symbol.toCharArray(), 0, symbol.length());
+        addSymbol(table, symbol.toCharArray(), 0, symbol.length());
 
-        Assert.assertTrue(symbol == table.addSymbol("name".toCharArray(), 0, 4));
-        Assert.assertTrue(symbol == table.addSymbol(" name".toCharArray(), 1, 4));
-        Assert.assertTrue(symbol == table.addSymbol(" name ".toCharArray(), 1, 4));
-        Assert.assertTrue(symbol != table.addSymbol(" namf ".toCharArray(), 1, 4));
+        Assert.assertTrue(symbol == addSymbol(table, "name".toCharArray(), 0, 4));
+        Assert.assertTrue(symbol == addSymbol(table, " name".toCharArray(), 1, 4));
+        Assert.assertTrue(symbol == addSymbol(table, " name ".toCharArray(), 1, 4));
+        Assert.assertTrue(symbol != addSymbol(table, " namf ".toCharArray(), 1, 4));
+    }
+    
+    public String addSymbol(SymbolTable table, char[] buffer, int offset, int len) {
+        int hash = SymbolTable.hash(buffer, offset, len);
+        return table.addSymbol(buffer, offset, len, hash);
     }
 
 }

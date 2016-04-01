@@ -20,10 +20,10 @@ public class FieldDeserializerTest extends TestCase {
 
     private static class Entity {
 
-        private V1 value;
+        private V1 _value;
 
         public V1 getValue() {
-            return value;
+            return _value;
         }
 
         public void setValue(V1 value) {

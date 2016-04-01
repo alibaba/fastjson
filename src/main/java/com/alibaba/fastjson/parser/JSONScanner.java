@@ -116,7 +116,8 @@ public final class JSONScanner extends JSONLexer {
     }
 
     public final String numberString() {
-        char chLocal = charAt(np + sp - 1);
+        int index = np + sp - 1;
+        char chLocal = text.charAt(index);
 
         int sp = this.sp;
         if (chLocal == 'L' || chLocal == 'S' || chLocal == 'B' || chLocal == 'F' || chLocal == 'D') {
@@ -127,13 +128,9 @@ public final class JSONScanner extends JSONLexer {
         return this.subString(np, sp);
     }
 
-    public final int ISO8601_LEN_0 = "0000-00-00".length();
-    public final int ISO8601_LEN_1 = "0000-00-00T00:00:00".length();
-    public final int ISO8601_LEN_2 = "0000-00-00T00:00:00.000".length();
-
-    public boolean scanISO8601DateIfMatch() {
-        return scanISO8601DateIfMatch(true);
-    }
+    public static final int ISO8601_LEN_0 = "0000-00-00".length();
+    public static final int ISO8601_LEN_1 = "0000-00-00T00:00:00".length();
+    public static final int ISO8601_LEN_2 = "0000-00-00T00:00:00.000".length();
 
     public boolean scanISO8601DateIfMatch(boolean strict) {
         int rest = len - bp;

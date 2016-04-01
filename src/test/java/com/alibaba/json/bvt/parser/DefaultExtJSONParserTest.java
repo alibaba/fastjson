@@ -480,10 +480,10 @@ public class DefaultExtJSONParserTest extends TestCase {
 
     public static class ErrorObject2 {
 
-        private String name;
+        private String _name;
 
         public String getName() {
-            return name;
+            return _name;
         }
 
         public void setName(String name) {

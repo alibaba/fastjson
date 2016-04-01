@@ -131,7 +131,7 @@ public class ArrayCodec implements ObjectSerializer, ObjectDeserializer {
     
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-        final JSONLexer lexer = parser.getLexer();
+        final JSONLexer lexer = parser.lexer;
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken(JSONToken.COMMA);
             return null;

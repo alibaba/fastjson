@@ -20,7 +20,7 @@ public class IntegerFieldDeserializer extends FieldDeserializer {
     public void parseField(DefaultJSONParser parser, Object object, Type objectType, Map<String, Object> fieldValues) {
         Integer value;
 
-        final JSONLexer lexer = parser.getLexer();
+        final JSONLexer lexer = parser.lexer;
         if (lexer.token() == JSONToken.LITERAL_INT) {
             int val = lexer.intValue();
             lexer.nextToken(JSONToken.COMMA);

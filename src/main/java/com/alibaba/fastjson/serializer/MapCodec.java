@@ -34,11 +34,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParseContext;
-import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.util.TypeUtils;
 
@@ -223,7 +223,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
     
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-        final JSONLexer lexer = parser.getLexer();
+        final JSONLexer lexer = parser.lexer;
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken(JSONToken.COMMA);
             return null;
@@ -260,7 +260,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
     
     @SuppressWarnings("rawtypes")
     public static Map parseMap(DefaultJSONParser parser, Map<String, Object> map, Type valueType, Object fieldName) {
-        JSONLexer lexer = parser.getLexer();
+        JSONLexer lexer = parser.lexer;
 
         if (lexer.token() != JSONToken.LBRACE) {
             throw new JSONException("syntax error, expect {, actual " + lexer.token());
@@ -271,7 +271,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
             for (;;) {
                 lexer.skipWhitespace();
                 char ch = lexer.getCurrent();
-                if (parser.isEnabled(Feature.AllowArbitraryCommas)) {
+                if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
                     while (ch == ',') {
                         lexer.next();
                         lexer.skipWhitespace();
@@ -281,7 +281,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
 
                 String key;
                 if (ch == '"') {
-                    key = lexer.scanSymbol(parser.getSymbolTable(), '"');
+                    key = lexer.scanSymbol(parser.symbolTable, '"');
                     lexer.skipWhitespace();
                     ch = lexer.getCurrent();
                     if (ch != ':') {
@@ -293,22 +293,22 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                     lexer.nextToken(JSONToken.COMMA);
                     return map;
                 } else if (ch == '\'') {
-                    if (!parser.isEnabled(Feature.AllowSingleQuotes)) {
+                    if (!parser.lexer.isEnabled(Feature.AllowSingleQuotes)) {
                         throw new JSONException("syntax error");
                     }
 
-                    key = lexer.scanSymbol(parser.getSymbolTable(), '\'');
+                    key = lexer.scanSymbol(parser.symbolTable, '\'');
                     lexer.skipWhitespace();
                     ch = lexer.getCurrent();
                     if (ch != ':') {
                         throw new JSONException("expect ':' at " + lexer.pos());
                     }
                 } else {
-                    if (!parser.isEnabled(Feature.AllowUnQuotedFieldNames)) {
+                    if (!parser.lexer.isEnabled(Feature.AllowUnQuotedFieldNames)) {
                         throw new JSONException("syntax error");
                     }
 
-                    key = lexer.scanSymbolUnQuoted(parser.getSymbolTable());
+                    key = lexer.scanSymbolUnQuoted(parser.symbolTable);
                     lexer.skipWhitespace();
                     ch = lexer.getCurrent();
                     if (ch != ':') {
@@ -323,7 +323,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                 lexer.resetStringPosition();
 
                 if (key == JSON.DEFAULT_TYPE_KEY) {
-                    String typeName = lexer.scanSymbol(parser.getSymbolTable(), '"');
+                    String typeName = lexer.scanSymbol(parser.symbolTable, '"');
                     Class<?> clazz = TypeUtils.loadClass(typeName, parser.getConfig().getDefaultClassLoader());
 
                     if (clazz == map.getClass()) {
@@ -381,7 +381,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
     
     public static Object parseMap(DefaultJSONParser parser, Map<Object, Object> map, Type keyType, Type valueType,
                                   Object fieldName) {
-        JSONLexer lexer = parser.getLexer();
+        JSONLexer lexer = parser.lexer;
 
         if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {
             throw new JSONException("syntax error, expect {, actual " + lexer.tokenName());

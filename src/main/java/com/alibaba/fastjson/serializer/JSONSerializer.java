@@ -456,11 +456,7 @@ public class JSONSerializer {
                     return superWriter;
                 }
 
-                if (Proxy.isProxyClass(clazz)) {
-                    config.put(clazz, config.createJavaBeanSerializer(clazz));
-                } else {
-                    config.put(clazz, config.createJavaBeanSerializer(clazz));
-                }
+                config.put(clazz, config.createJavaBeanSerializer(clazz));
             }
 
             writer = config.get(clazz);

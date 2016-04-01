@@ -22,7 +22,7 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-        JSONLexer lexer = parser.getLexer();
+        JSONLexer lexer = parser.lexer;
         
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken();
@@ -53,7 +53,7 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
 
         for (;;) {
             // lexer.scanSymbol
-            String key = lexer.scanSymbol(parser.getSymbolTable());
+            String key = lexer.scanSymbol(parser.symbolTable);
 
             if (key == null) {
                 if (lexer.token() == JSONToken.RBRACE) {

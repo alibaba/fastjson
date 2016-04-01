@@ -127,7 +127,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
 
     @SuppressWarnings("unchecked")
     protected <T> T parseStackTraceElement(DefaultJSONParser parser) {
-        JSONLexer lexer = parser.getLexer();
+        JSONLexer lexer = parser.lexer;
         
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken();
@@ -145,7 +145,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
 
         for (;;) {
             // lexer.scanSymbol
-            String key = lexer.scanSymbol(parser.getSymbolTable());
+            String key = lexer.scanSymbol(parser.symbolTable);
 
             if (key == null) {
                 if (lexer.token() == JSONToken.RBRACE) {

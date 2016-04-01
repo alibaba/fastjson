@@ -95,7 +95,9 @@ public class DeserializeBeanInfo {
                 TypeUtils.setAccessible(creatorConstructor);
                 beanInfo.setCreatorConstructor(creatorConstructor);
 
-                for (int i = 0; i < creatorConstructor.getParameterTypes().length; ++i) {
+                Class<?>[] parameterTypes = creatorConstructor.getParameterTypes();
+                Type[] getGenericParameterTypes = creatorConstructor.getGenericParameterTypes();
+                for (int i = 0; i < parameterTypes.length; ++i) {
                     Annotation[] paramAnnotations = creatorConstructor.getParameterAnnotations()[i];
                     JSONField fieldAnnotation = null;
                     for (Annotation paramAnnotation : paramAnnotations) {
@@ -108,8 +110,8 @@ public class DeserializeBeanInfo {
                         throw new JSONException("illegal json creator");
                     }
 
-                    Class<?> fieldClass = creatorConstructor.getParameterTypes()[i];
-                    Type fieldType = creatorConstructor.getGenericParameterTypes()[i];
+                    Class<?> fieldClass = parameterTypes[i];
+                    Type fieldType = getGenericParameterTypes[i];
                     Field field = TypeUtils.getField(clazz, fieldAnnotation.name());
                     final int ordinal = fieldAnnotation.ordinal();
                     final int serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
@@ -125,7 +127,9 @@ public class DeserializeBeanInfo {
                 TypeUtils.setAccessible(factoryMethod);
                 beanInfo.setFactoryMethod(factoryMethod);
 
-                for (int i = 0; i < factoryMethod.getParameterTypes().length; ++i) {
+                Class<?>[] parameterTypes = factoryMethod.getParameterTypes();
+                Type[] genericParameterTypes = factoryMethod.getGenericParameterTypes();
+                for (int i = 0; i < parameterTypes.length; ++i) {
                     Annotation[] paramAnnotations = factoryMethod.getParameterAnnotations()[i];
                     JSONField fieldAnnotation = null;
                     for (Annotation paramAnnotation : paramAnnotations) {
@@ -138,8 +142,8 @@ public class DeserializeBeanInfo {
                         throw new JSONException("illegal json creator");
                     }
 
-                    Class<?> fieldClass = factoryMethod.getParameterTypes()[i];
-                    Type fieldType = factoryMethod.getGenericParameterTypes()[i];
+                    Class<?> fieldClass = parameterTypes[i];
+                    Type fieldType = genericParameterTypes[i];
                     Field field = TypeUtils.getField(clazz, fieldAnnotation.name());
                     final int ordinal = fieldAnnotation.ordinal();
                     final int serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
@@ -175,6 +179,10 @@ public class DeserializeBeanInfo {
             }
 
             if (method.getParameterTypes().length != 1) {
+                continue;
+            }
+            
+            if (method.getDeclaringClass() == Object.class) {
                 continue;
             }
 

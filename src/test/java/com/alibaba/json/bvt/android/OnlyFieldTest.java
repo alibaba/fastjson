@@ -26,7 +26,7 @@ public class OnlyFieldTest extends TestCase {
         public String address     = "";
 
         public void setAddress(String address) {
-            throw new UnsupportedOperationException();
+            this.address = address;
         }
 
         public String getPhoneNum() {

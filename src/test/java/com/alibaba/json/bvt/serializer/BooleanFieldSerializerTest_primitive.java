@@ -72,7 +72,7 @@ public class BooleanFieldSerializerTest_primitive extends TestCase {
         }
 
         for (Feature featrue : features) {
-            featureValues = Feature.config(featureValues, featrue, true);
+            featureValues = config(featureValues, featrue, true);
         }
 
         ParserConfig config = new ParserConfig();
@@ -99,5 +99,15 @@ public class BooleanFieldSerializerTest_primitive extends TestCase {
             this.value = value;
         }
 
+    }
+    
+    public static int config(int features, Feature feature, boolean state) {
+        if (state) {
+            features |= feature.mask;
+        } else {
+            features &= ~feature.mask;
+        }
+
+        return features;
     }
 }

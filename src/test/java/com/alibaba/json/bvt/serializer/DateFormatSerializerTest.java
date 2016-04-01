@@ -26,7 +26,7 @@ public class DateFormatSerializerTest extends TestCase {
         config.put(Date.class, DateFormatCodec.instance);
         JSONSerializer serializer = new JSONSerializer(out, config);
 
-        serializer.config(SerializerFeature.WriteMapNullValue, true);
+        serializer.out.config(SerializerFeature.WriteMapNullValue, true);
         serializer.write(new VO());
 
         Assert.assertEquals("{\"format\":null}", out.toString());
@@ -38,7 +38,7 @@ public class DateFormatSerializerTest extends TestCase {
         config.put(Date.class, DateFormatCodec.instance);
         JSONSerializer serializer = new JSONSerializer(out, config);
 
-        serializer.config(SerializerFeature.WriteClassName, true);
+        serializer.out.config(SerializerFeature.WriteClassName, true);
         serializer.write(new VO());
 
         Assert.assertEquals("{\"@type\":\"com.alibaba.json.bvt.serializer.DateFormatSerializerTest$VO\"}",

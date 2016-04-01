@@ -15,23 +15,23 @@ public class JSONSerializerTest2 extends TestCase {
     public void test_0() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
 
-        int size = serializer.getMapping().size();
-        serializer.config(SerializerFeature.WriteEnumUsingToString, false);
+        int size = serializer.config.size();
+        serializer.out.config(SerializerFeature.WriteEnumUsingToString, false);
         serializer.write(Type.A);
 
-        Assert.assertTrue(size < serializer.getMapping().size());
+        Assert.assertTrue(size < serializer.config.size());
 
-        Assert.assertEquals(Integer.toString(Type.A.ordinal()), serializer.getWriter().toString());
+        Assert.assertEquals(Integer.toString(Type.A.ordinal()), serializer.out.toString());
     }
 
     public void test_1() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
-        serializer.config(SerializerFeature.WriteEnumUsingToString, false);
+        serializer.out.config(SerializerFeature.WriteEnumUsingToString, false);
         serializer.write(new A(Type.B));
 
-        Assert.assertEquals("{\"type\":" + Integer.toString(Type.B.ordinal()) + "}", serializer.getWriter().toString());
+        Assert.assertEquals("{\"type\":" + Integer.toString(Type.B.ordinal()) + "}", serializer.out.toString());
 
-        A a = JSON.parseObject(serializer.getWriter().toString(), A.class);
+        A a = JSON.parseObject(serializer.out.toString(), A.class);
         Assert.assertEquals(a.getType(), Type.B);
     }
 
@@ -39,17 +39,17 @@ public class JSONSerializerTest2 extends TestCase {
         JSONSerializer serializer = new JSONSerializer();
         serializer.write(new C());
 
-        Assert.assertEquals("{}", serializer.getWriter().toString());
+        Assert.assertEquals("{}", serializer.out.toString());
     }
 
     public void test_3() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
-        serializer.config(SerializerFeature.WriteEnumUsingToString, true);
+        serializer.out.config(SerializerFeature.WriteEnumUsingToString, true);
         serializer.write(new A(Type.B));
 
-        Assert.assertEquals("{\"type\":\"B\"}", serializer.getWriter().toString());
+        Assert.assertEquals("{\"type\":\"B\"}", serializer.out.toString());
 
-        A a = JSON.parseObject(serializer.getWriter().toString(), A.class);
+        A a = JSON.parseObject(serializer.out.toString(), A.class);
         Assert.assertEquals(a.getType(), Type.B);
     }
 

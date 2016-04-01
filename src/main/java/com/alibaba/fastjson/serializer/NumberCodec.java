@@ -48,10 +48,10 @@ public class NumberCodec implements ObjectSerializer, ObjectDeserializer {
     }
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         if (object == null) {
-            if (serializer.isEnabled(SerializerFeature.WriteNullNumberAsZero)) {
+            if (out.isEnabled(SerializerFeature.WriteNullNumberAsZero)) {
                 out.write('0');
             } else {
                 out.writeNull();
@@ -73,7 +73,7 @@ public class NumberCodec implements ObjectSerializer, ObjectDeserializer {
                 }
                 out.write(floatText);
                 
-                if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
+                if (out.isEnabled(SerializerFeature.WriteClassName)) {
                     out.write('F');
                 }
             }
@@ -98,7 +98,7 @@ public class NumberCodec implements ObjectSerializer, ObjectDeserializer {
             }
             out.append(doubleText);
 
-            if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
+            if (out.isEnabled(SerializerFeature.WriteClassName)) {
                 out.write('D');
             }
         }

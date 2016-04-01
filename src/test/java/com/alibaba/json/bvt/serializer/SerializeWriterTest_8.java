@@ -46,8 +46,8 @@ public class SerializeWriterTest_8 extends TestCase {
 
         try {
             JSONSerializer serializer = new JSONSerializer(out);
-            serializer.config(SerializerFeature.QuoteFieldNames, false);
-            serializer.config(SerializerFeature.UseSingleQuotes, true);
+            serializer.out.config(SerializerFeature.QuoteFieldNames, false);
+            serializer.out.config(SerializerFeature.UseSingleQuotes, true);
 
             serializer.write(Collections.singletonMap(buf.toString(), ""));
         } finally {

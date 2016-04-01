@@ -32,7 +32,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
             if (fieldType == char.class || fieldType == Character.class) {
                 serializer.write("");
             } else {
-                serializer.writeNull();
+                serializer.out.writeNull();
             }
             return;
         }
@@ -89,7 +89,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         if (clazz == UUID.class) {
             return (T) UUID.fromString(strVal);
         } else if (clazz == Class.class) {
-            return (T) TypeUtils.loadClass(strVal, parser.getConfig().getDefaultClassLoader());
+            return (T) TypeUtils.loadClass(strVal, parser.config.defaultClassLoader);
         } else if (clazz == Locale.class) {
             String[] items = strVal.split("_");
             

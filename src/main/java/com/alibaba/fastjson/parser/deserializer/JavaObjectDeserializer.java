@@ -30,17 +30,17 @@ public class JavaObjectDeserializer implements ObjectDeserializer {
             if (componentType instanceof Class) {
                 componentClass = (Class<?>) componentType;
                 if (componentClass == boolean.class) {
-                    return (T) TypeUtils.cast(list, boolean[].class, parser.getConfig());
+                    return (T) TypeUtils.cast(list, boolean[].class, parser.config);
                 } else if (componentClass == short.class) {
-                    return (T) TypeUtils.cast(list, short[].class, parser.getConfig());
+                    return (T) TypeUtils.cast(list, short[].class, parser.config);
                 } else if (componentClass == int.class) {
-                    return (T) TypeUtils.cast(list, int[].class, parser.getConfig());
+                    return (T) TypeUtils.cast(list, int[].class, parser.config);
                 } else if (componentClass == long.class) {
-                    return (T) TypeUtils.cast(list, long[].class, parser.getConfig());
+                    return (T) TypeUtils.cast(list, long[].class, parser.config);
                 } else if (componentClass == float.class) {
-                    return (T) TypeUtils.cast(list, float[].class, parser.getConfig());
+                    return (T) TypeUtils.cast(list, float[].class, parser.config);
                 } else if (componentClass == double.class) {
-                    return (T) TypeUtils.cast(list, double[].class, parser.getConfig());
+                    return (T) TypeUtils.cast(list, double[].class, parser.config);
                 }
 
                 Object[] array = (Object[]) Array.newInstance(componentClass, list.size());

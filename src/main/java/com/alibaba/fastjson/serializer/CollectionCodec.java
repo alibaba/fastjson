@@ -39,7 +39,7 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
     public final static CollectionCodec instance = new CollectionCodec();
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         if (object == null) {
             if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {
@@ -51,7 +51,7 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         Type elementType = null;
-        if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
+        if (out.isEnabled(SerializerFeature.WriteClassName)) {
             if (fieldType instanceof ParameterizedType) {
                 ParameterizedType param = (ParameterizedType) fieldType;
                 elementType = param.getActualTypeArguments()[0];
@@ -60,10 +60,10 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
 
         Collection<?> collection = (Collection<?>) object;
 
-        SerialContext context = serializer.getContext();
+        SerialContext context = serializer.context;
         serializer.setContext(context, object, fieldName, 0);
 
-        if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
+        if (out.isEnabled(SerializerFeature.WriteClassName)) {
             if (HashSet.class == collection.getClass()) {
                 out.append("Set");
             } else if (TreeSet.class == collection.getClass()) {
@@ -106,7 +106,7 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
             }
             out.append(']');
         } finally {
-            serializer.setContext(context);
+            serializer.context = context;
         }
     }
 

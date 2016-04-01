@@ -42,7 +42,7 @@ public class ArrayCodec implements ObjectSerializer, ObjectDeserializer {
 
     public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType)
                                                                                                        throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         Object[] array = (Object[]) object;
 
@@ -64,7 +64,7 @@ public class ArrayCodec implements ObjectSerializer, ObjectDeserializer {
             return;
         }
 
-        SerialContext context = serializer.getContext();
+        SerialContext context = serializer.context;
         serializer.setContext(context, object, fieldName, 0);
 
         try {
@@ -125,7 +125,7 @@ public class ArrayCodec implements ObjectSerializer, ObjectDeserializer {
                 out.append(']');
             }
         } finally {
-            serializer.setContext(context);
+            serializer.context = context;
         }
     }
     
@@ -172,7 +172,7 @@ public class ArrayCodec implements ObjectSerializer, ObjectDeserializer {
             componentType = clazz.getGenericComponentType();
             if (componentType instanceof TypeVariable) {
                 TypeVariable typeVar = (TypeVariable) componentType;
-                Type objType = parser.getContext().getType();
+                Type objType = parser.getContext().type;
                 if (objType instanceof ParameterizedType) {
                     ParameterizedType objParamType = (ParameterizedType) objType;
                     Type objRawType = objParamType.getRawType();
@@ -251,7 +251,7 @@ public class ArrayCodec implements ObjectSerializer, ObjectDeserializer {
                 }
 
                 if (element == null) {
-                    element = TypeUtils.cast(value, componentType, parser.getConfig());
+                    element = TypeUtils.cast(value, componentType, parser.config);
                 }
                 Array.set(objArray, i, element);
 

@@ -22,6 +22,10 @@ public class OnlyFieldTest {
         public String companyName = "";
         public String phoneNum = "";
         public String address = "";
+        
+        public void setAddress(String address) {
+            throw new UnsupportedOperationException();
+        }
     }
     
     

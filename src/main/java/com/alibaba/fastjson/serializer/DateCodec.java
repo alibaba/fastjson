@@ -40,7 +40,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
     public final static DateCodec instance = new DateCodec();
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         if (object == null) {
             out.writeNull();
@@ -76,8 +76,8 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
         }
 
         long time = date.getTime();
-        if (serializer.isEnabled(SerializerFeature.UseISO8601DateFormat)) {
-            if (serializer.isEnabled(SerializerFeature.UseSingleQuotes)) {
+        if (out.isEnabled(SerializerFeature.UseISO8601DateFormat)) {
+            if (out.isEnabled(SerializerFeature.UseSingleQuotes)) {
                 out.append('\'');
             } else {
                 out.append('\"');
@@ -124,7 +124,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
 
             out.write(buf);
 
-            if (serializer.isEnabled(SerializerFeature.UseSingleQuotes)) {
+            if (out.isEnabled(SerializerFeature.UseSingleQuotes)) {
                 out.append('\'');
             } else {
                 out.append('\"');

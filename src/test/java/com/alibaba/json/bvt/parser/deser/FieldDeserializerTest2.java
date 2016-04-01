@@ -14,7 +14,7 @@ public class FieldDeserializerTest2 extends TestCase {
     public void test_0() throws Exception {
         String input = "{,,,\"value\":null,,,,}";
         int featureValues = 0;
-        featureValues |= Feature.AllowArbitraryCommas.getMask();
+        featureValues |= Feature.AllowArbitraryCommas.mask;
         DefaultJSONParser parser = new DefaultJSONParser(input, ParserConfig.getGlobalInstance(), featureValues);
         
         Entity object = new Entity();
@@ -24,8 +24,8 @@ public class FieldDeserializerTest2 extends TestCase {
     public void test_1() throws Exception {
         String input = "{,,,\"value\":null,\"id\":123,,,,}";
         int featureValues = 0;
-        featureValues |= Feature.AllowArbitraryCommas.getMask();
-        featureValues |= Feature.IgnoreNotMatch.getMask();
+        featureValues |= Feature.AllowArbitraryCommas.mask;
+        featureValues |= Feature.IgnoreNotMatch.mask;
         DefaultJSONParser parser = new DefaultJSONParser(input, ParserConfig.getGlobalInstance(), featureValues);
         
         Entity object = new Entity();

@@ -54,6 +54,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.Feature;
+import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
@@ -456,7 +457,7 @@ public class TypeUtils {
         }
 
         if (value instanceof String) {
-            return Base64.decodeFast((String) value);
+            return JSONLexer.decodeFast((String) value);
         }
         throw new JSONException("can not cast to int, value : " + value);
     }
@@ -504,7 +505,7 @@ public class TypeUtils {
     }
 
     public static final <T> T castToJavaBean(Object obj, Class<T> clazz) {
-        return cast(obj, clazz, ParserConfig.getGlobalInstance());
+        return cast(obj, clazz, ParserConfig.global);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -819,7 +820,7 @@ public class TypeUtils {
             }
 
             if (mapping == null) {
-                mapping = ParserConfig.getGlobalInstance();
+                mapping = ParserConfig.global;
             }
 
             Map<String, FieldDeserializer> setters = mapping.getFieldDeserializers(clazz);
@@ -1377,7 +1378,18 @@ public class TypeUtils {
             return 0;
         }
         
-        return Feature.of(annotation.parseFeatures());
+        Feature[] features = annotation.parseFeatures();
+        if (features == null) {
+            return 0;
+        }
+        
+        int value = 0;
+        
+        for (Feature feature: features) {
+            value |= feature.mask;
+        }
+        
+        return value;
     }
     
     public static String decapitalize(String name) {

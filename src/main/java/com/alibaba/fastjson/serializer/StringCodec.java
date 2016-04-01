@@ -35,7 +35,7 @@ public class StringCodec implements ObjectSerializer, ObjectDeserializer {
     }
 
     public void write(JSONSerializer serializer, String value) {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         if (value == null) {
             if (out.isEnabled(SerializerFeature.WriteNullStringAsEmpty)) {

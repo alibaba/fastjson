@@ -61,21 +61,26 @@ public class DefaultExtJSONParserTest_3 extends TestCase {
 
     public void test_6() throws Exception {
         int features = JSON.DEFAULT_PARSER_FEATURE;
-        features = Feature.config(features, Feature.AllowSingleQuotes, true);
+        features = config(features, Feature.AllowSingleQuotes, true);
 
-        Assert.assertEquals(true, Feature.isEnabled(features, Feature.AllowSingleQuotes));
+        Assert.assertEquals(true, isEnabled(features, Feature.AllowSingleQuotes));
 
         DefaultJSONParser parser = new DefaultJSONParser("'abc'", ParserConfig.getGlobalInstance(), features);
 
         Assert.assertEquals("abc", parser.parse());
     }
+    
+    public static boolean isEnabled(int features, Feature feature) {
+        return (features & feature.mask) != 0;
+    }
+
 
     public void test_7() throws Exception {
         DefaultJSONParser parser = new DefaultJSONParser("123");
 
         ParserConfig mapping = new ParserConfig();
-        parser.setConfig(mapping);
-        Assert.assertEquals(mapping, parser.getConfig());
+        parser.config = mapping;
+        Assert.assertEquals(mapping, parser.config);
     }
 
     public static class A {
@@ -144,5 +149,15 @@ public class DefaultExtJSONParserTest_3 extends TestCase {
 
     public static class B {
 
+    }
+    
+    public static int config(int features, Feature feature, boolean state) {
+        if (state) {
+            features |= feature.mask;
+        } else {
+            features &= ~feature.mask;
+        }
+
+        return features;
     }
 }

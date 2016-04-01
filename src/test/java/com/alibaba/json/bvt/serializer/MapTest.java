@@ -32,8 +32,8 @@ public class MapTest extends TestCase {
 
         try {
             JSONSerializer serializer = new JSONSerializer(out);
-            serializer.config(SerializerFeature.SortField, false);
-            serializer.config(SerializerFeature.UseSingleQuotes, true);
+            serializer.out.config(SerializerFeature.SortField, false);
+            serializer.out.config(SerializerFeature.UseSingleQuotes, true);
 
             serializer.write(object);
 

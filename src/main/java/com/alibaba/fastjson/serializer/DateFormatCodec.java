@@ -34,7 +34,7 @@ public class DateFormatCodec extends AbstractDateDeserializer implements ObjectS
     public final static DateFormatCodec instance = new DateFormatCodec();
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         if (object == null) {
             out.writeNull();

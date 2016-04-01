@@ -33,7 +33,7 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
     public static IntegerCodec instance = new IntegerCodec();
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         Number value = (Number) object;
         
@@ -52,7 +52,7 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
         } else {
             out.writeInt(value.intValue());
         }
-        if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
+        if (out.isEnabled(SerializerFeature.WriteClassName)) {
             if (clazz == Byte.class) {
                 out.write('B');
             } else if (clazz == Short.class) {

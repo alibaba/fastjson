@@ -22,42 +22,42 @@ public class JSONSerializerTest extends TestCase {
         JSONSerializer serializer = new JSONSerializer();
         serializer.write(new C());
 
-        Assert.assertEquals("[]", serializer.getWriter().toString());
+        Assert.assertEquals("[]", serializer.out.toString());
     }
 
     public void test_0_s() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
         serializer.write(new C());
 
-        Assert.assertEquals("[]", serializer.getWriter().toString());
+        Assert.assertEquals("[]", serializer.out.toString());
     }
 
     public void test_1() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
         serializer.write(Collections.singletonList(1));
 
-        Assert.assertEquals("[1]", serializer.getWriter().toString());
+        Assert.assertEquals("[1]", serializer.out.toString());
     }
 
     public void test_1_s() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
         serializer.write(Collections.singletonList(1));
 
-        Assert.assertEquals("[1]", serializer.getWriter().toString());
+        Assert.assertEquals("[1]", serializer.out.toString());
     }
 
     public void test_2() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
         serializer.write(Collections.EMPTY_MAP);
 
-        Assert.assertEquals("{}", serializer.getWriter().toString());
+        Assert.assertEquals("{}", serializer.out.toString());
     }
 
     public void test_2_s() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
         serializer.write(Collections.EMPTY_MAP);
 
-        Assert.assertEquals("{}", serializer.getWriter().toString());
+        Assert.assertEquals("{}", serializer.out.toString());
     }
 
     public void test_3() throws Exception {
@@ -69,7 +69,7 @@ public class JSONSerializerTest extends TestCase {
             }
         });
 
-        Assert.assertEquals("null", serializer.getWriter().toString());
+        Assert.assertEquals("null", serializer.out.toString());
     }
 
     public void test_3_s() throws Exception {
@@ -81,7 +81,7 @@ public class JSONSerializerTest extends TestCase {
             }
         });
 
-        Assert.assertEquals("null", serializer.getWriter().toString());
+        Assert.assertEquals("null", serializer.out.toString());
     }
 
     public void test_4() throws Exception {
@@ -93,7 +93,7 @@ public class JSONSerializerTest extends TestCase {
             }
         });
 
-        Assert.assertEquals("abc", serializer.getWriter().toString());
+        Assert.assertEquals("abc", serializer.out.toString());
     }
 
     public void test_error() throws Exception {
@@ -118,107 +118,107 @@ public class JSONSerializerTest extends TestCase {
         JSONSerializer serializer = new JSONSerializer();
         serializer.write(new A(3));
 
-        Assert.assertEquals("{\"id\":3}", serializer.getWriter().toString());
+        Assert.assertEquals("{\"id\":3}", serializer.out.toString());
     }
 
     public void test_5_null() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
-        serializer.config(SerializerFeature.WriteMapNullValue, true);
+        serializer.out.config(SerializerFeature.WriteMapNullValue, true);
         serializer.write(new A(null));
 
-        Assert.assertEquals("{\"id\":null}", serializer.getWriter().toString());
+        Assert.assertEquals("{\"id\":null}", serializer.out.toString());
     }
 
     public void test_6() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
         serializer.write(new Date(1293805405498L));
 
-        Assert.assertEquals("1293805405498", serializer.getWriter().toString());
+        Assert.assertEquals("1293805405498", serializer.out.toString());
     }
 
     public void test_7() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
         serializer.write(new B(1293805405498L));
 
-        Assert.assertEquals("{\"d\":1293805405498}", serializer.getWriter().toString());
+        Assert.assertEquals("{\"d\":1293805405498}", serializer.out.toString());
     }
 
     public void test_8() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
         serializer.write(new B());
 
-        Assert.assertEquals("{}", serializer.getWriter().toString());
+        Assert.assertEquals("{}", serializer.out.toString());
     }
 
     public void test_9() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
         serializer.write(new D(3L));
 
-        Assert.assertEquals("{\"id\":3}", serializer.getWriter().toString());
+        Assert.assertEquals("{\"id\":3}", serializer.out.toString());
     }
 
     public void test_9_null() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
-        serializer.config(SerializerFeature.WriteMapNullValue, true);
+        serializer.out.config(SerializerFeature.WriteMapNullValue, true);
         serializer.write(new D(null));
 
-        Assert.assertEquals("{\"id\":null}", serializer.getWriter().toString());
+        Assert.assertEquals("{\"id\":null}", serializer.out.toString());
     }
 
     public void test_10() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
         serializer.write(3);
 
-        Assert.assertEquals("3", serializer.getWriter().toString());
+        Assert.assertEquals("3", serializer.out.toString());
     }
 
     public void test_11() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
         serializer.write(3L);
 
-        Assert.assertEquals("3", serializer.getWriter().toString());
+        Assert.assertEquals("3", serializer.out.toString());
     }
 
     public void test_12() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
         serializer.write(new Object[0]);
 
-        Assert.assertEquals("[]", serializer.getWriter().toString());
+        Assert.assertEquals("[]", serializer.out.toString());
     }
 
     public void test_13() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
         serializer.write(new Object[] { 1 });
 
-        Assert.assertEquals("[1]", serializer.getWriter().toString());
+        Assert.assertEquals("[1]", serializer.out.toString());
     }
 
     public void test_14() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
         serializer.write(new Object[] { 1, 2, 3, 4 });
 
-        Assert.assertEquals("[1,2,3,4]", serializer.getWriter().toString());
+        Assert.assertEquals("[1,2,3,4]", serializer.out.toString());
     }
 
     public void test_15() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
         serializer.write(new Object[] { 1L, 2L, 3L, 4L });
 
-        Assert.assertEquals("[1,2,3,4]", serializer.getWriter().toString());
+        Assert.assertEquals("[1,2,3,4]", serializer.out.toString());
     }
 
     public void test_16() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
         serializer.write(new Object[] { "", "", "", "" });
 
-        Assert.assertEquals("[\"\",\"\",\"\",\"\"]", serializer.getWriter().toString());
+        Assert.assertEquals("[\"\",\"\",\"\",\"\"]", serializer.out.toString());
     }
 
     public void test_17() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
         serializer.write(new Object[] { null, null, null, null });
 
-        Assert.assertEquals("[null,null,null,null]", serializer.getWriter().toString());
+        Assert.assertEquals("[null,null,null,null]", serializer.out.toString());
     }
 
     public static class A {

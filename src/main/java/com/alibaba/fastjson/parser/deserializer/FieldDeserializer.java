@@ -22,11 +22,11 @@ public abstract class FieldDeserializer {
     }
     
     public Method getMethod() {
-        return fieldInfo.getMethod();
+        return fieldInfo.method;
     }
 
     public Field getField() {
-        return fieldInfo.getField();
+        return fieldInfo.field;
     }
 
     public Class<?> getFieldClass() {
@@ -62,7 +62,17 @@ public abstract class FieldDeserializer {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void setValue(Object object, Object value) {
-        Method method = fieldInfo.getMethod();
+        final Field field = fieldInfo.field;
+        if (field != null) {
+            try {
+                field.set(object, value);
+            } catch (Exception e) {
+                throw new JSONException("set property error, " + fieldInfo.getName(), e);
+            }
+            return;
+        }
+        
+        Method method = fieldInfo.method;
         if (method != null) {
             try {
                 if (fieldInfo.isGetOnly()) {
@@ -87,15 +97,6 @@ public abstract class FieldDeserializer {
                 throw new JSONException("set property error, " + fieldInfo.getName(), e);
             }
             return;
-        }
-
-        final Field field = fieldInfo.getField();
-        if (field != null) {
-            try {
-                field.set(object, value);
-            } catch (Exception e) {
-                throw new JSONException("set property error, " + fieldInfo.getName(), e);
-            }
         }
     }
 }

@@ -90,11 +90,11 @@ public class ParserConfig {
 
     private final Set<Class<?>>                             primitiveClasses = new HashSet<Class<?>>();
 
-    private static ParserConfig                             global           = new ParserConfig();
+    public static ParserConfig                              global           = new ParserConfig();
 
     private final IdentityHashMap<Type, ObjectDeserializer> derializers      = new IdentityHashMap<Type, ObjectDeserializer>();
 
-    protected final SymbolTable                             symbolTable      = new SymbolTable();
+    public final SymbolTable                                symbolTable      = new SymbolTable();
     
     public ClassLoader                                      defaultClassLoader;
 
@@ -186,14 +186,6 @@ public class ParserConfig {
         derializers.put(Comparable.class, JavaObjectDeserializer.instance);
         derializers.put(Closeable.class, JavaObjectDeserializer.instance);
 
-    }
-
-    public SymbolTable getSymbolTable() {
-        return symbolTable;
-    }
-
-    public IdentityHashMap<Type, ObjectDeserializer> getDerializers() {
-        return derializers;
     }
 
     public ObjectDeserializer getDeserializer(Type type) {
@@ -352,13 +344,5 @@ public class ParserConfig {
         } else {
             return Collections.emptyMap();
         }
-    }
-    
-    public ClassLoader getDefaultClassLoader() {
-        return defaultClassLoader;
-    }
-
-    public void setDefaultClassLoader(ClassLoader defaultClassLoader) {
-        this.defaultClassLoader = defaultClassLoader;
     }
 }

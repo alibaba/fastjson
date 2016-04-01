@@ -124,25 +124,8 @@ public enum SerializerFeature {
         mask = (1 << ordinal());
     }
 
-    private final int mask;
+    public final int mask;
 
-    public final int getMask() {
-        return mask;
-    }
-
-    public static boolean isEnabled(int features, SerializerFeature feature) {
-        return (features & feature.getMask()) != 0;
-    }
-
-    public static int config(int features, SerializerFeature feature, boolean state) {
-        if (state) {
-            features |= feature.getMask();
-        } else {
-            features &= ~feature.getMask();
-        }
-
-        return features;
-    }
     
     public static int of(SerializerFeature[] features) {
         if (features == null) {
@@ -152,7 +135,7 @@ public enum SerializerFeature {
         int value = 0;
         
         for (SerializerFeature feature: features) {
-            value |= feature.getMask();
+            value |= feature.mask;
         }
         
         return value;

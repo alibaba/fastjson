@@ -37,7 +37,7 @@ public final class ListResolveFieldDeserializer extends FieldDeserializer {
                 if (arrayLength > index) {
                     Object item;
                     if (jsonArray.getComponentType() != null) {
-                        item = TypeUtils.cast(value, jsonArray.getComponentType(), parser.getConfig());
+                        item = TypeUtils.cast(value, jsonArray.getComponentType(), parser.config);
                     } else {
                         item = value;
                     }

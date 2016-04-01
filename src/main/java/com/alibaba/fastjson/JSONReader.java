@@ -37,7 +37,7 @@ public class JSONReader implements Closeable {
     }
 
     public void config(Feature feature, boolean state) {
-        this.parser.config(feature, state);
+        this.parser.lexer.config(feature, state);
     }
 
     public void startObject() {

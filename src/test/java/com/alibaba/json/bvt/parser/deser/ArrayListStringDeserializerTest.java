@@ -109,7 +109,7 @@ public class ArrayListStringDeserializerTest extends TestCase {
 
         int featureValues = 0;
         for (Feature featrue : features) {
-            featureValues = Feature.config(featureValues, featrue, true);
+            featureValues = config(featureValues, featrue, true);
         }
 
         DefaultJSONParser parser = new DefaultJSONParser(input, ParserConfig.getGlobalInstance(), featureValues);
@@ -120,6 +120,16 @@ public class ArrayListStringDeserializerTest extends TestCase {
         }
 
         return (T) value;
+    }
+    
+    public static int config(int features, Feature feature, boolean state) {
+        if (state) {
+            features |= feature.mask;
+        } else {
+            features &= ~feature.mask;
+        }
+
+        return features;
     }
 
     public static class Entity {

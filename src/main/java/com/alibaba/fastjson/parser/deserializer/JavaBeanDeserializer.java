@@ -19,7 +19,6 @@ import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParseContext;
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.serializer.FilterUtils;
 import com.alibaba.fastjson.util.DeserializeBeanInfo;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.TypeUtils;
@@ -43,11 +42,11 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
         beanInfo = DeserializeBeanInfo.computeSetters(clazz, type);
 
-        for (FieldInfo fieldInfo : beanInfo.getFieldList()) {
+        for (FieldInfo fieldInfo : beanInfo.fields) {
             addFieldDeserializer(config, clazz, fieldInfo);
         }
 
-        for (FieldInfo fieldInfo : beanInfo.getSortedFieldList()) {
+        for (FieldInfo fieldInfo : beanInfo.sortedFieldList) {
             FieldDeserializer fieldDeserializer = feildDeserializerMap.get(fieldInfo.getName().intern());
             sortedFieldDeserializers.add(fieldDeserializer);
         }
@@ -90,14 +89,14 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             if (constructor.getParameterTypes().length == 0) {
                 object = constructor.newInstance();
             } else {
-                object = constructor.newInstance(parser.getContext().getObject());
+                object = constructor.newInstance(parser.getContext().object);
             }
         } catch (Exception e) {
             throw new JSONException("create instance error, class " + clazz.getName(), e);
         }
 
         if (parser.lexer.isEnabled(Feature.InitStringFieldAsEmpty)) {
-            for (FieldInfo fieldInfo : beanInfo.getFieldList()) {
+            for (FieldInfo fieldInfo : beanInfo.fields) {
                 if (fieldInfo.getFieldClass() == String.class) {
                     try {
                         fieldInfo.set(object, "");
@@ -178,7 +177,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
         ParseContext context = parser.getContext();
         if (object != null && context != null) {
-            context = context.getParentContext();
+            context = context.parent;
         }
         ParseContext childContext = null;
 
@@ -193,8 +192,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 return (T) object;
             }
 
-            if (lexer.token() == JSONToken.LBRACKET && isSupportArrayToBean(lexer)) {
-                return deserialzeArrayMapping(parser, type, fieldName, object);
+            if (lexer.token() == JSONToken.LBRACKET) {
+                boolean isSupportArrayToBean = (beanInfo.parserFeatures & Feature.SupportArrayToBean.mask) != 0 
+                        || lexer.isEnabled(Feature.SupportArrayToBean);
+                if (isSupportArrayToBean) {
+                    return deserialzeArrayMapping(parser, type, fieldName, object);
+                }
             }
 
             if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {
@@ -237,23 +240,23 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     if (lexer.token() == JSONToken.LITERAL_STRING) {
                         String ref = lexer.stringVal();
                         if ("@".equals(ref)) {
-                            object = context.getObject();
+                            object = context.object;
                         } else if ("..".equals(ref)) {
-                            ParseContext parentContext = context.getParentContext();
-                            if (parentContext.getObject() != null) {
-                                object = parentContext.getObject();
+                            ParseContext parentContext = context.parent;
+                            if (parentContext.object != null) {
+                                object = parentContext.object;
                             } else {
                                 parser.addResolveTask(new ResolveTask(parentContext, ref));
                                 parser.setResolveStatus(DefaultJSONParser.NeedToResolve);
                             }
                         } else if ("$".equals(ref)) {
                             ParseContext rootContext = context;
-                            while (rootContext.getParentContext() != null) {
-                                rootContext = rootContext.getParentContext();
+                            while (rootContext.parent != null) {
+                                rootContext = rootContext.parent;
                             }
 
-                            if (rootContext.getObject() != null) {
-                                object = rootContext.getObject();
+                            if (rootContext.object != null) {
+                                object = rootContext.object;
                             } else {
                                 parser.addResolveTask(new ResolveTask(rootContext, ref));
                                 parser.setResolveStatus(DefaultJSONParser.NeedToResolve);
@@ -291,8 +294,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             continue;
                         }
 
-                        Class<?> userType = TypeUtils.loadClass(typeName, parser.getConfig().getDefaultClassLoader());
-                        ObjectDeserializer deserizer = parser.getConfig().getDeserializer(userType);
+                        Class<?> userType = TypeUtils.loadClass(typeName, parser.config.defaultClassLoader);
+                        ObjectDeserializer deserizer = parser.config.getDeserializer(userType);
                         return (T) deserizer.deserialze(parser, userType, fieldName);
                     } else {
                         throw new JSONException("syntax error");
@@ -340,7 +343,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     return (T) object;
                 }
 
-                List<FieldInfo> fieldInfoList = beanInfo.getFieldList();
+                List<FieldInfo> fieldInfoList = beanInfo.fields;
                 int size = fieldInfoList.size();
                 Object[] params = new Object[size];
                 for (int i = 0; i < size; ++i) {
@@ -368,7 +371,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             return (T) object;
         } finally {
             if (childContext != null) {
-                childContext.setObject(object);
+                childContext.object = object;
             }
             parser.setContext(context);
         }
@@ -409,7 +412,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         }
 
         lexer.nextTokenWithColon();
-        Type type = FilterUtils.getExtratype(parser, object, key);
+        Type type = DefaultJSONParser.getExtratype(parser, object, key);
         Object value;
         if (type == null) {
             value = parser.parse(); // skip
@@ -417,15 +420,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             value = parser.parseObject(type);
         }
 
-        FilterUtils.processExtra(parser, object, key, value);
+        DefaultJSONParser.processExtra(parser, object, key, value);
     }
 
     public int getFastMatchToken() {
         return JSONToken.LBRACE;
     }
+    
 
-    public final boolean isSupportArrayToBean(JSONLexer lexer) {
-        return Feature.isEnabled(beanInfo.getParserFeatures(), Feature.SupportArrayToBean)
-               || lexer.isEnabled(Feature.SupportArrayToBean);
-    }
 }

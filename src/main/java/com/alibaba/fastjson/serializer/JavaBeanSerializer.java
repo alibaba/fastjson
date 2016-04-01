@@ -40,6 +40,8 @@ public class JavaBeanSerializer implements ObjectSerializer {
     
     private int features = 0;
     
+    protected boolean writeClassName = false;
+    
     public FieldSerializer[] getGetters() {
         return getters;
     }
@@ -87,11 +89,11 @@ public class JavaBeanSerializer implements ObjectSerializer {
     }
 
     protected boolean isWriteClassName(JSONSerializer serializer, Object obj, Type fieldType, Object fieldName) {
-        return serializer.isWriteClassName(fieldType, obj);
+        return writeClassName || serializer.isWriteClassName(fieldType, obj);
     }
     
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         if (object == null) {
             out.writeNull();
@@ -110,7 +112,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
             getters = this.getters;
         }
 
-        SerialContext parent = serializer.getContext();
+        SerialContext parent = serializer.context;
         serializer.setContext(parent, object, fieldName, features);
 
         final boolean writeAsArray = isWriteAsArray(serializer);
@@ -138,13 +140,13 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
             char seperator = commaFlag ? ',' : '\0';
 
-            char newSeperator = FilterUtils.writeBefore(serializer, object, seperator);
+            char newSeperator = JSONSerializer.writeBefore(serializer, object, seperator);
             commaFlag = newSeperator == ',';
 
             for (int i = 0; i < getters.length; ++i) {
                 FieldSerializer fieldSerializer = getters[i];
 
-                if (serializer.isEnabled(SerializerFeature.SkipTransientField)) {
+                if (out.isEnabled(SerializerFeature.SkipTransientField)) {
                     Field field = fieldSerializer.getField();
                     if (field != null) {
                         if (Modifier.isTransient(field.getModifiers())) {
@@ -153,29 +155,29 @@ public class JavaBeanSerializer implements ObjectSerializer {
                     }
                 }
 
-                if (!FilterUtils.applyName(serializer, object, fieldSerializer.getName())) {
+                if (!JSONSerializer.applyName(serializer, object, fieldSerializer.getName())) {
                     continue;
                 }
 
                 Object propertyValue = fieldSerializer.getPropertyValue(object);
 
-                if (!FilterUtils.apply(serializer, object, fieldSerializer.getName(), propertyValue)) {
+                if (!JSONSerializer.apply(serializer, object, fieldSerializer.getName(), propertyValue)) {
                     continue;
                 }
 
-                String key = FilterUtils.processKey(serializer, object, fieldSerializer.getName(), propertyValue);
+                String key = JSONSerializer.processKey(serializer, object, fieldSerializer.getName(), propertyValue);
 
                 Object originalValue = propertyValue;
-                propertyValue = FilterUtils.processValue(serializer, object, fieldSerializer.getName(), propertyValue);
+                propertyValue = JSONSerializer.processValue(serializer, object, fieldSerializer.getName(), propertyValue);
 
                 if (propertyValue == null && !writeAsArray) {
                     if ((!fieldSerializer.isWriteNull())
-                        && (!serializer.isEnabled(SerializerFeature.WriteMapNullValue))) {
+                        && (!out.isEnabled(SerializerFeature.WriteMapNullValue))) {
                         continue;
                     }
                 }
                 
-                if (propertyValue != null && serializer.isEnabled(SerializerFeature.NotWriteDefaultValue)) {
+                if (propertyValue != null && out.isEnabled(SerializerFeature.NotWriteDefaultValue)) {
                     Class<?> fieldCLass = fieldSerializer.fieldInfo.getFieldClass();
                     if (fieldCLass == byte.class && propertyValue instanceof Byte && ((Byte)propertyValue).byteValue() == 0) {
                         continue;
@@ -222,7 +224,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 commaFlag = true;
             }
             
-            FilterUtils.writeAfter(serializer, object, commaFlag ? ',' : '\0');
+            JSONSerializer.writeAfter(serializer, object, commaFlag ? ',' : '\0');
 
             if (getters.length > 0 && out.isEnabled(SerializerFeature.PrettyFormat)) {
                 serializer.decrementIdent();
@@ -233,14 +235,14 @@ public class JavaBeanSerializer implements ObjectSerializer {
         } catch (Exception e) {
             throw new JSONException("write javaBean error", e);
         } finally {
-            serializer.setContext(parent);
+            serializer.context = parent;
         }
     }
     
     public boolean writeReference(JSONSerializer serializer, Object object) {
         {
-            SerialContext context = serializer.getContext();
-            if (context != null && context.isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {
+            SerialContext context = serializer.context;
+            if (context != null && (context.features & SerializerFeature.DisableCircularReferenceDetect.mask) != 0) {
                 return false;
             }
         }
@@ -264,12 +266,12 @@ public class JavaBeanSerializer implements ObjectSerializer {
     }
     
     public boolean isWriteAsArray(JSONSerializer serializer) {
-        if (SerializerFeature.isEnabled(features, SerializerFeature.BeanToArray)) {
+        if ((features & SerializerFeature.BeanToArray.mask) != 0) {
             return true;
         }
         
         boolean writeAsArray;
-        if (serializer.isEnabled(SerializerFeature.BeanToArray)) {
+        if (serializer.out.isEnabled(SerializerFeature.BeanToArray)) {
             writeAsArray = true;
         } else {
             writeAsArray = false;
@@ -277,4 +279,6 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
         return writeAsArray;
     }
+    
+   
 }

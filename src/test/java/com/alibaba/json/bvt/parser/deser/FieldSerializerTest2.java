@@ -54,7 +54,7 @@ public class FieldSerializerTest2 extends TestCase {
                 }
             });
             for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
-                serializer.config(feature, true);
+                serializer.out.config(feature, true);
             }
 
             serializer.write(object);

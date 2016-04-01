@@ -171,7 +171,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
         this.lexer = lexer;
         this.input = input;
         this.config = config;
-        this.symbolTable = config.getSymbolTable();
+        this.symbolTable = config.symbolTable;
 
         lexer.nextToken(JSONToken.LBRACE); // prime the pump
     }

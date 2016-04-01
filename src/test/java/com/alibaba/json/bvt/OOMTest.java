@@ -1,10 +1,13 @@
 package com.alibaba.json.bvt;
 
+import java.lang.reflect.Field;
+
+import org.junit.Assert;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.SymbolTable;
 
-import org.junit.Assert;
 import junit.framework.TestCase;
 
 public class OOMTest extends TestCase {
@@ -15,6 +18,9 @@ public class OOMTest extends TestCase {
             JSON.parse(text);
         }
         
-        Assert.assertEquals(SymbolTable.MAX_SIZE, ParserConfig.getGlobalInstance().getSymbolTable().size());
+        Field field = SymbolTable.class.getDeclaredField("size");
+        field.setAccessible(true);
+        int size = field.getInt(ParserConfig.getGlobalInstance().getSymbolTable());
+        Assert.assertEquals(4096, size);
     }
 }

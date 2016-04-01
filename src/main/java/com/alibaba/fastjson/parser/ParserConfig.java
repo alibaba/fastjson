@@ -143,7 +143,7 @@ public class ParserConfig {
 
     private boolean                                         asmEnable        = !ASMUtils.isAndroid();
 
-    protected final SymbolTable                             symbolTable      = new SymbolTable();
+    protected final SymbolTable                             symbolTable      = new SymbolTable(512);
     
     protected ClassLoader                                   defaultClassLoader;
 

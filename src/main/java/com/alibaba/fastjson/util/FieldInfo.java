@@ -55,8 +55,16 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this(name, method, field, clazz, type, 0, 0, methodAnnotation, null);
     }
 
-    public FieldInfo(String name, Method method, Field field, Class<?> clazz, Type type, int ordinal,
-                     int serialzeFeatures, JSONField methodAnnotation, JSONField fieldAnnotation){
+    public FieldInfo(String name
+                     , Method method
+                     , Field field
+                     , Class<?> clazz
+                     , Type type
+                     , int ordinal
+                     , int serialzeFeatures
+                     , JSONField methodAnnotation
+                     , JSONField fieldAnnotation
+                     ){
         this.name = name;
         this.method = method;
         this.field = field;

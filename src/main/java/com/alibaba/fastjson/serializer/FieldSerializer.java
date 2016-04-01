@@ -16,8 +16,7 @@
 package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.lang.reflect.Member;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONField;
@@ -28,22 +27,22 @@ import com.alibaba.fastjson.util.FieldInfo;
  */
 public abstract class FieldSerializer {
 
-    protected final FieldInfo fieldInfo;
-    private final String      double_quoted_fieldPrefix;
-    private final String      single_quoted_fieldPrefix;
-    private final String      un_quoted_fieldPrefix;
-    private boolean           writeNull = false;
+    public final FieldInfo fieldInfo;
+    private final String   double_quoted_fieldPrefix;
+    private final String   single_quoted_fieldPrefix;
+    private final String   un_quoted_fieldPrefix;
+    protected boolean      writeNull = false;
 
     public FieldSerializer(FieldInfo fieldInfo){
         super();
         this.fieldInfo = fieldInfo;
         fieldInfo.setAccessible(true);
 
-        this.double_quoted_fieldPrefix = '"' + fieldInfo.getName() + "\":";
+        this.double_quoted_fieldPrefix = '"' + fieldInfo.name + "\":";
 
-        this.single_quoted_fieldPrefix = '\'' + fieldInfo.getName() + "\':";
+        this.single_quoted_fieldPrefix = '\'' + fieldInfo.name + "\':";
 
-        this.un_quoted_fieldPrefix = fieldInfo.getName() + ":";
+        this.un_quoted_fieldPrefix = fieldInfo.name + ":";
 
         JSONField annotation = fieldInfo.getAnnotation();
         if (annotation != null) {
@@ -53,22 +52,6 @@ public abstract class FieldSerializer {
                 }
             }
         }
-    }
-
-    public boolean isWriteNull() {
-        return writeNull;
-    }
-
-    public Field getField() {
-        return fieldInfo.field;
-    }
-
-    public String getName() {
-        return fieldInfo.getName();
-    }
-
-    public Method getMethod() {
-        return fieldInfo.method;
     }
 
     public void writePrefix(JSONSerializer serializer) throws IOException {
@@ -89,7 +72,18 @@ public abstract class FieldSerializer {
         try {
             return fieldInfo.get(object);
         } catch (Exception ex) {
-            throw new JSONException("get property error。 " + fieldInfo.gerQualifiedName(), ex);
+            
+            Member member;
+            
+            if (fieldInfo.method != null) {
+                member = fieldInfo.method;
+            } else {
+                member = fieldInfo.field;
+            }
+            
+            String qualifiedName = member.getDeclaringClass().getName() + "." + member.getName();
+            
+            throw new JSONException("get property error。 " + qualifiedName, ex);
         }
     }
 

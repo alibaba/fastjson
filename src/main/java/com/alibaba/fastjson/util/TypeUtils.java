@@ -837,13 +837,13 @@ public class TypeUtils {
 
                 if (map.containsKey(key)) {
                     Object value = map.get(key);
-                    Method method = fieldDeser.getMethod();
+                    Method method = fieldDeser.fieldInfo.method;
                     if (method != null) {
                         Type paramType = method.getGenericParameterTypes()[0];
                         value = cast(value, paramType, mapping);
                         method.invoke(object, new Object[] { value });
                     } else {
-                        Field field = fieldDeser.getField();
+                        Field field = fieldDeser.fieldInfo.field;
                         Type paramType = field.getGenericType();
                         value = cast(value, paramType, mapping);
                         field.set(object, value);

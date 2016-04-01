@@ -14,9 +14,10 @@ public class StringFieldDeserializer extends FieldDeserializer {
     private final ObjectDeserializer fieldValueDeserilizer;
 
     public StringFieldDeserializer(ParserConfig config, Class<?> clazz, FieldInfo fieldInfo){
-        super(clazz, fieldInfo);
+        super(clazz, fieldInfo, 0);
 
         fieldValueDeserilizer = config.getDeserializer(fieldInfo);
+        fastMatchToken = fieldValueDeserilizer.getFastMatchToken();
     }
 
     @Override
@@ -39,13 +40,9 @@ public class StringFieldDeserializer extends FieldDeserializer {
         }
 
         if (object == null) {
-            fieldValues.put(fieldInfo.getName(), value);
+            fieldValues.put(fieldInfo.name, value);
         } else {
             setValue(object, value);
         }
-    }
-
-    public int getFastMatchToken() {
-        return fieldValueDeserilizer.getFastMatchToken();
     }
 }

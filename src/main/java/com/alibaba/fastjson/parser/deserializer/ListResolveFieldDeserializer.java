@@ -17,7 +17,7 @@ public final class ListResolveFieldDeserializer extends FieldDeserializer {
     private final DefaultJSONParser parser;
 
     public ListResolveFieldDeserializer(DefaultJSONParser parser, List list, int index){
-        super(null, null);
+        super(null, null, 0);
         this.parser = parser;
         this.index = index;
         this.list = list;

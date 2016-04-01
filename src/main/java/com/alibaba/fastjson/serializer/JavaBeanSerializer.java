@@ -147,7 +147,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 FieldSerializer fieldSerializer = getters[i];
 
                 if (out.isEnabled(SerializerFeature.SkipTransientField)) {
-                    Field field = fieldSerializer.getField();
+                    Field field = fieldSerializer.fieldInfo.field;
                     if (field != null) {
                         if (Modifier.isTransient(field.getModifiers())) {
                             continue;
@@ -155,30 +155,30 @@ public class JavaBeanSerializer implements ObjectSerializer {
                     }
                 }
 
-                if (!JSONSerializer.applyName(serializer, object, fieldSerializer.getName())) {
+                if (!JSONSerializer.applyName(serializer, object, fieldSerializer.fieldInfo.name)) {
                     continue;
                 }
 
                 Object propertyValue = fieldSerializer.getPropertyValue(object);
 
-                if (!JSONSerializer.apply(serializer, object, fieldSerializer.getName(), propertyValue)) {
+                if (!JSONSerializer.apply(serializer, object, fieldSerializer.fieldInfo.name, propertyValue)) {
                     continue;
                 }
 
-                String key = JSONSerializer.processKey(serializer, object, fieldSerializer.getName(), propertyValue);
+                String key = JSONSerializer.processKey(serializer, object, fieldSerializer.fieldInfo.name, propertyValue);
 
                 Object originalValue = propertyValue;
-                propertyValue = JSONSerializer.processValue(serializer, object, fieldSerializer.getName(), propertyValue);
+                propertyValue = JSONSerializer.processValue(serializer, object, fieldSerializer.fieldInfo.name, propertyValue);
 
                 if (propertyValue == null && !writeAsArray) {
-                    if ((!fieldSerializer.isWriteNull())
+                    if ((!fieldSerializer.writeNull)
                         && (!out.isEnabled(SerializerFeature.WriteMapNullValue))) {
                         continue;
                     }
                 }
                 
                 if (propertyValue != null && out.isEnabled(SerializerFeature.NotWriteDefaultValue)) {
-                    Class<?> fieldCLass = fieldSerializer.fieldInfo.getFieldClass();
+                    Class<?> fieldCLass = fieldSerializer.fieldInfo.fieldClass;
                     if (fieldCLass == byte.class && propertyValue instanceof Byte && ((Byte)propertyValue).byteValue() == 0) {
                         continue;
                     } else if (fieldCLass == short.class && propertyValue instanceof Short && ((Short)propertyValue).shortValue() == 0) {
@@ -203,7 +203,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                     }
                 }
 
-                if (key != fieldSerializer.getName()) {
+                if (key != fieldSerializer.fieldInfo.name) {
                     if (!writeAsArray) {
                         out.writeFieldName(key);
                     }
@@ -256,7 +256,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
     }
 
     public FieldSerializer createFieldSerializer(FieldInfo fieldInfo) {
-        Class<?> clazz = fieldInfo.getFieldClass();
+        Class<?> clazz = fieldInfo.fieldClass;
 
         if (clazz == Number.class) {
             return new NumberFieldSerializer(fieldInfo);

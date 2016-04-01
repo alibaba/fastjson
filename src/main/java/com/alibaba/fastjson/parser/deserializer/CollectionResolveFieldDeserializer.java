@@ -12,7 +12,7 @@ public final class CollectionResolveFieldDeserializer extends FieldDeserializer 
     private final Collection collection;
 
     public CollectionResolveFieldDeserializer(DefaultJSONParser parser, Collection collection){
-        super(null, null);
+        super(null, null, 0);
         this.collection = collection;
     }
 

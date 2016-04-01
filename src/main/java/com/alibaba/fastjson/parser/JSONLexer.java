@@ -53,7 +53,7 @@ public abstract class JSONLexer {
 
     protected int                                           token;
     protected int                                           pos;
-    protected int                                           features       = JSON.DEFAULT_PARSER_FEATURE;
+    public int                                              features       = JSON.DEFAULT_PARSER_FEATURE;
 
     protected char                                          ch;
     protected int                                           bp;
@@ -192,7 +192,7 @@ public abstract class JSONLexer {
 
             switch (ch) {
                 case '\'':
-                    if (!isEnabled(Feature.AllowSingleQuotes)) {
+                    if ((features & Feature.AllowSingleQuotes.mask) == 0) {
                         throw new JSONException("Feature.AllowSingleQuotes is false");
                     }
                     scanStringSingleQuote();
@@ -428,7 +428,7 @@ public abstract class JSONLexer {
     }
 
     public final String stringDefaultValue() {
-        if (this.isEnabled(Feature.InitStringFieldAsEmpty)) {
+        if ((features & Feature.InitStringFieldAsEmpty.mask) != 0) {
             return "";
         }
         return null;
@@ -533,14 +533,21 @@ public abstract class JSONLexer {
 
 
     public final String scanSymbol(final SymbolTable symbolTable) {
-        skipWhitespace();
+        for (;;) {
+            if (ch < whitespaceFlags.length && whitespaceFlags[ch]) {
+                next();
+                continue;
+            } else {
+                break;
+            }
+        }
 
         if (ch == '"') {
             return scanSymbol(symbolTable, '"');
         }
 
         if (ch == '\'') {
-            if (!isEnabled(Feature.AllowSingleQuotes)) {
+            if ((features & Feature.AllowSingleQuotes.mask) == 0) {
                 throw new JSONException("syntax error");
             }
 
@@ -564,7 +571,7 @@ public abstract class JSONLexer {
             return null;
         }
 
-        if (!isEnabled(Feature.AllowUnQuotedFieldNames)) {
+        if ((features & Feature.AllowUnQuotedFieldNames.mask) == 0) {
             throw new JSONException("syntax error");
         }
 

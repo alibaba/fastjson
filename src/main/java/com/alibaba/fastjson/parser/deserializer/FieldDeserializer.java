@@ -12,53 +12,19 @@ import com.alibaba.fastjson.util.FieldInfo;
 
 public abstract class FieldDeserializer {
 
-    protected final FieldInfo fieldInfo;
+    public final FieldInfo fieldInfo;
 
-    protected final Class<?>  clazz;
+    public final Class<?>  clazz;
+    
+    public int fastMatchToken;
 
-    public FieldDeserializer(Class<?> clazz, FieldInfo fieldInfo){
+    public FieldDeserializer(Class<?> clazz, FieldInfo fieldInfo, int fastMatchToken){
         this.clazz = clazz;
         this.fieldInfo = fieldInfo;
-    }
-    
-    public Method getMethod() {
-        return fieldInfo.method;
-    }
-
-    public Field getField() {
-        return fieldInfo.field;
-    }
-
-    public Class<?> getFieldClass() {
-        return fieldInfo.getFieldClass();
-    }
-
-    public Type getFieldType() {
-        return fieldInfo.getFieldType();
     }
 
     public abstract void parseField(DefaultJSONParser parser, Object object, Type objectType,
                                     Map<String, Object> fieldValues);
-
-    public int getFastMatchToken() {
-        return 0;
-    }
-
-    public void setValue(Object object, boolean value) {
-        setValue(object, Boolean.valueOf(value));
-    }
-
-    public void setValue(Object object, int value) {
-        setValue(object, Integer.valueOf(value));
-    }
-
-    public void setValue(Object object, long value) {
-        setValue(object, Long.valueOf(value));
-    }
-
-    public void setValue(Object object, String value) {
-        setValue(object, (Object) value);
-    }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void setValue(Object object, Object value) {
@@ -67,7 +33,7 @@ public abstract class FieldDeserializer {
             try {
                 field.set(object, value);
             } catch (Exception e) {
-                throw new JSONException("set property error, " + fieldInfo.getName(), e);
+                throw new JSONException("set property error, " + fieldInfo.name, e);
             }
             return;
         }
@@ -88,13 +54,13 @@ public abstract class FieldDeserializer {
                         }
                     }
                 } else {
-                    if (value == null && fieldInfo.getFieldClass().isPrimitive()) {
+                    if (value == null && fieldInfo.fieldClass.isPrimitive()) {
                         return;
                     }
                     method.invoke(object, value);
                 }
             } catch (Exception e) {
-                throw new JSONException("set property error, " + fieldInfo.getName(), e);
+                throw new JSONException("set property error, " + fieldInfo.name, e);
             }
             return;
         }

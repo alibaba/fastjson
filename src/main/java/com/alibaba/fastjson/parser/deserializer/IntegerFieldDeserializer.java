@@ -13,7 +13,7 @@ import com.alibaba.fastjson.util.TypeUtils;
 public class IntegerFieldDeserializer extends FieldDeserializer {
 
     public IntegerFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo){
-        super(clazz, fieldInfo);
+        super(clazz, fieldInfo, JSONToken.LITERAL_INT);
     }
 
     @Override
@@ -21,16 +21,17 @@ public class IntegerFieldDeserializer extends FieldDeserializer {
         Integer value;
 
         final JSONLexer lexer = parser.lexer;
-        if (lexer.token() == JSONToken.LITERAL_INT) {
+        final int token = lexer.token();
+        if (token == JSONToken.LITERAL_INT) {
             int val = lexer.intValue();
             lexer.nextToken(JSONToken.COMMA);
             if (object == null) {
-                fieldValues.put(fieldInfo.getName(), val);
+                fieldValues.put(fieldInfo.name, val);
             } else {
-                setValue(object, val);
+                setValue(object, Integer.valueOf(val));
             }
             return;
-        } else if (lexer.token() == JSONToken.NULL) {
+        } else if (token == JSONToken.NULL) {
             value = null;
             lexer.nextToken(JSONToken.COMMA);
         } else {
@@ -39,19 +40,15 @@ public class IntegerFieldDeserializer extends FieldDeserializer {
             value = TypeUtils.castToInt(obj);
         }
 
-        if (value == null && getFieldClass() == int.class) {
+        if (value == null && fieldInfo.fieldClass == int.class) {
             // skip
             return;
         }
 
         if (object == null) {
-            fieldValues.put(fieldInfo.getName(), value);
+            fieldValues.put(fieldInfo.name, value);
         } else {
             setValue(object, value);
         }
-    }
-
-    public int getFastMatchToken() {
-        return JSONToken.LITERAL_INT;
     }
 }

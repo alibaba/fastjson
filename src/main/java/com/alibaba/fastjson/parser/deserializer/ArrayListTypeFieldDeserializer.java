@@ -23,18 +23,14 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
     private ObjectDeserializer deserializer;
 
     public ArrayListTypeFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo){
-        super(clazz, fieldInfo);
+        super(clazz, fieldInfo, JSONToken.LBRACKET);
 
-        Type fieldType = getFieldType();
+        Type fieldType = fieldInfo.fieldType;
         if (fieldType instanceof ParameterizedType) {
-            this.itemType = ((ParameterizedType) getFieldType()).getActualTypeArguments()[0];
+            this.itemType = ((ParameterizedType) fieldType).getActualTypeArguments()[0];
         } else {
             this.itemType = Object.class;
         }
-    }
-
-    public int getFastMatchToken() {
-        return JSONToken.LBRACKET;
     }
 
     @SuppressWarnings("rawtypes")
@@ -49,12 +45,12 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
         ParseContext context = parser.getContext();
 
-        parser.setContext(context, object, fieldInfo.getName());
+        parser.setContext(context, object, fieldInfo.name);
         parseArray(parser, objectType, list);
         parser.setContext(context);
 
         if (object == null) {
-            fieldValues.put(fieldInfo.getName(), list);
+            fieldValues.put(fieldInfo.name, list);
         } else {
             setValue(object, list);
         }
@@ -111,8 +107,9 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
         lexer.nextToken(itemFastMatchToken);
 
+        boolean allowArbitraryCommas = (lexer.features & Feature.AllowArbitraryCommas.mask) != 0;
         for (int i = 0;; ++i) {
-            if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
+            if (allowArbitraryCommas) {
                 while (lexer.token() == JSONToken.COMMA) {
                     lexer.nextToken();
                     continue;

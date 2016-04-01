@@ -15,9 +15,10 @@ public class LongFieldDeserializer extends FieldDeserializer {
     private final ObjectDeserializer fieldValueDeserilizer;
 
     public LongFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo){
-        super(clazz, fieldInfo);
+        super(clazz, fieldInfo, 0);
 
         fieldValueDeserilizer = mapping.getDeserializer(fieldInfo);
+        fastMatchToken = fieldValueDeserilizer.getFastMatchToken();
     }
 
     @Override
@@ -25,16 +26,17 @@ public class LongFieldDeserializer extends FieldDeserializer {
         Long value;
         
         final JSONLexer lexer = parser.lexer;
-        if (lexer.token() == JSONToken.LITERAL_INT) {
+        final int token = lexer.token();
+        if (token == JSONToken.LITERAL_INT) {
             long val = lexer.longValue();
             lexer.nextToken(JSONToken.COMMA);
             if (object == null) {
-                fieldValues.put(fieldInfo.getName(), val);
+                fieldValues.put(fieldInfo.name, val);
             } else {
-                setValue(object, val);
+                setValue(object, Long.valueOf(val));
             }
             return;
-        } else if (lexer.token() == JSONToken.NULL) {
+        } else if (token == JSONToken.NULL) {
             value = null;
             lexer.nextToken(JSONToken.COMMA);
  
@@ -44,19 +46,15 @@ public class LongFieldDeserializer extends FieldDeserializer {
             value = TypeUtils.castToLong(obj);
         }
         
-        if (value == null && getFieldClass() == long.class) {
+        if (value == null && fieldInfo.fieldClass == long.class) {
             // skip
             return;
         }
         
         if (object == null) {
-            fieldValues.put(fieldInfo.getName(), value);
+            fieldValues.put(fieldInfo.name, value);
         } else {
             setValue(object, value);
         }
-    }
-
-    public int getFastMatchToken() {
-        return fieldValueDeserilizer.getFastMatchToken();
     }
 }

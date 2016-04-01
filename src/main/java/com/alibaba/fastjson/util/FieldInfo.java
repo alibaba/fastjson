@@ -5,7 +5,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -15,14 +14,14 @@ import com.alibaba.fastjson.annotation.JSONField;
 
 public class FieldInfo implements Comparable<FieldInfo> {
 
-    private final String   name;
+    public final String   name;
     public final Method   method;
     public final Field    field;
 
     private int            ordinal = 0;
-    private final Class<?> fieldClass;
-    private final Type     fieldType;
-    private final Class<?> declaringClass;
+    public final Class<?> fieldClass;
+    public final Type     fieldType;
+    public final Class<?>  declaringClass;
     private boolean        getOnly = false;
     
     private JSONField      fieldAnnotation;
@@ -225,34 +224,6 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
     public String toString() {
         return this.name;
-    }
-
-    public Class<?> getDeclaringClass() {
-        return declaringClass;
-    }
-
-    public Class<?> getFieldClass() {
-        return fieldClass;
-    }
-
-    public Type getFieldType() {
-        return fieldType;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String gerQualifiedName() {
-        Member member;
-        
-        if (method != null) {
-            member = method;
-        } else {
-            member = field;
-        }
-        
-        return member.getDeclaringClass().getName() + "." + member.getName();
     }
 
     public int compareTo(FieldInfo o) {

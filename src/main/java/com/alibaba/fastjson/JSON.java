@@ -638,7 +638,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                 Object value = field.get(javaObject);
                 Object jsonValue = toJSON(value);
 
-                json.put(field.getName(), jsonValue);
+                json.put(field.name, jsonValue);
             }
 
             return json;

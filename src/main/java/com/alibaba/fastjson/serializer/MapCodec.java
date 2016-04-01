@@ -271,7 +271,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
             for (;;) {
                 lexer.skipWhitespace();
                 char ch = lexer.getCurrent();
-                if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
+                if ((lexer.features & Feature.AllowArbitraryCommas.mask) != 0) {
                     while (ch == ',') {
                         lexer.next();
                         lexer.skipWhitespace();
@@ -293,7 +293,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                     lexer.nextToken(JSONToken.COMMA);
                     return map;
                 } else if (ch == '\'') {
-                    if (!parser.lexer.isEnabled(Feature.AllowSingleQuotes)) {
+                    if ((lexer.features & Feature.AllowSingleQuotes.mask) == 0) {
                         throw new JSONException("syntax error");
                     }
 
@@ -304,7 +304,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                         throw new JSONException("expect ':' at " + lexer.pos());
                     }
                 } else {
-                    if (!parser.lexer.isEnabled(Feature.AllowUnQuotedFieldNames)) {
+                    if ((lexer.features & Feature.AllowUnQuotedFieldNames.mask) == 0) {
                         throw new JSONException("syntax error");
                     }
 
@@ -339,7 +339,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
 
                     lexer.nextToken(JSONToken.COMMA);
 
-                    parser.setResolveStatus(DefaultJSONParser.TypeNameRedirect);
+                    parser.resolveStatus = DefaultJSONParser.TypeNameRedirect;
 
                     if (context != null && !(fieldName instanceof Integer)) {
                         parser.popContext();
@@ -417,7 +417,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                             object = rootContext.object;
                         } else {
                             parser.addResolveTask(new ResolveTask(context, ref));
-                            parser.setResolveStatus(DefaultJSONParser.NeedToResolve);
+                            parser.resolveStatus = DefaultJSONParser.NeedToResolve;
                         }
                     } else {
                         throw new JSONException("illegal ref, " + JSONToken.name(lexer.token()));

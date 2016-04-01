@@ -39,7 +39,8 @@ public class EnumDeserializer implements ObjectDeserializer {
         try {
             Object value;
             final JSONLexer lexer = parser.lexer;
-            if (lexer.token() == JSONToken.LITERAL_INT) {
+            final int token = lexer.token();
+            if (token == JSONToken.LITERAL_INT) {
                 value = lexer.intValue();
                 lexer.nextToken(JSONToken.COMMA);
 
@@ -48,7 +49,7 @@ public class EnumDeserializer implements ObjectDeserializer {
                     throw new JSONException("parse enum " + enumClass.getName() + " error, value : " + value);
                 }
                 return e;
-            } else if (lexer.token() == JSONToken.LITERAL_STRING) {
+            } else if (token == JSONToken.LITERAL_STRING) {
                 String strVal = lexer.stringVal();
                 lexer.nextToken(JSONToken.COMMA);
 
@@ -59,7 +60,7 @@ public class EnumDeserializer implements ObjectDeserializer {
                 value = nameMap.get(strVal);
 
                 return (T) Enum.valueOf((Class<Enum>) enumClass, strVal);
-            } else if (lexer.token() == JSONToken.NULL) {
+            } else if (token == JSONToken.NULL) {
                 value = null;
                 lexer.nextToken(JSONToken.COMMA);
 

@@ -26,7 +26,7 @@ public abstract class AbstractDateDeserializer implements ObjectDeserializer {
             val = strVal;
             lexer.nextToken(JSONToken.COMMA);
             
-            if (lexer.isEnabled(Feature.AllowISO8601DateFormat)) {
+            if ((lexer.features & Feature.AllowISO8601DateFormat.mask) != 0) {
                 JSONScanner iso8601Lexer = new JSONScanner(strVal);
                 if (iso8601Lexer.scanISO8601DateIfMatch()) {
                     val = iso8601Lexer.getCalendar().getTime();
@@ -73,8 +73,8 @@ public abstract class AbstractDateDeserializer implements ObjectDeserializer {
             val = timeMillis;
             
             parser.accept(JSONToken.RBRACE);
-        } else if (parser.getResolveStatus() == DefaultJSONParser.TypeNameRedirect) {
-            parser.setResolveStatus(DefaultJSONParser.NONE);
+        } else if (parser.resolveStatus == DefaultJSONParser.TypeNameRedirect) {
+            parser.resolveStatus = DefaultJSONParser.NONE;
             parser.accept(JSONToken.COMMA);
 
             if (lexer.token() == JSONToken.LITERAL_STRING) {

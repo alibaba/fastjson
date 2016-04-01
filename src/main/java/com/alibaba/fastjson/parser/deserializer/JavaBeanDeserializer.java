@@ -96,7 +96,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             throw new JSONException("create instance error, class " + clazz.getName(), e);
         }
 
-        if (parser.isEnabled(Feature.InitStringFieldAsEmpty)) {
+        if (parser.lexer.isEnabled(Feature.InitStringFieldAsEmpty)) {
             for (FieldInfo fieldInfo : beanInfo.getFieldList()) {
                 if (fieldInfo.getFieldClass() == String.class) {
                     try {
@@ -117,7 +117,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
     @SuppressWarnings({ "unchecked" })
     public <T> T deserialzeArrayMapping(DefaultJSONParser parser, Type type, Object fieldName, Object object) {
-        final JSONLexer lexer = parser.getLexer(); // xxx
+        final JSONLexer lexer = parser.lexer; // xxx
         if (lexer.token() != JSONToken.LBRACKET) {
             throw new JSONException("error");
         }
@@ -139,7 +139,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 long value = lexer.scanLong(seperator);
                 fieldDeser.setValue(object, value);
             } else if (fieldClass.isEnum()) {
-                Enum<?> value = lexer.scanEnum(fieldClass, parser.getSymbolTable(), seperator);
+                Enum<?> value = lexer.scanEnum(fieldClass, parser.symbolTable, seperator);
                 fieldDeser.setValue(object, value);
             } else {
                 lexer.nextToken(JSONToken.LBRACKET);
@@ -169,7 +169,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             return (T) parser.parse();
         }
         
-        final JSONLexer lexer = parser.getLexer(); // xxx
+        final JSONLexer lexer = parser.lexer; // xxx
 
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken(JSONToken.COMMA);
@@ -218,7 +218,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
             for (;;) {
 
-                String key = lexer.scanSymbol(parser.getSymbolTable());
+                String key = lexer.scanSymbol(parser.symbolTable);
 
                 if (key == null) {
                     if (lexer.token() == JSONToken.RBRACE) {
@@ -226,7 +226,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         break;
                     }
                     if (lexer.token() == JSONToken.COMMA) {
-                        if (parser.isEnabled(Feature.AllowArbitraryCommas)) {
+                        if (parser.lexer.isEnabled(Feature.AllowArbitraryCommas)) {
                             continue;
                         }
                     }
@@ -376,7 +376,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
     public boolean parseField(DefaultJSONParser parser, String key, Object object, Type objectType,
                               Map<String, Object> fieldValues) {
-        JSONLexer lexer = parser.getLexer(); // xxx
+        JSONLexer lexer = parser.lexer; // xxx
 
         FieldDeserializer fieldDeserializer = feildDeserializerMap.get(key);
 
@@ -403,7 +403,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     }
 
     void parseExtra(DefaultJSONParser parser, Object object, String key) {
-        final JSONLexer lexer = parser.getLexer(); // xxx
+        final JSONLexer lexer = parser.lexer; // xxx
         if (!lexer.isEnabled(Feature.IgnoreNotMatch)) {
             throw new JSONException("setter not found, class " + clazz.getName() + ", property " + key);
         }

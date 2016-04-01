@@ -123,7 +123,7 @@ public class JSONReader implements Closeable {
             throw new JSONException("context is null");
         }
 
-        final int token = parser.getLexer().token();
+        final int token = parser.lexer.token();
         final int state = context.getState();
         switch (state) {
             case StartArray:

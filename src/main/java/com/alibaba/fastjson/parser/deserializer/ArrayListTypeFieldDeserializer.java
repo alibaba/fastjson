@@ -40,7 +40,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
     @SuppressWarnings("rawtypes")
     @Override
     public void parseField(DefaultJSONParser parser, Object object, Type objectType, Map<String, Object> fieldValues) {
-        if (parser.getLexer().token() == JSONToken.NULL) {
+        if (parser.lexer.token() == JSONToken.NULL) {
             setValue(object, null);
             return;
         }
@@ -94,7 +94,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
             }
         }
 
-        final JSONLexer lexer = parser.getLexer();
+        final JSONLexer lexer = parser.lexer;
 
         if (lexer.token() != JSONToken.LBRACKET) {
             String errorMessage = "exepct '[', but " + JSONToken.name(lexer.token());

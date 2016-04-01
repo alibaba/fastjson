@@ -30,7 +30,7 @@ public class DefaultJSONParserTest extends TestCase {
 		DefaultJSONParser parser = new DefaultJSONParser("3.4");
 		parser.config(Feature.UseBigDecimal, false);
 		Assert.assertEquals("3.4", parser.getInput());
-		Assert.assertEquals(false, parser.isEnabled(Feature.UseBigDecimal));
+		Assert.assertEquals(false, parser.lexer.isEnabled(Feature.UseBigDecimal));
 		Object result = parser.parse();
 		Assert.assertEquals(3.4D, result);
 	}

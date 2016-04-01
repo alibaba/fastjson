@@ -121,8 +121,8 @@ public class MediaContentGenDecoder extends ASMJavaBeanDeserializer implements O
                 media_gen_deser__.deserialze(parser, data.media.Media.class,"media");
                 if(parser.getResolveStatus() == DefaultJSONParser.NeedToResolve) {
                     ResolveTask resolveTask = parser.getLastResolveTask();
-                    resolveTask.setOwnerContext(parser.getContext());
-                    resolveTask.setFieldDeserializer(this.getFieldDeserializer("media"));
+                    resolveTask.ownerContext = parser.getContext();
+                    resolveTask.fieldDeserializer = this.getFieldDeserializer("media");
                     parser.setResolveStatus(DefaultJSONParser.NONE);
                 }
             }

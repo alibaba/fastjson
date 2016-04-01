@@ -17,7 +17,7 @@ public class DateTest extends TestCase {
 
         JSONSerializer serializer = new JSONSerializer(out);
 
-        Assert.assertEquals(false, serializer.isEnabled(SerializerFeature.UseISO8601DateFormat));
+        Assert.assertEquals(false, serializer.out.isEnabled(SerializerFeature.UseISO8601DateFormat));
         serializer.write(new Date(1294552193254L));
 
         Assert.assertEquals("1294552193254", out.toString());
@@ -27,8 +27,8 @@ public class DateTest extends TestCase {
         SerializeWriter out = new SerializeWriter();
 
         JSONSerializer serializer = new JSONSerializer(out);
-        serializer.config(SerializerFeature.UseISO8601DateFormat, true);
-        Assert.assertEquals(true, serializer.isEnabled(SerializerFeature.UseISO8601DateFormat));
+        serializer.out.config(SerializerFeature.UseISO8601DateFormat, true);
+        Assert.assertEquals(true, serializer.out.isEnabled(SerializerFeature.UseISO8601DateFormat));
         serializer.write(new Date(1294552193254L));
 
         Assert.assertEquals("\"2011-01-09T13:49:53.254\"", out.toString());
@@ -38,8 +38,8 @@ public class DateTest extends TestCase {
         SerializeWriter out = new SerializeWriter();
 
         JSONSerializer serializer = new JSONSerializer(out);
-        serializer.config(SerializerFeature.UseISO8601DateFormat, true);
-        Assert.assertEquals(true, serializer.isEnabled(SerializerFeature.UseISO8601DateFormat));
+        serializer.out.config(SerializerFeature.UseISO8601DateFormat, true);
+        Assert.assertEquals(true, serializer.out.isEnabled(SerializerFeature.UseISO8601DateFormat));
         serializer.write(new Date(1294552193000L));
 
         Assert.assertEquals("\"2011-01-09T13:49:53\"", out.toString());
@@ -49,8 +49,8 @@ public class DateTest extends TestCase {
         SerializeWriter out = new SerializeWriter();
 
         JSONSerializer serializer = new JSONSerializer(out);
-        serializer.config(SerializerFeature.UseISO8601DateFormat, true);
-        Assert.assertEquals(true, serializer.isEnabled(SerializerFeature.UseISO8601DateFormat));
+        serializer.out.config(SerializerFeature.UseISO8601DateFormat, true);
+        Assert.assertEquals(true, serializer.out.isEnabled(SerializerFeature.UseISO8601DateFormat));
         serializer.write(new Date(1294502400000L));
 
         Assert.assertEquals("\"2011-01-09\"", out.toString());
@@ -60,9 +60,9 @@ public class DateTest extends TestCase {
         SerializeWriter out = new SerializeWriter();
 
         JSONSerializer serializer = new JSONSerializer(out);
-        serializer.config(SerializerFeature.UseISO8601DateFormat, true);
-        serializer.config(SerializerFeature.UseSingleQuotes, true);
-        Assert.assertEquals(true, serializer.isEnabled(SerializerFeature.UseISO8601DateFormat));
+        serializer.out.config(SerializerFeature.UseISO8601DateFormat, true);
+        serializer.out.config(SerializerFeature.UseSingleQuotes, true);
+        Assert.assertEquals(true, serializer.out.isEnabled(SerializerFeature.UseISO8601DateFormat));
         serializer.write(new Date(1294502400000L));
 
         Assert.assertEquals("'2011-01-09'", out.toString());
@@ -72,8 +72,8 @@ public class DateTest extends TestCase {
         SerializeWriter out = new SerializeWriter();
 
         JSONSerializer serializer = new JSONSerializer(out);
-        serializer.config(SerializerFeature.UseISO8601DateFormat, true);
-        Assert.assertEquals(true, serializer.isEnabled(SerializerFeature.UseISO8601DateFormat));
+        serializer.out.config(SerializerFeature.UseISO8601DateFormat, true);
+        Assert.assertEquals(true, serializer.out.isEnabled(SerializerFeature.UseISO8601DateFormat));
         serializer.write(new Date(1294502401000L));
 
         Assert.assertEquals("\"2011-01-09T00:00:01\"", out.toString());
@@ -83,8 +83,8 @@ public class DateTest extends TestCase {
         SerializeWriter out = new SerializeWriter();
 
         JSONSerializer serializer = new JSONSerializer(out);
-        serializer.config(SerializerFeature.UseISO8601DateFormat, true);
-        Assert.assertEquals(true, serializer.isEnabled(SerializerFeature.UseISO8601DateFormat));
+        serializer.out.config(SerializerFeature.UseISO8601DateFormat, true);
+        Assert.assertEquals(true, serializer.out.isEnabled(SerializerFeature.UseISO8601DateFormat));
         serializer.write(new Date(1294502460000L));
 
         Assert.assertEquals("\"2011-01-09T00:01:00\"", out.toString());
@@ -94,8 +94,8 @@ public class DateTest extends TestCase {
         SerializeWriter out = new SerializeWriter();
 
         JSONSerializer serializer = new JSONSerializer(out);
-        serializer.config(SerializerFeature.UseISO8601DateFormat, true);
-        Assert.assertEquals(true, serializer.isEnabled(SerializerFeature.UseISO8601DateFormat));
+        serializer.out.config(SerializerFeature.UseISO8601DateFormat, true);
+        Assert.assertEquals(true, serializer.out.isEnabled(SerializerFeature.UseISO8601DateFormat));
         serializer.write(new Date(1294506000000L));
 
         Assert.assertEquals("\"2011-01-09T01:00:00\"", out.toString());

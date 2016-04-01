@@ -16,8 +16,8 @@ import com.alibaba.fastjson.annotation.JSONField;
 public class FieldInfo implements Comparable<FieldInfo> {
 
     private final String   name;
-    private final Method   method;
-    private final Field    field;
+    public final Method   method;
+    public final Field    field;
 
     private int            ordinal = 0;
     private final Class<?> fieldClass;
@@ -117,13 +117,16 @@ public class FieldInfo implements Comparable<FieldInfo> {
             }
         }
 
-        Type genericFieldType = getFieldType(clazz, type, fieldType);
-
-        if (genericFieldType != fieldType) {
-            if (genericFieldType instanceof ParameterizedType) {
-                fieldClass = TypeUtils.getClass(genericFieldType);
-            } else if (genericFieldType instanceof Class) {
-                fieldClass = TypeUtils.getClass(genericFieldType);
+        Type genericFieldType = fieldType;
+        
+        if (!(fieldType instanceof Class)) {
+            genericFieldType = getFieldType(clazz, type, fieldType);
+            if (genericFieldType != fieldType) {
+                if (genericFieldType instanceof ParameterizedType) {
+                    fieldClass = TypeUtils.getClass(genericFieldType);
+                } else if (genericFieldType instanceof Class) {
+                    fieldClass = TypeUtils.getClass(genericFieldType);
+                }
             }
         }
 
@@ -135,7 +138,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         if (clazz == null || type == null) {
             return fieldType;
         }
-
+        
         if (fieldType instanceof GenericArrayType) {
             GenericArrayType genericArrayType = (GenericArrayType) fieldType;
             Type componentType = genericArrayType.getGenericComponentType();
@@ -148,10 +151,6 @@ public class FieldInfo implements Comparable<FieldInfo> {
             return fieldType;
         }
         
-        if (fieldType instanceof Class) {
-            return fieldType;
-        }
-
         if (!TypeUtils.isGenericParamType(type)) {
             return fieldType;
         }
@@ -245,24 +244,15 @@ public class FieldInfo implements Comparable<FieldInfo> {
     }
 
     public String gerQualifiedName() {
-        Member member = getMember();
-        return member.getDeclaringClass().getName() + "." + member.getName();
-    }
-
-    public Member getMember() {
+        Member member;
+        
         if (method != null) {
-            return method;
+            member = method;
         } else {
-            return field;
+            member = field;
         }
-    }
-
-    public Method getMethod() {
-        return method;
-    }
-
-    public Field getField() {
-        return field;
+        
+        return member.getDeclaringClass().getName() + "." + member.getName();
     }
 
     public int compareTo(FieldInfo o) {

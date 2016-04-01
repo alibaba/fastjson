@@ -74,7 +74,7 @@ public class MapSerializerTest extends TestCase {
         SerializeWriter out = new SerializeWriter();
 
         JSONSerializer serializer = new JSONSerializer(out);
-        serializer.config(SerializerFeature.UseSingleQuotes, true);
+        serializer.out.config(SerializerFeature.UseSingleQuotes, true);
 
         MapCodec mapSerializer = new MapCodec();
         Map<String, String> map = new LinkedHashMap<String, String>();

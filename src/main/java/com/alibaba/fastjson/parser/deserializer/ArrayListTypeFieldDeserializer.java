@@ -89,7 +89,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
             if (paramIndex != -1) {
                 itemType = paramType.getActualTypeArguments()[paramIndex];
                 if (!itemType.equals(this.itemType)) {
-                    itemTypeDeser = parser.getConfig().getDeserializer(itemType);
+                    itemTypeDeser = parser.config.getDeserializer(itemType);
                 }
             }
         }
@@ -105,7 +105,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
         }
 
         if (itemTypeDeser == null) {
-            itemTypeDeser = deserializer = parser.getConfig().getDeserializer(itemType);
+            itemTypeDeser = deserializer = parser.config.getDeserializer(itemType);
             itemFastMatchToken = deserializer.getFastMatchToken();
         }
 

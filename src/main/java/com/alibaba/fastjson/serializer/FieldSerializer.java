@@ -60,7 +60,7 @@ public abstract class FieldSerializer {
     }
 
     public Field getField() {
-        return fieldInfo.getField();
+        return fieldInfo.field;
     }
 
     public String getName() {
@@ -68,14 +68,14 @@ public abstract class FieldSerializer {
     }
 
     public Method getMethod() {
-        return fieldInfo.getMethod();
+        return fieldInfo.method;
     }
 
     public void writePrefix(JSONSerializer serializer) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
-        if (serializer.isEnabled(SerializerFeature.QuoteFieldNames)) {
-            if (serializer.isEnabled(SerializerFeature.UseSingleQuotes)) {
+        if (out.isEnabled(SerializerFeature.QuoteFieldNames)) {
+            if (out.isEnabled(SerializerFeature.UseSingleQuotes)) {
                 out.write(single_quoted_fieldPrefix);
             } else {
                 out.write(double_quoted_fieldPrefix);

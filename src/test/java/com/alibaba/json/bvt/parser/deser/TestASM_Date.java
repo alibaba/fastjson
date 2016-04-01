@@ -12,7 +12,7 @@ public class TestASM_Date extends TestCase {
         JSONSerializer serializer = new JSONSerializer();
         serializer.write(new V0());
 
-        Assert.assertEquals("{}", serializer.getWriter().toString());
+        Assert.assertEquals("{}", serializer.out.toString());
     }
     
     public static class V0 {

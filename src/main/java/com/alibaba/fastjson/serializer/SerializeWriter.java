@@ -26,7 +26,7 @@ import java.nio.charset.Charset;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.util.Base64;
+import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.util.IOUtils;
 
 /**
@@ -90,7 +90,7 @@ public final class SerializeWriter extends Writer {
 
         int featuresValue = 0;
         for (SerializerFeature feature : features) {
-            featuresValue |= feature.getMask();
+            featuresValue |= feature.mask;
         }
         this.features = featuresValue;
     }
@@ -114,14 +114,14 @@ public final class SerializeWriter extends Writer {
 
     public void config(SerializerFeature feature, boolean state) {
         if (state) {
-            features |= feature.getMask();
+            features |= feature.mask;
         } else {
-            features &= ~feature.getMask();
+            features &= ~feature.mask;
         }
     }
 
     public boolean isEnabled(SerializerFeature feature) {
-        return SerializerFeature.isEnabled(this.features, feature);
+        return (features & feature.mask) != 0;
     }
 
     /**
@@ -378,7 +378,7 @@ public final class SerializeWriter extends Writer {
             return;
         }
 
-        final char[] CA = Base64.CA;
+        final char[] CA = JSONLexer.CA;
 
         int eLen = (bytesLen / 3) * 3; // Length of even 24-bits.
         int charsLen = ((bytesLen - 1) / 3 + 1) << 2; // base64 character count
@@ -1121,7 +1121,7 @@ public final class SerializeWriter extends Writer {
             return false;
         }
 
-        if (ch == '/' && SerializerFeature.isEnabled(features, SerializerFeature.WriteSlashAsSpecial)) {
+        if (ch == '/' && (features & SerializerFeature.WriteSlashAsSpecial.mask) != 0) {
             return true;
         }
 

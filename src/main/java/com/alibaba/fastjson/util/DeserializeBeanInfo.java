@@ -23,13 +23,12 @@ public class DeserializeBeanInfo {
     private Constructor<?>        creatorConstructor;
     private Method                factoryMethod;
 
-    private final List<FieldInfo> fieldList       = new ArrayList<FieldInfo>();
-    private final List<FieldInfo> sortedFieldList = new ArrayList<FieldInfo>();
+    public final List<FieldInfo> fields          = new ArrayList<FieldInfo>();
+    public final List<FieldInfo> sortedFieldList = new ArrayList<FieldInfo>();
 
-    private int                   parserFeatures  = 0;
+    public final int             parserFeatures;
 
     public DeserializeBeanInfo(Class<?> clazz){
-        super();
         this.parserFeatures = TypeUtils.getParserFeatures(clazz);
     }
 
@@ -37,36 +36,16 @@ public class DeserializeBeanInfo {
         return defaultConstructor;
     }
 
-    public void setDefaultConstructor(Constructor<?> defaultConstructor) {
-        this.defaultConstructor = defaultConstructor;
-    }
-
     public Constructor<?> getCreatorConstructor() {
         return creatorConstructor;
-    }
-
-    public void setCreatorConstructor(Constructor<?> createConstructor) {
-        this.creatorConstructor = createConstructor;
     }
 
     public Method getFactoryMethod() {
         return factoryMethod;
     }
 
-    public void setFactoryMethod(Method factoryMethod) {
-        this.factoryMethod = factoryMethod;
-    }
-
-    public List<FieldInfo> getFieldList() {
-        return fieldList;
-    }
-
-    public List<FieldInfo> getSortedFieldList() {
-        return sortedFieldList;
-    }
-
     public boolean add(FieldInfo field) {
-        for (FieldInfo item : this.fieldList) {
+        for (FieldInfo item : this.fields) {
             if (item.getName().equals(field.getName())) {
                 if (item.isGetOnly() && !field.isGetOnly()) {
                     continue;
@@ -75,7 +54,7 @@ public class DeserializeBeanInfo {
                 return false;
             }
         }
-        fieldList.add(field);
+        fields.add(field);
         sortedFieldList.add(field);
         Collections.sort(sortedFieldList);
 
@@ -88,12 +67,12 @@ public class DeserializeBeanInfo {
         Constructor<?> defaultConstructor = getDefaultConstructor(clazz);
         if (defaultConstructor != null) {
             TypeUtils.setAccessible(defaultConstructor);
-            beanInfo.setDefaultConstructor(defaultConstructor);
+            beanInfo.defaultConstructor = defaultConstructor;
         } else if (defaultConstructor == null && !(clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers()))) {
             Constructor<?> creatorConstructor = getCreatorConstructor(clazz);
             if (creatorConstructor != null) {
                 TypeUtils.setAccessible(creatorConstructor);
-                beanInfo.setCreatorConstructor(creatorConstructor);
+                beanInfo.creatorConstructor = creatorConstructor;
 
                 Class<?>[] parameterTypes = creatorConstructor.getParameterTypes();
                 Type[] getGenericParameterTypes = creatorConstructor.getGenericParameterTypes();
@@ -125,7 +104,7 @@ public class DeserializeBeanInfo {
             Method factoryMethod = getFactoryMethod(clazz);
             if (factoryMethod != null) {
                 TypeUtils.setAccessible(factoryMethod);
-                beanInfo.setFactoryMethod(factoryMethod);
+                beanInfo.factoryMethod = factoryMethod;
 
                 Class<?>[] parameterTypes = factoryMethod.getParameterTypes();
                 Type[] genericParameterTypes = factoryMethod.getGenericParameterTypes();
@@ -262,7 +241,7 @@ public class DeserializeBeanInfo {
             }
 
             boolean contains = false;
-            for (FieldInfo item : beanInfo.getFieldList()) {
+            for (FieldInfo item : beanInfo.fields) {
                 if (item.getName().equals(field.getName())) {
                     contains = true;
                     continue;
@@ -393,10 +372,5 @@ public class DeserializeBeanInfo {
             }
         }
         return factoryMethod;
-    }
-
-    
-    public int getParserFeatures() {
-        return parserFeatures;
     }
 }

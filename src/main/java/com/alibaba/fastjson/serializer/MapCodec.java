@@ -51,7 +51,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         if (object == null) {
             out.writeNull();
@@ -78,7 +78,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
             return;
         }
 
-        SerialContext parent = serializer.getContext();
+        SerialContext parent = serializer.context;
         serializer.setContext(parent, object, fieldName, 0);
         try {
             out.write('{');
@@ -107,12 +107,12 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                     List<PropertyPreFilter> preFilters = serializer.getPropertyPreFiltersDirect();
                     if (preFilters != null && preFilters.size() > 0) {
                         if (entryKey == null || entryKey instanceof String) {
-                            if (!FilterUtils.applyName(serializer, object, (String) entryKey)) {
+                            if (!JSONSerializer.applyName(serializer, object, (String) entryKey)) {
                                 continue;
                             }
                         } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
                             String strKey = JSON.toJSONString(entryKey);
-                            if (!FilterUtils.applyName(serializer, object, strKey)) {
+                            if (!JSONSerializer.applyName(serializer, object, strKey)) {
                                 continue;
                             }
                         }
@@ -123,12 +123,12 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                     List<PropertyFilter> propertyFilters = serializer.getPropertyFiltersDirect();
                     if (propertyFilters != null && propertyFilters.size() > 0) {
                         if (entryKey == null || entryKey instanceof String) {
-                            if (!FilterUtils.apply(serializer, object, (String) entryKey, value)) {
+                            if (!JSONSerializer.apply(serializer, object, (String) entryKey, value)) {
                                 continue;
                             }
                         } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
                             String strKey = JSON.toJSONString(entryKey);
-                            if (!FilterUtils.apply(serializer, object, strKey, value)) {
+                            if (!JSONSerializer.apply(serializer, object, strKey, value)) {
                                 continue;
                             }
                         }
@@ -139,10 +139,10 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                     List<NameFilter> nameFilters = serializer.getNameFiltersDirect();
                     if (nameFilters != null && nameFilters.size() > 0) {
                         if (entryKey == null || entryKey instanceof String) {
-                            entryKey = FilterUtils.processKey(serializer, object, (String) entryKey, value);
+                            entryKey = JSONSerializer.processKey(serializer, object, (String) entryKey, value);
                         } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
                             String strKey = JSON.toJSONString(entryKey);
-                            entryKey = FilterUtils.processKey(serializer, object, strKey, value);
+                            entryKey = JSONSerializer.processKey(serializer, object, strKey, value);
                         }
                     }
                 }
@@ -151,16 +151,16 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                     List<ValueFilter> valueFilters = serializer.getValueFiltersDirect();
                     if (valueFilters != null && valueFilters.size() > 0) {
                         if (entryKey == null || entryKey instanceof String) {
-                            value = FilterUtils.processValue(serializer, object, (String) entryKey, value);
+                            value = JSONSerializer.processValue(serializer, object, (String) entryKey, value);
                         } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
                             String strKey = JSON.toJSONString(entryKey);
-                            value = FilterUtils.processValue(serializer, object, strKey, value);
+                            value = JSONSerializer.processValue(serializer, object, strKey, value);
                         }
                     }
                 }
                 
                 if (value == null) {
-                    if (!serializer.isEnabled(SerializerFeature.WriteMapNullValue)) {
+                    if (!out.isEnabled(SerializerFeature.WriteMapNullValue)) {
                         continue;
                     }
                 }
@@ -211,7 +211,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                 }
             }
         } finally {
-            serializer.setContext(parent);
+            serializer.context = parent;
         }
 
         serializer.decrementIdent();
@@ -324,7 +324,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
 
                 if (key == JSON.DEFAULT_TYPE_KEY) {
                     String typeName = lexer.scanSymbol(parser.symbolTable, '"');
-                    Class<?> clazz = TypeUtils.loadClass(typeName, parser.getConfig().getDefaultClassLoader());
+                    Class<?> clazz = TypeUtils.loadClass(typeName, parser.config.defaultClassLoader);
 
                     if (clazz == map.getClass()) {
                         lexer.nextToken(JSONToken.COMMA);
@@ -335,7 +335,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                         continue;
                     }
 
-                    ObjectDeserializer deserializer = parser.getConfig().getDeserializer(clazz);
+                    ObjectDeserializer deserializer = parser.config.getDeserializer(clazz);
 
                     lexer.nextToken(JSONToken.COMMA);
 
@@ -387,8 +387,8 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
             throw new JSONException("syntax error, expect {, actual " + lexer.tokenName());
         }
 
-        ObjectDeserializer keyDeserializer = parser.getConfig().getDeserializer(keyType);
-        ObjectDeserializer valueDeserializer = parser.getConfig().getDeserializer(valueType);
+        ObjectDeserializer keyDeserializer = parser.config.getDeserializer(keyType);
+        ObjectDeserializer valueDeserializer = parser.config.getDeserializer(valueType);
         lexer.nextToken(keyDeserializer.getFastMatchToken());
 
         ParseContext context = parser.getContext();
@@ -406,15 +406,15 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                     if (lexer.token() == JSONToken.LITERAL_STRING) {
                         String ref = lexer.stringVal();
                         if ("..".equals(ref)) {
-                            ParseContext parentContext = context.getParentContext();
-                            object = parentContext.getObject();
+                            ParseContext parentContext = context.parent;
+                            object = parentContext.object;
                         } else if ("$".equals(ref)) {
                             ParseContext rootContext = context;
-                            while (rootContext.getParentContext() != null) {
-                                rootContext = rootContext.getParentContext();
+                            while (rootContext.parent != null) {
+                                rootContext = rootContext.parent;
                             }
 
-                            object = rootContext.getObject();
+                            object = rootContext.object;
                         } else {
                             parser.addResolveTask(new ResolveTask(context, ref));
                             parser.setResolveStatus(DefaultJSONParser.NeedToResolve);

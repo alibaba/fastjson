@@ -15,6 +15,6 @@ public class OOMTest extends TestCase {
             JSON.parse(text);
         }
         
-        Assert.assertEquals(SymbolTable.MAX_SIZE, ParserConfig.getGlobalInstance().getSymbolTable().size());
+        Assert.assertEquals(SymbolTable.MAX_SIZE, ParserConfig.getGlobalInstance().symbolTable.size());
     }
 }

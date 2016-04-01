@@ -1,6 +1,7 @@
 package com.alibaba.json.test.benchmark.decode;
 
 import com.alibaba.json.test.benchmark.BenchmarkCase;
+import com.alibaba.json.test.benchmark.encode.EishayEncode;
 import com.alibaba.json.test.codec.Codec;
 
 import data.media.MediaContent;
@@ -17,7 +18,7 @@ public class EishayDecode extends BenchmarkCase {
     }
 
     public void init(Codec codec) throws Exception {
-        this.text = codec.encode(EishayDecodeBytes.instance.getContent());
+        this.text = codec.encode(EishayEncode.mediaContent);
         System.out.println(text);
     }
 

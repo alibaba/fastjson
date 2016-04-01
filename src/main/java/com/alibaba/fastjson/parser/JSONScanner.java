@@ -20,16 +20,16 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.util.Base64;
 
 //这个类，为了性能优化做了很多特别处理，一切都是为了性能！！！
 
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
-public final class JSONScanner extends JSONLexerBase {
+public final class JSONScanner extends JSONLexer {
 
     private final String text;
+    private final int len;
 
     public JSONScanner(String input){
         this(input, JSON.DEFAULT_PARSER_FEATURE);
@@ -39,6 +39,7 @@ public final class JSONScanner extends JSONLexerBase {
         this.features = features;
 
         text = input;
+        len = text.length();
         bp = -1;
 
         next();
@@ -48,15 +49,20 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     public final char charAt(int index) {
-        if (index >= text.length()) {
+        if (index >= len) {
             return EOI;
         }
 
         return text.charAt(index);
     }
-
+    
     public final char next() {
-        return ch = charAt(++bp);
+        int index = ++bp;
+        if (index >= len) {
+            return ch = EOI;
+        }
+
+        return ch = text.charAt(index);
     }
 
     public JSONScanner(char[] input, int inputLength){
@@ -82,7 +88,7 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     public byte[] bytesValue() {
-        return Base64.decodeFast(text, np + 1, sp);
+        return decodeFast(text, np + 1, sp);
     }
 
     // public int scanField2(char[] fieldName, Object object, FieldDeserializer fieldDeserializer) {
@@ -130,7 +136,7 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     public boolean scanISO8601DateIfMatch(boolean strict) {
-        int rest = text.length() - bp;
+        int rest = len - bp;
 
         if ((!strict) && rest > 13) {
             char c0 = charAt(bp);
@@ -510,7 +516,7 @@ public final class JSONScanner extends JSONLexerBase {
 
     @Override
     public boolean isEOF() {
-        return bp == text.length() || ch == EOI && bp + 1 == text.length();
+        return bp == len || ch == EOI && bp + 1 == len;
     }
 
     protected final void arrayCopy(int srcPos, char[] dest, int destPos, int length) {

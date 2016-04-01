@@ -38,7 +38,7 @@ import com.alibaba.fastjson.util.IdentityHashMap;
  */
 public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 
-    private final static SerializeConfig globalInstance = new SerializeConfig();
+    public final static SerializeConfig globalInstance = new SerializeConfig();
 
     private String                       typeKey        = JSON.DEFAULT_TYPE_KEY;
 

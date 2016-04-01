@@ -30,9 +30,9 @@ public final class ListSerializer implements ObjectSerializer {
     public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType)
                                                                                                        throws IOException {
 
-        boolean writeClassName = serializer.isEnabled(SerializerFeature.WriteClassName);
+        boolean writeClassName = serializer.out.isEnabled(SerializerFeature.WriteClassName);
 
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         Type elementType = null;
         if (writeClassName) {
@@ -58,7 +58,7 @@ public final class ListSerializer implements ObjectSerializer {
             return;
         }
 
-        SerialContext context = serializer.getContext();
+        SerialContext context = serializer.context;
         serializer.setContext(context, object, fieldName, 0);
 
         ObjectSerializer itemSerializer = null;
@@ -80,11 +80,11 @@ public final class ListSerializer implements ObjectSerializer {
                         } else {
                             itemSerializer = serializer.getObjectWriter(item.getClass());
                             SerialContext itemContext = new SerialContext(context, object, fieldName, 0);
-                            serializer.setContext(itemContext);
+                            serializer.context = itemContext;
                             itemSerializer.write(serializer, item, i, elementType);
                         }
                     } else {
-                        serializer.getWriter().writeNull();
+                        serializer.out.writeNull();
                     }
                     i++;
                 }
@@ -118,7 +118,7 @@ public final class ListSerializer implements ObjectSerializer {
                         }
                     } else {
                         SerialContext itemContext = new SerialContext(context, object, fieldName, 0);
-                        serializer.setContext(itemContext);
+                        serializer.context = itemContext;
 
                         if (serializer.containsReference(item)) {
                             serializer.writeReference(item);
@@ -132,7 +132,7 @@ public final class ListSerializer implements ObjectSerializer {
             }
             out.append(']');
         } finally {
-            serializer.setContext(context);
+            serializer.context = context;
         }
     }
 

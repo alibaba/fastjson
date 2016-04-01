@@ -4,18 +4,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Assert;
-import junit.framework.TestCase;
 
-import com.alibaba.fastjson.serializer.FilterUtils;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.NameFilter;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 
+import junit.framework.TestCase;
+
 public class NameFilterTest_short extends TestCase {
 
     public void test_namefilter() throws Exception {
-        new FilterUtils();
-        
         NameFilter filter = new NameFilter() {
 
             public String process(Object source, String name, Object value) {

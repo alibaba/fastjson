@@ -407,7 +407,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
             }
             
             Object value = map.get(name);
-            return TypeUtils.cast(value, method.getGenericReturnType(), ParserConfig.getGlobalInstance());
+            return TypeUtils.cast(value, method.getGenericReturnType(), ParserConfig.global);
         }
 
         throw new UnsupportedOperationException(method.toGenericString());

@@ -42,7 +42,7 @@ public class StringSerializerTest extends TestCase {
     public void test_3() throws Exception {
         SerializeWriter out = new SerializeWriter();
         JSONSerializer serializer = new JSONSerializer(out);
-        serializer.config(SerializerFeature.UseSingleQuotes, true);
+        serializer.out.config(SerializerFeature.UseSingleQuotes, true);
 
         serializer.write(new TestEntity("张三"));
         Assert.assertEquals("{'value':'张三'}", out.toString());

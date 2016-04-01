@@ -91,16 +91,16 @@ public class ObjectFieldSerializer extends FieldSerializer {
 
         if (propertyValue == null) {
             if (writeNumberAsZero && Number.class.isAssignableFrom(runtimeInfo.runtimeFieldClass)) {
-                serializer.getWriter().write('0');
+                serializer.out.write('0');
                 return;
             } else if (writeNullStringAsEmpty && String.class == runtimeInfo.runtimeFieldClass) {
-                serializer.getWriter().write("\"\"");
+                serializer.out.write("\"\"");
                 return;
             } else if (writeNullBooleanAsFalse && Boolean.class == runtimeInfo.runtimeFieldClass) {
-                serializer.getWriter().write("false");
+                serializer.out.write("false");
                 return;
             } else if (writeNullListAsEmpty && Collection.class.isAssignableFrom(runtimeInfo.runtimeFieldClass)) {
-                serializer.getWriter().write("[]");
+                serializer.out.write("[]");
                 return;
             }
 
@@ -109,7 +109,7 @@ public class ObjectFieldSerializer extends FieldSerializer {
         }
 
         if (writeEnumUsingToString == true && runtimeInfo.runtimeFieldClass.isEnum()) {
-            serializer.getWriter().writeString(((Enum<?>) propertyValue).name());
+            serializer.out.writeString(((Enum<?>) propertyValue).name());
             return;
         }
 

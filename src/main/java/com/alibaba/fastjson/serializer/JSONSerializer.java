@@ -40,9 +40,9 @@ import com.alibaba.fastjson.JSONStreamAware;
  */
 public class JSONSerializer {
 
-    private final SerializeConfig                  config;
+    public final SerializeConfig                  config;
 
-    private final SerializeWriter                  out;
+    public final SerializeWriter                   out;
 
     private List<BeforeFilter>                     beforeFilters      = null;
     private List<AfterFilter>                      afterFilters       = null;
@@ -58,14 +58,14 @@ public class JSONSerializer {
     private DateFormat                             dateFormat;
 
     private IdentityHashMap<Object, SerialContext> references         = null;
-    private SerialContext                          context;
+    public SerialContext                           context;
 
     public JSONSerializer(){
-        this(new SerializeWriter(), SerializeConfig.getGlobalInstance());
+        this(new SerializeWriter(), SerializeConfig.globalInstance);
     }
 
     public JSONSerializer(SerializeWriter out){
-        this(out, SerializeConfig.getGlobalInstance());
+        this(out, SerializeConfig.globalInstance);
     }
 
     public JSONSerializer(SerializeConfig config){
@@ -108,16 +108,8 @@ public class JSONSerializer {
         }
     }
 
-    public SerialContext getContext() {
-        return context;
-    }
-
-    public void setContext(SerialContext context) {
-        this.context = context;
-    }
-
     public void setContext(SerialContext parent, Object object, Object fieldName, int features) {
-        if (isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {
+        if (out.isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {
             return;
         }
 
@@ -136,8 +128,8 @@ public class JSONSerializer {
         }
 
         if (fieldType == null) {
-            if (this.isEnabled(SerializerFeature.NotWriteRootClassName)) {
-                boolean isRoot = context.getParent() == null;
+            if (out.isEnabled(SerializerFeature.NotWriteRootClassName)) {
+                boolean isRoot = context.parent == null;
                 if (isRoot) {
                     return false;
                 }
@@ -164,18 +156,18 @@ public class JSONSerializer {
     }
 
     public void writeReference(Object object) {
-        SerialContext context = this.getContext();
-        Object current = context.getObject();
+        SerialContext context = this.context;
+        Object current = context.object;
 
         if (object == current) {
             out.write("{\"$ref\":\"@\"}");
             return;
         }
 
-        SerialContext parentContext = context.getParent();
+        SerialContext parentContext = context.parent;
 
         if (parentContext != null) {
-            if (object == parentContext.getObject()) {
+            if (object == parentContext.object) {
                 out.write("{\"$ref\":\"..\"}");
                 return;
             }
@@ -183,20 +175,20 @@ public class JSONSerializer {
 
         SerialContext rootContext = context;
         for (;;) {
-            if (rootContext.getParent() == null) {
+            if (rootContext.parent == null) {
                 break;
             }
-            rootContext = rootContext.getParent();
+            rootContext = rootContext.parent;
         }
 
-        if (object == rootContext.getObject()) {
+        if (object == rootContext.object) {
             out.write("{\"$ref\":\"$\"}");
             return;
         }
 
         SerialContext refContext = this.getSerialContext(object);
 
-        String path = refContext.getPath();
+        String path = refContext.toString();
 
         out.write("{\"$ref\":\"");
         out.write(path);
@@ -214,10 +206,6 @@ public class JSONSerializer {
 
     public List<ValueFilter> getValueFiltersDirect() {
         return valueFilters;
-    }
-
-    public int getIndentCount() {
-        return indentCount;
     }
 
     public void incrementIndent() {
@@ -243,19 +231,11 @@ public class JSONSerializer {
         return beforeFilters;
     }
 
-    public List<BeforeFilter> getBeforeFiltersDirect() {
-        return beforeFilters;
-    }
-
     public List<AfterFilter> getAfterFilters() {
         if (afterFilters == null) {
             afterFilters = new ArrayList<AfterFilter>();
         }
 
-        return afterFilters;
-    }
-
-    public List<AfterFilter> getAfterFiltersDirect() {
         return afterFilters;
     }
 
@@ -295,28 +275,12 @@ public class JSONSerializer {
         return propertyFilters;
     }
 
-    public SerializeWriter getWriter() {
-        return out;
-    }
-
     public String toString() {
         return out.toString();
     }
 
     public void config(SerializerFeature feature, boolean state) {
         out.config(feature, state);
-    }
-
-    public boolean isEnabled(SerializerFeature feature) {
-        return out.isEnabled(feature);
-    }
-
-    public void writeNull() {
-        this.out.writeNull();
-    }
-
-    public SerializeConfig getMapping() {
-        return config;
     }
 
     public static final void write(Writer out, Object object) {
@@ -424,7 +388,9 @@ public class JSONSerializer {
                 ObjectSerializer compObjectSerializer = getObjectWriter(componentType);
                 config.put(clazz, new ArraySerializer(componentType, compObjectSerializer));
             } else if (Throwable.class.isAssignableFrom(clazz)) {
-                config.put(clazz, new ExceptionSerializer(clazz));
+                JavaBeanSerializer serializer = new JavaBeanSerializer(clazz);
+                serializer.writeClassName = true;
+                config.put(clazz, serializer);
             } else if (TimeZone.class.isAssignableFrom(clazz)) {
                 config.put(clazz, MiscCodec.instance);
             } else if (Charset.class.isAssignableFrom(clazz)) {
@@ -467,4 +433,77 @@ public class JSONSerializer {
         this.out.close();
     }
 
+    public static char writeBefore(JSONSerializer serializer, Object object, char seperator) {
+        List<BeforeFilter> beforeFilters = serializer.beforeFilters;
+        if (beforeFilters != null) {
+            for (BeforeFilter beforeFilter : beforeFilters) {
+                seperator = beforeFilter.writeBefore(serializer, object, seperator);
+            }
+        }
+        return seperator;
+    }
+
+    public static char writeAfter(JSONSerializer serializer, Object object, char seperator) {
+        List<AfterFilter> afterFilters = serializer.afterFilters;
+        if (afterFilters != null) {
+            for (AfterFilter afterFilter : afterFilters) {
+                seperator = afterFilter.writeAfter(serializer, object, seperator);
+            }
+        }
+        return seperator;
+    }
+
+    public static Object processValue(JSONSerializer serializer, Object object, String key, Object propertyValue) {
+        List<ValueFilter> valueFilters = serializer.valueFilters;
+        if (valueFilters != null) {
+            for (ValueFilter valueFilter : valueFilters) {
+                propertyValue = valueFilter.process(object, key, propertyValue);
+            }
+        }
+
+        return propertyValue;
+    }
+
+    public static String processKey(JSONSerializer serializer, Object object, String key, Object propertyValue) {
+        List<NameFilter> nameFilters = serializer.nameFilters;
+        if (nameFilters != null) {
+            for (NameFilter nameFilter : nameFilters) {
+                key = nameFilter.process(object, key, propertyValue);
+            }
+        }
+
+        return key;
+    }
+
+    public static boolean applyName(JSONSerializer serializer, Object object, String key) {
+        List<PropertyPreFilter> filters = serializer.propertyPreFilters;
+
+        if (filters == null) {
+            return true;
+        }
+
+        for (PropertyPreFilter filter : filters) {
+            if (!filter.apply(serializer, object, key)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static boolean apply(JSONSerializer serializer, Object object, String key, Object propertyValue) {
+        List<PropertyFilter> propertyFilters = serializer.propertyFilters;
+
+        if (propertyFilters == null) {
+            return true;
+        }
+
+        for (PropertyFilter propertyFilter : propertyFilters) {
+            if (!propertyFilter.apply(object, key, propertyValue)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

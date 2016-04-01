@@ -10,7 +10,7 @@ public class EnumerationSerialiazer implements ObjectSerializer {
     public static EnumerationSerialiazer instance = new EnumerationSerialiazer();
     
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         if (object == null) {
             if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {
@@ -22,7 +22,7 @@ public class EnumerationSerialiazer implements ObjectSerializer {
         }
         
         Type elementType = null;
-        if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
+        if (out.isEnabled(SerializerFeature.WriteClassName)) {
             if (fieldType instanceof ParameterizedType) {
                 ParameterizedType param = (ParameterizedType) fieldType;
                 elementType = param.getActualTypeArguments()[0];
@@ -31,7 +31,7 @@ public class EnumerationSerialiazer implements ObjectSerializer {
         
         Enumeration<?> e = (Enumeration<?>) object;
         
-        SerialContext context = serializer.getContext();
+        SerialContext context = serializer.context;
         serializer.setContext(context, object, fieldName, 0);
 
         try {
@@ -55,7 +55,7 @@ public class EnumerationSerialiazer implements ObjectSerializer {
             }
             out.append(']');
         } finally {
-            serializer.setContext(context);
+            serializer.context = context;
         }
     }
 }

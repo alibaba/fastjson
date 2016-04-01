@@ -30,11 +30,11 @@ public class OnlyFieldTest extends TestCase {
         }
 
         public String getPhoneNum() {
-            throw new UnsupportedOperationException();
+            return phoneNum;
         }
 
         public void setPhoneNum(String phoneNum) {
-            throw new UnsupportedOperationException();
+            this.phoneNum = phoneNum;
         }
 
     }

@@ -41,6 +41,16 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
             if (object == null) {
                 fieldValues.put(fieldInfo.name, value);
             } else {
+                if (value == null) {
+                    Class<?> fieldClass = fieldInfo.fieldClass;
+                    if (fieldClass == byte.class // 
+                            || fieldClass == short.class //
+                            || fieldClass == float.class //
+                            || fieldClass == double.class) {
+                        return;
+                    }
+                }
+                
                 setValue(object, value);
             }
         }

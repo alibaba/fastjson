@@ -29,7 +29,8 @@ public abstract class FieldDeserializer {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void setValue(Object object, Object value) {
         final Field field = fieldInfo.field;
-        if (field != null) {
+        final Method method = fieldInfo.method;
+        if (field != null && (fieldInfo.publicField || method == null)) {
             try {
                 field.set(object, value);
             } catch (Exception e) {
@@ -38,7 +39,6 @@ public abstract class FieldDeserializer {
             return;
         }
         
-        Method method = fieldInfo.method;
         if (method != null) {
             try {
                 if (fieldInfo.isGetOnly()) {

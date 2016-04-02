@@ -29,6 +29,8 @@ public class FieldInfo implements Comparable<FieldInfo> {
     
     private JSONField      fieldAnnotation;
     private JSONField      methodAnnotation;
+    
+    public final char[]   name_chars;
 
     public FieldInfo(String name, Class<?> declaringClass, Class<?> fieldClass, Type fieldType, Field field,
                      int ordinal, int serialzeFeatures){
@@ -41,6 +43,13 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.ordinal = ordinal;
         
         publicField = field != null ? Modifier.isPublic(field.getModifiers()) : false;
+        
+        int nameLen = this.name.length();
+        name_chars = new char[nameLen + 3];
+        this.name.getChars(0, this.name.length(), name_chars, 1);
+        name_chars[0] = '"';
+        name_chars[nameLen + 1] = '"';
+        name_chars[nameLen + 2] = ':';
     }
 
     public FieldInfo(String name, Method method, Field field){
@@ -77,6 +86,14 @@ public class FieldInfo implements Comparable<FieldInfo> {
         } else {
             publicField = false;
         }
+        
+        
+        int nameLen = this.name.length();
+        name_chars = new char[nameLen + 3];
+        this.name.getChars(0, this.name.length(), name_chars, 1);
+        name_chars[0] = '"';
+        name_chars[nameLen + 1] = '"';
+        name_chars[nameLen + 2] = ':';
         
         Type fieldType;
         Class<?> fieldClass;

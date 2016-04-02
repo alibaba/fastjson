@@ -20,6 +20,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
 
 //这个类，为了性能优化做了很多特别处理，一切都是为了性能！！！
 
@@ -519,4 +520,25 @@ public final class JSONScanner extends JSONLexer {
     protected final void arrayCopy(int srcPos, char[] dest, int destPos, int length) {
         text.getChars(srcPos, srcPos + length, dest, destPos);
     }
+    
+    static boolean charArrayCompare(String src, int offset, char[] dest) {
+        final int destLen = dest.length;
+        if (destLen + offset > src.length()) {
+            return false;
+        }
+
+        for (int i = 0; i < destLen; ++i) {
+            if (dest[i] != src.charAt(offset + i)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public final boolean charArrayCompare(char[] chars) {
+        return charArrayCompare(text, bp, chars);
+    }
+    
+    
 }

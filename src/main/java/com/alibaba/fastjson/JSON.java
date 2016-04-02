@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
@@ -679,7 +680,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
 
         try {
-            List<FieldInfo> getters = TypeUtils.computeGetters(clazz, null);
+            List<FieldInfo> getters = TypeUtils.computeGetters(clazz, clazz.getAnnotation(JSONType.class), null, false);
 
             JSONObject json = new JSONObject(getters.size());
 

@@ -25,7 +25,7 @@ import com.alibaba.fastjson.util.FieldInfo;
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
-public abstract class FieldSerializer {
+public abstract class FieldSerializer implements Comparable<FieldSerializer> {
 
     public final FieldInfo fieldInfo;
     private final String      double_quoted_fieldPrefix;
@@ -91,4 +91,8 @@ public abstract class FieldSerializer {
     public abstract void writeProperty(JSONSerializer serializer, Object propertyValue) throws Exception;
 
     public abstract void writeValue(JSONSerializer serializer, Object propertyValue) throws Exception;
+    
+    public int compareTo(FieldSerializer o) {
+        return this.fieldInfo.compareTo(o.fieldInfo);
+    }
 }

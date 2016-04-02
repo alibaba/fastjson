@@ -20,12 +20,14 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.TypeUtils;
 
@@ -64,10 +66,16 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
     public JavaBeanSerializer(Class<?> clazz, Map<String, String> aliasMap){
         this.features = TypeUtils.getSerializeFeatures(clazz);
+        
+        JSONType jsonType = clazz.getAnnotation(JSONType.class);
+        
+        if (jsonType != null) {
+            features = SerializerFeature.of(jsonType.serialzeFeatures());
+        }
 
         {
             List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
-            List<FieldInfo> fieldInfoList = TypeUtils.computeGetters(clazz, aliasMap, false);
+            List<FieldInfo> fieldInfoList = TypeUtils.computeGetters(clazz, jsonType, aliasMap, false);
 
             for (FieldInfo fieldInfo : fieldInfoList) {
                 getterList.add(createFieldSerializer(fieldInfo));
@@ -75,15 +83,26 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
             getters = getterList.toArray(new FieldSerializer[getterList.size()]);
         }
-        {
-            List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
-            List<FieldInfo> fieldInfoList = TypeUtils.computeGetters(clazz, aliasMap, true);
+        
+        String[] orders = null;
 
-            for (FieldInfo fieldInfo : fieldInfoList) {
-                getterList.add(createFieldSerializer(fieldInfo));
-            }
+        if (jsonType != null) {
+            orders = jsonType.orders();
+        }
+        
+        if (orders != null && orders.length != 0) {
+            List<FieldInfo> fieldInfoList = TypeUtils.computeGetters(clazz, jsonType, aliasMap, true);
+          List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
 
-            sortedGetters = getterList.toArray(new FieldSerializer[getterList.size()]);
+          for (FieldInfo fieldInfo : fieldInfoList) {
+              getterList.add(createFieldSerializer(fieldInfo));
+          }
+
+          sortedGetters = getterList.toArray(new FieldSerializer[getterList.size()]);
+        } else {
+            sortedGetters = new FieldSerializer[getters.length];
+            System.arraycopy(getters, 0, sortedGetters, 0, getters.length);
+            Arrays.sort(sortedGetters);
         }
     }
 

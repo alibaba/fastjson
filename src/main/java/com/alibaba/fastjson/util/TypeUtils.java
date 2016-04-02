@@ -897,9 +897,7 @@ public class TypeUtils {
             Map<String, FieldDeserializer> setters = mapping.getFieldDeserializers(clazz);
 
             Constructor<T> constructor = clazz.getDeclaredConstructor();
-            if (!constructor.isAccessible()) {
-                constructor.setAccessible(true);
-            }
+            constructor.setAccessible(true);
             T object = constructor.newInstance();
 
             for (Map.Entry<String, FieldDeserializer> entry : setters.entrySet()) {
@@ -1035,11 +1033,7 @@ public class TypeUtils {
         return clazz;
     }
 
-    public static List<FieldInfo> computeGetters(Class<?> clazz, Map<String, String> aliasMap) {
-        return computeGetters(clazz, aliasMap, true);
-    }
-
-    public static List<FieldInfo> computeGetters(Class<?> clazz, Map<String, String> aliasMap, boolean sorted) {
+    public static List<FieldInfo> computeGetters(Class<?> clazz, JSONType jsonType, Map<String, String> aliasMap, boolean sorted) {
         Map<String, FieldInfo> fieldInfoMap = new LinkedHashMap<String, FieldInfo>();
 
         for (Method method : clazz.getMethods()) {
@@ -1471,8 +1465,8 @@ public class TypeUtils {
         return Object.class;
     }
 
-    public static Field getField(Class<?> clazz, String fieldName) {
-        for (Field field : clazz.getDeclaredFields()) {
+    public static Field getField(Class<?> clazz, String fieldName, Field[] declaredFields) {
+        for (Field field : declaredFields) {
             if (fieldName.equals(field.getName())) {
                 return field;
             }
@@ -1480,7 +1474,7 @@ public class TypeUtils {
 
         Class<?> superClass = clazz.getSuperclass();
         if (superClass != null && superClass != Object.class) {
-            return getField(superClass, fieldName);
+            return getField(superClass, fieldName, superClass.getDeclaredFields());
         }
 
         return null;

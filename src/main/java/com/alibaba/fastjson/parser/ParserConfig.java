@@ -473,7 +473,7 @@ public class ParserConfig {
     public ObjectDeserializer createJavaBeanDeserializer(Class<?> clazz, Type type) {
         boolean asmEnable = this.asmEnable;
         if (asmEnable) {
-            Class<?> superClass = DeserializeBeanInfo.getBuilderClass(clazz);
+            Class<?> superClass = DeserializeBeanInfo.getBuilderClass(clazz.getAnnotation(JSONType.class));
             if (superClass == null) {
                 superClass = clazz;
             }

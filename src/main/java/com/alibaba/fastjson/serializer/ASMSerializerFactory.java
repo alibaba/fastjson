@@ -10,7 +10,9 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -122,8 +124,10 @@ public class ASMSerializerFactory implements Opcodes {
         if (clazz.isPrimitive()) {
             throw new JSONException("unsupportd class " + clazz.getName());
         }
+        
+        JSONType jsonType = clazz.getAnnotation(JSONType.class);
 
-        List<FieldInfo> getters = TypeUtils.computeGetters(clazz, aliasMap, false);
+        List<FieldInfo> getters = TypeUtils.computeGetters(clazz, jsonType, aliasMap, false);
         
         if (getters.size() > 256) {
             return null;
@@ -197,8 +201,6 @@ public class ASMSerializerFactory implements Opcodes {
                                "()Lcom/alibaba/fastjson/serializer/SerializeWriter;");
             mw.visitVarInsn(ASTORE, context.var("out"));
 
-            JSONType jsonType = clazz.getAnnotation(JSONType.class);
-
             if (jsonType == null || jsonType.alphabetic()) {
                 Label _else = new Label();
 
@@ -231,7 +233,20 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitEnd();
         }
 
-        List<FieldInfo> sortedGetters = TypeUtils.computeGetters(clazz, aliasMap, true);
+        String[] orders = null;
+
+        if (jsonType != null) {
+            orders = jsonType.orders();
+        }
+        
+        final List<FieldInfo> sortedGetters;
+        if (orders != null && orders.length != 0) {
+            sortedGetters = TypeUtils.computeGetters(clazz, jsonType, aliasMap, true);
+        } else {
+            sortedGetters = new ArrayList<FieldInfo>(getters);
+            Collections.sort(sortedGetters);
+        }
+        
         {
 
             // sortField support

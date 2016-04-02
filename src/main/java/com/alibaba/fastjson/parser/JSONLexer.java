@@ -2048,4 +2048,616 @@ public abstract class JSONLexer {
 
         return dArr;
     }
+    
+    public final boolean matchField(char[] fieldName) {
+        if (!charArrayCompare(fieldName)) {
+            return false;
+        }
+
+        bp = bp + fieldName.length;
+        ch = charAt(bp);
+
+        if (ch == '{') {
+            next();
+            token = JSONToken.LBRACE;
+        } else if (ch == '[') {
+            next();
+            token = JSONToken.LBRACKET;
+        } else {
+            nextToken();
+        }
+
+        return true;
+    }
+    
+    protected abstract boolean charArrayCompare(char[] chars);
+    
+    public int scanFieldInt(char[] fieldName) {
+        matchStat = UNKOWN;
+
+        if (!charArrayCompare(fieldName)) {
+            matchStat = NOT_MATCH_NAME;
+            return 0;
+        }
+
+        int offset = fieldName.length;
+        char chLocal = charAt(bp + (offset++));
+
+        int value;
+        if (chLocal >= '0' && chLocal <= '9') {
+            value = digits[chLocal];
+            for (;;) {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal >= '0' && chLocal <= '9') {
+                    value = value * 10 + digits[chLocal];
+                } else if (chLocal == '.') {
+                    matchStat = NOT_MATCH;
+                    return 0;
+                } else {
+                    break;
+                }
+            }
+            if (value < 0) {
+                matchStat = NOT_MATCH;
+                return 0;
+            }
+        } else {
+            matchStat = NOT_MATCH;
+            return 0;
+        }
+
+        if (chLocal == ',') {
+            bp += (offset - 1);
+            this.next();
+            matchStat = VALUE;
+            token = JSONToken.COMMA;
+            return value;
+        }
+
+        if (chLocal == '}') {
+            chLocal = charAt(bp + (offset++));
+            if (chLocal == ',') {
+                token = JSONToken.COMMA;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == ']') {
+                token = JSONToken.RBRACKET;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == '}') {
+                token = JSONToken.RBRACE;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == EOI) {
+                token = JSONToken.EOF;
+                bp += (offset - 1);
+                ch = EOI;
+            } else {
+                matchStat = NOT_MATCH;
+                return 0;
+            }
+            matchStat = END;
+        } else {
+            matchStat = NOT_MATCH;
+            return 0;
+        }
+
+        return value;
+    }
+    
+    public long scanFieldLong(char[] fieldName) {
+        matchStat = UNKOWN;
+
+        if (!charArrayCompare(fieldName)) {
+            matchStat = NOT_MATCH_NAME;
+            return 0;
+        }
+
+        int offset = fieldName.length;
+        char chLocal = charAt(bp + (offset++));
+
+        long value;
+        if (chLocal >= '0' && chLocal <= '9') {
+            value = digits[chLocal];
+            for (;;) {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal >= '0' && chLocal <= '9') {
+                    value = value * 10 + digits[chLocal];
+                } else if (chLocal == '.') {
+                    matchStat = NOT_MATCH;
+                    return 0;
+                } else {
+                    break;
+                }
+            }
+            if (value < 0) {
+                matchStat = NOT_MATCH;
+                return 0;
+            }
+        } else {
+            matchStat = NOT_MATCH;
+            return 0;
+        }
+
+        if (chLocal == ',') {
+            bp += (offset - 1);
+            this.next();
+            matchStat = VALUE;
+            token = JSONToken.COMMA;
+            return value;
+        }
+
+        if (chLocal == '}') {
+            chLocal = charAt(bp + (offset++));
+            if (chLocal == ',') {
+                token = JSONToken.COMMA;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == ']') {
+                token = JSONToken.RBRACKET;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == '}') {
+                token = JSONToken.RBRACE;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == EOI) {
+                token = JSONToken.EOF;
+                bp += (offset - 1);
+                ch = EOI;
+            } else {
+                matchStat = NOT_MATCH;
+                return 0;
+            }
+            matchStat = END;
+        } else {
+            matchStat = NOT_MATCH;
+            return 0;
+        }
+
+        return value;
+    }
+    
+    public String scanFieldString(char[] fieldName) {
+        matchStat = UNKOWN;
+
+        if (!charArrayCompare(fieldName)) {
+            matchStat = NOT_MATCH_NAME;
+            return stringDefaultValue();
+        }
+
+        // int index = bp + fieldName.length;
+
+        int offset = fieldName.length;
+        char chLocal = charAt(bp + (offset++));
+
+        if (chLocal != '"') {
+            matchStat = NOT_MATCH;
+
+            return stringDefaultValue();
+        }
+
+        boolean hasSpecial = false;
+        final String strVal;
+        {
+            int startIndex = bp + fieldName.length + 1;
+            int endIndex = indexOf('"', startIndex);
+            if (endIndex == -1) {
+                throw new JSONException("unclosed str");
+            }
+
+            int startIndex2 = bp + fieldName.length + 1; // must re compute
+            String stringVal = subString(startIndex2, endIndex - startIndex2);
+            for (int i = bp + fieldName.length + 1; i < endIndex; ++i) {
+                if (charAt(i) == '\\') {
+                    hasSpecial = true;
+                    break;
+                }
+            }
+
+            if (hasSpecial) {
+                matchStat = NOT_MATCH;
+
+                return stringDefaultValue();
+            }
+
+            offset += (endIndex - (bp + fieldName.length + 1) + 1);
+            chLocal = charAt(bp + (offset++));
+            strVal = stringVal;
+        }
+
+        if (chLocal == ',') {
+            bp += (offset - 1);
+            this.next();
+            matchStat = VALUE;
+            return strVal;
+        }
+
+        if (chLocal == '}') {
+            chLocal = charAt(bp + (offset++));
+            if (chLocal == ',') {
+                token = JSONToken.COMMA;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == ']') {
+                token = JSONToken.RBRACKET;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == '}') {
+                token = JSONToken.RBRACE;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == EOI) {
+                token = JSONToken.EOF;
+                bp += (offset - 1);
+                ch = EOI;
+            } else {
+                matchStat = NOT_MATCH;
+                return stringDefaultValue();
+            }
+            matchStat = END;
+        } else {
+            matchStat = NOT_MATCH;
+            return stringDefaultValue();
+        }
+
+        return strVal;
+    }
+    
+    public boolean scanFieldBoolean(char[] fieldName) {
+        matchStat = UNKOWN;
+
+        if (!charArrayCompare(fieldName)) {
+            matchStat = NOT_MATCH_NAME;
+            return false;
+        }
+
+        int offset = fieldName.length;
+        char chLocal = charAt(bp + (offset++));
+
+        boolean value;
+        if (chLocal == 't') {
+            if (charAt(bp + (offset++)) != 'r') {
+                matchStat = NOT_MATCH;
+                return false;
+            }
+            if (charAt(bp + (offset++)) != 'u') {
+                matchStat = NOT_MATCH;
+                return false;
+            }
+            if (charAt(bp + (offset++)) != 'e') {
+                matchStat = NOT_MATCH;
+                return false;
+            }
+
+            value = true;
+        } else if (chLocal == 'f') {
+            if (charAt(bp + (offset++)) != 'a') {
+                matchStat = NOT_MATCH;
+                return false;
+            }
+            if (charAt(bp + (offset++)) != 'l') {
+                matchStat = NOT_MATCH;
+                return false;
+            }
+            if (charAt(bp + (offset++)) != 's') {
+                matchStat = NOT_MATCH;
+                return false;
+            }
+            if (charAt(bp + (offset++)) != 'e') {
+                matchStat = NOT_MATCH;
+                return false;
+            }
+
+            value = false;
+        } else {
+            matchStat = NOT_MATCH;
+            return false;
+        }
+
+        chLocal = charAt(bp + offset++);
+        if (chLocal == ',') {
+            bp += (offset - 1);
+            this.next();
+            matchStat = VALUE;
+            token = JSONToken.COMMA;
+
+            return value;
+        }
+
+        if (chLocal == '}') {
+            chLocal = charAt(bp + (offset++));
+            if (chLocal == ',') {
+                token = JSONToken.COMMA;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == ']') {
+                token = JSONToken.RBRACKET;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == '}') {
+                token = JSONToken.RBRACE;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == EOI) {
+                token = JSONToken.EOF;
+                bp += (offset - 1);
+                ch = EOI;
+            } else {
+                matchStat = NOT_MATCH;
+                return false;
+            }
+            matchStat = END;
+        } else {
+            matchStat = NOT_MATCH;
+            return false;
+        }
+
+        return value;
+    }
+    
+    public final float scanFieldFloat(char[] fieldName) {
+        matchStat = UNKOWN;
+
+        if (!charArrayCompare(fieldName)) {
+            matchStat = NOT_MATCH_NAME;
+            return 0;
+        }
+
+        int offset = fieldName.length;
+        char chLocal = charAt(bp + (offset++));
+
+        float value;
+        if (chLocal >= '0' && chLocal <= '9') {
+            for (;;) {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal >= '0' && chLocal <= '9') {
+                    continue;
+                } else {
+                    break;
+                }
+            }
+
+            if (chLocal == '.') {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal >= '0' && chLocal <= '9') {
+                    for (;;) {
+                        chLocal = charAt(bp + (offset++));
+                        if (chLocal >= '0' && chLocal <= '9') {
+                            continue;
+                        } else {
+                            break;
+                        }
+                    }
+                } else {
+                    matchStat = NOT_MATCH;
+                    return 0;
+                }
+            }
+
+            int start = bp + fieldName.length;
+            int count = bp + offset - start - 1;
+            String text = this.subString(start, count);
+            value = Float.parseFloat(text);
+        } else {
+            matchStat = NOT_MATCH;
+            return 0;
+        }
+
+        if (chLocal == ',') {
+            bp += (offset - 1);
+            this.next();
+            matchStat = VALUE;
+            token = JSONToken.COMMA;
+            return value;
+        }
+
+        if (chLocal == '}') {
+            chLocal = charAt(bp + (offset++));
+            if (chLocal == ',') {
+                token = JSONToken.COMMA;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == ']') {
+                token = JSONToken.RBRACKET;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == '}') {
+                token = JSONToken.RBRACE;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == EOI) {
+                bp += (offset - 1);
+                token = JSONToken.EOF;
+                ch = EOI;
+            } else {
+                matchStat = NOT_MATCH;
+                return 0;
+            }
+            matchStat = END;
+        } else {
+            matchStat = NOT_MATCH;
+            return 0;
+        }
+
+        return value;
+    }
+    
+    public final double scanFieldDouble(char[] fieldName) {
+        matchStat = UNKOWN;
+
+        if (!charArrayCompare(fieldName)) {
+            matchStat = NOT_MATCH_NAME;
+            return 0;
+        }
+
+        int offset = fieldName.length;
+        char chLocal = charAt(bp + (offset++));
+
+        double value;
+        if (chLocal >= '0' && chLocal <= '9') {
+            for (;;) {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal >= '0' && chLocal <= '9') {
+                    continue;
+                } else {
+                    break;
+                }
+            }
+
+            if (chLocal == '.') {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal >= '0' && chLocal <= '9') {
+                    for (;;) {
+                        chLocal = charAt(bp + (offset++));
+                        if (chLocal >= '0' && chLocal <= '9') {
+                            continue;
+                        } else {
+                            break;
+                        }
+                    }
+                } else {
+                    matchStat = NOT_MATCH;
+                    return 0;
+                }
+            }
+
+            if (chLocal == 'e' || chLocal == 'E') {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal == '+' || chLocal == '-') {
+                    chLocal = charAt(bp + (offset++));
+                }
+                for (;;) {
+                    if (chLocal >= '0' && chLocal <= '9') {
+                        chLocal = charAt(bp + (offset++));
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+            int start = bp + fieldName.length;
+            int count = bp + offset - start - 1;
+            String text = this.subString(start, count);
+            value = Double.parseDouble(text);
+        } else {
+            matchStat = NOT_MATCH;
+            return 0;
+        }
+
+        if (chLocal == ',') {
+            bp += (offset - 1);
+            this.next();
+            matchStat = VALUE;
+            token = JSONToken.COMMA;
+            return value;
+        }
+
+        if (chLocal == '}') {
+            chLocal = charAt(bp + (offset++));
+            if (chLocal == ',') {
+                token = JSONToken.COMMA;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == ']') {
+                token = JSONToken.RBRACKET;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == '}') {
+                token = JSONToken.RBRACE;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == EOI) {
+                token = JSONToken.EOF;
+                bp += (offset - 1);
+                ch = EOI;
+            } else {
+                matchStat = NOT_MATCH;
+                return 0;
+            }
+            matchStat = END;
+        } else {
+            matchStat = NOT_MATCH;
+            return 0;
+        }
+
+        return value;
+    }
+    
+    public String scanFieldSymbol(char[] fieldName, final SymbolTable symbolTable) {
+        matchStat = UNKOWN;
+
+        if (!charArrayCompare(fieldName)) {
+            matchStat = NOT_MATCH_NAME;
+            return null;
+        }
+
+        int offset = fieldName.length;
+        char chLocal = charAt(bp + (offset++));
+
+        if (chLocal != '"') {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        String strVal;
+        // int start = index;
+        int hash = 0;
+        for (;;) {
+            chLocal = charAt(bp + (offset++));
+            if (chLocal == '\"') {
+                // bp = index;
+                // this.ch = chLocal = charAt(bp);
+                int start = bp + fieldName.length + 1;
+                int len = bp + offset - start - 1;
+                strVal = addSymbol(start, len, hash, symbolTable);
+                chLocal = charAt(bp + (offset++));
+                break;
+            }
+
+            hash = 31 * hash + chLocal;
+
+            if (chLocal == '\\') {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+        }
+
+        if (chLocal == ',') {
+            bp += (offset - 1);
+            this.next();
+            matchStat = VALUE;
+            return strVal;
+        }
+
+        if (chLocal == '}') {
+            chLocal = charAt(bp + (offset++));
+            if (chLocal == ',') {
+                token = JSONToken.COMMA;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == ']') {
+                token = JSONToken.RBRACKET;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == '}') {
+                token = JSONToken.RBRACE;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == EOI) {
+                token = JSONToken.EOF;
+                bp += (offset - 1);
+                ch = EOI;
+            } else {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+            matchStat = END;
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        return strVal;
+    }
 }

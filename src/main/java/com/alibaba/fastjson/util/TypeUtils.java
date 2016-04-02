@@ -826,9 +826,7 @@ public class TypeUtils {
             Map<String, FieldDeserializer> setters = mapping.getFieldDeserializers(clazz);
 
             Constructor<T> constructor = clazz.getDeclaredConstructor();
-            if (!constructor.isAccessible()) {
-                constructor.setAccessible(true);
-            }
+            constructor.setAccessible(true);
             T object = constructor.newInstance();
 
             for (Map.Entry<String, FieldDeserializer> entry : setters.entrySet()) {

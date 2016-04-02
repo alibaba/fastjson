@@ -9,17 +9,17 @@ public class BenchmarkMain {
 	     // 注意，byte[]在jackson中是使用base64编码的，不正确的。
 
         BenchmarkExecutor executor = new BenchmarkExecutor();
-        executor.setExecuteCount(5);
-//        executor.getCodecList().add(new FastjsonSCodec());
+        executor.setExecuteCount(3);
+        executor.getCodecList().add(new FastjsonCodec());
 //        executor.getCodecList().add(new FastjsonBeanToArrayCodec());
-        executor.getCodecList().add(new GsonSCodec());
+//        executor.getCodecList().add(new GsonCodec());
 //        executor.getCodecList().add(new Jackson2Codec());
         //
         // executor.getCodecList().add(new SimpleJsonCodec());
         // executor.getCodecList().add(new JsonLibCodec());
         // executor.getCodecList().add(new JsonSmartCodec());
 
-        executor.setLoopCount(1000 * 100);
+        executor.setLoopCount(1000 * 1000);
 
 //        executor.getCaseList().add(new EishayDecodeBytes());
 //        executor.getCaseList().add(new EishayDecode2Bytes());

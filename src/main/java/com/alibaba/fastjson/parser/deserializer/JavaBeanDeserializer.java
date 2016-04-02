@@ -17,6 +17,7 @@ import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
+import com.alibaba.fastjson.parser.JSONLexerBase;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParseContext;
 import com.alibaba.fastjson.parser.ParserConfig;
@@ -184,15 +185,16 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         return (T) object;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName, Object object) {
         if (type == JSON.class || type == JSONObject.class) {
             return (T) parser.parse();
         }
-        
-        final JSONLexer lexer = parser.getLexer(); // xxx
 
-        if (lexer.token() == JSONToken.NULL) {
+        final JSONLexerBase lexer = (JSONLexerBase) parser.lexer; // xxx
+
+        int token = lexer.token();
+        if (token == JSONToken.NULL) {
             lexer.nextToken(JSONToken.COMMA);
             return null;
         }
@@ -206,7 +208,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         try {
             Map<String, Object> fieldValues = null;
 
-            if (lexer.token() == JSONToken.RBRACE) {
+            if (token == JSONToken.RBRACE) {
                 lexer.nextToken(JSONToken.COMMA);
                 if (object == null) {
                     object = createInstance(parser, type);
@@ -214,109 +216,204 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 return (T) object;
             }
 
-            if (lexer.token() == JSONToken.LBRACKET && isSupportArrayToBean(lexer)) {
-                return deserialzeArrayMapping(parser, type, fieldName, object);
+            if (token == JSONToken.LBRACKET) {
+                boolean isSupportArrayToBean = (beanInfo.getParserFeatures() & Feature.SupportArrayToBean.mask) != 0
+                                               || lexer.isEnabled(Feature.SupportArrayToBean);
+                if (isSupportArrayToBean) {
+                    return deserialzeArrayMapping(parser, type, fieldName, object);
+                }
             }
 
-            if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {
-                StringBuilder buf = new StringBuilder(72) // 单线程换StringBuilder，并设置初始化容量，避免内部逐步扩容开销
-                .append("syntax error, expect {, actual ") //
-                .append(lexer.tokenName()) //
-                .append(", pos ") //
-                .append(lexer.pos()) //
+            if (token != JSONToken.LBRACE && token != JSONToken.COMMA) {
+                StringBuffer buf = (new StringBuffer()) //
+                                                        .append("syntax error, expect {, actual ") //
+                                                        .append(lexer.tokenName()) //
+                                                        .append(", pos ") //
+                                                        .append(lexer.pos()) //
                 ;
                 if (fieldName instanceof String) {
                     buf //
-                    .append(", fieldName ") //
-                    .append(fieldName);
+                        .append(", fieldName ") //
+                        .append(fieldName);
                 }
                 throw new JSONException(buf.toString());
             }
 
-            if (parser.getResolveStatus() == DefaultJSONParser.TypeNameRedirect) {
-                parser.setResolveStatus(DefaultJSONParser.NONE);
+            if (parser.resolveStatus == DefaultJSONParser.TypeNameRedirect) {
+                parser.resolveStatus = DefaultJSONParser.NONE;
             }
 
-            for (;;) {
-
-                String key = lexer.scanSymbol(parser.getSymbolTable());
-
-                if (key == null) {
-                    if (lexer.token() == JSONToken.RBRACE) {
-                        lexer.nextToken(JSONToken.COMMA);
-                        break;
-                    }
-                    if (lexer.token() == JSONToken.COMMA) {
-                        if (parser.isEnabled(Feature.AllowArbitraryCommas)) {
-                            continue;
-                        }
-                    }
+            for (int fieldIndex = 0;; fieldIndex++) {
+                String key = null;
+                FieldDeserializer fieldDeser = null;
+                FieldInfo fieldInfo = null;
+                Class<?> fieldClass = null;
+                if (fieldIndex < sortedFieldDeserializers.size()) {
+                    fieldDeser = sortedFieldDeserializers.get(fieldIndex);
+                    fieldInfo = fieldDeser.fieldInfo;
+                    fieldClass = fieldInfo.fieldClass;
                 }
 
-                if ("$ref" == key) {
-                    lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
-                    if (lexer.token() == JSONToken.LITERAL_STRING) {
-                        String ref = lexer.stringVal();
-                        if ("@".equals(ref)) {
-                            object = context.object;
-                        } else if ("..".equals(ref)) {
-                            ParseContext parentContext = context.parent;
-                            if (parentContext.object != null) {
-                                object = parentContext.object;
-                            } else {
-                                parser.addResolveTask(new ResolveTask(parentContext, ref));
-                                parser.setResolveStatus(DefaultJSONParser.NeedToResolve);
-                            }
-                        } else if ("$".equals(ref)) {
-                            ParseContext rootContext = context;
-                            while (rootContext.parent != null) {
-                                rootContext = rootContext.parent;
-                            }
+                boolean matchField = false;
+                boolean valueParsed = false;
+                
+                Object fieldValue = null;
+                if (fieldDeser != null) {
+                    char[] name_chars = fieldInfo.name_chars;
+                    if (fieldClass == int.class || fieldClass == Integer.class) {
+                        fieldValue = lexer.scanFieldInt(name_chars);
+                        
+                        if (lexer.matchStat > 0) {
+                            matchField = true;
+                            valueParsed = true;
+                        } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
+                            continue;  
+                        }
+                    } else if (fieldClass == long.class || fieldClass == Long.class) {
+                        fieldValue = lexer.scanFieldLong(name_chars);
+                        
+                        if (lexer.matchStat > 0) {
+                            matchField = true;
+                            valueParsed = true;
+                        } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
+                            continue;  
+                        }
+                    } else if (fieldClass == String.class) {
+                        fieldValue = lexer.scanFieldString(name_chars);
+                        
+                        if (lexer.matchStat > 0) {
+                            matchField = true;
+                            valueParsed = true;
+                        } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
+                            continue;  
+                        }
+                    } else if (fieldClass == boolean.class || fieldClass == Boolean.class) {
+                        fieldValue = lexer.scanFieldBoolean(name_chars);
+                        
+                        if (lexer.matchStat > 0) {
+                            matchField = true;
+                            valueParsed = true;
+                        } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
+                            continue;  
+                        }
+                    } else if (fieldClass == float.class || fieldClass == Float.class) {
+                        fieldValue = lexer.scanFieldFloat(name_chars);
+                        
+                        if (lexer.matchStat > 0) {
+                            matchField = true;
+                            valueParsed = true;
+                        } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
+                            continue;  
+                        }
+                    } else if (fieldClass == double.class || fieldClass == Double.class) {
+                        fieldValue = lexer.scanFieldDouble(name_chars);
+                        
+                        if (lexer.matchStat > 0) {
+                            matchField = true;
+                            valueParsed = true;
+                        } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
+                            continue;  
+                        }
+                    } else if (fieldClass.isEnum()) {
+                        String enumName = lexer.scanFieldSymbol(name_chars, parser.symbolTable);
+                        
+                        if (lexer.matchStat > 0) {
+                            matchField = true;
+                            valueParsed = true;
+                            
+                            fieldValue = Enum.valueOf((Class<Enum>)fieldClass, enumName);
+                        } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
+                            continue;  
+                        }
+                    } else if (lexer.matchField(name_chars)) {
+                        matchField = true;
+                    } else {
+                        continue;
+                    }
+                }
+                
+                if (!matchField) {
+                    key = lexer.scanSymbol(parser.symbolTable);
 
-                            if (rootContext.object != null) {
-                                object = rootContext.object;
+                    if (key == null) {
+                        token = lexer.token();
+                        if (token == JSONToken.RBRACE) {
+                            lexer.nextToken(JSONToken.COMMA);
+                            break;
+                        }
+                        if (token == JSONToken.COMMA) {
+                            if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
+                                continue;
+                            }
+                        }
+                    }
+
+                    if ("$ref" == key) {
+                        lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
+                        token = lexer.token();
+                        if (token == JSONToken.LITERAL_STRING) {
+                            String ref = lexer.stringVal();
+                            if ("@".equals(ref)) {
+                                object = context.object;
+                            } else if ("..".equals(ref)) {
+                                ParseContext parentContext = context.parent;
+                                if (parentContext.object != null) {
+                                    object = parentContext.object;
+                                } else {
+                                    parser.addResolveTask(new ResolveTask(parentContext, ref));
+                                    parser.resolveStatus = DefaultJSONParser.NeedToResolve;
+                                }
+                            } else if ("$".equals(ref)) {
+                                ParseContext rootContext = context;
+                                while (rootContext.parent != null) {
+                                    rootContext = rootContext.parent;
+                                }
+
+                                if (rootContext.object != null) {
+                                    object = rootContext.object;
+                                } else {
+                                    parser.addResolveTask(new ResolveTask(rootContext, ref));
+                                    parser.resolveStatus = DefaultJSONParser.NeedToResolve;
+                                }
                             } else {
-                                parser.addResolveTask(new ResolveTask(rootContext, ref));
-                                parser.setResolveStatus(DefaultJSONParser.NeedToResolve);
+                                parser.addResolveTask(new ResolveTask(context, ref));
+                                parser.resolveStatus = DefaultJSONParser.NeedToResolve;
                             }
                         } else {
-                            parser.addResolveTask(new ResolveTask(context, ref));
-                            parser.setResolveStatus(DefaultJSONParser.NeedToResolve);
+                            throw new JSONException("illegal ref, " + JSONToken.name(token));
                         }
-                    } else {
-                        throw new JSONException("illegal ref, " + JSONToken.name(lexer.token()));
-                    }
 
-                    lexer.nextToken(JSONToken.RBRACE);
-                    if (lexer.token() != JSONToken.RBRACE) {
-                        throw new JSONException("illegal ref");
-                    }
-                    lexer.nextToken(JSONToken.COMMA);
-
-                    parser.setContext(context, object, fieldName);
-
-                    return (T) object;
-                }
-
-                if (JSON.DEFAULT_TYPE_KEY == key) {
-                    lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
-                    if (lexer.token() == JSONToken.LITERAL_STRING) {
-                        String typeName = lexer.stringVal();
+                        lexer.nextToken(JSONToken.RBRACE);
+                        if (lexer.token() != JSONToken.RBRACE) {
+                            throw new JSONException("illegal ref");
+                        }
                         lexer.nextToken(JSONToken.COMMA);
 
-                        if (type instanceof Class && typeName.equals(((Class<?>) type).getName())) {
-                            if (lexer.token() == JSONToken.RBRACE) {
-                                lexer.nextToken();
-                                break;
-                            }
-                            continue;
-                        }
+                        parser.setContext(context, object, fieldName);
 
-                        Class<?> userType = TypeUtils.loadClass(typeName, parser.getConfig().getDefaultClassLoader());
-                        ObjectDeserializer deserizer = parser.getConfig().getDeserializer(userType);
-                        return (T) deserizer.deserialze(parser, userType, fieldName);
-                    } else {
-                        throw new JSONException("syntax error");
+                        return (T) object;
+                    }
+
+                    if (JSON.DEFAULT_TYPE_KEY == key) {
+                        lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
+                        if (lexer.token() == JSONToken.LITERAL_STRING) {
+                            String typeName = lexer.stringVal();
+                            lexer.nextToken(JSONToken.COMMA);
+
+                            if (type instanceof Class && typeName.equals(((Class<?>) type).getName())) {
+                                if (lexer.token() == JSONToken.RBRACE) {
+                                    lexer.nextToken();
+                                    break;
+                                }
+                                continue;
+                            }
+
+                            Class<?> userType = TypeUtils.loadClass(typeName, parser.getConfig().getDefaultClassLoader());
+                            ObjectDeserializer deserizer = parser.getConfig().getDeserializer(userType);
+                            return (T) deserizer.deserialze(parser, userType, fieldName);
+                        } else {
+                            throw new JSONException("syntax error");
+                        }
                     }
                 }
 
@@ -328,14 +425,38 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     childContext = parser.setContext(context, object, fieldName);
                 }
 
-                boolean match = parseField(parser, key, object, type, fieldValues);
-                if (!match) {
-                    if (lexer.token() == JSONToken.RBRACE) {
-                        lexer.nextToken();
-                        break;
+                if (matchField) {
+                    if (!valueParsed) {
+                        fieldDeser.parseField(parser, object, type, fieldValues);
+                    } else {
+                        if (object == null) {
+                            fieldValues.put(fieldInfo.name, fieldValue);
+                        } else if (fieldValue == null) {
+                            if (fieldClass != int.class //
+                                    && fieldClass != long.class //
+                                    && fieldClass != float.class //
+                                    && fieldClass != double.class //
+                                    && fieldClass != boolean.class //
+                                    ) {
+                                fieldDeser.setValue(object, fieldValue);
+                            }
+                        } else {
+                            fieldDeser.setValue(object, fieldValue);
+                        }
+                        if (lexer.matchStat == JSONLexer.END) {
+                            break;
+                        }
                     }
+                } else {
+                    boolean match = parseField(parser, key, object, type, fieldValues);
+                    if (!match) {
+                        if (lexer.token() == JSONToken.RBRACE) {
+                            lexer.nextToken();
+                            break;
+                        }
 
-                    continue;
+                        continue;
+                    }
                 }
 
                 if (lexer.token() == JSONToken.COMMA) {
@@ -380,8 +501,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     try {
                         object = beanInfo.factoryMethod.invoke(null, params);
                     } catch (Exception e) {
-                        throw new JSONException("create factory method error, "
-                                                + beanInfo.factoryMethod.toString(), e);
+                        throw new JSONException("create factory method error, " + beanInfo.factoryMethod.toString(), e);
                     }
                 }
             }
@@ -414,9 +534,18 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     
     public boolean parseField(DefaultJSONParser parser, String key, Object object, Type objectType,
                               Map<String, Object> fieldValues) {
-        JSONLexer lexer = parser.getLexer(); // xxx
+        JSONLexer lexer = parser.lexer; // xxx
 
-        FieldDeserializer fieldDeserializer = smartMatch(key);
+        FieldDeserializer fieldDeserializer = feildDeserializerMap.get(key);
+
+        if (fieldDeserializer == null) {
+            for (Map.Entry<String, FieldDeserializer> entry : feildDeserializerMap.entrySet()) {
+                if (entry.getKey().equalsIgnoreCase(key)) {
+                    fieldDeserializer = entry.getValue();
+                    break;
+                }
+            }
+        }
 
         if (fieldDeserializer == null) {
             parseExtra(parser, object, key);

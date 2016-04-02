@@ -103,7 +103,7 @@ public enum Feature {
         mask = (1 << ordinal());
     }
 
-    private final int mask;
+    public final int mask;
 
     public final int getMask() {
         return mask;

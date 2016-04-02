@@ -36,7 +36,7 @@ public class DeserializeBeanInfo {
     private final List<FieldInfo> fieldList       = new ArrayList<FieldInfo>();
     private final List<FieldInfo> sortedFieldList = new ArrayList<FieldInfo>();
 
-    private int                   parserFeatures  = 0;
+    public int                   parserFeatures  = 0;
     
     public final JSONType         jsonType;
 

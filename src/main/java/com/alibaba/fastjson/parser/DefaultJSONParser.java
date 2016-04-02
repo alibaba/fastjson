@@ -74,8 +74,8 @@ import com.alibaba.fastjson.util.TypeUtils;
  */
 public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 
-    protected final Object             input;
-    protected final SymbolTable        symbolTable;
+    public final Object             input;
+    public final SymbolTable        symbolTable;
     protected ParserConfig             config;
 
     private final static Set<Class<?>> primitiveClasses   = new HashSet<Class<?>>();
@@ -83,7 +83,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
     private String                     dateFormatPattern  = JSON.DEFFAULT_DATE_FORMAT;
     private DateFormat                 dateFormat;
 
-    protected final JSONLexer          lexer;
+    public final JSONLexer          lexer;
 
     protected ParseContext             context;
 
@@ -96,7 +96,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
     public final static int            NeedToResolve      = 1;
     public final static int            TypeNameRedirect   = 2;
 
-    private int                        resolveStatus      = NONE;
+    public int                        resolveStatus      = NONE;
 
     private List<ExtraTypeProvider>    extraTypeProviders = null;
     private List<ExtraProcessor>       extraProcessors    = null;

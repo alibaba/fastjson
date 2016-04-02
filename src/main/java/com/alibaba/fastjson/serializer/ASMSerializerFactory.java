@@ -163,8 +163,6 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc(clazz)));
         mw.visitMethodInsn(INVOKESPECIAL, "com/alibaba/fastjson/serializer/ASMJavaBeanSerializer", "<init>", "(Ljava/lang/Class;)V");
 
-        // mw.visitFieldInsn(PUTFIELD, context.getClassName(), fieldInfo.getName() + "_asm_prefix__", "[C");
-
         for (FieldInfo fieldInfo : getters) {
             mw.visitVarInsn(ALOAD, 0);
 

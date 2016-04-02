@@ -30,6 +30,8 @@ public class FieldInfo implements Comparable<FieldInfo> {
     private JSONField      fieldAnnotation;
     private JSONField      methodAnnotation;
     
+    public final char[]   name_chars;
+    
     public FieldInfo(String name, Class<?> declaringClass, Class<?> fieldClass, Type fieldType, Field field){
         this(name, declaringClass, fieldClass, fieldType, field, 0, 0);
     }
@@ -43,12 +45,14 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.field = field;
         this.ordinal = ordinal;
         this.serialzeFeatures = serialzeFeatures;
+        
+        name_chars = genFieldNameChars();
 
         if (field != null) {
             TypeUtils.setAccessible(field);
         }
     }
-    
+
     public FieldInfo(String name, Method method, Field field){
         this(name, method, field, 0, 0);
     }
@@ -76,6 +80,8 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.serialzeFeatures = serialzeFeatures;
         this.fieldAnnotation = fieldAnnotation;
         this.methodAnnotation = methodAnnotation;
+        
+        name_chars = genFieldNameChars();
 
         if (method != null) {
             TypeUtils.setAccessible(method);
@@ -135,6 +141,16 @@ public class FieldInfo implements Comparable<FieldInfo> {
     
     public String getLabel() {
         return label;
+    }
+    
+    protected char[] genFieldNameChars() {
+        int nameLen = this.name.length();
+        char[] name_chars = new char[nameLen + 3];
+        this.name.getChars(0, this.name.length(), name_chars, 1);
+        name_chars[0] = '"';
+        name_chars[nameLen + 1] = '"';
+        name_chars[nameLen + 2] = ':';
+        return name_chars;
     }
 
     public static Type getFieldType(final Class<?> clazz, final Type type, Type fieldType) {
@@ -378,5 +394,4 @@ public class FieldInfo implements Comparable<FieldInfo> {
     public int getSerialzeFeatures() {
         return serialzeFeatures;
     }
-
 }

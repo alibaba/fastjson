@@ -640,7 +640,9 @@ public final class JSONScanner extends JSONLexerBase {
                     matchStat = NOT_MATCH;
                     return 0;
                 } else {
-                    bp = index - 1;
+                    if (ch == ',' || ch == '}') {
+                        bp = index - 1;
+                    }
                     break;
                 }
             }
@@ -652,7 +654,7 @@ public final class JSONScanner extends JSONLexerBase {
             matchStat = NOT_MATCH;
             return 0;
         }
-
+        
         if (ch == ',') {
             this.ch = charAt(++bp);
             matchStat = VALUE;
@@ -689,15 +691,6 @@ public final class JSONScanner extends JSONLexerBase {
         matchStat = UNKOWN;
         int startPos = this.bp;
         char startChar = this.ch;
-
-        // final int fieldNameLength = fieldName.length;
-        // for (int i = 0; i < fieldNameLength; ++i) {
-        // if (fieldName[i] != buf[bp + i]) {
-        // matchStat = NOT_MATCH_NAME;
-        //
-        // return stringDefaultValue();
-        // }
-        // }
 
         if (!charArrayCompare(text, bp, fieldName)) {
             matchStat = NOT_MATCH_NAME;
@@ -736,37 +729,18 @@ public final class JSONScanner extends JSONLexerBase {
                 return stringDefaultValue();
             }
 
-            bp = endIndex + 1;
-            this.ch = ch = charAt(bp);
-            strVal = stringVal;
-            // this.stringVal = stringVal;
-            // int pos = endIndex + 1;
-            // char ch = charAt(pos);
-            // if (ch != '\'') {
-            // this.pos = pos;
-            // this.ch = ch;
-            // token = LITERAL_CHARS;
-            // return;
-            // }
-        }
+            ch = charAt(endIndex + 1);
+            
+            if (ch == ',' || ch == '}') {
+                bp = endIndex + 1;
+                this.ch = ch;
+                strVal = stringVal;
+            } else {
+                matchStat = NOT_MATCH;
 
-        // final int start = index;
-        // for (;;) {
-        // ch = charAt(index++);
-        // if (ch == '\"') {
-        // bp = index;
-        // this.ch = ch = charAt(bp);
-        // strVal = text.substring(start, index - 1);
-        // // strVal = new String(buf, start, index - start - 1);
-        // break;
-        // }
-        //
-        // if (ch == '\\') {
-        // matchStat = NOT_MATCH;
-        //
-        // return stringDefaultValue();
-        // }
-        // }
+                return stringDefaultValue();
+            }
+        }
 
         if (ch == ',') {
             this.ch = charAt(++bp);
@@ -1005,7 +979,9 @@ public final class JSONScanner extends JSONLexerBase {
                     matchStat = NOT_MATCH;
                     return 0;
                 } else {
-                    bp = index - 1;
+                    if (ch == ',' || ch == '}') {
+                        bp = index - 1;
+                    }
                     break;
                 }
             }

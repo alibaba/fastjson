@@ -1,7 +1,8 @@
 package com.alibaba.json.test.benchmark;
 
-import com.alibaba.json.test.benchmark.decode.EishayDecode;
-import com.alibaba.json.test.codec.FastjsonCodec;
+import com.alibaba.json.test.benchmark.encode.*;
+import com.alibaba.json.test.benchmark.decode.*;
+import com.alibaba.json.test.codec.*;
 
 public class BenchmarkMain {
 	public static void main(String[] args) throws Exception {
@@ -9,16 +10,16 @@ public class BenchmarkMain {
 
         BenchmarkExecutor executor = new BenchmarkExecutor();
         executor.setExecuteCount(5);
-        executor.getCodecList().add(new FastjsonCodec());
+//        executor.getCodecList().add(new FastjsonSCodec());
 //        executor.getCodecList().add(new FastjsonBeanToArrayCodec());
-//        executor.getCodecList().add(new GsonCodec());
+        executor.getCodecList().add(new GsonSCodec());
 //        executor.getCodecList().add(new Jackson2Codec());
         //
         // executor.getCodecList().add(new SimpleJsonCodec());
         // executor.getCodecList().add(new JsonLibCodec());
         // executor.getCodecList().add(new JsonSmartCodec());
 
-        executor.setLoopCount(1000 * 1000 * 1);
+        executor.setLoopCount(1000 * 100);
 
 //        executor.getCaseList().add(new EishayDecodeBytes());
 //        executor.getCaseList().add(new EishayDecode2Bytes());

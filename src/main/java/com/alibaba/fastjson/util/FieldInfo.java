@@ -41,10 +41,6 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.ordinal = ordinal;
         
         publicField = field != null ? Modifier.isPublic(field.getModifiers()) : false;
-
-        if (field != null) {
-            TypeUtils.setAccessible(field);
-        }
     }
 
     public FieldInfo(String name, Method method, Field field){
@@ -76,13 +72,8 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.methodAnnotation = methodAnnotation;
         this.fieldAnnotation = fieldAnnotation;
 
-        if (method != null) {
-            TypeUtils.setAccessible(method);
-        }
-
         if (field != null) {
             publicField = Modifier.isPublic(field.getModifiers());
-            TypeUtils.setAccessible(field);
         } else {
             publicField = false;
         }
@@ -110,7 +101,12 @@ public class FieldInfo implements Comparable<FieldInfo> {
             this.declaringClass = method.getDeclaringClass();
         } else {
             fieldClass = field.getType();
-            fieldType = field.getGenericType();
+            if (fieldClass.isPrimitive() || fieldClass == String.class || fieldClass.isEnum()) {
+                fieldType = fieldClass;
+            } else {
+                fieldType = field.getGenericType();    
+            }
+            
             this.declaringClass = field.getDeclaringClass();
         }
 
@@ -274,11 +270,11 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
     public void setAccessible(boolean flag) throws SecurityException {
         if (method != null) {
-            TypeUtils.setAccessible(method);
+            TypeUtils.setAccessible(method, method.getDeclaringClass().getModifiers());
             return;
         }
 
-        TypeUtils.setAccessible(field);
+        TypeUtils.setAccessible(field, field.getDeclaringClass().getModifiers());
     }
 
     public boolean isGetOnly() {

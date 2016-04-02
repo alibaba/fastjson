@@ -122,7 +122,7 @@ public class ObjectFieldSerializer extends FieldSerializer {
         ObjectSerializer valueSerializer = serializer.getObjectWriter(valueClass);
         valueSerializer.write(serializer, propertyValue, fieldInfo.name, fieldInfo.fieldType);
     }
-
+    
     static class RuntimeSerializerInfo {
 
         ObjectSerializer fieldSerializer;

@@ -380,7 +380,7 @@ public class JSONSerializer {
             } else if (JSONSerializable.class.isAssignableFrom(clazz)) {
                 config.put(clazz, JSONSerializableSerializer.instance);
             } else if (JSONStreamAware.class.isAssignableFrom(clazz)) {
-                config.put(clazz, JSONStreamAwareSerializer.instance);
+                config.put(clazz, MiscCodec.instance);
             } else if (clazz.isEnum() || (clazz.getSuperclass() != null && clazz.getSuperclass().isEnum())) {
                 config.put(clazz, EnumSerializer.instance);
             } else if (clazz.isArray()) {

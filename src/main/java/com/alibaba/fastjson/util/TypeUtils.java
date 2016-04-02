@@ -20,6 +20,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -53,7 +54,6 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
-import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.ParserConfig;
@@ -965,13 +965,11 @@ public class TypeUtils {
         return clazz;
     }
 
-    public static List<FieldInfo> computeGetters(Class<?> clazz, Map<String, String> aliasMap) {
-        return computeGetters(clazz, aliasMap, true);
-    }
-
-    public static List<FieldInfo> computeGetters(Class<?> clazz, Map<String, String> aliasMap, boolean sorted) {
+    public static List<FieldInfo> computeGetters(Class<?> clazz, JSONType jsonType, Map<String, String> aliasMap, boolean sorted) {
         Map<String, FieldInfo> fieldInfoMap = new LinkedHashMap<String, FieldInfo>();
-
+        
+        Field[] declaredFields = clazz.getDeclaredFields();
+        final int modifiers = clazz.getModifiers();
         for (Method method : clazz.getMethods()) {
             String methodName = method.getName();
             int ordinal = 0, serialzeFeatures = 0;
@@ -996,7 +994,7 @@ public class TypeUtils {
                 continue;
             }
 
-            if (method.getName().equals("getMetaClass")
+            if (methodName.equals("getMetaClass")
                 && method.getReturnType().getName().equals("groovy.lang.MetaClass")) {
                 continue;
             }
@@ -1058,13 +1056,13 @@ public class TypeUtils {
                     continue;
                 }
 
-                boolean ignore = isJSONTypeIgnore(clazz, propertyName);
+                boolean ignore = isJSONTypeIgnore(clazz, jsonType, propertyName);
 
                 if (ignore) {
                     continue;
                 }
 
-                Field field = ParserConfig.getField(clazz, propertyName);
+                Field field = getField(clazz, propertyName, declaredFields);
                 JSONField fieldAnnotation = null;
                 if (field != null) {
                     fieldAnnotation = field.getAnnotation(JSONField.class);
@@ -1097,6 +1095,7 @@ public class TypeUtils {
                     }
                 }
 
+                TypeUtils.setAccessible(method, modifiers);
                 fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field, ordinal, serialzeFeatures, annotation, fieldAnnotation));
             }
 
@@ -1122,10 +1121,10 @@ public class TypeUtils {
                     continue;
                 }
 
-                Field field = ParserConfig.getField(clazz, propertyName);
+                Field field = getField(clazz, propertyName, declaredFields);
 
                 if (field == null) {
-                    field = ParserConfig.getField(clazz, methodName);
+                    field = getField(clazz, methodName, declaredFields);
                 }
 
                 JSONField fieldAnnotation = null;
@@ -1194,6 +1193,7 @@ public class TypeUtils {
             }
 
             if (!fieldInfoMap.containsKey(propertyName)) {
+                TypeUtils.setAccessible(field, modifiers);
                 fieldInfoMap.put(propertyName, new FieldInfo(propertyName, null, field, ordinal, serialzeFeatures, null, fieldAnnotation));
             }
         }
@@ -1203,9 +1203,8 @@ public class TypeUtils {
         boolean containsAll = false;
         String[] orders = null;
 
-        JSONType annotation = clazz.getAnnotation(JSONType.class);
-        if (annotation != null) {
-            orders = annotation.orders();
+        if (jsonType != null) {
+            orders = jsonType.orders();
 
             if (orders != null && orders.length == fieldInfoMap.size()) {
                 containsAll = true;
@@ -1271,9 +1270,7 @@ public class TypeUtils {
         return null;
     }
 
-    private static boolean isJSONTypeIgnore(Class<?> clazz, String propertyName) {
-        JSONType jsonType = clazz.getAnnotation(JSONType.class);
-
+    private static boolean isJSONTypeIgnore(Class<?> clazz, JSONType jsonType, String propertyName) {
         if (jsonType != null && jsonType.ignores() != null) {
             for (String item : jsonType.ignores()) {
                 if (propertyName.equalsIgnoreCase(item)) {
@@ -1282,8 +1279,10 @@ public class TypeUtils {
             }
         }
 
-        if (clazz.getSuperclass() != Object.class && clazz.getSuperclass() != null) {
-            if (isJSONTypeIgnore(clazz.getSuperclass(), propertyName)) {
+        Class<?> superClass = clazz.getSuperclass();
+        if (superClass != Object.class && superClass != null) {
+            JSONType superClassJsonType = superClass.getAnnotation(JSONType.class);
+            if (isJSONTypeIgnore(superClass, superClassJsonType, propertyName)) {
                 return true;
             }
         }
@@ -1346,52 +1345,6 @@ public class TypeUtils {
         return Object.class;
     }
     
-    public static Field getField(Class<?> clazz, String fieldName) {
-        for (Field field : clazz.getDeclaredFields()) {
-            if (fieldName.equals(field.getName())) {
-                return field;
-            }
-        }
-        
-        Class<?> superClass = clazz.getSuperclass();
-        if(superClass != null && superClass != Object.class) {
-            return getField(superClass, fieldName);
-        }
-
-        return null;
-    }
-    
-    public static int getSerializeFeatures(Class<?> clazz) {
-        JSONType annotation = clazz.getAnnotation(JSONType.class);
-        
-        if (annotation == null) {
-            return 0;
-        }
-        
-        return SerializerFeature.of(annotation.serialzeFeatures());
-    }
-    
-    public static int getParserFeatures(Class<?> clazz) {
-        JSONType annotation = clazz.getAnnotation(JSONType.class);
-        
-        if (annotation == null) {
-            return 0;
-        }
-        
-        Feature[] features = annotation.parseFeatures();
-        if (features == null) {
-            return 0;
-        }
-        
-        int value = 0;
-        
-        for (Feature feature: features) {
-            value |= feature.mask;
-        }
-        
-        return value;
-    }
-    
     public static String decapitalize(String name) {
         if (name == null || name.length() == 0) {
             return name;
@@ -1405,19 +1358,50 @@ public class TypeUtils {
         return new String(chars);
     }
     
-    static void setAccessible(AccessibleObject obj) {
+    static boolean setAccessible(Member member, int classMofifiers) {
         if (!setAccessibleEnable) {
-            return;
+            return false;
         }
         
-        if (obj.isAccessible()) {
-            return;
+        if ((member.getModifiers() & Modifier.PUBLIC) != 0 
+                && (classMofifiers & Modifier.PUBLIC) != 0) {
+            return false;
         }
+        
+        AccessibleObject obj = (AccessibleObject) member;
         
         try {
             obj.setAccessible(true);
+            return true;
         } catch (AccessControlException error) {
             setAccessibleEnable = false;
+            return false;
         }
+    }
+    
+    public static Field getField(Class<?> clazz, String fieldName, Field[] declaredFields) {
+        Field field = getField0(clazz, fieldName, declaredFields);
+        if (field == null) {
+            field = getField0(clazz, "_" + fieldName, declaredFields);
+        }
+        if (field == null) {
+            field = getField0(clazz, "m_" + fieldName, declaredFields);
+        }
+        return field;
+    }
+
+    private static Field getField0(Class<?> clazz, String fieldName, Field[] declaredFields) {
+        for (Field item : declaredFields) {
+            if (fieldName.equals(item.getName())) {
+                return item;
+            }
+        }
+        
+        Class<?> superClass = clazz.getSuperclass();
+        if (superClass != null && superClass != Object.class) {
+            return getField(superClass, fieldName, superClass.getDeclaredFields());
+        }
+
+        return null;
     }
 }

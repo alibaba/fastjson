@@ -313,30 +313,6 @@ public class ParserConfig {
         return primitiveClasses.containsKey(clazz);
     }
 
-    public static Field getField(Class<?> clazz, String fieldName) {
-        Field field = getField0(clazz, fieldName);
-        if (field == null) {
-            field = getField0(clazz, "_" + fieldName);
-        }
-        if (field == null) {
-            field = getField0(clazz, "m_" + fieldName);
-        }
-        return field;
-    }
-
-    private static Field getField0(Class<?> clazz, String fieldName) {
-        for (Field item : clazz.getDeclaredFields()) {
-            if (fieldName.equals(item.getName())) {
-                return item;
-            }
-        }
-        if (clazz.getSuperclass() != null && clazz.getSuperclass() != Object.class) {
-            return getField(clazz.getSuperclass(), fieldName);
-        }
-
-        return null;
-    }
-
     public Map<String, FieldDeserializer> getFieldDeserializers(Class<?> clazz) {
         ObjectDeserializer deserizer = getDeserializer(clazz);
 

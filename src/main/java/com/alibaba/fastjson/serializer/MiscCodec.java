@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONStreamAware;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
@@ -58,6 +59,9 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
             } else {
                 serializer.write(value.toString());
             }
+        } else if (object instanceof JSONStreamAware) {
+            JSONStreamAware aware = (JSONStreamAware) object;
+            aware.writeJSONString(serializer.out);
         } else {
             serializer.write(object.toString());
         }

@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Assert;
-import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.util.TypeUtils;
+
+import junit.framework.TestCase;
 
 public class TransientTest extends TestCase {
 
@@ -23,8 +24,8 @@ public class TransientTest extends TestCase {
         String text = JSON.toJSONString(parent);
         System.out.println(text);
 
-        Assert.assertNotNull(ParserConfig.getField(Category.class, "name"));
-        Assert.assertNull(ParserConfig.getField(Category.class, "abc"));
+        Assert.assertNotNull(TypeUtils.getField(Category.class, "name", Category.class.getDeclaredFields()));
+        Assert.assertNull(TypeUtils.getField(Category.class, "abc", Category.class.getDeclaredFields()));
     }
 
     public static class Category {

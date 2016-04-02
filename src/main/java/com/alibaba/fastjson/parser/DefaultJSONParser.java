@@ -192,7 +192,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
         final JSONLexer lexer = this.lexer;
         
         if (lexer.token() == JSONToken.NULL) {
-            lexer.next();
+            lexer.nextToken();
             return null;
         }
 

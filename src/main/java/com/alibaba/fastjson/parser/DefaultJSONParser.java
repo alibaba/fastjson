@@ -52,13 +52,12 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.parser.deserializer.CollectionResolveFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
-import com.alibaba.fastjson.parser.deserializer.ResolveFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
+import com.alibaba.fastjson.parser.deserializer.ResolveFieldDeserializer;
 import com.alibaba.fastjson.serializer.IntegerCodec;
 import com.alibaba.fastjson.serializer.StringCodec;
 import com.alibaba.fastjson.util.TypeUtils;
@@ -897,7 +896,7 @@ public class DefaultJSONParser implements Closeable {
                 resolveStatus = DefaultJSONParser.NONE;
             } else {
                 ResolveTask task = getLastResolveTask();
-                task.fieldDeserializer = new CollectionResolveFieldDeserializer(this, array);
+                task.fieldDeserializer = new ResolveFieldDeserializer(array);
                 task.ownerContext = context;
                 resolveStatus = DefaultJSONParser.NONE;
             }

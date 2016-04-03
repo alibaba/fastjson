@@ -1021,7 +1021,7 @@ public class TypeUtils {
                         }
                     }
 
-                    TypeUtils.setAccessible(method, modifiers);
+                    TypeUtils.setAccessible(clazz, method, modifiers);
                     fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, null, ordinal, serialzeFeatures, annotation, null));
                     continue;
                 }
@@ -1094,7 +1094,7 @@ public class TypeUtils {
                     }
                 }
 
-                TypeUtils.setAccessible(method, modifiers);
+                TypeUtils.setAccessible(clazz, method, modifiers);
                 fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field, ordinal, serialzeFeatures, annotation, fieldAnnotation));
             }
 
@@ -1158,8 +1158,8 @@ public class TypeUtils {
                     }
                 }
 
-                TypeUtils.setAccessible(field, modifiers);
-                TypeUtils.setAccessible(method, modifiers);
+                TypeUtils.setAccessible(clazz, field, modifiers);
+                TypeUtils.setAccessible(clazz, method, modifiers);
                 fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field, ordinal, serialzeFeatures, annotation, fieldAnnotation));
             }
         }
@@ -1194,7 +1194,7 @@ public class TypeUtils {
             }
 
             if (!fieldInfoMap.containsKey(propertyName)) {
-                TypeUtils.setAccessible(field, modifiers);
+                TypeUtils.setAccessible(clazz, field, modifiers);
                 fieldInfoMap.put(propertyName, new FieldInfo(propertyName, null, field, ordinal, serialzeFeatures, null, fieldAnnotation));
             }
         }
@@ -1359,7 +1359,7 @@ public class TypeUtils {
         return new String(chars);
     }
     
-    static boolean setAccessible(Member member, int classMofifiers) {
+    static boolean setAccessible(Class<?> clazz, Member member, int classMofifiers) {
         if (member == null) {
             return false;
         }
@@ -1367,8 +1367,10 @@ public class TypeUtils {
         if (!setAccessibleEnable) {
             return false;
         }
+        Class<?> supperClass = clazz.getSuperclass();
         
-        if ((member.getModifiers() & Modifier.PUBLIC) != 0 
+        if ((supperClass == null || supperClass == Object.class) //
+                && (member.getModifiers() & Modifier.PUBLIC) != 0 // 
                 && (classMofifiers & Modifier.PUBLIC) != 0) {
             return false;
         }

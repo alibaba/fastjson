@@ -6,7 +6,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 
 public class CalendarCodec implements ObjectSerializer, ObjectDeserializer {
@@ -36,9 +35,5 @@ public class CalendarCodec implements ObjectSerializer, ObjectDeserializer {
         calendar.setTime(date);
         
         return (T) calendar;
-    }
-
-    public int getFastMatchToken() {
-        return JSONToken.LITERAL_INT;
     }
 }

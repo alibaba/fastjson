@@ -30,6 +30,5 @@ public class BooleanDeserializerTest extends TestCase {
             Assert.assertEquals(null, BooleanCodec.instance.deserialze(parser, null, null));
             parser.close();
         }
-        Assert.assertEquals(JSONToken.TRUE, BooleanCodec.instance.getFastMatchToken());
     }
 }

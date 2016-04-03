@@ -18,7 +18,6 @@ public class DateParseTest9 extends TestCase {
         Date date = JSON.parseObject(text, Date.class);
         Assert.assertEquals(date.getTime(), 1242357713797L);
         
-        Assert.assertEquals(JSONToken.LITERAL_INT, CalendarCodec.instance.getFastMatchToken());
     }
     
     public void test_error() throws Exception {

@@ -175,8 +175,4 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
             throw new JSONException("TODO");
         }
     }
-
-    public int getFastMatchToken() {
-        return JSONToken.LBRACKET;
-    }
 }

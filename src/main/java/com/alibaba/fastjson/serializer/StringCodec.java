@@ -77,8 +77,4 @@ public class StringCodec implements ObjectSerializer, ObjectDeserializer {
 
         return (T) value.toString();
     }
-
-    public int getFastMatchToken() {
-        return JSONToken.LITERAL_STRING;
-    }
 }

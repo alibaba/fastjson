@@ -76,8 +76,4 @@ public class EnumDeserializer implements ObjectDeserializer {
             throw new JSONException(e.getMessage(), e);
         }
     }
-
-    public int getFastMatchToken() {
-        return JSONToken.LITERAL_INT;
-    }
 }

@@ -393,7 +393,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
 
         ObjectDeserializer keyDeserializer = parser.config.getDeserializer(keyType);
         ObjectDeserializer valueDeserializer = parser.config.getDeserializer(valueType);
-        lexer.nextToken(keyDeserializer.getFastMatchToken());
+        lexer.nextToken();
 
         ParseContext context = parser.getContext();
         try {
@@ -448,7 +448,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                         lexer.nextToken();
                         return map;
                     }
-                    lexer.nextToken(keyDeserializer.getFastMatchToken());
+                    lexer.nextToken();
                 }
 
                 Object key = keyDeserializer.deserialze(parser, keyType, null);
@@ -457,14 +457,14 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                     throw new JSONException("syntax error, expect :, actual " + lexer.token());
                 }
 
-                lexer.nextToken(valueDeserializer.getFastMatchToken());
+                lexer.nextToken();
 
                 Object value = valueDeserializer.deserialze(parser, valueType, key);
 
                 map.put(key, value);
 
                 if (lexer.token() == JSONToken.COMMA) {
-                    lexer.nextToken(keyDeserializer.getFastMatchToken());
+                    lexer.nextToken();
                 }
             }
         } finally {
@@ -520,9 +520,5 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
         } catch (Exception e) {
             throw new JSONException("unsupport type " + type, e);
         }
-    }
-
-    public int getFastMatchToken() {
-        return JSONToken.LBRACE;
     }
 }

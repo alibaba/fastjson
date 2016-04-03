@@ -10,14 +10,8 @@ import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.FieldInfo;
 
 public class StringFieldDeserializer extends FieldDeserializer {
-
-    private final ObjectDeserializer fieldValueDeserilizer;
-
     public StringFieldDeserializer(ParserConfig config, Class<?> clazz, FieldInfo fieldInfo){
         super(clazz, fieldInfo, 0);
-
-        fieldValueDeserilizer = config.getDeserializer(fieldInfo);
-        fastMatchToken = fieldValueDeserilizer.getFastMatchToken();
     }
 
     @Override

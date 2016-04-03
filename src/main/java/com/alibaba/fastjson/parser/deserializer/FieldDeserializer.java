@@ -16,8 +16,6 @@ public abstract class FieldDeserializer {
 
     public final Class<?>  clazz;
     
-    public int fastMatchToken;
-
     public FieldDeserializer(Class<?> clazz, FieldInfo fieldInfo, int fastMatchToken){
         this.clazz = clazz;
         this.fieldInfo = fieldInfo;

@@ -108,8 +108,4 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
         
         return (T) intObj;
     }
-
-    public int getFastMatchToken() {
-        return JSONToken.LITERAL_INT;
-    }
 }

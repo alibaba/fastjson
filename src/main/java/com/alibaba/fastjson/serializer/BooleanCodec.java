@@ -83,8 +83,4 @@ public class BooleanCodec implements ObjectSerializer, ObjectDeserializer {
 
         return (T) boolObj;
     }
-
-    public int getFastMatchToken() {
-        return JSONToken.TRUE;
-    }
 }

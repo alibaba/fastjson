@@ -23,7 +23,6 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
     public void parseField(DefaultJSONParser parser, Object object, Type objectType, Map<String, Object> fieldValues) {
         if (fieldValueDeserilizer == null) {
             fieldValueDeserilizer = parser.config.getDeserializer(fieldInfo);
-            fastMatchToken = fieldValueDeserilizer.getFastMatchToken();
         }
 
         if (objectType instanceof ParameterizedType) {

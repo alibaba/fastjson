@@ -267,8 +267,4 @@ public class DateCodec implements ObjectSerializer, ObjectDeserializer {
 
         throw new JSONException("parse error");
     }
-
-    public int getFastMatchToken() {
-        return JSONToken.LITERAL_INT;
-    }
 }

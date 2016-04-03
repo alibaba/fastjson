@@ -19,7 +19,6 @@ import com.alibaba.fastjson.util.FieldInfo;
 public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
     private final Type         itemType;
-    private int                itemFastMatchToken;
     private ObjectDeserializer deserializer;
 
     public ArrayListTypeFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo){
@@ -102,10 +101,9 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
         if (itemTypeDeser == null) {
             itemTypeDeser = deserializer = parser.config.getDeserializer(itemType);
-            itemFastMatchToken = deserializer.getFastMatchToken();
         }
 
-        lexer.nextToken(itemFastMatchToken);
+        lexer.nextToken();
 
         boolean allowArbitraryCommas = (lexer.features & Feature.AllowArbitraryCommas.mask) != 0;
         for (int i = 0;; ++i) {
@@ -126,7 +124,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
             parser.checkListResolve(array);
 
             if (lexer.token() == JSONToken.COMMA) {
-                lexer.nextToken(itemFastMatchToken);
+                lexer.nextToken();
                 continue;
             }
         }

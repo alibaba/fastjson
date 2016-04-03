@@ -262,8 +262,4 @@ public class ArrayCodec implements ObjectSerializer, ObjectDeserializer {
         array.setComponentType(componentType);
         return (T) objArray; // TODO
     }
-
-    public int getFastMatchToken() {
-        return JSONToken.LBRACKET;
-    }
 }

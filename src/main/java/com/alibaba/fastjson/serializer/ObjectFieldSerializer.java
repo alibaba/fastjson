@@ -25,8 +25,8 @@ import com.alibaba.fastjson.util.FieldInfo;
  */
 public class ObjectFieldSerializer extends FieldSerializer {
 
-    private String                format;
-    private int                   features;
+    final String                  format;
+    final int                   features;
 
     private RuntimeSerializerInfo runtimeInfo;
 
@@ -35,6 +35,7 @@ public class ObjectFieldSerializer extends FieldSerializer {
 
         JSONField annotation = fieldInfo.getAnnotation();
 
+        String format = null;
         if (annotation != null) {
             format = annotation.format();
 
@@ -43,8 +44,11 @@ public class ObjectFieldSerializer extends FieldSerializer {
                 format = null;
             }
             
-            this.features = SerializerFeature.of(annotation.serialzeFeatures());
+            features = SerializerFeature.of(annotation.serialzeFeatures());
+        } else {
+            features = 0;
         }
+        this.format = format;
     }
 
     public void writeProperty(JSONSerializer serializer, Object propertyValue) throws Exception {

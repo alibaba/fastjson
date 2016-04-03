@@ -2,26 +2,44 @@ package com.alibaba.json.bvt.serializer;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.lang.reflect.Field;
 
 import org.junit.Assert;
-import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.util.IdentityHashMap;
+
+import junit.framework.TestCase;
 
 public class JSONSerializerTest2 extends TestCase {
 
     public void test_0() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
 
-        int size = serializer.config.size();
+        int size = size(serializer.config);
         serializer.out.config(SerializerFeature.WriteEnumUsingToString, false);
         serializer.write(Type.A);
 
-        Assert.assertTrue(size < serializer.config.size());
+        Assert.assertTrue(size < size(serializer.config));
 
         Assert.assertEquals(Integer.toString(Type.A.ordinal()), serializer.out.toString());
+    }
+    
+    static int size(IdentityHashMap map) throws Exception {
+        Field bucketsField = IdentityHashMap.class.getDeclaredField("buckets");
+        bucketsField.setAccessible(true);
+        Object[] buckets = (Object[]) bucketsField.get(map);
+        int size = 0;
+        
+        Field nextField = Class.forName("com.alibaba.fastjson.util.IdentityHashMap$Entry").getDeclaredField("next");
+        for (int i = 0; i < buckets.length; ++i) {
+            for (Object entry = buckets[i]; entry != null; entry = nextField.get(entry)) {
+                size++;
+            }
+        }
+        return size;
     }
 
     public void test_1() throws Exception {

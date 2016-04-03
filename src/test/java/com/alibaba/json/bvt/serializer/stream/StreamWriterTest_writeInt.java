@@ -6,6 +6,7 @@ import org.junit.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.serializer.SerializeWriter;
+import com.alibaba.json.SerializeWriterTestUtils;
 
 
 public class StreamWriterTest_writeInt extends TestCase {
@@ -13,7 +14,7 @@ public class StreamWriterTest_writeInt extends TestCase {
         StringWriter out = new StringWriter();
         
         SerializeWriter writer = new SerializeWriter(out, 10);
-        Assert.assertEquals(10, writer.getBufferLength());
+        Assert.assertEquals(10, SerializeWriterTestUtils.getBufferLength(writer));
         
         writer.write("abcde");
         writer.writeInt(12345678);

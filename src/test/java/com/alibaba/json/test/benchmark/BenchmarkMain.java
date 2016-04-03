@@ -19,11 +19,11 @@ public class BenchmarkMain {
         // executor.getCodecList().add(new JsonLibCodec());
         // executor.getCodecList().add(new JsonSmartCodec());
 
-        executor.setLoopCount(1000 * 1000);
+        executor.setLoopCount(1000 * 1);
 
 //        executor.getCaseList().add(new EishayDecodeBytes());
 //        executor.getCaseList().add(new EishayDecode2Bytes());
-         executor.getCaseList().add(new EishayDecode());
+         executor.getCaseList().add(new EishayEncode());
 //         executor.getCaseList().add(new EishayDecodeByClassName());
 //         executor.getCaseList().add(new EishayTreeDecode());
 //         executor.getCaseList().add(new Eishay3Encode());

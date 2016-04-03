@@ -28,7 +28,6 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
-import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.util.IOUtils;
@@ -49,11 +48,12 @@ public class DateCodec implements ObjectSerializer, ObjectDeserializer {
             return;
         }
 
-        if (out.isEnabled(SerializerFeature.WriteClassName)) {
+        if ((out.features & SerializerFeature.WriteClassName.mask) != 0) {
             if (object.getClass() != fieldType) {
                 if (object.getClass() == java.util.Date.class) {
                     out.write("new Date(");
-                    out.writeLongAndChar(((Date) object).getTime(), ')');
+                    out.writeLong(((Date) object).getTime());
+                    out.write(')');
                 } else {
                     out.write('{');
                     out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
@@ -67,7 +67,7 @@ public class DateCodec implements ObjectSerializer, ObjectDeserializer {
         
         Date date = (Date) object;
         
-        if (out.isEnabled(SerializerFeature.WriteDateUseDateFormat)) {
+        if ((out.features & SerializerFeature.WriteDateUseDateFormat.mask) != 0) {
             DateFormat format = serializer.getDateFormat();
             if (format == null) {
                 format = new SimpleDateFormat(JSON.DEFFAULT_DATE_FORMAT);
@@ -78,11 +78,12 @@ public class DateCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         long time = date.getTime();
-        if (out.isEnabled(SerializerFeature.UseISO8601DateFormat)) {
-            if (out.isEnabled(SerializerFeature.UseSingleQuotes)) {
-                out.append('\'');
+        
+        if ((out.features & SerializerFeature.UseISO8601DateFormat.mask) != 0) {
+            if ((out.features & SerializerFeature.UseSingleQuotes.mask) != 0) {
+                out.write('\'');
             } else {
-                out.append('\"');
+                out.write('\"');
             }
 
             Calendar calendar = Calendar.getInstance();
@@ -126,10 +127,10 @@ public class DateCodec implements ObjectSerializer, ObjectDeserializer {
 
             out.write(buf);
 
-            if (out.isEnabled(SerializerFeature.UseSingleQuotes)) {
-                out.append('\'');
+            if ((out.features & SerializerFeature.UseSingleQuotes.mask) != 0) {
+                out.write('\'');
             } else {
-                out.append('\"');
+                out.write('\"');
             }
         } else {
             out.writeLong(time);
@@ -150,7 +151,7 @@ public class DateCodec implements ObjectSerializer, ObjectDeserializer {
             lexer.nextToken(JSONToken.COMMA);
             
             if ((lexer.features & Feature.AllowISO8601DateFormat.mask) != 0) {
-                JSONScanner iso8601Lexer = new JSONScanner(strVal);
+                JSONLexer iso8601Lexer = new JSONLexer(strVal);
                 if (iso8601Lexer.scanISO8601DateIfMatch(true)) {
                     val = iso8601Lexer.getCalendar().getTime();
                 }
@@ -180,7 +181,7 @@ public class DateCodec implements ObjectSerializer, ObjectDeserializer {
                     parser.accept(JSONToken.COMMA);
                 }
                 
-                lexer.nextTokenWithColon(JSONToken.LITERAL_INT);
+                lexer.nextTokenWithChar(':');
             } else {
                 throw new JSONException("syntax error");
             }
@@ -238,7 +239,7 @@ public class DateCodec implements ObjectSerializer, ObjectDeserializer {
                 return null;
             }
 
-            JSONScanner dateLexer = new JSONScanner(strVal);
+            JSONLexer dateLexer = new JSONLexer(strVal);
             try {
                 if (dateLexer.scanISO8601DateIfMatch(false)) {
                     Calendar calendar = dateLexer.getCalendar();

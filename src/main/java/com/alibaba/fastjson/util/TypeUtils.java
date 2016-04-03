@@ -55,7 +55,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.JSONLexer;
-import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -407,7 +406,7 @@ public class TypeUtils {
                 //
             }
 
-            JSONScanner dateParser = new JSONScanner(strVal);
+            JSONLexer dateParser = new JSONLexer(strVal);
             Calendar calendar = null;
             if (dateParser.scanISO8601DateIfMatch(false)) {
                 calendar = dateParser.getCalendar();

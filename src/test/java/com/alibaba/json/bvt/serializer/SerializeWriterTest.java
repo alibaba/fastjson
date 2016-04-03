@@ -1,11 +1,15 @@
 package com.alibaba.json.bvt.serializer;
 
 import java.io.StringWriter;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 import org.junit.Assert;
-import junit.framework.TestCase;
 
 import com.alibaba.fastjson.serializer.SerializeWriter;
+import com.alibaba.json.SerializeWriterTestUtils;
+
+import junit.framework.TestCase;
 
 public class SerializeWriterTest extends TestCase {
 
@@ -33,19 +37,27 @@ public class SerializeWriterTest extends TestCase {
         out.writeTo(writer);
         Assert.assertEquals("abc", writer.toString());
 
-        out.expandCapacity(128);
+        Method method = SerializeWriter.class.getDeclaredMethod("expandCapacity", int.class);
+        method.setAccessible(true);
+        method.invoke(out, 128);
     }
 
     public void test_12() throws Exception {
+        Field field = SerializeWriter.class.getDeclaredField("count");
+        field.setAccessible(true);
+        
         SerializeWriter out = new SerializeWriter(1);
         out.append("abc");
         Assert.assertEquals("abc", out.toString());
-        Assert.assertEquals(3, out.toCharArray().length);
-        Assert.assertEquals(3, out.size());
-        out.reset();
+        Assert.assertEquals(3, SerializeWriterTestUtils.toCharArray(out).length);
+        Assert.assertEquals(3, field.getInt(out));
+        
+        field.setInt(out, 0);
+        
+        // count
         Assert.assertEquals("", out.toString());
-        Assert.assertEquals(0, out.toCharArray().length);
-        Assert.assertEquals(0, out.size());
+        Assert.assertEquals(0, SerializeWriterTestUtils.toCharArray(out).length);
+        Assert.assertEquals(0, field.getInt(out));
         out.writeInt(Integer.MIN_VALUE);
         Assert.assertEquals(Integer.toString(Integer.MIN_VALUE), out.toString());
         out.flush();
@@ -78,13 +90,15 @@ public class SerializeWriterTest extends TestCase {
 
     public void test_15_long() throws Exception {
         SerializeWriter out = new SerializeWriter(1);
-        out.writeLongAndChar(Long.MAX_VALUE, ',');
+        out.writeLong(Long.MAX_VALUE);
+        out.write(',');
         Assert.assertEquals(Long.toString(Long.MAX_VALUE) + ",", out.toString());
     }
 
     public void test_16_long() throws Exception {
         SerializeWriter out = new SerializeWriter(1);
-        out.writeLongAndChar(Long.MIN_VALUE, ',');
+        out.writeLong(Long.MIN_VALUE);
+        out.write(',');
         Assert.assertEquals(Long.toString(Long.MIN_VALUE) + ",", out.toString());
     }
 

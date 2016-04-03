@@ -1,126 +1,136 @@
 package com.alibaba.json.bvt.parser;
 
+import java.lang.reflect.Method;
+
 import org.junit.Assert;
-import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.parser.JSONScanner;
+import com.alibaba.fastjson.parser.JSONLexer;
+
+import junit.framework.TestCase;
 
 public class JSONScannerTest_true extends TestCase {
+    
+    Method method;
+    
+    protected void setUp() throws Exception {
+        method = JSONLexer.class.getDeclaredMethod("scanTrue");
+        method.setAccessible(true);
+    }
 
     public void test_scan_true_0() throws Exception {
-        JSONScanner lexer = new JSONScanner("true");
-        lexer.scanTrue();
+        JSONLexer lexer = new JSONLexer("true");
+        method.invoke(lexer);
     }
 
     public void test_scan_true_1() throws Exception {
-        JSONException error = null;
+        Exception error = null;
         try {
-            JSONScanner lexer = new JSONScanner("frue");
-            lexer.scanTrue();
-        } catch (JSONException e) {
+            JSONLexer lexer = new JSONLexer("frue");
+            method.invoke(lexer);
+        } catch (Exception e) {
             error = e;
         }
         Assert.assertNotNull(error);
     }
 
     public void test_scan_true_2() throws Exception {
-        JSONException error = null;
+        Exception error = null;
         try {
-            JSONScanner lexer = new JSONScanner("ttue");
-            lexer.scanTrue();
-        } catch (JSONException e) {
+            JSONLexer lexer = new JSONLexer("ttue");
+            method.invoke(lexer);
+        } catch (Exception e) {
             error = e;
         }
         Assert.assertNotNull(error);
     }
 
     public void test_scan_true_3() throws Exception {
-        JSONException error = null;
+        Exception error = null;
         try {
-            JSONScanner lexer = new JSONScanner("trze");
-            lexer.scanTrue();
-        } catch (JSONException e) {
+            JSONLexer lexer = new JSONLexer("trze");
+            method.invoke(lexer);
+        } catch (Exception e) {
             error = e;
         }
         Assert.assertNotNull(error);
     }
 
     public void test_scan_true_4() throws Exception {
-        JSONException error = null;
+        Exception error = null;
         try {
-            JSONScanner lexer = new JSONScanner("truz");
-            lexer.scanTrue();
-        } catch (JSONException e) {
+            JSONLexer lexer = new JSONLexer("truz");
+            method.invoke(lexer);
+        } catch (Exception e) {
             error = e;
         }
         Assert.assertNotNull(error);
     }
 
     public void test_scan_true_5() throws Exception {
-        JSONException error = null;
+        Exception error = null;
         try {
-            JSONScanner lexer = new JSONScanner("truee");
-            lexer.scanTrue();
-        } catch (JSONException e) {
+            JSONLexer lexer = new JSONLexer("truee");
+            method.invoke(lexer);
+        } catch (Exception e) {
             error = e;
         }
         Assert.assertNotNull(error);
     }
 
     public void test_scan_true_6() throws Exception {
-        JSONException error = null;
+        Exception error = null;
         try {
-            JSONScanner lexer = new JSONScanner("true\"");
-            lexer.scanTrue();
-        } catch (JSONException e) {
+            JSONLexer lexer = new JSONLexer("true\"");
+            method.invoke(lexer);
+        } catch (Exception e) {
             error = e;
         }
         Assert.assertNotNull(error);
     }
 
     public void test_scan_true_7() throws Exception {
-        JSONScanner lexer = new JSONScanner("true a");
-        lexer.scanTrue();
+        JSONLexer lexer = new JSONLexer("true a");
+        method.invoke(lexer);
     }
 
     public void test_scan_true_8() throws Exception {
-        JSONScanner lexer = new JSONScanner("true,");
-        lexer.scanTrue();
+        JSONLexer lexer = new JSONLexer("true,");
+        method.invoke(lexer);
     }
 
     public void test_scan_true_9() throws Exception {
-        JSONScanner lexer = new JSONScanner("true\na");
-        lexer.scanTrue();
+        JSONLexer lexer = new JSONLexer("true\na");
+        method.invoke(lexer);
     }
 
     public void test_scan_true_10() throws Exception {
-        JSONScanner lexer = new JSONScanner("true\ra");
-        lexer.scanTrue();
+        JSONLexer lexer = new JSONLexer("true\ra");
+        method.invoke(lexer);
     }
 
     public void test_scan_true_11() throws Exception {
-        JSONScanner lexer = new JSONScanner("true\ta");
-        lexer.scanTrue();
+        JSONLexer lexer = new JSONLexer("true\ta");
+        method.invoke(lexer);
     }
 
     public void test_scan_true_12() throws Exception {
-        JSONScanner lexer = new JSONScanner("true\fa");
-        lexer.scanTrue();
+        JSONLexer lexer = new JSONLexer("true\fa");
+        method.invoke(lexer);
     }
 
     public void test_scan_true_13() throws Exception {
-        JSONScanner lexer = new JSONScanner("true\ba");
-        lexer.scanTrue();
+        JSONLexer lexer = new JSONLexer("true\ba");
+        method.invoke(lexer);
     }
 
     public void test_scan_false_14() throws Exception {
-        JSONScanner lexer = new JSONScanner("true}");
-        lexer.scanTrue();
+        JSONLexer lexer = new JSONLexer("true}");
+        method.invoke(lexer);
     }
 
     public void test_scan_false_15() throws Exception {
-        JSONScanner lexer = new JSONScanner("true]");
-        lexer.scanTrue();
+        JSONLexer lexer = new JSONLexer("true]");
+        method.invoke(lexer);
     }
 }

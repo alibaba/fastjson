@@ -43,7 +43,7 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
         SerializeWriter out = serializer.out;
 
         if (object == null) {
-            if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {
+            if ((out.features & SerializerFeature.WriteNullListAsEmpty.mask) != 0) {
                 out.write("[]");
             } else {
                 out.writeNull();
@@ -52,7 +52,7 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         Type elementType = null;
-        if (out.isEnabled(SerializerFeature.WriteClassName)) {
+        if ((out.features & SerializerFeature.WriteClassName.mask) != 0) {
             if (fieldType instanceof ParameterizedType) {
                 ParameterizedType param = (ParameterizedType) fieldType;
                 elementType = param.getActualTypeArguments()[0];
@@ -64,7 +64,7 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
         SerialContext context = serializer.context;
         serializer.setContext(context, object, fieldName, 0);
 
-        if (out.isEnabled(SerializerFeature.WriteClassName)) {
+        if ((out.features & SerializerFeature.WriteClassName.mask) != 0) {
             if (HashSet.class == collection.getClass()) {
                 out.append("Set");
             } else if (TreeSet.class == collection.getClass()) {
@@ -74,11 +74,11 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
 
         try {
             int i = 0;
-            out.append('[');
+            out.write('[');
             for (Object item : collection) {
 
                 if (i++ != 0) {
-                    out.append(',');
+                    out.write(',');
                 }
 
                 if (item == null) {
@@ -96,7 +96,7 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
                 if (clazz == Long.class) {
                     out.writeLong(((Long) item).longValue());
 
-                    if (out.isEnabled(SerializerFeature.WriteClassName)) {
+                    if ((out.features & SerializerFeature.WriteClassName.mask) != 0) {
                         out.write('L');
                     }
                     continue;
@@ -105,7 +105,7 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
                 ObjectSerializer itemSerializer = serializer.getObjectWriter(clazz);
                 itemSerializer.write(serializer, item, i - 1, elementType);
             }
-            out.append(']');
+            out.write(']');
         } finally {
             serializer.context = context;
         }

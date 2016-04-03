@@ -31,7 +31,8 @@ public class SerializeWriterTest extends TestCase {
 
     public void test_6() throws Exception {
         SerializeWriter writer = new SerializeWriter();
-        writer.writeLongAndChar(-1L, ',');
+        writer.writeLong(-1L);
+        writer.write(',');
         Assert.assertEquals("-1,", writer.toString());
     }
 }

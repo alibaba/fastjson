@@ -47,7 +47,7 @@ public class ArrayCodec implements ObjectSerializer, ObjectDeserializer {
         Object[] array = (Object[]) object;
 
         if (object == null) {
-            if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {
+            if ((out.features & SerializerFeature.WriteNullListAsEmpty.mask) != 0) {
                 out.write("[]");
             } else {
                 out.writeNull();
@@ -70,9 +70,9 @@ public class ArrayCodec implements ObjectSerializer, ObjectDeserializer {
         try {
             Class<?> preClazz = null;
             ObjectSerializer preWriter = null;
-            out.append('[');
+            out.write('[');
 
-            if (out.isEnabled(SerializerFeature.PrettyFormat)) {
+            if ((out.features & SerializerFeature.PrettyFormat.mask) != 0) {
                 serializer.incrementIndent();
                 serializer.println();
                 for (int i = 0; i < size; ++i) {
@@ -108,7 +108,7 @@ public class ArrayCodec implements ObjectSerializer, ObjectDeserializer {
                             preWriter.write(serializer, item, null, null);
                         }
                     }
-                    out.append(',');
+                    out.write(',');
                 }
             }
 
@@ -122,7 +122,7 @@ public class ArrayCodec implements ObjectSerializer, ObjectDeserializer {
                 } else {
                     serializer.writeWithFieldName(item, end);
                 }
-                out.append(']');
+                out.write(']');
             }
         } finally {
             serializer.context = context;

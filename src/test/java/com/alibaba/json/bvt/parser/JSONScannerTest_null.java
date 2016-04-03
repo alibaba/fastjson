@@ -1,126 +1,135 @@
 package com.alibaba.json.bvt.parser;
 
-import org.junit.Assert;
-import junit.framework.TestCase;
+import java.lang.reflect.Method;
 
-import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.parser.JSONScanner;
+import org.junit.Assert;
+
+import com.alibaba.fastjson.parser.JSONLexer;
+
+import junit.framework.TestCase;
 
 public class JSONScannerTest_null extends TestCase {
 
+    Method method;
+
+    protected void setUp() throws Exception {
+        method = JSONLexer.class.getDeclaredMethod("scanNullOrNew");
+        method.setAccessible(true);
+    }
+
     public void test_scan_null_0() throws Exception {
-        JSONScanner lexer = new JSONScanner("null");
-        lexer.scanNullOrNew();
+        JSONLexer lexer = new JSONLexer("null");
+        method.invoke(lexer);
     }
 
     public void test_scan_null_1() throws Exception {
-        JSONException error = null;
+        Exception error = null;
         try {
-            JSONScanner lexer = new JSONScanner("zull");
-            lexer.scanNullOrNew();
-        } catch (JSONException e) {
+            JSONLexer lexer = new JSONLexer("zull");
+            method.invoke(lexer);
+        } catch (Exception e) {
             error = e;
         }
         Assert.assertNotNull(error);
     }
 
     public void test_scan_null_2() throws Exception {
-        JSONException error = null;
+        Exception error = null;
         try {
-            JSONScanner lexer = new JSONScanner("nzll");
-            lexer.scanNullOrNew();
-        } catch (JSONException e) {
+            JSONLexer lexer = new JSONLexer("nzll");
+            method.invoke(lexer);
+        } catch (Exception e) {
             error = e;
         }
         Assert.assertNotNull(error);
     }
 
     public void test_scan_null_3() throws Exception {
-        JSONException error = null;
+        Exception error = null;
         try {
-            JSONScanner lexer = new JSONScanner("nuzl");
-            lexer.scanNullOrNew();
-        } catch (JSONException e) {
+            JSONLexer lexer = new JSONLexer("nuzl");
+            method.invoke(lexer);
+        } catch (Exception e) {
             error = e;
         }
         Assert.assertNotNull(error);
     }
 
     public void test_scan_null_4() throws Exception {
-        JSONException error = null;
+        Exception error = null;
         try {
-            JSONScanner lexer = new JSONScanner("nulz");
-            lexer.scanNullOrNew();
-        } catch (JSONException e) {
+            JSONLexer lexer = new JSONLexer("nulz");
+            method.invoke(lexer);
+        } catch (Exception e) {
             error = e;
         }
         Assert.assertNotNull(error);
     }
 
     public void test_scan_null_5() throws Exception {
-        JSONException error = null;
+        Exception error = null;
         try {
-            JSONScanner lexer = new JSONScanner("nulle");
-            lexer.scanNullOrNew();
-        } catch (JSONException e) {
+            JSONLexer lexer = new JSONLexer("nulle");
+            method.invoke(lexer);
+        } catch (Exception e) {
             error = e;
         }
         Assert.assertNotNull(error);
     }
 
     public void test_scan_null_6() throws Exception {
-        JSONException error = null;
+        Exception error = null;
         try {
-            JSONScanner lexer = new JSONScanner("null\"");
-            lexer.scanNullOrNew();
-        } catch (JSONException e) {
+            JSONLexer lexer = new JSONLexer("null\"");
+            method.invoke(lexer);
+        } catch (Exception e) {
             error = e;
         }
         Assert.assertNotNull(error);
     }
 
     public void test_scan_null_7() throws Exception {
-        JSONScanner lexer = new JSONScanner("null a");
-        lexer.scanNullOrNew();
+        JSONLexer lexer = new JSONLexer("null a");
+        method.invoke(lexer);
     }
 
     public void test_scan_null_8() throws Exception {
-        JSONScanner lexer = new JSONScanner("null,");
-        lexer.scanNullOrNew();
+        JSONLexer lexer = new JSONLexer("null,");
+        method.invoke(lexer);
     }
 
     public void test_scan_null_9() throws Exception {
-        JSONScanner lexer = new JSONScanner("null\na");
-        lexer.scanNullOrNew();
+        JSONLexer lexer = new JSONLexer("null\na");
+        method.invoke(lexer);
     }
 
     public void test_scan_null_10() throws Exception {
-        JSONScanner lexer = new JSONScanner("null\ra");
-        lexer.scanNullOrNew();
+        JSONLexer lexer = new JSONLexer("null\ra");
+        method.invoke(lexer);
     }
 
     public void test_scan_null_11() throws Exception {
-        JSONScanner lexer = new JSONScanner("null\ta");
-        lexer.scanNullOrNew();
+        JSONLexer lexer = new JSONLexer("null\ta");
+        method.invoke(lexer);
     }
 
     public void test_scan_null_12() throws Exception {
-        JSONScanner lexer = new JSONScanner("null\fa");
-        lexer.scanNullOrNew();
+        JSONLexer lexer = new JSONLexer("null\fa");
+        method.invoke(lexer);
     }
 
     public void test_scan_null_13() throws Exception {
-        JSONScanner lexer = new JSONScanner("null\ba");
-        lexer.scanNullOrNew();
+        JSONLexer lexer = new JSONLexer("null\ba");
+        method.invoke(lexer);
     }
 
     public void test_scan_false_14() throws Exception {
-        JSONScanner lexer = new JSONScanner("null}");
-        lexer.scanNullOrNew();
+        JSONLexer lexer = new JSONLexer("null}");
+        method.invoke(lexer);
     }
 
     public void test_scan_false_15() throws Exception {
-        JSONScanner lexer = new JSONScanner("null]");
-        lexer.scanNullOrNew();
+        JSONLexer lexer = new JSONLexer("null]");
+        method.invoke(lexer);
     }
 }

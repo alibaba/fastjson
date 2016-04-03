@@ -19,18 +19,22 @@ public class FieldInfo implements Comparable<FieldInfo> {
     public final Method   method;
     public final Field    field;
 
-    public final boolean  publicField;
+    public final boolean  fieldAccess;
+    public final boolean  fieldTransient;
 
     private int           ordinal = 0;
     public final Class<?> fieldClass;
     public final Type     fieldType;
     public final Class<?> declaringClass;
     protected boolean     getOnly = false;
+    protected boolean     isTransient;
 
     private JSONField     fieldAnnotation;
     private JSONField     methodAnnotation;
     
     public final char[]   name_chars;
+    
+    public final boolean  isEnum;
 
     public FieldInfo(String name, Class<?> declaringClass, Class<?> fieldClass, Type fieldType, Field field,
                      int ordinal, int serialzeFeatures){
@@ -42,7 +46,17 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.field = field;
         this.ordinal = ordinal;
         
-        publicField = field != null ? Modifier.isPublic(field.getModifiers()) : false;
+        isEnum = fieldClass.isEnum();
+        
+        if (field != null) {
+            int modifiers = field.getModifiers();
+            fieldAccess = (Modifier.isPublic(modifiers) || method == null);
+            fieldTransient = Modifier.isTransient(modifiers);
+        } else {
+            fieldAccess = false;
+            fieldTransient = false;
+        }
+        
         
         int nameLen = this.name.length();
         name_chars = new char[nameLen + 3];
@@ -70,9 +84,12 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.fieldAnnotation = fieldAnnotation;
 
         if (field != null) {
-            publicField = Modifier.isPublic(field.getModifiers());
+            int modifiers = field.getModifiers();
+            fieldAccess = Modifier.isPublic(modifiers) || method == null;
+            fieldTransient = Modifier.isTransient(modifiers);
         } else {
-            publicField = false;
+            fieldAccess = false;
+            fieldTransient = false;
         }
         
         
@@ -121,6 +138,8 @@ public class FieldInfo implements Comparable<FieldInfo> {
             if (genericFieldType != null) {
                 this.fieldClass = TypeUtils.getClass(genericFieldType);
                 this.fieldType = genericFieldType;
+                
+                isEnum = fieldClass.isEnum();
                 return;
             }
         }
@@ -140,6 +159,8 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
         this.fieldType = genericFieldType;
         this.fieldClass = fieldClass;
+        
+        isEnum = fieldClass.isEnum();
     }
 
     public static Type getFieldType(Class<?> clazz, Type type, Type fieldType) {
@@ -256,7 +277,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
     }
 
     public Object get(Object javaObject) throws IllegalAccessException, InvocationTargetException {
-        if (field != null && (publicField || method == null)) {
+        if (fieldAccess) {
             return field.get(javaObject);
         }
         

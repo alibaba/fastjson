@@ -34,11 +34,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParseContext;
+import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.util.TypeUtils;
 
@@ -63,7 +63,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
         boolean containsKey = (mapClass == JSONObject.class || mapClass == HashMap.class || mapClass == LinkedHashMap.class) 
                 && map.containsKey(JSON.DEFAULT_TYPE_KEY);
 
-        if (out.isEnabled(SerializerFeature.SortField)) {
+        if ((out.features & SerializerFeature.SortField.mask) != 0) {
             if ((!(map instanceof SortedMap)) && !(map instanceof LinkedHashMap)) {
                 try {
                     map = new TreeMap(map);
@@ -90,7 +90,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
 
             boolean first = true;
 
-            if (out.isEnabled(SerializerFeature.WriteClassName)) {
+            if ((out.features & SerializerFeature.WriteClassName.mask) != 0) {
                 if (!containsKey) {
                     out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
                     out.writeString(object.getClass().getName());
@@ -160,7 +160,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                 }
                 
                 if (value == null) {
-                    if (!out.isEnabled(SerializerFeature.WriteMapNullValue)) {
+                    if ((out.features & SerializerFeature.WriteMapNullValue.mask) == 0) {
                         continue;
                     }
                 }
@@ -172,7 +172,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                         out.write(',');
                     }
 
-                    if (out.isEnabled(SerializerFeature.PrettyFormat)) {
+                    if ((out.features & SerializerFeature.PrettyFormat.mask) != 0) {
                         serializer.println();
                     }
                     out.writeFieldName(key, true);
@@ -180,9 +180,9 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                     if (!first) {
                         out.write(',');
                     }
-
-                    if (out.isEnabled(SerializerFeature.BrowserCompatible)
-                        || out.isEnabled(SerializerFeature.WriteNonStringKeyAsString)) {
+                    
+                    if ((out.features & SerializerFeature.BrowserCompatible.mask) != 0
+                        || (out.features & SerializerFeature.WriteNonStringKeyAsString.mask) != 0) {
                         String strEntryKey = JSON.toJSONString(entryKey);
                         serializer.write(strEntryKey);
                     } else {
@@ -215,7 +215,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         serializer.decrementIdent();
-        if (out.isEnabled(SerializerFeature.PrettyFormat) && map.size() > 0) {
+        if ((out.features & SerializerFeature.PrettyFormat.mask) != 0 && map.size() > 0) {
             serializer.println();
         }
         out.write('}');
@@ -406,7 +406,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                 if (lexer.token() == JSONToken.LITERAL_STRING && lexer.isRef()) {
                     Object object = null;
 
-                    lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
+                    lexer.nextTokenWithChar(':');
                     if (lexer.token() == JSONToken.LITERAL_STRING) {
                         String ref = lexer.stringVal();
                         if ("..".equals(ref)) {
@@ -442,7 +442,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                 if (map.size() == 0 //
                     && lexer.token() == JSONToken.LITERAL_STRING //
                     && JSON.DEFAULT_TYPE_KEY.equals(lexer.stringVal())) {
-                    lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
+                    lexer.nextTokenWithChar(':');
                     lexer.nextToken(JSONToken.COMMA);
                     if (lexer.token() == JSONToken.RBRACE) {
                         lexer.nextToken();

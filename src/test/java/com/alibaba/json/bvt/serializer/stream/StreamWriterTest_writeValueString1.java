@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.json.SerializeWriterTestUtils;
 
 
 public class StreamWriterTest_writeValueString1 extends TestCase {
@@ -15,7 +16,7 @@ public class StreamWriterTest_writeValueString1 extends TestCase {
         
         SerializeWriter writer = new SerializeWriter(out, 10);
         writer.config(SerializerFeature.BrowserCompatible, true);
-        Assert.assertEquals(10, writer.getBufferLength());
+        Assert.assertEquals(10, SerializeWriterTestUtils.getBufferLength(writer));
         
         writer.writeString("abcde12345678\t");
         writer.close();

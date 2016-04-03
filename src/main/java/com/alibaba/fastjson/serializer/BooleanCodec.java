@@ -36,7 +36,7 @@ public class BooleanCodec implements ObjectSerializer, ObjectDeserializer {
 
         Boolean value = (Boolean) object;
         if (value == null) {
-            if (out.isEnabled(SerializerFeature.WriteNullBooleanAsFalse)) {
+            if ((out.features & SerializerFeature.WriteNullBooleanAsFalse.mask) != 0) {
                 out.write("false");
             } else {
                 out.writeNull();

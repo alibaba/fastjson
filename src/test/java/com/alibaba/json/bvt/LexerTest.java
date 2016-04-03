@@ -23,14 +23,14 @@ import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.parser.JSONScanner;
+import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 
 public class LexerTest extends TestCase {
 
     public void test_float() throws Exception {
         String text = "123456789.0123";
-        JSONScanner lexer = new JSONScanner(text);
+        JSONLexer lexer = new JSONLexer(text);
         lexer.nextToken();
         BigDecimal decimalValue = lexer.decimalValue();
         Assert.assertEquals(new BigDecimal("123456789.0123"), decimalValue);
@@ -39,17 +39,17 @@ public class LexerTest extends TestCase {
 
     public void test_string() throws Exception {
         {
-            JSONScanner lexer = new JSONScanner("\"中国\"");
+            JSONLexer lexer = new JSONLexer("\"中国\"");
             lexer.nextToken();
             Assert.assertEquals("中国", lexer.stringVal());
         }
         {
-            JSONScanner lexer = new JSONScanner("\"中国\t\"");
+            JSONLexer lexer = new JSONLexer("\"中国\t\"");
             lexer.nextToken();
             Assert.assertEquals("中国\t", lexer.stringVal());
         }
         {
-            JSONScanner lexer = new JSONScanner("\"中国\tV5\"");
+            JSONLexer lexer = new JSONLexer("\"中国\tV5\"");
             lexer.nextToken();
             Assert.assertEquals("中国\tV5", lexer.stringVal());
         }
@@ -63,7 +63,7 @@ public class LexerTest extends TestCase {
 
         String text = buf.toString();
 
-        JSONScanner lexer = new JSONScanner(text.toCharArray(), text.length() - 1);
+        JSONLexer lexer = new JSONLexer(text.toCharArray(), text.length() - 1);
         lexer.nextToken();
 
         Assert.assertEquals(0, lexer.pos());
@@ -85,7 +85,7 @@ public class LexerTest extends TestCase {
 
         String text = buf.toString();
 
-        JSONScanner lexer = new JSONScanner(text.toCharArray(), text.length());
+        JSONLexer lexer = new JSONLexer(text.toCharArray(), text.length());
         lexer.nextToken();
 
         Assert.assertEquals(0, lexer.pos());
@@ -105,7 +105,7 @@ public class LexerTest extends TestCase {
 
         String text = buf.toString();
 
-        JSONScanner lexer = new JSONScanner(text.toCharArray(), text.length());
+        JSONLexer lexer = new JSONLexer(text.toCharArray(), text.length());
         lexer.nextToken();
 
         Assert.assertEquals(0, lexer.pos());
@@ -124,7 +124,7 @@ public class LexerTest extends TestCase {
 
         String text = buf.toString();
 
-        JSONScanner lexer = new JSONScanner(text.toCharArray(), text.length());
+        JSONLexer lexer = new JSONLexer(text.toCharArray(), text.length());
         lexer.nextToken();
 
         Assert.assertEquals(0, lexer.pos());
@@ -137,24 +137,24 @@ public class LexerTest extends TestCase {
     }
 
     public void test_empty() throws Exception {
-        JSONScanner lexer = new JSONScanner("".toCharArray(), 0);
+        JSONLexer lexer = new JSONLexer("".toCharArray(), 0);
         lexer.nextToken();
         Assert.assertEquals(JSONToken.EOF, lexer.token());
     }
 
     public void test_isWhitespace() throws Exception {
-        new JSONScanner("".toCharArray(), 0);
-        Assert.assertTrue(JSONScanner.isWhitespace(' '));
-        Assert.assertTrue(JSONScanner.isWhitespace('\b'));
-        Assert.assertTrue(JSONScanner.isWhitespace('\f'));
-        Assert.assertTrue(JSONScanner.isWhitespace('\n'));
-        Assert.assertTrue(JSONScanner.isWhitespace('\r'));
-        Assert.assertTrue(JSONScanner.isWhitespace('\t'));
-        Assert.assertFalse(JSONScanner.isWhitespace('k'));
+        new JSONLexer("".toCharArray(), 0);
+        Assert.assertTrue(JSONLexer.isWhitespace(' '));
+        Assert.assertTrue(JSONLexer.isWhitespace('\b'));
+        Assert.assertTrue(JSONLexer.isWhitespace('\f'));
+        Assert.assertTrue(JSONLexer.isWhitespace('\n'));
+        Assert.assertTrue(JSONLexer.isWhitespace('\r'));
+        Assert.assertTrue(JSONLexer.isWhitespace('\t'));
+        Assert.assertFalse(JSONLexer.isWhitespace('k'));
     }
 
     public void test_error() throws Exception {
-        JSONScanner lexer = new JSONScanner("k");
+        JSONLexer lexer = new JSONLexer("k");
         lexer.nextToken();
         Assert.assertEquals(JSONToken.ERROR, lexer.token());
     }
@@ -162,7 +162,7 @@ public class LexerTest extends TestCase {
     public void test_error1() throws Exception {
         Exception error = null;
         try {
-            JSONScanner lexer = new JSONScanner("\"\\k\"");
+            JSONLexer lexer = new JSONLexer("\"\\k\"");
             lexer.nextToken();
         } catch (Exception ex) {
             error = ex;
@@ -172,57 +172,57 @@ public class LexerTest extends TestCase {
 
     public void f_test_ident() throws Exception {
         {
-            JSONScanner lexer = new JSONScanner("ttue");
+            JSONLexer lexer = new JSONLexer("ttue");
             lexer.nextToken();
             Assert.assertEquals(JSONToken.IDENTIFIER, lexer.token());
         }
         {
-            JSONScanner lexer = new JSONScanner("tree");
+            JSONLexer lexer = new JSONLexer("tree");
             lexer.nextToken();
             Assert.assertEquals(JSONToken.IDENTIFIER, lexer.token());
         }
         {
-            JSONScanner lexer = new JSONScanner("truu");
+            JSONLexer lexer = new JSONLexer("truu");
             lexer.nextToken();
             Assert.assertEquals(JSONToken.IDENTIFIER, lexer.token());
         }
         {
-            JSONScanner lexer = new JSONScanner("fflse");
+            JSONLexer lexer = new JSONLexer("fflse");
             lexer.nextToken();
             Assert.assertEquals(JSONToken.IDENTIFIER, lexer.token());
         }
         {
-            JSONScanner lexer = new JSONScanner("nalse");
+            JSONLexer lexer = new JSONLexer("nalse");
             lexer.nextToken();
             Assert.assertEquals(JSONToken.IDENTIFIER, lexer.token());
         }
         {
-            JSONScanner lexer = new JSONScanner("faase");
+            JSONLexer lexer = new JSONLexer("faase");
             lexer.nextToken();
             Assert.assertEquals(JSONToken.IDENTIFIER, lexer.token());
         }
         {
-            JSONScanner lexer = new JSONScanner("falle");
+            JSONLexer lexer = new JSONLexer("falle");
             lexer.nextToken();
             Assert.assertEquals(JSONToken.IDENTIFIER, lexer.token());
         }
         {
-            JSONScanner lexer = new JSONScanner("falss");
+            JSONLexer lexer = new JSONLexer("falss");
             lexer.nextToken();
             Assert.assertEquals(JSONToken.IDENTIFIER, lexer.token());
         }
         {
-            JSONScanner lexer = new JSONScanner("nnll");
+            JSONLexer lexer = new JSONLexer("nnll");
             lexer.nextToken();
             Assert.assertEquals(JSONToken.IDENTIFIER, lexer.token());
         }
         {
-            JSONScanner lexer = new JSONScanner("nuul");
+            JSONLexer lexer = new JSONLexer("nuul");
             lexer.nextToken();
             Assert.assertEquals(JSONToken.IDENTIFIER, lexer.token());
         }
         {
-            JSONScanner lexer = new JSONScanner("nulk");
+            JSONLexer lexer = new JSONLexer("nulk");
             lexer.nextToken();
             Assert.assertEquals(JSONToken.IDENTIFIER, lexer.token());
         }
@@ -235,7 +235,7 @@ public class LexerTest extends TestCase {
             for (char ch = 'a'; ch <= 'z'; ++ch) {
                 buf.append(ch);
             }
-            JSONScanner lexer = new JSONScanner(buf.toString());
+            JSONLexer lexer = new JSONLexer(buf.toString());
             lexer.nextToken();
             Assert.assertEquals(JSONToken.IDENTIFIER, lexer.token());
         }
@@ -266,21 +266,21 @@ public class LexerTest extends TestCase {
 
     public void test_big_integer_1() throws Exception {
         String text = Long.MAX_VALUE + "1234";
-        JSONScanner lexer = new JSONScanner(text);
+        JSONLexer lexer = new JSONLexer(text);
         lexer.nextToken();
         Assert.assertEquals(new BigInteger(text), lexer.integerValue());
     }
 
     public void test_big_integer_2() throws Exception {
         String text = Long.MIN_VALUE + "1234";
-        JSONScanner lexer = new JSONScanner(text);
+        JSONLexer lexer = new JSONLexer(text);
         lexer.nextToken();
         Assert.assertEquals(new BigInteger(text), lexer.integerValue());
     }
 
     public void test_big_integer_3() throws Exception {
         String text = "9223372036854775809";
-        JSONScanner lexer = new JSONScanner(text);
+        JSONLexer lexer = new JSONLexer(text);
         lexer.nextToken();
         Assert.assertEquals(new BigInteger(text), lexer.integerValue());
     }
@@ -288,7 +288,7 @@ public class LexerTest extends TestCase {
     public void test_error2() {
         Exception error = null;
         try {
-            JSONScanner lexer = new JSONScanner("--");
+            JSONLexer lexer = new JSONLexer("--");
             lexer.nextToken();
             lexer.integerValue();
         } catch (Exception ex) {
@@ -300,7 +300,7 @@ public class LexerTest extends TestCase {
     public void test_error3() {
         Exception error = null;
         try {
-            JSONScanner lexer = new JSONScanner("");
+            JSONLexer lexer = new JSONLexer("");
             lexer.nextToken();
             lexer.nextToken();
             lexer.integerValue();

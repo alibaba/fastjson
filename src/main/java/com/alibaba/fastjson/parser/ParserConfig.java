@@ -100,13 +100,10 @@ import com.alibaba.fastjson.serializer.CalendarCodec;
 import com.alibaba.fastjson.serializer.CharArrayCodec;
 import com.alibaba.fastjson.serializer.CharacterCodec;
 import com.alibaba.fastjson.serializer.CharsetCodec;
-import com.alibaba.fastjson.serializer.ClassCodec;
 import com.alibaba.fastjson.serializer.CollectionCodec;
 import com.alibaba.fastjson.serializer.CurrencyCodec;
 import com.alibaba.fastjson.serializer.DateCodec;
-import com.alibaba.fastjson.serializer.FileCodec;
 import com.alibaba.fastjson.serializer.FloatCodec;
-import com.alibaba.fastjson.serializer.InetAddressCodec;
 import com.alibaba.fastjson.serializer.InetSocketAddressCodec;
 import com.alibaba.fastjson.serializer.IntegerCodec;
 import com.alibaba.fastjson.serializer.LongCodec;
@@ -262,7 +259,7 @@ public class ParserConfig {
         derializers.put(Double.class, NumberDeserializer.instance);
         derializers.put(boolean.class, BooleanCodec.instance);
         derializers.put(Boolean.class, BooleanCodec.instance);
-        derializers.put(Class.class, ClassCodec.instance);
+        derializers.put(Class.class, MiscCodec.instance);
         derializers.put(char[].class, CharArrayCodec.instance);
 
         derializers.put(AtomicBoolean.class, BooleanCodec.instance);
@@ -277,11 +274,11 @@ public class ParserConfig {
         derializers.put(TimeZone.class, TimeZoneCodec.instance);
         derializers.put(Locale.class, MiscCodec.instance);
         derializers.put(Currency.class, CurrencyCodec.instance);
-        derializers.put(InetAddress.class, InetAddressCodec.instance);
-        derializers.put(Inet4Address.class, InetAddressCodec.instance);
-        derializers.put(Inet6Address.class, InetAddressCodec.instance);
+        derializers.put(InetAddress.class, MiscCodec.instance);
+        derializers.put(Inet4Address.class, MiscCodec.instance);
+        derializers.put(Inet6Address.class, MiscCodec.instance);
         derializers.put(InetSocketAddress.class, InetSocketAddressCodec.instance);
-        derializers.put(File.class, FileCodec.instance);
+        derializers.put(File.class, MiscCodec.instance);
         derializers.put(URI.class, MiscCodec.instance);
         derializers.put(URL.class, MiscCodec.instance);
         derializers.put(Pattern.class, MiscCodec.instance);

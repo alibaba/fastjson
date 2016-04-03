@@ -15,11 +15,17 @@
  */
 package com.alibaba.fastjson.serializer;
 
+import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.UUID;
@@ -31,6 +37,7 @@ import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
+import com.alibaba.fastjson.util.TypeUtils;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -48,7 +55,10 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
             return;
         }
         
-        if (object.getClass() == SimpleDateFormat.class) {
+        Object objClass = object.getClass();
+        
+        String strVal;
+        if (objClass == SimpleDateFormat.class) {
             String pattern = ((SimpleDateFormat) object).toPattern();
 
             if (out.isEnabled(SerializerFeature.WriteClassName)) {
@@ -62,12 +72,19 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
                 }
             }
             
-            out.writeString(pattern);
-            
-            return;
+            strVal = pattern;
+        } else if (objClass == Class.class) {
+            Class<?> clazz = (Class<?>) object;
+            strVal = clazz.getName();
+        } else if (object instanceof File) {
+            strVal = ((File) object).getPath();
+        } else if (object instanceof InetAddress) {
+            strVal = ((InetAddress) object).getHostAddress();
+        } else {
+            strVal = object.toString();
         }
         
-        serializer.write(object.toString());
+        out.writeString(strVal);
     }
 
     @SuppressWarnings("unchecked")
@@ -99,7 +116,15 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
             objVal = parser.parse();
         }
         
-        String strVal = (String) objVal;
+        String strVal;
+
+        if (objVal == null) {
+            strVal = null;
+        } else if (objVal instanceof String) {
+            strVal = (String) objVal;
+        } else {
+            throw new JSONException("expect string");
+        }
 
         if (strVal == null || strVal.length() == 0) {
             return null;
@@ -141,6 +166,26 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         
         if (clazz == SimpleDateFormat.class) {
             return (T) new SimpleDateFormat(strVal);
+        }
+        
+        if (clazz == InetAddress.class || clazz == Inet4Address.class  || clazz == Inet6Address.class) {
+            try {
+                return (T) InetAddress.getByName(strVal);
+            } catch (UnknownHostException e) {
+                throw new JSONException("deserialize inet adress error", e);
+            }
+        }
+        
+        if (clazz == File.class) {
+            return (T) new File(strVal);
+        }
+        
+        if (clazz instanceof ParameterizedType) {
+            clazz = ((ParameterizedType) clazz).getRawType();
+        }
+        
+        if (clazz == Class.class) {
+            return (T) TypeUtils.loadClass(strVal, parser.getConfig().getDefaultClassLoader());
         }
         
         throw new JSONException("MiscCodec not support " + clazz);

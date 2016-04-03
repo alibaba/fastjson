@@ -195,7 +195,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 		put(Object[].class, ObjectArrayCodec.instance);
 		put(Class.class, ClassCodec.instance);
 
-		put(SimpleDateFormat.class, DateFormatCodec.instance);
+		put(SimpleDateFormat.class, MiscCodec.instance);
 		put(Locale.class, MiscCodec.instance);
 		put(Currency.class, CurrencyCodec.instance);
 		put(TimeZone.class, TimeZoneCodec.instance);

@@ -34,11 +34,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParseContext;
-import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.util.TypeUtils;
 
@@ -224,6 +224,10 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
     
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+        if (type == JSONObject.class) {
+            return (T) parser.parseObject();
+        }
+        
         final JSONLexer lexer = parser.getLexer();
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken(JSONToken.COMMA);

@@ -79,8 +79,6 @@ import com.alibaba.fastjson.parser.deserializer.DefaultFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.EnumDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.IntegerFieldDeserializer;
-import com.alibaba.fastjson.parser.deserializer.JSONArrayDeserializer;
-import com.alibaba.fastjson.parser.deserializer.JSONObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.Jdk8DateCodec;
@@ -106,7 +104,6 @@ import com.alibaba.fastjson.serializer.ClassCodec;
 import com.alibaba.fastjson.serializer.CollectionCodec;
 import com.alibaba.fastjson.serializer.CurrencyCodec;
 import com.alibaba.fastjson.serializer.DateCodec;
-import com.alibaba.fastjson.serializer.DateFormatCodec;
 import com.alibaba.fastjson.serializer.FileCodec;
 import com.alibaba.fastjson.serializer.FloatCodec;
 import com.alibaba.fastjson.serializer.InetAddressCodec;
@@ -222,15 +219,15 @@ public class ParserConfig {
         primitiveClasses.add(java.sql.Time.class);
         primitiveClasses.add(java.sql.Timestamp.class);
 
-        derializers.put(SimpleDateFormat.class, DateFormatCodec.instance);
+        derializers.put(SimpleDateFormat.class, MiscCodec.instance);
         derializers.put(java.sql.Timestamp.class, SqlDateDeserializer.instance_timestamp);
         derializers.put(java.sql.Date.class, SqlDateDeserializer.instance);
         derializers.put(java.sql.Time.class, TimeDeserializer.instance);
         derializers.put(java.util.Date.class, DateCodec.instance);
         derializers.put(Calendar.class, CalendarCodec.instance);
 
-        derializers.put(JSONObject.class, JSONObjectDeserializer.instance);
-        derializers.put(JSONArray.class, JSONArrayDeserializer.instance);
+        derializers.put(JSONObject.class, MapCodec.instance);
+        derializers.put(JSONArray.class, CollectionCodec.instance);
 
         derializers.put(Map.class, MapCodec.instance);
         derializers.put(HashMap.class, MapCodec.instance);

@@ -223,6 +223,10 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
     
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+        if (type == JSONObject.class) {
+            return (T) parser.parseObject();
+        }
+        
         final JSONLexer lexer = parser.lexer;
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken(JSONToken.COMMA);

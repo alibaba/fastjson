@@ -25,7 +25,7 @@ import com.alibaba.fastjson.util.TypeUtils;
 
 public class JavaBeanDeserializer implements ObjectDeserializer {
 
-    private final Map<String, FieldDeserializer> feildDeserializerMap     = new IdentityHashMap<String, FieldDeserializer>();
+    public final Map<String, FieldDeserializer> feildDeserializerMap     = new IdentityHashMap<String, FieldDeserializer>();
 
     private final List<FieldDeserializer>        fieldDeserializers       = new ArrayList<FieldDeserializer>();
     private final List<FieldDeserializer>        sortedFieldDeserializers = new ArrayList<FieldDeserializer>();
@@ -43,29 +43,17 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         beanInfo = DeserializeBeanInfo.computeSetters(clazz, type);
 
         for (FieldInfo fieldInfo : beanInfo.fields) {
-            addFieldDeserializer(config, clazz, fieldInfo);
+            String interName = fieldInfo.name.intern();
+            FieldDeserializer fieldDeserializer = config.createFieldDeserializer(config, clazz, fieldInfo);
+
+            feildDeserializerMap.put(interName, fieldDeserializer);
+            fieldDeserializers.add(fieldDeserializer);
         }
 
         for (FieldInfo fieldInfo : beanInfo.sortedFieldList) {
             FieldDeserializer fieldDeserializer = feildDeserializerMap.get(fieldInfo.name.intern());
             sortedFieldDeserializers.add(fieldDeserializer);
         }
-    }
-
-    public Map<String, FieldDeserializer> getFieldDeserializerMap() {
-        return feildDeserializerMap;
-    }
-
-    private void addFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
-        String interName = fieldInfo.name.intern();
-        FieldDeserializer fieldDeserializer = createFieldDeserializer(mapping, clazz, fieldInfo);
-
-        feildDeserializerMap.put(interName, fieldDeserializer);
-        fieldDeserializers.add(fieldDeserializer);
-    }
-
-    public FieldDeserializer createFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
-        return mapping.createFieldDeserializer(mapping, clazz, fieldInfo);
     }
 
     public Object createInstance(DefaultJSONParser parser, Type type) {

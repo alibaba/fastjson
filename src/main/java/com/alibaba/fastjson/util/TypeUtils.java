@@ -1021,6 +1021,7 @@ public class TypeUtils {
                         }
                     }
 
+                    TypeUtils.setAccessible(method, modifiers);
                     fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, null, ordinal, serialzeFeatures, annotation, null));
                     continue;
                 }
@@ -1157,6 +1158,8 @@ public class TypeUtils {
                     }
                 }
 
+                TypeUtils.setAccessible(field, modifiers);
+                TypeUtils.setAccessible(method, modifiers);
                 fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field, ordinal, serialzeFeatures, annotation, fieldAnnotation));
             }
         }
@@ -1357,6 +1360,10 @@ public class TypeUtils {
     }
     
     static boolean setAccessible(Member member, int classMofifiers) {
+        if (member == null) {
+            return false;
+        }
+        
         if (!setAccessibleEnable) {
             return false;
         }

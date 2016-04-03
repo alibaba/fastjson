@@ -40,9 +40,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
     private final FieldSerializer[] getters;
     private final FieldSerializer[] sortedGetters;
     
-    private int features = 0;
-    
-    protected boolean writeClassName = false;
+    protected int features = 0;
     
     public FieldSerializer[] getGetters() {
         return getters;
@@ -105,10 +103,6 @@ public class JavaBeanSerializer implements ObjectSerializer {
         }
     }
 
-    protected boolean isWriteClassName(JSONSerializer serializer, Object obj, Type fieldType, Object fieldName) {
-        return writeClassName || serializer.isWriteClassName(fieldType, obj);
-    }
-    
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         SerializeWriter out = serializer.out;
 
@@ -132,7 +126,15 @@ public class JavaBeanSerializer implements ObjectSerializer {
         SerialContext parent = serializer.context;
         serializer.setContext(parent, object, fieldName, features);
 
-        final boolean writeAsArray = isWriteAsArray(serializer);
+        boolean writeAsArray;
+        
+        if ((features & SerializerFeature.BeanToArray.mask) != 0) {
+            writeAsArray = true;
+        } else if (serializer.out.isEnabled(SerializerFeature.BeanToArray)) {
+            writeAsArray = true;
+        } else {
+            writeAsArray = false;
+        }
 
         try {
             final char startSeperator = writeAsArray ? '[' : '{';
@@ -145,8 +147,11 @@ public class JavaBeanSerializer implements ObjectSerializer {
             }
 
             boolean commaFlag = false;
+            
+            boolean isWriteClassName = (features & SerializerFeature.WriteClassName.mask) != 0 //
+                    || serializer.isWriteClassName(fieldType, fieldName);
 
-            if (isWriteClassName(serializer, object, fieldType, fieldName)) {
+            if (isWriteClassName) {
                 Class<?> objClass = object.getClass();
                 if (objClass != fieldType) {
                     out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
@@ -281,21 +286,4 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
         return new ObjectFieldSerializer(fieldInfo);
     }
-    
-    public boolean isWriteAsArray(JSONSerializer serializer) {
-        if ((features & SerializerFeature.BeanToArray.mask) != 0) {
-            return true;
-        }
-        
-        boolean writeAsArray;
-        if (serializer.out.isEnabled(SerializerFeature.BeanToArray)) {
-            writeAsArray = true;
-        } else {
-            writeAsArray = false;
-        }
-
-        return writeAsArray;
-    }
-    
-   
 }

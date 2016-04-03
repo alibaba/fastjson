@@ -18,17 +18,17 @@ public class FieldInfo implements Comparable<FieldInfo> {
     public final String   name;
     public final Method   method;
     public final Field    field;
-    
-    public final boolean publicField;
 
-    private int            ordinal = 0;
+    public final boolean  publicField;
+
+    private int           ordinal = 0;
     public final Class<?> fieldClass;
     public final Type     fieldType;
-    public final Class<?>  declaringClass;
-    private boolean        getOnly = false;
-    
-    private JSONField      fieldAnnotation;
-    private JSONField      methodAnnotation;
+    public final Class<?> declaringClass;
+    protected boolean     getOnly = false;
+
+    private JSONField     fieldAnnotation;
+    private JSONField     methodAnnotation;
     
     public final char[]   name_chars;
 
@@ -283,15 +283,6 @@ public class FieldInfo implements Comparable<FieldInfo> {
         }
 
         field.set(javaObject, value);
-    }
-
-    public void setAccessible(boolean flag) throws SecurityException {
-        if (method != null) {
-            TypeUtils.setAccessible(method, method.getDeclaringClass().getModifiers());
-            return;
-        }
-
-        TypeUtils.setAccessible(field, field.getDeclaringClass().getModifiers());
     }
 
     public boolean isGetOnly() {

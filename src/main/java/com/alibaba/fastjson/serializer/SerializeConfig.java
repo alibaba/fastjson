@@ -28,7 +28,6 @@ import java.util.TimeZone;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.util.IdentityHashMap;
 
 /**
@@ -40,16 +39,6 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 
     public final static SerializeConfig globalInstance = new SerializeConfig();
 
-    private String                       typeKey        = JSON.DEFAULT_TYPE_KEY;
-
-    public String getTypeKey() {
-        return typeKey;
-    }
-
-    public void setTypeKey(String typeKey) {
-        this.typeKey = typeKey;
-    }
-
     public ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
         return new JavaBeanSerializer(clazz);
     }
@@ -59,7 +48,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
     }
 
     public SerializeConfig(){
-        this(DEFAULT_TABLE_SIZE);
+        this(1024);
     }
 
     public SerializeConfig(int tableSize){
@@ -79,7 +68,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
         put(Object[].class, ArrayCodec.instance);
         put(Class.class, MiscCodec.instance);
 
-        put(SimpleDateFormat.class, DateFormatCodec.instance);
+        put(SimpleDateFormat.class, MiscCodec.instance);
         put(Locale.class, MiscCodec.instance);
         put(Currency.class, MiscCodec.instance);
         put(TimeZone.class, MiscCodec.instance);

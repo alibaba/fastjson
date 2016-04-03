@@ -22,14 +22,11 @@ package com.alibaba.fastjson.util;
  */
 @SuppressWarnings("unchecked")
 public class IdentityHashMap<K, V> {
-
-    public static final int     DEFAULT_TABLE_SIZE = 1024;
-
     private final Entry<K, V>[] buckets;
     private final int           indexMask;
 
     public IdentityHashMap(){
-        this(DEFAULT_TABLE_SIZE);
+        this(1024);
     }
 
     public IdentityHashMap(int tableSize){

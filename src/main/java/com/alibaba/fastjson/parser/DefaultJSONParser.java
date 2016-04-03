@@ -188,7 +188,7 @@ public class DefaultJSONParser implements Closeable {
                     lexer.skipWhitespace();
                     ch = lexer.ch;
                     if (ch != ':') {
-                        throw new JSONException("expect ':' at " + lexer.pos() + ", name " + key);
+                        throw new JSONException("expect ':' at " + lexer.pos + ", name " + key);
                     }
                 } else if (ch == '}') {
                     lexer.next();
@@ -204,7 +204,7 @@ public class DefaultJSONParser implements Closeable {
                     lexer.skipWhitespace();
                     ch = lexer.ch;
                     if (ch != ':') {
-                        throw new JSONException("expect ':' at " + lexer.pos());
+                        throw new JSONException("expect ':' at " + lexer.pos);
                     }
                 } else if (ch == EOI) {
                     throw new JSONException("syntax error");

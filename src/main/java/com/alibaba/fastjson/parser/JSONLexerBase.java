@@ -368,10 +368,6 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         nextTokenWithChar(':');
     }
 
-    public final void nextTokenWithComma() {
-        nextTokenWithChar(':');
-    }
-
     public final void nextTokenWithChar(char expect) {
         sp = 0;
 
@@ -509,84 +505,6 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     public final void nextTokenWithComma(int expect) {
         nextTokenWithChar(',');
-    }
-
-    public final void nextTokenWithChar(char seperator, int expect) {
-        sp = 0;
-
-        for (;;) {
-            if (ch == seperator) {
-                next();
-                break;
-            }
-
-            if (isWhitespace(ch)) {
-                next();
-                continue;
-            }
-
-            throw new JSONException("not match " + expect + " - " + ch);
-        }
-
-        for (;;) {
-            if (expect == JSONToken.LITERAL_INT) {
-                if (ch >= '0' && ch <= '9') {
-                    pos = bp;
-                    scanNumber();
-                    return;
-                }
-
-                if (ch == '"') {
-                    pos = bp;
-                    scanString();
-                    return;
-                }
-            } else if (expect == JSONToken.LITERAL_STRING) {
-                if (ch == '"') {
-                    pos = bp;
-                    scanString();
-                    return;
-                }
-
-                if (ch >= '0' && ch <= '9') {
-                    pos = bp;
-                    scanNumber();
-                    return;
-                }
-
-            } else if (expect == JSONToken.LBRACE) {
-                if (ch == '{') {
-                    token = JSONToken.LBRACE;
-                    next();
-                    return;
-                }
-                if (ch == '[') {
-                    token = JSONToken.LBRACKET;
-                    next();
-                    return;
-                }
-            } else if (expect == JSONToken.LBRACKET) {
-                if (ch == '[') {
-                    token = JSONToken.LBRACKET;
-                    next();
-                    return;
-                }
-
-                if (ch == '{') {
-                    token = JSONToken.LBRACE;
-                    next();
-                    return;
-                }
-            }
-
-            if (isWhitespace(ch)) {
-                next();
-                continue;
-            }
-
-            nextToken();
-            break;
-        }
     }
 
     public float floatValue() {

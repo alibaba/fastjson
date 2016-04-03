@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.util.TypeUtils;
 
 public class JavaObjectDeserializer implements ObjectDeserializer {
@@ -53,9 +52,5 @@ public class JavaObjectDeserializer implements ObjectDeserializer {
         }
 
         return (T) parser.parse(fieldName);
-    }
-
-    public int getFastMatchToken() {
-        return JSONToken.LBRACE;
     }
 }

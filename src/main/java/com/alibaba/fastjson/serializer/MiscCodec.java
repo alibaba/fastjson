@@ -323,8 +323,4 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         return (T) new StackTraceElement(declaringClass, methodName, fileName, lineNumber);
     }
 
-    public int getFastMatchToken() {
-        return JSONToken.LITERAL_STRING;
-    }
-
 }

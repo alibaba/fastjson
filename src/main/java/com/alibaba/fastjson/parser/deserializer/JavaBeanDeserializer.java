@@ -586,8 +586,4 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         DefaultJSONParser.processExtra(parser, object, key, value);
     }
 
-    public int getFastMatchToken() {
-        return JSONToken.LBRACE;
-    }
-
 }

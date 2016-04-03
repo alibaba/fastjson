@@ -17,7 +17,6 @@ public class URIDeserializerTest extends TestCase {
         DefaultJSONParser parser = new DefaultJSONParser(input, ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
 
         MiscCodec deser = new MiscCodec();
-        Assert.assertEquals(JSONToken.LITERAL_STRING, deser.getFastMatchToken());
 
         Assert.assertNull(deser.deserialze(parser, null, null));
     }

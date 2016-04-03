@@ -97,8 +97,8 @@ public final class ListSerializer implements ObjectSerializer {
             }
 
             out.write('[');
-            int i = 0;
-            for (Object item : list) {
+            for (int i = 0; i < list.size(); ++i) {
+                Object item = list.get(i);
                 if (i != 0) {
                     out.write(',');
                 }
@@ -130,7 +130,6 @@ public final class ListSerializer implements ObjectSerializer {
                         }
                     }
                 }
-                i++;
             }
             out.write(']');
         } finally {

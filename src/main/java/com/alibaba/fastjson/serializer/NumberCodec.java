@@ -188,8 +188,4 @@ public class NumberCodec implements ObjectSerializer, ObjectDeserializer {
 
         return (T) TypeUtils.castToBigDecimal(value);
     }
-
-    public int getFastMatchToken() {
-        return JSONToken.LITERAL_INT;
-    }
 }

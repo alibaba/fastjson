@@ -167,6 +167,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
             for (int i = 0; i < getters.length; ++i) {
                 FieldSerializer fieldSerializer = getters[i];
                 FieldInfo fieldInfo = fieldSerializer.fieldInfo;
+                Class<?> fieldClass = fieldInfo.fieldClass;
                 String fieldInfoName = fieldInfo.name;
                 if ((out.features & SerializerFeature.SkipTransientField.mask) != 0) {
                     Field field = fieldInfo.field;
@@ -195,13 +196,47 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 }
 
                 Object propertyValue = null;
+                int propertyValueInt = 0;
+                long propertyValueLong = 0L;
+                boolean propertyValueBoolean = false;
                 
-                propertyValue = fieldSerializer.getPropertyValue(object);
+                boolean propertyValueGot = false;
+                boolean valueGot = false;
+                if (fieldInfo.fieldAccess) {
+                    if (fieldClass == int.class) {
+                        propertyValueInt = fieldInfo.field.getInt(object);
+                        valueGot = true;
+                    } else if (fieldClass == long.class) {
+                        propertyValueLong = fieldInfo.field.getLong(object);
+                        valueGot = true;
+                    } else if (fieldClass == boolean.class) {
+                        propertyValueBoolean = fieldInfo.field.getBoolean(object);
+                        valueGot = true;
+                    }
+                } 
+
+                if (!valueGot) {
+                    propertyValue = fieldSerializer.getPropertyValue(object);
+                    propertyValueGot = true;
+                }
 
                 boolean apply = true;
                 {
                     List<PropertyFilter> propertyFilters = serializer.propertyFilters;
                     if (propertyFilters != null) {
+                        if (valueGot) {
+                            if (fieldClass == int.class) {
+                                propertyValue = Integer.valueOf(propertyValueInt);
+                                propertyValueGot = true;
+                            } else if (fieldClass == long.class) {
+                                propertyValue = Long.valueOf(propertyValueLong);
+                                propertyValueGot = true;
+                            } else if (fieldClass == boolean.class) {
+                                propertyValue = propertyValueBoolean;
+                                propertyValueGot = true;
+                            }
+                        }
+                        
                         for (PropertyFilter propertyFilter : propertyFilters) {
                             if (!propertyFilter.apply(object, fieldInfoName, propertyValue)) {
                                 apply = false;
@@ -219,6 +254,19 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 {
                     List<NameFilter> nameFilters = serializer.nameFilters;
                     if (nameFilters != null) {
+                        if (valueGot && !propertyValueGot) {
+                            if (fieldClass == int.class) {
+                                propertyValue = Integer.valueOf(propertyValueInt);
+                                propertyValueGot = true;
+                            } else if (fieldClass == long.class) {
+                                propertyValue = Long.valueOf(propertyValueLong);
+                                propertyValueGot = true;
+                            } else if (fieldClass == boolean.class) {
+                                propertyValue = propertyValueBoolean;
+                                propertyValueGot = true;
+                            }
+                        }
+                        
                         for (NameFilter nameFilter : nameFilters) {
                             key = nameFilter.process(object, key, propertyValue);
                         }
@@ -229,34 +277,49 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 {
                     List<ValueFilter> valueFilters = serializer.valueFilters;
                     if (valueFilters != null) {
+                        if (valueGot && !propertyValueGot) {
+                            if (fieldClass == int.class) {
+                                propertyValue = Integer.valueOf(propertyValueInt);
+                                originalValue = propertyValue;
+                                propertyValueGot = true;
+                            } else if (fieldClass == long.class) {
+                                propertyValue = Long.valueOf(propertyValueLong);
+                                originalValue = propertyValue;
+                                propertyValueGot = true;
+                            } else if (fieldClass == boolean.class) {
+                                propertyValue = propertyValueBoolean;
+                                originalValue = propertyValue;
+                                propertyValueGot = true;
+                            }
+                        }
+                        
                         for (ValueFilter valueFilter : valueFilters) {
                             propertyValue = valueFilter.process(object, fieldInfoName, propertyValue);
                         }
                     }
                 }
 
-                if (propertyValue == null && !writeAsArray) {
+                if (propertyValueGot && propertyValue == null && !writeAsArray) {
                     if ((!fieldSerializer.writeNull)
                         && (out.features & SerializerFeature.WriteMapNullValue.mask) == 0) {
                         continue;
                     }
                 }
                 
-                if (propertyValue != null && (out.features & SerializerFeature.NotWriteDefaultValue.mask) != 0) {
-                    Class<?> fieldCLass = fieldSerializer.fieldInfo.fieldClass;
-                    if (fieldCLass == byte.class && propertyValue instanceof Byte && ((Byte)propertyValue).byteValue() == 0) {
+                if (propertyValueGot && propertyValue != null && (out.features & SerializerFeature.NotWriteDefaultValue.mask) != 0) {
+                    if (fieldClass == byte.class && propertyValue instanceof Byte && ((Byte)propertyValue).byteValue() == 0) {
                         continue;
-                    } else if (fieldCLass == short.class && propertyValue instanceof Short && ((Short)propertyValue).shortValue() == 0) {
+                    } else if (fieldClass == short.class && propertyValue instanceof Short && ((Short)propertyValue).shortValue() == 0) {
                         continue;
-                    } else if (fieldCLass == int.class && propertyValue instanceof Integer && ((Integer)propertyValue).intValue() == 0) {
+                    } else if (fieldClass == int.class && propertyValue instanceof Integer && ((Integer)propertyValue).intValue() == 0) {
                         continue;
-                    } else if (fieldCLass == long.class && propertyValue instanceof Long && ((Long)propertyValue).longValue() == 0L) {
+                    } else if (fieldClass == long.class && propertyValue instanceof Long && ((Long)propertyValue).longValue() == 0L) {
                         continue;
-                    } else if (fieldCLass == float.class && propertyValue instanceof Float && ((Float)propertyValue).floatValue() == 0F) {
+                    } else if (fieldClass == float.class && propertyValue instanceof Float && ((Float)propertyValue).floatValue() == 0F) {
                         continue;
-                    } else if (fieldCLass == double.class && propertyValue instanceof Double && ((Double)propertyValue).doubleValue() == 0D) {
+                    } else if (fieldClass == double.class && propertyValue instanceof Double && ((Double)propertyValue).doubleValue() == 0D) {
                         continue;
-                    } else if (fieldCLass == boolean.class && propertyValue instanceof Boolean && !((Boolean)propertyValue).booleanValue()) {
+                    } else if (fieldClass == boolean.class && propertyValue instanceof Boolean && !((Boolean)propertyValue).booleanValue()) {
                         continue;
                     }
                 }
@@ -272,6 +335,20 @@ public class JavaBeanSerializer implements ObjectSerializer {
                     if (!writeAsArray) {
                         out.writeFieldName(key);
                     }
+                    
+                    // TODO improved performance
+                    if (valueGot && !propertyValueGot) {
+                        if (fieldInfo.fieldClass == int.class) {
+                            propertyValue = Integer.valueOf(propertyValueInt);
+                            propertyValueGot = true;
+                        } else if (fieldInfo.fieldClass == long.class) {
+                            propertyValue = Long.valueOf(propertyValueLong);
+                            propertyValueGot = true;
+                        } else if (fieldInfo.fieldClass == boolean.class) {
+                            propertyValue = propertyValueBoolean;
+                            propertyValueGot = true;
+                        }
+                    }
                     serializer.write(propertyValue);
                 } else if (originalValue != propertyValue) {
                     if (!writeAsArray) {
@@ -279,10 +356,37 @@ public class JavaBeanSerializer implements ObjectSerializer {
                     }
                     serializer.write(propertyValue);
                 } else {
-                    if (!writeAsArray) {
-                        fieldSerializer.writeProperty(serializer, propertyValue);
+                 // TODO improved performance
+                    if (valueGot) {
+                        if (fieldClass == int.class) {
+                            if (!writeAsArray) {
+                                fieldSerializer.writePrefix(serializer);
+                                serializer.out.writeInt(propertyValueInt);
+                            } else {
+                                serializer.out.writeInt(propertyValueInt);
+                            }
+                        } else if (fieldClass == long.class) {
+                            if (!writeAsArray) {
+                                fieldSerializer.writePrefix(serializer);
+                                serializer.out.writeLong(propertyValueLong);
+                            } else {
+                                serializer.out.writeLong(propertyValueLong);
+                            }
+                        } else if (fieldClass == boolean.class) {
+                            final String text = propertyValueBoolean ? "true" : "false";
+                            if (!writeAsArray) {
+                                fieldSerializer.writePrefix(serializer);
+                                serializer.out.write(text);
+                            } else {
+                                serializer.out.write(text);
+                            }
+                        }
                     } else {
-                        fieldSerializer.writeValue(serializer, propertyValue);
+                        if (!writeAsArray) {
+                            fieldSerializer.writeProperty(serializer, propertyValue);
+                        } else {
+                            fieldSerializer.writeValue(serializer, propertyValue);
+                        }
                     }
                 }
 

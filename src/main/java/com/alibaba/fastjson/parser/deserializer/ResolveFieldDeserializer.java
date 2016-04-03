@@ -10,21 +10,43 @@ import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.util.TypeUtils;
 
 @SuppressWarnings("rawtypes")
-public final class ListResolveFieldDeserializer extends FieldDeserializer {
+public final class ResolveFieldDeserializer extends FieldDeserializer {
 
     private final int               index;
     private final List              list;
     private final DefaultJSONParser parser;
+    
+    private final String              key;
+    private final Map map;
 
-    public ListResolveFieldDeserializer(DefaultJSONParser parser, List list, int index){
+    public ResolveFieldDeserializer(DefaultJSONParser parser, List list, int index){
         super(null, null, 0);
         this.parser = parser;
         this.index = index;
         this.list = list;
+        
+        key = null;
+        map = null;
+    }
+    
+    public ResolveFieldDeserializer(Map map, String index){
+        super(null, null, 0);
+        
+        this.parser = null;
+        this.index = -1;
+        this.list = null;
+        
+        this.key = index;
+        this.map = map;
     }
 
     @SuppressWarnings("unchecked")
     public void setValue(Object object, Object value) {
+        if (map != null) {
+            map.put(key, value);
+            return;
+        }
+        
         list.set(index, value);
 
         if (list instanceof JSONArray) {

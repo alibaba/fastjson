@@ -12,13 +12,8 @@ import com.alibaba.fastjson.util.TypeUtils;
 
 public class LongFieldDeserializer extends FieldDeserializer {
 
-    private final ObjectDeserializer fieldValueDeserilizer;
-
     public LongFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo){
         super(clazz, fieldInfo, 0);
-
-        fieldValueDeserilizer = mapping.getDeserializer(fieldInfo);
-        fastMatchToken = fieldValueDeserilizer.getFastMatchToken();
     }
 
     @Override

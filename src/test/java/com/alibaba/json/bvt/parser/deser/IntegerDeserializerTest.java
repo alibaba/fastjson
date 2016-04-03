@@ -21,6 +21,5 @@ public class IntegerDeserializerTest extends TestCase {
 
         DefaultJSONParser parser = new DefaultJSONParser("null", ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
         Assert.assertEquals(null, IntegerCodec.instance.deserialze(parser, null, null));
-        Assert.assertEquals(JSONToken.LITERAL_INT, IntegerCodec.instance.getFastMatchToken());
     }
 }

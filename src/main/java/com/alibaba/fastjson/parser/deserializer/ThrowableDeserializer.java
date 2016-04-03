@@ -158,8 +158,4 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
 
         return null;
     }
-
-    public int getFastMatchToken() {
-        return JSONToken.LBRACE;
-    }
 }

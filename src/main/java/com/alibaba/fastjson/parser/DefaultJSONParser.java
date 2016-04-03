@@ -57,8 +57,7 @@ import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
-import com.alibaba.fastjson.parser.deserializer.ListResolveFieldDeserializer;
-import com.alibaba.fastjson.parser.deserializer.MapResolveFieldDeserializer;
+import com.alibaba.fastjson.parser.deserializer.ResolveFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.serializer.IntegerCodec;
 import com.alibaba.fastjson.serializer.StringCodec;
@@ -550,7 +549,7 @@ public class DefaultJSONParser implements Closeable {
             lexer.nextToken(JSONToken.LITERAL_STRING);
         } else {
             deserializer = config.getDeserializer(type);
-            lexer.nextToken(deserializer.getFastMatchToken());
+            lexer.nextToken(JSONToken.LBRACE);
         }
 
         ParseContext context = this.context;
@@ -599,7 +598,7 @@ public class DefaultJSONParser implements Closeable {
                 }
 
                 if (lexer.token == JSONToken.COMMA) {
-                    lexer.nextToken(deserializer.getFastMatchToken());
+                    lexer.nextToken();
                     continue;
                 }
             }
@@ -674,7 +673,6 @@ public class DefaultJSONParser implements Closeable {
                         List<Object> varList = new ArrayList<Object>();
 
                         ObjectDeserializer derializer = config.getDeserializer(componentType);
-                        int fastMatch = derializer.getFastMatchToken();
 
                         if (lexer.token != JSONToken.RBRACKET) {
                             for (;;) {
@@ -682,7 +680,7 @@ public class DefaultJSONParser implements Closeable {
                                 varList.add(item);
 
                                 if (lexer.token == JSONToken.COMMA) {
-                                    lexer.nextToken(fastMatch);
+                                    lexer.nextToken(JSONToken.LBRACE);
                                 } else if (lexer.token == JSONToken.RBRACKET) {
                                     break;
                                 } else {
@@ -894,7 +892,7 @@ public class DefaultJSONParser implements Closeable {
                 final int index = array.size() - 1;
                 final List list = (List) array;
                 ResolveTask task = getLastResolveTask();
-                task.fieldDeserializer = new ListResolveFieldDeserializer(this, list, index);
+                task.fieldDeserializer = new ResolveFieldDeserializer(this, list, index);
                 task.ownerContext = context;
                 resolveStatus = DefaultJSONParser.NONE;
             } else {
@@ -909,7 +907,7 @@ public class DefaultJSONParser implements Closeable {
     @SuppressWarnings("rawtypes")
     public void checkMapResolve(Map object, String fieldName) {
         if (resolveStatus == NeedToResolve) {
-            MapResolveFieldDeserializer fieldResolver = new MapResolveFieldDeserializer(object, fieldName);
+            ResolveFieldDeserializer fieldResolver = new ResolveFieldDeserializer(object, fieldName);
             ResolveTask task = getLastResolveTask();
             task.fieldDeserializer = fieldResolver;
             task.ownerContext = context;

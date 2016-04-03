@@ -43,10 +43,6 @@ public class AbstractTest extends TestCase {
             }
         }
 
-        public int getFastMatchToken() {
-            return JSONToken.LBRACE;
-        }
-
     }
 
     public static class VO {

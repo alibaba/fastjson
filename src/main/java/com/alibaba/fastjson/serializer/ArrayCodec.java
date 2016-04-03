@@ -191,10 +191,10 @@ public class ArrayCodec implements ObjectSerializer, ObjectDeserializer {
                         componentClass = Object.class;
                     }
                 } else {
-                    componentClass = Object.class;
+                    componentClass = TypeUtils.getClass(typeVar.getBounds()[0]);
                 }
             } else {
-                componentClass = (Class) componentType;
+                componentClass = TypeUtils.getClass(componentType);
             }
         } else {
             Class clazz = (Class) type;

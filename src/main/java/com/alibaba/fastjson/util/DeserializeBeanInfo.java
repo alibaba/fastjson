@@ -332,7 +332,7 @@ public class DeserializeBeanInfo {
                         propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
                     }
 
-                    beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, annotation));
+                    beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, 0, 0, annotation, null));
                     TypeUtils.setAccessible(clazz, method, modifiers);
                 }
             }

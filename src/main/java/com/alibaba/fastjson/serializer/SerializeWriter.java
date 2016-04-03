@@ -846,7 +846,9 @@ public final class SerializeWriter extends Writer {
 
     public void writeFieldValue(char seperator, String name, long value) {
         if (value == Long.MIN_VALUE || (!isEnabled(SerializerFeature.QuoteFieldNames))) {
-            writeFieldValue1(seperator, name, value);
+            write(seperator);
+            writeFieldName(name);
+            writeLong(value);
             return;
         }
 
@@ -881,12 +883,6 @@ public final class SerializeWriter extends Writer {
         buf[nameEnd + 2] = ':';
 
         IOUtils.getChars(value, count, buf);
-    }
-
-    public void writeFieldValue1(char seperator, String name, long value) {
-        write(seperator);
-        writeFieldName(name);
-        writeLong(value);
     }
 
     public void writeFieldValue(char seperator, String name, String value) {

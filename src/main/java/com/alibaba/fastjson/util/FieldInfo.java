@@ -52,18 +52,6 @@ public class FieldInfo implements Comparable<FieldInfo> {
         name_chars[nameLen + 2] = ':';
     }
 
-    public FieldInfo(String name, Method method, Field field){
-        this(name, method, field, null, null, null);
-    }
-
-    public FieldInfo(String name, Method method, Field field, int ordinal, int serialzeFeatures, JSONField methodAnnotation, JSONField fieldAnnotation){
-        this(name, method, field, null, null, ordinal, serialzeFeatures, methodAnnotation, fieldAnnotation);
-    }
-
-    public FieldInfo(String name, Method method, Field field, Class<?> clazz, Type type, JSONField methodAnnotation){
-        this(name, method, field, clazz, type, 0, 0, methodAnnotation, null);
-    }
-
     public FieldInfo(String name
                      , Method method
                      , Field field

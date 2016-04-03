@@ -1022,7 +1022,7 @@ public class TypeUtils {
                     }
 
                     TypeUtils.setAccessible(clazz, method, modifiers);
-                    fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, null, ordinal, serialzeFeatures, annotation, null));
+                    fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, null, clazz, null, ordinal, serialzeFeatures, annotation, null));
                     continue;
                 }
             }
@@ -1095,7 +1095,7 @@ public class TypeUtils {
                 }
 
                 TypeUtils.setAccessible(clazz, method, modifiers);
-                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field, ordinal, serialzeFeatures, annotation, fieldAnnotation));
+                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures, annotation, fieldAnnotation));
             }
 
             if (methodName.startsWith("is")) {
@@ -1160,7 +1160,7 @@ public class TypeUtils {
 
                 TypeUtils.setAccessible(clazz, field, modifiers);
                 TypeUtils.setAccessible(clazz, method, modifiers);
-                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field, ordinal, serialzeFeatures, annotation, fieldAnnotation));
+                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures, annotation, fieldAnnotation));
             }
         }
 
@@ -1195,7 +1195,7 @@ public class TypeUtils {
 
             if (!fieldInfoMap.containsKey(propertyName)) {
                 TypeUtils.setAccessible(clazz, field, modifiers);
-                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, null, field, ordinal, serialzeFeatures, null, fieldAnnotation));
+                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, null, field, clazz, null, ordinal, serialzeFeatures, null, fieldAnnotation));
             }
         }
 
@@ -1341,6 +1341,11 @@ public class TypeUtils {
 
         if (type instanceof ParameterizedType) {
             return getClass(((ParameterizedType) type).getRawType());
+        }
+        
+        if (type instanceof TypeVariable) {
+            Type boundType = ((TypeVariable<?>) type).getBounds()[0];
+            return (Class<?>) boundType;
         }
 
         return Object.class;

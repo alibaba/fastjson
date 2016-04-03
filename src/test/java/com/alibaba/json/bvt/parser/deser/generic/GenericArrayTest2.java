@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt.parser.deser;
+package com.alibaba.json.bvt.parser.deser.generic;
 
 import org.junit.Assert;
 

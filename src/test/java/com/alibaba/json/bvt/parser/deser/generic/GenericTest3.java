@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt.parser;
+package com.alibaba.json.bvt.parser.deser.generic;
 
 import junit.framework.TestCase;
 

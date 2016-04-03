@@ -3,8 +3,6 @@ package com.alibaba.json.bvt.parser;
 import org.junit.Assert;
 
 import com.alibaba.fastjson.parser.JSONToken;
-import com.alibaba.fastjson.parser.deserializer.JSONArrayDeserializer;
-import com.alibaba.fastjson.parser.deserializer.JSONObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.NumberDeserializer;
 import com.alibaba.fastjson.parser.deserializer.SqlDateDeserializer;
 import com.alibaba.fastjson.serializer.AtomicCodec;
@@ -27,9 +25,7 @@ public class FastMatchCheckTest extends TestCase {
         Assert.assertEquals(JSONToken.LITERAL_INT, SqlDateDeserializer.instance.getFastMatchToken());
         Assert.assertEquals(JSONToken.LITERAL_STRING, CharsetCodec.instance.getFastMatchToken());
         Assert.assertEquals(JSONToken.LITERAL_STRING, FileCodec.instance.getFastMatchToken());
-        Assert.assertEquals(JSONToken.LBRACKET, JSONArrayDeserializer.instance.getFastMatchToken());
         Assert.assertEquals(JSONToken.LBRACKET, ObjectArrayCodec.instance.getFastMatchToken());
-        Assert.assertEquals(JSONToken.LBRACE, JSONObjectDeserializer.instance.getFastMatchToken());
         Assert.assertEquals(JSONToken.LBRACE, InetSocketAddressCodec.instance.getFastMatchToken());
         Assert.assertEquals(JSONToken.LITERAL_STRING, CharacterCodec.instance.getFastMatchToken());
     }

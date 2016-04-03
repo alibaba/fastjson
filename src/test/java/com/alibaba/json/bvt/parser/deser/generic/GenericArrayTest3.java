@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt.parser.deser;
+package com.alibaba.json.bvt.parser.deser.generic;
 
 import org.junit.Assert;
 
@@ -7,7 +7,7 @@ import com.alibaba.fastjson.TypeReference;
 
 import junit.framework.TestCase;
 
-public class GenericArrayTest4 extends TestCase {
+public class GenericArrayTest3 extends TestCase {
     
     public void test_generic() throws Exception {
         VO vo = new VO();
@@ -23,7 +23,7 @@ public class GenericArrayTest4 extends TestCase {
     }
 
     public static class A<T extends Number, S> {
-        public Pair<? extends T, ? extends S>[] values;
+        public Pair<T, S>[] values;
     }
     
     public static class VO extends A<Number, String> {

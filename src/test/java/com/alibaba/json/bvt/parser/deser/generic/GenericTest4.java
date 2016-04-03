@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt.parser;
+package com.alibaba.json.bvt.parser.deser.generic;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,7 @@ import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
 
-public class GenericTest extends TestCase {
+public class GenericTest4 extends TestCase {
 
     public void test_0() throws Exception {
         String text;

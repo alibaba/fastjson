@@ -3,11 +3,11 @@ package com.alibaba.json.bvt.bug;
 import java.io.Serializable;
 import java.util.Date;
 
-import junit.framework.TestCase;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.alibaba.json.bvt.parser.GenericTest.Address;
+import com.alibaba.json.bvt.parser.deser.generic.GenericTest4.Address;
+
+import junit.framework.TestCase;
 
 public class Bug_for_lenolix_7 extends TestCase {
 

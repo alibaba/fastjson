@@ -20,12 +20,15 @@ import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 
@@ -38,18 +41,65 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType,
                       int features) throws IOException {
+        SerializeWriter out = serializer.out;
+        
         if (object == null) {
-            serializer.writeNull();
+            out.writeNull();
             return;
         }
+        
+        if (object.getClass() == SimpleDateFormat.class) {
+            String pattern = ((SimpleDateFormat) object).toPattern();
 
+            if (out.isEnabled(SerializerFeature.WriteClassName)) {
+                if (object.getClass() != fieldType) {
+                    out.write('{');
+                    out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
+                    serializer.write(object.getClass().getName());
+                    out.writeFieldValue(',', "val", pattern);
+                    out.write('}');
+                    return;
+                }
+            }
+            
+            out.writeString(pattern);
+            
+            return;
+        }
+        
         serializer.write(object.toString());
     }
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
 
-        String strVal = (String) parser.parse();
+        JSONLexer lexer = parser.lexer;
+        
+        Object objVal;
+        
+        if (parser.resolveStatus == DefaultJSONParser.TypeNameRedirect) {
+            parser.resolveStatus = DefaultJSONParser.NONE;
+            parser.accept(JSONToken.COMMA);
+
+            if (lexer.token() == JSONToken.LITERAL_STRING) {
+                if (!"val".equals(lexer.stringVal())) {
+                    throw new JSONException("syntax error");
+                }
+                lexer.nextToken();
+            } else {
+                throw new JSONException("syntax error");
+            }
+
+            parser.accept(JSONToken.COLON);
+
+            objVal = parser.parse();
+
+            parser.accept(JSONToken.RBRACE);
+        } else {
+            objVal = parser.parse();
+        }
+        
+        String strVal = (String) objVal;
 
         if (strVal == null || strVal.length() == 0) {
             return null;
@@ -87,6 +137,10 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
             }
 
             return (T) new Locale(items[0], items[1], items[2]);
+        }
+        
+        if (clazz == SimpleDateFormat.class) {
+            return (T) new SimpleDateFormat(strVal);
         }
         
         throw new JSONException("MiscCodec not support " + clazz);

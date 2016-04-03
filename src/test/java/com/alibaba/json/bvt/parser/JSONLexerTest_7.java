@@ -1,11 +1,13 @@
 package com.alibaba.json.bvt.parser;
 
-import junit.framework.TestCase;
+import java.lang.reflect.Method;
 
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.parser.JSONScanner;
+import com.alibaba.fastjson.parser.JSONLexer;
+
+import junit.framework.TestCase;
 
 public class JSONLexerTest_7 extends TestCase {
 
@@ -88,7 +90,8 @@ public class JSONLexerTest_7 extends TestCase {
     public void test_error_7() throws Exception {
         Exception error = null;
         try {
-            new JSONScanner("XreeSet[]").scanTreeSet();
+            Method method = JSONLexer.class.getDeclaredMethod("scanTreeSet");
+            method.invoke(new JSONLexer("XreeSet[]"));
         } catch (Exception ex) {
             error = ex;
         }

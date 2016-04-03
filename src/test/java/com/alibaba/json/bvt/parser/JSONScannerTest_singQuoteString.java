@@ -6,26 +6,26 @@ import junit.framework.TestCase;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.Feature;
-import com.alibaba.fastjson.parser.JSONScanner;
+import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 
 public class JSONScannerTest_singQuoteString extends TestCase {
 
     public void test_string() throws Exception {
         {
-            JSONScanner lexer = new JSONScanner("\'中国\'");
+            JSONLexer lexer = new JSONLexer("\'中国\'");
             lexer.config(Feature.AllowSingleQuotes, true);
             lexer.nextToken();
             Assert.assertEquals("中国", lexer.stringVal());
         }
         {
-            JSONScanner lexer = new JSONScanner("'中国\t\\'\\\"'");
+            JSONLexer lexer = new JSONLexer("'中国\t\\'\\\"'");
             lexer.config(Feature.AllowSingleQuotes, true);
             lexer.nextToken();
             Assert.assertEquals("中国\t'\"", lexer.stringVal());
         }
         {
-            JSONScanner lexer = new JSONScanner("\'中国\tV5\'");
+            JSONLexer lexer = new JSONLexer("\'中国\tV5\'");
             lexer.config(Feature.AllowSingleQuotes, true);
             lexer.nextToken();
             Assert.assertEquals("中国\tV5", lexer.stringVal());
@@ -40,7 +40,7 @@ public class JSONScannerTest_singQuoteString extends TestCase {
 
         String text = buf.toString();
 
-        JSONScanner lexer = new JSONScanner(text.toCharArray(), text.length() - 1);
+        JSONLexer lexer = new JSONLexer(text.toCharArray(), text.length() - 1);
         lexer.config(Feature.AllowSingleQuotes, true);
         lexer.nextToken();
 
@@ -64,7 +64,7 @@ public class JSONScannerTest_singQuoteString extends TestCase {
 
         String text = buf.toString();
 
-        JSONScanner lexer = new JSONScanner(text.toCharArray(), text.length());
+        JSONLexer lexer = new JSONLexer(text.toCharArray(), text.length());
         lexer.config(Feature.AllowSingleQuotes, true);
         lexer.nextToken();
 
@@ -89,7 +89,7 @@ public class JSONScannerTest_singQuoteString extends TestCase {
 
         String text = buf.toString();
 
-        JSONScanner lexer = new JSONScanner(text.toCharArray(), text.length());
+        JSONLexer lexer = new JSONLexer(text.toCharArray(), text.length());
         lexer.config(Feature.AllowSingleQuotes, true);
         lexer.nextToken();
 
@@ -114,7 +114,7 @@ public class JSONScannerTest_singQuoteString extends TestCase {
 
         String text = buf.toString();
 
-        JSONScanner lexer = new JSONScanner(text.toCharArray(), text.length());
+        JSONLexer lexer = new JSONLexer(text.toCharArray(), text.length());
         lexer.config(Feature.AllowSingleQuotes, true);
         lexer.nextToken();
 
@@ -131,7 +131,7 @@ public class JSONScannerTest_singQuoteString extends TestCase {
     public void test_error() throws Exception {
         Exception error = null;
         try {
-            JSONScanner lexer = new JSONScanner("'k");
+            JSONLexer lexer = new JSONLexer("'k");
             lexer.config(Feature.AllowSingleQuotes, true);
             lexer.nextToken();
         } catch (JSONException ex) {
@@ -143,7 +143,7 @@ public class JSONScannerTest_singQuoteString extends TestCase {
     public void test_error_1() throws Exception {
         Exception error = null;
         try {
-            JSONScanner lexer = new JSONScanner("'k\\k'");
+            JSONLexer lexer = new JSONLexer("'k\\k'");
             lexer.config(Feature.AllowSingleQuotes, true);
             lexer.nextToken();
             Assert.assertEquals(JSONToken.ERROR, lexer.token());

@@ -38,7 +38,7 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
         Number value = (Number) object;
         
         if (value == null) {
-            if (out.isEnabled(SerializerFeature.WriteNullNumberAsZero)) {
+            if ((out.features & SerializerFeature.WriteNullNumberAsZero.mask) != 0) {
                 out.write('0');
             } else {
                 out.writeNull();
@@ -46,13 +46,14 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
             return;
         }
         
-        Class<?> clazz = value.getClass();
-        if (clazz == long.class) {
+        if (fieldType == long.class) {
             out.writeLong(value.longValue());
         } else {
             out.writeInt(value.intValue());
         }
-        if (out.isEnabled(SerializerFeature.WriteClassName)) {
+        
+        if ((out.features & SerializerFeature.WriteClassName.mask) != 0) {
+            Class<?> clazz = value.getClass();
             if (clazz == Byte.class) {
                 out.write('B');
             } else if (clazz == Short.class) {

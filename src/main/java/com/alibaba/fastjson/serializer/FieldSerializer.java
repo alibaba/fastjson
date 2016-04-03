@@ -49,8 +49,9 @@ public abstract class FieldSerializer implements Comparable<FieldSerializer> {
     public void writePrefix(JSONSerializer serializer) throws IOException {
         SerializeWriter out = serializer.out;
 
-        if (out.isEnabled(SerializerFeature.QuoteFieldNames)) {
-            if (out.isEnabled(SerializerFeature.UseSingleQuotes)) {
+        final int featurs = out.features;
+        if ((featurs & SerializerFeature.QuoteFieldNames.mask) != 0) {
+            if ((featurs & SerializerFeature.UseSingleQuotes.mask) != 0) {
                 if (single_quoted_fieldPrefix == null) {
                     single_quoted_fieldPrefix = '\'' + fieldInfo.name + "\':";
                 }

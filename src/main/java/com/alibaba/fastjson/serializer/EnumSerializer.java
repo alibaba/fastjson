@@ -32,7 +32,7 @@ public class EnumSerializer implements ObjectSerializer {
             return;
         }
 
-        if (out.isEnabled(SerializerFeature.WriteEnumUsingToString)) {
+        if ((out.features & SerializerFeature.WriteEnumUsingToString.mask) != 0) {
             Enum<?> e = (Enum<?>) object;
             serializer.write(e.toString());
         } else {

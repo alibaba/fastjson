@@ -5,7 +5,7 @@ import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.parser.JSONScanner;
+import com.alibaba.fastjson.parser.JSONLexer;
 
 public class JSONScannerTest_scanFieldFloat extends TestCase {
 
@@ -18,7 +18,7 @@ public class JSONScannerTest_scanFieldFloat extends TestCase {
     @SuppressWarnings("resource")
     public void test_isBlank() throws Exception {
         String text = "   {\"value\":1.0}";
-        Assert.assertTrue(!new JSONScanner(text).isBlankInput());
+        Assert.assertTrue(!new JSONLexer(text).isBlankInput());
     }
 
     public void test_1() throws Exception {

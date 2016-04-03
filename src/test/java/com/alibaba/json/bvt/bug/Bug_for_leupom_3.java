@@ -30,7 +30,7 @@ public class Bug_for_leupom_3 extends TestCase {
 
     public static class Person implements Model {
 
-        private Integer id;
+        private int id;
 
         public Integer getId() {
             return id;

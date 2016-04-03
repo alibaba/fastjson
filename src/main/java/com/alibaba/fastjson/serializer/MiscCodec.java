@@ -38,7 +38,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
             if (fieldType == char.class || fieldType == Character.class) {
                 serializer.write("");
             } else {
-                if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {
+                if ((out.features & SerializerFeature.WriteNullListAsEmpty.mask) != 0) {
                     Class<?> fieldClass = TypeUtils.getClass(fieldType);
                     if (Enumeration.class.isAssignableFrom(fieldClass)) {
                         out.write("[]");
@@ -74,7 +74,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         } else if (object instanceof SimpleDateFormat) {
             String pattern = ((SimpleDateFormat) object).toPattern();
 
-            if (out.isEnabled(SerializerFeature.WriteClassName)) {
+            if ((out.features & SerializerFeature.WriteClassName.mask) != 0) {
                 if (object.getClass() != fieldType) {
                     out.write('{');
                     out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
@@ -97,7 +97,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
             jsonSerializable.write(serializer, fieldName, fieldType);
         } else if (object instanceof Enumeration) {
             Type elementType = null;
-            if (out.isEnabled(SerializerFeature.WriteClassName)) {
+            if ((out.features & SerializerFeature.WriteClassName.mask) != 0) {
                 if (fieldType instanceof ParameterizedType) {
                     ParameterizedType param = (ParameterizedType) fieldType;
                     elementType = param.getActualTypeArguments()[0];
@@ -111,11 +111,11 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
 
             try {
                 int i = 0;
-                out.append('[');
+                out.write('[');
                 while (e.hasMoreElements()) {
                     Object item = e.nextElement();
                     if (i++ != 0) {
-                        out.append(',');
+                        out.write(',');
                     }
 
                     if (item == null) {
@@ -128,7 +128,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
                     ObjectSerializer itemSerializer = serializer.getObjectWriter(clazz);
                     itemSerializer.write(serializer, item, i - 1, elementType);
                 }
-                out.append(']');
+                out.write(']');
             } finally {
                 serializer.context = context;
             }
@@ -257,7 +257,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
                 }
             }
 
-            lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
+            lexer.nextTokenWithChar(':');
             if ("className".equals(key)) {
                 if (lexer.token() == JSONToken.NULL) {
                     declaringClass = null;

@@ -18,13 +18,15 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.util.IOUtils;
 
-public abstract class JSONLexer {
+public final class JSONLexer {
 
     public final static byte EOI            = 0x1A;
     public final static int  NOT_MATCH      = -1;
@@ -45,10 +47,6 @@ public abstract class JSONLexer {
         map.put("false", JSONToken.FALSE);
         map.put("undefined", JSONToken.UNDEFINED);
         DEFAULT_KEYWORDS = map;
-    }
-
-    protected void lexError(String key, Object... args) {
-        token = ERROR;
     }
 
     protected int                                           token;
@@ -80,7 +78,22 @@ public abstract class JSONLexer {
     private final static ThreadLocal<SoftReference<char[]>> SBUF_REF_LOCAL = new ThreadLocal<SoftReference<char[]>>();
     protected Map<String, Integer>                          keywods        = DEFAULT_KEYWORDS;
     
-    public JSONLexer(){
+    protected final String text;
+    protected final int len;
+    
+    public JSONLexer(String input){
+        this(input, JSON.DEFAULT_PARSER_FEATURE);
+    }
+    
+    public JSONLexer(char[] input, int inputLength){
+        this(input, inputLength, JSON.DEFAULT_PARSER_FEATURE);
+    }
+
+    public JSONLexer(char[] input, int inputLength, int features){
+        this(new String(input, 0, inputLength), features);
+    }
+
+    public JSONLexer(String input, int features){
         SoftReference<char[]> sbufRef = SBUF_REF_LOCAL.get();
 
         if (sbufRef != null) {
@@ -91,8 +104,19 @@ public abstract class JSONLexer {
         if (sbuf == null) {
             sbuf = new char[64];
         }
-    }
+        
+        this.features = features;
 
+        text = input;
+        len = text.length();
+        bp = -1;
+
+        next();
+        if (ch == 65279) {
+            next();
+        }
+    }
+    
     public final int token() {
         return token;
     }
@@ -108,7 +132,14 @@ public abstract class JSONLexer {
         return ch;
     }
 
-    public abstract char next();
+    public char next() {
+        int index = ++bp;
+        if (index >= len) {
+            return ch = EOI;
+        }
+
+        return ch = text.charAt(index);
+    }
 
     public final void config(Feature feature, boolean state) {
         if (state) {
@@ -122,14 +153,6 @@ public abstract class JSONLexer {
         return (features & feature.mask) != 0;
     }
 
-    public final void nextTokenWithColon() {
-        nextTokenWithChar(':');
-    }
-
-    public final void nextTokenWithColon(int expect) {
-        nextTokenWithChar(':');
-    }
-    
     public final void nextTokenWithChar(char expect) {
         sp = 0;
 
@@ -157,11 +180,26 @@ public abstract class JSONLexer {
         return charAt(np + 1) == '$' && charAt(np + 2) == 'r' && charAt(np + 3) == 'e' && charAt(np + 4) == 'f';
     }
 
-    public abstract String numberString();
+    public final String numberString() {
+        int index = np + sp - 1;
+        char chLocal = text.charAt(index);
 
-    public abstract char charAt(int index);
-    
-    public abstract boolean isEOF();
+        int sp = this.sp;
+        if (chLocal == 'L' || chLocal == 'S' || chLocal == 'B' || chLocal == 'F' || chLocal == 'D') {
+            sp--;
+        }
+
+        // return text.substring(np, np + sp);
+        return this.subString(np, sp);
+    }
+
+    private char charAt(int index) {
+        if (index >= len) {
+            return EOI;
+        }
+
+        return text.charAt(index);
+    }
     
     public final void nextToken() {
         sp = 0;
@@ -252,7 +290,8 @@ public abstract class JSONLexer {
                     token = COLON;
                     return;
                 default:
-                    if (isEOF()) { // JLS
+                    boolean eof = (bp == len || ch == EOI && bp + 1 == len);
+                    if (eof) { // JLS
                         if (token == EOF) {
                             throw new JSONException("EOF error");
                         }
@@ -260,7 +299,7 @@ public abstract class JSONLexer {
                         token = EOF;
                         pos = bp = eofPos;
                     } else {
-                        lexError("illegal.char", String.valueOf((int) ch));
+                        token = ERROR;
                         next();
                     }
 
@@ -423,11 +462,7 @@ public abstract class JSONLexer {
         return pos;
     }
 
-    public final int getBufferPosition() {
-        return bp;
-    }
-
-    public final String stringDefaultValue() {
+    private String stringDefaultValue() {
         if ((features & Feature.InitStringFieldAsEmpty.mask) != 0) {
             return "";
         }
@@ -523,15 +558,6 @@ public abstract class JSONLexer {
         }
     }
 
-    public float floatValue() {
-        return Float.parseFloat(numberString());
-    }
-
-    public double doubleValue() {
-        return Double.parseDouble(numberString());
-    }
-
-
     public final String scanSymbol(final SymbolTable symbolTable) {
         for (;;) {
             if (ch < whitespaceFlags.length && whitespaceFlags[ch]) {
@@ -578,10 +604,6 @@ public abstract class JSONLexer {
         return scanSymbolUnQuoted(symbolTable);
     }
 
-    // public abstract String scanSymbol(final SymbolTable symbolTable, final char quote);
-
-    protected abstract void arrayCopy(int srcPos, char[] dest, int destPos, int length);
-
     public final String scanSymbol(final SymbolTable symbolTable, final char quote) {
         int hash = 0;
 
@@ -614,9 +636,7 @@ public abstract class JSONLexer {
                         sbuf = newsbuf;
                     }
 
-                    // text.getChars(np + 1, np + 1 + sp, sbuf, 0);
-                    // System.arraycopy(this.buf, np + 1, sbuf, 0, sp);
-                    arrayCopy(np + 1, sbuf, 0, sp);
+                    text.getChars(np + 1, np + 1 + sp, sbuf, 0);
                 }
 
                 chLocal = next();
@@ -745,7 +765,8 @@ public abstract class JSONLexer {
             } else {
                 offset = np + 1;
             }
-            value = addSymbol(offset, sp, hash, symbolTable);
+            
+            value = symbolTable.addSymbol(text, offset, sp, hash);
         } else {
             value = symbolTable.addSymbol(sbuf, 0, sp, hash);
         }
@@ -800,13 +821,8 @@ public abstract class JSONLexer {
             return null;
         }
 
-        // return text.substring(np, np + sp).intern();
-
-        return this.addSymbol(np, sp, hash, symbolTable);
-        // return symbolTable.addSymbol(buf, np, sp, hash);
+        return symbolTable.addSymbol(text, np, sp, hash);
     }
-
-    protected abstract void copyTo(int offset, int count, char[] dest);
 
     public final void scanString() {
         np = bp;
@@ -837,9 +853,7 @@ public abstract class JSONLexer {
                         sbuf = newsbuf;
                     }
 
-                    copyTo(np + 1, sp, sbuf);
-                    // text.getChars(np + 1, np + 1 + sp, sbuf, 0);
-                    // System.arraycopy(buf, np + 1, sbuf, 0, sp);
+                    text.getChars(np + 1, np + 1 + sp, sbuf, 0);
                 }
 
                 ch = next();
@@ -998,13 +1012,9 @@ public abstract class JSONLexer {
         }
     }
 
-    public abstract byte[] bytesValue();
-  
-    protected final static char[] typeFieldName = ("\"" + JSON.DEFAULT_TYPE_KEY + "\":\"").toCharArray();
-
-    public abstract int indexOf(char ch, int startIndex);
-
-    public abstract String addSymbol(int offset, int len, int hash, final SymbolTable symbolTable);
+    public byte[] bytesValue() {
+        return decodeFast(text, np + 1, sp);
+    }
 
     public String scanString(char expectNextChar) {
         matchStat = UNKOWN;
@@ -1042,7 +1052,7 @@ public abstract class JSONLexer {
         final String strVal;
         {
             int startIndex = bp + 1;
-            int endIndex = indexOf('"', startIndex);
+            int endIndex = text.indexOf('"', startIndex);
             if (endIndex == -1) {
                 throw new JSONException("unclosed str");
             }
@@ -1127,7 +1137,8 @@ public abstract class JSONLexer {
                 // this.ch = chLocal = charAt(bp);
                 int start = bp + 0 + 1;
                 int len = bp + offset - start - 1;
-                strVal = addSymbol(start, len, hash, symbolTable);
+                
+                strVal = symbolTable.addSymbol(text, start, len, hash);
                 chLocal = charAt(bp + (offset++));
                 break;
             }
@@ -1233,7 +1244,7 @@ public abstract class JSONLexer {
         }
     }
 
-    public final void scanTrue() {
+    private void scanTrue() {
         if (ch != 't') {
             throw new JSONException("error parse true");
         }
@@ -1262,7 +1273,7 @@ public abstract class JSONLexer {
         }
     }
 
-    public final void scanTreeSet() {
+    private void scanTreeSet() {
         if (ch != 'T') {
             throw new JSONException("error parse true");
         }
@@ -1305,7 +1316,7 @@ public abstract class JSONLexer {
         }
     }
 
-    public final void scanNullOrNew() {
+    private void scanNullOrNew() {
         if (ch != 'n') {
             throw new JSONException("error parse null or new");
         }
@@ -1350,7 +1361,7 @@ public abstract class JSONLexer {
         }
     }
 
-    public final void scanUndefined() {
+    private void scanUndefined() {
         if (ch != 'u') {
             throw new JSONException("error parse false");
         }
@@ -1403,7 +1414,7 @@ public abstract class JSONLexer {
         }
     }
 
-    public final void scanFalse() {
+    private void scanFalse() {
         if (ch != 'f') {
             throw new JSONException("error parse false");
         }
@@ -1437,7 +1448,7 @@ public abstract class JSONLexer {
         }
     }
 
-    public final void scanIdent() {
+    private void scanIdent() {
         np = bp - 1;
         hasSpecial = false;
 
@@ -1450,8 +1461,8 @@ public abstract class JSONLexer {
             }
 
             String ident = stringVal();
-
-            Integer tok = getKeyword(ident);
+            
+            Integer tok = keywods.get(ident);
             if (tok != null) {
                 token = tok;
             } else {
@@ -1461,9 +1472,22 @@ public abstract class JSONLexer {
         }
     }
 
-    public abstract String stringVal();
+    public final String stringVal() {
+        if (!hasSpecial) {
+            // return text.substring(np + 1, np + 1 + sp);
+            return this.subString(np + 1, sp);
+        } else {
+            return new String(sbuf, 0, sp);
+        }
+    }
 
-    public abstract String subString(int offset, int count);
+    public final String subString(int offset, int count) {
+        char[] chars = new char[count];
+        for (int i = offset; i < offset + count; ++i) {
+            chars[i - offset] = text.charAt(i);
+        }
+        return new String(chars);
+    }
 
     public final boolean isBlankInput() {
         for (int i = 0;; ++i) {
@@ -1516,9 +1540,7 @@ public abstract class JSONLexer {
                         sbuf = newsbuf;
                     }
 
-                    // text.getChars(offset, offset + count, dest, 0);
-                    this.copyTo(np + 1, sp, sbuf);
-                    // System.arraycopy(buf, np + 1, sbuf, 0, sp);
+                    text.getChars(np + 1, np + 1 + sp, sbuf, 0);
                 }
 
                 chLocal = next();
@@ -1644,7 +1666,7 @@ public abstract class JSONLexer {
     /**
      * Append a character to sbuf.
      */
-    protected final void putChar(char ch) {
+    private void putChar(char ch) {
         if (sp == sbuf.length) {
             char[] newsbuf = new char[sbuf.length * 2];
             System.arraycopy(sbuf, 0, newsbuf, 0, sbuf.length);
@@ -1802,7 +1824,7 @@ public abstract class JSONLexer {
         if (decimal) {
             return decimalValue();
         } else {
-            return doubleValue();
+            return Double.parseDouble(numberString());
         }
     }
 
@@ -1846,210 +1868,8 @@ public abstract class JSONLexer {
         }
     }
 
-    public Integer getKeyword(String key) {
-        return keywods.get(key);
-    }
     
-    /////////// base 64
-    public static final char[] CA = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".toCharArray();
-    public static final int[]  IA = new int[256];
-    static {
-        Arrays.fill(IA, -1);
-        for (int i = 0, iS = CA.length; i < iS; i++)
-            IA[CA[i]] = i;
-        IA['='] = 0;
-    }
-
-    /**
-     * Decodes a BASE64 encoded char array that is known to be resonably well formatted. The method is about twice as
-     * fast as #decode(char[]). The preconditions are:<br>
-     * + The array must have a line length of 76 chars OR no line separators at all (one line).<br>
-     * + Line separator must be "\r\n", as specified in RFC 2045 + The array must not contain illegal characters within
-     * the encoded string<br>
-     * + The array CAN have illegal characters at the beginning and end, those will be dealt with appropriately.<br>
-     * 
-     * @param chars The source array. Length 0 will return an empty array. <code>null</code> will throw an exception.
-     * @return The decoded array of bytes. May be of length 0.
-     */
-    public final static byte[] decodeFast(char[] chars, int offset, int charsLen) {
-        // Check special case
-        if (charsLen == 0) {
-            return new byte[0];
-        }
-
-        int sIx = offset, eIx = offset + charsLen - 1; // Start and end index after trimming.
-
-        // Trim illegal chars from start
-        while (sIx < eIx && IA[chars[sIx]] < 0)
-            sIx++;
-
-        // Trim illegal chars from end
-        while (eIx > 0 && IA[chars[eIx]] < 0)
-            eIx--;
-
-        // get the padding count (=) (0, 1 or 2)
-        int pad = chars[eIx] == '=' ? (chars[eIx - 1] == '=' ? 2 : 1) : 0; // Count '=' at end.
-        int cCnt = eIx - sIx + 1; // Content count including possible separators
-        int sepCnt = charsLen > 76 ? (chars[76] == '\r' ? cCnt / 78 : 0) << 1 : 0;
-
-        int len = ((cCnt - sepCnt) * 6 >> 3) - pad; // The number of decoded bytes
-        byte[] bytes = new byte[len]; // Preallocate byte[] of exact length
-
-        // Decode all but the last 0 - 2 bytes.
-        int d = 0;
-        for (int cc = 0, eLen = (len / 3) * 3; d < eLen;) {
-            // Assemble three bytes into an int from four "valid" characters.
-            int i = IA[chars[sIx++]] << 18 | IA[chars[sIx++]] << 12 | IA[chars[sIx++]] << 6 | IA[chars[sIx++]];
-
-            // Add the bytes
-            bytes[d++] = (byte) (i >> 16);
-            bytes[d++] = (byte) (i >> 8);
-            bytes[d++] = (byte) i;
-
-            // If line separator, jump over it.
-            if (sepCnt > 0 && ++cc == 19) {
-                sIx += 2;
-                cc = 0;
-            }
-        }
-
-        if (d < len) {
-            // Decode last 1-3 bytes (incl '=') into 1-3 bytes
-            int i = 0;
-            for (int j = 0; sIx <= eIx - pad; j++)
-                i |= IA[chars[sIx++]] << (18 - j * 6);
-
-            for (int r = 16; d < len; r -= 8)
-                bytes[d++] = (byte) (i >> r);
-        }
-
-        return bytes;
-    }
-    
-    public final static byte[] decodeFast(String chars, int offset, int charsLen) {
-        // Check special case
-        if (charsLen == 0) {
-            return new byte[0];
-        }
-
-        int sIx = offset, eIx = offset + charsLen - 1; // Start and end index after trimming.
-
-        // Trim illegal chars from start
-        while (sIx < eIx && IA[chars.charAt(sIx)] < 0)
-            sIx++;
-
-        // Trim illegal chars from end
-        while (eIx > 0 && IA[chars.charAt(eIx)] < 0)
-            eIx--;
-
-        // get the padding count (=) (0, 1 or 2)
-        int pad = chars.charAt(eIx) == '=' ? (chars.charAt(eIx - 1) == '=' ? 2 : 1) : 0; // Count '=' at end.
-        int cCnt = eIx - sIx + 1; // Content count including possible separators
-        int sepCnt = charsLen > 76 ? (chars.charAt(76) == '\r' ? cCnt / 78 : 0) << 1 : 0;
-
-        int len = ((cCnt - sepCnt) * 6 >> 3) - pad; // The number of decoded bytes
-        byte[] bytes = new byte[len]; // Preallocate byte[] of exact length
-
-        // Decode all but the last 0 - 2 bytes.
-        int d = 0;
-        for (int cc = 0, eLen = (len / 3) * 3; d < eLen;) {
-            // Assemble three bytes into an int from four "valid" characters.
-            int i = IA[chars.charAt(sIx++)] << 18 | IA[chars.charAt(sIx++)] << 12 | IA[chars.charAt(sIx++)] << 6 | IA[chars.charAt(sIx++)];
-
-            // Add the bytes
-            bytes[d++] = (byte) (i >> 16);
-            bytes[d++] = (byte) (i >> 8);
-            bytes[d++] = (byte) i;
-
-            // If line separator, jump over it.
-            if (sepCnt > 0 && ++cc == 19) {
-                sIx += 2;
-                cc = 0;
-            }
-        }
-
-        if (d < len) {
-            // Decode last 1-3 bytes (incl '=') into 1-3 bytes
-            int i = 0;
-            for (int j = 0; sIx <= eIx - pad; j++)
-                i |= IA[chars.charAt(sIx++)] << (18 - j * 6);
-
-            for (int r = 16; d < len; r -= 8)
-                bytes[d++] = (byte) (i >> r);
-        }
-
-        return bytes;
-    }
-
-    /**
-     * Decodes a BASE64 encoded string that is known to be resonably well formatted. The method is about twice as fast
-     * as decode(String). The preconditions are:<br>
-     * + The array must have a line length of 76 chars OR no line separators at all (one line).<br>
-     * + Line separator must be "\r\n", as specified in RFC 2045 + The array must not contain illegal characters within
-     * the encoded string<br>
-     * + The array CAN have illegal characters at the beginning and end, those will be dealt with appropriately.<br>
-     * 
-     * @param s The source string. Length 0 will return an empty array. <code>null</code> will throw an exception.
-     * @return The decoded array of bytes. May be of length 0.
-     */
-    public final static byte[] decodeFast(String s) {
-        // Check special case
-        int sLen = s.length();
-        if (sLen == 0) {
-            return new byte[0];
-        }
-
-        int sIx = 0, eIx = sLen - 1; // Start and end index after trimming.
-
-        // Trim illegal chars from start
-        while (sIx < eIx && IA[s.charAt(sIx) & 0xff] < 0)
-            sIx++;
-
-        // Trim illegal chars from end
-        while (eIx > 0 && IA[s.charAt(eIx) & 0xff] < 0)
-            eIx--;
-
-        // get the padding count (=) (0, 1 or 2)
-        int pad = s.charAt(eIx) == '=' ? (s.charAt(eIx - 1) == '=' ? 2 : 1) : 0; // Count '=' at end.
-        int cCnt = eIx - sIx + 1; // Content count including possible separators
-        int sepCnt = sLen > 76 ? (s.charAt(76) == '\r' ? cCnt / 78 : 0) << 1 : 0;
-
-        int len = ((cCnt - sepCnt) * 6 >> 3) - pad; // The number of decoded bytes
-        byte[] dArr = new byte[len]; // Preallocate byte[] of exact length
-
-        // Decode all but the last 0 - 2 bytes.
-        int d = 0;
-        for (int cc = 0, eLen = (len / 3) * 3; d < eLen;) {
-            // Assemble three bytes into an int from four "valid" characters.
-            int i = IA[s.charAt(sIx++)] << 18 | IA[s.charAt(sIx++)] << 12 | IA[s.charAt(sIx++)] << 6
-                    | IA[s.charAt(sIx++)];
-
-            // Add the bytes
-            dArr[d++] = (byte) (i >> 16);
-            dArr[d++] = (byte) (i >> 8);
-            dArr[d++] = (byte) i;
-
-            // If line separator, jump over it.
-            if (sepCnt > 0 && ++cc == 19) {
-                sIx += 2;
-                cc = 0;
-            }
-        }
-
-        if (d < len) {
-            // Decode last 1-3 bytes (incl '=') into 1-3 bytes
-            int i = 0;
-            for (int j = 0; sIx <= eIx - pad; j++)
-                i |= IA[s.charAt(sIx++)] << (18 - j * 6);
-
-            for (int r = 16; d < len; r -= 8)
-                dArr[d++] = (byte) (i >> r);
-        }
-
-        return dArr;
-    }
-    
-    public final boolean matchField(char[] fieldName) {
+    public boolean matchField(char[] fieldName) {
         if (!charArrayCompare(fieldName)) {
             return false;
         }
@@ -2070,7 +1890,20 @@ public abstract class JSONLexer {
         return true;
     }
     
-    protected abstract boolean charArrayCompare(char[] chars);
+    private boolean charArrayCompare(char[] chars) {
+        final int destLen = chars.length;
+        if (destLen + bp > len) {
+            return false;
+        }
+
+        for (int i = 0; i < destLen; ++i) {
+            if (chars[i] != text.charAt(bp + i)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
     
     public int scanFieldInt(char[] fieldName) {
         matchStat = UNKOWN;
@@ -2241,7 +2074,7 @@ public abstract class JSONLexer {
         final String strVal;
         {
             int startIndex = bp + fieldName.length + 1;
-            int endIndex = indexOf('"', startIndex);
+            int endIndex = text.indexOf('"', startIndex);
             if (endIndex == -1) {
                 throw new JSONException("unclosed str");
             }
@@ -2601,16 +2434,14 @@ public abstract class JSONLexer {
         }
 
         String strVal;
-        // int start = index;
+
         int hash = 0;
         for (;;) {
             chLocal = charAt(bp + (offset++));
             if (chLocal == '\"') {
-                // bp = index;
-                // this.ch = chLocal = charAt(bp);
                 int start = bp + fieldName.length + 1;
                 int len = bp + offset - start - 1;
-                strVal = addSymbol(start, len, hash, symbolTable);
+                strVal = symbolTable.addSymbol(text, start, len, hash);
                 chLocal = charAt(bp + (offset++));
                 break;
             }
@@ -2659,5 +2490,590 @@ public abstract class JSONLexer {
         }
 
         return strVal;
+    }
+    
+    static final int ISO8601_LEN_0 = "0000-00-00".length();
+    static final int ISO8601_LEN_1 = "0000-00-00T00:00:00".length();
+    static final int ISO8601_LEN_2 = "0000-00-00T00:00:00.000".length();
+
+    public boolean scanISO8601DateIfMatch(boolean strict) {
+        int rest = len - bp;
+
+        if ((!strict) && rest > 13) {
+            char c0 = charAt(bp);
+            char c1 = charAt(bp + 1);
+            char c2 = charAt(bp + 2);
+            char c3 = charAt(bp + 3);
+            char c4 = charAt(bp + 4);
+            char c5 = charAt(bp + 5);
+
+            char c_r0 = charAt(bp + rest - 1);
+            char c_r1 = charAt(bp + rest - 2);
+            if (c0 == '/' && c1 == 'D' && c2 == 'a' && c3 == 't' && c4 == 'e' && c5 == '(' && c_r0 == '/'
+                && c_r1 == ')') {
+                int plusIndex = -1;
+                for (int i = 6; i < rest; ++i) {
+                    char c = charAt(bp + i);
+                    if (c == '+') {
+                        plusIndex = i;
+                    } else if (c < '0' || c > '9') {
+                        break;
+                    }
+                }
+                if (plusIndex == -1) {
+                    return false;
+                }
+                int offset = bp + 6;
+                String numberText = this.subString(offset, plusIndex - offset);
+                long millis = Long.parseLong(numberText);
+
+                Locale local = Locale.getDefault();
+                calendar = Calendar.getInstance(TimeZone.getDefault(), local);
+                calendar.setTimeInMillis(millis);
+
+                token = JSONToken.LITERAL_ISO8601_DATE;
+                return true;
+            }
+        }
+
+        if (rest == 8 || rest == 14 || rest == 17) {
+            if (strict) {
+                return false;
+            }
+
+            char y0 = charAt(bp);
+            char y1 = charAt(bp + 1);
+            char y2 = charAt(bp + 2);
+            char y3 = charAt(bp + 3);
+            char M0 = charAt(bp + 4);
+            char M1 = charAt(bp + 5);
+            char d0 = charAt(bp + 6);
+            char d1 = charAt(bp + 7);
+
+            if (!checkDate(y0, y1, y2, y3, M0, M1, d0, d1)) {
+                return false;
+            }
+
+            setCalendar(y0, y1, y2, y3, M0, M1, d0, d1);
+
+            int hour, minute, seconds, millis;
+            if (rest != 8) {
+                char h0 = charAt(bp + 8);
+                char h1 = charAt(bp + 9);
+                char m0 = charAt(bp + 10);
+                char m1 = charAt(bp + 11);
+                char s0 = charAt(bp + 12);
+                char s1 = charAt(bp + 13);
+
+                if (!checkTime(h0, h1, m0, m1, s0, s1)) {
+                    return false;
+                }
+
+                if (rest == 17) {
+                    char S0 = charAt(bp + 14);
+                    char S1 = charAt(bp + 15);
+                    char S2 = charAt(bp + 16);
+                    if (S0 < '0' || S0 > '9') {
+                        return false;
+                    }
+                    if (S1 < '0' || S1 > '9') {
+                        return false;
+                    }
+                    if (S2 < '0' || S2 > '9') {
+                        return false;
+                    }
+
+                    millis = digits[S0] * 100 + digits[S1] * 10 + digits[S2];
+                } else {
+                    millis = 0;
+                }
+
+                hour = digits[h0] * 10 + digits[h1];
+                minute = digits[m0] * 10 + digits[m1];
+                seconds = digits[s0] * 10 + digits[s1];
+            } else {
+                hour = 0;
+                minute = 0;
+                seconds = 0;
+                millis = 0;
+            }
+
+            calendar.set(Calendar.HOUR_OF_DAY, hour);
+            calendar.set(Calendar.MINUTE, minute);
+            calendar.set(Calendar.SECOND, seconds);
+            calendar.set(Calendar.MILLISECOND, millis);
+
+            token = JSONToken.LITERAL_ISO8601_DATE;
+            return true;
+        }
+
+        if (rest < ISO8601_LEN_0) {
+            return false;
+        }
+
+        if (charAt(bp + 4) != '-') {
+            return false;
+        }
+        if (charAt(bp + 7) != '-') {
+            return false;
+        }
+
+        char y0 = charAt(bp);
+        char y1 = charAt(bp + 1);
+        char y2 = charAt(bp + 2);
+        char y3 = charAt(bp + 3);
+        char M0 = charAt(bp + 5);
+        char M1 = charAt(bp + 6);
+        char d0 = charAt(bp + 8);
+        char d1 = charAt(bp + 9);
+        if (!checkDate(y0, y1, y2, y3, M0, M1, d0, d1)) {
+            return false;
+        }
+
+        setCalendar(y0, y1, y2, y3, M0, M1, d0, d1);
+
+        char t = charAt(bp + 10);
+        if (t == 'T' || (t == ' ' && !strict)) {
+            if (rest < ISO8601_LEN_1) {
+                return false;
+            }
+        } else if (t == '"' || t == EOI) {
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+
+            ch = charAt(bp += 10);
+
+            token = JSONToken.LITERAL_ISO8601_DATE;
+            return true;
+        } else {
+            return false;
+        }
+
+        if (charAt(bp + 13) != ':') {
+            return false;
+        }
+        if (charAt(bp + 16) != ':') {
+            return false;
+        }
+
+        char h0 = charAt(bp + 11);
+        char h1 = charAt(bp + 12);
+        char m0 = charAt(bp + 14);
+        char m1 = charAt(bp + 15);
+        char s0 = charAt(bp + 17);
+        char s1 = charAt(bp + 18);
+
+        if (!checkTime(h0, h1, m0, m1, s0, s1)) {
+            return false;
+        }
+
+        int hour = digits[h0] * 10 + digits[h1];
+        int minute = digits[m0] * 10 + digits[m1];
+        int seconds = digits[s0] * 10 + digits[s1];
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.SECOND, seconds);
+
+        char dot = charAt(bp + 19);
+        if (dot == '.') {
+            if (rest < ISO8601_LEN_2) {
+                return false;
+            }
+        } else {
+            calendar.set(Calendar.MILLISECOND, 0);
+
+            ch = charAt(bp += 19);
+
+            token = JSONToken.LITERAL_ISO8601_DATE;
+            return true;
+        }
+
+        char S0 = charAt(bp + 20);
+        if (S0 < '0' || S0 > '9') {
+            return false;
+        }
+        int millis = digits[S0];
+        int millisLen = 1;
+
+        {
+            char S1 = charAt(bp + 21);
+            if (S1 >= '0' && S1 <= '9') {
+                millis = millis * 10 + digits[S1];
+                millisLen = 2;
+            }
+        }
+
+        if (millisLen == 2) {
+            char S2 = charAt(bp + 22);
+            if (S2 >= '0' && S2 <= '9') {
+                millis = millis * 10 + digits[S2];
+                millisLen = 3;
+            }
+        }
+
+        calendar.set(Calendar.MILLISECOND, millis);
+
+        int timzeZoneLength = 0;
+        char timeZoneFlag = charAt(bp + 20 + millisLen);
+        if (timeZoneFlag == '+' || timeZoneFlag == '-') {
+            char t0 = charAt(bp + 20 + millisLen + 1);
+            if (t0 < '0' || t0 > '1') {
+                return false;
+            }
+
+            char t1 = charAt(bp + 20 + millisLen + 2);
+            if (t1 < '0' || t1 > '9') {
+                return false;
+            }
+
+            char t2 = charAt(bp + 20 + millisLen + 3);
+            if (t2 == ':') { // ThreeLetterISO8601TimeZone
+                char t3 = charAt(bp + 20 + millisLen + 4);
+                if (t3 != '0') {
+                    return false;
+                }
+
+                char t4 = charAt(bp + 20 + millisLen + 5);
+                if (t4 != '0') {
+                    return false;
+                }
+                timzeZoneLength = 6;
+            } else if (t2 == '0') { // TwoLetterISO8601TimeZone
+                char t3 = charAt(bp + 20 + millisLen + 4);
+                if (t3 != '0') {
+                    return false;
+                }
+                timzeZoneLength = 5;
+            } else {
+                timzeZoneLength = 3;
+            }
+
+            int timeZoneOffset = (digits[t0] * 10 + digits[t1]) * 3600 * 1000;
+            if (timeZoneFlag == '-') {
+                timeZoneOffset = -timeZoneOffset;
+            }
+
+            if (calendar.getTimeZone().getRawOffset() != timeZoneOffset) {
+                String[] timeZoneIDs = TimeZone.getAvailableIDs(timeZoneOffset);
+                if (timeZoneIDs.length > 0) {
+                    TimeZone timeZone = TimeZone.getTimeZone(timeZoneIDs[0]);
+                    calendar.setTimeZone(timeZone);
+                }
+            }
+
+        }
+
+        char end = charAt(bp + (20 + millisLen + timzeZoneLength));
+        if (end != EOI && end != '"') {
+            return false;
+        }
+        ch = charAt(bp += (20 + millisLen + timzeZoneLength));
+
+        token = JSONToken.LITERAL_ISO8601_DATE;
+        return true;
+    }
+
+    static boolean checkTime(char h0, char h1, char m0, char m1, char s0, char s1) {
+        if (h0 == '0') {
+            if (h1 < '0' || h1 > '9') {
+                return false;
+            }
+        } else if (h0 == '1') {
+            if (h1 < '0' || h1 > '9') {
+                return false;
+            }
+        } else if (h0 == '2') {
+            if (h1 < '0' || h1 > '4') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        if (m0 >= '0' && m0 <= '5') {
+            if (m1 < '0' || m1 > '9') {
+                return false;
+            }
+        } else if (m0 == '6') {
+            if (m1 != '0') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        if (s0 >= '0' && s0 <= '5') {
+            if (s1 < '0' || s1 > '9') {
+                return false;
+            }
+        } else if (s0 == '6') {
+            if (s1 != '0') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        return true;
+    }
+
+    private void setCalendar(char y0, char y1, char y2, char y3, char M0, char M1, char d0, char d1) {
+        Locale local = Locale.getDefault();
+        calendar = Calendar.getInstance(TimeZone.getDefault(), local);
+        int year = digits[y0] * 1000 + digits[y1] * 100 + digits[y2] * 10 + digits[y3];
+        int month = digits[M0] * 10 + digits[M1] - 1;
+        int day = digits[d0] * 10 + digits[d1];
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.MONTH, month);
+        calendar.set(Calendar.DAY_OF_MONTH, day);
+    }
+
+    static boolean checkDate(char y0, char y1, char y2, char y3, char M0, char M1, int d0, int d1) {
+        if (y0 != '1' && y0 != '2') {
+            return false;
+        }
+        if (y1 < '0' || y1 > '9') {
+            return false;
+        }
+        if (y2 < '0' || y2 > '9') {
+            return false;
+        }
+        if (y3 < '0' || y3 > '9') {
+            return false;
+        }
+
+        if (M0 == '0') {
+            if (M1 < '1' || M1 > '9') {
+                return false;
+            }
+        } else if (M0 == '1') {
+            if (M1 != '0' && M1 != '1' && M1 != '2') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        if (d0 == '0') {
+            if (d1 < '1' || d1 > '9') {
+                return false;
+            }
+        } else if (d0 == '1' || d0 == '2') {
+            if (d1 < '0' || d1 > '9') {
+                return false;
+            }
+        } else if (d0 == '3') {
+            if (d1 != '0' && d1 != '1') {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        return true;
+    }
+
+    
+    
+    /////////// base 64
+    public static final char[] CA = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".toCharArray();
+    static final int[]  IA = new int[256];
+    static {
+        Arrays.fill(IA, -1);
+        for (int i = 0, iS = CA.length; i < iS; i++) {
+            IA[CA[i]] = i;
+        }
+        IA['='] = 0;
+    }
+
+    /**
+     * Decodes a BASE64 encoded char array that is known to be resonably well formatted. The method is about twice as
+     * fast as #decode(char[]). The preconditions are:<br>
+     * + The array must have a line length of 76 chars OR no line separators at all (one line).<br>
+     * + Line separator must be "\r\n", as specified in RFC 2045 + The array must not contain illegal characters within
+     * the encoded string<br>
+     * + The array CAN have illegal characters at the beginning and end, those will be dealt with appropriately.<br>
+     * 
+     * @param chars The source array. Length 0 will return an empty array. <code>null</code> will throw an exception.
+     * @return The decoded array of bytes. May be of length 0.
+     */
+    public final static byte[] decodeFast(char[] chars, int offset, int charsLen) {
+        // Check special case
+        if (charsLen == 0) {
+            return new byte[0];
+        }
+
+        int sIx = offset, eIx = offset + charsLen - 1; // Start and end index after trimming.
+
+        // Trim illegal chars from start
+        while (sIx < eIx && IA[chars[sIx]] < 0)
+            sIx++;
+
+        // Trim illegal chars from end
+        while (eIx > 0 && IA[chars[eIx]] < 0)
+            eIx--;
+
+        // get the padding count (=) (0, 1 or 2)
+        int pad = chars[eIx] == '=' ? (chars[eIx - 1] == '=' ? 2 : 1) : 0; // Count '=' at end.
+        int cCnt = eIx - sIx + 1; // Content count including possible separators
+        int sepCnt = charsLen > 76 ? (chars[76] == '\r' ? cCnt / 78 : 0) << 1 : 0;
+
+        int len = ((cCnt - sepCnt) * 6 >> 3) - pad; // The number of decoded bytes
+        byte[] bytes = new byte[len]; // Preallocate byte[] of exact length
+
+        // Decode all but the last 0 - 2 bytes.
+        int d = 0;
+        for (int cc = 0, eLen = (len / 3) * 3; d < eLen;) {
+            // Assemble three bytes into an int from four "valid" characters.
+            int i = IA[chars[sIx++]] << 18 | IA[chars[sIx++]] << 12 | IA[chars[sIx++]] << 6 | IA[chars[sIx++]];
+
+            // Add the bytes
+            bytes[d++] = (byte) (i >> 16);
+            bytes[d++] = (byte) (i >> 8);
+            bytes[d++] = (byte) i;
+
+            // If line separator, jump over it.
+            if (sepCnt > 0 && ++cc == 19) {
+                sIx += 2;
+                cc = 0;
+            }
+        }
+
+        if (d < len) {
+            // Decode last 1-3 bytes (incl '=') into 1-3 bytes
+            int i = 0;
+            for (int j = 0; sIx <= eIx - pad; j++)
+                i |= IA[chars[sIx++]] << (18 - j * 6);
+
+            for (int r = 16; d < len; r -= 8)
+                bytes[d++] = (byte) (i >> r);
+        }
+
+        return bytes;
+    }
+    
+    public final static byte[] decodeFast(String chars, int offset, int charsLen) {
+        // Check special case
+        if (charsLen == 0) {
+            return new byte[0];
+        }
+
+        int sIx = offset, eIx = offset + charsLen - 1; // Start and end index after trimming.
+
+        // Trim illegal chars from start
+        while (sIx < eIx && IA[chars.charAt(sIx)] < 0)
+            sIx++;
+
+        // Trim illegal chars from end
+        while (eIx > 0 && IA[chars.charAt(eIx)] < 0)
+            eIx--;
+
+        // get the padding count (=) (0, 1 or 2)
+        int pad = chars.charAt(eIx) == '=' ? (chars.charAt(eIx - 1) == '=' ? 2 : 1) : 0; // Count '=' at end.
+        int cCnt = eIx - sIx + 1; // Content count including possible separators
+        int sepCnt = charsLen > 76 ? (chars.charAt(76) == '\r' ? cCnt / 78 : 0) << 1 : 0;
+
+        int len = ((cCnt - sepCnt) * 6 >> 3) - pad; // The number of decoded bytes
+        byte[] bytes = new byte[len]; // Preallocate byte[] of exact length
+
+        // Decode all but the last 0 - 2 bytes.
+        int d = 0;
+        for (int cc = 0, eLen = (len / 3) * 3; d < eLen;) {
+            // Assemble three bytes into an int from four "valid" characters.
+            int i = IA[chars.charAt(sIx++)] << 18 | IA[chars.charAt(sIx++)] << 12 | IA[chars.charAt(sIx++)] << 6 | IA[chars.charAt(sIx++)];
+
+            // Add the bytes
+            bytes[d++] = (byte) (i >> 16);
+            bytes[d++] = (byte) (i >> 8);
+            bytes[d++] = (byte) i;
+
+            // If line separator, jump over it.
+            if (sepCnt > 0 && ++cc == 19) {
+                sIx += 2;
+                cc = 0;
+            }
+        }
+
+        if (d < len) {
+            // Decode last 1-3 bytes (incl '=') into 1-3 bytes
+            int i = 0;
+            for (int j = 0; sIx <= eIx - pad; j++)
+                i |= IA[chars.charAt(sIx++)] << (18 - j * 6);
+
+            for (int r = 16; d < len; r -= 8)
+                bytes[d++] = (byte) (i >> r);
+        }
+
+        return bytes;
+    }
+
+    /**
+     * Decodes a BASE64 encoded string that is known to be resonably well formatted. The method is about twice as fast
+     * as decode(String). The preconditions are:<br>
+     * + The array must have a line length of 76 chars OR no line separators at all (one line).<br>
+     * + Line separator must be "\r\n", as specified in RFC 2045 + The array must not contain illegal characters within
+     * the encoded string<br>
+     * + The array CAN have illegal characters at the beginning and end, those will be dealt with appropriately.<br>
+     * 
+     * @param s The source string. Length 0 will return an empty array. <code>null</code> will throw an exception.
+     * @return The decoded array of bytes. May be of length 0.
+     */
+    public final static byte[] decodeFast(String s) {
+        // Check special case
+        int sLen = s.length();
+        if (sLen == 0) {
+            return new byte[0];
+        }
+
+        int sIx = 0, eIx = sLen - 1; // Start and end index after trimming.
+
+        // Trim illegal chars from start
+        while (sIx < eIx && IA[s.charAt(sIx) & 0xff] < 0)
+            sIx++;
+
+        // Trim illegal chars from end
+        while (eIx > 0 && IA[s.charAt(eIx) & 0xff] < 0)
+            eIx--;
+
+        // get the padding count (=) (0, 1 or 2)
+        int pad = s.charAt(eIx) == '=' ? (s.charAt(eIx - 1) == '=' ? 2 : 1) : 0; // Count '=' at end.
+        int cCnt = eIx - sIx + 1; // Content count including possible separators
+        int sepCnt = sLen > 76 ? (s.charAt(76) == '\r' ? cCnt / 78 : 0) << 1 : 0;
+
+        int len = ((cCnt - sepCnt) * 6 >> 3) - pad; // The number of decoded bytes
+        byte[] dArr = new byte[len]; // Preallocate byte[] of exact length
+
+        // Decode all but the last 0 - 2 bytes.
+        int d = 0;
+        for (int cc = 0, eLen = (len / 3) * 3; d < eLen;) {
+            // Assemble three bytes into an int from four "valid" characters.
+            int i = IA[s.charAt(sIx++)] << 18 | IA[s.charAt(sIx++)] << 12 | IA[s.charAt(sIx++)] << 6
+                    | IA[s.charAt(sIx++)];
+
+            // Add the bytes
+            dArr[d++] = (byte) (i >> 16);
+            dArr[d++] = (byte) (i >> 8);
+            dArr[d++] = (byte) i;
+
+            // If line separator, jump over it.
+            if (sepCnt > 0 && ++cc == 19) {
+                sIx += 2;
+                cc = 0;
+            }
+        }
+
+        if (d < len) {
+            // Decode last 1-3 bytes (incl '=') into 1-3 bytes
+            int i = 0;
+            for (int j = 0; sIx <= eIx - pad; j++)
+                i |= IA[s.charAt(sIx++)] << (18 - j * 6);
+
+            for (int r = 16; d < len; r -= 8)
+                dArr[d++] = (byte) (i >> r);
+        }
+
+        return dArr;
     }
 }

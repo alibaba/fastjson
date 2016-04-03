@@ -25,12 +25,44 @@ public abstract class FieldDeserializer {
 
     public abstract void parseField(DefaultJSONParser parser, Object object, Type objectType,
                                     Map<String, Object> fieldValues);
+    
+    public void setValue(Object object, int value) {
+        try {
+            fieldInfo.field.setInt(object, value);
+        } catch (Exception e) {
+            throw new JSONException("set property error, " + fieldInfo.name, e);
+        }
+    }
+    
+    public void setValue(Object object, long value) {
+        try {
+            fieldInfo.field.setLong(object, value);
+        } catch (Exception e) {
+            throw new JSONException("set property error, " + fieldInfo.name, e);
+        }
+    }
+    
+    public void setValue(Object object, float value) {
+        try {
+            fieldInfo.field.setFloat(object, value);
+        } catch (Exception e) {
+            throw new JSONException("set property error, " + fieldInfo.name, e);
+        }
+    }
+    
+    public void setValue(Object object, double value) {
+        try {
+            fieldInfo.field.setDouble(object, value);
+        } catch (Exception e) {
+            throw new JSONException("set property error, " + fieldInfo.name, e);
+        }
+    }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void setValue(Object object, Object value) {
         final Field field = fieldInfo.field;
         final Method method = fieldInfo.method;
-        if (field != null && (fieldInfo.publicField || method == null)) {
+        if (fieldInfo.fieldAccess) {
             try {
                 field.set(object, value);
             } catch (Exception e) {

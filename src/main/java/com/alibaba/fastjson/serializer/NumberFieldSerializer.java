@@ -38,7 +38,7 @@ final class NumberFieldSerializer extends FieldSerializer {
         Object value = propertyValue;
 
         if (value == null) {
-            if (out.isEnabled(SerializerFeature.WriteNullNumberAsZero)) {
+            if ((out.features & SerializerFeature.WriteNullNumberAsZero.mask) != 0) {
                 out.write('0');
             } else {
                 out.writeNull();

@@ -36,7 +36,7 @@ public class ArraySerializer implements ObjectSerializer {
         SerializeWriter out = serializer.out;
 
         if (object == null) {
-            if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {
+            if ((out.features & SerializerFeature.WriteNullListAsEmpty.mask) != 0) {
                 out.write("[]");
             } else {
                 out.writeNull();
@@ -81,7 +81,7 @@ public class ArraySerializer implements ObjectSerializer {
                 return;
             }
 
-            out.append('[');
+            out.write('[');
             for (int i = 0; i < end; ++i) {
                 double item = array[i];
 
@@ -91,7 +91,7 @@ public class ArraySerializer implements ObjectSerializer {
                     out.append(Double.toString(item));
                 }
 
-                out.append(',');
+                out.write(',');
             }
 
             double item = array[end];
@@ -102,7 +102,7 @@ public class ArraySerializer implements ObjectSerializer {
                 out.append(Double.toString(item));
             }
 
-            out.append(']');
+            out.write(']');
             return;
         }
         
@@ -117,7 +117,7 @@ public class ArraySerializer implements ObjectSerializer {
                 return;
             }
 
-            out.append('[');
+            out.write('[');
             for (int i = 0; i < end; ++i) {
                 float item = array[i];
 
@@ -127,7 +127,7 @@ public class ArraySerializer implements ObjectSerializer {
                     out.append(Float.toString(item));
                 }
 
-                out.append(',');
+                out.write(',');
             }
 
             float item = array[end];
@@ -138,7 +138,7 @@ public class ArraySerializer implements ObjectSerializer {
                 out.append(Float.toString(item));
             }
 
-            out.append(']');
+            out.write(']');
             return;
         }
         
@@ -190,10 +190,10 @@ public class ArraySerializer implements ObjectSerializer {
         serializer.setContext(context, object, fieldName, 0);
 
         try {
-            out.append('[');
+            out.write('[');
             for (int i = 0; i < size; ++i) {
             	if (i != 0) {
-            		out.append(',');
+            		out.write(',');
             	}
                 Object item = array[i];
 
@@ -206,7 +206,7 @@ public class ArraySerializer implements ObjectSerializer {
                 	itemSerializer.write(serializer, item, i, null);
                 }
             }
-            out.append(']');
+            out.write(']');
         } finally {
             serializer.context = context;
         }

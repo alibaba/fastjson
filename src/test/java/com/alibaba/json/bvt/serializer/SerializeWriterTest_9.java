@@ -4,11 +4,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 
-import junit.framework.TestCase;
-
 import org.junit.Assert;
 
 import com.alibaba.fastjson.serializer.SerializeWriter;
+
+import junit.framework.TestCase;
 
 public class SerializeWriterTest_9 extends TestCase {
 
@@ -41,18 +41,6 @@ public class SerializeWriterTest_9 extends TestCase {
         Exception error = null;
         try {
             writer.writeTo(new ByteArrayOutputStream(), "UTF-8");
-        } catch (Exception ex) {
-            error = ex;
-        }
-        Assert.assertNotNull(error);
-        writer.close();
-    }
-    
-    public void test_error_4() throws Exception {
-        SerializeWriter writer = new SerializeWriter(new StringWriter());
-        Exception error = null;
-        try {
-            writer.toCharArray();
         } catch (Exception ex) {
             error = ex;
         }

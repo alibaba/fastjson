@@ -1,15 +1,15 @@
 package com.alibaba.json.bvt.bug;
 
-import junit.framework.TestCase;
-
 import org.junit.Assert;
 
-import com.alibaba.fastjson.parser.JSONScanner;
+import com.alibaba.fastjson.parser.JSONLexer;
+
+import junit.framework.TestCase;
 
 public class Issue119 extends TestCase {
 
     public void test_for_issue() throws Exception {
-        JSONScanner lexer = new JSONScanner("-100S");
+        JSONLexer lexer = new JSONLexer("-100S");
         lexer.resetStringPosition();
         lexer.scanNumber();
         Assert.assertEquals(Short.class, lexer.integerValue().getClass());

@@ -3,7 +3,7 @@ package com.alibaba.json.bvt.parser;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
-import com.alibaba.fastjson.parser.JSONScanner;
+import com.alibaba.fastjson.parser.JSONLexer;
 
 /**
  * parseInt
@@ -14,7 +14,7 @@ public class JSONScannerTest_int extends TestCase {
 
     public void ftest_parse_long() throws Exception {
         System.out.println(System.currentTimeMillis());
-        JSONScanner lexer = new JSONScanner("1293770846");
+        JSONLexer lexer = new JSONLexer("1293770846");
         lexer.scanNumber();
         Assert.assertEquals(new Integer(1293770846), (Integer) lexer.integerValue());
         Assert.assertEquals(1293770846, lexer.intValue());
@@ -22,7 +22,7 @@ public class JSONScannerTest_int extends TestCase {
 
     public void ftest_parse_long_1() throws Exception {
         System.out.println(System.currentTimeMillis());
-        JSONScanner lexer = new JSONScanner(Integer.toString(Integer.MAX_VALUE));
+        JSONLexer lexer = new JSONLexer(Integer.toString(Integer.MAX_VALUE));
         lexer.scanNumber();
         Assert.assertEquals(new Integer(Integer.MAX_VALUE), (Integer) lexer.integerValue());
         Assert.assertEquals(Integer.MAX_VALUE, lexer.intValue());
@@ -30,7 +30,7 @@ public class JSONScannerTest_int extends TestCase {
 
     public void test_parse_long_2() throws Exception {
         System.out.println(System.currentTimeMillis());
-        JSONScanner lexer = new JSONScanner(Long.toString(Integer.MIN_VALUE));
+        JSONLexer lexer = new JSONLexer(Long.toString(Integer.MIN_VALUE));
         lexer.scanNumber();
         Assert.assertEquals(new Integer(Integer.MIN_VALUE), (Integer) lexer.integerValue());
         Assert.assertEquals(Integer.MIN_VALUE, lexer.intValue());
@@ -39,7 +39,7 @@ public class JSONScannerTest_int extends TestCase {
     public void test_error_0() {
         Exception error = null;
         try {
-            JSONScanner lexer = new JSONScanner("--");
+            JSONLexer lexer = new JSONLexer("--");
             lexer.scanNumber();
             lexer.intValue();
         } catch (Exception ex) {
@@ -52,7 +52,7 @@ public class JSONScannerTest_int extends TestCase {
         Exception error = null;
         try {
             String text = Integer.MAX_VALUE + "1234";
-            JSONScanner lexer = new JSONScanner(text);
+            JSONLexer lexer = new JSONLexer(text);
             lexer.scanNumber();
             lexer.intValue();
         } catch (Exception ex) {
@@ -65,7 +65,7 @@ public class JSONScannerTest_int extends TestCase {
         Exception error = null;
         try {
             String text = Integer.MIN_VALUE + "1234";
-            JSONScanner lexer = new JSONScanner(text);
+            JSONLexer lexer = new JSONLexer(text);
             lexer.scanNumber();
             lexer.intValue();
         } catch (Exception ex) {
@@ -78,7 +78,7 @@ public class JSONScannerTest_int extends TestCase {
         Exception error = null;
         try {
             String text = "2147483648";
-            JSONScanner lexer = new JSONScanner(text);
+            JSONLexer lexer = new JSONLexer(text);
             lexer.scanNumber();
             lexer.intValue();
         } catch (Exception ex) {

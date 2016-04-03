@@ -119,15 +119,15 @@ public class DefaultJSONParser implements Closeable {
     }
 
     public DefaultJSONParser(final String input, final ParserConfig config){
-        this(input, new JSONScanner(input, JSON.DEFAULT_PARSER_FEATURE), config);
+        this(input, new JSONLexer(input, JSON.DEFAULT_PARSER_FEATURE), config);
     }
 
     public DefaultJSONParser(final String input, final ParserConfig config, int features){
-        this(input, new JSONScanner(input, features), config);
+        this(input, new JSONLexer(input, features), config);
     }
 
     public DefaultJSONParser(final char[] input, int length, final ParserConfig config, int features){
-        this(input, new JSONScanner(input, length, features), config);
+        this(input, new JSONLexer(input, length, features), config);
     }
 
     public DefaultJSONParser(final JSONLexer lexer){
@@ -363,7 +363,7 @@ public class DefaultJSONParser implements Closeable {
                     value = strValue;
 
                     if ((lexer.features & Feature.AllowISO8601DateFormat.mask) != 0) {
-                        JSONScanner iso8601Lexer = new JSONScanner(strValue);
+                        JSONLexer iso8601Lexer = new JSONLexer(strValue);
                         if (iso8601Lexer.scanISO8601DateIfMatch(true)) {
                             value = iso8601Lexer.getCalendar().getTime();
                         }
@@ -763,7 +763,7 @@ public class DefaultJSONParser implements Closeable {
                     throw new JSONException("setter not found, class " + clazz.getName() + ", property " + key);
                 }
 
-                lexer.nextTokenWithColon();
+                lexer.nextTokenWithChar(':');
                 parse(); // skip
 
                 if (lexer.token == JSONToken.RBRACE) {
@@ -777,18 +777,18 @@ public class DefaultJSONParser implements Closeable {
                 Type fieldType = fieldDeser.fieldInfo.fieldType;
                 Object fieldValue;
                 if (fieldClass == int.class) {
-                    lexer.nextTokenWithColon(JSONToken.LITERAL_INT);
+                    lexer.nextTokenWithChar(':');
                     fieldValue = IntegerCodec.instance.deserialze(this, fieldType, null);
                 } else if (fieldClass == String.class) {
-                    lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
+                    lexer.nextTokenWithChar(':');
                     fieldValue = StringCodec.deserialze(this);
                 } else if (fieldClass == long.class) {
-                    lexer.nextTokenWithColon(JSONToken.LITERAL_INT);
+                    lexer.nextTokenWithChar(':');
                     fieldValue = IntegerCodec.instance.deserialze(this, fieldType, null);
                 } else {
                     ObjectDeserializer fieldValueDeserializer = config.getDeserializer(fieldClass, fieldType);
 
-                    lexer.nextTokenWithColon(fieldValueDeserializer.getFastMatchToken());
+                    lexer.nextTokenWithChar(':');
                     fieldValue = fieldValueDeserializer.deserialze(this, fieldType, null);
                 }
 
@@ -976,7 +976,7 @@ public class DefaultJSONParser implements Closeable {
                         lexer.nextToken(JSONToken.COMMA);
 
                         if ((lexer.features & Feature.AllowISO8601DateFormat.mask) != 0) {
-                            JSONScanner iso8601Lexer = new JSONScanner(stringLiteral);
+                            JSONLexer iso8601Lexer = new JSONLexer(stringLiteral);
                             if (iso8601Lexer.scanISO8601DateIfMatch(true)) {
                                 value = iso8601Lexer.getCalendar().getTime();
                             } else {
@@ -1158,7 +1158,7 @@ public class DefaultJSONParser implements Closeable {
                 lexer.nextToken(JSONToken.COMMA);
 
                 if ((lexer.features & Feature.AllowISO8601DateFormat.mask) != 0) {
-                    JSONScanner iso8601Lexer = new JSONScanner(stringLiteral);
+                    JSONLexer iso8601Lexer = new JSONLexer(stringLiteral);
                     try {
                         if (iso8601Lexer.scanISO8601DateIfMatch(true)) {
                             return iso8601Lexer.getCalendar().getTime();
@@ -1200,10 +1200,10 @@ public class DefaultJSONParser implements Closeable {
                 if (lexer.isBlankInput()) {
                     return null;
                 }
-                throw new JSONException("unterminated json string, pos " + lexer.getBufferPosition());
+                throw new JSONException("unterminated json string, pos " + lexer.bp);
             case ERROR:
             default:
-                throw new JSONException("syntax error, pos " + lexer.getBufferPosition());
+                throw new JSONException("syntax error, pos " + lexer.bp);
         }
     }
 

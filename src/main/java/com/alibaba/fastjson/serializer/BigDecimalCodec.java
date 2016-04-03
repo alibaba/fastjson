@@ -37,7 +37,7 @@ public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
         SerializeWriter out = serializer.out;
 
         if (object == null) {
-            if (out.isEnabled(SerializerFeature.WriteNullNumberAsZero)) {
+            if ((out.features & SerializerFeature.WriteNullNumberAsZero.mask) != 0) {
                 out.write('0');
             } else {
                 out.writeNull();
@@ -54,7 +54,7 @@ public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
         BigDecimal val = (BigDecimal) object;
         out.write(val.toString());
 
-        if (out.isEnabled(SerializerFeature.WriteClassName) && fieldType != BigDecimal.class && val.scale() == 0) {
+        if ((out.features & SerializerFeature.WriteClassName.mask) != 0 && fieldType != BigDecimal.class && val.scale() == 0) {
             out.write('.');
         }
     }

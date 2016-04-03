@@ -17,7 +17,6 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -117,7 +116,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
         final FieldSerializer[] getters;
 
-        if (out.isEnabled(SerializerFeature.SortField)) {
+        if ((out.features & SerializerFeature.SortField.mask) != 0) {
             getters = this.sortedGetters;
         } else {
             getters = this.getters;
@@ -130,7 +129,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
         
         if ((features & SerializerFeature.BeanToArray.mask) != 0) {
             writeAsArray = true;
-        } else if (serializer.out.isEnabled(SerializerFeature.BeanToArray)) {
+        } else if ((out.features & SerializerFeature.BeanToArray.mask) != 0) {
             writeAsArray = true;
         } else {
             writeAsArray = false;
@@ -139,9 +138,9 @@ public class JavaBeanSerializer implements ObjectSerializer {
         try {
             final char startSeperator = writeAsArray ? '[' : '{';
             final char endSeperator = writeAsArray ? ']' : '}';
-            out.append(startSeperator);
+            out.write(startSeperator);
 
-            if (getters.length > 0 && out.isEnabled(SerializerFeature.PrettyFormat)) {
+            if (getters.length > 0 && (out.features & SerializerFeature.PrettyFormat.mask) != 0) {
                 serializer.incrementIndent();
                 serializer.println();
             }
@@ -167,39 +166,83 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
             for (int i = 0; i < getters.length; ++i) {
                 FieldSerializer fieldSerializer = getters[i];
-
-                if (out.isEnabled(SerializerFeature.SkipTransientField)) {
-                    Field field = fieldSerializer.fieldInfo.field;
+                FieldInfo fieldInfo = fieldSerializer.fieldInfo;
+                String fieldInfoName = fieldInfo.name;
+                if ((out.features & SerializerFeature.SkipTransientField.mask) != 0) {
+                    Field field = fieldInfo.field;
                     if (field != null) {
-                        if (Modifier.isTransient(field.getModifiers())) {
+                        if (fieldInfo.fieldTransient) {
                             continue;
                         }
                     }
                 }
 
-                if (!JSONSerializer.applyName(serializer, object, fieldSerializer.fieldInfo.name)) {
+                boolean applyName = true;
+                {
+                    List<PropertyPreFilter> filters = serializer.propertyPreFilters;
+
+                    if (filters != null) {
+                        for (PropertyPreFilter filter : filters) {
+                            if (!filter.apply(serializer, object, fieldInfoName)) {
+                                applyName = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (!applyName) {
                     continue;
                 }
 
-                Object propertyValue = fieldSerializer.getPropertyValue(object);
+                Object propertyValue = null;
+                
+                propertyValue = fieldSerializer.getPropertyValue(object);
 
-                if (!JSONSerializer.apply(serializer, object, fieldSerializer.fieldInfo.name, propertyValue)) {
+                boolean apply = true;
+                {
+                    List<PropertyFilter> propertyFilters = serializer.propertyFilters;
+                    if (propertyFilters != null) {
+                        for (PropertyFilter propertyFilter : propertyFilters) {
+                            if (!propertyFilter.apply(object, fieldInfoName, propertyValue)) {
+                                apply = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                if (!apply) {
                     continue;
                 }
 
-                String key = JSONSerializer.processKey(serializer, object, fieldSerializer.fieldInfo.name, propertyValue);
+                String key = fieldInfoName;
+                {
+                    List<NameFilter> nameFilters = serializer.nameFilters;
+                    if (nameFilters != null) {
+                        for (NameFilter nameFilter : nameFilters) {
+                            key = nameFilter.process(object, key, propertyValue);
+                        }
+                    }
+                }
 
                 Object originalValue = propertyValue;
-                propertyValue = JSONSerializer.processValue(serializer, object, fieldSerializer.fieldInfo.name, propertyValue);
+                {
+                    List<ValueFilter> valueFilters = serializer.valueFilters;
+                    if (valueFilters != null) {
+                        for (ValueFilter valueFilter : valueFilters) {
+                            propertyValue = valueFilter.process(object, fieldInfoName, propertyValue);
+                        }
+                    }
+                }
 
                 if (propertyValue == null && !writeAsArray) {
                     if ((!fieldSerializer.writeNull)
-                        && (!out.isEnabled(SerializerFeature.WriteMapNullValue))) {
+                        && (out.features & SerializerFeature.WriteMapNullValue.mask) == 0) {
                         continue;
                     }
                 }
                 
-                if (propertyValue != null && out.isEnabled(SerializerFeature.NotWriteDefaultValue)) {
+                if (propertyValue != null && (out.features & SerializerFeature.NotWriteDefaultValue.mask) != 0) {
                     Class<?> fieldCLass = fieldSerializer.fieldInfo.fieldClass;
                     if (fieldCLass == byte.class && propertyValue instanceof Byte && ((Byte)propertyValue).byteValue() == 0) {
                         continue;
@@ -219,13 +262,13 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 }
 
                 if (commaFlag) {
-                    out.append(',');
-                    if (out.isEnabled(SerializerFeature.PrettyFormat)) {
+                    out.write(',');
+                    if ((out.features & SerializerFeature.PrettyFormat.mask) != 0) {
                         serializer.println();
                     }
                 }
 
-                if (key != fieldSerializer.fieldInfo.name) {
+                if (key != fieldInfoName) {
                     if (!writeAsArray) {
                         out.writeFieldName(key);
                     }
@@ -248,12 +291,12 @@ public class JavaBeanSerializer implements ObjectSerializer {
             
             JSONSerializer.writeAfter(serializer, object, commaFlag ? ',' : '\0');
 
-            if (getters.length > 0 && out.isEnabled(SerializerFeature.PrettyFormat)) {
+            if (getters.length > 0 && (out.features & SerializerFeature.PrettyFormat.mask) != 0) {
                 serializer.decrementIdent();
                 serializer.println();
             }
 
-            out.append(endSeperator);
+            out.write(endSeperator);
         } catch (Exception e) {
             throw new JSONException("write javaBean error", e);
         } finally {

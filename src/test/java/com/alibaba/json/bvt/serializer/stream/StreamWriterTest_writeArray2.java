@@ -3,9 +3,11 @@ package com.alibaba.json.bvt.serializer.stream;
 import java.io.StringWriter;
 
 import org.junit.Assert;
-import junit.framework.TestCase;
 
 import com.alibaba.fastjson.serializer.SerializeWriter;
+import com.alibaba.json.SerializeWriterTestUtils;
+
+import junit.framework.TestCase;
 
 public class StreamWriterTest_writeArray2 extends TestCase {
 
@@ -13,7 +15,7 @@ public class StreamWriterTest_writeArray2 extends TestCase {
         StringWriter out = new StringWriter();
 
         SerializeWriter writer = new SerializeWriter(out, 10);
-        Assert.assertEquals(10, writer.getBufferLength());
+        Assert.assertEquals(10, SerializeWriterTestUtils.getBufferLength(writer));
 
         int blockSize = 21;
         for (char ch = 'a'; ch <= 'z'; ++ch) {

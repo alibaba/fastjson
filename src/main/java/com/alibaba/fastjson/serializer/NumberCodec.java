@@ -51,7 +51,7 @@ public class NumberCodec implements ObjectSerializer, ObjectDeserializer {
         SerializeWriter out = serializer.out;
 
         if (object == null) {
-            if (out.isEnabled(SerializerFeature.WriteNullNumberAsZero)) {
+            if ((out.features & SerializerFeature.WriteNullNumberAsZero.mask) != 0) {
                 out.write('0');
             } else {
                 out.writeNull();
@@ -73,7 +73,7 @@ public class NumberCodec implements ObjectSerializer, ObjectDeserializer {
                 }
                 out.write(floatText);
                 
-                if (out.isEnabled(SerializerFeature.WriteClassName)) {
+                if ((out.features & SerializerFeature.WriteClassName.mask) != 0) {
                     out.write('F');
                 }
             }
@@ -98,7 +98,7 @@ public class NumberCodec implements ObjectSerializer, ObjectDeserializer {
             }
             out.append(doubleText);
 
-            if (out.isEnabled(SerializerFeature.WriteClassName)) {
+            if ((out.features & SerializerFeature.WriteClassName.mask) != 0) {
                 out.write('D');
             }
         }

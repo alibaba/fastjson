@@ -44,12 +44,12 @@ public class JSONSerializer {
 
     public final SerializeWriter                   out;
 
-    private List<BeforeFilter>                     beforeFilters      = null;
-    private List<AfterFilter>                      afterFilters       = null;
-    private List<PropertyFilter>                   propertyFilters    = null;
-    private List<ValueFilter>                      valueFilters       = null;
-    private List<NameFilter>                       nameFilters        = null;
-    private List<PropertyPreFilter>                propertyPreFilters = null;
+    protected List<BeforeFilter>                   beforeFilters      = null;
+    protected List<AfterFilter>                    afterFilters       = null;
+    protected List<PropertyFilter>                 propertyFilters    = null;
+    protected List<ValueFilter>                    valueFilters       = null;
+    protected List<NameFilter>                     nameFilters        = null;
+    protected List<PropertyPreFilter>              propertyPreFilters = null;
 
     private int                                    indentCount        = 0;
     private String                                 indent             = "\t";
@@ -109,7 +109,7 @@ public class JSONSerializer {
     }
 
     public void setContext(SerialContext parent, Object object, Object fieldName, int features) {
-        if (out.isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {
+        if ((out.features & SerializerFeature.DisableCircularReferenceDetect.mask) != 0) {
             return;
         }
 
@@ -121,14 +121,14 @@ public class JSONSerializer {
     }
 
     public final boolean isWriteClassName(Type fieldType, Object obj) {
-        boolean result = out.isEnabled(SerializerFeature.WriteClassName);
+        boolean result = (out.features & SerializerFeature.WriteClassName.mask) != 0;
 
         if (!result) {
             return false;
         }
 
         if (fieldType == null) {
-            if (out.isEnabled(SerializerFeature.NotWriteRootClassName)) {
+            if ((out.features & SerializerFeature.NotWriteRootClassName.mask) != 0) {
                 boolean isRoot = context.parent == null;
                 if (isRoot) {
                     return false;
@@ -443,16 +443,6 @@ public class JSONSerializer {
         return seperator;
     }
 
-    public static char writeAfter(JSONSerializer serializer, Object object, char seperator) {
-        List<AfterFilter> afterFilters = serializer.afterFilters;
-        if (afterFilters != null) {
-            for (AfterFilter afterFilter : afterFilters) {
-                seperator = afterFilter.writeAfter(serializer, object, seperator);
-            }
-        }
-        return seperator;
-    }
-
     public static Object processValue(JSONSerializer serializer, Object object, String key, Object propertyValue) {
         List<ValueFilter> valueFilters = serializer.valueFilters;
         if (valueFilters != null) {
@@ -505,5 +495,15 @@ public class JSONSerializer {
         }
 
         return true;
+    }
+    
+    public static char writeAfter(JSONSerializer serializer, Object object, char seperator) {
+        List<AfterFilter> afterFilters = serializer.afterFilters;
+        if (afterFilters != null) {
+            for (AfterFilter afterFilter : afterFilters) {
+                seperator = afterFilter.writeAfter(serializer, object, seperator);
+            }
+        }
+        return seperator;
     }
 }

@@ -536,16 +536,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                               Map<String, Object> fieldValues) {
         JSONLexer lexer = parser.lexer; // xxx
 
-        FieldDeserializer fieldDeserializer = feildDeserializerMap.get(key);
-
-        if (fieldDeserializer == null) {
-            for (Map.Entry<String, FieldDeserializer> entry : feildDeserializerMap.entrySet()) {
-                if (entry.getKey().equalsIgnoreCase(key)) {
-                    fieldDeserializer = entry.getValue();
-                    break;
-                }
-            }
-        }
+        FieldDeserializer fieldDeserializer = smartMatch(key);
 
         if (fieldDeserializer == null) {
             parseExtra(parser, object, key);

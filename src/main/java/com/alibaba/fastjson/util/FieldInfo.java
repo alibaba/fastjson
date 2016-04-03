@@ -19,23 +19,19 @@ public class FieldInfo implements Comparable<FieldInfo> {
     public final Method   method;
     public final Field    field;
 
-    private int            ordinal = 0;
+    private int           ordinal = 0;
     public final Class<?> fieldClass;
     public final Type     fieldType;
     public final Class<?> declaringClass;
-    private boolean        getOnly = false;
-    private int            serialzeFeatures;
-    private String         label = "";
-    
-    private JSONField      fieldAnnotation;
-    private JSONField      methodAnnotation;
-    
+    private boolean       getOnly = false;
+    private int           serialzeFeatures;
+    private String        label   = "";
+
+    private JSONField     fieldAnnotation;
+    private JSONField     methodAnnotation;
+
     public final char[]   name_chars;
     
-    public FieldInfo(String name, Class<?> declaringClass, Class<?> fieldClass, Type fieldType, Field field){
-        this(name, declaringClass, fieldClass, fieldType, field, 0, 0);
-    }
-
     public FieldInfo(String name, Class<?> declaringClass, Class<?> fieldClass, Type fieldType, Field field, int ordinal, int serialzeFeatures){
         this.name = name;
         this.declaringClass = declaringClass;
@@ -51,25 +47,6 @@ public class FieldInfo implements Comparable<FieldInfo> {
         if (field != null) {
             TypeUtils.setAccessible(field);
         }
-    }
-
-    public FieldInfo(String name, Method method, Field field){
-        this(name, method, field, 0, 0);
-    }
-    
-    public FieldInfo(String name, Method method, Field field, int ordinal, int serialzeFeatures){
-        this(name, method, field, ordinal, serialzeFeatures, null, null, null);
-    }
-
-    public FieldInfo(String name, Method method, Field field, int ordinal, int serialzeFeatures, String label, JSONField methodAnnotation, JSONField fieldAnnotation){
-        this(name, method, field, null, null, ordinal, serialzeFeatures, methodAnnotation, fieldAnnotation);
-        if (label != null && label.length() > 0) {
-            this.label = label;
-        }
-    }
-
-    public FieldInfo(String name, Method method, Field field, Class<?> clazz, Type type, JSONField methodAnnotation){
-        this(name, method, field, clazz, type, 0, 0, methodAnnotation, null);
     }
 
     public FieldInfo(String name, Method method, Field field, Class<?> clazz, Type type, int ordinal, int serialzeFeatures, JSONField fieldAnnotation, JSONField methodAnnotation){
@@ -393,5 +370,12 @@ public class FieldInfo implements Comparable<FieldInfo> {
     
     public int getSerialzeFeatures() {
         return serialzeFeatures;
+    }
+
+    
+    public void setLabel(String label) {
+        if (label != null && label.length() > 0) { 
+            this.label = label;
+        }
     }
 }

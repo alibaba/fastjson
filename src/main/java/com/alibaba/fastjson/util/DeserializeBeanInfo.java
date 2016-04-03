@@ -471,7 +471,7 @@ public class DeserializeBeanInfo {
                         continue;
                     }
 
-                    beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, annotation));
+                    beanInfo.add(new FieldInfo(propertyName, method, null, clazz, type, 0, 0, annotation, null));
                 }
             }
         }

@@ -376,9 +376,9 @@ public class JSONSerializer {
             } else if (Date.class.isAssignableFrom(clazz)) {
                 config.put(clazz, DateCodec.instance);
             } else if (JSONAware.class.isAssignableFrom(clazz)) {
-                config.put(clazz, JSONAwareSerializer.instance);
+                config.put(clazz, MiscCodec.instance);
             } else if (JSONSerializable.class.isAssignableFrom(clazz)) {
-                config.put(clazz, JSONSerializableSerializer.instance);
+                config.put(clazz, MiscCodec.instance);
             } else if (JSONStreamAware.class.isAssignableFrom(clazz)) {
                 config.put(clazz, MiscCodec.instance);
             } else if (clazz.isEnum() || (clazz.getSuperclass() != null && clazz.getSuperclass().isEnum())) {
@@ -389,14 +389,14 @@ public class JSONSerializer {
                 config.put(clazz, new ArraySerializer(componentType, compObjectSerializer));
             } else if (Throwable.class.isAssignableFrom(clazz)) {
                 JavaBeanSerializer serializer = new JavaBeanSerializer(clazz);
-                serializer.writeClassName = true;
+                serializer.features |= SerializerFeature.WriteClassName.mask;
                 config.put(clazz, serializer);
             } else if (TimeZone.class.isAssignableFrom(clazz)) {
                 config.put(clazz, MiscCodec.instance);
             } else if (Charset.class.isAssignableFrom(clazz)) {
                 config.put(clazz, MiscCodec.instance);
             } else if (Enumeration.class.isAssignableFrom(clazz)) {
-                config.put(clazz, EnumerationSerialiazer.instance);
+                config.put(clazz, MiscCodec.instance);
             } else if (Calendar.class.isAssignableFrom(clazz)) {
                 config.put(clazz, CalendarCodec.instance);
             } else {

@@ -17,7 +17,6 @@ package com.alibaba.fastjson.parser;
 
 import java.io.Closeable;
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -47,8 +46,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.deserializer.ArrayListTypeFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.BooleanFieldDeserializer;
@@ -56,8 +53,6 @@ import com.alibaba.fastjson.parser.deserializer.DefaultFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.EnumDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.IntegerFieldDeserializer;
-import com.alibaba.fastjson.parser.deserializer.JSONArrayDeserializer;
-import com.alibaba.fastjson.parser.deserializer.JSONObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.LongFieldDeserializer;
@@ -70,7 +65,6 @@ import com.alibaba.fastjson.serializer.BooleanCodec;
 import com.alibaba.fastjson.serializer.CalendarCodec;
 import com.alibaba.fastjson.serializer.CollectionCodec;
 import com.alibaba.fastjson.serializer.DateCodec;
-import com.alibaba.fastjson.serializer.DateFormatCodec;
 import com.alibaba.fastjson.serializer.IntegerCodec;
 import com.alibaba.fastjson.serializer.MapCodec;
 import com.alibaba.fastjson.serializer.MiscCodec;
@@ -89,7 +83,7 @@ public class ParserConfig {
     }
 
     private static Object                                   PRESENT          = new Object();
-    private final Map<Class<?>, Object>                     primitiveClasses = new java.util.IdentityHashMap<Class<?>, Object>();
+    private final static Map<Class<?>, Object>                     primitiveClasses = new java.util.IdentityHashMap<Class<?>, Object>();
 
     public static ParserConfig                              global           = new ParserConfig();
 
@@ -98,8 +92,8 @@ public class ParserConfig {
     public final SymbolTable                                symbolTable      = new SymbolTable(512);
     
     public ClassLoader                                      defaultClassLoader;
-
-    public ParserConfig(){
+    
+    static {
         primitiveClasses.put(boolean.class, PRESENT);
         primitiveClasses.put(Boolean.class, PRESENT);
 
@@ -129,13 +123,12 @@ public class ParserConfig {
 
         primitiveClasses.put(String.class, PRESENT);
         primitiveClasses.put(java.util.Date.class, PRESENT);
+    }
 
-        derializers.put(SimpleDateFormat.class, DateFormatCodec.instance);
+    public ParserConfig(){
+        derializers.put(SimpleDateFormat.class, MiscCodec.instance);
         derializers.put(java.util.Date.class, DateCodec.instance);
         derializers.put(Calendar.class, CalendarCodec.instance);
-
-        derializers.put(JSONObject.class, JSONObjectDeserializer.instance);
-        derializers.put(JSONArray.class, JSONArrayDeserializer.instance);
 
         derializers.put(Map.class, MapCodec.instance);
         derializers.put(HashMap.class, MapCodec.instance);
@@ -317,7 +310,7 @@ public class ParserConfig {
         ObjectDeserializer deserizer = getDeserializer(clazz);
 
         if (deserizer instanceof JavaBeanDeserializer) {
-            return ((JavaBeanDeserializer) deserizer).getFieldDeserializerMap();
+            return ((JavaBeanDeserializer) deserizer).feildDeserializerMap;
         } else {
             return Collections.emptyMap();
         }

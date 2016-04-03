@@ -26,11 +26,7 @@ import com.alibaba.fastjson.util.FieldInfo;
 public class ObjectFieldSerializer extends FieldSerializer {
 
     private String                format;
-    boolean                       writeNumberAsZero       = false;
-    boolean                       writeNullStringAsEmpty  = false;
-    boolean                       writeNullBooleanAsFalse = false;
-    boolean                       writeNullListAsEmpty    = false;
-    boolean                       writeEnumUsingToString  = false;
+    private int                   features;
 
     private RuntimeSerializerInfo runtimeInfo;
 
@@ -42,23 +38,12 @@ public class ObjectFieldSerializer extends FieldSerializer {
         if (annotation != null) {
             format = annotation.format();
 
-            if (format.trim().length() == 0) {
+            format = format.trim();
+            if (format.length() == 0) {
                 format = null;
             }
-
-            for (SerializerFeature feature : annotation.serialzeFeatures()) {
-                if (feature == SerializerFeature.WriteNullNumberAsZero) {
-                    writeNumberAsZero = true;
-                } else if (feature == SerializerFeature.WriteNullStringAsEmpty) {
-                    writeNullStringAsEmpty = true;
-                } else if (feature == SerializerFeature.WriteNullBooleanAsFalse) {
-                    writeNullBooleanAsFalse = true;
-                } else if (feature == SerializerFeature.WriteNullListAsEmpty) {
-                    writeNullListAsEmpty = true;
-                } else if (feature == SerializerFeature.WriteEnumUsingToString) {
-                    writeEnumUsingToString = true;
-                }
-            }
+            
+            this.features = SerializerFeature.of(annotation.serialzeFeatures());
         }
     }
 
@@ -90,16 +75,20 @@ public class ObjectFieldSerializer extends FieldSerializer {
         final RuntimeSerializerInfo runtimeInfo = this.runtimeInfo;
 
         if (propertyValue == null) {
-            if (writeNumberAsZero && Number.class.isAssignableFrom(runtimeInfo.runtimeFieldClass)) {
+            if ((features & SerializerFeature.WriteNullNumberAsZero.mask) != 0 // 
+                    && Number.class.isAssignableFrom(runtimeInfo.runtimeFieldClass)) {
                 serializer.out.write('0');
                 return;
-            } else if (writeNullStringAsEmpty && String.class == runtimeInfo.runtimeFieldClass) {
+            } else if ((features & SerializerFeature.WriteNullStringAsEmpty.mask) != 0 // 
+                    && String.class == runtimeInfo.runtimeFieldClass) {
                 serializer.out.write("\"\"");
                 return;
-            } else if (writeNullBooleanAsFalse && Boolean.class == runtimeInfo.runtimeFieldClass) {
+            } else if ((features & SerializerFeature.WriteNullBooleanAsFalse.mask) != 0 // 
+                    && Boolean.class == runtimeInfo.runtimeFieldClass) {
                 serializer.out.write("false");
                 return;
-            } else if (writeNullListAsEmpty && Collection.class.isAssignableFrom(runtimeInfo.runtimeFieldClass)) {
+            } else if ((features & SerializerFeature.WriteNullListAsEmpty.mask) != 0 // 
+                    && Collection.class.isAssignableFrom(runtimeInfo.runtimeFieldClass)) {
                 serializer.out.write("[]");
                 return;
             }
@@ -108,7 +97,7 @@ public class ObjectFieldSerializer extends FieldSerializer {
             return;
         }
 
-        if (writeEnumUsingToString == true && runtimeInfo.runtimeFieldClass.isEnum()) {
+        if ((features & SerializerFeature.WriteEnumUsingToString.mask) != 0 && runtimeInfo.runtimeFieldClass.isEnum()) {
             serializer.out.writeString(((Enum<?>) propertyValue).name());
             return;
         }

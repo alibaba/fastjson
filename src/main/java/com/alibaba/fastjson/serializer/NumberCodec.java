@@ -33,7 +33,7 @@ public class NumberCodec implements ObjectSerializer, ObjectDeserializer {
 
     public final static NumberCodec instance      = new NumberCodec();
 
-    private DecimalFormat                decimalFormat = null;
+    private DecimalFormat           decimalFormat = null;
 
     public NumberCodec(){
 

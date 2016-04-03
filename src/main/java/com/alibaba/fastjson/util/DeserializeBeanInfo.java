@@ -66,7 +66,7 @@ public class DeserializeBeanInfo {
     public boolean add(FieldInfo field) {
         for (FieldInfo item : this.fields) {
             if (item.name.equals(field.name)) {
-                if (item.isGetOnly() && !field.isGetOnly()) {
+                if (item.getOnly && !field.getOnly) {
                     continue;
                 }
                 

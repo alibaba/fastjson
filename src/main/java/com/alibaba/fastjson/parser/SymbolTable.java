@@ -202,11 +202,11 @@ public class SymbolTable {
 
     protected static final class Entry {
 
-        public final String symbol;
-        public final int    hashCode;
+        final String symbol;
+        final int    hashCode;
 
-        public final char[] characters;
-        public final byte[] bytes;
+        final char[] characters;
+        final byte[] bytes;
 
         public Entry        next;
 

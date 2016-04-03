@@ -3,16 +3,16 @@ package com.alibaba.json.bvt.serializer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import junit.framework.TestCase;
-
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.DateFormatCodec;
 import com.alibaba.fastjson.serializer.JSONSerializer;
+import com.alibaba.fastjson.serializer.MiscCodec;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+
+import junit.framework.TestCase;
 
 public class DateFormatSerializerTest extends TestCase {
 
@@ -23,7 +23,7 @@ public class DateFormatSerializerTest extends TestCase {
     public void test_date_2() throws Exception {
         SerializeWriter out = new SerializeWriter();
         SerializeConfig config = new SerializeConfig();
-        config.put(Date.class, DateFormatCodec.instance);
+        config.put(Date.class, MiscCodec.instance);
         JSONSerializer serializer = new JSONSerializer(out, config);
 
         serializer.out.config(SerializerFeature.WriteMapNullValue, true);
@@ -35,7 +35,7 @@ public class DateFormatSerializerTest extends TestCase {
     public void test_date_3() throws Exception {
         SerializeWriter out = new SerializeWriter();
         SerializeConfig config = new SerializeConfig();
-        config.put(Date.class, DateFormatCodec.instance);
+        config.put(Date.class, MiscCodec.instance);
         JSONSerializer serializer = new JSONSerializer(out, config);
 
         serializer.out.config(SerializerFeature.WriteClassName, true);
@@ -48,7 +48,7 @@ public class DateFormatSerializerTest extends TestCase {
     public void test_date_4() throws Exception {
         SerializeWriter out = new SerializeWriter();
         SerializeConfig config = new SerializeConfig();
-        config.put(Date.class, DateFormatCodec.instance);
+        config.put(Date.class, MiscCodec.instance);
         JSONSerializer serializer = new JSONSerializer(out, config);
 
         serializer.write(new VO(new SimpleDateFormat("yyyy")));

@@ -48,15 +48,13 @@ import com.alibaba.fastjson.util.TypeUtils;
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
+@SuppressWarnings("serial")
 public class JSONObject extends JSON implements Map<String, Object>, Cloneable, Serializable, InvocationHandler {
-
-    private static final long         serialVersionUID         = 1L;
-    private static final int          DEFAULT_INITIAL_CAPACITY = 16;
 
     private final Map<String, Object> map;
 
     public JSONObject(){
-        this(DEFAULT_INITIAL_CAPACITY, false);
+        this(16, false);
     }
 
     public JSONObject(Map<String, Object> map){
@@ -64,7 +62,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     }
 
     public JSONObject(boolean ordered){
-        this(DEFAULT_INITIAL_CAPACITY, ordered);
+        this(16, ordered);
     }
 
     public JSONObject(int initialCapacity){

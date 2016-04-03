@@ -28,21 +28,13 @@ import com.alibaba.fastjson.util.FieldInfo;
 public abstract class FieldSerializer implements Comparable<FieldSerializer> {
 
     public final FieldInfo fieldInfo;
-    private final String   double_quoted_fieldPrefix;
-    private final String   single_quoted_fieldPrefix;
-    private final String   un_quoted_fieldPrefix;
+    private String         single_quoted_fieldPrefix;
+    private String         un_quoted_fieldPrefix;
     protected boolean      writeNull = false;
 
     public FieldSerializer(FieldInfo fieldInfo){
         super();
         this.fieldInfo = fieldInfo;
-        fieldInfo.setAccessible(true);
-
-        this.double_quoted_fieldPrefix = '"' + fieldInfo.name + "\":";
-
-        this.single_quoted_fieldPrefix = '\'' + fieldInfo.name + "\':";
-
-        this.un_quoted_fieldPrefix = fieldInfo.name + ":";
 
         JSONField annotation = fieldInfo.getAnnotation();
         if (annotation != null) {
@@ -59,11 +51,17 @@ public abstract class FieldSerializer implements Comparable<FieldSerializer> {
 
         if (out.isEnabled(SerializerFeature.QuoteFieldNames)) {
             if (out.isEnabled(SerializerFeature.UseSingleQuotes)) {
+                if (single_quoted_fieldPrefix == null) {
+                    single_quoted_fieldPrefix = '\'' + fieldInfo.name + "\':";
+                }
                 out.write(single_quoted_fieldPrefix);
             } else {
-                out.write(double_quoted_fieldPrefix);
+                out.write(fieldInfo.name_chars, 0, fieldInfo.name_chars.length);
             }
         } else {
+            if (un_quoted_fieldPrefix == null) {
+                un_quoted_fieldPrefix  = fieldInfo.name + ":";
+            }
             out.write(un_quoted_fieldPrefix);
         }
     }

@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.TreeSet;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -116,6 +117,12 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
         if (parser.lexer.token() == JSONToken.NULL) {
             parser.lexer.nextToken(JSONToken.COMMA);
             return null;
+        }
+        
+        if (type == JSONArray.class) {
+            JSONArray array = new JSONArray();
+            parser.parseArray(array);
+            return (T) array;
         }
 
         Class<?> rawClass = getRawClass(type);

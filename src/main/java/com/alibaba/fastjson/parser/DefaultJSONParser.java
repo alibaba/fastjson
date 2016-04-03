@@ -1391,6 +1391,30 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
             this.context = context;
             this.referenceValue = referenceValue;
         }
+        
+        public ParseContext getContext() {
+            return context;
+        }
+
+        public String getReferenceValue() {
+            return referenceValue;
+        }
+
+        public FieldDeserializer getFieldDeserializer() {
+            return fieldDeserializer;
+        }
+
+        public void setFieldDeserializer(FieldDeserializer fieldDeserializer) {
+            this.fieldDeserializer = fieldDeserializer;
+        }
+
+        public ParseContext getOwnerContext() {
+            return ownerContext;
+        }
+
+        public void setOwnerContext(ParseContext ownerContext) {
+            this.ownerContext = ownerContext;
+        }
     }
 
 }

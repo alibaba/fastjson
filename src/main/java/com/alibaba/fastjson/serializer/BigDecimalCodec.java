@@ -62,7 +62,8 @@ public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         final JSONLexer lexer = parser.lexer;
-        if (lexer.token() == JSONToken.LITERAL_INT) {
+        int token = lexer.token();
+        if (token == JSONToken.LITERAL_INT) {
             String val = lexer.numberString();
             lexer.nextToken(JSONToken.COMMA);
             if (clazz == BigInteger.class) {
@@ -72,7 +73,7 @@ public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
             }
         }
 
-        if (lexer.token() == JSONToken.LITERAL_FLOAT) {
+        if (token == JSONToken.LITERAL_FLOAT) {
             BigDecimal val = lexer.decimalValue();
             lexer.nextToken(JSONToken.COMMA);
             

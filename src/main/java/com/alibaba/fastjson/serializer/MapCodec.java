@@ -34,11 +34,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParseContext;
-import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.util.TypeUtils;
 
@@ -398,12 +398,13 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
         ParseContext context = parser.getContext();
         try {
             for (;;) {
-                if (lexer.token() == JSONToken.RBRACE) {
+                int token = lexer.token();
+                if (token == JSONToken.RBRACE) {
                     lexer.nextToken(JSONToken.COMMA);
                     break;
                 }
 
-                if (lexer.token() == JSONToken.LITERAL_STRING && lexer.isRef()) {
+                if (token == JSONToken.LITERAL_STRING && lexer.isRef()) {
                     Object object = null;
 
                     lexer.nextTokenWithChar(':');
@@ -440,7 +441,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                 }
 
                 if (map.size() == 0 //
-                    && lexer.token() == JSONToken.LITERAL_STRING //
+                    && token == JSONToken.LITERAL_STRING //
                     && JSON.DEFAULT_TYPE_KEY.equals(lexer.stringVal())) {
                     lexer.nextTokenWithChar(':');
                     lexer.nextToken(JSONToken.COMMA);

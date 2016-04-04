@@ -132,19 +132,21 @@ public class ArrayCodec implements ObjectSerializer, ObjectDeserializer {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         final JSONLexer lexer = parser.lexer;
-        if (lexer.token() == JSONToken.NULL) {
+        
+        int token = lexer.token();
+        if (token == JSONToken.NULL) {
             lexer.nextToken(JSONToken.COMMA);
             return null;
         }
         
         if (type == char[].class) {
-            if (lexer.token() == JSONToken.LITERAL_STRING) {
+            if (token == JSONToken.LITERAL_STRING) {
                 String val = lexer.stringVal();
                 lexer.nextToken(JSONToken.COMMA);
                 return (T) val.toCharArray();
             }
             
-            if (lexer.token() == JSONToken.LITERAL_INT) {
+            if (token == JSONToken.LITERAL_INT) {
                 Number val = lexer.integerValue();
                 lexer.nextToken(JSONToken.COMMA);
                 return (T) val.toString().toCharArray();
@@ -159,7 +161,7 @@ public class ArrayCodec implements ObjectSerializer, ObjectDeserializer {
             return (T) JSON.toJSONString(value).toCharArray();
         }
 
-        if (lexer.token() == JSONToken.LITERAL_STRING) {
+        if (token == JSONToken.LITERAL_STRING) {
             byte[] bytes = lexer.bytesValue();
             lexer.nextToken(JSONToken.COMMA);
             return (T) bytes;

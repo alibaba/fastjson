@@ -1,4 +1,4 @@
-package com.alibaba.fastjson.parser.deserializer;
+package com.alibaba.fastjson.parser;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -8,12 +8,8 @@ import java.util.Collection;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.Feature;
-import com.alibaba.fastjson.parser.JSONLexer;
-import com.alibaba.fastjson.parser.JSONToken;
-import com.alibaba.fastjson.parser.ParseContext;
-import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
+import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.util.FieldInfo;
 
 public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
@@ -35,7 +31,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
     @SuppressWarnings("rawtypes")
     @Override
     public void parseField(DefaultJSONParser parser, Object object, Type objectType, Map<String, Object> fieldValues) {
-        if (parser.lexer.token() == JSONToken.NULL) {
+        if (parser.lexer.token == JSONToken.NULL) {
             setValue(object, null);
             return;
         }
@@ -91,8 +87,8 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
         final JSONLexer lexer = parser.lexer;
 
-        if (lexer.token() != JSONToken.LBRACKET) {
-            String errorMessage = "exepct '[', but " + JSONToken.name(lexer.token());
+        if (lexer.token != JSONToken.LBRACKET) {
+            String errorMessage = "exepct '[', but " + JSONToken.name(lexer.token);
             if (objectType != null) {
                 errorMessage += ", type : " + objectType;
             }
@@ -108,13 +104,13 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
         boolean allowArbitraryCommas = (lexer.features & Feature.AllowArbitraryCommas.mask) != 0;
         for (int i = 0;; ++i) {
             if (allowArbitraryCommas) {
-                while (lexer.token() == JSONToken.COMMA) {
+                while (lexer.token == JSONToken.COMMA) {
                     lexer.nextToken();
                     continue;
                 }
             }
 
-            if (lexer.token() == JSONToken.RBRACKET) {
+            if (lexer.token == JSONToken.RBRACKET) {
                 break;
             }
 
@@ -123,7 +119,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
             parser.checkListResolve(array);
 
-            if (lexer.token() == JSONToken.COMMA) {
+            if (lexer.token == JSONToken.COMMA) {
                 lexer.nextToken();
                 continue;
             }

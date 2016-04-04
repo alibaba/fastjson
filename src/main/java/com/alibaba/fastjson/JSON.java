@@ -266,10 +266,11 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         JSONArray array;
 
         JSONLexer lexer = parser.lexer;
-        if (lexer.token() == JSONToken.NULL) {
+        int token = lexer.token();
+        if (token == JSONToken.NULL) {
             lexer.nextToken();
             array = null;
-        } else if (lexer.token() == JSONToken.EOF) {
+        } else if (token == JSONToken.EOF) {
             array = null;
         } else {
             array = new JSONArray();

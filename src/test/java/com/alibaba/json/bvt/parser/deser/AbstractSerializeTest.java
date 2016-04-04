@@ -1,12 +1,12 @@
 package com.alibaba.json.bvt.parser.deser;
 
-import junit.framework.TestCase;
-
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
+
+import junit.framework.TestCase;
 
 public class AbstractSerializeTest extends TestCase {
 

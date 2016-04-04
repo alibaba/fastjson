@@ -142,10 +142,11 @@ public class DateCodec implements ObjectSerializer, ObjectDeserializer {
         JSONLexer lexer = parser.lexer;
 
         Object val;
-        if (lexer.token() == JSONToken.LITERAL_INT) {
+        int token = lexer.token();
+        if (token == JSONToken.LITERAL_INT) {
             val = lexer.longValue();
             lexer.nextToken(JSONToken.COMMA);
-        } else if (lexer.token() == JSONToken.LITERAL_STRING) {
+        } else if (token == JSONToken.LITERAL_STRING) {
             String strVal = lexer.stringVal();
             val = strVal;
             lexer.nextToken(JSONToken.COMMA);
@@ -157,10 +158,10 @@ public class DateCodec implements ObjectSerializer, ObjectDeserializer {
                 }
                 iso8601Lexer.close();
             }
-        } else if (lexer.token() == JSONToken.NULL) {
+        } else if (token == JSONToken.NULL) {
             lexer.nextToken();
             val = null;
-        } else if (lexer.token() == JSONToken.LBRACE) {
+        } else if (token == JSONToken.LBRACE) {
             lexer.nextToken();
             
             String key;

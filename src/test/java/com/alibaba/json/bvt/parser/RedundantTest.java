@@ -4,13 +4,13 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
+
+import junit.framework.TestCase;
 
 public class RedundantTest extends TestCase {
 

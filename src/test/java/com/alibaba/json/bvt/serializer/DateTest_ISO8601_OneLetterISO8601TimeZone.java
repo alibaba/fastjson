@@ -10,13 +10,31 @@ import com.alibaba.fastjson.JSON;
 
 public class DateTest_ISO8601_OneLetterISO8601TimeZone extends TestCase {
 
-    public void f_test_date() throws Exception {
+    public void test_date() throws Exception {
         String text = "{\"gmtCreate\":\"2014-08-21T09:51:36.2+08\"}";
         
         Calendar date = JSON.parseObject(text, VO.class).getGmtCreate();
         Assert.assertNotNull(date);
         
         Assert.assertEquals(8, date.getTimeZone().getRawOffset()/(3600*1000));
+    }
+    
+    public void test_date_1() throws Exception {
+        String text = "{\"gmtCreate\":\"2014-08-21T09:51:36.235Z\"}";
+        
+        Calendar date = JSON.parseObject(text, VO.class).getGmtCreate();
+        Assert.assertNotNull(date);
+        
+        Assert.assertEquals(0, date.getTimeZone().getRawOffset()/(3600*1000));
+    }
+    
+    public void test_date_2() throws Exception {
+        String text = "{\"gmtCreate\":\"2014-08-21T09:51:36Z\"}";
+        
+        Calendar date = JSON.parseObject(text, VO.class).getGmtCreate();
+        Assert.assertNotNull(date);
+        
+        Assert.assertEquals(0, date.getTimeZone().getRawOffset()/(3600*1000));
     }
     
     public void test_date_9() throws Exception {

@@ -2497,7 +2497,7 @@ public final class JSONLexer {
     static final int ISO8601_LEN_2 = "0000-00-00T00:00:00.000".length();
 
     public boolean scanISO8601DateIfMatch(boolean strict) {
-        int rest = len - bp;
+        int rest = text.length() - bp;
 
         if ((!strict) && rest > 13) {
             char c0 = charAt(bp);
@@ -2687,16 +2687,28 @@ public final class JSONLexer {
             ch = charAt(bp += 19);
 
             token = JSONToken.LITERAL_ISO8601_DATE;
+                        
+            if (dot == 'Z') {// UTC
+                // bugfix https://github.com/alibaba/fastjson/issues/376
+                if (calendar.getTimeZone().getRawOffset() != 0) {
+                    String[] timeZoneIDs = TimeZone.getAvailableIDs(0);// 没有+ 和 - 默认相对0
+                    if (timeZoneIDs.length > 0) {
+                        TimeZone timeZone = TimeZone.getTimeZone(timeZoneIDs[0]);
+                        calendar.setTimeZone(timeZone);
+                    }
+                }
+            }
             return true;
         }
 
+        
         char S0 = charAt(bp + 20);
         if (S0 < '0' || S0 > '9') {
             return false;
         }
         int millis = digits[S0];
         int millisLen = 1;
-
+        
         {
             char S1 = charAt(bp + 21);
             if (S1 >= '0' && S1 <= '9') {
@@ -2718,54 +2730,63 @@ public final class JSONLexer {
         int timzeZoneLength = 0;
         char timeZoneFlag = charAt(bp + 20 + millisLen);
         if (timeZoneFlag == '+' || timeZoneFlag == '-') {
-            char t0 = charAt(bp + 20 + millisLen + 1);
-            if (t0 < '0' || t0 > '1') {
-                return false;
-            }
-
-            char t1 = charAt(bp + 20 + millisLen + 2);
-            if (t1 < '0' || t1 > '9') {
-                return false;
-            }
-
-            char t2 = charAt(bp + 20 + millisLen + 3);
-            if (t2 == ':') { // ThreeLetterISO8601TimeZone
-                char t3 = charAt(bp + 20 + millisLen + 4);
-                if (t3 != '0') {
-                    return false;
-                }
-
-                char t4 = charAt(bp + 20 + millisLen + 5);
-                if (t4 != '0') {
-                    return false;
-                }
-                timzeZoneLength = 6;
-            } else if (t2 == '0') { // TwoLetterISO8601TimeZone
-                char t3 = charAt(bp + 20 + millisLen + 4);
-                if (t3 != '0') {
-                    return false;
-                }
-                timzeZoneLength = 5;
-            } else {
-                timzeZoneLength = 3;
-            }
-
-            int timeZoneOffset = (digits[t0] * 10 + digits[t1]) * 3600 * 1000;
-            if (timeZoneFlag == '-') {
-                timeZoneOffset = -timeZoneOffset;
-            }
-
-            if (calendar.getTimeZone().getRawOffset() != timeZoneOffset) {
-                String[] timeZoneIDs = TimeZone.getAvailableIDs(timeZoneOffset);
+           char t0 = charAt(bp + 20 + millisLen + 1);
+           if (t0 < '0' || t0 > '1') {
+               return false;
+           }
+           
+           char t1 = charAt(bp + 20 + millisLen + 2);
+           if (t1 < '0' || t1 > '9') {
+               return false;
+           }
+           
+           char t2 = charAt(bp + 20 + millisLen + 3);
+           if (t2 == ':') { // ThreeLetterISO8601TimeZone
+               char t3 = charAt(bp + 20 + millisLen + 4);
+               if (t3 != '0') {
+                   return false;
+               }
+               
+               char t4 = charAt(bp + 20 + millisLen + 5);
+               if (t4 != '0') {
+                   return false;
+               }
+               timzeZoneLength = 6;
+           } else if (t2 == '0') { //TwoLetterISO8601TimeZone
+               char t3 = charAt(bp + 20 + millisLen + 4);
+               if (t3 != '0') {
+                   return false;
+               }
+               timzeZoneLength = 5;
+           } else {
+               timzeZoneLength = 3;
+           }
+           
+           int timeZoneOffset = (digits[t0] * 10 + digits[t1]) * 3600 * 1000;
+           if (timeZoneFlag == '-') {
+               timeZoneOffset = -timeZoneOffset;
+           }
+           
+           if (calendar.getTimeZone().getRawOffset() != timeZoneOffset) {
+               String[] timeZoneIDs = TimeZone.getAvailableIDs(timeZoneOffset);
+               if (timeZoneIDs.length > 0) {
+                   TimeZone timeZone = TimeZone.getTimeZone(timeZoneIDs[0]);
+                   calendar.setTimeZone(timeZone);
+               }
+           }
+           
+        } else if (timeZoneFlag == 'Z') {// UTC
+            timzeZoneLength = 1;
+            if (calendar.getTimeZone().getRawOffset() != 0) {
+                String[] timeZoneIDs = TimeZone.getAvailableIDs(0);
                 if (timeZoneIDs.length > 0) {
                     TimeZone timeZone = TimeZone.getTimeZone(timeZoneIDs[0]);
                     calendar.setTimeZone(timeZone);
                 }
             }
-
         }
-
-        char end = charAt(bp + (20 + millisLen + timzeZoneLength));
+        
+        char end = charAt(bp + (20 + millisLen + timzeZoneLength)) ;
         if (end != EOI && end != '"') {
             return false;
         }

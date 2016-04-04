@@ -92,7 +92,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
 
             if ((out.features & SerializerFeature.WriteClassName.mask) != 0) {
                 if (!containsKey) {
-                    out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
+                    out.writeFieldName(JSON.DEFAULT_TYPE_KEY, false);
                     out.writeString(object.getClass().getName());
                     first = false;
                 }

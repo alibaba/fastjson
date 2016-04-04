@@ -14,7 +14,9 @@ public class SerializeWriterTest_4 extends TestCase {
         SerializeWriter out = new SerializeWriter(1);
         out.config(SerializerFeature.QuoteFieldNames, true);
         out.config(SerializerFeature.WriteTabAsSpecial, true);
-        out.writeFieldValue(',', "name", "\t");
+        out.write(',');
+        out.writeFieldName("name", false);
+        out.writeString("\t");
         Assert.assertEquals(",\"name\":\"\\t\"", out.toString());
         out.close();
     }
@@ -23,7 +25,9 @@ public class SerializeWriterTest_4 extends TestCase {
         SerializeWriter out = new SerializeWriter(1);
         out.config(SerializerFeature.QuoteFieldNames, true);
         out.config(SerializerFeature.WriteTabAsSpecial, true);
-        out.writeFieldValue(',', "name", "\t\n");
+        out.write(',');
+        out.writeFieldName("name", false);
+        out.writeString("\t\n");
         Assert.assertEquals(",\"name\":\"\\t\\n\"", out.toString());
         out.close();
     }
@@ -32,7 +36,9 @@ public class SerializeWriterTest_4 extends TestCase {
         SerializeWriter out = new SerializeWriter(1);
         out.config(SerializerFeature.QuoteFieldNames, true);
         out.config(SerializerFeature.WriteTabAsSpecial, true);
-        out.writeFieldValue(',', "name", "\t\n \b\n\r\f\\ \"");
+        out.write(',');
+        out.writeFieldName("name", false);
+        out.writeString("\t\n \b\n\r\f\\ \"");
         Assert.assertEquals(",\"name\":\"\\t\\n \\b\\n\\r\\f\\\\ \\\"\"", out.toString());
         out.close();
     }
@@ -41,7 +47,9 @@ public class SerializeWriterTest_4 extends TestCase {
         SerializeWriter out = new SerializeWriter(1);
         out.config(SerializerFeature.QuoteFieldNames, true);
         out.config(SerializerFeature.WriteTabAsSpecial, false);
-        out.writeFieldValue(',', "name", "\t\n \b\n\r\f\\ \"");
+        out.write(',');
+        out.writeFieldName("name", false);
+        out.writeString("\t\n \b\n\r\f\\ \"");
         Assert.assertEquals(",\"name\":\"\\t\\n \\b\\n\\r\\f\\\\ \\\"\"", out.toString());
         out.close();
     }

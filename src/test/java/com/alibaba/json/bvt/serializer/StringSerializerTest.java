@@ -123,21 +123,21 @@ public class StringSerializerTest extends TestCase {
     public void test_9() throws Exception {
         SerializeWriter out = new SerializeWriter(1);
         out.config(SerializerFeature.UseSingleQuotes, true);
-        out.writeFieldName("\na\nb\nc\nd\"'e");
+        out.writeFieldName("\na\nb\nc\nd\"'e", true);
         Assert.assertEquals("'\\na\\nb\\nc\\nd\"\\'e':", out.toString());
     }
 
     public void test_9_d() throws Exception {
         SerializeWriter out = new SerializeWriter(1);
 
-        out.writeFieldName("\na\nb\nc\nd\"'e");
+        out.writeFieldName("\na\nb\nc\nd\"'e", true);
         Assert.assertEquals("\"\\na\\nb\\nc\\nd\\\"'e\":", out.toString());
     }
 
     public void test_10() throws Exception {
         SerializeWriter out = new SerializeWriter();
         out.config(SerializerFeature.UseSingleQuotes, true);
-        out.writeFieldName("123\na\nb\nc\nd\"'e");
+        out.writeFieldName("123\na\nb\nc\nd\"'e", true);
         Assert.assertEquals("'123\\na\\nb\\nc\\nd\"\\'e':", out.toString());
     }
 
@@ -152,7 +152,7 @@ public class StringSerializerTest extends TestCase {
         SerializeWriter out = new SerializeWriter();
         out.config(SerializerFeature.QuoteFieldNames, true);
         out.config(SerializerFeature.UseSingleQuotes, true);
-        out.writeFieldName("123\na\nb\nc\nd\"'e");
+        out.writeFieldName("123\na\nb\nc\nd\"'e", true);
         Assert.assertEquals("'123\\na\\nb\\nc\\nd\"\\'e':", out.toString());
     }
 
@@ -160,7 +160,7 @@ public class StringSerializerTest extends TestCase {
         SerializeWriter out = new SerializeWriter(1);
         out.config(SerializerFeature.QuoteFieldNames, true);
         out.config(SerializerFeature.UseSingleQuotes, true);
-        out.writeFieldName("123\na\nb\nc\nd\"'e");
+        out.writeFieldName("123\na\nb\nc\nd\"'e", true);
         Assert.assertEquals("'123\\na\\nb\\nc\\nd\"\\'e':", out.toString());
     }
 

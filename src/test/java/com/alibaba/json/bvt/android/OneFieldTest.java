@@ -11,6 +11,7 @@ public class OneFieldTest extends TestCase {
         vo.setId(1001);
         
         String text = JSON.toJSONString(vo);
+        System.out.println(text);
         
         JSON.parseObject(text, VO.class);
     }

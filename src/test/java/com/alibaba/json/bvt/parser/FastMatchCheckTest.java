@@ -8,7 +8,6 @@ import com.alibaba.fastjson.parser.deserializer.SqlDateDeserializer;
 import com.alibaba.fastjson.serializer.AtomicCodec;
 import com.alibaba.fastjson.serializer.CharacterCodec;
 import com.alibaba.fastjson.serializer.CharsetCodec;
-import com.alibaba.fastjson.serializer.InetSocketAddressCodec;
 import com.alibaba.fastjson.serializer.MiscCodec;
 import com.alibaba.fastjson.serializer.ObjectArrayCodec;
 
@@ -22,7 +21,6 @@ public class FastMatchCheckTest extends TestCase {
         Assert.assertEquals(JSONToken.LITERAL_INT, SqlDateDeserializer.instance.getFastMatchToken());
         Assert.assertEquals(JSONToken.LITERAL_STRING, CharsetCodec.instance.getFastMatchToken());
         Assert.assertEquals(JSONToken.LBRACKET, ObjectArrayCodec.instance.getFastMatchToken());
-        Assert.assertEquals(JSONToken.LBRACE, InetSocketAddressCodec.instance.getFastMatchToken());
         Assert.assertEquals(JSONToken.LITERAL_STRING, CharacterCodec.instance.getFastMatchToken());
     }
 }

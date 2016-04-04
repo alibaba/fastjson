@@ -22,17 +22,20 @@ import java.lang.reflect.Type;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONStreamAware;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -76,10 +79,32 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         } else if (objClass == Class.class) {
             Class<?> clazz = (Class<?>) object;
             strVal = clazz.getName();
+        } else if (objClass == InetSocketAddress.class) {
+            InetSocketAddress address = (InetSocketAddress) object;
+
+            InetAddress inetAddress = address.getAddress();
+
+            out.write('{');
+            if (inetAddress != null) {
+                out.writeFieldName("address");
+                serializer.write(inetAddress);
+                out.write(',');
+            }
+            out.writeFieldName("port");
+            out.writeInt(address.getPort());
+            out.write('}');
+            return;
         } else if (object instanceof File) {
             strVal = ((File) object).getPath();
         } else if (object instanceof InetAddress) {
             strVal = ((InetAddress) object).getHostAddress();
+        } else if (object instanceof TimeZone) {
+            TimeZone timeZone = (TimeZone) object;
+            strVal = timeZone.getID();
+        } else if (object instanceof JSONStreamAware) {
+            JSONStreamAware aware = (JSONStreamAware) object;
+            aware.writeJSONString(out);
+            return;
         } else {
             strVal = object.toString();
         }
@@ -89,8 +114,50 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-
         JSONLexer lexer = parser.lexer;
+        
+        if (clazz == InetSocketAddress.class) {
+            if (lexer.token() == JSONToken.NULL) {
+                lexer.nextToken();
+                return null;
+            }
+
+            parser.accept(JSONToken.LBRACE);
+
+            InetAddress address = null;
+            int port = 0;
+            for (;;) {
+                String key = lexer.stringVal();
+                lexer.nextToken(JSONToken.COLON);
+               
+
+                if (key.equals("address")) {
+                    parser.accept(JSONToken.COLON);
+                    address = parser.parseObject(InetAddress.class);
+                } else if (key.equals("port")) {
+                    parser.accept(JSONToken.COLON);
+                    if (lexer.token() != JSONToken.LITERAL_INT) {
+                        throw new JSONException("port is not int");
+                    }
+                    port = lexer.intValue();
+                    lexer.nextToken();
+                } else {
+                    parser.accept(JSONToken.COLON);
+                    parser.parse();
+                }
+
+                if (lexer.token() == JSONToken.COMMA) {
+                    lexer.nextToken();
+                    continue;
+                }
+
+                break;
+            }
+
+            parser.accept(JSONToken.RBRACE);
+
+            return (T) new InetSocketAddress(address, port);
+        }
         
         Object objVal;
         
@@ -180,8 +247,13 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
             return (T) new File(strVal);
         }
         
+        if (clazz == TimeZone.class) {
+            return (T) TimeZone.getTimeZone(strVal);
+        }
+        
         if (clazz instanceof ParameterizedType) {
-            clazz = ((ParameterizedType) clazz).getRawType();
+            ParameterizedType parmeterizedType = (ParameterizedType) clazz;
+            clazz = parmeterizedType.getRawType();
         }
         
         if (clazz == Class.class) {

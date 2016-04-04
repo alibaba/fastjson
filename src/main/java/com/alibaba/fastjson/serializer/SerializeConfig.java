@@ -198,12 +198,12 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 		put(SimpleDateFormat.class, MiscCodec.instance);
 		put(Locale.class, MiscCodec.instance);
 		put(Currency.class, CurrencyCodec.instance);
-		put(TimeZone.class, TimeZoneCodec.instance);
+		put(TimeZone.class, MiscCodec.instance);
 		put(UUID.class, MiscCodec.instance);
 		put(InetAddress.class, MiscCodec.instance);
 		put(Inet4Address.class, MiscCodec.instance);
 		put(Inet6Address.class, MiscCodec.instance);
-		put(InetSocketAddress.class, InetSocketAddressCodec.instance);
+		put(InetSocketAddress.class, MiscCodec.instance);
 		put(File.class, MiscCodec.instance);
 		put(URI.class, MiscCodec.instance);
 		put(URL.class, MiscCodec.instance);
@@ -333,7 +333,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
             } else if (JSONSerializable.class.isAssignableFrom(clazz)) {
                 put(clazz, JSONSerializableSerializer.instance);
             } else if (JSONStreamAware.class.isAssignableFrom(clazz)) {
-                put(clazz, JSONStreamAwareSerializer.instance);
+                put(clazz, MiscCodec.instance);
             } else if (clazz.isEnum() || (clazz.getSuperclass() != null && clazz.getSuperclass().isEnum())) {
                 put(clazz, EnumSerializer.instance);
             } else if (clazz.isArray()) {
@@ -343,7 +343,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
             } else if (Throwable.class.isAssignableFrom(clazz)) {
                 put(clazz, new ExceptionSerializer(clazz));
             } else if (TimeZone.class.isAssignableFrom(clazz)) {
-                put(clazz, TimeZoneCodec.instance);
+                put(clazz, MiscCodec.instance);
             } else if (Appendable.class.isAssignableFrom(clazz)) {
                 put(clazz, AppendableSerializer.instance);
             } else if (Charset.class.isAssignableFrom(clazz)) {

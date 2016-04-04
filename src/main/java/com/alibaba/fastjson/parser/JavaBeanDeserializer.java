@@ -1,4 +1,4 @@
-package com.alibaba.fastjson.parser.deserializer;
+package com.alibaba.fastjson.parser;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Proxy;
@@ -10,13 +10,9 @@ import java.util.Map;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
-import com.alibaba.fastjson.parser.Feature;
-import com.alibaba.fastjson.parser.JSONLexer;
-import com.alibaba.fastjson.parser.JSONToken;
-import com.alibaba.fastjson.parser.ParseContext;
-import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
+import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.util.DeserializeBeanInfo;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.TypeUtils;
@@ -107,7 +103,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     @SuppressWarnings({ "unchecked" })
     public <T> T deserialzeArrayMapping(DefaultJSONParser parser, Type type, Object fieldName, Object object) {
         final JSONLexer lexer = parser.lexer; // xxx
-        if (lexer.token() != JSONToken.LBRACKET) {
+        if (lexer.token != JSONToken.LBRACKET) {
             throw new JSONException("error");
         }
 
@@ -136,12 +132,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 fieldDeser.setValue(object, value);
 
                 if (seperator == ']') {
-                    if (lexer.token() != JSONToken.RBRACKET) {
+                    if (lexer.token != JSONToken.RBRACKET) {
                         throw new JSONException("syntax error");
                     }
                     lexer.nextToken(JSONToken.COMMA);
                 } else if (seperator == ',') {
-                    if (lexer.token() != JSONToken.COMMA) {
+                    if (lexer.token != JSONToken.COMMA) {
                         throw new JSONException("syntax error");
                     }
                 }
@@ -160,7 +156,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
         final JSONLexer lexer = parser.lexer; // xxx
 
-        int token = lexer.token();
+        int token = lexer.token;
         if (token == JSONToken.NULL) {
             lexer.nextToken(JSONToken.COMMA);
             return null;
@@ -307,7 +303,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     key = lexer.scanSymbol(parser.symbolTable);
 
                     if (key == null) {
-                        token = lexer.token();
+                        token = lexer.token;
                         if (token == JSONToken.RBRACE) {
                             lexer.nextToken(JSONToken.COMMA);
                             break;
@@ -321,7 +317,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
                     if ("$ref" == key) {
                         lexer.nextTokenWithChar(':');
-                        token = lexer.token();
+                        token = lexer.token;
                         if (token == JSONToken.LITERAL_STRING) {
                             String ref = lexer.stringVal();
                             if ("@".equals(ref)) {
@@ -355,7 +351,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         }
 
                         lexer.nextToken(JSONToken.RBRACE);
-                        if (lexer.token() != JSONToken.RBRACE) {
+                        if (lexer.token != JSONToken.RBRACE) {
                             throw new JSONException("illegal ref");
                         }
                         lexer.nextToken(JSONToken.COMMA);
@@ -367,12 +363,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
                     if (JSON.DEFAULT_TYPE_KEY == key) {
                         lexer.nextTokenWithChar(':');
-                        if (lexer.token() == JSONToken.LITERAL_STRING) {
+                        if (lexer.token == JSONToken.LITERAL_STRING) {
                             String typeName = lexer.stringVal();
                             lexer.nextToken(JSONToken.COMMA);
 
                             if (type instanceof Class && typeName.equals(((Class<?>) type).getName())) {
-                                if (lexer.token() == JSONToken.RBRACE) {
+                                if (lexer.token == JSONToken.RBRACE) {
                                     lexer.nextToken();
                                     break;
                                 }
@@ -476,7 +472,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 } else {
                     boolean match = parseField(parser, key, object, type, fieldValues);
                     if (!match) {
-                        if (lexer.token() == JSONToken.RBRACE) {
+                        if (lexer.token == JSONToken.RBRACE) {
                             lexer.nextToken();
                             break;
                         }
@@ -485,17 +481,17 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     }
                 }
 
-                if (lexer.token() == JSONToken.COMMA) {
+                if (lexer.token == JSONToken.COMMA) {
                     continue;
                 }
 
-                if (lexer.token() == JSONToken.RBRACE) {
+                if (lexer.token == JSONToken.RBRACE) {
                     lexer.nextToken(JSONToken.COMMA);
                     break;
                 }
 
-                if (lexer.token() == JSONToken.IDENTIFIER || lexer.token() == JSONToken.ERROR) {
-                    throw new JSONException("syntax error, unexpect token " + JSONToken.name(lexer.token()));
+                if (lexer.token == JSONToken.IDENTIFIER || lexer.token == JSONToken.ERROR) {
+                    throw new JSONException("syntax error, unexpect token " + JSONToken.name(lexer.token));
                 }
             }
 

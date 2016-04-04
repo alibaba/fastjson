@@ -73,13 +73,14 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         final JSONLexer lexer = parser.lexer;
 
-        if (lexer.token() == JSONToken.NULL) {
+        int token = lexer.token();
+        if (token == JSONToken.NULL) {
             lexer.nextToken(JSONToken.COMMA);
             return null;
         }
 
         Number intObj;
-        if (lexer.token() == JSONToken.LITERAL_INT) {
+        if (token == JSONToken.LITERAL_INT) {
             if (clazz == long.class || clazz == Long.class) {
                 long longValue = lexer.longValue();
                 intObj = Long.valueOf(longValue);
@@ -88,7 +89,7 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
                 intObj = Integer.valueOf(val);
             }
             lexer.nextToken(JSONToken.COMMA);
-        } else if (lexer.token() == JSONToken.LITERAL_FLOAT) {
+        } else if (token == JSONToken.LITERAL_FLOAT) {
             BigDecimal decimalValue = lexer.decimalValue();
             lexer.nextToken(JSONToken.COMMA);
             if (clazz == long.class || clazz == Long.class) {

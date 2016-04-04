@@ -1,4 +1,4 @@
-package com.alibaba.fastjson.parser.deserializer;
+package com.alibaba.fastjson.parser;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.util.TypeUtils;
 
 @SuppressWarnings("rawtypes")

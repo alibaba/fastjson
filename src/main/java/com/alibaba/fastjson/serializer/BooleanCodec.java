@@ -56,13 +56,14 @@ public class BooleanCodec implements ObjectSerializer, ObjectDeserializer {
         final JSONLexer lexer = parser.lexer;
 
         Boolean boolObj;
-        if (lexer.token() == JSONToken.TRUE) {
+        int token = lexer.token();
+        if (token == JSONToken.TRUE) {
             lexer.nextToken(JSONToken.COMMA);
             boolObj = Boolean.TRUE;
-        } else if (lexer.token() == JSONToken.FALSE) {
+        } else if (token == JSONToken.FALSE) {
             lexer.nextToken(JSONToken.COMMA);
             boolObj = Boolean.FALSE;
-        } else if (lexer.token() == JSONToken.LITERAL_INT) {
+        } else if (token == JSONToken.LITERAL_INT) {
             int intValue = lexer.intValue();
             lexer.nextToken(JSONToken.COMMA);
 

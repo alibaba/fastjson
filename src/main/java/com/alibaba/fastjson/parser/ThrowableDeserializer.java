@@ -1,4 +1,4 @@
-package com.alibaba.fastjson.parser.deserializer;
+package com.alibaba.fastjson.parser;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
@@ -7,11 +7,6 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.Feature;
-import com.alibaba.fastjson.parser.JSONLexer;
-import com.alibaba.fastjson.parser.JSONToken;
-import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.TypeUtils;
 
 public class ThrowableDeserializer extends JavaBeanDeserializer {
@@ -24,7 +19,7 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         JSONLexer lexer = parser.lexer;
         
-        if (lexer.token() == JSONToken.NULL) {
+        if (lexer.token == JSONToken.NULL) {
             lexer.nextToken();
             return null;
         }
@@ -32,7 +27,7 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
         if (parser.resolveStatus == DefaultJSONParser.TypeNameRedirect) {
             parser.resolveStatus = DefaultJSONParser.NONE;
         } else {
-            if (lexer.token() != JSONToken.LBRACE) {
+            if (lexer.token != JSONToken.LBRACE) {
                 throw new JSONException("syntax error");
             }
         }
@@ -56,11 +51,11 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
             String key = lexer.scanSymbol(parser.symbolTable);
 
             if (key == null) {
-                if (lexer.token() == JSONToken.RBRACE) {
+                if (lexer.token == JSONToken.RBRACE) {
                     lexer.nextToken(JSONToken.COMMA);
                     break;
                 }
-                if (lexer.token() == JSONToken.COMMA) {
+                if (lexer.token == JSONToken.COMMA) {
                     if ((lexer.features & Feature.AllowArbitraryCommas.mask) != 0) {
                         continue;
                     }
@@ -70,7 +65,7 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
             lexer.nextTokenWithChar(':');
 
             if (JSON.DEFAULT_TYPE_KEY.equals(key)) {
-                if (lexer.token() == JSONToken.LITERAL_STRING) {
+                if (lexer.token == JSONToken.LITERAL_STRING) {
                     String exClassName = lexer.stringVal();
                     exClass = TypeUtils.loadClass(exClassName, parser.config.defaultClassLoader);
                 } else {
@@ -78,9 +73,9 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
                 }
                 lexer.nextToken(JSONToken.COMMA);
             } else if ("message".equals(key)) {
-                if (lexer.token() == JSONToken.NULL) {
+                if (lexer.token == JSONToken.NULL) {
                     message = null;
-                } else if (lexer.token() == JSONToken.LITERAL_STRING) {
+                } else if (lexer.token == JSONToken.LITERAL_STRING) {
                     message = lexer.stringVal();
                 } else {
                     throw new JSONException("syntax error");
@@ -95,7 +90,7 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
                 otherValues.put(key, parser.parse());
             }
 
-            if (lexer.token() == JSONToken.RBRACE) {
+            if (lexer.token == JSONToken.RBRACE) {
                 lexer.nextToken(JSONToken.COMMA);
                 break;
             }

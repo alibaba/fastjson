@@ -57,13 +57,14 @@ public class StringCodec implements ObjectSerializer, ObjectDeserializer {
     @SuppressWarnings("unchecked")
     public static <T> T deserialze(DefaultJSONParser parser) {
         final JSONLexer lexer = parser.lexer;
-        if (lexer.token() == JSONToken.LITERAL_STRING) {
+        int token = lexer.token();
+        if (token == JSONToken.LITERAL_STRING) {
             String val = lexer.stringVal();
             lexer.nextToken(JSONToken.COMMA);
             return (T) val;
         }
         
-        if (lexer.token() == JSONToken.LITERAL_INT) {
+        if (token == JSONToken.LITERAL_INT) {
             String val = lexer.numberString();
             lexer.nextToken(JSONToken.COMMA);
             return (T) val;

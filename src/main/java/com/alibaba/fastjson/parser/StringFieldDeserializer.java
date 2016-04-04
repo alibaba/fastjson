@@ -1,12 +1,9 @@
-package com.alibaba.fastjson.parser.deserializer;
+package com.alibaba.fastjson.parser;
 
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.JSONLexer;
-import com.alibaba.fastjson.parser.JSONToken;
-import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.util.FieldInfo;
 
 public class StringFieldDeserializer extends FieldDeserializer {
@@ -19,7 +16,7 @@ public class StringFieldDeserializer extends FieldDeserializer {
         String value;
 
         final JSONLexer lexer = parser.lexer;
-        if (lexer.token() == JSONToken.LITERAL_STRING) {
+        if (lexer.token == JSONToken.LITERAL_STRING) {
             value = lexer.stringVal();
             lexer.nextToken(JSONToken.COMMA);
         } else {

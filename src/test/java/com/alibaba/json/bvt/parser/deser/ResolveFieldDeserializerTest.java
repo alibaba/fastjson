@@ -2,7 +2,7 @@ package com.alibaba.json.bvt.parser.deser;
 
 import java.util.Map;
 
-import com.alibaba.fastjson.parser.deserializer.ResolveFieldDeserializer;
+import com.alibaba.fastjson.parser.ResolveFieldDeserializer;
 
 import junit.framework.TestCase;
 

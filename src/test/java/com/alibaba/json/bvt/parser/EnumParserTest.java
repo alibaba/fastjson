@@ -4,7 +4,7 @@ import org.junit.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.deserializer.EnumDeserializer;
+import com.alibaba.fastjson.parser.EnumDeserializer;
 
 public class EnumParserTest extends TestCase {
 

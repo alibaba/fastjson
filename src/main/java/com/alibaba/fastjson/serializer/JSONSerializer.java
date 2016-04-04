@@ -65,11 +65,6 @@ public class JSONSerializer {
         this(new SerializeWriter(), config);
     }
 
-    @Deprecated
-    public JSONSerializer(JSONSerializerMap mapping){
-        this(new SerializeWriter(), mapping);
-    }
-
     public JSONSerializer(SerializeWriter out, SerializeConfig config){
         this.out = out;
         this.config = config;

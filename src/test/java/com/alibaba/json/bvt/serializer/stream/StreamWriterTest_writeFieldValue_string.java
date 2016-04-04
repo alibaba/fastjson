@@ -18,7 +18,9 @@ public class StreamWriterTest_writeFieldValue_string extends TestCase {
         writer.config(SerializerFeature.QuoteFieldNames, true);
         Assert.assertEquals(10, SerializeWriterTestUtils.getBufferLength(writer));
         
-        writer.writeFieldValue(',', "abcde01245abcde", "123");
+        writer.write(',');
+        writer.writeFieldName("abcde01245abcde", true);
+        writer.writeString("123");
         writer.close();
         
         String text = out.toString();

@@ -13,7 +13,10 @@ public class SerializeWriterTest_5 extends TestCase {
     public void test_2() throws Exception {
         SerializeWriter out = new SerializeWriter(1);
         out.config(SerializerFeature.QuoteFieldNames, true);
-        out.writeFieldValue(',', "name", (String) null);
+        out.write(',');
+        out.writeFieldName("name", false);
+        out.writeString(null);
+        out.config(SerializerFeature.WriteTabAsSpecial, true);
         Assert.assertEquals(",\"name\":null", out.toString());
     }
 
@@ -21,7 +24,9 @@ public class SerializeWriterTest_5 extends TestCase {
         SerializeWriter out = new SerializeWriter(1);
         out.config(SerializerFeature.QuoteFieldNames, true);
         out.config(SerializerFeature.UseSingleQuotes, true);
-        out.writeFieldValue(',', "name", (String) null);
+        out.write(',');
+        out.writeFieldName("name", false);
+        out.writeString(null);
         Assert.assertEquals(",'name':null", out.toString());
     }
 
@@ -29,7 +34,9 @@ public class SerializeWriterTest_5 extends TestCase {
         SerializeWriter out = new SerializeWriter(1);
         out.config(SerializerFeature.QuoteFieldNames, true);
         out.config(SerializerFeature.UseSingleQuotes, true);
-        out.writeFieldValue(',', "name", (String) null);
+        out.write(',');
+        out.writeFieldName("name", false);
+        out.writeString(null);
         Assert.assertEquals(",'name':null", out.toString());
     }
 

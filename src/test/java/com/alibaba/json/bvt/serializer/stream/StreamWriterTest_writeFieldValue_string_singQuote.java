@@ -3,11 +3,12 @@ package com.alibaba.json.bvt.serializer.stream;
 import java.io.StringWriter;
 
 import org.junit.Assert;
-import junit.framework.TestCase;
 
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.json.SerializeWriterTestUtils;
+
+import junit.framework.TestCase;
 
 
 public class StreamWriterTest_writeFieldValue_string_singQuote extends TestCase {
@@ -19,7 +20,9 @@ public class StreamWriterTest_writeFieldValue_string_singQuote extends TestCase 
         writer.config(SerializerFeature.UseSingleQuotes, true);
         Assert.assertEquals(10, SerializeWriterTestUtils.getBufferLength(writer));
         
-        writer.writeFieldValue(',', "abcde01245abcde", "123");
+        writer.write(',');
+        writer.writeFieldName("abcde01245abcde", true);
+        writer.writeString("123");
         writer.close();
         
         String text = out.toString();

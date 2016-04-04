@@ -56,9 +56,11 @@ public class DateCodec implements ObjectSerializer, ObjectDeserializer {
                     out.write(')');
                 } else {
                     out.write('{');
-                    out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
+                    out.writeFieldName(JSON.DEFAULT_TYPE_KEY, false);
                     serializer.write(object.getClass().getName());
-                    out.writeFieldValue(',', "val", ((Date) object).getTime());
+                    out.write(',');
+                    out.writeFieldName("val", false);
+                    out.writeLong(((Date) object).getTime());
                     out.write('}');
                 }
                 return;

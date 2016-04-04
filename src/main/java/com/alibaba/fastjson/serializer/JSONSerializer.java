@@ -325,7 +325,7 @@ public class JSONSerializer {
         if (seperator != '\0') {
             out.write(seperator);
         }
-        out.writeFieldName(key);
+        out.writeFieldName(key, true);
         write(value);
     }
 

@@ -153,7 +153,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
             if (isWriteClassName) {
                 Class<?> objClass = object.getClass();
                 if (objClass != fieldType) {
-                    out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
+                    out.writeFieldName(JSON.DEFAULT_TYPE_KEY, false);
                     serializer.write(object.getClass());
                     commaFlag = true;
                 }
@@ -333,7 +333,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
                 if (key != fieldInfoName) {
                     if (!writeAsArray) {
-                        out.writeFieldName(key);
+                        out.writeFieldName(key, true);
                     }
                     
                     // TODO improved performance

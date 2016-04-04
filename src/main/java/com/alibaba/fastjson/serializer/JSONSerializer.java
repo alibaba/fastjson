@@ -367,6 +367,7 @@ public class JSONSerializer {
         ObjectSerializer writer = config.get(clazz);
 
         if (writer == null) {
+            Class<?> superClass;
             if (Map.class.isAssignableFrom(clazz)) {
                 config.put(clazz, MapCodec.instance);
             } else if (List.class.isAssignableFrom(clazz)) {
@@ -381,7 +382,8 @@ public class JSONSerializer {
                 config.put(clazz, MiscCodec.instance);
             } else if (JSONStreamAware.class.isAssignableFrom(clazz)) {
                 config.put(clazz, MiscCodec.instance);
-            } else if (clazz.isEnum() || (clazz.getSuperclass() != null && clazz.getSuperclass().isEnum())) {
+            } else if (clazz.isEnum() 
+                    || ((superClass = clazz.getSuperclass()) != null && superClass != Object.class && superClass.isEnum())) {
                 config.put(clazz, EnumSerializer.instance);
             } else if (clazz.isArray()) {
                 Class<?> componentType = clazz.getComponentType();

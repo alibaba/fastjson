@@ -971,7 +971,7 @@ public class TypeUtils {
             String methodName = method.getName();
             int ordinal = 0, serialzeFeatures = 0;
 
-            if (Modifier.isStatic(method.getModifiers())) {
+            if ((method.getModifiers() & Modifier.STATIC) != 0) {
                 continue;
             }
 
@@ -1164,7 +1164,7 @@ public class TypeUtils {
         }
 
         for (Field field : clazz.getFields()) {
-            if (Modifier.isStatic(field.getModifiers())) {
+            if ((field.getModifiers() & Modifier.STATIC) != 0) {
                 continue;
             }
 

@@ -169,7 +169,10 @@ public class DefaultJSONParser implements Closeable {
         try {
             boolean setContextFlag = false;
             for (;;) {
-                lexer.skipWhitespace();
+                if (lexer.ch != '"' && lexer.ch != '}') {
+                    lexer.skipWhitespace();
+                }
+                
                 char ch = lexer.ch;
                 if ((lexer.features & Feature.AllowArbitraryCommas.mask) != 0) {
                     while (ch == ',') {
@@ -180,18 +183,33 @@ public class DefaultJSONParser implements Closeable {
                 }
 
                 boolean isObjectKey = false;
+                boolean strKey = false;
+                String keyStr = null;
                 Object key;
                 if (ch == '"') {
-                    key = lexer.scanSymbol(symbolTable, '"');
-                    lexer.skipWhitespace();
+                    key = keyStr = lexer.scanSymbol(symbolTable, '"');
+                    strKey = true;
+                    
+                    if (lexer.ch != ':') {
+                        lexer.skipWhitespace();
+                    }
+                    
                     ch = lexer.ch;
                     if (ch != ':') {
                         throw new JSONException("expect ':' at " + lexer.pos + ", name " + key);
                     }
                 } else if (ch == '}') {
-                    lexer.next();
-                    lexer.resetStringPosition();
-                    lexer.nextToken();
+                    // lexer.next();
+                    {
+                        int index = ++lexer.bp;
+                        if (index >= lexer.len) {
+                            lexer.ch = EOI;
+                        } else {
+                            lexer.ch = lexer.text.charAt(index);
+                        }
+                    }
+                    lexer.sp = 0; // resetStringPosition
+                    lexer.nextToken(JSONToken.COMMA);
                     return object;
                 } else if (ch == '\'') {
                     if ((lexer.features & Feature.AllowSingleQuotes.mask) == 0) {
@@ -199,7 +217,9 @@ public class DefaultJSONParser implements Closeable {
                     }
 
                     key = lexer.scanSymbol(symbolTable, '\'');
-                    lexer.skipWhitespace();
+                    if (lexer.ch != ':') {
+                        lexer.skipWhitespace();
+                    }
                     ch = lexer.ch;
                     if (ch != ':') {
                         throw new JSONException("expect ':' at " + lexer.pos);
@@ -209,7 +229,7 @@ public class DefaultJSONParser implements Closeable {
                 } else if (ch == ',') {
                     throw new JSONException("syntax error");
                 } else if ((ch >= '0' && ch <= '9') || ch == '-') {
-                    lexer.resetStringPosition();
+                    lexer.sp = 0; // resetStringPosition
                     lexer.scanNumber();
                     if (lexer.token == JSONToken.LITERAL_INT) {
                         key = lexer.integerValue();
@@ -238,13 +258,29 @@ public class DefaultJSONParser implements Closeable {
                 }
 
                 if (!isObjectKey) {
-                    lexer.next();
-                    lexer.skipWhitespace();
+//                    lexer.next();
+                    {
+                        int index = ++lexer.bp;
+                        if (index >= lexer.len) {
+                            lexer.ch = EOI;
+                        } else {
+                            lexer.ch = lexer.text.charAt(index);
+                        }
+                    }
+                    
+                    // lexer.skipWhitespace();
+                    for (;;) {
+                        if (lexer.ch == ' ' || lexer.ch == '\n' || lexer.ch == '\r' || lexer.ch == '\t' || lexer.ch == '\f' || lexer.ch == '\b') {
+                            lexer.next();
+                        } else {
+                            break;
+                        }
+                    }
                 }
 
                 ch = lexer.ch;
 
-                lexer.resetStringPosition();
+                lexer.sp = 0; // lexer.resetStringPosition();
 
                 if (key == JSON.DEFAULT_TYPE_KEY) {
                     String typeName = lexer.scanSymbol(symbolTable, '"');
@@ -350,8 +386,12 @@ public class DefaultJSONParser implements Closeable {
                     setContextFlag = true;
                 }
 
-                if (object.getClass() == JSONObject.class) {
-                    key = (key == null) ? "null" : key.toString();
+                if (object instanceof JSONObject) {
+                    if (key == null) {
+                        key = "null";
+                    } else {
+                        key = strKey ? keyStr : key.toString();
+                    }
                 }
 
                 Object value;
@@ -387,7 +427,7 @@ public class DefaultJSONParser implements Closeable {
                     object.put(key, value);
 
                     if (lexer.token == JSONToken.RBRACE) {
-                        lexer.nextToken();
+                        lexer.nextToken(JSONToken.COMMA);
                         return object;
                     } else if (lexer.token == JSONToken.COMMA) {
                         continue;
@@ -395,9 +435,9 @@ public class DefaultJSONParser implements Closeable {
                         throw new JSONException("syntax error");
                     }
                 } else if (ch == '{') { // 减少嵌套，兼容android
-                    lexer.nextToken();
+                    lexer.nextToken(JSONToken.LITERAL_STRING);
 
-                    final boolean parentIsArray = fieldName != null && fieldName.getClass() == Integer.class;
+                    final boolean parentIsArray = fieldName != null && fieldName instanceof Integer;
 
                     JSONObject input = new JSONObject();
                     ParseContext ctxLocal = null;
@@ -411,10 +451,10 @@ public class DefaultJSONParser implements Closeable {
                         ctxLocal.object = object;
                     }
 
-                    checkMapResolve(object, key.toString());
+                    checkMapResolve(object, strKey ? keyStr : key.toString());
 
-                    if (object.getClass() == JSONObject.class) {
-                        object.put(key.toString(), obj);
+                    if (object instanceof JSONObject) {
+                        object.put(strKey ? keyStr : key.toString(), obj);
                     } else {
                         object.put(key, obj);
                     }
@@ -424,7 +464,7 @@ public class DefaultJSONParser implements Closeable {
                     }
 
                     if (lexer.token == JSONToken.RBRACE) {
-                        lexer.nextToken();
+                        lexer.nextToken(JSONToken.COMMA);
 
                         setContext(context);
                         return object;
@@ -452,15 +492,34 @@ public class DefaultJSONParser implements Closeable {
                     }
                 }
 
-                lexer.skipWhitespace();
+                if (lexer.ch != ',' && lexer.ch != '}') {
+                    lexer.skipWhitespace();
+                }
+                
                 ch = lexer.ch;
                 if (ch == ',') {
-                    lexer.next();
+//                    lexer.next();
+                    {
+                        int index = ++lexer.bp;
+                        if (index >= lexer.len) {
+                            lexer.ch = EOI;
+                        } else {
+                            lexer.ch = lexer.text.charAt(index);
+                        }
+                    }
                     continue;
                 } else if (ch == '}') {
-                    lexer.next();
-                    lexer.resetStringPosition();
-                    lexer.nextToken();
+                    // lexer.next();
+                    {
+                        int index = ++lexer.bp;
+                        if (index >= lexer.len) {
+                            lexer.ch = EOI;
+                        } else {
+                            lexer.ch = lexer.text.charAt(index);
+                        }
+                    }
+                    lexer.sp = 0; // lexer.resetStringPosition();
+                    lexer.nextToken(JSONToken.COMMA);
 
                     this.setContext(object, fieldName);
 

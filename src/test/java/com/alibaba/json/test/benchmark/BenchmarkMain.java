@@ -10,7 +10,7 @@ public class BenchmarkMain {
 
         BenchmarkExecutor executor = new BenchmarkExecutor();
         executor.setExecuteCount(3);
-        executor.getCodecList().add(new FastjsonSCodec());
+        executor.getCodecList().add(new FastjsonCodec());
 //        executor.getCodecList().add(new FastjsonBeanToArrayCodec());
 //        executor.getCodecList().add(new GsonCodec());
 //        executor.getCodecList().add(new Jackson2Codec());
@@ -21,9 +21,9 @@ public class BenchmarkMain {
 
         executor.setLoopCount(1000 * 1);
 
-//        executor.getCaseList().add(new EishayDecodeBytes());
+//        executor.getCaseList().add(new TradeObjectParse());
 //        executor.getCaseList().add(new EishayDecode2Bytes());
-         executor.getCaseList().add(new EishayEncode());
+         executor.getCaseList().add(new EishayDecode());
 //         executor.getCaseList().add(new EishayDecodeByClassName());
 //         executor.getCaseList().add(new EishayTreeDecode());
 //         executor.getCaseList().add(new Eishay3Encode());

@@ -56,14 +56,12 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.deserializer.ASMJavaBeanDeserializer;
-import com.alibaba.fastjson.parser.deserializer.CollectionResolveFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
-import com.alibaba.fastjson.parser.deserializer.ListResolveFieldDeserializer;
-import com.alibaba.fastjson.parser.deserializer.MapResolveFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
+import com.alibaba.fastjson.parser.deserializer.ResolveFieldDeserializer;
 import com.alibaba.fastjson.serializer.IntegerCodec;
 import com.alibaba.fastjson.serializer.LongCodec;
 import com.alibaba.fastjson.serializer.StringCodec;
@@ -970,12 +968,12 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                 final int index = array.size() - 1;
                 final List list = (List) array;
                 ResolveTask task = getLastResolveTask();
-                task.fieldDeserializer = new ListResolveFieldDeserializer(this, list, index);
+                task.fieldDeserializer = new ResolveFieldDeserializer(this, list, index);
                 task.ownerContext = context;
                 setResolveStatus(DefaultJSONParser.NONE);
             } else {
                 ResolveTask task = getLastResolveTask();
-                task.fieldDeserializer  = new CollectionResolveFieldDeserializer(this, array);
+                task.fieldDeserializer  = new ResolveFieldDeserializer(array);
                 task.ownerContext = context;
                 setResolveStatus(DefaultJSONParser.NONE);
             }
@@ -985,7 +983,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
     @SuppressWarnings("rawtypes")
     public void checkMapResolve(Map object, String fieldName) {
         if (resolveStatus == NeedToResolve) {
-            MapResolveFieldDeserializer fieldResolver = new MapResolveFieldDeserializer(object, fieldName);
+            ResolveFieldDeserializer fieldResolver = new ResolveFieldDeserializer(object, fieldName);
             ResolveTask task = getLastResolveTask();
             task.fieldDeserializer = fieldResolver;
             task.ownerContext = context;

@@ -1,14 +1,13 @@
 package com.alibaba.json.test.codec;
 
+import java.lang.reflect.Type;
 import java.util.Collection;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.JSONSerializer;
-import com.alibaba.fastjson.serializer.PropertyFilter;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
@@ -20,7 +19,7 @@ public class FastjsonBeanToArrayCodec implements Codec {
         return "fastjson-bean-to-array";
     }
 
-    public <T> T decodeObject(String text, Class<T> clazz) {
+    public <T> T decodeObject(String text, Type clazz) {
         DefaultJSONParser parser = new DefaultJSONParser(text, config);
         parser.config(Feature.DisableCircularReferenceDetect, true);
         parser.config(Feature.SupportArrayToBean, true);
@@ -67,7 +66,7 @@ public class FastjsonBeanToArrayCodec implements Codec {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T decodeObject(byte[] input, Class<T> clazz) throws Exception {
+    public <T> T decodeObject(byte[] input, Type clazz) throws Exception {
         return (T) JSON.parseObject(input, clazz, Feature.SupportArrayToBean, Feature.DisableCircularReferenceDetect);
     }
 

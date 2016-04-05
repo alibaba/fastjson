@@ -38,7 +38,7 @@ import com.alibaba.fastjson.util.TypeUtils;
 public class JavaBeanSerializer implements ObjectSerializer {
     private static final char[] true_chars = new char[] {'t', 'r', 'u', 'e'};
     private static final char[] false_chars = new char[] {'f', 'a', 'l', 's', 'e'};
-
+    
     // serializers
     private final FieldSerializer[] getters;
     private final FieldSerializer[] sortedGetters;
@@ -497,7 +497,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                             serializer.out.writeLong(propertyValueLong);
                         } else if (fieldClass == boolean.class) {
                             if (propertyValueBoolean) {
-                                serializer.out.write(true_chars, 0, false_chars.length);    
+                                serializer.out.write(true_chars, 0, true_chars.length);    
                             } else {
                                 serializer.out.write(false_chars, 0, false_chars.length);
                             }

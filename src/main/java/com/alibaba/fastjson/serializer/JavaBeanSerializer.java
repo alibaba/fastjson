@@ -78,7 +78,14 @@ public class JavaBeanSerializer implements ObjectSerializer {
             List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
 
             for (FieldInfo fieldInfo : fieldInfoList) {
-                getterList.add(createFieldSerializer(fieldInfo));
+                FieldSerializer fieldDeser;
+                if (fieldInfo.fieldClass == Number.class) {
+                    fieldDeser = new NumberFieldSerializer(fieldInfo);
+                } else {
+                    fieldDeser = new ObjectFieldSerializer(fieldInfo);
+                }
+                
+                getterList.add(fieldDeser);
             }
 
             getters = getterList.toArray(new FieldSerializer[getterList.size()]);
@@ -95,7 +102,13 @@ public class JavaBeanSerializer implements ObjectSerializer {
           List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
 
           for (FieldInfo fieldInfo : fieldInfoList) {
-              getterList.add(createFieldSerializer(fieldInfo));
+              FieldSerializer fieldDeser;
+              if (fieldInfo.fieldClass == Number.class) {
+                  fieldDeser = new NumberFieldSerializer(fieldInfo);
+              } else {
+                  fieldDeser = new ObjectFieldSerializer(fieldInfo);
+              }
+              getterList.add(fieldDeser);
           }
 
           sortedGetters = getterList.toArray(new FieldSerializer[getterList.size()]);
@@ -577,13 +590,4 @@ public class JavaBeanSerializer implements ObjectSerializer {
         }
     }
 
-    public FieldSerializer createFieldSerializer(FieldInfo fieldInfo) {
-        Class<?> clazz = fieldInfo.fieldClass;
-
-        if (clazz == Number.class) {
-            return new NumberFieldSerializer(fieldInfo);
-        }
-
-        return new ObjectFieldSerializer(fieldInfo);
-    }
 }

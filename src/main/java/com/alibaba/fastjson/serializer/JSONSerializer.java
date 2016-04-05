@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONStreamAware;
@@ -61,7 +62,7 @@ public class JSONSerializer {
     public SerialContext                           context;
 
     public JSONSerializer(){
-        this(new SerializeWriter(), SerializeConfig.globalInstance);
+        this(new SerializeWriter((Writer) null, JSON.DEFAULT_GENERATE_FEATURE, SerializerFeature.EMPTY), SerializeConfig.globalInstance);
     }
 
     public JSONSerializer(SerializeWriter out){
@@ -69,7 +70,7 @@ public class JSONSerializer {
     }
 
     public JSONSerializer(SerializeConfig config){
-        this(new SerializeWriter(), config);
+        this(new SerializeWriter((Writer) null, JSON.DEFAULT_GENERATE_FEATURE, SerializerFeature.EMPTY), config);
     }
 
     public JSONSerializer(SerializeWriter out, SerializeConfig config){
@@ -247,7 +248,7 @@ public class JSONSerializer {
     }
 
     public static final void write(Writer out, Object object) {
-        SerializeWriter writer = new SerializeWriter();
+        SerializeWriter writer = new SerializeWriter((Writer) null, JSON.DEFAULT_GENERATE_FEATURE, SerializerFeature.EMPTY);
         try {
             JSONSerializer serializer = new JSONSerializer(writer, SerializeConfig.globalInstance);
             serializer.write(object);

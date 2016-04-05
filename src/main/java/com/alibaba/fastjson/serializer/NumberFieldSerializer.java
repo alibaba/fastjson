@@ -22,7 +22,7 @@ import com.alibaba.fastjson.util.FieldInfo;
  */
 final class NumberFieldSerializer extends FieldSerializer {
 
-    public NumberFieldSerializer(FieldInfo fieldInfo){
+    NumberFieldSerializer(FieldInfo fieldInfo){
         super(fieldInfo);
     }
 

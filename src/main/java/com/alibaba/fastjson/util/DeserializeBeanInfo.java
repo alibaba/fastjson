@@ -33,7 +33,7 @@ public class DeserializeBeanInfo {
     
     public final JSONType        jsonType;
 
-    public DeserializeBeanInfo(Class<?> clazz, //
+    private DeserializeBeanInfo(Class<?> clazz, //
                                Constructor<?> defaultConstructor, //
                                Constructor<?> creatorConstructor, //
                                Method factoryMethod){

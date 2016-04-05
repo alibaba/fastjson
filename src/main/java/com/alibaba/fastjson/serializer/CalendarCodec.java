@@ -8,9 +8,13 @@ import java.util.Date;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 
-public class CalendarCodec implements ObjectSerializer, ObjectDeserializer {
+public final class CalendarCodec implements ObjectSerializer, ObjectDeserializer {
 
     public final static CalendarCodec instance = new CalendarCodec();
+    
+    private CalendarCodec() {
+        
+    }
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         Calendar calendar = (Calendar) object;

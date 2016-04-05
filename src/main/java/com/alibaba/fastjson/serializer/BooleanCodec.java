@@ -27,9 +27,13 @@ import com.alibaba.fastjson.util.TypeUtils;
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
-public class BooleanCodec implements ObjectSerializer, ObjectDeserializer {
+public final class BooleanCodec implements ObjectSerializer, ObjectDeserializer {
 
     public final static BooleanCodec instance = new BooleanCodec();
+    
+    private BooleanCodec() {
+        
+    }
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         SerializeWriter out = serializer.out;

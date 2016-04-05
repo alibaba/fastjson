@@ -29,6 +29,10 @@ import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 public class StringCodec implements ObjectSerializer, ObjectDeserializer {
 
     public static StringCodec instance = new StringCodec();
+    
+    private StringCodec() {
+        
+    }
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         String value = (String) object;

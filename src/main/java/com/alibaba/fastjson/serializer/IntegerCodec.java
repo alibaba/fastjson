@@ -28,9 +28,13 @@ import com.alibaba.fastjson.util.TypeUtils;
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
-public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
+public final class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
 
     public static IntegerCodec instance = new IntegerCodec();
+    
+    private IntegerCodec() {
+        
+    }
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         SerializeWriter out = serializer.out;

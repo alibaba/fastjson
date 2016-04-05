@@ -45,9 +45,13 @@ import com.alibaba.fastjson.util.TypeUtils;
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
-public class MapCodec implements ObjectSerializer, ObjectDeserializer {
+public final class MapCodec implements ObjectSerializer, ObjectDeserializer {
 
     public static MapCodec instance = new MapCodec();
+    
+    private MapCodec() {
+        
+    }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {

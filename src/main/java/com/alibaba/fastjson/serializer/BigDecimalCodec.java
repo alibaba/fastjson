@@ -32,6 +32,10 @@ import com.alibaba.fastjson.util.TypeUtils;
 public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
 
     public final static BigDecimalCodec instance = new BigDecimalCodec();
+    
+    private BigDecimalCodec() {
+        
+    }
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         SerializeWriter out = serializer.out;

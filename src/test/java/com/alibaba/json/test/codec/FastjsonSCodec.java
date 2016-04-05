@@ -1,8 +1,8 @@
 package com.alibaba.json.test.codec;
 
+import java.lang.reflect.Type;
 import java.util.Collection;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
@@ -16,7 +16,7 @@ public class FastjsonSCodec implements Codec {
         return "fastjsonS";
     }
 
-    public <T> T decodeObject(String text, Class<T> clazz) {
+    public <T> T decodeObject(String text, Type clazz) {
         ParserConfig    config = new ParserConfig();
         DefaultJSONParser parser = new DefaultJSONParser(text, config);
         parser.config(Feature.DisableCircularReferenceDetect, true);
@@ -62,7 +62,7 @@ public class FastjsonSCodec implements Codec {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T decodeObject(byte[] input, Class<T> clazz) throws Exception {
+    public <T> T decodeObject(byte[] input, Type clazz) throws Exception {
         throw new UnsupportedOperationException();
     }
 

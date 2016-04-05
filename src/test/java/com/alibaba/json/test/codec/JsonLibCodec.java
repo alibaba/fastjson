@@ -1,5 +1,6 @@
 package com.alibaba.json.test.codec;
 
+import java.lang.reflect.Type;
 import java.util.Collection;
 
 public class JsonLibCodec implements Codec {
@@ -8,7 +9,7 @@ public class JsonLibCodec implements Codec {
         return "json-lib";
     }
 
-    public <T> T decodeObject(String text, Class<T> clazz) throws Exception {
+    public <T> T decodeObject(String text, Type clazz) throws Exception {
         return (T) net.sf.json.JSONObject.fromObject(text);
     }
 
@@ -33,7 +34,7 @@ public class JsonLibCodec implements Codec {
     }
     
 
-    public <T> T decodeObject(byte[] input, Class<T> clazz) throws Exception {
+    public <T> T decodeObject(byte[] input, Type clazz) throws Exception {
         throw new UnsupportedOperationException();
     }
 }

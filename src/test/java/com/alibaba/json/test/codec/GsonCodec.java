@@ -29,8 +29,6 @@ public class GsonCodec implements Codec {
         throw new RuntimeException("TODO");
     }
 
-    // private JavaBeanSerializer serializer = new JavaBeanSerializer(Long_100_Entity.class);
-
     public String encode(Object object) throws Exception {
         return gson.toJson(object);
     }

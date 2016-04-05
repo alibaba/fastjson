@@ -33,25 +33,6 @@ public class BenchmarkMain {
         // executor.getCaseList().add(new Map1000StringDecode());
         // executor.getCaseList().add(new Entity100StringDecode());
 
-        // executor.getCaseList().add(new ListBoolean1000Encode());
-        // executor.getCaseList().add(new ArrayBoolean1000Encode());
-        // executor.getCaseList().add(new IntArray1000Decode());
-        // executor.getCaseList().add(new StringArray1000Decode());
-        // executor.getCaseList().add(new GroupEncode());
-        // executor.getCaseList().add(new CategoryEncode());
-        // executor.getCaseList().add(new GroupEncode());
-        // executor.getCaseList().add(new Map1Decode());
-        // executor.getCaseList().add(new Entity100IntDecode());
-        // executor.getCaseList().add(new Entity100StringDecode());
-        // executor.getCaseList().add(new Entity100IntEncode());
-        // executor.getCaseList().add(new ArrayByte1000Encode());
-        // executor.getCaseList().add(new ArrayInt1000Encode());
-        // executor.getCaseList().add(new ArrayLong1000Encode());
-        // executor.getCaseList().add(new ArrayString1000Encode());
-        // executor.getCaseList().add(new ArrayEmptyList1000Encode());
-        // executor.getCaseList().add(new ArrayEmptyMap1000Encode());
-        // executor.getCaseList().add(new ArrayObjectEmptyMap1000Encode());
-        // executor.getCaseList().add(new Map1000Encode());
 
         executor.execute();
 	}

@@ -11,10 +11,17 @@ public class GsonSCodec implements Codec {
         return "gsonS";
     }
 
+    // gson 模拟首次
     public <T> T decodeObject(String text, Type clazz) {
-        Gson gson = new Gson();
+        Gson gson = new Gson(); // 每次new Gson模拟首次
         return gson.fromJson(text, clazz);
     }
+    
+    public String encode(Object object) throws Exception {
+        Gson gson = new Gson(); // 每次new Gson模拟首次
+        return gson.toJson(object);
+    }
+
 
     public <T> Collection<T> decodeArray(String text, Class<T> clazz) throws Exception {
         throw new Exception("TODO");
@@ -30,10 +37,7 @@ public class GsonSCodec implements Codec {
 
     // private JavaBeanSerializer serializer = new JavaBeanSerializer(Long_100_Entity.class);
 
-    public String encode(Object object) throws Exception {
-        Gson gson = new Gson();
-        return gson.toJson(object);
-    }
+   
 
     @SuppressWarnings("unchecked")
     public <T> T decodeObject(byte[] input, Type clazz) throws Exception {

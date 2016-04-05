@@ -15,8 +15,6 @@
  */
 package com.alibaba.fastjson.serializer;
 
-import static com.alibaba.fastjson.util.IOUtils.replaceChars;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -27,7 +25,6 @@ import java.nio.charset.Charset;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.JSONLexer;
-import com.alibaba.fastjson.util.IOUtils;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -332,13 +329,13 @@ public final class SerializeWriter extends Writer {
                 expandCapacity(newcount);
             } else {
                 char[] chars = new char[size];
-                IOUtils.getChars(i, size, chars);
+                getChars(i, size, chars);
                 write(chars, 0, chars.length);
                 return;
             }
         }
 
-        IOUtils.getChars(i, newcount, buf);
+        getChars(i, newcount, buf);
 
         count = newcount;
     }
@@ -455,13 +452,13 @@ public final class SerializeWriter extends Writer {
                 expandCapacity(newcount);
             } else {
                 char[] chars = new char[size];
-                IOUtils.getChars(i, size, chars);
+                getChars(i, size, chars);
                 write(chars, 0, chars.length);
                 return;
             }
         }
 
-        IOUtils.getChars(i, newcount, buf);
+        getChars(i, newcount, buf);
 
         count = newcount;
     }
@@ -511,23 +508,23 @@ public final class SerializeWriter extends Writer {
                             write('u');
                             write('0');
                             write('0');
-                            write(IOUtils.ASCII_CHARS[ch * 2]);
-                            write(IOUtils.ASCII_CHARS[ch * 2 + 1]);
+                            write(ASCII_CHARS[ch * 2]);
+                            write(ASCII_CHARS[ch * 2 + 1]);
                             continue;
                         }
 
                         if (ch >= 127) {
                             write('\\');
                             write('u');
-                            write(IOUtils.DIGITS[(ch >>> 12) & 15]);
-                            write(IOUtils.DIGITS[(ch >>> 8) & 15]);
-                            write(IOUtils.DIGITS[(ch >>> 4) & 15]);
-                            write(IOUtils.DIGITS[ch & 15]);
+                            write(DIGITS[(ch >>> 12) & 15]);
+                            write(DIGITS[(ch >>> 8) & 15]);
+                            write(DIGITS[(ch >>> 4) & 15]);
+                            write(DIGITS[ch & 15]);
                             continue;
                         }
                     } else {
-                        if (ch < IOUtils.specicalFlags_doubleQuotes.length
-                            && IOUtils.specicalFlags_doubleQuotes[ch] != 0 //
+                        if (ch < specicalFlags_doubleQuotes.length
+                            && specicalFlags_doubleQuotes[ch] != 0 //
                             || (ch == '/' && (features & SerializerFeature.WriteSlashAsSpecial.mask) != 0)) {
                             write('\\');
                             write(replaceChars[(int) ch]);
@@ -628,8 +625,8 @@ public final class SerializeWriter extends Writer {
                     buf[i + 1] = 'u';
                     buf[i + 2] = '0';
                     buf[i + 3] = '0';
-                    buf[i + 4] = IOUtils.ASCII_CHARS[ch * 2];
-                    buf[i + 5] = IOUtils.ASCII_CHARS[ch * 2 + 1];
+                    buf[i + 4] = ASCII_CHARS[ch * 2];
+                    buf[i + 5] = ASCII_CHARS[ch * 2 + 1];
                     end += 5;
                     continue;
                 }
@@ -638,10 +635,10 @@ public final class SerializeWriter extends Writer {
                     System.arraycopy(buf, i + 1, buf, i + 6, end - i - 1);
                     buf[i] = '\\';
                     buf[i + 1] = 'u';
-                    buf[i + 2] = IOUtils.DIGITS[(ch >>> 12) & 15];
-                    buf[i + 3] = IOUtils.DIGITS[(ch >>> 8) & 15];
-                    buf[i + 4] = IOUtils.DIGITS[(ch >>> 4) & 15];
-                    buf[i + 5] = IOUtils.DIGITS[ch & 15];
+                    buf[i + 2] = DIGITS[(ch >>> 12) & 15];
+                    buf[i + 3] = DIGITS[(ch >>> 8) & 15];
+                    buf[i + 4] = DIGITS[(ch >>> 4) & 15];
+                    buf[i + 5] = DIGITS[ch & 15];
                     end += 5;
                 }
             }
@@ -710,8 +707,8 @@ public final class SerializeWriter extends Writer {
                     lastSpecialIndex = i;
                     lastSpecial = ch;
 
-                    if (ch < IOUtils.specicalFlags_doubleQuotes.length //
-                        && IOUtils.specicalFlags_doubleQuotes[ch] == 4 //
+                    if (ch < specicalFlags_doubleQuotes.length //
+                        && specicalFlags_doubleQuotes[ch] == 4 //
                     ) {
                         newcount += 4;
                     }
@@ -743,8 +740,8 @@ public final class SerializeWriter extends Writer {
                         buf[++lastSpecialIndex] = '8';
                     } else {
                         final char ch = lastSpecial;
-                        if (ch < IOUtils.specicalFlags_doubleQuotes.length //
-                            && IOUtils.specicalFlags_doubleQuotes[ch] == 4) {
+                        if (ch < specicalFlags_doubleQuotes.length //
+                            && specicalFlags_doubleQuotes[ch] == 4) {
                             int srcPos = lastSpecialIndex + 1;
                             int destPos = lastSpecialIndex + 6;
                             int LengthOfCopy = end - lastSpecialIndex - 1;
@@ -753,10 +750,10 @@ public final class SerializeWriter extends Writer {
                             int bufIndex = lastSpecialIndex;
                             buf[bufIndex++] = '\\';
                             buf[bufIndex++] = 'u';
-                            buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 12) & 15];
-                            buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 8) & 15];
-                            buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 4) & 15];
-                            buf[bufIndex++] = IOUtils.DIGITS[ch & 15];
+                            buf[bufIndex++] = DIGITS[(ch >>> 12) & 15];
+                            buf[bufIndex++] = DIGITS[(ch >>> 8) & 15];
+                            buf[bufIndex++] = DIGITS[(ch >>> 4) & 15];
+                            buf[bufIndex++] = DIGITS[ch & 15];
                         } else {
                             int srcPos = lastSpecialIndex + 1;
                             int destPos = lastSpecialIndex + 2;
@@ -772,16 +769,16 @@ public final class SerializeWriter extends Writer {
                     for (int i = textIndex; i < text.length(); ++i) {
                         char ch = text.charAt(i);
 
-                        if (ch < IOUtils.specicalFlags_doubleQuotes.length //
-                            && IOUtils.specicalFlags_doubleQuotes[ch] != 0 //
+                        if (ch < specicalFlags_doubleQuotes.length //
+                            && specicalFlags_doubleQuotes[ch] != 0 //
                             || (ch == '/' && (features & SerializerFeature.WriteSlashAsSpecial.mask) != 0)) {
                             buf[bufIndex++] = '\\';
-                            if (IOUtils.specicalFlags_doubleQuotes[ch] == 4) {
+                            if (specicalFlags_doubleQuotes[ch] == 4) {
                                 buf[bufIndex++] = 'u';
-                                buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 12) & 15];
-                                buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 8) & 15];
-                                buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 4) & 15];
-                                buf[bufIndex++] = IOUtils.DIGITS[ch & 15];
+                                buf[bufIndex++] = DIGITS[(ch >>> 12) & 15];
+                                buf[bufIndex++] = DIGITS[(ch >>> 8) & 15];
+                                buf[bufIndex++] = DIGITS[(ch >>> 4) & 15];
+                                buf[bufIndex++] = DIGITS[ch & 15];
                                 end += 5;
                             } else {
                                 buf[bufIndex++] = replaceChars[(int) ch];
@@ -791,10 +788,10 @@ public final class SerializeWriter extends Writer {
                             if (ch == '\u2028') {
                                 buf[bufIndex++] = '\\';
                                 buf[bufIndex++] = 'u';
-                                buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 12) & 15];
-                                buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 8) & 15];
-                                buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 4) & 15];
-                                buf[bufIndex++] = IOUtils.DIGITS[ch & 15];
+                                buf[bufIndex++] = DIGITS[(ch >>> 12) & 15];
+                                buf[bufIndex++] = DIGITS[(ch >>> 8) & 15];
+                                buf[bufIndex++] = DIGITS[(ch >>> 4) & 15];
+                                buf[bufIndex++] = DIGITS[ch & 15];
                                 end += 5;
                             } else {
                                 buf[bufIndex++] = ch;
@@ -935,8 +932,6 @@ public final class SerializeWriter extends Writer {
     }
 
     private void writeKeyWithDoubleQuoteIfHasSpecial(String text) {
-        final byte[] specicalFlags_doubleQuotes = IOUtils.specicalFlags_doubleQuotes;
-
         int len = text.length();
         int newcount = count + len + 1;
         if (newcount > buf.length) {
@@ -1035,8 +1030,6 @@ public final class SerializeWriter extends Writer {
     }
 
     private void writeKeyWithSingleQuoteIfHasSpecial(String text) {
-        final byte[] specicalFlags_singleQuotes = IOUtils.specicalFlags_singleQuotes;
-
         int len = text.length();
         int newcount = count + len + 1;
         if (newcount > buf.length) {
@@ -1151,4 +1144,148 @@ public final class SerializeWriter extends Writer {
     
     final static int[]  sizeTable = { 9, 99, 999, 9999, 99999, 999999, 9999999, 99999999, 999999999, Integer.MAX_VALUE };
 
+    public static void getChars(long i, int index, char[] buf) {
+        long q;
+        int r;
+        int charPos = index;
+        char sign = 0;
+
+        if (i < 0) {
+            sign = '-';
+            i = -i;
+        }
+
+        // Get 2 digits/iteration using longs until quotient fits into an int
+        while (i > Integer.MAX_VALUE) {
+            q = i / 100;
+            // really: r = i - (q * 100);
+            r = (int) (i - ((q << 6) + (q << 5) + (q << 2)));
+            i = q;
+            buf[--charPos] = DigitOnes[r];
+            buf[--charPos] = DigitTens[r];
+        }
+
+        // Get 2 digits/iteration using ints
+        int q2;
+        int i2 = (int) i;
+        while (i2 >= 65536) {
+            q2 = i2 / 100;
+            // really: r = i2 - (q * 100);
+            r = i2 - ((q2 << 6) + (q2 << 5) + (q2 << 2));
+            i2 = q2;
+            buf[--charPos] = DigitOnes[r];
+            buf[--charPos] = DigitTens[r];
+        }
+
+        // Fall thru to fast mode for smaller numbers
+        // assert(i2 <= 65536, i2);
+        for (;;) {
+            q2 = (i2 * 52429) >>> (16 + 3);
+            r = i2 - ((q2 << 3) + (q2 << 1)); // r = i2-(q2*10) ...
+            buf[--charPos] = digits[r];
+            i2 = q2;
+            if (i2 == 0) break;
+        }
+        if (sign != 0) {
+            buf[--charPos] = sign;
+        }
+    }
+
+    /**
+     * All possible chars for representing a number as a String
+     */
+    final static char[] digits    = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
+            'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
+
+    final static char[] DigitTens = { '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '1', '1', '1',
+            '1', '1', '1', '1', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '3', '3', '3', '3', '3', '3', '3',
+            '3', '3', '3', '4', '4', '4', '4', '4', '4', '4', '4', '4', '4', '5', '5', '5', '5', '5', '5', '5', '5',
+            '5', '5', '6', '6', '6', '6', '6', '6', '6', '6', '6', '6', '7', '7', '7', '7', '7', '7', '7', '7', '7',
+            '7', '8', '8', '8', '8', '8', '8', '8', '8', '8', '8', '9', '9', '9', '9', '9', '9', '9', '9', '9', '9', };
+
+    final static char[] DigitOnes = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5',
+            '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6',
+            '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7',
+            '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8',
+            '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', };
+
+
+    final static char[]    ASCII_CHARS                = { '0', '0', '0', '1', '0', '2', '0', '3', '0', '4', '0',
+                                                                 '5', '0', '6', '0', '7', '0', '8', '0', '9', '0', 'A', '0', 'B', '0', 'C', '0', 'D', '0', 'E', '0', 'F',
+                                                                 '1', '0', '1', '1', '1', '2', '1', '3', '1', '4', '1', '5', '1', '6', '1', '7', '1', '8', '1', '9', '1',
+                                                                 'A', '1', 'B', '1', 'C', '1', 'D', '1', 'E', '1', 'F', '2', '0', '2', '1', '2', '2', '2', '3', '2', '4',
+                                                                 '2', '5', '2', '6', '2', '7', '2', '8', '2', '9', '2', 'A', '2', 'B', '2', 'C', '2', 'D', '2', 'E', '2',
+                                                                 'F',                                            };
+    
+    final static byte[]    specicalFlags_doubleQuotes = new byte[256];
+    final static byte[]    specicalFlags_singleQuotes = new byte[256];
+
+    final static char[]    replaceChars               = new char[128];
+    static {
+        specicalFlags_doubleQuotes['\0'] = 4;
+        specicalFlags_doubleQuotes['\1'] = 4;
+        specicalFlags_doubleQuotes['\2'] = 4;
+        specicalFlags_doubleQuotes['\3'] = 4;
+        specicalFlags_doubleQuotes['\4'] = 4;
+        specicalFlags_doubleQuotes['\5'] = 4;
+        specicalFlags_doubleQuotes['\6'] = 4;
+        specicalFlags_doubleQuotes['\7'] = 4;
+        specicalFlags_doubleQuotes['\b'] = 1; // 8
+        specicalFlags_doubleQuotes['\t'] = 1; // 9
+        specicalFlags_doubleQuotes['\n'] = 1; // 10
+        specicalFlags_doubleQuotes['\u000B'] = 4; // 11
+        specicalFlags_doubleQuotes['\f'] = 1;
+        specicalFlags_doubleQuotes['\r'] = 1;
+        specicalFlags_doubleQuotes['\"'] = 1;
+        specicalFlags_doubleQuotes['\\'] = 1;
+
+        specicalFlags_singleQuotes['\0'] = 4;
+        specicalFlags_singleQuotes['\1'] = 4;
+        specicalFlags_singleQuotes['\2'] = 4;
+        specicalFlags_singleQuotes['\3'] = 4;
+        specicalFlags_singleQuotes['\4'] = 4;
+        specicalFlags_singleQuotes['\5'] = 4;
+        specicalFlags_singleQuotes['\6'] = 4;
+        specicalFlags_singleQuotes['\7'] = 4;
+        specicalFlags_singleQuotes['\b'] = 1; // 8
+        specicalFlags_singleQuotes['\t'] = 1; // 9
+        specicalFlags_singleQuotes['\n'] = 1; // 10
+        specicalFlags_singleQuotes['\u000B'] = 4; // 11
+        specicalFlags_singleQuotes['\f'] = 1; // 12
+        specicalFlags_singleQuotes['\r'] = 1; // 13
+        specicalFlags_singleQuotes['\\'] = 1;
+        specicalFlags_singleQuotes['\''] = 1;
+
+        for (int i = 0x0E; i <= 0x1F; ++i) {
+            specicalFlags_doubleQuotes[i] = 4;
+            specicalFlags_singleQuotes[i] = 4;
+        }
+
+        for (int i = 0x7F; i <= 0xA0; ++i) {
+            specicalFlags_doubleQuotes[i] = 4;
+            specicalFlags_singleQuotes[i] = 4;
+        }
+
+        replaceChars['\0'] = '0';
+        replaceChars['\1'] = '1';
+        replaceChars['\2'] = '2';
+        replaceChars['\3'] = '3';
+        replaceChars['\4'] = '4';
+        replaceChars['\5'] = '5';
+        replaceChars['\6'] = '6';
+        replaceChars['\7'] = '7';
+        replaceChars['\b'] = 'b'; // 8
+        replaceChars['\t'] = 't'; // 9
+        replaceChars['\n'] = 'n'; // 10
+        replaceChars['\u000B'] = 'v'; // 11
+        replaceChars['\f'] = 'f'; // 12
+        replaceChars['\r'] = 'r'; // 13
+        replaceChars['\"'] = '"'; // 34
+        replaceChars['\''] = '\''; // 39
+        replaceChars['/'] = '/'; // 47
+        replaceChars['\\'] = '\\'; // 92
+    }
+    
+    public final static char[] DIGITS = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E',
+                                          'F' };
 }

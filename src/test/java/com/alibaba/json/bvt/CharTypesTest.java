@@ -1,14 +1,26 @@
 package com.alibaba.json.bvt;
 
-import junit.framework.TestCase;
+import java.lang.reflect.Field;
 
 import org.junit.Assert;
 
-import com.alibaba.fastjson.util.IOUtils;
+import com.alibaba.fastjson.serializer.SerializeWriter;
+
+import junit.framework.TestCase;
 
 public class CharTypesTest extends TestCase {
-    static byte[] specicalFlags_singleQuotes = IOUtils.specicalFlags_singleQuotes;
-    static byte[] specicalFlags_doubleQuotes = IOUtils.specicalFlags_doubleQuotes;
+    static byte[] specicalFlags_singleQuotes;
+    static byte[] specicalFlags_doubleQuotes;
+    
+    protected void setUp() throws Exception {
+        Field field1 = SerializeWriter.class.getDeclaredField("specicalFlags_singleQuotes");
+        field1.setAccessible(true);
+        specicalFlags_singleQuotes = (byte[]) field1.get(null);
+        
+        Field field2 = SerializeWriter.class.getDeclaredField("specicalFlags_doubleQuotes");
+        field2.setAccessible(true);
+        specicalFlags_doubleQuotes = (byte[]) field2.get(null);
+    }
 
     public void test_0() throws Exception {
         

@@ -1,12 +1,12 @@
 package com.alibaba.json.bvt.serializer;
 
-import junit.framework.TestCase;
-
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.SerializeWriter;
-import com.alibaba.fastjson.util.IOUtils;
+
+import junit.framework.TestCase;
 
 public class ArraySerializerTest extends TestCase {
 
@@ -25,7 +25,6 @@ public class ArraySerializerTest extends TestCase {
 
         Assert.assertEquals("[]", out.toString());
 
-        new IOUtils();
     }
 
     public void test_2() throws Exception {

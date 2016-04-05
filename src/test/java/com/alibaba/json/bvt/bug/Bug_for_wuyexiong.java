@@ -2,10 +2,10 @@ package com.alibaba.json.bvt.bug;
 
 import java.io.InputStream;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.util.IOUtils;
-
 import org.junit.Assert;
+
+import com.alibaba.fastjson.JSON;
+
 import junit.framework.TestCase;
 
 public class Bug_for_wuyexiong extends TestCase {

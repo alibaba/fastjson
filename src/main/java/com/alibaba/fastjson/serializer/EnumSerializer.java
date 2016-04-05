@@ -21,7 +21,7 @@ import java.lang.reflect.Type;
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
-public class EnumSerializer implements ObjectSerializer {
+class EnumSerializer implements ObjectSerializer {
 
     public final static EnumSerializer instance = new EnumSerializer();
 

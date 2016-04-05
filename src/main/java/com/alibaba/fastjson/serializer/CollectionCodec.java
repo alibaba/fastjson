@@ -38,6 +38,10 @@ import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
 
     public final static CollectionCodec instance = new CollectionCodec();
+    
+    private CollectionCodec() {
+        
+    }
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         SerializeWriter out = serializer.out;

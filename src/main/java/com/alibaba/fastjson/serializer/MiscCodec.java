@@ -27,9 +27,13 @@ import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.util.TypeUtils;
 
 
-public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
+public final class MiscCodec implements ObjectSerializer, ObjectDeserializer {
 
     public final static MiscCodec instance = new MiscCodec();
+    
+    private MiscCodec() {
+        
+    }
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         SerializeWriter out = serializer.out;

@@ -21,12 +21,12 @@ import java.lang.reflect.Type;
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
-public class ArraySerializer implements ObjectSerializer {
+final class ArraySerializer implements ObjectSerializer {
 
 	private final Class<?> componentType;
     private final ObjectSerializer compObjectSerializer;
 
-    public ArraySerializer(Class<?> componentType, ObjectSerializer compObjectSerializer){
+    ArraySerializer(Class<?> componentType, ObjectSerializer compObjectSerializer){
         this.componentType = componentType;
         this.compObjectSerializer = compObjectSerializer;
     }

@@ -35,9 +35,13 @@ import com.alibaba.fastjson.util.TypeUtils;
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
-public class DateCodec implements ObjectSerializer, ObjectDeserializer {
+public final class DateCodec implements ObjectSerializer, ObjectDeserializer {
 
     public final static DateCodec instance = new DateCodec();
+    
+    private DateCodec() {
+        
+    }
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         SerializeWriter out = serializer.out;

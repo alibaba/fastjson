@@ -33,11 +33,11 @@ import com.alibaba.fastjson.util.TypeUtils;
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
-public class ArrayCodec implements ObjectSerializer, ObjectDeserializer {
+public final class ArrayCodec implements ObjectSerializer, ObjectDeserializer {
 
     public static final ArrayCodec instance = new ArrayCodec();
 
-    public ArrayCodec(){
+    private ArrayCodec(){
     }
 
     public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType)

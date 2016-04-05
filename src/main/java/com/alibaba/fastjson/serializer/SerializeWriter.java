@@ -73,8 +73,12 @@ public final class SerializeWriter extends Writer {
     public SerializeWriter(SerializerFeature... features){
         this(null, features);
     }
-
+    
     public SerializeWriter(Writer writer, SerializerFeature... features){
+        this (writer, 0, features);
+    }
+
+    public SerializeWriter(Writer writer, int featuresValue, SerializerFeature[] features){
         this.writer = writer;
 
         SoftReference<char[]> ref = bufLocal.get();
@@ -88,7 +92,6 @@ public final class SerializeWriter extends Writer {
             buf = new char[1024];
         }
 
-        int featuresValue = 0;
         for (SerializerFeature feature : features) {
             featuresValue |= feature.mask;
         }

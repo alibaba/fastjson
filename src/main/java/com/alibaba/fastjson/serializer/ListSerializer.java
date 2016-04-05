@@ -18,6 +18,7 @@ package com.alibaba.fastjson.serializer;
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.IdentityHashMap;
 import java.util.List;
 
 /**
@@ -27,13 +28,14 @@ public final class ListSerializer implements ObjectSerializer {
 
     public static final ListSerializer instance = new ListSerializer();
 
-    public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType)
-                                                                                                       throws IOException {
+    public final void write(JSONSerializer serializer, //
+                            Object object, //
+                            Object fieldName, //
+                            Type fieldType) throws IOException {
 
         SerializeWriter out = serializer.out;
         
         boolean writeClassName = (out.features & SerializerFeature.WriteClassName.mask) != 0;
-
 
         Type elementType = null;
         if (writeClassName) {
@@ -61,7 +63,14 @@ public final class ListSerializer implements ObjectSerializer {
         }
 
         SerialContext context = serializer.context;
-        serializer.setContext(context, object, fieldName, 0);
+//        serializer.setContext(context, object, fieldName, 0);
+        if ((out.features & SerializerFeature.DisableCircularReferenceDetect.mask) == 0) {
+            serializer.context = new SerialContext(context, object, fieldName, 0);
+            if (serializer.references == null) {
+                serializer.references = new IdentityHashMap<Object, SerialContext>();
+            }
+            serializer.references.put(object, context);
+        }
 
         ObjectSerializer itemSerializer = null;
         try {
@@ -77,7 +86,7 @@ public final class ListSerializer implements ObjectSerializer {
 
                     serializer.println();
                     if (item != null) {
-                        if (serializer.containsReference(item)) {
+                        if (serializer.references != null && serializer.references.containsKey(item)) {
                             serializer.writeReference(item);
                         } else {
                             itemSerializer = serializer.getObjectWriter(item.getClass());
@@ -96,11 +105,37 @@ public final class ListSerializer implements ObjectSerializer {
                 return;
             }
 
-            out.write('[');
+            // out.write('[');
+            {
+                int newcount = out.count + 1;
+                if (newcount > out.buf.length) {
+                    if (out.writer == null) {
+                        out.expandCapacity(newcount);
+                    } else {
+                        out.flush();
+                        newcount = 1;
+                    }
+                }
+                out.buf[out.count] = '[';
+                out.count = newcount;
+            }
             for (int i = 0; i < list.size(); ++i) {
                 Object item = list.get(i);
                 if (i != 0) {
-                    out.write(',');
+                    // out.write(',');
+                    {
+                        int newcount = out.count + 1;
+                        if (newcount > out.buf.length) {
+                            if (out.writer == null) {
+                                out.expandCapacity(newcount);
+                            } else {
+                                out.flush();
+                                newcount = 1;
+                            }
+                        }
+                        out.buf[out.count] = ',';
+                        out.count = newcount;
+                    }
                 }
                 
                 if (item == null) {
@@ -118,11 +153,21 @@ public final class ListSerializer implements ObjectSerializer {
                         } else {
                             out.writeLong(val);
                         }
+                    } else if (clazz == String.class) {
+                        String itemStr = (String) item;
+                        
+                        if ((out.features & SerializerFeature.UseSingleQuotes.mask) != 0) {
+                            out.writeStringWithSingleQuote(itemStr);
+                        } else {
+                            out.writeStringWithDoubleQuote(itemStr, (char) 0, true);
+                        }
                     } else {
-                        SerialContext itemContext = new SerialContext(context, object, fieldName, 0);
-                        serializer.context = itemContext;
-
-                        if (serializer.containsReference(item)) {
+                        if ((out.features & SerializerFeature.DisableCircularReferenceDetect.mask) == 0) {
+                            SerialContext itemContext = new SerialContext(context, object, fieldName, 0);
+                            serializer.context = itemContext;
+                        }
+                        
+                        if (serializer.references != null && serializer.references.containsKey(item)) {
                             serializer.writeReference(item);
                         } else {
                             itemSerializer = serializer.getObjectWriter(item.getClass());
@@ -131,7 +176,20 @@ public final class ListSerializer implements ObjectSerializer {
                     }
                 }
             }
-            out.write(']');
+            // out.write(']');
+            {
+                int newcount = out.count + 1;
+                if (newcount > out.buf.length) {
+                    if (out.writer == null) {
+                        out.expandCapacity(newcount);
+                    } else {
+                        out.flush();
+                        newcount = 1;
+                    }
+                }
+                out.buf[out.count] = ']';
+                out.count = newcount;
+            }
         } finally {
             serializer.context = context;
         }

@@ -94,7 +94,7 @@ public class ArrayCodec implements ObjectSerializer, ObjectDeserializer {
                 if (item == null) {
                     out.append("null,");
                 } else {
-                    if (serializer.containsReference(item)) {
+                    if (serializer.references != null && serializer.references.containsKey(item)) {
                         serializer.writeReference(item);
                     } else {
                         Class<?> clazz = item.getClass();
@@ -117,7 +117,7 @@ public class ArrayCodec implements ObjectSerializer, ObjectDeserializer {
             if (item == null) {
                 out.append("null]");
             } else {
-                if (serializer.containsReference(item)) {
+                if (serializer.references != null && serializer.references.containsKey(item)) {
                     serializer.writeReference(item);
                 } else {
                     serializer.writeWithFieldName(item, end);

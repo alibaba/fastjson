@@ -140,16 +140,6 @@ public class IOUtils {
         }
     }
 
-    // Requires positive x
-    public static int stringSize(long x) {
-        long p = 10;
-        for (int i = 1; i < 19; i++) {
-            if (x < p) return i;
-            p = 10 * p;
-        }
-        return 19;
-    }
-
     public static void getChars(long i, int index, char[] buf) {
         long q;
         int r;
@@ -215,15 +205,6 @@ public class IOUtils {
             '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8',
             '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', };
 
-    final static int[]  sizeTable = { 9, 99, 999, 9999, 99999, 999999, 9999999, 99999999, 999999999, Integer.MAX_VALUE };
-
-    // Requires positive x
-    public static int stringSize(int x) {
-        for (int i = 0;; i++) {
-            if (x <= sizeTable[i]) {
-                return i + 1;
-            }
-        }
-    }
+    
 
 }

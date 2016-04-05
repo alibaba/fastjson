@@ -73,7 +73,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
             }
         }
 
-        if (serializer.containsReference(object)) {
+        if (serializer.references != null && serializer.references.containsKey(object)) {
             serializer.writeReference(object);
             return;
         }

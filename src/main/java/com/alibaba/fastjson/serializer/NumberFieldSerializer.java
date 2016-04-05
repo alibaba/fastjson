@@ -26,11 +26,6 @@ final class NumberFieldSerializer extends FieldSerializer {
         super(fieldInfo);
     }
 
-    public void writeProperty(JSONSerializer serializer, Object propertyValue) throws Exception {
-        writePrefix(serializer);
-        this.writeValue(serializer, propertyValue);
-    }
-
     @Override
     public void writeValue(JSONSerializer serializer, Object propertyValue) throws Exception {
         SerializeWriter out = serializer.out;

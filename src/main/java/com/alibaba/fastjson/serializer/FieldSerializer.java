@@ -31,6 +31,8 @@ public abstract class FieldSerializer implements Comparable<FieldSerializer> {
     private String         single_quoted_fieldPrefix;
     private String         un_quoted_fieldPrefix;
     protected boolean      writeNull = false;
+    
+    protected int          features;
 
     public FieldSerializer(FieldInfo fieldInfo){
         super();
@@ -48,8 +50,9 @@ public abstract class FieldSerializer implements Comparable<FieldSerializer> {
 
     public void writePrefix(JSONSerializer serializer) throws IOException {
         SerializeWriter out = serializer.out;
-
+        
         final int featurs = out.features;
+        
         if ((featurs & SerializerFeature.QuoteFieldNames.mask) != 0) {
             if ((featurs & SerializerFeature.UseSingleQuotes.mask) != 0) {
                 if (single_quoted_fieldPrefix == null) {
@@ -85,8 +88,6 @@ public abstract class FieldSerializer implements Comparable<FieldSerializer> {
             throw new JSONException("get property error。 " + qualifiedName, ex);
         }
     }
-
-    public abstract void writeProperty(JSONSerializer serializer, Object propertyValue) throws Exception;
 
     public abstract void writeValue(JSONSerializer serializer, Object propertyValue) throws Exception;
     

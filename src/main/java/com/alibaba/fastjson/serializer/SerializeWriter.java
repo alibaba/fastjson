@@ -48,7 +48,7 @@ public final class SerializeWriter extends Writer {
 
     protected int                                           features;
 
-    private final Writer                                    writer;
+    protected final Writer                                    writer;
 
     public SerializeWriter(){
         this((Writer) null);
@@ -173,10 +173,9 @@ public final class SerializeWriter extends Writer {
         }
         System.arraycopy(c, off, buf, count, len);
         count = newcount;
-
     }
 
-    private void expandCapacity(int minimumCapacity) {
+    protected void expandCapacity(int minimumCapacity) {
         int newCapacity = (buf.length * 3) / 2 + 1;
 
         if (newCapacity < minimumCapacity) {
@@ -307,7 +306,17 @@ public final class SerializeWriter extends Writer {
             return;
         }
 
-        int size = (i < 0) ? IOUtils.stringSize(-i) + 1 : IOUtils.stringSize(i);
+        int size;
+        final int x = i < 0 ? -i : i;
+        for (int j = 0;; j++) {
+            if (x <= SerializeWriter.sizeTable[j]) {
+                size = j + 1;
+                break;
+            }
+        }
+        if (i < 0) {
+            size ++;
+        }
 
         int newcount = count + size;
         if (newcount > buf.length) {
@@ -414,7 +423,23 @@ public final class SerializeWriter extends Writer {
             return;
         }
 
-        int size = (i < 0) ? IOUtils.stringSize(-i) + 1 : IOUtils.stringSize(i);
+        long val = i < 0 ? -i : i;
+        int size = 0;
+        long p = 10;
+          for (int j = 1; j < 19; j++) {
+              if (val < p) {
+                  size = j;
+                  break;
+              }
+              p = 10 * p;
+          }
+          
+          if (size == 0) {
+              size = 19;
+          }
+          if (i < 0) {
+              size++;
+          }
 
         int newcount = count + size;
         if (newcount > buf.length) {
@@ -437,11 +462,7 @@ public final class SerializeWriter extends Writer {
         write("null");
     }
 
-    private void writeStringWithDoubleQuote(String text, final char seperator) {
-        writeStringWithDoubleQuote(text, seperator, true);
-    }
-
-    private void writeStringWithDoubleQuote(String text, final char seperator, boolean checkSpecial) {
+    protected void writeStringWithDoubleQuote(String text, final char seperator, boolean checkSpecial) {
         if (text == null) {
             writeNull();
             if (seperator != 0) {
@@ -796,11 +817,11 @@ public final class SerializeWriter extends Writer {
         if ((features & SerializerFeature.UseSingleQuotes.mask) != 0) {
             writeStringWithSingleQuote(text);
         } else {
-            writeStringWithDoubleQuote(text, (char) 0);
+            writeStringWithDoubleQuote(text, (char) 0, true);
         }
     }
 
-    private void writeStringWithSingleQuote(String text) {
+    protected void writeStringWithSingleQuote(String text) {
         if (text == null) {
             int newcount = count + 4;
             if (newcount > buf.length) {
@@ -1119,4 +1140,7 @@ public final class SerializeWriter extends Writer {
         }
         count = 0;
     }
+    
+    final static int[]  sizeTable = { 9, 99, 999, 9999, 99999, 999999, 9999999, 99999999, 999999999, Integer.MAX_VALUE };
+
 }

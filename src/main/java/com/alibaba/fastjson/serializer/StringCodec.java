@@ -31,10 +31,8 @@ public class StringCodec implements ObjectSerializer, ObjectDeserializer {
     public static StringCodec instance = new StringCodec();
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
-        write(serializer, (String) object);
-    }
-
-    public void write(JSONSerializer serializer, String value) {
+        String value = (String) object;
+        
         SerializeWriter out = serializer.out;
 
         if (value == null) {

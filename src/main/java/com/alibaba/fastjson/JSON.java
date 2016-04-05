@@ -332,17 +332,14 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     // ======================
     public static final String toJSONString(Object object) {
-        return toJSONString(object, new SerializerFeature[0]);
+        return toJSONString(object, SerializerFeature.EMPTY);
     }
 
     public static final String toJSONString(Object object, SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter((Writer) null);
+        SerializeWriter out = new SerializeWriter((Writer) null, JSON.DEFAULT_GENERATE_FEATURE, features);
 
         try {
             JSONSerializer serializer = new JSONSerializer(out, SerializeConfig.globalInstance);
-            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
-                serializer.out.config(feature, true);
-            }
 
             serializer.write(object);
 
@@ -357,13 +354,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
      */
     public static final String toJSONStringWithDateFormat(Object object, String dateFormat,
                                                           SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter();
+        SerializeWriter out = new SerializeWriter((Writer) null, JSON.DEFAULT_GENERATE_FEATURE, features);
 
         try {
             JSONSerializer serializer = new JSONSerializer(out, SerializeConfig.globalInstance);
-            for (SerializerFeature feature : features) {
-                serializer.out.config(feature, true);
-            }
 
             serializer.out.config(SerializerFeature.WriteDateUseDateFormat, true);
 
@@ -380,13 +374,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static final String toJSONString(Object object, SerializeFilter filter, SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter();
+        SerializeWriter out = new SerializeWriter((Writer) null, JSON.DEFAULT_GENERATE_FEATURE, features);
 
         try {
             JSONSerializer serializer = new JSONSerializer(out, SerializeConfig.globalInstance);
-            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
-                serializer.out.config(feature, true);
-            }
 
             serializer.out.config(SerializerFeature.WriteDateUseDateFormat, true);
 
@@ -401,13 +392,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static final String toJSONString(Object object, SerializeFilter[] filters, SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter();
+        SerializeWriter out = new SerializeWriter((Writer) null, JSON.DEFAULT_GENERATE_FEATURE, features);
 
         try {
             JSONSerializer serializer = new JSONSerializer(out, SerializeConfig.globalInstance);
-            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
-                serializer.out.config(feature, true);
-            }
 
             serializer.out.config(SerializerFeature.WriteDateUseDateFormat, true);
 
@@ -422,13 +410,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static final byte[] toJSONBytes(Object object, SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter();
+        SerializeWriter out = new SerializeWriter((Writer) null, JSON.DEFAULT_GENERATE_FEATURE, features);
 
         try {
             JSONSerializer serializer = new JSONSerializer(out, SerializeConfig.globalInstance);
-            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
-                serializer.out.config(feature, true);
-            }
 
             serializer.write(object);
 
@@ -444,13 +429,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     public static final String toJSONString(Object object, SerializeConfig config, SerializeFilter filter,
                                             SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter();
+        SerializeWriter out = new SerializeWriter((Writer) null, JSON.DEFAULT_GENERATE_FEATURE, features);
 
         try {
             JSONSerializer serializer = new JSONSerializer(out, config);
-            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
-                serializer.out.config(feature, true);
-            }
 
             setFilter(serializer, filter);
 
@@ -464,13 +446,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     public static final String toJSONString(Object object, SerializeConfig config, SerializeFilter[] filters,
                                             SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter();
+        SerializeWriter out = new SerializeWriter((Writer) null, JSON.DEFAULT_GENERATE_FEATURE, features);
 
         try {
             JSONSerializer serializer = new JSONSerializer(out, config);
-            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
-                serializer.out.config(feature, true);
-            }
 
             setFilter(serializer, filters);
 
@@ -497,14 +476,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static final byte[] toJSONBytes(Object object, SerializeConfig config, SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter();
+        SerializeWriter out = new SerializeWriter((Writer)null, JSON.DEFAULT_GENERATE_FEATURE, features);
 
         try {
             JSONSerializer serializer = new JSONSerializer(out, config);
-            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
-                serializer.out.config(feature, true);
-            }
-
             serializer.write(object);
 
             return out.toBytes("UTF-8");
@@ -522,13 +497,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static final void writeJSONStringTo(Object object, Writer writer, SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter(writer);
+        SerializeWriter out = new SerializeWriter(writer, JSON.DEFAULT_GENERATE_FEATURE, features);
 
         try {
             JSONSerializer serializer = new JSONSerializer(out, SerializeConfig.globalInstance);
-            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
-                serializer.out.config(feature, true);
-            }
 
             serializer.write(object);
         } finally {
@@ -543,7 +515,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public String toJSONString() {
-        SerializeWriter out = new SerializeWriter();
+        SerializeWriter out = new SerializeWriter((Writer) null, JSON.DEFAULT_GENERATE_FEATURE, SerializerFeature.EMPTY);
         try {
             new JSONSerializer(out, SerializeConfig.globalInstance).write(this);
             return out.toString();
@@ -553,7 +525,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public void writeJSONString(Appendable appendable) {
-        SerializeWriter out = new SerializeWriter();
+        SerializeWriter out = new SerializeWriter((Writer) null, JSON.DEFAULT_GENERATE_FEATURE, SerializerFeature.EMPTY);
         try {
             new JSONSerializer(out, SerializeConfig.globalInstance).write(this);
             appendable.append(out.toString());

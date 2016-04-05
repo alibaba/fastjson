@@ -24,7 +24,6 @@ import java.util.TimeZone;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.util.IOUtils;
 
 public final class JSONLexer {
 
@@ -893,15 +892,12 @@ public final class JSONLexer {
     }
 
     public final String scanSymbolUnQuoted(final SymbolTable symbolTable) {
-        final boolean[] firstIdentifierFlags = IOUtils.firstIdentifierFlags;
         final char first = ch;
 
         final boolean firstFlag = ch >= firstIdentifierFlags.length || firstIdentifierFlags[first];
         if (!firstFlag) {
             throw new JSONException("illegal identifier : " + ch);
         }
-
-        final boolean[] identifierFlags = IOUtils.identifierFlags;
 
         int hash = first;
 
@@ -3431,5 +3427,36 @@ public final class JSONLexer {
         }
 
         return dArr;
+    }
+
+    
+
+    public final static boolean[] firstIdentifierFlags = new boolean[256];
+    static {
+        for (char c = 0; c < firstIdentifierFlags.length; ++c) {
+            if (c >= 'A' && c <= 'Z') {
+                firstIdentifierFlags[c] = true;
+            } else if (c >= 'a' && c <= 'z') {
+                firstIdentifierFlags[c] = true;
+            } else if (c == '_') {
+                firstIdentifierFlags[c] = true;
+            }
+        }
+    }
+
+    public final static boolean[] identifierFlags = new boolean[256];
+
+    static {
+        for (char c = 0; c < identifierFlags.length; ++c) {
+            if (c >= 'A' && c <= 'Z') {
+                identifierFlags[c] = true;
+            } else if (c >= 'a' && c <= 'z') {
+                identifierFlags[c] = true;
+            } else if (c == '_') {
+                identifierFlags[c] = true;
+            } else if (c >= '0' && c <= '9') {
+                identifierFlags[c] = true;
+            }
+        }
     }
 }

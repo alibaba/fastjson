@@ -30,7 +30,6 @@ import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
-import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.TypeUtils;
 
 /**
@@ -102,28 +101,28 @@ public class DateCodec implements ObjectSerializer, ObjectDeserializer {
             char[] buf;
             if (millis != 0) {
                 buf = "0000-00-00T00:00:00.000".toCharArray();
-                IOUtils.getChars(millis, 23, buf);
-                IOUtils.getChars(second, 19, buf);
-                IOUtils.getChars(minute, 16, buf);
-                IOUtils.getChars(hour, 13, buf);
-                IOUtils.getChars(day, 10, buf);
-                IOUtils.getChars(month, 7, buf);
-                IOUtils.getChars(year, 4, buf);
+                SerializeWriter.getChars(millis, 23, buf);
+                SerializeWriter.getChars(second, 19, buf);
+                SerializeWriter.getChars(minute, 16, buf);
+                SerializeWriter.getChars(hour, 13, buf);
+                SerializeWriter.getChars(day, 10, buf);
+                SerializeWriter.getChars(month, 7, buf);
+                SerializeWriter.getChars(year, 4, buf);
 
             } else {
                 if (second == 0 && minute == 0 && hour == 0) {
                     buf = "0000-00-00".toCharArray();
-                    IOUtils.getChars(day, 10, buf);
-                    IOUtils.getChars(month, 7, buf);
-                    IOUtils.getChars(year, 4, buf);
+                    SerializeWriter.getChars(day, 10, buf);
+                    SerializeWriter.getChars(month, 7, buf);
+                    SerializeWriter.getChars(year, 4, buf);
                 } else {
                     buf = "0000-00-00T00:00:00".toCharArray();
-                    IOUtils.getChars(second, 19, buf);
-                    IOUtils.getChars(minute, 16, buf);
-                    IOUtils.getChars(hour, 13, buf);
-                    IOUtils.getChars(day, 10, buf);
-                    IOUtils.getChars(month, 7, buf);
-                    IOUtils.getChars(year, 4, buf);
+                    SerializeWriter.getChars(second, 19, buf);
+                    SerializeWriter.getChars(minute, 16, buf);
+                    SerializeWriter.getChars(hour, 13, buf);
+                    SerializeWriter.getChars(day, 10, buf);
+                    SerializeWriter.getChars(month, 7, buf);
+                    SerializeWriter.getChars(year, 4, buf);
                 }
             }
 

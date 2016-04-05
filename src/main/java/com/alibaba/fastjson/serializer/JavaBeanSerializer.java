@@ -29,7 +29,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.util.FieldInfo;
-import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.TypeUtils;
 
 /**
@@ -482,13 +481,13 @@ public class JavaBeanSerializer implements ObjectSerializer {
                                             out.expandCapacity(newcount);
                                         } else {
                                             char[] chars = new char[size];
-                                            IOUtils.getChars(propertyValueInt, size, chars);
+                                            SerializeWriter.getChars(propertyValueInt, size, chars);
                                             out.write(chars, 0, chars.length);
                                             return;
                                         }
                                     }
     
-                                    IOUtils.getChars(propertyValueInt, newcount, out.buf);
+                                    SerializeWriter.getChars(propertyValueInt, newcount, out.buf);
     
                                     out.count = newcount;
                                 }

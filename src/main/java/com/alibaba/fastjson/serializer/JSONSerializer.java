@@ -57,7 +57,7 @@ public class JSONSerializer {
     private String                                 dateFormatPattern;
     private DateFormat                             dateFormat;
 
-    private IdentityHashMap<Object, SerialContext> references         = null;
+    protected IdentityHashMap<Object, SerialContext> references         = null;
     public SerialContext                           context;
 
     public JSONSerializer(){
@@ -109,50 +109,13 @@ public class JSONSerializer {
     }
 
     public void setContext(SerialContext parent, Object object, Object fieldName, int features) {
-        if ((out.features & SerializerFeature.DisableCircularReferenceDetect.mask) != 0) {
-            return;
-        }
-
-        this.context = new SerialContext(parent, object, fieldName, features);
-        if (references == null) {
-            references = new IdentityHashMap<Object, SerialContext>();
-        }
-        this.references.put(object, context);
-    }
-
-    public final boolean isWriteClassName(Type fieldType, Object obj) {
-        boolean result = (out.features & SerializerFeature.WriteClassName.mask) != 0;
-
-        if (!result) {
-            return false;
-        }
-
-        if (fieldType == null) {
-            if ((out.features & SerializerFeature.NotWriteRootClassName.mask) != 0) {
-                boolean isRoot = context.parent == null;
-                if (isRoot) {
-                    return false;
-                }
+        if ((out.features & SerializerFeature.DisableCircularReferenceDetect.mask) == 0) {
+            this.context = new SerialContext(parent, object, fieldName, features);
+            if (this.references == null) {
+                this.references = new IdentityHashMap<Object, SerialContext>();
             }
+            this.references.put(object, context);
         }
-
-        return true;
-    }
-
-    public SerialContext getSerialContext(Object object) {
-        if (references == null) {
-            return null;
-        }
-
-        return references.get(object);
-    }
-
-    public boolean containsReference(Object value) {
-        if (references == null) {
-            return false;
-        }
-
-        return references.containsKey(value);
     }
 
     public void writeReference(Object object) {
@@ -186,7 +149,7 @@ public class JSONSerializer {
             return;
         }
 
-        SerialContext refContext = this.getSerialContext(object);
+        SerialContext refContext = references.get(object);
 
         String path = refContext.toString();
 
@@ -286,7 +249,7 @@ public class JSONSerializer {
     public static final void write(Writer out, Object object) {
         SerializeWriter writer = new SerializeWriter();
         try {
-            JSONSerializer serializer = new JSONSerializer(writer);
+            JSONSerializer serializer = new JSONSerializer(writer, SerializeConfig.globalInstance);
             serializer.write(object);
             writer.writeTo(out);
         } catch (IOException ex) {
@@ -297,7 +260,7 @@ public class JSONSerializer {
     }
 
     public static final void write(SerializeWriter out, Object object) {
-        JSONSerializer serializer = new JSONSerializer(out);
+        JSONSerializer serializer = new JSONSerializer(out, SerializeConfig.globalInstance);
         serializer.write(object);
     }
 
@@ -359,8 +322,21 @@ public class JSONSerializer {
         write(object);
     }
 
-    public final void write(String text) {
-        StringCodec.instance.write(this, text);
+    public final void write(String value) {
+        if (value == null) {
+            if ((out.features & SerializerFeature.WriteNullStringAsEmpty.mask) != 0) {
+                out.writeString("");
+            } else {
+                out.writeNull();
+            }
+            return;
+        }
+
+        if ((out.features & SerializerFeature.UseSingleQuotes.mask) != 0) {
+            out.writeStringWithSingleQuote(value);
+        } else {
+            out.writeStringWithDoubleQuote(value, (char) 0, true);
+        }
     }
 
     public ObjectSerializer getObjectWriter(Class<?> clazz) {
@@ -435,16 +411,6 @@ public class JSONSerializer {
         this.out.close();
     }
 
-    public static char writeBefore(JSONSerializer serializer, Object object, char seperator) {
-        List<BeforeFilter> beforeFilters = serializer.beforeFilters;
-        if (beforeFilters != null) {
-            for (BeforeFilter beforeFilter : beforeFilters) {
-                seperator = beforeFilter.writeBefore(serializer, object, seperator);
-            }
-        }
-        return seperator;
-    }
-
     public static Object processValue(JSONSerializer serializer, Object object, String key, Object propertyValue) {
         List<ValueFilter> valueFilters = serializer.valueFilters;
         if (valueFilters != null) {
@@ -497,15 +463,5 @@ public class JSONSerializer {
         }
 
         return true;
-    }
-    
-    public static char writeAfter(JSONSerializer serializer, Object object, char seperator) {
-        List<AfterFilter> afterFilters = serializer.afterFilters;
-        if (afterFilters != null) {
-            for (AfterFilter afterFilter : afterFilters) {
-                seperator = afterFilter.writeAfter(serializer, object, seperator);
-            }
-        }
-        return seperator;
     }
 }

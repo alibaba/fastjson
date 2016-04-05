@@ -47,18 +47,7 @@ public class FastjsonCodec implements Codec {
     // private JavaBeanSerializer serializer = new JavaBeanSerializer(Long_100_Entity.class);
 
     public String encode(Object object) throws Exception {
-        SerializeWriter out = new SerializeWriter();
-        out.config(SerializerFeature.DisableCircularReferenceDetect, true);
-//        out.config(SerializerFeature.DisableCheckSpecialChar, true);
-
-        JSONSerializer serializer = new JSONSerializer(out);
-        serializer.write(object);
-
-        String text = out.toString();
-
-        out.close();
-
-        return text;
+        return JSON.toJSONString(object, SerializerFeature.DisableCircularReferenceDetect);
     }
 
     @SuppressWarnings("unchecked")

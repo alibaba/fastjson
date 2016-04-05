@@ -21,6 +21,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,12 +29,15 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.util.FieldInfo;
+import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.TypeUtils;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
 public class JavaBeanSerializer implements ObjectSerializer {
+    private static final char[] true_chars = new char[] {'t', 'r', 'u', 'e'};
+    private static final char[] false_chars = new char[] {'f', 'a', 'l', 's', 'e'};
 
     // serializers
     private final FieldSerializer[] getters;
@@ -110,7 +114,11 @@ public class JavaBeanSerializer implements ObjectSerializer {
             return;
         }
 
-        if (writeReference(serializer, object)) {
+        if ((serializer.context == null 
+                || (serializer.context.features & SerializerFeature.DisableCircularReferenceDetect.mask) == 0)
+                && serializer.references != null && serializer.references.containsKey(object)
+                ) {
+            serializer.writeReference(object);
             return;
         }
 
@@ -123,7 +131,14 @@ public class JavaBeanSerializer implements ObjectSerializer {
         }
 
         SerialContext parent = serializer.context;
-        serializer.setContext(parent, object, fieldName, features);
+//        serializer.setContext(parent, object, fieldName, features);
+        if ((out.features & SerializerFeature.DisableCircularReferenceDetect.mask) == 0) {
+            serializer.context = new SerialContext(parent, object, fieldName, features);
+            if (serializer.references == null) {
+                serializer.references = new IdentityHashMap<Object, SerialContext>();
+            }
+            serializer.references.put(object, serializer.context);
+        }
 
         boolean writeAsArray;
         
@@ -138,7 +153,20 @@ public class JavaBeanSerializer implements ObjectSerializer {
         try {
             final char startSeperator = writeAsArray ? '[' : '{';
             final char endSeperator = writeAsArray ? ']' : '}';
-            out.write(startSeperator);
+            // out.write(startSeperator);
+            {
+                int newcount = out.count + 1;
+                if (newcount > out.buf.length) {
+                    if (out.writer == null) {
+                        out.expandCapacity(newcount);
+                    } else {
+                        out.flush();
+                        newcount = 1;
+                    }
+                }
+                out.buf[out.count] = startSeperator;
+                out.count = newcount;
+            }
 
             if (getters.length > 0 && (out.features & SerializerFeature.PrettyFormat.mask) != 0) {
                 serializer.incrementIndent();
@@ -147,8 +175,12 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
             boolean commaFlag = false;
             
-            boolean isWriteClassName = (features & SerializerFeature.WriteClassName.mask) != 0 //
-                    || serializer.isWriteClassName(fieldType, fieldName);
+            boolean isWriteClassName; 
+            isWriteClassName = (features & SerializerFeature.WriteClassName.mask) != 0 //
+                    || ((out.features & SerializerFeature.WriteClassName.mask) != 0 // 
+                            && (fieldType != null || (out.features & SerializerFeature.NotWriteRootClassName.mask) == 0
+                            || serializer.context.parent != null))
+                    ;
 
             if (isWriteClassName) {
                 Class<?> objClass = object.getClass();
@@ -161,8 +193,18 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
             char seperator = commaFlag ? ',' : '\0';
 
-            char newSeperator = JSONSerializer.writeBefore(serializer, object, seperator);
+            char newSeperator = seperator;
+            if (serializer.beforeFilters != null) {
+                for (BeforeFilter beforeFilter : serializer.beforeFilters) {
+                    newSeperator = beforeFilter.writeBefore(serializer, object, newSeperator);
+                }
+            }
             commaFlag = newSeperator == ',';
+            
+            final boolean directWritePrefix = (out.features & SerializerFeature.QuoteFieldNames.mask) != 0
+                    && (out.features & SerializerFeature.UseSingleQuotes.mask) == 0;
+            final boolean useSingleQuote = (out.features & SerializerFeature.UseSingleQuotes.mask) != 0;
+            final boolean notWriteDefaultValue = (out.features & SerializerFeature.NotWriteDefaultValue.mask) != 0;
 
             for (int i = 0; i < getters.length; ++i) {
                 FieldSerializer fieldSerializer = getters[i];
@@ -194,7 +236,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 if (!applyName) {
                     continue;
                 }
-
+                
                 Object propertyValue = null;
                 int propertyValueInt = 0;
                 long propertyValueLong = 0L;
@@ -212,10 +254,11 @@ public class JavaBeanSerializer implements ObjectSerializer {
                     } else if (fieldClass == boolean.class) {
                         propertyValueBoolean = fieldInfo.field.getBoolean(object);
                         valueGot = true;
+                    } else {
+                        propertyValue = fieldInfo.field.get(object);
+                        propertyValueGot = true;
                     }
-                } 
-
-                if (!valueGot) {
+                } else {
                     propertyValue = fieldSerializer.getPropertyValue(object);
                     propertyValueGot = true;
                 }
@@ -306,26 +349,39 @@ public class JavaBeanSerializer implements ObjectSerializer {
                     }
                 }
                 
-                if (propertyValueGot && propertyValue != null && (out.features & SerializerFeature.NotWriteDefaultValue.mask) != 0) {
-                    if (fieldClass == byte.class && propertyValue instanceof Byte && ((Byte)propertyValue).byteValue() == 0) {
+                if (propertyValueGot && propertyValue != null && notWriteDefaultValue) {
+                    if ((fieldClass == byte.class // 
+                            || fieldClass == short.class //
+                            || fieldClass == int.class //
+                            || fieldClass == long.class //
+                            || fieldClass == float.class //
+                            || fieldClass == double.class //
+                            ) //  
+                            && propertyValue instanceof Number 
+                            && ((Number)propertyValue).byteValue() == 0) {
                         continue;
-                    } else if (fieldClass == short.class && propertyValue instanceof Short && ((Short)propertyValue).shortValue() == 0) {
-                        continue;
-                    } else if (fieldClass == int.class && propertyValue instanceof Integer && ((Integer)propertyValue).intValue() == 0) {
-                        continue;
-                    } else if (fieldClass == long.class && propertyValue instanceof Long && ((Long)propertyValue).longValue() == 0L) {
-                        continue;
-                    } else if (fieldClass == float.class && propertyValue instanceof Float && ((Float)propertyValue).floatValue() == 0F) {
-                        continue;
-                    } else if (fieldClass == double.class && propertyValue instanceof Double && ((Double)propertyValue).doubleValue() == 0D) {
-                        continue;
-                    } else if (fieldClass == boolean.class && propertyValue instanceof Boolean && !((Boolean)propertyValue).booleanValue()) {
+                    } else if (fieldClass == boolean.class // 
+                            && propertyValue instanceof Boolean // 
+                            && !((Boolean)propertyValue).booleanValue()) {
                         continue;
                     }
                 }
 
                 if (commaFlag) {
-                    out.write(',');
+                    //out.write(',');
+                    {
+                        int newcount = out.count + 1;
+                        if (newcount > out.buf.length) {
+                            if (out.writer == null) {
+                                out.expandCapacity(newcount);
+                            } else {
+                                out.flush();
+                                newcount = 1;
+                            }
+                        }
+                        out.buf[out.count] = ',';
+                        out.count = newcount;
+                    }
                     if ((out.features & SerializerFeature.PrettyFormat.mask) != 0) {
                         serializer.println();
                     }
@@ -356,34 +412,128 @@ public class JavaBeanSerializer implements ObjectSerializer {
                     }
                     serializer.write(propertyValue);
                 } else {
-                 // TODO improved performance
+                    if (!writeAsArray) {
+                        if (directWritePrefix) {
+                            // out.write(fieldInfo.name_chars, 0, fieldInfo.name_chars.length);
+                            {
+                                final char[] c = fieldInfo.name_chars;
+                                int off = 0;
+                                int len = c.length;
+                                
+                                int newcount = out.count + len;
+                                if (newcount > out.buf.length) {
+                                    if (out.writer == null) {
+                                        out.expandCapacity(newcount);
+                                    } else {
+                                        do {
+                                            int rest = out.buf.length - out.count;
+                                            System.arraycopy(c, off, out.buf, out.count, rest);
+                                            out.count = out.buf.length;
+                                            out.flush();
+                                            len -= rest;
+                                            off += rest;
+                                        } while (len > out.buf.length);
+                                        newcount = len;
+                                    }
+                                }
+                                System.arraycopy(c, off, out.buf, out.count, len);
+                                out.count = newcount;
+                            }
+                        } else {
+                            fieldSerializer.writePrefix(serializer);
+                        }
+                    }
+
                     if (valueGot) {
                         if (fieldClass == int.class) {
-                            if (!writeAsArray) {
-                                fieldSerializer.writePrefix(serializer);
-                                serializer.out.writeInt(propertyValueInt);
-                            } else {
-                                serializer.out.writeInt(propertyValueInt);
+                            // serializer.out.writeInt(propertyValueInt);
+                            {
+                                if (propertyValueInt == Integer.MIN_VALUE) {
+                                    out.write("-2147483648");
+                                } else {
+                                    int size;
+                                    final int x = propertyValueInt < 0 ? -propertyValueInt : propertyValueInt;
+                                    for (int j = 0;; j++) {
+                                        if (x <= SerializeWriter.sizeTable[j]) {
+                                            size = j + 1;
+                                            break;
+                                        }
+                                    }
+                                    if (propertyValueInt < 0) {
+                                        size++;
+                                    }
+    
+                                    int newcount = out.count + size;
+                                    if (newcount > out.buf.length) {
+                                        if (out.writer == null) {
+                                            out.expandCapacity(newcount);
+                                        } else {
+                                            char[] chars = new char[size];
+                                            IOUtils.getChars(propertyValueInt, size, chars);
+                                            out.write(chars, 0, chars.length);
+                                            return;
+                                        }
+                                    }
+    
+                                    IOUtils.getChars(propertyValueInt, newcount, out.buf);
+    
+                                    out.count = newcount;
+                                }
                             }
                         } else if (fieldClass == long.class) {
-                            if (!writeAsArray) {
-                                fieldSerializer.writePrefix(serializer);
-                                serializer.out.writeLong(propertyValueLong);
-                            } else {
-                                serializer.out.writeLong(propertyValueLong);
-                            }
+                            serializer.out.writeLong(propertyValueLong);
                         } else if (fieldClass == boolean.class) {
-                            final String text = propertyValueBoolean ? "true" : "false";
-                            if (!writeAsArray) {
-                                fieldSerializer.writePrefix(serializer);
-                                serializer.out.write(text);
+                            if (propertyValueBoolean) {
+                                serializer.out.write(true_chars, 0, false_chars.length);    
                             } else {
-                                serializer.out.write(text);
+                                serializer.out.write(false_chars, 0, false_chars.length);
                             }
                         }
                     } else {
                         if (!writeAsArray) {
-                            fieldSerializer.writeProperty(serializer, propertyValue);
+                            if (fieldClass == String.class) {
+                                if (propertyValue == null) {
+                                    if ((out.features & SerializerFeature.WriteNullStringAsEmpty.mask) != 0
+                                            || (fieldSerializer.features & SerializerFeature.WriteNullStringAsEmpty.mask) != 0
+                                            ) {
+                                        out.writeString("");
+                                    } else {
+                                        out.writeNull();
+                                    }
+                                } else {
+                                    String propertyValueString = (String) propertyValue;
+                                    
+                                    if (useSingleQuote) {
+                                        out.writeStringWithSingleQuote(propertyValueString);
+                                    } else {
+                                        out.writeStringWithDoubleQuote(propertyValueString, (char) 0, true);
+                                    }
+                                }
+                            } else {
+                                if (fieldInfo.isEnum) {
+                                    if (propertyValue != null) {
+                                        if ((out.features & SerializerFeature.WriteEnumUsingToString.mask) != 0) {
+                                            Enum<?> e = (Enum<?>) propertyValue;
+                                            
+                                            String name = e.toString();
+                                            boolean userSingleQuote = (out.features & SerializerFeature.UseSingleQuotes.mask) != 0;
+                                            
+                                            if (userSingleQuote) {
+                                                out.writeStringWithSingleQuote(name);
+                                            } else {
+                                                out.writeStringWithDoubleQuote(name, (char) 0, false);    
+                                            }
+                                        } else {
+                                            Enum<?> e = (Enum<?>) propertyValue;
+                                            out.writeInt(e.ordinal());
+                                        }
+                                    } else {
+                                        out.writeNull();
+                                    }
+                                } else {
+                                    fieldSerializer.writeValue(serializer, propertyValue);
+                                }
+                            }
                         } else {
                             fieldSerializer.writeValue(serializer, propertyValue);
                         }
@@ -393,35 +543,38 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 commaFlag = true;
             }
             
-            JSONSerializer.writeAfter(serializer, object, commaFlag ? ',' : '\0');
+            // JSONSerializer.writeAfter(serializer, object, commaFlag ? ',' : '\0');
+            if (serializer.afterFilters != null) {
+                char afterOperator = commaFlag ? ',' : '\0';
+                for (AfterFilter afterFilter : serializer.afterFilters) {
+                    afterOperator = afterFilter.writeAfter(serializer, object, afterOperator);
+                }
+            }
 
             if (getters.length > 0 && (out.features & SerializerFeature.PrettyFormat.mask) != 0) {
                 serializer.decrementIdent();
                 serializer.println();
             }
 
-            out.write(endSeperator);
+            // out.write(endSeperator);
+            {
+                int newcount = out.count + 1;
+                if (newcount > out.buf.length) {
+                    if (out.writer == null) {
+                        out.expandCapacity(newcount);
+                    } else {
+                        out.flush();
+                        newcount = 1;
+                    }
+                }
+                out.buf[out.count] = endSeperator;
+                out.count = newcount;
+            }
         } catch (Exception e) {
             throw new JSONException("write javaBean error", e);
         } finally {
             serializer.context = parent;
         }
-    }
-    
-    public boolean writeReference(JSONSerializer serializer, Object object) {
-        {
-            SerialContext context = serializer.context;
-            if (context != null && (context.features & SerializerFeature.DisableCircularReferenceDetect.mask) != 0) {
-                return false;
-            }
-        }
-        
-        if (!serializer.containsReference(object)) {
-            return false;
-        }
-        
-        serializer.writeReference(object);
-        return true;
     }
 
     public FieldSerializer createFieldSerializer(FieldInfo fieldInfo) {

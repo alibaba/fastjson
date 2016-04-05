@@ -336,10 +336,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static final String toJSONString(Object object, SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter();
+        SerializeWriter out = new SerializeWriter((Writer) null);
 
         try {
-            JSONSerializer serializer = new JSONSerializer(out);
+            JSONSerializer serializer = new JSONSerializer(out, SerializeConfig.globalInstance);
             for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
                 serializer.out.config(feature, true);
             }
@@ -360,7 +360,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         SerializeWriter out = new SerializeWriter();
 
         try {
-            JSONSerializer serializer = new JSONSerializer(out);
+            JSONSerializer serializer = new JSONSerializer(out, SerializeConfig.globalInstance);
             for (SerializerFeature feature : features) {
                 serializer.out.config(feature, true);
             }
@@ -383,7 +383,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         SerializeWriter out = new SerializeWriter();
 
         try {
-            JSONSerializer serializer = new JSONSerializer(out);
+            JSONSerializer serializer = new JSONSerializer(out, SerializeConfig.globalInstance);
             for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
                 serializer.out.config(feature, true);
             }
@@ -404,7 +404,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         SerializeWriter out = new SerializeWriter();
 
         try {
-            JSONSerializer serializer = new JSONSerializer(out);
+            JSONSerializer serializer = new JSONSerializer(out, SerializeConfig.globalInstance);
             for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
                 serializer.out.config(feature, true);
             }
@@ -425,7 +425,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         SerializeWriter out = new SerializeWriter();
 
         try {
-            JSONSerializer serializer = new JSONSerializer(out);
+            JSONSerializer serializer = new JSONSerializer(out, SerializeConfig.globalInstance);
             for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
                 serializer.out.config(feature, true);
             }
@@ -525,7 +525,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         SerializeWriter out = new SerializeWriter(writer);
 
         try {
-            JSONSerializer serializer = new JSONSerializer(out);
+            JSONSerializer serializer = new JSONSerializer(out, SerializeConfig.globalInstance);
             for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
                 serializer.out.config(feature, true);
             }
@@ -545,7 +545,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     public String toJSONString() {
         SerializeWriter out = new SerializeWriter();
         try {
-            new JSONSerializer(out).write(this);
+            new JSONSerializer(out, SerializeConfig.globalInstance).write(this);
             return out.toString();
         } finally {
             out.close();
@@ -555,7 +555,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     public void writeJSONString(Appendable appendable) {
         SerializeWriter out = new SerializeWriter();
         try {
-            new JSONSerializer(out).write(this);
+            new JSONSerializer(out, SerializeConfig.globalInstance).write(this);
             appendable.append(out.toString());
         } catch (IOException e) {
             throw new JSONException(e.getMessage(), e);

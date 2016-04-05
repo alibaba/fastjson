@@ -26,7 +26,6 @@ import com.alibaba.fastjson.util.FieldInfo;
 public class ObjectFieldSerializer extends FieldSerializer {
 
     final String                  format;
-    final int                   features;
 
     private RuntimeSerializerInfo runtimeInfo;
 
@@ -49,11 +48,6 @@ public class ObjectFieldSerializer extends FieldSerializer {
             features = 0;
         }
         this.format = format;
-    }
-
-    public void writeProperty(JSONSerializer serializer, Object propertyValue) throws Exception {
-        writePrefix(serializer);
-        writeValue(serializer, propertyValue);
     }
 
     @Override

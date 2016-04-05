@@ -28,13 +28,21 @@ public class EnumSerializer implements ObjectSerializer {
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         SerializeWriter out = serializer.out;
         if (object == null) {
-            serializer.out.writeNull();
+            out.writeNull();
             return;
         }
 
         if ((out.features & SerializerFeature.WriteEnumUsingToString.mask) != 0) {
             Enum<?> e = (Enum<?>) object;
-            serializer.write(e.toString());
+            
+            String name = e.toString();
+            boolean userSingleQuote = (out.features & SerializerFeature.UseSingleQuotes.mask) != 0;
+            
+            if (userSingleQuote) {
+                out.writeStringWithSingleQuote(name);
+            } else {
+                out.writeStringWithDoubleQuote(name, (char) 0, false);    
+            }
         } else {
             Enum<?> e = (Enum<?>) object;
             out.writeInt(e.ordinal());

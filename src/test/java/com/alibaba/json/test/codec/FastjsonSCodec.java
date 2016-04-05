@@ -3,12 +3,11 @@ package com.alibaba.json.test.codec;
 import java.lang.reflect.Type;
 import java.util.Collection;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.SerializeConfig;
-import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class FastjsonSCodec implements Codec {
@@ -16,52 +15,33 @@ public class FastjsonSCodec implements Codec {
         return "fastjsonS";
     }
 
+    // fastjson 模拟首次
     public <T> T decodeObject(String text, Type clazz) {
-        ParserConfig    config = new ParserConfig();
-        DefaultJSONParser parser = new DefaultJSONParser(text, config);
-        parser.config(Feature.DisableCircularReferenceDetect, true);
-        return parser.parseObject(clazz);
+        return JSON.parseObject(text, // 
+                                clazz, //
+                                new ParserConfig(), // 每次new ParserConfig模拟首次
+                                JSON.DEFAULT_PARSER_FEATURE, // 
+                                Feature.DisableCircularReferenceDetect);
     }
-
+    
+    public String encode(Object object) throws Exception {
+        return JSON.toJSONString(object, // 
+                                 new SerializeConfig(), // 每次new SerializeConfig模拟首次
+                                 SerializerFeature.DisableCircularReferenceDetect);
+    }
+    
     public <T> Collection<T> decodeArray(String text, Class<T> clazz) throws Exception {
-        ParserConfig    config = new ParserConfig();
-        DefaultJSONParser parser = new DefaultJSONParser(text, config);
-        parser.config(Feature.DisableCircularReferenceDetect, true);
-        return parser.parseArray(clazz);
+        throw new RuntimeException("TODO");
     }
 
     public final Object decodeObject(String text) {
-        ParserConfig    config = new ParserConfig();
-        DefaultJSONParser parser = new DefaultJSONParser(text, config);
-        parser.config(Feature.DisableCircularReferenceDetect, true);
-        return parser.parse();
+        throw new RuntimeException("TODO");
     }
 
     public final Object decode(String text) {
-        ParserConfig    config = new ParserConfig();
-        DefaultJSONParser parser = new DefaultJSONParser(text, config);
-        parser.config(Feature.DisableCircularReferenceDetect, true);
-        return parser.parse();
+        throw new RuntimeException("TODO");
     }
-
-    // private JavaBeanSerializer serializer = new JavaBeanSerializer(Long_100_Entity.class);
-
-    public String encode(Object object) throws Exception {
-        SerializeConfig config = new SerializeConfig();
-        SerializeWriter out = new SerializeWriter(SerializerFeature.DisableCircularReferenceDetect);
-//        out.config(SerializerFeature.DisableCheckSpecialChar, true);
-
-        JSONSerializer serializer = new JSONSerializer(out, config);
-        serializer.write(object);
-
-        String text = out.toString();
-
-        out.close();
-
-        return text;
-    }
-
-    @SuppressWarnings("unchecked")
+    
     public <T> T decodeObject(byte[] input, Type clazz) throws Exception {
         throw new UnsupportedOperationException();
     }

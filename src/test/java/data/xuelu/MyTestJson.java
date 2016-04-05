@@ -3,7 +3,7 @@ package data.xuelu;
 import java.util.LinkedHashMap;
 import java.util.Random;
 
-import org.json.JSONArray;
+import com.alibaba.fastjson.JSONArray;
 
 public class MyTestJson {
     
@@ -59,7 +59,7 @@ public class MyTestJson {
     final static  int  SIZE = 2000;
     
     public static String createJson(){
-        JSONArray jsonString = new JSONArray();
+        JSONArray jsonArray = new JSONArray();
         Random r = new Random();
         try {
             for (int i = 0; i < SIZE; i++) {
@@ -120,10 +120,10 @@ public class MyTestJson {
                     objCom.put("mStringField10", sStringArray[8]);
                 }
 
-                jsonString.put(objCom);
+                jsonArray.add(objCom);
 
             }
-            String testJson =  jsonString.toString();
+            String testJson =  jsonArray.toString();
             
             return testJson;
         } catch (Exception e) {

@@ -203,7 +203,9 @@ public class JavaBeanSerializer implements ObjectSerializer {
             
             final boolean directWritePrefix = (out.features & SerializerFeature.QuoteFieldNames.mask) != 0
                     && (out.features & SerializerFeature.UseSingleQuotes.mask) == 0;
-            final boolean useSingleQuote = (out.features & SerializerFeature.UseSingleQuotes.mask) != 0;
+            final boolean notInlineWriteString = (out.features & SerializerFeature.UseSingleQuotes.mask) != 0 //
+                                           || out.writer != null //
+                                           || (out.features & SerializerFeature.BrowserCompatible.mask) != 0;
             final boolean notWriteDefaultValue = (out.features & SerializerFeature.NotWriteDefaultValue.mask) != 0;
 
             for (int i = 0; i < getters.length; ++i) {
@@ -503,10 +505,103 @@ public class JavaBeanSerializer implements ObjectSerializer {
                                 } else {
                                     String propertyValueString = (String) propertyValue;
                                     
-                                    if (useSingleQuote) {
-                                        out.writeStringWithSingleQuote(propertyValueString);
+                                    if (notInlineWriteString) {
+                                        out.writeString(propertyValueString);
                                     } else {
-                                        out.writeStringWithDoubleQuote(propertyValueString, (char) 0, true);
+                                        // out.writeStringWithDoubleQuote(propertyValueString, (char) 0, true);
+                                        
+                                        ////////////// begin inline writeStringWithDoubleQuote
+                                        int len = propertyValueString.length();
+                                        int newcount = out.count + len + 2;
+
+                                        if (newcount > out.buf.length) {
+                                            out.expandCapacity(newcount);
+                                        } 
+
+                                        int start = out.count + 1;
+                                        int end = start + len;
+
+                                        out.buf[out.count] = '\"';
+                                        propertyValueString.getChars(0, len, out.buf, start);
+
+                                        out.count = newcount;
+
+                                        int specialCount = 0;
+                                        int lastSpecialIndex = -1;
+                                        int firstSpecialIndex = -1;
+                                        char lastSpecial = '\0';
+
+                                        for (int j = start; j < end; ++j) {
+                                            char ch = out.buf[j];
+
+                                            if (ch == '\u2028') {
+                                                specialCount++;
+                                                lastSpecialIndex = j;
+                                                lastSpecial = ch;
+                                                newcount += 4;
+
+                                                if (firstSpecialIndex == -1) {
+                                                    firstSpecialIndex = j;
+                                                }
+                                                continue;
+                                            }
+
+                                            if (ch >= ']') {
+                                                if (ch >= 0x7F && ch <= 0xA0) {
+                                                    if (firstSpecialIndex == -1) {
+                                                        firstSpecialIndex = j;
+                                                    }
+
+                                                    specialCount++;
+                                                    lastSpecialIndex = j;
+                                                    lastSpecial = ch;
+                                                    newcount += 4;
+                                                }
+                                                continue;
+                                            }
+
+                                            final boolean isSpecial;
+                                            {
+                                                if (ch == ' ') {
+                                                    isSpecial = false;
+                                                } else if (ch == '/'
+                                                           && (out.features
+                                                               & SerializerFeature.WriteSlashAsSpecial.mask) != 0) {
+                                                    isSpecial = true;
+                                                } else if (ch > '#' && ch != '\\') {
+                                                    isSpecial = false;
+                                                } else if (ch <= 0x1F || ch == '\\' || ch == '"') {
+                                                    isSpecial = true;
+                                                } else {
+                                                    isSpecial = false;
+                                                }
+                                            }
+
+                                            if (isSpecial) {
+                                                specialCount++;
+                                                lastSpecialIndex = j;
+                                                lastSpecial = ch;
+
+                                                if (ch < IOUtils.specicalFlags_doubleQuotes.length //
+                                                    && IOUtils.specicalFlags_doubleQuotes[ch] == 4 //
+                                                ) {
+                                                    newcount += 4;
+                                                }
+
+                                                if (firstSpecialIndex == -1) {
+                                                    firstSpecialIndex = j;
+                                                }
+                                            }
+                                        }
+
+                                        if (specialCount > 0) {
+                                            out.writeSpecial(propertyValueString, newcount, start, end, specialCount,
+                                                          lastSpecialIndex, firstSpecialIndex, lastSpecial);
+                                        }
+
+                                        out.buf[out.count - 1] = '\"';
+                                        
+                                        ////////////// end inline writeStringWithDoubleQuote
                                     }
                                 }
                             } else {

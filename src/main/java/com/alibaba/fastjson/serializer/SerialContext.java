@@ -3,12 +3,9 @@ package com.alibaba.fastjson.serializer;
 public class SerialContext {
 
     public final SerialContext parent;
-
     public final Object        object;
-
     public final Object        fieldName;
-
-    public int                 features;
+    public final int           features;
 
     public SerialContext(SerialContext parent, Object object, Object fieldName, int features){
         this.parent = parent;

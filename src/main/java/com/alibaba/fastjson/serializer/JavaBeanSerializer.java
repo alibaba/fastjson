@@ -112,9 +112,15 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
           sortedGetters = getterList.toArray(new FieldSerializer[getterList.size()]);
         } else {
-            sortedGetters = new FieldSerializer[getters.length];
+            FieldSerializer[] sortedGetters = new FieldSerializer[getters.length];
             System.arraycopy(getters, 0, sortedGetters, 0, getters.length);
             Arrays.sort(sortedGetters);
+            
+            if (Arrays.equals(sortedGetters, getters)) {
+                this.sortedGetters = getters; 
+            } else {
+                this.sortedGetters = sortedGetters;
+            }
         }
     }
 

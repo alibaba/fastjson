@@ -12,12 +12,12 @@ import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.util.FieldInfo;
 
-public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
+public class ListTypeFieldDeserializer extends FieldDeserializer {
 
     private final Type         itemType;
     private ObjectDeserializer deserializer;
 
-    public ArrayListTypeFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo){
+    public ListTypeFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo){
         super(clazz, fieldInfo, JSONToken.LBRACKET);
 
         Type fieldType = fieldInfo.fieldType;

@@ -30,7 +30,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -278,7 +277,7 @@ public class ParserConfig {
         }
 
         if (fieldClass == List.class || fieldClass == ArrayList.class) {
-            return new ArrayListTypeFieldDeserializer(mapping, clazz, fieldInfo);
+            return new ListTypeFieldDeserializer(mapping, clazz, fieldInfo);
         }
 
         return new DefaultFieldDeserializer(mapping, clazz, fieldInfo);
@@ -294,15 +293,5 @@ public class ParserConfig {
 
     public boolean isPrimitive(Class<?> clazz) {
         return primitiveClasses.containsKey(clazz);
-    }
-
-    public Map<String, FieldDeserializer> getFieldDeserializers(Class<?> clazz) {
-        ObjectDeserializer deserizer = getDeserializer(clazz);
-
-        if (deserizer instanceof JavaBeanDeserializer) {
-            return ((JavaBeanDeserializer) deserizer).feildDeserializerMap;
-        } else {
-            return Collections.emptyMap();
-        }
     }
 }

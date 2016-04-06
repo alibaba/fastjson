@@ -112,7 +112,7 @@ import com.alibaba.fastjson.serializer.ObjectArrayCodec;
 import com.alibaba.fastjson.serializer.ReferenceCodec;
 import com.alibaba.fastjson.serializer.StringCodec;
 import com.alibaba.fastjson.util.ASMUtils;
-import com.alibaba.fastjson.util.DeserializeBeanInfo;
+import com.alibaba.fastjson.util.JavaBeanInfo;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.ServiceLoader;
@@ -465,7 +465,7 @@ public class ParserConfig {
     public ObjectDeserializer createJavaBeanDeserializer(Class<?> clazz, Type type) {
         boolean asmEnable = this.asmEnable;
         if (asmEnable) {
-            Class<?> superClass = DeserializeBeanInfo.getBuilderClass(clazz.getAnnotation(JSONType.class));
+            Class<?> superClass = JavaBeanInfo.getBuilderClass(clazz.getAnnotation(JSONType.class));
             if (superClass == null) {
                 superClass = clazz;
             }
@@ -499,7 +499,7 @@ public class ParserConfig {
             if (clazz.isInterface()) {
                 asmEnable = false;
             }
-            DeserializeBeanInfo beanInfo = DeserializeBeanInfo.computeSetters(clazz, type);
+            JavaBeanInfo beanInfo = JavaBeanInfo.computeSetters(clazz, type);
             
             
             if (asmEnable && beanInfo.getFieldList().size() > 200) {
@@ -562,7 +562,7 @@ public class ParserConfig {
         }
     }
 
-    public FieldDeserializer createFieldDeserializer(ParserConfig mapping, DeserializeBeanInfo beanInfo, FieldInfo fieldInfo) {
+    public FieldDeserializer createFieldDeserializer(ParserConfig mapping, JavaBeanInfo beanInfo, FieldInfo fieldInfo) {
         boolean asmEnable = this.asmEnable;
 
         Class<?> clazz = beanInfo.getClazz();

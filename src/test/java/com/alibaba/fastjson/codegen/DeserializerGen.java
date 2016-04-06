@@ -13,13 +13,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
 
-import com.alibaba.fastjson.util.DeserializeBeanInfo;
+import com.alibaba.fastjson.util.JavaBeanInfo;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.TypeUtils;
 
 public class DeserializerGen extends ClassGen {
 
-    private DeserializeBeanInfo beanInfo;
+    private JavaBeanInfo beanInfo;
     private String              genClassName;
 
     public DeserializerGen(Class<?> clazz, Appendable out){
@@ -28,7 +28,7 @@ public class DeserializerGen extends ClassGen {
 
     @Override
     public void gen() throws IOException {
-        beanInfo = DeserializeBeanInfo.computeSetters(clazz, type);
+        beanInfo = JavaBeanInfo.computeSetters(clazz, type);
         genClassName = clazz.getSimpleName() + "GenDecoder";
 
         print("package ");

@@ -159,7 +159,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 	}
 
 	public SerializeConfig() {
-		this(DEFAULT_TABLE_SIZE);
+		this(1024);
 	}
 
 	public SerializeConfig(int tableSize) {

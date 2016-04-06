@@ -15,20 +15,16 @@ public class ParseContext {
         this.fieldName = fieldName;
     }
 
-    public String getPath() {
+    public String toString() {
         if (parent == null) {
             return "$";
         } else {
             if (fieldName instanceof Integer) {
-                return parent.getPath() + "[" + fieldName + "]";
+                return parent.toString() + "[" + fieldName + "]";
             } else {
-                return parent.getPath() + "." + fieldName;
+                return parent.toString() + "." + fieldName;
             }
 
         }
-    }
-
-    public String toString() {
-        return this.getPath();
     }
 }

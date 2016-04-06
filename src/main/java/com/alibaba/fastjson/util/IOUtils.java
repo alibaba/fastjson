@@ -16,6 +16,7 @@
 package com.alibaba.fastjson.util;
 
 import java.io.Closeable;
+import java.lang.ref.SoftReference;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -532,5 +533,64 @@ public class IOUtils {
         }
 
         return dArr;
+    }
+    
+    private final static ThreadLocal<SoftReference<char[]>> charsBufLocal        = new ThreadLocal<SoftReference<char[]>>();
+
+    private final static ThreadLocal<CharsetDecoder>        decoderLocal         = new ThreadLocal<CharsetDecoder>();
+
+    public static CharsetDecoder getUTF8Decoder() {
+        CharsetDecoder decoder = decoderLocal.get();
+        if (decoder == null) {
+            decoder = new UTF8Decoder();
+            decoderLocal.set(decoder);
+        }
+        return decoder;
+    }
+
+    public static void clearChars() {
+        charsBufLocal.set(null);
+    }
+
+    public static char[] getChars(int length) {
+        SoftReference<char[]> ref = charsBufLocal.get();
+
+        if (ref == null) {
+            return allocate(length);
+        }
+
+        char[] chars = ref.get();
+
+        if (chars == null) {
+            return allocate(length);
+        }
+
+        if (chars.length < length) {
+            chars = allocate(length);
+        }
+
+        return chars;
+    }
+
+    private static char[] allocate(int length) {
+        final int minExp = 10;
+        final int CHARS_CACH_MAX_SIZE = 1024 * 128; // 128k, 2^17;
+        
+        if(length> CHARS_CACH_MAX_SIZE) {
+            return new char[length];
+        }
+
+        int allocateLength;
+        {
+            int part = length >>> minExp;
+            if(part <= 0) {
+                allocateLength = 1<< minExp;
+            } else {
+                allocateLength = 1 << 32 - Integer.numberOfLeadingZeros(length-1);
+            }
+        }
+        char[] chars = new char[allocateLength];
+        charsBufLocal.set(new SoftReference<char[]>(chars));
+        return chars;
     }
 }

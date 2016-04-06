@@ -52,7 +52,6 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.ValueFilter;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.IOUtils;
-import com.alibaba.fastjson.util.ThreadLocalCache;
 import com.alibaba.fastjson.util.TypeUtils;
 
 /**
@@ -117,7 +116,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static Object parse(byte[] input, Feature... features) {
-        return parse(input, 0, input.length, ThreadLocalCache.getUTF8Decoder(), features);
+        return parse(input, 0, input.length, IOUtils.getUTF8Decoder(), features);
     }
 
     public static Object parse(byte[] input, int off, int len, CharsetDecoder charsetDecoder, Feature... features) {
@@ -137,7 +136,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         charsetDecoder.reset();
 
         int scaleLength = (int) (len * (double) charsetDecoder.maxCharsPerByte());
-        char[] chars = ThreadLocalCache.getChars(scaleLength);
+        char[] chars = IOUtils.getChars(scaleLength);
 
         ByteBuffer byteBuf = ByteBuffer.wrap(input, off, len);
         CharBuffer charBuf = CharBuffer.wrap(chars);
@@ -260,7 +259,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(byte[] input, Type clazz, Feature... features) {
-        return (T) parseObject(input, 0, input.length, ThreadLocalCache.getUTF8Decoder(), clazz, features);
+        return (T) parseObject(input, 0, input.length, IOUtils.getUTF8Decoder(), clazz, features);
     }
 
     @SuppressWarnings("unchecked")
@@ -269,7 +268,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         charsetDecoder.reset();
 
         int scaleLength = (int) (len * (double) charsetDecoder.maxCharsPerByte());
-        char[] chars = ThreadLocalCache.getChars(scaleLength);
+        char[] chars = IOUtils.getChars(scaleLength);
 
         ByteBuffer byteBuf = ByteBuffer.wrap(input, off, len);
         CharBuffer charByte = CharBuffer.wrap(chars);

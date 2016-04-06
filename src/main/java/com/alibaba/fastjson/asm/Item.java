@@ -41,16 +41,6 @@ final class Item {
      */
     int    index;
 
-    /**
-     * Type of this constant pool item. A single class is used to represent all constant pool item types, in order to
-     * minimize the bytecode size of this package. The value of this field is one of {@link ClassWriter#INT},
-     * {@link ClassWriter#LONG}, {@link ClassWriter#FLOAT}, {@link ClassWriter#DOUBLE}, {@link ClassWriter#UTF8},
-     * {@link ClassWriter#STR}, {@link ClassWriter#CLASS}, {@link ClassWriter#NAME_TYPE}, {@link ClassWriter#FIELD},
-     * {@link ClassWriter#METH}, {@link ClassWriter#IMETH}. Special Item types are used for Items that are stored in the
-     * ClassWriter {@link ClassWriter#typeTable}, instead of the constant pool, in order to avoid clashes with normal
-     * constant pool items in the ClassWriter constant pool's hash table. These special item types are
-     * {@link ClassWriter#TYPE_NORMAL}, {@link ClassWriter#TYPE_UNINIT} and {@link ClassWriter#TYPE_MERGED}.
-     */
     int    type;
 
     /**
@@ -125,13 +115,13 @@ final class Item {
         this.strVal2 = strVal2;
         this.strVal3 = strVal3;
         switch (type) {
-            case ClassWriter.UTF8:
-            case ClassWriter.STR:
-            case ClassWriter.CLASS:
-            case ClassWriter.TYPE_NORMAL:
+            case 1 /* ClassWriter.UTF8 */:
+            case 8 /* ClassWriter.STR */:
+            case 7 /* ClassWriter.CLASS */:
+            case 13 /* ClassWriter.TYPE_NORMAL */:
                 hashCode = 0x7FFFFFFF & (type + strVal1.hashCode());
                 return;
-            case ClassWriter.NAME_TYPE:
+            case 12 /* ClassWriter.NAME_TYPE */:
                 hashCode = 0x7FFFFFFF & (type + strVal1.hashCode() * strVal2.hashCode());
                 return;
                 // ClassWriter.FIELD:
@@ -148,7 +138,7 @@ final class Item {
      * @param intVal the value of this item.
      */
     void set(final int intVal) {
-        this.type = ClassWriter.INT;
+        this.type = 3 /* ClassWriter.INT */;
         this.intVal = intVal;
         this.hashCode = 0x7FFFFFFF & (type + intVal);
     }
@@ -162,19 +152,19 @@ final class Item {
      */
     boolean isEqualTo(final Item i) {
         switch (type) {
-            case ClassWriter.UTF8:
-            case ClassWriter.STR:
-            case ClassWriter.CLASS:
-            case ClassWriter.TYPE_NORMAL:
+            case 1 /* ClassWriter.UTF8 */:
+            case 8 /* ClassWriter.STR */:
+            case 7 /* ClassWriter.CLASS */ :
+            case 13 /* ClassWriter.TYPE_NORMAL */ :
                 return i.strVal1.equals(strVal1);
-            case ClassWriter.TYPE_MERGED:
-            case ClassWriter.LONG:
-            case ClassWriter.DOUBLE:
+            case 15 /* ClassWriter.TYPE_MERGED */ :
+            case 5 /* ClassWriter.LONG */ :
+            case 6 /* ClassWriter.DOUBLE */:
                 return i.longVal == longVal;
-            case ClassWriter.INT:
-            case ClassWriter.FLOAT:
+            case 3 /* ClassWriter.INT */ :
+            case 4 /* ClassWriter.FLOAT */:
                 return i.intVal == intVal;
-            case ClassWriter.NAME_TYPE:
+            case 12 /* ClassWriter.NAME_TYPE */:
                 return i.strVal1.equals(strVal1) && i.strVal2.equals(strVal2);
                 // case ClassWriter.FIELD:
                 // case ClassWriter.METH:

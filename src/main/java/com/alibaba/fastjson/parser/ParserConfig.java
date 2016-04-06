@@ -68,7 +68,6 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
-import com.alibaba.fastjson.asm.ASMException;
 import com.alibaba.fastjson.parser.deserializer.ASMDeserializerFactory;
 import com.alibaba.fastjson.parser.deserializer.ArrayListTypeFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.AutowiredObjectDeserializer;
@@ -553,7 +552,7 @@ public class ParserConfig {
             // return new JavaBeanDeserializer(this, clazz, type);
         } catch (NoSuchMethodException ex) {
             return new JavaBeanDeserializer(this, clazz, type);
-        } catch (ASMException asmError) {
+        } catch (JSONException asmError) {
             return new JavaBeanDeserializer(this, clazz, type);
         } catch (Exception e) {
             throw new JSONException("create asm deserializer error, " + clazz.getName(), e);

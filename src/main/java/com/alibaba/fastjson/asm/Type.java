@@ -36,106 +36,50 @@ package com.alibaba.fastjson.asm;
  * @author Chris Nokleberg
  */
 public class Type {
-
-    /**
-     * The sort of the <tt>void</tt> type.
-     */
-    public static final int  VOID         = 0;
-
-    /**
-     * The sort of the <tt>boolean</tt> type.
-     */
-    public static final int  BOOLEAN      = 1;
-
-    /**
-     * The sort of the <tt>char</tt> type.
-     */
-    public static final int  CHAR         = 2;
-
-    /**
-     * The sort of the <tt>byte</tt> type.
-     */
-    public static final int  BYTE         = 3;
-
-    /**
-     * The sort of the <tt>short</tt> type.
-     */
-    public static final int  SHORT        = 4;
-
-    /**
-     * The sort of the <tt>int</tt> type.
-     */
-    public static final int  INT          = 5;
-
-    /**
-     * The sort of the <tt>float</tt> type.
-     */
-    public static final int  FLOAT        = 6;
-
-    /**
-     * The sort of the <tt>long</tt> type.
-     */
-    public static final int  LONG         = 7;
-
-    /**
-     * The sort of the <tt>double</tt> type.
-     */
-    public static final int  DOUBLE       = 8;
-
-    /**
-     * The sort of array reference types.
-     */
-    public static final int  ARRAY        = 9;
-
-    /**
-     * The sort of object reference type.
-     */
-    public static final int  OBJECT       = 10;
-
     /**
      * The <tt>void</tt> type.
      */
-    public static final Type VOID_TYPE    = new Type(VOID, null, ('V' << 24) | (5 << 16) | (0 << 8) | 0, 1);
+    public static final Type VOID_TYPE    = new Type(0, null, ('V' << 24) | (5 << 16) | (0 << 8) | 0, 1);
 
     /**
      * The <tt>boolean</tt> type.
      */
-    public static final Type BOOLEAN_TYPE = new Type(BOOLEAN, null, ('Z' << 24) | (0 << 16) | (5 << 8) | 1, 1);
+    public static final Type BOOLEAN_TYPE = new Type(1, null, ('Z' << 24) | (0 << 16) | (5 << 8) | 1, 1);
 
     /**
      * The <tt>char</tt> type.
      */
-    public static final Type CHAR_TYPE    = new Type(CHAR, null, ('C' << 24) | (0 << 16) | (6 << 8) | 1, 1);
+    public static final Type CHAR_TYPE    = new Type(2, null, ('C' << 24) | (0 << 16) | (6 << 8) | 1, 1);
 
     /**
      * The <tt>byte</tt> type.
      */
-    public static final Type BYTE_TYPE    = new Type(BYTE, null, ('B' << 24) | (0 << 16) | (5 << 8) | 1, 1);
+    public static final Type BYTE_TYPE    = new Type(3, null, ('B' << 24) | (0 << 16) | (5 << 8) | 1, 1);
 
     /**
      * The <tt>short</tt> type.
      */
-    public static final Type SHORT_TYPE   = new Type(SHORT, null, ('S' << 24) | (0 << 16) | (7 << 8) | 1, 1);
+    public static final Type SHORT_TYPE   = new Type(4, null, ('S' << 24) | (0 << 16) | (7 << 8) | 1, 1);
 
     /**
      * The <tt>int</tt> type.
      */
-    public static final Type INT_TYPE     = new Type(INT, null, ('I' << 24) | (0 << 16) | (0 << 8) | 1, 1);
+    public static final Type INT_TYPE     = new Type(5, null, ('I' << 24) | (0 << 16) | (0 << 8) | 1, 1);
 
     /**
      * The <tt>float</tt> type.
      */
-    public static final Type FLOAT_TYPE   = new Type(FLOAT, null, ('F' << 24) | (2 << 16) | (2 << 8) | 1, 1);
+    public static final Type FLOAT_TYPE   = new Type(6, null, ('F' << 24) | (2 << 16) | (2 << 8) | 1, 1);
 
     /**
      * The <tt>long</tt> type.
      */
-    public static final Type LONG_TYPE    = new Type(LONG, null, ('J' << 24) | (1 << 16) | (1 << 8) | 2, 1);
+    public static final Type LONG_TYPE    = new Type(7, null, ('J' << 24) | (1 << 16) | (1 << 8) | 2, 1);
 
     /**
      * The <tt>double</tt> type.
      */
-    public static final Type DOUBLE_TYPE  = new Type(DOUBLE, null, ('D' << 24) | (3 << 16) | (3 << 8) | 2, 1);
+    public static final Type DOUBLE_TYPE  = new Type(8, null, ('D' << 24) | (3 << 16) | (3 << 8) | 2, 1);
 
     // ------------------------------------------------------------------------
     // Fields
@@ -144,7 +88,7 @@ public class Type {
     /**
      * The sort of this Java type.
      */
-    private final int        sort;
+    protected final int        sort;
 
     /**
      * A buffer containing the internal name of this Java type. This field is only used for reference types.
@@ -167,14 +111,6 @@ public class Type {
     // Constructors
     // ------------------------------------------------------------------------
 
-    /**
-     * Constructs a reference type.
-     * 
-     * @param sort the sort of the reference type to be constructed.
-     * @param buf a buffer containing the descriptor of the previous type.
-     * @param off the offset of this descriptor in the previous buffer.
-     * @param len the length of this descriptor.
-     */
     private Type(final int sort, final char[] buf, final int off, final int len){
         this.sort = sort;
         this.buf = buf;
@@ -258,39 +194,17 @@ public class Type {
                         ++len;
                     }
                 }
-                return new Type(ARRAY, buf, off, len + 1);
+                return new Type(9 /*ARRAY*/, buf, off, len + 1);
                 // case 'L':
             default:
                 len = 1;
                 while (buf[off + len] != ';') {
                     ++len;
                 }
-                return new Type(OBJECT, buf, off + 1, len - 1);
+                return new Type(10/*OBJECT*/, buf, off + 1, len - 1);
         }
     }
 
-    // ------------------------------------------------------------------------
-    // Accessors
-    // ------------------------------------------------------------------------
-
-    /**
-     * Returns the sort of this Java type.
-     * 
-     * @return {@link #VOID VOID}, {@link #BOOLEAN BOOLEAN}, {@link #CHAR CHAR}, {@link #BYTE BYTE}, {@link #SHORT
-     * SHORT}, {@link #INT INT}, {@link #FLOAT FLOAT}, {@link #LONG LONG}, {@link #DOUBLE DOUBLE}, {@link #ARRAY ARRAY}
-     * or {@link #OBJECT OBJECT}.
-     */
-    public int getSort() {
-        return sort;
-    }
-
-    /**
-     * Returns the internal name of the class corresponding to this object or array type. The internal name of a class
-     * is its fully qualified name (as returned by Class.getName(), where '.' are replaced by '/'. This method should
-     * only be used for an object or array type.
-     * 
-     * @return the internal name of the class corresponding to this object type.
-     */
     public String getInternalName() {
         return new String(buf, off, len);
     }

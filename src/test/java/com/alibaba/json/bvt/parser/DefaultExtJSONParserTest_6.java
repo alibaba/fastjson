@@ -3,13 +3,13 @@ package com.alibaba.json.bvt.parser;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 
 public class DefaultExtJSONParserTest_6 extends TestCase {
 
     public void test_0() throws Exception {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("{value:{,,,,\"value\":3,\"id\":1}}");
+        DefaultJSONParser parser = new DefaultJSONParser("{value:{,,,,\"value\":3,\"id\":1}}");
         parser.config(Feature.AllowArbitraryCommas, true);
         Entity entity = new Entity();
         parser.parseObject(entity);
@@ -17,7 +17,7 @@ public class DefaultExtJSONParserTest_6 extends TestCase {
     }
 
     public void test_1() throws Exception {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("{'value':{\"value\":3,\"id\":1}}");
+        DefaultJSONParser parser = new DefaultJSONParser("{'value':{\"value\":3,\"id\":1}}");
         parser.config(Feature.AllowArbitraryCommas, false);
         Entity entity = new Entity();
         parser.parseObject(entity);

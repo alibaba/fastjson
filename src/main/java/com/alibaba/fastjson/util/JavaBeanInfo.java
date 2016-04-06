@@ -88,7 +88,7 @@ public class JavaBeanInfo {
             FieldInfo item = fieldList.get(i);
 
             if (item.name.equals(field.name)) {
-                if (item.isGetOnly() && !field.isGetOnly()) {
+                if (item.getOnly && !field.getOnly) {
                     continue;
                 }
 
@@ -241,7 +241,7 @@ public class JavaBeanInfo {
                     if (annotation.name().length() != 0) {
                         String propertyName = annotation.name();
                         add(fieldList, new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures,
-                                                     annotation, null));
+                                                     annotation, null, null));
                         continue;
                     }
                 }
@@ -267,7 +267,7 @@ public class JavaBeanInfo {
                 String propertyName = properNameBuilder.toString();
 
                 add(fieldList, new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures,
-                                             annotation, null));
+                                             annotation, null, null));
             }
 
             if (builderClass != null) {
@@ -345,7 +345,7 @@ public class JavaBeanInfo {
                 if (annotation.name().length() != 0) {
                     String propertyName = annotation.name();
                     add(fieldList, new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures,
-                                                 annotation, null));
+                                                 annotation, null, null));
                     continue;
                 }
             }
@@ -392,7 +392,7 @@ public class JavaBeanInfo {
                     if (fieldAnnotation.name().length() != 0) {
                         propertyName = fieldAnnotation.name();
                         add(fieldList, new FieldInfo(propertyName, method, field, clazz, type, ordinal,
-                                                     serialzeFeatures, annotation, fieldAnnotation));
+                                                     serialzeFeatures, annotation, fieldAnnotation, null));
                         continue;
                     }
                 }
@@ -400,7 +400,7 @@ public class JavaBeanInfo {
             }
 
             add(fieldList, new FieldInfo(propertyName, method, field, clazz, type, ordinal, serialzeFeatures,
-                                         annotation, fieldAnnotation));
+                                         annotation, fieldAnnotation, null));
         }
 
         for (Field field : clazz.getFields()) { // public static fields
@@ -434,7 +434,7 @@ public class JavaBeanInfo {
                 }
             }
             add(fieldList, new FieldInfo(propertyName, null, field, clazz, type, ordinal, serialzeFeatures, null,
-                                         fieldAnnotation));
+                                         fieldAnnotation, null));
         }
 
         for (Method method : clazz.getMethods()) { // getter methods
@@ -472,7 +472,7 @@ public class JavaBeanInfo {
                         continue;
                     }
 
-                    add(fieldList, new FieldInfo(propertyName, method, null, clazz, type, 0, 0, annotation, null));
+                    add(fieldList, new FieldInfo(propertyName, method, null, clazz, type, 0, 0, annotation, null, null));
                 }
             }
         }

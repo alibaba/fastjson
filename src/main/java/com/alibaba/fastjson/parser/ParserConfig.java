@@ -509,7 +509,7 @@ public class ParserConfig {
             }
 
             for (FieldInfo fieldInfo : beanInfo.fields) {
-                if (fieldInfo.isGetOnly()) {
+                if (fieldInfo.getOnly) {
                     asmEnable = false;
                     break;
                 }

@@ -184,7 +184,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                     continue;
                 }
                 
-                if (!FilterUtils.applyLabel(serializer, fieldSerializer.fieldInfo.getLabel())) {
+                if (!FilterUtils.applyLabel(serializer, fieldSerializer.fieldInfo.label)) {
                     continue;
                 }
 
@@ -278,9 +278,9 @@ public class JavaBeanSerializer implements ObjectSerializer {
     public boolean writeReference(JSONSerializer serializer, Object object, int fieldFeatures) {
         {
             SerialContext context = serializer.getContext();
+            int mask = SerializerFeature.DisableCircularReferenceDetect.mask;
             if (context != null
-                && SerializerFeature.isEnabled(context.getFeatures(), fieldFeatures,
-                                               SerializerFeature.DisableCircularReferenceDetect)) {
+                && ((context.features & mask) != 0 || (fieldFeatures & mask) != 0)) {
                 return false;
             }
         }

@@ -164,24 +164,16 @@ public class ClassWriter {
     public void visit(final int version, final int access, final String name, final String superName, final String[] interfaces) {
         this.version = version;
         this.access = access;
-        this.name = newClass(name);
+        this.name = newClassItem(name).index;
         thisName = name;
-        this.superName = superName == null ? 0 : newClass(superName);
+        this.superName = superName == null ? 0 : newClassItem(superName).index;
         if (interfaces != null && interfaces.length > 0) {
             interfaceCount = interfaces.length;
             this.interfaces = new int[interfaceCount];
             for (int i = 0; i < interfaceCount; ++i) {
-                this.interfaces[i] = newClass(interfaces[i]);
+                this.interfaces[i] = newClassItem(interfaces[i]).index;
             }
         }
-    }
-
-    public FieldVisitor visitField(final int access, final String name, final String desc) {
-        return new FieldWriter(this, access, name, desc);
-    }
-
-    public MethodVisitor visitMethod(final int access, final String name, final String desc, final String signature, final String[] exceptions) {
-        return new MethodWriter(this, access, name, desc, signature, exceptions);
     }
 
     // ------------------------------------------------------------------------
@@ -254,7 +246,15 @@ public class ClassWriter {
     Item newConstItem(final Object cst) {
         if (cst instanceof Integer) {
             int val = ((Integer) cst).intValue();
-            return newInteger(val);
+            // return newInteger(val);
+            key.set(val);
+            Item result = get(key);
+            if (result == null) {
+                pool.putByte(3 /* INT */ ).putInt(val);
+                result = new Item(index++, key);
+                put(result);
+            }
+            return result;
         } else if (cst instanceof String) {
             return newString((String) cst);
         } else if (cst instanceof Type) {
@@ -263,17 +263,6 @@ public class ClassWriter {
         } else {
             throw new IllegalArgumentException("value " + cst);
         }
-    }
-    
-    Item newInteger(final int value) {
-        key.set(value);
-        Item result = get(key);
-        if (result == null) {
-            pool.putByte(3 /* INT */ ).putInt(value);
-            result = new Item(index++, key);
-            put(result);
-        }
-        return result;
     }
 
     public int newUTF8(final String value) {
@@ -287,7 +276,7 @@ public class ClassWriter {
         return result.index;
     }
 
-    Item newClassItem(final String value) {
+    public Item newClassItem(final String value) {
         key2.set(7 /* CLASS */, value, null, null);
         Item result = get(key2);
         if (result == null) {
@@ -296,10 +285,6 @@ public class ClassWriter {
             put(result);
         }
         return result;
-    }
-
-    public int newClass(final String value) {
-        return newClassItem(value).index;
     }
 
     /**
@@ -315,7 +300,9 @@ public class ClassWriter {
         key3.set(9 /* FIELD */, owner, name, desc);
         Item result = get(key3);
         if (result == null) {
-            put122(9 /* FIELD */, newClass(owner), newNameType(name, desc));
+            // put122(9 /* FIELD */, newClassItem(owner).index, newNameTypeItem(name, desc).index);
+            int s1 = newClassItem(owner).index, s2 = newNameTypeItem(name, desc).index;
+            pool.put12(9 /* FIELD */, s1).putShort(s2);
             result = new Item(index++, key3);
             put(result);
         }
@@ -337,7 +324,9 @@ public class ClassWriter {
         key3.set(type, owner, name, desc);
         Item result = get(key3);
         if (result == null) {
-            put122(type, newClass(owner), newNameType(name, desc));
+            // put122(type, newClassItem(owner).index, newNameTypeItem(name, desc).index);
+            int s1 = newClassItem(owner).index, s2 = newNameTypeItem(name, desc).index;
+            pool.put12(type, s1).putShort(s2);
             result = new Item(index++, key3);
             put(result);
         }
@@ -362,10 +351,6 @@ public class ClassWriter {
         return result;
     }
 
-    public int newNameType(final String name, final String desc) {
-        return newNameTypeItem(name, desc).index;
-    }
-
     /**
      * Adds a name and type to the constant pool of the class being build. Does nothing if the constant pool already
      * contains a similar item.
@@ -374,11 +359,13 @@ public class ClassWriter {
      * @param desc a type descriptor.
      * @return a new or already existing name and type item.
      */
-    Item newNameTypeItem(final String name, final String desc) {
+    public Item newNameTypeItem(final String name, final String desc) {
         key2.set(12 /* NAME_TYPE */, name, desc, null);
         Item result = get(key2);
         if (result == null) {
-            put122(12 /* NAME_TYPE */, newUTF8(name), newUTF8(desc));
+            //put122(12 /* NAME_TYPE */, newUTF8(name), newUTF8(desc));
+            int s1 = newUTF8(name), s2 = newUTF8(desc);
+            pool.put12(12 /* NAME_TYPE */, s1).putShort(s2);
             result = new Item(index++, key2);
             put(result);
         }
@@ -428,14 +415,8 @@ public class ClassWriter {
         items[index] = i;
     }
 
-    /**
-     * Puts one byte and two shorts into the constant pool.
-     * 
-     * @param b a byte.
-     * @param s1 a short.
-     * @param s2 another short.
-     */
-    private void put122(final int b, final int s1, final int s2) {
-        pool.put12(b, s1).putShort(s2);
-    }
+   
+//    private void put122(final int b, final int s1, final int s2) {
+//        pool.put12(b, s1).putShort(s2);
+//    }
 }

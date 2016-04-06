@@ -89,11 +89,12 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     public int                                              matchStat      = UNKOWN;
 
+    private final SoftReference<char[]>                     sbufRef;
     private final static ThreadLocal<SoftReference<char[]>> SBUF_REF_LOCAL = new ThreadLocal<SoftReference<char[]>>();
     protected Map<String, Integer>                          keywods        = DEFAULT_KEYWORDS;
 
     public JSONLexerBase(){
-        SoftReference<char[]> sbufRef = SBUF_REF_LOCAL.get();
+        sbufRef = SBUF_REF_LOCAL.get();
 
         if (sbufRef != null) {
             sbuf = sbufRef.get();
@@ -101,7 +102,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
 
         if (sbuf == null) {
-            sbuf = new char[64];
+            sbuf = new char[256];
         }
     }
 
@@ -1032,7 +1033,13 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     public void close() {
         if (sbuf.length <= 1024 * 8) {
-            SBUF_REF_LOCAL.set(new SoftReference<char[]>(sbuf));
+            SoftReference<char[]> ref;
+            if (sbufRef == null || sbufRef.get() != sbuf) {
+                ref = new SoftReference<char[]>(sbuf);
+            } else {
+                ref = sbufRef;
+            }
+            SBUF_REF_LOCAL.set(ref);
         }
         this.sbuf = null;
     }

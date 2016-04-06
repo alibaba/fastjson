@@ -21,9 +21,10 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.asm.ClassWriter;
-import com.alibaba.fastjson.asm.FieldVisitor;
+import com.alibaba.fastjson.asm.FieldWriter;
 import com.alibaba.fastjson.asm.Label;
 import com.alibaba.fastjson.asm.MethodVisitor;
+import com.alibaba.fastjson.asm.MethodWriter;
 import com.alibaba.fastjson.asm.Opcodes;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
@@ -138,7 +139,7 @@ public class ASMDeserializerFactory implements Opcodes {
     }
 
     void _deserialzeArrayMapping(ClassWriter cw, Context context) {
-        MethodVisitor mw = cw.visitMethod(ACC_PUBLIC, "deserialzeArrayMapping",
+        MethodVisitor mw = new MethodWriter(cw, ACC_PUBLIC, "deserialzeArrayMapping",
                                           "(Lcom/alibaba/fastjson/parser/DefaultJSONParser;Ljava/lang/reflect/Type;Ljava/lang/Object;)Ljava/lang/Object;",
                                           null, null);
 
@@ -310,7 +311,7 @@ public class ASMDeserializerFactory implements Opcodes {
 
         context.fieldInfoList = context.beanInfo.sortedFields;
 
-        MethodVisitor mw = cw.visitMethod(ACC_PUBLIC, "deserialze",
+        MethodVisitor mw = new MethodWriter(cw, ACC_PUBLIC, "deserialze",
                                           "(Lcom/alibaba/fastjson/parser/DefaultJSONParser;Ljava/lang/reflect/Type;Ljava/lang/Object;)Ljava/lang/Object;",
                                           null, null);
 
@@ -1174,7 +1175,7 @@ public class ASMDeserializerFactory implements Opcodes {
         cw.visit(V1_5, ACC_PUBLIC + ACC_SUPER, className, getType(superClass), null);
 
         {
-            MethodVisitor mw = cw.visitMethod(ACC_PUBLIC //
+            MethodVisitor mw = new MethodWriter(cw, ACC_PUBLIC //
                                               , "<init>" //
                                               ,
                                               "(Lcom/alibaba/fastjson/parser/ParserConfig;Ljava/lang/Class;Lcom/alibaba/fastjson/util/FieldInfo;)V",
@@ -1193,7 +1194,7 @@ public class ASMDeserializerFactory implements Opcodes {
 
         if (method != null) {
             if (fieldClass == int.class) {
-                MethodVisitor mw = cw.visitMethod(ACC_PUBLIC, "setValue", "(Ljava/lang/Object;I)V", null, null);
+                MethodVisitor mw = new MethodWriter(cw, ACC_PUBLIC, "setValue", "(Ljava/lang/Object;I)V", null, null);
                 mw.visitVarInsn(ALOAD, 1);
                 mw.visitTypeInsn(CHECKCAST, getType(method.getDeclaringClass())); // cast
                 mw.visitVarInsn(ILOAD, 2);
@@ -1204,7 +1205,7 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitMaxs(3, 3);
                 mw.visitEnd();
             } else if (fieldClass == long.class) {
-                MethodVisitor mw = cw.visitMethod(ACC_PUBLIC, "setValue", "(Ljava/lang/Object;J)V", null, null);
+                MethodVisitor mw = new MethodWriter(cw, ACC_PUBLIC, "setValue", "(Ljava/lang/Object;J)V", null, null);
                 mw.visitVarInsn(ALOAD, 1);
                 mw.visitTypeInsn(CHECKCAST, getType(method.getDeclaringClass())); // cast
                 mw.visitVarInsn(LLOAD, 2);
@@ -1216,7 +1217,7 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitEnd();
             } else {
                 // public void setValue(Object object, Object value)
-                MethodVisitor mw = cw.visitMethod(ACC_PUBLIC, "setValue", "(Ljava/lang/Object;Ljava/lang/Object;)V",
+                MethodVisitor mw = new MethodWriter(cw, ACC_PUBLIC, "setValue", "(Ljava/lang/Object;Ljava/lang/Object;)V",
                                                   null, null);
                 mw.visitVarInsn(ALOAD, 1);
                 mw.visitTypeInsn(CHECKCAST, getType(method.getDeclaringClass())); // cast
@@ -1295,7 +1296,7 @@ public class ASMDeserializerFactory implements Opcodes {
 
             // public FieldVisitor visitField(final int access, final String name, final String desc, final String
             // signature, final Object value) {
-            FieldVisitor fw = cw.visitField(ACC_PUBLIC, fieldInfo.name + "_asm_prefix__", "[C");
+            FieldWriter fw = new FieldWriter(cw, ACC_PUBLIC, fieldInfo.name + "_asm_prefix__", "[C");
             fw.visitEnd();
         }
 
@@ -1312,17 +1313,17 @@ public class ASMDeserializerFactory implements Opcodes {
             }
 
             if (Collection.class.isAssignableFrom(fieldClass)) {
-                FieldVisitor fw = cw.visitField(ACC_PUBLIC, fieldInfo.name + "_asm_list_item_deser__",
+                FieldWriter fw = new FieldWriter(cw, ACC_PUBLIC, fieldInfo.name + "_asm_list_item_deser__",
                                                 "Lcom/alibaba/fastjson/parser/deserializer/ObjectDeserializer;");
                 fw.visitEnd();
             } else {
-                FieldVisitor fw = cw.visitField(ACC_PUBLIC, fieldInfo.name + "_asm_deser__",
+                FieldWriter fw = new FieldWriter(cw, ACC_PUBLIC, fieldInfo.name + "_asm_deser__",
                                                 "Lcom/alibaba/fastjson/parser/deserializer/ObjectDeserializer;");
                 fw.visitEnd();
             }
         }
 
-        MethodVisitor mw = cw.visitMethod(ACC_PUBLIC, "<init>",
+        MethodVisitor mw = new MethodWriter(cw, ACC_PUBLIC, "<init>",
                                           "(Lcom/alibaba/fastjson/parser/ParserConfig;Ljava/lang/Class;)V", null, null);
         mw.visitVarInsn(ALOAD, 0);
         mw.visitVarInsn(ALOAD, 1);
@@ -1347,7 +1348,7 @@ public class ASMDeserializerFactory implements Opcodes {
     }
 
     private void _createInstance(ClassWriter cw, Context context) {
-        MethodVisitor mw = cw.visitMethod(ACC_PUBLIC, "createInstance",
+        MethodVisitor mw = new MethodWriter(cw, ACC_PUBLIC, "createInstance",
                                           "(Lcom/alibaba/fastjson/parser/DefaultJSONParser;Ljava/lang/reflect/Type;)Ljava/lang/Object;",
                                           null, null);
 

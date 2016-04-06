@@ -52,7 +52,7 @@ public abstract class FieldDeserializer {
         Method method = fieldInfo.method;
         if (method != null) {
             try {
-                if (fieldInfo.isGetOnly()) {
+                if (fieldInfo.getOnly) {
                     if (fieldInfo.fieldClass == AtomicInteger.class) {
                         AtomicInteger atomic = (AtomicInteger) method.invoke(object);
                         if (atomic != null) {

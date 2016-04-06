@@ -30,11 +30,11 @@
 package com.alibaba.fastjson.asm;
 
 /**
- * An {@link FieldVisitor} that generates Java fields in bytecode form.
+ * An FieldWriter that generates Java fields in bytecode form.
  * 
  * @author Eric Bruneton
  */
-final class FieldWriter implements FieldVisitor {
+public final class FieldWriter {
 
     /**
      * Next field writer (see {@link ClassWriter#firstField firstField}).
@@ -70,7 +70,7 @@ final class FieldWriter implements FieldVisitor {
      * @param signature the field's signature. May be <tt>null</tt>.
      * @param value the field's constant value. May be <tt>null</tt>.
      */
-    FieldWriter(final ClassWriter cw, final int access, final String name, final String desc){
+    public FieldWriter(final ClassWriter cw, final int access, final String name, final String desc){
         if (cw.firstField == null) {
             cw.firstField = this;
         } else {

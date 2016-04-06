@@ -36,7 +36,7 @@ public abstract class FieldSerializer implements Comparable<FieldSerializer> {
     public FieldSerializer(FieldInfo fieldInfo){
         super();
         this.fieldInfo = fieldInfo;
-        fieldInfo.setAccessible(true);
+        fieldInfo.setAccessible();
 
         this.double_quoted_fieldPrefix = '"' + fieldInfo.name + "\":";
 

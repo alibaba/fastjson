@@ -92,7 +92,7 @@ public class ObjectFieldSerializer extends FieldSerializer {
         
         final RuntimeSerializerInfo runtimeInfo = this.runtimeInfo;
         
-        final int fieldFeatures = fieldInfo.getSerialzeFeatures();
+        final int fieldFeatures = fieldInfo.serialzeFeatures;
 
         if (propertyValue == null) {
             if (writeNumberAsZero && Number.class.isAssignableFrom(runtimeInfo.runtimeFieldClass)) {

@@ -36,7 +36,7 @@ package com.alibaba.fastjson.asm;
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
-class MethodWriter implements MethodVisitor {
+public class MethodWriter implements MethodVisitor {
 
     /**
      * Next method writer (see {@link ClassWriter#firstMethod firstMethod}).
@@ -115,7 +115,7 @@ class MethodWriter implements MethodVisitor {
      * computed.
      * @param computeFrames <tt>true</tt> if the stack map tables must be recomputed from scratch.
      */
-    MethodWriter(final ClassWriter cw, final int access, final String name, final String desc, final String signature, final String[] exceptions){
+    public MethodWriter(final ClassWriter cw, final int access, final String name, final String desc, final String signature, final String[] exceptions){
         if (cw.firstMethod == null) {
             cw.firstMethod = this;
         } else {
@@ -131,7 +131,7 @@ class MethodWriter implements MethodVisitor {
             exceptionCount = exceptions.length;
             this.exceptions = new int[exceptionCount];
             for (int i = 0; i < exceptionCount; ++i) {
-                this.exceptions[i] = cw.newClass(exceptions[i]);
+                this.exceptions[i] = cw.newClassItem(exceptions[i]).index;
             }
         }
     }

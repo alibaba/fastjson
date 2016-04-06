@@ -8,7 +8,7 @@ public class SerialContext {
 
     public final Object        fieldName;
 
-    private int                 features;
+    public final int                 features;
 
     private int                 fieldFeatures;
 
@@ -38,6 +38,7 @@ public class SerialContext {
     }
 
     public boolean isEnabled(SerializerFeature feature) {
-        return SerializerFeature.isEnabled(features, fieldFeatures, feature);
+        int mask = feature.mask;
+        return (features & mask) != 0 || (fieldFeatures & mask) != 0;
     }
 }

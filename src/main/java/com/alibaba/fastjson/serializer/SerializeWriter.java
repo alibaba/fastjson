@@ -37,6 +37,8 @@ public final class SerializeWriter extends Writer {
      * The buffer where data is stored.
      */
     protected char                                          buf[];
+    
+    protected SoftReference<char[]>                         bufLocalRef;
 
     /**
      * The number of chars in the buffer.
@@ -57,10 +59,10 @@ public final class SerializeWriter extends Writer {
         this.writer = writer;
         this.features = JSON.DEFAULT_GENERATE_FEATURE;
 
-        SoftReference<char[]> ref = bufLocal.get();
+        bufLocalRef = bufLocal.get();
 
-        if (ref != null) {
-            buf = ref.get();
+        if (bufLocalRef != null) {
+            buf = bufLocalRef.get();
             bufLocal.set(null);
         }
 
@@ -76,10 +78,10 @@ public final class SerializeWriter extends Writer {
     public SerializeWriter(Writer writer, SerializerFeature... features){
         this.writer = writer;
 
-        SoftReference<char[]> ref = bufLocal.get();
+        bufLocalRef = bufLocal.get();
 
-        if (ref != null) {
-            buf = ref.get();
+        if (bufLocalRef != null) {
+            buf = bufLocalRef.get();
             bufLocal.set(null);
         }
 
@@ -331,7 +333,13 @@ public final class SerializeWriter extends Writer {
             flush();
         }
         if (buf.length <= 1024 * 8) {
-            bufLocal.set(new SoftReference<char[]>(buf));
+            SoftReference<char[]> ref;
+            if (bufLocalRef == null || bufLocalRef.get() != buf) {
+                ref = new SoftReference<char[]>(buf);
+            } else {
+                ref = bufLocalRef;
+            }
+            bufLocal.set(ref);
         }
 
         this.buf = null;

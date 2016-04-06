@@ -47,7 +47,7 @@ public class BooleanFieldDeserializer extends FieldDeserializer {
             value = null;
             lexer.nextToken(JSONToken.COMMA);
 
-            if (getFieldClass() == boolean.class) {
+            if (fieldInfo.fieldClass == boolean.class) {
                 // skip
                 return;
             }
@@ -72,7 +72,7 @@ public class BooleanFieldDeserializer extends FieldDeserializer {
 
         value = TypeUtils.castToBoolean(obj);
 
-        if (value == null && getFieldClass() == boolean.class) {
+        if (value == null && fieldInfo.fieldClass == boolean.class) {
             // skip
             return;
         }

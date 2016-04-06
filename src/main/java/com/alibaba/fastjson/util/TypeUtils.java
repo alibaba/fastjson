@@ -920,14 +920,14 @@ public class TypeUtils {
                         continue;
                     }
                     
-                    Method method = fieldDeser.getMethod();
+                    Method method = fieldDeser.fieldInfo.method;
                     if (method != null) {
                         Type paramType = method.getGenericParameterTypes()[0];
                         value = cast(value, paramType, config);
                         method.invoke(object, new Object[] { value });
                     } else {
-                        Field field = fieldDeser.getField();
-                        Type paramType = fieldDeser.getFieldType();
+                        Field field = fieldDeser.fieldInfo.field;
+                        Type paramType = fieldDeser.fieldInfo.fieldType;
                         value = cast(value, paramType, config);
                         field.set(object, value);
                     }

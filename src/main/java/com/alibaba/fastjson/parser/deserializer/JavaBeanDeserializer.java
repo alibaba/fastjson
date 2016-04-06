@@ -22,7 +22,7 @@ import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParseContext;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.FilterUtils;
-import com.alibaba.fastjson.util.DeserializeBeanInfo;
+import com.alibaba.fastjson.util.JavaBeanInfo;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.TypeUtils;
 
@@ -34,7 +34,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     private final List<FieldDeserializer>        sortedFieldDeserializers = new ArrayList<FieldDeserializer>();
     private final Class<?>                       clazz;
 
-    private DeserializeBeanInfo                  beanInfo;
+    private JavaBeanInfo                  beanInfo;
 
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz){
         this(config, clazz, clazz);
@@ -43,7 +43,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz, Type type){
         this.clazz = clazz;
 
-        beanInfo = DeserializeBeanInfo.computeSetters(clazz, type);
+        beanInfo = JavaBeanInfo.computeSetters(clazz, type);
 
         for (FieldInfo fieldInfo : beanInfo.getFieldList()) {
             addFieldDeserializer(config, clazz, fieldInfo);

@@ -22,7 +22,7 @@ import com.alibaba.fastjson.annotation.JSONPOJOBuilder;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
-public class DeserializeBeanInfo {
+public class JavaBeanInfo {
 
     private final Class<?>        clazz;
     public final Class<?>         builderClass;
@@ -40,7 +40,7 @@ public class DeserializeBeanInfo {
     
     public final JSONType         jsonType;
 
-    public DeserializeBeanInfo(Class<?> clazz, // 
+    public JavaBeanInfo(Class<?> clazz, // 
                                Class<?> builderClass, // 
                                Constructor<?> defaultConstructor, // 
                                Constructor<?> creatorConstructor, // 
@@ -117,8 +117,8 @@ public class DeserializeBeanInfo {
         return true;
     }
 
-    public static DeserializeBeanInfo computeSetters(Class<?> clazz, Type type) {
-        DeserializeBeanInfo beanInfo = null;
+    public static JavaBeanInfo computeSetters(Class<?> clazz, Type type) {
+        JavaBeanInfo beanInfo = null;
         
         JSONType jsonType = clazz.getAnnotation(JSONType.class);
 
@@ -130,12 +130,12 @@ public class DeserializeBeanInfo {
         Constructor<?> defaultConstructor = getDefaultConstructor(builderClass == null ? clazz : builderClass);
         if (defaultConstructor != null) { // 如果存在默认构造方法
             TypeUtils.setAccessible(defaultConstructor);
-            beanInfo = new DeserializeBeanInfo(clazz, builderClass, defaultConstructor, null, null, null, jsonType);
+            beanInfo = new JavaBeanInfo(clazz, builderClass, defaultConstructor, null, null, null, jsonType);
         } else if (defaultConstructor == null && !(clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers()))) {
             Constructor<?> creatorConstructor = getCreatorConstructor(clazz);
             if (creatorConstructor != null) { // 基于标记 JSONCreator 注解的构造方法
                 TypeUtils.setAccessible(creatorConstructor);
-                beanInfo = new DeserializeBeanInfo(clazz, builderClass, null, creatorConstructor, null, null, jsonType);
+                beanInfo = new JavaBeanInfo(clazz, builderClass, null, creatorConstructor, null, null, jsonType);
 
                 Class<?>[] types = creatorConstructor.getParameterTypes();
                 if (types.length > 0) {
@@ -169,7 +169,7 @@ public class DeserializeBeanInfo {
             if (factoryMethod != null) {
                 TypeUtils.setAccessible(factoryMethod);
                 
-                beanInfo = new DeserializeBeanInfo(clazz, builderClass, null, null, factoryMethod, null, jsonType);
+                beanInfo = new JavaBeanInfo(clazz, builderClass, null, null, factoryMethod, null, jsonType);
                 Class<?>[] types = factoryMethod.getParameterTypes();
                 if (types.length > 0) {
                 	Annotation[][] paramAnnotationArrays = factoryMethod.getParameterAnnotations();
@@ -202,7 +202,7 @@ public class DeserializeBeanInfo {
         }
         
         if (beanInfo == null) {
-            beanInfo = new DeserializeBeanInfo(clazz, builderClass, null, null, null, null, jsonType);
+            beanInfo = new JavaBeanInfo(clazz, builderClass, null, null, null, null, jsonType);
         }
         if (builderClass != null) {
             String withPrefix = null;

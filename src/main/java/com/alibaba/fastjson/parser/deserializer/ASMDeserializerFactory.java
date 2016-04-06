@@ -31,7 +31,7 @@ import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.ASMClassLoader;
 import com.alibaba.fastjson.util.ASMUtils;
-import com.alibaba.fastjson.util.DeserializeBeanInfo;
+import com.alibaba.fastjson.util.JavaBeanInfo;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.TypeUtils;
 
@@ -83,7 +83,7 @@ public class ASMDeserializerFactory implements Opcodes {
         ClassWriter cw = new ClassWriter();
         cw.visit(V1_5, ACC_PUBLIC + ACC_SUPER, className, "com/alibaba/fastjson/parser/deserializer/ASMJavaBeanDeserializer", null);
 
-        DeserializeBeanInfo beanInfo = DeserializeBeanInfo.computeSetters(clazz, type);
+        JavaBeanInfo beanInfo = JavaBeanInfo.computeSetters(clazz, type);
 
         _init(cw, new Context(className, config, beanInfo, 3));
         _createInstance(cw, new Context(className, config, beanInfo, 3));
@@ -663,7 +663,7 @@ public class ASMDeserializerFactory implements Opcodes {
     }
 
     private void _createInstance(Context context, MethodVisitor mw) {
-        DeserializeBeanInfo beanInfo = context.getBeanInfo();
+        JavaBeanInfo beanInfo = context.getBeanInfo();
         Constructor<?> defaultConstructor = beanInfo.defaultConstructor;
         if (Modifier.isPublic(defaultConstructor.getModifiers())) {
             mw.visitTypeInsn(NEW, getType(context.getInstClass()));
@@ -1230,11 +1230,11 @@ public class ASMDeserializerFactory implements Opcodes {
         private Map<String, Integer>      variants     = new HashMap<String, Integer>();
 
         private Class<?>                  clazz;
-        private final DeserializeBeanInfo beanInfo;
+        private final JavaBeanInfo beanInfo;
         private String                    className;
         private List<FieldInfo>           fieldInfoList;
 
-        public Context(String className, ParserConfig config, DeserializeBeanInfo beanInfo, int initVariantIndex){
+        public Context(String className, ParserConfig config, JavaBeanInfo beanInfo, int initVariantIndex){
             this.className = className;
             this.clazz = beanInfo.getClazz();
             this.variantIndex = initVariantIndex;
@@ -1250,7 +1250,7 @@ public class ASMDeserializerFactory implements Opcodes {
             return fieldInfoList;
         }
 
-        public DeserializeBeanInfo getBeanInfo() {
+        public JavaBeanInfo getBeanInfo() {
             return beanInfo;
         }
 

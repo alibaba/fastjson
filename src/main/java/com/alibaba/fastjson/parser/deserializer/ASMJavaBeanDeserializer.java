@@ -6,7 +6,7 @@ import java.util.Map;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.util.DeserializeBeanInfo;
+import com.alibaba.fastjson.util.JavaBeanInfo;
 import com.alibaba.fastjson.util.FieldInfo;
 
 public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
@@ -38,7 +38,7 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
         return serializer.createInstance(parser, serializer.getClazz());
     }
 
-    public FieldDeserializer createFieldDeserializer(ParserConfig mapping, DeserializeBeanInfo beanInfo, FieldInfo fieldInfo) {
+    public FieldDeserializer createFieldDeserializer(ParserConfig mapping, JavaBeanInfo beanInfo, FieldInfo fieldInfo) {
         return mapping.createFieldDeserializer(mapping, beanInfo, fieldInfo);
     }
 
@@ -77,7 +77,7 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
             return ASMJavaBeanDeserializer.this.parseField(parser, key, object, objectType, fieldValues);
         }
 
-        public FieldDeserializer createFieldDeserializer(ParserConfig mapping, DeserializeBeanInfo beanInfo, FieldInfo fieldInfo) {
+        public FieldDeserializer createFieldDeserializer(ParserConfig mapping, JavaBeanInfo beanInfo, FieldInfo fieldInfo) {
             return ASMJavaBeanDeserializer.this.createFieldDeserializer(mapping, beanInfo, fieldInfo);
         }
     }

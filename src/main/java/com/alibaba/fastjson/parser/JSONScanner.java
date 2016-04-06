@@ -33,10 +33,7 @@ import com.alibaba.fastjson.util.IOUtils;
  * @author wenshao[szujobs@hotmail.com]
  */
 public final class JSONScanner extends JSONLexerBase {
-
     private final String text;
-    
-    private static boolean isAndroid = ASMUtils.isAndroid();
 
     public JSONScanner(String input){
         this(input, JSON.DEFAULT_PARSER_FEATURE);
@@ -179,7 +176,7 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     public final String subString(int offset, int count) {
-        if (isAndroid) {
+        if (ASMUtils.IS_ANDROID) {
             char[] chars = new char[count];
             for (int i = offset; i < offset + count; ++i) {
                 chars[i - offset] = text.charAt(i);

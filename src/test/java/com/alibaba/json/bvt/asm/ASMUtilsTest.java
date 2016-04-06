@@ -2,6 +2,9 @@ package com.alibaba.json.bvt.asm;
 
 import junit.framework.TestCase;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+
 import org.junit.Assert;
 
 import com.alibaba.fastjson.parser.ParseContext;
@@ -23,5 +26,15 @@ public class ASMUtilsTest extends TestCase {
     
     public void test_getFieldType_null() throws Exception {
         Assert.assertNull(ASMUtils.getFieldType(ParseContext.class, "XX"));
+    }
+    
+    public static Type getMethodType(Class<?> clazz, String methodName) {
+        try {
+            Method method = clazz.getMethod(methodName);
+
+            return method.getGenericReturnType();
+        } catch (Exception ex) {
+            return null;
+        }
     }
 }

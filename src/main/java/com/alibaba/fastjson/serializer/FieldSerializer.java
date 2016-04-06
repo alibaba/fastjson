@@ -27,11 +27,11 @@ import com.alibaba.fastjson.util.FieldInfo;
  */
 public abstract class FieldSerializer implements Comparable<FieldSerializer> {
 
-    public final FieldInfo fieldInfo;
-    private final String      double_quoted_fieldPrefix;
-    private final String      single_quoted_fieldPrefix;
-    private final String      un_quoted_fieldPrefix;
-    private boolean           writeNull = false;
+    public final FieldInfo  fieldInfo;
+    private final String    double_quoted_fieldPrefix;
+    private final String    single_quoted_fieldPrefix;
+    private final String    un_quoted_fieldPrefix;
+    protected final boolean writeNull;
 
     public FieldSerializer(FieldInfo fieldInfo){
         super();
@@ -44,6 +44,7 @@ public abstract class FieldSerializer implements Comparable<FieldSerializer> {
 
         this.un_quoted_fieldPrefix = fieldInfo.name + ":";
 
+        boolean writeNull = false;
         JSONField annotation = fieldInfo.getAnnotation();
         if (annotation != null) {
             for (SerializerFeature feature : annotation.serialzeFeatures()) {
@@ -53,14 +54,7 @@ public abstract class FieldSerializer implements Comparable<FieldSerializer> {
                 }
             }
         }
-    }
-
-    public boolean isWriteNull() {
-        return writeNull;
-    }
-
-    public String getLabel() {
-        return fieldInfo.getLabel();
+        this.writeNull = writeNull;
     }
 
     public void writePrefix(JSONSerializer serializer) throws IOException {

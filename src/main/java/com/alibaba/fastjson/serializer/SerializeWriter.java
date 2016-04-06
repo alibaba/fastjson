@@ -15,10 +15,7 @@
  */
 package com.alibaba.fastjson.serializer;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.util.Base64;
-import com.alibaba.fastjson.util.IOUtils;
+import static com.alibaba.fastjson.util.IOUtils.replaceChars;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -27,7 +24,9 @@ import java.lang.ref.SoftReference;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 
-import static com.alibaba.fastjson.util.IOUtils.replaceChars;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.util.IOUtils;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -383,7 +382,7 @@ public final class SerializeWriter extends Writer {
             return;
         }
 
-        final char[] CA = Base64.CA;
+        final char[] CA = IOUtils.CA;
 
         int eLen = (bytesLen / 3) * 3; // Length of even 24-bits.
         int charsLen = ((bytesLen - 1) / 3 + 1) << 2; // base64 character count

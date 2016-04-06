@@ -15,8 +15,6 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
 
     public ASMJavaBeanDeserializer(ParserConfig mapping, Class<?> clazz){
         serializer = new InnerJavaBeanDeserializer(mapping, clazz);
-
-        serializer.getFieldDeserializerMap();
     }
 
     public abstract Object createInstance(DefaultJSONParser parser, Type type);
@@ -43,11 +41,11 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
     }
 
     public FieldDeserializer getFieldDeserializer(String name) {
-        return serializer.getFieldDeserializerMap().get(name);
+        return serializer.getFieldDeserializer(name);
     }
 
     public Type getFieldType(String name) {
-        return serializer.getFieldDeserializerMap().get(name).getFieldType();
+        return serializer.getFieldDeserializer(name).getFieldType();
     }
 
     public boolean parseField(DefaultJSONParser parser, String key, Object object, Type objectType,

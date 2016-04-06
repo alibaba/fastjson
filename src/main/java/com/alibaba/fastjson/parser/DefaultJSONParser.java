@@ -772,7 +772,13 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 
     public void parseObject(Object object) {
         Class<?> clazz = object.getClass();
-        Map<String, FieldDeserializer> setters = config.getFieldDeserializers(clazz);
+        JavaBeanDeserializer beanDeser = null;
+        ObjectDeserializer deserizer = config.getDeserializer(clazz);
+        if (deserizer instanceof JavaBeanDeserializer) {
+            beanDeser = (JavaBeanDeserializer) deserizer;
+        } else if (deserizer instanceof ASMJavaBeanDeserializer) {
+            beanDeser = ((ASMJavaBeanDeserializer) deserizer).getInnterSerializer();
+        }
 
         if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {
             throw new JSONException("syntax error, expect {, actual " + lexer.tokenName());
@@ -794,15 +800,9 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                 }
             }
 
-            FieldDeserializer fieldDeser = setters.get(key);
-            
-            if (fieldDeser == null && key != null) {
-                for (Map.Entry<String, FieldDeserializer> entry : setters.entrySet()) {
-                    if (key.equalsIgnoreCase((entry.getKey()))) {
-                        fieldDeser = entry.getValue();
-                        break;
-                    }
-                }
+            FieldDeserializer fieldDeser = null;
+            if (beanDeser != null) {
+                fieldDeser = beanDeser.getFieldDeserializer(key);
             }
             
             if (fieldDeser == null) {

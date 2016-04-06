@@ -499,10 +499,10 @@ public class ParserConfig {
             if (clazz.isInterface()) {
                 asmEnable = false;
             }
-            JavaBeanInfo beanInfo = JavaBeanInfo.computeSetters(clazz, type);
+            JavaBeanInfo beanInfo = JavaBeanInfo.build(clazz, type);
             
             
-            if (asmEnable && beanInfo.getFieldList().size() > 200) {
+            if (asmEnable && beanInfo.fields.length > 200) {
                 asmEnable = false;
             }
 
@@ -511,7 +511,7 @@ public class ParserConfig {
                 asmEnable = false;
             }
 
-            for (FieldInfo fieldInfo : beanInfo.getFieldList()) {
+            for (FieldInfo fieldInfo : beanInfo.fields) {
                 if (fieldInfo.isGetOnly()) {
                     asmEnable = false;
                     break;
@@ -565,9 +565,9 @@ public class ParserConfig {
     public FieldDeserializer createFieldDeserializer(ParserConfig mapping, JavaBeanInfo beanInfo, FieldInfo fieldInfo) {
         boolean asmEnable = this.asmEnable;
 
-        Class<?> clazz = beanInfo.getClazz();
+        Class<?> clazz = beanInfo.clazz;
         if (asmEnable) {
-            Class<?> superClass = beanInfo.getBuilderClass();
+            Class<?> superClass = beanInfo.builderClass;
             if (superClass == null) {
                 superClass = clazz;
             }

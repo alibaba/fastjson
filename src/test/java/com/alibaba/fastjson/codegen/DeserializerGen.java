@@ -28,7 +28,7 @@ public class DeserializerGen extends ClassGen {
 
     @Override
     public void gen() throws IOException {
-        beanInfo = JavaBeanInfo.computeSetters(clazz, type);
+        beanInfo = JavaBeanInfo.build(clazz, type);
         genClassName = clazz.getSimpleName() + "GenDecoder";
 
         print("package ");
@@ -82,11 +82,11 @@ public class DeserializerGen extends ClassGen {
     }
 
     protected void genDeserialze() throws IOException {
-        if (beanInfo.getFieldList().size() == 0) {
+        if (beanInfo.fields.length == 0) {
             return;
         }
 
-        for (FieldInfo fieldInfo : beanInfo.getFieldList()) {
+        for (FieldInfo fieldInfo : beanInfo.fields) {
             Class<?> fieldClass = fieldInfo.fieldClass;
             Type fieldType = fieldInfo.fieldType;
 
@@ -108,8 +108,7 @@ public class DeserializerGen extends ClassGen {
             }
         }
 
-        List<FieldInfo> fieldList = new ArrayList<FieldInfo>(beanInfo.getFieldList());
-        Collections.sort(fieldList);
+        FieldInfo[] fieldList = beanInfo.sortedFields;
 
         println();
         print("public Object deserialze(DefaultJSONParser parser, Type type, Object fieldName) {");
@@ -167,7 +166,7 @@ public class DeserializerGen extends ClassGen {
 
         println("int matchStat = 0;");
 
-        int fieldListSize = fieldList.size();
+        int fieldListSize = fieldList.length;
         for (int i = 0; i < fieldListSize; i += 32) {
             print("int _asm_flag_");
             print(Integer.toString(i / 32));
@@ -175,7 +174,7 @@ public class DeserializerGen extends ClassGen {
         }
 
         for (int i = 0; i < fieldListSize; ++i) {
-            FieldInfo fieldInfo = fieldList.get(i);
+            FieldInfo fieldInfo = fieldList[i];
             Class<?> fieldClass = fieldInfo.fieldClass;
 
             if (fieldClass == boolean.class) {
@@ -228,7 +227,7 @@ public class DeserializerGen extends ClassGen {
             incrementIndent();
             println();
 
-            FieldInfo fieldInfo = fieldList.get(i);
+            FieldInfo fieldInfo = fieldList[i];
             Class<?> fieldClass = fieldInfo.fieldClass;
             Type fieldType = fieldInfo.fieldType;
 
@@ -345,9 +344,9 @@ public class DeserializerGen extends ClassGen {
         print("}");
     }
 
-    private void genBatchSet(List<FieldInfo> fieldList, boolean flag) throws IOException {
-        for (int i = 0, size = fieldList.size(); i < size; ++i) {
-            FieldInfo fieldInfo = fieldList.get(i);
+    private void genBatchSet(FieldInfo[] fieldList, boolean flag) throws IOException {
+        for (int i = 0, size = fieldList.length; i < size; ++i) {
+            FieldInfo fieldInfo = fieldList[i];
             
             String varName = "_asm_flag_" + (i / 32);
             if (flag) {
@@ -582,8 +581,8 @@ public class DeserializerGen extends ClassGen {
     }
 
     protected void genConstructor() throws IOException {
-        for (int i = 0, size = beanInfo.getFieldList().size(); i < size; ++i) {
-            FieldInfo fieldInfo = beanInfo.getFieldList().get(i);
+        for (int i = 0, size = beanInfo.fields.length; i < size; ++i) {
+            FieldInfo fieldInfo = beanInfo.fields[i];
             print("private char[] ");
             printFieldPrefix(fieldInfo);
             print(" = \"\\\"");
@@ -595,8 +594,8 @@ public class DeserializerGen extends ClassGen {
         println();
 
         boolean fieldDeserFlag = false;
-        for (int i = 0, size = beanInfo.getFieldList().size(); i < size; ++i) {
-            FieldInfo fieldInfo = beanInfo.getFieldList().get(i);
+        for (int i = 0, size = beanInfo.fields.length; i < size; ++i) {
+            FieldInfo fieldInfo = beanInfo.fields[i];
             Class<?> fieldClass = fieldInfo.fieldClass;
 
             if (fieldClass.isPrimitive()) {

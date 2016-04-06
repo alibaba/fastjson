@@ -15,7 +15,7 @@ import com.alibaba.fastjson.util.FieldInfo;
 
 public abstract class FieldDeserializer {
 
-    protected final FieldInfo fieldInfo;
+    public final FieldInfo fieldInfo;
 
     protected final Class<?>  clazz;
 

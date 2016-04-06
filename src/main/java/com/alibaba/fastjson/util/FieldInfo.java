@@ -15,26 +15,25 @@ import com.alibaba.fastjson.annotation.JSONField;
 
 public class FieldInfo implements Comparable<FieldInfo> {
 
-    public final String   name;
-    public final Method   method;
-    public final Field    field;
+    public final String     name;
+    public final Method     method;
+    public final Field      field;
 
-    public final boolean  fieldAccess;
-    public final boolean  fieldTransient;
+    public final boolean    fieldAccess;
+    public final boolean    fieldTransient;
 
-    private int           ordinal = 0;
-    public final Class<?> fieldClass;
-    public final Type     fieldType;
-    public final Class<?> declaringClass;
-    protected boolean     getOnly = false;
-    protected boolean     isTransient;
+    private int             ordinal = 0;
+    public final Class<?>   fieldClass;
+    public final Type       fieldType;
+    public final Class<?>   declaringClass;
+    public final boolean    getOnly;
 
-    private JSONField     fieldAnnotation;
-    private JSONField     methodAnnotation;
-    
-    public final char[]   name_chars;
-    
-    public final boolean  isEnum;
+    private final JSONField fieldAnnotation;
+    private final JSONField methodAnnotation;
+
+    public final char[]     name_chars;
+
+    public final boolean    isEnum;
 
     public FieldInfo(String name, Class<?> declaringClass, Class<?> fieldClass, Type fieldType, Field field,
                      int ordinal, int serialzeFeatures){
@@ -48,6 +47,9 @@ public class FieldInfo implements Comparable<FieldInfo> {
         
         isEnum = fieldClass.isEnum();
         
+        fieldAnnotation = null;
+        methodAnnotation = null;
+        
         if (field != null) {
             int modifiers = field.getModifiers();
             fieldAccess = (Modifier.isPublic(modifiers) || method == null);
@@ -56,7 +58,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
             fieldAccess = false;
             fieldTransient = false;
         }
-        
+        getOnly = false;
         
         int nameLen = this.name.length();
         name_chars = new char[nameLen + 3];
@@ -111,6 +113,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
                 } else {
                     fieldType = method.getGenericParameterTypes()[0];
                 }
+                getOnly = false;
             } else {
                 fieldClass = method.getReturnType();
                 if (fieldClass == Class.class) {
@@ -130,6 +133,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
             }
             
             this.declaringClass = field.getDeclaringClass();
+            getOnly = false;
         }
 
         if (clazz != null && fieldClass == Object.class && fieldType instanceof TypeVariable) {
@@ -292,9 +296,5 @@ public class FieldInfo implements Comparable<FieldInfo> {
         }
 
         field.set(javaObject, value);
-    }
-
-    public boolean isGetOnly() {
-        return getOnly;
     }
 }

@@ -76,7 +76,7 @@ public class DefaultJSONParser implements Closeable {
 
     protected ParseContext             context;
 
-    private ParseContext[]             contextArray       = new ParseContext[8];
+    private ParseContext[]             contextArray;
     private int                        contextArrayIndex  = 0;
 
     private List<ResolveTask>          resolveTaskList;
@@ -780,7 +780,13 @@ public class DefaultJSONParser implements Closeable {
 
     public void parseObject(Object object) {
         Class<?> clazz = object.getClass();
-        Map<String, FieldDeserializer> setters = config.getFieldDeserializers(clazz);
+        JavaBeanDeserializer beanDeser = null;
+        ObjectDeserializer deserizer = config.getDeserializer(clazz);
+        if (deserizer instanceof JavaBeanDeserializer) {
+            beanDeser = (JavaBeanDeserializer) deserizer;
+        }
+        
+//        Map<String, FieldDeserializer> setters = config.getFieldDeserializers(clazz);
 
         if (lexer.token != JSONToken.LBRACE && lexer.token != JSONToken.COMMA) {
             throw new JSONException("syntax error, expect {, actual " + lexer.tokenName());
@@ -802,14 +808,9 @@ public class DefaultJSONParser implements Closeable {
                 }
             }
 
-            FieldDeserializer fieldDeser = setters.get(key);
-            if (fieldDeser == null && key != null) {
-                for (Map.Entry<String, FieldDeserializer> entry : setters.entrySet()) {
-                    if (key.equalsIgnoreCase((entry.getKey()))) {
-                        fieldDeser = entry.getValue();
-                        break;
-                    }
-                }
+            FieldDeserializer fieldDeser = null;
+            if (beanDeser != null) {
+                fieldDeser = beanDeser.getFieldDeserializer(key);
             }
 
             if (fieldDeser == null) {
@@ -1156,6 +1157,9 @@ public class DefaultJSONParser implements Closeable {
     }
 
     private void addContext(ParseContext context) {
+        if (contextArray == null) {
+            contextArray = new ParseContext[8];
+        }
         int i = contextArrayIndex++;
         if (i >= contextArray.length) {
             int newLen = (contextArray.length * 3) / 2;

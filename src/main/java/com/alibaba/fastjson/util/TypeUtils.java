@@ -55,8 +55,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.JSONLexer;
+import com.alibaba.fastjson.parser.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
+import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 /**
@@ -769,7 +771,7 @@ public class TypeUtils {
     }
 
     @SuppressWarnings({ "unchecked" })
-    public static final <T> T castToJavaBean(Map<String, Object> map, Class<T> clazz, ParserConfig mapping) {
+    public static final <T> T castToJavaBean(Map<String, Object> map, Class<T> clazz, ParserConfig config) {
         try {
             if (clazz == StackTraceElement.class) {
                 String declaringClass = (String) map.get("className");
@@ -800,7 +802,7 @@ public class TypeUtils {
                     }
 
                     if (!loadClazz.equals(clazz)) {
-                        return (T) castToJavaBean(map, loadClazz, mapping);
+                        return (T) castToJavaBean(map, loadClazz, config);
                     }
                 }
             }
@@ -818,37 +820,34 @@ public class TypeUtils {
                                                   new Class<?>[] { clazz }, object);
             }
 
-            if (mapping == null) {
-                mapping = ParserConfig.global;
+            if (config == null) {
+                config = ParserConfig.global;
             }
 
-            Map<String, FieldDeserializer> setters = mapping.getFieldDeserializers(clazz);
-
+            JavaBeanDeserializer javaBeanDeser = null;
+            ObjectDeserializer deserizer = config.getDeserializer(clazz);
+            if (deserizer instanceof JavaBeanDeserializer) {
+                javaBeanDeser = (JavaBeanDeserializer) deserizer;
+            }
+            
             Constructor<T> constructor = clazz.getDeclaredConstructor();
             constructor.setAccessible(true);
             T object = constructor.newInstance();
 
-            for (Map.Entry<String, FieldDeserializer> entry : setters.entrySet()) {
-                String key = entry.getKey();
-                FieldDeserializer fieldDeser = entry.getValue();
-
-                if (map.containsKey(key)) {
-                    Object value = map.get(key);
-                    Method method = fieldDeser.fieldInfo.method;
-                    if (method != null) {
-                        Type paramType = method.getGenericParameterTypes()[0];
-                        value = cast(value, paramType, mapping);
-                        method.invoke(object, new Object[] { value });
-                    } else {
-                        Field field = fieldDeser.fieldInfo.field;
-                        Type paramType = field.getGenericType();
-                        value = cast(value, paramType, mapping);
-                        field.set(object, value);
+            if (javaBeanDeser != null) {
+                for (Map.Entry<String, Object> entry : map.entrySet()) {
+                    String key = entry.getKey();
+                    Object value = entry.getValue();
+                    
+                    FieldDeserializer fieldDeser = javaBeanDeser.getFieldDeserializer(key);
+                    if (fieldDeser == null) {
+                        continue;
                     }
-
+                    
+                    Object fieldValue = TypeUtils.cast(value, fieldDeser.fieldInfo.fieldType, config);
+                    fieldDeser.setValue(object, fieldValue);
                 }
             }
-
             return object;
         } catch (Exception e) {
             throw new JSONException(e.getMessage(), e);
@@ -1363,7 +1362,7 @@ public class TypeUtils {
         return new String(chars);
     }
     
-    static boolean setAccessible(Class<?> clazz, Member member, int classMofifiers) {
+    public static boolean setAccessible(Class<?> clazz, Member member, int classMofifiers) {
         if (member == null) {
             return false;
         }

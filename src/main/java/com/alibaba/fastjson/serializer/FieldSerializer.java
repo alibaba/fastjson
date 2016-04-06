@@ -26,18 +26,15 @@ import com.alibaba.fastjson.util.FieldInfo;
  * @author wenshao[szujobs@hotmail.com]
  */
 public abstract class FieldSerializer implements Comparable<FieldSerializer> {
-
-    public final FieldInfo fieldInfo;
-    private String         single_quoted_fieldPrefix;
-    private String         un_quoted_fieldPrefix;
-    protected boolean      writeNull = false;
-    
-    protected int          features;
+    public final FieldInfo  fieldInfo;
+    protected final boolean writeNull;
+    protected int           features;
 
     public FieldSerializer(FieldInfo fieldInfo){
         super();
         this.fieldInfo = fieldInfo;
 
+        boolean writeNull = false;
         JSONField annotation = fieldInfo.getAnnotation();
         if (annotation != null) {
             for (SerializerFeature feature : annotation.serialzeFeatures()) {
@@ -46,6 +43,7 @@ public abstract class FieldSerializer implements Comparable<FieldSerializer> {
                 }
             }
         }
+        this.writeNull = writeNull;
     }
 
     public void writePrefix(JSONSerializer serializer) throws IOException {
@@ -55,18 +53,12 @@ public abstract class FieldSerializer implements Comparable<FieldSerializer> {
         
         if ((featurs & SerializerFeature.QuoteFieldNames.mask) != 0) {
             if ((featurs & SerializerFeature.UseSingleQuotes.mask) != 0) {
-                if (single_quoted_fieldPrefix == null) {
-                    single_quoted_fieldPrefix = '\'' + fieldInfo.name + "\':";
-                }
-                out.write(single_quoted_fieldPrefix);
+                out.writeFieldName(fieldInfo.name, true);
             } else {
                 out.write(fieldInfo.name_chars, 0, fieldInfo.name_chars.length);
             }
         } else {
-            if (un_quoted_fieldPrefix == null) {
-                un_quoted_fieldPrefix  = fieldInfo.name + ":";
-            }
-            out.write(un_quoted_fieldPrefix);
+            out.writeFieldName(fieldInfo.name, true);
         }
     }
 

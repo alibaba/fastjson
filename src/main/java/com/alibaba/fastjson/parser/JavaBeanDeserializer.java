@@ -4,7 +4,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
@@ -13,19 +12,15 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
-import com.alibaba.fastjson.util.DeserializeBeanInfo;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.TypeUtils;
 
 public class JavaBeanDeserializer implements ObjectDeserializer {
 
-    public final Map<String, FieldDeserializer> feildDeserializerMap     = new IdentityHashMap<String, FieldDeserializer>();
-
-    private final FieldDeserializer[]           fieldDeserializers;
-    private final FieldDeserializer[]           sortedFieldDeserializers;
-    private final Class<?>                       clazz;
-
-    private DeserializeBeanInfo                  beanInfo;
+    private final FieldDeserializer[] fieldDeserializers;
+    private final FieldDeserializer[] sortedFieldDeserializers;
+    private final Class<?>            clazz;
+    private final JavaBeanInfo        beanInfo;
 
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz){
         this(config, clazz, clazz);
@@ -33,24 +28,21 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz, Type type){
         this.clazz = clazz;
+        beanInfo = JavaBeanInfo.build(clazz, type);
 
-        beanInfo = DeserializeBeanInfo.computeSetters(clazz, type);
-
-        fieldDeserializers = new FieldDeserializer[beanInfo.fields.size()];
-        for (int i = 0, size = beanInfo.fields.size(); i < size; ++i) {
-            FieldInfo fieldInfo = beanInfo.fields.get(i);
-            String interName = fieldInfo.name.intern();
+        sortedFieldDeserializers = new FieldDeserializer[beanInfo.sortedFields.length];
+        for (int i = 0, size = beanInfo.sortedFields.length; i < size; ++i) {
+            FieldInfo fieldInfo = beanInfo.sortedFields[i];
             FieldDeserializer fieldDeserializer = config.createFieldDeserializer(config, clazz, fieldInfo);
 
-            feildDeserializerMap.put(interName, fieldDeserializer);
-            fieldDeserializers[i] = fieldDeserializer;
+            sortedFieldDeserializers[i] = fieldDeserializer;
         }
 
-        sortedFieldDeserializers = new FieldDeserializer[beanInfo.sortedFieldList.size()];
-        for (int i = 0, size = beanInfo.sortedFieldList.size(); i < size; ++i) {
-            FieldInfo fieldInfo = beanInfo.sortedFieldList.get(i);
-            FieldDeserializer fieldDeserializer = feildDeserializerMap.get(fieldInfo.name.intern());
-            sortedFieldDeserializers[i] = fieldDeserializer;
+        fieldDeserializers = new FieldDeserializer[beanInfo.fields.length];
+        for (int i = 0, size = beanInfo.fields.length; i < size; ++i) {
+            FieldInfo fieldInfo = beanInfo.fields[i];
+            FieldDeserializer fieldDeserializer = getFieldDeserializer(fieldInfo.name);
+            fieldDeserializers[i] = fieldDeserializer;
         }
     }
 
@@ -180,7 +172,14 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             }
 
             if (token == JSONToken.LBRACKET) {
-                boolean isSupportArrayToBean = (beanInfo.parserFeatures & Feature.SupportArrayToBean.mask) != 0
+                int beanFeatures = 0;
+                if (beanInfo.jsonType != null) {
+                    for (Feature feature: beanInfo.jsonType.parseFeatures()) {
+                        beanFeatures |= feature.mask;
+                    }
+                }
+                
+                boolean isSupportArrayToBean = (beanFeatures & Feature.SupportArrayToBean.mask) != 0
                                                || (lexer.features & Feature.SupportArrayToBean.mask) != 0;
                 if (isSupportArrayToBean) {
                     return deserialzeArrayMapping(parser, type, fieldName, object);
@@ -535,17 +534,45 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             parser.setContext(context);
         }
     }
+    
+
+    public FieldDeserializer getFieldDeserializer(String key) {
+        if (key == null) {
+            return null;
+        }
+        
+        int low = 0;
+        int high = sortedFieldDeserializers.length - 1;
+
+        while (low <= high) {
+            int mid = (low + high) >>> 1;
+            
+            String fieldName = sortedFieldDeserializers[mid].fieldInfo.name;
+            
+            int cmp = fieldName.compareTo(key);
+
+            if (cmp < 0) {
+                low = mid + 1;
+            } else if (cmp > 0) {
+                high = mid - 1;
+            } else {
+                return sortedFieldDeserializers[mid]; // key found
+            }
+        }
+        
+        return null;  // key not found.
+    }
 
     public boolean parseField(DefaultJSONParser parser, String key, Object object, Type objectType,
                               Map<String, Object> fieldValues) {
         JSONLexer lexer = parser.lexer; // xxx
 
-        FieldDeserializer fieldDeserializer = feildDeserializerMap.get(key);
+        FieldDeserializer fieldDeserializer = getFieldDeserializer(key);
 
         if (fieldDeserializer == null) {
-            for (Map.Entry<String, FieldDeserializer> entry : feildDeserializerMap.entrySet()) {
-                if (entry.getKey().equalsIgnoreCase(key)) {
-                    fieldDeserializer = entry.getValue();
+            for (FieldDeserializer fieldDeser : sortedFieldDeserializers) {
+                if (fieldDeser.fieldInfo.name.equalsIgnoreCase(key)) {
+                    fieldDeserializer = fieldDeser;
                     break;
                 }
             }

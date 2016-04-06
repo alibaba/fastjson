@@ -71,7 +71,7 @@ public abstract class FieldDeserializer {
         
         if (method != null) {
             try {
-                if (fieldInfo.isGetOnly()) {
+                if (fieldInfo.getOnly) {
                     if (Map.class.isAssignableFrom(method.getReturnType())) {
                         Map map = (Map) method.invoke(object);
                         if (map != null) {

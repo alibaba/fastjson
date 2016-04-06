@@ -15,24 +15,30 @@ import com.alibaba.fastjson.annotation.JSONField;
 
 public class FieldInfo implements Comparable<FieldInfo> {
 
-    public final String   name;
-    public final Method   method;
-    public final Field    field;
+    public final String     name;
+    public final Method     method;
+    public final Field      field;
 
-    private int           ordinal = 0;
-    public final Class<?> fieldClass;
-    public final Type     fieldType;
-    public final Class<?> declaringClass;
-    private boolean       getOnly = false;
-    private int           serialzeFeatures;
-    private String        label   = "";
+    private int             ordinal = 0;
+    public final Class<?>   fieldClass;
+    public final Type       fieldType;
+    public final Class<?>   declaringClass;
+    public final boolean    getOnly;
+    public final int        serialzeFeatures;
+    public final String     label;
 
-    private JSONField     fieldAnnotation;
-    private JSONField     methodAnnotation;
+    private final JSONField fieldAnnotation;
+    private final JSONField methodAnnotation;
 
-    public final char[]   name_chars;
+    public final char[]     name_chars;
     
-    public FieldInfo(String name, Class<?> declaringClass, Class<?> fieldClass, Type fieldType, Field field, int ordinal, int serialzeFeatures){
+    public FieldInfo(String name, // 
+                     Class<?> declaringClass, // 
+                     Class<?> fieldClass, // 
+                     Type fieldType, // 
+                     Field field, // 
+                     int ordinal, // 
+                     int serialzeFeatures){
         this.name = name;
         this.declaringClass = declaringClass;
         this.fieldClass = fieldClass;
@@ -47,9 +53,23 @@ public class FieldInfo implements Comparable<FieldInfo> {
         if (field != null) {
             TypeUtils.setAccessible(field);
         }
+        
+        this.label = "";
+        fieldAnnotation = null;
+        methodAnnotation = null;
+        this.getOnly = false;
     }
 
-    public FieldInfo(String name, Method method, Field field, Class<?> clazz, Type type, int ordinal, int serialzeFeatures, JSONField fieldAnnotation, JSONField methodAnnotation){
+    public FieldInfo(String name, // 
+                     Method method, // 
+                     Field field, // 
+                     Class<?> clazz, // 
+                     Type type, // 
+                     int ordinal, // 
+                     int serialzeFeatures, // 
+                     JSONField fieldAnnotation, // 
+                     JSONField methodAnnotation, //
+                     String label){
         this.name = name;
         this.method = method;
         this.field = field;
@@ -57,6 +77,12 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.serialzeFeatures = serialzeFeatures;
         this.fieldAnnotation = fieldAnnotation;
         this.methodAnnotation = methodAnnotation;
+        
+        if (label != null && label.length() > 0) { 
+            this.label = label;
+        } else {
+            this.label = "";
+        }
         
         name_chars = genFieldNameChars();
 
@@ -68,6 +94,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
             TypeUtils.setAccessible(field);
         }
 
+        boolean getOnly = false;
         Type fieldType;
         Class<?> fieldClass;
         if (method != null) {
@@ -86,6 +113,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
             fieldType = field.getGenericType();
             this.declaringClass = field.getDeclaringClass();
         }
+        this.getOnly = getOnly;
 
         if (clazz != null && fieldClass == Object.class && fieldType instanceof TypeVariable) {
             TypeVariable<?> tv = (TypeVariable<?>) fieldType;
@@ -113,11 +141,6 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
         this.fieldType = genericFieldType;
         this.fieldClass = fieldClass;
-    }
-    
-    
-    public String getLabel() {
-        return label;
     }
     
     protected char[] genFieldNameChars() {
@@ -279,11 +302,14 @@ public class FieldInfo implements Comparable<FieldInfo> {
             }
         }
         
-        if (this.isSameType() && !o.isSameType()) {
+        boolean isSampeType = this.field != null && this.field.getType() == this.fieldClass;
+        boolean oSameType = o.field != null && o.field.getType() == o.fieldClass;
+        
+        if (isSampeType && !oSameType) {
             return 1;
         }
         
-        if (o.isSameType() && !this.isSameType()) {
+        if (oSameType && !isSampeType) {
             return -1;
         }
         
@@ -304,14 +330,6 @@ public class FieldInfo implements Comparable<FieldInfo> {
         }
         
         return this.fieldClass.getName().compareTo(o.fieldClass.getName());
-    }
-    
-    private boolean isSameType() {
-        if (this.field != null) {
-            return this.field.getType() == fieldClass;
-        }
-        
-        return false;
     }
     
     public JSONField getAnnotation() {
@@ -354,28 +372,12 @@ public class FieldInfo implements Comparable<FieldInfo> {
         field.set(javaObject, value);
     }
 
-    public void setAccessible(boolean flag) throws SecurityException {
+    public void setAccessible() throws SecurityException {
         if (method != null) {
             TypeUtils.setAccessible(method);
             return;
         }
 
         TypeUtils.setAccessible(field);
-    }
-
-    public boolean isGetOnly() {
-        return getOnly;
-    }
-
-    
-    public int getSerialzeFeatures() {
-        return serialzeFeatures;
-    }
-
-    
-    public void setLabel(String label) {
-        if (label != null && label.length() > 0) { 
-            this.label = label;
-        }
     }
 }

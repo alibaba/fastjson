@@ -23,9 +23,10 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.asm.ClassWriter;
-import com.alibaba.fastjson.asm.FieldVisitor;
+import com.alibaba.fastjson.asm.FieldWriter;
 import com.alibaba.fastjson.asm.Label;
 import com.alibaba.fastjson.asm.MethodVisitor;
+import com.alibaba.fastjson.asm.MethodWriter;
 import com.alibaba.fastjson.asm.Opcodes;
 import com.alibaba.fastjson.util.ASMClassLoader;
 import com.alibaba.fastjson.util.ASMUtils;
@@ -108,17 +109,17 @@ public class ASMSerializerFactory implements Opcodes {
 
         for (FieldInfo fieldInfo : getters) {
             {
-                FieldVisitor fw = cw.visitField(ACC_PUBLIC, fieldInfo.name + "_asm_fieldPrefix",
+                FieldWriter fw = new FieldWriter(cw, ACC_PUBLIC, fieldInfo.name + "_asm_fieldPrefix",
                                                 "Ljava/lang/reflect/Type;");
                 fw.visitEnd();
             }
 
-            FieldVisitor fw = cw.visitField(ACC_PUBLIC, fieldInfo.name + "_asm_fieldType",
+            FieldWriter fw = new FieldWriter(cw, ACC_PUBLIC, fieldInfo.name + "_asm_fieldType",
                                             "Ljava/lang/reflect/Type;");
             fw.visitEnd();
         }
 
-        MethodVisitor mw = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+        MethodVisitor mw = new MethodWriter(cw, ACC_PUBLIC, "<init>", "()V", null, null);
         mw.visitVarInsn(ALOAD, 0);
         mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc(clazz)));
         mw.visitMethodInsn(INVOKESPECIAL, "com/alibaba/fastjson/serializer/ASMJavaBeanSerializer", "<init>", "(Ljava/lang/Class;)V");
@@ -149,7 +150,7 @@ public class ASMSerializerFactory implements Opcodes {
         {
             Context context = new Context(className, beanSerializeFeatures);
 
-            mw = cw.visitMethod(ACC_PUBLIC,
+            mw = new MethodWriter(cw, ACC_PUBLIC,
                                 "write",
                                 "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;I)V",
                                 null, new String[] { "java/io/IOException" });
@@ -210,7 +211,7 @@ public class ASMSerializerFactory implements Opcodes {
             // sortField support
             Context context = new Context(className, beanSerializeFeatures);
 
-            mw = cw.visitMethod(ACC_PUBLIC,
+            mw = new MethodWriter(cw, ACC_PUBLIC,
                                 "write1",
                                 "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;I)V",
                                 null, new String[] { "java/io/IOException" });
@@ -235,7 +236,7 @@ public class ASMSerializerFactory implements Opcodes {
         {
             Context context = new Context(className, beanSerializeFeatures);
 
-            mw = cw.visitMethod(ACC_PUBLIC,
+            mw = new MethodWriter(cw, ACC_PUBLIC,
                                 "writeAsArray",
                                 "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;)V",
                                 null, new String[] { "java/io/IOException" });
@@ -370,7 +371,7 @@ public class ASMSerializerFactory implements Opcodes {
                         mw.visitVarInsn(ALOAD, 0);
                         mw.visitFieldInsn(GETFIELD, context.className, property.name + "_asm_fieldType",
                                           "Ljava/lang/reflect/Type;");
-                        mw.visitLdcInsn(property.getSerialzeFeatures());
+                        mw.visitLdcInsn(property.serialzeFeatures);
 
                         mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/JSONSerializer", "writeWithFieldName",
                                            "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;I)V");
@@ -1035,7 +1036,7 @@ public class ASMSerializerFactory implements Opcodes {
 
                 if (elementClass != null && Modifier.isPublic(elementClass.getModifiers())) {
                     mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc((Class<?>) elementType)));
-                    mw.visitLdcInsn(property.getSerialzeFeatures());
+                    mw.visitLdcInsn(property.serialzeFeatures);
                     mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/JSONSerializer", "writeWithFieldName",
                                        "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;I)V");
                 } else {
@@ -1075,7 +1076,7 @@ public class ASMSerializerFactory implements Opcodes {
 
                 if (elementClass != null && Modifier.isPublic(elementClass.getModifiers())) {
                     mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc((Class<?>) elementType)));
-                    mw.visitLdcInsn(property.getSerialzeFeatures());
+                    mw.visitLdcInsn(property.serialzeFeatures);
                     mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/JSONSerializer", "writeWithFieldName",
                                        "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;I)V");
                 } else {
@@ -1160,7 +1161,7 @@ public class ASMSerializerFactory implements Opcodes {
     
     private void _labelApply(MethodVisitor mw, FieldInfo property, Context context, Label _end) {
         mw.visitVarInsn(ALOAD, Context.serializer);
-        mw.visitLdcInsn(property.getLabel());
+        mw.visitLdcInsn(property.label);
         
         mw.visitMethodInsn(INVOKESTATIC, "com/alibaba/fastjson/serializer/FilterUtils", "applyLabel",
                 "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/String;)Z");
@@ -1205,7 +1206,7 @@ public class ASMSerializerFactory implements Opcodes {
                 mw.visitVarInsn(ALOAD, 0);
                 mw.visitFieldInsn(GETFIELD, context.className, fieldInfo.name + "_asm_fieldType",
                                   "Ljava/lang/reflect/Type;");
-                mw.visitLdcInsn(fieldInfo.getSerialzeFeatures());
+                mw.visitLdcInsn(fieldInfo.serialzeFeatures);
 
                 mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/JSONSerializer", "writeWithFieldName",
                                    "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;I)V");

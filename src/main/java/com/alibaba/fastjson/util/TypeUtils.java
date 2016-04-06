@@ -1098,8 +1098,7 @@ public class TypeUtils {
                         }
                     }
 
-                    FieldInfo fieldInfo = new FieldInfo(propertyName, method, null, clazz, null, ordinal, serialzeFeatures, annotation, null);
-                    fieldInfo.setLabel(label);
+                    FieldInfo fieldInfo = new FieldInfo(propertyName, method, null, clazz, null, ordinal, serialzeFeatures, annotation, null, label);
                     fieldInfoMap.put(propertyName, fieldInfo);
                     continue;
                 }
@@ -1182,8 +1181,7 @@ public class TypeUtils {
                     }
                 }
 
-                FieldInfo fieldInfo = new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures, annotation, fieldAnnotation);
-                fieldInfo.setLabel(label);
+                FieldInfo fieldInfo = new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures, annotation, fieldAnnotation, label);
                 fieldInfoMap.put(propertyName, fieldInfo);
             }
 
@@ -1251,8 +1249,7 @@ public class TypeUtils {
                     }
                 }
 
-                FieldInfo fieldInfo = new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures, annotation, fieldAnnotation);
-                fieldInfo.setLabel(label);
+                FieldInfo fieldInfo = new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures, annotation, fieldAnnotation, label);
                 fieldInfoMap.put(propertyName, fieldInfo);
             }
         }
@@ -1292,8 +1289,7 @@ public class TypeUtils {
             }
 
             if (!fieldInfoMap.containsKey(propertyName)) {
-                FieldInfo fieldInfo = new FieldInfo(propertyName, null, field, clazz, null, ordinal, serialzeFeatures, null, fieldAnnotation);
-                fieldInfo.setLabel(label);
+                FieldInfo fieldInfo = new FieldInfo(propertyName, null, field, clazz, null, ordinal, serialzeFeatures, null, fieldAnnotation, label);
                 fieldInfoMap.put(propertyName, fieldInfo);
             }
         }

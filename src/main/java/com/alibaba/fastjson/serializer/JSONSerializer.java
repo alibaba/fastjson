@@ -163,11 +163,7 @@ public class JSONSerializer {
     }
 
     public boolean containsReference(Object value) {
-        if (references == null) {
-            return false;
-        }
-
-        return references.containsKey(value);
+        return references != null && references.containsKey(value);
     }
 
     public void writeReference(Object object) {

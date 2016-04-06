@@ -44,7 +44,7 @@ public class LongFieldDeserializer extends FieldDeserializer {
             value = TypeUtils.castToLong(obj);
         }
         
-        if (value == null && getFieldClass() == long.class) {
+        if (value == null && fieldInfo.fieldClass == long.class) {
             // skip
             return;
         }

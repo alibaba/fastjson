@@ -24,26 +24,6 @@ public abstract class FieldDeserializer {
         this.fieldInfo = fieldInfo;
     }
     
-    public FieldInfo getFieldInfo() {
-        return fieldInfo;
-    }
-
-    public Method getMethod() {
-        return fieldInfo.method;
-    }
-
-    public Field getField() {
-        return fieldInfo.field;
-    }
-
-    public Class<?> getFieldClass() {
-        return fieldInfo.fieldClass;
-    }
-
-    public Type getFieldType() {
-        return fieldInfo.fieldType;
-    }
-
     public abstract void parseField(DefaultJSONParser parser, Object object, Type objectType,
                                     Map<String, Object> fieldValues);
 

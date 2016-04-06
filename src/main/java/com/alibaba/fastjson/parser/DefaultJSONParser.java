@@ -820,8 +820,8 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 
                 continue;
             } else {
-                Class<?> fieldClass = fieldDeser.getFieldClass();
-                Type fieldType = fieldDeser.getFieldType();
+                Class<?> fieldClass = fieldDeser.fieldInfo.fieldClass;
+                Type fieldType = fieldDeser.fieldInfo.fieldType;
                 Object fieldValue;
                 if (fieldClass == int.class) {
                     lexer.nextTokenWithColon(JSONToken.LITERAL_INT);

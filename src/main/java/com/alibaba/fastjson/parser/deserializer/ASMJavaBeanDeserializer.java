@@ -45,7 +45,7 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
     }
 
     public Type getFieldType(String name) {
-        return serializer.getFieldDeserializer(name).getFieldType();
+        return serializer.getFieldDeserializer(name).fieldInfo.fieldType;
     }
 
     public boolean parseField(DefaultJSONParser parser, String key, Object object, Type objectType,

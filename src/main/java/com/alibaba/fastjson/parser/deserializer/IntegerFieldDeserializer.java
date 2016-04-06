@@ -39,7 +39,7 @@ public class IntegerFieldDeserializer extends FieldDeserializer {
             value = TypeUtils.castToInt(obj);
         }
 
-        if (value == null && getFieldClass() == int.class) {
+        if (value == null && fieldInfo.fieldClass == int.class) {
             // skip
             return;
         }

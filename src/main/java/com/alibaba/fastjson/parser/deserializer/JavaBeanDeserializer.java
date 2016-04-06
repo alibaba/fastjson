@@ -147,7 +147,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         for (int i = 0, size = sortedFieldDeserializers.length; i < size; ++i) {
             final char seperator = (i == size - 1) ? ']' : ',';
             FieldDeserializer fieldDeser = sortedFieldDeserializers[i];
-            Class<?> fieldClass = fieldDeser.getFieldClass();
+            Class<?> fieldClass = fieldDeser.fieldInfo.fieldClass;
             if (fieldClass == int.class) {
                 int value = lexer.scanInt(seperator);
                 fieldDeser.setValue(object, value);
@@ -162,7 +162,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 fieldDeser.setValue(object, value);
             } else {
                 lexer.nextToken(JSONToken.LBRACKET);
-                Object value = parser.parseObject(fieldDeser.getFieldType());
+                Object value = parser.parseObject(fieldDeser.fieldInfo.fieldType);
                 fieldDeser.setValue(object, value);
 
                 if (seperator == ']') {

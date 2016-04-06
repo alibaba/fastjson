@@ -25,9 +25,9 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
     public ArrayListTypeFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo){
         super(clazz, fieldInfo);
 
-        Type fieldType = getFieldType();
+        Type fieldType = fieldInfo.fieldType;
         if (fieldType instanceof ParameterizedType) {
-            this.itemType = ((ParameterizedType) getFieldType()).getActualTypeArguments()[0];
+            this.itemType = ((ParameterizedType) fieldInfo.fieldType).getActualTypeArguments()[0];
         } else {
             this.itemType = Object.class;
         }

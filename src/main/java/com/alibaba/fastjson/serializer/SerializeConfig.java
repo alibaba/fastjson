@@ -103,7 +103,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 
 		boolean asm = this.asm;
 
-		if (asm && asmFactory.isExternalClass(clazz)
+		if (asm && asmFactory.classLoader.isExternalClass(clazz)
 				|| clazz == Serializable.class || clazz == Object.class) {
 			asm = false;
 		}

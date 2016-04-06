@@ -29,12 +29,9 @@ public class JavaBeanInfo {
     public final Constructor<?> defaultConstructor;
     public final Constructor<?> creatorConstructor;
     public final Method         factoryMethod;
-    public final Method               buildMethod;
+    public final Method         buildMethod;
 
     public final int            defaultConstructorParameterSize;
-
-    // private final List<FieldInfo> fieldList;
-    // private final List<FieldInfo> sortedFieldList;
 
     public final FieldInfo[]    fields;
     public final FieldInfo[]    sortedFields;

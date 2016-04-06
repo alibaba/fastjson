@@ -7,18 +7,18 @@ import java.nio.CharBuffer;
 import java.nio.charset.CoderResult;
 
 import org.junit.Assert;
-import junit.framework.TestCase;
 
 import com.alibaba.fastjson.util.IOUtils;
-import com.alibaba.fastjson.util.ThreadLocalCache;
 import com.alibaba.fastjson.util.UTF8Decoder;
+
+import junit.framework.TestCase;
 
 public class IOUtilsTest extends TestCase {
 
     public void test_error_0() throws Exception {
         Exception error = null;
         try {
-            IOUtils.decode(ThreadLocalCache.getUTF8Decoder(), ByteBuffer.wrap("abc".getBytes("UTF-8")),
+            IOUtils.decode(IOUtils.getUTF8Decoder(), ByteBuffer.wrap("abc".getBytes("UTF-8")),
                            CharBuffer.wrap(new char[0]));
         } catch (Exception ex) {
             error = ex;

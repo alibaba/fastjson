@@ -1,5 +1,6 @@
 package com.alibaba.fastjson.serializer;
 
+import java.lang.ref.SoftReference;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -9,7 +10,6 @@ import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.util.ThreadLocalCache;
 
 public class SerialWriterStringEncoder {
 
@@ -32,7 +32,7 @@ public class SerialWriterStringEncoder {
 
 		int bytesLength = scale(len, encoder.maxBytesPerChar());
 
-		byte[] bytes = ThreadLocalCache.getBytes(bytesLength);
+		byte[] bytes = getBytes(bytesLength);
 
 		return encode(chars, off, len, bytes);
 	}
@@ -72,4 +72,51 @@ public class SerialWriterStringEncoder {
 		return (int) (len * (double) expansionFactor);
 	}
 
+	 private final static ThreadLocal<SoftReference<byte[]>> bytesBufLocal        = new ThreadLocal<SoftReference<byte[]>>();
+
+	    public static void clearBytes() {
+	        bytesBufLocal.set(null);
+	    }
+
+	    public static byte[] getBytes(int length) {
+	        SoftReference<byte[]> ref = bytesBufLocal.get();
+
+	        if (ref == null) {
+	            return allocateBytes(length);
+	        }
+
+	        byte[] bytes = ref.get();
+
+	        if (bytes == null) {
+	            return allocateBytes(length);
+	        }
+
+	        if (bytes.length < length) {
+	            bytes = allocateBytes(length);
+	        }
+
+	        return bytes;
+	    }
+
+	    private static byte[] allocateBytes(int length) {
+	        final int minExp = 10;
+	        final int BYTES_CACH_MAX_SIZE = 1024 * 128; // 128k, 2^17;
+	        
+	        if(length > BYTES_CACH_MAX_SIZE) {
+	            return new byte[length];
+	        }
+
+	        int allocateLength;
+	        {
+	            int part = length >>> minExp;
+	            if(part <= 0) {
+	                allocateLength = 1<< minExp;
+	            } else {
+	                allocateLength = 1 << 32 - Integer.numberOfLeadingZeros(length-1);
+	            }
+	        }
+	        byte[] chars = new byte[allocateLength];
+	        bytesBufLocal.set(new SoftReference<byte[]>(chars));
+	        return chars;
+	    }
 }

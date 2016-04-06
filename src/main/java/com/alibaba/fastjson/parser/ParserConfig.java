@@ -41,7 +41,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -71,7 +70,6 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.asm.ASMException;
 import com.alibaba.fastjson.parser.deserializer.ASMDeserializerFactory;
-import com.alibaba.fastjson.parser.deserializer.ASMJavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ArrayListTypeFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.AutowiredObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.BooleanFieldDeserializer;
@@ -112,9 +110,9 @@ import com.alibaba.fastjson.serializer.ObjectArrayCodec;
 import com.alibaba.fastjson.serializer.ReferenceCodec;
 import com.alibaba.fastjson.serializer.StringCodec;
 import com.alibaba.fastjson.util.ASMUtils;
-import com.alibaba.fastjson.util.JavaBeanInfo;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.IdentityHashMap;
+import com.alibaba.fastjson.util.JavaBeanInfo;
 import com.alibaba.fastjson.util.ServiceLoader;
 
 /**
@@ -666,18 +664,6 @@ public class ParserConfig {
         }
 
         return null;
-    }
-
-    public Map<String, FieldDeserializer> getFieldDeserializers(Class<?> clazz) {
-        ObjectDeserializer deserizer = getDeserializer(clazz);
-
-        if (deserizer instanceof JavaBeanDeserializer) {
-            return ((JavaBeanDeserializer) deserizer).getFieldDeserializerMap();
-        } else if (deserizer instanceof ASMJavaBeanDeserializer) {
-            return ((ASMJavaBeanDeserializer) deserizer).getInnterSerializer().getFieldDeserializerMap();
-        } else {
-            return Collections.emptyMap();
-        }
     }
 
     public ClassLoader getDefaultClassLoader() {

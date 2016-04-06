@@ -4,9 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,21 +20,16 @@ import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParseContext;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.FilterUtils;
-import com.alibaba.fastjson.util.JavaBeanInfo;
 import com.alibaba.fastjson.util.FieldInfo;
+import com.alibaba.fastjson.util.JavaBeanInfo;
 import com.alibaba.fastjson.util.TypeUtils;
 
 public class JavaBeanDeserializer implements ObjectDeserializer {
 
-    private final Map<String, FieldDeserializer> feildDeserializerMap     = new IdentityHashMap<String, FieldDeserializer>();
-
-    private final List<FieldDeserializer>        fieldDeserializers       = new ArrayList<FieldDeserializer>();
-    private final List<FieldDeserializer>        sortedFieldDeserializers = new ArrayList<FieldDeserializer>();
-    
-    
-    private final Class<?>                       clazz;
-
-    private JavaBeanInfo                  beanInfo;
+    private final FieldDeserializer[] fieldDeserializers;
+    private final FieldDeserializer[] sortedFieldDeserializers;
+    private final Class<?>            clazz;
+    private JavaBeanInfo              beanInfo;
 
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz){
         this(config, clazz, clazz);
@@ -44,49 +37,53 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz, Type type){
         this.clazz = clazz;
-
         beanInfo = JavaBeanInfo.build(clazz, type);
 
-        for (FieldInfo fieldInfo : beanInfo.fields) {
-            addFieldDeserializer(config, clazz, fieldInfo);
+        sortedFieldDeserializers = new FieldDeserializer[beanInfo.sortedFields.length];
+        for (int i = 0, size = beanInfo.sortedFields.length; i < size; ++i) {
+            FieldInfo fieldInfo = beanInfo.sortedFields[i];
+            FieldDeserializer fieldDeserializer = createFieldDeserializer(config, clazz, fieldInfo);
+
+            sortedFieldDeserializers[i] = fieldDeserializer;
         }
 
-        for (FieldInfo fieldInfo : beanInfo.sortedFields) {
-            FieldDeserializer fieldDeserializer = feildDeserializerMap.get(fieldInfo.name.intern());
-            sortedFieldDeserializers.add(fieldDeserializer);
+        fieldDeserializers = new FieldDeserializer[beanInfo.fields.length];
+        for (int i = 0, size = beanInfo.fields.length; i < size; ++i) {
+            FieldInfo fieldInfo = beanInfo.fields[i];
+            FieldDeserializer fieldDeserializer = getFieldDeserializer(fieldInfo.name);
+            fieldDeserializers[i] = fieldDeserializer;
         }
     }
 
-    public Map<String, FieldDeserializer> getFieldDeserializerMap() {
-        return feildDeserializerMap;
-    }
-    
-    public FieldDeserializer getFieldDeserializer(String name) {
-        FieldDeserializer feildDeser = feildDeserializerMap.get(name);
-        
-        if (feildDeser != null) {
-            return feildDeser;
+    public FieldDeserializer getFieldDeserializer(String key) {
+        if (key == null) {
+            return null;
         }
         
-        for (Map.Entry<String, FieldDeserializer> entry : feildDeserializerMap.entrySet()) {
-            if (name.equals(entry.getKey())) {
-                return entry.getValue();
+        int low = 0;
+        int high = sortedFieldDeserializers.length - 1;
+
+        while (low <= high) {
+            int mid = (low + high) >>> 1;
+            
+            String fieldName = sortedFieldDeserializers[mid].fieldInfo.name;
+            
+            int cmp = fieldName.compareTo(key);
+
+            if (cmp < 0) {
+                low = mid + 1;
+            } else if (cmp > 0) {
+                high = mid - 1;
+            } else {
+                return sortedFieldDeserializers[mid]; // key found
             }
         }
         
-        return null;
+        return null;  // key not found.
     }
 
     public Class<?> getClazz() {
         return clazz;
-    }
-
-    private void addFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
-        String interName = fieldInfo.name.intern();
-        FieldDeserializer fieldDeserializer = createFieldDeserializer(mapping, clazz, fieldInfo);
-
-        feildDeserializerMap.put(interName, fieldDeserializer);
-        fieldDeserializers.add(fieldDeserializer);
     }
 
     public FieldDeserializer createFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
@@ -148,10 +145,9 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
         object = createInstance(parser, type);
 
-        int size = sortedFieldDeserializers.size();
-        for (int i = 0; i < size; ++i) {
+        for (int i = 0, size = sortedFieldDeserializers.length; i < size; ++i) {
             final char seperator = (i == size - 1) ? ']' : ',';
-            FieldDeserializer fieldDeser = sortedFieldDeserializers.get(i);
+            FieldDeserializer fieldDeser = sortedFieldDeserializers[i];
             Class<?> fieldClass = fieldDeser.getFieldClass();
             if (fieldClass == int.class) {
                 int value = lexer.scanInt(seperator);
@@ -250,8 +246,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 FieldDeserializer fieldDeser = null;
                 FieldInfo fieldInfo = null;
                 Class<?> fieldClass = null;
-                if (fieldIndex < sortedFieldDeserializers.size()) {
-                    fieldDeser = sortedFieldDeserializers.get(fieldIndex);
+                if (fieldIndex < sortedFieldDeserializers.length) {
+                    fieldDeser = sortedFieldDeserializers[fieldIndex];
                     fieldInfo = fieldDeser.fieldInfo;
                     fieldClass = fieldInfo.fieldClass;
                 }
@@ -422,7 +418,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 if (object == null && fieldValues == null) {
                     object = createInstance(parser, type);
                     if (object == null) {
-                        fieldValues = new HashMap<String, Object>(this.fieldDeserializers.size());
+                        fieldValues = new HashMap<String, Object>(this.fieldDeserializers.length);
                     }
                     childContext = parser.setContext(context, object, fieldName);
                 }
@@ -554,12 +550,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     }
 
     public FieldDeserializer smartMatch(String key) {
-        FieldDeserializer fieldDeserializer = feildDeserializerMap.get(key);
+        FieldDeserializer fieldDeserializer = getFieldDeserializer(key);
 
         if (fieldDeserializer == null) {
-            for (Map.Entry<String, FieldDeserializer> entry : feildDeserializerMap.entrySet()) {
-                if (entry.getKey().equalsIgnoreCase(key)) {
-                    fieldDeserializer = entry.getValue();
+            for (FieldDeserializer fieldDeser : sortedFieldDeserializers) {
+                if (fieldDeser.fieldInfo.name.equalsIgnoreCase(key)) {
+                    fieldDeserializer = fieldDeser;
                     break;
                 }
             }
@@ -568,12 +564,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         if (fieldDeserializer == null) {
             if (key.indexOf('_') != -1) {
                 String key2 = key.replaceAll("_", "");
-                fieldDeserializer = feildDeserializerMap.get(key2);
+                fieldDeserializer = getFieldDeserializer(key2);
                 
                 if (fieldDeserializer == null) {
-                    for (Map.Entry<String, FieldDeserializer> entry : feildDeserializerMap.entrySet()) {
-                        if (entry.getKey().equalsIgnoreCase(key2)) {
-                            fieldDeserializer = entry.getValue();
+                    for (FieldDeserializer fieldDeser : sortedFieldDeserializers) {
+                        if (fieldDeser.fieldInfo.name.equalsIgnoreCase(key2)) {
+                            fieldDeserializer = fieldDeser;
                             break;
                         }
                     }
@@ -605,10 +601,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         return JSONToken.LBRACE;
     }
 
-    
-    public List<FieldDeserializer> getSortedFieldDeserializers() {
-        return sortedFieldDeserializers;
-    }
     
     public final boolean isSupportArrayToBean(JSONLexer lexer) {
         return Feature.isEnabled(beanInfo.parserFeatures, Feature.SupportArrayToBean) || lexer.isEnabled(Feature.SupportArrayToBean);

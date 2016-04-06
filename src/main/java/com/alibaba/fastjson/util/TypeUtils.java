@@ -57,7 +57,10 @@ import com.alibaba.fastjson.asm.ASMException;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.parser.deserializer.ASMJavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
+import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
+import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 /**
@@ -841,7 +844,7 @@ public class TypeUtils {
     }
 
     @SuppressWarnings({ "unchecked" })
-    public static <T> T castToJavaBean(Map<String, Object> map, Class<T> clazz, ParserConfig mapping) {
+    public static <T> T castToJavaBean(Map<String, Object> map, Class<T> clazz, ParserConfig config) {
         try {
             if (clazz == StackTraceElement.class) {
                 String declaringClass = (String) map.get("className");
@@ -872,7 +875,7 @@ public class TypeUtils {
                     }
 
                     if (!loadClazz.equals(clazz)) {
-                        return (T) castToJavaBean(map, loadClazz, mapping);
+                        return (T) castToJavaBean(map, loadClazz, config);
                     }
                 }
             }
@@ -890,34 +893,44 @@ public class TypeUtils {
                                                   new Class<?>[] { clazz }, object);
             }
 
-            if (mapping == null) {
-                mapping = ParserConfig.getGlobalInstance();
+            if (config == null) {
+                config = ParserConfig.getGlobalInstance();
             }
 
-            Map<String, FieldDeserializer> setters = mapping.getFieldDeserializers(clazz);
+            JavaBeanDeserializer javaBeanDeser = null;
+            ObjectDeserializer deserizer = config.getDeserializer(clazz);
+            if (deserizer instanceof JavaBeanDeserializer) {
+                javaBeanDeser = (JavaBeanDeserializer) deserizer;
+            } else if (deserizer instanceof ASMJavaBeanDeserializer) {
+                javaBeanDeser = ((ASMJavaBeanDeserializer) deserizer).getInnterSerializer();
+            }
 
             Constructor<T> constructor = clazz.getDeclaredConstructor();
             constructor.setAccessible(true);
             T object = constructor.newInstance();
 
-            for (Map.Entry<String, FieldDeserializer> entry : setters.entrySet()) {
-                String key = entry.getKey();
-                FieldDeserializer fieldDeser = entry.getValue();
-
-                if (map.containsKey(key)) {
-                    Object value = map.get(key);
+            
+            if (javaBeanDeser != null) {
+                for (Map.Entry<String, Object> entry : map.entrySet()) {
+                    String key = entry.getKey();
+                    Object value = entry.getValue();
+                    
+                    FieldDeserializer fieldDeser = javaBeanDeser.getFieldDeserializer(key);
+                    if (fieldDeser == null) {
+                        continue;
+                    }
+                    
                     Method method = fieldDeser.getMethod();
                     if (method != null) {
                         Type paramType = method.getGenericParameterTypes()[0];
-                        value = cast(value, paramType, mapping);
+                        value = cast(value, paramType, config);
                         method.invoke(object, new Object[] { value });
                     } else {
                         Field field = fieldDeser.getField();
                         Type paramType = fieldDeser.getFieldType();
-                        value = cast(value, paramType, mapping);
+                        value = cast(value, paramType, config);
                         field.set(object, value);
                     }
-
                 }
             }
 

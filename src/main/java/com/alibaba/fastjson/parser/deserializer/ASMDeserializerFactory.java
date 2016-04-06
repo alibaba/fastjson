@@ -1325,13 +1325,6 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitMethodInsn(INVOKESPECIAL, "com/alibaba/fastjson/parser/deserializer/ASMJavaBeanDeserializer", "<init>",
                            "(Lcom/alibaba/fastjson/parser/ParserConfig;Ljava/lang/Class;)V");
 
-        mw.visitVarInsn(ALOAD, 0);
-        mw.visitFieldInsn(GETFIELD, "com/alibaba/fastjson/parser/deserializer/ASMJavaBeanDeserializer", "serializer",
-                          "Lcom/alibaba/fastjson/parser/deserializer/ASMJavaBeanDeserializer$InnerJavaBeanDeserializer;");
-        mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/parser/deserializer/JavaBeanDeserializer", "getFieldDeserializerMap",
-                           "()Ljava/util/Map;");
-        mw.visitInsn(POP);
-
         // init fieldNamePrefix
         for (int i = 0, size = context.fieldInfoList.length; i < size; ++i) {
             FieldInfo fieldInfo = context.fieldInfoList[i];

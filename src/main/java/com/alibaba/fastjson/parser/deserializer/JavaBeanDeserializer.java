@@ -32,6 +32,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
     private final List<FieldDeserializer>        fieldDeserializers       = new ArrayList<FieldDeserializer>();
     private final List<FieldDeserializer>        sortedFieldDeserializers = new ArrayList<FieldDeserializer>();
+    
+    
     private final Class<?>                       clazz;
 
     private JavaBeanInfo                  beanInfo;
@@ -43,13 +45,13 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz, Type type){
         this.clazz = clazz;
 
-        beanInfo = JavaBeanInfo.computeSetters(clazz, type);
+        beanInfo = JavaBeanInfo.build(clazz, type);
 
-        for (FieldInfo fieldInfo : beanInfo.getFieldList()) {
+        for (FieldInfo fieldInfo : beanInfo.fields) {
             addFieldDeserializer(config, clazz, fieldInfo);
         }
 
-        for (FieldInfo fieldInfo : beanInfo.getSortedFieldList()) {
+        for (FieldInfo fieldInfo : beanInfo.sortedFields) {
             FieldDeserializer fieldDeserializer = feildDeserializerMap.get(fieldInfo.name.intern());
             sortedFieldDeserializers.add(fieldDeserializer);
         }
@@ -119,7 +121,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         }
 
         if (parser.isEnabled(Feature.InitStringFieldAsEmpty)) {
-            for (FieldInfo fieldInfo : beanInfo.getFieldList()) {
+            for (FieldInfo fieldInfo : beanInfo.fields) {
                 if (fieldInfo.fieldClass == String.class) {
                     try {
                         fieldInfo.set(object, "");
@@ -217,7 +219,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             }
 
             if (token == JSONToken.LBRACKET) {
-                boolean isSupportArrayToBean = (beanInfo.getParserFeatures() & Feature.SupportArrayToBean.mask) != 0
+                boolean isSupportArrayToBean = (beanInfo.parserFeatures & Feature.SupportArrayToBean.mask) != 0
                                                || lexer.isEnabled(Feature.SupportArrayToBean);
                 if (isSupportArrayToBean) {
                     return deserialzeArrayMapping(parser, type, fieldName, object);
@@ -482,11 +484,11 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     return (T) object;
                 }
 
-                List<FieldInfo> fieldInfoList = beanInfo.getFieldList();
-                int size = fieldInfoList.size();
+                FieldInfo[] fieldInfoList = beanInfo.fields;
+                int size = fieldInfoList.length;
                 Object[] params = new Object[size];
                 for (int i = 0; i < size; ++i) {
-                    FieldInfo fieldInfo = fieldInfoList.get(i);
+                    FieldInfo fieldInfo = fieldInfoList[i];
                     params[i] = fieldValues.get(fieldInfo.name);
                 }
 
@@ -609,6 +611,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     }
     
     public final boolean isSupportArrayToBean(JSONLexer lexer) {
-        return Feature.isEnabled(beanInfo.getParserFeatures(), Feature.SupportArrayToBean) || lexer.isEnabled(Feature.SupportArrayToBean);
+        return Feature.isEnabled(beanInfo.parserFeatures, Feature.SupportArrayToBean) || lexer.isEnabled(Feature.SupportArrayToBean);
     }
 }

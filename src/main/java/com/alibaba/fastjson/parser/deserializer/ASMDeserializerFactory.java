@@ -12,11 +12,9 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicLong;
@@ -31,8 +29,8 @@ import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.ASMClassLoader;
 import com.alibaba.fastjson.util.ASMUtils;
-import com.alibaba.fastjson.util.JavaBeanInfo;
 import com.alibaba.fastjson.util.FieldInfo;
+import com.alibaba.fastjson.util.JavaBeanInfo;
 import com.alibaba.fastjson.util.TypeUtils;
 
 public class ASMDeserializerFactory implements Opcodes {
@@ -83,7 +81,7 @@ public class ASMDeserializerFactory implements Opcodes {
         ClassWriter cw = new ClassWriter();
         cw.visit(V1_5, ACC_PUBLIC + ACC_SUPER, className, "com/alibaba/fastjson/parser/deserializer/ASMJavaBeanDeserializer", null);
 
-        JavaBeanInfo beanInfo = JavaBeanInfo.computeSetters(clazz, type);
+        JavaBeanInfo beanInfo = JavaBeanInfo.build(clazz, type);
 
         _init(cw, new Context(className, config, beanInfo, 3));
         _createInstance(cw, new Context(className, config, beanInfo, 3));
@@ -148,13 +146,13 @@ public class ASMDeserializerFactory implements Opcodes {
 
         _createInstance(context, mw);
 
-        List<FieldInfo> sortedFieldInfoList = context.getBeanInfo().getSortedFieldList();
-        int fieldListSize = sortedFieldInfoList.size();
+        FieldInfo[] sortedFieldInfoList = context.beanInfo.sortedFields;
+        int fieldListSize = sortedFieldInfoList.length;
         for (int i = 0; i < fieldListSize; ++i) {
             final boolean last = (i == fieldListSize - 1);
             final char seperator = last ? ']' : ',';
 
-            FieldInfo fieldInfo = sortedFieldInfoList.get(i);
+            FieldInfo fieldInfo = sortedFieldInfoList[i];
             Class<?> fieldClass = fieldInfo.fieldClass;
             Type fieldType = fieldInfo.fieldType;
             if (fieldClass == byte.class //
@@ -280,11 +278,11 @@ public class ASMDeserializerFactory implements Opcodes {
     }
 
     void _deserialze(ClassWriter cw, Context context) {
-        if (context.getFieldInfoList().size() == 0) {
+        if (context.fieldInfoList.length == 0) {
             return;
         }
 
-        for (FieldInfo fieldInfo : context.getFieldInfoList()) {
+        for (FieldInfo fieldInfo : context.fieldInfoList) {
             Class<?> fieldClass = fieldInfo.fieldClass;
             Type fieldType = fieldInfo.fieldType;
 
@@ -306,7 +304,7 @@ public class ASMDeserializerFactory implements Opcodes {
             }
         }
 
-        Collections.sort(context.getFieldInfoList());
+        context.fieldInfoList = context.beanInfo.sortedFields;
 
         MethodVisitor mw = cw.visitMethod(ACC_PUBLIC, "deserialze"
                                           , "(Lcom/alibaba/fastjson/parser/DefaultJSONParser;Ljava/lang/reflect/Type;Ljava/lang/Object;)Ljava/lang/Object;"
@@ -390,7 +388,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitInsn(ICONST_0); // UNKOWN
         mw.visitIntInsn(ISTORE, context.var("matchStat"));
 
-        int fieldListSize = context.getFieldInfoList().size();
+        int fieldListSize = context.fieldInfoList.length;
         for (int i = 0; i < fieldListSize; i += 32) {
             mw.visitInsn(ICONST_0);
             mw.visitVarInsn(ISTORE, context.var("_asm_flag_" + (i / 32)));
@@ -398,7 +396,7 @@ public class ASMDeserializerFactory implements Opcodes {
 
         // declare and init
         for (int i = 0; i < fieldListSize; ++i) {
-            FieldInfo fieldInfo = context.getFieldInfoList().get(i);
+            FieldInfo fieldInfo = context.fieldInfoList[i];
             Class<?> fieldClass = fieldInfo.fieldClass;
 
             if (fieldClass == boolean.class //
@@ -437,7 +435,7 @@ public class ASMDeserializerFactory implements Opcodes {
         }
 
         for (int i = 0; i < fieldListSize; ++i) {
-            FieldInfo fieldInfo = context.getFieldInfoList().get(i);
+            FieldInfo fieldInfo = context.fieldInfoList[i];
             Class<?> fieldClass = fieldInfo.fieldClass;
             Type fieldType = fieldInfo.fieldType;
 
@@ -687,14 +685,14 @@ public class ASMDeserializerFactory implements Opcodes {
     }
 
     private void _batchSet(Context context, MethodVisitor mw, boolean flag) {
-        for (int i = 0, size = context.getFieldInfoList().size(); i < size; ++i) {
+        for (int i = 0, size = context.fieldInfoList.length; i < size; ++i) {
             Label notSet_ = new Label();
 
             if (flag) {
                 _isFlag(mw, context, i, notSet_);
             }
 
-            FieldInfo fieldInfo = context.getFieldInfoList().get(i);
+            FieldInfo fieldInfo = context.fieldInfoList[i];
             _loadAndSet(context, mw, fieldInfo);
 
             if (flag) {
@@ -1232,22 +1230,18 @@ public class ASMDeserializerFactory implements Opcodes {
         private Class<?>                  clazz;
         private final JavaBeanInfo beanInfo;
         private String                    className;
-        private List<FieldInfo>           fieldInfoList;
+        private FieldInfo[]           fieldInfoList;
 
         public Context(String className, ParserConfig config, JavaBeanInfo beanInfo, int initVariantIndex){
             this.className = className;
-            this.clazz = beanInfo.getClazz();
+            this.clazz = beanInfo.clazz;
             this.variantIndex = initVariantIndex;
             this.beanInfo = beanInfo;
-            fieldInfoList = new ArrayList<FieldInfo>(beanInfo.getFieldList());
+            fieldInfoList = beanInfo.fields;
         }
 
         public String getClassName() {
             return className;
-        }
-
-        public List<FieldInfo> getFieldInfoList() {
-            return fieldInfoList;
         }
 
         public JavaBeanInfo getBeanInfo() {
@@ -1259,7 +1253,7 @@ public class ASMDeserializerFactory implements Opcodes {
         }
         
         public Class<?> getInstClass() {
-            Class<?> instClass = beanInfo.getBuilderClass();
+            Class<?> instClass = beanInfo.builderClass;
             if (instClass == null) {
                 instClass = clazz;
             }
@@ -1292,8 +1286,8 @@ public class ASMDeserializerFactory implements Opcodes {
     }
 
     private void _init(ClassWriter cw, Context context) {
-        for (int i = 0, size = context.getFieldInfoList().size(); i < size; ++i) {
-            FieldInfo fieldInfo = context.getFieldInfoList().get(i);
+        for (int i = 0, size = context.fieldInfoList.length; i < size; ++i) {
+            FieldInfo fieldInfo = context.fieldInfoList[i];
 
             // public FieldVisitor visitField(final int access, final String name, final String desc, final String
             // signature, final Object value) {
@@ -1301,8 +1295,8 @@ public class ASMDeserializerFactory implements Opcodes {
             fw.visitEnd();
         }
 
-        for (int i = 0, size = context.getFieldInfoList().size(); i < size; ++i) {
-            FieldInfo fieldInfo = context.getFieldInfoList().get(i);
+        for (int i = 0, size = context.fieldInfoList.length; i < size; ++i) {
+            FieldInfo fieldInfo = context.fieldInfoList[i];
             Class<?> fieldClass = fieldInfo.fieldClass;
 
             if (fieldClass.isPrimitive()) {
@@ -1339,8 +1333,8 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitInsn(POP);
 
         // init fieldNamePrefix
-        for (int i = 0, size = context.getFieldInfoList().size(); i < size; ++i) {
-            FieldInfo fieldInfo = context.getFieldInfoList().get(i);
+        for (int i = 0, size = context.fieldInfoList.length; i < size; ++i) {
+            FieldInfo fieldInfo = context.fieldInfoList[i];
 
             mw.visitVarInsn(ALOAD, 0);
             mw.visitLdcInsn("\"" + fieldInfo.name + "\":"); // public char[] toCharArray()

@@ -184,7 +184,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                     continue;
                 }
                 
-                if (!FilterUtils.applyLabel(serializer, fieldSerializer.getLabel())) {
+                if (!FilterUtils.applyLabel(serializer, fieldSerializer.fieldInfo.getLabel())) {
                     continue;
                 }
 
@@ -200,7 +200,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 propertyValue = FilterUtils.processValue(serializer, object, fieldSerializer.fieldInfo.name, propertyValue);
 
                 if (propertyValue == null && !writeAsArray) {
-                    if ((!fieldSerializer.isWriteNull())
+                    if ((!fieldSerializer.writeNull)
                         && (!serializer.isEnabled(SerializerFeature.WriteMapNullValue))) {
                         continue;
                     }

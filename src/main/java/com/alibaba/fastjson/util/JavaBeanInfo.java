@@ -29,7 +29,7 @@ public class JavaBeanInfo {
     public final Constructor<?> defaultConstructor;
     public final Constructor<?> creatorConstructor;
     public final Method         factoryMethod;
-    public Method               buildMethod;
+    public final Method               buildMethod;
 
     public final int            defaultConstructorParameterSize;
 
@@ -57,6 +57,7 @@ public class JavaBeanInfo {
         this.creatorConstructor = creatorConstructor;
         this.factoryMethod = factoryMethod;
         this.parserFeatures = TypeUtils.getParserFeatures(clazz);
+        this.buildMethod = buildMethod;
 
         this.jsonType = jsonType;
 
@@ -479,12 +480,7 @@ public class JavaBeanInfo {
             }
         }
 
-        JavaBeanInfo beanInfo = new JavaBeanInfo(clazz, builderClass, defaultConstructor, null, null, null, jsonType,
-                                                 fieldList);
-
-        beanInfo.buildMethod = buildMethod;
-
-        return beanInfo;
+        return new JavaBeanInfo(clazz, builderClass, defaultConstructor, null, null, buildMethod, jsonType, fieldList);
     }
 
     static Constructor<?> getDefaultConstructor(Class<?> clazz) {

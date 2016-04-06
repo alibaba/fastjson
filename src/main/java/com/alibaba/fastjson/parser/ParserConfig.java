@@ -130,7 +130,7 @@ public class ParserConfig {
 
     private final IdentityHashMap<Type, ObjectDeserializer> derializers      = new IdentityHashMap<Type, ObjectDeserializer>();
 
-    private boolean                                         asmEnable        = !ASMUtils.isAndroid();
+    private boolean                                         asmEnable        = !ASMUtils.IS_ANDROID;
 
     protected final SymbolTable                             symbolTable      = new SymbolTable(512);
     

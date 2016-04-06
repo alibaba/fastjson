@@ -28,10 +28,6 @@ public class ASMUtils {
         ;
     }
 
-    public static boolean isAndroid() {
-        return IS_ANDROID;
-    }
-
     public static String getDesc(Method method) {   
     	Class<?>[] types = method.getParameterTypes();
         StringBuilder buf = new StringBuilder((types.length + 1) << 4);

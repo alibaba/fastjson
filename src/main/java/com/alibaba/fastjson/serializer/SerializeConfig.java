@@ -76,7 +76,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 	private static boolean jdk8Error = false;
 	private static boolean oracleJdbcError = false;
 	
-	private boolean asm = !ASMUtils.isAndroid();
+	private boolean asm = !ASMUtils.IS_ANDROID;
 
 	private ASMSerializerFactory asmFactory;
 	

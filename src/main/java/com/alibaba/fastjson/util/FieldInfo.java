@@ -7,6 +7,7 @@ import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -29,8 +30,12 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
     private final JSONField fieldAnnotation;
     private final JSONField methodAnnotation;
+    
+    public final boolean    fieldTransient;
 
     public final char[]     name_chars;
+    
+    public final boolean    isEnum;
     
     public FieldInfo(String name, // 
                      Class<?> declaringClass, // 
@@ -47,6 +52,15 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.field = field;
         this.ordinal = ordinal;
         this.serialzeFeatures = serialzeFeatures;
+        
+        isEnum = fieldClass.isEnum();
+        
+        if (field != null) {
+            int modifiers = field.getModifiers();
+            fieldTransient = Modifier.isTransient(modifiers);
+        } else {
+            fieldTransient = false;
+        }
         
         name_chars = genFieldNameChars();
 
@@ -84,6 +98,13 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.serialzeFeatures = serialzeFeatures;
         this.fieldAnnotation = fieldAnnotation;
         this.methodAnnotation = methodAnnotation;
+        
+        if (field != null) {
+            int modifiers = field.getModifiers();
+            fieldTransient = Modifier.isTransient(modifiers);
+        } else {
+            fieldTransient = false;
+        }
         
         if (label != null && label.length() > 0) { 
             this.label = label;
@@ -128,6 +149,8 @@ public class FieldInfo implements Comparable<FieldInfo> {
             if (genericFieldType != null) {
                 this.fieldClass = TypeUtils.getClass(genericFieldType);
                 this.fieldType = genericFieldType;
+                
+                isEnum = fieldClass.isEnum();
                 return;
             }
         }
@@ -148,6 +171,8 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
         this.fieldType = genericFieldType;
         this.fieldClass = fieldClass;
+        
+        isEnum = fieldClass.isEnum();
     }
     
     protected char[] genFieldNameChars() {

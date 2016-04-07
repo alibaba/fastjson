@@ -63,7 +63,7 @@ public class ObjectArrayCodec implements ObjectSerializer, ObjectDeserializer {
             return;
         }
 
-        SerialContext context = serializer.getContext();
+        SerialContext context = serializer.context;
         serializer.setContext(context, object, fieldName, 0);
 
         try {
@@ -124,7 +124,7 @@ public class ObjectArrayCodec implements ObjectSerializer, ObjectDeserializer {
                 out.append(']');
             }
         } finally {
-            serializer.setContext(context);
+            serializer.context = context;
         }
     }
     

@@ -36,13 +36,13 @@ public class JSONSerializer {
 
     public final SerializeWriter                  out;
 
-    private List<BeforeFilter>                     beforeFilters      = null;
-    private List<AfterFilter>                      afterFilters       = null;
-    private List<PropertyFilter>                   propertyFilters    = null;
-    private List<ValueFilter>                      valueFilters       = null;
-    private List<NameFilter>                       nameFilters        = null;
-    private List<PropertyPreFilter>                propertyPreFilters = null;
-    private List<LabelFilter>                      labelFilters       = null;
+    protected List<BeforeFilter>                   beforeFilters      = null;
+    protected List<AfterFilter>                    afterFilters       = null;
+    protected List<PropertyFilter>                 propertyFilters    = null;
+    protected List<ValueFilter>                    valueFilters       = null;
+    protected List<NameFilter>                     nameFilters        = null;
+    protected List<PropertyPreFilter>              propertyPreFilters = null;
+    protected List<LabelFilter>                    labelFilters       = null;
 
     private int                                    indentCount        = 0;
     private String                                 indent             = "\t";
@@ -51,7 +51,7 @@ public class JSONSerializer {
     private DateFormat                             dateFormat;
 
     private IdentityHashMap<Object, SerialContext> references         = null;
-    private SerialContext                          context;
+    protected SerialContext                        context;
 
     public JSONSerializer(){
         this(new SerializeWriter(), SerializeConfig.getGlobalInstance());
@@ -114,7 +114,7 @@ public class JSONSerializer {
     }
     
     public void setContext(SerialContext parent, Object object, Object fieldName, int features, int fieldFeatures) {
-        if (out.isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {
+        if (out.disableCircularReferenceDetect) {
             return;
         }
 
@@ -134,12 +134,12 @@ public class JSONSerializer {
             this.context = this.context.parent;
         }
     }
-
+    
     public final boolean isWriteClassName(Type fieldType, Object obj) {
         return out.isEnabled(SerializerFeature.WriteClassName) //
-            && (fieldType != null //
-                || (!out.isEnabled(SerializerFeature.NotWriteRootClassName)) //
-                || context.parent != null);
+               && (fieldType != null //
+                   || (!out.isEnabled(SerializerFeature.NotWriteRootClassName)) //
+                   || context.parent != null);
     }
 
     public SerialContext getSerialContext(Object object) {
@@ -155,7 +155,7 @@ public class JSONSerializer {
     }
 
     public void writeReference(Object object) {
-        SerialContext context = this.getContext();
+        SerialContext context = this.context;
         Object current = context.object;
 
         if (object == current) {
@@ -203,10 +203,6 @@ public class JSONSerializer {
         return valueFilters;
     }
 
-    public List<ValueFilter> getValueFiltersDirect() {
-        return valueFilters;
-    }
-
     public int getIndentCount() {
         return indentCount;
     }
@@ -233,20 +229,12 @@ public class JSONSerializer {
 
         return beforeFilters;
     }
-
-    public List<BeforeFilter> getBeforeFiltersDirect() {
-        return beforeFilters;
-    }
     
     public List<AfterFilter> getAfterFilters() {
         if (afterFilters == null) {
             afterFilters = new ArrayList<AfterFilter>();
         }
 
-        return afterFilters;
-    }
-
-    public List<AfterFilter> getAfterFiltersDirect() {
         return afterFilters;
     }
 
@@ -258,19 +246,11 @@ public class JSONSerializer {
         return nameFilters;
     }
 
-    public List<NameFilter> getNameFiltersDirect() {
-        return nameFilters;
-    }
-
     public List<PropertyPreFilter> getPropertyPreFilters() {
         if (propertyPreFilters == null) {
             propertyPreFilters = new ArrayList<PropertyPreFilter>();
         }
 
-        return propertyPreFilters;
-    }
-
-    public List<PropertyPreFilter> getPropertyPreFiltersDirect() {
         return propertyPreFilters;
     }
     
@@ -281,20 +261,12 @@ public class JSONSerializer {
         
         return labelFilters;
     }
-    
-    public List<LabelFilter> getLabelFiltersDirect() {
-        return labelFilters;
-    }
 
     public List<PropertyFilter> getPropertyFilters() {
         if (propertyFilters == null) {
             propertyFilters = new ArrayList<PropertyFilter>();
         }
 
-        return propertyFilters;
-    }
-
-    public List<PropertyFilter> getPropertyFiltersDirect() {
         return propertyFilters;
     }
 

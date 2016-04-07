@@ -31,7 +31,7 @@ public class EnumerationSerializer implements ObjectSerializer {
         
         Enumeration<?> e = (Enumeration<?>) object;
         
-        SerialContext context = serializer.getContext();
+        SerialContext context = serializer.context;
         serializer.setContext(context, object, fieldName, 0);
 
         try {
@@ -55,7 +55,7 @@ public class EnumerationSerializer implements ObjectSerializer {
             }
             out.append(']');
         } finally {
-            serializer.setContext(context);
+            serializer.context = context;
         }
     }
 }

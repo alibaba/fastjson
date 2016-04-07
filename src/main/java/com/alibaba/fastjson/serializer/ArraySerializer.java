@@ -47,7 +47,7 @@ public class ArraySerializer implements ObjectSerializer {
         Object[] array = (Object[]) object;
         int size = array.length;
 
-        SerialContext context = serializer.getContext();
+        SerialContext context = serializer.context;
         serializer.setContext(context, object, fieldName, 0);
 
         try {
@@ -69,7 +69,7 @@ public class ArraySerializer implements ObjectSerializer {
             }
             out.append(']');
         } finally {
-            serializer.setContext(context);
+            serializer.context = context;
         }
     }
 }

@@ -142,16 +142,16 @@ public class LexerTest extends TestCase {
         Assert.assertEquals(JSONToken.EOF, lexer.token());
     }
 
-    public void test_isWhitespace() throws Exception {
-        new JSONLexer("".toCharArray(), 0);
-        Assert.assertTrue(JSONLexer.isWhitespace(' '));
-        Assert.assertTrue(JSONLexer.isWhitespace('\b'));
-        Assert.assertTrue(JSONLexer.isWhitespace('\f'));
-        Assert.assertTrue(JSONLexer.isWhitespace('\n'));
-        Assert.assertTrue(JSONLexer.isWhitespace('\r'));
-        Assert.assertTrue(JSONLexer.isWhitespace('\t'));
-        Assert.assertFalse(JSONLexer.isWhitespace('k'));
-    }
+//    public void test_isWhitespace() throws Exception {
+//        new JSONLexer("".toCharArray(), 0);
+//        Assert.assertTrue(JSONLexer.isWhitespace(' '));
+//        Assert.assertTrue(JSONLexer.isWhitespace('\b'));
+//        Assert.assertTrue(JSONLexer.isWhitespace('\f'));
+//        Assert.assertTrue(JSONLexer.isWhitespace('\n'));
+//        Assert.assertTrue(JSONLexer.isWhitespace('\r'));
+//        Assert.assertTrue(JSONLexer.isWhitespace('\t'));
+//        Assert.assertFalse(JSONLexer.isWhitespace('k'));
+//    }
 
     public void test_error() throws Exception {
         JSONLexer lexer = new JSONLexer("k");

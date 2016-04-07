@@ -144,7 +144,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
 
 
 
-    public final char doNext() {
+    public final char next() {
         int index = ++bp;
 
         if (index >= bufLength) {

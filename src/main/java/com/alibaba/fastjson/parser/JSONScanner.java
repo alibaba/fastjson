@@ -62,10 +62,10 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
 
-    public final char doNext() {
+    public final char next() {
         return ch = charAt(++bp);
     }
-
+    
     public JSONScanner(char[] input, int inputLength){
         this(input, inputLength, JSON.DEFAULT_PARSER_FEATURE);
     }

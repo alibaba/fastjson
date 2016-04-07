@@ -50,8 +50,156 @@ public class FilterUtils {
         }
         return seperator;
     }
+    
+    public static Object processValue(JSONSerializer serializer, Object object, String key, boolean propertyValueBool) {
+        List<ValueFilter> valueFilters = serializer.getValueFiltersDirect();
+        
+        Object propertyValue = null;
+        if (serializer.isEnabled(SerializerFeature.WriteNonStringValueAsString)) {
+            propertyValue = Boolean.toString(propertyValueBool);
+        }
+        
+        if (valueFilters != null) {
+            if (propertyValue != null) {
+                propertyValue = propertyValueBool;
+            }
+            for (ValueFilter valueFilter : valueFilters) {
+                propertyValue = valueFilter.process(object, key, propertyValue);
+            }
+        }
+
+        return propertyValue;
+    }
+    
+    public static Object processValue(JSONSerializer serializer, Object object, String key, byte propertyValueInt) {
+        List<ValueFilter> valueFilters = serializer.getValueFiltersDirect();
+        
+        Object propertyValue = null;
+        if (serializer.isEnabled(SerializerFeature.WriteNonStringValueAsString)) {
+            propertyValue = Short.toString(propertyValueInt);
+        }
+        
+        if (valueFilters != null) {
+            if (propertyValue != null) {
+                propertyValue = propertyValueInt;
+            }
+            for (ValueFilter valueFilter : valueFilters) {
+                propertyValue = valueFilter.process(object, key, propertyValue);
+            }
+        }
+
+        return propertyValue;
+    }
+    
+    public static Object processValue(JSONSerializer serializer, Object object, String key, short propertyValueInt) {
+        List<ValueFilter> valueFilters = serializer.getValueFiltersDirect();
+        
+        Object propertyValue = null;
+        if (serializer.isEnabled(SerializerFeature.WriteNonStringValueAsString)) {
+            propertyValue = Short.toString(propertyValueInt);
+        }
+        
+        if (valueFilters != null) {
+            if (propertyValue != null) {
+                propertyValue = propertyValueInt;
+            }
+            for (ValueFilter valueFilter : valueFilters) {
+                propertyValue = valueFilter.process(object, key, propertyValue);
+            }
+        }
+
+        return propertyValue;
+    }
+    
+    public static Object processValue(JSONSerializer serializer, Object object, String key, int propertyValueInt) {
+        List<ValueFilter> valueFilters = serializer.getValueFiltersDirect();
+        
+        Object propertyValue = null;
+        if (serializer.isEnabled(SerializerFeature.WriteNonStringValueAsString)) {
+            propertyValue = Integer.toString(propertyValueInt);
+        }
+        
+        if (valueFilters != null) {
+            if (propertyValue != null) {
+                propertyValue = propertyValueInt;
+            }
+            for (ValueFilter valueFilter : valueFilters) {
+                propertyValue = valueFilter.process(object, key, propertyValue);
+            }
+        }
+
+        return propertyValue;
+    }
+    
+    public static Object processValue(JSONSerializer serializer, Object object, String key, long propertyValueLong) {
+        List<ValueFilter> valueFilters = serializer.getValueFiltersDirect();
+        
+        Object propertyValue = null;
+        if (serializer.isEnabled(SerializerFeature.WriteNonStringValueAsString)) {
+            propertyValue = Long.toString(propertyValueLong);
+        }
+        
+        if (valueFilters != null) {
+            if (propertyValue != null) {
+                propertyValue = propertyValueLong;
+            }
+            for (ValueFilter valueFilter : valueFilters) {
+                propertyValue = valueFilter.process(object, key, propertyValue);
+            }
+        }
+
+        return propertyValue;
+    }
+    
+    public static Object processValue(JSONSerializer serializer, Object object, String key, float propertyValueFloat) {
+        List<ValueFilter> valueFilters = serializer.getValueFiltersDirect();
+        
+        Object propertyValue = null;
+        if (serializer.isEnabled(SerializerFeature.WriteNonStringValueAsString)) {
+            propertyValue = Float.toString(propertyValueFloat);
+        }
+        
+        if (valueFilters != null) {
+            if (propertyValue != null) {
+                propertyValue = propertyValueFloat;
+            }
+            for (ValueFilter valueFilter : valueFilters) {
+                propertyValue = valueFilter.process(object, key, propertyValue);
+            }
+        }
+
+        return propertyValue;
+    }
+    
+    public static Object processValue(JSONSerializer serializer, Object object, String key, double propertyValueDouble) {
+        List<ValueFilter> valueFilters = serializer.getValueFiltersDirect();
+        
+        Object propertyValue = null;
+        if (serializer.isEnabled(SerializerFeature.WriteNonStringValueAsString)) {
+            propertyValue = Double.toString(propertyValueDouble);
+        }
+        
+        if (valueFilters != null) {
+            if (propertyValue != null) {
+                propertyValue = propertyValueDouble;
+            }
+            for (ValueFilter valueFilter : valueFilters) {
+                propertyValue = valueFilter.process(object, key, propertyValue);
+            }
+        }
+
+        return propertyValue;
+    }
 
     public static Object processValue(JSONSerializer serializer, Object object, String key, Object propertyValue) {
+        
+        if (propertyValue != null // 
+                && serializer.isEnabled(SerializerFeature.WriteNonStringValueAsString)) {
+            if (propertyValue instanceof Number || propertyValue instanceof Boolean) {
+                propertyValue = propertyValue.toString();
+            }
+        }
+        
         List<ValueFilter> valueFilters = serializer.getValueFiltersDirect();
         if (valueFilters != null) {
             for (ValueFilter valueFilter : valueFilters) {

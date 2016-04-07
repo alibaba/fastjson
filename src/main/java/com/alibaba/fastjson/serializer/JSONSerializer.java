@@ -136,22 +136,17 @@ public class JSONSerializer {
     }
 
     public final boolean isWriteClassName(Type fieldType, Object obj) {
-        boolean result = out.isEnabled(SerializerFeature.WriteClassName);
+        if (out.isEnabled(SerializerFeature.WriteClassName)) {
+            if (fieldType == null 
+                && out.isEnabled(SerializerFeature.NotWriteRootClassName) //
+                && context.parent == null) {
+                return false;
+            }
 
-        if (!result) {
+            return true;
+        } else {
             return false;
         }
-
-        if (fieldType == null) {
-            if (out.isEnabled(SerializerFeature.NotWriteRootClassName)) {
-                boolean isRoot = context.parent == null;
-                if (isRoot) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
     }
 
     public SerialContext getSerialContext(Object object) {

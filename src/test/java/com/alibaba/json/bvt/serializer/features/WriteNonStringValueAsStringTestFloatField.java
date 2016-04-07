@@ -7,16 +7,16 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 
 import junit.framework.TestCase;
 
-public class WriteNonStringValueAsStringTest1 extends TestCase {
+public class WriteNonStringValueAsStringTestFloatField extends TestCase {
     public void test_0() throws Exception {
         VO vo = new VO();
         vo.id = 100;
         
         String text = JSON.toJSONString(vo, SerializerFeature.WriteNonStringValueAsString);
-        // Assert.assertEquals("{\"id\":\"100\"}", text);
+         Assert.assertEquals("{\"id\":\"100.0\"}", text);
     }
     
     public static class VO {
-        public long id;
+        public float id;
     }
 }

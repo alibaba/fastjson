@@ -41,7 +41,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
     private final FieldSerializer[]                sortedGetters;
     private transient Map<String, FieldSerializer> getterMap;
 
-    private int                                    features = 0;
+    protected int                                  features = 0;
 
     public FieldSerializer[] getGetters() {
         return getters;
@@ -63,9 +63,13 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
         return aliasMap;
     }
-
+    
     public JavaBeanSerializer(Class<?> clazz, Map<String, String> aliasMap){
-        this.features = TypeUtils.getSerializeFeatures(clazz);
+        this(clazz, aliasMap, TypeUtils.getSerializeFeatures(clazz));
+    }
+
+    public JavaBeanSerializer(Class<?> clazz, Map<String, String> aliasMap, int features){
+        this.features = features;
         
         JSONType jsonType = clazz.getAnnotation(JSONType.class);
         
@@ -106,10 +110,6 @@ public class JavaBeanSerializer implements ObjectSerializer {
         }
     }
 
-    protected boolean isWriteClassName(JSONSerializer serializer, Object obj, Type fieldType, Object fieldName) {
-        return serializer.isWriteClassName(fieldType, obj);
-    }
-
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
                                                                                                                throws IOException {
         SerializeWriter out = serializer.out;
@@ -148,10 +148,11 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
             boolean commaFlag = false;
 
-            if (isWriteClassName(serializer, object, fieldType, fieldName)) {
+            if ((this.features & SerializerFeature.WriteClassName.mask) != 0 
+                    || serializer.isWriteClassName(fieldType, object)) {
                 Class<?> objClass = object.getClass();
                 if (objClass != fieldType) {
-                    out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
+                    out.writeFieldName(JSON.DEFAULT_TYPE_KEY, false);
                     serializer.write(object.getClass());
                     commaFlag = true;
                 }
@@ -162,11 +163,13 @@ public class JavaBeanSerializer implements ObjectSerializer {
             char newSeperator = FilterUtils.writeBefore(serializer, object, seperator);
             commaFlag = newSeperator == ',';
 
+            final boolean skipTransient = out.isEnabled(SerializerFeature.SkipTransientField);
+            final boolean ignoreNonFieldGetter = out.isEnabled(SerializerFeature.IgnoreNonFieldGetter);
             for (int i = 0; i < getters.length; ++i) {
                 FieldSerializer fieldSerializer = getters[i];
 
                 Field field = fieldSerializer.fieldInfo.field;
-                if (out.isEnabled(SerializerFeature.SkipTransientField)) {
+                if (skipTransient) {
                     if (field != null) {
                         if (Modifier.isTransient(field.getModifiers())) {
                             continue;
@@ -174,7 +177,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                     }
                 }
                 
-                if (out.isEnabled(SerializerFeature.IgnoreNonFieldGetter)) {
+                if (ignoreNonFieldGetter) {
                     if (field == null) {
                         continue;
                     }

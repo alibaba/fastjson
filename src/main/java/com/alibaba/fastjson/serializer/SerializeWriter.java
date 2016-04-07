@@ -50,6 +50,11 @@ public final class SerializeWriter extends Writer {
     private int                                             features;
 
     private final Writer                                    writer;
+    
+    protected boolean browserSecure;
+    protected boolean browserCompatible;
+    protected boolean useSingleQuotes;
+    protected boolean quoteFieldNames;
 
     public SerializeWriter(){
         this((Writer) null);
@@ -58,6 +63,8 @@ public final class SerializeWriter extends Writer {
     public SerializeWriter(Writer writer){
         this.writer = writer;
         this.features = JSON.DEFAULT_GENERATE_FEATURE;
+        
+        computeFeatures();
 
         bufLocalRef = bufLocal.get();
 
@@ -94,6 +101,8 @@ public final class SerializeWriter extends Writer {
             featuresValue |= feature.getMask();
         }
         this.features = featuresValue;
+        
+        computeFeatures();
     }
 
     public int getBufferLength() {
@@ -111,6 +120,8 @@ public final class SerializeWriter extends Writer {
             throw new IllegalArgumentException("Negative initial size: " + initialSize);
         }
         buf = new char[initialSize];
+        
+        //computeFeatures();
     }
 
     public void config(SerializerFeature feature, boolean state) {
@@ -125,6 +136,15 @@ public final class SerializeWriter extends Writer {
         } else {
             features &= ~feature.getMask();
         }
+        
+        computeFeatures();
+    }
+
+    protected void computeFeatures() {
+        browserSecure = (this.features & SerializerFeature.BrowserSecure.mask) != 0;
+        browserCompatible = (this.features & SerializerFeature.BrowserCompatible.mask) != 0;
+        quoteFieldNames = (this.features & SerializerFeature.QuoteFieldNames.mask) != 0;
+        useSingleQuotes = (this.features & SerializerFeature.UseSingleQuotes.mask) != 0;
     }
 
     public boolean isEnabled(SerializerFeature feature) {
@@ -147,21 +167,6 @@ public final class SerializeWriter extends Writer {
         buf[count] = (char) c;
         count = newcount;
     }
-
-    public void write(char c) {
-        int newcount = count + 1;
-        if (newcount > buf.length) {
-            if (writer == null) {
-                expandCapacity(newcount);
-            } else {
-                flush();
-                newcount = 1;
-            }
-        }
-        buf[count] = c;
-        count = newcount;
-    }
-
     /**
      * Writes characters to the buffer.
      * 
@@ -381,11 +386,10 @@ public final class SerializeWriter extends Writer {
 
     public void writeByteArray(byte[] bytes) {
         int bytesLen = bytes.length;
-        final boolean singleQuote = isEnabled(SerializerFeature.UseSingleQuotes);
-        final char quote = singleQuote ? '\'' : '"';
+        final char quote = useSingleQuotes ? '\'' : '"';
         
         if (bytesLen == 0) {
-            String emptyString = singleQuote ? "''" : "\"\"";
+            String emptyString = useSingleQuotes ? "''" : "\"\"";
             write(emptyString);
             return;
         }
@@ -607,7 +611,7 @@ public final class SerializeWriter extends Writer {
     }
 
     private boolean needQuotationMark(long val) {
-        if (isEnabled(SerializerFeature.BrowserCompatible) && !isEnabled(SerializerFeature.WriteClassName))
+        if (browserCompatible && !isEnabled(SerializerFeature.WriteClassName))
             return (val > 9007199254740991L || val < -9007199254740991L);
         else
             return false;
@@ -684,7 +688,7 @@ public final class SerializeWriter extends Writer {
                 for (int i = 0; i < text.length(); ++i) {
                     char ch = text.charAt(i);
 
-                    if (isEnabled(SerializerFeature.BrowserSecure)) {
+                    if (browserSecure) {
                         if (!(ch >= '0' && ch <= '9') && !(ch >= 'a' && ch <= 'z') && !(ch >= 'A' && ch <= 'Z')
                             && !(ch == ',') && !(ch == '.') && !(ch == '_')) {
                             write('\\');
@@ -695,7 +699,7 @@ public final class SerializeWriter extends Writer {
                             write(IOUtils.DIGITS[ch & 15]);
                             continue;
                         }
-                    } else if (isEnabled(SerializerFeature.BrowserCompatible)) {
+                    } else if (browserCompatible) {
                         if (ch == '\b' //
                             || ch == '\f' //
                             || ch == '\n' //
@@ -766,7 +770,7 @@ public final class SerializeWriter extends Writer {
 
         count = newcount;
 
-        if (isEnabled(SerializerFeature.BrowserSecure)) {
+        if (browserSecure) {
             int lastSpecialIndex = -1;
 
             for (int i = start; i < end; ++i) {
@@ -811,7 +815,7 @@ public final class SerializeWriter extends Writer {
             return;
         }
         
-        if (isEnabled(SerializerFeature.BrowserCompatible)) {
+        if (browserCompatible) {
             int lastSpecialIndex = -1;
 
             for (int i = start; i < end; ++i) {
@@ -1164,12 +1168,12 @@ public final class SerializeWriter extends Writer {
     }
 
     public void writeFieldValue(char seperator, String name, int value) {
-        if (value == Integer.MIN_VALUE || (features & SerializerFeature.QuoteFieldNames.mask) == 0) {
+        if (value == Integer.MIN_VALUE || !quoteFieldNames) {
             writeFieldValue1(seperator, name, value);
             return;
         }
         
-        char keySeperator = (features & SerializerFeature.UseSingleQuotes.mask) != 0 ? '\'' : '"';
+        char keySeperator = useSingleQuotes ? '\'' : '"';
 
         int intSize = (value < 0) ? IOUtils.stringSize(-value) + 1 : IOUtils.stringSize(value);
 
@@ -1207,12 +1211,12 @@ public final class SerializeWriter extends Writer {
     }
 
     public void writeFieldValue(char seperator, String name, long value) {
-        if (value == Long.MIN_VALUE || (!isEnabled(SerializerFeature.QuoteFieldNames))) {
+        if (value == Long.MIN_VALUE || !quoteFieldNames) {
             writeFieldValue1(seperator, name, value);
             return;
         }
 
-        char keySeperator = isEnabled(SerializerFeature.UseSingleQuotes) ? '\'' : '"';
+        char keySeperator = useSingleQuotes ? '\'' : '"';
 
         int intSize = (value < 0) ? IOUtils.stringSize(-value) + 1 : IOUtils.stringSize(value);
 
@@ -1288,8 +1292,8 @@ public final class SerializeWriter extends Writer {
     }
 
     public void writeFieldValue(char seperator, String name, String value) {
-        if (isEnabled(SerializerFeature.QuoteFieldNames)) {
-            if (isEnabled(SerializerFeature.UseSingleQuotes)) {
+        if (quoteFieldNames) {
+            if (useSingleQuotes) {
                 write(seperator);
                 writeFieldName(name);
                 if (value == null) {
@@ -1298,11 +1302,11 @@ public final class SerializeWriter extends Writer {
                     writeString(value);
                 }
             } else {
-                if (isEnabled(SerializerFeature.BrowserSecure)) {
+                if (browserSecure) {
                     write(seperator);
                     writeStringWithDoubleQuote(name, ':');
                     writeStringWithDoubleQuote(value, (char) 0);
-                } else if (isEnabled(SerializerFeature.BrowserCompatible)) {
+                } else if (browserCompatible) {
                     write(seperator);
                     writeStringWithDoubleQuote(name, ':');
                     writeStringWithDoubleQuote(value, (char) 0);
@@ -1396,7 +1400,7 @@ public final class SerializeWriter extends Writer {
                     continue;
                 }
 
-                if (ch >= ']') {
+                if (ch >= ']') { // 93
                     if (ch >= 0x7F && ch <= 0xA0) {
                         if (firstSpecialIndex == -1) {
                             firstSpecialIndex = i;
@@ -1553,7 +1557,7 @@ public final class SerializeWriter extends Writer {
             return;
         }
 
-        if (isEnabled(SerializerFeature.WriteEnumUsingName)) {
+        if ((features & SerializerFeature.WriteEnumUsingName.mask) != 0) {
             writeEnumFieldValue(seperator,name,value.name());
         }else if(isEnabled(SerializerFeature.WriteEnumUsingToString)){
             writeEnumFieldValue(seperator,name,value.toString());
@@ -1690,15 +1694,15 @@ public final class SerializeWriter extends Writer {
             return;
         }
 
-        if (isEnabled(SerializerFeature.UseSingleQuotes)) {
-            if (isEnabled(SerializerFeature.QuoteFieldNames)) {
+        if (useSingleQuotes) {
+            if (quoteFieldNames) {
                 writeStringWithSingleQuote(key);
                 write(':');
             } else {
                 writeKeyWithSingleQuoteIfHasSpecial(key);
             }
         } else {
-            if (isEnabled(SerializerFeature.QuoteFieldNames)) {
+            if (quoteFieldNames) {
                 writeStringWithDoubleQuote(key, ':', checkSpecial);
             } else {
                 writeKeyWithDoubleQuoteIfHasSpecial(key);

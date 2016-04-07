@@ -113,17 +113,18 @@ public class ObjectFieldSerializer extends FieldSerializer {
             return;
         }
 
-        if(runtimeInfo.runtimeFieldClass.isEnum()){
-            if(writeEnumUsingName){
+        if (fieldInfo.isEnum) {
+            if (writeEnumUsingName) {
                 serializer.out.writeString(((Enum<?>) propertyValue).name());
                 return;
             }
-            if(writeEnumUsingToString){
+
+            if (writeEnumUsingToString) {
                 serializer.out.writeString(((Enum<?>) propertyValue).toString());
                 return;
             }
         }
-
+        
         Class<?> valueClass = propertyValue.getClass();
         if (valueClass == runtimeInfo.runtimeFieldClass) {
             runtimeInfo.fieldSerializer.write(serializer, propertyValue, fieldInfo.name, fieldInfo.fieldType, fieldFeatures);

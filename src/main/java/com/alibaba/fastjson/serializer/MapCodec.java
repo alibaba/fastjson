@@ -75,7 +75,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
             return;
         }
 
-        SerialContext parent = serializer.getContext();
+        SerialContext parent = serializer.context;
         serializer.setContext(parent, object, fieldName, 0);
         try {
             out.write('{');
@@ -104,7 +104,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                 Object entryKey = entry.getKey();
 
                 {
-                    List<PropertyPreFilter> preFilters = serializer.getPropertyPreFiltersDirect();
+                    List<PropertyPreFilter> preFilters = serializer.propertyPreFilters;
                     if (preFilters != null && preFilters.size() > 0) {
                         if (entryKey == null || entryKey instanceof String) {
                             if (!FilterUtils.applyName(serializer, object, (String) entryKey)) {
@@ -120,7 +120,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                 }
                 
                 {
-                    List<PropertyFilter> propertyFilters = serializer.getPropertyFiltersDirect();
+                    List<PropertyFilter> propertyFilters = serializer.propertyFilters;
                     if (propertyFilters != null && propertyFilters.size() > 0) {
                         if (entryKey == null || entryKey instanceof String) {
                             if (!FilterUtils.apply(serializer, object, (String) entryKey, value)) {
@@ -136,7 +136,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                 }
                 
                 {
-                    List<NameFilter> nameFilters = serializer.getNameFiltersDirect();
+                    List<NameFilter> nameFilters = serializer.nameFilters;
                     if (nameFilters != null && nameFilters.size() > 0) {
                         if (entryKey == null || entryKey instanceof String) {
                             entryKey = FilterUtils.processKey(serializer, object, (String) entryKey, value);
@@ -148,7 +148,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                 }
                 
                 {
-                    List<ValueFilter> valueFilters = serializer.getValueFiltersDirect();
+                    List<ValueFilter> valueFilters = serializer.valueFilters;
                     if (valueFilters != null && valueFilters.size() > 0) {
                         if (entryKey == null || entryKey instanceof String) {
                             value = FilterUtils.processValue(serializer, object, (String) entryKey, value);
@@ -212,7 +212,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                 }
             }
         } finally {
-            serializer.setContext(parent);
+            serializer.context = parent;
         }
 
         serializer.decrementIdent();

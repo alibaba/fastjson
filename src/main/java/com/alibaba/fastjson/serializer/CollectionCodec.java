@@ -61,7 +61,7 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
 
         Collection<?> collection = (Collection<?>) object;
 
-        SerialContext context = serializer.getContext();
+        SerialContext context = serializer.context;
         serializer.setContext(context, object, fieldName, 0);
 
         if (out.isEnabled(SerializerFeature.WriteClassName)) {
@@ -107,7 +107,7 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
             }
             out.append(']');
         } finally {
-            serializer.setContext(context);
+            serializer.context = context;
         }
     }
 

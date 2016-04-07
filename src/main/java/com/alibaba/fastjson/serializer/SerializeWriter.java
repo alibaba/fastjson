@@ -55,6 +55,20 @@ public final class SerializeWriter extends Writer {
     protected boolean browserCompatible;
     protected boolean useSingleQuotes;
     protected boolean quoteFieldNames;
+    protected boolean sortField;
+    protected boolean disableCircularReferenceDetect;
+    protected boolean beanToArray;
+    protected boolean prettyFormat;
+    protected boolean wrtiteClassName;
+    protected boolean skipTransientField;
+    protected boolean notWriteRootClassName;
+    protected boolean ignoreNonFieldGetter;
+    protected boolean writeNonStringValueAsString;
+    protected boolean notWriteDefaultValue;
+    protected boolean writeEnumUsingName;
+    protected boolean writeEnumUsingToString;
+    protected boolean writeMapNullValue;
+    protected boolean disableCheckSpecialChar;
     
     protected char keySeperator;
 
@@ -147,8 +161,46 @@ public final class SerializeWriter extends Writer {
         browserCompatible = (this.features & SerializerFeature.BrowserCompatible.mask) != 0;
         quoteFieldNames = (this.features & SerializerFeature.QuoteFieldNames.mask) != 0;
         useSingleQuotes = (this.features & SerializerFeature.UseSingleQuotes.mask) != 0;
+        sortField = (this.features & SerializerFeature.SortField.mask) != 0;
+        disableCircularReferenceDetect = (this.features & SerializerFeature.DisableCircularReferenceDetect.mask) != 0;
+        beanToArray = (this.features & SerializerFeature.BeanToArray.mask) != 0;
+        prettyFormat = (this.features & SerializerFeature.PrettyFormat.mask) != 0;
+        wrtiteClassName = (this.features & SerializerFeature.WriteClassName.mask) != 0;
+        notWriteRootClassName = (this.features & SerializerFeature.NotWriteRootClassName.mask) != 0;
+        skipTransientField = (this.features & SerializerFeature.SkipTransientField.mask) != 0;
+        ignoreNonFieldGetter = (this.features & SerializerFeature.IgnoreNonFieldGetter.mask) != 0;
+        writeNonStringValueAsString = (this.features & SerializerFeature.WriteNonStringValueAsString.mask) != 0;
+        notWriteDefaultValue = (this.features & SerializerFeature.NotWriteDefaultValue.mask) != 0;
+        writeEnumUsingName = (this.features & SerializerFeature.WriteEnumUsingName.mask) != 0;
+        writeEnumUsingToString = (this.features & SerializerFeature.WriteEnumUsingToString.mask) != 0;
+        writeMapNullValue = (this.features & SerializerFeature.WriteMapNullValue.mask) != 0;
+        disableCheckSpecialChar = (this.features & SerializerFeature.DisableCheckSpecialChar.mask) != 0;
         
         keySeperator = useSingleQuotes ? '\'' : '"';
+    }
+    
+    public boolean isPrettyFormat() {
+        return prettyFormat;
+    }
+    
+    public boolean isSortField() {
+        return sortField;
+    }
+    
+    public boolean isNotWriteDefaultValue() {
+        return notWriteDefaultValue;
+    }
+    
+    public boolean isWriteMapNullValue() {
+        return writeMapNullValue;
+    }
+    
+    public boolean isIgnoreNonFieldGetter() {
+        return ignoreNonFieldGetter;
+    }
+    
+    public boolean isSkipTransientField() {
+        return skipTransientField;
     }
 
     public boolean isEnabled(SerializerFeature feature) {
@@ -576,7 +628,10 @@ public final class SerializeWriter extends Writer {
     }
 
     public void writeLongAndChar(long i, char c) throws IOException {
-        boolean needQuotationMark = needQuotationMark(i);
+        boolean needQuotationMark = browserCompatible //
+                && (!isEnabled(SerializerFeature.WriteClassName)) //
+                && (i > 9007199254740991L || i < -9007199254740991L);
+        
         if (i == Long.MIN_VALUE) {
             if (needQuotationMark)
                 write("\"-9223372036854775808\"");
@@ -614,15 +669,11 @@ public final class SerializeWriter extends Writer {
         count = newcount1;
     }
 
-    private boolean needQuotationMark(long val) {
-        if (browserCompatible && !isEnabled(SerializerFeature.WriteClassName))
-            return (val > 9007199254740991L || val < -9007199254740991L);
-        else
-            return false;
-    }
-
     public void writeLong(long i) {
-        boolean needQuotationMark = needQuotationMark(i);
+        boolean needQuotationMark = browserCompatible //
+                && (!isEnabled(SerializerFeature.WriteClassName)) //
+                && (i > 9007199254740991L || i < -9007199254740991L);
+        
         if (i == Long.MIN_VALUE) {
             if (needQuotationMark)
                 write("\"-9223372036854775808\"");
@@ -1376,7 +1427,7 @@ public final class SerializeWriter extends Writer {
 
         value.getChars(0, valueLen, buf, valueStart);
 
-        if (checkSpecial && !isEnabled(SerializerFeature.DisableCheckSpecialChar)) {
+        if (checkSpecial && !disableCheckSpecialChar) {
             int specialCount = 0;
             int lastSpecialIndex = -1;
             int firstSpecialIndex = -1;
@@ -1525,7 +1576,7 @@ public final class SerializeWriter extends Writer {
         }
 
         if (ch == '/') { // 47
-            return SerializerFeature.isEnabled(features, SerializerFeature.WriteSlashAsSpecial);
+            return (features & SerializerFeature.WriteSlashAsSpecial.mask) != 0;
         }
 
         if (ch > '#' // 35
@@ -1564,7 +1615,7 @@ public final class SerializeWriter extends Writer {
     }
 
     private void writeEnumFieldValue(char seperator,String name,String value){
-        if (isEnabled(SerializerFeature.UseSingleQuotes)) {
+        if (useSingleQuotes) {
             writeFieldValue(seperator, name, value);
         } else {
             writeFieldValueStringWithDoubleQuote(seperator, name, value, false);
@@ -1582,7 +1633,7 @@ public final class SerializeWriter extends Writer {
     }
 
     public void writeString(String text, char seperator) {
-        if (isEnabled(SerializerFeature.UseSingleQuotes)) {
+        if (useSingleQuotes) {
             writeStringWithSingleQuote(text);
             write(seperator);
         } else {
@@ -1591,7 +1642,7 @@ public final class SerializeWriter extends Writer {
     }
 
     public void writeString(String text) {
-        if (isEnabled(SerializerFeature.UseSingleQuotes)) {
+        if (useSingleQuotes) {
             writeStringWithSingleQuote(text);
         } else {
             writeStringWithDoubleQuote(text, (char) 0);

@@ -29,8 +29,8 @@ public abstract class FieldSerializer implements Comparable<FieldSerializer> {
 
     public final FieldInfo  fieldInfo;
     private final String    double_quoted_fieldPrefix;
-    private final String    single_quoted_fieldPrefix;
-    private final String    un_quoted_fieldPrefix;
+    private String          single_quoted_fieldPrefix;
+    private String          un_quoted_fieldPrefix;
     protected final boolean writeNull;
 
     public FieldSerializer(FieldInfo fieldInfo){
@@ -39,10 +39,6 @@ public abstract class FieldSerializer implements Comparable<FieldSerializer> {
         fieldInfo.setAccessible();
 
         this.double_quoted_fieldPrefix = '"' + fieldInfo.name + "\":";
-
-        this.single_quoted_fieldPrefix = '\'' + fieldInfo.name + "\':";
-
-        this.un_quoted_fieldPrefix = fieldInfo.name + ":";
 
         boolean writeNull = false;
         JSONField annotation = fieldInfo.getAnnotation();
@@ -62,11 +58,17 @@ public abstract class FieldSerializer implements Comparable<FieldSerializer> {
 
         if (serializer.isEnabled(SerializerFeature.QuoteFieldNames)) {
             if (serializer.isEnabled(SerializerFeature.UseSingleQuotes)) {
+                if (single_quoted_fieldPrefix == null) {
+                    single_quoted_fieldPrefix = '\'' + fieldInfo.name + "\':";
+                }
                 out.write(single_quoted_fieldPrefix);
             } else {
                 out.write(double_quoted_fieldPrefix);
             }
         } else {
+            if (un_quoted_fieldPrefix == null) {
+                this.un_quoted_fieldPrefix = fieldInfo.name + ":";
+            }
             out.write(un_quoted_fieldPrefix);
         }
     }

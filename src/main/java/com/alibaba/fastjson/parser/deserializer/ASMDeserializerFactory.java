@@ -35,9 +35,6 @@ import com.alibaba.fastjson.util.JavaBeanInfo;
 import com.alibaba.fastjson.util.TypeUtils;
 
 public class ASMDeserializerFactory implements Opcodes {
-
-    private static final ASMDeserializerFactory instance = new ASMDeserializerFactory();
-
     private final ASMClassLoader                classLoader;
 
     private final Map<String, Class<?>>         classMap = new HashMap<String, Class<?>>();
@@ -61,10 +58,6 @@ public class ASMDeserializerFactory implements Opcodes {
 
     public ASMDeserializerFactory(ClassLoader parentClassLoader){
         classLoader = new ASMClassLoader(parentClassLoader);
-    }
-
-    public final static ASMDeserializerFactory getInstance() {
-        return instance;
     }
 
     public boolean isExternalClass(Class<?> clazz) {

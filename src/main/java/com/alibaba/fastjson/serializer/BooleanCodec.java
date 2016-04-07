@@ -54,7 +54,7 @@ public class BooleanCodec implements ObjectSerializer, ObjectDeserializer {
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        final JSONLexer lexer = parser.getLexer();
+        final JSONLexer lexer = parser.lexer;
 
         Boolean boolObj;
         if (lexer.token() == JSONToken.TRUE) {

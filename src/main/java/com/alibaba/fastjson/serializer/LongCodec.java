@@ -58,7 +58,7 @@ public class LongCodec implements ObjectSerializer, ObjectDeserializer {
     
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        final JSONLexer lexer = parser.getLexer();
+        final JSONLexer lexer = parser.lexer;
 
         Long longObject;
         if (lexer.token() == JSONToken.LITERAL_INT) {

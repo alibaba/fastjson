@@ -116,7 +116,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             throw new JSONException("create instance error, class " + clazz.getName(), e);
         }
 
-        if (parser.isEnabled(Feature.InitStringFieldAsEmpty)) {
+        if (parser.lexer.isEnabled(Feature.InitStringFieldAsEmpty)) {
             for (FieldInfo fieldInfo : beanInfo.fields) {
                 if (fieldInfo.fieldClass == String.class) {
                     try {
@@ -137,7 +137,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
     @SuppressWarnings({ "unchecked" })
     public <T> T deserialzeArrayMapping(DefaultJSONParser parser, Type type, Object fieldName, Object object) {
-        final JSONLexer lexer = parser.getLexer(); // xxx
+        final JSONLexer lexer = parser.lexer; // xxx
         if (lexer.token() != JSONToken.LBRACKET) {
             throw new JSONException("error");
         }
@@ -579,7 +579,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     }
 
     void parseExtra(DefaultJSONParser parser, Object object, String key) {
-        final JSONLexer lexer = parser.getLexer(); // xxx
+        final JSONLexer lexer = parser.lexer; // xxx
         if (!lexer.isEnabled(Feature.IgnoreNotMatch)) {
             throw new JSONException("setter not found, class " + clazz.getName() + ", property " + key);
         }

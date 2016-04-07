@@ -38,7 +38,7 @@ public class EnumDeserializer implements ObjectDeserializer {
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         try {
             Object value;
-            final JSONLexer lexer = parser.getLexer();
+            final JSONLexer lexer = parser.lexer;
             if (lexer.token() == JSONToken.LITERAL_INT) {
                 value = lexer.intValue();
                 lexer.nextToken(JSONToken.COMMA);

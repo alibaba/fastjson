@@ -34,6 +34,7 @@ import com.alibaba.fastjson.util.IOUtils;
  */
 public final class JSONScanner extends JSONLexerBase {
     private final String text;
+    private final int len;
 
     public JSONScanner(String input){
         this(input, JSON.DEFAULT_PARSER_FEATURE);
@@ -43,6 +44,7 @@ public final class JSONScanner extends JSONLexerBase {
         this.features = features;
 
         text = input;
+        len = text.length();
         bp = -1;
 
         next();
@@ -52,7 +54,7 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     public final char charAt(int index) {
-        if (index >= text.length()) {
+        if (index >= len) {
             return EOI;
         }
 
@@ -208,7 +210,7 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     public boolean scanISO8601DateIfMatch(boolean strict) {
-        int rest = text.length() - bp;
+        int rest = len - bp;
 
         if ((!strict) && rest > 13) {
             char c0 = charAt(bp);
@@ -609,7 +611,7 @@ public final class JSONScanner extends JSONLexerBase {
 
     @Override
     public boolean isEOF() {
-        return bp == text.length() || ch == EOI && bp + 1 == text.length();
+        return bp == len || ch == EOI && bp + 1 == len;
     }
 
     public int scanFieldInt(char[] fieldName) {

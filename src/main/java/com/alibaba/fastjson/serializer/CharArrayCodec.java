@@ -37,7 +37,7 @@ public class CharArrayCodec implements ObjectSerializer, ObjectDeserializer {
     
     @SuppressWarnings("unchecked")
     public static <T> T deserialze(DefaultJSONParser parser) {
-        final JSONLexer lexer = parser.getLexer();
+        final JSONLexer lexer = parser.lexer;
         if (lexer.token() == JSONToken.LITERAL_STRING) {
             String val = lexer.stringVal();
             lexer.nextToken(JSONToken.COMMA);

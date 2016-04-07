@@ -23,7 +23,7 @@ public class StringFieldDeserializer extends FieldDeserializer {
     public void parseField(DefaultJSONParser parser, Object object, Type objectType, Map<String, Object> fieldValues) {
         String value;
 
-        final JSONLexer lexer = parser.getLexer();
+        final JSONLexer lexer = parser.lexer;
         if (lexer.token() == JSONToken.LITERAL_STRING) {
             value = lexer.stringVal();
             lexer.nextToken(JSONToken.COMMA);

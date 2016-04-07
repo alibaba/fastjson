@@ -16,6 +16,10 @@ public class FastjsonCodec implements Codec {
 
     private ParserConfig    config = ParserConfig.getGlobalInstance();
 
+    public FastjsonCodec(){
+        System.out.println("fastjson-" + JSON.VERSION);    
+    }
+
     public String getName() {
         return "fastjson";
     }

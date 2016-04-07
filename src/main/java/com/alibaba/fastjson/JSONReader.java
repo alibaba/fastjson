@@ -73,7 +73,7 @@ public class JSONReader implements Closeable {
     }
 
     private void startStructure() {
-        final int state = context.getState();
+        final int state = context.state;
         switch (state) {
             case PropertyKey:
                 parser.accept(JSONToken.COLON);
@@ -86,18 +86,18 @@ public class JSONReader implements Closeable {
             case StartObject:
                 break;
             default:
-                throw new JSONException("illegal state : " + context.getState());
+                throw new JSONException("illegal state : " + context.state);
         }
     }
 
     private void endStructure() {
-        context = context.getParent();
+        context = context.parent;
 
         if (context == null) {
             return;
         }
         
-        final int state = context.getState();
+        final int state = context.state;
         int newState = -1;
         switch (state) {
             case PropertyKey:
@@ -114,7 +114,7 @@ public class JSONReader implements Closeable {
                 break;
         }
         if (newState != -1) {
-            context.setState(newState);
+            context.state = newState;
         }
     }
 
@@ -124,7 +124,7 @@ public class JSONReader implements Closeable {
         }
 
         final int token = parser.getLexer().token();
-        final int state = context.getState();
+        final int state = context.state;
         switch (state) {
             case StartArray:
             case ArrayValue:
@@ -232,7 +232,7 @@ public class JSONReader implements Closeable {
 
         readBefore();
         Object object;
-        switch (context.getState()) {
+        switch (context.state) {
             case StartObject:
             case PropertyValue:
                 object = parser.parseKey();
@@ -259,7 +259,7 @@ public class JSONReader implements Closeable {
     }
 
     private void readBefore() {
-        int state = context.getState();
+        int state = context.state;
         // before
         switch (state) {
             case PropertyKey:
@@ -281,7 +281,7 @@ public class JSONReader implements Closeable {
     }
 
     private void readAfter() {
-        int state = context.getState();
+        int state = context.state;
         int newStat = -1;
         switch (state) {
             case StartObject:
@@ -302,7 +302,7 @@ public class JSONReader implements Closeable {
                 throw new JSONException("illegal state : " + state);
         }
         if (newStat != -1) {
-            context.setState(newStat);
+            context.state = newStat;
         }
     }
 

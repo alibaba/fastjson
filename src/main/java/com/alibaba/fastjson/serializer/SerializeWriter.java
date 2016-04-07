@@ -1164,12 +1164,12 @@ public final class SerializeWriter extends Writer {
     }
 
     public void writeFieldValue(char seperator, String name, int value) {
-        if (value == Integer.MIN_VALUE || (!isEnabled(SerializerFeature.QuoteFieldNames))) {
+        if (value == Integer.MIN_VALUE || (features & SerializerFeature.QuoteFieldNames.mask) == 0) {
             writeFieldValue1(seperator, name, value);
             return;
         }
-
-        char keySeperator = isEnabled(SerializerFeature.UseSingleQuotes) ? '\'' : '"';
+        
+        char keySeperator = (features & SerializerFeature.UseSingleQuotes.mask) != 0 ? '\'' : '"';
 
         int intSize = (value < 0) ? IOUtils.stringSize(-value) + 1 : IOUtils.stringSize(value);
 

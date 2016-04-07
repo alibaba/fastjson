@@ -14,10 +14,12 @@ import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class FastjsonSCodec implements Codec {
-
+    public FastjsonSCodec(){
+        System.out.println("fastjson-" + JSON.VERSION);    
+    }
 
     public String getName() {
-        return "fastjson";
+        return "fastjsonS";
     }
 
     public <T> T decodeObject(String text, Class<T> clazz) {

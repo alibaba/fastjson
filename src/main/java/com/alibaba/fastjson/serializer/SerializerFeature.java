@@ -131,7 +131,12 @@ public enum SerializerFeature {
     /**
      * @since 1.2.7
      */
-    IgnoreNonFieldGetter
+    IgnoreNonFieldGetter,
+    
+    /**
+     * @since 1.2.9
+     */
+    WriteNonStringValueAsString
     ;
 
     SerializerFeature(){

@@ -9,6 +9,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.serializer.FilterUtils;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.ObjectSerializer;
 import com.alibaba.fastjson.serializer.SerializeConfig;
@@ -26,6 +27,8 @@ public class FastjsonManualCodec implements Codec {
 
     public FastjsonManualCodec(){
         System.out.println("fastjson-" + JSON.VERSION);    
+        
+        serializeConfig.put(MediaContent.class, new MediaContentSerializer());
     }
 
     public String getName() {
@@ -87,8 +90,15 @@ public class FastjsonManualCodec implements Codec {
             SerializeWriter out = serializer.out;
             
             out.write('{');
-            out.writeFieldName("height", false);
+            out.writeFieldValue('{', "height", image.getHeight());
+            out.writeFieldValue(',', "size", image.getSize());
+            
+            String tile = image.getTitle();
+            out.writeFieldValue(',', "title", tile);
+            out.writeFieldValue(',', "uri", image.getUri());
+            out.writeFieldValue(',', "width", image.getWidth());
 
+            out.write('}');
             // TODO
         }
         
@@ -101,7 +111,39 @@ public class FastjsonManualCodec implements Codec {
                           int features) throws IOException {
             Media image = (Media) object;
             
-            // TODO ...
+            SerializeWriter out = serializer.out;
+            out.write('{');
+            out.writeFieldValue('{', "bitrate", image.getBitrate());
+            out.writeFieldValue(',', "duration", image.getDuration());
+            out.writeFieldValue(',', "height", image.getHeight());
+            
+            String format = image.getFormat();
+            out.writeFieldValue(',', "format", format);
+            
+            out.writeFieldValue(',', "size", image.getSize());
+            out.writeFieldValue(',', "height", image.getHeight());
+            
+            List<String> persons = image.getPersons();
+            for (int i = 0, size = persons.size(); i < size; ++i) {
+                out.write('[');
+                if (i != 0) {
+                    out.write(',');
+                }
+                out.writeString(persons.get(i));
+                out.write(']');
+            }
+            out.writeFieldValue(',', "player", image.getPlayer());
+            out.writeFieldValue(',', "size", image.getSize());
+            
+            String title = image.getTitle();
+            out.writeFieldValue(',', "title", title);
+            
+            String uri = image.getUri();
+            out.writeFieldValue(',', "title", uri);
+            
+            out.writeFieldValue(',', "width", image.getWidth());
+            
+            out.write('}');
         }
         
     }
@@ -121,6 +163,11 @@ public class FastjsonManualCodec implements Codec {
             
             out.writeFieldName("image", false);
             List<Image> images = mediaContent.images;
+            
+            FilterUtils.applyName(serializer, object, "images");
+            FilterUtils.apply(serializer, object, "image", "images");
+            FilterUtils.processValue(serializer, object, "image", images);
+            
             
             out.write('[');
             for (int i = 0, size = images.size(); i < size; ++i) {

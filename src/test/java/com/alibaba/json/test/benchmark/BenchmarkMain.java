@@ -10,6 +10,7 @@ public class BenchmarkMain {
 
         BenchmarkExecutor executor = new BenchmarkExecutor();
         executor.setExecuteCount(3);
+//        executor.getCodecList().add(new FastjsonManualCodec());
         executor.getCodecList().add(new FastjsonCodec());
 //        executor.getCodecList().add(new FastjsonGenCodec());
 //        executor.getCodecList().add(new FastjsonBeanToArrayCodec());

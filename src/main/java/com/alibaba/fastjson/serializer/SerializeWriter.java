@@ -55,6 +55,8 @@ public final class SerializeWriter extends Writer {
     protected boolean browserCompatible;
     protected boolean useSingleQuotes;
     protected boolean quoteFieldNames;
+    
+    protected char keySeperator;
 
     public SerializeWriter(){
         this((Writer) null);
@@ -145,6 +147,8 @@ public final class SerializeWriter extends Writer {
         browserCompatible = (this.features & SerializerFeature.BrowserCompatible.mask) != 0;
         quoteFieldNames = (this.features & SerializerFeature.QuoteFieldNames.mask) != 0;
         useSingleQuotes = (this.features & SerializerFeature.UseSingleQuotes.mask) != 0;
+        
+        keySeperator = useSingleQuotes ? '\'' : '"';
     }
 
     public boolean isEnabled(SerializerFeature feature) {
@@ -1121,9 +1125,6 @@ public final class SerializeWriter extends Writer {
     }
 
     public void writeFieldValue(char seperator, String name, boolean value) {
-
-        char keySeperator = isEnabled(SerializerFeature.UseSingleQuotes) ? '\'' : '"';
-
         int intSize = value ? 4 : 5;
 
         int nameLen = name.length();
@@ -1173,8 +1174,6 @@ public final class SerializeWriter extends Writer {
             return;
         }
         
-        char keySeperator = useSingleQuotes ? '\'' : '"';
-
         int intSize = (value < 0) ? IOUtils.stringSize(-value) + 1 : IOUtils.stringSize(value);
 
         int nameLen = name.length();
@@ -1215,8 +1214,6 @@ public final class SerializeWriter extends Writer {
             writeFieldValue1(seperator, name, value);
             return;
         }
-
-        char keySeperator = useSingleQuotes ? '\'' : '"';
 
         int intSize = (value < 0) ? IOUtils.stringSize(-value) + 1 : IOUtils.stringSize(value);
 

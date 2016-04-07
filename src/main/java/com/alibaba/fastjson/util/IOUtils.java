@@ -63,10 +63,12 @@ public class IOUtils {
         }
     }
 
-    public final static byte[]    specicalFlags_doubleQuotes = new byte[256];
-    public final static byte[]    specicalFlags_singleQuotes = new byte[256];
+    public final static byte[]    specicalFlags_doubleQuotes = new byte[161];
+    public final static byte[]    specicalFlags_singleQuotes = new byte[161];
+    public final static boolean[] specicalFlags_doubleQuotesFlags = new boolean[161];
+    public final static boolean[] specicalFlags_singleQuotesFlags = new boolean[161];
 
-    public final static char[]    replaceChars               = new char[128];
+    public final static char[]    replaceChars               = new char[93];
     static {
         specicalFlags_doubleQuotes['\0'] = 4;
         specicalFlags_doubleQuotes['\1'] = 4;
@@ -80,10 +82,10 @@ public class IOUtils {
         specicalFlags_doubleQuotes['\t'] = 1; // 9
         specicalFlags_doubleQuotes['\n'] = 1; // 10
         specicalFlags_doubleQuotes['\u000B'] = 4; // 11
-        specicalFlags_doubleQuotes['\f'] = 1;
-        specicalFlags_doubleQuotes['\r'] = 1;
-        specicalFlags_doubleQuotes['\"'] = 1;
-        specicalFlags_doubleQuotes['\\'] = 1;
+        specicalFlags_doubleQuotes['\f'] = 1; // 12
+        specicalFlags_doubleQuotes['\r'] = 1; // 13
+        specicalFlags_doubleQuotes['\"'] = 1; // 34
+        specicalFlags_doubleQuotes['\\'] = 1; // 92
 
         specicalFlags_singleQuotes['\0'] = 4;
         specicalFlags_singleQuotes['\1'] = 4;
@@ -99,17 +101,22 @@ public class IOUtils {
         specicalFlags_singleQuotes['\u000B'] = 4; // 11
         specicalFlags_singleQuotes['\f'] = 1; // 12
         specicalFlags_singleQuotes['\r'] = 1; // 13
-        specicalFlags_singleQuotes['\\'] = 1;
-        specicalFlags_singleQuotes['\''] = 1;
+        specicalFlags_singleQuotes['\\'] = 1; // 92
+        specicalFlags_singleQuotes['\''] = 1; // 39
 
-        for (int i = 0x0E; i <= 0x1F; ++i) {
+        for (int i = 14; i <= 31; ++i) {
             specicalFlags_doubleQuotes[i] = 4;
             specicalFlags_singleQuotes[i] = 4;
         }
 
-        for (int i = 0x7F; i <= 0xA0; ++i) {
+        for (int i = 127; i <= 160; ++i) {
             specicalFlags_doubleQuotes[i] = 4;
             specicalFlags_singleQuotes[i] = 4;
+        }
+        
+        for (int i = 0; i < 161; ++i) {
+            specicalFlags_doubleQuotesFlags[i] = specicalFlags_doubleQuotes[i] != 0;
+            specicalFlags_singleQuotesFlags[i] = specicalFlags_singleQuotes[i] != 0;
         }
 
         replaceChars['\0'] = '0';

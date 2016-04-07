@@ -283,14 +283,14 @@ public class ASMSerializerFactory implements Opcodes {
 
         mw.visitVarInsn(ALOAD, context.var("out"));
         mw.visitVarInsn(BIPUSH, '[');
-        mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "write", "(C)V");
+        mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "write", "(I)V");
 
         int size = getters.size();
 
         if (size == 0) {
             mw.visitVarInsn(ALOAD, context.var("out"));
             mw.visitVarInsn(BIPUSH, ']');
-            mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "write", "(C)V");
+            mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "write", "(I)V");
             return;
         }
 
@@ -380,7 +380,7 @@ public class ASMSerializerFactory implements Opcodes {
 
                 mw.visitVarInsn(ALOAD, context.var("out"));
                 mw.visitVarInsn(BIPUSH, seperator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "write", "(C)V");
+                mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "write", "(I)V");
             }
         }
     }
@@ -583,13 +583,13 @@ public class ASMSerializerFactory implements Opcodes {
 
         mw.visitVarInsn(ALOAD, context.var("out"));
         mw.visitVarInsn(BIPUSH, '{');
-        mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "write", "(C)V");
+        mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "write", "(I)V");
 
         mw.visitLabel(_else);
 
         mw.visitVarInsn(ALOAD, context.var("out"));
         mw.visitVarInsn(BIPUSH, '}');
-        mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "write", "(C)V");
+        mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "write", "(I)V");
 
         mw.visitLabel(_end_if);
         mw.visitLabel(end);
@@ -953,11 +953,12 @@ public class ASMSerializerFactory implements Opcodes {
 
         mw.visitVarInsn(ALOAD, context.var("out"));
         mw.visitVarInsn(ILOAD, context.var("seperator"));
-        mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "write", "(C)V");
+        mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "write", "(I)V");
 
         mw.visitVarInsn(ALOAD, context.var("out"));
         mw.visitVarInsn(ALOAD, Context.fieldName);
-        mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "writeFieldName", "(Ljava/lang/String;)V");
+        mw.visitInsn(ICONST_0);
+        mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "writeFieldName", "(Ljava/lang/String;Z)V");
 
         //
         mw.visitVarInsn(ALOAD, context.var("list"));
@@ -993,7 +994,7 @@ public class ASMSerializerFactory implements Opcodes {
         {
             mw.visitVarInsn(ALOAD, context.var("out"));
             mw.visitVarInsn(BIPUSH, '[');
-            mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "write", "(C)V");
+            mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "write", "(I)V");
 
             // list_serializer = null
             mw.visitInsn(ACONST_NULL);
@@ -1046,7 +1047,7 @@ public class ASMSerializerFactory implements Opcodes {
 
                 mw.visitVarInsn(ALOAD, context.var("out"));
                 mw.visitVarInsn(BIPUSH, ',');
-                mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "write", "(C)V");
+                mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "write", "(I)V");
             }
 
             mw.visitIincInsn(context.var("i"), 1);
@@ -1086,7 +1087,7 @@ public class ASMSerializerFactory implements Opcodes {
 
                 mw.visitVarInsn(ALOAD, context.var("out"));
                 mw.visitVarInsn(BIPUSH, ']');
-                mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "write", "(C)V");
+                mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "write", "(I)V");
             }
         }
 
@@ -1182,12 +1183,13 @@ public class ASMSerializerFactory implements Opcodes {
         // writeFieldNullNumber
         mw.visitVarInsn(ALOAD, context.var("out"));
         mw.visitVarInsn(ILOAD, context.var("seperator"));
-        mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "write", "(C)V");
+        mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "write", "(I)V");
 
         // out.writeFieldName("fieldName")
         mw.visitVarInsn(ALOAD, context.var("out"));
         mw.visitVarInsn(ALOAD, Context.fieldName);
-        mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "writeFieldName", "(Ljava/lang/String;)V");
+        mw.visitInsn(ICONST_0);
+        mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "writeFieldName", "(Ljava/lang/String;Z)V");
 
         // serializer.write(obj)
         mw.visitVarInsn(ALOAD, Context.serializer);
@@ -1346,49 +1348,73 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitVarInsn(ALOAD, Context.obj);
         mw.visitVarInsn(ALOAD, Context.fieldName);
 
+        String valueDesc = "Ljava/lang/Object;";
         if (propertyClass == byte.class) {
             mw.visitVarInsn(ILOAD, context.var("byte"));
-            mw.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;");
+            valueDesc = "B";
+            mw.visitInsn(ACONST_NULL);
+            mw.visitVarInsn(ASTORE, Context.original);
         } else if (propertyClass == short.class) {
             mw.visitVarInsn(ILOAD, context.var("short"));
-            mw.visitMethodInsn(INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;");
+            valueDesc = "S";
+            mw.visitInsn(ACONST_NULL);
+            mw.visitVarInsn(ASTORE, Context.original);
         } else if (propertyClass == int.class) {
             mw.visitVarInsn(ILOAD, context.var("int"));
-            mw.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
+            valueDesc = "I";
+            mw.visitInsn(ACONST_NULL);
+            mw.visitVarInsn(ASTORE, Context.original);
         } else if (propertyClass == char.class) {
             mw.visitVarInsn(ILOAD, context.var("char"));
             mw.visitMethodInsn(INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;");
+            mw.visitVarInsn(ASTORE, Context.original);
+            mw.visitVarInsn(ALOAD, Context.original);
         } else if (propertyClass == long.class) {
             mw.visitVarInsn(LLOAD, context.var("long", 2));
-            mw.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;");
+            valueDesc = "J";
+            mw.visitInsn(ACONST_NULL);
+            mw.visitVarInsn(ASTORE, Context.original);
         } else if (propertyClass == float.class) {
             mw.visitVarInsn(FLOAD, context.var("float"));
-            mw.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;");
+            valueDesc = "F";
+            mw.visitInsn(ACONST_NULL);
+            mw.visitVarInsn(ASTORE, Context.original);
         } else if (propertyClass == double.class) {
             mw.visitVarInsn(DLOAD, context.var("double", 2));
-            mw.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;");
+            valueDesc = "D";
+            mw.visitInsn(ACONST_NULL);
+            mw.visitVarInsn(ASTORE, Context.original);
         } else if (propertyClass == boolean.class) {
             mw.visitVarInsn(ILOAD, context.var("boolean"));
-            mw.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;");
+            valueDesc = "Z";
+            mw.visitInsn(ACONST_NULL);
+            mw.visitVarInsn(ASTORE, Context.original);
         } else if (propertyClass == BigDecimal.class) {
             mw.visitVarInsn(ALOAD, context.var("decimal"));
+            mw.visitVarInsn(ASTORE, Context.original);
+            mw.visitVarInsn(ALOAD, Context.original);
         } else if (propertyClass == String.class) {
             mw.visitVarInsn(ALOAD, context.var("string"));
+            mw.visitVarInsn(ASTORE, Context.original);
+            mw.visitVarInsn(ALOAD, Context.original);
         } else if (propertyClass.isEnum()) {
             mw.visitVarInsn(ALOAD, context.var("enum"));
+            mw.visitVarInsn(ASTORE, Context.original);
+            mw.visitVarInsn(ALOAD, Context.original);
         } else if (List.class.isAssignableFrom(propertyClass)) {
             mw.visitVarInsn(ALOAD, context.var("list"));
+            mw.visitVarInsn(ASTORE, Context.original);
+            mw.visitVarInsn(ALOAD, Context.original);
         } else {
             mw.visitVarInsn(ALOAD, context.var("object"));
+            mw.visitVarInsn(ASTORE, Context.original);
+            mw.visitVarInsn(ALOAD, Context.original);
         }
-
-        mw.visitVarInsn(ASTORE, Context.original);
-        mw.visitVarInsn(ALOAD, Context.original);
 
         mw.visitMethodInsn(INVOKESTATIC,
                            "com/alibaba/fastjson/serializer/FilterUtils",
                            "processValue",
-                           "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;");
+                           "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;Ljava/lang/String;" + valueDesc + ")Ljava/lang/Object;");
 
         mw.visitVarInsn(ASTORE, Context.processValue);
     }

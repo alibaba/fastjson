@@ -63,6 +63,7 @@ import com.alibaba.fastjson.parser.deserializer.OptionalCodec;
 import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.ServiceLoader;
+import com.alibaba.fastjson.util.TypeUtils;
 
 /**
  * circular references detect
@@ -343,7 +344,9 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
                 ObjectSerializer compObjectSerializer = getObjectWriter(componentType);
                 put(clazz, new ArraySerializer(componentType, compObjectSerializer));
             } else if (Throwable.class.isAssignableFrom(clazz)) {
-                put(clazz, new ExceptionSerializer(clazz));
+                int features = TypeUtils.getSerializeFeatures(clazz);
+                features |= SerializerFeature.WriteClassName.mask;
+                put(clazz, new JavaBeanSerializer(clazz, null, features));
             } else if (TimeZone.class.isAssignableFrom(clazz)) {
                 put(clazz, MiscCodec.instance);
             } else if (Appendable.class.isAssignableFrom(clazz)) {

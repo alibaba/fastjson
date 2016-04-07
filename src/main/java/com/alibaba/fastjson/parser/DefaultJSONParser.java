@@ -85,7 +85,7 @@ public class DefaultJSONParser implements Closeable {
 
     protected ParseContext             context;
 
-    private ParseContext[]             contextArray       = new ParseContext[8];
+    private ParseContext[]             contextArray;
     private int                        contextArrayIndex  = 0;
 
     private List<ResolveTask>          resolveTaskList;
@@ -1198,7 +1198,9 @@ public class DefaultJSONParser implements Closeable {
 
     private void addContext(ParseContext context) {
         int i = contextArrayIndex++;
-        if (i >= contextArray.length) {
+        if (contextArray == null) {
+            contextArray = new ParseContext[8];
+        } else if (i >= contextArray.length) {
             int newLen = (contextArray.length * 3) / 2;
             ParseContext[] newArray = new ParseContext[newLen];
             System.arraycopy(contextArray, 0, newArray, 0, contextArray.length);

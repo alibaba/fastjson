@@ -166,7 +166,9 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 		super(tableSize);
 		
 		try {
-		    asmFactory = new ASMSerializerFactory();
+		    if (asm) {
+		        asmFactory = new ASMSerializerFactory();
+		    }
 		} catch (NoClassDefFoundError eror) {
 		    asm = false;
 		} catch (ExceptionInInitializerError error) {

@@ -70,6 +70,13 @@ public class FieldInfo implements Comparable<FieldInfo> {
                      JSONField fieldAnnotation, // 
                      JSONField methodAnnotation, //
                      String label){
+        if (field != null) {
+            String fieldName = field.getName();
+            if (fieldName.equals(name)) {
+                name = fieldName;
+            }
+        }
+        
         this.name = name;
         this.method = method;
         this.field = field;

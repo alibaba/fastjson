@@ -124,8 +124,6 @@ public class ParserConfig {
         return global;
     }
 
-    private final Set<Class<?>>                             primitiveClasses = new HashSet<Class<?>>();
-
     private static ParserConfig                             global           = new ParserConfig();
 
     private final IdentityHashMap<Type, ObjectDeserializer> derializers      = new IdentityHashMap<Type, ObjectDeserializer>();
@@ -141,7 +139,7 @@ public class ParserConfig {
     private static boolean                                  awtError         = false;
     private static boolean                                  jdk8Error        = false;
     
-    private List<String>                                    denyList         = new ArrayList<String>();
+    private String[]                                        denyList    = new String[] { "java.lang.Thread" };
     
     public ParserConfig() {
         this(null, null);
@@ -156,10 +154,10 @@ public class ParserConfig {
     }
 
     private ParserConfig(ASMDeserializerFactory asmFactory, ClassLoader parentClassLoader){
-        if (asmFactory == null) {
+        if (asmFactory == null && !ASMUtils.IS_ANDROID) {
             try {
                 if (parentClassLoader == null) {
-                    asmFactory = ASMDeserializerFactory.getInstance();    
+                    asmFactory = new ASMDeserializerFactory();    
                 } else {
                     asmFactory = new ASMDeserializerFactory(parentClassLoader);
                 }
@@ -178,39 +176,6 @@ public class ParserConfig {
             asmEnable = false;
         }
         
-        primitiveClasses.add(boolean.class);
-        primitiveClasses.add(Boolean.class);
-
-        primitiveClasses.add(char.class);
-        primitiveClasses.add(Character.class);
-
-        primitiveClasses.add(byte.class);
-        primitiveClasses.add(Byte.class);
-
-        primitiveClasses.add(short.class);
-        primitiveClasses.add(Short.class);
-
-        primitiveClasses.add(int.class);
-        primitiveClasses.add(Integer.class);
-
-        primitiveClasses.add(long.class);
-        primitiveClasses.add(Long.class);
-
-        primitiveClasses.add(float.class);
-        primitiveClasses.add(Float.class);
-
-        primitiveClasses.add(double.class);
-        primitiveClasses.add(Double.class);
-
-        primitiveClasses.add(BigInteger.class);
-        primitiveClasses.add(BigDecimal.class);
-
-        primitiveClasses.add(String.class);
-        primitiveClasses.add(java.util.Date.class);
-        primitiveClasses.add(java.sql.Date.class);
-        primitiveClasses.add(java.sql.Time.class);
-        primitiveClasses.add(java.sql.Timestamp.class);
-
         derializers.put(SimpleDateFormat.class, MiscCodec.instance);
         derializers.put(java.sql.Timestamp.class, SqlDateDeserializer.instance_timestamp);
         derializers.put(java.sql.Date.class, SqlDateDeserializer.instance);
@@ -411,8 +376,8 @@ public class ParserConfig {
             return derializer;
         }
         
-        for (int i = 0; i < denyList.size(); ++i) {
-            String deny = denyList.get(i);
+        for (int i = 0; i < denyList.length; ++i) {
+            String deny = denyList[i];
             String className = clazz.getName();
             className = className.replace('$', '.');
             if (className.startsWith(deny)) {
@@ -638,7 +603,23 @@ public class ParserConfig {
     }
 
     public boolean isPrimitive(Class<?> clazz) {
-        return primitiveClasses.contains(clazz);
+        return clazz.isPrimitive() //
+                 || clazz == Boolean.class //
+                 || clazz == Character.class //
+                 || clazz == Byte.class //
+                 || clazz == Short.class //
+                 || clazz == Integer.class //
+                 || clazz == Long.class //
+                 || clazz == Float.class //
+                 || clazz == Double.class //
+                 || clazz == BigInteger.class //
+                 || clazz == BigDecimal.class //
+                 || clazz == String.class //
+                 || clazz == java.util.Date.class //
+                 || clazz == java.sql.Date.class //
+                 || clazz == java.sql.Time.class //
+                 || clazz == java.sql.Timestamp.class //
+                 ;
     }
 
     public static Field getField(Class<?> clazz, String fieldName) {
@@ -677,6 +658,10 @@ public class ParserConfig {
         if (name == null || name.length() == 0) {
             return;
         }
-        this.denyList.add(name);
+        
+        String[] denyList = new String[this.denyList.length + 1];
+        System.arraycopy(this.denyList, 0, denyList, 0, this.denyList.length);
+        denyList[denyList.length - 1] = name;
+        this.denyList = denyList;
     }
 }

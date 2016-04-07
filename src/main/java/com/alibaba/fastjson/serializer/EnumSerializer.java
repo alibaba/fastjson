@@ -33,9 +33,9 @@ public class EnumSerializer implements ObjectSerializer {
         }
 
         Enum<?> e = (Enum<?>) object;
-        if(serializer.isEnabled(SerializerFeature.WriteEnumUsingName)){
+        if(out.isEnabled(SerializerFeature.WriteEnumUsingName)){
             serializer.write(e.name());
-        } else if (serializer.isEnabled(SerializerFeature.WriteEnumUsingToString)) {
+        } else if (out.isEnabled(SerializerFeature.WriteEnumUsingToString)) {
             serializer.write(e.toString());
         } else {
             out.writeInt(e.ordinal());

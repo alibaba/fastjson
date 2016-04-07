@@ -52,7 +52,7 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         Type elementType = null;
-        if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
+        if (out.isEnabled(SerializerFeature.WriteClassName)) {
             if (fieldType instanceof ParameterizedType) {
                 ParameterizedType param = (ParameterizedType) fieldType;
                 elementType = param.getActualTypeArguments()[0];
@@ -64,7 +64,7 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
         SerialContext context = serializer.getContext();
         serializer.setContext(context, object, fieldName, 0);
 
-        if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
+        if (out.isEnabled(SerializerFeature.WriteClassName)) {
             if (HashSet.class == collection.getClass()) {
                 out.append("Set");
             } else if (TreeSet.class == collection.getClass()) {

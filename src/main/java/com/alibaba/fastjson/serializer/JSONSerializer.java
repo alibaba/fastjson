@@ -114,7 +114,7 @@ public class JSONSerializer {
     }
     
     public void setContext(SerialContext parent, Object object, Object fieldName, int features, int fieldFeatures) {
-        if (isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {
+        if (out.isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {
             return;
         }
 
@@ -143,7 +143,7 @@ public class JSONSerializer {
         }
 
         if (fieldType == null) {
-            if (this.isEnabled(SerializerFeature.NotWriteRootClassName)) {
+            if (out.isEnabled(SerializerFeature.NotWriteRootClassName)) {
                 boolean isRoot = context.parent == null;
                 if (isRoot) {
                     return false;

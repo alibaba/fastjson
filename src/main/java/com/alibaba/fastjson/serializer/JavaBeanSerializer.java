@@ -166,7 +166,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 FieldSerializer fieldSerializer = getters[i];
 
                 Field field = fieldSerializer.fieldInfo.field;
-                if (serializer.isEnabled(SerializerFeature.SkipTransientField)) {
+                if (out.isEnabled(SerializerFeature.SkipTransientField)) {
                     if (field != null) {
                         if (Modifier.isTransient(field.getModifiers())) {
                             continue;
@@ -174,7 +174,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                     }
                 }
                 
-                if (serializer.isEnabled(SerializerFeature.IgnoreNonFieldGetter)) {
+                if (out.isEnabled(SerializerFeature.IgnoreNonFieldGetter)) {
                     if (field == null) {
                         continue;
                     }
@@ -201,12 +201,12 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
                 if (propertyValue == null && !writeAsArray) {
                     if ((!fieldSerializer.writeNull)
-                        && (!serializer.isEnabled(SerializerFeature.WriteMapNullValue))) {
+                        && (!out.isEnabled(SerializerFeature.WriteMapNullValue))) {
                         continue;
                     }
                 }
 
-                if (propertyValue != null && serializer.isEnabled(SerializerFeature.NotWriteDefaultValue)) {
+                if (propertyValue != null && out.isEnabled(SerializerFeature.NotWriteDefaultValue)) {
                     Class<?> fieldCLass = fieldSerializer.fieldInfo.fieldClass;
                     if (fieldCLass == byte.class && propertyValue instanceof Byte
                         && ((Byte) propertyValue).byteValue() == 0) {
@@ -304,12 +304,12 @@ public class JavaBeanSerializer implements ObjectSerializer {
     }
 
     public boolean isWriteAsArray(JSONSerializer serializer) {
-        if (SerializerFeature.isEnabled(features, SerializerFeature.BeanToArray)) {
+        if ((features & SerializerFeature.BeanToArray.mask) != 0) {
             return true;
         }
 
         boolean writeAsArray;
-        if (serializer.isEnabled(SerializerFeature.BeanToArray)) {
+        if (serializer.out.isEnabled(SerializerFeature.BeanToArray)) {
             writeAsArray = true;
         } else {
             writeAsArray = false;

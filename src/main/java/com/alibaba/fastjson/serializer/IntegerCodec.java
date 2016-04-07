@@ -49,7 +49,7 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
         
         out.writeInt(value.intValue());
         
-        if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
+        if (out.isEnabled(SerializerFeature.WriteClassName)) {
             Class<?> clazz = value.getClass();
             if (clazz == Byte.class) {
                 out.write('B');

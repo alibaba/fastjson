@@ -22,7 +22,7 @@ public class EnumerationSerializer implements ObjectSerializer {
         }
         
         Type elementType = null;
-        if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
+        if (out.isEnabled(SerializerFeature.WriteClassName)) {
             if (fieldType instanceof ParameterizedType) {
                 ParameterizedType param = (ParameterizedType) fieldType;
                 elementType = param.getActualTypeArguments()[0];

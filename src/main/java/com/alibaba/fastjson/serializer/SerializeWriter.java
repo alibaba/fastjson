@@ -128,7 +128,7 @@ public final class SerializeWriter extends Writer {
     }
 
     public boolean isEnabled(SerializerFeature feature) {
-        return SerializerFeature.isEnabled(this.features, feature);
+        return (this.features & feature.mask) != 0;
     }
 
     /**
@@ -1518,20 +1518,25 @@ public final class SerializeWriter extends Writer {
         // if (ch > ']') {
         // return false;
         // }
-
-        if (ch == ' ') {
+        
+        if (ch == ' ') { // 32
             return false;
         }
 
-        if (ch == '/' && SerializerFeature.isEnabled(features, SerializerFeature.WriteSlashAsSpecial)) {
-            return true;
+        if (ch == '/') { // 47
+            return SerializerFeature.isEnabled(features, SerializerFeature.WriteSlashAsSpecial);
         }
 
-        if (ch > '#' && ch != '\\') {
+        if (ch > '#' // 35
+            && ch != '\\' // 92
+            ) {
             return false;
         }
 
-        if (ch <= 0x1F || ch == '\\' || ch == '"') {
+        if (ch <= 0x1F // 31
+                || ch == '\\' // 92
+                || ch == '"' // 34
+                ) {
             return true;
         }
 

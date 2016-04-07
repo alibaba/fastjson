@@ -30,7 +30,7 @@ public final class ListSerializer implements ObjectSerializer {
     public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
                                                                                                        throws IOException {
 
-        boolean writeClassName = serializer.isEnabled(SerializerFeature.WriteClassName);
+        boolean writeClassName = serializer.out.isEnabled(SerializerFeature.WriteClassName);
 
         SerializeWriter out = serializer.out;
 

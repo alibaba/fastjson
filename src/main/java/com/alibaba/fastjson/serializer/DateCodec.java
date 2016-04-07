@@ -82,8 +82,8 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
         }
 
         long time = date.getTime();
-        if (serializer.isEnabled(SerializerFeature.UseISO8601DateFormat)) {
-            if (serializer.isEnabled(SerializerFeature.UseSingleQuotes)) {
+        if (out.isEnabled(SerializerFeature.UseISO8601DateFormat)) {
+            if (out.isEnabled(SerializerFeature.UseSingleQuotes)) {
                 out.append('\'');
             } else {
                 out.append('\"');
@@ -139,7 +139,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
                 out.append("-").append(String.format("%02d", -timeZone)).append(":00");
             }
 
-            if (serializer.isEnabled(SerializerFeature.UseSingleQuotes)) {
+            if (out.isEnabled(SerializerFeature.UseSingleQuotes)) {
                 out.append('\'');
             } else {
                 out.append('\"');

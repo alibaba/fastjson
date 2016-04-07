@@ -160,7 +160,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                 }
                 
                 if (value == null) {
-                    if (!serializer.isEnabled(SerializerFeature.WriteMapNullValue)) {
+                    if (!out.isEnabled(SerializerFeature.WriteMapNullValue)) {
                         continue;
                     }
                 }

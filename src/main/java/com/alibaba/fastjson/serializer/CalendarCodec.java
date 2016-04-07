@@ -25,8 +25,8 @@ public class CalendarCodec implements ObjectSerializer, ObjectDeserializer {
 
         Calendar calendar = (Calendar) object;
 
-        if (serializer.isEnabled(SerializerFeature.UseISO8601DateFormat)) {
-            if (serializer.isEnabled(SerializerFeature.UseSingleQuotes)) {
+        if (out.isEnabled(SerializerFeature.UseISO8601DateFormat)) {
+            if (out.isEnabled(SerializerFeature.UseSingleQuotes)) {
                 out.append('\'');
             } else {
                 out.append('\"');
@@ -79,7 +79,7 @@ public class CalendarCodec implements ObjectSerializer, ObjectDeserializer {
                 out.append("-").append(String.format("%02d", -timeZone)).append(":00");
             }
 
-            if (serializer.isEnabled(SerializerFeature.UseSingleQuotes)) {
+            if (out.isEnabled(SerializerFeature.UseSingleQuotes)) {
                 out.append('\'');
             } else {
                 out.append('\"');

@@ -35,7 +35,7 @@ public class FloatCodec implements ObjectSerializer, ObjectDeserializer {
         SerializeWriter out = serializer.out;
         
         if (object == null) {
-            if (serializer.isEnabled(SerializerFeature.WriteNullNumberAsZero)) {
+            if (out.isEnabled(SerializerFeature.WriteNullNumberAsZero)) {
                 out.write('0');
             } else {
                 out.writeNull();                
@@ -56,7 +56,7 @@ public class FloatCodec implements ObjectSerializer, ObjectDeserializer {
             }
             out.write(floatText);
             
-            if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
+            if (out.isEnabled(SerializerFeature.WriteClassName)) {
                 out.write('F');
             }
         }

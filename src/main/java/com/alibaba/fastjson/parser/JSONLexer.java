@@ -539,9 +539,14 @@ public final class JSONLexer {
     }
 
     public final void nextIdent() {
-        while (isWhitespace(ch)) {
+        for (;;) {
+            boolean whitespace = ch <= ' ' && (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b');
+            if (!whitespace) {
+                break;
+            }
             next();
         }
+        
         if (ch == '_' || Character.isLetter(ch)) {
             scanIdent();
         } else {
@@ -1625,12 +1630,13 @@ public final class JSONLexer {
 
     public final boolean isBlankInput() {
         for (int i = 0;; ++i) {
-            char chLocal = charAt(i);
-            if (chLocal == EOI) {
+            char ch = charAt(i);
+            if (ch == EOI) {
                 break;
             }
 
-            if (!isWhitespace(chLocal)) {
+            boolean whitespace = ch <= ' ' && (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b');
+            if (!whitespace) {
                 return false;
             }
         }
@@ -1640,7 +1646,7 @@ public final class JSONLexer {
 
     public final void skipWhitespace() {
         for (;;) {
-            if (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b') {
+            if (ch <= ' ' && (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b')) {
                 next();
             } else {
                 break;
@@ -2032,7 +2038,7 @@ public final class JSONLexer {
 
     public static final boolean isWhitespace(char ch) {
         // 专门调整了判断顺序
-        return ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b';
+        return ch <= ' ' && (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b');
     }
 
     protected static final long  MULTMIN_RADIX_TEN       = Long.MIN_VALUE / 10;

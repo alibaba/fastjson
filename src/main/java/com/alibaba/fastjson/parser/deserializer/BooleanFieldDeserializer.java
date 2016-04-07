@@ -20,7 +20,7 @@ public class BooleanFieldDeserializer extends FieldDeserializer {
     public void parseField(DefaultJSONParser parser, Object object, Type objectType, Map<String, Object> fieldValues) {
         Boolean value;
 
-        final JSONLexer lexer = parser.getLexer();
+        final JSONLexer lexer = parser.lexer;
         if (lexer.token() == JSONToken.TRUE) {
             lexer.nextToken(JSONToken.COMMA);
             if (object == null) {

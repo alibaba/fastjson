@@ -34,9 +34,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
@@ -46,19 +44,6 @@ import com.alibaba.fastjson.util.IOUtils;
  * @author wenshao[szujobs@hotmail.com]
  */
 public abstract class JSONLexerBase implements JSONLexer, Closeable {
-
-    private final static Map<String, Integer> DEFAULT_KEYWORDS;
-
-    static {
-        Map<String, Integer> map = new HashMap<String, Integer>();
-        map.put("null", JSONToken.NULL);
-        map.put("new", JSONToken.NEW);
-        map.put("true", JSONToken.TRUE);
-        map.put("false", JSONToken.FALSE);
-        map.put("undefined", JSONToken.UNDEFINED);
-        DEFAULT_KEYWORDS = map;
-    }
-
     protected void lexError(String key, Object... args) {
         token = ERROR;
     }
@@ -91,7 +76,6 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     private final SoftReference<char[]>                     sbufRef;
     private final static ThreadLocal<SoftReference<char[]>> SBUF_REF_LOCAL = new ThreadLocal<SoftReference<char[]>>();
-    protected Map<String, Integer>                          keywods        = DEFAULT_KEYWORDS;
 
     public JSONLexerBase(){
         sbufRef = SBUF_REF_LOCAL.get();
@@ -521,7 +505,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     }
 
     public final boolean isEnabled(Feature feature) {
-        return Feature.isEnabled(this.features, feature);
+        return (this.features & feature.mask) != 0;
     }
 
     public abstract String numberString();
@@ -536,7 +520,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     public final char next() {
         ch = doNext();
-        if (ch == '/' && isEnabled(Feature.AllowComment)) {
+        if (ch == '/' && (this.features & Feature.AllowComment.mask) != 0) {
             skipComment();
         }
         return ch;
@@ -2579,9 +2563,16 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
             String ident = stringVal();
 
-            Integer tok = keywods.get(ident);
-            if (tok != null) {
-                token = tok;
+            if ("null".equals(ident)) {
+                token = JSONToken.NULL;
+            } else if ("new".equals(ident)) {
+                token = JSONToken.NEW;
+            } else if ("true".equals(ident)) {
+                token = JSONToken.TRUE;
+            } else if ("false".equals(ident)) {
+                token = JSONToken.FALSE;
+            } else if ("undefined".equals(ident)) {
+                token = JSONToken.UNDEFINED;
             } else {
                 token = JSONToken.IDENTIFIER;
             }
@@ -2612,7 +2603,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     public final void skipWhitespace() {
         for (;;) {
-            if (ch < IOUtils.whitespaceFlags.length && IOUtils.whitespaceFlags[ch]) {
+            if (ch <= ' ' && (ch == ' ' || ch == '\r' || ch == '\n' || ch == '\t' || ch == '\f' || ch == '\b')) {
                 next();
                 continue;
             } else {
@@ -2947,7 +2938,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     public static boolean isWhitespace(char ch) {
         // 专门调整了判断顺序
-        return ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b';
+        return ch <= ' ' && (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b');
     }
 
     protected static final long  MULTMIN_RADIX_TEN       = Long.MIN_VALUE / 10;

@@ -70,10 +70,10 @@ import com.alibaba.fastjson.util.TypeUtils;
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
-public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
+public class DefaultJSONParser implements Closeable {
 
-    public final Object             input;
-    public final SymbolTable        symbolTable;
+    public final Object                input;
+    public final SymbolTable           symbolTable;
     protected ParserConfig             config;
 
     private final static Set<Class<?>> primitiveClasses   = new HashSet<Class<?>>();
@@ -81,7 +81,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
     private String                     dateFormatPattern  = JSON.DEFFAULT_DATE_FORMAT;
     private DateFormat                 dateFormat;
 
-    public final JSONLexer          lexer;
+    public final JSONLexer             lexer;
 
     protected ParseContext             context;
 
@@ -94,7 +94,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
     public final static int            NeedToResolve      = 1;
     public final static int            TypeNameRedirect   = 2;
 
-    public int                        resolveStatus      = NONE;
+    public int                         resolveStatus      = NONE;
 
     private List<ExtraTypeProvider>    extraTypeProviders = null;
     private List<ExtraProcessor>       extraProcessors    = null;
@@ -198,13 +198,13 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
             throw new JSONException("syntax error, expect {, actual " + lexer.tokenName());
         }
 
-       ParseContext context = this.getContext();
+       ParseContext context = this.context;
         try {
             boolean setContextFlag = false;
             for (;;) {
                 lexer.skipWhitespace();
                 char ch = lexer.getCurrent();
-                if (isEnabled(Feature.AllowArbitraryCommas)) {
+                if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
                     while (ch == ',') {
                         lexer.next();
                         lexer.skipWhitespace();
@@ -227,7 +227,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                     lexer.nextToken();
                     return object;
                 } else if (ch == '\'') {
-                    if (!isEnabled(Feature.AllowSingleQuotes)) {
+                    if (!lexer.isEnabled(Feature.AllowSingleQuotes)) {
                         throw new JSONException("syntax error");
                     }
 
@@ -258,7 +258,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                     key = parse();
                     isObjectKey = true;
                 } else {
-                    if (!isEnabled(Feature.AllowUnQuotedFieldNames)) {
+                    if (!lexer.isEnabled(Feature.AllowUnQuotedFieldNames)) {
                         throw new JSONException("syntax error");
                     }
 
@@ -279,7 +279,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 
                 lexer.resetStringPosition();
 
-                if (key == JSON.DEFAULT_TYPE_KEY && !isEnabled(Feature.DisableSpecialKeyDetect)) {
+                if (key == JSON.DEFAULT_TYPE_KEY && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
                     String typeName = lexer.scanSymbol(symbolTable, '"');
                     Class<?> clazz = TypeUtils.loadClass(typeName, config.getDefaultClassLoader());
 
@@ -324,7 +324,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                     return deserializer.deserialze(this, clazz, fieldName);
                 }
 
-                if (key == "$ref" && !isEnabled(Feature.DisableSpecialKeyDetect)) {
+                if (key == "$ref" && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
                     lexer.nextToken(JSONToken.LITERAL_STRING);
                     if (lexer.token() == JSONToken.LITERAL_STRING) {
                         String ref = lexer.stringVal();
@@ -409,7 +409,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                     if (lexer.token() == JSONToken.LITERAL_INT) {
                         value = lexer.integerValue();
                     } else {
-                        value = lexer.decimalValue(isEnabled(Feature.UseBigDecimal));
+                        value = lexer.decimalValue(lexer.isEnabled(Feature.UseBigDecimal));
                     }
 
                     object.put(key, value);
@@ -433,7 +433,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 
                     final boolean parentIsArray = fieldName != null && fieldName.getClass() == Integer.class;
 
-                    JSONObject input = new JSONObject(isEnabled(Feature.OrderedField));
+                    JSONObject input = new JSONObject(lexer.isEnabled(Feature.OrderedField));
                     ParseContext ctxLocal = null;
 
                     if (!parentIsArray) {
@@ -599,11 +599,11 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
             lexer.nextToken(deserializer.getFastMatchToken());
         }
 
-        ParseContext context = this.getContext();
+        ParseContext context = this.context;
         this.setContext(array, fieldName);
         try {
             for (int i = 0;; ++i) {
-                if (isEnabled(Feature.AllowArbitraryCommas)) {
+                if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
                     while (lexer.token() == JSONToken.COMMA) {
                         lexer.nextToken();
                         continue;
@@ -794,7 +794,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                     break;
                 }
                 if (lexer.token() == JSONToken.COMMA) {
-                    if (isEnabled(Feature.AllowArbitraryCommas)) {
+                    if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
                         continue;
                     }
                 }
@@ -806,7 +806,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
             }
             
             if (fieldDeser == null) {
-                if (!isEnabled(Feature.IgnoreNotMatch)) {
+                if (!lexer.isEnabled(Feature.IgnoreNotMatch)) {
                     throw new JSONException("setter not found, class " + clazz.getName() + ", property " + key);
                 }
 
@@ -997,7 +997,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
     }
 
     public JSONObject parseObject() {
-        JSONObject object = new JSONObject(isEnabled(Feature.OrderedField));
+        JSONObject object = new JSONObject(lexer.isEnabled(Feature.OrderedField));
         object = (JSONObject) parseObject(object);
         return object;
     }
@@ -1009,7 +1009,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public final void parseArray(final Collection array, Object fieldName) {
-        final JSONLexer lexer = getLexer();
+        final JSONLexer lexer = this.lexer;
 
         if (lexer.token() == JSONToken.SET || lexer.token() == JSONToken.TREE_SET) {
             lexer.nextToken();
@@ -1022,11 +1022,11 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
 
         lexer.nextToken(JSONToken.LITERAL_STRING);
 
-        ParseContext context = this.getContext();
+        ParseContext context = this.context;
         this.setContext(array, fieldName);
         try {
             for (int i = 0;; ++i) {
-                if (isEnabled(Feature.AllowArbitraryCommas)) {
+                if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
                     while (lexer.token() == JSONToken.COMMA) {
                         lexer.nextToken();
                         continue;
@@ -1073,7 +1073,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                         lexer.nextToken(JSONToken.COMMA);
                         break;
                     case LBRACE:
-                        JSONObject object = new JSONObject(isEnabled(Feature.OrderedField));
+                        JSONObject object = new JSONObject(lexer.isEnabled(Feature.OrderedField));
                         value = parseObject(object, i);
                         break;
                     case LBRACKET:
@@ -1161,14 +1161,14 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
     }
 
     public void setContext(ParseContext context) {
-        if (isEnabled(Feature.DisableCircularReferenceDetect)) {
+        if (lexer.isEnabled(Feature.DisableCircularReferenceDetect)) {
             return;
         }
         this.context = context;
     }
 
     public void popContext() {
-        if (isEnabled(Feature.DisableCircularReferenceDetect)) {
+        if (lexer.isEnabled(Feature.DisableCircularReferenceDetect)) {
             return;
         }
 
@@ -1178,7 +1178,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
     }
 
     public ParseContext setContext(Object object, Object fieldName) {
-        if (isEnabled(Feature.DisableCircularReferenceDetect)) {
+        if (lexer.isEnabled(Feature.DisableCircularReferenceDetect)) {
             return null;
         }
 
@@ -1186,7 +1186,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
     }
 
     public ParseContext setContext(ParseContext parent, Object object, Object fieldName) {
-        if (isEnabled(Feature.DisableCircularReferenceDetect)) {
+        if (lexer.isEnabled(Feature.DisableCircularReferenceDetect)) {
             return null;
         }
 
@@ -1221,7 +1221,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
     }
 
     public Object parse(Object fieldName) {
-        final JSONLexer lexer = getLexer();
+        final JSONLexer lexer = this.lexer;
         switch (lexer.token()) {
             case SET:
                 lexer.nextToken();
@@ -1238,14 +1238,14 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                 parseArray(array, fieldName);
                 return array;
             case LBRACE:
-                JSONObject object = new JSONObject(isEnabled(Feature.OrderedField));
+                JSONObject object = new JSONObject(lexer.isEnabled(Feature.OrderedField));
                 return parseObject(object, fieldName);
             case LITERAL_INT:
                 Number intValue = lexer.integerValue();
                 lexer.nextToken();
                 return intValue;
             case LITERAL_FLOAT:
-                Object value = lexer.decimalValue(isEnabled(Feature.UseBigDecimal));
+                Object value = lexer.decimalValue(lexer.isEnabled(Feature.UseBigDecimal));
                 lexer.nextToken();
                 return value;
             case LITERAL_STRING:
@@ -1303,11 +1303,11 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
     }
 
     public void config(Feature feature, boolean state) {
-        getLexer().config(feature, state);
+        this.lexer.config(feature, state);
     }
 
     public boolean isEnabled(Feature feature) {
-        return getLexer().isEnabled(feature);
+        return lexer.isEnabled(feature);
     }
 
     public JSONLexer getLexer() {
@@ -1315,7 +1315,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
     }
 
     public final void accept(final int token) {
-        final JSONLexer lexer = getLexer();
+        final JSONLexer lexer = this.lexer;
         if (lexer.token() == token) {
             lexer.nextToken();
         } else {
@@ -1325,7 +1325,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
     }
 
     public final void accept(final int token, int nextExpectToken) {
-        final JSONLexer lexer = getLexer();
+        final JSONLexer lexer = this.lexer;
         if (lexer.token() == token) {
             lexer.nextToken(nextExpectToken);
         } else {
@@ -1335,10 +1335,10 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
     }
 
     public void close() {
-        final JSONLexer lexer = getLexer();
+        final JSONLexer lexer = this.lexer;
 
         try {
-            if (isEnabled(Feature.AutoCloseSource)) {
+            if (lexer.isEnabled(Feature.AutoCloseSource)) {
                 if (lexer.token() != JSONToken.EOF) {
                     throw new JSONException("not close json text, token : " + JSONToken.name(lexer.token()));
                 }

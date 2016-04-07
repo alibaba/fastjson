@@ -85,7 +85,7 @@ public class AwtCodec implements ObjectSerializer, ObjectDeserializer {
     @SuppressWarnings("unchecked")
 
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-        JSONLexer lexer = parser.getLexer();
+        JSONLexer lexer = parser.lexer;
 
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken(JSONToken.COMMA);
@@ -117,7 +117,7 @@ public class AwtCodec implements ObjectSerializer, ObjectDeserializer {
     }
     
     protected Font parseFont(DefaultJSONParser parser) {
-        JSONLexer lexer = parser.getLexer();
+        JSONLexer lexer = parser.lexer;
         
         int size = 0, style = 0;
         String name = null;
@@ -170,7 +170,7 @@ public class AwtCodec implements ObjectSerializer, ObjectDeserializer {
     }
     
     protected Color parseColor(DefaultJSONParser parser) {
-        JSONLexer lexer = parser.getLexer();
+        JSONLexer lexer = parser.lexer;
         
         int r = 0, g = 0, b = 0, alpha = 0;
         for (;;) {
@@ -216,7 +216,7 @@ public class AwtCodec implements ObjectSerializer, ObjectDeserializer {
     }
     
     protected Rectangle parseRectangle(DefaultJSONParser parser) {
-        JSONLexer lexer = parser.getLexer();
+        JSONLexer lexer = parser.lexer;
         
         int x = 0, y = 0, width = 0, height = 0;
         for (;;) {
@@ -262,7 +262,7 @@ public class AwtCodec implements ObjectSerializer, ObjectDeserializer {
     }
 
     protected Point parsePoint(DefaultJSONParser parser) {
-        JSONLexer lexer = parser.getLexer();
+        JSONLexer lexer = parser.lexer;
         
         int x = 0, y = 0;
         for (;;) {

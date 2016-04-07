@@ -313,7 +313,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         JSONArray array;
 
-        JSONLexer lexer = parser.getLexer();
+        JSONLexer lexer = parser.lexer;
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken();
             array = null;
@@ -339,7 +339,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         List<T> list;
 
         DefaultJSONParser parser = new DefaultJSONParser(text, ParserConfig.getGlobalInstance());
-        JSONLexer lexer = parser.getLexer();
+        JSONLexer lexer = parser.lexer;
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken();
             list = null;

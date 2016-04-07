@@ -50,7 +50,7 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
 
     public boolean parseField(DefaultJSONParser parser, String key, Object object, Type objectType,
                               Map<String, Object> fieldValues) {
-        JSONLexer lexer = parser.getLexer(); // xxx
+        JSONLexer lexer = parser.lexer; // xxx
 
         FieldDeserializer fieldDeserializer = serializer.smartMatch(key);
 

@@ -228,7 +228,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
             return (T) parser.parseObject();
         }
         
-        final JSONLexer lexer = parser.getLexer();
+        final JSONLexer lexer = parser.lexer;
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken(JSONToken.COMMA);
             return null;
@@ -265,7 +265,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
     
     @SuppressWarnings("rawtypes")
     public static Map parseMap(DefaultJSONParser parser, Map<String, Object> map, Type valueType, Object fieldName) {
-        JSONLexer lexer = parser.getLexer();
+        JSONLexer lexer = parser.lexer;
 
         if (lexer.token() != JSONToken.LBRACE) {
             throw new JSONException("syntax error, expect {, actual " + lexer.token());
@@ -276,7 +276,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
             for (;;) {
                 lexer.skipWhitespace();
                 char ch = lexer.getCurrent();
-                if (parser.isEnabled(Feature.AllowArbitraryCommas)) {
+                if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
                     while (ch == ',') {
                         lexer.next();
                         lexer.skipWhitespace();
@@ -298,7 +298,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                     lexer.nextToken(JSONToken.COMMA);
                     return map;
                 } else if (ch == '\'') {
-                    if (!parser.isEnabled(Feature.AllowSingleQuotes)) {
+                    if (!lexer.isEnabled(Feature.AllowSingleQuotes)) {
                         throw new JSONException("syntax error");
                     }
 
@@ -309,7 +309,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                         throw new JSONException("expect ':' at " + lexer.pos());
                     }
                 } else {
-                    if (!parser.isEnabled(Feature.AllowUnQuotedFieldNames)) {
+                    if (!lexer.isEnabled(Feature.AllowUnQuotedFieldNames)) {
                         throw new JSONException("syntax error");
                     }
 
@@ -327,7 +327,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
 
                 lexer.resetStringPosition();
 
-                if (key == JSON.DEFAULT_TYPE_KEY && !parser.isEnabled(Feature.DisableSpecialKeyDetect)) {
+                if (key == JSON.DEFAULT_TYPE_KEY && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
                     String typeName = lexer.scanSymbol(parser.getSymbolTable(), '"');
                     Class<?> clazz = TypeUtils.loadClass(typeName, parser.getConfig().getDefaultClassLoader());
 
@@ -386,7 +386,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
     
     public static Object parseMap(DefaultJSONParser parser, Map<Object, Object> map, Type keyType, Type valueType,
                                   Object fieldName) {
-        JSONLexer lexer = parser.getLexer();
+        JSONLexer lexer = parser.lexer;
 
         if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {
             throw new JSONException("syntax error, expect {, actual " + lexer.tokenName());
@@ -405,7 +405,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                 }
 
                 if (lexer.token() == JSONToken.LITERAL_STRING && lexer.isRef()
-                    && !parser.isEnabled(Feature.DisableSpecialKeyDetect)) {
+                    && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
                     Object object = null;
 
                     lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
@@ -444,7 +444,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                 if (map.size() == 0 //
                     && lexer.token() == JSONToken.LITERAL_STRING //
                     && JSON.DEFAULT_TYPE_KEY.equals(lexer.stringVal()) //
-                    && !parser.isEnabled(Feature.DisableSpecialKeyDetect)) {
+                    && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
                     lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
                     lexer.nextToken(JSONToken.COMMA);
                     if (lexer.token() == JSONToken.RBRACE) {

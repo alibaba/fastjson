@@ -392,7 +392,7 @@ public class JSONPath implements ObjectSerializer {
 
         public final void skipWhitespace() {
             for (;;) {
-                if (ch < IOUtils.whitespaceFlags.length && IOUtils.whitespaceFlags[ch]) {
+                if (ch <= ' ' && (ch == ' ' || ch == '\r' || ch == '\n' || ch == '\t' || ch == '\f' || ch == '\b')) {
                     next();
                     continue;
                 } else {

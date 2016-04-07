@@ -100,8 +100,8 @@ public class AtomicCodec implements ObjectSerializer, ObjectDeserializer {
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        if (parser.getLexer().token() == JSONToken.NULL) {
-            parser.getLexer().nextToken(JSONToken.COMMA);
+        if (parser.lexer.token() == JSONToken.NULL) {
+            parser.lexer.nextToken(JSONToken.COMMA);
             return null;
         }
 

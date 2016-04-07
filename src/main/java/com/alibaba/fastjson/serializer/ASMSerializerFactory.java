@@ -1202,9 +1202,13 @@ public class ASMSerializerFactory implements Opcodes {
                 mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/JSONSerializer", "writeWithFieldName",
                                    "(Ljava/lang/Object;Ljava/lang/Object;)V");
             } else {
-                mw.visitVarInsn(ALOAD, 0);
-                mw.visitFieldInsn(GETFIELD, context.className, fieldInfo.name + "_asm_fieldType",
-                                  "Ljava/lang/reflect/Type;");
+                if (fieldInfo.fieldClass == String.class) {
+                    mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(getDesc(String.class)));
+                } else {
+                    mw.visitVarInsn(ALOAD, 0);
+                    mw.visitFieldInsn(GETFIELD, context.className, fieldInfo.name + "_asm_fieldType",
+                                      "Ljava/lang/reflect/Type;");
+                }
                 mw.visitLdcInsn(fieldInfo.serialzeFeatures);
 
                 mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/JSONSerializer", "writeWithFieldName",

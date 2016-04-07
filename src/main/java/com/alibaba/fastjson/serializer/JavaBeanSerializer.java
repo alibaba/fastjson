@@ -96,13 +96,13 @@ public class JavaBeanSerializer implements ObjectSerializer {
         
         if (orders != null && orders.length != 0) {
             List<FieldInfo> fieldInfoList = TypeUtils.computeGetters(clazz, jsonType, aliasMap, true);
-          List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
+            List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
 
-          for (FieldInfo fieldInfo : fieldInfoList) {
-              getterList.add(createFieldSerializer(fieldInfo));
-          }
+            for (FieldInfo fieldInfo : fieldInfoList) {
+                getterList.add(createFieldSerializer(fieldInfo));
+            }
 
-          sortedGetters = getterList.toArray(new FieldSerializer[getterList.size()]);
+            sortedGetters = getterList.toArray(new FieldSerializer[getterList.size()]);
         } else {
             sortedGetters = new FieldSerializer[getters.length];
             System.arraycopy(getters, 0, sortedGetters, 0, getters.length);

@@ -99,6 +99,11 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         for (;;) {
             pos = bp;
+            
+            if (ch == '/') {
+                skipComment();
+                continue;
+            }
 
             if (ch == '"') {
                 scanString();
@@ -518,33 +523,33 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     public abstract char charAt(int index);
 
-    public final char next() {
-        ch = doNext();
-        if (ch == '/' && (this.features & Feature.AllowComment.mask) != 0) {
-            skipComment();
-        }
-        return ch;
-    }
+//    public final char next() {
+//        ch = doNext();
+////        if (ch == '/' && (this.features & Feature.AllowComment.mask) != 0) {
+////            skipComment();
+////        }
+//        return ch;
+//    }
 
-    public abstract char doNext();
+    public abstract char next();
 
     protected void skipComment() {
-        doNext();
+        next();
         if (ch == '/') {
             for (;;) {
-                doNext();
+                next();
                 if (ch == '\n') {
-                    doNext();
+                    next();
                     return;
                 }
             }
         } else if (ch == '*') {
             for (;;) {
-                doNext();
+                next();
                 if (ch == '*') {
-                    doNext();
+                    next();
                     if (ch == '/') {
-                        doNext();
+                        next();
                         return;
                     }
                 }
@@ -2603,9 +2608,16 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     public final void skipWhitespace() {
         for (;;) {
-            if (ch <= ' ' && (ch == ' ' || ch == '\r' || ch == '\n' || ch == '\t' || ch == '\f' || ch == '\b')) {
-                next();
-                continue;
+            if (ch <= '/') {
+                if (ch == ' ' || ch == '\r' || ch == '\n' || ch == '\t' || ch == '\f' || ch == '\b') {
+                    next();
+                    continue;
+                } else if (ch == '/') {
+                    skipComment();
+                    continue;
+                } else {
+                    break;
+                }
             } else {
                 break;
             }

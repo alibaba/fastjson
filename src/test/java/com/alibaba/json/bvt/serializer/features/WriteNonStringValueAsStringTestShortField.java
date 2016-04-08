@@ -13,7 +13,7 @@ public class WriteNonStringValueAsStringTestShortField extends TestCase {
         vo.id = 100;
         
         String text = JSON.toJSONString(vo, SerializerFeature.WriteNonStringValueAsString);
-         Assert.assertEquals("{\"id\":\"100\"}", text);
+        Assert.assertEquals("{\"id\":\"100\"}", text);
     }
     
     public static class VO {

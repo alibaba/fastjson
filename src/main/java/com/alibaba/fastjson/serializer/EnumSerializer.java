@@ -33,7 +33,7 @@ public class EnumSerializer implements ObjectSerializer {
         }
 
         Enum<?> e = (Enum<?>) object;
-        if(out.writeEnumUsingName){
+        if(out.writeEnumUsingName && !out.writeEnumUsingToString){
             serializer.write(e.name());
         } else if (out.writeEnumUsingToString) {
             serializer.write(e.toString());

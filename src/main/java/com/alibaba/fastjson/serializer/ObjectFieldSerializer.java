@@ -62,6 +62,8 @@ public class ObjectFieldSerializer extends FieldSerializer {
                     writeEnumUsingName = true;
                 }
             }
+            
+            features = SerializerFeature.of(annotation.serialzeFeatures());
         }
     }
 

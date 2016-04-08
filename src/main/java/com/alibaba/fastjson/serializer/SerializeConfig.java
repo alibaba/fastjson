@@ -152,6 +152,9 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 	}
 
 	public void setAsmEnable(boolean asmEnable) {
+	    if (ASMUtils.IS_ANDROID) {
+	        return;
+	    }
 		this.asm = asmEnable;
 	}
 

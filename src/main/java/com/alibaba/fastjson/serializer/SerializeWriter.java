@@ -47,7 +47,7 @@ public final class SerializeWriter extends Writer {
 
     private final static ThreadLocal<SoftReference<char[]>> bufLocal = new ThreadLocal<SoftReference<char[]>>();
 
-    private int                                             features;
+    protected int                                           features;
 
     private final Writer                                    writer;
     
@@ -721,7 +721,7 @@ public final class SerializeWriter extends Writer {
         writeStringWithDoubleQuote(text, seperator, true);
     }
 
-    private void writeStringWithDoubleQuote(String text, final char seperator, boolean checkSpecial) {
+    protected void writeStringWithDoubleQuote(String text, final char seperator, boolean checkSpecial) {
         if (text == null) {
             writeNull();
             if (seperator != 0) {
@@ -1649,7 +1649,7 @@ public final class SerializeWriter extends Writer {
         }
     }
 
-    private void writeStringWithSingleQuote(String text) {
+    protected void writeStringWithSingleQuote(String text) {
         if (text == null) {
             int newcount = count + 4;
             if (newcount > buf.length) {

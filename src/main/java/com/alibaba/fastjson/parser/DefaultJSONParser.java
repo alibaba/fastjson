@@ -41,6 +41,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -302,6 +303,8 @@ public class DefaultJSONParser implements Closeable {
                             if (instance == null) {
                                 if (clazz == Cloneable.class) {
                                     instance = new HashMap();
+                                } else if ("java.util.Collections$EmptyMap".equals(typeName)) {
+                                    instance = Collections.emptyMap();
                                 } else {
                                     instance = clazz.newInstance();
                                 }

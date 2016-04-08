@@ -1217,10 +1217,10 @@ public final class SerializeWriter extends Writer {
                                                                  '2', '5', '2', '6', '2', '7', '2', '8', '2', '9', '2', 'A', '2', 'B', '2', 'C', '2', 'D', '2', 'E', '2',
                                                                  'F',                                            };
     
-    final static byte[]    specicalFlags_doubleQuotes = new byte[256];
-    final static byte[]    specicalFlags_singleQuotes = new byte[256];
+    final static byte[]    specicalFlags_doubleQuotes = new byte[161];
+    final static byte[]    specicalFlags_singleQuotes = new byte[161];
 
-    final static char[]    replaceChars               = new char[128];
+    final static char[]    replaceChars               = new char[93];
     static {
         specicalFlags_doubleQuotes['\0'] = 4;
         specicalFlags_doubleQuotes['\1'] = 4;
@@ -1256,12 +1256,12 @@ public final class SerializeWriter extends Writer {
         specicalFlags_singleQuotes['\\'] = 1;
         specicalFlags_singleQuotes['\''] = 1;
 
-        for (int i = 0x0E; i <= 0x1F; ++i) {
+        for (int i = 14; i <= 31; ++i) {
             specicalFlags_doubleQuotes[i] = 4;
             specicalFlags_singleQuotes[i] = 4;
         }
 
-        for (int i = 0x7F; i <= 0xA0; ++i) {
+        for (int i = 127; i <= 160; ++i) {
             specicalFlags_doubleQuotes[i] = 4;
             specicalFlags_singleQuotes[i] = 4;
         }

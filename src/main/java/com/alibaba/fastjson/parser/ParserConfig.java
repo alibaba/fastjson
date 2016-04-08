@@ -71,9 +71,6 @@ public class ParserConfig {
         return global;
     }
 
-    private static Object                                   PRESENT          = new Object();
-    private final static Map<Class<?>, Object>                     primitiveClasses = new java.util.IdentityHashMap<Class<?>, Object>();
-
     public static ParserConfig                              global           = new ParserConfig();
 
     private final IdentityHashMap<Type, ObjectDeserializer> derializers      = new IdentityHashMap<Type, ObjectDeserializer>();
@@ -81,38 +78,6 @@ public class ParserConfig {
     public final SymbolTable                                symbolTable      = new SymbolTable(512);
     
     public ClassLoader                                      defaultClassLoader;
-    
-    static {
-        primitiveClasses.put(boolean.class, PRESENT);
-        primitiveClasses.put(Boolean.class, PRESENT);
-
-        primitiveClasses.put(char.class, PRESENT);
-        primitiveClasses.put(Character.class, PRESENT);
-
-        primitiveClasses.put(byte.class, PRESENT);
-        primitiveClasses.put(Byte.class, PRESENT);
-
-        primitiveClasses.put(short.class, PRESENT);
-        primitiveClasses.put(Short.class, PRESENT);
-
-        primitiveClasses.put(int.class, PRESENT);
-        primitiveClasses.put(Integer.class, PRESENT);
-
-        primitiveClasses.put(long.class, PRESENT);
-        primitiveClasses.put(Long.class, PRESENT);
-
-        primitiveClasses.put(float.class, PRESENT);
-        primitiveClasses.put(Float.class, PRESENT);
-
-        primitiveClasses.put(double.class, PRESENT);
-        primitiveClasses.put(Double.class, PRESENT);
-
-        primitiveClasses.put(BigInteger.class, PRESENT);
-        primitiveClasses.put(BigDecimal.class, PRESENT);
-
-        primitiveClasses.put(String.class, PRESENT);
-        primitiveClasses.put(java.util.Date.class, PRESENT);
-    }
 
     public ParserConfig(){
         derializers.put(SimpleDateFormat.class, MiscCodec.instance);
@@ -292,6 +257,22 @@ public class ParserConfig {
     }
 
     public boolean isPrimitive(Class<?> clazz) {
-        return primitiveClasses.containsKey(clazz);
+        return clazz.isPrimitive() //
+                 || clazz == Boolean.class //
+                 || clazz == Character.class //
+                 || clazz == Byte.class //
+                 || clazz == Short.class //
+                 || clazz == Integer.class //
+                 || clazz == Long.class //
+                 || clazz == Float.class //
+                 || clazz == Double.class //
+                 || clazz == BigInteger.class //
+                 || clazz == BigDecimal.class //
+                 || clazz == String.class //
+                 || clazz == java.util.Date.class //
+                 || clazz == java.sql.Date.class //
+                 || clazz == java.sql.Time.class //
+                 || clazz == java.sql.Timestamp.class //
+                 ;
     }
 }

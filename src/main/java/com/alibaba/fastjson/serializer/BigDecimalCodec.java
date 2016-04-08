@@ -61,9 +61,9 @@ public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
     public static <T> T deserialze(DefaultJSONParser parser) {
         final JSONLexer lexer = parser.lexer;
         if (lexer.token() == JSONToken.LITERAL_INT) {
-            long val = lexer.longValue();
+            BigDecimal decimalValue = lexer.decimalValue();
             lexer.nextToken(JSONToken.COMMA);
-            return (T) new BigDecimal(val);
+            return (T) decimalValue;
         }
 
         if (lexer.token() == JSONToken.LITERAL_FLOAT) {

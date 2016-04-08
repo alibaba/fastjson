@@ -32,26 +32,26 @@ import com.alibaba.fastjson.JSONException;
  */
 public class JSONSerializer {
 
-    private final SerializeConfig                  config;
+    private final SerializeConfig                    config;
 
-    public final SerializeWriter                  out;
+    public final SerializeWriter                     out;
 
-    protected List<BeforeFilter>                   beforeFilters      = null;
-    protected List<AfterFilter>                    afterFilters       = null;
-    protected List<PropertyFilter>                 propertyFilters    = null;
-    protected List<ValueFilter>                    valueFilters       = null;
-    protected List<NameFilter>                     nameFilters        = null;
-    protected List<PropertyPreFilter>              propertyPreFilters = null;
-    protected List<LabelFilter>                    labelFilters       = null;
+    protected List<BeforeFilter>                     beforeFilters      = null;
+    protected List<AfterFilter>                      afterFilters       = null;
+    protected List<PropertyFilter>                   propertyFilters    = null;
+    protected List<ValueFilter>                      valueFilters       = null;
+    protected List<NameFilter>                       nameFilters        = null;
+    protected List<PropertyPreFilter>                propertyPreFilters = null;
+    protected List<LabelFilter>                      labelFilters       = null;
 
-    private int                                    indentCount        = 0;
-    private String                                 indent             = "\t";
+    private int                                      indentCount        = 0;
+    private String                                   indent             = "\t";
 
-    private String                                 dateFormatPattern;
-    private DateFormat                             dateFormat;
+    private String                                   dateFormatPattern;
+    private DateFormat                               dateFormat;
 
     protected IdentityHashMap<Object, SerialContext> references         = null;
-    protected SerialContext                        context;
+    protected SerialContext                          context;
 
     public JSONSerializer(){
         this(new SerializeWriter(), SerializeConfig.getGlobalInstance());

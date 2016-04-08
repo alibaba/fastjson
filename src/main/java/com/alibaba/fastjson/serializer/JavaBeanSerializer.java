@@ -34,19 +34,14 @@ import com.alibaba.fastjson.util.TypeUtils;
  * @author wenshao[szujobs@hotmail.com]
  */
 public class JavaBeanSerializer implements ObjectSerializer {
-    private static final char[] true_chars = new char[] {'t', 'r', 'u', 'e'};
-    private static final char[] false_chars = new char[] {'f', 'a', 'l', 's', 'e'};
-    
+    private static final char[]                    true_chars  = new char[] { 't', 'r', 'u', 'e' };
+    private static final char[]                    false_chars = new char[] { 'f', 'a', 'l', 's', 'e' };
+
     // serializers
     private final FieldSerializer[]                getters;
     private final FieldSerializer[]                sortedGetters;
-    private transient Map<String, FieldSerializer> getterMap;
 
-    protected int                                  features = 0;
-
-    public FieldSerializer[] getGetters() {
-        return getters;
-    }
+    protected int                                  features    = 0;
 
     public JavaBeanSerializer(Class<?> clazz){
         this(clazz, (Map<String, String>) null);
@@ -509,21 +504,35 @@ public class JavaBeanSerializer implements ObjectSerializer {
         return (features & SerializerFeature.BeanToArray.mask) != 0 || serializer.out.beanToArray;
     }
     
-    public Map<String, FieldSerializer> getGetterMap() {
-        if (getterMap == null) {
-            HashMap<String, FieldSerializer> map = new HashMap<String, FieldSerializer>(getters.length);
-            for (FieldSerializer getter : sortedGetters) {
-                map.put(getter.fieldInfo.name, getter);
-            }
-            getterMap = map;
+    public FieldSerializer getFieldSerializer(String key) {
+        if (key == null) {
+            return null;
         }
-        return getterMap;
+        
+        int low = 0;
+        int high = sortedGetters.length - 1;
+
+        while (low <= high) {
+            int mid = (low + high) >>> 1;
+            
+            String fieldName = sortedGetters[mid].fieldInfo.name;
+            
+            int cmp = fieldName.compareTo(key);
+
+            if (cmp < 0) {
+                low = mid + 1;
+            } else if (cmp > 0) {
+                high = mid - 1;
+            } else {
+                return sortedGetters[mid]; // key found
+            }
+        }
+        
+        return null;  // key not found.
     }
     
     public Object getFieldValue(Object object, String name) throws Exception {
-        Map<String, FieldSerializer> map = getGetterMap();
-        
-        FieldSerializer getter = map.get(name);
+        FieldSerializer getter = getFieldSerializer(name);
         if (getter == null) {
             return null;
         }

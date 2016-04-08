@@ -383,14 +383,11 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static String toJSONString(Object object, SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter();
+        SerializeWriter out = new SerializeWriter((Writer) null, DEFAULT_GENERATE_FEATURE, features);
 
         try {
             JSONSerializer serializer = new JSONSerializer(out);
-            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
-                serializer.config(feature, true);
-            }
-
+            
             serializer.write(object);
 
             return out.toString();

@@ -89,13 +89,12 @@ public class FastjsonManualCodec implements Codec {
             
             SerializeWriter out = serializer.out;
             
-            out.write('{');
             out.writeFieldValue('{', "height", image.getHeight());
-            out.writeFieldValue(',', "size", image.getSize());
+            out.writeFieldValueStringWithDoubleQuote(',', "size", image.getSize().name(), true);
             
             String tile = image.getTitle();
-            out.writeFieldValue(',', "title", tile);
-            out.writeFieldValue(',', "uri", image.getUri());
+            out.writeFieldValueStringWithDoubleQuote(',', "title", tile, true);
+            out.writeFieldValueStringWithDoubleQuote(',', "uri", image.getUri(), true);
             out.writeFieldValue(',', "width", image.getWidth());
 
             out.write('}');
@@ -112,13 +111,12 @@ public class FastjsonManualCodec implements Codec {
             Media image = (Media) object;
             
             SerializeWriter out = serializer.out;
-            out.write('{');
             out.writeFieldValue('{', "bitrate", image.getBitrate());
             out.writeFieldValue(',', "duration", image.getDuration());
             out.writeFieldValue(',', "height", image.getHeight());
             
             String format = image.getFormat();
-            out.writeFieldValue(',', "format", format);
+            out.writeFieldValueStringWithDoubleQuote(',', "format", format, true);
             
             out.writeFieldValue(',', "size", image.getSize());
             out.writeFieldValue(',', "height", image.getHeight());
@@ -129,17 +127,17 @@ public class FastjsonManualCodec implements Codec {
                 if (i != 0) {
                     out.write(',');
                 }
-                out.writeString(persons.get(i));
+                out.writeStringWithDoubleQuoteDirect(persons.get(i), (char) 0);
                 out.write(']');
             }
-            out.writeFieldValue(',', "player", image.getPlayer());
+            out.writeFieldValueStringWithDoubleQuote(',', "player", image.getPlayer().name(), true);
             out.writeFieldValue(',', "size", image.getSize());
             
             String title = image.getTitle();
             out.writeFieldValue(',', "title", title);
             
             String uri = image.getUri();
-            out.writeFieldValue(',', "title", uri);
+            out.writeFieldValueStringWithDoubleQuote(',', "title", uri, true);
             
             out.writeFieldValue(',', "width", image.getWidth());
             

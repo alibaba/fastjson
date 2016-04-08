@@ -382,4 +382,15 @@ public class JSONSerializer {
         this.out.close();
     }
 
+    public boolean writeDirect() {
+        return out.writeDirect // 
+                && beforeFilters == null
+                && afterFilters == null
+                && valueFilters == null //
+                && propertyFilters == null //
+                && nameFilters == null
+                && propertyPreFilters == null
+                && labelFilters == null
+                ;
+    }
 }

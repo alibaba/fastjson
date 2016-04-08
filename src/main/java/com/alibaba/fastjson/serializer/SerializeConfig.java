@@ -21,7 +21,6 @@ import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -39,6 +38,7 @@ import java.util.Collection;
 import java.util.Currency;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -362,6 +362,9 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
                 put(clazz, CalendarCodec.instance);
             } else if (Clob.class.isAssignableFrom(clazz)) {
                 put(clazz, ClobSeriliazer.instance);
+            } else if (Iterable.class.isAssignableFrom(clazz) // 
+                    || Iterator.class.isAssignableFrom(clazz)) {
+                put(clazz, MiscCodec.instance);
             } else {
                 boolean isCglibProxy = false;
                 boolean isJavassistProxy = false;
@@ -384,11 +387,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
                     return superWriter;
                 }
 
-                if (Proxy.isProxyClass(clazz)) {
-                    put(clazz, createJavaBeanSerializer(clazz));
-                } else {
-                    put(clazz, createJavaBeanSerializer(clazz));
-                }
+                put(clazz, createJavaBeanSerializer(clazz));
             }
 
             writer = get(clazz);

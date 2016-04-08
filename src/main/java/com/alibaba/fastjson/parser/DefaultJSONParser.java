@@ -1157,11 +1157,10 @@ public class DefaultJSONParser implements Closeable {
     }
 
     private void addContext(ParseContext context) {
+        int i = contextArrayIndex++;
         if (contextArray == null) {
             contextArray = new ParseContext[8];
-        }
-        int i = contextArrayIndex++;
-        if (i >= contextArray.length) {
+        } else if (i >= contextArray.length) {
             int newLen = (contextArray.length * 3) / 2;
             ParseContext[] newArray = new ParseContext[newLen];
             System.arraycopy(contextArray, 0, newArray, 0, contextArray.length);

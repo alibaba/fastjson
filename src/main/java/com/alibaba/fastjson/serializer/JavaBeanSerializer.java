@@ -98,17 +98,17 @@ public class JavaBeanSerializer implements ObjectSerializer {
         
         if (orders != null && orders.length != 0) {
             List<FieldInfo> fieldInfoList = TypeUtils.computeGetters(clazz, jsonType, aliasMap, true);
-          List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
+            List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
 
-          for (FieldInfo fieldInfo : fieldInfoList) {
-              FieldSerializer fieldDeser;
-              if (fieldInfo.fieldClass == Number.class) {
-                  fieldDeser = new NumberFieldSerializer(fieldInfo);
-              } else {
-                  fieldDeser = new ObjectFieldSerializer(fieldInfo);
-              }
-              getterList.add(fieldDeser);
-          }
+            for (FieldInfo fieldInfo : fieldInfoList) {
+                FieldSerializer fieldDeser;
+                if (fieldInfo.fieldClass == Number.class) {
+                    fieldDeser = new NumberFieldSerializer(fieldInfo);
+                } else {
+                    fieldDeser = new ObjectFieldSerializer(fieldInfo);
+                }
+                getterList.add(fieldDeser);
+            }
 
           sortedGetters = getterList.toArray(new FieldSerializer[getterList.size()]);
         } else {
@@ -224,6 +224,11 @@ public class JavaBeanSerializer implements ObjectSerializer {
             final boolean useSingleQuote = (out.features & SerializerFeature.UseSingleQuotes.mask) != 0;
             final boolean notWriteDefaultValue = (out.features & SerializerFeature.NotWriteDefaultValue.mask) != 0;
 
+            final List<PropertyFilter> propertyFilters = serializer.propertyFilters;
+            final List<NameFilter> nameFilters = serializer.nameFilters;
+            final List<ValueFilter> valueFilters = serializer.valueFilters;
+            final List<PropertyPreFilter> filters = serializer.propertyPreFilters;
+            
             for (int i = 0; i < getters.length; ++i) {
                 FieldSerializer fieldSerializer = getters[i];
                 FieldInfo fieldInfo = fieldSerializer.fieldInfo;
@@ -240,8 +245,6 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
                 boolean applyName = true;
                 {
-                    List<PropertyPreFilter> filters = serializer.propertyPreFilters;
-
                     if (filters != null) {
                         for (PropertyPreFilter filter : filters) {
                             if (!filter.apply(serializer, object, fieldInfoName)) {
@@ -283,7 +286,6 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
                 boolean apply = true;
                 {
-                    List<PropertyFilter> propertyFilters = serializer.propertyFilters;
                     if (propertyFilters != null) {
                         if (valueGot) {
                             if (fieldClass == int.class) {
@@ -313,7 +315,6 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
                 String key = fieldInfoName;
                 {
-                    List<NameFilter> nameFilters = serializer.nameFilters;
                     if (nameFilters != null) {
                         if (valueGot && !propertyValueGot) {
                             if (fieldClass == int.class) {
@@ -336,7 +337,6 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
                 Object originalValue = propertyValue;
                 {
-                    List<ValueFilter> valueFilters = serializer.valueFilters;
                     if (valueFilters != null) {
                         if (valueGot && !propertyValueGot) {
                             if (fieldClass == int.class) {
@@ -410,7 +410,6 @@ public class JavaBeanSerializer implements ObjectSerializer {
                         out.writeFieldName(key, true);
                     }
                     
-                    // TODO improved performance
                     if (valueGot && !propertyValueGot) {
                         if (fieldInfo.fieldClass == int.class) {
                             propertyValue = Integer.valueOf(propertyValueInt);
@@ -462,7 +461,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                         }
                     }
 
-                    if (valueGot) {
+                    if (valueGot && !propertyValueGot) {
                         if (fieldClass == int.class) {
                             // serializer.out.writeInt(propertyValueInt);
                             {

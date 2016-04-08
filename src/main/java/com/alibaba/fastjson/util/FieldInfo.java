@@ -52,7 +52,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         
         if (field != null) {
             int modifiers = field.getModifiers();
-            fieldAccess = (Modifier.isPublic(modifiers) || method == null);
+            fieldAccess = (modifiers & Modifier.PUBLIC) != 0 || method == null;
             fieldTransient = Modifier.isTransient(modifiers);
         } else {
             fieldAccess = false;
@@ -78,6 +78,13 @@ public class FieldInfo implements Comparable<FieldInfo> {
                      , JSONField methodAnnotation
                      , JSONField fieldAnnotation
                      ){
+        if (field != null) {
+            String fieldName = field.getName();
+            if (fieldName.equals(name)) {
+                name = fieldName;
+            }
+        }
+        
         this.name = name;
         this.method = method;
         this.field = field;

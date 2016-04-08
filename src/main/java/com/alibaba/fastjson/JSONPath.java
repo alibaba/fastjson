@@ -19,6 +19,7 @@ import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.serializer.ASMJavaBeanSerializer;
+import com.alibaba.fastjson.serializer.FieldSerializer;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.JavaBeanSerializer;
 import com.alibaba.fastjson.serializer.ObjectSerializer;
@@ -1691,7 +1692,11 @@ public class JSONPath implements ObjectSerializer {
         JavaBeanSerializer beanSerializer = getJavaBeanSerializer(currentClass);
         if (beanSerializer != null) {
             try {
-                return beanSerializer.getFieldValue(currentObject, propertyName);
+                FieldSerializer getter = beanSerializer.getFieldSerializer(propertyName);
+                if (getter == null) {
+                    return null;
+                }
+                return getter.getPropertyValue(currentObject);
             } catch (Exception e) {
                 throw new JSONPathException("jsonpath error, path " + path + ", segement " + propertyName, e);
             }

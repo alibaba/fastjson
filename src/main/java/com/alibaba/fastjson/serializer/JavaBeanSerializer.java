@@ -78,7 +78,10 @@ public class JavaBeanSerializer implements ObjectSerializer {
             List<FieldInfo> fieldInfoList = TypeUtils.computeGetters(clazz, jsonType, aliasMap, false);
 
             for (FieldInfo fieldInfo : fieldInfoList) {
-                getterList.add(createFieldSerializer(fieldInfo));
+                FieldSerializer fieldDeser = fieldInfo.fieldClass == Number.class //
+                        ? new NumberFieldSerializer(fieldInfo) //
+                        : new ObjectFieldSerializer(fieldInfo);
+                getterList.add(fieldDeser);
             }
 
             getters = getterList.toArray(new FieldSerializer[getterList.size()]);
@@ -95,14 +98,23 @@ public class JavaBeanSerializer implements ObjectSerializer {
             List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
 
             for (FieldInfo fieldInfo : fieldInfoList) {
-                getterList.add(createFieldSerializer(fieldInfo));
+                FieldSerializer fieldDeser = fieldInfo.fieldClass == Number.class //
+                        ? new NumberFieldSerializer(fieldInfo) //
+                        : new ObjectFieldSerializer(fieldInfo);
+                getterList.add(fieldDeser);
             }
 
             sortedGetters = getterList.toArray(new FieldSerializer[getterList.size()]);
         } else {
-            sortedGetters = new FieldSerializer[getters.length];
+            FieldSerializer[] sortedGetters = new FieldSerializer[getters.length];
             System.arraycopy(getters, 0, sortedGetters, 0, getters.length);
             Arrays.sort(sortedGetters);
+            
+            if (Arrays.equals(sortedGetters, getters)) {
+                this.sortedGetters = getters; 
+            } else {
+                this.sortedGetters = sortedGetters;
+            }
         }
     }
 
@@ -490,16 +502,6 @@ public class JavaBeanSerializer implements ObjectSerializer {
         }
     }
 
-    public FieldSerializer createFieldSerializer(FieldInfo fieldInfo) {
-        Class<?> clazz = fieldInfo.fieldClass;
-
-        if (clazz == Number.class) {
-            return new NumberFieldSerializer(fieldInfo);
-        }
-
-        return new ObjectFieldSerializer(fieldInfo);
-    }
-
     public boolean isWriteAsArray(JSONSerializer serializer) {
         return (features & SerializerFeature.BeanToArray.mask) != 0 || serializer.out.beanToArray;
     }
@@ -529,15 +531,6 @@ public class JavaBeanSerializer implements ObjectSerializer {
         }
         
         return null;  // key not found.
-    }
-    
-    public Object getFieldValue(Object object, String name) throws Exception {
-        FieldSerializer getter = getFieldSerializer(name);
-        if (getter == null) {
-            return null;
-        }
-        
-        return getter.getPropertyValue(object);
     }
     
     public List<Object> getFieldValues(Object object) throws Exception {

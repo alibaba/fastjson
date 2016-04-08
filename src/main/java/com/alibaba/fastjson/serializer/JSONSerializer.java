@@ -50,7 +50,7 @@ public class JSONSerializer {
     private String                                 dateFormatPattern;
     private DateFormat                             dateFormat;
 
-    private IdentityHashMap<Object, SerialContext> references         = null;
+    protected IdentityHashMap<Object, SerialContext> references         = null;
     protected SerialContext                        context;
 
     public JSONSerializer(){

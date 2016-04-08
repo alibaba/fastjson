@@ -31,6 +31,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
     private final JSONField fieldAnnotation;
     private final JSONField methodAnnotation;
     
+    public final boolean    fieldAccess;
     public final boolean    fieldTransient;
 
     public final char[]     name_chars;
@@ -57,9 +58,11 @@ public class FieldInfo implements Comparable<FieldInfo> {
         
         if (field != null) {
             int modifiers = field.getModifiers();
+            fieldAccess = (modifiers & Modifier.PUBLIC) != 0 || method == null;
             fieldTransient = Modifier.isTransient(modifiers);
         } else {
             fieldTransient = false;
+            fieldAccess = false;
         }
         
         name_chars = genFieldNameChars();
@@ -101,8 +104,10 @@ public class FieldInfo implements Comparable<FieldInfo> {
         
         if (field != null) {
             int modifiers = field.getModifiers();
+            fieldAccess = ((modifiers & Modifier.PUBLIC) != 0 || method == null);
             fieldTransient = Modifier.isTransient(modifiers);
         } else {
+            fieldAccess = false;
             fieldTransient = false;
         }
         

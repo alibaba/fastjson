@@ -491,12 +491,12 @@ public class FilterUtils {
     }
     
     public static boolean applyLabel(JSONSerializer serializer, String label) {
-        List<LabelFilter> viewFilters = serializer.labelFilters;
+        List<LabelFilter> labelFilters = serializer.labelFilters;
 
-        if (viewFilters != null) {
+        if (labelFilters != null) {
             boolean apply = true;
 
-            for (LabelFilter propertyFilter : viewFilters) {
+            for (LabelFilter propertyFilter : labelFilters) {
                 if (!propertyFilter.apply(label)) {
                     return false;
                 }

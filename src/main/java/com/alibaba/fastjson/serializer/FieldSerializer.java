@@ -28,10 +28,12 @@ import com.alibaba.fastjson.util.FieldInfo;
 public abstract class FieldSerializer implements Comparable<FieldSerializer> {
 
     public final FieldInfo  fieldInfo;
+    protected final boolean writeNull;
+    protected int           features;
+    
     private final String    double_quoted_fieldPrefix;
     private String          single_quoted_fieldPrefix;
     private String          un_quoted_fieldPrefix;
-    protected final boolean writeNull;
 
     public FieldSerializer(FieldInfo fieldInfo){
         super();

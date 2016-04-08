@@ -28,6 +28,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -105,11 +106,34 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
             JSONStreamAware aware = (JSONStreamAware) object;
             aware.writeJSONString(out);
             return;
+        } else if (object instanceof Iterator) {
+            Iterator<?> it = ((Iterator<?>) object);
+            writeIterator(serializer, out, it);
+            return;
+        } else if (object instanceof Iterable) {
+            Iterator<?> it = ((Iterable<?>) object).iterator();
+            writeIterator(serializer, out, it);
+            return;
         } else {
             strVal = object.toString();
         }
         
         out.writeString(strVal);
+    }
+
+    protected void writeIterator(JSONSerializer serializer, SerializeWriter out, Iterator<?> it) {
+        int i = 0;
+        out.write('[');
+        while (it.hasNext()) {
+            if (i != 0) {
+                out.write(',');
+            }
+            Object item = it.next();
+            serializer.write(item);
+            ++i;
+        }
+        out.write(']');
+        return;
     }
 
     @SuppressWarnings("unchecked")

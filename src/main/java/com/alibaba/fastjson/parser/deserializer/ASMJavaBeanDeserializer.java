@@ -33,7 +33,7 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
     }
 
     public Object createInstance(DefaultJSONParser parser) {
-        return serializer.createInstance(parser, serializer.getClazz());
+        return serializer.createInstance(parser, serializer.clazz);
     }
 
     public FieldDeserializer createFieldDeserializer(ParserConfig mapping, JavaBeanInfo beanInfo, FieldInfo fieldInfo) {

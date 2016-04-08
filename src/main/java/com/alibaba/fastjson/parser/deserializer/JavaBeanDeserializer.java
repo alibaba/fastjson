@@ -27,7 +27,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
     private final FieldDeserializer[] fieldDeserializers;
     private final FieldDeserializer[] sortedFieldDeserializers;
-    private final Class<?>            clazz;
+    protected final Class<?>          clazz;
     private JavaBeanInfo              beanInfo;
 
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz){
@@ -41,7 +41,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         sortedFieldDeserializers = new FieldDeserializer[beanInfo.sortedFields.length];
         for (int i = 0, size = beanInfo.sortedFields.length; i < size; ++i) {
             FieldInfo fieldInfo = beanInfo.sortedFields[i];
-            FieldDeserializer fieldDeserializer = createFieldDeserializer(config, clazz, fieldInfo);
+            FieldDeserializer fieldDeserializer = config.createFieldDeserializer(config, beanInfo, fieldInfo);
 
             sortedFieldDeserializers[i] = fieldDeserializer;
         }
@@ -79,14 +79,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         }
         
         return null;  // key not found.
-    }
-
-    public Class<?> getClazz() {
-        return clazz;
-    }
-
-    public FieldDeserializer createFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
-        return mapping.createFieldDeserializer(mapping, beanInfo, fieldInfo);
     }
 
     public Object createInstance(DefaultJSONParser parser, Type type) {
@@ -502,31 +494,27 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     }
                 }
             }
-
-            return (T) handleBuilder(object);
+            
+            Method buildMethod = beanInfo.buildMethod;
+            if (buildMethod == null) {
+                return (T) object;
+            }
+            
+            
+            Object builtObj;
+            try {
+                builtObj = buildMethod.invoke(object);
+            } catch (Exception e) {
+                throw new JSONException("build object error", e);
+            }
+            
+            return (T) builtObj;
         } finally {
             if (childContext != null) {
                 childContext.object = object;
             }
             parser.setContext(context);
         }
-    }
-    
-    private Object handleBuilder(Object obj) {
-        Method buildMethod = beanInfo.buildMethod;
-        if (buildMethod == null) {
-            return obj;
-        }
-        
-        
-        Object builtObj;
-        try {
-            builtObj = buildMethod.invoke(obj);
-        } catch (Exception e) {
-            throw new JSONException("build object error", e);
-        }
-        
-        return builtObj;
     }
     
     public boolean parseField(DefaultJSONParser parser, String key, Object object, Type objectType,

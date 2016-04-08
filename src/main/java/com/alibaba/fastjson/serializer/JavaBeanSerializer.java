@@ -457,7 +457,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                                     if (out.useSingleQuotes) {
                                         out.writeStringWithSingleQuote(propertyValueString);
                                     } else {
-                                        out.writeStringWithDoubleQuote(propertyValueString, (char) 0, true);
+                                        out.writeStringWithDoubleQuote(propertyValueString, (char) 0);
                                     }
                                 }
                             } else {

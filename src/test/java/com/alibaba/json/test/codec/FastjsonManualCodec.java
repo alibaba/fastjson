@@ -90,11 +90,11 @@ public class FastjsonManualCodec implements Codec {
             SerializeWriter out = serializer.out;
             
             out.writeFieldValue('{', "height", image.getHeight());
-            out.writeFieldValueStringWithDoubleQuote(',', "size", image.getSize().name(), true);
+            out.writeFieldValueStringWithDoubleQuote(',', "size", image.getSize().name());
             
             String tile = image.getTitle();
-            out.writeFieldValueStringWithDoubleQuote(',', "title", tile, true);
-            out.writeFieldValueStringWithDoubleQuote(',', "uri", image.getUri(), true);
+            out.writeFieldValueStringWithDoubleQuoteCheck(',', "title", tile);
+            out.writeFieldValueStringWithDoubleQuoteCheck(',', "uri", image.getUri());
             out.writeFieldValue(',', "width", image.getWidth());
 
             out.write('}');
@@ -116,7 +116,7 @@ public class FastjsonManualCodec implements Codec {
             out.writeFieldValue(',', "height", image.getHeight());
             
             String format = image.getFormat();
-            out.writeFieldValueStringWithDoubleQuote(',', "format", format, true);
+            out.writeFieldValueStringWithDoubleQuoteCheck(',', "format", format);
             
             out.writeFieldValue(',', "size", image.getSize());
             out.writeFieldValue(',', "height", image.getHeight());
@@ -130,14 +130,14 @@ public class FastjsonManualCodec implements Codec {
                 out.writeStringWithDoubleQuoteDirect(persons.get(i), (char) 0);
                 out.write(']');
             }
-            out.writeFieldValueStringWithDoubleQuote(',', "player", image.getPlayer().name(), true);
+            out.writeFieldValueStringWithDoubleQuote(',', "player", image.getPlayer().name());
             out.writeFieldValue(',', "size", image.getSize());
             
             String title = image.getTitle();
             out.writeFieldValue(',', "title", title);
             
             String uri = image.getUri();
-            out.writeFieldValueStringWithDoubleQuote(',', "title", uri, true);
+            out.writeFieldValueStringWithDoubleQuoteCheck(',', "uri", uri);
             
             out.writeFieldValue(',', "width", image.getWidth());
             
@@ -162,11 +162,6 @@ public class FastjsonManualCodec implements Codec {
             out.writeFieldName("image", false);
             List<Image> images = mediaContent.images;
             
-            FilterUtils.applyName(serializer, object, "images");
-            FilterUtils.apply(serializer, object, "image", "images");
-            FilterUtils.processValue(serializer, object, "image", images);
-            
-            
             out.write('[');
             for (int i = 0, size = images.size(); i < size; ++i) {
                 if (i != 0) {
@@ -179,7 +174,7 @@ public class FastjsonManualCodec implements Codec {
             out.write(',');
             
             out.writeFieldName("media", false);
-            mediaSer.write(serializer, mediaContent.media, "media", Image.class, features);
+            mediaSer.write(serializer, mediaContent.media, "media", Media.class, features);
             
             out.write('}');
         }

@@ -716,9 +716,8 @@ public class ASMSerializerFactory implements Opcodes {
         } else {
             if (context.writeDirect) {
                 mw.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Enum", "name", "()Ljava/lang/String;");
-                mw.visitInsn(ICONST_0);
                 mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "writeFieldValueStringWithDoubleQuote",
-                                   "(CLjava/lang/String;Ljava/lang/String;Z)V");
+                                   "(CLjava/lang/String;Ljava/lang/String;)V");
             } else {
                 mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "writeFieldValue",
                                    "(CLjava/lang/String;Ljava/lang/Enum;)V");
@@ -974,9 +973,8 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitVarInsn(ILOAD, context.var("seperator"));
             mw.visitVarInsn(ALOAD, Context.fieldName);
             mw.visitVarInsn(ALOAD, context.var("string"));
-            mw.visitInsn(ICONST_1);
-            mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "writeFieldValueStringWithDoubleQuote",
-                               "(CLjava/lang/String;Ljava/lang/String;Z)V");
+            mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/SerializeWriter", "writeFieldValueStringWithDoubleQuoteCheck",
+                               "(CLjava/lang/String;Ljava/lang/String;)V");
         } else {
             mw.visitVarInsn(ALOAD, context.var("out"));
             mw.visitVarInsn(ILOAD, context.var("seperator"));

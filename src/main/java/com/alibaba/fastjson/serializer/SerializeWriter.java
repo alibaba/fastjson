@@ -189,6 +189,7 @@ public final class SerializeWriter extends Writer {
                 && writeEnumUsingName //
                 && (!writeEnumUsingToString)
                 && (!writeNonStringValueAsString) //
+                && (this.features & SerializerFeature.WriteSlashAsSpecial.mask) == 0
                 ;
         
         keySeperator = useSingleQuotes ? '\'' : '"';
@@ -733,10 +734,6 @@ public final class SerializeWriter extends Writer {
     }
 
     public void writeStringWithDoubleQuote(String text, final char seperator) {
-        writeStringWithDoubleQuote(text, seperator, true);
-    }
-
-    public void writeStringWithDoubleQuote(String text, final char seperator, boolean checkSpecial) {
         if (text == null) {
             writeNull();
             if (seperator != 0) {
@@ -990,135 +987,135 @@ public final class SerializeWriter extends Writer {
         int lastSpecialIndex = -1;
         int firstSpecialIndex = -1;
         char lastSpecial = '\0';
-        if (checkSpecial) {
-            for (int i = start; i < end; ++i) {
-                char ch = buf[i];
+        
+        for (int i = start; i < end; ++i) {
+            char ch = buf[i];
 
-                if (ch == '\u2028') {
+            if (ch == '\u2028') {
+                specialCount++;
+                lastSpecialIndex = i;
+                lastSpecial = ch;
+                newcount += 4;
+
+                if (firstSpecialIndex == -1) {
+                    firstSpecialIndex = i;
+                }
+                continue;
+            }
+
+            if (ch >= ']') {
+                if (ch >= 0x7F && ch <= 0xA0) {
+                    if (firstSpecialIndex == -1) {
+                        firstSpecialIndex = i;
+                    }
+
                     specialCount++;
                     lastSpecialIndex = i;
                     lastSpecial = ch;
                     newcount += 4;
-
-                    if (firstSpecialIndex == -1) {
-                        firstSpecialIndex = i;
-                    }
-                    continue;
                 }
-
-                if (ch >= ']') {
-                    if (ch >= 0x7F && ch <= 0xA0) {
-                        if (firstSpecialIndex == -1) {
-                            firstSpecialIndex = i;
-                        }
-
-                        specialCount++;
-                        lastSpecialIndex = i;
-                        lastSpecial = ch;
-                        newcount += 4;
-                    }
-                    continue;
-                }
-
-                if (isSpecial(ch, this.features)) {
-                    specialCount++;
-                    lastSpecialIndex = i;
-                    lastSpecial = ch;
-
-                    if (ch < IOUtils.specicalFlags_doubleQuotes.length //
-                        && IOUtils.specicalFlags_doubleQuotes[ch] == 4 //
-                    ) {
-                        newcount += 4;
-                    }
-
-                    if (firstSpecialIndex == -1) {
-                        firstSpecialIndex = i;
-                    }
-                }
+                continue;
             }
 
-            if (specialCount > 0) {
-                newcount += specialCount;
-                if (newcount > buf.length) {
-                    expandCapacity(newcount);
-                }
-                count = newcount;
+            if (isSpecial(ch, this.features)) {
+                specialCount++;
+                lastSpecialIndex = i;
+                lastSpecial = ch;
 
-                if (specialCount == 1) {
-                    if (lastSpecial == '\u2028') {
+                if (ch < IOUtils.specicalFlags_doubleQuotes.length //
+                    && IOUtils.specicalFlags_doubleQuotes[ch] == 4 //
+                ) {
+                    newcount += 4;
+                }
+
+                if (firstSpecialIndex == -1) {
+                    firstSpecialIndex = i;
+                }
+            }
+        }
+
+        if (specialCount > 0) {
+            newcount += specialCount;
+            if (newcount > buf.length) {
+                expandCapacity(newcount);
+            }
+            count = newcount;
+
+            if (specialCount == 1) {
+                if (lastSpecial == '\u2028') {
+                    int srcPos = lastSpecialIndex + 1;
+                    int destPos = lastSpecialIndex + 6;
+                    int LengthOfCopy = end - lastSpecialIndex - 1;
+                    System.arraycopy(buf, srcPos, buf, destPos, LengthOfCopy);
+                    buf[lastSpecialIndex] = '\\';
+                    buf[++lastSpecialIndex] = 'u';
+                    buf[++lastSpecialIndex] = '2';
+                    buf[++lastSpecialIndex] = '0';
+                    buf[++lastSpecialIndex] = '2';
+                    buf[++lastSpecialIndex] = '8';
+                } else {
+                    final char ch = lastSpecial;
+                    if (ch < IOUtils.specicalFlags_doubleQuotes.length //
+                        && IOUtils.specicalFlags_doubleQuotes[ch] == 4) {
                         int srcPos = lastSpecialIndex + 1;
                         int destPos = lastSpecialIndex + 6;
                         int LengthOfCopy = end - lastSpecialIndex - 1;
                         System.arraycopy(buf, srcPos, buf, destPos, LengthOfCopy);
-                        buf[lastSpecialIndex] = '\\';
-                        buf[++lastSpecialIndex] = 'u';
-                        buf[++lastSpecialIndex] = '2';
-                        buf[++lastSpecialIndex] = '0';
-                        buf[++lastSpecialIndex] = '2';
-                        buf[++lastSpecialIndex] = '8';
-                    } else {
-                        final char ch = lastSpecial;
-                        if (ch < IOUtils.specicalFlags_doubleQuotes.length //
-                            && IOUtils.specicalFlags_doubleQuotes[ch] == 4) {
-                            int srcPos = lastSpecialIndex + 1;
-                            int destPos = lastSpecialIndex + 6;
-                            int LengthOfCopy = end - lastSpecialIndex - 1;
-                            System.arraycopy(buf, srcPos, buf, destPos, LengthOfCopy);
 
-                            int bufIndex = lastSpecialIndex;
+                        int bufIndex = lastSpecialIndex;
+                        buf[bufIndex++] = '\\';
+                        buf[bufIndex++] = 'u';
+                        buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 12) & 15];
+                        buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 8) & 15];
+                        buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 4) & 15];
+                        buf[bufIndex++] = IOUtils.DIGITS[ch & 15];
+                    } else {
+                        int srcPos = lastSpecialIndex + 1;
+                        int destPos = lastSpecialIndex + 2;
+                        int LengthOfCopy = end - lastSpecialIndex - 1;
+                        System.arraycopy(buf, srcPos, buf, destPos, LengthOfCopy);
+                        buf[lastSpecialIndex] = '\\';
+                        buf[++lastSpecialIndex] = replaceChars[(int) ch];
+                    }
+                }
+            } else if (specialCount > 1) {
+                int textIndex = firstSpecialIndex - start;
+                int bufIndex = firstSpecialIndex;
+                for (int i = textIndex; i < text.length(); ++i) {
+                    char ch = text.charAt(i);
+
+                    if (ch < IOUtils.specicalFlags_doubleQuotes.length //
+                        && IOUtils.specicalFlags_doubleQuotes[ch] != 0 //
+                        || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
+                        buf[bufIndex++] = '\\';
+                        if (IOUtils.specicalFlags_doubleQuotes[ch] == 4) {
+                            buf[bufIndex++] = 'u';
+                            buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 12) & 15];
+                            buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 8) & 15];
+                            buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 4) & 15];
+                            buf[bufIndex++] = IOUtils.DIGITS[ch & 15];
+                            end += 5;
+                        } else {
+                            buf[bufIndex++] = replaceChars[(int) ch];
+                            end++;
+                        }
+                    } else {
+                        if (ch == '\u2028') {
                             buf[bufIndex++] = '\\';
                             buf[bufIndex++] = 'u';
                             buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 12) & 15];
                             buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 8) & 15];
                             buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 4) & 15];
                             buf[bufIndex++] = IOUtils.DIGITS[ch & 15];
+                            end += 5;
                         } else {
-                            int srcPos = lastSpecialIndex + 1;
-                            int destPos = lastSpecialIndex + 2;
-                            int LengthOfCopy = end - lastSpecialIndex - 1;
-                            System.arraycopy(buf, srcPos, buf, destPos, LengthOfCopy);
-                            buf[lastSpecialIndex] = '\\';
-                            buf[++lastSpecialIndex] = replaceChars[(int) ch];
-                        }
-                    }
-                } else if (specialCount > 1) {
-                    int textIndex = firstSpecialIndex - start;
-                    int bufIndex = firstSpecialIndex;
-                    for (int i = textIndex; i < text.length(); ++i) {
-                        char ch = text.charAt(i);
-
-                        if (ch < IOUtils.specicalFlags_doubleQuotes.length //
-                            && IOUtils.specicalFlags_doubleQuotes[ch] != 0 //
-                            || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
-                            buf[bufIndex++] = '\\';
-                            if (IOUtils.specicalFlags_doubleQuotes[ch] == 4) {
-                                buf[bufIndex++] = 'u';
-                                buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 12) & 15];
-                                buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 8) & 15];
-                                buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 4) & 15];
-                                buf[bufIndex++] = IOUtils.DIGITS[ch & 15];
-                                end += 5;
-                            } else {
-                                buf[bufIndex++] = replaceChars[(int) ch];
-                                end++;
-                            }
-                        } else {
-                            if (ch == '\u2028') {
-                                buf[bufIndex++] = '\\';
-                                buf[bufIndex++] = 'u';
-                                buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 12) & 15];
-                                buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 8) & 15];
-                                buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 4) & 15];
-                                buf[bufIndex++] = IOUtils.DIGITS[ch & 15];
-                                end += 5;
-                            } else {
-                                buf[bufIndex++] = ch;
-                            }
+                            buf[bufIndex++] = ch;
                         }
                     }
                 }
             }
         }
+    
 
         if (seperator != 0) {
             buf[count - 2] = '\"';
@@ -1152,8 +1149,7 @@ public final class SerializeWriter extends Writer {
                     char ch = text.charAt(i);
                   
                     if (ch < IOUtils.specicalFlags_doubleQuotes.length
-                        && IOUtils.specicalFlags_doubleQuotes[ch] != 0 //
-                        || (ch == '/' && isEnabled(SerializerFeature.WriteSlashAsSpecial))) {
+                        && IOUtils.specicalFlags_doubleQuotes[ch] != 0) {
                         write('\\');
                         if (IOUtils.specicalFlags_doubleQuotes[ch] == 4) {
                             write('u');
@@ -1195,19 +1191,19 @@ public final class SerializeWriter extends Writer {
         for (int i = start; i < end; ++i) {
             char ch = buf[i];
 
-            if (ch == '\u2028') {
-                specialCount++;
-                lastSpecialIndex = i;
-                lastSpecial = ch;
-                newcount += 4;
-
-                if (firstSpecialIndex == -1) {
-                    firstSpecialIndex = i;
-                }
-                continue;
-            }
-
             if (ch >= ']') {
+                if (ch == '\u2028') {
+                    specialCount++;
+                    lastSpecialIndex = i;
+                    lastSpecial = ch;
+                    newcount += 4;
+
+                    if (firstSpecialIndex == -1) {
+                        firstSpecialIndex = i;
+                    }
+                    continue;
+                }
+                
                 if (ch >= 0x7F && ch <= 0xA0) {
                     if (firstSpecialIndex == -1) {
                         firstSpecialIndex = i;
@@ -1220,8 +1216,13 @@ public final class SerializeWriter extends Writer {
                 }
                 continue;
             }
-
-            if (isSpecial(ch, this.features)) {
+            
+            boolean isSpecial = ch <= 0x1F // 31
+                    || ch == '\\' // 92
+                    || ch == '"' // 34
+                    ;
+            
+            if (isSpecial) {
                 specialCount++;
                 lastSpecialIndex = i;
                 lastSpecial = ch;
@@ -1574,7 +1575,7 @@ public final class SerializeWriter extends Writer {
                     writeStringWithDoubleQuote(name, ':');
                     writeStringWithDoubleQuote(value, (char) 0);
                 } else {
-                    writeFieldValueStringWithDoubleQuote(seperator, name, value, true);
+                    writeFieldValueStringWithDoubleQuoteCheck(seperator, name, value);
                 }
             }
         } else {
@@ -1588,7 +1589,7 @@ public final class SerializeWriter extends Writer {
         }
     }
 
-    public void writeFieldValueStringWithDoubleQuote(char seperator, String name, String value, boolean checkSpecial) {
+    public void writeFieldValueStringWithDoubleQuoteCheck(char seperator, String name, String value) {
         int nameLen = name.length();
         int valueLen;
 
@@ -1605,8 +1606,8 @@ public final class SerializeWriter extends Writer {
         if (newcount > buf.length) {
             if (writer != null) {
                 write(seperator);
-                writeStringWithDoubleQuote(name, ':', checkSpecial);
-                writeStringWithDoubleQuote(value, (char) 0, checkSpecial);
+                writeStringWithDoubleQuote(name, ':');
+                writeStringWithDoubleQuote(value, (char) 0);
                 return;
             }
             expandCapacity(newcount);
@@ -1642,7 +1643,7 @@ public final class SerializeWriter extends Writer {
 
         value.getChars(0, valueLen, buf, valueStart);
 
-        if (checkSpecial && !disableCheckSpecialChar) {
+        if (!disableCheckSpecialChar) {
             int specialCount = 0;
             int lastSpecialIndex = -1;
             int firstSpecialIndex = -1;
@@ -1651,20 +1652,10 @@ public final class SerializeWriter extends Writer {
             for (int i = valueStart; i < valueEnd; ++i) {
                 char ch = buf[i];
 
-                if (ch == '\u2028') {
-                    specialCount++;
-                    lastSpecialIndex = i;
-                    lastSpecial = ch;
-                    newcount += 4;
-
-                    if (firstSpecialIndex == -1) {
-                        firstSpecialIndex = i;
-                    }
-                    continue;
-                }
-
-                if (ch >= ']') { // 93
-                    if (ch >= 0x7F && ch <= 0xA0) {
+                if (ch >= ']') {
+                    if (ch >= 0x7F //
+                        && (ch == '\u2028' //
+                            || ch <= 0xA0)) {
                         if (firstSpecialIndex == -1) {
                             firstSpecialIndex = i;
                         }
@@ -1674,7 +1665,6 @@ public final class SerializeWriter extends Writer {
                         lastSpecial = ch;
                         newcount += 4;
                     }
-
                     continue;
                 }
 
@@ -1780,6 +1770,61 @@ public final class SerializeWriter extends Writer {
 
         buf[count - 1] = '\"';
     }
+    
+    public void writeFieldValueStringWithDoubleQuote(char seperator, String name, String value) {
+        int nameLen = name.length();
+        int valueLen;
+
+        int newcount = count;
+
+        if (value == null) {
+            valueLen = 4;
+            newcount += nameLen + 8;
+        } else {
+            valueLen = value.length();
+            newcount += nameLen + valueLen + 6;
+        }
+
+        if (newcount > buf.length) {
+            if (writer != null) {
+                write(seperator);
+                writeStringWithDoubleQuote(name, ':');
+                writeStringWithDoubleQuote(value, (char) 0);
+                return;
+            }
+            expandCapacity(newcount);
+        }
+
+        buf[count] = seperator;
+
+        int nameStart = count + 2;
+        int nameEnd = nameStart + nameLen;
+
+        buf[count + 1] = '\"';
+        name.getChars(0, nameLen, buf, nameStart);
+
+        count = newcount;
+
+        buf[nameEnd] = '\"';
+
+        int index = nameEnd + 1;
+        buf[index++] = ':';
+
+        if (value == null) {
+            buf[index++] = 'n';
+            buf[index++] = 'u';
+            buf[index++] = 'l';
+            buf[index++] = 'l';
+            return;
+        }
+
+        buf[index++] = '"';
+
+        int valueStart = index;
+        value.getChars(0, valueLen, buf, valueStart);
+        buf[count - 1] = '\"';
+    }
+    
 
     static boolean isSpecial(char ch, int features) {
         // if (ch > ']') {
@@ -1833,7 +1878,7 @@ public final class SerializeWriter extends Writer {
         if (useSingleQuotes) {
             writeFieldValue(seperator, name, value);
         } else {
-            writeFieldValueStringWithDoubleQuote(seperator, name, value, false);
+            writeFieldValueStringWithDoubleQuote(seperator, name, value);
         }
     }
 
@@ -1966,111 +2011,24 @@ public final class SerializeWriter extends Writer {
             }
         } else {
             if (quoteFieldNames) {
-                writeStringWithDoubleQuote(key, ':', checkSpecial);
+                writeStringWithDoubleQuote(key, ':');
             } else {
-                writeKeyWithDoubleQuoteIfHasSpecial(key);
-            }
-        }
-    }
-
-    private void writeKeyWithDoubleQuoteIfHasSpecial(String text) {
-        final byte[] specicalFlags_doubleQuotes = IOUtils.specicalFlags_doubleQuotes;
-
-        int len = text.length();
-        int newcount = count + len + 1;
-        if (newcount > buf.length) {
-            if (writer != null) {
-                if (len == 0) {
-                    write('"');
-                    write('"');
-                    write(':');
-                    return;
-                }
-
-                boolean hasSpecial = false;
-                for (int i = 0; i < len; ++i) {
-                    char ch = text.charAt(i);
-                    if (ch < specicalFlags_doubleQuotes.length && specicalFlags_doubleQuotes[ch] != 0) {
-                        hasSpecial = true;
+                boolean hashSpecial = key.length() == 0;
+                for (int i = 0; i < key.length(); ++i) {
+                    char ch = key.charAt(i);
+                    if (SerializeWriter.isSpecial(ch, 0)) {
+                        hashSpecial = true;
                         break;
                     }
                 }
-
-                if (hasSpecial) {
-                    write('"');
-                }
-                for (int i = 0; i < len; ++i) {
-                    char ch = text.charAt(i);
-                    if (ch < specicalFlags_doubleQuotes.length && specicalFlags_doubleQuotes[ch] != 0) {
-                        write('\\');
-                        write(replaceChars[(int) ch]);
-                    } else {
-                        write(ch);
-                    }
-                }
-                if (hasSpecial) {
-                    write('"');
-                }
-                write(':');
-                return;
-            }
-            expandCapacity(newcount);
-        }
-
-        if (len == 0) {
-            int newCount = count + 3;
-            if (newCount > buf.length) {
-                expandCapacity(count + 3);
-            }
-            buf[count++] = '"';
-            buf[count++] = '"';
-            buf[count++] = ':';
-            return;
-        }
-
-        int start = count;
-        int end = start + len;
-
-        text.getChars(0, len, buf, start);
-        count = newcount;
-
-        boolean hasSpecial = false;
-
-        for (int i = start; i < end; ++i) {
-            char ch = buf[i];
-            if (ch < specicalFlags_doubleQuotes.length && specicalFlags_doubleQuotes[ch] != 0) {
-                if (!hasSpecial) {
-                    newcount += 3;
-                    if (newcount > buf.length) {
-                        expandCapacity(newcount);
-                    }
-                    count = newcount;
-
-                    System.arraycopy(buf, i + 1, buf, i + 3, end - i - 1);
-                    System.arraycopy(buf, 0, buf, 1, i);
-                    buf[start] = '"';
-                    buf[++i] = '\\';
-                    buf[++i] = replaceChars[(int) ch];
-                    end += 2;
-                    buf[count - 2] = '"';
-
-                    hasSpecial = true;
+                if (hashSpecial) {
+                    writeStringWithDoubleQuote(key, ':');
                 } else {
-                    newcount++;
-                    if (newcount > buf.length) {
-                        expandCapacity(newcount);
-                    }
-                    count = newcount;
-
-                    System.arraycopy(buf, i + 1, buf, i + 2, end - i);
-                    buf[i] = '\\';
-                    buf[++i] = replaceChars[(int) ch];
-                    end++;
+                    write(key);
+                    write(':');
                 }
             }
         }
-
-        buf[count - 1] = ':';
     }
 
     private void writeKeyWithSingleQuoteIfHasSpecial(String text) {

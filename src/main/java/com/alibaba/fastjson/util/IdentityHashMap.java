@@ -66,9 +66,9 @@ public class IdentityHashMap<K, V> {
 
     protected static final class Entry<K, V> {
 
-        public final int   hashCode;
-        public final K     key;
-        public V     value;
+        public final int         hashCode;
+        public final K           key;
+        public V                 value;
 
         public final Entry<K, V> next;
 

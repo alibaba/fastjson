@@ -873,9 +873,17 @@ public final class JSONLexer {
                 offset = np + 1;
             }
             
-            value = symbolTable.addSymbol(text, offset, sp, hash);
+            if (sp < 20) {
+                value = symbolTable.addSymbol(text, offset, sp, hash);
+            } else {
+                value = subString(offset, sp);
+            }
         } else {
-            value = symbolTable.addSymbol(sbuf, 0, sp, hash);
+            if (sp < 20) {
+                value = symbolTable.addSymbol(sbuf, 0, sp, hash);
+            } else {
+                value = new String(sbuf, 0, sp);
+            }
         }
 
         sp = 0;
@@ -2770,7 +2778,7 @@ public final class JSONLexer {
             if (chLocal == '\"') {
                 int start = bp + fieldName.length + 1;
                 int len = bp + offset - start - 1;
-                strVal = symbolTable.addSymbol(text, start, len, hash);
+                strVal = symbolTable.addSymbol(text, start, len, hash);                    
                 chLocal = charAt(bp + (offset++));
                 break;
             }

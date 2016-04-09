@@ -124,23 +124,23 @@ public class ParserConfig {
         return global;
     }
 
-    private static ParserConfig                             global           = new ParserConfig();
+    public static ParserConfig                              global      = new ParserConfig();
 
-    private final IdentityHashMap<Type, ObjectDeserializer> derializers      = new IdentityHashMap<Type, ObjectDeserializer>();
+    private final IdentityHashMap<Type, ObjectDeserializer> derializers = new IdentityHashMap<Type, ObjectDeserializer>();
 
-    private boolean                                         asmEnable        = !ASMUtils.IS_ANDROID;
+    private boolean                                         asmEnable   = !ASMUtils.IS_ANDROID;
 
-    protected final SymbolTable                             symbolTable      = new SymbolTable(512);
-    
+    public final SymbolTable                                symbolTable = new SymbolTable(4096);
+
     protected ClassLoader                                   defaultClassLoader;
 
     protected ASMDeserializerFactory                        asmFactory;
-    
-    private static boolean                                  awtError         = false;
-    private static boolean                                  jdk8Error        = false;
-    
+
+    private static boolean                                  awtError    = false;
+    private static boolean                                  jdk8Error   = false;
+
     private String[]                                        denyList    = new String[] { "java.lang.Thread" };
-    
+
     public ParserConfig() {
         this(null, null);
     }
@@ -311,10 +311,6 @@ public class ParserConfig {
 
     public void setAsmEnable(boolean asmEnable) {
         this.asmEnable = asmEnable;
-    }
-
-    public SymbolTable getSymbolTable() {
-        return symbolTable;
     }
 
     public IdentityHashMap<Type, ObjectDeserializer> getDerializers() {

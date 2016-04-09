@@ -44,13 +44,14 @@ import com.alibaba.fastjson.util.IOUtils;
  * @author wenshao[szujobs@hotmail.com]
  */
 public abstract class JSONLexerBase implements JSONLexer, Closeable {
+
     protected void lexError(String key, Object... args) {
         token = ERROR;
     }
 
     protected int                                           token;
     protected int                                           pos;
-    protected int                                           features       = JSON.DEFAULT_PARSER_FEATURE;
+    protected int                                           features;
 
     protected char                                          ch;
     protected int                                           bp;
@@ -70,14 +71,22 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     protected boolean                                       hasSpecial;
 
-    protected Calendar                                      calendar       = null;
+    protected Calendar                                      calendar           = null;
 
-    public int                                              matchStat      = UNKOWN;
+    public int                                              matchStat          = UNKOWN;
 
     private final SoftReference<char[]>                     sbufRef;
-    private final static ThreadLocal<SoftReference<char[]>> SBUF_REF_LOCAL = new ThreadLocal<SoftReference<char[]>>();
+    private final static ThreadLocal<SoftReference<char[]>> SBUF_REF_LOCAL     = new ThreadLocal<SoftReference<char[]>>();
 
-    public JSONLexerBase(){
+    protected String                                        stringDefaultValue = null;
+
+    public JSONLexerBase(int features){
+        this.features = features;
+        
+        if ((features & Feature.InitStringFieldAsEmpty.mask) != 0) {
+            stringDefaultValue = "";
+        }
+        
         sbufRef = SBUF_REF_LOCAL.get();
 
         if (sbufRef != null) {
@@ -99,7 +108,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         for (;;) {
             pos = bp;
-            
+
             if (ch == '/') {
                 skipComment();
                 continue;
@@ -394,10 +403,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     }
 
     public final String stringDefaultValue() {
-        if (this.isEnabled(Feature.InitStringFieldAsEmpty)) {
-            return "";
-        }
-        return null;
+        return stringDefaultValue;
     }
 
     public final Number integerValue() throws NumberFormatException {
@@ -507,6 +513,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     public void config(Feature feature, boolean state) {
         features = Feature.config(features, feature, state);
+        
+        if ((features & Feature.InitStringFieldAsEmpty.mask) != 0) {
+            stringDefaultValue = "";
+        }
     }
 
     public final boolean isEnabled(Feature feature) {
@@ -523,13 +533,13 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     public abstract char charAt(int index);
 
-//    public final char next() {
-//        ch = doNext();
-////        if (ch == '/' && (this.features & Feature.AllowComment.mask) != 0) {
-////            skipComment();
-////        }
-//        return ch;
-//    }
+    // public final char next() {
+    // ch = doNext();
+    //// if (ch == '/' && (this.features & Feature.AllowComment.mask) != 0) {
+    //// skipComment();
+    //// }
+    // return ch;
+    // }
 
     public abstract char next();
 
@@ -2438,7 +2448,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             throw new JSONException("scan true error");
         }
     }
-    
+
     public final void scanNULL() {
         if (ch != 'N') {
             throw new JSONException("error parse NULL");
@@ -2466,7 +2476,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             return;
         }
     }
-    
+
     public final void scanUndefined() {
         if (ch != 'u') {
             throw new JSONException("error parse false");

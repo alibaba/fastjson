@@ -57,8 +57,8 @@ public final class JSONReaderScanner extends JSONLexerBase {
     }
 
     public JSONReaderScanner(Reader reader, int features){
+        super(features);
         this.reader = reader;
-        this.features = features;
 
         SoftReference<char[]> bufRef = BUF_REF_LOCAL.get();
         if (bufRef != null) {

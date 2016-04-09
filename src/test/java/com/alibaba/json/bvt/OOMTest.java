@@ -18,9 +18,9 @@ public class OOMTest extends TestCase {
             JSON.parse(text);
         }
         
-        Field field = SymbolTable.class.getDeclaredField("size");
+        Field field = SymbolTable.class.getDeclaredField("symbols");
         field.setAccessible(true);
-        int size = field.getInt(ParserConfig.getGlobalInstance().getSymbolTable());
-        Assert.assertEquals(4096, size);
+        Object[] symbols = (Object[]) field.get(ParserConfig.getGlobalInstance().symbolTable);
+        Assert.assertEquals(4096, symbols.length);
     }
 }

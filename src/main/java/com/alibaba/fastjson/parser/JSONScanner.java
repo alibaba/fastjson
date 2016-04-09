@@ -41,7 +41,7 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     public JSONScanner(String input, int features){
-        this.features = features;
+        super(features);
 
         text = input;
         len = text.length();

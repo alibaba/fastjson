@@ -392,7 +392,10 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitInsn(ICONST_0);
             mw.visitVarInsn(ISTORE, context.var("_asm_flag_" + (i / 32)));
         }
-
+        
+        _isEnable(context, mw, Feature.InitStringFieldAsEmpty);
+        mw.visitIntInsn(ISTORE, context.var("initStringFieldAsEmpty"));
+        
         // declare and init
         for (int i = 0; i < fieldListSize; ++i) {
             FieldInfo fieldInfo = context.fieldInfoList[i];
@@ -416,14 +419,19 @@ public class ASMDeserializerFactory implements Opcodes {
             } else {
                 if (fieldClass == String.class) {
                     Label flagEnd_ = new Label();
-                    _isEnable(context, mw, Feature.InitStringFieldAsEmpty);
-                    mw.visitJumpInsn(IFEQ, flagEnd_);
+                    Label flagElse_ = new Label();
+                    mw.visitVarInsn(ILOAD, context.var("initStringFieldAsEmpty"));
+                    mw.visitJumpInsn(IFEQ, flagElse_);
                     _setFlag(mw, context, i);
-                    mw.visitLabel(flagEnd_);
-
                     mw.visitVarInsn(ALOAD, context.var("lexer"));
                     mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/parser/JSONLexerBase", "stringDefaultValue",
                                        "()Ljava/lang/String;");
+                    mw.visitJumpInsn(GOTO, flagEnd_);
+                    
+                    mw.visitLabel(flagElse_);
+                    mw.visitInsn(ACONST_NULL);
+                    
+                    mw.visitLabel(flagEnd_);
                 } else {
                     mw.visitInsn(ACONST_NULL);
                 }
@@ -662,8 +670,8 @@ public class ASMDeserializerFactory implements Opcodes {
 
     private void defineVarLexer(Context context, MethodVisitor mw) {
         mw.visitVarInsn(ALOAD, 1);
-        mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/parser/DefaultJSONParser", "getLexer",
-                           "()Lcom/alibaba/fastjson/parser/JSONLexer;");
+        mw.visitFieldInsn(GETFIELD, "com/alibaba/fastjson/parser/DefaultJSONParser", "lexer",
+                           "Lcom/alibaba/fastjson/parser/JSONLexer;");
         mw.visitTypeInsn(CHECKCAST, "com/alibaba/fastjson/parser/JSONLexerBase"); // cast
         mw.visitVarInsn(ASTORE, context.var("lexer"));
     }
@@ -1063,7 +1071,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ALOAD, context.var("resolveTask"));
         mw.visitVarInsn(ALOAD, 1);
         mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/parser/DefaultJSONParser", "getContext",
-                           "()" + "Lcom/alibaba/fastjson/parser/ParseContext;");
+                           "()Lcom/alibaba/fastjson/parser/ParseContext;");
         mw.visitFieldInsn(PUTFIELD, "com/alibaba/fastjson/parser/DefaultJSONParser$ResolveTask", "ownerContext",
                           "Lcom/alibaba/fastjson/parser/ParseContext;");
 

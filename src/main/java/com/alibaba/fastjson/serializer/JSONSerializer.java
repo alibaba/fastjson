@@ -465,4 +465,8 @@ public class JSONSerializer {
 
         return true;
     }
+    
+    public SerializeWriter getWriter() {
+        return out;
+    }
 }

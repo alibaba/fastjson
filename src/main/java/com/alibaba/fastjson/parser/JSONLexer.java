@@ -88,4 +88,5 @@ public interface JSONLexer {
 
     Collection<String> scanStringArray(Class<?> type, char seperator);
 
+    String info();
 }

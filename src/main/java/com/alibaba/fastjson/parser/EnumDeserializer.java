@@ -70,7 +70,7 @@ public class EnumDeserializer implements ObjectDeserializer {
             throw new JSONException("parse enum " + enumClass.getName() + " error, value : " + value);
         } catch (JSONException e) {
             throw e;
-        } catch (Throwable e) {
+        } catch (Exception e) {
             throw new JSONException(e.getMessage(), e);
         }
     }

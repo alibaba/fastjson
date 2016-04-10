@@ -574,7 +574,7 @@ public class DefaultJSONParser implements Closeable {
             return (T) derializer.deserialze(this, type, null);
         } catch (JSONException e) {
             throw e;
-        } catch (Throwable e) {
+        } catch (Exception e) {
             throw new JSONException(e.getMessage(), e);
         }
     }

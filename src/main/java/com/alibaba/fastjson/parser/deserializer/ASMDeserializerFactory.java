@@ -29,39 +29,20 @@ import com.alibaba.fastjson.asm.Opcodes;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.ASMClassLoader;
-import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.JavaBeanInfo;
 import com.alibaba.fastjson.util.TypeUtils;
 
 public class ASMDeserializerFactory implements Opcodes {
-    private final ASMClassLoader                classLoader;
 
-    private final Map<String, Class<?>>         classMap = new HashMap<String, Class<?>>();
-
-    private final AtomicLong                    seed     = new AtomicLong();
-
-    public String getGenClassName(Class<?> clazz) {
-        return "Fastjson_ASM_" + clazz.getSimpleName() + "_" + seed.incrementAndGet();
-    }
-
-    public String getGenFieldDeserializer(Class<?> clazz, FieldInfo fieldInfo) {
-        String name = "Fastjson_ASM__Field_" + clazz.getSimpleName();
-        name += "_" + fieldInfo.name + "_" + seed.incrementAndGet();
-
-        return name;
-    }
-
-    public ASMDeserializerFactory(){
-        classLoader = new ASMClassLoader();
-    }
+    public final ASMClassLoader           classLoader;
+    protected final Map<String, Class<?>> classMap = new HashMap<String, Class<?>>();
+    protected final AtomicLong            seed     = new AtomicLong();
 
     public ASMDeserializerFactory(ClassLoader parentClassLoader){
-        classLoader = new ASMClassLoader(parentClassLoader);
-    }
-
-    public boolean isExternalClass(Class<?> clazz) {
-        return classLoader.isExternalClass(clazz);
+        classLoader = parentClassLoader instanceof ASMClassLoader //
+            ? (ASMClassLoader) parentClassLoader //
+            : new ASMClassLoader(parentClassLoader);
     }
 
     public ObjectDeserializer createJavaBeanDeserializer(ParserConfig config, Class<?> clazz,
@@ -70,7 +51,7 @@ public class ASMDeserializerFactory implements Opcodes {
             throw new IllegalArgumentException("not support type :" + clazz.getName());
         }
 
-        String className = getGenClassName(clazz);
+        String className = "Fastjson_ASM_" + clazz.getSimpleName() + "_" + seed.incrementAndGet();
 
         ClassWriter cw = new ClassWriter();
         cw.visit(V1_5, ACC_PUBLIC + ACC_SUPER, className,
@@ -133,8 +114,8 @@ public class ASMDeserializerFactory implements Opcodes {
 
     void _deserialzeArrayMapping(ClassWriter cw, Context context) {
         MethodVisitor mw = new MethodWriter(cw, ACC_PUBLIC, "deserialzeArrayMapping",
-                                          "(Lcom/alibaba/fastjson/parser/DefaultJSONParser;Ljava/lang/reflect/Type;Ljava/lang/Object;)Ljava/lang/Object;",
-                                          null, null);
+                                            "(Lcom/alibaba/fastjson/parser/DefaultJSONParser;Ljava/lang/reflect/Type;Ljava/lang/Object;)Ljava/lang/Object;",
+                                            null, null);
 
         defineVarLexer(context, mw);
 
@@ -305,8 +286,8 @@ public class ASMDeserializerFactory implements Opcodes {
         context.fieldInfoList = context.beanInfo.sortedFields;
 
         MethodVisitor mw = new MethodWriter(cw, ACC_PUBLIC, "deserialze",
-                                          "(Lcom/alibaba/fastjson/parser/DefaultJSONParser;Ljava/lang/reflect/Type;Ljava/lang/Object;)Ljava/lang/Object;",
-                                          null, null);
+                                            "(Lcom/alibaba/fastjson/parser/DefaultJSONParser;Ljava/lang/reflect/Type;Ljava/lang/Object;)Ljava/lang/Object;",
+                                            null, null);
 
         Label reset_ = new Label();
         Label super_ = new Label();
@@ -392,10 +373,10 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitInsn(ICONST_0);
             mw.visitVarInsn(ISTORE, context.var("_asm_flag_" + (i / 32)));
         }
-        
+
         _isEnable(context, mw, Feature.InitStringFieldAsEmpty);
         mw.visitIntInsn(ISTORE, context.var("initStringFieldAsEmpty"));
-        
+
         // declare and init
         for (int i = 0; i < fieldListSize; ++i) {
             FieldInfo fieldInfo = context.fieldInfoList[i];
@@ -427,10 +408,10 @@ public class ASMDeserializerFactory implements Opcodes {
                     mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/parser/JSONLexerBase", "stringDefaultValue",
                                        "()Ljava/lang/String;");
                     mw.visitJumpInsn(GOTO, flagEnd_);
-                    
+
                     mw.visitLabel(flagElse_);
                     mw.visitInsn(ACONST_NULL);
-                    
+
                     mw.visitLabel(flagEnd_);
                 } else {
                     mw.visitInsn(ACONST_NULL);
@@ -671,7 +652,7 @@ public class ASMDeserializerFactory implements Opcodes {
     private void defineVarLexer(Context context, MethodVisitor mw) {
         mw.visitVarInsn(ALOAD, 1);
         mw.visitFieldInsn(GETFIELD, "com/alibaba/fastjson/parser/DefaultJSONParser", "lexer",
-                           "Lcom/alibaba/fastjson/parser/JSONLexer;");
+                          "Lcom/alibaba/fastjson/parser/JSONLexer;");
         mw.visitTypeInsn(CHECKCAST, "com/alibaba/fastjson/parser/JSONLexerBase"); // cast
         mw.visitVarInsn(ASTORE, context.var("lexer"));
     }
@@ -1140,7 +1121,6 @@ public class ASMDeserializerFactory implements Opcodes {
     static class Context {
 
         private int                        variantIndex = 5;
-
         private final Map<String, Integer> variants     = new HashMap<String, Integer>();
 
         private final Class<?>             clazz;
@@ -1209,17 +1189,18 @@ public class ASMDeserializerFactory implements Opcodes {
 
             if (Collection.class.isAssignableFrom(fieldClass)) {
                 FieldWriter fw = new FieldWriter(cw, ACC_PUBLIC, fieldInfo.name + "_asm_list_item_deser__",
-                                                "Lcom/alibaba/fastjson/parser/deserializer/ObjectDeserializer;");
+                                                 "Lcom/alibaba/fastjson/parser/deserializer/ObjectDeserializer;");
                 fw.visitEnd();
             } else {
                 FieldWriter fw = new FieldWriter(cw, ACC_PUBLIC, fieldInfo.name + "_asm_deser__",
-                                                "Lcom/alibaba/fastjson/parser/deserializer/ObjectDeserializer;");
+                                                 "Lcom/alibaba/fastjson/parser/deserializer/ObjectDeserializer;");
                 fw.visitEnd();
             }
         }
 
         MethodVisitor mw = new MethodWriter(cw, ACC_PUBLIC, "<init>",
-                                          "(Lcom/alibaba/fastjson/parser/ParserConfig;Ljava/lang/Class;)V", null, null);
+                                            "(Lcom/alibaba/fastjson/parser/ParserConfig;Ljava/lang/Class;)V", null,
+                                            null);
         mw.visitVarInsn(ALOAD, 0);
         mw.visitVarInsn(ALOAD, 1);
         mw.visitVarInsn(ALOAD, 2);
@@ -1244,8 +1225,8 @@ public class ASMDeserializerFactory implements Opcodes {
 
     private void _createInstance(ClassWriter cw, Context context) {
         MethodVisitor mw = new MethodWriter(cw, ACC_PUBLIC, "createInstance",
-                                          "(Lcom/alibaba/fastjson/parser/DefaultJSONParser;Ljava/lang/reflect/Type;)Ljava/lang/Object;",
-                                          null, null);
+                                            "(Lcom/alibaba/fastjson/parser/DefaultJSONParser;Ljava/lang/reflect/Type;)Ljava/lang/Object;",
+                                            null, null);
 
         mw.visitTypeInsn(NEW, getType(context.getInstClass()));
         mw.visitInsn(DUP);

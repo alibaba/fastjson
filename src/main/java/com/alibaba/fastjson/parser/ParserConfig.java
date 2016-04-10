@@ -104,6 +104,7 @@ import com.alibaba.fastjson.serializer.MiscCodec;
 import com.alibaba.fastjson.serializer.ObjectArrayCodec;
 import com.alibaba.fastjson.serializer.ReferenceCodec;
 import com.alibaba.fastjson.serializer.StringCodec;
+import com.alibaba.fastjson.util.ASMClassLoader;
 import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.IdentityHashMap;
@@ -153,7 +154,7 @@ public class ParserConfig {
         if (asmFactory == null && !ASMUtils.IS_ANDROID) {
             try {
                 if (parentClassLoader == null) {
-                    asmFactory = new ASMDeserializerFactory();    
+                    asmFactory = new ASMDeserializerFactory(new ASMClassLoader());    
                 } else {
                     asmFactory = new ASMDeserializerFactory(parentClassLoader);
                 }
@@ -441,7 +442,7 @@ public class ParserConfig {
             asmEnable = false;
         }
 
-        if (asmEnable && asmFactory != null && asmFactory.isExternalClass(clazz)) {
+        if (asmEnable && asmFactory != null && asmFactory.classLoader.isExternalClass(clazz)) {
             asmEnable = false;
         }
         
@@ -557,12 +558,15 @@ public class ParserConfig {
 
     public static Field getField(Class<?> clazz, String fieldName) {
         Field field = getField0(clazz, fieldName);
+        
         if (field == null) {
             field = getField0(clazz, "_" + fieldName);
         }
+        
         if (field == null) {
             field = getField0(clazz, "m_" + fieldName);
         }
+        
         return field;
     }
 

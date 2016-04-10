@@ -194,9 +194,14 @@ public class DefaultJSONParser implements Closeable {
             lexer.nextToken();
             return null;
         }
+        
+        if (lexer.token() == JSONToken.RBRACE) {
+            lexer.nextToken();
+            return object;
+        }
 
         if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {
-            throw new JSONException("syntax error, expect {, actual " + lexer.tokenName());
+            throw new JSONException("syntax error, expect {, actual " + lexer.tokenName() + ", " + lexer.info());
         }
 
        ParseContext context = this.context;
@@ -587,7 +592,7 @@ public class DefaultJSONParser implements Closeable {
         }
 
         if (lexer.token() != JSONToken.LBRACKET) {
-            throw new JSONException("exepct '[', but " + JSONToken.name(lexer.token()));
+            throw new JSONException("exepct '[', but " + JSONToken.name(lexer.token()) + ", " + lexer.info());
         }
 
         ObjectDeserializer deserializer = null;

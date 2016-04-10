@@ -927,7 +927,7 @@ public class TypeUtils {
 
                 return clazz;
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             e.printStackTrace();
             // skip
         }
@@ -942,7 +942,7 @@ public class TypeUtils {
 
                 return clazz;
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             e.printStackTrace();
             // skip
         }
@@ -953,7 +953,7 @@ public class TypeUtils {
             addClassMapping(className, clazz);
 
             return clazz;
-        } catch (Throwable e) {
+        } catch (Exception e) {
             e.printStackTrace();
             // skip
         }

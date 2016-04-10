@@ -71,21 +71,17 @@ import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.deserializer.ASMDeserializerFactory;
 import com.alibaba.fastjson.parser.deserializer.ArrayListTypeFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.AutowiredObjectDeserializer;
-import com.alibaba.fastjson.parser.deserializer.BooleanFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.DefaultFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.EnumDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
-import com.alibaba.fastjson.parser.deserializer.IntegerFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.Jdk8DateCodec;
-import com.alibaba.fastjson.parser.deserializer.LongFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.NumberDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.OptionalCodec;
 import com.alibaba.fastjson.parser.deserializer.SqlDateDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StackTraceElementDeserializer;
-import com.alibaba.fastjson.parser.deserializer.StringFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ThrowableDeserializer;
 import com.alibaba.fastjson.parser.deserializer.TimeDeserializer;
 import com.alibaba.fastjson.serializer.AtomicCodec;
@@ -521,67 +517,8 @@ public class ParserConfig {
     }
 
     public FieldDeserializer createFieldDeserializer(ParserConfig mapping, JavaBeanInfo beanInfo, FieldInfo fieldInfo) {
-        boolean asmEnable = this.asmEnable;
-
-        Class<?> clazz = beanInfo.clazz;
-        if (asmEnable) {
-            Class<?> superClass = beanInfo.builderClass;
-            if (superClass == null) {
-                superClass = clazz;
-            }
-
-            for (;;) {
-                if (!Modifier.isPublic(superClass.getModifiers())) {
-                    asmEnable = false;
-                    break;
-                }
-
-                superClass = superClass.getSuperclass();
-                if (superClass == Object.class || superClass == null) {
-                    break;
-                }
-            }
-        }
-        
-        if (fieldInfo.fieldClass == Class.class) {
-            asmEnable = false;
-        }
-
-        if (asmEnable && asmFactory != null && asmFactory.isExternalClass(clazz)) {
-            asmEnable = false;
-        }
-
-        if (!asmEnable) {
-            return createFieldDeserializerWithoutASM(mapping, clazz, fieldInfo);
-        }
-
-        try {
-            return asmFactory.createFieldDeserializer(mapping, clazz, fieldInfo);
-        } catch (Throwable e) {
-            // skip
-        }
-
-        return createFieldDeserializerWithoutASM(mapping, clazz, fieldInfo);
-    }
-
-    public FieldDeserializer createFieldDeserializerWithoutASM(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
+        Class<?> clazz =beanInfo.clazz;
         Class<?> fieldClass = fieldInfo.fieldClass;
-
-        if (fieldClass == boolean.class || fieldClass == Boolean.class) {
-            return new BooleanFieldDeserializer(mapping, clazz, fieldInfo);
-        }
-
-        if (fieldClass == int.class || fieldClass == Integer.class) {
-            return new IntegerFieldDeserializer(mapping, clazz, fieldInfo);
-        }
-
-        if (fieldClass == long.class || fieldClass == Long.class) {
-            return new LongFieldDeserializer(mapping, clazz, fieldInfo);
-        }
-
-        if (fieldClass == String.class) {
-            return new StringFieldDeserializer(mapping, clazz, fieldInfo);
-        }
 
         if (fieldClass == List.class || fieldClass == ArrayList.class) {
             return new ArrayListTypeFieldDeserializer(mapping, clazz, fieldInfo);

@@ -218,22 +218,6 @@ public class ParserConfig {
     public FieldDeserializer createFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
         Class<?> fieldClass = fieldInfo.fieldClass;
 
-        if (fieldClass == boolean.class || fieldClass == Boolean.class) {
-            return new BooleanFieldDeserializer(mapping, clazz, fieldInfo);
-        }
-
-        if (fieldClass == int.class || fieldClass == Integer.class) {
-            return new IntegerFieldDeserializer(mapping, clazz, fieldInfo);
-        }
-
-        if (fieldClass == long.class || fieldClass == Long.class) {
-            return new LongFieldDeserializer(mapping, clazz, fieldInfo);
-        }
-
-        if (fieldClass == String.class) {
-            return new StringFieldDeserializer(mapping, clazz, fieldInfo);
-        }
-
         if (fieldClass == List.class || fieldClass == ArrayList.class) {
             return new ListTypeFieldDeserializer(mapping, clazz, fieldInfo);
         }

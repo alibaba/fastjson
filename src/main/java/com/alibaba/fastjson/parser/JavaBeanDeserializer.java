@@ -408,52 +408,28 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             fieldValues.put(fieldInfo.name, fieldValue);
                         } else if (fieldValue == null) {
                             if (fieldClass == int.class || fieldClass == Integer.class) {
-                                if (valueParsed) {
-                                    if (fieldInfo.fieldAccess) {
-                                        fieldDeser.setValue(object, fieldValueInt);
-                                    } else {
-                                        fieldDeser.setValue(object, Integer.valueOf(fieldValueInt));
-                                    }
+                                if (fieldInfo.fieldAccess) {
+                                    fieldDeser.setValue(object, fieldValueInt);
                                 } else {
-                                    if (fieldClass == Integer.class) {
-                                        fieldDeser.setValue(object, null);
-                                    }
+                                    fieldDeser.setValue(object, Integer.valueOf(fieldValueInt));
                                 }
                             } else if (fieldClass == long.class || fieldClass == Long.class) {
-                                if (valueParsed) {
-                                    if (fieldInfo.fieldAccess) {
-                                        fieldDeser.setValue(object, fieldValueLong);
-                                    } else {
-                                        fieldDeser.setValue(object, Long.valueOf(fieldValueLong));
-                                    }
+                                if (fieldInfo.fieldAccess) {
+                                    fieldDeser.setValue(object, fieldValueLong);
                                 } else {
-                                    if (fieldClass == Long.class) {
-                                        fieldDeser.setValue(object, null);
-                                    }
+                                    fieldDeser.setValue(object, Long.valueOf(fieldValueLong));
                                 }
                             } else if (fieldClass == float.class || fieldClass == Float.class) {
-                                if (valueParsed) {
-                                    if (fieldInfo.fieldAccess) {
-                                        fieldDeser.setValue(object, fieldValueFloat);
-                                    } else {
-                                        fieldDeser.setValue(object, new Float(fieldValueFloat));
-                                    }
+                                if (fieldInfo.fieldAccess) {
+                                    fieldDeser.setValue(object, fieldValueFloat);
                                 } else {
-                                    if (fieldClass == Float.class) {
-                                        fieldDeser.setValue(object, null);
-                                    }
+                                    fieldDeser.setValue(object, new Float(fieldValueFloat));
                                 }
                             } else if (fieldClass == double.class || fieldClass == Double.class) {
-                                if (valueParsed) {
-                                    if (fieldInfo.fieldAccess) {
-                                        fieldDeser.setValue(object, fieldValueDouble);
-                                    } else {
-                                        fieldDeser.setValue(object, new Double(fieldValueDouble));
-                                    }
+                                if (fieldInfo.fieldAccess) {
+                                    fieldDeser.setValue(object, fieldValueDouble);
                                 } else {
-                                    if (fieldClass == Double.class) {
-                                        fieldDeser.setValue(object, null);
-                                    }
+                                    fieldDeser.setValue(object, new Double(fieldValueDouble));
                                 }
                             } else if (fieldClass != float.class //
                                     && fieldClass != double.class //

@@ -9,11 +9,11 @@ import java.lang.reflect.Type;
  * subclass of this class which enables retrieval the type information even at
  * runtime.
  *
- * <p>For example, to create a type literal for {@code List<String>}, you can
+ * <p>For example, to create a type literal for List&lt;String&gt;, you can
  * create an empty anonymous inner class:
  *
  * <p>
- * {@code} List<String> list = JSON.parseObject("...", new TypeReference<List<String>>() {});
+ * List&lt;String&gt; list = JSON.parseObject("...", new TypeReference&lt;List&lt;String&gt;&gt;() {});
  *
  *
  * @author wenshao[szujobs@hotmail.com]

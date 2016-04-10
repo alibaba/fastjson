@@ -1122,4 +1122,12 @@ public final class JSONScanner extends JSONLexerBase {
     protected final void arrayCopy(int srcPos, char[] dest, int destPos, int length) {
         text.getChars(srcPos, srcPos + length, dest, destPos);
     }
+    
+    public String info() {
+        return "pos " + bp //
+               + ", json : " //
+               + (text.length() < 65536 //
+                   ? text //
+                   : text.substring(0, 65536));
+    }
 }

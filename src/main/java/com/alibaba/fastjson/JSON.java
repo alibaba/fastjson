@@ -54,15 +54,9 @@ import com.alibaba.fastjson.util.TypeUtils;
  * @author wenshao[szujobs@hotmail.com]
  */
 public abstract class JSON implements JSONStreamAware, JSONAware {
+    public final static String DEFAULT_TYPE_KEY = "@type";
 
-    public static String DEFAULT_TYPE_KEY     = "@type";
-
-    public static int    DEFAULT_PARSER_FEATURE;
-
-    /**
-     * asm生成代码dump路径
-     */
-    public static String DUMP_CLASS           = null;
+    public static int          DEFAULT_PARSER_FEATURE;
 
     static {
         int features = 0;

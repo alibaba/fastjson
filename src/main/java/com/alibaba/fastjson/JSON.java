@@ -340,8 +340,11 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         DefaultJSONParser parser = new DefaultJSONParser(text, ParserConfig.getGlobalInstance());
         JSONLexer lexer = parser.lexer;
-        if (lexer.token() == JSONToken.NULL) {
+        int token = lexer.token();
+        if (token == JSONToken.NULL) {
             lexer.nextToken();
+            list = null;
+        } else if (token == JSONToken.EOF && lexer.isBlankInput()) {
             list = null;
         } else {
             list = new ArrayList<T>();

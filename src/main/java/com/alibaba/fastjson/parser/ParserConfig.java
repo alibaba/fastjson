@@ -71,13 +71,10 @@ public class ParserConfig {
         return global;
     }
 
-    public static ParserConfig                              global           = new ParserConfig();
-
-    private final IdentityHashMap<Type, ObjectDeserializer> derializers      = new IdentityHashMap<Type, ObjectDeserializer>();
-
-    public final SymbolTable                                symbolTable      = new SymbolTable(4096);
-    
-    public ClassLoader                                      defaultClassLoader;
+    public static ParserConfig                        global      = new ParserConfig();
+    private final IdentityHashMap<ObjectDeserializer> derializers = new IdentityHashMap<ObjectDeserializer>(1024);
+    public final SymbolTable                          symbolTable = new SymbolTable(4096);
+    public ClassLoader                                defaultClassLoader;
 
     public ParserConfig(){
         derializers.put(SimpleDateFormat.class, MiscCodec.instance);
@@ -210,16 +207,12 @@ public class ParserConfig {
         } else if (Throwable.class.isAssignableFrom(clazz)) {
             derializer = new ThrowableDeserializer(this, clazz);
         } else {
-            derializer = createJavaBeanDeserializer(clazz, type);
+            derializer = new JavaBeanDeserializer(this, clazz, type);
         }
 
         putDeserializer(type, derializer);
 
         return derializer;
-    }
-
-    public ObjectDeserializer createJavaBeanDeserializer(Class<?> clazz, Type type) {
-        return new JavaBeanDeserializer(this, clazz, type);
     }
 
     public FieldDeserializer createFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
@@ -250,10 +243,6 @@ public class ParserConfig {
 
     public void putDeserializer(Type type, ObjectDeserializer deserializer) {
         derializers.put(type, deserializer);
-    }
-
-    public ObjectDeserializer getDeserializer(FieldInfo fieldInfo) {
-        return getDeserializer(fieldInfo.fieldClass, fieldInfo.fieldType);
     }
 
     public boolean isPrimitive(Class<?> clazz) {

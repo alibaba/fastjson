@@ -6,7 +6,7 @@ public class ParseContext {
 
     public Object             object;
     public final ParseContext parent;
-    public final Object      fieldName;
+    public final Object       fieldName;
     public Type               type;
 
     public ParseContext(ParseContext parent, Object object, Object fieldName){

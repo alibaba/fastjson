@@ -20,7 +20,7 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
     @Override
     public void parseField(DefaultJSONParser parser, Object object, Type objectType, Map<String, Object> fieldValues) {
         if (fieldValueDeserilizer == null) {
-            fieldValueDeserilizer = parser.config.getDeserializer(fieldInfo);
+            fieldValueDeserilizer = parser.config.getDeserializer(fieldInfo.fieldClass, fieldInfo.fieldType);
         }
 
         if (objectType instanceof ParameterizedType) {

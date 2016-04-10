@@ -15,30 +15,28 @@
  */
 package com.alibaba.fastjson.util;
 
+import java.lang.reflect.Type;
+
 /**
  * for concurrent IdentityHashMap
  * 
  * @author wenshao[szujobs@hotmail.com]
  */
 @SuppressWarnings("unchecked")
-public class IdentityHashMap<K, V> {
-    private final Entry<K, V>[] buckets;
-    private final int           indexMask;
-
-    public IdentityHashMap(){
-        this(1024);
-    }
+public class IdentityHashMap<V> {
+    private final Entry<V>[] buckets;
+    private final int        indexMask;
 
     public IdentityHashMap(int tableSize){
         this.indexMask = tableSize - 1;
         this.buckets = new Entry[tableSize];
     }
 
-    public final V get(K key) {
+    public final V get(Type key) {
         final int hash = System.identityHashCode(key);
         final int bucket = hash & indexMask;
 
-        for (Entry<K, V> entry = buckets[bucket]; entry != null; entry = entry.next) {
+        for (Entry<V> entry = buckets[bucket]; entry != null; entry = entry.next) {
             if (key == entry.key) {
                 return (V) entry.value;
             }
@@ -47,32 +45,31 @@ public class IdentityHashMap<K, V> {
         return null;
     }
 
-    public boolean put(K key, V value) {
+    public boolean put(Type key, V value) {
         final int hash = System.identityHashCode(key);
         final int bucket = hash & indexMask;
 
-        for (Entry<K, V> entry = buckets[bucket]; entry != null; entry = entry.next) {
+        for (Entry<V> entry = buckets[bucket]; entry != null; entry = entry.next) {
             if (key == entry.key) {
                 entry.value = value;
                 return true;
             }
         }
 
-        Entry<K, V> entry = new Entry<K, V>(key, value, hash, buckets[bucket]);
+        Entry<V> entry = new Entry<V>(key, value, hash, buckets[bucket]);
         buckets[bucket] = entry;  // 并发是处理时会可能导致缓存丢失，但不影响正确性
 
         return false;
     }
 
-    protected static final class Entry<K, V> {
+    protected static final class Entry<V> {
+        public final int      hashCode;
+        public final Type     key;
+        public V              value;
 
-        public final int         hashCode;
-        public final K           key;
-        public V                 value;
+        public final Entry<V> next;
 
-        public final Entry<K, V> next;
-
-        public Entry(K key, V value, int hash, Entry<K, V> next){
+        public Entry(Type key, V value, int hash, Entry<V> next){
             this.key = key;
             this.value = value;
             this.next = next;

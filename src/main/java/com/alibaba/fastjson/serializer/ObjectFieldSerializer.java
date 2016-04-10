@@ -17,7 +17,6 @@ package com.alibaba.fastjson.serializer;
 
 import java.util.Collection;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.util.FieldInfo;
 
 /**
@@ -25,29 +24,12 @@ import com.alibaba.fastjson.util.FieldInfo;
  */
 public class ObjectFieldSerializer extends FieldSerializer {
 
-    final String                  format;
+   
 
     private RuntimeSerializerInfo runtimeInfo;
 
     public ObjectFieldSerializer(FieldInfo fieldInfo){
         super(fieldInfo);
-
-        JSONField annotation = fieldInfo.getAnnotation();
-
-        String format = null;
-        if (annotation != null) {
-            format = annotation.format();
-
-            format = format.trim();
-            if (format.length() == 0) {
-                format = null;
-            }
-            
-            features = SerializerFeature.of(annotation.serialzeFeatures());
-        } else {
-            features = 0;
-        }
-        this.format = format;
     }
 
     @Override

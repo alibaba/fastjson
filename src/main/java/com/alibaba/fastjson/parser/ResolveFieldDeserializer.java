@@ -11,7 +11,7 @@ import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.util.TypeUtils;
 
 @SuppressWarnings("rawtypes")
-public final class ResolveFieldDeserializer extends FieldDeserializer {
+final class ResolveFieldDeserializer extends FieldDeserializer {
 
     private final int               index;
     private final List              list;

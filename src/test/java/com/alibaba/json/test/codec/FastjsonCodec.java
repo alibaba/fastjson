@@ -22,9 +22,7 @@ public class FastjsonCodec implements Codec {
     }
 
     public <T> T decodeObject(String text, Type clazz) {
-        DefaultJSONParser parser = new DefaultJSONParser(text, config);
-        parser.config(Feature.DisableCircularReferenceDetect, true);
-        return parser.parseObject(clazz);
+        return JSON.parseObject(text, clazz, Feature.DisableCircularReferenceDetect);
     }
 
     public <T> Collection<T> decodeArray(String text, Class<T> clazz) throws Exception {
@@ -34,9 +32,7 @@ public class FastjsonCodec implements Codec {
     }
 
     public final Object decodeObject(String text) {
-        DefaultJSONParser parser = new DefaultJSONParser(text, config);
-        parser.config(Feature.DisableCircularReferenceDetect, true);
-        return parser.parse();
+        return JSON.parseObject(text, Feature.DisableCircularReferenceDetect);
     }
 
     public final Object decode(String text) {

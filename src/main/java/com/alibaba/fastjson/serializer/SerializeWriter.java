@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.lang.ref.SoftReference;
 import java.nio.charset.Charset;
 
 import com.alibaba.fastjson.JSON;
@@ -36,11 +35,9 @@ public final class SerializeWriter extends Writer {
      */
     protected char[]                                        buf;
 
-    protected SoftReference<char[]>                         bufLocalRef;
-
     protected int                                           count;
 
-    private final static ThreadLocal<SoftReference<char[]>> bufLocal = new ThreadLocal<SoftReference<char[]>>();
+    private final static ThreadLocal<char[]> bufLocal = new ThreadLocal<char[]>();
 
     protected int                                           features;
 
@@ -54,10 +51,9 @@ public final class SerializeWriter extends Writer {
         this.writer = writer;
         this.features = JSON.DEFAULT_GENERATE_FEATURE;
 
-        bufLocalRef = bufLocal.get();
+        buf = bufLocal.get();
 
-        if (bufLocalRef != null) {
-            buf = bufLocalRef.get();
+        if (bufLocal != null) {
             bufLocal.set(null);
         }
 
@@ -77,10 +73,8 @@ public final class SerializeWriter extends Writer {
     public SerializeWriter(Writer writer, int featuresValue, SerializerFeature[] features){
         this.writer = writer;
 
-        bufLocalRef = bufLocal.get();
-
-        if (bufLocalRef != null) {
-            buf = bufLocalRef.get();
+        buf = bufLocal.get();
+        if (buf != null) {
             bufLocal.set(null);
         }
 
@@ -284,13 +278,7 @@ public final class SerializeWriter extends Writer {
             flush();
         }
         if (buf.length <= 8192) {
-            SoftReference<char[]> ref;
-            if (bufLocalRef == null || bufLocalRef.get() != buf) {
-                ref = new SoftReference<char[]>(buf);
-            } else {
-                ref = bufLocalRef;
-            }
-            bufLocal.set(ref);
+            bufLocal.set(buf);
         }
 
         this.buf = null;

@@ -889,13 +889,22 @@ public final class JSONLexer {
     public final void resetStringPosition() {
         this.sp = 0;
     }
+    
+    public String info() {
+        return "pos " + bp //
+               + ", json : " //
+               + (text.length() < 65536 //
+                   ? text //
+                   : text.substring(0, 65536));
+    }
 
     public final String scanSymbolUnQuoted(final SymbolTable symbolTable) {
         final char first = ch;
 
         final boolean firstFlag = ch >= firstIdentifierFlags.length || firstIdentifierFlags[first];
         if (!firstFlag) {
-            throw new JSONException("illegal identifier : " + ch);
+            throw new JSONException("illegal identifier : " + ch //
+                                    + ", " + info());
         }
 
         int hash = first;

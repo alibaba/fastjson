@@ -10,7 +10,7 @@ import java.util.List;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.util.TypeUtils;
 
-public class JavaObjectDeserializer implements ObjectDeserializer {
+class JavaObjectDeserializer implements ObjectDeserializer {
 
     public final static JavaObjectDeserializer instance = new JavaObjectDeserializer();
 

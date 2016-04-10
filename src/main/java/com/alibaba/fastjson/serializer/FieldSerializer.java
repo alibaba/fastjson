@@ -28,22 +28,36 @@ import com.alibaba.fastjson.util.FieldInfo;
 public abstract class FieldSerializer implements Comparable<FieldSerializer> {
     public final FieldInfo  fieldInfo;
     protected final boolean writeNull;
-    protected int           features;
-
+    protected final int     features;
+    protected final String  format;
+    
     public FieldSerializer(FieldInfo fieldInfo){
         super();
         this.fieldInfo = fieldInfo;
 
         boolean writeNull = false;
         JSONField annotation = fieldInfo.getAnnotation();
+        String format = null;
         if (annotation != null) {
             for (SerializerFeature feature : annotation.serialzeFeatures()) {
                 if (feature == SerializerFeature.WriteMapNullValue) {
                     writeNull = true;
                 }
             }
+            
+            format = annotation.format();
+
+            format = format.trim();
+            if (format.length() == 0) {
+                format = null;
+            }
+            
+            features = SerializerFeature.of(annotation.serialzeFeatures());
+        } else {
+            features = 0;
         }
         this.writeNull = writeNull;
+        this.format = format;
     }
 
     public void writePrefix(JSONSerializer serializer) throws IOException {

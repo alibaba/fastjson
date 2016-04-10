@@ -6,7 +6,7 @@ import java.util.Map;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.util.FieldInfo;
 
-public class StringFieldDeserializer extends FieldDeserializer {
+final class StringFieldDeserializer extends FieldDeserializer {
     public StringFieldDeserializer(ParserConfig config, Class<?> clazz, FieldInfo fieldInfo){
         super(clazz, fieldInfo, 0);
     }

@@ -166,6 +166,7 @@ public class JSONReader implements Closeable {
     }
 
     public void close() {
+        parser.lexer.close();
         if (reader != null) {
             try {
                 reader.close();

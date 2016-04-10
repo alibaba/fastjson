@@ -12,7 +12,6 @@ import static com.alibaba.fastjson.parser.JSONToken.RBRACE;
 import static com.alibaba.fastjson.parser.JSONToken.RBRACKET;
 import static com.alibaba.fastjson.parser.JSONToken.RPAREN;
 
-import java.lang.ref.SoftReference;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -60,7 +59,6 @@ public final class JSONLexer {
     /**
      * A character buffer for literals.
      */
-    private SoftReference<char[]>                           sbufRef;
     protected char[]                                        sbuf;
     protected int                                           sp;
 
@@ -75,7 +73,7 @@ public final class JSONLexer {
 
     public int                                              matchStat      = UNKOWN;
 
-    private final static ThreadLocal<SoftReference<char[]>> SBUF_REF_LOCAL = new ThreadLocal<SoftReference<char[]>>();
+    private final static ThreadLocal<char[]> SBUF_REF_LOCAL = new ThreadLocal<char[]>();
     protected Map<String, Integer>                          keywods        = DEFAULT_KEYWORDS;
     
     protected final String text;
@@ -94,12 +92,7 @@ public final class JSONLexer {
     }
 
     public JSONLexer(String input, int features){
-        sbufRef = SBUF_REF_LOCAL.get();
-
-        if (sbufRef != null) {
-            sbuf = sbufRef.get();
-            SBUF_REF_LOCAL.set(null);
-        }
+        sbuf = SBUF_REF_LOCAL.get();
 
         if (sbuf == null) {
             sbuf = new char[256];
@@ -130,15 +123,8 @@ public final class JSONLexer {
     }
     
     public void close() {
-        if (sbuf.length <= 1024 * 8) {
-            SoftReference<char[]> ref;
-            if (sbufRef == null || sbufRef.get() != sbuf) {
-                ref = new SoftReference<char[]>(sbuf);
-            } else {
-                ref = sbufRef;
-            }
-            
-            SBUF_REF_LOCAL.set(ref);
+        if (sbuf.length <= 8196) {
+            SBUF_REF_LOCAL.set(sbuf);
         }
         this.sbuf = null;
     }

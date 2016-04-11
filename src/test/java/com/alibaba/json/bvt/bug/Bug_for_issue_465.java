@@ -22,7 +22,7 @@ public class Bug_for_issue_465 extends TestCase {
         Assert.assertEquals(2, testBean.location[1]);
     }
     
-    public void test_for_issue_private() throws Exception {
+    public void f_test_for_issue_private() throws Exception {
         String json = "[\"abc\",\"efg\",\"sss\",[1,2]]";
         
         TestBean1 testBean = JSON.parseObject(json, TestBean1.class);

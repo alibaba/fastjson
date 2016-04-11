@@ -20,6 +20,7 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -70,7 +71,12 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
 
         Integer intObj;
         if (lexer.token() == JSONToken.LITERAL_INT) {
-            int val = lexer.intValue();
+            int val;
+            try {
+                 val = lexer.intValue();
+            } catch (NumberFormatException ex) {
+                throw new JSONException("int value overflow, field : " + fieldName, ex);
+            }
             lexer.nextToken(JSONToken.COMMA);
             intObj = Integer.valueOf(val);
         } else if (lexer.token() == JSONToken.LITERAL_FLOAT) {

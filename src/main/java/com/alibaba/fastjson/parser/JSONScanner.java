@@ -642,15 +642,17 @@ public final class JSONScanner extends JSONLexerBase {
                     matchStat = NOT_MATCH;
                     return 0;
                 } else {
-                    if (ch == ',' || ch == '}') {
-                        bp = index - 1;
-                    }
                     break;
                 }
             }
+            
             if (value < 0) {
                 matchStat = NOT_MATCH;
                 return 0;
+            }
+            
+            if (ch == ',' || ch == '}') {
+                bp = index - 1;
             }
         } else {
             matchStat = NOT_MATCH;

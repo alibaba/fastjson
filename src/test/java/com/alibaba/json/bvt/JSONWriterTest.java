@@ -3,9 +3,10 @@ package com.alibaba.json.bvt;
 import java.io.StringWriter;
 
 import org.junit.Assert;
-import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSONWriter;
+
+import junit.framework.TestCase;
 
 @SuppressWarnings("deprecation")
 public class JSONWriterTest extends TestCase {
@@ -14,8 +15,8 @@ public class JSONWriterTest extends TestCase {
         StringWriter out = new StringWriter();
 
         JSONWriter writer = new JSONWriter(out);
-        writer.writeStartObject();
-        writer.writeEndObject();
+        writer.startObject();
+        writer.endObject();
         writer.flush();
 
         Assert.assertEquals("{}", out.toString());
@@ -25,10 +26,10 @@ public class JSONWriterTest extends TestCase {
         StringWriter out = new StringWriter();
 
         JSONWriter writer = new JSONWriter(out);
-        writer.writeStartObject();
+        writer.startObject();
         writer.writeKey("id");
         writer.writeValue(33);
-        writer.writeEndObject();
+        writer.endObject();
         writer.flush();
 
         Assert.assertEquals("{\"id\":33}", out.toString());
@@ -38,7 +39,7 @@ public class JSONWriterTest extends TestCase {
         StringWriter out = new StringWriter();
 
         JSONWriter writer = new JSONWriter(out);
-        writer.writeStartObject();
+        writer.startObject();
 
         writer.writeKey("id");
         writer.writeValue(33);
@@ -46,7 +47,7 @@ public class JSONWriterTest extends TestCase {
         writer.writeKey("name");
         writer.writeValue("jobs");
 
-        writer.writeEndObject();
+        writer.endObject();
         writer.flush();
 
         Assert.assertEquals("{\"id\":33,\"name\":\"jobs\"}", out.toString());
@@ -56,7 +57,7 @@ public class JSONWriterTest extends TestCase {
         StringWriter out = new StringWriter();
 
         JSONWriter writer = new JSONWriter(out);
-        writer.writeStartObject();
+        writer.startObject();
 
         writer.writeKey("id");
         writer.writeValue(33);
@@ -65,17 +66,17 @@ public class JSONWriterTest extends TestCase {
         writer.writeValue("jobs");
 
         writer.writeKey("children");
-        writer.writeStartArray();
+        writer.startArray();
 
-        writer.writeStartObject();
-        writer.writeEndObject();
+        writer.startObject();
+        writer.endObject();
 
-        writer.writeStartObject();
-        writer.writeEndObject();
+        writer.startObject();
+        writer.endObject();
 
-        writer.writeEndArray();
+        writer.endArray();
 
-        writer.writeEndObject();
+        writer.endObject();
         writer.flush();
 
         Assert.assertEquals("{\"id\":33,\"name\":\"jobs\",\"children\":[{},{}]}", out.toString());
@@ -86,31 +87,31 @@ public class JSONWriterTest extends TestCase {
 
         JSONWriter writer = new JSONWriter(out);
 
-        writer.writeStartArray();
+        writer.startArray();
 
-        writer.writeStartObject();
-        writer.writeEndObject();
+        writer.startObject();
+        writer.endObject();
 
-        writer.writeStartObject();
-        writer.writeEndObject();
+        writer.startObject();
+        writer.endObject();
 
-        writer.writeStartArray();
-        writer.writeEndArray();
+        writer.startArray();
+        writer.endArray();
         {
-            writer.writeStartArray();
+            writer.startArray();
 
-            writer.writeStartArray();
-            writer.writeEndArray();
+            writer.startArray();
+            writer.endArray();
 
-            writer.writeStartArray();
-            writer.writeEndArray();
+            writer.startArray();
+            writer.endArray();
 
-            writer.writeEndArray();
+            writer.endArray();
             
             writer.writeValue(1);
         }
 
-        writer.writeEndArray();
+        writer.endArray();
 
         writer.flush();
 

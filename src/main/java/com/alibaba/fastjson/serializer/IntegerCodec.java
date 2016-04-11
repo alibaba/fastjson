@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -89,8 +90,12 @@ public final class IntegerCodec implements ObjectSerializer, ObjectDeserializer 
                 long longValue = lexer.longValue();
                 intObj = Long.valueOf(longValue);
             } else {
-                int val = lexer.intValue();
-                intObj = Integer.valueOf(val);
+                try {
+                    int val = lexer.intValue();
+                    intObj = Integer.valueOf(val);
+                } catch (NumberFormatException ex) {
+                    throw new JSONException("int value overflow, field : " + fieldName, ex);
+                }
             }
             lexer.nextToken(JSONToken.COMMA);
         } else if (token == JSONToken.LITERAL_FLOAT) {

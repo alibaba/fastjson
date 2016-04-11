@@ -32,15 +32,18 @@ import java.math.BigInteger;
 import java.security.AccessControlException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1568,4 +1571,46 @@ public class TypeUtils {
         return Object.class;
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static Collection createCollection(Type type) {
+        Class<?> rawClass = getRawClass(type);
+
+        Collection list;
+        if (rawClass == AbstractCollection.class) {
+            list = new ArrayList();
+        } else if (rawClass.isAssignableFrom(HashSet.class)) {
+            list = new HashSet();
+        } else if (rawClass.isAssignableFrom(LinkedHashSet.class)) {
+            list = new LinkedHashSet();
+        } else if (rawClass.isAssignableFrom(TreeSet.class)) {
+            list = new TreeSet();
+        } else if (rawClass.isAssignableFrom(ArrayList.class)) {
+            list = new ArrayList();
+        } else if (rawClass.isAssignableFrom(EnumSet.class)) {
+            Type itemType;
+            if (type instanceof ParameterizedType) {
+                itemType = ((ParameterizedType) type).getActualTypeArguments()[0];
+            } else {
+                itemType = Object.class;
+            }
+            list = EnumSet.noneOf((Class<Enum>)itemType);
+        } else {
+            try {
+                list = (Collection) rawClass.newInstance();
+            } catch (Exception e) {
+                throw new JSONException("create instane error, class " + rawClass.getName());
+            }
+        }
+        return list;
+    }
+
+    public static Class<?> getRawClass(Type type) {
+        if (type instanceof Class<?>) {
+            return (Class<?>) type;
+        } else if (type instanceof ParameterizedType) {
+            return getRawClass(((ParameterizedType) type).getRawType());
+        } else {
+            throw new JSONException("TODO");
+        }
+    }
 }

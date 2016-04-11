@@ -39,6 +39,7 @@ import java.util.HashSet;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.util.IOUtils;
+import com.alibaba.fastjson.util.TypeUtils;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -1554,24 +1555,11 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         return list;
     }
-
+    
     @SuppressWarnings("unchecked")
     public Collection<String> scanStringArray(Class<?> type, char seperator) {
+        Collection<String> list = TypeUtils.createCollection(type);
         matchStat = UNKOWN;
-
-        Collection<String> list;
-
-        if (type.isAssignableFrom(HashSet.class)) {
-            list = new HashSet<String>();
-        } else if (type.isAssignableFrom(ArrayList.class)) {
-            list = new ArrayList<String>();
-        } else {
-            try {
-                list = (Collection<String>) type.newInstance();
-            } catch (Exception e) {
-                throw new JSONException(e.getMessage(), e);
-            }
-        }
 
         int offset = 0;
         char chLocal = charAt(bp + (offset++));

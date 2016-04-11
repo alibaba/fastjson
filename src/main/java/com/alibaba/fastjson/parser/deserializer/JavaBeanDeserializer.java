@@ -225,6 +225,9 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         .append(", fieldName ") //
                         .append(fieldName);
                 }
+                if (lexer.isBlankInput()) {
+                    return null;
+                }
                 throw new JSONException(buf.toString());
             }
 

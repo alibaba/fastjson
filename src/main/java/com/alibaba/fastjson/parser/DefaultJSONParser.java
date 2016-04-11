@@ -45,6 +45,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
@@ -445,7 +446,12 @@ public class DefaultJSONParser implements Closeable {
 
                     final boolean parentIsArray = fieldName != null && fieldName instanceof Integer;
 
-                    JSONObject input = new JSONObject();
+                    JSONObject input;
+                    if ((lexer.features & Feature.OrderedField.mask) != 0) {
+                        input = new JSONObject(new LinkedHashMap<String, Object>());
+                    } else {
+                        input = new JSONObject();            
+                    }
                     ParseContext ctxLocal = null;
 
                     if (!parentIsArray) {
@@ -986,7 +992,12 @@ public class DefaultJSONParser implements Closeable {
     }
 
     public JSONObject parseObject() {
-        JSONObject object = new JSONObject();
+        JSONObject object;
+        if ((lexer.features & Feature.OrderedField.mask) != 0) {
+            object = new JSONObject(new LinkedHashMap<String, Object>());
+        } else {
+            object = new JSONObject();            
+        }
         parseObject(object);
         return object;
     }
@@ -1060,7 +1071,12 @@ public class DefaultJSONParser implements Closeable {
                         lexer.nextToken(JSONToken.COMMA);
                         break;
                     case LBRACE:
-                        JSONObject object = new JSONObject();
+                        JSONObject object;
+                        if ((lexer.features & Feature.OrderedField.mask) != 0) {
+                            object = new JSONObject(new LinkedHashMap<String, Object>());
+                        } else {
+                            object = new JSONObject();            
+                        }
                         value = parseObject(object, i);
                         break;
                     case LBRACKET:
@@ -1207,7 +1223,12 @@ public class DefaultJSONParser implements Closeable {
                 parseArray(array, fieldName);
                 return array;
             case LBRACE:
-                JSONObject object = new JSONObject();
+                JSONObject object;
+                if ((lexer.features & Feature.OrderedField.mask) != 0) {
+                    object = new JSONObject(new LinkedHashMap<String, Object>());
+                } else {
+                    object = new JSONObject();            
+                }
                 return parseObject(object, fieldName);
             case LITERAL_INT:
                 Number intValue = lexer.integerValue();

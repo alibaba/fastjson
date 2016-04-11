@@ -193,6 +193,10 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             }
 
             if (token != JSONToken.LBRACE && token != JSONToken.COMMA) {
+                if (lexer.isBlankInput()) {
+                    return null;
+                }
+                
                 StringBuffer buf = (new StringBuffer()) //
                                                         .append("syntax error, expect {, actual ") //
                                                         .append(lexer.tokenName()) //
@@ -204,6 +208,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         .append(", fieldName ") //
                         .append(fieldName);
                 }
+                
                 throw new JSONException(buf.toString());
             }
 

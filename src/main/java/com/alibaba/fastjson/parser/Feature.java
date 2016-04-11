@@ -84,7 +84,12 @@ public enum Feature {
      * @since 1.1.35
      * 
      */
-    SupportArrayToBean
+    SupportArrayToBean,
+    
+    /**
+     * @since 1.2.5, backport to 1.1.49.android
+     */
+    OrderedField
     ;
 
     private Feature(){

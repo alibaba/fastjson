@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
@@ -51,8 +52,13 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             if (clazz.isInterface()) {
                 Class<?> clazz = (Class<?>) type;
                 ClassLoader loader = Thread.currentThread().getContextClassLoader();
-                final JSONObject obj = new JSONObject();
-                Object proxy = Proxy.newProxyInstance(loader, new Class<?>[] { clazz }, obj);
+                JSONObject object;
+                if ((parser.lexer.features & Feature.OrderedField.mask) != 0) {
+                    object = new JSONObject(new LinkedHashMap<String, Object>());
+                } else {
+                    object = new JSONObject();            
+                }
+                Object proxy = Proxy.newProxyInstance(loader, new Class<?>[] { clazz }, object);
                 return proxy;
             }
         }

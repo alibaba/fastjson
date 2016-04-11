@@ -49,6 +49,21 @@ public abstract class FieldDeserializer {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void setValue(Object object, Object value) {
+        if (value == null) {
+            Class<?> fieldClass = fieldInfo.fieldClass;
+            if (fieldClass == byte.class //
+                    || fieldClass == short.class //
+                    || fieldClass == int.class //
+                    || fieldClass == long.class //
+                    || fieldClass == float.class //
+                    || fieldClass == double.class //
+                    || fieldClass == boolean.class //
+                    || fieldClass == char.class //
+                    ) {
+                return;
+            }
+        }
+        
         Method method = fieldInfo.method;
         if (method != null) {
             try {

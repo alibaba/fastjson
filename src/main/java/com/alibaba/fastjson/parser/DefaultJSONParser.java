@@ -989,7 +989,7 @@ public class DefaultJSONParser implements Closeable {
     }
 
     @SuppressWarnings("rawtypes")
-    public void checkMapResolve(Map object, String fieldName) {
+    public void checkMapResolve(Map object, Object fieldName) {
         if (resolveStatus == NeedToResolve) {
             ResolveFieldDeserializer fieldResolver = new ResolveFieldDeserializer(object, fieldName);
             ResolveTask task = getLastResolveTask();
@@ -1366,25 +1366,25 @@ public class DefaultJSONParser implements Closeable {
         int size = resolveTaskList.size();
         for (int i = 0; i < size; ++i) {
             ResolveTask task = resolveTaskList.get(i);
-            FieldDeserializer fieldDeser = task.fieldDeserializer;
-
-            if (fieldDeser == null) {
-                continue;
-            }
+            String ref = task.referenceValue;
 
             Object object = null;
             if (task.ownerContext != null) {
                 object = task.ownerContext.object;
             }
 
-            String ref = task.referenceValue;
             Object refValue;
             if (ref.startsWith("$")) {
                 refValue = getObject(ref);
             } else {
                 refValue = task.context.object;
             }
-            fieldDeser.setValue(object, refValue);
+            
+            FieldDeserializer fieldDeser = task.fieldDeserializer;
+
+            if (fieldDeser != null) {
+                fieldDeser.setValue(object, refValue);
+            }
         }
     }
 

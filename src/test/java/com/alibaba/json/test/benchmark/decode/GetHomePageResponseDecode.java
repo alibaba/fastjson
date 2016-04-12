@@ -19,7 +19,7 @@ public class GetHomePageResponseDecode extends BenchmarkCase {
     }
     
     public void init(Codec codec) throws Exception {
-        InputStream is = GetHomePageResponseDecode.class.getClassLoader().getResourceAsStream("json/taobao/homepage.json");
+        InputStream is = GetHomePageResponseDecode.class.getClassLoader().getResourceAsStream("json/taobao/homepage_1.json");
         text = toString(is);
         is.close();
     }

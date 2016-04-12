@@ -27,5 +27,5 @@ public class Item  {
 	public Boolean exposure;
 	public Boolean valid;
 	
-	public Integer shopId;
+	public int shopId;
 }

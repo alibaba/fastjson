@@ -205,9 +205,9 @@ public final class JSONLexer {
     private char charAt(int index) {
         if (index >= len) {
             return EOI;
+        } else {
+            return text.charAt(index);
         }
-
-        return text.charAt(index);
     }
     
     public final void nextToken() {
@@ -2072,7 +2072,14 @@ public final class JSONLexer {
         }
 
         bp = bp + fieldName.length;
-        ch = charAt(bp);
+        // ch = charAt(bp);
+        {
+            if (bp >= len) {
+                throw new JSONException("unclosed str");
+            } else {
+                ch = text.charAt(bp);
+            }
+        }
 
         if (ch == '{') {
             {
@@ -2407,7 +2414,15 @@ public final class JSONLexer {
         // int index = bp + fieldName.length;
 
         int offset = fieldName.length;
-        char chLocal = charAt(bp + (offset++));
+        char chLocal;// = charAt(bp + (offset++));
+        {
+            int index = bp + (offset++);
+            if (index >= len) {
+                throw new JSONException("unclosed str");
+            } else {
+                chLocal = text.charAt(index);
+            }
+        }
 
         if (chLocal != '"') {
             matchStat = NOT_MATCH;
@@ -2426,7 +2441,7 @@ public final class JSONLexer {
             int startIndex2 = bp + fieldName.length + 1; // must re compute
             String stringVal = subString(startIndex2, endIndex - startIndex2);
             int firstSpecalIndex = -1;
-            for (int i = 0; i < stringVal.length(); ++i) {
+            for (int i = 0, len = stringVal.length(); i < len; ++i) {
 //            for (int i = bp + fieldName.length + 1; i < endIndex; ++i) {
 //                if (charAt(i) == '\\') {
                 if (stringVal.charAt(i) == '\\') {
@@ -2549,7 +2564,15 @@ public final class JSONLexer {
                 chLocal = charAt(bp + (offset++));
             } else {
                 offset += (endIndex - (bp + fieldName.length + 1) + 1);
-                chLocal = charAt(bp + (offset++));
+                // chLocal = charAt(bp + (offset++));
+                {
+                    int index = bp + (offset++);
+                    if (index >= len) {
+                        throw new JSONException("unclosed str");
+                    } else {
+                        chLocal = text.charAt(index);
+                    }
+                }
                 strVal = stringVal;
             }
         }
@@ -2609,7 +2632,15 @@ public final class JSONLexer {
         }
 
         int offset = fieldName.length;
-        char chLocal = charAt(bp + (offset++));
+        char chLocal; // = charAt(bp + (offset++));
+        {
+            int index = bp + (offset++);
+            if (index >= len) {
+                throw new JSONException("unclosed str");
+            } else {
+                chLocal = text.charAt(index);
+            }
+        }
         
         boolean quote = false;
         if (chLocal == '"') {

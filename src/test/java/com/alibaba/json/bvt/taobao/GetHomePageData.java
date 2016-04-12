@@ -7,7 +7,7 @@ import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.json.bvt.taobao.puti.model.Section;
 
 // section, interval, timestamp, WriteCacheTimestamp, digest, userId, way, 
-@JSONType(orders={"section", "interval", "timeStamp", "traceId", "digest", "way", "WriteCacheTimestamp", "userId"})
+// @JSONType(orders={"section", "interval", "timeStamp", "traceId", "digest", "way", "WriteCacheTimestamp", "userId"})
 public class GetHomePageData  {
 
 	//private static final long serialVersionUID = -684313709852285893L;

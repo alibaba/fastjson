@@ -2415,7 +2415,6 @@ public final class JSONLexer {
             return stringDefaultValue();
         }
 
-        boolean hasSpecial = false;
         final String strVal;
         {
             int startIndex = bp + fieldName.length + 1;
@@ -2426,22 +2425,133 @@ public final class JSONLexer {
 
             int startIndex2 = bp + fieldName.length + 1; // must re compute
             String stringVal = subString(startIndex2, endIndex - startIndex2);
-            for (int i = bp + fieldName.length + 1; i < endIndex; ++i) {
-                if (charAt(i) == '\\') {
-                    hasSpecial = true;
+            int firstSpecalIndex = -1;
+            for (int i = 0; i < stringVal.length(); ++i) {
+//            for (int i = bp + fieldName.length + 1; i < endIndex; ++i) {
+//                if (charAt(i) == '\\') {
+                if (stringVal.charAt(i) == '\\') {
+                    firstSpecalIndex = i;
                     break;
                 }
             }
 
-            if (hasSpecial) {
-                matchStat = NOT_MATCH;
+            if (firstSpecalIndex != -1) {
+                sp = 0;
+                int i = bp + offset;
+                for (; i < len; ++i) {
+                    char ch = text.charAt(i);
+                    
+                    if (ch == '\"') {
+                        break;
+                    }
+                    
+                    if (ch == '\\') {
+                        ++i;
+                        ch = text.charAt(i);
+                        if (i >= len){
+                            matchStat = NOT_MATCH;
+                            return stringDefaultValue();
+                        }
+                        ch = text.charAt(i);
+                        switch (ch) {
+                            case '0':
+                                putChar('\0');
+                                break;
+                            case '1':
+                                putChar('\1');
+                                break;
+                            case '2':
+                                putChar('\2');
+                                break;
+                            case '3':
+                                putChar('\3');
+                                break;
+                            case '4':
+                                putChar('\4');
+                                break;
+                            case '5':
+                                putChar('\5');
+                                break;
+                            case '6':
+                                putChar('\6');
+                                break;
+                            case '7':
+                                putChar('\7');
+                                break;
+                            case 'b': // 8
+                                putChar('\b');
+                                break;
+                            case 't': // 9
+                                putChar('\t');
+                                break;
+                            case 'n': // 10
+                                putChar('\n');
+                                break;
+                            case 'v': // 11
+                                putChar('\u000B');
+                                break;
+                            case 'f': // 12
+                            case 'F':
+                                putChar('\f');
+                                break;
+                            case 'r': // 13
+                                putChar('\r');
+                                break;
+                            case '"': // 34
+                                putChar('"');
+                                break;
+                            case '\'': // 39
+                                putChar('\'');
+                                break;
+                            case '/': // 47
+                                putChar('/');
+                                break;
+                            case '\\': // 92
+                                putChar('\\');
+                                break;
+                            case 'x':
+                                if (i + 2 >= len){
+                                    matchStat = NOT_MATCH;
+                                    return stringDefaultValue();
+                                }
+                                char x1 = ch = text.charAt(i + 1);
+                                char x2 = ch = text.charAt(i + 2);
+                                i += 2;
 
-                return stringDefaultValue();
+                                int x_val = digits[x1] * 16 + digits[x2];
+                                char x_char = (char) x_val;
+                                putChar(x_char);
+                                break;
+                            case 'u':
+                                if (i + 4 >= len){
+                                    matchStat = NOT_MATCH;
+                                    return stringDefaultValue();
+                                }
+                                char u1 = ch = text.charAt(i + 1);
+                                char u2 = ch = text.charAt(i + 2);
+                                char u3 = ch = text.charAt(i + 3);
+                                char u4 = ch = text.charAt(i + 4);
+                                i += 4;
+                                int val = Integer.parseInt(new String(new char[] { u1, u2, u3, u4 }), 16);
+                                putChar((char) val);
+                                break;
+                            default:
+                                throw new JSONException("unclosed string : " + ch);
+                        }
+                    } else {
+                        putChar(ch);
+                    }
+                }
+                this.hasSpecial = true;
+                strVal = stringVal();
+                
+                offset = (i - bp) + 1;
+                chLocal = charAt(bp + (offset++));
+            } else {
+                offset += (endIndex - (bp + fieldName.length + 1) + 1);
+                chLocal = charAt(bp + (offset++));
+                strVal = stringVal;
             }
-
-            offset += (endIndex - (bp + fieldName.length + 1) + 1);
-            chLocal = charAt(bp + (offset++));
-            strVal = stringVal;
         }
 
         if (chLocal == ',') {

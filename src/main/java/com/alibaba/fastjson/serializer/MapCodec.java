@@ -468,7 +468,8 @@ public final class MapCodec implements ObjectSerializer, ObjectDeserializer {
                 lexer.nextToken();
 
                 Object value = valueDeserializer.deserialze(parser, valueType, key);
-
+                parser.checkMapResolve(map, key);
+                
                 map.put(key, value);
 
                 if (lexer.token() == JSONToken.COMMA) {

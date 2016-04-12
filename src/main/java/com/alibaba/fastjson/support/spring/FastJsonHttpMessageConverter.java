@@ -14,6 +14,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<Object> {
@@ -23,6 +24,8 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
     private Charset             charset  = UTF8;
 
     private SerializerFeature[] features = new SerializerFeature[0];
+    
+    protected SerializeFilter[] serialzeFilters = new SerializeFilter[0];
 
     public FastJsonHttpMessageConverter(){
         super(new MediaType("application", "json", UTF8), new MediaType("application", "*+json", UTF8));
@@ -76,11 +79,21 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
     @Override
     protected void writeInternal(Object obj, HttpOutputMessage outputMessage) throws IOException,
                                                                              HttpMessageNotWritableException {
-
         OutputStream out = outputMessage.getBody();
-        String text = JSON.toJSONString(obj, features);
+        String text = JSON.toJSONString(obj, serialzeFilters, features);
         byte[] bytes = text.getBytes(charset);
         out.write(bytes);
     }
 
+    public void addSerializeFilter(SerializeFilter filter) {
+        if (filter == null) {
+            return;
+        }
+        
+        SerializeFilter[] filters = new SerializeFilter[this.serialzeFilters.length + 1];
+        System.arraycopy(this.serialzeFilters, 0, filter, 0, this.serialzeFilters.length);
+        filters[filters.length - 1] = filter;
+        this.serialzeFilters = filters;
+    }
+    
 }

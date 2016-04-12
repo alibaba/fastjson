@@ -976,7 +976,7 @@ public class DefaultJSONParser implements Closeable {
     }
 
     @SuppressWarnings("rawtypes")
-    public void checkMapResolve(Map object, String fieldName) {
+    public void checkMapResolve(Map object, Object fieldName) {
         if (resolveStatus == NeedToResolve) {
             ResolveFieldDeserializer fieldResolver = new ResolveFieldDeserializer(object, fieldName);
             ResolveTask task = getLastResolveTask();

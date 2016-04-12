@@ -419,32 +419,30 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             fieldValues.put(fieldInfo.name, fieldValue);
                         } else if (fieldValue == null) {
                             if (fieldClass == int.class || fieldClass == Integer.class) {
-                                if (fieldInfo.fieldAccess) {
+                                if (fieldInfo.fieldAccess && fieldClass == int.class) {
                                     fieldDeser.setValue(object, fieldValueInt);
                                 } else {
                                     fieldDeser.setValue(object, Integer.valueOf(fieldValueInt));
                                 }
                             } else if (fieldClass == long.class || fieldClass == Long.class) {
-                                if (fieldInfo.fieldAccess) {
+                                if (fieldInfo.fieldAccess && fieldClass == long.class) {
                                     fieldDeser.setValue(object, fieldValueLong);
                                 } else {
                                     fieldDeser.setValue(object, Long.valueOf(fieldValueLong));
                                 }
                             } else if (fieldClass == float.class || fieldClass == Float.class) {
-                                if (fieldInfo.fieldAccess) {
+                                if (fieldInfo.fieldAccess && fieldClass == float.class) {
                                     fieldDeser.setValue(object, fieldValueFloat);
                                 } else {
                                     fieldDeser.setValue(object, new Float(fieldValueFloat));
                                 }
                             } else if (fieldClass == double.class || fieldClass == Double.class) {
-                                if (fieldInfo.fieldAccess) {
+                                if (fieldInfo.fieldAccess && fieldClass == double.class) {
                                     fieldDeser.setValue(object, fieldValueDouble);
                                 } else {
                                     fieldDeser.setValue(object, new Double(fieldValueDouble));
                                 }
-                            } else if (fieldClass != float.class //
-                                    && fieldClass != double.class //
-                                    && fieldClass != boolean.class //
+                            } else if (fieldClass != boolean.class //
                                     ) {
                                 fieldDeser.setValue(object, fieldValue);
                             }

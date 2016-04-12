@@ -6,9 +6,9 @@ import java.util.Map;
 
 import com.alibaba.fastjson.annotation.JSONType;
 
-@JSONType(orders={"tracked", "template", "templateUrl", "version", "hideOnError" //
-                  , "items", "type", "group", "sections", "way" //
-                  , "id", "trackParam", "preload", "deleteId", "valid"})
+//@JSONType(orders={"tracked", "template", "templateUrl", "version", "hideOnError" //
+//                  , "items", "type", "group", "sections", "way" //
+//                  , "id", "trackParam", "preload", "deleteId", "valid"})
 public class Section{
     public  boolean tracked;
 

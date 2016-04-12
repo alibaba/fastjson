@@ -9,10 +9,10 @@ import com.alibaba.fastjson.annotation.JSONType;
 /**
  * 卡槽
  * */
-@JSONType(orders={"title", "imageUrl", "targetUrl", "extra", "bizType", "extras", // 
-                  "trackParam", "id", "trackParamProps", //
-                  "exposure", "valid"
-                  })
+//@JSONType(orders={"title", "imageUrl", "targetUrl", "extra", "bizType", "extras", // 
+//                  "trackParam", "id", "trackParamProps", //
+//                  "exposure", "valid"
+//                  })
 public class Item  {
 
     public List<Text> title; // 标题
@@ -27,4 +27,5 @@ public class Item  {
 	public Boolean exposure;
 	public Boolean valid;
 	
+	public Integer shopId;
 }

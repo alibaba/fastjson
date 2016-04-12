@@ -456,8 +456,6 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                 serializer.config(feature, true);
             }
 
-            serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
-
             setFilter(serializer, filters);
 
             serializer.write(object);

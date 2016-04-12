@@ -567,12 +567,17 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             boolean startsWithIs = key.startsWith("is");
             
             for (FieldDeserializer fieldDeser : sortedFieldDeserializers) {
-                if (fieldDeser.fieldInfo.name.equalsIgnoreCase(key)) {
+                FieldInfo fieldInfo = fieldDeser.fieldInfo;
+                Class<?> fieldClass = fieldInfo.fieldClass;
+                String fieldName = fieldInfo.name;
+                if (fieldName.equalsIgnoreCase(key)) {
                     fieldDeserializer = fieldDeser;
                     break;
                 }
                 
-                if (startsWithIs && fieldDeser.fieldInfo.name.equalsIgnoreCase(key.substring(2))) {
+                if (startsWithIs //
+                        && (fieldClass == boolean.class || fieldClass == Boolean.class) //
+                        && fieldName.equalsIgnoreCase(key.substring(2))) {
                     fieldDeserializer = fieldDeser;
                     break;
                 }

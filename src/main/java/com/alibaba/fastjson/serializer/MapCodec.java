@@ -463,6 +463,7 @@ public class MapCodec implements ObjectSerializer, ObjectDeserializer {
                 lexer.nextToken(valueDeserializer.getFastMatchToken());
 
                 Object value = valueDeserializer.deserialze(parser, valueType, key);
+                parser.checkMapResolve(map, key);
 
                 map.put(key, value);
 

@@ -21,6 +21,7 @@ import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.TypeUtils;
 
 class JavaBeanInfo {
+
     final Constructor<?> defaultConstructor;
     final int            defaultConstructorParameterSize;
     final Constructor<?> creatorConstructor;
@@ -29,25 +30,108 @@ class JavaBeanInfo {
     final FieldInfo[]    fields;
     final FieldInfo[]    sortedFields;
     final JSONType       jsonType;
+    boolean              ordered = false;
 
     JavaBeanInfo(Class<?> clazz, //
-                               Constructor<?> defaultConstructor, //
-                               Constructor<?> creatorConstructor, //
-                               Method factoryMethod, //
-                               FieldInfo[] fields, //
-                               FieldInfo[] sortedFields
-                               ){
-        
+                 Constructor<?> defaultConstructor, //
+                 Constructor<?> creatorConstructor, //
+                 Method factoryMethod, //
+                 FieldInfo[] fields, //
+                 FieldInfo[] sortedFields){
+
         this.defaultConstructor = defaultConstructor;
         this.creatorConstructor = creatorConstructor;
         this.factoryMethod = factoryMethod;
         this.fields = fields;
-        
-        this.sortedFields = (Arrays.equals(fields, sortedFields)) ? fields : sortedFields;
-        
         this.jsonType = clazz.getAnnotation(JSONType.class);
-        
+
+        sortedFields = computeSortedFields(fields, sortedFields);
+        this.sortedFields = (Arrays.equals(fields, sortedFields)) ? fields : sortedFields;
+
         defaultConstructorParameterSize = defaultConstructor != null ? defaultConstructor.getParameterTypes().length : 0;
+    }
+
+    protected FieldInfo[] computeSortedFields(FieldInfo[] fields, FieldInfo[] sortedFields) {
+        if (jsonType == null) {
+            return sortedFields;
+        }
+        
+        String[] orders = jsonType.orders();
+        if (orders != null && orders.length != 0) {
+            boolean containsAll = true;
+            for (int i = 0; i < orders.length; ++i) {
+                boolean got = false;
+                for (int j = 0; j < sortedFields.length; ++j) {
+                    if (sortedFields[j].name.equals(orders[i])) {
+                        got = true;
+                        break;
+                    }
+                }
+                if (!got) {
+                    containsAll = false;
+                    break;
+                }
+            }
+            
+            if (!containsAll) {
+                return sortedFields;
+            }
+
+            if (orders.length == fields.length) {
+                boolean orderMatch = true;
+                for (int i = 0; i < orders.length; ++i) {
+                    if (!sortedFields[i].name.equals(orders[i])) {
+                        orderMatch = false;
+                        break;
+                    }
+                }
+                
+                if (orderMatch) {
+                    return sortedFields;
+                }
+                
+                FieldInfo[] newSortedFields = new FieldInfo[sortedFields.length];
+                for (int i = 0; i < orders.length; ++i) {
+                    for (int j = 0; j < sortedFields.length; ++j) {
+                        if (sortedFields[j].name.equals(orders[i])) {
+                            newSortedFields[i] = sortedFields[j];
+                            break;
+                        }
+                    }
+                }
+                sortedFields = newSortedFields;
+                ordered = true;
+                return newSortedFields;
+            }
+            
+            FieldInfo[] newSortedFields = new FieldInfo[sortedFields.length];
+            for (int i = 0; i < orders.length; ++i) {
+                for (int j = 0; j < sortedFields.length; ++j) {
+                    if (sortedFields[j].name.equals(orders[i])) {
+                        newSortedFields[i] = sortedFields[j];
+                        break;
+                    }
+                }
+            }
+            
+            int fieldIndex = orders.length;
+            for (int i = 0; i < sortedFields.length; ++i) {
+                boolean contains = false;
+                for (int j = 0; j < newSortedFields.length && j < fieldIndex; ++j) {
+                    if (newSortedFields[i].equals(sortedFields[j])) {
+                        contains = true;
+                        break;
+                    }
+                }
+                if (!contains) {
+                    newSortedFields[fieldIndex] = sortedFields[i];
+                    fieldIndex++;
+                }
+            }
+            ordered = true;
+        }
+
+        return sortedFields;
     }
 
     static boolean addField(List<FieldInfo> fields, FieldInfo field) {
@@ -56,11 +140,11 @@ class JavaBeanInfo {
                 if (item.getOnly && !field.getOnly) {
                     continue;
                 }
-                
+
                 return false;
             }
         }
-        
+
         fields.add(field);
 
         return true;
@@ -68,14 +152,14 @@ class JavaBeanInfo {
 
     public static JavaBeanInfo build(Class<?> clazz, Type type) {
         List<FieldInfo> fieldList = new ArrayList<FieldInfo>();
-        
-        //DeserializeBeanInfo beanInfo = null;
+
+        // DeserializeBeanInfo beanInfo = null;
         Constructor<?> defaultConstructor = getDefaultConstructor(clazz);
         Constructor<?> creatorConstructor = null;
         Method[] methods = clazz.getMethods();
         Field[] declaredFields = clazz.getDeclaredFields();
         final int modifiers = clazz.getModifiers();
-        
+
         if (defaultConstructor == null && !(clazz.isInterface() || (modifiers & Modifier.ABSTRACT) != 0)) {
             creatorConstructor = getCreatorConstructor(clazz);
             if (creatorConstructor != null) {
@@ -99,28 +183,28 @@ class JavaBeanInfo {
                     Class<?> fieldClass = parameterTypes[i];
                     Type fieldType = getGenericParameterTypes[i];
                     Field field = TypeUtils.getField(clazz, fieldAnnotation.name(), declaredFields);
-                    
+
                     if (field != null) {
                         TypeUtils.setAccessible(clazz, field, modifiers);
                     }
-                    
+
                     final int ordinal = fieldAnnotation.ordinal();
                     final int serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
                     FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, field,
                                                         ordinal, serialzeFeatures);
                     addField(fieldList, fieldInfo);
                 }
-                
+
                 FieldInfo[] fields = new FieldInfo[fieldList.size()];
                 fieldList.toArray(fields);
-                
+
                 FieldInfo[] sortedFields = new FieldInfo[fields.length];
                 System.arraycopy(fields, 0, sortedFields, 0, fields.length);
                 Arrays.sort(sortedFields);
 
                 return new JavaBeanInfo(clazz, null, creatorConstructor, null, fields, sortedFields);
-            } 
-            
+            }
+
             Method factoryMethod = getFactoryMethod(clazz, methods);
             if (factoryMethod != null) {
                 TypeUtils.setAccessible(clazz, factoryMethod, modifiers);
@@ -154,29 +238,29 @@ class JavaBeanInfo {
                                                         , serialzeFeatures);
                     addField(fieldList, fieldInfo);
                 }
-                
+
                 FieldInfo[] fields = new FieldInfo[fieldList.size()];
                 fieldList.toArray(fields);
-                
+
                 FieldInfo[] sortedFields = new FieldInfo[fields.length];
                 System.arraycopy(fields, 0, sortedFields, 0, fields.length);
                 Arrays.sort(sortedFields);
-                
+
                 if (Arrays.equals(fields, sortedFields)) {
                     sortedFields = fields;
                 }
-                
+
                 JavaBeanInfo beanInfo = new JavaBeanInfo(clazz, null, null, factoryMethod, fields, sortedFields);
                 return beanInfo;
             }
 
             throw new JSONException("default constructor not found. " + clazz);
         }
-        
+
         if (defaultConstructor != null) {
             TypeUtils.setAccessible(clazz, defaultConstructor, modifiers);
         }
-        
+
         for (Method method : methods) {
             int ordinal = 0, serialzeFeatures = 0;
             String methodName = method.getName();
@@ -189,7 +273,7 @@ class JavaBeanInfo {
             }
 
             // support builder set
-            
+
             Class<?> returnType = method.getReturnType();
             if (!(returnType == Void.TYPE || returnType == clazz)) {
                 continue;
@@ -198,7 +282,7 @@ class JavaBeanInfo {
             if (method.getParameterTypes().length != 1) {
                 continue;
             }
-            
+
             if (method.getDeclaringClass() == Object.class) {
                 continue;
             }
@@ -219,7 +303,8 @@ class JavaBeanInfo {
 
                 if (annotation.name().length() != 0) {
                     String propertyName = annotation.name();
-                    addField(fieldList, new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures, annotation, null));
+                    addField(fieldList, new FieldInfo(propertyName, method, null, clazz, type, ordinal,
+                                                      serialzeFeatures, annotation, null));
                     TypeUtils.setAccessible(clazz, method, modifiers);
                     continue;
                 }
@@ -263,13 +348,15 @@ class JavaBeanInfo {
 
                     if (fieldAnnotation.name().length() != 0) {
                         propertyName = fieldAnnotation.name();
-                        addField(fieldList, new FieldInfo(propertyName, method, field, clazz, type, ordinal, serialzeFeatures, annotation, fieldAnnotation));
+                        addField(fieldList, new FieldInfo(propertyName, method, field, clazz, type, ordinal,
+                                                          serialzeFeatures, annotation, fieldAnnotation));
                         continue;
                     }
                 }
 
             }
-            addField(fieldList, new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures, annotation, null));
+            addField(fieldList, new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures,
+                                              annotation, null));
             TypeUtils.setAccessible(clazz, method, modifiers);
         }
 
@@ -305,7 +392,8 @@ class JavaBeanInfo {
                 }
             }
             TypeUtils.setAccessible(clazz, field, modifiers);
-            addField(fieldList, new FieldInfo(propertyName, null, field, clazz, type, ordinal, serialzeFeatures, null, fieldAnnotation));
+            addField(fieldList, new FieldInfo(propertyName, null, field, clazz, type, ordinal, serialzeFeatures, null,
+                                              fieldAnnotation));
         }
 
         for (Method method : clazz.getMethods()) {
@@ -328,7 +416,7 @@ class JavaBeanInfo {
                     || Map.class.isAssignableFrom(methodReturnType) //
                 ) {
                     String propertyName;
-                    
+
                     JSONField annotation = method.getAnnotation(JSONField.class);
                     String annotationName;
                     if (annotation != null && (annotationName = annotation.name()).length() > 0) {
@@ -345,11 +433,11 @@ class JavaBeanInfo {
 
         FieldInfo[] fields = new FieldInfo[fieldList.size()];
         fieldList.toArray(fields);
-        
+
         FieldInfo[] sortedFields = new FieldInfo[fields.length];
         System.arraycopy(fields, 0, sortedFields, 0, fields.length);
         Arrays.sort(sortedFields);
-        
+
         return new JavaBeanInfo(clazz, defaultConstructor, null, null, fields, sortedFields);
     }
 
@@ -367,13 +455,11 @@ class JavaBeanInfo {
             }
         }
 
-        
         if (defaultConstructor == null) {
-            if (clazz.isMemberClass() && (classModifiers & Modifier.STATIC) == 0) {  // for inner none static class
+            if (clazz.isMemberClass() && (classModifiers & Modifier.STATIC) == 0) { // for inner none static class
                 for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
                     Class<?>[] parameterTypes = constructor.getParameterTypes();
-                    if (parameterTypes.length == 1
-                        && parameterTypes[0].equals(clazz.getDeclaringClass())) {
+                    if (parameterTypes.length == 1 && parameterTypes[0].equals(clazz.getDeclaringClass())) {
                         defaultConstructor = constructor;
                         break;
                     }

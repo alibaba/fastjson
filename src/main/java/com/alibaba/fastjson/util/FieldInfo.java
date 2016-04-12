@@ -279,6 +279,16 @@ public class FieldInfo implements Comparable<FieldInfo> {
         return this.name.compareTo(o.name);
     }
     
+    public boolean equals(FieldInfo o) {
+        if (o == this) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        return this.compareTo(o) == 0;
+    }
+    
     public JSONField getAnnotation() {
         if (this.fieldAnnotation != null) {
             return this.fieldAnnotation;

@@ -74,7 +74,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     protected Calendar                                      calendar           = null;
 
-    public int                                              matchStat          = UNKOWN;
+    public int                                              matchStat          = UNKNOWN;
 
     private final SoftReference<char[]>                     sbufRef;
     private final static ThreadLocal<SoftReference<char[]>> SBUF_REF_LOCAL     = new ThreadLocal<SoftReference<char[]>>();
@@ -1060,7 +1060,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     protected final static char[] typeFieldName = ("\"" + JSON.DEFAULT_TYPE_KEY + "\":\"").toCharArray();
 
     public int scanType(String type) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         if (!charArrayCompare(typeFieldName)) {
             return NOT_MATCH_NAME;
@@ -1135,7 +1135,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     public abstract String addSymbol(int offset, int len, int hash, final SymbolTable symbolTable);
 
     public String scanFieldString(char[] fieldName) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         if (!charArrayCompare(fieldName)) {
             matchStat = NOT_MATCH_NAME;
@@ -1221,7 +1221,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     }
 
     public String scanString(char expectNextChar) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         int offset = 0;
         char chLocal = charAt(bp + (offset++));
@@ -1292,7 +1292,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     }
 
     public String scanFieldSymbol(char[] fieldName, final SymbolTable symbolTable) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         if (!charArrayCompare(fieldName)) {
             matchStat = NOT_MATCH_NAME;
@@ -1378,7 +1378,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     }
 
     public String scanSymbolWithSeperator(final SymbolTable symbolTable, char serperator) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         int offset = 0;
         char chLocal = charAt(bp + (offset++));
@@ -1444,7 +1444,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     @SuppressWarnings("unchecked")
     public Collection<String> scanFieldStringArray(char[] fieldName, Class<?> type) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         if (!charArrayCompare(fieldName)) {
             matchStat = NOT_MATCH_NAME;
@@ -1559,7 +1559,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     @SuppressWarnings("unchecked")
     public Collection<String> scanStringArray(Class<?> type, char seperator) {
         Collection<String> list = TypeUtils.createCollection(type);
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         int offset = 0;
         char chLocal = charAt(bp + (offset++));
@@ -1651,7 +1651,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     }
 
     public int scanFieldInt(char[] fieldName) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         if (!charArrayCompare(fieldName)) {
             matchStat = NOT_MATCH_NAME;
@@ -1724,7 +1724,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     }
 
     public boolean scanBoolean(char expectNext) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         int offset = 0;
         char chLocal = charAt(bp + (offset++));
@@ -1767,7 +1767,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     }
 
     public int scanInt(char expectNext) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         int offset = 0;
         char chLocal = charAt(bp + (offset++));
@@ -1808,7 +1808,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     }
 
     public boolean scanFieldBoolean(char[] fieldName) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         if (!charArrayCompare(fieldName)) {
             matchStat = NOT_MATCH_NAME;
@@ -1900,7 +1900,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     }
 
     public long scanFieldLong(char[] fieldName) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         if (!charArrayCompare(fieldName)) {
             matchStat = NOT_MATCH_NAME;
@@ -1973,7 +1973,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     }
 
     public long scanLong(char expectNextChar) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         int offset = 0;
         char chLocal = charAt(bp + (offset++));
@@ -2014,7 +2014,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     }
 
     public final float scanFieldFloat(char[] fieldName) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         if (!charArrayCompare(fieldName)) {
             matchStat = NOT_MATCH_NAME;
@@ -2101,7 +2101,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     }
 
     public final float scanFloat(char seperator) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         int offset = 0;
         char chLocal = charAt(bp + (offset++));
@@ -2156,7 +2156,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     }
 
     public final double scanFieldDouble(char[] fieldName) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         if (!charArrayCompare(fieldName)) {
             matchStat = NOT_MATCH_NAME;
@@ -2257,7 +2257,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     }
 
     public final double scanFieldDouble(char seperator) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         int offset = 0;
         char chLocal = charAt(bp + (offset++));

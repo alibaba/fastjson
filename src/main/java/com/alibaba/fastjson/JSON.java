@@ -167,8 +167,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             return null;
         }
 
-        for (Feature featrue : features) {
-            featureValues |= featrue.mask;
+        for (Feature feature : features) {
+            featureValues |= feature.mask;
         }
 
         DefaultJSONParser parser = new DefaultJSONParser(input, ParserConfig.global, featureValues);
@@ -193,8 +193,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             return null;
         }
 
-        for (Feature featrue : features) {
-            featureValues |= featrue.mask;
+        for (Feature feature : features) {
+            featureValues |= feature.mask;
         }
 
         DefaultJSONParser parser = new DefaultJSONParser(input, config, featureValues);

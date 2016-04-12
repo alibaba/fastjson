@@ -1576,7 +1576,8 @@ public class TypeUtils {
         Class<?> rawClass = getRawClass(type);
 
         Collection list;
-        if (rawClass == AbstractCollection.class) {
+        if (rawClass == AbstractCollection.class // 
+                || rawClass == Collection.class) {
             list = new ArrayList();
         } else if (rawClass.isAssignableFrom(HashSet.class)) {
             list = new HashSet();

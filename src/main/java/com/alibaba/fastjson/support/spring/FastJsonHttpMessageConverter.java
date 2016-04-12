@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
@@ -79,9 +80,11 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
     @Override
     protected void writeInternal(Object obj, HttpOutputMessage outputMessage) throws IOException,
                                                                              HttpMessageNotWritableException {
-        OutputStream out = outputMessage.getBody();
+        HttpHeaders headers=outputMessage.getHeaders();
         String text = JSON.toJSONString(obj, serialzeFilters, features);
         byte[] bytes = text.getBytes(charset);
+        headers.setContentLength(bytes.length);
+        OutputStream out = outputMessage.getBody();
         out.write(bytes);
     }
 

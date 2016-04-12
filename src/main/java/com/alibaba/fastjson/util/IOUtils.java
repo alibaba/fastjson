@@ -15,7 +15,11 @@
  */
 package com.alibaba.fastjson.util;
 
+import java.io.BufferedReader;
 import java.io.Closeable;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.lang.ref.SoftReference;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -589,5 +593,29 @@ public class IOUtils {
         char[] chars = new char[allocateLength];
         charsBufLocal.set(new SoftReference<char[]>(chars));
         return chars;
+    }
+    
+    public static String toString(InputStream in) throws Exception {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+        return readAll(reader);
+    }
+    
+    public static String readAll(Reader reader) {
+        StringBuilder buf = new StringBuilder();
+        
+        try {
+            char[] chars = new char[2048];
+            for (;;) {
+                int len = reader.read(chars, 0, chars.length);
+                if (len < 0) {
+                    break;
+                }
+                buf.append(chars, 0, len);
+            }
+        } catch(Exception ex) {
+            throw new JSONException("read string from reader error", ex);
+        }
+        
+        return buf.toString();
     }
 }

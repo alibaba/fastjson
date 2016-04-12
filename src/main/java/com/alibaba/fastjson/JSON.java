@@ -394,8 +394,6 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         try {
             JSONSerializer serializer = new JSONSerializer(out, SerializeConfig.globalInstance);
 
-            serializer.out.config(SerializerFeature.WriteDateUseDateFormat, true);
-
             setFilter(serializer, filters);
 
             serializer.write(object);

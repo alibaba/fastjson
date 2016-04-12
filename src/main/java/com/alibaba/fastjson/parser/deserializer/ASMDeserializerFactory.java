@@ -204,7 +204,7 @@ public class ASMDeserializerFactory implements Opcodes {
                     mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/parser/DefaultJSONParser", "accept",
                                        "(II)V");
 
-                    _newCollection(mw, fieldClass);
+                    _newCollection(mw, fieldClass, i);
                     mw.visitInsn(DUP);
                     mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
                     _getCollectionFieldItemDeser(context, mw, fieldInfo, itemClass);
@@ -877,7 +877,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ILOAD, context.var("fastMatchToken"));
         mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/parser/JSONLexerBase", "nextToken", "(I)V");
 
-        _newCollection(mw, fieldClass);
+        _newCollection(mw, fieldClass, i);
 
         mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
 
@@ -1002,7 +1002,7 @@ public class ASMDeserializerFactory implements Opcodes {
                           "Lcom/alibaba/fastjson/parser/deserializer/ObjectDeserializer;");
     }
 
-    private void _newCollection(MethodVisitor mw, Class<?> fieldClass) {
+    private void _newCollection(MethodVisitor mw, Class<?> fieldClass, int i) {
         if (fieldClass.isAssignableFrom(ArrayList.class)) {
             mw.visitTypeInsn(NEW, "java/util/ArrayList");
             mw.visitInsn(DUP);
@@ -1020,9 +1020,13 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitInsn(DUP);
             mw.visitMethodInsn(INVOKESPECIAL, getType(TreeSet.class), "<init>", "()V");
         } else {
-            mw.visitTypeInsn(NEW, getType(fieldClass));
-            mw.visitInsn(DUP);
-            mw.visitMethodInsn(INVOKESPECIAL, getType(fieldClass), "<init>", "()V");
+            mw.visitVarInsn(ALOAD, 0);
+            mw.visitLdcInsn(i);
+            mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/parser/deserializer/ASMJavaBeanDeserializer",
+                               "getFieldType", "(I)Ljava/lang/reflect/Type;");
+            mw.visitMethodInsn(INVOKESTATIC, "com/alibaba/fastjson/util/TypeUtils",
+                               "createCollection",
+                               "(Ljava/lang/reflect/Type;)Ljava/util/Collection;");
         }
         mw.visitTypeInsn(CHECKCAST, getType(fieldClass)); // cast
     }

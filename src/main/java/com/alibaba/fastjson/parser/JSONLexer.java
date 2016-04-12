@@ -2126,6 +2126,20 @@ public final class JSONLexer {
 
         int offset = fieldName.length;
         char chLocal = charAt(bp + (offset++));
+        
+        boolean quote = false;
+        if (chLocal == '"') {
+            quote = true;
+            
+            {
+                int index = bp + (offset++);
+                if (index >= len) {
+                    chLocal = EOI;
+                } else {
+                    chLocal = text.charAt(index);
+                }
+            }
+        }
 
         int value;
         if (chLocal >= '0' && chLocal <= '9') {
@@ -2137,6 +2151,18 @@ public final class JSONLexer {
                 } else if (chLocal == '.') {
                     matchStat = NOT_MATCH;
                     return 0;
+                } else if (chLocal == '\"') {
+                    if (!quote) {
+                        matchStat = NOT_MATCH;
+                        return 0;
+                    }
+                    int index = bp + (offset++);
+                    if (index >= len) {
+                        chLocal = EOI;
+                    } else {
+                        chLocal = text.charAt(index);
+                    }
+                    break;
                 } else {
                     break;
                 }
@@ -2242,6 +2268,21 @@ public final class JSONLexer {
         }
 
         long value;
+        
+        boolean quote = false;
+        if (chLocal == '"') {
+            quote = true;
+            
+            {
+                int index = bp + (offset++);
+                if (index >= len) {
+                    chLocal = EOI;
+                } else {
+                    chLocal = text.charAt(index);
+                }
+            }
+        }
+        
         if (chLocal >= '0' && chLocal <= '9') {
             value = digits[chLocal];
             for (;;) {
@@ -2259,6 +2300,18 @@ public final class JSONLexer {
                 } else if (chLocal == '.') {
                     matchStat = NOT_MATCH;
                     return 0;
+                } else if (chLocal == '\"') {
+                    if (!quote) {
+                        matchStat = NOT_MATCH;
+                        return 0;
+                    }
+                    int index = bp + (offset++);
+                    if (index >= len) {
+                        chLocal = EOI;
+                    } else {
+                        chLocal = text.charAt(index);
+                    }
+                    break;
                 } else {
                     break;
                 }
@@ -2447,6 +2500,20 @@ public final class JSONLexer {
 
         int offset = fieldName.length;
         char chLocal = charAt(bp + (offset++));
+        
+        boolean quote = false;
+        if (chLocal == '"') {
+            quote = true;
+            
+            {
+                int index = bp + (offset++);
+                if (index >= len) {
+                    chLocal = EOI;
+                } else {
+                    chLocal = text.charAt(index);
+                }
+            }
+        }
 
         boolean value;
         if (chLocal == 't') {
@@ -2461,6 +2528,20 @@ public final class JSONLexer {
             if (charAt(bp + (offset++)) != 'e') {
                 matchStat = NOT_MATCH;
                 return false;
+            }
+            
+            chLocal = charAt(bp + (offset));
+            if (chLocal == '\"') {
+                if (!quote) {
+                    matchStat = NOT_MATCH;
+                    return false;
+                }
+                int index = bp + (offset++);
+                if (index >= len) {
+                    chLocal = EOI;
+                } else {
+                    chLocal = text.charAt(index);
+                }
             }
 
             value = true;
@@ -2480,6 +2561,21 @@ public final class JSONLexer {
             if (charAt(bp + (offset++)) != 'e') {
                 matchStat = NOT_MATCH;
                 return false;
+            }
+            
+            chLocal = charAt(bp + (offset));
+            
+            if (chLocal == '\"') {
+                if (!quote) {
+                    matchStat = NOT_MATCH;
+                    return false;
+                }
+                int index = bp + (offset++);
+                if (index >= len) {
+                    chLocal = EOI;
+                } else {
+                    chLocal = text.charAt(index);
+                }
             }
 
             value = false;

@@ -528,6 +528,15 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             return null;
         }
         
+        if (beanInfo.ordered) {
+            for (int i = 0; i < sortedFieldDeserializers.length; ++i) {
+                if (sortedFieldDeserializers[i].fieldInfo.name.equalsIgnoreCase(key)) {
+                    return sortedFieldDeserializers[i];
+                }
+            }
+            return null;
+        }
+        
         int low = 0;
         int high = sortedFieldDeserializers.length - 1;
 

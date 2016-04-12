@@ -287,7 +287,7 @@ public class DefaultJSONParser implements Closeable {
 
                 lexer.sp = 0; // lexer.resetStringPosition();
 
-                if (key == JSON.DEFAULT_TYPE_KEY) {
+                if (key == JSON.DEFAULT_TYPE_KEY && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
                     String typeName = lexer.scanSymbol(symbolTable, '"');
                     Class<?> clazz = TypeUtils.loadClass(typeName, this.config.defaultClassLoader);
 
@@ -332,7 +332,7 @@ public class DefaultJSONParser implements Closeable {
                     return deserializer.deserialze(this, clazz, fieldName);
                 }
 
-                if (key == "$ref") {
+                if (key == "$ref" && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
                     lexer.nextToken(JSONToken.LITERAL_STRING);
                     if (lexer.token == JSONToken.LITERAL_STRING) {
                         String ref = lexer.stringVal();

@@ -89,7 +89,12 @@ public enum Feature {
     /**
      * @since 1.2.5, backport to 1.1.49.android
      */
-    OrderedField
+    OrderedField,
+    
+    /**
+     * @since 1.2.5, backport to 1.1.49.android
+     */
+    DisableSpecialKeyDetect
     ;
 
     private Feature(){

@@ -59,7 +59,7 @@ public final class SerializeWriter extends Writer {
     protected boolean disableCircularReferenceDetect;
     protected boolean beanToArray;
     protected boolean prettyFormat;
-    protected boolean wrtiteClassName;
+    protected boolean writeClassName;
     protected boolean skipTransientField;
     protected boolean notWriteRootClassName;
     protected boolean ignoreNonFieldGetter;
@@ -170,7 +170,7 @@ public final class SerializeWriter extends Writer {
         disableCircularReferenceDetect = (this.features & SerializerFeature.DisableCircularReferenceDetect.mask) != 0;
         beanToArray = (this.features & SerializerFeature.BeanToArray.mask) != 0;
         prettyFormat = (this.features & SerializerFeature.PrettyFormat.mask) != 0;
-        wrtiteClassName = (this.features & SerializerFeature.WriteClassName.mask) != 0;
+        writeClassName = (this.features & SerializerFeature.WriteClassName.mask) != 0;
         notWriteRootClassName = (this.features & SerializerFeature.NotWriteRootClassName.mask) != 0;
         skipTransientField = (this.features & SerializerFeature.SkipTransientField.mask) != 0;
         ignoreNonFieldGetter = (this.features & SerializerFeature.IgnoreNonFieldGetter.mask) != 0;

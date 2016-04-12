@@ -81,7 +81,7 @@ public final class JSONScanner extends JSONLexerBase {
     protected final static char[] typeFieldName = ("\"" + JSON.DEFAULT_TYPE_KEY + "\":\"").toCharArray();
 
     public final int scanType(String type) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         if (!charArrayCompare(text, bp, typeFieldName)) {
             return NOT_MATCH_NAME;
@@ -618,7 +618,7 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     public int scanFieldInt(char[] fieldName) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
         int startPos = this.bp;
         char startChar = this.ch;
 
@@ -692,7 +692,7 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     public String scanFieldString(char[] fieldName) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
         int startPos = this.bp;
         char startChar = this.ch;
 
@@ -780,7 +780,7 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     public String scanFieldSymbol(char[] fieldName, final SymbolTable symbolTable) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         if (!charArrayCompare(text, bp, fieldName)) {
             matchStat = NOT_MATCH_NAME;
@@ -848,7 +848,7 @@ public final class JSONScanner extends JSONLexerBase {
 
     @SuppressWarnings("unchecked")
     public Collection<String> scanFieldStringArray(char[] fieldName, Class<?> type) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         if (!charArrayCompare(text, bp, fieldName)) {
             matchStat = NOT_MATCH_NAME;
@@ -959,7 +959,7 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     public long scanFieldLong(char[] fieldName) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
         int startPos = this.bp;
         char startChar = this.ch;
 
@@ -1036,7 +1036,7 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     public boolean scanFieldBoolean(char[] fieldName) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         if (!charArrayCompare(text, bp, fieldName)) {
             matchStat = NOT_MATCH_NAME;

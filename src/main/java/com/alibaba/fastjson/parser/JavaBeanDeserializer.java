@@ -564,8 +564,15 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         FieldDeserializer fieldDeserializer = getFieldDeserializer(key);
 
         if (fieldDeserializer == null) {
+            boolean startsWithIs = key.startsWith("is");
+            
             for (FieldDeserializer fieldDeser : sortedFieldDeserializers) {
                 if (fieldDeser.fieldInfo.name.equalsIgnoreCase(key)) {
+                    fieldDeserializer = fieldDeser;
+                    break;
+                }
+                
+                if (startsWithIs && fieldDeser.fieldInfo.name.equalsIgnoreCase(key.substring(2))) {
                     fieldDeserializer = fieldDeser;
                     break;
                 }

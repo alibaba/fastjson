@@ -330,7 +330,7 @@ public final class MapCodec implements ObjectSerializer, ObjectDeserializer {
 
                 lexer.resetStringPosition();
 
-                if (key == JSON.DEFAULT_TYPE_KEY) {
+                if (key == JSON.DEFAULT_TYPE_KEY && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
                     String typeName = lexer.scanSymbol(parser.symbolTable, '"');
                     Class<?> clazz = TypeUtils.loadClass(typeName, parser.config.defaultClassLoader);
 
@@ -408,7 +408,9 @@ public final class MapCodec implements ObjectSerializer, ObjectDeserializer {
                     break;
                 }
 
-                if (token == JSONToken.LITERAL_STRING && lexer.isRef()) {
+                if (lexer.token() == JSONToken.LITERAL_STRING // 
+                        && lexer.isRef() //
+                        && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
                     Object object = null;
 
                     lexer.nextTokenWithChar(':');
@@ -446,7 +448,8 @@ public final class MapCodec implements ObjectSerializer, ObjectDeserializer {
 
                 if (map.size() == 0 //
                     && token == JSONToken.LITERAL_STRING //
-                    && JSON.DEFAULT_TYPE_KEY.equals(lexer.stringVal())) {
+                    && JSON.DEFAULT_TYPE_KEY.equals(lexer.stringVal()) //
+                    && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
                     lexer.nextTokenWithChar(':');
                     lexer.nextToken(JSONToken.COMMA);
                     if (lexer.token() == JSONToken.RBRACE) {

@@ -8,7 +8,7 @@ public interface JSONLexer {
     byte EOI            = 0x1A;
     int  NOT_MATCH      = -1;
     int  NOT_MATCH_NAME = -2;
-    int  UNKOWN         = 0;
+    int  UNKNOWN         = 0;
     int  OBJECT         = 1;
     int  ARRAY          = 2;
     int  VALUE          = 3;

@@ -434,24 +434,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static String toJSONString(Object object, SerializeFilter filter, SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter();
-
-        try {
-            JSONSerializer serializer = new JSONSerializer(out);
-            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
-                serializer.config(feature, true);
-            }
-
-            serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
-
-            setFilter(serializer, filter);
-
-            serializer.write(object);
-
-            return out.toString();
-        } finally {
-            out.close();
-        }
+        return toJSONString(object, SerializeConfig.global, filter, features);
     }
 
     public static String toJSONString(Object object, SerializeFilter[] filters, SerializerFeature... features) {
@@ -483,22 +466,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                                       SerializeConfig config, //
                                       SerializeFilter filter, //
                                       SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter();
-
-        try {
-            JSONSerializer serializer = new JSONSerializer(out, config);
-            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
-                serializer.config(feature, true);
-            }
-
-            setFilter(serializer, filter);
-
-            serializer.write(object);
-
-            return out.toString();
-        } finally {
-            out.close();
-        }
+        return toJSONString(object, config, new SerializeFilter[] {filter}, DEFAULT_GENERATE_FEATURE, features);
     }
 
     public static String toJSONString(Object object, //
@@ -525,7 +493,41 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                 serializer.config(feature, true);
             }
 
-            setFilter(serializer, filters);
+            if (filters != null) {
+                for (SerializeFilter filter : filters) {
+                    if (filter == null) {
+                        continue;
+                    }
+                    
+                    if (filter instanceof PropertyPreFilter) {
+                        serializer.getPropertyPreFilters().add((PropertyPreFilter) filter);
+                    }
+
+                    if (filter instanceof NameFilter) {
+                        serializer.getNameFilters().add((NameFilter) filter);
+                    }
+
+                    if (filter instanceof ValueFilter) {
+                        serializer.getValueFilters().add((ValueFilter) filter);
+                    }
+
+                    if (filter instanceof PropertyFilter) {
+                        serializer.getPropertyFilters().add((PropertyFilter) filter);
+                    }
+
+                    if (filter instanceof BeforeFilter) {
+                        serializer.getBeforeFilters().add((BeforeFilter) filter);
+                    }
+
+                    if (filter instanceof AfterFilter) {
+                        serializer.getAfterFilters().add((AfterFilter) filter);
+                    }
+                    
+                    if (filter instanceof LabelFilter) {
+                        serializer.getLabelFilters().add((LabelFilter) filter);
+                    }
+                }
+            }
 
             serializer.write(object);
 
@@ -696,50 +698,6 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     public static <T> T toJavaObject(JSON json, Class<T> clazz) {
         return TypeUtils.cast(json, clazz, ParserConfig.getGlobalInstance());
-    }
-
-    private static void setFilter(JSONSerializer serializer, SerializeFilter[] filters) {
-        if (filters == null) {
-            return;
-        }
-        
-        for (SerializeFilter filter : filters) {
-            setFilter(serializer, filter);
-        }
-    }
-
-    private static void setFilter(JSONSerializer serializer, SerializeFilter filter) {
-        if (filter == null) {
-            return;
-        }
-        
-        if (filter instanceof PropertyPreFilter) {
-            serializer.getPropertyPreFilters().add((PropertyPreFilter) filter);
-        }
-
-        if (filter instanceof NameFilter) {
-            serializer.getNameFilters().add((NameFilter) filter);
-        }
-
-        if (filter instanceof ValueFilter) {
-            serializer.getValueFilters().add((ValueFilter) filter);
-        }
-
-        if (filter instanceof PropertyFilter) {
-            serializer.getPropertyFilters().add((PropertyFilter) filter);
-        }
-
-        if (filter instanceof BeforeFilter) {
-            serializer.getBeforeFilters().add((BeforeFilter) filter);
-        }
-
-        if (filter instanceof AfterFilter) {
-            serializer.getAfterFilters().add((AfterFilter) filter);
-        }
-        
-        if (filter instanceof LabelFilter) {
-            serializer.getLabelFilters().add((LabelFilter) filter);
-        }
     }
 
     public final static String VERSION = "1.2.9";

@@ -334,11 +334,11 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     // ======================
     public static final String toJSONString(Object object) {
-        return toJSONString(object, SerializeConfig.globalInstance, null, DEFAULT_GENERATE_FEATURE);
+        return toJSONString(object, SerializeConfig.globalInstance, null, null, DEFAULT_GENERATE_FEATURE);
     }
 
     public static final String toJSONString(Object object, SerializerFeature... features) {
-        return toJSONString(object, SerializeConfig.globalInstance, null, DEFAULT_GENERATE_FEATURE, features);
+        return toJSONString(object, SerializeConfig.globalInstance, null, null, DEFAULT_GENERATE_FEATURE, features);
     }
 
     /**
@@ -346,31 +346,15 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
      */
     public static final String toJSONStringWithDateFormat(Object object, String dateFormat,
                                                           SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter((Writer) null, JSON.DEFAULT_GENERATE_FEATURE, features);
-
-        try {
-            JSONSerializer serializer = new JSONSerializer(out, SerializeConfig.globalInstance);
-
-            serializer.out.config(SerializerFeature.WriteDateUseDateFormat, true);
-
-            if (dateFormat != null) {
-                serializer.setDateFormat(dateFormat);
-            }
-
-            serializer.write(object);
-
-            return out.toString();
-        } finally {
-            out.close();
-        }
+        return toJSONString(object, SerializeConfig.globalInstance, null, dateFormat, DEFAULT_GENERATE_FEATURE, features);
     }
 
     public static final String toJSONString(Object object, SerializeFilter filter, SerializerFeature... features) {
-        return toJSONString(object, SerializeConfig.globalInstance, new SerializeFilter[] {filter}, DEFAULT_GENERATE_FEATURE, features);
+        return toJSONString(object, SerializeConfig.globalInstance, new SerializeFilter[] {filter}, null, DEFAULT_GENERATE_FEATURE, features);
     }
 
     public static final String toJSONString(Object object, SerializeFilter[] filters, SerializerFeature... features) {
-        return toJSONString(object, SerializeConfig.globalInstance, filters, DEFAULT_GENERATE_FEATURE, features);
+        return toJSONString(object, SerializeConfig.globalInstance, filters, null, DEFAULT_GENERATE_FEATURE, features);
     }
 
     public static final byte[] toJSONBytes(Object object, SerializerFeature... features) {
@@ -388,21 +372,21 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static final String toJSONString(Object object, SerializeConfig config, SerializerFeature... features) {
-        return toJSONString(object, config, null, DEFAULT_GENERATE_FEATURE, features);
+        return toJSONString(object, config, null, null, DEFAULT_GENERATE_FEATURE, features);
     }
 
     public static final String toJSONString(Object object, SerializeConfig config, SerializeFilter filter,
                                             SerializerFeature... features) {
-        return toJSONString(object, config, new SerializeFilter[] {filter}, DEFAULT_GENERATE_FEATURE, features);
+        return toJSONString(object, config, new SerializeFilter[] {filter}, null, DEFAULT_GENERATE_FEATURE, features);
     }
 
     public static final String toJSONString(Object object, SerializeConfig config, SerializeFilter[] filters,
                                             SerializerFeature... features) {
-        return toJSONString(object, config, filters, DEFAULT_GENERATE_FEATURE, features);
+        return toJSONString(object, config, filters, null, DEFAULT_GENERATE_FEATURE, features);
     }
 
     public static final String toJSONStringZ(Object object, SerializeConfig mapping, SerializerFeature... features) {
-        return toJSONString(object, SerializeConfig.globalInstance, null, 0, features);
+        return toJSONString(object, SerializeConfig.globalInstance, null, null, 0, features);
     }
 
     public static final byte[] toJSONBytes(Object object, SerializeConfig config, SerializerFeature... features) {
@@ -564,6 +548,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     public static String toJSONString(Object object, // 
                                       SerializeConfig config, // 
                                       SerializeFilter[] filters, // 
+                                      String dateFormat, //
                                       int defaultFeatures, // 
                                       SerializerFeature... features) {
         SerializeWriter out = new SerializeWriter(null, defaultFeatures, features);
@@ -572,6 +557,11 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             JSONSerializer serializer = new JSONSerializer(out, config);
             for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
                 serializer.config(feature, true);
+            }
+            
+            if (dateFormat != null && dateFormat.length() != 0) {
+                serializer.setDateFormat(dateFormat);
+                serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
             }
 
             if (filters != null) {

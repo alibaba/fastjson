@@ -334,21 +334,11 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     // ======================
     public static final String toJSONString(Object object) {
-        return toJSONString(object, SerializerFeature.EMPTY);
+        return toJSONString(object, SerializeConfig.globalInstance, null, DEFAULT_GENERATE_FEATURE);
     }
 
     public static final String toJSONString(Object object, SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter((Writer) null, JSON.DEFAULT_GENERATE_FEATURE, features);
-
-        try {
-            JSONSerializer serializer = new JSONSerializer(out, SerializeConfig.globalInstance);
-
-            serializer.write(object);
-
-            return out.toString();
-        } finally {
-            out.close();
-        }
+        return toJSONString(object, SerializeConfig.globalInstance, null, DEFAULT_GENERATE_FEATURE, features);
     }
 
     /**
@@ -376,37 +366,11 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static final String toJSONString(Object object, SerializeFilter filter, SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter((Writer) null, JSON.DEFAULT_GENERATE_FEATURE, features);
-
-        try {
-            JSONSerializer serializer = new JSONSerializer(out, SerializeConfig.globalInstance);
-
-            serializer.out.config(SerializerFeature.WriteDateUseDateFormat, true);
-
-            setFilter(serializer, filter);
-
-            serializer.write(object);
-
-            return out.toString();
-        } finally {
-            out.close();
-        }
+        return toJSONString(object, SerializeConfig.globalInstance, new SerializeFilter[] {filter}, DEFAULT_GENERATE_FEATURE, features);
     }
 
     public static final String toJSONString(Object object, SerializeFilter[] filters, SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter((Writer) null, JSON.DEFAULT_GENERATE_FEATURE, features);
-
-        try {
-            JSONSerializer serializer = new JSONSerializer(out, SerializeConfig.globalInstance);
-
-            setFilter(serializer, filters);
-
-            serializer.write(object);
-
-            return out.toString();
-        } finally {
-            out.close();
-        }
+        return toJSONString(object, SerializeConfig.globalInstance, filters, DEFAULT_GENERATE_FEATURE, features);
     }
 
     public static final byte[] toJSONBytes(Object object, SerializerFeature... features) {
@@ -424,55 +388,21 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static final String toJSONString(Object object, SerializeConfig config, SerializerFeature... features) {
-        return toJSONString(object, config, (SerializeFilter) null, features);
+        return toJSONString(object, config, null, DEFAULT_GENERATE_FEATURE, features);
     }
 
     public static final String toJSONString(Object object, SerializeConfig config, SerializeFilter filter,
                                             SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter((Writer) null, JSON.DEFAULT_GENERATE_FEATURE, features);
-
-        try {
-            JSONSerializer serializer = new JSONSerializer(out, config);
-
-            setFilter(serializer, filter);
-
-            serializer.write(object);
-
-            return out.toString();
-        } finally {
-            out.close();
-        }
+        return toJSONString(object, config, new SerializeFilter[] {filter}, DEFAULT_GENERATE_FEATURE, features);
     }
 
     public static final String toJSONString(Object object, SerializeConfig config, SerializeFilter[] filters,
                                             SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter((Writer) null, JSON.DEFAULT_GENERATE_FEATURE, features);
-
-        try {
-            JSONSerializer serializer = new JSONSerializer(out, config);
-
-            setFilter(serializer, filters);
-
-            serializer.write(object);
-
-            return out.toString();
-        } finally {
-            out.close();
-        }
+        return toJSONString(object, config, filters, DEFAULT_GENERATE_FEATURE, features);
     }
 
     public static final String toJSONStringZ(Object object, SerializeConfig mapping, SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter(features);
-
-        try {
-            JSONSerializer serializer = new JSONSerializer(out, mapping);
-
-            serializer.write(object);
-
-            return out.toString();
-        } finally {
-            out.close();
-        }
+        return toJSONString(object, SerializeConfig.globalInstance, null, 0, features);
     }
 
     public static final byte[] toJSONBytes(Object object, SerializeConfig config, SerializerFeature... features) {
@@ -626,40 +556,61 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     public static final <T> T toJavaObject(JSON json, Class<T> clazz) {
         return TypeUtils.cast(json, clazz, ParserConfig.global);
     }
+    
+    /**
+     * @since 1.2.9, back port to 1.1.49.android
+     * @return
+     */
+    public static String toJSONString(Object object, // 
+                                      SerializeConfig config, // 
+                                      SerializeFilter[] filters, // 
+                                      int defaultFeatures, // 
+                                      SerializerFeature... features) {
+        SerializeWriter out = new SerializeWriter(null, defaultFeatures, features);
 
-    private static void setFilter(JSONSerializer serializer, SerializeFilter... filters) {
-        for (SerializeFilter filter : filters) {
-            setFilter(serializer, filter);
-        }
-    }
+        try {
+            JSONSerializer serializer = new JSONSerializer(out, config);
+            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
+                serializer.config(feature, true);
+            }
 
-    private static void setFilter(JSONSerializer serializer, SerializeFilter filter) {
-        if (filter == null) {
-            return;
-        }
-        
-        if (filter instanceof PropertyPreFilter) {
-            serializer.getPropertyPreFilters().add((PropertyPreFilter) filter);
-        }
+            if (filters != null) {
+                for (SerializeFilter filter : filters) {
+                    if (filter == null) {
+                        continue;
+                    }
+                    
+                    if (filter instanceof PropertyPreFilter) {
+                        serializer.getPropertyPreFilters().add((PropertyPreFilter) filter);
+                    }
 
-        if (filter instanceof NameFilter) {
-            serializer.getNameFilters().add((NameFilter) filter);
-        }
+                    if (filter instanceof NameFilter) {
+                        serializer.getNameFilters().add((NameFilter) filter);
+                    }
 
-        if (filter instanceof ValueFilter) {
-            serializer.getValueFilters().add((ValueFilter) filter);
-        }
+                    if (filter instanceof ValueFilter) {
+                        serializer.getValueFilters().add((ValueFilter) filter);
+                    }
 
-        if (filter instanceof PropertyFilter) {
-            serializer.getPropertyFilters().add((PropertyFilter) filter);
-        }
+                    if (filter instanceof PropertyFilter) {
+                        serializer.getPropertyFilters().add((PropertyFilter) filter);
+                    }
 
-        if (filter instanceof BeforeFilter) {
-            serializer.getBeforeFilters().add((BeforeFilter) filter);
-        }
+                    if (filter instanceof BeforeFilter) {
+                        serializer.getBeforeFilters().add((BeforeFilter) filter);
+                    }
 
-        if (filter instanceof AfterFilter) {
-            serializer.getAfterFilters().add((AfterFilter) filter);
+                    if (filter instanceof AfterFilter) {
+                        serializer.getAfterFilters().add((AfterFilter) filter);
+                    }
+                }
+            }
+
+            serializer.write(object);
+
+            return out.toString();
+        } finally {
+            out.close();
         }
     }
 

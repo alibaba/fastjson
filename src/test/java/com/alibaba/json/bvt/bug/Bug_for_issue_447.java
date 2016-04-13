@@ -22,7 +22,7 @@ public class Bug_for_issue_447 extends TestCase {
         Foo foo = new Foo();
         foo.setCreateDate(calendar.getTime());
         String date = JSON.toJSONString(foo, SerializerFeature.UseISO8601DateFormat);
-        Assert.assertEquals("{\"createDate\":\"2016-04-13+08:00\"}", date);
+        Assert.assertEquals("{\"createDate\":\"2016-04-13\"}", date);
         Foo foo2 = JSON.parseObject(date, Foo.class, Feature.AllowISO8601DateFormat);
         Assert.assertEquals("{\"createDate\":\"2016-04-13 00:00:00\"}", JSON.toJSONString(foo2, SerializerFeature.WriteDateUseDateFormat));
     }

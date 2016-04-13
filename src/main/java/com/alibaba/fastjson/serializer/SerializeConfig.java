@@ -71,7 +71,7 @@ import com.alibaba.fastjson.util.TypeUtils;
  * @author wenshao[szujobs@hotmail.com]
  */
 public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
-	private final static SerializeConfig globalInstance = new SerializeConfig();
+    public final static SerializeConfig global          = new SerializeConfig();
 
 	private static boolean awtError = false;
 	private static boolean jdk8Error = false;
@@ -159,7 +159,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 	}
 
 	public static SerializeConfig getGlobalInstance() {
-		return globalInstance;
+		return global;
 	}
 
 	public SerializeConfig() {

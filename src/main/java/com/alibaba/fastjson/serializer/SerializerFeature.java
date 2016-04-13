@@ -182,4 +182,6 @@ public enum SerializerFeature {
         
         return value;
     }
+    
+    public final static SerializerFeature[] EMPTY = new SerializerFeature[0];
 }

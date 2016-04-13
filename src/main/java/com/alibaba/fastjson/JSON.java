@@ -66,10 +66,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     
     static final SerializeFilter[] emptyFilters     = new SerializeFilter[0];
 
-    /**
-     * asm生成代码dump路径
-     */
-    public static String DUMP_CLASS           = null;
+//    /**
+//     * asm生成代码dump路径
+//     */
+//    public static String DUMP_CLASS           = null;
 
     static {
         int features = 0;

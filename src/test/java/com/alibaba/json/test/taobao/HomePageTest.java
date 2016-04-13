@@ -1,13 +1,16 @@
-package com.alibaba.json.bvt.taobao;
+package com.alibaba.json.test.taobao;
 
 import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.json.test.benchmark.decode.TradeObjectParse;
 
+import data.taobao.GetHomePageData;
+import data.taobao.GetHomePageResponse;
 import junit.framework.TestCase;
 
 public class HomePageTest extends TestCase {
@@ -20,7 +23,9 @@ public class HomePageTest extends TestCase {
     }
     
     public void test_decode() throws Exception {
-        JSON.parseObject(text, GetHomePageResponse.class);
+        GetHomePageResponse resp = JSON.parseObject(text, GetHomePageResponse.class);
+        GetHomePageData data = resp.data;
+        Assert.assertNotNull(data);
     }
 
     public void test_parse() throws Exception {

@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt.taobao.puti.model;
+package data.taobao.puti.model;
 
 public class Image   {
 

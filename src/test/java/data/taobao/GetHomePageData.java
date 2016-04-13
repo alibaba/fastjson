@@ -1,10 +1,11 @@
-package com.alibaba.json.bvt.taobao;
+package data.taobao;
 
 import java.util.List;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
-import com.alibaba.json.bvt.taobao.puti.model.Section;
+
+import data.taobao.puti.model.Section;
 
 // section, interval, timestamp, WriteCacheTimestamp, digest, userId, way, 
 // @JSONType(orders={"section", "interval", "timeStamp", "traceId", "digest", "way", "WriteCacheTimestamp", "userId"})

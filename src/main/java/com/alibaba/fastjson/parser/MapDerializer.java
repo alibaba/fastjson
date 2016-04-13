@@ -25,7 +25,7 @@ public class MapDerializer implements ObjectDeserializer {
     
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-        if (type == JSONObject.class) {
+        if (type == JSONObject.class && parser.fieldTypeResolver == null) {
             return (T) parser.parseObject();
         }
         
@@ -35,7 +35,7 @@ public class MapDerializer implements ObjectDeserializer {
             return null;
         }
 
-        Map<Object, Object> map = createMap(type);
+        Map<?, ?> map = createMap(type);
 
         ParseContext context = parser.context;
 
@@ -281,8 +281,8 @@ public class MapDerializer implements ObjectDeserializer {
         return map;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    protected Map<Object, Object> createMap(Type type) {
+    @SuppressWarnings({ "rawtypes" })
+    protected Map<?, ?> createMap(Type type) {
         if (type == Properties.class) {
             return new Properties();
         }
@@ -310,6 +310,10 @@ public class MapDerializer implements ObjectDeserializer {
         if (type == LinkedHashMap.class) {
             return new LinkedHashMap();
         }
+        
+        if (type == JSONObject.class) {
+            return (Map<?, ?>) new JSONObject();
+        }
 
         if (type instanceof ParameterizedType) {
             ParameterizedType parameterizedType = (ParameterizedType) type;
@@ -323,7 +327,7 @@ public class MapDerializer implements ObjectDeserializer {
         }
         
         try {
-            return (Map<Object, Object>) clazz.newInstance();
+            return (Map<?, ?>) clazz.newInstance();
         } catch (Exception e) {
             throw new JSONException("unsupport type " + type, e);
         }

@@ -92,7 +92,7 @@ public class DefaultJSONParser implements Closeable {
 
     private List<ExtraTypeProvider> extraTypeProviders = null;
     private List<ExtraProcessor>    extraProcessors    = null;
-    private List<FieldTypeResolver> fieldTypeResolvers = null;
+    protected FieldTypeResolver     fieldTypeResolver  = null;
 
     public String getDateFomartPattern() {
         return dateFormatPattern;
@@ -460,7 +460,20 @@ public class DefaultJSONParser implements Closeable {
                         ctxLocal = setContext(context, input, key);
                     }
 
-                    Object obj = this.parseObject(input, key);
+                    Object obj = null;
+                    boolean objParsed = false;
+                    if (fieldTypeResolver != null) {
+                        String resolveFieldName = key != null ? key.toString() : null;
+                        Type fieldType = fieldTypeResolver.resolve(object, resolveFieldName);
+                        if (fieldType != null) {
+                            ObjectDeserializer fieldDeser = config.getDeserializer(fieldType);
+                            obj = fieldDeser.deserialze(this, fieldType, key);
+                            objParsed = true;
+                        }
+                    }
+                    if (!objParsed) {
+                        obj = this.parseObject(input, key);
+                    }
                     if (ctxLocal != null && input != obj) {
                         ctxLocal.object = object;
                     }
@@ -1146,11 +1159,8 @@ public class DefaultJSONParser implements Closeable {
         return extraTypeProviders;
     }
     
-    public List<FieldTypeResolver> getFieldTypeResolvers() {
-        if (fieldTypeResolvers == null) {
-            fieldTypeResolvers = new ArrayList<FieldTypeResolver>(2);
-        }
-        return fieldTypeResolvers;
+    public void setFieldTypeResolver(FieldTypeResolver fieldTypeResolver) {
+        this.fieldTypeResolver = fieldTypeResolver;
     }
 
     public void setContext(ParseContext context) {

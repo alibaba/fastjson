@@ -209,7 +209,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
         
         if (processor instanceof FieldTypeResolver) {
-            parser.getFieldTypeResolvers().add((FieldTypeResolver) processor);
+            parser.setFieldTypeResolver((FieldTypeResolver) processor);
         }
 
         T value = (T) parser.parseObject(clazz);

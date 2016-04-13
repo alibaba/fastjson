@@ -959,6 +959,10 @@ public final class JSONLexer {
             }
 
             if (ch == EOI) {
+                if (bp + 1 < len) {
+                    putChar((char) EOI);
+                    continue;
+                }
                 throw new JSONException("unclosed string : " + ch);
             }
 
@@ -1669,6 +1673,10 @@ public final class JSONLexer {
             }
 
             if (chLocal == EOI) {
+                if (bp + 1 < len) {
+                    putChar((char) EOI);
+                    continue;
+                }
                 throw new JSONException("unclosed single-quote string");
             }
 
@@ -3705,4 +3713,9 @@ public final class JSONLexer {
             }
         }
     }
+    
+//    @Override
+//    public boolean isEOF() {
+//        return bp == len || ch == EOI && bp + 1 == len;
+//    }
 }

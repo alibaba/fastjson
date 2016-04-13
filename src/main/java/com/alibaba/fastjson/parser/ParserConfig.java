@@ -80,12 +80,12 @@ public class ParserConfig {
         derializers.put(java.util.Date.class, DateCodec.instance);
         derializers.put(Calendar.class, CalendarCodec.instance);
 
-        derializers.put(Map.class, MapDerializer.instance);
-        derializers.put(HashMap.class, MapDerializer.instance);
-        derializers.put(LinkedHashMap.class, MapDerializer.instance);
-        derializers.put(TreeMap.class, MapDerializer.instance);
-        derializers.put(ConcurrentMap.class, MapDerializer.instance);
-        derializers.put(ConcurrentHashMap.class, MapDerializer.instance);
+        derializers.put(Map.class, MapDeserializer.instance);
+        derializers.put(HashMap.class, MapDeserializer.instance);
+        derializers.put(LinkedHashMap.class, MapDeserializer.instance);
+        derializers.put(TreeMap.class, MapDeserializer.instance);
+        derializers.put(ConcurrentMap.class, MapDeserializer.instance);
+        derializers.put(ConcurrentHashMap.class, MapDeserializer.instance);
 
         derializers.put(Collection.class, CollectionCodec.instance);
         derializers.put(List.class, CollectionCodec.instance);
@@ -202,7 +202,7 @@ public class ParserConfig {
         } else if (Collection.class.isAssignableFrom(clazz)) {
             derializer = CollectionCodec.instance;
         } else if (Map.class.isAssignableFrom(clazz)) {
-            derializer = MapDerializer.instance;
+            derializer = MapDeserializer.instance;
         } else if (Throwable.class.isAssignableFrom(clazz)) {
             derializer = new ThrowableDeserializer(this, clazz);
         } else {

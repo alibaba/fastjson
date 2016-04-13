@@ -1136,9 +1136,9 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 && charAt(bp + 2) == 't'
                 && charAt(bp + 3) == '['
                 ) {
-            bp += 4;
+            bp += 3;
             ch = charAt(bp);
-            token = JSONToken.LBRACKET;
+            token = JSONToken.SET;
         } else {
             nextToken();
         }

@@ -1,7 +1,9 @@
 package com.alibaba.json.bvt.bug;
 
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
+
+import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -21,6 +23,7 @@ public class Bug_for_issue_383 extends TestCase {
         });
         System.out.println(jsonStr);
         ts = JSON.parseObject(jsonStr, TestClass.class);
+        Assert.assertEquals(HashSet.class, ts.getHashSet().getClass());
         for (Integer val : ts.getHashSet()) {
             System.out.println(val);
         }
@@ -28,17 +31,17 @@ public class Bug_for_issue_383 extends TestCase {
 
     public static class TestClass {
 
-        private Set<Integer> hashSet = new HashSet<Integer>();
+        private Collection<Integer> hashSet = new HashSet<Integer>();
         private Member member = new Member();
 
         public TestClass() {
         }
 
-        public Set<Integer> getHashSet() {
+        public Collection<Integer> getHashSet() {
             return hashSet;
         }
 
-        public void setHashSet(Set<Integer> hashSet) {
+        public void setHashSet(Collection<Integer> hashSet) {
             this.hashSet = hashSet;
         }
 
@@ -52,16 +55,16 @@ public class Bug_for_issue_383 extends TestCase {
     }
 
     public static class Member{
-        private Set<Integer> hashSet = new HashSet<Integer>();
+        private Collection<Integer> hashSet = new HashSet<Integer>();
 
         public Member() {
         }
 
-        public Set<Integer> getHashSet() {
+        public Collection<Integer> getHashSet() {
             return hashSet;
         }
 
-        public void setHashSet(Set<Integer> hashSet) {
+        public void setHashSet(Collection<Integer> hashSet) {
             this.hashSet = hashSet;
         }
     }

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeSet;
@@ -201,7 +202,7 @@ public class ASMDeserializerFactory implements Opcodes {
                     mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/parser/DefaultJSONParser", "accept",
                                        "(II)V");
 
-                    _newCollection(mw, fieldClass, i);
+                    _newCollection(mw, fieldClass, i, false);
                     mw.visitInsn(DUP);
                     mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
                     _getCollectionFieldItemDeser(context, mw, fieldInfo, itemClass);
@@ -858,12 +859,41 @@ public class ASMDeserializerFactory implements Opcodes {
         // loop_end_
 
         mw.visitLabel(valueNotNull_);
+        
+        Label storeCollection_ = new Label();
+        Label endSet_ = new Label();
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/parser/JSONLexerBase", "token", "()I");
+        mw.visitFieldInsn(GETSTATIC, "com/alibaba/fastjson/parser/JSONToken", "SET", "I");
+        mw.visitJumpInsn(IF_ICMPNE, endSet_);
+
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitFieldInsn(GETSTATIC, "com/alibaba/fastjson/parser/JSONToken", "LBRACKET", "I");
+        mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/parser/JSONLexerBase", "nextToken", "(I)V");
+
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/parser/JSONLexerBase", "token", "()I");
+        mw.visitFieldInsn(GETSTATIC, "com/alibaba/fastjson/parser/JSONToken", "LBRACKET", "I");
+
+        mw.visitJumpInsn(IF_ICMPNE, reset_);
+        
+        _newCollection(mw, fieldClass, i, true);
+        
+        mw.visitJumpInsn(GOTO, storeCollection_);
+        
+        mw.visitLabel(endSet_);
+        
         // if (lexer.token() != JSONToken.LBRACKET) reset
         mw.visitVarInsn(ALOAD, context.var("lexer"));
         mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/parser/JSONLexerBase", "token", "()I");
         mw.visitFieldInsn(GETSTATIC, "com/alibaba/fastjson/parser/JSONToken", "LBRACKET", "I");
 
         mw.visitJumpInsn(IF_ICMPNE, reset_);
+        
+        _newCollection(mw, fieldClass, i, false);
+
+        mw.visitLabel(storeCollection_);
+        mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
 
         _getCollectionFieldItemDeser(context, mw, fieldInfo, itemType);
         mw.visitMethodInsn(INVOKEINTERFACE, "com/alibaba/fastjson/parser/deserializer/ObjectDeserializer",
@@ -874,9 +904,6 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ILOAD, context.var("fastMatchToken"));
         mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/parser/JSONLexerBase", "nextToken", "(I)V");
 
-        _newCollection(mw, fieldClass, i);
-
-        mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
 
         { // setContext
             mw.visitVarInsn(ALOAD, 1);
@@ -999,12 +1026,12 @@ public class ASMDeserializerFactory implements Opcodes {
                           "Lcom/alibaba/fastjson/parser/deserializer/ObjectDeserializer;");
     }
 
-    private void _newCollection(MethodVisitor mw, Class<?> fieldClass, int i) {
-        if (fieldClass.isAssignableFrom(ArrayList.class)) {
+    private void _newCollection(MethodVisitor mw, Class<?> fieldClass, int i, boolean set) {
+        if (fieldClass.isAssignableFrom(ArrayList.class) && !set) {
             mw.visitTypeInsn(NEW, "java/util/ArrayList");
             mw.visitInsn(DUP);
             mw.visitMethodInsn(INVOKESPECIAL, "java/util/ArrayList", "<init>", "()V");
-        } else if (fieldClass.isAssignableFrom(LinkedList.class)) {
+        } else if (fieldClass.isAssignableFrom(LinkedList.class) && !set) {
             mw.visitTypeInsn(NEW, getType(LinkedList.class));
             mw.visitInsn(DUP);
             mw.visitMethodInsn(INVOKESPECIAL, getType(LinkedList.class), "<init>", "()V");
@@ -1016,6 +1043,14 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitTypeInsn(NEW, getType(TreeSet.class));
             mw.visitInsn(DUP);
             mw.visitMethodInsn(INVOKESPECIAL, getType(TreeSet.class), "<init>", "()V");
+        } else if (fieldClass.isAssignableFrom(LinkedHashSet.class)) {
+            mw.visitTypeInsn(NEW, getType(LinkedHashSet.class));
+            mw.visitInsn(DUP);
+            mw.visitMethodInsn(INVOKESPECIAL, getType(LinkedHashSet.class), "<init>", "()V");
+        } else if (set) {
+            mw.visitTypeInsn(NEW, getType(HashSet.class));
+            mw.visitInsn(DUP);
+            mw.visitMethodInsn(INVOKESPECIAL, getType(HashSet.class), "<init>", "()V");
         } else {
             mw.visitVarInsn(ALOAD, 0);
             mw.visitLdcInsn(i);

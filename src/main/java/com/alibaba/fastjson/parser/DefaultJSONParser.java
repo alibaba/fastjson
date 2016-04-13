@@ -329,6 +329,13 @@ public class DefaultJSONParser implements Closeable {
                     if (this.context != null && !(fieldName instanceof Integer)) {
                         this.popContext();
                     }
+                    
+                    if (object.size() > 0) {
+                        JSON json = object instanceof JSON ? (JSON) object : new JSONObject(object);
+                        Object newObj = JSON.toJavaObject(json, clazz);
+                        this.parseObject(newObj);
+                        return newObj;
+                    }
 
                     ObjectDeserializer deserializer = config.getDeserializer(clazz);
                     return deserializer.deserialze(this, clazz, fieldName);

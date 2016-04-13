@@ -78,9 +78,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
             List<FieldInfo> fieldInfoList = TypeUtils.computeGetters(clazz, jsonType, aliasMap, false);
 
             for (FieldInfo fieldInfo : fieldInfoList) {
-                FieldSerializer fieldDeser = fieldInfo.fieldClass == Number.class //
-                        ? new NumberFieldSerializer(fieldInfo) //
-                        : new ObjectFieldSerializer(fieldInfo);
+                FieldSerializer fieldDeser = new ObjectFieldSerializer(fieldInfo);
                 getterList.add(fieldDeser);
             }
 
@@ -98,9 +96,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
             List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
 
             for (FieldInfo fieldInfo : fieldInfoList) {
-                FieldSerializer fieldDeser = fieldInfo.fieldClass == Number.class //
-                        ? new NumberFieldSerializer(fieldInfo) //
-                        : new ObjectFieldSerializer(fieldInfo);
+                FieldSerializer fieldDeser = new ObjectFieldSerializer(fieldInfo);
                 getterList.add(fieldDeser);
             }
 

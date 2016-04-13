@@ -97,17 +97,20 @@ public class ObjectFieldSerializer extends FieldSerializer {
         final int fieldFeatures = fieldInfo.serialzeFeatures;
 
         if (propertyValue == null) {
-            if (writeNumberAsZero && Number.class.isAssignableFrom(runtimeInfo.runtimeFieldClass)) {
-                serializer.out.write('0');
+            Class<?> runtimeFieldClass = runtimeInfo.runtimeFieldClass;
+            SerializeWriter out  = serializer.out;
+            boolean writeNumberAsZero = this.writeNumberAsZero || (out.features & SerializerFeature.WriteNullNumberAsZero.mask) != 0;
+            if (writeNumberAsZero && Number.class.isAssignableFrom(runtimeFieldClass)) {
+                out.write('0');
                 return;
-            } else if (writeNullStringAsEmpty && String.class == runtimeInfo.runtimeFieldClass) {
-                serializer.out.write("\"\"");
+            } else if (writeNullStringAsEmpty && String.class == runtimeFieldClass) {
+                out.write("\"\"");
                 return;
-            } else if (writeNullBooleanAsFalse && Boolean.class == runtimeInfo.runtimeFieldClass) {
-                serializer.out.write("false");
+            } else if (writeNullBooleanAsFalse && Boolean.class == runtimeFieldClass) {
+                out.write("false");
                 return;
-            } else if (writeNullListAsEmpty && Collection.class.isAssignableFrom(runtimeInfo.runtimeFieldClass)) {
-                serializer.out.write("[]");
+            } else if (writeNullListAsEmpty && Collection.class.isAssignableFrom(runtimeFieldClass)) {
+                out.write("[]");
                 return;
             }
 

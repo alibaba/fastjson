@@ -218,6 +218,14 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     return null;
                 }
                 
+                if (token == JSONToken.LITERAL_STRING) {
+                    String strVal = lexer.stringVal();
+                    if (strVal.length() == 0) {
+                        lexer.nextToken();
+                        return null;
+                    }
+                }
+                
                 StringBuffer buf = (new StringBuffer()) //
                                                         .append("syntax error, expect {, actual ") //
                                                         .append(lexer.tokenName()) //

@@ -332,7 +332,7 @@ public class DefaultJSONParser implements Closeable {
                     
                     if (object.size() > 0) {
                         JSON json = object instanceof JSON ? (JSON) object : new JSONObject(object);
-                        Object newObj = JSON.toJavaObject(json, clazz);
+                        Object newObj = TypeUtils.cast(json, clazz, this.config);
                         this.parseObject(newObj);
                         return newObj;
                     }

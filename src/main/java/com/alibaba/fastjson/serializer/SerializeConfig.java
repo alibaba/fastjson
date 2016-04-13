@@ -327,7 +327,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 
         if (writer == null) {
             if (Map.class.isAssignableFrom(clazz)) {
-                put(clazz, MapCodec.instance);
+                put(clazz, MapSerializer.instance);
             } else if (List.class.isAssignableFrom(clazz)) {
                 put(clazz, ListSerializer.instance);
             } else if (Collection.class.isAssignableFrom(clazz)) {

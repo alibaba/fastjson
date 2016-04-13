@@ -77,6 +77,7 @@ import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.Jdk8DateCodec;
+import com.alibaba.fastjson.parser.deserializer.MapDeserializer;
 import com.alibaba.fastjson.parser.deserializer.NumberDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.OptionalCodec;
@@ -99,7 +100,6 @@ import com.alibaba.fastjson.serializer.DateCodec;
 import com.alibaba.fastjson.serializer.FloatCodec;
 import com.alibaba.fastjson.serializer.IntegerCodec;
 import com.alibaba.fastjson.serializer.LongCodec;
-import com.alibaba.fastjson.serializer.MapCodec;
 import com.alibaba.fastjson.serializer.MiscCodec;
 import com.alibaba.fastjson.serializer.ObjectArrayCodec;
 import com.alibaba.fastjson.serializer.ReferenceCodec;
@@ -180,15 +180,15 @@ public class ParserConfig {
         derializers.put(java.util.Date.class, DateCodec.instance);
         derializers.put(Calendar.class, CalendarCodec.instance);
 
-        derializers.put(JSONObject.class, MapCodec.instance);
+        derializers.put(JSONObject.class, MapDeserializer.instance);
         derializers.put(JSONArray.class, CollectionCodec.instance);
 
-        derializers.put(Map.class, MapCodec.instance);
-        derializers.put(HashMap.class, MapCodec.instance);
-        derializers.put(LinkedHashMap.class, MapCodec.instance);
-        derializers.put(TreeMap.class, MapCodec.instance);
-        derializers.put(ConcurrentMap.class, MapCodec.instance);
-        derializers.put(ConcurrentHashMap.class, MapCodec.instance);
+        derializers.put(Map.class, MapDeserializer.instance);
+        derializers.put(HashMap.class, MapDeserializer.instance);
+        derializers.put(LinkedHashMap.class, MapDeserializer.instance);
+        derializers.put(TreeMap.class, MapDeserializer.instance);
+        derializers.put(ConcurrentMap.class, MapDeserializer.instance);
+        derializers.put(ConcurrentHashMap.class, MapDeserializer.instance);
 
         derializers.put(Collection.class, CollectionCodec.instance);
         derializers.put(List.class, CollectionCodec.instance);
@@ -405,7 +405,7 @@ public class ParserConfig {
         } else if (Collection.class.isAssignableFrom(clazz)) {
             derializer = CollectionCodec.instance;
         } else if (Map.class.isAssignableFrom(clazz)) {
-            derializer = MapCodec.instance;
+            derializer = MapDeserializer.instance;
         } else if (Throwable.class.isAssignableFrom(clazz)) {
             derializer = new ThrowableDeserializer(this, clazz);
         } else {

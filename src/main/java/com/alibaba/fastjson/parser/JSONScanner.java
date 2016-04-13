@@ -48,7 +48,7 @@ public final class JSONScanner extends JSONLexerBase {
         bp = -1;
 
         next();
-        if (ch == 65279) {
+        if (ch == 65279) { // utf-8 bom
             next();
         }
     }

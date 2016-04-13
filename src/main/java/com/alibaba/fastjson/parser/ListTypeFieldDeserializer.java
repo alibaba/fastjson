@@ -38,7 +38,7 @@ public class ListTypeFieldDeserializer extends FieldDeserializer {
 
         ArrayList list = new ArrayList();
 
-        ParseContext context = parser.getContext();
+        ParseContext context = parser.context;
 
         parser.setContext(context, object, fieldInfo.name);
         parseArray(parser, objectType, list);

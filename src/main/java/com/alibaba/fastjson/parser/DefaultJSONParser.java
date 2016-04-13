@@ -57,6 +57,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
+import com.alibaba.fastjson.parser.deserializer.FieldTypeResolver;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.serializer.IntegerCodec;
 import com.alibaba.fastjson.serializer.StringCodec;
@@ -67,30 +68,31 @@ import com.alibaba.fastjson.util.TypeUtils;
  */
 public class DefaultJSONParser implements Closeable {
 
-    protected final Object             input;
-    public final SymbolTable           symbolTable;
-    public ParserConfig                config;
+    protected final Object          input;
+    public final SymbolTable        symbolTable;
+    public ParserConfig             config;
 
-    private String                     dateFormatPattern  = JSON.DEFFAULT_DATE_FORMAT;
-    private DateFormat                 dateFormat;
+    private String                  dateFormatPattern  = JSON.DEFFAULT_DATE_FORMAT;
+    private DateFormat              dateFormat;
 
-    public final JSONLexer             lexer;
+    public final JSONLexer          lexer;
 
-    protected ParseContext             context;
+    protected ParseContext          context;
 
-    private ParseContext[]             contextArray;
-    private int                        contextArrayIndex  = 0;
+    private ParseContext[]          contextArray;
+    private int                     contextArrayIndex  = 0;
 
-    private List<ResolveTask>          resolveTaskList;
+    private List<ResolveTask>       resolveTaskList;
 
-    public final static int            NONE               = 0;
-    public final static int            NeedToResolve      = 1;
-    public final static int            TypeNameRedirect   = 2;
+    public final static int         NONE               = 0;
+    public final static int         NeedToResolve      = 1;
+    public final static int         TypeNameRedirect   = 2;
 
-    public int                        resolveStatus      = NONE;
+    public int                      resolveStatus      = NONE;
 
-    private List<ExtraTypeProvider>    extraTypeProviders = null;
-    private List<ExtraProcessor>       extraProcessors    = null;
+    private List<ExtraTypeProvider> extraTypeProviders = null;
+    private List<ExtraProcessor>    extraProcessors    = null;
+    private List<FieldTypeResolver> fieldTypeResolvers = null;
 
     public String getDateFomartPattern() {
         return dateFormatPattern;
@@ -1143,6 +1145,13 @@ public class DefaultJSONParser implements Closeable {
         }
         return extraTypeProviders;
     }
+    
+    public List<FieldTypeResolver> getFieldTypeResolvers() {
+        if (fieldTypeResolvers == null) {
+            fieldTypeResolvers = new ArrayList<FieldTypeResolver>(2);
+        }
+        return fieldTypeResolvers;
+    }
 
     public void setContext(ParseContext context) {
         if ((lexer.features & Feature.DisableCircularReferenceDetect.mask) != 0) {
@@ -1175,12 +1184,7 @@ public class DefaultJSONParser implements Closeable {
         }
 
         this.context = new ParseContext(parent, object, fieldName);
-        addContext(this.context);
-
-        return this.context;
-    }
-
-    private void addContext(ParseContext context) {
+        
         int i = contextArrayIndex++;
         if (contextArray == null) {
             contextArray = new ParseContext[8];
@@ -1191,6 +1195,8 @@ public class DefaultJSONParser implements Closeable {
             contextArray = newArray;
         }
         contextArray[i] = context;
+
+        return this.context;
     }
 
     public Object parse() {

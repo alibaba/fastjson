@@ -346,7 +346,7 @@ public class JSONSerializer {
         if (writer == null) {
             Class<?> superClass;
             if (Map.class.isAssignableFrom(clazz)) {
-                config.put(clazz, MapCodec.instance);
+                config.put(clazz, new MapSerializer());
             } else if (List.class.isAssignableFrom(clazz)) {
                 config.put(clazz, ListSerializer.instance);
             } else if (Collection.class.isAssignableFrom(clazz)) {

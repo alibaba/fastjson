@@ -61,6 +61,7 @@ public class SerializeConfig extends IdentityHashMap<ObjectSerializer> {
         put(Long.class, IntegerCodec.instance);
         put(Float.class, NumberCodec.instance);
         put(Double.class, NumberCodec.instance);
+        put(Number.class, NumberCodec.instance);
         put(BigDecimal.class, BigDecimalCodec.instance);
         put(BigInteger.class, BigDecimalCodec.instance);
         put(String.class, StringCodec.instance);

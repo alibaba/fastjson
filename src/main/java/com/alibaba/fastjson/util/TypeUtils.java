@@ -1420,7 +1420,17 @@ public class TypeUtils {
     
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public static Collection createCollection(Type type) {
-        Class<?> rawClass = getRawClass(type);
+        Class<?> rawClass; //= getRawClass(type);
+        for (Type t = type;;) {
+            if (t instanceof Class<?>) {
+                rawClass = (Class<?>) t;
+                break;
+            } else if (t instanceof ParameterizedType) {
+                t = ((ParameterizedType) t).getRawType();
+            } else {
+                throw new JSONException("TODO");
+            }
+        }
 
         Collection list;
         if (rawClass == AbstractCollection.class // 
@@ -1450,15 +1460,5 @@ public class TypeUtils {
             }
         }
         return list;
-    }
-
-    public static Class<?> getRawClass(Type type) {
-        if (type instanceof Class<?>) {
-            return (Class<?>) type;
-        } else if (type instanceof ParameterizedType) {
-            return getRawClass(((ParameterizedType) type).getRawType());
-        } else {
-            throw new JSONException("TODO");
-        }
     }
 }

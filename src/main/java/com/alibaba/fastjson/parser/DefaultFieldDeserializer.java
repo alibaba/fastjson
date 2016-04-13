@@ -24,7 +24,7 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
         }
 
         if (objectType instanceof ParameterizedType) {
-            ParseContext objContext = parser.getContext();
+            ParseContext objContext = parser.context;
             objContext.type = objectType;
         }
 
@@ -32,7 +32,7 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
         if (parser.resolveStatus == DefaultJSONParser.NeedToResolve) {
             ResolveTask task = parser.getLastResolveTask();
             task.fieldDeserializer = this;
-            task.ownerContext = parser.getContext();
+            task.ownerContext = parser.context;
             parser.resolveStatus = DefaultJSONParser.NONE;
         } else {
             if (object == null) {

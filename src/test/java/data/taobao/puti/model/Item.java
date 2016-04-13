@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt.taobao.puti.model;
+package data.taobao.puti.model;
 
 import java.util.List;
 import java.util.Map;

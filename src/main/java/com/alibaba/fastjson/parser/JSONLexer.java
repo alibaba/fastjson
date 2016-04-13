@@ -255,7 +255,7 @@ public final class JSONLexer {
                 case 't': // true
                     scanTrue();
                     return;
-                case 'T': // trrrSet
+                case 'T': // treeSet
                     scanTreeSet();
                     return;
                 case 'S': // set

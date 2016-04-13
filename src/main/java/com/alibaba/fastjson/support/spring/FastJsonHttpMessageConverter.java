@@ -25,7 +25,7 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
     private Charset             charset  = UTF8;
 
     private SerializerFeature[] features = new SerializerFeature[0];
-    
+
     protected SerializeFilter[] serialzeFilters = new SerializeFilter[0];
 
     public FastJsonHttpMessageConverter(){
@@ -92,11 +92,11 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
         if (filter == null) {
             return;
         }
-        
+
         SerializeFilter[] filters = new SerializeFilter[this.serialzeFilters.length + 1];
         System.arraycopy(this.serialzeFilters, 0, filter, 0, this.serialzeFilters.length);
         filters[filters.length - 1] = filter;
         this.serialzeFilters = filters;
     }
-    
+
 }

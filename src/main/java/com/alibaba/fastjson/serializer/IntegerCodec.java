@@ -109,10 +109,14 @@ public final class IntegerCodec implements ObjectSerializer, ObjectDeserializer 
         } else {
             Object value = parser.parse();
 
-            if (clazz == long.class || clazz == Long.class) {
-                intObj = TypeUtils.castToLong(value);
-            } else {
-                intObj = TypeUtils.castToInt(value);
+            try {
+                if (clazz == long.class || clazz == Long.class) {
+                    intObj = TypeUtils.castToLong(value);
+                } else {
+                    intObj = TypeUtils.castToInt(value);
+                }
+            } catch (Exception ex) {
+                throw new JSONException("cast error, field : " + fieldName + ", value " + value, ex);
             }
         }
         

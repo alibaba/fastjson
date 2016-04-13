@@ -644,6 +644,10 @@ public class TypeUtils {
             if (strVal.length() == 0) {
                 return null;
             }
+            
+            if (clazz == java.util.Currency.class) {
+                return (T) java.util.Currency.getInstance(strVal);
+            }
         }
 
         throw new JSONException("can not cast to : " + clazz.getName());

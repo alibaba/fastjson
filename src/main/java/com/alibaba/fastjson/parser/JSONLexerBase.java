@@ -209,6 +209,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                         token = EOF;
                         pos = bp = eofPos;
                     } else {
+                        if (ch <= 31 || ch == 127) {
+                            next();
+                            break;
+                        }
                         lexError("illegal.char", String.valueOf((int) ch));
                         next();
                     }

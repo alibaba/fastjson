@@ -154,10 +154,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 case 't': // true
                     scanTrue();
                     return;
-                case 'T': // true
+                case 'T': // TreeSet
                     scanTreeSet();
                     return;
-                case 'S': // set
+                case 'S': // Set
                     scanSet();
                     return;
                 case 'f': // false
@@ -166,10 +166,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 case 'n': // new,null
                     scanNullOrNew();
                     return;
-                case 'N': // new,null
+                case 'N': // NULL
                     scanNULL();
                     return;
-                case 'u': // new,null
+                case 'u': // undefined
                     scanUndefined();
                     return;
                 case '(':
@@ -2356,44 +2356,44 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     public final void scanTreeSet() {
         if (ch != 'T') {
-            throw new JSONException("error parse true");
+            throw new JSONException("error parse treeSet");
         }
         next();
 
         if (ch != 'r') {
-            throw new JSONException("error parse true");
+            throw new JSONException("error parse treeSet");
         }
         next();
 
         if (ch != 'e') {
-            throw new JSONException("error parse true");
+            throw new JSONException("error parse treeSet");
         }
         next();
 
         if (ch != 'e') {
-            throw new JSONException("error parse true");
+            throw new JSONException("error parse treeSet");
         }
         next();
 
         if (ch != 'S') {
-            throw new JSONException("error parse true");
+            throw new JSONException("error parse treeSet");
         }
         next();
 
         if (ch != 'e') {
-            throw new JSONException("error parse true");
+            throw new JSONException("error parse treeSet");
         }
         next();
 
         if (ch != 't') {
-            throw new JSONException("error parse true");
+            throw new JSONException("error parse treeSet");
         }
         next();
 
         if (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b' || ch == '[' || ch == '(') {
             token = JSONToken.TREE_SET;
         } else {
-            throw new JSONException("scan set error");
+            throw new JSONException("scan treeSet error");
         }
     }
 
@@ -2406,12 +2406,12 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         if (ch == 'u') {
             next();
             if (ch != 'l') {
-                throw new JSONException("error parse l");
+                throw new JSONException("error parse null");
             }
             next();
 
             if (ch != 'l') {
-                throw new JSONException("error parse l");
+                throw new JSONException("error parse null");
             }
             next();
 
@@ -2419,18 +2419,18 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 || ch == '\f' || ch == '\b') {
                 token = JSONToken.NULL;
             } else {
-                throw new JSONException("scan true error");
+                throw new JSONException("scan null error");
             }
             return;
         }
 
         if (ch != 'e') {
-            throw new JSONException("error parse e");
+            throw new JSONException("error parse new");
         }
         next();
 
         if (ch != 'w') {
-            throw new JSONException("error parse w");
+            throw new JSONException("error parse new");
         }
         next();
 
@@ -2438,7 +2438,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             || ch == '\f' || ch == '\b') {
             token = JSONToken.NEW;
         } else {
-            throw new JSONException("scan true error");
+            throw new JSONException("scan new error");
         }
     }
 
@@ -2448,70 +2448,71 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
         next();
 
-        if (ch == 'U') {
-            next();
-            if (ch != 'L') {
-                throw new JSONException("error parse U");
-            }
-            next();
+        if (ch != 'U') {
+            throw new JSONException("error parse NULL");
+        }
+        next();
 
-            if (ch != 'L') {
-                throw new JSONException("error parse NULL");
-            }
-            next();
+        if (ch != 'L') {
+            throw new JSONException("error parse NULL");
+        }
+        next();
 
-            if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
+        if (ch != 'L') {
+            throw new JSONException("error parse NULL");
+        }
+        next();
+
+        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
                 || ch == '\f' || ch == '\b') {
-                token = JSONToken.NULL;
-            } else {
-                throw new JSONException("scan NULL error");
-            }
-            return;
+            token = JSONToken.NULL;
+        } else {
+            throw new JSONException("scan NULL error");
         }
     }
 
     public final void scanUndefined() {
         if (ch != 'u') {
-            throw new JSONException("error parse false");
+            throw new JSONException("error parse undefined");
         }
         next();
 
         if (ch != 'n') {
-            throw new JSONException("error parse false");
+            throw new JSONException("error parse undefined");
         }
         next();
 
         if (ch != 'd') {
-            throw new JSONException("error parse false");
+            throw new JSONException("error parse undefined");
         }
         next();
 
         if (ch != 'e') {
-            throw new JSONException("error parse false");
+            throw new JSONException("error parse undefined");
         }
         next();
 
         if (ch != 'f') {
-            throw new JSONException("error parse false");
+            throw new JSONException("error parse undefined");
         }
         next();
 
         if (ch != 'i') {
-            throw new JSONException("error parse false");
+            throw new JSONException("error parse undefined");
         }
         next();
 
         if (ch != 'n') {
-            throw new JSONException("error parse false");
+            throw new JSONException("error parse undefined");
         }
         next();
 
         if (ch != 'e') {
-            throw new JSONException("error parse false");
+            throw new JSONException("error parse undefined");
         }
         next();
         if (ch != 'd') {
-            throw new JSONException("error parse false");
+            throw new JSONException("error parse undefined");
         }
         next();
 
@@ -2519,7 +2520,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             || ch == '\f' || ch == '\b') {
             token = JSONToken.UNDEFINED;
         } else {
-            throw new JSONException("scan false error");
+            throw new JSONException("scan undefined error");
         }
     }
 
@@ -2756,17 +2757,17 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     public final void scanSet() {
         if (ch != 'S') {
-            throw new JSONException("error parse true");
+            throw new JSONException("error parse set");
         }
         next();
 
         if (ch != 'e') {
-            throw new JSONException("error parse true");
+            throw new JSONException("error parse set");
         }
         next();
 
         if (ch != 't') {
-            throw new JSONException("error parse true");
+            throw new JSONException("error parse set");
         }
         next();
 

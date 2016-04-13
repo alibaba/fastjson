@@ -1063,7 +1063,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     protected final static char[] typeFieldName = ("\"" + JSON.DEFAULT_TYPE_KEY + "\":\"").toCharArray();
 
-    public int scanType(String type) {
+    public final int scanType(String type) {
         matchStat = UNKNOWN;
 
         if (!charArrayCompare(typeFieldName)) {

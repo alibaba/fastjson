@@ -180,14 +180,22 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
             } finally {
                 dateLexer.close();
             }
-
-            DateFormat dateFormat = parser.getDateFormat();
-            try {
-                return (T) dateFormat.parse(strVal);
-            } catch (ParseException e) {
-                // skip
+            
+            if (strVal.length() == parser.getDateFomartPattern().length()) {
+                DateFormat dateFormat = parser.getDateFormat();
+                try {
+                    return (T) dateFormat.parse(strVal);
+                } catch (ParseException e) {
+                    // skip
+                }
             }
-
+            
+//            JSONScanner iso8601Lexer = new JSONScanner(strVal);
+//            if (iso8601Lexer.scanISO8601DateIfMatch()) {
+//                val = iso8601Lexer.getCalendar().getTime();
+//            }
+//            iso8601Lexer.close();
+//            
             long longVal = Long.parseLong(strVal);
             return (T) new java.util.Date(longVal);
         }

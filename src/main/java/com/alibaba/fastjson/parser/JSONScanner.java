@@ -311,6 +311,20 @@ public final class JSONScanner extends JSONLexerBase {
 
             token = JSONToken.LITERAL_ISO8601_DATE;
             return true;
+        } else if (t == '+' || t == '-') {
+            if (len == 16) {
+                if (charAt(bp + 13) != ':' // 
+                        || charAt(bp + 14) != '0' //
+                        || charAt(bp + 15) != '0') {
+                    return false;
+                }
+                
+                setTime('0', '0', '0', '0', '0', '0');
+                calendar.set(Calendar.MILLISECOND, 0);
+                setTimeZone(t, charAt(bp + 11), charAt(bp + 12));
+                return true;
+            }
+            return false;
         } else {
             return false;
         }
@@ -333,12 +347,7 @@ public final class JSONScanner extends JSONLexerBase {
             return false;
         }
 
-        int hour = digits[h0] * 10 + digits[h1];
-        int minute = digits[m0] * 10 + digits[m1];
-        int seconds = digits[s0] * 10 + digits[s1];
-        calendar.set(Calendar.HOUR_OF_DAY, hour);
-        calendar.set(Calendar.MINUTE, minute);
-        calendar.set(Calendar.SECOND, seconds);
+        setTime(h0, h1, m0, m1, s0, s1);
 
         char dot = charAt(bp + 19);
         if (dot == '.') {
@@ -426,18 +435,7 @@ public final class JSONScanner extends JSONLexerBase {
                timzeZoneLength = 3;
            }
            
-           int timeZoneOffset = (digits[t0] * 10 + digits[t1]) * 3600 * 1000;
-           if (timeZoneFlag == '-') {
-               timeZoneOffset = -timeZoneOffset;
-           }
-           
-           if (calendar.getTimeZone().getRawOffset() != timeZoneOffset) {
-               String[] timeZoneIDs = TimeZone.getAvailableIDs(timeZoneOffset);
-               if (timeZoneIDs.length > 0) {
-                   TimeZone timeZone = TimeZone.getTimeZone(timeZoneIDs[0]);
-                   calendar.setTimeZone(timeZone);
-               }
-           }
+           setTimeZone(timeZoneFlag, t0, t1);
            
         } else if (timeZoneFlag == 'Z') {// UTC
             timzeZoneLength = 1;
@@ -458,6 +456,30 @@ public final class JSONScanner extends JSONLexerBase {
 
         token = JSONToken.LITERAL_ISO8601_DATE;
         return true;
+    }
+
+    protected void setTime(char h0, char h1, char m0, char m1, char s0, char s1) {
+        int hour = digits[h0] * 10 + digits[h1];
+        int minute = digits[m0] * 10 + digits[m1];
+        int seconds = digits[s0] * 10 + digits[s1];
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.SECOND, seconds);
+    }
+
+    protected void setTimeZone(char timeZoneFlag, char t0, char t1) {
+        int timeZoneOffset = (digits[t0] * 10 + digits[t1]) * 3600 * 1000;
+           if (timeZoneFlag == '-') {
+               timeZoneOffset = -timeZoneOffset;
+           }
+           
+           if (calendar.getTimeZone().getRawOffset() != timeZoneOffset) {
+               String[] timeZoneIDs = TimeZone.getAvailableIDs(timeZoneOffset);
+               if (timeZoneIDs.length > 0) {
+                   TimeZone timeZone = TimeZone.getTimeZone(timeZoneIDs[0]);
+                   calendar.setTimeZone(timeZone);
+               }
+           }
     }
 
     private boolean checkTime(char h0, char h1, char m0, char m1, char s0, char s1) {

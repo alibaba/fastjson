@@ -78,58 +78,6 @@ public final class JSONScanner extends JSONLexerBase {
         text.getChars(offset, offset + count, dest, 0);
     }
 
-    protected final static char[] typeFieldName = ("\"" + JSON.DEFAULT_TYPE_KEY + "\":\"").toCharArray();
-
-    public final int scanType(String type) {
-        matchStat = UNKNOWN;
-
-        if (!charArrayCompare(text, bp, typeFieldName)) {
-            return NOT_MATCH_NAME;
-        }
-
-        int bpLocal = this.bp + typeFieldName.length;
-
-        final int typeLength = type.length();
-        for (int i = 0; i < typeLength; ++i) {
-            if (type.charAt(i) != charAt(bpLocal + i)) {
-                return NOT_MATCH;
-            }
-        }
-        bpLocal += typeLength;
-        if (charAt(bpLocal) != '"') {
-            return NOT_MATCH;
-        }
-
-        this.ch = charAt(++bpLocal);
-
-        if (ch == ',') {
-            this.ch = charAt(++bpLocal);
-            this.bp = bpLocal;
-            token = JSONToken.COMMA;
-            return VALUE;
-        } else if (ch == '}') {
-            ch = charAt(++bpLocal);
-            if (ch == ',') {
-                token = JSONToken.COMMA;
-                this.ch = charAt(++bpLocal);
-            } else if (ch == ']') {
-                token = JSONToken.RBRACKET;
-                this.ch = charAt(++bpLocal);
-            } else if (ch == '}') {
-                token = JSONToken.RBRACE;
-                this.ch = charAt(++bpLocal);
-            } else if (ch == EOI) {
-                token = JSONToken.EOF;
-            } else {
-                return NOT_MATCH;
-            }
-            matchStat = END;
-        }
-
-        this.bp = bpLocal;
-        return matchStat;
-    }
-
     static boolean charArrayCompare(String src, int offset, char[] dest) {
         final int destLen = dest.length;
         if (destLen + offset > src.length()) {

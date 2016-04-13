@@ -48,7 +48,11 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
             return;
         }
         
-        out.writeInt(value.intValue());
+        if (object instanceof Long) {
+            out.writeLong(value.longValue());
+        } else {
+            out.writeInt(value.intValue());
+        }
         
         if (out.writeClassName) {
             Class<?> clazz = value.getClass();

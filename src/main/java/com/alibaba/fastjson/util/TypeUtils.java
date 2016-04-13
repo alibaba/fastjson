@@ -240,6 +240,10 @@ public class TypeUtils {
             if ("null".equals(strVal) || "NULL".equals(strVal)) {
                 return null;
             }
+            
+            if (strVal.indexOf(',') != 0) {
+                strVal = strVal.replaceAll(",", "");
+            }
 
             return Float.parseFloat(strVal);
         }
@@ -266,6 +270,10 @@ public class TypeUtils {
                 return null;
             }
 
+            if (strVal.indexOf(',') != 0) {
+                strVal = strVal.replaceAll(",", "");
+            }
+
             return Double.parseDouble(strVal);
         }
 
@@ -276,9 +284,9 @@ public class TypeUtils {
         if (value == null) {
             return null;
         }
-        
+
         if (value instanceof Date) { // 使用频率最高的，应优先处理
-        	return (Date) value;
+            return (Date) value;
         }
 
         if (value instanceof Calendar) {
@@ -374,13 +382,13 @@ public class TypeUtils {
         if (value == null) {
             return null;
         }
-        
+
         if (value instanceof java.sql.Date) {
-        	return (java.sql.Date) value;
+            return (java.sql.Date) value;
         }
-        
+
         if (value instanceof java.util.Date) {
-        	return new java.sql.Date(((java.util.Date) value).getTime());
+            return new java.sql.Date(((java.util.Date) value).getTime());
         }
 
         if (value instanceof Calendar) {
@@ -466,6 +474,10 @@ public class TypeUtils {
             if ("null".equals(strVal) || "NULL".equals(strVal)) {
                 return null;
             }
+            
+            if (strVal.indexOf(',') != 0) {
+                strVal = strVal.replaceAll(",", "");
+            }
 
             try {
                 return Long.parseLong(strVal);
@@ -510,6 +522,10 @@ public class TypeUtils {
 
             if ("null".equals(strVal) || "NULL".equals(strVal)) {
                 return null;
+            }
+            
+            if (strVal.indexOf(',') != 0) {
+                strVal = strVal.replaceAll(",", "");
             }
 
             return Integer.parseInt(strVal);
@@ -911,17 +927,16 @@ public class TypeUtils {
             constructor.setAccessible(true);
             T object = constructor.newInstance();
 
-            
             if (javaBeanDeser != null) {
                 for (Map.Entry<String, Object> entry : map.entrySet()) {
                     String key = entry.getKey();
                     Object value = entry.getValue();
-                    
+
                     FieldDeserializer fieldDeser = javaBeanDeser.getFieldDeserializer(key);
                     if (fieldDeser == null) {
                         continue;
                     }
-                    
+
                     Method method = fieldDeser.fieldInfo.method;
                     if (method != null) {
                         Type paramType = method.getGenericParameterTypes()[0];
@@ -1007,7 +1022,7 @@ public class TypeUtils {
             String newClassName = className.substring(1, className.length() - 1);
             return loadClass(newClassName, classLoader);
         }
-        
+
         try {
             if (classLoader != null) {
                 clazz = classLoader.loadClass(className);
@@ -1048,7 +1063,8 @@ public class TypeUtils {
         return clazz;
     }
 
-    public static List<FieldInfo> computeGetters(Class<?> clazz, JSONType jsonType, Map<String, String> aliasMap, boolean sorted) {
+    public static List<FieldInfo> computeGetters(Class<?> clazz, JSONType jsonType, Map<String, String> aliasMap,
+                                                 boolean sorted) {
         Map<String, FieldInfo> fieldInfoMap = new LinkedHashMap<String, FieldInfo>();
 
         for (Method method : clazz.getMethods()) {
@@ -1101,7 +1117,8 @@ public class TypeUtils {
                         }
                     }
 
-                    FieldInfo fieldInfo = new FieldInfo(propertyName, method, null, clazz, null, ordinal, serialzeFeatures, annotation, null, label);
+                    FieldInfo fieldInfo = new FieldInfo(propertyName, method, null, clazz, null, ordinal,
+                                                        serialzeFeatures, annotation, null, label);
                     fieldInfoMap.put(propertyName, fieldInfo);
                     continue;
                 }
@@ -1184,7 +1201,8 @@ public class TypeUtils {
                     }
                 }
 
-                FieldInfo fieldInfo = new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures, annotation, fieldAnnotation, label);
+                FieldInfo fieldInfo = new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures,
+                                                    annotation, fieldAnnotation, label);
                 fieldInfoMap.put(propertyName, fieldInfo);
             }
 
@@ -1252,7 +1270,8 @@ public class TypeUtils {
                     }
                 }
 
-                FieldInfo fieldInfo = new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures, annotation, fieldAnnotation, label);
+                FieldInfo fieldInfo = new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures,
+                                                    annotation, fieldAnnotation, label);
                 fieldInfoMap.put(propertyName, fieldInfo);
             }
         }
@@ -1292,7 +1311,8 @@ public class TypeUtils {
             }
 
             if (!fieldInfoMap.containsKey(propertyName)) {
-                FieldInfo fieldInfo = new FieldInfo(propertyName, null, field, clazz, null, ordinal, serialzeFeatures, null, fieldAnnotation, label);
+                FieldInfo fieldInfo = new FieldInfo(propertyName, null, field, clazz, null, ordinal, serialzeFeatures,
+                                                    null, fieldAnnotation, label);
                 fieldInfoMap.put(propertyName, fieldInfo);
             }
         }
@@ -1338,15 +1358,15 @@ public class TypeUtils {
     }
 
     public static JSONField getSupperMethodAnnotation(final Class<?> clazz, final Method method) {
-    	Class<?>[] interfaces = clazz.getInterfaces();
-    	if (interfaces.length > 0) {
-    		Class<?>[] types = method.getParameterTypes(); 
-    		for (Class<?> interfaceClass : interfaces) {
+        Class<?>[] interfaces = clazz.getInterfaces();
+        if (interfaces.length > 0) {
+            Class<?>[] types = method.getParameterTypes();
+            for (Class<?> interfaceClass : interfaces) {
                 for (Method interfaceMethod : interfaceClass.getMethods()) {
-                	Class<?>[] interfaceTypes = interfaceMethod.getParameterTypes(); 
-                	if (interfaceTypes.length != types.length) {
-                		continue;					
-					}
+                    Class<?>[] interfaceTypes = interfaceMethod.getParameterTypes();
+                    if (interfaceTypes.length != types.length) {
+                        continue;
+                    }
                     if (!interfaceMethod.getName().equals(method.getName())) {
                         continue;
                     }
@@ -1368,7 +1388,7 @@ public class TypeUtils {
                     }
                 }
             }
-		}
+        }
         return null;
     }
 
@@ -1476,7 +1496,7 @@ public class TypeUtils {
         if (type instanceof ParameterizedType) {
             return getClass(((ParameterizedType) type).getRawType());
         }
-        
+
         if (type instanceof TypeVariable) {
             Type boundType = ((TypeVariable<?>) type).getBounds()[0];
             return (Class<?>) boundType;
@@ -1576,8 +1596,8 @@ public class TypeUtils {
         Class<?> rawClass = getRawClass(type);
 
         Collection list;
-        if (rawClass == AbstractCollection.class // 
-                || rawClass == Collection.class) {
+        if (rawClass == AbstractCollection.class //
+            || rawClass == Collection.class) {
             list = new ArrayList();
         } else if (rawClass.isAssignableFrom(HashSet.class)) {
             list = new HashSet();
@@ -1594,7 +1614,7 @@ public class TypeUtils {
             } else {
                 itemType = Object.class;
             }
-            list = EnumSet.noneOf((Class<Enum>)itemType);
+            list = EnumSet.noneOf((Class<Enum>) itemType);
         } else {
             try {
                 list = (Collection) rawClass.newInstance();

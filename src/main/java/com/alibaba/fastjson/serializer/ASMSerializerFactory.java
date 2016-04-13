@@ -321,20 +321,20 @@ public class ASMSerializerFactory implements Opcodes {
 
         byte[] code = cw.toByteArray();
 
-        if(JSON.DUMP_CLASS != null){
-            FileOutputStream fos=null;
-            try {
-                fos=new FileOutputStream(JSON.DUMP_CLASS+ File.separator
-                        + classNameType + ".class");
-                fos.write(code);
-            }catch (Exception ex){
-                System.err.println("FASTJSON dump class:"+classNameType+"失败:"+ex.getMessage());
-            }finally {
-                if(fos!=null){
-                    fos.close();
-                }
-            }
-        }
+//        if(JSON.DUMP_CLASS != null){
+//            FileOutputStream fos=null;
+//            try {
+//                fos=new FileOutputStream(JSON.DUMP_CLASS+ File.separator
+//                        + classNameType + ".class");
+//                fos.write(code);
+//            }catch (Exception ex){
+//                System.err.println("FASTJSON dump class:"+classNameType+"失败:"+ex.getMessage());
+//            }finally {
+//                if(fos!=null){
+//                    fos.close();
+//                }
+//            }
+//        }
 
         Class<?> exampleClass = classLoader.defineClassPublic(classNameFull, code, 0, code.length);
         Object instance = exampleClass.newInstance();

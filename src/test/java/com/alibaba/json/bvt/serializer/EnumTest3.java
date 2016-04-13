@@ -54,7 +54,7 @@ public class EnumTest3 {
 
     @Test
     public void testDefault1() throws Exception {
-        JSON.DUMP_CLASS = "/Users/bohr/Downloads/tmp";
+//        JSON.DUMP_CLASS = "/Users/bohr/Downloads/tmp";
         String json = JSON.toJSONString(Sex.M, SerializerFeature.WriteEnumUsingToString);
         Assert.assertEquals(json, "\"男\"");
 

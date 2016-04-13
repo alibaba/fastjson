@@ -6,7 +6,7 @@ import java.util.List;
 
 public class TypeReference<T> {
 
-    private final Type type;
+    protected final Type type;
 
     protected TypeReference(){
         Type superClass = getClass().getGenericSuperclass();

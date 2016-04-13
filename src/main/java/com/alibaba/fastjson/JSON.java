@@ -37,6 +37,7 @@ import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
+import com.alibaba.fastjson.parser.deserializer.FieldTypeResolver;
 import com.alibaba.fastjson.parser.deserializer.ParseProcess;
 import com.alibaba.fastjson.serializer.AfterFilter;
 import com.alibaba.fastjson.serializer.BeforeFilter;
@@ -62,6 +63,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     public static String DEFAULT_TYPE_KEY     = "@type";
 
     public static int    DEFAULT_PARSER_FEATURE;
+    
+    static final SerializeFilter[] emptyFilters     = new SerializeFilter[0];
 
     /**
      * asm生成代码dump路径
@@ -178,28 +181,28 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(String text, TypeReference<T> type, Feature... features) {
-        return (T) parseObject(text, type.getType(), ParserConfig.getGlobalInstance(), DEFAULT_PARSER_FEATURE, features);
+        return (T) parseObject(text, type.type, ParserConfig.global, DEFAULT_PARSER_FEATURE, features);
     }
 
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(String text, Class<T> clazz, Feature... features) {
-        return (T) parseObject(text, (Type) clazz, ParserConfig.getGlobalInstance(), DEFAULT_PARSER_FEATURE, features);
+        return (T) parseObject(text, (Type) clazz, ParserConfig.global, DEFAULT_PARSER_FEATURE, features);
     }
 
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(String text, Class<T> clazz, ParseProcess processor, Feature... features) {
-        return (T) parseObject(text, (Type) clazz, ParserConfig.getGlobalInstance(), processor, DEFAULT_PARSER_FEATURE,
+        return (T) parseObject(text, (Type) clazz, ParserConfig.global, processor, DEFAULT_PARSER_FEATURE,
                                features);
     }
 
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(String input, Type clazz, Feature... features) {
-        return (T) parseObject(input, clazz, ParserConfig.getGlobalInstance(), DEFAULT_PARSER_FEATURE, features);
+        return (T) parseObject(input, clazz, ParserConfig.global, DEFAULT_PARSER_FEATURE, features);
     }
 
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(String input, Type clazz, ParseProcess processor, Feature... features) {
-        return (T) parseObject(input, clazz, ParserConfig.getGlobalInstance(), DEFAULT_PARSER_FEATURE, features);
+        return (T) parseObject(input, clazz, ParserConfig.global, DEFAULT_PARSER_FEATURE, features);
     }
 
     @SuppressWarnings("unchecked")
@@ -246,6 +249,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         if (processor instanceof ExtraProcessor) {
             parser.getExtraProcessors().add((ExtraProcessor) processor);
+        }
+        
+        if (processor instanceof FieldTypeResolver) {
+            parser.setFieldTypeResolver((FieldTypeResolver) processor);
         }
 
         T value = (T) parser.parseObject(clazz);
@@ -382,7 +389,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     // ======================
     public static String toJSONString(Object object) {
-        return toJSONString(object, new SerializerFeature[0]);
+        return toJSONString(object, emptyFilters);
     }
 
     public static String toJSONString(Object object, SerializerFeature... features) {
@@ -448,22 +455,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static String toJSONString(Object object, SerializeFilter[] filters, SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter();
-
-        try {
-            JSONSerializer serializer = new JSONSerializer(out);
-            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
-                serializer.config(feature, true);
-            }
-
-            setFilter(serializer, filters);
-
-            serializer.write(object);
-
-            return out.toString();
-        } finally {
-            out.close();
-        }
+        return toJSONString(object, SerializeConfig.global, filters, DEFAULT_GENERATE_FEATURE, features);
     }
 
     public static byte[] toJSONBytes(Object object, SerializerFeature... features) {
@@ -487,8 +479,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return toJSONString(object, config, (SerializeFilter) null, features);
     }
 
-    public static String toJSONString(Object object, SerializeConfig config, SerializeFilter filter,
-                                            SerializerFeature... features) {
+    public static String toJSONString(Object object, //
+                                      SerializeConfig config, //
+                                      SerializeFilter filter, //
+                                      SerializerFeature... features) {
         SerializeWriter out = new SerializeWriter();
 
         try {
@@ -507,9 +501,23 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
     }
 
-    public static String toJSONString(Object object, SerializeConfig config, SerializeFilter[] filters,
-                                            SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter();
+    public static String toJSONString(Object object, //
+                                      SerializeConfig config, //
+                                      SerializeFilter[] filters, //
+                                      SerializerFeature... features) {
+        return toJSONString(object, config, filters, DEFAULT_GENERATE_FEATURE, features);
+    }
+    
+    /**
+     * @since 1.2.9
+     * @return
+     */
+    public static String toJSONString(Object object, // 
+                                      SerializeConfig config, // 
+                                      SerializeFilter[] filters, // 
+                                      int defaultFeatures, // 
+                                      SerializerFeature... features) {
+        SerializeWriter out = new SerializeWriter(null, defaultFeatures, features);
 
         try {
             JSONSerializer serializer = new JSONSerializer(out, config);
@@ -528,17 +536,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static String toJSONStringZ(Object object, SerializeConfig mapping, SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter(features);
-
-        try {
-            JSONSerializer serializer = new JSONSerializer(out, mapping);
-
-            serializer.write(object);
-
-            return out.toString();
-        } finally {
-            out.close();
-        }
+        return toJSONString(object, mapping, emptyFilters, 0, features);
     }
 
     public static byte[] toJSONBytes(Object object, SerializeConfig config, SerializerFeature... features) {
@@ -700,7 +698,11 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return TypeUtils.cast(json, clazz, ParserConfig.getGlobalInstance());
     }
 
-    private static void setFilter(JSONSerializer serializer, SerializeFilter... filters) {
+    private static void setFilter(JSONSerializer serializer, SerializeFilter[] filters) {
+        if (filters == null) {
+            return;
+        }
+        
         for (SerializeFilter filter : filters) {
             setFilter(serializer, filter);
         }

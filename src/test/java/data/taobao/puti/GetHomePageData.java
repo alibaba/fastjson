@@ -1,4 +1,4 @@
-package data.taobao;
+package data.taobao.puti;
 
 import java.util.List;
 

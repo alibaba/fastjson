@@ -9,8 +9,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.json.test.benchmark.decode.TradeObjectParse;
 
-import data.taobao.GetHomePageData;
-import data.taobao.GetHomePageResponse;
+import data.taobao.puti.GetHomePageData;
+import data.taobao.puti.GetHomePageResponse;
 import junit.framework.TestCase;
 
 public class HomePageTest extends TestCase {

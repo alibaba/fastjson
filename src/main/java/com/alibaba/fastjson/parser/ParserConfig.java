@@ -55,7 +55,6 @@ import com.alibaba.fastjson.serializer.CalendarCodec;
 import com.alibaba.fastjson.serializer.CollectionCodec;
 import com.alibaba.fastjson.serializer.DateCodec;
 import com.alibaba.fastjson.serializer.IntegerCodec;
-import com.alibaba.fastjson.serializer.MapCodec;
 import com.alibaba.fastjson.serializer.MiscCodec;
 import com.alibaba.fastjson.serializer.NumberCodec;
 import com.alibaba.fastjson.serializer.StringCodec;
@@ -81,12 +80,12 @@ public class ParserConfig {
         derializers.put(java.util.Date.class, DateCodec.instance);
         derializers.put(Calendar.class, CalendarCodec.instance);
 
-        derializers.put(Map.class, MapCodec.instance);
-        derializers.put(HashMap.class, MapCodec.instance);
-        derializers.put(LinkedHashMap.class, MapCodec.instance);
-        derializers.put(TreeMap.class, MapCodec.instance);
-        derializers.put(ConcurrentMap.class, MapCodec.instance);
-        derializers.put(ConcurrentHashMap.class, MapCodec.instance);
+        derializers.put(Map.class, MapDerializer.instance);
+        derializers.put(HashMap.class, MapDerializer.instance);
+        derializers.put(LinkedHashMap.class, MapDerializer.instance);
+        derializers.put(TreeMap.class, MapDerializer.instance);
+        derializers.put(ConcurrentMap.class, MapDerializer.instance);
+        derializers.put(ConcurrentHashMap.class, MapDerializer.instance);
 
         derializers.put(Collection.class, CollectionCodec.instance);
         derializers.put(List.class, CollectionCodec.instance);
@@ -203,7 +202,7 @@ public class ParserConfig {
         } else if (Collection.class.isAssignableFrom(clazz)) {
             derializer = CollectionCodec.instance;
         } else if (Map.class.isAssignableFrom(clazz)) {
-            derializer = MapCodec.instance;
+            derializer = MapDerializer.instance;
         } else if (Throwable.class.isAssignableFrom(clazz)) {
             derializer = new ThrowableDeserializer(this, clazz);
         } else {

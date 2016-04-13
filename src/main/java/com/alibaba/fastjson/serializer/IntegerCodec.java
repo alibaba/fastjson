@@ -51,7 +51,7 @@ public final class IntegerCodec implements ObjectSerializer, ObjectDeserializer 
             return;
         }
         
-        if (fieldType == long.class || fieldType == Long.class) {
+        if (object instanceof Long) {
             out.writeLong(value.longValue());
         } else {
             out.writeInt(value.intValue());

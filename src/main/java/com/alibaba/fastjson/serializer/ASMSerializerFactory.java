@@ -3,8 +3,6 @@ package com.alibaba.fastjson.serializer;
 import static com.alibaba.fastjson.util.ASMUtils.getDesc;
 import static com.alibaba.fastjson.util.ASMUtils.getType;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;

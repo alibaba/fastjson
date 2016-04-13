@@ -856,6 +856,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             }
 
             if (ch == EOI) {
+                if (!isEOF()) {
+                    putChar((char) EOI);
+                    continue;
+                }
                 throw new JSONException("unclosed string : " + ch);
             }
 
@@ -2639,6 +2643,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             }
 
             if (chLocal == EOI) {
+                if (!isEOF()) {
+                    putChar((char) EOI);
+                    continue;
+                }
                 throw new JSONException("unclosed single-quote string");
             }
 

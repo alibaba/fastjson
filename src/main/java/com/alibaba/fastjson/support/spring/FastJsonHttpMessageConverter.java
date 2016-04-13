@@ -15,18 +15,21 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<Object> {
 
-    public final static Charset UTF8     = Charset.forName("UTF-8");
+    public final static Charset UTF8            = Charset.forName("UTF-8");
 
-    private Charset             charset  = UTF8;
+    private Charset             charset         = UTF8;
 
-    private SerializerFeature[] features = new SerializerFeature[0];
+    private SerializerFeature[] features        = new SerializerFeature[0];
 
     protected SerializeFilter[] serialzeFilters = new SerializeFilter[0];
+
+    protected String            dateFormat;
 
     public FastJsonHttpMessageConverter(){
         super(new MediaType("application", "json", UTF8), new MediaType("application", "*+json", UTF8));
@@ -45,6 +48,14 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
         this.charset = charset;
     }
 
+    public String getDateFormat() {
+        return dateFormat;
+    }
+
+    public void setDateFormat(String dateFormat) {
+        this.dateFormat = dateFormat;
+    }
+
     public SerializerFeature[] getFeatures() {
         return features;
     }
@@ -54,8 +65,8 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
     }
 
     @Override
-    protected Object readInternal(Class<? extends Object> clazz, HttpInputMessage inputMessage) throws IOException,
-                                                                                               HttpMessageNotReadableException {
+    protected Object readInternal(Class<? extends Object> clazz,
+                                  HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -79,9 +90,14 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
 
     @Override
     protected void writeInternal(Object obj, HttpOutputMessage outputMessage) throws IOException,
-                                                                             HttpMessageNotWritableException {
-        HttpHeaders headers=outputMessage.getHeaders();
-        String text = JSON.toJSONString(obj, serialzeFilters, features);
+                                                                              HttpMessageNotWritableException {
+        HttpHeaders headers = outputMessage.getHeaders();
+        String text = JSON.toJSONString(obj, // 
+                                        SerializeConfig.globalInstance, // 
+                                        serialzeFilters, // 
+                                        dateFormat, // 
+                                        JSON.DEFAULT_GENERATE_FEATURE, // 
+                                        features);
         byte[] bytes = text.getBytes(charset);
         headers.setContentLength(bytes.length);
         OutputStream out = outputMessage.getBody();

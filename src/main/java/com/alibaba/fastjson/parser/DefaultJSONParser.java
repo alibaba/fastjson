@@ -60,6 +60,7 @@ import com.alibaba.fastjson.parser.deserializer.ASMJavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
+import com.alibaba.fastjson.parser.deserializer.FieldTypeResolver;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ResolveFieldDeserializer;
@@ -99,6 +100,7 @@ public class DefaultJSONParser implements Closeable {
 
     private List<ExtraTypeProvider>    extraTypeProviders = null;
     private List<ExtraProcessor>       extraProcessors    = null;
+    protected FieldTypeResolver        fieldTypeResolver  = null;
 
     static {
         primitiveClasses.add(boolean.class);
@@ -448,7 +450,21 @@ public class DefaultJSONParser implements Closeable {
                         ctxLocal = setContext(context, input, key);
                     }
 
-                    Object obj = this.parseObject(input, key);
+                    Object obj = null;
+                    boolean objParsed = false;
+                    if (fieldTypeResolver != null) {
+                        String resolveFieldName = key != null ? key.toString() : null;
+                        Type fieldType = fieldTypeResolver.resolve(object, resolveFieldName);
+                        if (fieldType != null) {
+                            ObjectDeserializer fieldDeser = config.getDeserializer(fieldType);
+                            obj = fieldDeser.deserialze(this, fieldType, key);
+                            objParsed = true;
+                        }
+                    }
+                    if (!objParsed) {
+                        obj = this.parseObject(input, key);
+                    }
+                    
                     if (ctxLocal != null && input != obj) {
                         ctxLocal.object = object;
                     }
@@ -1166,6 +1182,14 @@ public class DefaultJSONParser implements Closeable {
 
     public List<ExtraTypeProvider> getExtraTypeProvidersDirect() {
         return extraTypeProviders;
+    }
+    
+    public FieldTypeResolver getFieldTypeResolver() {
+        return fieldTypeResolver;
+    }
+    
+    public void setFieldTypeResolver(FieldTypeResolver fieldTypeResolver) {
+        this.fieldTypeResolver = fieldTypeResolver;
     }
 
     public void setContext(ParseContext context) {

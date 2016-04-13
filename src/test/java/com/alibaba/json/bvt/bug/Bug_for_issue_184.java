@@ -12,7 +12,6 @@ public class Bug_for_issue_184 extends TestCase {
         TUser user = new TUser();
         user.id = 1001;
         // 禁用asm(在android下使用)，启用asm则没问题。
-        SerializeConfig.getGlobalInstance().setAsmEnable(false);
         String json = JSON.toJSONString(user, SerializerFeature.WriteClassName);
         // 输出{"@type":"xx.TUser","id":0L}
         System.out.println(json);

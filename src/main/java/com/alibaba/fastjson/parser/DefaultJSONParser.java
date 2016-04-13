@@ -433,7 +433,12 @@ public class DefaultJSONParser implements Closeable {
                     lexer.nextToken();
                     JSONArray list = new JSONArray();
                     this.parseArray(list, key);
-                    value = list;
+                    
+                    if (lexer.isEnabled(Feature.UseObjectArray)) {
+                        value = list.toArray();
+                    } else {
+                        value = list;
+                    }
                     object.put(key, value);
 
                     if (lexer.token() == JSONToken.RBRACE) {
@@ -1109,7 +1114,11 @@ public class DefaultJSONParser implements Closeable {
                     case LBRACKET:
                         Collection items = new JSONArray();
                         parseArray(items, i);
-                        value = items;
+                        if (lexer.isEnabled(Feature.UseObjectArray)) {
+                            value = items.toArray();
+                        } else {
+                            value = items;
+                        }
                         break;
                     case NULL:
                         value = null;
@@ -1276,6 +1285,9 @@ public class DefaultJSONParser implements Closeable {
             case LBRACKET:
                 JSONArray array = new JSONArray();
                 parseArray(array, fieldName);
+                if (lexer.isEnabled(Feature.UseObjectArray)) {
+                    return array.toArray();
+                }
                 return array;
             case LBRACE:
                 JSONObject object = new JSONObject(lexer.isEnabled(Feature.OrderedField));

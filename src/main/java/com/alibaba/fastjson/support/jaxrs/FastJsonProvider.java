@@ -34,14 +34,14 @@ import com.alibaba.fastjson.util.IOUtils;
 
 /**
  * JAX-RS Provider for fastjson.
- * 
+ *
  * @author smallnest
  *
  */
 @Provider
 public class FastJsonProvider implements MessageBodyReader<Object>, MessageBodyWriter<Object> {
     private Class<?>[] clazzes = null;
-    
+
     public SerializeConfig serializeConfig = SerializeConfig.getGlobalInstance();
     public ParserConfig parserConfig = ParserConfig.getGlobalInstance();
     public SerializerFeature[] serializerFeatures = new SerializerFeature[0];
@@ -60,7 +60,7 @@ public class FastJsonProvider implements MessageBodyReader<Object>, MessageBodyW
 
     }
 
-    
+
     /**
      * Only serialize/deserialize all types in clazzes.
      */
@@ -71,14 +71,14 @@ public class FastJsonProvider implements MessageBodyReader<Object>, MessageBodyW
     /**
      * Check whether a class can be serialized or deserialized. It can check
      * based on packages, annotations on entities or explicit classes.
-     * 
+     *
      * @param type class need to check
      * @return true if valid
      */
     protected boolean isValidType(Class<?> type, Annotation[] classAnnotations) {
         if (type == null)
             return false;
-        
+
         if (clazzes != null) {
             for (Class<?> cls : clazzes) { // must strictly equal. Don't check
                                             // inheritance
@@ -94,7 +94,7 @@ public class FastJsonProvider implements MessageBodyReader<Object>, MessageBodyW
 
     /**
      * Check media type like "application/json".
-     * 
+     *
      * @param mediaType
      *            media type
      * @return true if the media type is valid
@@ -117,7 +117,7 @@ public class FastJsonProvider implements MessageBodyReader<Object>, MessageBodyW
                     serializer.config(feature, true);
                 }
             }
-            
+
             if (filter != null) {
                 if (filter instanceof PropertyPreFilter) {
                     serializer.getPropertyPreFilters().add((PropertyPreFilter) filter);
@@ -138,7 +138,7 @@ public class FastJsonProvider implements MessageBodyReader<Object>, MessageBodyW
                 if (filter instanceof BeforeFilter) {
                     serializer.getBeforeFilters().add((BeforeFilter) filter);
                 }
-                
+
                 if (filter instanceof AfterFilter) {
                     serializer.getAfterFilters().add((AfterFilter) filter);
                 }
@@ -185,7 +185,7 @@ public class FastJsonProvider implements MessageBodyReader<Object>, MessageBodyW
             OutputStream entityStream) throws IOException, WebApplicationException {
         SerializeFilter filter = null;
 
-        SerializerFeature[] serializerFeatures = this.serializerFeatures; 
+        SerializerFeature[] serializerFeatures = this.serializerFeatures;
         if(uriInfo != null &&  uriInfo.getQueryParameters().containsKey("pretty")) {
             if (serializerFeatures == null)
                 serializerFeatures = new  SerializerFeature[]{SerializerFeature.PrettyFormat};
@@ -199,7 +199,7 @@ public class FastJsonProvider implements MessageBodyReader<Object>, MessageBodyW
         if (serializeFilters != null) {
             filter = serializeFilters.get(type);
         }
-        
+
         String jsonStr = toJSONString(t, filter, serializerFeatures);
         if (jsonStr != null) {
             entityStream.write(jsonStr.getBytes());
@@ -235,11 +235,11 @@ public class FastJsonProvider implements MessageBodyReader<Object>, MessageBodyW
         } catch (Exception e) {
             // skip ??
         }
-        
+
         if (input == null) {
             return null;
         }
-        
+
         if (features == null) {
             return JSON.parseObject(input, type, parserConfig, JSON.DEFAULT_PARSER_FEATURE);
         } else {

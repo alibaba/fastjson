@@ -434,11 +434,11 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static String toJSONString(Object object, SerializeFilter filter, SerializerFeature... features) {
-        return toJSONString(object, SerializeConfig.global, filter, features);
+        return toJSONString(object, SerializeConfig.globalInstance, filter, features);
     }
 
     public static String toJSONString(Object object, SerializeFilter[] filters, SerializerFeature... features) {
-        return toJSONString(object, SerializeConfig.global, filters, DEFAULT_GENERATE_FEATURE, features);
+        return toJSONString(object, SerializeConfig.globalInstance, filters, DEFAULT_GENERATE_FEATURE, features);
     }
 
     public static byte[] toJSONBytes(Object object, SerializerFeature... features) {

@@ -332,6 +332,10 @@ public final class JSONLexer {
                         token = EOF;
                         pos = bp = eofPos;
                     } else {
+                        if (ch <= 31 || ch == 127) {
+                            next();
+                            break;
+                        }
                         token = ERROR;
                         next();
                     }

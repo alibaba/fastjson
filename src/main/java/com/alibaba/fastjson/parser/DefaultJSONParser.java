@@ -323,11 +323,18 @@ public class DefaultJSONParser implements Closeable {
                             throw new JSONException("create instance error", e);
                         }
                     }
-
+                    
                     this.setResolveStatus(TypeNameRedirect);
 
                     if (this.context != null && !(fieldName instanceof Integer)) {
                         this.popContext();
+                    }
+                    
+                    if (object.size() > 0) {
+                        JSON json = object instanceof JSON ? (JSON) object : new JSONObject(object);
+                        Object newObj = TypeUtils.cast(json, clazz, this.config);
+                        this.parseObject(newObj);
+                        return newObj;
                     }
 
                     ObjectDeserializer deserializer = config.getDeserializer(clazz);

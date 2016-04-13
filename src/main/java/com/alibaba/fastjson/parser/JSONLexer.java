@@ -29,7 +29,7 @@ public final class JSONLexer {
     public final static byte EOI            = 0x1A;
     public final static int  NOT_MATCH      = -1;
     public final static int  NOT_MATCH_NAME = -2;
-    public final static int  UNKOWN         = 0;
+    public final static int  UNKNOWN         = 0;
     public final static int  OBJECT         = 1;
     public final static int  ARRAY          = 2;
     public final static int  VALUE          = 3;
@@ -71,7 +71,7 @@ public final class JSONLexer {
 
     protected Calendar                                      calendar       = null;
 
-    public int                                              matchStat      = UNKOWN;
+    public int                                              matchStat      = UNKNOWN;
 
     private final static ThreadLocal<char[]> SBUF_REF_LOCAL = new ThreadLocal<char[]>();
     protected Map<String, Integer>                          keywods        = DEFAULT_KEYWORDS;
@@ -255,7 +255,7 @@ public final class JSONLexer {
                 case 't': // true
                     scanTrue();
                     return;
-                case 'T': // true
+                case 'T': // treeSet
                     scanTreeSet();
                     return;
                 case 'S': // set
@@ -267,7 +267,7 @@ public final class JSONLexer {
                 case 'n': // new,null
                     scanNullOrNew();
                     return;
-                case 'u': // new,null
+                case 'u': // undefined
                     scanUndefined();
                     return;
                 case '(':
@@ -1160,7 +1160,7 @@ public final class JSONLexer {
     }
 
     public String scanString(char expectNextChar) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         int offset = 0;
         char chLocal = charAt(bp + (offset++));
@@ -1240,7 +1240,7 @@ public final class JSONLexer {
     }
 
     public String scanSymbolWithSeperator(final SymbolTable symbolTable, char serperator) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         int offset = 0;
         char chLocal = charAt(bp + (offset++));
@@ -1306,7 +1306,7 @@ public final class JSONLexer {
     }
 
     public int scanInt(char expectNext) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         int offset = 0;
         char chLocal = charAt(bp + (offset++));
@@ -1347,7 +1347,7 @@ public final class JSONLexer {
     }
 
     public long scanLong(char expectNextChar) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         int offset = 0;
         char chLocal = charAt(bp + (offset++));
@@ -1418,44 +1418,44 @@ public final class JSONLexer {
 
     private void scanTreeSet() {
         if (ch != 'T') {
-            throw new JSONException("error parse true");
+            throw new JSONException("error parse treeSet");
         }
         next();
 
         if (ch != 'r') {
-            throw new JSONException("error parse true");
+            throw new JSONException("error parse treeSet");
         }
         next();
 
         if (ch != 'e') {
-            throw new JSONException("error parse true");
+            throw new JSONException("error parse treeSet");
         }
         next();
 
         if (ch != 'e') {
-            throw new JSONException("error parse true");
+            throw new JSONException("error parse treeSet");
         }
         next();
 
         if (ch != 'S') {
-            throw new JSONException("error parse true");
+            throw new JSONException("error parse treeSet");
         }
         next();
 
         if (ch != 'e') {
-            throw new JSONException("error parse true");
+            throw new JSONException("error parse treeSet");
         }
         next();
 
         if (ch != 't') {
-            throw new JSONException("error parse true");
+            throw new JSONException("error parse treeSet");
         }
         next();
 
         if (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b' || ch == '[' || ch == '(') {
             token = JSONToken.TREE_SET;
         } else {
-            throw new JSONException("scan set error");
+            throw new JSONException("scan treeSet error");
         }
     }
 
@@ -1468,12 +1468,12 @@ public final class JSONLexer {
         if (ch == 'u') {
             next();
             if (ch != 'l') {
-                throw new JSONException("error parse true");
+                throw new JSONException("error parse null");
             }
             next();
 
             if (ch != 'l') {
-                throw new JSONException("error parse true");
+                throw new JSONException("error parse null");
             }
             next();
 
@@ -1481,18 +1481,18 @@ public final class JSONLexer {
                 || ch == '\f' || ch == '\b') {
                 token = JSONToken.NULL;
             } else {
-                throw new JSONException("scan true error");
+                throw new JSONException("scan null error");
             }
             return;
         }
 
         if (ch != 'e') {
-            throw new JSONException("error parse e");
+            throw new JSONException("error parse new");
         }
         next();
 
         if (ch != 'w') {
-            throw new JSONException("error parse w");
+            throw new JSONException("error parse new");
         }
         next();
 
@@ -1500,52 +1500,52 @@ public final class JSONLexer {
             || ch == '\f' || ch == '\b') {
             token = JSONToken.NEW;
         } else {
-            throw new JSONException("scan true error");
+            throw new JSONException("scan new error");
         }
     }
 
     private void scanUndefined() {
         if (ch != 'u') {
-            throw new JSONException("error parse false");
+            throw new JSONException("error parse undefined");
         }
         next();
 
         if (ch != 'n') {
-            throw new JSONException("error parse false");
+            throw new JSONException("error parse undefined");
         }
         next();
 
         if (ch != 'd') {
-            throw new JSONException("error parse false");
+            throw new JSONException("error parse undefined");
         }
         next();
 
         if (ch != 'e') {
-            throw new JSONException("error parse false");
+            throw new JSONException("error parse undefined");
         }
         next();
 
         if (ch != 'f') {
-            throw new JSONException("error parse false");
+            throw new JSONException("error parse undefined");
         }
         next();
 
         if (ch != 'i') {
-            throw new JSONException("error parse false");
+            throw new JSONException("error parse undefined");
         }
         next();
 
         if (ch != 'n') {
-            throw new JSONException("error parse false");
+            throw new JSONException("error parse undefined");
         }
         next();
 
         if (ch != 'e') {
-            throw new JSONException("error parse false");
+            throw new JSONException("error parse undefined");
         }
         next();
         if (ch != 'd') {
-            throw new JSONException("error parse false");
+            throw new JSONException("error parse undefined");
         }
         next();
 
@@ -1553,7 +1553,7 @@ public final class JSONLexer {
             || ch == '\f' || ch == '\b') {
             token = JSONToken.UNDEFINED;
         } else {
-            throw new JSONException("scan false error");
+            throw new JSONException("scan undefined error");
         }
     }
 
@@ -2132,7 +2132,7 @@ public final class JSONLexer {
     }
     
     public int scanFieldInt(char[] fieldName) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         if (!charArrayCompare(fieldName)) {
             matchStat = NOT_MATCH_NAME;
@@ -2263,7 +2263,7 @@ public final class JSONLexer {
     }
     
     public long scanFieldLong(char[] fieldName) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         if (!charArrayCompare(fieldName)) {
             matchStat = NOT_MATCH_NAME;
@@ -2412,7 +2412,7 @@ public final class JSONLexer {
     }
     
     public String scanFieldString(char[] fieldName) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         if (!charArrayCompare(fieldName)) {
             matchStat = NOT_MATCH_NAME;
@@ -2632,7 +2632,7 @@ public final class JSONLexer {
     }
     
     public boolean scanFieldBoolean(char[] fieldName) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         if (!charArrayCompare(fieldName)) {
             matchStat = NOT_MATCH_NAME;
@@ -2807,7 +2807,7 @@ public final class JSONLexer {
     }
     
     public final float scanFieldFloat(char[] fieldName) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         if (!charArrayCompare(fieldName)) {
             matchStat = NOT_MATCH_NAME;
@@ -2894,7 +2894,7 @@ public final class JSONLexer {
     }
     
     public final double scanFieldDouble(char[] fieldName) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         if (!charArrayCompare(fieldName)) {
             matchStat = NOT_MATCH_NAME;
@@ -2995,7 +2995,7 @@ public final class JSONLexer {
     }
     
     public String scanFieldSymbol(char[] fieldName, final SymbolTable symbolTable) {
-        matchStat = UNKOWN;
+        matchStat = UNKNOWN;
 
         if (!charArrayCompare(fieldName)) {
             matchStat = NOT_MATCH_NAME;

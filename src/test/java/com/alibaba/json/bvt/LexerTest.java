@@ -164,6 +164,7 @@ public class LexerTest extends TestCase {
         try {
             JSONLexer lexer = new JSONLexer("\"\\k\"");
             lexer.nextToken();
+            lexer.stringVal();
         } catch (Exception ex) {
             error = ex;
         }

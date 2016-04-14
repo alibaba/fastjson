@@ -146,6 +146,7 @@ public class JSONScannerTest_singQuoteString extends TestCase {
             JSONLexer lexer = new JSONLexer("'k\\k'");
             lexer.config(Feature.AllowSingleQuotes, true);
             lexer.nextToken();
+            lexer.stringVal();
             Assert.assertEquals(JSONToken.ERROR, lexer.token());
         } catch (JSONException ex) {
             error = ex;

@@ -136,14 +136,17 @@ class JavaBeanInfo {
         return sortedFields;
     }
 
-    static boolean addField(List<FieldInfo> fields, FieldInfo field) {
-        for (FieldInfo item : fields) {
-            if (item.name.equals(field.name)) {
-                if (item.getOnly && !field.getOnly) {
-                    continue;
+    static boolean addField(List<FieldInfo> fields, FieldInfo field, boolean fieldOnly) {
+        if (!fieldOnly) {
+            for (int i = 0, size = fields.size(); i < size; ++i) {
+                FieldInfo item = fields.get(i);
+                if (item.name.equals(field.name)) {
+                    if (item.getOnly && !field.getOnly) {
+                        continue;
+                    }
+    
+                    return false;
                 }
-
-                return false;
             }
         }
 
@@ -153,6 +156,7 @@ class JavaBeanInfo {
     }
 
     public static JavaBeanInfo build(Class<?> clazz, //
+                                     int classModifiers, //
                                      Type type, //
                                      boolean fieldOnly, //
                                      boolean jsonTypeSupport, //
@@ -162,22 +166,22 @@ class JavaBeanInfo {
         List<FieldInfo> fieldList = new ArrayList<FieldInfo>();
 
         // DeserializeBeanInfo beanInfo = null;
-        final int modifiers = clazz.getModifiers();
-        Constructor<?> defaultConstructor = getDefaultConstructor(clazz, modifiers);
+        Constructor<?> defaultConstructor = getDefaultConstructor(clazz, classModifiers);
         Constructor<?> creatorConstructor = null;
         Method[] methods = fieldOnly //
             ? null //
             : clazz.getMethods();
         
-        Field[] declaredFields = clazz.getDeclaredFields();
-        
+        final Field[] declaredFields = fieldOnly //
+            ? null //
+            : clazz.getDeclaredFields();
 
         if (defaultConstructor == null // 
-                && !(clazz.isInterface() || (modifiers & Modifier.ABSTRACT) != 0) //
+                && !(clazz.isInterface() || (classModifiers & Modifier.ABSTRACT) != 0) //
                 ) {
             creatorConstructor = getCreatorConstructor(clazz);
             if (creatorConstructor != null) {
-                TypeUtils.setAccessible(clazz, creatorConstructor, modifiers);
+                TypeUtils.setAccessible(clazz, creatorConstructor, classModifiers);
 
                 Class<?>[] parameterTypes = creatorConstructor.getParameterTypes();
                 Type[] getGenericParameterTypes = fieldGenericSupport //
@@ -202,7 +206,7 @@ class JavaBeanInfo {
                     Field field = TypeUtils.getField(clazz, fieldAnnotation.name(), declaredFields);
 
                     if (field != null) {
-                        TypeUtils.setAccessible(clazz, field, modifiers);
+                        TypeUtils.setAccessible(clazz, field, classModifiers);
                     }
 
                     final int ordinal = fieldAnnotation.ordinal();
@@ -214,7 +218,7 @@ class JavaBeanInfo {
                                                         field, //
                                                         ordinal, //
                                                         serialzeFeatures);
-                    addField(fieldList, fieldInfo);
+                    addField(fieldList, fieldInfo, fieldOnly);
                 }
 
                 FieldInfo[] fields = new FieldInfo[fieldList.size()];
@@ -230,7 +234,7 @@ class JavaBeanInfo {
 
             Method factoryMethod = getFactoryMethod(clazz, methods);
             if (factoryMethod != null) {
-                TypeUtils.setAccessible(clazz, factoryMethod, modifiers);
+                TypeUtils.setAccessible(clazz, factoryMethod, classModifiers);
 
                 Class<?>[] parameterTypes = factoryMethod.getParameterTypes();
                 Type[] genericParameterTypes = fieldGenericSupport //
@@ -262,7 +266,7 @@ class JavaBeanInfo {
                                                         , field //
                                                         , ordinal //
                                                         , serialzeFeatures);
-                    addField(fieldList, fieldInfo);
+                    addField(fieldList, fieldInfo, fieldOnly);
                 }
 
                 FieldInfo[] fields = new FieldInfo[fieldList.size()];
@@ -285,7 +289,7 @@ class JavaBeanInfo {
         }
 
         if (defaultConstructor != null) {
-            TypeUtils.setAccessible(clazz, defaultConstructor, modifiers);
+            TypeUtils.setAccessible(clazz, defaultConstructor, classModifiers);
         }
 
         if (!fieldOnly) {
@@ -331,17 +335,19 @@ class JavaBeanInfo {
 
                     if (annotation.name().length() != 0) {
                         String propertyName = annotation.name();
-                        addField(fieldList, new FieldInfo(propertyName, // 
-                                                          method, // 
-                                                          null, // 
-                                                          clazz, // 
-                                                          type, // 
-                                                          ordinal, //
-                                                          serialzeFeatures, // 
-                                                          annotation, // 
-                                                          null, //
-                                                          fieldGenericSupport));
-                        TypeUtils.setAccessible(clazz, method, modifiers);
+                        addField(fieldList,
+                                 new FieldInfo(propertyName, //
+                                               method, //
+                                               null, //
+                                               clazz, //
+                                               type, //
+                                               ordinal, //
+                                               serialzeFeatures, //
+                                               annotation, //
+                                               null, //
+                                               fieldGenericSupport), //
+                                 fieldOnly);
+                        TypeUtils.setAccessible(clazz, method, classModifiers);
                         continue;
                     }
                 }
@@ -385,24 +391,25 @@ class JavaBeanInfo {
 
                         if (fieldAnnotation.name().length() != 0) {
                             propertyName = fieldAnnotation.name();
-                            addField(fieldList, new FieldInfo(propertyName, method, field, clazz, type, ordinal,
-                                                              serialzeFeatures, annotation, fieldAnnotation, fieldGenericSupport));
+                            addField(fieldList, //
+                                     new FieldInfo(propertyName, method, field, clazz, type, //
+                                                   ordinal, serialzeFeatures, annotation, fieldAnnotation,
+                                                   fieldGenericSupport), //
+                                     fieldOnly);
                             continue;
                         }
                     }
 
                 }
-                addField(fieldList, new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures,
-                                                  annotation, null, fieldGenericSupport));
-                TypeUtils.setAccessible(clazz, method, modifiers);
+                addField(fieldList, //
+                         new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures, annotation,
+                                       null, fieldGenericSupport), //
+                         fieldOnly);
+                TypeUtils.setAccessible(clazz, method, classModifiers);
             }
         }
 
         for (Field field : clazz.getFields()) {
-            if (Modifier.isStatic(field.getModifiers())) {
-                continue;
-            }
-
             final String fieldName = field.getName();
             boolean contains = false;
             for (int i = 0, size = fieldList.size(); i < size; ++i) {
@@ -430,7 +437,7 @@ class JavaBeanInfo {
                     propertyName = fieldAnnotation.name();
                 }
             }
-            TypeUtils.setAccessible(clazz, field, modifiers);
+            TypeUtils.setAccessible(clazz, field, classModifiers);
             addField(fieldList, //
                      new FieldInfo(propertyName, //
                                    null, //
@@ -440,7 +447,9 @@ class JavaBeanInfo {
                                    ordinal, //
                                    serialzeFeatures, //
                                    null, //
-                                   fieldAnnotation, fieldGenericSupport));
+                                   fieldAnnotation, // 
+                                   fieldGenericSupport), // 
+                     fieldOnly);
         }
 
         if (!fieldOnly) {
@@ -473,8 +482,11 @@ class JavaBeanInfo {
                             propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
                         }
     
-                        addField(fieldList, new FieldInfo(propertyName, method, null, clazz, type, 0, 0, annotation, null, fieldGenericSupport));
-                        TypeUtils.setAccessible(clazz, method, modifiers);
+                        addField(fieldList, //
+                                 new FieldInfo(propertyName, method, null, clazz, type, 0, 0, annotation, null,
+                                               fieldGenericSupport), //
+                                 fieldOnly);
+                        TypeUtils.setAccessible(clazz, method, classModifiers);
                     }
                 }
             }

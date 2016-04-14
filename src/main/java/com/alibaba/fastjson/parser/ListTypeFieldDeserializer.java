@@ -1,12 +1,15 @@
 package com.alibaba.fastjson.parser;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
@@ -16,19 +19,26 @@ public class ListTypeFieldDeserializer extends FieldDeserializer {
 
     private final Type         itemType;
     private ObjectDeserializer deserializer;
+    private final boolean      array;
 
     public ListTypeFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo){
         super(clazz, fieldInfo, JSONToken.LBRACKET);
 
         Type fieldType = fieldInfo.fieldType;
+        Class<?> fieldClass= fieldInfo.fieldClass;
         if (fieldType instanceof ParameterizedType) {
             this.itemType = ((ParameterizedType) fieldType).getActualTypeArguments()[0];
+            array = false;
+        } else if (fieldClass.isArray()) {
+            this.itemType = fieldClass.getComponentType();
+            array = true;
         } else {
             this.itemType = Object.class;
+            array = false;
         }
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public void parseField(DefaultJSONParser parser, Object object, Type objectType, Map<String, Object> fieldValues) {
         if (parser.lexer.token == JSONToken.NULL) {
@@ -36,18 +46,34 @@ public class ListTypeFieldDeserializer extends FieldDeserializer {
             return;
         }
 
-        ArrayList list = new ArrayList();
+        JSONArray jsonArray = null;
+        List list;
+        if (array) {
+            list = jsonArray = new JSONArray();
+            jsonArray.setComponentType(itemType);
+        } else {
+            list = new ArrayList(); 
+        }
 
         ParseContext context = parser.context;
 
         parser.setContext(context, object, fieldInfo.name);
         parseArray(parser, objectType, list);
         parser.setContext(context);
+        
+        Object fieldValue;
+        if (array) {
+            Object[] arrayValue = (Object[]) Array.newInstance((Class<?>)itemType, list.size());
+            fieldValue = list.toArray(arrayValue);
+            jsonArray.setRelatedArray(fieldValue);
+        } else {
+            fieldValue = list;
+        }
 
         if (object == null) {
-            fieldValues.put(fieldInfo.name, list);
+            fieldValues.put(fieldInfo.name, fieldValue);
         } else {
-            setValue(object, list);
+            setValue(object, fieldValue);
         }
     }
 

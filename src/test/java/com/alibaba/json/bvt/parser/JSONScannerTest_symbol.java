@@ -37,7 +37,7 @@ public class JSONScannerTest_symbol extends TestCase {
 
         JSONLexer lexer = new JSONLexer("\"nick \\\"name\"");
         String symbol = lexer.scanSymbol(symbolTable, '"');
-        Assert.assertTrue("nick \"name" == symbol);
+        Assert.assertTrue("nick \"name".equals(symbol));
         lexer.close();
     }
 
@@ -46,7 +46,7 @@ public class JSONScannerTest_symbol extends TestCase {
 
         JSONLexer lexer = new JSONLexer("\"nick \\\\name\"");
         String symbol = lexer.scanSymbol(symbolTable, '"');
-        Assert.assertTrue("nick \\name" == symbol);
+        Assert.assertTrue("nick \\name".equals(symbol));
         lexer.close();
     }
 
@@ -55,7 +55,7 @@ public class JSONScannerTest_symbol extends TestCase {
 
         JSONLexer lexer = new JSONLexer("\"nick \\/name\"");
         String symbol = lexer.scanSymbol(symbolTable, '"');
-        Assert.assertTrue("nick /name" == symbol);
+        Assert.assertTrue("nick /name".equals(symbol));
         lexer.close();
     }
 
@@ -64,7 +64,7 @@ public class JSONScannerTest_symbol extends TestCase {
 
         JSONLexer lexer = new JSONLexer("\"nick \\bname\"");
         String symbol = lexer.scanSymbol(symbolTable, '"');
-        Assert.assertTrue("nick \bname" == symbol);
+        Assert.assertTrue("nick \bname".equals(symbol));
         lexer.close();
     }
 
@@ -73,7 +73,7 @@ public class JSONScannerTest_symbol extends TestCase {
 
         JSONLexer lexer = new JSONLexer("\"nick \\f name\"");
         String symbol = lexer.scanSymbol(symbolTable, '"');
-        Assert.assertTrue("nick \f name" == symbol);
+        Assert.assertTrue("nick \f name".equals(symbol));
         lexer.close();
     }
 
@@ -82,7 +82,7 @@ public class JSONScannerTest_symbol extends TestCase {
 
         JSONLexer lexer = new JSONLexer("\"nick \\F name\"");
         String symbol = lexer.scanSymbol(symbolTable, '"');
-        Assert.assertTrue("nick \f name" == symbol);
+        Assert.assertTrue("nick \f name".equals(symbol));
         lexer.close();
     }
 
@@ -91,7 +91,7 @@ public class JSONScannerTest_symbol extends TestCase {
 
         JSONLexer lexer = new JSONLexer("\"nick \\n name\"");
         String symbol = lexer.scanSymbol(symbolTable, '"');
-        Assert.assertTrue("nick \n name" == symbol);
+        Assert.assertTrue("nick \n name".equals(symbol));
         lexer.close();
     }
 
@@ -100,7 +100,7 @@ public class JSONScannerTest_symbol extends TestCase {
 
         JSONLexer lexer = new JSONLexer("\"nick \\r name\"");
         String symbol = lexer.scanSymbol(symbolTable, '"');
-        Assert.assertTrue("nick \r name" == symbol);
+        Assert.assertTrue("nick \r name".equals(symbol));
         lexer.close();
     }
 
@@ -109,7 +109,7 @@ public class JSONScannerTest_symbol extends TestCase {
 
         JSONLexer lexer = new JSONLexer("\"nick \\t name\"");
         String symbol = lexer.scanSymbol(symbolTable, '"');
-        Assert.assertTrue("nick \t name" == symbol);
+        Assert.assertTrue("nick \t name".equals(symbol));
         lexer.close();
     }
 
@@ -118,7 +118,7 @@ public class JSONScannerTest_symbol extends TestCase {
 
         JSONLexer lexer = new JSONLexer("\"nick \\u4e2d name\"");
         String symbol = lexer.scanSymbol(symbolTable, '"');
-        Assert.assertTrue("nick 中 name" == symbol);
+        Assert.assertTrue("nick 中 name".equals(symbol));
         lexer.close();
     }
 

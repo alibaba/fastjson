@@ -10,12 +10,12 @@ import com.alibaba.json.test.codec.Codec;
 /**
  * Created by wenshao on 16/4/4.
  */
-public class TradeObjectParse extends BenchmarkCase {
+public class CartObjectParse extends BenchmarkCase {
 
     private static String text;
 
-    public TradeObjectParse(){
-        super("TradeObjectParse");
+    public CartObjectParse(){
+        super("CartObjectParse");
 
         // JavaBeanMapping.getGlobalInstance().putDeserializer(Image.class, new ImageDeserializer());
         // JavaBeanMapping.getGlobalInstance().putDeserializer(Media.class, new MediaDeserializer());
@@ -25,7 +25,7 @@ public class TradeObjectParse extends BenchmarkCase {
         if (text != null) {
             return;
         }
-        InputStream is = TradeObjectParse.class.getClassLoader().getResourceAsStream("json/trade.json");
+        InputStream is = CartObjectParse.class.getClassLoader().getResourceAsStream("json/taobao/cart.json");
         Reader reader = new InputStreamReader(is, "UTF-8");
         char[] chars = new char[1024];
 
@@ -39,7 +39,7 @@ public class TradeObjectParse extends BenchmarkCase {
         }
         reader.close();
         text = out.toString();
-        System.out.println("tradeJsonObject " + text.substring(100));
+        System.out.println("cartJsonObject " + text.substring(100));
     }
 
     @Override

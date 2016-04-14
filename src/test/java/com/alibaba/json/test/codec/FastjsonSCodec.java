@@ -1,5 +1,6 @@
 package com.alibaba.json.test.codec;
 
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Collection;
 
@@ -22,9 +23,9 @@ public class FastjsonSCodec implements Codec {
     // fastjson 模拟首次
     public <T> T decodeObject(String text, Type clazz) {
         ParserConfig config = new ParserConfig(); // 每次new ParserConfig模拟首次
-        config.registerIfNotExists(MediaContent.class, true, false, false, false);
-        config.registerIfNotExists(Media.class, true, false, false, false);
-        config.registerIfNotExists(Image.class, true, false, false, false);
+        config.registerIfNotExists(MediaContent.class, Modifier.PUBLIC, true, false, false, false);
+        config.registerIfNotExists(Media.class, Modifier.PUBLIC,true, false, false, false);
+        config.registerIfNotExists(Image.class, Modifier.PUBLIC,true, false, false, false);
         return JSON.parseObject(text, // 
                                 clazz, //
                                 config, //

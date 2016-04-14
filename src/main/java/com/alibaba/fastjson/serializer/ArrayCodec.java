@@ -40,8 +40,11 @@ public final class ArrayCodec implements ObjectSerializer, ObjectDeserializer {
     private ArrayCodec(){
     }
 
-    public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType)
-                                                                                                       throws IOException {
+    public final void write(JSONSerializer serializer, //
+                            Object object, //
+                            Object fieldName, //
+                            Type fieldType //
+    ) throws IOException {
         SerializeWriter out = serializer.out;
 
         Object[] array = (Object[]) object;

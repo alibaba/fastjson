@@ -35,8 +35,13 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
     public final boolean    isEnum;
 
-    public FieldInfo(String name, Class<?> declaringClass, Class<?> fieldClass, Type fieldType, Field field,
-                     int ordinal, int serialzeFeatures){
+    public FieldInfo(String name, // 
+                     Class<?> declaringClass, // 
+                     Class<?> fieldClass, // 
+                     Type fieldType, // 
+                     Field field, //
+                     int ordinal, // 
+                     int serialzeFeatures){
         this.name = name;
         this.declaringClass = declaringClass;
         this.fieldClass = fieldClass;
@@ -68,16 +73,16 @@ public class FieldInfo implements Comparable<FieldInfo> {
         name_chars[nameLen + 2] = ':';
     }
 
-    public FieldInfo(String name
-                     , Method method
-                     , Field field
-                     , Class<?> clazz
-                     , Type type
-                     , int ordinal
-                     , int serialzeFeatures
-                     , JSONField methodAnnotation
-                     , JSONField fieldAnnotation
-                     ){
+    public FieldInfo(String name, // 
+                     Method method, // 
+                     Field field, // 
+                     Class<?> clazz, // 
+                     Type type, // 
+                     int ordinal, //
+                     int serialzeFeatures, // 
+                     JSONField methodAnnotation, // 
+                     JSONField fieldAnnotation, //
+                     boolean fieldGenericSupport){
         if (field != null) {
             String fieldName = field.getName();
             if (fieldName.equals(name)) {
@@ -115,10 +120,12 @@ public class FieldInfo implements Comparable<FieldInfo> {
             Class<?>[] parameterTypes = method.getParameterTypes();
             if (parameterTypes.length == 1) {
                 fieldClass = parameterTypes[0];
-                if (fieldClass == Class.class || fieldClass.isPrimitive()) {
+                if (fieldClass == Class.class // 
+                        || fieldClass == String.class //
+                        || fieldClass.isPrimitive()) {
                     fieldType = fieldClass;
                 } else {
-                    fieldType = method.getGenericParameterTypes()[0];
+                    fieldType = fieldGenericSupport ? method.getGenericParameterTypes()[0] : fieldClass;
                 }
                 getOnly = false;
             } else {
@@ -126,24 +133,29 @@ public class FieldInfo implements Comparable<FieldInfo> {
                 if (fieldClass == Class.class) {
                     fieldType = fieldClass;
                 } else {
-                    fieldType = method.getGenericReturnType();
+                    fieldType = fieldGenericSupport ? method.getGenericReturnType() : fieldClass;
                 }
                 getOnly = true;
             }
             this.declaringClass = method.getDeclaringClass();
         } else {
             fieldClass = field.getType();
-            if (fieldClass.isPrimitive() || fieldClass == String.class || fieldClass.isEnum()) {
+            if (fieldClass.isPrimitive() // 
+                    || fieldClass == String.class // 
+                    || fieldClass.isEnum()) {
                 fieldType = fieldClass;
             } else {
-                fieldType = field.getGenericType();    
+                fieldType = fieldGenericSupport ? field.getGenericType() : fieldClass;    
             }
             
             this.declaringClass = field.getDeclaringClass();
             getOnly = false;
         }
 
-        if (clazz != null && fieldClass == Object.class && fieldType instanceof TypeVariable) {
+        if (clazz != null // 
+                && fieldClass == Object.class //
+                && fieldType instanceof TypeVariable) {
+            
             TypeVariable<?> tv = (TypeVariable<?>) fieldType;
             Type genericFieldType = getInheritGenericType(clazz, tv);
             if (genericFieldType != null) {

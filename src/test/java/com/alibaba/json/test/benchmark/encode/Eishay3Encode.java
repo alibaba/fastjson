@@ -33,7 +33,7 @@ public class Eishay3Encode extends BenchmarkCase {
 
         mediaContent.media = media;
 
-        List<Image> images = new ArrayList<Image>();
+        Image[] images = new Image[2];
   
         {
             Image image = new Image();
@@ -42,7 +42,7 @@ public class Eishay3Encode extends BenchmarkCase {
             image.width = 1024;
             image.height = 768;
             image.size = Size.LARGE;
-            images.add(image);
+            images[0] = image;
         }
         {
             Image image = new Image();
@@ -51,7 +51,7 @@ public class Eishay3Encode extends BenchmarkCase {
             image.width = 320;
             image.height = 240;
             image.size = Size.SMALL;
-            images.add(image);
+            images[1] = image;
         }
         mediaContent.images = images;
     }

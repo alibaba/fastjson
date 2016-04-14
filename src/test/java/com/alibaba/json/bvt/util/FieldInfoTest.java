@@ -15,18 +15,18 @@ import com.alibaba.fastjson.util.ParameterizedTypeImpl;
 
 public class FieldInfoTest extends TestCase {
     public void test_null() throws Exception {
-        FieldInfo fieldInfo = new FieldInfo("getValue", Entity.class.getMethod("getValue"), null, null, null, 0, 0, null, null);
+        FieldInfo fieldInfo = new FieldInfo("getValue", Entity.class.getMethod("getValue"), null, null, null, 0, 0, null, null, true);
         Assert.assertEquals(null, fieldInfo.getAnnotation());
 
         Field field = GenericFieldEntity.class.getField("value");
         Type type = new ParameterizedTypeImpl(new Type[] { ValueObject.class }, null, GenericFieldEntity.class);
-        FieldInfo fieldInfoOfField = new FieldInfo("value", null, field, GenericFieldEntity.class, type, 0, 0, null, null);
+        FieldInfo fieldInfoOfField = new FieldInfo("value", null, field, GenericFieldEntity.class, type, 0, 0, null, null, true);
         Assert.assertEquals(fieldInfoOfField.fieldType, ValueObject.class);
         Assert.assertEquals(fieldInfoOfField.fieldClass, ValueObject.class);
 
         field = GenericListFieldEntity.class.getField("value");
         type = new ParameterizedTypeImpl(new Type[] { ValueObject.class }, null, GenericListFieldEntity.class);
-        FieldInfo fieldInfoOfListField = new FieldInfo("value", null, field, GenericListFieldEntity.class, type, 0, 0, null, null);
+        FieldInfo fieldInfoOfListField = new FieldInfo("value", null, field, GenericListFieldEntity.class, type, 0, 0, null, null, true);
         ParameterizedTypeImpl actualFieldType = (ParameterizedTypeImpl) fieldInfoOfListField.fieldType;
         Assert.assertEquals(actualFieldType.getActualTypeArguments()[0], ValueObject.class);
         Assert.assertEquals(actualFieldType.getRawType(), List.class);
@@ -35,7 +35,7 @@ public class FieldInfoTest extends TestCase {
 
         Method method = GenericSetterEntity.class.getMethod("setValue", Object.class);
         type = new ParameterizedTypeImpl(new Type[] { ValueObject.class }, null, GenericSetterEntity.class);
-        FieldInfo fieldInfoOfSetter = new FieldInfo("value", method, null, GenericSetterEntity.class, type, 0, 0, null, null);
+        FieldInfo fieldInfoOfSetter = new FieldInfo("value", method, null, GenericSetterEntity.class, type, 0, 0, null, null, true);
         Assert.assertEquals(fieldInfoOfSetter.fieldType, ValueObject.class);
         Assert.assertEquals(fieldInfoOfSetter.fieldClass, ValueObject.class);
         
@@ -43,7 +43,7 @@ public class FieldInfoTest extends TestCase {
 
         method = GenericListSetterEntity.class.getMethod("setValue", List.class);
         type = new ParameterizedTypeImpl(new Type[] { ValueObject.class }, null, GenericListSetterEntity.class);
-        FieldInfo fieldInfoOfListSetter = new FieldInfo("value", method, null, GenericListSetterEntity.class, type, 0, 0, null, null);
+        FieldInfo fieldInfoOfListSetter = new FieldInfo("value", method, null, GenericListSetterEntity.class, type, 0, 0, null, null, true);
         Assert.assertEquals(actualFieldType.getActualTypeArguments()[0], ValueObject.class);
         Assert.assertEquals(actualFieldType.getRawType(), List.class);
         Assert.assertEquals(fieldInfoOfListSetter.fieldClass, List.class);

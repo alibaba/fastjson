@@ -8,6 +8,7 @@ import org.junit.Assert;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.json.bvt.bug.Bug_for_issue_447.Foo;
 
 import junit.framework.TestCase;
 
@@ -15,6 +16,7 @@ public class Bug_for_issue_447 extends TestCase {
 
     public void test_for_issue() throws Exception {
         Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(1460563200000L);
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
@@ -22,9 +24,9 @@ public class Bug_for_issue_447 extends TestCase {
         Foo foo = new Foo();
         foo.setCreateDate(calendar.getTime());
         String date = JSON.toJSONString(foo, SerializerFeature.UseISO8601DateFormat);
-        Assert.assertEquals("{\"createDate\":\"2016-04-13\"}", date);
+        Assert.assertEquals("{\"createDate\":\"2016-04-14\"}", date);
         Foo foo2 = JSON.parseObject(date, Foo.class, Feature.AllowISO8601DateFormat);
-        Assert.assertEquals("{\"createDate\":\"2016-04-13 00:00:00\"}", JSON.toJSONString(foo2, SerializerFeature.WriteDateUseDateFormat));
+        Assert.assertEquals("{\"createDate\":\"2016-04-14 00:00:00\"}", JSON.toJSONString(foo2, SerializerFeature.WriteDateUseDateFormat));
     }
 
     public static class Foo {

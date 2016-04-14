@@ -1201,7 +1201,17 @@ public class TypeUtils {
 
             if (!fieldInfoMap.containsKey(propertyName)) {
                 TypeUtils.setAccessible(clazz, field, modifiers);
-                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, null, field, clazz, null, ordinal, serialzeFeatures, null, fieldAnnotation, fieldGenericSupport));
+                fieldInfoMap.put(propertyName, //
+                                 new FieldInfo(propertyName, //
+                                               null, //
+                                               field, //
+                                               clazz, //
+                                               null, //
+                                               ordinal, //
+                                               serialzeFeatures, //
+                                               null, //
+                                               fieldAnnotation, //
+                                               fieldGenericSupport));
             }
         }
 

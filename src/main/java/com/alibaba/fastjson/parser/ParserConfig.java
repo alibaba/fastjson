@@ -113,6 +113,7 @@ public class ParserConfig {
         derializers.put(Boolean.class, BooleanCodec.instance);
         derializers.put(Class.class, MiscCodec.instance);
         derializers.put(char[].class, ArrayCodec.instance);
+        derializers.put(Object[].class, ArrayCodec.instance);
 
         derializers.put(UUID.class, MiscCodec.instance);
         derializers.put(TimeZone.class, MiscCodec.instance);
@@ -215,10 +216,11 @@ public class ParserConfig {
     }
     
     public ObjectDeserializer registerIfNotExists(Class<?> clazz) {
-        return registerIfNotExists(clazz, false, true, true, true);
+        return registerIfNotExists(clazz, clazz.getModifiers(), false, true, true, true);
     }
     
     public ObjectDeserializer registerIfNotExists(Class<?> clazz, // 
+                                                  int classModifiers, // Class.getModifiers in android is slow
                                                   boolean fieldOnly, //
                                                   boolean jsonTypeSupport, //
                                                   boolean jsonFieldSupport, //
@@ -228,7 +230,9 @@ public class ParserConfig {
             return deserializer;
         }
         
-        JavaBeanInfo beanInfo = JavaBeanInfo.build(clazz, clazz, fieldOnly, jsonTypeSupport, jsonFieldSupport, fieldGenericSupport);
+        JavaBeanInfo beanInfo = JavaBeanInfo.build(clazz, // 
+                                                   classModifiers, // 
+                                                   clazz, fieldOnly, jsonTypeSupport, jsonFieldSupport, fieldGenericSupport);
         deserializer = new JavaBeanDeserializer(this, clazz, clazz, beanInfo);
         putDeserializer(clazz, deserializer);
         
@@ -238,7 +242,11 @@ public class ParserConfig {
     public FieldDeserializer createFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
         Class<?> fieldClass = fieldInfo.fieldClass;
 
-        if (fieldClass == List.class || fieldClass == ArrayList.class) {
+        if (fieldClass == List.class //
+            || fieldClass == ArrayList.class //
+            || (fieldClass.isArray() //
+                && !fieldClass.getComponentType().isPrimitive()) //
+        ) {
             return new ListTypeFieldDeserializer(mapping, clazz, fieldInfo);
         }
 

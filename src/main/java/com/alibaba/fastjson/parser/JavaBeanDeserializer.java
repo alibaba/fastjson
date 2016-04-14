@@ -28,7 +28,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     }
 
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz, Type type){
-        this(config, clazz, type, JavaBeanInfo.build(clazz, type, false, true, true, true));
+        this(config, clazz, type, JavaBeanInfo.build(clazz, clazz.getModifiers(), type, false, true, true, true));
     }
     
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz, Type type, JavaBeanInfo beanInfo){

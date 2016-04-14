@@ -18,8 +18,9 @@ public class EishayDecode extends BenchmarkCase {
     }
 
     public void init(Codec codec) throws Exception {
-        this.text = codec.encode(EishayEncode.mediaContent);
-        System.out.println(text);
+        if (this.text == null) {
+            this.text = codec.encode(EishayEncode.mediaContent);
+        }
     }
 
     @Override

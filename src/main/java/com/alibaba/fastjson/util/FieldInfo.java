@@ -83,13 +83,6 @@ public class FieldInfo implements Comparable<FieldInfo> {
                      JSONField methodAnnotation, // 
                      JSONField fieldAnnotation, //
                      boolean fieldGenericSupport){
-        if (field != null) {
-            String fieldName = field.getName();
-            if (fieldName.equals(name)) {
-                name = fieldName;
-            }
-        }
-        
         this.name = name;
         this.method = method;
         this.field = field;
@@ -99,13 +92,12 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
         if (field != null) {
             int modifiers = field.getModifiers();
-            fieldAccess = (modifiers & Modifier.PUBLIC) != 0 || method == null;
+            fieldAccess = method == null || (modifiers & Modifier.PUBLIC) != 0;
             fieldTransient = (modifiers & Modifier.TRANSIENT) != 0;
         } else {
             fieldAccess = false;
             fieldTransient = false;
         }
-        
         
         int nameLen = this.name.length();
         name_chars = new char[nameLen + 3];
@@ -183,7 +175,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.fieldType = genericFieldType;
         this.fieldClass = fieldClass;
         
-        isEnum = fieldClass.isEnum();
+        isEnum = (!fieldClass.isArray()) && fieldClass.isEnum();
     }
 
     public static Type getFieldType(Class<?> clazz, Type type, Type fieldType) {

@@ -692,204 +692,147 @@ public final class JSONLexer {
 
         return scanSymbolUnQuoted(symbolTable);
     }
-
-    public final String scanSymbol(final SymbolTable symbolTable, final char quote) {
+    
+    public String scanSymbol(final SymbolTable symbolTable, char quoteChar) {
         int hash = 0;
-
-        np = bp;
-        sp = 0;
+        
         boolean hasSpecial = false;
-        char chLocal;
-        for (;;) {
-            // chLocal = next();
-            {
-                int index = ++bp;
-                if (index >= len) {
-                    chLocal = ch = EOI;
-                } else {
-                    chLocal = ch = text.charAt(index);
-                }
-            }
-
-            if (chLocal == quote) {
-                break;
-            }
-
-            if (chLocal == EOI) {
-                throw new JSONException("unclosed.str");
-            }
-
-            if (chLocal == '\\') {
-                if (!hasSpecial) {
-                    hasSpecial = true;
-
-                    if (sp >= sbuf.length) {
-                        int newCapcity = sbuf.length * 2;
-                        if (sp > newCapcity) {
-                            newCapcity = sp;
-                        }
-                        char[] newsbuf = new char[newCapcity];
-                        System.arraycopy(sbuf, 0, newsbuf, 0, sbuf.length);
-                        sbuf = newsbuf;
-                    }
-
-                    text.getChars(np + 1, np + 1 + sp, sbuf, 0);
-                }
-
-                chLocal = next();
-
-                switch (chLocal) {
-                    case '0':
-                        hash = 31 * hash + (int) chLocal;
-                        putChar('\0');
-                        break;
-                    case '1':
-                        hash = 31 * hash + (int) chLocal;
-                        putChar('\1');
-                        break;
-                    case '2':
-                        hash = 31 * hash + (int) chLocal;
-                        putChar('\2');
-                        break;
-                    case '3':
-                        hash = 31 * hash + (int) chLocal;
-                        putChar('\3');
-                        break;
-                    case '4':
-                        hash = 31 * hash + (int) chLocal;
-                        putChar('\4');
-                        break;
-                    case '5':
-                        hash = 31 * hash + (int) chLocal;
-                        putChar('\5');
-                        break;
-                    case '6':
-                        hash = 31 * hash + (int) chLocal;
-                        putChar('\6');
-                        break;
-                    case '7':
-                        hash = 31 * hash + (int) chLocal;
-                        putChar('\7');
-                        break;
-                    case 'b': // 8
-                        hash = 31 * hash + (int) '\b';
-                        putChar('\b');
-                        break;
-                    case 't': // 9
-                        hash = 31 * hash + (int) '\t';
-                        putChar('\t');
-                        break;
-                    case 'n': // 10
-                        hash = 31 * hash + (int) '\n';
-                        putChar('\n');
-                        break;
-                    case 'v': // 11
-                        hash = 31 * hash + (int) '\u000B';
-                        putChar('\u000B');
-                        break;
-                    case 'f': // 12
-                    case 'F':
-                        hash = 31 * hash + (int) '\f';
-                        putChar('\f');
-                        break;
-                    case 'r': // 13
-                        hash = 31 * hash + (int) '\r';
-                        putChar('\r');
-                        break;
-                    case '"': // 34
-                        hash = 31 * hash + (int) '"';
-                        putChar('"');
-                        break;
-                    case '\'': // 39
-                        hash = 31 * hash + (int) '\'';
-                        putChar('\'');
-                        break;
-                    case '/': // 47
-                        hash = 31 * hash + (int) '/';
-                        putChar('/');
-                        break;
-                    case '\\': // 92
-                        hash = 31 * hash + (int) '\\';
-                        putChar('\\');
-                        break;
-                    case 'x':
-                        char x1 = ch = next();
-                        char x2 = ch = next();
-
-                        int x_val = digits[x1] * 16 + digits[x2];
-                        char x_char = (char) x_val;
-                        hash = 31 * hash + (int) x_char;
-                        putChar(x_char);
-                        break;
-                    case 'u':
-                        char c1 = chLocal = next();
-                        char c2 = chLocal = next();
-                        char c3 = chLocal = next();
-                        char c4 = chLocal = next();
-                        int val = Integer.parseInt(new String(new char[] { c1, c2, c3, c4 }), 16);
-                        hash = 31 * hash + val;
-                        putChar((char) val);
-                        break;
-                    default:
-                        this.ch = chLocal;
-                        throw new JSONException("unclosed.str.lit");
-                }
-                continue;
-            }
-
-            hash = 31 * hash + chLocal;
-
-            if (!hasSpecial) {
-                sp++;
-                continue;
-            }
-
-            if (sp == sbuf.length) {
-                putChar(chLocal);
-            } else {
-                sbuf[sp++] = chLocal;
-            }
+        int startIndex = bp + 1;
+        int endIndex = text.indexOf(quoteChar, startIndex);
+        if (endIndex == -1) {
+            throw new JSONException("unclosed str");
         }
 
-        token = LITERAL_STRING;
+        int chars_len;
+        char[] chars;
 
-        String value;
+        chars_len = endIndex - startIndex;
+        chars = sub_chars(bp + 1, chars_len);
+        while (chars[chars_len - 1] == '\\') {
+            endIndex = text.indexOf(quoteChar, endIndex + 1);
+            chars_len = endIndex - startIndex;
+            chars = sub_chars(bp + 1, chars_len);
+            hasSpecial = true;
+        }
+        
+        final String strVal;
         if (!hasSpecial) {
-            // return this.text.substring(np + 1, np + 1 + sp).intern();
-            int offset;
-            if (np == -1) {
-                offset = 0;
-            } else {
-                offset = np + 1;
+            for (int i = 0; i < chars_len; ++i) {
+                char ch = chars[i];
+                hash = 31 * hash + ch;
+                if (ch == '\\') {
+                    hasSpecial = true;
+                }
             }
             
-            if (sp < 20) {
-                value = symbolTable.addSymbol(text, offset, sp, hash);
+            if (hasSpecial) {
+                strVal = toString(chars, chars_len);
+            } else if (chars_len < 20) {
+                strVal = symbolTable.addSymbol(chars, 0, chars_len, hash);
             } else {
-                value = subString(offset, sp);
+                strVal = new String(chars, 0, chars_len);
             }
         } else {
-            if (sp < 20) {
-                value = symbolTable.addSymbol(sbuf, 0, sp, hash);
-            } else {
-                value = new String(sbuf, 0, sp);
-            }
+            strVal = toString(chars, chars_len);
         }
+        
+        bp = endIndex + 1;
+        ch = charAt(bp);
 
-        sp = 0;
-        // this.next();
-        {
-            int index = ++bp;
-            if (index >= len) {
-                ch = EOI;
-            } else {
-                ch = text.charAt(index);
-            }
-        }
-
-        return value;
+        return strVal;
     }
+    
+    private static String toString(char[] chars, int chars_len) {
+        char[] sbuf = new char[chars_len];
+        int len = 0;
+        for (int i = 0; i < chars_len; ++i) {
+            char chLocal = chars[i];
+            
+            if (chLocal != '\\') {
+                sbuf[len++] = chLocal;
+                continue;
+            }
+            chLocal = chars[++i];
 
+            switch (chLocal) {
+                case '0':
+                    sbuf[len++] = '\0';
+                    break;
+                case '1':
+                    sbuf[len++] = '\1';
+                    break;
+                case '2':
+                    sbuf[len++] = '\2';
+                    break;
+                case '3':
+                    sbuf[len++] = '\3';
+                    break;
+                case '4':
+                    sbuf[len++] = '\4';
+                    break;
+                case '5':
+                    sbuf[len++] = '\5';
+                    break;
+                case '6':
+                    sbuf[len++] = '\6';
+                    break;
+                case '7':
+                    sbuf[len++] = '\7';
+                    break;
+                case 'b': // 8
+                    sbuf[len++] = '\b';
+                    break;
+                case 't': // 9
+                    sbuf[len++] = '\t';
+                    break;
+                case 'n': // 10
+                    sbuf[len++] = '\n';
+                    break;
+                case 'v': // 11
+                    sbuf[len++] = '\u000B';
+                    break;
+                case 'f': // 12
+                case 'F':
+                    sbuf[len++] = '\f';
+                    break;
+                case 'r': // 13
+                    sbuf[len++] = '\r';
+                    break;
+                case '"': // 34
+                    sbuf[len++] = '"';
+                    break;
+                case '\'': // 39
+                    sbuf[len++] = '\'';
+                    break;
+                case '/': // 47
+                    sbuf[len++] = '/';
+                    break;
+                case '\\': // 92
+                    sbuf[len++] = '\\';
+                    break;
+                case 'x':
+                    char x1 = chars[++i];
+                    char x2 = chars[++i];
+
+                    int x_val = digits[x1] * 16 + digits[x2];
+                    char x_char = (char) x_val;
+                    sbuf[len++] = x_char;
+                    break;
+                case 'u':
+                    char c1 = chars[++i];
+                    char c2 = chars[++i];
+                    char c3 = chars[++i];
+                    char c4 = chars[++i];
+                    int val = Integer.parseInt(new String(new char[] { c1, c2, c3, c4 }), 16);
+                    sbuf[len++] = (char) val;
+                    break;
+                default:
+                    throw new JSONException("unclosed.str.lit");
+            }
+        }
+        return new String(sbuf, 0, len);
+    }
+    
     public final void resetStringPosition() {
         this.sp = 0;
     }
@@ -1636,6 +1579,17 @@ public final class JSONLexer {
             char[] chars = new char[count];
             text.getChars(offset, offset + count, chars, 0);
             return new String(chars);
+        }
+    }
+    
+    final char[] sub_chars(int offset, int count) {
+        if (count < sbuf.length) {
+            text.getChars(offset, offset + count, sbuf, 0);
+            return sbuf;
+        } else {
+            char[] chars = new char[count];
+            text.getChars(offset, offset + count, chars, 0);
+            return chars;
         }
     }
 

@@ -6,11 +6,11 @@ import java.util.List;
 public class MediaContent implements java.io.Serializable
 {
 	public Media media;
-	public List<Image> images;
+	public Image[] images;
 
 	public MediaContent() {}
 
-	public MediaContent (Media media, List<Image> images) {
+	public MediaContent (Media media, Image[] images) {
 		this.media = media;
 		this.images = images;
 	}

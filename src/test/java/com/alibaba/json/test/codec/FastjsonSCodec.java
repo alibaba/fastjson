@@ -10,6 +10,10 @@ import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
+import data.media.Image;
+import data.media.Media;
+import data.media.MediaContent;
+
 public class FastjsonSCodec implements Codec {
     public String getName() {
         return "fastjsonS";
@@ -17,9 +21,13 @@ public class FastjsonSCodec implements Codec {
 
     // fastjson 模拟首次
     public <T> T decodeObject(String text, Type clazz) {
+        ParserConfig config = new ParserConfig(); // 每次new ParserConfig模拟首次
+        config.registerIfNotExists(MediaContent.class, true, false, false, false);
+        config.registerIfNotExists(Media.class, true, false, false, false);
+        config.registerIfNotExists(Image.class, true, false, false, false);
         return JSON.parseObject(text, // 
                                 clazz, //
-                                new ParserConfig(), // 每次new ParserConfig模拟首次
+                                config, //
                                 JSON.DEFAULT_PARSER_FEATURE, // 
                                 Feature.DisableCircularReferenceDetect);
     }

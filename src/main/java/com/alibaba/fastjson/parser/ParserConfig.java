@@ -155,18 +155,18 @@ public class ParserConfig {
     }
 
     public ObjectDeserializer getDeserializer(Class<?> clazz, Type type) {
-        ObjectDeserializer derializer = derializers.get(type);
-        if (derializer != null) {
-            return derializer;
+        ObjectDeserializer deserializer = derializers.get(type);
+        if (deserializer != null) {
+            return deserializer;
         }
 
         if (type == null) {
             type = clazz;
         }
 
-        derializer = derializers.get(type);
-        if (derializer != null) {
-            return derializer;
+        deserializer = derializers.get(type);
+        if (deserializer != null) {
+            return deserializer;
         }
 
         if (!isPrimitive(clazz)) {
@@ -180,38 +180,59 @@ public class ParserConfig {
         }
 
         if (type instanceof WildcardType || type instanceof TypeVariable || type instanceof ParameterizedType) {
-            derializer = derializers.get(clazz);
+            deserializer = derializers.get(clazz);
         }
 
-        if (derializer != null) {
-            return derializer;
+        if (deserializer != null) {
+            return deserializer;
         }
 
-        derializer = derializers.get(type);
-        if (derializer != null) {
-            return derializer;
+        deserializer = derializers.get(type);
+        if (deserializer != null) {
+            return deserializer;
         }
 
         if (clazz.isEnum()) {
-            derializer = new EnumDeserializer(clazz);
+            deserializer = new EnumDeserializer(clazz);
         } else if (clazz.isArray()) {
-            derializer = ArrayCodec.instance;
+            deserializer = ArrayCodec.instance;
         } else if (clazz == Set.class || clazz == HashSet.class || clazz == Collection.class || clazz == List.class
                    || clazz == ArrayList.class) {
-            derializer = CollectionCodec.instance;
+            deserializer = CollectionCodec.instance;
         } else if (Collection.class.isAssignableFrom(clazz)) {
-            derializer = CollectionCodec.instance;
+            deserializer = CollectionCodec.instance;
         } else if (Map.class.isAssignableFrom(clazz)) {
-            derializer = MapDeserializer.instance;
+            deserializer = MapDeserializer.instance;
         } else if (Throwable.class.isAssignableFrom(clazz)) {
-            derializer = new ThrowableDeserializer(this, clazz);
+            deserializer = new ThrowableDeserializer(this, clazz);
         } else {
-            derializer = new JavaBeanDeserializer(this, clazz, type);
+            deserializer = new JavaBeanDeserializer(this, clazz, type);
         }
 
-        putDeserializer(type, derializer);
+        putDeserializer(type, deserializer);
 
-        return derializer;
+        return deserializer;
+    }
+    
+    public ObjectDeserializer registerIfNotExists(Class<?> clazz) {
+        return registerIfNotExists(clazz, false, true, true, true);
+    }
+    
+    public ObjectDeserializer registerIfNotExists(Class<?> clazz, // 
+                                                  boolean fieldOnly, //
+                                                  boolean jsonTypeSupport, //
+                                                  boolean jsonFieldSupport, //
+                                                  boolean fieldGenericSupport) {
+        ObjectDeserializer deserializer = derializers.get(clazz);
+        if (deserializer != null) {
+            return deserializer;
+        }
+        
+        JavaBeanInfo beanInfo = JavaBeanInfo.build(clazz, clazz, fieldOnly, jsonTypeSupport, jsonFieldSupport, fieldGenericSupport);
+        deserializer = new JavaBeanDeserializer(this, clazz, clazz, beanInfo);
+        putDeserializer(clazz, deserializer);
+        
+        return deserializer;
     }
 
     public FieldDeserializer createFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {

@@ -21,7 +21,6 @@ import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.TypeUtils;
 
 class JavaBeanInfo {
-
     final Constructor<?> defaultConstructor;
     final int            defaultConstructorParameterSize;
     final Constructor<?> creatorConstructor;

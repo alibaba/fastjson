@@ -17,7 +17,6 @@ package com.alibaba.fastjson.util;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Member;
@@ -60,7 +59,6 @@ import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
@@ -852,25 +850,11 @@ public class TypeUtils {
                 javaBeanDeser = (JavaBeanDeserializer) deserizer;
             }
             
-            Constructor<T> constructor = clazz.getDeclaredConstructor();
-            constructor.setAccessible(true);
-            T object = constructor.newInstance();
-
-            if (javaBeanDeser != null) {
-                for (Map.Entry<String, Object> entry : map.entrySet()) {
-                    String key = entry.getKey();
-                    Object value = entry.getValue();
-                    
-                    FieldDeserializer fieldDeser = javaBeanDeser.getFieldDeserializer(key);
-                    if (fieldDeser == null) {
-                        continue;
-                    }
-                    
-                    Object fieldValue = TypeUtils.cast(value, fieldDeser.fieldInfo.fieldType, config);
-                    fieldDeser.setValue(object, fieldValue);
-                }
+            if (javaBeanDeser == null) {
+                throw new JSONException("can not get javaBeanDeserializer");
             }
-            return object;
+            
+            return (T) javaBeanDeser.createInstance(map, config);
         } catch (Exception e) {
             throw new JSONException(e.getMessage(), e);
         }

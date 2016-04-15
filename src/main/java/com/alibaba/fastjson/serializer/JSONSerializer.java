@@ -312,7 +312,7 @@ public class JSONSerializer {
         if (object instanceof Date) {
             DateFormat dateFormat = this.getDateFormat();
             if (dateFormat == null) {
-                dateFormat = new SimpleDateFormat(format);
+                dateFormat = new SimpleDateFormat(format, locale);
             }
             String text = dateFormat.format((Date) object);
             out.writeString(text);

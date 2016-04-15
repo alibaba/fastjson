@@ -2,6 +2,7 @@ package com.alibaba.json.bvt.bug;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import org.junit.Assert;
@@ -17,6 +18,7 @@ import junit.framework.TestCase;
 public class Bug_for_issue_447 extends TestCase {
     protected void setUp() throws Exception {
         JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        JSON.defaultLocale = new Locale("zh_CN");
     }
     
     public void test_for_issue() throws Exception {

@@ -1,6 +1,9 @@
 package com.alibaba.fastjson.parser;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -21,7 +24,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     private final FieldDeserializer[] fieldDeserializers;
     private final FieldDeserializer[] sortedFieldDeserializers;
     private final Class<?>            clazz;
-    private final JavaBeanInfo        beanInfo;
+    public final JavaBeanInfo         beanInfo;
 
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz){
         this(config, clazz, clazz);
@@ -629,4 +632,57 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         DefaultJSONParser.processExtra(parser, object, key, value);
     }
 
+    public Object createInstance(Map<String, Object> map, ParserConfig config) //
+                                                                               throws IllegalAccessException,
+                                                                               IllegalArgumentException,
+                                                                               InvocationTargetException {
+        Object object = null;
+        
+        if (beanInfo.creatorConstructor == null) {
+            object = createInstance(null, clazz);
+            
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+
+                FieldDeserializer fieldDeser = getFieldDeserializer(key);
+                if (fieldDeser == null) {
+                    continue;
+                }
+
+                Method method = fieldDeser.fieldInfo.method;
+                if (method != null) {
+                    Type paramType = method.getGenericParameterTypes()[0];
+                    value = TypeUtils.cast(value, paramType, config);
+                    method.invoke(object, new Object[] { value });
+                } else {
+                    Field field = fieldDeser.fieldInfo.field;
+                    Type paramType = fieldDeser.fieldInfo.fieldType;
+                    value = TypeUtils.cast(value, paramType, config);
+                    field.set(object, value);
+                }
+            }
+            
+            return object;
+        }
+        
+        FieldInfo[] fieldInfoList = beanInfo.fields;
+        int size = fieldInfoList.length;
+        Object[] params = new Object[size];
+        for (int i = 0; i < size; ++i) {
+            FieldInfo fieldInfo = fieldInfoList[i];
+            params[i] = map.get(fieldInfo.name);
+        }
+        
+        if (beanInfo.creatorConstructor != null) {
+            try {
+                object = beanInfo.creatorConstructor.newInstance(params);
+            } catch (Exception e) {
+                throw new JSONException("create instance error, "
+                                        + beanInfo.creatorConstructor.toGenericString(), e);
+            }
+        }
+        
+        return object;
+    }
 }

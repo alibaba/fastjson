@@ -7,7 +7,7 @@ import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.json.test.benchmark.decode.TradeObjectParse;
+import com.alibaba.json.test.benchmark.decode.TradeParse;
 
 import data.taobao.puti.GetHomePageData;
 import data.taobao.puti.GetHomePageResponse;
@@ -17,7 +17,7 @@ public class HomePageTest extends TestCase {
     private String text;
     
     protected void setUp() throws Exception {
-        InputStream is = TradeObjectParse.class.getClassLoader().getResourceAsStream("json/taobao/homepage_1.json");
+        InputStream is = TradeParse.class.getClassLoader().getResourceAsStream("json/taobao/homepage_1.json");
         text = IOUtils.toString(is);
         is.close();
     }

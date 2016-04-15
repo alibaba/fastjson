@@ -760,14 +760,14 @@ public final class JSONLexer {
             }
             
             if (hasSpecial) {
-                strVal = toString(chars, chars_len);
+                strVal = readString(chars, chars_len);
             } else if (chars_len < 20) {
                 strVal = symbolTable.addSymbol(chars, 0, chars_len, hash);
             } else {
                 strVal = new String(chars, 0, chars_len);
             }
         } else {
-            strVal = toString(chars, chars_len);
+            strVal = readString(chars, chars_len);
         }
         
         bp = endIndex + 1;
@@ -784,7 +784,7 @@ public final class JSONLexer {
         return strVal;
     }
     
-    private static String toString(char[] chars, int chars_len) {
+    private static String readString(char[] chars, int chars_len) {
         char[] sbuf = new char[chars_len];
         int len = 0;
         for (int i = 0; i < chars_len; ++i) {
@@ -1054,12 +1054,12 @@ public final class JSONLexer {
             }
             
             if (hasSpecial) {
-                strVal = toString(chars, chars_len);
+                strVal = readString(chars, chars_len);
             } else {
                 strVal = new String(chars, 0, chars_len);
             }
         } else {
-            strVal = toString(chars, chars_len);
+            strVal = readString(chars, chars_len);
         }
         
         bp = endIndex + 1;
@@ -1600,7 +1600,7 @@ public final class JSONLexer {
             // return text.substring(np + 1, np + 1 + sp);
             return this.subString(np + 1, sp);
         } else {
-            String strVal = toString(sbuf, sp);
+            String strVal = readString(sbuf, sp);
             return strVal;
         }
     }

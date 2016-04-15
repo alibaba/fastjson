@@ -2,18 +2,23 @@ package com.alibaba.json.bvt.bug;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.Feature;
+import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.json.bvt.bug.Bug_for_issue_447.Foo;
 
 import junit.framework.TestCase;
 
 public class Bug_for_issue_447 extends TestCase {
-
+    protected void setUp() throws Exception {
+        SerializeConfig.globalInstance.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+    }
+    
     public void test_for_issue() throws Exception {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(1460563200000L);

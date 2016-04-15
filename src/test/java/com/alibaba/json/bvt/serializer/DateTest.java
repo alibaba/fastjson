@@ -1,16 +1,22 @@
 package com.alibaba.json.bvt.serializer;
 
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.junit.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.JSONSerializer;
+import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class DateTest extends TestCase {
+    
+    protected void setUp() throws Exception {
+        SerializeConfig.globalInstance.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+    }
 
     public void test_0() throws Exception {
         SerializeWriter out = new SerializeWriter();
@@ -27,6 +33,7 @@ public class DateTest extends TestCase {
         SerializeWriter out = new SerializeWriter();
 
         JSONSerializer serializer = new JSONSerializer(out);
+        
         serializer.out.config(SerializerFeature.UseISO8601DateFormat, true);
         Assert.assertEquals(true, serializer.out.isEnabled(SerializerFeature.UseISO8601DateFormat));
         serializer.write(new Date(1294552193254L));

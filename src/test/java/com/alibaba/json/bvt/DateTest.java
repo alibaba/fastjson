@@ -1,16 +1,21 @@
 package com.alibaba.json.bvt;
 
 import java.util.Date;
+import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class DateTest extends TestCase {
-
+    protected void setUp() throws Exception {
+        SerializeConfig.globalInstance.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+    }
+    
     public void test_date() throws Exception {
         long millis = 1324138987429L;
         Date date = new Date(millis);

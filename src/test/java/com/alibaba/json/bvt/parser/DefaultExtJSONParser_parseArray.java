@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.junit.Assert;
 import junit.framework.TestCase;
@@ -14,9 +15,13 @@ import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONToken;
+import com.alibaba.fastjson.serializer.SerializeConfig;
 
 public class DefaultExtJSONParser_parseArray extends TestCase {
-
+    protected void setUp() throws Exception {
+        SerializeConfig.globalInstance.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+    }
+    
     public void test_0() throws Exception {
         DefaultJSONParser parser = new DefaultJSONParser("[1,2,,,3]");
         List list = new ArrayList();

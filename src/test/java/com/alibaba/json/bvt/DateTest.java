@@ -1,19 +1,20 @@
 package com.alibaba.json.bvt;
 
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
-
-import junit.framework.TestCase;
 
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+
+import junit.framework.TestCase;
 
 public class DateTest extends TestCase {
     protected void setUp() throws Exception {
         JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        JSON.defaultLocale = new Locale("zh_CN");
     }
     
     public void test_date() throws Exception {

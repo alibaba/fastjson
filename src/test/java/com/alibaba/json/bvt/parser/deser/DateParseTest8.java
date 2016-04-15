@@ -3,6 +3,7 @@ package com.alibaba.json.bvt.parser.deser;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.junit.Assert;
 import junit.framework.TestCase;
@@ -11,6 +12,10 @@ import com.alibaba.fastjson.JSON;
 
 
 public class DateParseTest8 extends TestCase {
+    protected void setUp() throws Exception {
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+    }
+    
     public void test_date() throws Exception {
         System.out.println(System.currentTimeMillis());
         
@@ -20,7 +25,7 @@ public class DateParseTest8 extends TestCase {
         //1369273142603
         String text = "\"19790714130723456\"";
         Date date = JSON.parseObject(text, Date.class);
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance(JSON.defaultTimeZone, JSON.defaultLocale);
         calendar.setTime(date);
         
         Assert.assertEquals(1979, calendar.get(Calendar.YEAR));

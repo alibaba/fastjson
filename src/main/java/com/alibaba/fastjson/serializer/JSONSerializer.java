@@ -18,23 +18,15 @@ package com.alibaba.fastjson.serializer;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Type;
-import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.JSONStreamAware;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -272,7 +264,7 @@ public class JSONSerializer {
         }
 
         Class<?> clazz = object.getClass();
-        ObjectSerializer writer = getObjectWriter(clazz);
+        ObjectSerializer writer = config.get(clazz);
 
         try {
             writer.write(this, object, null, null);
@@ -302,7 +294,7 @@ public class JSONSerializer {
 
             Class<?> clazz = object.getClass();
 
-            ObjectSerializer writer = getObjectWriter(clazz);
+            ObjectSerializer writer = config.get(clazz);
 
             writer.write(this, object, fieldName, fieldType);
         } catch (IOException e) {
@@ -338,74 +330,6 @@ public class JSONSerializer {
         } else {
             out.writeStringWithDoubleQuote(value, (char) 0, true);
         }
-    }
-
-    public ObjectSerializer getObjectWriter(Class<?> clazz) {
-        ObjectSerializer writer = config.get(clazz);
-
-        if (writer == null) {
-            Class<?> superClass;
-            if (Map.class.isAssignableFrom(clazz)) {
-                config.put(clazz, new MapSerializer());
-            } else if (List.class.isAssignableFrom(clazz)) {
-                config.put(clazz, ListSerializer.instance);
-            } else if (Collection.class.isAssignableFrom(clazz)) {
-                config.put(clazz, CollectionCodec.instance);
-            } else if (Date.class.isAssignableFrom(clazz)) {
-                config.put(clazz, DateCodec.instance);
-            } else if (JSONAware.class.isAssignableFrom(clazz)) {
-                config.put(clazz, MiscCodec.instance);
-            } else if (JSONSerializable.class.isAssignableFrom(clazz)) {
-                config.put(clazz, MiscCodec.instance);
-            } else if (JSONStreamAware.class.isAssignableFrom(clazz)) {
-                config.put(clazz, MiscCodec.instance);
-            } else if (clazz.isEnum() 
-                    || ((superClass = clazz.getSuperclass()) != null && superClass != Object.class && superClass.isEnum())) {
-                config.put(clazz, EnumSerializer.instance);
-            } else if (clazz.isArray()) {
-                Class<?> componentType = clazz.getComponentType();
-                ObjectSerializer compObjectSerializer = getObjectWriter(componentType);
-                config.put(clazz, new ArraySerializer(componentType, compObjectSerializer));
-            } else if (Throwable.class.isAssignableFrom(clazz)) {
-                JavaBeanSerializer serializer = new JavaBeanSerializer(clazz);
-                serializer.features |= SerializerFeature.WriteClassName.mask;
-                config.put(clazz, serializer);
-            } else if (TimeZone.class.isAssignableFrom(clazz)) {
-                config.put(clazz, MiscCodec.instance);
-            } else if (Charset.class.isAssignableFrom(clazz)) {
-                config.put(clazz, MiscCodec.instance);
-            } else if (Enumeration.class.isAssignableFrom(clazz)) {
-                config.put(clazz, MiscCodec.instance);
-            } else if (Calendar.class.isAssignableFrom(clazz)) {
-                config.put(clazz, CalendarCodec.instance);
-            } else {
-                boolean isCglibProxy = false;
-                boolean isJavassistProxy = false;
-                for (Class<?> item : clazz.getInterfaces()) {
-                    if (item.getName().equals("net.sf.cglib.proxy.Factory")
-                        || item.getName().equals("org.springframework.cglib.proxy.Factory")) {
-                        isCglibProxy = true;
-                        break;
-                    } else if (item.getName().equals("javassist.util.proxy.ProxyObject")) {
-                        isJavassistProxy = true;
-                        break;
-                    }
-                }
-
-                if (isCglibProxy || isJavassistProxy) {
-                    Class<?> superClazz = clazz.getSuperclass();
-
-                    ObjectSerializer superWriter = getObjectWriter(superClazz);
-                    config.put(clazz, superWriter);
-                    return superWriter;
-                }
-
-                config.put(clazz, config.createJavaBeanSerializer(clazz));
-            }
-
-            writer = config.get(clazz);
-        }
-        return writer;
     }
 
     public void close() {

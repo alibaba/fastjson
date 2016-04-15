@@ -8,6 +8,7 @@ import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.JSONSerializer;
+import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.util.IdentityHashMap;
 
@@ -17,12 +18,16 @@ public class JSONSerializerTest2 extends TestCase {
 
     public void test_0() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
+        
+        Field field = SerializeConfig.class.getDeclaredField("serializers");
+        field.setAccessible(true);
+        IdentityHashMap map = (IdentityHashMap) field.get(serializer.config);
 
-        int size = size(serializer.config);
+        int size = size(map);
         serializer.out.config(SerializerFeature.WriteEnumUsingToString, false);
         serializer.write(Type.A);
 
-        Assert.assertTrue(size < size(serializer.config));
+        Assert.assertTrue(size < size(map));
 
         Assert.assertEquals(Integer.toString(Type.A.ordinal()), serializer.out.toString());
     }

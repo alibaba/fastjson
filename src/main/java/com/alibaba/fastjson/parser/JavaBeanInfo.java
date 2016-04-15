@@ -321,7 +321,7 @@ class JavaBeanInfo {
 
                 JSONField annotation = jsonFieldSupport ? method.getAnnotation(JSONField.class) : null;
 
-                if (annotation == null) {
+                if (annotation == null && jsonFieldSupport) {
                     annotation = TypeUtils.getSupperMethodAnnotation(clazz, method);
                 }
 

@@ -49,11 +49,11 @@ public class JavaBeanSerializer implements ObjectSerializer {
     }
 
     public JavaBeanSerializer(Class<?> clazz){
-        this(clazz, (Map<String, String>) null);
+        this(clazz, clazz.getModifiers(), (Map<String, String>) null, false, true, true, true);
     }
 
     public JavaBeanSerializer(Class<?> clazz, String... aliasList){
-        this(clazz, createAliasMap(aliasList));
+        this(clazz, clazz.getModifiers(), createAliasMap(aliasList), false, true, true, true);
     }
 
     static Map<String, String> createAliasMap(String... aliasList) {
@@ -65,15 +65,30 @@ public class JavaBeanSerializer implements ObjectSerializer {
         return aliasMap;
     }
 
-    public JavaBeanSerializer(Class<?> clazz, Map<String, String> aliasMap){
-        JSONType jsonType = clazz.getAnnotation(JSONType.class);
+    public JavaBeanSerializer(Class<?> clazz, // 
+                              int classModifiers, //
+                              Map<String, String> aliasMap, // 
+                              boolean fieldOnly, //
+                              boolean jsonTypeSupport, // 
+                              boolean jsonFieldSupport, //
+                              boolean fieldGenericSupport){
+        JSONType jsonType = jsonTypeSupport //
+            ? clazz.getAnnotation(JSONType.class) //
+            : null;
         
         if (jsonType != null) {
             features = SerializerFeature.of(jsonType.serialzeFeatures());
         }
         
         {
-            List<FieldInfo> fieldInfoList = TypeUtils.computeGetters(clazz, jsonType, aliasMap, false);
+            List<FieldInfo> fieldInfoList = TypeUtils.computeGetters(clazz, // 
+                                                                     classModifiers, //
+                                                                     fieldOnly, //
+                                                                     jsonType, // 
+                                                                     aliasMap, // 
+                                                                     false, // sorted = false
+                                                                     jsonFieldSupport, // 
+                                                                     fieldGenericSupport);
             List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
 
             for (FieldInfo fieldInfo : fieldInfoList) {
@@ -92,7 +107,14 @@ public class JavaBeanSerializer implements ObjectSerializer {
         }
         
         if (orders != null && orders.length != 0) {
-            List<FieldInfo> fieldInfoList = TypeUtils.computeGetters(clazz, jsonType, aliasMap, true);
+            List<FieldInfo> fieldInfoList = TypeUtils.computeGetters(clazz, //
+                                                                     classModifiers, //
+                                                                     fieldOnly, //
+                                                                     jsonType, //
+                                                                     aliasMap, //
+                                                                     true, // sorted = true
+                                                                     jsonFieldSupport, //
+                                                                     fieldGenericSupport);
             List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
 
             for (FieldInfo fieldInfo : fieldInfoList) {

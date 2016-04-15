@@ -20,5 +20,8 @@ public class Bug12 extends TestCase {
         
         Object obj = JSON.parse(text);
         Assert.assertNotNull(obj);
+        
+        System.out.println("java.vm.version : " + System.getProperty("java.vm.version"));
+        System.out.println("java.vm.name : " + System.getProperty("java.vm.name"));
     }
 }

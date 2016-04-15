@@ -983,57 +983,138 @@ public class TypeUtils {
         return clazz;
     }
 
-    public static List<FieldInfo> computeGetters(Class<?> clazz, JSONType jsonType, Map<String, String> aliasMap, boolean sorted) {
+    public static List<FieldInfo> computeGetters(Class<?> clazz, //
+                                                 int modifiers, // class modifier, Class.getModifiers is very slow
+                                                 boolean fieldOnly, //
+                                                 JSONType jsonType, //
+                                                 Map<String, String> aliasMap, //
+                                                 boolean sorted,  //
+                                                 boolean jsonFieldSupport, //
+                                                 boolean fieldGenericSupport) {
         Map<String, FieldInfo> fieldInfoMap = new LinkedHashMap<String, FieldInfo>();
-        boolean fieldGenericSupport = true;
         
-        Field[] declaredFields = clazz.getDeclaredFields();
-        final int modifiers = clazz.getModifiers();
-        for (Method method : clazz.getMethods()) {
-            String methodName = method.getName();
-            int ordinal = 0, serialzeFeatures = 0;
-
-            if ((method.getModifiers() & Modifier.STATIC) != 0) {
-                continue;
-            }
-
-            if (method.getReturnType().equals(Void.TYPE)) {
-                continue;
-            }
-
-            if (method.getParameterTypes().length != 0) {
-                continue;
-            }
-
-            if (method.getReturnType() == ClassLoader.class) {
-                continue;
-            }
+        if (!fieldOnly) {
+            Field[] declaredFields = clazz.getDeclaredFields();
             
-            if (method.getDeclaringClass() == Object.class) {
-                continue;
-            }
+            for (Method method : clazz.getMethods()) {
+                String methodName = method.getName();
+                int ordinal = 0, serialzeFeatures = 0;
 
-            if (methodName.equals("getMetaClass")
-                && method.getReturnType().getName().equals("groovy.lang.MetaClass")) {
-                continue;
-            }
-
-            JSONField annotation = method.getAnnotation(JSONField.class);
-
-            if (annotation == null) {
-                annotation = getSupperMethodAnnotation(clazz, method);
-            }
-
-            if (annotation != null) {
-                if (!annotation.serialize()) {
+                if ((method.getModifiers() & Modifier.STATIC) != 0) {
                     continue;
                 }
 
-                ordinal = annotation.ordinal();
-                serialzeFeatures = SerializerFeature.of(annotation.serialzeFeatures());
-                
-                if (annotation.name().length() != 0) {
-                    String propertyName = annotation.name();
+                if (method.getReturnType().equals(Void.TYPE)) {
+                    continue;
+                }
+
+                if (method.getParameterTypes().length != 0) {
+                    continue;
+                }
+
+                if (method.getReturnType() == ClassLoader.class) {
+                    continue;
+                }
+
+                if (method.getDeclaringClass() == Object.class) {
+                    continue;
+                }
+
+                if (methodName.equals("getMetaClass")
+                    && method.getReturnType().getName().equals("groovy.lang.MetaClass")) {
+                    continue;
+                }
+
+                JSONField annotation = jsonFieldSupport ? method.getAnnotation(JSONField.class) : null;
+
+                if (annotation == null && jsonFieldSupport) {
+                    annotation = getSupperMethodAnnotation(clazz, method);
+                }
+
+                if (annotation != null) {
+                    if (!annotation.serialize()) {
+                        continue;
+                    }
+
+                    ordinal = annotation.ordinal();
+                    serialzeFeatures = SerializerFeature.of(annotation.serialzeFeatures());
+
+                    if (annotation.name().length() != 0) {
+                        String propertyName = annotation.name();
+
+                        if (aliasMap != null) {
+                            propertyName = aliasMap.get(propertyName);
+                            if (propertyName == null) {
+                                continue;
+                            }
+                        }
+
+                        TypeUtils.setAccessible(clazz, method, modifiers);
+                        fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, null, clazz, null, ordinal,
+                                                                     serialzeFeatures, annotation, null, true));
+                        continue;
+                    }
+                }
+
+                if (methodName.startsWith("get")) {
+                    if (methodName.length() < 4) {
+                        continue;
+                    }
+
+                    if (methodName.equals("getClass")) {
+                        continue;
+                    }
+
+                    char c3 = methodName.charAt(3);
+
+                    String propertyName;
+                    if (Character.isUpperCase(c3)) {
+                        if (compatibleWithJavaBean) {
+                            propertyName = decapitalize(methodName.substring(3));
+                        } else {
+                            propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+                        }
+                    } else if (c3 == '_') {
+                        propertyName = methodName.substring(4);
+                    } else if (c3 == 'f') {
+                        propertyName = methodName.substring(3);
+                    } else if (methodName.length() >= 5 && Character.isUpperCase(methodName.charAt(4))) {
+                        propertyName = decapitalize(methodName.substring(3));
+                    } else {
+                        continue;
+                    }
+
+                    boolean ignore = isJSONTypeIgnore(clazz, jsonType, propertyName);
+
+                    if (ignore) {
+                        continue;
+                    }
+
+                    Field field = getField(clazz, propertyName, declaredFields);
+                    JSONField fieldAnnotation = null;
+                    if (field != null) {
+                        fieldAnnotation = jsonFieldSupport ? field.getAnnotation(JSONField.class) : null;
+
+                        if (fieldAnnotation != null) {
+                            if (!fieldAnnotation.serialize()) {
+                                continue;
+                            }
+
+                            ordinal = fieldAnnotation.ordinal();
+                            serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+
+                            if (fieldAnnotation.name().length() != 0) {
+                                propertyName = fieldAnnotation.name();
+
+                                if (aliasMap != null) {
+                                    propertyName = aliasMap.get(propertyName);
+                                    if (propertyName == null) {
+                                        continue;
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                     if (aliasMap != null) {
                         propertyName = aliasMap.get(propertyName);
@@ -1043,154 +1124,87 @@ public class TypeUtils {
                     }
 
                     TypeUtils.setAccessible(clazz, method, modifiers);
-                    fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, null, clazz, null, ordinal, serialzeFeatures, annotation, null, true));
-                    continue;
-                }
-            }
-
-            if (methodName.startsWith("get")) {
-                if (methodName.length() < 4) {
-                    continue;
+                    fieldInfoMap.put(propertyName,
+                                     new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures,
+                                                   annotation, fieldAnnotation, fieldGenericSupport));
                 }
 
-                if (methodName.equals("getClass")) {
-                    continue;
-                }
-
-                char c3 = methodName.charAt(3);
-
-                String propertyName;
-                if (Character.isUpperCase(c3)) {
-                    if (compatibleWithJavaBean) {
-                        propertyName = decapitalize(methodName.substring(3));
-                    } else {
-                        propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+                if (methodName.startsWith("is")) {
+                    if (methodName.length() < 3) {
+                        continue;
                     }
-                } else if (c3 == '_') {
-                    propertyName = methodName.substring(4);
-                } else if (c3 == 'f') {
-                    propertyName = methodName.substring(3);
-                } else if (methodName.length()>=5 && Character.isUpperCase(methodName.charAt(4))){
-                    propertyName = decapitalize(methodName.substring(3));
-                } else {
-                    continue;
-                }
 
-                boolean ignore = isJSONTypeIgnore(clazz, jsonType, propertyName);
+                    char c2 = methodName.charAt(2);
 
-                if (ignore) {
-                    continue;
-                }
-
-                Field field = getField(clazz, propertyName, declaredFields);
-                JSONField fieldAnnotation = null;
-                if (field != null) {
-                    fieldAnnotation = field.getAnnotation(JSONField.class);
-
-                    if (fieldAnnotation != null) {
-                        if (!fieldAnnotation.serialize()) {
-                            continue;
+                    String propertyName;
+                    if (Character.isUpperCase(c2)) {
+                        if (compatibleWithJavaBean) {
+                            propertyName = decapitalize(methodName.substring(2));
+                        } else {
+                            propertyName = Character.toLowerCase(methodName.charAt(2)) + methodName.substring(3);
                         }
-                        
-                        ordinal = fieldAnnotation.ordinal();
-                        serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
-                        
-                        if (fieldAnnotation.name().length() != 0) {
-                            propertyName = fieldAnnotation.name();
+                    } else if (c2 == '_') {
+                        propertyName = methodName.substring(3);
+                    } else if (c2 == 'f') {
+                        propertyName = methodName.substring(2);
+                    } else {
+                        continue;
+                    }
 
-                            if (aliasMap != null) {
-                                propertyName = aliasMap.get(propertyName);
-                                if (propertyName == null) {
-                                    continue;
+                    Field field = getField(clazz, propertyName, declaredFields);
+
+                    if (field == null) {
+                        field = getField(clazz, methodName, declaredFields);
+                    }
+
+                    JSONField fieldAnnotation = null;
+                    if (field != null) {
+                        fieldAnnotation = jsonFieldSupport ? field.getAnnotation(JSONField.class) : null;
+
+                        if (fieldAnnotation != null) {
+                            if (!fieldAnnotation.serialize()) {
+                                continue;
+                            }
+
+                            ordinal = fieldAnnotation.ordinal();
+                            serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+
+                            if (fieldAnnotation.name().length() != 0) {
+                                propertyName = fieldAnnotation.name();
+
+                                if (aliasMap != null) {
+                                    propertyName = aliasMap.get(propertyName);
+                                    if (propertyName == null) {
+                                        continue;
+                                    }
                                 }
                             }
                         }
                     }
-                }
 
-                if (aliasMap != null) {
-                    propertyName = aliasMap.get(propertyName);
-                    if (propertyName == null) {
-                        continue;
-                    }
-                }
-
-                TypeUtils.setAccessible(clazz, method, modifiers);
-                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures, annotation, fieldAnnotation, fieldGenericSupport));
-            }
-
-            if (methodName.startsWith("is")) {
-                if (methodName.length() < 3) {
-                    continue;
-                }
-
-                char c2 = methodName.charAt(2);
-
-                String propertyName;
-                if (Character.isUpperCase(c2)) {
-                    if (compatibleWithJavaBean) {
-                        propertyName = decapitalize(methodName.substring(2));
-                    } else {
-                        propertyName = Character.toLowerCase(methodName.charAt(2)) + methodName.substring(3);
-                    }
-                } else if (c2 == '_') {
-                    propertyName = methodName.substring(3);
-                } else if (c2 == 'f') {
-                    propertyName = methodName.substring(2);
-                } else {
-                    continue;
-                }
-
-                Field field = getField(clazz, propertyName, declaredFields);
-
-                if (field == null) {
-                    field = getField(clazz, methodName, declaredFields);
-                }
-
-                JSONField fieldAnnotation = null;
-                if (field != null) {
-                    fieldAnnotation = field.getAnnotation(JSONField.class);
-
-                    if (fieldAnnotation != null) {
-                        if (!fieldAnnotation.serialize()) {
+                    if (aliasMap != null) {
+                        propertyName = aliasMap.get(propertyName);
+                        if (propertyName == null) {
                             continue;
                         }
-
-                        ordinal = fieldAnnotation.ordinal();
-                        serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
-                        
-                        if (fieldAnnotation.name().length() != 0) {
-                            propertyName = fieldAnnotation.name();
-
-                            if (aliasMap != null) {
-                                propertyName = aliasMap.get(propertyName);
-                                if (propertyName == null) {
-                                    continue;
-                                }
-                            }
-                        }
                     }
-                }
 
-                if (aliasMap != null) {
-                    propertyName = aliasMap.get(propertyName);
-                    if (propertyName == null) {
-                        continue;
-                    }
+                    TypeUtils.setAccessible(clazz, field, modifiers);
+                    TypeUtils.setAccessible(clazz, method, modifiers);
+                    fieldInfoMap.put(propertyName,
+                                     new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures,
+                                                   annotation, fieldAnnotation, fieldGenericSupport));
                 }
-
-                TypeUtils.setAccessible(clazz, field, modifiers);
-                TypeUtils.setAccessible(clazz, method, modifiers);
-                fieldInfoMap.put(propertyName, new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures, annotation, fieldAnnotation, fieldGenericSupport));
             }
         }
-
+        
+        //
         for (Field field : clazz.getFields()) {
             if ((field.getModifiers() & Modifier.STATIC) != 0) {
                 continue;
             }
 
-            JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
+            JSONField fieldAnnotation = jsonFieldSupport ? field.getAnnotation(JSONField.class) : null;
 
             int ordinal = 0, serialzeFeatures = 0;
             String propertyName = field.getName();

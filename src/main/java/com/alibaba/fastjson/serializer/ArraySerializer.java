@@ -202,7 +202,7 @@ final class ArraySerializer implements ObjectSerializer {
                 } else if (item.getClass() == componentType) {
                 	compObjectSerializer.write(serializer, item, i, null);
                 } else {
-                	ObjectSerializer itemSerializer = serializer.getObjectWriter(item.getClass());
+                	ObjectSerializer itemSerializer = serializer.config.get(item.getClass());
                 	itemSerializer.write(serializer, item, i, null);
                 }
             }

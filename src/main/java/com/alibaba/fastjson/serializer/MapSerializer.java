@@ -187,7 +187,7 @@ public final class MapSerializer implements ObjectSerializer {
                     preWriter.write(serializer, value, entryKey, null);
                 } else {
                     preClazz = clazz;
-                    preWriter = serializer.getObjectWriter(clazz);
+                    preWriter = serializer.config.get(clazz);
 
                     preWriter.write(serializer, value, entryKey, null);
                 }

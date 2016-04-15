@@ -15,18 +15,27 @@
  */
 package com.alibaba.fastjson.serializer;
 
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Collection;
 import java.util.Currency;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import com.alibaba.fastjson.JSONAware;
+import com.alibaba.fastjson.JSONStreamAware;
 import com.alibaba.fastjson.util.IdentityHashMap;
 
 /**
@@ -34,16 +43,33 @@ import com.alibaba.fastjson.util.IdentityHashMap;
  * 
  * @author wenshao[szujobs@hotmail.com]
  */
-public class SerializeConfig extends IdentityHashMap<ObjectSerializer> {
+public class SerializeConfig {
 
     public final static SerializeConfig globalInstance = new SerializeConfig();
-
-    public ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
-        return new JavaBeanSerializer(clazz);
-    }
-
+    
     public final static SerializeConfig getGlobalInstance() {
         return globalInstance;
+    }
+    
+    private final IdentityHashMap<ObjectSerializer> serializers;
+
+    public ObjectSerializer registerIfNotExists(Class<?> clazz) {
+        return registerIfNotExists(clazz, clazz.getModifiers(), false, true, true, true);
+    }
+    
+    public ObjectSerializer registerIfNotExists(Class<?> clazz, //
+                                                int classModifers,
+                                                boolean fieldOnly, //
+                                                boolean jsonTypeSupport, // 
+                                                boolean jsonFieldSupport, //
+                                                boolean fieldGenericSupport) {
+        ObjectSerializer serializer = serializers.get(clazz);
+        if (serializer == null) {
+            serializer = new JavaBeanSerializer(clazz, classModifers, null, fieldOnly, jsonTypeSupport, jsonFieldSupport, fieldGenericSupport);
+            this.serializers.put(clazz, serializer);
+        }
+        
+        return serializer;
     }
 
     public SerializeConfig(){
@@ -51,33 +77,103 @@ public class SerializeConfig extends IdentityHashMap<ObjectSerializer> {
     }
 
     public SerializeConfig(int tableSize){
-        super(tableSize);
+        serializers = new IdentityHashMap<ObjectSerializer>(tableSize);
 
-        put(Boolean.class, BooleanCodec.instance);
-        put(Character.class, MiscCodec.instance);
-        put(Byte.class, IntegerCodec.instance);
-        put(Short.class, IntegerCodec.instance);
-        put(Integer.class, IntegerCodec.instance);
-        put(Long.class, IntegerCodec.instance);
-        put(Float.class, NumberCodec.instance);
-        put(Double.class, NumberCodec.instance);
-        put(Number.class, NumberCodec.instance);
-        put(BigDecimal.class, BigDecimalCodec.instance);
-        put(BigInteger.class, BigDecimalCodec.instance);
-        put(String.class, StringCodec.instance);
-        put(Object[].class, ArrayCodec.instance);
-        put(Class.class, MiscCodec.instance);
+        serializers.put(Boolean.class, BooleanCodec.instance);
+        serializers.put(Character.class, MiscCodec.instance);
+        serializers.put(Byte.class, IntegerCodec.instance);
+        serializers.put(Short.class, IntegerCodec.instance);
+        serializers.put(Integer.class, IntegerCodec.instance);
+        serializers.put(Long.class, IntegerCodec.instance);
+        serializers.put(Float.class, NumberCodec.instance);
+        serializers.put(Double.class, NumberCodec.instance);
+        serializers.put(Number.class, NumberCodec.instance);
+        serializers.put(BigDecimal.class, BigDecimalCodec.instance);
+        serializers.put(BigInteger.class, BigDecimalCodec.instance);
+        serializers.put(String.class, StringCodec.instance);
+        serializers.put(Object[].class, ArrayCodec.instance);
+        serializers.put(Class.class, MiscCodec.instance);
 
-        put(SimpleDateFormat.class, MiscCodec.instance);
-        put(Locale.class, MiscCodec.instance);
-        put(Currency.class, MiscCodec.instance);
-        put(TimeZone.class, MiscCodec.instance);
-        put(UUID.class, MiscCodec.instance);
-        put(URI.class, MiscCodec.instance);
-        put(URL.class, MiscCodec.instance);
-        put(Pattern.class, MiscCodec.instance);
-        put(Charset.class, MiscCodec.instance);
+        serializers.put(SimpleDateFormat.class, MiscCodec.instance);
+        serializers.put(Locale.class, MiscCodec.instance);
+        serializers.put(Currency.class, MiscCodec.instance);
+        serializers.put(TimeZone.class, MiscCodec.instance);
+        serializers.put(UUID.class, MiscCodec.instance);
+        serializers.put(URI.class, MiscCodec.instance);
+        serializers.put(URL.class, MiscCodec.instance);
+        serializers.put(Pattern.class, MiscCodec.instance);
+        serializers.put(Charset.class, MiscCodec.instance);
+    }
+    
+    public ObjectSerializer get(Class<?> clazz) {
+        ObjectSerializer writer = serializers.get(clazz);
 
+        if (writer == null) {
+            Class<?> superClass;
+            if (Map.class.isAssignableFrom(clazz)) {
+                serializers.put(clazz, new MapSerializer());
+            } else if (List.class.isAssignableFrom(clazz)) {
+                serializers.put(clazz, ListSerializer.instance);
+            } else if (Collection.class.isAssignableFrom(clazz)) {
+                serializers.put(clazz, CollectionCodec.instance);
+            } else if (Date.class.isAssignableFrom(clazz)) {
+                serializers.put(clazz, DateCodec.instance);
+            } else if (JSONAware.class.isAssignableFrom(clazz)) {
+                serializers.put(clazz, MiscCodec.instance);
+            } else if (JSONSerializable.class.isAssignableFrom(clazz)) {
+                serializers.put(clazz, MiscCodec.instance);
+            } else if (JSONStreamAware.class.isAssignableFrom(clazz)) {
+                serializers.put(clazz, MiscCodec.instance);
+            } else if (clazz.isEnum() 
+                    || ((superClass = clazz.getSuperclass()) != null && superClass != Object.class && superClass.isEnum())) {
+                serializers.put(clazz, EnumSerializer.instance);
+            } else if (clazz.isArray()) {
+                Class<?> componentType = clazz.getComponentType();
+                ObjectSerializer compObjectSerializer = get(componentType);
+                serializers.put(clazz, new ArraySerializer(componentType, compObjectSerializer));
+            } else if (Throwable.class.isAssignableFrom(clazz)) {
+                JavaBeanSerializer serializer = new JavaBeanSerializer(clazz);
+                serializer.features |= SerializerFeature.WriteClassName.mask;
+                serializers.put(clazz, serializer);
+            } else if (TimeZone.class.isAssignableFrom(clazz)) {
+                serializers.put(clazz, MiscCodec.instance);
+            } else if (Charset.class.isAssignableFrom(clazz)) {
+                serializers.put(clazz, MiscCodec.instance);
+            } else if (Enumeration.class.isAssignableFrom(clazz)) {
+                serializers.put(clazz, MiscCodec.instance);
+            } else if (Calendar.class.isAssignableFrom(clazz)) {
+                serializers.put(clazz, CalendarCodec.instance);
+            } else {
+                boolean isCglibProxy = false;
+                boolean isJavassistProxy = false;
+                for (Class<?> item : clazz.getInterfaces()) {
+                    if (item.getName().equals("net.sf.cglib.proxy.Factory")
+                        || item.getName().equals("org.springframework.cglib.proxy.Factory")) {
+                        isCglibProxy = true;
+                        break;
+                    } else if (item.getName().equals("javassist.util.proxy.ProxyObject")) {
+                        isJavassistProxy = true;
+                        break;
+                    }
+                }
+
+                if (isCglibProxy || isJavassistProxy) {
+                    Class<?> superClazz = clazz.getSuperclass();
+
+                    ObjectSerializer superWriter = get(superClazz);
+                    serializers.put(clazz, superWriter);
+                    return superWriter;
+                }
+
+                serializers.put(clazz, new JavaBeanSerializer(clazz));
+            }
+
+            writer = serializers.get(clazz);
+        }
+        return writer;
     }
 
+    public boolean put(Type key, ObjectSerializer value) {
+        return this.serializers.put(key, value);
+    }
 }

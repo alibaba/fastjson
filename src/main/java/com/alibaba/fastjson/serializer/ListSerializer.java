@@ -89,7 +89,7 @@ public final class ListSerializer implements ObjectSerializer {
                         if (serializer.references != null && serializer.references.containsKey(item)) {
                             serializer.writeReference(item);
                         } else {
-                            itemSerializer = serializer.getObjectWriter(item.getClass());
+                            itemSerializer = serializer.config.get(item.getClass());
                             SerialContext itemContext = new SerialContext(context, object, fieldName, 0);
                             serializer.context = itemContext;
                             itemSerializer.write(serializer, item, i, elementType);
@@ -170,7 +170,7 @@ public final class ListSerializer implements ObjectSerializer {
                         if (serializer.references != null && serializer.references.containsKey(item)) {
                             serializer.writeReference(item);
                         } else {
-                            itemSerializer = serializer.getObjectWriter(item.getClass());
+                            itemSerializer = serializer.config.get(item.getClass());
                             itemSerializer.write(serializer, item, i, elementType);
                         }
                     }

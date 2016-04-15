@@ -143,7 +143,7 @@ public class TypeUtilsTest_castToJavaBean extends TestCase {
         try {
             SerializeConfig config = new SerializeConfig();
             JSONSerializer serializer = new JSONSerializer(out, config);
-            config.put(PO.class, new JavaBeanSerializer(PO.class, Collections.singletonMap("id", "ID")));
+            config.put(PO.class, new JavaBeanSerializer(PO.class, PO.class.getModifiers(), Collections.singletonMap("id", "ID"), false, true, true, true));
 
             serializer.write(vo);
 
@@ -166,7 +166,7 @@ public class TypeUtilsTest_castToJavaBean extends TestCase {
         try {
             SerializeConfig config = new SerializeConfig();
             JSONSerializer serializer = new JSONSerializer(out, config);
-            config.put(PO.class, new JavaBeanSerializer(PO.class, Collections.singletonMap("id", (String) null)));
+            config.put(PO.class, new JavaBeanSerializer(PO.class, PO.class.getModifiers(), Collections.singletonMap("id", (String) null), false, true, true, true));
 
             serializer.write(vo);
 

@@ -48,7 +48,7 @@ public class ObjectFieldSerializer extends FieldSerializer {
                 runtimeFieldClass = propertyValue.getClass();
             }
 
-            ObjectSerializer fieldSerializer = serializer.getObjectWriter(runtimeFieldClass);
+            ObjectSerializer fieldSerializer = serializer.config.get(runtimeFieldClass);
             runtimeInfo = new RuntimeSerializerInfo(fieldSerializer, runtimeFieldClass);
         }
         
@@ -88,7 +88,7 @@ public class ObjectFieldSerializer extends FieldSerializer {
             return;
         }
 
-        ObjectSerializer valueSerializer = serializer.getObjectWriter(valueClass);
+        ObjectSerializer valueSerializer = serializer.config.get(valueClass);
         valueSerializer.write(serializer, propertyValue, fieldInfo.name, fieldInfo.fieldType);
     }
     

@@ -25,7 +25,7 @@ public class DateParserTest extends TestCase {
 
         java.util.Date date = parser.parseObject(java.util.Date.class);
 
-        Assert.assertEquals(new java.util.Date(1294552193254L), date);
+        Assert.assertEquals(new java.util.Date(1294552193254L).getTime(), date.getTime());
         parser.close();
     }
     
@@ -34,7 +34,7 @@ public class DateParserTest extends TestCase {
 
         java.util.Date date = (java.util.Date) parser.parse();
 
-        Assert.assertEquals(new java.util.Date(1294552193254L), date);
+        Assert.assertEquals(new java.util.Date(1294552193254L).getTime(), date.getTime());
         parser.close();
     }
     
@@ -43,7 +43,7 @@ public class DateParserTest extends TestCase {
 
         java.util.Date date = parser.parseObject(java.util.Date.class);
 
-        Assert.assertEquals(new java.util.Date(1294552193254L), date);
+        Assert.assertEquals(new java.util.Date(1294552193254L).getTime(), date.getTime());
         parser.close();
     }
 
@@ -54,7 +54,7 @@ public class DateParserTest extends TestCase {
 
         java.util.Date date = parser.parseObject(java.util.Date.class);
 
-        Assert.assertEquals(new java.util.Date(1294552193254L), date);
+        Assert.assertEquals(new java.util.Date(1294552193254L).getTime(), date.getTime());
         parser.close();
     }
 
@@ -64,14 +64,14 @@ public class DateParserTest extends TestCase {
 
         java.util.Date date = parser.parseObject(java.util.Date.class);
 
-        Assert.assertEquals(new java.util.Date(1294552193254L), date);
+        Assert.assertEquals(new java.util.Date(1294552193254L).getTime(), date.getTime());
         parser.close();
     }
 
     public void test_date_3() throws Exception {
         java.util.Date date = JSON.parseObject("\"2011-01-09T13:49:53\"", java.util.Date.class, Feature.AllowISO8601DateFormat);
 
-        Assert.assertEquals(new java.util.Date(1294552193000L), date);
+        Assert.assertEquals(new java.util.Date(1294552193000L).getTime(), date.getTime());
     }
 
     public void test_date_4() throws Exception {
@@ -81,13 +81,13 @@ public class DateParserTest extends TestCase {
 
         java.util.Date date = parser.parseObject(java.util.Date.class);
 
-        Assert.assertEquals(new java.util.Date(1294502400000L), date);
+        Assert.assertEquals(new java.util.Date(1294502400000L).getTime(), date.getTime());
         parser.close();
     }
 
     public void test_date_5() throws Exception {
         JSONObject object = JSON.parseObject("{d:'2011-01-09T13:49:53'}", Feature.AllowISO8601DateFormat);
-        Assert.assertEquals(new java.util.Date(1294552193000L), object.get("d"));
+        Assert.assertEquals(new java.util.Date(1294552193000L).getTime(), ((Date) object.get("d")).getTime());
     }
 
     public void test_date_6() throws Exception {
@@ -96,14 +96,14 @@ public class DateParserTest extends TestCase {
 
         java.util.Date date = JSON.parseObject("{d:\"2011-01-09T13:49:53\"}", Entity.class, Feature.AllowISO8601DateFormat).getD();
 
-        Assert.assertEquals(new java.util.Date(1294552193000L), date);
+        Assert.assertEquals(new java.util.Date(1294552193000L).getTime(), ((Date) date).getTime());
     }
 
     public void test_date_7() throws Exception {
         Entity entity = JSON.parseObject("{d:'2011-01-09T13:49:53'}", Entity.class, Feature.AllowISO8601DateFormat);
         java.util.Date date = entity.getD();
 
-        Assert.assertEquals(new java.util.Date(1294552193000L), date);
+        Assert.assertEquals(new java.util.Date(1294552193000L).getTime(), ((Date) date).getTime());
     }
 
     public void test_date_error_0() throws Exception {

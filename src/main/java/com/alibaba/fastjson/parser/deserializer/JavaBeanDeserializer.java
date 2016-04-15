@@ -316,7 +316,9 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
                             continue;  
                         }
-                    } else if (fieldClass.isEnum()) {
+                    } else if (fieldClass.isEnum() // 
+                            && parser.getConfig().getDeserializer(fieldClass) instanceof EnumDeserializer
+                            ) {
                         String enumName = lexer.scanFieldSymbol(name_chars, parser.symbolTable);
                         
                         if (lexer.matchStat > 0) {

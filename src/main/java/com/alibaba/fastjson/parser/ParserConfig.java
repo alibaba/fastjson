@@ -480,16 +480,27 @@ public class ParserConfig {
 
                 if (fieldClass.isMemberClass() && !Modifier.isStatic(fieldClass.getModifiers())) {
                     asmEnable = false;
+                    break;
                 }
                 
                 if (!ASMUtils.checkName(fieldInfo.getMember().getName())) {
                     asmEnable = false;
+                    break;
                 }
                 
                 JSONField annotation = fieldInfo.getAnnotation();
                 if (annotation != null && !ASMUtils.checkName(annotation.name())) {
                 	asmEnable = false;
+                	break;
 				}
+                
+                if (fieldClass.isEnum()) { //EnumDeserializer
+                    ObjectDeserializer fieldDeser = this.getDeserializer(fieldClass);
+                    if (!(fieldDeser instanceof EnumDeserializer)) {
+                        asmEnable = false;
+                        break;
+                    }
+                }
             }
         }
 

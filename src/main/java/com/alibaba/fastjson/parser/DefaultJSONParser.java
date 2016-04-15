@@ -411,8 +411,7 @@ public class DefaultJSONParser implements Closeable {
 
                 Object value;
                 if (ch == '"') {
-                    lexer.scanString();
-                    String strValue = lexer.stringVal();
+                    String strValue = lexer.scanStringValue('"');
                     value = strValue;
 
                     if ((lexer.features & Feature.AllowISO8601DateFormat.mask) != 0) {
@@ -425,17 +424,18 @@ public class DefaultJSONParser implements Closeable {
 
                     object.put(key, value);
                 } else if (ch >= '0' && ch <= '9' || ch == '-') {
-                    lexer.scanNumber();
-                    if (lexer.token == JSONToken.LITERAL_INT) {
-                        value = lexer.integerValue();
-                    } else {
-                        boolean useBigDecimal = (lexer.features & Feature.UseBigDecimal.mask) != 0;
-                        value = lexer.decimalValue(useBigDecimal);
-                    }
-
+//                    lexer.scanNumber();
+//                    if (lexer.token == JSONToken.LITERAL_INT) {
+//                        value = lexer.integerValue();
+//                    } else {
+//                        boolean useBigDecimal = (lexer.features & Feature.UseBigDecimal.mask) != 0;
+//                        value = lexer.decimalValue(useBigDecimal);
+//                    }
+                    value = lexer.scanNumberValue();
                     object.put(key, value);
                 } else if (ch == '[') { // 减少嵌套，兼容android
-                    lexer.nextToken();
+                    lexer.token = JSONToken.LBRACKET;
+                    lexer.next();
                     JSONArray list = new JSONArray();
                     this.parseArray(list, key);
                     value = list;
@@ -506,6 +506,18 @@ public class DefaultJSONParser implements Closeable {
                     } else {
                         throw new JSONException("syntax error, " + lexer.tokenName());
                     }
+                } else if (lexer.ch == 't') {
+                    if (lexer.text.startsWith("true", lexer.bp)) {
+                        lexer.bp += 3;
+                        lexer.next();
+                        object.put(key, Boolean.TRUE);
+                    }
+                } else if (lexer.ch == 'f') {
+                    if (lexer.text.startsWith("false", lexer.bp)) {
+                        lexer.bp += 4;
+                        lexer.next();
+                        object.put(key, Boolean.FALSE);
+                    }
                 } else {
                     lexer.nextToken();
                     value = parse();
@@ -516,7 +528,7 @@ public class DefaultJSONParser implements Closeable {
                     object.put(key, value);
 
                     if (lexer.token == JSONToken.RBRACE) {
-                        lexer.nextToken();
+                        lexer.nextToken(JSONToken.COMMA);
                         return object;
                     } else if (lexer.token == JSONToken.COMMA) {
                         continue;
@@ -1039,12 +1051,53 @@ public class DefaultJSONParser implements Closeable {
                                     + lexer.pos);
         }
 
-        lexer.nextToken(JSONToken.LITERAL_STRING);
-
         ParseContext context = this.context;
         this.setContext(array, fieldName);
         try {
+            final boolean first_quote;
+            if (lexer.ch != '"') {
+                if (lexer.ch == ']') {
+                    lexer.next();
+                    lexer.nextToken(JSONToken.COMMA);
+                    return;
+                }
+                lexer.nextToken(JSONToken.LBRACE);
+                first_quote = false;
+            } else {
+                if ((lexer.features & Feature.AllowISO8601DateFormat.mask) == 0) {
+                    first_quote = true;                
+                } else {
+                    lexer.nextToken(JSONToken.LITERAL_STRING);
+                    first_quote = false;
+                }
+            }
+            
             for (int i = 0;; ++i) {
+                Object value;
+                if (first_quote && lexer.ch == '"') {
+                    value = lexer.scanStringValue('"');
+                    
+                    if (lexer.ch == ',') {
+                        lexer.next();
+                        array.add(value);
+                        checkListResolve(array);
+                        
+                        if (lexer.ch == '"') {
+                            continue;
+                        }
+                        
+                        lexer.nextToken();
+                    } else if (lexer.ch == ']'){
+                        lexer.next();
+                        array.add(value);
+                        checkListResolve(array);
+                        lexer.nextToken(JSONToken.COMMA);
+                        break;
+                    } else {
+                        lexer.nextToken();
+                    }
+                }
+                
                 if ((lexer.features & Feature.AllowArbitraryCommas.mask) != 0) {
                     while (lexer.token == JSONToken.COMMA) {
                         lexer.nextToken();
@@ -1052,7 +1105,6 @@ public class DefaultJSONParser implements Closeable {
                     }
                 }
 
-                Object value;
                 switch (lexer.token) {
                     case LITERAL_INT:
                         value = lexer.integerValue();
@@ -1096,7 +1148,7 @@ public class DefaultJSONParser implements Closeable {
                         if ((lexer.features & Feature.OrderedField.mask) != 0) {
                             object = new JSONObject(new LinkedHashMap<String, Object>());
                         } else {
-                            object = new JSONObject();            
+                            object = new JSONObject();
                         }
                         value = parseObject(object, i);
                         break;
@@ -1122,7 +1174,8 @@ public class DefaultJSONParser implements Closeable {
                         value = parse();
                         break;
                 }
-
+                
+                
                 array.add(value);
                 checkListResolve(array);
 
@@ -1284,10 +1337,10 @@ public class DefaultJSONParser implements Closeable {
                 lexer.nextToken();
                 return null;
             case TRUE:
-                lexer.nextToken();
+                lexer.nextToken(JSONToken.COMMA);
                 return Boolean.TRUE;
             case FALSE:
-                lexer.nextToken();
+                lexer.nextToken(JSONToken.COMMA);
                 return Boolean.FALSE;
             case NEW:
                 lexer.nextToken(JSONToken.IDENTIFIER);

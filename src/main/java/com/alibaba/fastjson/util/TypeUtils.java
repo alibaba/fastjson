@@ -17,7 +17,6 @@ package com.alibaba.fastjson.util;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
@@ -60,7 +59,6 @@ import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.ASMJavaBeanDeserializer;
-import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -927,61 +925,7 @@ public class TypeUtils {
                 throw new JSONException("can not get javaBeanDeserializer");
             }
             
-            T object = null;
-            
-            JavaBeanInfo beanInfo = javaBeanDeser.beanInfo;
-            if (beanInfo.creatorConstructor == null && beanInfo.buildMethod == null) {
-                object = (T) javaBeanDeser.createInstance(null, clazz);
-                
-                for (Map.Entry<String, Object> entry : map.entrySet()) {
-                    String key = entry.getKey();
-                    Object value = entry.getValue();
-
-                    FieldDeserializer fieldDeser = javaBeanDeser.getFieldDeserializer(key);
-                    if (fieldDeser == null) {
-                        continue;
-                    }
-
-                    Method method = fieldDeser.fieldInfo.method;
-                    if (method != null) {
-                        Type paramType = method.getGenericParameterTypes()[0];
-                        value = cast(value, paramType, config);
-                        method.invoke(object, new Object[] { value });
-                    } else {
-                        Field field = fieldDeser.fieldInfo.field;
-                        Type paramType = fieldDeser.fieldInfo.fieldType;
-                        value = cast(value, paramType, config);
-                        field.set(object, value);
-                    }
-                }
-                
-                return object;
-            }
-            
-            FieldInfo[] fieldInfoList = beanInfo.fields;
-            int size = fieldInfoList.length;
-            Object[] params = new Object[size];
-            for (int i = 0; i < size; ++i) {
-                FieldInfo fieldInfo = fieldInfoList[i];
-                params[i] = map.get(fieldInfo.name);
-            }
-            
-            if (beanInfo.creatorConstructor != null) {
-                try {
-                    object = (T) beanInfo.creatorConstructor.newInstance(params);
-                } catch (Exception e) {
-                    throw new JSONException("create instance error, "
-                                            + beanInfo.creatorConstructor.toGenericString(), e);
-                }
-            } else if (beanInfo.factoryMethod != null) {
-                try {
-                    object = (T) beanInfo.factoryMethod.invoke(null, params);
-                } catch (Exception e) {
-                    throw new JSONException("create factory method error, " + beanInfo.factoryMethod.toString(), e);
-                }
-            }
-            
-            return object;
+            return (T) javaBeanDeser.createInstance(map, config);
         } catch (Exception e) {
             throw new JSONException(e.getMessage(), e);
         }

@@ -26,6 +26,7 @@ public class EnumTest2 extends TestCase {
 
     public void test_enum_noasm() throws Exception {
         SerializeConfig mapping = new SerializeConfig();
+        mapping.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
         
         Date date = new Date(1308841916550L);
         Assert.assertEquals("1308841916550", JSON.toJSONString(date, mapping)); // 1308841916550

@@ -3,19 +3,24 @@ package com.alibaba.json.bvt.bug;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import org.junit.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class Bug_for_cnhans extends TestCase {
-
+    protected void setUp() throws Exception {
+        SerializeConfig.globalInstance.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+    }
+    
     public void test_0() throws Exception {
         VO vo = new VO();
-        vo.setCalendar(Calendar.getInstance());
+        vo.setCalendar(Calendar.getInstance(SerializeConfig.globalInstance.getTimeZone()));
 
         String text = JSON.toJSONString(vo);
 
@@ -25,7 +30,7 @@ public class Bug_for_cnhans extends TestCase {
     
     public void test_format() throws Exception {
         VO vo = new VO();
-        vo.setCalendar(Calendar.getInstance());
+        vo.setCalendar(Calendar.getInstance(SerializeConfig.globalInstance.getTimeZone()));
         
         String text = JSON.toJSONString(vo, SerializerFeature.WriteDateUseDateFormat);
         

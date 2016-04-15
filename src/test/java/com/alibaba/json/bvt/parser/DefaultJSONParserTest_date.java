@@ -25,7 +25,7 @@ public class DefaultJSONParserTest_date extends TestCase {
         DefaultJSONParser parser = new DefaultJSONParser(chars, chars.length, ParserConfig.getGlobalInstance(), 0);
         parser.config(Feature.AllowISO8601DateFormat, true);
         JSONObject json = parser.parseObject();
-        Assert.assertEquals(new Date(1294552193254L), json.get("date"));
+        Assert.assertEquals(new Date(1294552193254L).getTime(), ((Date) json.get("date")).getTime());
     }
     
     

@@ -118,7 +118,7 @@ public class DateTest extends TestCase {
         Assert.assertEquals("{\"date\":\"2011-01-09T01:00:00\"}", text);
 
         Entity entity = JSON.parseObject(text, Entity.class);
-        Assert.assertEquals(new Date(1294506000000L), entity.getDate());
+        Assert.assertEquals(1294506000000L, entity.getDate().getTime());
     }
 
     public static class Entity {

@@ -13,7 +13,7 @@ public class DateParseTest1 extends TestCase {
     public void test_date() throws Exception {
         String text = "\"1979-07-14\"";
         Date date = JSON.parseObject(text, Date.class);
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance(JSON.defaultTimeZone, JSON.defaultLocale);
         calendar.setTime(date);
         Assert.assertEquals(1979, calendar.get(Calendar.YEAR));
         Assert.assertEquals(6, calendar.get(Calendar.MONTH));

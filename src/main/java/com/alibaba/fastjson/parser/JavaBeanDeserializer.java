@@ -86,7 +86,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             throw new JSONException("create instance error, class " + clazz.getName(), e);
         }
 
-        if ((parser.lexer.features & Feature.InitStringFieldAsEmpty.mask) != 0) {
+        if (parser != null // 
+                && (parser.lexer.features & Feature.InitStringFieldAsEmpty.mask) != 0) {
             for (FieldInfo fieldInfo : beanInfo.fields) {
                 if (fieldInfo.fieldClass == String.class) {
                     try {

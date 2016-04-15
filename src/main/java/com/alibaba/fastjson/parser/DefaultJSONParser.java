@@ -48,7 +48,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 import java.util.TreeSet;
 
 import com.alibaba.fastjson.JSON;
@@ -72,7 +71,6 @@ public class DefaultJSONParser implements Closeable {
     protected final Object          input;
     public final SymbolTable        symbolTable;
     public ParserConfig             config;
-    public TimeZone                 timeZone;
 
     private String                  dateFormatPattern  = JSON.DEFFAULT_DATE_FORMAT;
     private DateFormat              dateFormat;
@@ -102,7 +100,7 @@ public class DefaultJSONParser implements Closeable {
 
     public DateFormat getDateFormat() {
         if (dateFormat == null) {
-            dateFormat = new SimpleDateFormat(dateFormatPattern);
+            dateFormat = new SimpleDateFormat(dateFormatPattern, lexer.locale);
         }
         return dateFormat;
     }
@@ -1195,14 +1193,6 @@ public class DefaultJSONParser implements Closeable {
         return context;
     }
     
-    public TimeZone getTimeZone() {
-        return timeZone;
-    }
-
-    public void setTimeZone(TimeZone timeZone) {
-        this.timeZone = timeZone;
-    }
-
     public void addResolveTask(ResolveTask task) {
         if (resolveTaskList == null) {
             resolveTaskList = new ArrayList<ResolveTask>(2);

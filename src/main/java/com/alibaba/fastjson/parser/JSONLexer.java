@@ -22,6 +22,7 @@ import java.util.TimeZone;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.util.TypeUtils;
 
 public final class JSONLexer {
 
@@ -35,6 +36,8 @@ public final class JSONLexer {
     public final static int  END            = 4;
     
     private final static Map<String, Integer> DEFAULT_KEYWORDS;
+    
+    private final static boolean SUBSTR = TypeUtils.ANDROID_SDK_VERSION >= 23; // android 6
 
     static {
         Map<String, Integer> map = new HashMap<String, Integer>();
@@ -201,7 +204,7 @@ public final class JSONLexer {
         return this.subString(np, sp);
     }
 
-    private char charAt(int index) {
+    protected char charAt(int index) {
         if (index >= len) {
             return EOI;
         } else {
@@ -701,6 +704,23 @@ public final class JSONLexer {
         if (endIndex == -1) {
             throw new JSONException("unclosed str");
         }
+        
+        if (SUBSTR && endIndex - startIndex > 5) {
+            String strVal = text.substring(startIndex, endIndex);
+            if (strVal.indexOf('\\') == -1) {
+                bp = endIndex + 1;
+                // ch = charAt(bp);
+                {
+                    int index = bp;
+                    if (index >= this.len) {
+                        ch = EOI;
+                    } else {
+                        ch = text.charAt(index);
+                    }
+                }
+                return strVal;
+            }
+        }
 
         int chars_len;
         char[] chars;
@@ -751,7 +771,15 @@ public final class JSONLexer {
         }
         
         bp = endIndex + 1;
-        ch = charAt(bp);
+        // ch = charAt(bp);
+        {
+            int index = bp;
+            if (index >= len) {
+                ch = EOI;
+            } else {
+                ch = text.charAt(index);
+            }
+        }
 
         return strVal;
     }
@@ -938,8 +966,7 @@ public final class JSONLexer {
         
         if (!hasSpecial) {
             for (int i = 0; i < chars_len; ++i) {
-                char ch = chars[i];
-                if (ch == '\\') {
+                if (chars[i] == '\\') {
                     hasSpecial = true;
                 }
             }
@@ -951,9 +978,102 @@ public final class JSONLexer {
         this.hasSpecial = hasSpecial;
         
         bp = endIndex + 1;
-        ch = charAt(bp);
+        // ch = charAt(bp);
+        {
+            int index = bp;
+            if (index >= len) {
+                ch = EOI;
+            } else {
+                ch = text.charAt(index);
+            }
+        }
 
         token = JSONToken.LITERAL_STRING;
+    }
+    
+    public String scanStringValue(char quoteChar) {
+        boolean hasSpecial = false;
+        int startIndex = bp + 1;
+        int endIndex = text.indexOf(quoteChar, startIndex);
+        if (endIndex == -1) {
+            throw new JSONException("unclosed str");
+        }
+        
+        if (SUBSTR) {
+            String strVal = text.substring(startIndex, endIndex);
+            if (strVal.indexOf('\\') == -1) {
+                bp = endIndex + 1;
+                // ch = charAt(bp);
+                {
+                    int index = bp;
+                    if (index >= this.len) {
+                        ch = EOI;
+                    } else {
+                        ch = text.charAt(index);
+                    }
+                }
+                return strVal;
+            } else {
+                hasSpecial = true;
+            }
+        }
+
+        int chars_len;
+        char[] chars;
+
+        chars_len = endIndex - startIndex;
+        chars = sub_chars(bp + 1, chars_len);
+        while ((chars_len > 0 // 
+                && chars[chars_len - 1] == '\\')
+                ) {
+            
+            if (chars_len > 1 && chars[chars_len - 2] == '\\') {
+                break;
+            }
+            
+            int nextIndex = text.indexOf(quoteChar, endIndex + 1);
+            int nextLen = nextIndex - endIndex;
+            int next_chars_len = chars_len + nextLen;
+            
+            if (next_chars_len < chars.length) {
+                text.getChars(endIndex, nextIndex, chars, chars_len);
+            } else {
+                chars = sub_chars(bp + 1, next_chars_len);
+            }
+            chars_len = next_chars_len;
+            endIndex = nextIndex;
+            hasSpecial = true;
+        }
+        
+        final String strVal;
+        if (!hasSpecial) {
+            for (int i = 0; i < chars_len; ++i) {
+                if (chars[i] == '\\') {
+                    hasSpecial = true;
+                }
+            }
+            
+            if (hasSpecial) {
+                strVal = toString(chars, chars_len);
+            } else {
+                strVal = new String(chars, 0, chars_len);
+            }
+        } else {
+            strVal = toString(chars, chars_len);
+        }
+        
+        bp = endIndex + 1;
+        // ch = charAt(bp);
+        {
+            int index = bp;
+            if (index >= len) {
+                ch = EOI;
+            } else {
+                ch = text.charAt(index);
+            }
+        }
+        
+        return strVal;
     }
 
     public Calendar getCalendar() {
@@ -1707,15 +1827,215 @@ public final class JSONLexer {
             token = JSONToken.LITERAL_INT;
         }
     }
+    
+    public final Number scanNumberValue() {
+        final int start = bp;
+        
+        boolean overflow = false;
+        Number number = null;
+        np = 0;
+        final boolean negative;
+        
+        final long limit, multmin;
+        if (ch == '-') {
+            negative = true;
+            limit = Long.MIN_VALUE;
+            multmin = MULTMIN_RADIX_TEN;
+            
+            np++;
+            // next();
+            {
+                int index = ++this.bp;
+                if (index >= len) {
+                    this.ch = EOI;
+                } else {
+                    this.ch = this.text.charAt(index);
+                }
+            }
+        } else {
+            negative = false;
+            limit = -Long.MAX_VALUE;
+            multmin = N_MULTMAX_RADIX_TEN;
+        }
+
+        long longValue = 0;
+        for (;;) {
+            if (ch >= '0' && ch <= '9') {
+                int digit = (ch - '0');
+                if (longValue < multmin) {
+                    overflow = true;
+                }
+                
+                longValue *= 10;
+                if (longValue < limit + digit) {
+                    overflow = true;
+                }
+                longValue -= digit;
+            } else {
+                break;
+            }
+            
+            np++;
+            // next();
+            {
+                int index = ++bp;
+                if (index >= len) {
+                    this.ch = EOI;
+                } else {
+                    this.ch = text.charAt(index);
+                }
+            }
+        }
+        
+        if (!negative) {
+            longValue = -longValue;
+        }
+
+        if (ch == 'L') {
+            np++;
+            next();
+            number = longValue;
+        } else if (ch == 'S') {
+            np++;
+            next();
+            number = (short) longValue;
+        } else if (ch == 'B') {
+            np++;
+            next();
+            number = (byte) longValue;
+        } else if (ch == 'F') {
+            np++;
+            next();
+            number = (float) longValue;
+        } else if (ch == 'D') {
+            np++;
+            next();
+            number = (double) longValue;
+        }
+        
+        boolean isDouble = false, exp = false;
+        if (ch == '.') {
+            isDouble = true;
+            
+            np++;
+            // next();
+            {
+                int index = ++this.bp;
+                if (index >= len) {
+                    this.ch = EOI;
+                } else {
+                    this.ch = this.text.charAt(index);
+                }
+            }
+
+            for (;;) {
+                if (ch >= '0' && ch <= '9') {
+                    np++;
+                } else {
+                    break;
+                }
+                // next();
+                {
+                    int index = ++this.bp;
+                    if (index >= len) {
+                        this.ch = EOI;
+                    } else {
+                        this.ch = this.text.charAt(index);
+                    }
+                }
+            }
+        }
+        
+        if (ch == 'e' || ch == 'E') {
+            np++;
+            // next();
+            {
+                int index = ++this.bp;
+                if (index >= len) {
+                    this.ch = EOI;
+                } else {
+                    this.ch = this.text.charAt(index);
+                }
+            }
+
+            if (ch == '+' || ch == '-') {
+                np++;
+                 // next();
+                {
+                    int index = ++this.bp;
+                    if (index >= len) {
+                        this.ch = EOI;
+                    } else {
+                        this.ch = this.text.charAt(index);
+                    }
+                }
+            }
+
+            for (;;) {
+                if (ch >= '0' && ch <= '9') {
+                    np++;
+                } else {
+                    break;
+                }
+                // next();
+                {
+                    int index = ++this.bp;
+                    if (index >= len) {
+                        this.ch = EOI;
+                    } else {
+                        this.ch = this.text.charAt(index);
+                    }
+                }
+            }
+
+            if (ch == 'D' || ch == 'F') {
+                bp++;
+                next();
+            }
+
+            exp = true;
+        }
+        
+        if ((!isDouble) && (!exp)) {
+            if (overflow) {
+                int len = bp - start;
+                char[] chars = new char[len];
+                text.getChars(start, bp, chars, 0);
+                String strVal = new String(chars);
+                number = new BigInteger(strVal);
+            }
+            if (number == null) {
+                if (longValue > Integer.MIN_VALUE && longValue < Integer.MAX_VALUE) {
+                    number = (int) longValue;
+                } else {
+                    number = longValue;
+                }
+            }
+            return number;
+        }
+        
+        int len = bp - start;
+        char[] chars = new char[len];
+        text.getChars(start, bp, chars, 0);
+
+        if ((!exp) && (features & Feature.UseBigDecimal.mask) != 0) {
+            number = new BigDecimal(chars);
+        } else {
+            String strVal = new String(chars);
+            number = Double.parseDouble(strVal);
+        }
+        
+        return number;
+    }
 
     public final long longValue() throws NumberFormatException {
         long result = 0;
         boolean negative = false;
         int i = np, max = np + sp;
-        long limit;
-        long multmin;
+        
         int digit;
 
+        final long limit;
         if (charAt(np) == '-') {
             negative = true;
             limit = Long.MIN_VALUE;
@@ -1723,7 +2043,7 @@ public final class JSONLexer {
         } else {
             limit = -Long.MAX_VALUE;
         }
-        multmin = negative ? MULTMIN_RADIX_TEN : N_MULTMAX_RADIX_TEN;
+        final long multmin = negative ? MULTMIN_RADIX_TEN : N_MULTMAX_RADIX_TEN;
         if (i < max) {
             digit = digits[charAt(i++)];
             result = -digit;

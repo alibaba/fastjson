@@ -92,6 +92,14 @@ public class ASMSerializerFactory implements Opcodes {
         
         List<FieldInfo> unsortedGetters = TypeUtils.computeGetters(clazz, jsonType, aliasMap, false);
         
+        for (FieldInfo fieldInfo : unsortedGetters) {
+            if (fieldInfo.field == null //
+                    && fieldInfo.method != null //
+                    && fieldInfo.method.getDeclaringClass().isInterface()) {
+                return new JavaBeanSerializer(clazz);
+            }
+        }
+        
         String[] orders = null;
 
         if (jsonType != null) {

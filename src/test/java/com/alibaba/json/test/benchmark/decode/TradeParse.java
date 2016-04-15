@@ -1,8 +1,10 @@
 package com.alibaba.json.test.benchmark.decode;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 
 import com.alibaba.json.test.benchmark.BenchmarkCase;
 import com.alibaba.json.test.codec.Codec;
@@ -10,11 +12,11 @@ import com.alibaba.json.test.codec.Codec;
 /**
  * Created by wenshao on 16/4/4.
  */
-public class TradeObjectParse extends BenchmarkCase {
+public class TradeParse extends BenchmarkCase {
 
     private static String text;
 
-    public TradeObjectParse(){
+    public TradeParse(){
         super("TradeObjectParse");
 
         // JavaBeanMapping.getGlobalInstance().putDeserializer(Image.class, new ImageDeserializer());
@@ -25,7 +27,16 @@ public class TradeObjectParse extends BenchmarkCase {
         if (text != null) {
             return;
         }
-        InputStream is = TradeObjectParse.class.getClassLoader().getResourceAsStream("json/trade.json");
+        text = readFromResource();
+        
+//        JSONObject object = JSON.parseObject(text);
+//        String prettyText = JSON.toJSONString(object, SerializerFeature.PrettyFormat);
+//        System.out.println(prettyText);
+        System.out.println("tradeJsonObject " + text.substring(100));
+    }
+
+    public static String readFromResource() throws UnsupportedEncodingException, IOException {
+        InputStream is = TradeParse.class.getClassLoader().getResourceAsStream("json/trade.json");
         Reader reader = new InputStreamReader(is, "UTF-8");
         char[] chars = new char[1024];
 
@@ -38,8 +49,7 @@ public class TradeObjectParse extends BenchmarkCase {
             out.append(chars, 0, len);
         }
         reader.close();
-        text = out.toString();
-        System.out.println("tradeJsonObject " + text.substring(100));
+        return out.toString();
     }
 
     @Override

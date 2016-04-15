@@ -2,6 +2,8 @@ package com.alibaba.json.bvt;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import org.junit.Assert;
 import junit.framework.TestCase;
@@ -12,7 +14,11 @@ import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class DateFieldTest2 extends TestCase {
-
+    protected void setUp() throws Exception {
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        JSON.defaultLocale = Locale.CHINA;
+    }
+    
     public void test_codec() throws Exception {
         SerializeConfig mapping = new SerializeConfig();
 
@@ -21,7 +27,9 @@ public class DateFieldTest2 extends TestCase {
 
         String text = JSON.toJSONString(v, mapping);
 
-        Assert.assertEquals("{\"value\":" + JSON.toJSONString(new SimpleDateFormat("yyyy-MM-dd").format(v.getValue())) + "}", text);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", JSON.defaultLocale);
+        dateFormat.setTimeZone(JSON.defaultTimeZone);
+        Assert.assertEquals("{\"value\":" + JSON.toJSONString(dateFormat.format(v.getValue())) + "}", text);
     }
 
     public void test_codec_no_asm() throws Exception {
@@ -30,9 +38,11 @@ public class DateFieldTest2 extends TestCase {
 
         SerializeConfig mapping = new SerializeConfig();
         
-
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", JSON.defaultLocale);
+        dateFormat.setTimeZone(JSON.defaultTimeZone);
+        
         String text = JSON.toJSONString(v, mapping, SerializerFeature.WriteMapNullValue);
-        Assert.assertEquals("{\"value\":" + JSON.toJSONString(new SimpleDateFormat("yyyy-MM-dd").format(v.getValue())) + "}", text);
+        Assert.assertEquals("{\"value\":" + JSON.toJSONString(dateFormat.format(v.getValue())) + "}", text);
     }
 
     public void test_codec_asm() throws Exception {
@@ -41,9 +51,11 @@ public class DateFieldTest2 extends TestCase {
 
         SerializeConfig mapping = new SerializeConfig();
         
-
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", JSON.defaultLocale);
+        dateFormat.setTimeZone(JSON.defaultTimeZone);
+        
         String text = JSON.toJSONString(v, mapping, SerializerFeature.WriteMapNullValue);
-        Assert.assertEquals("{\"value\":" + JSON.toJSONString(new SimpleDateFormat("yyyy-MM-dd").format(v.getValue())) + "}", text);
+        Assert.assertEquals("{\"value\":" + JSON.toJSONString(dateFormat.format(v.getValue())) + "}", text);
     }
 
     public void test_codec_null_asm() throws Exception {

@@ -77,6 +77,7 @@ public final class DateCodec implements ObjectSerializer, ObjectDeserializer {
             DateFormat format = serializer.getDateFormat();
             if (format == null) {
                 format = new SimpleDateFormat(JSON.DEFFAULT_DATE_FORMAT, serializer.locale);
+                format.setTimeZone(serializer.timeZone);
             }
             String text = format.format(date);
             out.writeString(text);

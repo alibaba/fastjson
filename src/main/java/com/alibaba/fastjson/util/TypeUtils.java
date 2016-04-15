@@ -299,7 +299,8 @@ public class TypeUtils {
                     format = "yyyy-MM-dd HH:mm:ss.SSS";
                 }
 
-                SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+                SimpleDateFormat dateFormat = new SimpleDateFormat(format, JSON.defaultLocale);
+                dateFormat.setTimeZone(JSON.defaultTimeZone);
                 try {
                     return (Date) dateFormat.parse(strVal);
                 } catch (ParseException e) {

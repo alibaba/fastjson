@@ -1441,9 +1441,16 @@ public class TypeUtils {
         if (field == null) {
             field = getField0(clazz, "_" + fieldName, declaredFields);
         }
+        
         if (field == null) {
             field = getField0(clazz, "m_" + fieldName, declaredFields);
         }
+        
+        if (field == null) {
+            String mName = "m" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+            field = getField0(clazz, mName, declaredFields);
+        }
+        
         return field;
     }
 

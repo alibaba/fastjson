@@ -9,4 +9,7 @@ public class Bug_for_issue_439 extends TestCase {
        JSON.parseObject("{/*aa*/}");
     }
     
+    public void test_for_issue_1() throws Exception {
+        JSON.parseObject("/*aa*/{}");
+     }
 }

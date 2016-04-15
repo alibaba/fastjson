@@ -218,6 +218,11 @@ public final class JSONLexer {
         for (;;) {
             pos = bp;
             
+            if (ch == '/') {
+                skipComment();
+                continue;
+            }
+            
             if (ch == '"') {
                 scanString();
                 return;
@@ -885,6 +890,32 @@ public final class JSONLexer {
                + (text.length() < 65536 //
                    ? text //
                    : text.substring(0, 65536));
+    }
+    
+    protected void skipComment() {
+        next();
+        if (ch == '/') {
+            for (;;) {
+                next();
+                if (ch == '\n') {
+                    next();
+                    return;
+                }
+            }
+        } else if (ch == '*') {
+            for (;;) {
+                next();
+                if (ch == '*') {
+                    next();
+                    if (ch == '/') {
+                        next();
+                        return;
+                    }
+                }
+            }
+        } else {
+            throw new JSONException("invalid comment");
+        }
     }
 
     public final String scanSymbolUnQuoted(final SymbolTable symbolTable) {
@@ -1645,8 +1676,16 @@ public final class JSONLexer {
 
     public final void skipWhitespace() {
         for (;;) {
-            if (ch <= ' ' && (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b')) {
-                next();
+            if (ch <= '/') {
+                if (ch == ' ' || ch == '\r' || ch == '\n' || ch == '\t' || ch == '\f' || ch == '\b') {
+                    next();
+                    continue;
+                } else if (ch == '/') {
+                    skipComment();
+                    continue;
+                } else {
+                    break;
+                }
             } else {
                 break;
             }

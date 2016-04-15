@@ -13,7 +13,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 public class EnumTest2 extends TestCase {
 
     protected void setUp() throws Exception {
-        SerializeConfig.globalInstance.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
     }
     
     public void test_enum() throws Exception {
@@ -26,7 +26,6 @@ public class EnumTest2 extends TestCase {
 
     public void test_enum_noasm() throws Exception {
         SerializeConfig mapping = new SerializeConfig();
-        mapping.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
         
         Date date = new Date(1308841916550L);
         Assert.assertEquals("1308841916550", JSON.toJSONString(date, mapping)); // 1308841916550

@@ -51,8 +51,6 @@ public class SerializeConfig {
         return globalInstance;
     }
     
-    protected TimeZone                              timeZone;
-    
     private final IdentityHashMap<ObjectSerializer> serializers;
 
     public ObjectSerializer registerIfNotExists(Class<?> clazz) {
@@ -178,15 +176,4 @@ public class SerializeConfig {
     public boolean put(Type key, ObjectSerializer value) {
         return this.serializers.put(key, value);
     }
-
-    
-    public TimeZone getTimeZone() {
-        return timeZone;
-    }
-
-    
-    public void setTimeZone(TimeZone timeZone) {
-        this.timeZone = timeZone;
-    }
-    
 }

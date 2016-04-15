@@ -16,11 +16,11 @@ import junit.framework.TestCase;
 
 public class Bug_for_issue_447 extends TestCase {
     protected void setUp() throws Exception {
-        SerializeConfig.globalInstance.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
     }
     
     public void test_for_issue() throws Exception {
-        Calendar calendar = Calendar.getInstance(SerializeConfig.globalInstance.getTimeZone());
+        Calendar calendar = Calendar.getInstance(JSON.defaultTimeZone);
         calendar.setTimeInMillis(1460563200000L);
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);

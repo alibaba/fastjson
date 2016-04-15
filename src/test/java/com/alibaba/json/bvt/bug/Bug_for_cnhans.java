@@ -15,12 +15,12 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class Bug_for_cnhans extends TestCase {
     protected void setUp() throws Exception {
-        SerializeConfig.globalInstance.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
     }
     
     public void test_0() throws Exception {
         VO vo = new VO();
-        vo.setCalendar(Calendar.getInstance(SerializeConfig.globalInstance.getTimeZone()));
+        vo.setCalendar(Calendar.getInstance(JSON.defaultTimeZone));
 
         String text = JSON.toJSONString(vo);
 
@@ -30,7 +30,7 @@ public class Bug_for_cnhans extends TestCase {
     
     public void test_format() throws Exception {
         VO vo = new VO();
-        vo.setCalendar(Calendar.getInstance(SerializeConfig.globalInstance.getTimeZone()));
+        vo.setCalendar(Calendar.getInstance(JSON.defaultTimeZone));
         
         String text = JSON.toJSONString(vo, SerializerFeature.WriteDateUseDateFormat);
         

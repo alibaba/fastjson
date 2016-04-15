@@ -17,7 +17,7 @@ import com.alibaba.fastjson.serializer.SerializeConfig;
 
 public class DateParserTest extends TestCase {
     protected void setUp() throws Exception {
-        SerializeConfig.globalInstance.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
     }
     
     public void test_date_new() throws Exception {

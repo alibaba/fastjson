@@ -49,37 +49,39 @@ public final class JSONLexer {
         DEFAULT_KEYWORDS = map;
     }
 
-    protected int                                           token;
-    protected int                                           pos;
-    public int                                              features       = JSON.DEFAULT_PARSER_FEATURE;
+    protected int                            token;
+    protected int                            pos;
+    public int                               features       = JSON.DEFAULT_PARSER_FEATURE;
 
-    protected char                                          ch;
-    protected int                                           bp;
+    protected char                           ch;
+    protected int                            bp;
 
-    protected int                                           eofPos;
+    protected int                            eofPos;
 
     /**
      * A character buffer for literals.
      */
-    protected char[]                                        sbuf;
-    protected int                                           sp;
+    protected char[]                         sbuf;
+    protected int                            sp;
 
     /**
      * number start position
      */
-    protected int                                           np;
+    protected int                            np;
 
-    protected boolean                                       hasSpecial;
+    protected boolean                        hasSpecial;
 
-    protected Calendar                                      calendar       = null;
+    protected TimeZone                       timeZone       = JSON.defaultTimeZone;
+    protected Locale                         locale         = JSON.defaultLocale;
+    protected Calendar                       calendar       = null;
 
-    public int                                              matchStat      = UNKNOWN;
+    public int                               matchStat      = UNKNOWN;
 
     private final static ThreadLocal<char[]> SBUF_REF_LOCAL = new ThreadLocal<char[]>();
-    protected Map<String, Integer>                          keywods        = DEFAULT_KEYWORDS;
-    
-    protected final String text;
-    protected final int len;
+    protected Map<String, Integer>           keywods        = DEFAULT_KEYWORDS;
+
+    protected final String                   text;
+    protected final int                      len;
     
     public JSONLexer(String input){
         this(input, JSON.DEFAULT_PARSER_FEATURE);
@@ -126,9 +128,26 @@ public final class JSONLexer {
     
     public void close() {
         if (sbuf.length <= 8196) {
+         
             SBUF_REF_LOCAL.set(sbuf);
         }
         this.sbuf = null;
+    }
+
+    public TimeZone getTimeZone() {
+        return timeZone;
+    }
+    
+    public void setTimeZone(TimeZone timeZone) {
+        this.timeZone = timeZone;
+    }
+    
+    public Locale getLocale() {
+        return locale;
+    }
+    
+    public void setLocale(Locale locale) {
+        this.locale = locale;
     }
 
     public final char getCurrent() {
@@ -3214,8 +3233,7 @@ public final class JSONLexer {
                 String numberText = this.subString(offset, plusIndex - offset);
                 long millis = Long.parseLong(numberText);
 
-                Locale local = Locale.getDefault();
-                calendar = Calendar.getInstance(TimeZone.getDefault(), local);
+                calendar = Calendar.getInstance(timeZone, locale);
                 calendar.setTimeInMillis(millis);
 
                 token = JSONToken.LITERAL_ISO8601_DATE;
@@ -3528,8 +3546,7 @@ public final class JSONLexer {
     }
 
     private void setCalendar(char y0, char y1, char y2, char y3, char M0, char M1, char d0, char d1) {
-        Locale local = Locale.getDefault();
-        calendar = Calendar.getInstance(TimeZone.getDefault(), local);
+        calendar = Calendar.getInstance(timeZone, locale);
         int year = digits[y0] * 1000 + digits[y1] * 100 + digits[y2] * 10 + digits[y3];
         int month = digits[M0] * 10 + digits[M1] - 1;
         int day = digits[d0] * 10 + digits[d1];

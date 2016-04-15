@@ -25,10 +25,10 @@ import com.alibaba.fastjson.util.TypeUtils;
 
 public class JavaBeanDeserializer implements ObjectDeserializer {
 
-    private final FieldDeserializer[] fieldDeserializers;
+    private final FieldDeserializer[]   fieldDeserializers;
     protected final FieldDeserializer[] sortedFieldDeserializers;
-    protected final Class<?>          clazz;
-    private JavaBeanInfo              beanInfo;
+    protected final Class<?>            clazz;
+    public final JavaBeanInfo           beanInfo;
 
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz){
         this(config, clazz, clazz);

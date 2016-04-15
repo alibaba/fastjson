@@ -491,7 +491,8 @@ public class ParserConfig {
                     break;
                 }
                 
-                if (!ASMUtils.checkName(fieldInfo.getMember().getName())) {
+                if (fieldInfo.getMember() != null // 
+                        && !ASMUtils.checkName(fieldInfo.getMember().getName())) {
                     asmEnable = false;
                     break;
                 }

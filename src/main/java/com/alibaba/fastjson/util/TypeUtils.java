@@ -922,12 +922,17 @@ public class TypeUtils {
             } else if (deserizer instanceof ASMJavaBeanDeserializer) {
                 javaBeanDeser = ((ASMJavaBeanDeserializer) deserizer).getInnterSerializer();
             }
-
-            Constructor<T> constructor = clazz.getDeclaredConstructor();
-            constructor.setAccessible(true);
-            T object = constructor.newInstance();
-
-            if (javaBeanDeser != null) {
+            
+            if (javaBeanDeser == null) {
+                throw new JSONException("can not get javaBeanDeserializer");
+            }
+            
+            T object = null;
+            
+            JavaBeanInfo beanInfo = javaBeanDeser.beanInfo;
+            if (beanInfo.creatorConstructor == null && beanInfo.buildMethod == null) {
+                object = (T) javaBeanDeser.createInstance(null, clazz);
+                
                 for (Map.Entry<String, Object> entry : map.entrySet()) {
                     String key = entry.getKey();
                     Object value = entry.getValue();
@@ -949,8 +954,33 @@ public class TypeUtils {
                         field.set(object, value);
                     }
                 }
+                
+                return object;
             }
-
+            
+            FieldInfo[] fieldInfoList = beanInfo.fields;
+            int size = fieldInfoList.length;
+            Object[] params = new Object[size];
+            for (int i = 0; i < size; ++i) {
+                FieldInfo fieldInfo = fieldInfoList[i];
+                params[i] = map.get(fieldInfo.name);
+            }
+            
+            if (beanInfo.creatorConstructor != null) {
+                try {
+                    object = (T) beanInfo.creatorConstructor.newInstance(params);
+                } catch (Exception e) {
+                    throw new JSONException("create instance error, "
+                                            + beanInfo.creatorConstructor.toGenericString(), e);
+                }
+            } else if (beanInfo.factoryMethod != null) {
+                try {
+                    object = (T) beanInfo.factoryMethod.invoke(null, params);
+                } catch (Exception e) {
+                    throw new JSONException("create factory method error, " + beanInfo.factoryMethod.toString(), e);
+                }
+            }
+            
             return object;
         } catch (Exception e) {
             throw new JSONException(e.getMessage(), e);

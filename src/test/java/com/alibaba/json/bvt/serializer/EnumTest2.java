@@ -1,6 +1,7 @@
 package com.alibaba.json.bvt.serializer;
 
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.junit.Assert;
 import junit.framework.TestCase;
@@ -11,7 +12,10 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class EnumTest2 extends TestCase {
 
-
+    protected void setUp() throws Exception {
+        SerializeConfig.globalInstance.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+    }
+    
     public void test_enum() throws Exception {
         Date date = new Date(1308841916550L);
         Assert.assertEquals("1308841916550", JSON.toJSONString(date)); // 1308841916550

@@ -22,6 +22,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
@@ -91,7 +92,13 @@ public final class DateCodec implements ObjectSerializer, ObjectDeserializer {
                 out.write('\"');
             }
 
-            Calendar calendar = Calendar.getInstance();
+            TimeZone timeZone = serializer.timeZone;
+            Calendar calendar;
+            if (timeZone != null) {
+                calendar = Calendar.getInstance(timeZone);
+            } else {
+                calendar = Calendar.getInstance();
+            }
             calendar.setTimeInMillis(time);
 
             int year = calendar.get(Calendar.YEAR);

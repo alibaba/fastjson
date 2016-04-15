@@ -87,6 +87,7 @@ public class JSONSerializer {
         if (dateFormat == null) {
             if (dateFormatPattern != null) {
                 dateFormat = new SimpleDateFormat(dateFormatPattern, locale);
+                dateFormat.setTimeZone(timeZone);
             }
         }
 
@@ -313,6 +314,7 @@ public class JSONSerializer {
             DateFormat dateFormat = this.getDateFormat();
             if (dateFormat == null) {
                 dateFormat = new SimpleDateFormat(format, locale);
+                dateFormat.setTimeZone(timeZone);
             }
             String text = dateFormat.format((Date) object);
             out.writeString(text);

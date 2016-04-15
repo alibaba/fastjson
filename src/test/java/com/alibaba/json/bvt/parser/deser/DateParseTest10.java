@@ -17,7 +17,9 @@ public class DateParseTest10 extends TestCase {
     public void test_date() throws Exception {
         String text = "{\"value\":\"1979-07-14\"}";
         VO vo = JSON.parseObject(text, VO.class);
-        Assert.assertEquals(vo.getValue(), new SimpleDateFormat("yyyy-MM-dd", JSON.defaultLocale).parse("1979-07-14").getTime());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", JSON.defaultLocale);
+        dateFormat.setTimeZone(JSON.defaultTimeZone);
+        Assert.assertEquals(vo.getValue(), dateFormat.parse("1979-07-14").getTime());
     }
 
     public static class VO {

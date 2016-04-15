@@ -17,7 +17,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 public class Bug_for_cnhans extends TestCase {
     protected void setUp() throws Exception {
         JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
-        JSON.defaultLocale = new Locale("zh_CN");
+        JSON.defaultLocale = Locale.CHINA;
     }
     
     public void test_0() throws Exception {
@@ -32,11 +32,12 @@ public class Bug_for_cnhans extends TestCase {
     
     public void test_format() throws Exception {
         VO vo = new VO();
-        vo.setCalendar(Calendar.getInstance(JSON.defaultTimeZone));
+        vo.setCalendar(Calendar.getInstance(JSON.defaultTimeZone, JSON.defaultLocale));
         
         String text = JSON.toJSONString(vo, SerializerFeature.WriteDateUseDateFormat);
         
         VO vo1 = JSON.parseObject(text, VO.class);
+        
         Assert.assertEquals(vo.getCalendar().get(Calendar.YEAR), vo1.getCalendar().get(Calendar.YEAR));
         Assert.assertEquals(vo.getCalendar().get(Calendar.MONTH), vo1.getCalendar().get(Calendar.MONTH));
         Assert.assertEquals(vo.getCalendar().get(Calendar.DAY_OF_MONTH), vo1.getCalendar().get(Calendar.DAY_OF_MONTH));
@@ -47,11 +48,16 @@ public class Bug_for_cnhans extends TestCase {
     
     public void test_iso_format() throws Exception {
         VO vo = new VO();
-        vo.setCalendar(Calendar.getInstance());
+        vo.setCalendar(Calendar.getInstance(JSON.defaultTimeZone, JSON.defaultLocale));
         
         String text = JSON.toJSONString(vo, SerializerFeature.UseISO8601DateFormat);
+        System.out.println(text);
         
         VO vo1 = JSON.parseObject(text, VO.class);
+        
+//        String text1 = JSON.toJSONString(vo1, SerializerFeature.UseISO8601DateFormat);
+//        System.out.println(text1);
+        
         Assert.assertEquals(vo.getCalendar().get(Calendar.YEAR), vo1.getCalendar().get(Calendar.YEAR));
         Assert.assertEquals(vo.getCalendar().get(Calendar.MONTH), vo1.getCalendar().get(Calendar.MONTH));
         Assert.assertEquals(vo.getCalendar().get(Calendar.DAY_OF_MONTH), vo1.getCalendar().get(Calendar.DAY_OF_MONTH));

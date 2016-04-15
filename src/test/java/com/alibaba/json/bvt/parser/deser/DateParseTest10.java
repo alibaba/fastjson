@@ -1,6 +1,7 @@
 package com.alibaba.json.bvt.parser.deser;
 
 import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
@@ -10,7 +11,7 @@ import com.alibaba.fastjson.JSON;
 
 public class DateParseTest10 extends TestCase {
     protected void setUp() throws Exception {
-        
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
     }
 
     public void test_date() throws Exception {

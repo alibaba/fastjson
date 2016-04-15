@@ -420,20 +420,28 @@ public class ParserConfig {
     public ObjectDeserializer createJavaBeanDeserializer(Class<?> clazz, Type type) {
         boolean asmEnable = this.asmEnable;
         if (asmEnable) {
-            Class<?> superClass = JavaBeanInfo.getBuilderClass(clazz.getAnnotation(JSONType.class));
-            if (superClass == null) {
-                superClass = clazz;
+            JSONType jsonType = clazz.getAnnotation(JSONType.class);
+            
+            if (jsonType != null && !jsonType.asm()) {
+                asmEnable = false;
             }
-
-            for (;;) {
-                if (!Modifier.isPublic(superClass.getModifiers())) {
-                    asmEnable = false;
-                    break;
+            
+            if (asmEnable) {
+                Class<?> superClass = JavaBeanInfo.getBuilderClass(jsonType);
+                if (superClass == null) {
+                    superClass = clazz;
                 }
-
-                superClass = superClass.getSuperclass();
-                if (superClass == Object.class || superClass == null) {
-                    break;
+    
+                for (;;) {
+                    if (!Modifier.isPublic(superClass.getModifiers())) {
+                        asmEnable = false;
+                        break;
+                    }
+    
+                    superClass = superClass.getSuperclass();
+                    if (superClass == Object.class || superClass == null) {
+                        break;
+                    }
                 }
             }
         }

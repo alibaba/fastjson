@@ -10,6 +10,7 @@ import java.util.TimeZone;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
@@ -19,7 +20,7 @@ import com.alibaba.fastjson.serializer.SerializeConfig;
 
 public class DefaultExtJSONParser_parseArray extends TestCase {
     protected void setUp() throws Exception {
-        SerializeConfig.globalInstance.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
     }
     
     public void test_0() throws Exception {

@@ -71,7 +71,7 @@ public class JSONSerializer {
     public JSONSerializer(SerializeWriter out, SerializeConfig config){
         this.out = out;
         this.config = config;
-        this.timeZone = config.timeZone;
+        this.timeZone = JSON.defaultTimeZone;
     }
 
     public String getDateFormatPattern() {

@@ -17,7 +17,7 @@ import junit.framework.TestCase;
 
 public class Bug_for_issue_331 extends TestCase {
     protected void setUp() throws Exception {
-        SerializeConfig.globalInstance.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
     }
     
     public void test_for_issue() throws Exception {
@@ -25,7 +25,7 @@ public class Bug_for_issue_331 extends TestCase {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         Date date = format.parse("2015-05-23");
 
-        Calendar c = Calendar.getInstance(SerializeConfig.globalInstance.getTimeZone());
+        Calendar c = Calendar.getInstance(JSON.defaultTimeZone);
         c.setTime(date);
 
         Model original = new Model();

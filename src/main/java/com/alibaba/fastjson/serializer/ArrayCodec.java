@@ -106,7 +106,7 @@ public final class ArrayCodec implements ObjectSerializer, ObjectDeserializer {
                             preWriter.write(serializer, item, null, null);
                         } else {
                             preClazz = clazz;
-                            preWriter = serializer.getObjectWriter(clazz);
+                            preWriter = serializer.config.get(clazz);
 
                             preWriter.write(serializer, item, null, null);
                         }

@@ -5,7 +5,6 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializeConfig;
@@ -34,8 +33,13 @@ public class FastjsonSCodec implements Codec {
     }
     
     public String encode(Object object) throws Exception {
+        SerializeConfig config = new SerializeConfig();
+        config.registerIfNotExists(MediaContent.class, Modifier.PUBLIC, true, false, false, false);
+        config.registerIfNotExists(Media.class, Modifier.PUBLIC, true, false, false, false);
+        config.registerIfNotExists(Image.class, Modifier.PUBLIC, true, false, false, false);
+        
         return JSON.toJSONString(object, // 
-                                 new SerializeConfig(), // 每次new SerializeConfig模拟首次
+                                 config, // 每次new SerializeConfig模拟首次
                                  SerializerFeature.DisableCircularReferenceDetect);
     }
     

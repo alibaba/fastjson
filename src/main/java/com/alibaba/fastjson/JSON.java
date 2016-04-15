@@ -518,7 +518,14 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
 
         try {
-            List<FieldInfo> getters = TypeUtils.computeGetters(clazz, clazz.getAnnotation(JSONType.class), null, true);
+            List<FieldInfo> getters = TypeUtils.computeGetters(clazz, //
+                                                               clazz.getModifiers(), 
+                                                               false, // 
+                                                               clazz.getAnnotation(JSONType.class), // 
+                                                               null, // 
+                                                               true, // 
+                                                               true, // 
+                                                               true);
 
             JSONObject json = new JSONObject(getters.size());
 

@@ -10,8 +10,8 @@ public class BenchmarkMain {
 
         BenchmarkExecutor executor = new BenchmarkExecutor();
         executor.setExecuteCount(3);
-//        executor.getCodecList().add(new FastjsonSCodec());
-        executor.getCodecList().add(new FastjsonCodec());
+        executor.getCodecList().add(new FastjsonSCodec());
+//        executor.getCodecList().add(new FastjsonCodec());
 //        executor.getCodecList().add(new FastjsonBeanToArrayCodec());
 //        executor.getCodecList().add(new GsonCodec());
 //        executor.getCodecList().add(new Jackson2Codec());
@@ -23,9 +23,9 @@ public class BenchmarkMain {
         executor.setLoopCount(1000 * 100);
 
 //        executor.getCaseList().add(new CartObjectParse());
-        executor.getCaseList().add(new TradeParse());
+//        executor.getCaseList().add(new TradeParse());
 //        executor.getCaseList().add(new XueluDecode());
-//         executor.getCaseList().add(new EishayEncode());
+         executor.getCaseList().add(new EishayEncode());
 //         executor.getCaseList().add(new EishayDecode());
 //         executor.getCaseList().add(new GetHomePageResponseDecode());
 //         executor.getCaseList().add(new EishayTreeDecode());

@@ -131,7 +131,7 @@ public final class MiscCodec implements ObjectSerializer, ObjectDeserializer {
 
                     Class<?> clazz = item.getClass();
 
-                    ObjectSerializer itemSerializer = serializer.getObjectWriter(clazz);
+                    ObjectSerializer itemSerializer = serializer.config.get(clazz);
                     itemSerializer.write(serializer, item, i - 1, elementType);
                 }
                 out.write(']');

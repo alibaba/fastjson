@@ -188,7 +188,7 @@ public class TypeUtilsTest extends TestCase {
     public void test_cast_to_SqlDate_calendar() throws Exception {
         long millis = System.currentTimeMillis();
 
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance(JSON.defaultTimeZone, JSON.defaultLocale);
         calendar.setTimeInMillis(millis);
 
         JSONObject json = new JSONObject();
@@ -283,7 +283,7 @@ public class TypeUtilsTest extends TestCase {
     public void test_cast_to_Timestamp_calendar() throws Exception {
         long millis = System.currentTimeMillis();
 
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance(JSON.defaultTimeZone, JSON.defaultLocale);
         calendar.setTimeInMillis(millis);
 
         JSONObject json = new JSONObject();

@@ -641,7 +641,7 @@ public class TypeUtils {
             Date date = castToDate(obj);
             Calendar calendar;
             if (clazz == Calendar.class) {
-                calendar = Calendar.getInstance();
+                calendar = Calendar.getInstance(JSON.defaultTimeZone, JSON.defaultLocale);
             } else {
                 try {
                     calendar = (Calendar) clazz.newInstance();

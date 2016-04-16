@@ -835,7 +835,7 @@ public class JSONPath implements JSONAware {
         String readName() {
             skipWhitespace();
 
-            if (!IOUtils.firstIdentifier(ch)) {
+            if (ch != '\\' && !IOUtils.firstIdentifier(ch)) {
                 throw new JSONPathException("illeal jsonpath syntax. " + path);
             }
 
@@ -844,6 +844,9 @@ public class JSONPath implements JSONAware {
                 if (ch == '\\') {
                     next();
                     buf.append(ch);
+                    if (isEOF()) {
+                        break;
+                    }
                     next();
                     continue;
                 }

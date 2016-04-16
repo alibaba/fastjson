@@ -1,5 +1,8 @@
 package com.alibaba.json.bvt.parser;
 
+import java.util.Locale;
+import java.util.TimeZone;
+
 import org.junit.Assert;
 
 import junit.framework.TestCase;
@@ -11,7 +14,11 @@ import com.alibaba.fastjson.parser.ParserConfig;
 
 @SuppressWarnings("deprecation")
 public class DateParserTest_sql_timestamp extends TestCase {
-
+    protected void setUp() throws Exception {
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        JSON.defaultLocale = Locale.CHINA;
+    }
+    
     public void f_test_date_0() throws Exception {
         DefaultJSONParser parser = new DefaultJSONParser("1294552193254");
 

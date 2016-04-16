@@ -369,11 +369,14 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
                 boolean isCglibProxy = false;
                 boolean isJavassistProxy = false;
                 for (Class<?> item : clazz.getInterfaces()) {
-                    if (item.getName().equals("net.sf.cglib.proxy.Factory")
-                        || item.getName().equals("org.springframework.cglib.proxy.Factory")) {
+                    String interfaceName = item.getName();
+                    if (interfaceName.equals("net.sf.cglib.proxy.Factory") //
+                        || interfaceName.equals("org.springframework.cglib.proxy.Factory")) {
                         isCglibProxy = true;
                         break;
-                    } else if (item.getName().equals("javassist.util.proxy.ProxyObject")) {
+                    } else if (interfaceName.equals("javassist.util.proxy.ProxyObject") //
+                            || interfaceName.equals("org.apache.ibatis.javassist.util.proxy.ProxyObject")
+                            ) {
                         isJavassistProxy = true;
                         break;
                     }

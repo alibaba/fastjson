@@ -2,10 +2,7 @@ package com.alibaba.fastjson;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
 import java.util.List;
-
-import com.alibaba.fastjson.util.ParameterizedTypeImpl;
 
 /**
  * Represents a generic type {@code T}. Java doesn't yet provide a way to

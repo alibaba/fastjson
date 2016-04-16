@@ -70,7 +70,7 @@ public class Bug_for_cnhans extends TestCase {
         JSONObject obj = new JSONObject();
         obj.put("d1", new Date());
         obj.put("d2", System.currentTimeMillis());
-        obj.put("d3", GregorianCalendar.getInstance());
+        obj.put("d3", GregorianCalendar.getInstance(JSON.defaultTimeZone, JSON.defaultLocale));
         obj.put("d4", "2012-12-22");
         obj.put("d5", "2012-12-22 12:11:11");
         obj.put("d6", "2012-12-22 12:11:11.234");

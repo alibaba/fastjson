@@ -36,7 +36,9 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.junit.Assert;
 
@@ -49,6 +51,10 @@ import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.TypeUtils;
 
 public class DefaultExtJSONParserTest extends TestCase {
+    protected void setUp() throws Exception {
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        JSON.defaultLocale = Locale.CHINA;
+    }
 
     public void test_parseObject() {
         new DefaultJSONParser("".toCharArray(), 0, ParserConfig.getGlobalInstance(), 0).close();
@@ -73,7 +79,7 @@ public class DefaultExtJSONParserTest extends TestCase {
     }
 
     public void testCastCalendar() throws Exception {
-        Calendar c = Calendar.getInstance();
+        Calendar c = Calendar.getInstance(JSON.defaultTimeZone, JSON.defaultLocale);
         Date d = TypeUtils.castToDate(c);
         Assert.assertEquals(c.getTime(), d);
     }

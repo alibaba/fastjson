@@ -93,13 +93,7 @@ public final class DateCodec implements ObjectSerializer, ObjectDeserializer {
                 out.write('\"');
             }
 
-            TimeZone timeZone = serializer.timeZone;
-            Calendar calendar;
-            if (timeZone != null) {
-                calendar = Calendar.getInstance(timeZone);
-            } else {
-                calendar = Calendar.getInstance();
-            }
+            Calendar calendar = Calendar.getInstance(serializer.timeZone, serializer.locale);
             calendar.setTimeInMillis(time);
 
             int year = calendar.get(Calendar.YEAR);

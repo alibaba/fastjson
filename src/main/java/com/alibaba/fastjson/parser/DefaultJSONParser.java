@@ -359,11 +359,10 @@ public class DefaultJSONParser implements Closeable {
                                 }
                             }
                         } else if ("..".equals(ref)) {
-                            ParseContext parentContext = context.parent;
-                            if (parentContext.object != null) {
-                                refValue = parentContext.object;
+                            if (context.object != null) {
+                                refValue = context.object;
                             } else {
-                                addResolveTask(new ResolveTask(parentContext, ref));
+                                addResolveTask(new ResolveTask(context, ref));
                                 resolveStatus = DefaultJSONParser.NeedToResolve;
                             }
                         } else if ("$".equals(ref)) {
@@ -583,11 +582,15 @@ public class DefaultJSONParser implements Closeable {
     // compatible
     @SuppressWarnings("unchecked")
     public <T> T parseObject(Class<T> clazz) {
-        return (T) parseObject((Type) clazz);
+        return (T) parseObject(clazz, null);
+    }
+    
+    public <T> T parseObject(Type type) {
+        return parseObject(type, null);
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T parseObject(Type type) {
+    public <T> T parseObject(Type type, Object fieldName) {
         if (lexer.token == JSONToken.NULL) {
             lexer.nextToken();
             return null;
@@ -611,7 +614,7 @@ public class DefaultJSONParser implements Closeable {
         ObjectDeserializer derializer = config.getDeserializer(type);
 
         try {
-            return (T) derializer.deserialze(this, type, null);
+            return (T) derializer.deserialze(this, type, fieldName);
         } catch (JSONException e) {
             throw e;
         } catch (Exception e) {

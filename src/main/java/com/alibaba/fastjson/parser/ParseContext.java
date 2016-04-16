@@ -10,7 +10,6 @@ public class ParseContext {
     public Type               type;
 
     public ParseContext(ParseContext parent, Object object, Object fieldName){
-        super();
         this.parent = parent;
         this.object = object;
         this.fieldName = fieldName;

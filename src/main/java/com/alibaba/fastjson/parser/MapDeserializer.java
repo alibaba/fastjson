@@ -157,17 +157,17 @@ public class MapDeserializer implements ObjectDeserializer {
                 Object value;
                 lexer.nextToken();
 
+                parser.setContext(context);
                 if (lexer.token == JSONToken.NULL) {
                     value = null;
                     lexer.nextToken();
                 } else {
-                    value = parser.parseObject(valueType);
+                    value = parser.parseObject(valueType, key);
                 }
 
                 map.put(key, value);
                 parser.checkMapResolve(map, key);
-
-                parser.setContext(context, value, key);
+                parser.setContext(context, value, key);                
 
                 final int tok = lexer.token;
                 if (tok == JSONToken.EOF || tok == JSONToken.RBRACKET) {

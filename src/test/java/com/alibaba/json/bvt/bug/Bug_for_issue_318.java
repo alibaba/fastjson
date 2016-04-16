@@ -10,6 +10,7 @@ import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.util.ParameterizedTypeImpl;
+import com.alibaba.json.bvt.bug.Bug_for_issue_318.Person;
 
 import junit.framework.TestCase;
 
@@ -87,7 +88,7 @@ public class Bug_for_issue_318 extends TestCase {
     }
 
     public static class PersonAll {
-        private Map<String, List<Person>> userMap = new HashMap<>();
+        private Map<String, List<Person>> userMap = new HashMap<String, List<Person>>();
         private Integer count;
         private List<Person> users;
         private List<Person> managers;

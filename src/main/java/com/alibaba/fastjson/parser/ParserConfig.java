@@ -51,7 +51,6 @@ import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.serializer.ArrayCodec;
 import com.alibaba.fastjson.serializer.BigDecimalCodec;
 import com.alibaba.fastjson.serializer.BooleanCodec;
-import com.alibaba.fastjson.serializer.CalendarCodec;
 import com.alibaba.fastjson.serializer.CollectionCodec;
 import com.alibaba.fastjson.serializer.DateCodec;
 import com.alibaba.fastjson.serializer.IntegerCodec;
@@ -78,7 +77,7 @@ public class ParserConfig {
     public ParserConfig(){
         derializers.put(SimpleDateFormat.class, MiscCodec.instance);
         derializers.put(java.util.Date.class, DateCodec.instance);
-        derializers.put(Calendar.class, CalendarCodec.instance);
+        derializers.put(Calendar.class, DateCodec.instance);
 
         derializers.put(Map.class, MapDeserializer.instance);
         derializers.put(HashMap.class, MapDeserializer.instance);

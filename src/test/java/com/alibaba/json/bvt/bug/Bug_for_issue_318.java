@@ -1,16 +1,14 @@
 package com.alibaba.json.bvt.bug;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.util.ParameterizedTypeImpl;
-import com.alibaba.json.bvt.bug.Bug_for_issue_318.Person;
 
 import junit.framework.TestCase;
 
@@ -34,9 +32,9 @@ public class Bug_for_issue_318 extends TestCase {
         pa.setCount(30);
 
         // map
-        Map<String, List<Person>> userMap = new HashMap<String, List<Person>>();
-        userMap.put("users", users);
+        Map<String, List<Person>> userMap = new LinkedHashMap<String, List<Person>>();
         userMap.put("managers", managers);
+        userMap.put("users", users);
         pa.setUserMap(userMap);
         // bean的属性
         pa.setUsers(users);
@@ -62,7 +60,7 @@ public class Bug_for_issue_318 extends TestCase {
         Assert.assertNotNull(target.getManagers().get(0));
     }
 
-    public static class Person {
+    private static class Person {
         private String name;
         private Integer age;
 
@@ -87,7 +85,7 @@ public class Bug_for_issue_318 extends TestCase {
         }
     }
 
-    public static class PersonAll {
+    private static class PersonAll {
         private Map<String, List<Person>> userMap = new HashMap<String, List<Person>>();
         private Integer count;
         private List<Person> users;

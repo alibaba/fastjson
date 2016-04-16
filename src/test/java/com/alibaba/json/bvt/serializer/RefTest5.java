@@ -5,6 +5,7 @@ import junit.framework.TestCase;
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 
 public class RefTest5 extends TestCase {
     
@@ -16,8 +17,8 @@ public class RefTest5 extends TestCase {
     
     public void test_parse() throws Exception {
         Object[] array2 = JSON.parseObject("[[{\"$ref\":\"..\"}]]", Object[].class);
-        Object[] item = (Object[]) array2[0];
-        Assert.assertSame(array2, item[0]);
+        JSONArray item = (JSONArray) array2[0];
+        Assert.assertSame(item, item.get(0));
     }
     
 }

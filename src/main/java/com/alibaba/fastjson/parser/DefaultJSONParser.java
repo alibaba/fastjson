@@ -562,11 +562,15 @@ public class DefaultJSONParser implements Closeable {
     // compatible
     @SuppressWarnings("unchecked")
     public <T> T parseObject(Class<T> clazz) {
-        return (T) parseObject((Type) clazz);
+        return (T) parseObject(clazz, null);
+    }
+    
+    public <T> T parseObject(Type type) {
+        return parseObject(type, null);
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T parseObject(Type type) {
+    public <T> T parseObject(Type type, Object fieldName) {
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken();
             return null;
@@ -590,7 +594,7 @@ public class DefaultJSONParser implements Closeable {
         ObjectDeserializer derializer = config.getDeserializer(type);
 
         try {
-            return (T) derializer.deserialze(this, type, null);
+            return (T) derializer.deserialze(this, type, fieldName);
         } catch (JSONException e) {
             throw e;
         } catch (Throwable e) {

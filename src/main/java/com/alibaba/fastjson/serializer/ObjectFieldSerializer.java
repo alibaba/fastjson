@@ -114,7 +114,13 @@ public class ObjectFieldSerializer extends FieldSerializer {
                 return;
             }
 
-            runtimeInfo.fieldSerializer.write(serializer, null, fieldInfo.name, null, fieldFeatures);
+            ObjectSerializer fieldSerializer = runtimeInfo.fieldSerializer;
+            if (out.writeMapNullValue) {
+                out.writeNull();
+                return;
+            }
+            
+            fieldSerializer.write(serializer, null, fieldInfo.name, fieldInfo.fieldType, fieldFeatures);
             return;
         }
 

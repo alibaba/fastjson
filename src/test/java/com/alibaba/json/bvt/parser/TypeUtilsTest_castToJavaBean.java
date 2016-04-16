@@ -80,8 +80,8 @@ public class TypeUtilsTest_castToJavaBean extends TestCase {
     }
 
     public void test_mapping() throws Exception {
-        TypeUtils.addClassMapping("my_xxx", VO.class);
-        TypeUtils.addClassMapping(null, VO.class);
+        addClassMapping("my_xxx", VO.class);
+        addClassMapping(null, VO.class);
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("@type", "my_xxx");
         map.put("id", 123);
@@ -268,5 +268,19 @@ public class TypeUtilsTest_castToJavaBean extends TestCase {
         
         mappings.clear();
         addBaseClassMappings();
+    }
+    
+    public static void addClassMapping(String className, Class<?> clazz) throws Exception {
+        if (className == null) {
+            className = clazz.getName();
+        }
+        
+        Field field = TypeUtils.class.getDeclaredField("mappings");
+        field.setAccessible(true);
+        
+        ConcurrentMap<String, Class<?>> mappings = (ConcurrentMap<String, Class<?>>) field.get(null);
+        
+
+        mappings.put(className, clazz);
     }
 }

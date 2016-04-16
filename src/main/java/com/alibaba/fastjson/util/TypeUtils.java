@@ -18,7 +18,6 @@ package com.alibaba.fastjson.util;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -32,18 +31,15 @@ import java.math.BigInteger;
 import java.security.AccessControlException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -573,12 +569,10 @@ public class TypeUtils {
                 String name = (String) obj;
                 if (name.length() == 0) {
                     return null;
+                } else {
+                    return (T) Enum.valueOf((Class<? extends Enum>) clazz, name);
                 }
-
-                return (T) Enum.valueOf((Class<? extends Enum>) clazz, name);
-            }
-
-            if (obj instanceof Number) {
+            } else if (obj instanceof Number) {
                 int ordinal = ((Number) obj).intValue();
 
                 Method method = clazz.getMethod("values");
@@ -783,14 +777,6 @@ public class TypeUtils {
         mappings.put(HashMap.class.getName(), HashMap.class);
     }
 
-    public static void addClassMapping(String className, Class<?> clazz) {
-        if (className == null) {
-            className = clazz.getName();
-        }
-
-        mappings.put(className, clazz);
-    }
-    
     public static Class<?> loadClass(String className, ClassLoader classLoader) {
         if (className == null || className.length() == 0) {
             return null;
@@ -816,7 +802,7 @@ public class TypeUtils {
             if (classLoader != null) {
                 clazz = classLoader.loadClass(className);
 
-                addClassMapping(className, clazz);
+                mappings.put(className, clazz);
 
                 return clazz;
             }
@@ -831,7 +817,7 @@ public class TypeUtils {
             if (contextClassLoader != null) {
                 clazz = contextClassLoader.loadClass(className);
 
-                addClassMapping(className, clazz);
+                mappings.put(className, clazz);
 
                 return clazz;
             }
@@ -843,7 +829,7 @@ public class TypeUtils {
         try {
             clazz = Class.forName(className);
 
-            addClassMapping(className, clazz);
+            mappings.put(className, clazz);
 
             return clazz;
         } catch (Exception e) {
@@ -1236,20 +1222,6 @@ public class TypeUtils {
         return type;
     }
     
-    public static Type unwrap(Type type) {
-        if (type instanceof GenericArrayType) {
-            Type componentType = ((GenericArrayType) type).getGenericComponentType();
-            if (componentType == byte.class) {
-                return byte[].class;
-            }
-            if (componentType == char.class) {
-                return char[].class;
-            }
-        }
-        
-        return type;
-    }
-
     public static Class<?> getClass(Type type) {
         if (type.getClass() == Class.class) {
             return (Class<?>) type;
@@ -1338,49 +1310,5 @@ public class TypeUtils {
         }
 
         return null;
-    }
-    
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static Collection createCollection(Type type) {
-        Class<?> rawClass; //= getRawClass(type);
-        for (Type t = type;;) {
-            if (t instanceof Class<?>) {
-                rawClass = (Class<?>) t;
-                break;
-            } else if (t instanceof ParameterizedType) {
-                t = ((ParameterizedType) t).getRawType();
-            } else {
-                throw new JSONException("TODO");
-            }
-        }
-
-        Collection list;
-        if (rawClass == AbstractCollection.class // 
-                || rawClass == Collection.class) {
-            list = new ArrayList();
-        } else if (rawClass.isAssignableFrom(HashSet.class)) {
-            list = new HashSet();
-        } else if (rawClass.isAssignableFrom(LinkedHashSet.class)) {
-            list = new LinkedHashSet();
-        } else if (rawClass.isAssignableFrom(TreeSet.class)) {
-            list = new TreeSet();
-        } else if (rawClass.isAssignableFrom(ArrayList.class)) {
-            list = new ArrayList();
-        } else if (rawClass.isAssignableFrom(EnumSet.class)) {
-            Type itemType;
-            if (type instanceof ParameterizedType) {
-                itemType = ((ParameterizedType) type).getActualTypeArguments()[0];
-            } else {
-                itemType = Object.class;
-            }
-            list = EnumSet.noneOf((Class<Enum>)itemType);
-        } else {
-            try {
-                list = (Collection) rawClass.newInstance();
-            } catch (Exception e) {
-                throw new JSONException("create instane error, class " + rawClass.getName());
-            }
-        }
-        return list;
     }
 }

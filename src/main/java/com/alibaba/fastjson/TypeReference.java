@@ -2,7 +2,6 @@ package com.alibaba.fastjson;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.List;
 
 /**
  * Represents a generic type {@code T}. Java doesn't yet provide a way to
@@ -32,6 +31,4 @@ public class TypeReference<T> {
     public Type getType() {
         return type;
     }
-    
-    public final static Type LIST_STRING = new TypeReference<List<String>>() {}.getType();
 }

@@ -70,7 +70,13 @@ public final class DateCodec implements ObjectSerializer, ObjectDeserializer {
             }
         }
         
-        Date date = (Date) object;
+        Date date;
+        if (object instanceof Calendar) {
+            Calendar calendar = (Calendar) object;
+            date = calendar.getTime();            
+        } else {
+            date = (Date) object;
+        }
         
         if ((out.features & SerializerFeature.WriteDateUseDateFormat.mask) != 0) {
             DateFormat format = serializer.getDateFormat();
@@ -160,7 +166,12 @@ public final class DateCodec implements ObjectSerializer, ObjectDeserializer {
             if ((lexer.features & Feature.AllowISO8601DateFormat.mask) != 0) {
                 JSONLexer iso8601Lexer = new JSONLexer(strVal);
                 if (iso8601Lexer.scanISO8601DateIfMatch(true)) {
-                    val = iso8601Lexer.getCalendar().getTime();
+                    Calendar calendar = iso8601Lexer.getCalendar(); 
+                    if (clazz == Calendar.class) {
+                        iso8601Lexer.close();
+                        return (T) calendar;
+                    }
+                    val = calendar.getTime();
                 }
                 iso8601Lexer.close();
             }
@@ -226,7 +237,23 @@ public final class DateCodec implements ObjectSerializer, ObjectDeserializer {
             val = parser.parse();
         }
 
-        return (T) cast(parser, clazz, fieldName, val);
+        Object obj = cast(parser, clazz, fieldName, val); 
+        if (clazz == Calendar.class) {
+            if (obj instanceof Calendar) {
+                return (T) obj;
+            }
+            
+            Date date = (Date) obj;
+            if (date == null) {
+                return null;
+            }
+            
+            Calendar calendar = Calendar.getInstance(lexer.getTimeZone(), lexer.getLocale());
+            calendar.setTime(date);
+            
+            return (T) calendar;
+        }
+        return (T) obj;
     }
     
     @SuppressWarnings("unchecked")

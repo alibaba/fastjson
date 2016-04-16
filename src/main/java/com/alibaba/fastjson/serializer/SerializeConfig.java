@@ -142,7 +142,7 @@ public class SerializeConfig {
             } else if (Enumeration.class.isAssignableFrom(clazz)) {
                 serializers.put(clazz, MiscCodec.instance);
             } else if (Calendar.class.isAssignableFrom(clazz)) {
-                serializers.put(clazz, CalendarCodec.instance);
+                serializers.put(clazz, DateCodec.instance);
             } else {
                 boolean isCglibProxy = false;
                 boolean isJavassistProxy = false;

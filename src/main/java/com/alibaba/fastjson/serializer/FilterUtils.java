@@ -4,6 +4,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.parser.deserializer.ExtraProcessable;
 import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
 
@@ -22,6 +23,12 @@ public class FilterUtils {
     }
     
     public static void processExtra(DefaultJSONParser parser, Object object, String key, Object value) {
+        if (object instanceof ExtraProcessable) {
+            ExtraProcessable extraProcessable = ((ExtraProcessable) object);
+            extraProcessable.processExtra(key, value);
+            return;
+        }
+        
         List<ExtraProcessor> extraProcessors = parser.getExtraProcessorsDirect();
         if (extraProcessors == null) {
             return;

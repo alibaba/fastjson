@@ -166,7 +166,7 @@ public class MapDeserializer implements ObjectDeserializer {
                     value = null;
                     lexer.nextToken();
                 } else {
-                    value = parser.parseObject(valueType);
+                    value = parser.parseObject(valueType, key);
                 }
 
                 map.put(key, value);

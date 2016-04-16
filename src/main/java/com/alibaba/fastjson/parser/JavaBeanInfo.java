@@ -52,7 +52,7 @@ class JavaBeanInfo {
         defaultConstructorParameterSize = defaultConstructor != null ? defaultConstructor.getParameterTypes().length : 0;
     }
 
-    protected FieldInfo[] computeSortedFields(FieldInfo[] fields, FieldInfo[] sortedFields) {
+    private FieldInfo[] computeSortedFields(FieldInfo[] fields, FieldInfo[] sortedFields) {
         if (jsonType == null) {
             return sortedFields;
         }
@@ -165,7 +165,27 @@ class JavaBeanInfo {
         List<FieldInfo> fieldList = new ArrayList<FieldInfo>();
 
         // DeserializeBeanInfo beanInfo = null;
-        Constructor<?> defaultConstructor = getDefaultConstructor(clazz, classModifiers);
+        Constructor<?> defaultConstructor = null;
+        if ((classModifiers & Modifier.ABSTRACT) == 0) {
+            try {
+                defaultConstructor = clazz.getDeclaredConstructor();
+            } catch (Exception e) {
+                // skip
+            }
+
+            if (defaultConstructor == null) {
+                if (clazz.isMemberClass() && (classModifiers & Modifier.STATIC) == 0) { // for inner none static class
+                    for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
+                        Class<?>[] parameterTypes = constructor.getParameterTypes();
+                        if (parameterTypes.length == 1 && parameterTypes[0].equals(clazz.getDeclaringClass())) {
+                            defaultConstructor = constructor;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        
         Constructor<?> creatorConstructor = null;
         Method[] methods = fieldOnly //
             ? null //
@@ -178,7 +198,19 @@ class JavaBeanInfo {
         if (defaultConstructor == null // 
                 && !(clazz.isInterface() || (classModifiers & Modifier.ABSTRACT) != 0) //
                 ) {
-            creatorConstructor = getCreatorConstructor(clazz);
+            creatorConstructor = null;
+            for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
+                JSONCreator annotation = constructor.getAnnotation(JSONCreator.class);
+                if (annotation != null) {
+                    if (creatorConstructor != null) {
+                        throw new JSONException("multi-json creator");
+                    }
+
+                    creatorConstructor = constructor;
+                    break;
+                }
+            }
+            
             if (creatorConstructor != null) {
                 TypeUtils.setAccessible(clazz, creatorConstructor, classModifiers);
 
@@ -231,7 +263,29 @@ class JavaBeanInfo {
                 return new JavaBeanInfo(clazz, null, creatorConstructor, null, fields, sortedFields, jsonType);
             }
 
-            Method factoryMethod = getFactoryMethod(clazz, methods);
+            Method factoryMethod = null;
+            {
+                for (Method method : methods) {
+                    if (!Modifier.isStatic(method.getModifiers())) {
+                        continue;
+                    }
+
+                    if (!clazz.isAssignableFrom(method.getReturnType())) {
+                        continue;
+                    }
+
+                    JSONCreator annotation = method.getAnnotation(JSONCreator.class);
+                    if (annotation != null) {
+                        if (factoryMethod != null) {
+                            throw new JSONException("multi-json creator");
+                        }
+
+                        factoryMethod = method;
+                        break;
+                    }
+                }
+            }
+            
             if (factoryMethod != null) {
                 TypeUtils.setAccessible(clazz, factoryMethod, classModifiers);
 
@@ -500,74 +554,5 @@ class JavaBeanInfo {
 
         JSONType jsonType = jsonTypeSupport ? clazz.getAnnotation(JSONType.class) : null;
         return new JavaBeanInfo(clazz, defaultConstructor, null, null, fields, sortedFields, jsonType);
-    }
-
-    private static Constructor<?> getDefaultConstructor(Class<?> clazz, int classModifiers) {
-        if ((classModifiers & Modifier.ABSTRACT) != 0) {
-            return null;
-        }
-        
-        Constructor<?> defaultConstructor = null;
-        try {
-            defaultConstructor = clazz.getDeclaredConstructor();
-        } catch (Exception e) {
-            // skip
-        }
-
-        if (defaultConstructor == null) {
-            if (clazz.isMemberClass() && (classModifiers & Modifier.STATIC) == 0) { // for inner none static class
-                for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
-                    Class<?>[] parameterTypes = constructor.getParameterTypes();
-                    if (parameterTypes.length == 1 && parameterTypes[0].equals(clazz.getDeclaringClass())) {
-                        defaultConstructor = constructor;
-                        break;
-                    }
-                }
-            }
-        }
-
-        return defaultConstructor;
-    }
-
-    public static Constructor<?> getCreatorConstructor(Class<?> clazz) {
-        Constructor<?> creatorConstructor = null;
-
-        for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
-            JSONCreator annotation = constructor.getAnnotation(JSONCreator.class);
-            if (annotation != null) {
-                if (creatorConstructor != null) {
-                    throw new JSONException("multi-json creator");
-                }
-
-                creatorConstructor = constructor;
-                break;
-            }
-        }
-        return creatorConstructor;
-    }
-
-    private static Method getFactoryMethod(Class<?> clazz, Method[] methods) {
-        Method factoryMethod = null;
-
-        for (Method method : methods) {
-            if (!Modifier.isStatic(method.getModifiers())) {
-                continue;
-            }
-
-            if (!clazz.isAssignableFrom(method.getReturnType())) {
-                continue;
-            }
-
-            JSONCreator annotation = method.getAnnotation(JSONCreator.class);
-            if (annotation != null) {
-                if (factoryMethod != null) {
-                    throw new JSONException("multi-json creator");
-                }
-
-                factoryMethod = method;
-                break;
-            }
-        }
-        return factoryMethod;
     }
 }

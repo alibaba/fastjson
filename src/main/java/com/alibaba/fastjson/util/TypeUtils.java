@@ -70,21 +70,6 @@ public class TypeUtils {
     public static boolean compatibleWithJavaBean = false;
     private static boolean setAccessibleEnable    = true;
     
-    public final static int ANDROID_SDK_VERSION; 
-    static {
-        int version = -1;
-        
-        try {
-            Class<?> clazz = Class.forName("android.os.Build$VERSION");
-            Field field = clazz.getField("SDK_INT");
-            version = field.getInt(null);
-        } catch (Exception e) {
-            // skip
-        }
-        
-        ANDROID_SDK_VERSION = version;
-    }
-    
     public static final String castToString(Object value) {
         if (value == null) {
             return null;

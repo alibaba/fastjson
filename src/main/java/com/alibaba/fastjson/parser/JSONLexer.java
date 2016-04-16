@@ -11,6 +11,7 @@ import static com.alibaba.fastjson.parser.JSONToken.RBRACE;
 import static com.alibaba.fastjson.parser.JSONToken.RBRACKET;
 import static com.alibaba.fastjson.parser.JSONToken.RPAREN;
 
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -22,7 +23,6 @@ import java.util.TimeZone;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.util.TypeUtils;
 
 public final class JSONLexer {
 
@@ -37,7 +37,20 @@ public final class JSONLexer {
     
     private final static Map<String, Integer> DEFAULT_KEYWORDS;
     
-    private final static boolean SUBSTR = TypeUtils.ANDROID_SDK_VERSION >= 23; // android 6
+    private final static boolean SUBSTR; // android 6
+    static {
+        int version = -1;
+        
+        try {
+            Class<?> clazz = Class.forName("android.os.Build$VERSION");
+            Field field = clazz.getField("SDK_INT");
+            version = field.getInt(null);
+        } catch (Exception e) {
+            // skip
+        }
+        
+        SUBSTR = version >= 23;
+    }
 
     static {
         Map<String, Integer> map = new HashMap<String, Integer>();

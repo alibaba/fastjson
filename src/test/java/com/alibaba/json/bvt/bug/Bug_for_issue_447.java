@@ -2,6 +2,8 @@ package com.alibaba.json.bvt.bug;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import org.junit.Assert;
 
@@ -12,9 +14,13 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import junit.framework.TestCase;
 
 public class Bug_for_issue_447 extends TestCase {
-
+    protected void setUp() throws Exception {
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        JSON.defaultLocale = Locale.CHINA;
+    }
+    
     public void test_for_issue() throws Exception {
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance(JSON.defaultTimeZone, JSON.defaultLocale);
         calendar.setTimeInMillis(1460563200000L);
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);

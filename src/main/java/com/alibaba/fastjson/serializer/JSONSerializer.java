@@ -24,7 +24,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 
 /**
@@ -52,6 +55,9 @@ public class JSONSerializer {
 
     protected IdentityHashMap<Object, SerialContext> references         = null;
     protected SerialContext                          context;
+    
+    protected TimeZone                               timeZone           = JSON.defaultTimeZone;
+    protected Locale                                 locale             = JSON.defaultLocale;
 
     public JSONSerializer(){
         this(new SerializeWriter(), SerializeConfig.getGlobalInstance());
@@ -80,7 +86,8 @@ public class JSONSerializer {
     public DateFormat getDateFormat() {
         if (dateFormat == null) {
             if (dateFormatPattern != null) {
-                dateFormat = new SimpleDateFormat(dateFormatPattern);
+                dateFormat = new SimpleDateFormat(dateFormatPattern, locale);
+                dateFormat.setTimeZone(timeZone);
             }
         }
 
@@ -361,7 +368,8 @@ public class JSONSerializer {
         if (object instanceof Date) {
             DateFormat dateFormat = this.getDateFormat();
             if (dateFormat == null) {
-                dateFormat = new SimpleDateFormat(format);
+                dateFormat = new SimpleDateFormat(format, locale);
+                dateFormat.setTimeZone(timeZone);
             }
             String text = dateFormat.format((Date) object);
             out.writeString(text);

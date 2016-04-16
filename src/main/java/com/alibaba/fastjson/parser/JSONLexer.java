@@ -2,6 +2,8 @@ package com.alibaba.fastjson.parser;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public interface JSONLexer {
 
@@ -88,5 +90,13 @@ public interface JSONLexer {
 
     Collection<String> scanStringArray(Class<?> type, char seperator);
 
+    TimeZone getTimeZone();
+    
+    void setTimeZone(TimeZone timeZone);
+    
+    Locale getLocale();
+    
+    void setLocale(Locale locale);
+    
     String info();
 }

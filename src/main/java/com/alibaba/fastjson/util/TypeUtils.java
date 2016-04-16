@@ -313,7 +313,8 @@ public class TypeUtils {
                     format = "yyyy-MM-dd HH:mm:ss.SSS";
                 }
 
-                SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+                SimpleDateFormat dateFormat = new SimpleDateFormat(format, JSON.defaultLocale);
+                dateFormat.setTimeZone(JSON.defaultTimeZone);
                 try {
                     return (Date) dateFormat.parse(strVal);
                 } catch (ParseException e) {
@@ -595,7 +596,7 @@ public class TypeUtils {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static <T> T cast(Object obj, Class<T> clazz, ParserConfig mapping) {
+    public static <T> T cast(Object obj, Class<T> clazz, ParserConfig config) {
         if (obj == null) {
             return null;
         }
@@ -618,7 +619,7 @@ public class TypeUtils {
                 return (T) obj;
             }
 
-            return castToJavaBean((Map<String, Object>) obj, clazz, mapping);
+            return castToJavaBean((Map<String, Object>) obj, clazz, config);
         }
 
         if (clazz.isArray()) {
@@ -628,7 +629,7 @@ public class TypeUtils {
                 int index = 0;
                 Object array = Array.newInstance(clazz.getComponentType(), collection.size());
                 for (Object item : collection) {
-                    Object value = cast(item, clazz.getComponentType(), mapping);
+                    Object value = cast(item, clazz.getComponentType(), config);
                     Array.set(array, index, value);
                     index++;
                 }
@@ -702,14 +703,14 @@ public class TypeUtils {
         }
 
         if (clazz.isEnum()) {
-            return (T) castToEnum(obj, clazz, mapping);
+            return (T) castToEnum(obj, clazz, config);
         }
 
         if (Calendar.class.isAssignableFrom(clazz)) {
             Date date = castToDate(obj);
             Calendar calendar;
             if (clazz == Calendar.class) {
-                calendar = Calendar.getInstance();
+                calendar = Calendar.getInstance(JSON.defaultTimeZone, JSON.defaultLocale);
             } else {
                 try {
                     calendar = (Calendar) clazz.newInstance();

@@ -3,6 +3,7 @@ package com.alibaba.json.bvt.serializer;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -15,7 +16,12 @@ import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class DateTest_ISO8601_TimeZone extends TestCase {
-
+    protected void setUp() throws Exception {
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        JSON.defaultLocale = Locale.CHINA;
+    }
+    
+    
     public void test_date1() throws Exception {
         Map<String,Date> map = new HashMap<String,Date>();
         map.put("date", new Date(1425886057586l));
@@ -30,7 +36,7 @@ public class DateTest_ISO8601_TimeZone extends TestCase {
     }
 
     public void test_date2() throws Exception {
-        Calendar c = Calendar.getInstance();
+        Calendar c = Calendar.getInstance(JSON.defaultTimeZone, JSON.defaultLocale);
         c.setTimeZone(TimeZone.getTimeZone("GMT+10"));
         VO v = new VO();
         v.setGmtCreate(c);
@@ -43,7 +49,7 @@ public class DateTest_ISO8601_TimeZone extends TestCase {
     }
 
     public void test_date3() throws Exception {
-        Calendar c = Calendar.getInstance();
+        Calendar c = Calendar.getInstance(JSON.defaultTimeZone, JSON.defaultLocale);
         VO v = new VO();
         v.setGmtCreate(c);
         String json = JSON.toJSONString(v, SerializerFeature.UseISO8601DateFormat);

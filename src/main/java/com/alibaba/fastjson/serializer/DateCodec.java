@@ -26,6 +26,7 @@ import java.util.Date;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.deserializer.AbstractDateDeserializer;
@@ -58,7 +59,8 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
         if (out.isEnabled(SerializerFeature.WriteDateUseDateFormat)) {
             DateFormat format = serializer.getDateFormat();
             if (format == null) {
-                format = new SimpleDateFormat(JSON.DEFFAULT_DATE_FORMAT);
+                format = new SimpleDateFormat(JSON.DEFFAULT_DATE_FORMAT, serializer.locale);
+                format.setTimeZone(serializer.timeZone);
             }
             String text = format.format(date);
             out.writeString(text);
@@ -89,7 +91,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
                 out.append('\"');
             }
 
-            Calendar calendar = Calendar.getInstance();
+            Calendar calendar = Calendar.getInstance(serializer.timeZone, serializer.locale);
             calendar.setTimeInMillis(time);
 
             int year = calendar.get(Calendar.YEAR);

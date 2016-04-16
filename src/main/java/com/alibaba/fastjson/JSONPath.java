@@ -30,7 +30,7 @@ import com.alibaba.fastjson.util.IOUtils;
  * @author wenshao[szujobs@hotmail.com]
  * @since 1.2.0
  */
-public class JSONPath implements ObjectSerializer {
+public class JSONPath implements JSONAware {
 
     private static int                             CACHE_SIZE = 1024;
     private static ConcurrentMap<String, JSONPath> pathCache  = new ConcurrentHashMap<String, JSONPath>(128, 0.75f, 1);
@@ -1823,5 +1823,10 @@ public class JSONPath implements ObjectSerializer {
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType,
                       int features) throws IOException {
         serializer.write(path);
+    }
+
+    @Override
+    public String toJSONString() {
+        return JSON.toJSONString(path);
     }
 }

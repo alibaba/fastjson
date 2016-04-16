@@ -130,7 +130,8 @@ public class DefaultJSONParser implements Closeable {
 
     public DateFormat getDateFormat() {
         if (dateFormat == null) {
-            dateFormat = new SimpleDateFormat(dateFormatPattern);
+            dateFormat = new SimpleDateFormat(dateFormatPattern, lexer.getLocale());
+            dateFormat.setTimeZone(lexer.getTimeZone());
         }
         return dateFormat;
     }

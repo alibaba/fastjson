@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.TimeZone;
 
 import com.alibaba.fastjson.JSON;
@@ -191,8 +190,7 @@ public final class JSONScanner extends JSONLexerBase {
                 String numberText = this.subString(offset, plusIndex - offset);
                 long millis = Long.parseLong(numberText);
 
-                Locale local = Locale.getDefault();
-                calendar = Calendar.getInstance(TimeZone.getDefault(), local);
+                calendar = Calendar.getInstance(timeZone, locale);
                 calendar.setTimeInMillis(millis);
 
                 token = JSONToken.LITERAL_ISO8601_DATE;
@@ -527,8 +525,7 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     private void setCalendar(char y0, char y1, char y2, char y3, char M0, char M1, char d0, char d1) {
-        Locale local = Locale.getDefault();
-        calendar = Calendar.getInstance(TimeZone.getDefault(), local);
+        calendar = Calendar.getInstance(timeZone, locale);
         int year = digits[y0] * 1000 + digits[y1] * 100 + digits[y2] * 10 + digits[y3];
         int month = digits[M0] * 10 + digits[M1] - 1;
         int day = digits[d0] * 10 + digits[d1];

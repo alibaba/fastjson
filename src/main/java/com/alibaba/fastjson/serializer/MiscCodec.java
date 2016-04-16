@@ -256,7 +256,9 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         }
         
         if (clazz == SimpleDateFormat.class) {
-            return (T) new SimpleDateFormat(strVal);
+            SimpleDateFormat dateFormat = new SimpleDateFormat(strVal, lexer.getLocale());
+            dateFormat.setTimeZone(lexer.getTimeZone());
+            return (T) dateFormat;
         }
         
         if (clazz == InetAddress.class || clazz == Inet4Address.class  || clazz == Inet6Address.class) {

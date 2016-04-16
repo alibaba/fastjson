@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
@@ -73,6 +75,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     protected boolean                                       hasSpecial;
 
     protected Calendar                                      calendar           = null;
+    protected TimeZone                                      timeZone           = JSON.defaultTimeZone;
+    protected Locale                                        locale             = JSON.defaultLocale;
 
     public int                                              matchStat          = UNKNOWN;
 
@@ -985,6 +989,22 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     public Calendar getCalendar() {
         return this.calendar;
+    }
+    
+    public TimeZone getTimeZone() {
+        return timeZone;
+    }
+
+    public void setTimeZone(TimeZone timeZone) {
+        this.timeZone = timeZone;
+    }
+    
+    public Locale getLocale() {
+        return locale;
+    }
+
+    public void setLocale(Locale locale) {
+        this.locale = locale;
     }
 
     public final int intValue() {

@@ -3,6 +3,8 @@ package com.alibaba.json.bvt.bug;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import org.junit.Assert;
 
@@ -12,12 +14,18 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import junit.framework.TestCase;
 
 public class Bug_for_issue_331 extends TestCase {
+    protected void setUp() throws Exception {
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        JSON.defaultLocale = Locale.CHINA;
+    }
+    
     public void test_for_issue() throws Exception {
         
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", JSON.defaultLocale);
+        format.setTimeZone(JSON.defaultTimeZone);
         Date date = format.parse("2015-05-23");
 
-        Calendar c = Calendar.getInstance();
+        Calendar c = Calendar.getInstance(JSON.defaultTimeZone, JSON.defaultLocale);
         c.setTime(date);
 
         Model original = new Model();

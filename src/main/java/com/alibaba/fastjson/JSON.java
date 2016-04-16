@@ -27,7 +27,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
@@ -59,7 +61,9 @@ import com.alibaba.fastjson.util.TypeUtils;
  * @author wenshao[szujobs@hotmail.com]
  */
 public abstract class JSON implements JSONStreamAware, JSONAware {
-
+    public static TimeZone     defaultTimeZone  = TimeZone.getDefault();
+    public static Locale       defaultLocale    = Locale.getDefault();
+    
     public static String DEFAULT_TYPE_KEY     = "@type";
 
     public static int    DEFAULT_PARSER_FEATURE;

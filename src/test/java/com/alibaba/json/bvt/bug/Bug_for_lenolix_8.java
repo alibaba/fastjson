@@ -5,7 +5,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
@@ -13,9 +15,14 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class Bug_for_lenolix_8 extends TestCase {
-
+    protected void setUp() throws Exception {
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        JSON.defaultLocale = Locale.CHINA;
+    }
+    
     public void test_for_objectKey() throws Exception {
-        DateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        DateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", JSON.defaultLocale);
+        simpleDateFormat.setTimeZone(JSON.defaultTimeZone);
         Map<Integer, User> map = new HashMap<Integer, User>();
 
         User user = new User();

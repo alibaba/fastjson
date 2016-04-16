@@ -390,6 +390,10 @@ public class JSONSerializer {
         this.out.close();
     }
 
+    /**
+     * only invoke by asm byte
+     * @return
+     */
     public boolean writeDirect() {
         return out.writeDirect // 
                 && beforeFilters == null

@@ -25,9 +25,7 @@ import static com.alibaba.fastjson.util.TypeUtils.castToFloat;
 import static com.alibaba.fastjson.util.TypeUtils.castToInt;
 import static com.alibaba.fastjson.util.TypeUtils.castToLong;
 import static com.alibaba.fastjson.util.TypeUtils.castToShort;
-import static com.alibaba.fastjson.util.TypeUtils.castToSqlDate;
 import static com.alibaba.fastjson.util.TypeUtils.castToString;
-import static com.alibaba.fastjson.util.TypeUtils.castToTimestamp;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
@@ -339,18 +337,6 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
         Object value = get(index);
 
         return castToDate(value);
-    }
-
-    public java.sql.Date getSqlDate(int index) {
-        Object value = get(index);
-
-        return castToSqlDate(value);
-    }
-
-    public java.sql.Timestamp getTimestamp(int index) {
-        Object value = get(index);
-
-        return castToTimestamp(value);
     }
 
     @Override

@@ -26,8 +26,6 @@ import static com.alibaba.fastjson.util.TypeUtils.castToFloat;
 import static com.alibaba.fastjson.util.TypeUtils.castToInt;
 import static com.alibaba.fastjson.util.TypeUtils.castToLong;
 import static com.alibaba.fastjson.util.TypeUtils.castToShort;
-import static com.alibaba.fastjson.util.TypeUtils.castToSqlDate;
-import static com.alibaba.fastjson.util.TypeUtils.castToTimestamp;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
@@ -276,18 +274,6 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         return castToDate(value);
     }
 
-    public java.sql.Date getSqlDate(String key) {
-        Object value = get(key);
-
-        return castToSqlDate(value);
-    }
-
-    public java.sql.Timestamp getTimestamp(String key) {
-        Object value = get(key);
-
-        return castToTimestamp(value);
-    }
-    
     public Object put(String key, Object value) {
         return map.put(key, value);
     }

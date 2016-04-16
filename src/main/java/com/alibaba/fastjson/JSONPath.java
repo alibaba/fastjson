@@ -293,6 +293,18 @@ public class JSONPath implements JSONAware {
         }
         return jsonpath;
     }
+    
+    /**
+     * @since 1.2.9
+     * @param json
+     * @param path
+     * @return
+     */
+    public static Object read(String json, String path) {
+        Object object = JSON.parse(json);
+        JSONPath jsonpath = compile(path);
+        return jsonpath.eval(object);
+    }
 
     public String getPath() {
         return path;

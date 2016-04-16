@@ -79,7 +79,7 @@ public class MapDeserializer implements ObjectDeserializer {
 
         ParseContext context = parser.getContext();
         try {
-            for (;;) {
+            for (int i = 0;;++i) {
                 lexer.skipWhitespace();
                 char ch = lexer.getCurrent();
                 if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
@@ -162,6 +162,10 @@ public class MapDeserializer implements ObjectDeserializer {
                 Object value;
                 lexer.nextToken();
 
+                if (i != 0) {
+                    parser.setContext(context);
+                }
+                
                 if (lexer.token() == JSONToken.NULL) {
                     value = null;
                     lexer.nextToken();
@@ -173,6 +177,7 @@ public class MapDeserializer implements ObjectDeserializer {
                 parser.checkMapResolve(map, key);
 
                 parser.setContext(context, value, key);
+                parser.setContext(context);
 
                 final int tok = lexer.token();
                 if (tok == JSONToken.EOF || tok == JSONToken.RBRACKET) {

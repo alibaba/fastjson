@@ -359,11 +359,10 @@ public class DefaultJSONParser implements Closeable {
                                 }
                             }
                         } else if ("..".equals(ref)) {
-                            ParseContext parentContext = context.parent;
-                            if (parentContext.object != null) {
-                                refValue = parentContext.object;
+                            if (context.object != null) {
+                                refValue = context.object;
                             } else {
-                                addResolveTask(new ResolveTask(parentContext, ref));
+                                addResolveTask(new ResolveTask(context, ref));
                                 setResolveStatus(DefaultJSONParser.NeedToResolve);
                             }
                         } else if ("$".equals(ref)) {

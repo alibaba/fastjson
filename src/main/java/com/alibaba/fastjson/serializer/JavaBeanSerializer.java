@@ -114,8 +114,11 @@ public class JavaBeanSerializer implements ObjectSerializer {
         }
     }
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
-                                                                                                               throws IOException {
+    public void write(JSONSerializer serializer, //
+                      Object object, //
+                      Object fieldName, //
+                      Type fieldType, //
+                      int features) throws IOException {
         SerializeWriter out = serializer.out;
 
         if (object == null) {
@@ -478,9 +481,15 @@ public class JavaBeanSerializer implements ObjectSerializer {
             out.append(endSeperator);
         } catch (Exception e) {
             String errorMessage = "write javaBean error";
+            if (object != null) {
+                errorMessage += ", class " + object.getClass();
+            }
             if (fieldName != null) {
                 errorMessage += ", fieldName : " + fieldName;
             }
+            
+            errorMessage += (", " + e.getMessage());
+            
             throw new JSONException(errorMessage, e);
         } finally {
             serializer.context = parent;

@@ -482,13 +482,14 @@ public class JavaBeanSerializer implements ObjectSerializer {
         } catch (Exception e) {
             String errorMessage = "write javaBean error";
             if (object != null) {
-                errorMessage += ", class " + object.getClass();
+                errorMessage += ", class " + object.getClass().getName();
             }
             if (fieldName != null) {
                 errorMessage += ", fieldName : " + fieldName;
             }
-            
-            errorMessage += (", " + e.getMessage());
+            if (e.getMessage() != null) {
+                errorMessage += (", " + e.getMessage());
+            }
             
             throw new JSONException(errorMessage, e);
         } finally {

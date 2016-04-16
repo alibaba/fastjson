@@ -477,7 +477,11 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
             out.append(endSeperator);
         } catch (Exception e) {
-            throw new JSONException("write javaBean error", e);
+            String errorMessage = "write javaBean error";
+            if (fieldName != null) {
+                errorMessage += ", fieldName : " + fieldName;
+            }
+            throw new JSONException(errorMessage, e);
         } finally {
             serializer.context = parent;
         }

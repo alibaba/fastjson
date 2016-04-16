@@ -115,7 +115,8 @@ public class ObjectFieldSerializer extends FieldSerializer {
             }
 
             ObjectSerializer fieldSerializer = runtimeInfo.fieldSerializer;
-            if (out.writeMapNullValue) {
+            if ((out.writeMapNullValue) 
+                    && fieldSerializer instanceof ASMJavaBeanSerializer) {
                 out.writeNull();
                 return;
             }

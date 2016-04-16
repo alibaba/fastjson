@@ -39,10 +39,16 @@ public class SimplePropertyPreFilter implements PropertyPreFilter {
         }
     }
     
+    /**
+     * @since 1.2.9
+     */
     public int getMaxLevel() {
         return maxLevel;
     }
     
+    /**
+     * @since 1.2.9
+     */
     public void setMaxLevel(int maxLevel) {
         this.maxLevel = maxLevel;
     }

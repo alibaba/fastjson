@@ -179,7 +179,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName, Object object) {
+    protected <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName, Object object) {
         if (type == JSON.class || type == JSONObject.class) {
             return (T) parser.parse();
         }

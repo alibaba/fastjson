@@ -1,11 +1,11 @@
 package com.alibaba.json.bvt.parser;
 
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import junit.framework.TestCase;
+import java.util.concurrent.ConcurrentMap;
 
 import org.junit.Assert;
 
@@ -15,6 +15,8 @@ import com.alibaba.fastjson.serializer.JavaBeanSerializer;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.util.TypeUtils;
+
+import junit.framework.TestCase;
 
 public class TypeUtilsTest_castToJavaBean extends TestCase {
 
@@ -85,7 +87,7 @@ public class TypeUtilsTest_castToJavaBean extends TestCase {
         map.put("id", 123);
         VO vo = (VO) TypeUtils.castToJavaBean(map, Object.class);
         Assert.assertEquals(123, vo.getId());
-        TypeUtils.clearClassMapping();
+        clearClassMapping();
     }
 
     public void test_interface() throws Exception {
@@ -105,28 +107,28 @@ public class TypeUtilsTest_castToJavaBean extends TestCase {
     }
 
     public void test_loadClass() throws Exception {
-        Assert.assertNull(TypeUtils.loadClass(null));
-        Assert.assertNull(TypeUtils.loadClass(""));
+        Assert.assertNull(TypeUtils.loadClass(null, null));
+        Assert.assertNull(TypeUtils.loadClass("", null));
     }
 
     public void test_loadClass_1() throws Exception {
-        TypeUtils.clearClassMapping();
+        clearClassMapping();
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(new TestLoader());
         try {
             Assert.assertEquals(VO.class,
-                                TypeUtils.loadClass("com.alibaba.json.bvt.parser.TypeUtilsTest_castToJavaBean$VO"));
+                                TypeUtils.loadClass("com.alibaba.json.bvt.parser.TypeUtilsTest_castToJavaBean$VO", null));
         } finally {
             Thread.currentThread().setContextClassLoader(contextClassLoader);
         }
     }
 
     public void test_loadClass_2() throws Exception {
-        TypeUtils.clearClassMapping();
+        clearClassMapping();
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(new TestLoader());
         try {
-            Assert.assertNull(TypeUtils.loadClass("xxx_xx"));
+            Assert.assertNull(TypeUtils.loadClass("xxx_xx", null));
         } finally {
             Thread.currentThread().setContextClassLoader(contextClassLoader);
         }
@@ -230,5 +232,41 @@ public class TypeUtilsTest_castToJavaBean extends TestCase {
         public Class<?> loadClass(String name) throws ClassNotFoundException {
             throw new ClassNotFoundException();
         }
+    }
+    
+    public static void addBaseClassMappings() throws Exception {
+        Field field = TypeUtils.class.getDeclaredField("mappings");
+        field.setAccessible(true);
+        
+        ConcurrentMap<String, Class<?>> mappings = (ConcurrentMap<String, Class<?>>) field.get(null);
+        mappings.put("byte", byte.class);
+        mappings.put("short", short.class);
+        mappings.put("int", int.class);
+        mappings.put("long", long.class);
+        mappings.put("float", float.class);
+        mappings.put("double", double.class);
+        mappings.put("boolean", boolean.class);
+        mappings.put("char", char.class);
+
+        mappings.put("[byte", byte[].class);
+        mappings.put("[short", short[].class);
+        mappings.put("[int", int[].class);
+        mappings.put("[long", long[].class);
+        mappings.put("[float", float[].class);
+        mappings.put("[double", double[].class);
+        mappings.put("[boolean", boolean[].class);
+        mappings.put("[char", char[].class);
+
+        mappings.put(HashMap.class.getName(), HashMap.class);
+    }
+    
+    public static void clearClassMapping() throws Exception {
+        Field field = TypeUtils.class.getDeclaredField("mappings");
+        field.setAccessible(true);
+        
+        ConcurrentMap<String, Class<?>> mappings = (ConcurrentMap<String, Class<?>>) field.get(null);
+        
+        mappings.clear();
+        addBaseClassMappings();
     }
 }

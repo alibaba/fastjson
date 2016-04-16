@@ -136,63 +136,18 @@ public class TypeUtilsTest extends TestCase {
         Assert.assertEquals(new Date(millis), json.getObject("date", Date.class));
     }
 
-    public void test_cast_to_SqlDate() throws Exception {
-        long millis = System.currentTimeMillis();
-
-        JSONObject json = new JSONObject();
-        json.put("date", millis);
-        Assert.assertEquals(new java.sql.Date(millis), json.getObject("date", java.sql.Date.class));
-    }
-
-    public void test_cast_to_SqlDate_string() throws Exception {
-        long millis = System.currentTimeMillis();
-
-        JSONObject json = new JSONObject();
-        json.put("date", Long.toString(millis));
-        Assert.assertEquals(new java.sql.Date(millis), json.getObject("date", java.sql.Date.class));
-    }
-
     public void test_cast_to_SqlDate_null() throws Exception {
         JSONObject json = new JSONObject();
         json.put("date", null);
         Assert.assertEquals(null, json.getObject("date", java.sql.Date.class));
     }
 
-    public void test_cast_to_SqlDate_null2() throws Exception {
-        Assert.assertEquals(null, TypeUtils.castToSqlDate(null));
-    }
-
-    public void test_cast_to_SqlDate_util_Date() throws Exception {
-        long millis = System.currentTimeMillis();
-
-        JSONObject json = new JSONObject();
-        json.put("date", new Date(millis));
-        Assert.assertEquals(new java.sql.Date(millis), json.getObject("date", java.sql.Date.class));
-    }
 
     public void test_cast_to_SqlDate_sql_Date() throws Exception {
         long millis = System.currentTimeMillis();
 
         JSONObject json = new JSONObject();
         json.put("date", new java.sql.Date(millis));
-        Assert.assertEquals(new java.sql.Date(millis), json.getObject("date", java.sql.Date.class));
-    }
-
-    public void test_cast_to_SqlDate_sql_Date2() throws Exception {
-        long millis = System.currentTimeMillis();
-
-        java.sql.Date date = new java.sql.Date(millis);
-        Assert.assertEquals(date, TypeUtils.castToSqlDate(date));
-    }
-
-    public void test_cast_to_SqlDate_calendar() throws Exception {
-        long millis = System.currentTimeMillis();
-
-        Calendar calendar = Calendar.getInstance(JSON.defaultTimeZone, JSON.defaultLocale);
-        calendar.setTimeInMillis(millis);
-
-        JSONObject json = new JSONObject();
-        json.put("date", calendar);
         Assert.assertEquals(new java.sql.Date(millis), json.getObject("date", java.sql.Date.class));
     }
 
@@ -209,38 +164,10 @@ public class TypeUtilsTest extends TestCase {
         Assert.assertNotNull(error);
     }
 
-    public void test_cast_to_Timestamp() throws Exception {
-        long millis = System.currentTimeMillis();
-
-        JSONObject json = new JSONObject();
-        json.put("date", millis);
-        Assert.assertEquals(new java.sql.Timestamp(millis), json.getObject("date", java.sql.Timestamp.class));
-    }
-
-    public void test_cast_to_Timestamp_string() throws Exception {
-        long millis = System.currentTimeMillis();
-
-        JSONObject json = new JSONObject();
-        json.put("date", Long.toString(millis));
-        Assert.assertEquals(new java.sql.Timestamp(millis), json.getObject("date", java.sql.Timestamp.class));
-    }
-
-    public void test_cast_to_Timestamp_number() throws Exception {
-        long millis = System.currentTimeMillis();
-
-        JSONObject json = new JSONObject();
-        json.put("date", new BigDecimal(Long.toString(millis)));
-        Assert.assertEquals(new java.sql.Timestamp(millis), json.getObject("date", java.sql.Timestamp.class));
-    }
-
     public void test_cast_to_Timestamp_null() throws Exception {
         JSONObject json = new JSONObject();
         json.put("date", null);
         Assert.assertEquals(null, json.getObject("date", java.sql.Timestamp.class));
-    }
-
-    public void test_cast_to_Timestamp_null2() throws Exception {
-        Assert.assertEquals(null, TypeUtils.castToTimestamp(null));
     }
 
     public void test_cast_to_BigDecimal_same() throws Exception {
@@ -255,40 +182,6 @@ public class TypeUtilsTest extends TestCase {
 
     public void test_cast_Array() throws Exception {
         Assert.assertEquals(Integer[].class, TypeUtils.cast(new ArrayList(), Integer[].class, null).getClass());
-    }
-
-    public void test_cast_to_Timestamp_util_Date() throws Exception {
-        long millis = System.currentTimeMillis();
-
-        JSONObject json = new JSONObject();
-        json.put("date", new Date(millis));
-        Assert.assertEquals(new java.sql.Timestamp(millis), json.getObject("date", java.sql.Timestamp.class));
-    }
-
-    public void test_cast_to_Timestamp_sql_Date() throws Exception {
-        long millis = System.currentTimeMillis();
-
-        JSONObject json = new JSONObject();
-        json.put("date", new java.sql.Date(millis));
-        Assert.assertEquals(new java.sql.Timestamp(millis), json.getObject("date", java.sql.Timestamp.class));
-    }
-
-    public void test_cast_to_Timestamp_sql_Timestamp() throws Exception {
-        long millis = System.currentTimeMillis();
-
-        java.sql.Timestamp date = new java.sql.Timestamp(millis);
-        Assert.assertEquals(date, TypeUtils.castToTimestamp(date));
-    }
-
-    public void test_cast_to_Timestamp_calendar() throws Exception {
-        long millis = System.currentTimeMillis();
-
-        Calendar calendar = Calendar.getInstance(JSON.defaultTimeZone, JSON.defaultLocale);
-        calendar.setTimeInMillis(millis);
-
-        JSONObject json = new JSONObject();
-        json.put("date", calendar);
-        Assert.assertEquals(new java.sql.Timestamp(millis), json.getObject("date", java.sql.Timestamp.class));
     }
 
     public void test_cast_to_Timestamp_error() throws Exception {

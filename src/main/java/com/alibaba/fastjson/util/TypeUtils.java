@@ -307,84 +307,6 @@ public class TypeUtils {
         return new Date(longValue);
     }
 
-    public static final java.sql.Date castToSqlDate(Object value) {
-        if (value == null) {
-            return null;
-        }
-
-        if (value instanceof Calendar) {
-            return new java.sql.Date(((Calendar) value).getTimeInMillis());
-        }
-
-        if (value instanceof java.sql.Date) {
-            return (java.sql.Date) value;
-        }
-
-        if (value instanceof java.util.Date) {
-            return new java.sql.Date(((java.util.Date) value).getTime());
-        }
-
-        long longValue = 0;
-
-        if (value instanceof Number) {
-            longValue = ((Number) value).longValue();
-        }
-
-        if (value instanceof String) {
-            String strVal = (String) value;
-            if (strVal.length() == 0) {
-                return null;
-            }
-
-            longValue = Long.parseLong(strVal);
-        }
-
-        if (longValue <= 0) {
-            throw new JSONException("can not cast to Date, value : " + value);
-        }
-
-        return new java.sql.Date(longValue);
-    }
-
-    public static final java.sql.Timestamp castToTimestamp(Object value) {
-        if (value == null) {
-            return null;
-        }
-
-        if (value instanceof Calendar) {
-            return new java.sql.Timestamp(((Calendar) value).getTimeInMillis());
-        }
-
-        if (value instanceof java.sql.Timestamp) {
-            return (java.sql.Timestamp) value;
-        }
-
-        if (value instanceof java.util.Date) {
-            return new java.sql.Timestamp(((java.util.Date) value).getTime());
-        }
-
-        long longValue = 0;
-
-        if (value instanceof Number) {
-            longValue = ((Number) value).longValue();
-        }
-
-        if (value instanceof String) {
-            String strVal = (String) value;
-            if (strVal.length() == 0) {
-                return null;
-            }
-
-            longValue = Long.parseLong(strVal);
-        }
-
-        if (longValue <= 0) {
-            throw new JSONException("can not cast to Date, value : " + value);
-        }
-
-        return new java.sql.Timestamp(longValue);
-    }
-
     public static final Long castToLong(Object value) {
         if (value == null) {
             return null;
@@ -610,14 +532,6 @@ public class TypeUtils {
             return (T) castToDate(obj);
         }
 
-        if (clazz == java.sql.Date.class) {
-            return (T) castToSqlDate(obj);
-        }
-
-        if (clazz == java.sql.Timestamp.class) {
-            return (T) castToTimestamp(obj);
-        }
-
         if (clazz.isEnum()) {
             return (T) castToEnum(obj, clazz, mapping);
         }
@@ -801,7 +715,7 @@ public class TypeUtils {
                 if (iClassObject instanceof String) {
                     String className = (String) iClassObject;
 
-                    Class<?> loadClazz = (Class<T>) loadClass(className);
+                    Class<?> loadClazz = (Class<T>) loadClass(className, null);
 
                     if (loadClazz == null) {
                         throw new ClassNotFoundException(className + " not found");
@@ -848,18 +762,6 @@ public class TypeUtils {
 
     private static ConcurrentMap<String, Class<?>> mappings = new ConcurrentHashMap<String, Class<?>>();
     static {
-        addBaseClassMappings();
-    }
-
-    public static void addClassMapping(String className, Class<?> clazz) {
-        if (className == null) {
-            className = clazz.getName();
-        }
-
-        mappings.put(className, clazz);
-    }
-
-    public static void addBaseClassMappings() {
         mappings.put("byte", byte.class);
         mappings.put("short", short.class);
         mappings.put("int", int.class);
@@ -881,15 +783,14 @@ public class TypeUtils {
         mappings.put(HashMap.class.getName(), HashMap.class);
     }
 
-    public static void clearClassMapping() {
-        mappings.clear();
-        addBaseClassMappings();
+    public static void addClassMapping(String className, Class<?> clazz) {
+        if (className == null) {
+            className = clazz.getName();
+        }
+
+        mappings.put(className, clazz);
     }
     
-    public static Class<?> loadClass(String className) {
-        return loadClass(className, null);
-    }
-
     public static Class<?> loadClass(String className, ClassLoader classLoader) {
         if (className == null || className.length() == 0) {
             return null;

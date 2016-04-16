@@ -23,9 +23,6 @@ import com.alibaba.fastjson.util.FieldInfo;
  * @author wenshao[szujobs@hotmail.com]
  */
 public class ObjectFieldSerializer extends FieldSerializer {
-
-   
-
     private RuntimeSerializerInfo runtimeInfo;
 
     public ObjectFieldSerializer(FieldInfo fieldInfo){
@@ -95,16 +92,11 @@ public class ObjectFieldSerializer extends FieldSerializer {
     static class RuntimeSerializerInfo {
 
         ObjectSerializer fieldSerializer;
-
         Class<?>         runtimeFieldClass;
 
         public RuntimeSerializerInfo(ObjectSerializer fieldSerializer, Class<?> runtimeFieldClass){
-            super();
             this.fieldSerializer = fieldSerializer;
             this.runtimeFieldClass = runtimeFieldClass;
         }
-        
-        
-
     }
 }

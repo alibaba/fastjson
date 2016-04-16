@@ -34,8 +34,6 @@ public class JSONObjectTest2 extends TestCase {
         Assert.assertTrue(obj.getFloatValue("d") == 0F);
         Assert.assertTrue(obj.getDoubleValue("d") == 0D);
         Assert.assertEquals(obj.getBigInteger("d"), null);
-        Assert.assertEquals(obj.getSqlDate("d"), null);
-        Assert.assertEquals(obj.getTimestamp("d"), null);
 
         JSONObject obj2 = (JSONObject) obj.clone();
         Assert.assertEquals(obj.size(), obj2.size());

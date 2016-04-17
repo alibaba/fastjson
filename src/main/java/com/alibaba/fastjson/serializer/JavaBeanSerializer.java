@@ -150,10 +150,10 @@ public class JavaBeanSerializer implements ObjectSerializer {
             return;
         }
 
-        if ((serializer.context == null 
-                || (serializer.context.features & SerializerFeature.DisableCircularReferenceDetect.mask) == 0)
-                && serializer.references != null && serializer.references.containsKey(object)
-                ) {
+        if ((serializer.context == null //
+             || (serializer.context.features & SerializerFeature.DisableCircularReferenceDetect.mask) == 0) //
+            && serializer.references != null //
+            && serializer.references.containsKey(object)) {
             serializer.writeReference(object);
             return;
         }
@@ -178,13 +178,8 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
         boolean writeAsArray;
         
-        if ((features & SerializerFeature.BeanToArray.mask) != 0) {
-            writeAsArray = true;
-        } else if ((out.features & SerializerFeature.BeanToArray.mask) != 0) {
-            writeAsArray = true;
-        } else {
-            writeAsArray = false;
-        }
+        writeAsArray = (features & SerializerFeature.BeanToArray.mask) != 0 //
+                       || (out.features & SerializerFeature.BeanToArray.mask) != 0;
 
         try {
             final char startSeperator = writeAsArray ? '[' : '{';
@@ -204,7 +199,8 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 out.count = newcount;
             }
 
-            if (getters.length > 0 && (out.features & SerializerFeature.PrettyFormat.mask) != 0) {
+            if (getters.length > 0 // 
+                    && (out.features & SerializerFeature.PrettyFormat.mask) != 0) {
                 serializer.incrementIndent();
                 serializer.println();
             }

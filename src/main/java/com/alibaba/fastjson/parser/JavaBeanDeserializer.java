@@ -627,12 +627,9 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             }
         }
             
-        Object value;
-        if (type == null) {
-            value = parser.parse(); // skip
-        } else {
-            value = parser.parseObject(type);
-        }
+        Object value = type == null //
+            ? parser.parse() // skip
+            : parser.parseObject(type);
 
         List<ExtraProcessor> extraProcessors = parser.extraProcessors;
         if (extraProcessors != null) {
@@ -652,14 +649,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             object = createInstance(null, clazz);
             
             for (Map.Entry<String, Object> entry : map.entrySet()) {
-                String key = entry.getKey();
-                Object value = entry.getValue();
-
-                FieldDeserializer fieldDeser = getFieldDeserializer(key);
+                FieldDeserializer fieldDeser = getFieldDeserializer(entry.getKey());
                 if (fieldDeser == null) {
                     continue;
                 }
 
+                Object value = entry.getValue();
                 Method method = fieldDeser.fieldInfo.method;
                 if (method != null) {
                     Type paramType = method.getGenericParameterTypes()[0];

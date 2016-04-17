@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -85,61 +84,16 @@ public final class MapSerializer implements ObjectSerializer {
 
                 Object entryKey = entry.getKey();
 
-                {
-                    List<PropertyPreFilter> preFilters = serializer.getPropertyPreFiltersDirect();
-                    if (preFilters != null && preFilters.size() > 0) {
-                        if (entryKey == null || entryKey instanceof String) {
-                            if (!JSONSerializer.applyName(serializer, object, (String) entryKey)) {
-                                continue;
-                            }
-                        } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
-                            String strKey = JSON.toJSONString(entryKey);
-                            if (!JSONSerializer.applyName(serializer, object, strKey)) {
-                                continue;
-                            }
-                        }
-                    }
+                if (!serializer.applyName(object, entryKey)) {
+                    continue;
                 }
                 
-                {
-                    List<PropertyFilter> propertyFilters = serializer.getPropertyFiltersDirect();
-                    if (propertyFilters != null && propertyFilters.size() > 0) {
-                        if (entryKey == null || entryKey instanceof String) {
-                            if (!JSONSerializer.apply(serializer, object, (String) entryKey, value)) {
-                                continue;
-                            }
-                        } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
-                            String strKey = JSON.toJSONString(entryKey);
-                            if (!JSONSerializer.apply(serializer, object, strKey, value)) {
-                                continue;
-                            }
-                        }
-                    }
+                if (!serializer.apply(object, entryKey, value)) {
+                    continue;
                 }
                 
-                {
-                    List<NameFilter> nameFilters = serializer.getNameFiltersDirect();
-                    if (nameFilters != null && nameFilters.size() > 0) {
-                        if (entryKey == null || entryKey instanceof String) {
-                            entryKey = JSONSerializer.processKey(serializer, object, (String) entryKey, value);
-                        } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
-                            String strKey = JSON.toJSONString(entryKey);
-                            entryKey = JSONSerializer.processKey(serializer, object, strKey, value);
-                        }
-                    }
-                }
-                
-                {
-                    List<ValueFilter> valueFilters = serializer.getValueFiltersDirect();
-                    if (valueFilters != null && valueFilters.size() > 0) {
-                        if (entryKey == null || entryKey instanceof String) {
-                            value = JSONSerializer.processValue(serializer, object, (String) entryKey, value);
-                        } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
-                            String strKey = JSON.toJSONString(entryKey);
-                            value = JSONSerializer.processValue(serializer, object, strKey, value);
-                        }
-                    }
-                }
+                entryKey = serializer.processKey(object, entryKey, value);
+                value = JSONSerializer.processValue(serializer, object, entryKey, value);
                 
                 if (value == null) {
                     if ((out.features & SerializerFeature.WriteMapNullValue.mask) == 0) {

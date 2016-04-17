@@ -44,19 +44,15 @@ public class JavaBeanSerializer implements ObjectSerializer {
     
     protected int features = 0;
     
-    public FieldSerializer[] getGetters() {
-        return getters;
-    }
-
     public JavaBeanSerializer(Class<?> clazz){
         this(clazz, clazz.getModifiers(), (Map<String, String>) null, false, true, true, true);
     }
 
     public JavaBeanSerializer(Class<?> clazz, String... aliasList){
-        this(clazz, clazz.getModifiers(), createAliasMap(aliasList), false, true, true, true);
+        this(clazz, clazz.getModifiers(), map(aliasList), false, true, true, true);
     }
 
-    static Map<String, String> createAliasMap(String... aliasList) {
+    private static Map<String, String> map(String... aliasList) {
         Map<String, String> aliasMap = new HashMap<String, String>();
         for (String alias : aliasList) {
             aliasMap.put(alias, alias);

@@ -266,11 +266,9 @@ class JavaBeanInfo {
             Method factoryMethod = null;
             {
                 for (Method method : methods) {
-                    if (!Modifier.isStatic(method.getModifiers())) {
-                        continue;
-                    }
-
-                    if (!clazz.isAssignableFrom(method.getReturnType())) {
+                    if ((!Modifier.isStatic(method.getModifiers())) //
+                        || !clazz.isAssignableFrom(method.getReturnType()) //
+                    ) {
                         continue;
                     }
 
@@ -349,26 +347,19 @@ class JavaBeanInfo {
             for (Method method : methods) {
                 int ordinal = 0, serialzeFeatures = 0;
                 String methodName = method.getName();
-                if (methodName.length() < 4) {
-                    continue;
-                }
-
-                if (Modifier.isStatic(method.getModifiers())) {
+                if (methodName.length() < 4 //
+                        || Modifier.isStatic(method.getModifiers())
+                        ) {
                     continue;
                 }
 
                 // support builder set
 
                 Class<?> returnType = method.getReturnType();
-                if (!(returnType == Void.TYPE || returnType == clazz)) {
-                    continue;
-                }
-
-                if (method.getParameterTypes().length != 1) {
-                    continue;
-                }
-
-                if (method.getDeclaringClass() == Object.class) {
+                if ((!(returnType == Void.TYPE || returnType == clazz)) //
+                        || method.getParameterTypes().length != 1 //
+                        || method.getDeclaringClass() == Object.class //
+                        ) {
                     continue;
                 }
 
@@ -508,13 +499,12 @@ class JavaBeanInfo {
         if (!fieldOnly) {
             for (Method method : clazz.getMethods()) {
                 String methodName = method.getName();
-                if (methodName.length() < 4) {
+                if (methodName.length() < 4 //
+                    || Modifier.isStatic(method.getModifiers()) //
+                ) {
                     continue;
                 }
     
-                if (Modifier.isStatic(method.getModifiers())) {
-                    continue;
-                }
     
                 if (methodName.startsWith("get") && Character.isUpperCase(methodName.charAt(3))) {
                     if (method.getParameterTypes().length != 0) {
@@ -529,11 +519,11 @@ class JavaBeanInfo {
     
                         JSONField annotation = jsonFieldSupport ? method.getAnnotation(JSONField.class) : null;
                         String annotationName;
-                        if (annotation != null && (annotationName = annotation.name()).length() > 0) {
-                            propertyName = annotationName;
-                        } else {
-                            propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
-                        }
+                        
+                        propertyName = annotation != null //
+                                       && (annotationName = annotation.name()).length() > 0 //
+                                           ? annotationName //
+                                           : Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
     
                         addField(fieldList, //
                                  new FieldInfo(propertyName, method, null, clazz, type, 0, 0, annotation, null,

@@ -198,11 +198,9 @@ public class DefaultJSONParser implements Closeable {
                     // lexer.next();
                     {
                         int index = ++lexer.bp;
-                        if (index >= lexer.len) {
-                            lexer.ch = EOI;
-                        } else {
-                            lexer.ch = lexer.text.charAt(index);
-                        }
+                        lexer.ch = (index >= lexer.len //
+                                ? EOI //
+                                : lexer.text.charAt(index));
                     }
                     lexer.sp = 0; // resetStringPosition
                     lexer.nextToken(JSONToken.COMMA);
@@ -257,11 +255,9 @@ public class DefaultJSONParser implements Closeable {
                     // lexer.next();
                     {
                         int index = ++lexer.bp;
-                        if (index >= lexer.len) {
-                            lexer.ch = EOI;
-                        } else {
-                            lexer.ch = lexer.text.charAt(index);
-                        }
+                        lexer.ch = (index >= lexer.len //
+                                ? EOI //
+                                : lexer.text.charAt(index));
                     }
 
                     // lexer.skipWhitespace();
@@ -528,22 +524,18 @@ public class DefaultJSONParser implements Closeable {
                     // lexer.next();
                     {
                         int index = ++lexer.bp;
-                        if (index >= lexer.len) {
-                            lexer.ch = EOI;
-                        } else {
-                            lexer.ch = lexer.text.charAt(index);
-                        }
+                        lexer.ch = (index >= lexer.len //
+                                ? EOI //
+                                : lexer.text.charAt(index));
                     }
                     continue;
                 } else if (ch == '}') {
                     // lexer.next();
                     {
                         int index = ++lexer.bp;
-                        if (index >= lexer.len) {
-                            lexer.ch = EOI;
-                        } else {
-                            lexer.ch = lexer.text.charAt(index);
-                        }
+                        lexer.ch = (index >= lexer.len //
+                                ? EOI //
+                                : lexer.text.charAt(index));
                     }
                     lexer.sp = 0; // lexer.resetStringPosition();
                     lexer.nextToken(JSONToken.COMMA);

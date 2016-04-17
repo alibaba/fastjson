@@ -35,7 +35,7 @@ public final class JSONLexer {
     public final static int  VALUE          = 3;
     public final static int  END            = 4;
     
-    private final static Map<String, Integer> DEFAULT_KEYWORDS;
+    private final static Map<String, Integer> keywords;
     
     private final static boolean SUBSTR; // android 6
     static {
@@ -53,13 +53,12 @@ public final class JSONLexer {
     }
 
     static {
-        Map<String, Integer> map = new HashMap<String, Integer>();
-        map.put("null", JSONToken.NULL);
-        map.put("new", JSONToken.NEW);
-        map.put("true", JSONToken.TRUE);
-        map.put("false", JSONToken.FALSE);
-        map.put("undefined", JSONToken.UNDEFINED);
-        DEFAULT_KEYWORDS = map;
+        keywords = new HashMap<String, Integer>();
+        keywords.put("null", JSONToken.NULL);
+        keywords.put("new", JSONToken.NEW);
+        keywords.put("true", JSONToken.TRUE);
+        keywords.put("false", JSONToken.FALSE);
+        keywords.put("undefined", JSONToken.UNDEFINED);
     }
 
     protected int                            token;
@@ -1496,7 +1495,7 @@ public final class JSONLexer {
 
             String ident = stringVal();
             
-            Integer tok = DEFAULT_KEYWORDS.get(ident);
+            Integer tok = keywords.get(ident);
             if (tok != null) {
                 token = tok;
             } else {

@@ -15,7 +15,7 @@ import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.util.FieldInfo;
 
-public class ListTypeFieldDeserializer extends FieldDeserializer {
+class ListTypeFieldDeserializer extends FieldDeserializer {
 
     private final Type         itemType;
     private ObjectDeserializer deserializer;
@@ -78,7 +78,7 @@ public class ListTypeFieldDeserializer extends FieldDeserializer {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public final void parseArray(DefaultJSONParser parser, Type objectType, Collection array) {
+    final void parseArray(DefaultJSONParser parser, Type objectType, Collection array) {
         Type itemType = this.itemType;
         ObjectDeserializer itemTypeDeser = this.deserializer;
         

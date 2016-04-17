@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt.serializer;
+package com.alibaba.json.bvt.serializer.filters;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,9 +11,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.ValueFilter;
+import com.alibaba.json.bvt.serializer.PropertyFilterTest;
 import com.alibaba.json.bvt.serializer.PropertyFilterTest.A;
 
-public class ValueFilterTest extends TestCase {
+public class ValueFilterTest_field extends TestCase {
 
     public void test_valuefilter() throws Exception {
         ValueFilter filter = new ValueFilter() {
@@ -131,24 +132,9 @@ public class ValueFilterTest extends TestCase {
 
     public static class Bean {
 
-        private int    id;
-        private String name;
+        public int    id;
+        public String name;
 
-        public int getId() {
-            return id;
-        }
-
-        public void setId(int id) {
-            this.id = id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
 
     }
 }

@@ -1,9 +1,6 @@
 package com.alibaba.fastjson.parser;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
@@ -11,25 +8,12 @@ import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 @SuppressWarnings("rawtypes")
 public class EnumDeserializer implements ObjectDeserializer {
 
-    private final Class<?>           enumClass;
-
-    private final Map<Integer, Enum> ordinalMap = new HashMap<Integer, Enum>();
-    private final Map<String, Enum>  nameMap    = new HashMap<String, Enum>();
+    private final Class<?> enumClass;
+    private final Enum[]   values;
 
     public EnumDeserializer(Class<?> enumClass){
         this.enumClass = enumClass;
-
-        try {
-            Method valueMethod = enumClass.getMethod("values");
-            Object[] values = (Object[]) valueMethod.invoke(null);
-            for (Object value : values) {
-                Enum e = (Enum) value;
-                ordinalMap.put(e.ordinal(), e);
-                nameMap.put(e.name(), e);
-            }
-        } catch (Exception ex) {
-            throw new JSONException("init enum values error, " + enumClass.getName());
-        }
+        values = (Enum[]) enumClass.getEnumConstants();
     }
 
     @SuppressWarnings("unchecked")
@@ -39,14 +23,14 @@ public class EnumDeserializer implements ObjectDeserializer {
             final JSONLexer lexer = parser.lexer;
             final int token = lexer.token;
             if (token == JSONToken.LITERAL_INT) {
-                value = lexer.intValue();
+                int intValue = lexer.intValue();
                 lexer.nextToken(JSONToken.COMMA);
 
-                T e = (T) ordinalMap.get(value);
-                if (e == null) {
-                    throw new JSONException("parse enum " + enumClass.getName() + " error, value : " + value);
+                if (intValue < 0 || intValue > values.length) {
+                    throw new JSONException("parse enum " + enumClass.getName() + " error, value : " + intValue);
                 }
-                return e;
+
+                return (T) values[intValue];
             } else if (token == JSONToken.LITERAL_STRING) {
                 String strVal = lexer.stringVal();
                 lexer.nextToken(JSONToken.COMMA);
@@ -54,8 +38,6 @@ public class EnumDeserializer implements ObjectDeserializer {
                 if (strVal.length() == 0) {
                     return (T) null;
                 }
-
-                value = nameMap.get(strVal);
 
                 return (T) Enum.valueOf((Class<Enum>) enumClass, strVal);
             } else if (token == JSONToken.NULL) {

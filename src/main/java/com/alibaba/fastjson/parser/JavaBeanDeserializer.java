@@ -15,6 +15,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
+import com.alibaba.fastjson.parser.deserializer.ExtraProcessable;
 import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
@@ -626,10 +627,16 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 type = extraProvider.getExtraType(object, key);
             }
         }
-            
+        
         Object value = type == null //
             ? parser.parse() // skip
             : parser.parseObject(type);
+            
+        if (object instanceof ExtraProcessable) {
+            ExtraProcessable extraProcessable = ((ExtraProcessable) object);
+            extraProcessable.processExtra(key, value);
+            return;
+        }
 
         List<ExtraProcessor> extraProcessors = parser.extraProcessors;
         if (extraProcessors != null) {

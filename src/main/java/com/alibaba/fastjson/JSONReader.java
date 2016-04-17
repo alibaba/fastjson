@@ -68,7 +68,7 @@ public class JSONReader implements Closeable {
             context = new JSONStreamContext(context, JSONStreamContext.StartObject);
         }
 
-        this.parser.accept(JSONToken.LBRACE, JSONToken.IDENTIFIER);
+        this.parser.accept(JSONToken.LBRACE);
     }
 
     public void endObject() {
@@ -283,8 +283,6 @@ public class JSONReader implements Closeable {
                 parser.accept(JSONToken.COLON);
                 break;
             case PropertyValue:
-                parser.accept(JSONToken.COMMA, JSONToken.IDENTIFIER);
-                break;
             case ArrayValue:
                 parser.accept(JSONToken.COMMA);
                 break;

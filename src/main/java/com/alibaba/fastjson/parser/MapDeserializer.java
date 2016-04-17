@@ -20,7 +20,7 @@ import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.util.TypeUtils;
 
-public class MapDeserializer implements ObjectDeserializer {
+class MapDeserializer implements ObjectDeserializer {
     public static MapDeserializer instance = new MapDeserializer();
     
     @SuppressWarnings("unchecked")

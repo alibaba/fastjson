@@ -216,7 +216,7 @@ public class JSONReader implements Closeable {
     }
     
     public <T> T readObject(TypeReference<T> typeRef) {
-        return readObject(typeRef.getType());
+        return readObject(typeRef.type);
     }
 
     public <T> T readObject(Type type) {

@@ -11,8 +11,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.ValueFilter;
-import com.alibaba.json.bvt.serializer.PropertyFilterTest;
-import com.alibaba.json.bvt.serializer.PropertyFilterTest.A;
 
 public class ValueFilterTest_field_long extends TestCase {
 
@@ -33,7 +31,7 @@ public class ValueFilterTest_field_long extends TestCase {
         JSONSerializer serializer = new JSONSerializer(out);
         serializer.getValueFilters().add(filter);
 
-        A a = new A();
+        Bean a = new Bean();
         serializer.write(a);
 
         String text = out.toString();
@@ -53,7 +51,7 @@ public class ValueFilterTest_field_long extends TestCase {
 
         };
         
-        Assert.assertEquals("{\"id\":\"AAA\"}", JSON.toJSONString(new A(), filter));
+        Assert.assertEquals("{\"id\":\"AAA\"}", JSON.toJSONString(new Bean(), filter));
     }
 
     public void test_valuefilter_1() throws Exception {
@@ -73,7 +71,7 @@ public class ValueFilterTest_field_long extends TestCase {
         JSONSerializer serializer = new JSONSerializer(out);
         serializer.getValueFilters().add(filter);
 
-        A a = new A();
+        Bean a = new Bean();
         serializer.write(a);
 
         String text = out.toString();

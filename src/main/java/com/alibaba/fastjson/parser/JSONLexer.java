@@ -91,7 +91,6 @@ public final class JSONLexer {
     public int                               matchStat      = UNKNOWN;
 
     private final static ThreadLocal<char[]> SBUF_REF_LOCAL = new ThreadLocal<char[]>();
-    protected Map<String, Integer>           keywods        = DEFAULT_KEYWORDS;
 
     protected final String                   text;
     protected final int                      len;
@@ -216,11 +215,7 @@ public final class JSONLexer {
     }
     
     public final boolean isRef() {
-        if (sp != 4) {
-            return false;
-        }
-
-        return charAt(np + 1) == '$' && charAt(np + 2) == 'r' && charAt(np + 3) == 'e' && charAt(np + 4) == 'f';
+        return sp == 4 && text.startsWith("$ref", np + 1);
     }
 
     public final String numberString() {
@@ -606,7 +601,6 @@ public final class JSONLexer {
         }
         int i = np, max = np + sp;
         long limit;
-        long multmin;
         int digit;
 
         char type = ' ';
@@ -635,7 +629,6 @@ public final class JSONLexer {
         } else {
             limit = -Long.MAX_VALUE;
         }
-        multmin = negative ? MULTMIN_RADIX_TEN : N_MULTMAX_RADIX_TEN;
         if (i < max) {
             digit = digits[charAt(i++)];
             result = -digit;
@@ -643,7 +636,7 @@ public final class JSONLexer {
         while (i < max) {
             // Accumulating negatively avoids surprises near MAX_VALUE
             digit = digits[charAt(i++)];
-            if (result < multmin) {
+            if (result < -922337203685477580L) {  // Long.MIN_VALUE / 10
                 return new BigInteger(numberString());
             }
             result *= 10;
@@ -1144,6 +1137,9 @@ public final class JSONLexer {
     }
 
     public final int intValue() {
+//        final int INT_MULTMIN_RADIX_TEN = -214748364; // Integer.MIN_VALUE / 10;
+//        final int INT_N_MULTMAX_RADIX_TEN = -214748364; // -Integer.MAX_VALUE / 10;
+
         if (np == -1) {
             np = 0;
         }
@@ -1152,7 +1148,6 @@ public final class JSONLexer {
         boolean negative = false;
         int i = np, max = np + sp;
         int limit;
-        int multmin;
         int digit;
 
         if (charAt(np) == '-') {
@@ -1162,7 +1157,7 @@ public final class JSONLexer {
         } else {
             limit = -Integer.MAX_VALUE;
         }
-        multmin = negative ? INT_MULTMIN_RADIX_TEN : INT_N_MULTMAX_RADIX_TEN;
+        final int multmin = -214748364; //negative ? INT_MULTMIN_RADIX_TEN : INT_N_MULTMAX_RADIX_TEN;
         if (i < max) {
             digit = digits[charAt(i++)];
             result = -digit;
@@ -1431,75 +1426,30 @@ public final class JSONLexer {
     }
 
     private void scanTrue() {
-        if (ch != 't') {
-            throw new JSONException("error parse true");
-        }
-        next();
-
-        if (ch != 'r') {
-            throw new JSONException("error parse true");
-        }
-        next();
-
-        if (ch != 'u') {
-            throw new JSONException("error parse true");
-        }
-        next();
-
-        if (ch != 'e') {
-            throw new JSONException("error parse true");
-        }
-        next();
-
-        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
-            || ch == '\f' || ch == '\b' || ch == ':') {
-            token = JSONToken.TRUE;
-        } else {
-            throw new JSONException("scan true error");
-        }
+        if (text.startsWith("true", bp)) {
+            bp += 4;
+            ch = charAt(bp);
+            
+            if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
+                || ch == '\f' || ch == '\b' || ch == ':') {
+                token = JSONToken.TRUE;
+                return;
+            }
+        } 
+        throw new JSONException("scan true error");
     }
 
     private void scanTreeSet() {
-        if (ch != 'T') {
-            throw new JSONException("error parse treeSet");
-        }
-        next();
-
-        if (ch != 'r') {
-            throw new JSONException("error parse treeSet");
-        }
-        next();
-
-        if (ch != 'e') {
-            throw new JSONException("error parse treeSet");
-        }
-        next();
-
-        if (ch != 'e') {
-            throw new JSONException("error parse treeSet");
-        }
-        next();
-
-        if (ch != 'S') {
-            throw new JSONException("error parse treeSet");
-        }
-        next();
-
-        if (ch != 'e') {
-            throw new JSONException("error parse treeSet");
-        }
-        next();
-
-        if (ch != 't') {
-            throw new JSONException("error parse treeSet");
-        }
-        next();
-
-        if (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b' || ch == '[' || ch == '(') {
-            token = JSONToken.TREE_SET;
-        } else {
-            throw new JSONException("scan treeSet error");
-        }
+        if (text.startsWith("TreeSet", bp)) {
+            bp += 7;
+            ch = charAt(bp);
+            
+            if (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b' || ch == '[' || ch == '(') {
+                token = JSONToken.TREE_SET;
+                return;
+            }
+        } 
+        throw new JSONException("scan TreeSet error");
     }
 
     private void scanNullOrNew() {
@@ -1601,37 +1551,17 @@ public final class JSONLexer {
     }
 
     private void scanFalse() {
-        if (ch != 'f') {
-            throw new JSONException("error parse false");
-        }
-        next();
-
-        if (ch != 'a') {
-            throw new JSONException("error parse false");
-        }
-        next();
-
-        if (ch != 'l') {
-            throw new JSONException("error parse false");
-        }
-        next();
-
-        if (ch != 's') {
-            throw new JSONException("error parse false");
-        }
-        next();
-
-        if (ch != 'e') {
-            throw new JSONException("error parse false");
-        }
-        next();
-
-        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
-            || ch == '\f' || ch == '\b' || ch == ':') {
-            token = JSONToken.FALSE;
-        } else {
-            throw new JSONException("scan false error");
-        }
+        if (text.startsWith("false", bp)) {
+            bp += 5;
+            ch = charAt(bp);
+            
+            if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
+                || ch == '\f' || ch == '\b' || ch == ':') {
+                token = JSONToken.FALSE;
+                return;
+            }
+        } 
+        throw new JSONException("scan false error");
     }
 
     private void scanIdent() {
@@ -1648,7 +1578,7 @@ public final class JSONLexer {
 
             String ident = stringVal();
             
-            Integer tok = keywods.get(ident);
+            Integer tok = DEFAULT_KEYWORDS.get(ident);
             if (tok != null) {
                 token = tok;
             } else {
@@ -1725,26 +1655,16 @@ public final class JSONLexer {
     }
 
     public final void scanSet() {
-        if (ch != 'S') {
-            throw new JSONException("error parse true");
+        if (text.startsWith("Set", bp)) {
+            bp += 3;
+            ch = charAt(bp);
+            
+            if (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b' || ch == '[' || ch == '(') {
+                token = JSONToken.SET;
+                return;
+            }
         }
-        next();
-
-        if (ch != 'e') {
-            throw new JSONException("error parse true");
-        }
-        next();
-
-        if (ch != 't') {
-            throw new JSONException("error parse true");
-        }
-        next();
-
-        if (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b' || ch == '[' || ch == '(') {
-            token = JSONToken.SET;
-        } else {
-            throw new JSONException("scan set error");
-        }
+        throw new JSONException("error parse set");
     }
 
     /**
@@ -1907,11 +1827,10 @@ public final class JSONLexer {
         np = 0;
         final boolean negative;
         
-        final long limit, multmin;
+        final long limit;
         if (ch == '-') {
             negative = true;
             limit = Long.MIN_VALUE;
-            multmin = MULTMIN_RADIX_TEN;
             
             np++;
             // next();
@@ -1926,14 +1845,13 @@ public final class JSONLexer {
         } else {
             negative = false;
             limit = -Long.MAX_VALUE;
-            multmin = N_MULTMAX_RADIX_TEN;
         }
 
         long longValue = 0;
         for (;;) {
             if (ch >= '0' && ch <= '9') {
                 int digit = (ch - '0');
-                if (longValue < multmin) {
+                if (longValue < -922337203685477580L) {  // Long.MIN_VALUE / 10
                     overflow = true;
                 }
                 
@@ -2114,7 +2032,6 @@ public final class JSONLexer {
         } else {
             limit = -Long.MAX_VALUE;
         }
-        final long multmin = negative ? MULTMIN_RADIX_TEN : N_MULTMAX_RADIX_TEN;
         if (i < max) {
             digit = digits[charAt(i++)];
             result = -digit;
@@ -2137,7 +2054,7 @@ public final class JSONLexer {
             }
 
             digit = digits[chLocal];
-            if (result < multmin) {
+            if (result < -922337203685477580L) {  // Long.MIN_VALUE / 10
                 throw new NumberFormatException(numberString());
             }
             result *= 10;
@@ -2185,12 +2102,6 @@ public final class JSONLexer {
         // 专门调整了判断顺序
         return ch <= ' ' && (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b');
     }
-
-    protected static final long  MULTMIN_RADIX_TEN       = Long.MIN_VALUE / 10;
-    protected static final long  N_MULTMAX_RADIX_TEN     = -Long.MAX_VALUE / 10;
-
-    protected static final int   INT_MULTMIN_RADIX_TEN   = Integer.MIN_VALUE / 10;
-    protected static final int   INT_N_MULTMAX_RADIX_TEN = -Integer.MAX_VALUE / 10;
 
     protected final static int[] digits                  = new int[(int) 'f' + 1];
 
@@ -3211,10 +3122,6 @@ public final class JSONLexer {
         return strVal;
     }
     
-    static final int ISO8601_LEN_0 = "0000-00-00".length();
-    static final int ISO8601_LEN_1 = "0000-00-00T00:00:00".length();
-    static final int ISO8601_LEN_2 = "0000-00-00T00:00:00.000".length();
-
     public boolean scanISO8601DateIfMatch(boolean strict) {
         int rest = text.length() - bp;
 
@@ -3325,7 +3232,7 @@ public final class JSONLexer {
             return true;
         }
 
-        if (rest < ISO8601_LEN_0) {
+        if (rest < 10) { // 0000-00-00
             return false;
         }
 
@@ -3352,7 +3259,7 @@ public final class JSONLexer {
 
         char t = charAt(bp + 10);
         if (t == 'T' || (t == ' ' && !strict)) {
-            if (rest < ISO8601_LEN_1) {
+            if (rest < 19) { // 0000-00-00T00:00:00
                 return false;
             }
         } else if (t == '"' || t == EOI) {
@@ -3396,7 +3303,7 @@ public final class JSONLexer {
 
         char dot = charAt(bp + 19);
         if (dot == '.') {
-            if (rest < ISO8601_LEN_2) {
+            if (rest < 23) { // 0000-00-00T00:00:00.000
                 return false;
             }
         } else {

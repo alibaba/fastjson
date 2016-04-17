@@ -22,9 +22,6 @@ import java.lang.reflect.Type;
  * @author wenshao[szujobs@hotmail.com]
  */
 class EnumSerializer implements ObjectSerializer {
-
-    public final static EnumSerializer instance = new EnumSerializer();
-
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         SerializeWriter out = serializer.out;
         if (object == null) {

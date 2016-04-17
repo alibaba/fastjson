@@ -3,6 +3,7 @@ package com.alibaba.json.bvt.serializer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Assert;
 
@@ -22,7 +23,7 @@ public class JavaBeanSerializerTest extends TestCase {
         a.getL0().add("A");
         a.getL0().add("B");
 
-        JavaBeanSerializer serializer = new JavaBeanSerializer(A.class);
+        JavaBeanSerializer serializer = new JavaBeanSerializer(A.class, A.class.getModifiers(), (Map<String, String>) null, false, true, true, true);
         serializer.write(new JSONSerializer(out), a, null, null);
 
         Assert.assertEquals("{\"l0\":[\"A\",\"B\"]}", out.toString());

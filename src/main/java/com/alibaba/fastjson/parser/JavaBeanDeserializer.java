@@ -29,10 +29,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     private final Class<?>            clazz;
     public final JavaBeanInfo         beanInfo;
 
-    public JavaBeanDeserializer(ParserConfig config, Class<?> clazz){
-        this(config, clazz, clazz);
-    }
-
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz, Type type){
         this(config, clazz, type, JavaBeanInfo.build(clazz, clazz.getModifiers(), type, false, true, true, true));
     }
@@ -57,7 +53,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         }
     }
 
-    public Object createInstance(DefaultJSONParser parser, Type type) {
+    protected Object createInstance(DefaultJSONParser parser, Type type) {
         if (type instanceof Class) {
             if (clazz.isInterface()) {
                 Class<?> clazz = (Class<?>) type;
@@ -110,7 +106,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     }
 
     @SuppressWarnings({ "unchecked" })
-    public <T> T deserialzeArrayMapping(DefaultJSONParser parser, Type type, Object fieldName, Object object) {
+    private <T> T deserialzeArrayMapping(DefaultJSONParser parser, Type type, Object fieldName, Object object) {
         final JSONLexer lexer = parser.lexer; // xxx
         if (lexer.token != JSONToken.LBRACKET) {
             throw new JSONException("error");
@@ -158,7 +154,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName, Object object) {
+    private <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName, Object object) {
         if (type == JSON.class || type == JSONObject.class) {
             return (T) parser.parse();
         }
@@ -542,7 +538,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     }
     
 
-    public FieldDeserializer getFieldDeserializer(String key) {
+    protected FieldDeserializer getFieldDeserializer(String key) {
         if (key == null) {
             return null;
         }
@@ -578,7 +574,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         return null;  // key not found.
     }
 
-    public boolean parseField(DefaultJSONParser parser, String key, Object object, Type objectType,
+    private boolean parseField(DefaultJSONParser parser, String key, Object object, Type objectType,
                               Map<String, Object> fieldValues) {
         JSONLexer lexer = parser.lexer; // xxx
 

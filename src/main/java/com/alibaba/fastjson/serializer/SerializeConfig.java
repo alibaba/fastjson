@@ -126,7 +126,7 @@ public class SerializeConfig {
                 serializers.put(clazz, MiscCodec.instance);
             } else if (clazz.isEnum() 
                     || ((superClass = clazz.getSuperclass()) != null && superClass != Object.class && superClass.isEnum())) {
-                serializers.put(clazz, EnumSerializer.instance);
+                serializers.put(clazz, new EnumSerializer());
             } else if (clazz.isArray()) {
                 Class<?> componentType = clazz.getComponentType();
                 ObjectSerializer compObjectSerializer = get(componentType);

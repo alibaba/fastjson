@@ -65,6 +65,16 @@ public class JavaBeanSerializer implements ObjectSerializer {
         return aliasMap;
     }
 
+    /**
+     * @since 1.1.49.android
+     * @param clazz
+     * @param classModifiers
+     * @param aliasMap
+     * @param fieldOnly
+     * @param jsonTypeSupport
+     * @param jsonFieldSupport
+     * @param fieldGenericSupport
+     */
     public JavaBeanSerializer(Class<?> clazz, // 
                               int classModifiers, //
                               Map<String, String> aliasMap, // 

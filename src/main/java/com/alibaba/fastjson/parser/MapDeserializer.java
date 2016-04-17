@@ -41,26 +41,21 @@ class MapDeserializer implements ObjectDeserializer {
 
         try {
             parser.setContext(context, map, fieldName);
-            return (T) deserialze(parser, type, fieldName, map);
+            if (type instanceof ParameterizedType) {
+                ParameterizedType parameterizedType = (ParameterizedType) type;
+                Type keyType = parameterizedType.getActualTypeArguments()[0];
+                Type valueType = parameterizedType.getActualTypeArguments()[1];
+
+                if (String.class == keyType) {
+                    return (T) parseMap(parser, (Map<String, Object>) map, valueType, fieldName);
+                } else {
+                    return (T) parseMap(parser, (Map<Object, Object>) map, keyType, valueType, fieldName);
+                }
+            } else {
+                return (T) parser.parseObject(map, fieldName);
+            }
         } finally {
             parser.setContext(context);
-        }
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected Object deserialze(DefaultJSONParser parser, Type type, Object fieldName, Map map) {
-        if (type instanceof ParameterizedType) {
-            ParameterizedType parameterizedType = (ParameterizedType) type;
-            Type keyType = parameterizedType.getActualTypeArguments()[0];
-            Type valueType = parameterizedType.getActualTypeArguments()[1];
-
-            if (String.class == keyType) {
-                return parseMap(parser, (Map<String, Object>) map, valueType, fieldName);
-            } else {
-                return parseMap(parser, map, keyType, valueType, fieldName);
-            }
-        } else {
-            return parser.parseObject(map, fieldName);
         }
     }
     

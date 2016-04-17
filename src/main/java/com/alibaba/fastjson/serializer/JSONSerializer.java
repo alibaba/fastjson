@@ -166,10 +166,6 @@ public class JSONSerializer {
         return valueFilters;
     }
 
-    public List<ValueFilter> getValueFiltersDirect() {
-        return valueFilters;
-    }
-
     public void incrementIndent() {
         indentCount++;
     }
@@ -209,10 +205,6 @@ public class JSONSerializer {
         return nameFilters;
     }
 
-    public List<NameFilter> getNameFiltersDirect() {
-        return nameFilters;
-    }
-
     public List<PropertyPreFilter> getPropertyPreFilters() {
         if (propertyPreFilters == null) {
             propertyPreFilters = new ArrayList<PropertyPreFilter>();
@@ -221,19 +213,11 @@ public class JSONSerializer {
         return propertyPreFilters;
     }
 
-    public List<PropertyPreFilter> getPropertyPreFiltersDirect() {
-        return propertyPreFilters;
-    }
-
     public List<PropertyFilter> getPropertyFilters() {
         if (propertyFilters == null) {
             propertyFilters = new ArrayList<PropertyFilter>();
         }
 
-        return propertyFilters;
-    }
-
-    public List<PropertyFilter> getPropertyFiltersDirect() {
         return propertyFilters;
     }
 
@@ -343,37 +327,47 @@ public class JSONSerializer {
         this.out.close();
     }
 
-    public static Object processValue(JSONSerializer serializer, Object object, String key, Object propertyValue) {
+    public static Object processValue(JSONSerializer serializer, Object object, Object key, Object propertyValue) {
         List<ValueFilter> valueFilters = serializer.valueFilters;
         if (valueFilters != null) {
+            if (key != null && !(key instanceof String)) {
+                key = JSON.toJSONString(key);
+            }
             for (ValueFilter valueFilter : valueFilters) {
-                propertyValue = valueFilter.process(object, key, propertyValue);
+                propertyValue = valueFilter.process(object, (String) key, propertyValue);
             }
         }
 
         return propertyValue;
     }
 
-    public static String processKey(JSONSerializer serializer, Object object, String key, Object propertyValue) {
-        List<NameFilter> nameFilters = serializer.nameFilters;
+    public Object processKey(Object object, Object key, Object propertyValue) {
+        List<NameFilter> nameFilters = this.nameFilters;
         if (nameFilters != null) {
+            if (key != null && !(key instanceof String)) {
+                key = JSON.toJSONString(key);
+            }
             for (NameFilter nameFilter : nameFilters) {
-                key = nameFilter.process(object, key, propertyValue);
+                key = nameFilter.process(object, (String) key, propertyValue);
             }
         }
 
         return key;
     }
 
-    public static boolean applyName(JSONSerializer serializer, Object object, String key) {
-        List<PropertyPreFilter> filters = serializer.propertyPreFilters;
+    public boolean applyName(Object object, Object key) {
+        List<PropertyPreFilter> filters = this.propertyPreFilters;
 
         if (filters == null) {
             return true;
         }
 
         for (PropertyPreFilter filter : filters) {
-            if (!filter.apply(serializer, object, key)) {
+            if (key != null && !(key instanceof String)) {
+                key = JSON.toJSONString(key);
+            }
+            
+            if (!filter.apply(this, object, (String) key)) {
                 return false;
             }
         }
@@ -381,15 +375,19 @@ public class JSONSerializer {
         return true;
     }
 
-    public static boolean apply(JSONSerializer serializer, Object object, String key, Object propertyValue) {
-        List<PropertyFilter> propertyFilters = serializer.propertyFilters;
+    public boolean apply(Object object, Object key, Object propertyValue) {
+        List<PropertyFilter> propertyFilters = this.propertyFilters;
 
         if (propertyFilters == null) {
             return true;
         }
 
+        if (key != null && !(key instanceof String)) {
+            key = JSON.toJSONString(key);
+        }
+        
         for (PropertyFilter propertyFilter : propertyFilters) {
-            if (!propertyFilter.apply(object, key, propertyValue)) {
+            if (!propertyFilter.apply(object, (String) key, propertyValue)) {
                 return false;
             }
         }

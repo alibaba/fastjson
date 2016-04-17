@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
-import com.alibaba.fastjson.util.TypeUtils;
 
 class JavaObjectDeserializer implements ObjectDeserializer {
 

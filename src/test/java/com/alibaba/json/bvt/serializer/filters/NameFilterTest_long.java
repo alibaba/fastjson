@@ -1,25 +1,23 @@
-package com.alibaba.json.bvt.serializer;
+package com.alibaba.json.bvt.serializer.filters;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Assert;
 import junit.framework.TestCase;
 
-import org.junit.Assert;
-
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.NameFilter;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 
-public class NameFilterTest extends TestCase {
+public class NameFilterTest_long extends TestCase {
 
     public void test_namefilter() throws Exception {
         NameFilter filter = new NameFilter() {
 
             public String process(Object source, String name, Object value) {
                 if (name.equals("id")) {
+                    Assert.assertTrue(value instanceof Long);
                     return "ID";
                 }
 
@@ -63,33 +61,17 @@ public class NameFilterTest extends TestCase {
         String text = out.toString();
         Assert.assertEquals("{\"ID\":0}", text);
     }
-    
-    public static void test_toJSONString() throws Exception {
-        NameFilter filter = new NameFilter() {
-
-            public String process(Object source, String name, Object value) {
-                if (name.equals("id")) {
-                    return "ID";
-                }
-
-                return name;
-            }
-
-        };
-        
-        Assert.assertEquals("{\"ID\":0}", JSON.toJSONString(Collections.singletonMap("id", 0), filter));
-    }
 
     public static class Bean {
 
-        private int    id;
+        private long   id;
         private String name;
 
-        public int getId() {
+        public long getId() {
             return id;
         }
 
-        public void setId(int id) {
+        public void setId(long id) {
             this.id = id;
         }
 

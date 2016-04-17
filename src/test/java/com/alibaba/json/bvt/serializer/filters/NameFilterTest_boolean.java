@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt.serializer;
+package com.alibaba.json.bvt.serializer.filters;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,12 +10,16 @@ import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.NameFilter;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 
-public class NameFilterTest_float extends TestCase {
+public class NameFilterTest_boolean extends TestCase {
 
     public void test_namefilter() throws Exception {
         NameFilter filter = new NameFilter() {
 
             public String process(Object source, String name, Object value) {
+                if (value != null) {
+                    Assert.assertTrue(value instanceof Boolean);
+                }
+                
                 if (name.equals("id")) {
                     return "ID";
                 }
@@ -33,7 +37,7 @@ public class NameFilterTest_float extends TestCase {
         serializer.write(a);
 
         String text = out.toString();
-        Assert.assertEquals("{\"ID\":0}", text);
+        Assert.assertEquals("{\"ID\":false}", text);
     }
 
     public void test_namefilter_1() throws Exception {
@@ -54,23 +58,23 @@ public class NameFilterTest_float extends TestCase {
         serializer.getNameFilters().add(filter);
 
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put("id", 0);
+        map.put("id", true);
         serializer.write(map);
 
         String text = out.toString();
-        Assert.assertEquals("{\"ID\":0}", text);
+        Assert.assertEquals("{\"ID\":true}", text);
     }
 
     public static class Bean {
 
-        private float  id;
-        private String name;
+        private boolean id;
+        private String  name;
 
-        public float getId() {
+        public boolean isId() {
             return id;
         }
 
-        public void setId(float id) {
+        public void setId(boolean id) {
             this.id = id;
         }
 

@@ -1290,11 +1290,11 @@ public final class JSONLexer {
             bp += (offset - 1);
             this.next();
             matchStat = VALUE;
-            return strVal;
         } else {
             matchStat = NOT_MATCH;
-            return strVal;
         }
+        
+        return strVal;
     }
 
     public int scanInt(char expectNext) {
@@ -1331,11 +1331,10 @@ public final class JSONLexer {
             this.next();
             matchStat = VALUE;
             token = JSONToken.COMMA;
-            return value;
         } else {
             matchStat = NOT_MATCH;
-            return value;
         }
+        return value;
     }
 
     public long scanLong(char expectNextChar) {
@@ -1372,11 +1371,10 @@ public final class JSONLexer {
             this.next();
             matchStat = VALUE;
             token = JSONToken.COMMA;
-            return value;
         } else {
             matchStat = NOT_MATCH;
-            return value;
         }
+        return value;
     }
 
     private void scanTrue() {
@@ -1489,13 +1487,9 @@ public final class JSONLexer {
     }
 
     public final String stringVal() {
-        if (!hasSpecial) {
-            // return text.substring(np + 1, np + 1 + sp);
-            return this.subString(np + 1, sp);
-        } else {
-            String strVal = readString(sbuf, sp);
-            return strVal;
-        }
+        return hasSpecial //
+            ? readString(sbuf, sp) //
+            : subString(np + 1, sp);
     }
 
     private final String subString(int offset, int count) {

@@ -7,7 +7,7 @@ import com.alibaba.fastjson.serializer.ValueFilter;
 
 import junit.framework.TestCase;
 
-public class ValueFilterTest_field_long extends TestCase {
+public class ValueFilterTest_field_int extends TestCase {
 
     public void test_valuefilter() throws Exception {
         ValueFilter filter = new ValueFilter() {
@@ -31,7 +31,7 @@ public class ValueFilterTest_field_long extends TestCase {
 
     public static class Bean {
 
-        public long    id;
+        public int    id;
         public String name;
 
 

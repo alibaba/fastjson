@@ -101,7 +101,35 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
             ex = new Exception(message, cause);
         } else {
             try {
-                ex = createException(message, cause, exClass);
+                Constructor<?> defaultConstructor = null;
+                Constructor<?> messageConstructor = null;
+                Constructor<?> causeConstructor = null;
+                for (Constructor<?> constructor : exClass.getConstructors()) {
+                    if (constructor.getParameterTypes().length == 0) {
+                        defaultConstructor = constructor;
+                        continue;
+                    }
+
+                    if (constructor.getParameterTypes().length == 1 && constructor.getParameterTypes()[0] == String.class) {
+                        messageConstructor = constructor;
+                        continue;
+                    }
+
+                    if (constructor.getParameterTypes().length == 2 && constructor.getParameterTypes()[0] == String.class
+                        && constructor.getParameterTypes()[1] == Throwable.class) {
+                        causeConstructor = constructor;
+                        continue;
+                    }
+                }
+
+                if (causeConstructor != null) {
+                    ex = (Throwable) causeConstructor.newInstance(message, cause);
+                } else if (messageConstructor != null) {
+                    ex = (Throwable) messageConstructor.newInstance(message);
+                } else if (defaultConstructor != null) {
+                     ex = (Throwable) defaultConstructor.newInstance();
+                }
+                
                 if (ex == null) {
                     ex = new Exception(message, cause);
                 }
@@ -115,42 +143,5 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
         }
 
         return (T) ex;
-    }
-
-    private Throwable createException(String message, Throwable cause, Class<?> exClass) throws Exception {
-        Constructor<?> defaultConstructor = null;
-        Constructor<?> messageConstructor = null;
-        Constructor<?> causeConstructor = null;
-        for (Constructor<?> constructor : exClass.getConstructors()) {
-            if (constructor.getParameterTypes().length == 0) {
-                defaultConstructor = constructor;
-                continue;
-            }
-
-            if (constructor.getParameterTypes().length == 1 && constructor.getParameterTypes()[0] == String.class) {
-                messageConstructor = constructor;
-                continue;
-            }
-
-            if (constructor.getParameterTypes().length == 2 && constructor.getParameterTypes()[0] == String.class
-                && constructor.getParameterTypes()[1] == Throwable.class) {
-                causeConstructor = constructor;
-                continue;
-            }
-        }
-
-        if (causeConstructor != null) {
-            return (Throwable) causeConstructor.newInstance(message, cause);
-        }
-
-        if (messageConstructor != null) {
-            return (Throwable) messageConstructor.newInstance(message);
-        }
-
-        if (defaultConstructor != null) {
-            return (Throwable) defaultConstructor.newInstance();
-        }
-
-        return null;
     }
 }

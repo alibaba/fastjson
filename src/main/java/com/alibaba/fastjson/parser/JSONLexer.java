@@ -16,9 +16,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.TimeZone;
 
 import com.alibaba.fastjson.JSON;
@@ -30,14 +28,12 @@ public final class JSONLexer {
     public final static int  NOT_MATCH      = -1;
     public final static int  NOT_MATCH_NAME = -2;
     public final static int  UNKNOWN         = 0;
-    public final static int  OBJECT         = 1;
-    public final static int  ARRAY          = 2;
+    // public final static int  OBJECT         = 1;
+    // public final static int  ARRAY          = 2;
     public final static int  VALUE          = 3;
     public final static int  END            = 4;
     
-    private final static Map<String, Integer> keywords;
-    
-    private final static boolean SUBSTR; // android 6
+    private final static boolean V6; // android 6
     static {
         int version = -1;
         
@@ -49,16 +45,7 @@ public final class JSONLexer {
             // skip
         }
         
-        SUBSTR = version >= 23;
-    }
-
-    static {
-        keywords = new HashMap<String, Integer>();
-        keywords.put("null", JSONToken.NULL);
-        keywords.put("new", JSONToken.NEW);
-        keywords.put("true", JSONToken.TRUE);
-        keywords.put("false", JSONToken.FALSE);
-        keywords.put("undefined", JSONToken.UNDEFINED);
+        V6 = version >= 23;
     }
 
     protected int                            token;
@@ -89,7 +76,7 @@ public final class JSONLexer {
 
     public int                               matchStat      = UNKNOWN;
 
-    private final static ThreadLocal<char[]> SBUF_REF_LOCAL = new ThreadLocal<char[]>();
+    private final static ThreadLocal<char[]> sbufLocal = new ThreadLocal<char[]>();
 
     protected final String                   text;
     protected final int                      len;
@@ -107,7 +94,7 @@ public final class JSONLexer {
     }
 
     public JSONLexer(String input, int features){
-        sbuf = SBUF_REF_LOCAL.get();
+        sbuf = sbufLocal.get();
 
         if (sbuf == null) {
             sbuf = new char[256];
@@ -140,7 +127,7 @@ public final class JSONLexer {
     public void close() {
         if (sbuf.length <= 8196) {
          
-            SBUF_REF_LOCAL.set(sbuf);
+            sbufLocal.set(sbuf);
         }
         this.sbuf = null;
     }
@@ -709,7 +696,7 @@ public final class JSONLexer {
             throw new JSONException("unclosed str");
         }
         
-        if (SUBSTR && endIndex - startIndex > 5) {
+        if (V6 && endIndex - startIndex > 5) {
             String strVal = text.substring(startIndex, endIndex);
             if (strVal.indexOf('\\') == -1) {
                 bp = endIndex + 1;
@@ -1023,7 +1010,7 @@ public final class JSONLexer {
             throw new JSONException("unclosed str");
         }
         
-        if (SUBSTR) {
+        if (V6) {
             String strVal = text.substring(startIndex, endIndex);
             if (strVal.indexOf('\\') == -1) {
                 bp = endIndex + 1;
@@ -1484,12 +1471,20 @@ public final class JSONLexer {
 
             String ident = stringVal();
             
-            Integer tok = keywords.get(ident);
-            if (tok != null) {
-                token = tok;
+            if (ident.equals("null")) {
+                token = JSONToken.NULL; 
+            } else if (ident.equals("true")) {
+                token = JSONToken.TRUE; 
+            } else if (ident.equals("false")) {
+                token = JSONToken.FALSE; 
+            } else if (ident.equals("new")) {
+                token = JSONToken.NEW; 
+            } else if (ident.equals("undefined")) {
+                token = JSONToken.UNDEFINED; 
             } else {
                 token = JSONToken.IDENTIFIER;
             }
+            
             return;
         }
     }

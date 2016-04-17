@@ -8,12 +8,15 @@ import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
+import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
+import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.util.FieldInfo;
@@ -622,7 +625,14 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         }
 
         lexer.nextTokenWithChar(':');
-        Type type = DefaultJSONParser.getExtratype(parser, object, key);
+        Type type = null; 
+        List<ExtraTypeProvider> extraTypeProviders = parser.extraTypeProviders;
+        if (extraTypeProviders != null) {
+            for (ExtraTypeProvider extraProvider : extraTypeProviders) {
+                type = extraProvider.getExtraType(object, key);
+            }
+        }
+            
         Object value;
         if (type == null) {
             value = parser.parse(); // skip
@@ -630,7 +640,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             value = parser.parseObject(type);
         }
 
-        DefaultJSONParser.processExtra(parser, object, key, value);
+        List<ExtraProcessor> extraProcessors = parser.extraProcessors;
+        if (extraProcessors != null) {
+            for (ExtraProcessor process : extraProcessors) {
+                process.processExtra(object, key, value);
+            }
+        }
     }
 
     public Object createInstance(Map<String, Object> map, ParserConfig config) //

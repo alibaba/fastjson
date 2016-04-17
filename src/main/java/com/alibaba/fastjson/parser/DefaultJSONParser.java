@@ -92,7 +92,7 @@ public class DefaultJSONParser implements Closeable {
 
     protected List<ExtraTypeProvider> extraTypeProviders = null;
     protected List<ExtraProcessor>    extraProcessors    = null;
-    protected FieldTypeResolver       fieldTypeResolver  = null;
+    public FieldTypeResolver          fieldTypeResolver  = null;
 
     public String getDateFomartPattern() {
         return dateFormatPattern;
@@ -1202,10 +1202,6 @@ public class DefaultJSONParser implements Closeable {
             extraTypeProviders = new ArrayList<ExtraTypeProvider>(2);
         }
         return extraTypeProviders;
-    }
-
-    public void setFieldTypeResolver(FieldTypeResolver fieldTypeResolver) {
-        this.fieldTypeResolver = fieldTypeResolver;
     }
 
     public void setContext(ParseContext context) {

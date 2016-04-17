@@ -751,14 +751,9 @@ public class TypeUtils {
 
             if (obj instanceof Number) {
                 int ordinal = ((Number) obj).intValue();
-
-                Method method = clazz.getMethod("values");
-                Object[] values = (Object[]) method.invoke(null);
-                for (Object value : values) {
-                    Enum e = (Enum) value;
-                    if (e.ordinal() == ordinal) {
-                        return (T) e;
-                    }
+                Object[] values = clazz.getEnumConstants();
+                if (ordinal < values.length) {
+                    return (T) values[ordinal];
                 }
             }
         } catch (Exception ex) {

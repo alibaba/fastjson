@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt.serializer;
+package com.alibaba.json.bvt.serializer.filters;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +10,7 @@ import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.PropertyFilter;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 
-public class PropertyFilter_char extends TestCase {
+public class PropertyFilter_float extends TestCase {
 
     public void test_0() throws Exception {
         PropertyFilter filter = new PropertyFilter() {
@@ -36,7 +36,7 @@ public class PropertyFilter_char extends TestCase {
 
             public boolean apply(Object source, String name, Object value) {
                 if ("id".equals(name)) {
-                    Assert.assertTrue(value instanceof Character);
+                    Assert.assertTrue(value instanceof Float);
                     return true;
                 }
                 return false;
@@ -51,7 +51,7 @@ public class PropertyFilter_char extends TestCase {
         serializer.write(a);
 
         String text = out.toString();
-        Assert.assertEquals("{\"id\":\"0\"}", text);
+        Assert.assertEquals("{\"id\":0}", text);
     }
 
     public void test_2() throws Exception {
@@ -116,24 +116,24 @@ public class PropertyFilter_char extends TestCase {
         serializer.getPropertyFilters().add(filter);
 
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put("id", (char) '3');
+        map.put("id", 3);
         map.put("name", "chennp2008");
         serializer.write(map);
 
         String text = out.toString();
-        Assert.assertEquals("{\"id\":\"3\"}", text);
+        Assert.assertEquals("{\"id\":3}", text);
     }
 
     public static class A {
 
-        private char   id = '0';
+        private float    id;
         private String name;
 
-        public char getId() {
+        public float getId() {
             return id;
         }
 
-        public void setId(char id) {
+        public void setId(float id) {
             this.id = id;
         }
 

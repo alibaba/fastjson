@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt.serializer;
+package com.alibaba.json.bvt.serializer.filters;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +10,7 @@ import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.NameFilter;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 
-public class NameFilterTest_float extends TestCase {
+public class NameFilterTest_double extends TestCase {
 
     public void test_namefilter() throws Exception {
         NameFilter filter = new NameFilter() {
@@ -63,14 +63,14 @@ public class NameFilterTest_float extends TestCase {
 
     public static class Bean {
 
-        private float  id;
+        private double  id;
         private String name;
 
-        public float getId() {
+        public double getId() {
             return id;
         }
 
-        public void setId(float id) {
+        public void setId(double id) {
             this.id = id;
         }
 

@@ -1,5 +1,6 @@
 package com.alibaba.json.bvt.serializer;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,12 +42,18 @@ public class SpecicalStringTest extends TestCase {
         JSONLexer lexer = new JSONLexer(text.toCharArray(), text.length());
         lexer.nextToken();
 
-        Assert.assertEquals(0, lexer.pos());
+        Assert.assertEquals(0, pos(lexer));
 
         lexer.stringVal();
 
         // Assert.assertEquals("\"\\\\\\/\\b\\f\\n\\r\\t中\"",
         // JSON.toJSONString(stringVal));
 
+    }
+    
+    int pos(JSONLexer lexer) throws Exception {
+        Field field = JSONLexer.class.getDeclaredField("pos");
+        field.setAccessible(true);
+        return field.getInt(lexer);
     }
 }

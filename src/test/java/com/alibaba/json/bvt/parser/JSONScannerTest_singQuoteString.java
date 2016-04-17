@@ -1,5 +1,7 @@
 package com.alibaba.json.bvt.parser;
 
+import java.lang.reflect.Field;
+
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -44,13 +46,19 @@ public class JSONScannerTest_singQuoteString extends TestCase {
         lexer.config(Feature.AllowSingleQuotes, true);
         lexer.nextToken();
 
-        Assert.assertEquals(0, lexer.pos());
+        Assert.assertEquals(0, pos(lexer));
 
         String stringVal = lexer.stringVal();
 
         Assert.assertEquals("\"\\\\/\\b\\f\\n\\r\\t中\"", JSON.toJSONString(stringVal));
 
         JSON.toJSONString(stringVal);
+    }
+    
+    int pos(JSONLexer lexer) throws Exception {
+        Field field = JSONLexer.class.getDeclaredField("pos");
+        field.setAccessible(true);
+        return field.getInt(lexer);
     }
 
     public void test_string2() throws Exception {
@@ -68,7 +76,7 @@ public class JSONScannerTest_singQuoteString extends TestCase {
         lexer.config(Feature.AllowSingleQuotes, true);
         lexer.nextToken();
 
-        Assert.assertEquals(0, lexer.pos());
+        Assert.assertEquals(0, pos(lexer));
 
         String stringVal = lexer.stringVal();
 
@@ -93,7 +101,7 @@ public class JSONScannerTest_singQuoteString extends TestCase {
         lexer.config(Feature.AllowSingleQuotes, true);
         lexer.nextToken();
 
-        Assert.assertEquals(0, lexer.pos());
+        Assert.assertEquals(0, pos(lexer));
 
         String stringVal = lexer.stringVal();
 
@@ -118,7 +126,7 @@ public class JSONScannerTest_singQuoteString extends TestCase {
         lexer.config(Feature.AllowSingleQuotes, true);
         lexer.nextToken();
 
-        Assert.assertEquals(0, lexer.pos());
+        Assert.assertEquals(0, pos(lexer));
 
         String stringVal = lexer.stringVal();
 

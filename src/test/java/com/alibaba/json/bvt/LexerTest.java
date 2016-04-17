@@ -15,16 +15,18 @@
  */
 package com.alibaba.json.bvt;
 
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import org.junit.Assert;
-import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
+
+import junit.framework.TestCase;
 
 public class LexerTest extends TestCase {
 
@@ -66,12 +68,18 @@ public class LexerTest extends TestCase {
         JSONLexer lexer = new JSONLexer(text.toCharArray(), text.length() - 1);
         lexer.nextToken();
 
-        Assert.assertEquals(0, lexer.pos());
+        Assert.assertEquals(0, pos(lexer));
 
         String stringVal = lexer.stringVal();
 
         Assert.assertEquals("\"\\\\/\\b\\f\\n\\r\\t中\"", JSON.toJSONString(stringVal));
 
+    }
+    
+    int pos(JSONLexer lexer) throws Exception {
+        Field field = JSONLexer.class.getDeclaredField("pos");
+        field.setAccessible(true);
+        return field.getInt(lexer);
     }
 
     public void test_string2() throws Exception {
@@ -88,7 +96,7 @@ public class LexerTest extends TestCase {
         JSONLexer lexer = new JSONLexer(text.toCharArray(), text.length());
         lexer.nextToken();
 
-        Assert.assertEquals(0, lexer.pos());
+        Assert.assertEquals(0, pos(lexer));
 
         lexer.stringVal();
 
@@ -108,7 +116,7 @@ public class LexerTest extends TestCase {
         JSONLexer lexer = new JSONLexer(text.toCharArray(), text.length());
         lexer.nextToken();
 
-        Assert.assertEquals(0, lexer.pos());
+        Assert.assertEquals(0, pos(lexer));
 
         lexer.stringVal();
     }
@@ -127,7 +135,7 @@ public class LexerTest extends TestCase {
         JSONLexer lexer = new JSONLexer(text.toCharArray(), text.length());
         lexer.nextToken();
 
-        Assert.assertEquals(0, lexer.pos());
+        Assert.assertEquals(0, pos(lexer));
 
         lexer.stringVal();
 

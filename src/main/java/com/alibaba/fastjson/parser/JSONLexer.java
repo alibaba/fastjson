@@ -84,8 +84,8 @@ public final class JSONLexer {
 
     protected boolean                        hasSpecial;
 
-    protected TimeZone                       timeZone       = JSON.defaultTimeZone;
-    protected Locale                         locale         = JSON.defaultLocale;
+    public TimeZone                          timeZone       = JSON.defaultTimeZone;
+    public Locale                            locale         = JSON.defaultLocale;
     protected Calendar                       calendar       = null;
 
     public int                               matchStat      = UNKNOWN;
@@ -145,27 +145,7 @@ public final class JSONLexer {
         }
         this.sbuf = null;
     }
-
-    public TimeZone getTimeZone() {
-        return timeZone;
-    }
     
-    public void setTimeZone(TimeZone timeZone) {
-        this.timeZone = timeZone;
-    }
-    
-    public Locale getLocale() {
-        return locale;
-    }
-    
-    public void setLocale(Locale locale) {
-        this.locale = locale;
-    }
-
-    public final char getCurrent() {
-        return ch;
-    }
-
     public char next() {
         int index = ++bp;
         if (index >= len) {
@@ -1453,101 +1433,39 @@ public final class JSONLexer {
     }
 
     private void scanNullOrNew() {
-        if (ch != 'n') {
-            throw new JSONException("error parse null or new");
-        }
-        next();
-
-        if (ch == 'u') {
-            next();
-            if (ch != 'l') {
-                throw new JSONException("error parse null");
-            }
-            next();
-
-            if (ch != 'l') {
-                throw new JSONException("error parse null");
-            }
-            next();
-
-            if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
-                || ch == '\f' || ch == '\b') {
-                token = JSONToken.NULL;
-            } else {
-                throw new JSONException("scan null error");
-            }
-            return;
-        }
-
-        if (ch != 'e') {
-            throw new JSONException("error parse new");
-        }
-        next();
-
-        if (ch != 'w') {
-            throw new JSONException("error parse new");
-        }
-        next();
-
-        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
-            || ch == '\f' || ch == '\b') {
+        int token = 0;
+        if (text.startsWith("null", bp)) {
+            bp += 4;
+            token = JSONToken.NULL;
+        } else  if (text.startsWith("new", bp)) {
+            bp += 3;
             token = JSONToken.NEW;
-        } else {
-            throw new JSONException("scan new error");
+        } 
+        
+        if (token != 0) {
+            ch = charAt(bp);
+            if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
+                    || ch == '\f' || ch == '\b') {
+                this.token = token;
+                return;
+            }
         }
+
+        throw new JSONException("scan null/new error");
     }
 
     private void scanUndefined() {
-        if (ch != 'u') {
-            throw new JSONException("error parse undefined");
-        }
-        next();
-
-        if (ch != 'n') {
-            throw new JSONException("error parse undefined");
-        }
-        next();
-
-        if (ch != 'd') {
-            throw new JSONException("error parse undefined");
-        }
-        next();
-
-        if (ch != 'e') {
-            throw new JSONException("error parse undefined");
-        }
-        next();
-
-        if (ch != 'f') {
-            throw new JSONException("error parse undefined");
-        }
-        next();
-
-        if (ch != 'i') {
-            throw new JSONException("error parse undefined");
-        }
-        next();
-
-        if (ch != 'n') {
-            throw new JSONException("error parse undefined");
-        }
-        next();
-
-        if (ch != 'e') {
-            throw new JSONException("error parse undefined");
-        }
-        next();
-        if (ch != 'd') {
-            throw new JSONException("error parse undefined");
-        }
-        next();
-
-        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
-            || ch == '\f' || ch == '\b') {
-            token = JSONToken.UNDEFINED;
-        } else {
-            throw new JSONException("scan undefined error");
-        }
+        if (text.startsWith("undefined", bp)) {
+            bp += 9;
+            ch = charAt(bp);
+            
+            if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
+                || ch == '\f' || ch == '\b' || ch == ':') {
+                token = JSONToken.UNDEFINED;
+                return;
+            }
+        } 
+        throw new JSONException("scan undefined error");
     }
 
     private void scanFalse() {

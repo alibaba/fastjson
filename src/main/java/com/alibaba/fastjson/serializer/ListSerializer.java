@@ -25,9 +25,6 @@ import java.util.List;
  * @author wenshao[szujobs@hotmail.com]
  */
 public final class ListSerializer implements ObjectSerializer {
-
-    public static final ListSerializer instance = new ListSerializer();
-
     public final void write(JSONSerializer serializer, //
                             Object object, //
                             Object fieldName, //

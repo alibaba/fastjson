@@ -35,28 +35,27 @@ import com.alibaba.fastjson.JSONException;
  */
 public class JSONSerializer {
 
-    public final SerializeConfig                  config;
+    public final SerializeConfig                     config;
 
-    public final SerializeWriter                   out;
+    public final SerializeWriter                     out;
 
-    protected List<BeforeFilter>                   beforeFilters      = null;
-    protected List<AfterFilter>                    afterFilters       = null;
-    protected List<PropertyFilter>                 propertyFilters    = null;
-    protected List<ValueFilter>                    valueFilters       = null;
-    protected List<NameFilter>                     nameFilters        = null;
-    protected List<PropertyPreFilter>              propertyPreFilters = null;
+    protected List<BeforeFilter>                     beforeFilters      = null;
+    protected List<AfterFilter>                      afterFilters       = null;
+    protected List<PropertyFilter>                   propertyFilters    = null;
+    protected List<ValueFilter>                      valueFilters       = null;
+    protected List<NameFilter>                       nameFilters        = null;
+    protected List<PropertyPreFilter>                propertyPreFilters = null;
 
-    private int                                    indentCount        = 0;
-    private String                                 indent             = "\t";
+    private int                                      indentCount        = 0;
 
-    private String                                 dateFormatPattern;
-    private DateFormat                             dateFormat;
+    private String                                   dateFormatPattern;
+    private DateFormat                               dateFormat;
 
     protected IdentityHashMap<Object, SerialContext> references         = null;
     public SerialContext                             context;
-    
-    protected TimeZone                               timeZone           = JSON.defaultTimeZone;
-    protected Locale                                 locale             = JSON.defaultLocale;
+
+    public TimeZone                                  timeZone           = JSON.defaultTimeZone;
+    public Locale                                    locale             = JSON.defaultLocale;
 
     public JSONSerializer(){
         this(new SerializeWriter((Writer) null, JSON.DEFAULT_GENERATE_FEATURE, SerializerFeature.EMPTY), SerializeConfig.globalInstance);
@@ -182,7 +181,7 @@ public class JSONSerializer {
     public void println() {
         out.write('\n');
         for (int i = 0; i < indentCount; ++i) {
-            out.write(indent);
+            out.write('\t');
         }
     }
 
@@ -396,14 +395,6 @@ public class JSONSerializer {
         }
 
         return true;
-    }
-    
-    public TimeZone getTimeZone() {
-        return timeZone;
-    }
-    
-    public void setTimeZone(TimeZone timeZone) {
-        this.timeZone = timeZone;
     }
 
     public SerializeWriter getWriter() {

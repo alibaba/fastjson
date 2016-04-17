@@ -248,7 +248,7 @@ public final class DateCodec implements ObjectSerializer, ObjectDeserializer {
                 return null;
             }
             
-            Calendar calendar = Calendar.getInstance(lexer.getTimeZone(), lexer.getLocale());
+            Calendar calendar = Calendar.getInstance(lexer.timeZone, lexer.locale);
             calendar.setTime(date);
             
             return (T) calendar;

@@ -76,12 +76,12 @@ public class MapDeserializer implements ObjectDeserializer {
         try {
             for (;;) {
                 lexer.skipWhitespace();
-                char ch = lexer.getCurrent();
+                char ch = lexer.ch;
                 if ((lexer.features & Feature.AllowArbitraryCommas.mask) != 0) {
                     while (ch == ',') {
                         lexer.next();
                         lexer.skipWhitespace();
-                        ch = lexer.getCurrent();
+                        ch = lexer.ch;
                     }
                 }
 
@@ -89,7 +89,7 @@ public class MapDeserializer implements ObjectDeserializer {
                 if (ch == '"') {
                     key = lexer.scanSymbol(parser.symbolTable, '"');
                     lexer.skipWhitespace();
-                    ch = lexer.getCurrent();
+                    ch = lexer.ch;
                     if (ch != ':') {
                         throw new JSONException("expect ':' at " + lexer.pos());
                     }
@@ -105,7 +105,7 @@ public class MapDeserializer implements ObjectDeserializer {
 
                     key = lexer.scanSymbol(parser.symbolTable, '\'');
                     lexer.skipWhitespace();
-                    ch = lexer.getCurrent();
+                    ch = lexer.ch;
                     if (ch != ':') {
                         throw new JSONException("expect ':' at " + lexer.pos());
                     }
@@ -116,7 +116,7 @@ public class MapDeserializer implements ObjectDeserializer {
 
                     key = lexer.scanSymbolUnQuoted(parser.symbolTable);
                     lexer.skipWhitespace();
-                    ch = lexer.getCurrent();
+                    ch = lexer.ch;
                     if (ch != ':') {
                         throw new JSONException("expect ':' at " + lexer.pos() + ", actual " + ch);
                     }
@@ -124,7 +124,7 @@ public class MapDeserializer implements ObjectDeserializer {
 
                 lexer.next();
                 lexer.skipWhitespace();
-                ch = lexer.getCurrent();
+                ch = lexer.ch;
 
                 lexer.resetStringPosition();
 

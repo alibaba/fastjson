@@ -561,15 +561,10 @@ public final class JSONLexer {
         return JSONToken.name(token);
     }
 
-    public final int pos() {
-        return pos;
-    }
-
     private String stringDefaultValue() {
-        if ((features & Feature.InitStringFieldAsEmpty.mask) != 0) {
-            return "";
-        }
-        return null;
+        return (features & Feature.InitStringFieldAsEmpty.mask) != 0 //
+            ? "" //
+            : null;
     }
 
     public final Number integerValue() throws NumberFormatException {
@@ -1137,13 +1132,13 @@ public final class JSONLexer {
         }
         while (i < max) {
             // Accumulating negatively avoids surprises near MAX_VALUE
-            char chLocal = charAt(i++);
+            char ch = charAt(i++);
 
-            if (chLocal == 'L' || chLocal == 'S' || chLocal == 'B') {
+            if (ch == 'L' || ch == 'S' || ch == 'B') {
                 break;
             }
 
-            digit = digits[chLocal];
+            digit = digits[ch];
 
             if (result < multmin) {
                 throw new NumberFormatException(numberString());
@@ -1234,11 +1229,11 @@ public final class JSONLexer {
             bp += (offset - 1);
             this.next();
             matchStat = VALUE;
-            return strVal;
         } else {
             matchStat = NOT_MATCH;
-            return strVal;
         }
+        
+        return strVal;
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })

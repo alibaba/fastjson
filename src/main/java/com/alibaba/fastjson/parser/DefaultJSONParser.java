@@ -234,7 +234,7 @@ public class DefaultJSONParser implements Closeable {
                     }
                     ch = lexer.ch;
                     if (ch != ':') {
-                        throw new JSONException("expect ':' at " + lexer.pos() + ", name " + key);
+                        throw new JSONException("expect ':' at " + lexer.pos + ", name " + key);
                     }
                 } else if (ch == '{' || ch == '[') {
                     lexer.nextToken();
@@ -249,7 +249,7 @@ public class DefaultJSONParser implements Closeable {
                     lexer.skipWhitespace();
                     ch = lexer.ch;
                     if (ch != ':') {
-                        throw new JSONException("expect ':' at " + lexer.pos() + ", actual " + ch);
+                        throw new JSONException("expect ':' at " + lexer.pos + ", actual " + ch);
                     }
                 }
 
@@ -406,20 +406,13 @@ public class DefaultJSONParser implements Closeable {
                     if ((lexer.features & Feature.AllowISO8601DateFormat.mask) != 0) {
                         JSONLexer iso8601Lexer = new JSONLexer(strValue);
                         if (iso8601Lexer.scanISO8601DateIfMatch(true)) {
-                            value = iso8601Lexer.getCalendar().getTime();
+                            value = iso8601Lexer.calendar.getTime();
                         }
                         iso8601Lexer.close();
                     }
 
                     object.put(key, value);
                 } else if (ch >= '0' && ch <= '9' || ch == '-') {
-                    // lexer.scanNumber();
-                    // if (lexer.token == JSONToken.LITERAL_INT) {
-                    // value = lexer.integerValue();
-                    // } else {
-                    // boolean useBigDecimal = (lexer.features & Feature.UseBigDecimal.mask) != 0;
-                    // value = lexer.decimalValue(useBigDecimal);
-                    // }
                     value = lexer.scanNumberValue();
                     object.put(key, value);
                 } else if (ch == '[') { // 减少嵌套，兼容android
@@ -522,7 +515,7 @@ public class DefaultJSONParser implements Closeable {
                     } else if (lexer.token == JSONToken.COMMA) {
                         continue;
                     } else {
-                        throw new JSONException("syntax error, position at " + lexer.pos() + ", name " + key);
+                        throw new JSONException("syntax error, position at " + lexer.pos + ", name " + key);
                     }
                 }
 
@@ -559,7 +552,7 @@ public class DefaultJSONParser implements Closeable {
 
                     return object;
                 } else {
-                    throw new JSONException("syntax error, position at " + lexer.pos() + ", name " + key);
+                    throw new JSONException("syntax error, position at " + lexer.pos + ", name " + key);
                 }
 
             }
@@ -1116,7 +1109,7 @@ public class DefaultJSONParser implements Closeable {
                         if ((lexer.features & Feature.AllowISO8601DateFormat.mask) != 0) {
                             JSONLexer iso8601Lexer = new JSONLexer(stringLiteral);
                             if (iso8601Lexer.scanISO8601DateIfMatch(true)) {
-                                value = iso8601Lexer.getCalendar().getTime();
+                                value = iso8601Lexer.calendar.getTime();
                             } else {
                                 value = stringLiteral;
                             }
@@ -1295,7 +1288,7 @@ public class DefaultJSONParser implements Closeable {
                     JSONLexer iso8601Lexer = new JSONLexer(stringLiteral);
                     try {
                         if (iso8601Lexer.scanISO8601DateIfMatch(true)) {
-                            return iso8601Lexer.getCalendar().getTime();
+                            return iso8601Lexer.calendar.getTime();
                         }
                     } finally {
                         iso8601Lexer.close();

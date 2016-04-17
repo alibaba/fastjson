@@ -91,7 +91,7 @@ class MapDeserializer implements ObjectDeserializer {
                     lexer.skipWhitespace();
                     ch = lexer.ch;
                     if (ch != ':') {
-                        throw new JSONException("expect ':' at " + lexer.pos());
+                        throw new JSONException("expect ':' at " + lexer.pos);
                     }
                 } else if (ch == '}') {
                     lexer.next();
@@ -107,7 +107,7 @@ class MapDeserializer implements ObjectDeserializer {
                     lexer.skipWhitespace();
                     ch = lexer.ch;
                     if (ch != ':') {
-                        throw new JSONException("expect ':' at " + lexer.pos());
+                        throw new JSONException("expect ':' at " + lexer.pos);
                     }
                 } else {
                     if ((lexer.features & Feature.AllowUnQuotedFieldNames.mask) == 0) {
@@ -118,7 +118,7 @@ class MapDeserializer implements ObjectDeserializer {
                     lexer.skipWhitespace();
                     ch = lexer.ch;
                     if (ch != ':') {
-                        throw new JSONException("expect ':' at " + lexer.pos() + ", actual " + ch);
+                        throw new JSONException("expect ':' at " + lexer.pos + ", actual " + ch);
                     }
                 }
 
@@ -189,8 +189,9 @@ class MapDeserializer implements ObjectDeserializer {
                                   Object fieldName) {
         JSONLexer lexer = parser.lexer;
 
-        if (lexer.token != JSONToken.LBRACE && lexer.token != JSONToken.COMMA) {
-            throw new JSONException("syntax error, expect {, actual " + lexer.tokenName());
+        int token = lexer.token;
+        if (token != JSONToken.LBRACE && token != JSONToken.COMMA) {
+            throw new JSONException("syntax error, expect {, actual " + JSONToken.name(token));
         }
 
         ObjectDeserializer keyDeserializer = parser.config.getDeserializer(keyType);
@@ -200,13 +201,13 @@ class MapDeserializer implements ObjectDeserializer {
         ParseContext context = parser.contex;
         try {
             for (;;) {
-                int token = lexer.token;
+                token = lexer.token;
                 if (token == JSONToken.RBRACE) {
                     lexer.nextToken(JSONToken.COMMA);
                     break;
                 }
 
-                if (lexer.token == JSONToken.LITERAL_STRING // 
+                if (token == JSONToken.LITERAL_STRING // 
                         && lexer.isRef() //
                         && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
                     Object object = null;
@@ -229,7 +230,7 @@ class MapDeserializer implements ObjectDeserializer {
                             parser.resolveStatus = DefaultJSONParser.NeedToResolve;
                         }
                     } else {
-                        throw new JSONException("illegal ref, " + JSONToken.name(lexer.token));
+                        throw new JSONException("illegal ref, " + JSONToken.name(token));
                     }
 
                     lexer.nextToken(JSONToken.RBRACE);

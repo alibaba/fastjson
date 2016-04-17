@@ -214,9 +214,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 
                 StringBuffer buf = (new StringBuffer()) //
                                                         .append("syntax error, expect {, actual ") //
-                                                        .append(lexer.tokenName()) //
-                                                        .append(", pos ") //
-                                                        .append(lexer.pos()) //
+                                                        .append(lexer.info()) //
                 ;
                 if (fieldName instanceof String) {
                     buf //

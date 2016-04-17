@@ -400,18 +400,6 @@ public class JavaBeanSerializer implements ObjectSerializer {
                         out.writeFieldName(key, true);
                     }
                     
-                    if (valueGot && !propertyValueGot) {
-                        if (fieldInfo.fieldClass == int.class) {
-                            propertyValue = Integer.valueOf(propertyValueInt);
-                            propertyValueGot = true;
-                        } else if (fieldInfo.fieldClass == long.class) {
-                            propertyValue = Long.valueOf(propertyValueLong);
-                            propertyValueGot = true;
-                        } else if (fieldInfo.fieldClass == boolean.class) {
-                            propertyValue = propertyValueBoolean;
-                            propertyValueGot = true;
-                        }
-                    }
                     serializer.write(propertyValue);
                 } else if (originalValue != propertyValue) {
                     if (!writeAsArray) {

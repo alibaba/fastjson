@@ -95,7 +95,7 @@ class MapDeserializer implements ObjectDeserializer {
                     }
                 } else if (ch == '}') {
                     lexer.next();
-                    lexer.resetStringPosition();
+                    lexer.sp = 0;
                     lexer.nextToken(JSONToken.COMMA);
                     return map;
                 } else if (ch == '\'') {
@@ -126,7 +126,7 @@ class MapDeserializer implements ObjectDeserializer {
                 lexer.skipWhitespace();
                 ch = lexer.ch;
 
-                lexer.resetStringPosition();
+                lexer.sp = 0;
 
                 if (key == JSON.DEFAULT_TYPE_KEY && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
                     String typeName = lexer.scanSymbol(parser.symbolTable, '"');

@@ -797,15 +797,15 @@ public final class JSONLexer {
         char[] sbuf = new char[chars_len];
         int len = 0;
         for (int i = 0; i < chars_len; ++i) {
-            char chLocal = chars[i];
+            char ch = chars[i];
             
-            if (chLocal != '\\') {
-                sbuf[len++] = chLocal;
+            if (ch != '\\') {
+                sbuf[len++] = ch;
                 continue;
             }
-            chLocal = chars[++i];
+            ch = chars[++i];
 
-            switch (chLocal) {
+            switch (ch) {
                 case '0':
                     sbuf[len++] = '\0';
                     break;
@@ -884,10 +884,6 @@ public final class JSONLexer {
         return new String(sbuf, 0, len);
     }
     
-    public final void resetStringPosition() {
-        this.sp = 0;
-    }
-    
     public String info() {
         return "pos " + bp //
                + ", json : " //
@@ -935,17 +931,16 @@ public final class JSONLexer {
 
         np = bp;
         sp = 1;
-        char chLocal;
         for (;;) {
-            chLocal = next();
+            char ch = next();
 
-            if (chLocal < identifierFlags.length) {
-                if (!identifierFlags[chLocal]) {
+            if (ch < identifierFlags.length) {
+                if (!identifierFlags[ch]) {
                     break;
                 }
             }
 
-            hash = 31 * hash + chLocal;
+            hash = 31 * hash + ch;
 
             sp++;
             continue;
@@ -954,9 +949,8 @@ public final class JSONLexer {
         this.ch = charAt(bp);
         token = JSONToken.IDENTIFIER;
 
-        final int NULL_HASH = 3392903;
-        if (sp == 4 && hash == NULL_HASH && charAt(np) == 'n' && charAt(np + 1) == 'u' && charAt(np + 2) == 'l'
-            && charAt(np + 3) == 'l') {
+        if (sp == 4 // 
+                && text.startsWith("null", np)) {
             return null;
         }
 
@@ -1515,7 +1509,7 @@ public final class JSONLexer {
         }
     }
 
-    public final String subString(int offset, int count) {
+    private final String subString(int offset, int count) {
         if (count < sbuf.length) {
             text.getChars(offset, offset + count, sbuf, 0);
             return new String(sbuf, 0, count);
@@ -1553,7 +1547,7 @@ public final class JSONLexer {
         return true;
     }
 
-    public final void skipWhitespace() {
+    final void skipWhitespace() {
         for (;;) {
             if (ch <= '/') {
                 if (ch == ' ' || ch == '\r' || ch == '\n' || ch == '\t' || ch == '\f' || ch == '\b') {

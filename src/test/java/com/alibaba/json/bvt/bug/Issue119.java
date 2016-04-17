@@ -10,7 +10,6 @@ public class Issue119 extends TestCase {
 
     public void test_for_issue() throws Exception {
         JSONLexer lexer = new JSONLexer("-100S");
-        lexer.resetStringPosition();
         lexer.scanNumber();
         Assert.assertEquals(Short.class, lexer.integerValue().getClass());
         Assert.assertEquals(-100, lexer.integerValue().shortValue());

@@ -1285,15 +1285,6 @@ public class DefaultJSONParser implements Closeable {
         return parse(null);
     }
 
-    public Object parseKey() {
-        if (lexer.token == JSONToken.IDENTIFIER) {
-            String value = lexer.stringVal();
-            lexer.nextToken(JSONToken.COMMA);
-            return value;
-        }
-        return parse(null);
-    }
-
     public Object parse(Object fieldName) {
         switch (lexer.token) {
             case SET:

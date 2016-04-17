@@ -1,16 +1,18 @@
-package com.alibaba.json.bvt.serializer;
+package com.alibaba.json.bvt.serializer.filters;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Assert;
 import junit.framework.TestCase;
 
+import org.junit.Assert;
+
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.PropertyFilter;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 
-public class PropertyFilter_short extends TestCase {
+public class PropertyFilterTest extends TestCase {
 
     public void test_0() throws Exception {
         PropertyFilter filter = new PropertyFilter() {
@@ -30,13 +32,23 @@ public class PropertyFilter_short extends TestCase {
         String text = out.toString();
         Assert.assertEquals("{}", text);
     }
+    
+    public void test_toJSONString() throws Exception {
+        PropertyFilter filter = new PropertyFilter() {
+
+            public boolean apply(Object source, String name, Object value) {
+                return false;
+            }
+        };
+
+        Assert.assertEquals("{}", JSON.toJSONString(new A(), filter));
+    }
 
     public void test_1() throws Exception {
         PropertyFilter filter = new PropertyFilter() {
 
             public boolean apply(Object source, String name, Object value) {
                 if ("id".equals(name)) {
-                    Assert.assertTrue(value instanceof Short);
                     return true;
                 }
                 return false;
@@ -126,14 +138,14 @@ public class PropertyFilter_short extends TestCase {
 
     public static class A {
 
-        private short    id;
+        private int    id;
         private String name;
 
-        public short getId() {
+        public int getId() {
             return id;
         }
 
-        public void setId(short id) {
+        public void setId(int id) {
             this.id = id;
         }
 

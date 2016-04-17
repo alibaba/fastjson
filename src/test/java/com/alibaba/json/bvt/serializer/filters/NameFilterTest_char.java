@@ -1,27 +1,24 @@
-package com.alibaba.json.bvt.serializer;
+package com.alibaba.json.bvt.serializer.filters;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Assert;
+import junit.framework.TestCase;
 
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.NameFilter;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 
-import junit.framework.TestCase;
-
-public class NameFilterTest_short extends TestCase {
+public class NameFilterTest_char extends TestCase {
 
     public void test_namefilter() throws Exception {
         NameFilter filter = new NameFilter() {
 
             public String process(Object source, String name, Object value) {
-                if (value != null) {
-                    Assert.assertTrue(value instanceof Short);
-                }
-                
+
                 if (name.equals("id")) {
+                    Assert.assertTrue(value instanceof Character);
                     return "ID";
                 }
 
@@ -38,7 +35,7 @@ public class NameFilterTest_short extends TestCase {
         serializer.write(a);
 
         String text = out.toString();
-        Assert.assertEquals("{\"ID\":0}", text);
+        Assert.assertEquals("{\"ID\":\"0\"}", text);
     }
 
     public void test_namefilter_1() throws Exception {
@@ -46,7 +43,6 @@ public class NameFilterTest_short extends TestCase {
 
             public String process(Object source, String name, Object value) {
                 if (name.equals("id")) {
-                    Assert.assertTrue(value instanceof Short);
                     return "ID";
                 }
 
@@ -60,23 +56,23 @@ public class NameFilterTest_short extends TestCase {
         serializer.getNameFilters().add(filter);
 
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put("id", (short) 0);
+        map.put("id", '0');
         serializer.write(map);
 
         String text = out.toString();
-        Assert.assertEquals("{\"ID\":0}", text);
+        Assert.assertEquals("{\"ID\":\"0\"}", text);
     }
 
     public static class Bean {
 
-        private short    id;
+        private char   id = '0';
         private String name;
 
-        public short getId() {
+        public char getId() {
             return id;
         }
 
-        public void setId(short id) {
+        public void setId(char id) {
             this.id = id;
         }
 

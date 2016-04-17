@@ -210,7 +210,7 @@ public final class JSONLexer {
                 return;
             }
             
-            if (ch >= '0' && ch <= '9') {
+            if ((ch >= '0' && ch <= '9') || ch == '-') {
                 scanNumber();
                 return;
             }
@@ -218,11 +218,6 @@ public final class JSONLexer {
             if (ch == ',') {
                 next();
                 token = COMMA;
-                return;
-            }
-
-            if (ch == '-') {
-                scanNumber();
                 return;
             }
 
@@ -600,13 +595,11 @@ public final class JSONLexer {
             if (result <= Integer.MAX_VALUE && type != 'L') {
                 if (type == 'S') {
                     return (short) result;
-                }
-
-                if (type == 'B') {
+                } else if (type == 'B') {
                     return (byte) result;
+                } else {
+                    return (int) result;
                 }
-
-                return (int) result;
             }
             return result;
         }
@@ -719,13 +712,11 @@ public final class JSONLexer {
                 }
             }
             
-            if (hasSpecial) {
-                strVal = readString(chars, chars_len);
-            } else if (chars_len < 20) {
-                strVal = symbolTable.addSymbol(chars, 0, chars_len, hash);
-            } else {
-                strVal = new String(chars, 0, chars_len);
-            }
+            strVal = hasSpecial //
+                ? readString(chars, chars_len) //
+                : chars_len < 20 //
+                    ? symbolTable.addSymbol(chars, 0, chars_len, hash) //
+                    : new String(chars, 0, chars_len);
         } else {
             strVal = readString(chars, chars_len);
         }
@@ -813,20 +804,14 @@ public final class JSONLexer {
                     sbuf[len++] = '\\';
                     break;
                 case 'x':
-                    char x1 = chars[++i];
-                    char x2 = chars[++i];
-
-                    int x_val = digits[x1] * 16 + digits[x2];
-                    char x_char = (char) x_val;
-                    sbuf[len++] = x_char;
+                    sbuf[len++] = (char) (digits[chars[++i]] * 16 + digits[chars[++i]]);
                     break;
                 case 'u':
-                    char c1 = chars[++i];
-                    char c2 = chars[++i];
-                    char c3 = chars[++i];
-                    char c4 = chars[++i];
-                    int val = Integer.parseInt(new String(new char[] { c1, c2, c3, c4 }), 16);
-                    sbuf[len++] = (char) val;
+                    sbuf[len++] = (char) Integer.parseInt(new String(new char[] { chars[++i], //
+                                                                                  chars[++i], //
+                                                                                  chars[++i], //
+                                                                                  chars[++i] }),
+                                                           16);
                     break;
                 default:
                     throw new JSONException("unclosed.str.lit");
@@ -2417,26 +2402,18 @@ public final class JSONLexer {
                                     matchStat = NOT_MATCH;
                                     return stringDefaultValue();
                                 }
-                                char x1 = ch = text.charAt(i + 1);
-                                char x2 = ch = text.charAt(i + 2);
-                                i += 2;
 
-                                int x_val = digits[x1] * 16 + digits[x2];
-                                char x_char = (char) x_val;
-                                putChar(x_char);
+                                putChar((char) (digits[text.charAt(++i)] * 16 + digits[text.charAt(++i)]));
                                 break;
                             case 'u':
                                 if (i + 4 >= len){
                                     matchStat = NOT_MATCH;
                                     return stringDefaultValue();
                                 }
-                                char u1 = ch = text.charAt(i + 1);
-                                char u2 = ch = text.charAt(i + 2);
-                                char u3 = ch = text.charAt(i + 3);
-                                char u4 = ch = text.charAt(i + 4);
-                                i += 4;
-                                int val = Integer.parseInt(new String(new char[] { u1, u2, u3, u4 }), 16);
-                                putChar((char) val);
+                                putChar((char) Integer.parseInt(new String(new char[] { text.charAt(++i), // 
+                                                                                        text.charAt(++i), 
+                                                                                        text.charAt(++i), // 
+                                                                                        text.charAt(++i) }), 16));
                                 break;
                             default:
                                 throw new JSONException("unclosed string : " + ch);
@@ -2961,17 +2938,15 @@ public final class JSONLexer {
         int rest = text.length() - bp;
 
         if ((!strict) && rest > 13) {
-            char c0 = charAt(bp);
-            char c1 = charAt(bp + 1);
-            char c2 = charAt(bp + 2);
-            char c3 = charAt(bp + 3);
-            char c4 = charAt(bp + 4);
-            char c5 = charAt(bp + 5);
-
-            char c_r0 = charAt(bp + rest - 1);
-            char c_r1 = charAt(bp + rest - 2);
-            if (c0 == '/' && c1 == 'D' && c2 == 'a' && c3 == 't' && c4 == 'e' && c5 == '(' && c_r0 == '/'
-                && c_r1 == ')') {
+            if (charAt(bp) == '/' //
+                && charAt(bp + 1) == 'D' //
+                && charAt(bp + 2) == 'a' //
+                && charAt(bp + 3) == 't' //
+                && charAt(bp + 4) == 'e' //
+                && charAt(bp + 5) == '(' //
+                && charAt(bp + rest - 1) == '/' //
+                && charAt(bp + rest - 2) == ')' //
+            ) {
                 int plusIndex = -1;
                 for (int i = 6; i < rest; ++i) {
                     char c = charAt(bp + i);
@@ -3052,10 +3027,7 @@ public final class JSONLexer {
                 minute = digits[m0] * 10 + digits[m1];
                 seconds = digits[s0] * 10 + digits[s1];
             } else {
-                hour = 0;
-                minute = 0;
-                seconds = 0;
-                millis = 0;
+                hour = minute = seconds = millis = 0;
             }
 
             calendar.set(Calendar.HOUR_OF_DAY, hour);

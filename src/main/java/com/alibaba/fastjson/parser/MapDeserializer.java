@@ -37,7 +37,7 @@ public class MapDeserializer implements ObjectDeserializer {
 
         Map<?, ?> map = createMap(type);
 
-        ParseContext context = parser.context;
+        ParseContext context = parser.contex;
 
         try {
             parser.setContext(context, map, fieldName);
@@ -72,7 +72,7 @@ public class MapDeserializer implements ObjectDeserializer {
             throw new JSONException("syntax error, expect {, actual " + lexer.token);
         }
 
-        ParseContext context = parser.context;
+        ParseContext context = parser.contex;
         try {
             for (;;) {
                 lexer.skipWhitespace();
@@ -197,7 +197,7 @@ public class MapDeserializer implements ObjectDeserializer {
         ObjectDeserializer valueDeserializer = parser.config.getDeserializer(valueType);
         lexer.nextToken();
 
-        ParseContext context = parser.context;
+        ParseContext context = parser.contex;
         try {
             for (;;) {
                 int token = lexer.token;

@@ -221,8 +221,8 @@ public final class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         } else if (clazz == Currency.class) {
             return (T) Currency.getInstance(strVal);
         } else if (clazz == SimpleDateFormat.class) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(strVal, parser.lexer.getLocale());
-            dateFormat.setTimeZone(parser.lexer.getTimeZone());
+            SimpleDateFormat dateFormat = new SimpleDateFormat(strVal, parser.lexer.locale);
+            dateFormat.setTimeZone(parser.lexer.timeZone);
             return (T) dateFormat;
         } else if (clazz == char.class || clazz == Character.class) {
             return (T) TypeUtils.castToChar(strVal);

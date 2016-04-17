@@ -113,7 +113,7 @@ public class SerializeConfig {
             if (Map.class.isAssignableFrom(clazz)) {
                 serializers.put(clazz, new MapSerializer());
             } else if (List.class.isAssignableFrom(clazz)) {
-                serializers.put(clazz, ListSerializer.instance);
+                serializers.put(clazz, new ListSerializer());
             } else if (Collection.class.isAssignableFrom(clazz)) {
                 serializers.put(clazz, CollectionCodec.instance);
             } else if (Date.class.isAssignableFrom(clazz)) {

@@ -1159,19 +1159,19 @@ public final class JSONLexer {
         char chLocal = charAt(bp + (offset++));
 
         if (chLocal == 'n') {
-            if (charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
+            if (text.startsWith("null", bp)) {
                 offset += 3;
                 chLocal = charAt(bp + (offset++));
-            } else {
-                matchStat = NOT_MATCH;
-                return null;
-            }
-
-            if (chLocal == expectNextChar) {
-                bp += (offset - 1);
-                this.next();
-                matchStat = VALUE;
-                return null;
+                
+                if (chLocal == expectNextChar) {
+                    bp += (offset - 1);
+                    this.next();
+                    matchStat = VALUE;
+                    return null;
+                } else {
+                    matchStat = NOT_MATCH;
+                    return null;
+                }
             } else {
                 matchStat = NOT_MATCH;
                 return null;

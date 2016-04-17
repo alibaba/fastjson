@@ -1,25 +1,24 @@
-package com.alibaba.json.bvt.serializer;
+package com.alibaba.json.bvt.serializer.filters;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Assert;
 import junit.framework.TestCase;
 
+import org.junit.Assert;
+
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.NameFilter;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 
-public class NameFilterTest_byte extends TestCase {
+public class NameFilterTest extends TestCase {
 
     public void test_namefilter() throws Exception {
         NameFilter filter = new NameFilter() {
 
             public String process(Object source, String name, Object value) {
-                if (value != null) {
-                    Assert.assertTrue(value instanceof Byte);
-                }
-                
                 if (name.equals("id")) {
                     return "ID";
                 }
@@ -58,23 +57,39 @@ public class NameFilterTest_byte extends TestCase {
         serializer.getNameFilters().add(filter);
 
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put("id", (byte) 0);
+        map.put("id", 0);
         serializer.write(map);
 
         String text = out.toString();
         Assert.assertEquals("{\"ID\":0}", text);
     }
+    
+    public static void test_toJSONString() throws Exception {
+        NameFilter filter = new NameFilter() {
+
+            public String process(Object source, String name, Object value) {
+                if (name.equals("id")) {
+                    return "ID";
+                }
+
+                return name;
+            }
+
+        };
+        
+        Assert.assertEquals("{\"ID\":0}", JSON.toJSONString(Collections.singletonMap("id", 0), filter));
+    }
 
     public static class Bean {
 
-        private byte    id;
+        private int    id;
         private String name;
 
-        public byte getId() {
+        public int getId() {
             return id;
         }
 
-        public void setId(byte id) {
+        public void setId(int id) {
             this.id = id;
         }
 

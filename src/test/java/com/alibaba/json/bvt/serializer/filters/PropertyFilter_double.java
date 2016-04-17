@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt.serializer;
+package com.alibaba.json.bvt.serializer.filters;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +10,7 @@ import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.PropertyFilter;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 
-public class PropertyFilter_float extends TestCase {
+public class PropertyFilter_double extends TestCase {
 
     public void test_0() throws Exception {
         PropertyFilter filter = new PropertyFilter() {
@@ -36,7 +36,7 @@ public class PropertyFilter_float extends TestCase {
 
             public boolean apply(Object source, String name, Object value) {
                 if ("id".equals(name)) {
-                    Assert.assertTrue(value instanceof Float);
+                    Assert.assertTrue(value instanceof Double);
                     return true;
                 }
                 return false;
@@ -126,14 +126,14 @@ public class PropertyFilter_float extends TestCase {
 
     public static class A {
 
-        private float    id;
+        private double    id;
         private String name;
 
-        public float getId() {
+        public double getId() {
             return id;
         }
 
-        public void setId(float id) {
+        public void setId(double id) {
             this.id = id;
         }
 

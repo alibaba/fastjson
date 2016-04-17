@@ -29,7 +29,6 @@ public class DefaultJSONParserTest extends TestCase {
 	public void test_double() {
 		DefaultJSONParser parser = new DefaultJSONParser("3.4");
 		parser.config(Feature.UseBigDecimal, false);
-		Assert.assertEquals("3.4", parser.getInput());
 		Assert.assertEquals(false, parser.lexer.isEnabled(Feature.UseBigDecimal));
 		Object result = parser.parse();
 		Assert.assertEquals(3.4D, result);
@@ -38,7 +37,6 @@ public class DefaultJSONParserTest extends TestCase {
 	public void test_double_in_object() {
 		DefaultJSONParser parser = new DefaultJSONParser("{\"double\":3.4}");
 		parser.config(Feature.UseBigDecimal, false);
-		Assert.assertEquals("{\"double\":3.4}", parser.getInput());
 		Object result = parser.parse();
 		Assert.assertEquals(3.4D, ((Map) result).get("double"));
 	}

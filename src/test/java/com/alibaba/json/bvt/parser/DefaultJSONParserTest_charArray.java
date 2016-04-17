@@ -12,6 +12,5 @@ public class DefaultJSONParserTest_charArray extends TestCase {
         char[] chars = text.toCharArray();
         DefaultJSONParser parser = new DefaultJSONParser(chars, chars.length, ParserConfig.getGlobalInstance(), 0);
         
-        Assert.assertEquals(text, parser.getInput());
     }
 }

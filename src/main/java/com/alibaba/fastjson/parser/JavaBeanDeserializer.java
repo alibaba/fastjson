@@ -83,7 +83,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             if (beanInfo.defaultConstructorParameterSize == 0) {
                 object = constructor.newInstance();
             } else {
-                object = constructor.newInstance(parser.context.object);
+                object = constructor.newInstance(parser.contex.object);
             }
         } catch (Exception e) {
             throw new JSONException("create instance error, class " + clazz.getName(), e);
@@ -171,7 +171,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             return null;
         }
 
-        ParseContext context = parser.context;
+        ParseContext context = parser.contex;
         if (object != null && context != null) {
             context = context.parent;
         }

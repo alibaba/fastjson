@@ -258,17 +258,7 @@ public class JSONReader implements Closeable {
         }
 
         readBefore();
-        Object object;
-        switch (context.state) {
-            case StartObject:
-            case PropertyValue:
-                object = parser.parseKey();
-                break;
-            default:
-                object = parser.parse();
-                break;
-        }
-
+        Object object = parser.parse();
         readAfter();
         return object;
     }

@@ -1167,11 +1167,10 @@ public final class JSONLexer {
                     bp += (offset - 1);
                     this.next();
                     matchStat = VALUE;
-                    return null;
                 } else {
                     matchStat = NOT_MATCH;
-                    return null;
                 }
+                return null;
             } else {
                 matchStat = NOT_MATCH;
                 return null;

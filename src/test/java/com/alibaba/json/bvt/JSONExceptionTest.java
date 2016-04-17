@@ -24,7 +24,7 @@ public class JSONExceptionTest extends TestCase {
 
     public void test_all() throws Exception {
         Assert.assertEquals("xxx", new JSONException("xxx").getMessage());
-        Assert.assertEquals(null, new JSONException().getMessage());
+        Assert.assertEquals(null, new JSONException(null).getMessage());
         Assert.assertEquals("xxx", new JSONException("xxx", new RuntimeException()).getMessage());
     }
 }

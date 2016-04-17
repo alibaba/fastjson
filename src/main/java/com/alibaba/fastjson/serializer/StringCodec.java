@@ -19,8 +19,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.JSONLexer;
-import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 
 /**
@@ -53,31 +51,6 @@ public class StringCodec implements ObjectSerializer, ObjectDeserializer {
     
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        return (T) deserialze(parser);
-    }
-    
-    @SuppressWarnings("unchecked")
-    public static <T> T deserialze(DefaultJSONParser parser) {
-        final JSONLexer lexer = parser.lexer;
-        int token = lexer.token();
-        if (token == JSONToken.LITERAL_STRING) {
-            String val = lexer.stringVal();
-            lexer.nextToken(JSONToken.COMMA);
-            return (T) val;
-        }
-        
-        if (token == JSONToken.LITERAL_INT) {
-            String val = lexer.numberString();
-            lexer.nextToken(JSONToken.COMMA);
-            return (T) val;
-        }
-
-        Object value = parser.parse();
-
-        if (value == null) {
-            return null;
-        }
-
-        return (T) value.toString();
+        return (T) parser.parseString();
     }
 }

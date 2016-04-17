@@ -63,11 +63,7 @@ public final class SerializeWriter extends Writer {
     }
 
     public SerializeWriter(SerializerFeature... features){
-        this(null, features);
-    }
-    
-    public SerializeWriter(Writer writer, SerializerFeature... features){
-        this (writer, 0, features);
+        this(null, 0, features);
     }
 
     public SerializeWriter(Writer writer, int featuresValue, SerializerFeature[] features){
@@ -496,8 +492,8 @@ public final class SerializeWriter extends Writer {
                             write('u');
                             write('0');
                             write('0');
-                            write(ASCII_CHARS[ch * 2]);
-                            write(ASCII_CHARS[ch * 2 + 1]);
+                            write(ascii_chars[ch * 2]);
+                            write(ascii_chars[ch * 2 + 1]);
                             continue;
                         }
 
@@ -613,8 +609,8 @@ public final class SerializeWriter extends Writer {
                     buf[i + 1] = 'u';
                     buf[i + 2] = '0';
                     buf[i + 3] = '0';
-                    buf[i + 4] = ASCII_CHARS[ch * 2];
-                    buf[i + 5] = ASCII_CHARS[ch * 2 + 1];
+                    buf[i + 4] = ascii_chars[ch * 2];
+                    buf[i + 5] = ascii_chars[ch * 2 + 1];
                     end += 5;
                     continue;
                 }
@@ -799,11 +795,7 @@ public final class SerializeWriter extends Writer {
     }
 
     public void write(boolean value) {
-        if (value) {
-            write("true");
-        } else {
-            write("false");
-        }
+        write(value ? "true" : "false");
     }
 
     public void writeString(String text) {
@@ -1124,15 +1116,15 @@ public final class SerializeWriter extends Writer {
         try {
             writer.write(buf, 0, count);
             writer.flush();
+            count = 0;
         } catch (IOException e) {
             throw new JSONException(e.getMessage(), e);
         }
-        count = 0;
     }
     
     final static int[]  sizeTable = { 9, 99, 999, 9999, 99999, 999999, 9999999, 99999999, 999999999, Integer.MAX_VALUE };
 
-    public static void getChars(long i, int index, char[] buf) {
+    protected static void getChars(long i, int index, char[] buf) {
         long q;
         int r;
         int charPos = index;
@@ -1198,7 +1190,7 @@ public final class SerializeWriter extends Writer {
             '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', };
 
 
-    final static char[]    ASCII_CHARS                = { '0', '0', '0', '1', '0', '2', '0', '3', '0', '4', '0',
+    final static char[]    ascii_chars                = { '0', '0', '0', '1', '0', '2', '0', '3', '0', '4', '0',
                                                                  '5', '0', '6', '0', '7', '0', '8', '0', '9', '0', 'A', '0', 'B', '0', 'C', '0', 'D', '0', 'E', '0', 'F',
                                                                  '1', '0', '1', '1', '1', '2', '1', '3', '1', '4', '1', '5', '1', '6', '1', '7', '1', '8', '1', '9', '1',
                                                                  'A', '1', 'B', '1', 'C', '1', 'D', '1', 'E', '1', 'F', '2', '0', '2', '1', '2', '2', '2', '3', '2', '4',

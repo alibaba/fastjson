@@ -144,7 +144,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     @SuppressWarnings("unchecked")
     public static final <T> T parseObject(String text, TypeReference<T> type, Feature... features) {
-        return (T) parseObject(text, type.getType(), ParserConfig.global, DEFAULT_PARSER_FEATURE, features);
+        return (T) parseObject(text, type.type, ParserConfig.global, DEFAULT_PARSER_FEATURE, features);
     }
 
     @SuppressWarnings("unchecked")

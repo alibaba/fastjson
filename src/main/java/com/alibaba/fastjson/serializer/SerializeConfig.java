@@ -73,11 +73,7 @@ public class SerializeConfig {
     }
 
     public SerializeConfig(){
-        this(1024);
-    }
-
-    public SerializeConfig(int tableSize){
-        serializers = new IdentityHashMap<ObjectSerializer>(tableSize);
+        serializers = new IdentityHashMap<ObjectSerializer>(1024);
 
         serializers.put(Boolean.class, BooleanCodec.instance);
         serializers.put(Character.class, MiscCodec.instance);

@@ -877,7 +877,7 @@ public class DefaultJSONParser implements Closeable {
                     fieldValue = IntegerCodec.instance.deserialze(this, fieldType, null);
                 } else if (fieldClass == String.class) {
                     lexer.nextTokenWithChar(':');
-                    fieldValue = StringCodec.deserialze(this);
+                    fieldValue = parseString();
                 } else if (fieldClass == long.class) {
                     lexer.nextTokenWithChar(':');
                     fieldValue = IntegerCodec.instance.deserialze(this, fieldType, null);
@@ -1392,6 +1392,29 @@ public class DefaultJSONParser implements Closeable {
             }
             fieldDeser.setValue(object, refValue);
         }
+    }
+    
+    public String parseString() {
+        int token = lexer.token;
+        if (token == JSONToken.LITERAL_STRING) {
+            String val = lexer.stringVal();
+            lexer.nextToken(JSONToken.COMMA);
+            return val;
+        }
+        
+        if (token == JSONToken.LITERAL_INT) {
+            String val = lexer.numberString();
+            lexer.nextToken(JSONToken.COMMA);
+            return val;
+        }
+
+        Object value = parse();
+
+        if (value == null) {
+            return null;
+        }
+
+        return value.toString();
     }
 
     public static class ResolveTask {

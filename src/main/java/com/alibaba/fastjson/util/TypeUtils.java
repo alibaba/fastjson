@@ -136,11 +136,8 @@ public class TypeUtils {
 
         if (value instanceof String) {
             String strVal = (String) value;
-            if (strVal.length() == 0) {
-                return null;
-            }
-            
-            if ("null".equals(strVal)) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal)) {
                 return null;
             }
             
@@ -164,11 +161,8 @@ public class TypeUtils {
         }
 
         String strVal = value.toString();
-        if (strVal.length() == 0) {
-            return null;
-        }
-        
-        if ("null".equals(strVal)) {
+        if (strVal.length() == 0 //
+            || "null".equals(strVal)) {
             return null;
         }
 
@@ -189,7 +183,8 @@ public class TypeUtils {
         }
 
         String strVal = value.toString();
-        if (strVal.length() == 0) {
+        if (strVal.length() == 0 //
+            || "null".equals(strVal)) {
             return null;
         }
 
@@ -207,11 +202,8 @@ public class TypeUtils {
 
         if (value instanceof String) {
             String strVal = value.toString();
-            if (strVal.length() == 0) {
-                return null;
-            }
-            
-            if ("null".equals(strVal)) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal)) {
                 return null;
             }
 
@@ -232,11 +224,8 @@ public class TypeUtils {
 
         if (value instanceof String) {
             String strVal = value.toString();
-            if (strVal.length() == 0) {
-                return null;
-            }
-            
-            if ("null".equals(strVal)) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal)) {
                 return null;
             }
             
@@ -289,7 +278,8 @@ public class TypeUtils {
                 }
             }
 
-            if (strVal.length() == 0) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal)) {
                 return null;
             }
 
@@ -314,11 +304,8 @@ public class TypeUtils {
 
         if (value instanceof String) {
             String strVal = (String) value;
-            if (strVal.length() == 0) {
-                return null;
-            }
-            
-            if ("null".equals(strVal)) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal)) {
                 return null;
             }
 
@@ -358,11 +345,8 @@ public class TypeUtils {
 
         if (value instanceof String) {
             String strVal = (String) value;
-            if (strVal.length() == 0) {
-                return null;
-            }
-            
-            if ("null".equals(strVal)) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal)) {
                 return null;
             }
 
@@ -398,27 +382,18 @@ public class TypeUtils {
 
         if (value instanceof String) {
             String strVal = (String) value;
-            if (strVal.length() == 0) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal)) {
                 return null;
             }
 
-            if ("true".equalsIgnoreCase(strVal)) {
+            if ("true".equalsIgnoreCase(strVal) //
+                    || "1".equals(strVal)) {
                 return Boolean.TRUE;
             }
-            if ("false".equalsIgnoreCase(strVal)) {
+            if ("false".equalsIgnoreCase(strVal) //
+                || "0".equals(strVal)) {
                 return Boolean.FALSE;
-            }
-
-            if ("1".equals(strVal)) {
-                return Boolean.TRUE;
-            }
-            
-            if ("0".equals(strVal)) {
-                return Boolean.FALSE;
-            }
-            
-            if ("null".equals(strVal)) {
-                return null;
             }
         }
 
@@ -550,7 +525,8 @@ public class TypeUtils {
 
         if (obj instanceof String) {
             String strVal = (String) obj;
-            if (strVal.length() == 0) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal)) {
                 return null;
             }
             
@@ -574,14 +550,9 @@ public class TypeUtils {
                 }
             } else if (obj instanceof Number) {
                 int ordinal = ((Number) obj).intValue();
-
-                Method method = clazz.getMethod("values");
-                Object[] values = (Object[]) method.invoke(null);
-                for (Object value : values) {
-                    Enum e = (Enum) value;
-                    if (e.ordinal() == ordinal) {
-                        return (T) e;
-                    }
+                Object[] values = clazz.getEnumConstants();
+                if (ordinal < values.length) {
+                    return (T) values[ordinal];
                 }
             }
         } catch (Exception ex) {
@@ -607,7 +578,8 @@ public class TypeUtils {
 
         if (obj instanceof String) {
             String strVal = (String) obj;
-            if (strVal.length() == 0) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal)) {
                 return null;
             }
         }
@@ -669,7 +641,8 @@ public class TypeUtils {
 
         if (obj instanceof String) {
             String strVal = (String) obj;
-            if (strVal.length() == 0) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal)) {
                 return null;
             }
         }
@@ -857,28 +830,14 @@ public class TypeUtils {
                 String methodName = method.getName();
                 int ordinal = 0, serialzeFeatures = 0;
 
-                if ((method.getModifiers() & Modifier.STATIC) != 0) {
-                    continue;
-                }
-
-                if (method.getReturnType().equals(Void.TYPE)) {
-                    continue;
-                }
-
-                if (method.getParameterTypes().length != 0) {
-                    continue;
-                }
-
-                if (method.getReturnType() == ClassLoader.class) {
-                    continue;
-                }
-
-                if (method.getDeclaringClass() == Object.class) {
-                    continue;
-                }
-
-                if (methodName.equals("getMetaClass")
-                    && method.getReturnType().getName().equals("groovy.lang.MetaClass")) {
+                if ((method.getModifiers() & Modifier.STATIC) != 0 //
+                    || method.getReturnType().equals(Void.TYPE) //
+                    || method.getParameterTypes().length != 0 //
+                    || method.getReturnType() == ClassLoader.class //
+                    || method.getDeclaringClass() == Object.class //
+                    || (methodName.equals("getMetaClass") //
+                        && method.getReturnType().getName().equals("groovy.lang.MetaClass")) //
+                        ) {
                     continue;
                 }
 
@@ -914,11 +873,9 @@ public class TypeUtils {
                 }
 
                 if (methodName.startsWith("get")) {
-                    if (methodName.length() < 4) {
-                        continue;
-                    }
-
-                    if (methodName.equals("getClass")) {
+                    if (methodName.length() < 4 //
+                        || methodName.equals("getClass") //
+                            ) {
                         continue;
                     }
 
@@ -941,9 +898,7 @@ public class TypeUtils {
                         continue;
                     }
 
-                    boolean ignore = isJSONTypeIgnore(clazz, jsonType, propertyName);
-
-                    if (ignore) {
+                    if (isJSONTypeIgnore(clazz, jsonType, propertyName)) {
                         continue;
                     }
 
@@ -1147,13 +1102,15 @@ public class TypeUtils {
                     continue;
                 }
 
-                if (interfaceMethod.getParameterTypes().length != method.getParameterTypes().length) {
+                Class<?>[] interfaceParameterTypes = interfaceMethod.getParameterTypes();
+                Class<?>[] parameterTypes = method.getParameterTypes();
+                if (interfaceParameterTypes.length != parameterTypes.length) {
                     continue;
                 }
 
                 boolean match = true;
-                for (int i = 0; i < interfaceMethod.getParameterTypes().length; ++i) {
-                    if (!interfaceMethod.getParameterTypes()[i].equals(method.getParameterTypes()[i])) {
+                for (int i = 0; i < interfaceParameterTypes.length; ++i) {
+                    if (!interfaceParameterTypes[i].equals(parameterTypes[i])) {
                         match = false;
                         break;
                     }
@@ -1183,14 +1140,11 @@ public class TypeUtils {
         }
 
         Class<?> superClass = clazz.getSuperclass();
-        if (superClass != Object.class && superClass != null) {
-            JSONType superClassJsonType = superClass.getAnnotation(JSONType.class);
-            if (isJSONTypeIgnore(superClass, superClassJsonType, propertyName)) {
-                return true;
-            }
-        }
-
-        return false;
+        return superClass != Object.class //
+               && superClass != null //
+               && isJSONTypeIgnore(superClass, //
+                                   superClass.getAnnotation(JSONType.class), //
+                                   propertyName);
     }
     
     public static boolean isGenericParamType(Type type) {
@@ -1200,26 +1154,17 @@ public class TypeUtils {
         
         if (type instanceof Class) {
             Type superType = ((Class<?>) type).getGenericSuperclass();
-            if (superType == Object.class) {
-                return false;
-            }
-            
-            return isGenericParamType(superType);
+            return superType != Object.class //
+                    && isGenericParamType(superType);
         }
         
         return false;
     }
     
     public static Type getGenericParamType(Type type) {
-        if (type instanceof ParameterizedType) {
-            return type;
-        }
-        
-        if (type instanceof Class) {
-            return getGenericParamType(((Class<?>) type).getGenericSuperclass());
-        }
-        
-        return type;
+        return type instanceof Class //
+            ? getGenericParamType(((Class<?>) type).getGenericSuperclass()) //
+            : type;
     }
     
     public static Class<?> getClass(Type type) {
@@ -1232,39 +1177,39 @@ public class TypeUtils {
         }
         
         if (type instanceof TypeVariable) {
-            Type boundType = ((TypeVariable<?>) type).getBounds()[0];
-            return (Class<?>) boundType;
+            return (Class<?>) ((TypeVariable<?>) type).getBounds()[0];
         }
 
         return Object.class;
     }
     
     public static String decapitalize(String name) {
-        if (name == null || name.length() == 0) {
+        if (name == null //
+            || name.length() == 0 //
+            || (name.length() > 1 && Character.isUpperCase(name.charAt(1)) //
+                && Character.isUpperCase(name.charAt(0))) //
+        ) {
             return name;
         }
-        if (name.length() > 1 && Character.isUpperCase(name.charAt(1)) &&
-                Character.isUpperCase(name.charAt(0))){
-            return name;
-        }
+        
         char chars[] = name.toCharArray();
         chars[0] = Character.toLowerCase(chars[0]);
         return new String(chars);
     }
     
     public static boolean setAccessible(Class<?> clazz, Member member, int classMofifiers) {
-        if (member == null) {
+        if (member == null //
+            || !setAccessibleEnable //
+        ) {
             return false;
         }
         
-        if (!setAccessibleEnable) {
-            return false;
-        }
         Class<?> supperClass = clazz.getSuperclass();
         
         if ((supperClass == null || supperClass == Object.class) //
-                && (member.getModifiers() & Modifier.PUBLIC) != 0 // 
-                && (classMofifiers & Modifier.PUBLIC) != 0) {
+            && (member.getModifiers() & Modifier.PUBLIC) != 0 //
+            && (classMofifiers & Modifier.PUBLIC) != 0 //
+        ) {
             return false;
         }
         
@@ -1305,10 +1250,9 @@ public class TypeUtils {
         }
         
         Class<?> superClass = clazz.getSuperclass();
-        if (superClass != null && superClass != Object.class) {
-            return getField(superClass, fieldName, superClass.getDeclaredFields());
-        }
-
-        return null;
+        return superClass != null //
+               && superClass != Object.class //
+                   ? getField(superClass, fieldName, superClass.getDeclaredFields()) //
+                   : null;
     }
 }

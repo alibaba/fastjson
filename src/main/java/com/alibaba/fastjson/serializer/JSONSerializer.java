@@ -527,4 +527,42 @@ public class JSONSerializer {
 
         return true;
     }
+    
+    public void addFilter(SerializeFilter filter) {
+        if (filter == null) {
+            return;
+        }
+        
+        if (filter instanceof PropertyPreFilter) {
+            this.getPropertyPreFilters().add((PropertyPreFilter) filter);
+        }
+
+        if (filter instanceof NameFilter) {
+            this.getNameFilters().add((NameFilter) filter);
+        }
+
+        if (filter instanceof ValueFilter) {
+            this.getValueFilters().add((ValueFilter) filter);
+        }
+        
+        if (filter instanceof ContextValueFilter) {
+            this.getContextValueFilters().add((ContextValueFilter) filter);
+        }
+
+        if (filter instanceof PropertyFilter) {
+            this.getPropertyFilters().add((PropertyFilter) filter);
+        }
+
+        if (filter instanceof BeforeFilter) {
+            this.getBeforeFilters().add((BeforeFilter) filter);
+        }
+
+        if (filter instanceof AfterFilter) {
+            this.getAfterFilters().add((AfterFilter) filter);
+        }
+        
+        if (filter instanceof LabelFilter) {
+            this.getLabelFilters().add((LabelFilter) filter);
+        }
+    }
 }

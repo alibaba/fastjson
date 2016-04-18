@@ -31,10 +31,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     protected final Class<?>            clazz;
     public final JavaBeanInfo           beanInfo;
 
-    public JavaBeanDeserializer(ParserConfig config, Class<?> clazz){
-        this(config, clazz, clazz);
-    }
-
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz, Type type){
         this.clazz = clazz;
         beanInfo = JavaBeanInfo.build(clazz, type);

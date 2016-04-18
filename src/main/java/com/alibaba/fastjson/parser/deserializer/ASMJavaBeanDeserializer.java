@@ -13,7 +13,7 @@ public abstract class ASMJavaBeanDeserializer implements ObjectDeserializer {
     private JavaBeanDeserializer serializer;
 
     public ASMJavaBeanDeserializer(ParserConfig mapping, Class<?> clazz){
-        serializer = new JavaBeanDeserializer(mapping, clazz);
+        serializer = new JavaBeanDeserializer(mapping, clazz, clazz);
     }
 
     public abstract Object createInstance(DefaultJSONParser parser, Type type);

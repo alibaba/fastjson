@@ -36,7 +36,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
     private String                single_quoted_fieldPrefix;
     private String                un_quoted_fieldPrefix;
 
-    protected BeanContext    fieldContext;
+    protected BeanContext         fieldContext;
 
     private String                format;
     protected boolean             writeNumberAsZero       = false;

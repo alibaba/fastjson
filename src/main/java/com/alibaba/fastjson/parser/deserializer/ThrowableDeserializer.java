@@ -17,7 +17,7 @@ import com.alibaba.fastjson.util.TypeUtils;
 public class ThrowableDeserializer extends JavaBeanDeserializer {
 
     public ThrowableDeserializer(ParserConfig mapping, Class<?> clazz){
-        super(mapping, clazz);
+        super(mapping, clazz, clazz);
     }
 
     @SuppressWarnings("unchecked")

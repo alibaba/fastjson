@@ -207,18 +207,12 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
     }
 
     static class RuntimeSerializerInfo {
-
         ObjectSerializer fieldSerializer;
-
         Class<?>         runtimeFieldClass;
 
         public RuntimeSerializerInfo(ObjectSerializer fieldSerializer, Class<?> runtimeFieldClass){
-            super();
             this.fieldSerializer = fieldSerializer;
             this.runtimeFieldClass = runtimeFieldClass;
         }
-        
-        
-
     }
 }

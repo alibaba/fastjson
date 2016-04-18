@@ -41,17 +41,14 @@ public class LongCodec implements ObjectSerializer, ObjectDeserializer {
             } else {
                 out.writeNull();
             }
-            return;
-        }
-
-        long value = ((Long) object).longValue();
-        out.writeLong(value);
-
-        if (out.writeClassName) {
-            if (value <= Integer.MAX_VALUE && value >= Integer.MIN_VALUE) {
-                if (fieldType != Long.class) {
-                    out.write('L');
-                }
+        } else {
+            long value = ((Long) object).longValue();
+            out.writeLong(value);
+    
+            if (out.writeClassName //
+                && value <= Integer.MAX_VALUE && value >= Integer.MIN_VALUE //
+                && fieldType != Long.class) {
+                out.write('L');
             }
         }
     }
@@ -76,11 +73,9 @@ public class LongCodec implements ObjectSerializer, ObjectDeserializer {
             longObject = TypeUtils.castToLong(value);
         }
         
-        if (clazz == AtomicLong.class) {
-            return (T) new AtomicLong(longObject.longValue());
-        }
-        
-        return (T) longObject;
+        return clazz == AtomicLong.class //
+            ? (T) new AtomicLong(longObject.longValue()) //
+            : (T) longObject;
     }
 
     public int getFastMatchToken() {

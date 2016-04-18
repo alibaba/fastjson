@@ -28,31 +28,31 @@ public class ASMUtils {
         ;
     }
 
-    public static String getDesc(Method method) {   
+    public static String desc(Method method) {   
     	Class<?>[] types = method.getParameterTypes();
         StringBuilder buf = new StringBuilder((types.length + 1) << 4);
         buf.append('(');
         for (int i = 0; i < types.length; ++i) {
-            buf.append(getDesc(types[i]));
+            buf.append(desc(types[i]));
         }
         buf.append(')');
-        buf.append(getDesc(method.getReturnType()));
+        buf.append(desc(method.getReturnType()));
         return buf.toString();
     }
 
-    public static String getDesc(Class<?> returnType) {
+    public static String desc(Class<?> returnType) {
         if (returnType.isPrimitive()) {
             return getPrimitiveLetter(returnType);
         } else if (returnType.isArray()) {
-            return "[" + getDesc(returnType.getComponentType());
+            return "[" + desc(returnType.getComponentType());
         } else {
-            return "L" + getType(returnType) + ";";
+            return "L" + type(returnType) + ";";
         }
     }
 
-    public static String getType(Class<?> parameterType) {
+    public static String type(Class<?> parameterType) {
         if (parameterType.isArray()) {
-            return "[" + getDesc(parameterType.getComponentType());
+            return "[" + desc(parameterType.getComponentType());
         } else {
             if (!parameterType.isPrimitive()) {
                 String clsName = parameterType.getName();
@@ -62,6 +62,7 @@ public class ASMUtils {
             }
         }
     }
+    
 
     public static String getPrimitiveLetter(Class<?> type) {
         if (Integer.TYPE.equals(type)) {

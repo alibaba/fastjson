@@ -452,7 +452,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         } else {
             limit = -Long.MAX_VALUE;
         }
-        multmin = negative ? MULTMIN_RADIX_TEN : N_MULTMAX_RADIX_TEN;
+        multmin = MULTMIN_RADIX_TEN;
         if (i < max) {
             digit = digits[charAt(i++)];
             result = -digit;
@@ -1016,7 +1016,6 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         boolean negative = false;
         int i = np, max = np + sp;
         int limit;
-        int multmin;
         int digit;
 
         if (charAt(np) == '-') {
@@ -1026,7 +1025,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         } else {
             limit = -Integer.MAX_VALUE;
         }
-        multmin = negative ? INT_MULTMIN_RADIX_TEN : INT_N_MULTMAX_RADIX_TEN;
+        long multmin = INT_MULTMIN_RADIX_TEN;
         if (i < max) {
             digit = digits[charAt(i++)];
             result = -digit;
@@ -2918,7 +2917,6 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         long result = 0;
         boolean negative = false;
         long limit;
-        long multmin;
         int digit;
 
         if (np == -1) {
@@ -2934,7 +2932,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         } else {
             limit = -Long.MAX_VALUE;
         }
-        multmin = negative ? MULTMIN_RADIX_TEN : N_MULTMAX_RADIX_TEN;
+        long multmin = MULTMIN_RADIX_TEN;
         if (i < max) {
             digit = digits[charAt(i++)];
             result = -digit;
@@ -2973,12 +2971,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         char chLocal = charAt(np + sp - 1);
         if (chLocal == 'F') {
             return Float.parseFloat(numberString());
-            // return Float.parseFloat(new String(buf, np, sp - 1));
         }
 
         if (chLocal == 'D') {
             return Double.parseDouble(numberString());
-            // return Double.parseDouble(new String(buf, np, sp - 1));
         }
 
         if (decimal) {
@@ -2998,10 +2994,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     }
 
     protected static final long  MULTMIN_RADIX_TEN       = Long.MIN_VALUE / 10;
-    protected static final long  N_MULTMAX_RADIX_TEN     = -Long.MAX_VALUE / 10;
-
     protected static final int   INT_MULTMIN_RADIX_TEN   = Integer.MIN_VALUE / 10;
-    protected static final int   INT_N_MULTMAX_RADIX_TEN = -Integer.MAX_VALUE / 10;
 
     protected final static int[] digits                  = new int[(int) 'f' + 1];
 

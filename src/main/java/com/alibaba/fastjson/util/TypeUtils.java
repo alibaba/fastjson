@@ -112,11 +112,9 @@ public class TypeUtils {
 
         if (value instanceof String) {
             String strVal = (String) value;
-            if (strVal.length() == 0) {
-                return null;
-            }
-
-            if ("null".equals(strVal) || "NULL".equals(strVal)) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal) //
+                || "NULL".equals(strVal)) {
                 return null;
             }
 
@@ -164,11 +162,9 @@ public class TypeUtils {
         if (value instanceof String) {
             String strVal = (String) value;
 
-            if (strVal.length() == 0) {
-                return null;
-            }
-
-            if ("null".equals(strVal) || "NULL".equals(strVal)) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal) //
+                || "NULL".equals(strVal)) {
                 return null;
             }
 
@@ -213,7 +209,9 @@ public class TypeUtils {
         }
 
         String strVal = value.toString();
-        if (strVal.length() == 0) {
+        if (strVal.length() == 0 //
+            || "null".equals(strVal) //
+            || "NULL".equals(strVal)) {
             return null;
         }
 
@@ -231,11 +229,9 @@ public class TypeUtils {
 
         if (value instanceof String) {
             String strVal = value.toString();
-            if (strVal.length() == 0) {
-                return null;
-            }
-
-            if ("null".equals(strVal) || "NULL".equals(strVal)) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal) //
+                || "NULL".equals(strVal)) {
                 return null;
             }
             
@@ -260,11 +256,9 @@ public class TypeUtils {
 
         if (value instanceof String) {
             String strVal = value.toString();
-            if (strVal.length() == 0) {
-                return null;
-            }
-
-            if ("null".equals(strVal) || "NULL".equals(strVal)) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal) //
+                || "NULL".equals(strVal)) {
                 return null;
             }
 
@@ -402,7 +396,9 @@ public class TypeUtils {
 
         if (value instanceof String) {
             String strVal = (String) value;
-            if (strVal.length() == 0) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal) //
+                || "NULL".equals(strVal)) {
                 return null;
             }
 
@@ -441,7 +437,9 @@ public class TypeUtils {
 
         if (value instanceof String) {
             String strVal = (String) value;
-            if (strVal.length() == 0) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal) //
+                || "NULL".equals(strVal)) {
                 return null;
             }
 
@@ -466,11 +464,9 @@ public class TypeUtils {
 
         if (value instanceof String) {
             String strVal = (String) value;
-            if (strVal.length() == 0) {
-                return null;
-            }
-
-            if ("null".equals(strVal) || "NULL".equals(strVal)) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal) //
+                || "NULL".equals(strVal)) {
                 return null;
             }
             
@@ -515,11 +511,9 @@ public class TypeUtils {
         if (value instanceof String) {
             String strVal = (String) value;
 
-            if (strVal.length() == 0) {
-                return null;
-            }
-
-            if ("null".equals(strVal) || "NULL".equals(strVal)) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal) //
+                || "NULL".equals(strVal)) {
                 return null;
             }
             
@@ -564,27 +558,20 @@ public class TypeUtils {
         if (value instanceof String) {
             String strVal = (String) value;
 
-            if (strVal.length() == 0) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal) //
+                || "NULL".equals(strVal)) {
                 return null;
             }
 
-            if ("true".equalsIgnoreCase(strVal)) {
+            if ("true".equalsIgnoreCase(strVal) //
+                || "1".equals(strVal)) {
                 return Boolean.TRUE;
             }
-            if ("false".equalsIgnoreCase(strVal)) {
+            
+            if ("false".equalsIgnoreCase(strVal) //
+                || "0".equals(strVal)) {
                 return Boolean.FALSE;
-            }
-
-            if ("1".equals(strVal)) {
-                return Boolean.TRUE;
-            }
-
-            if ("0".equals(strVal)) {
-                return Boolean.FALSE;
-            }
-
-            if ("null".equals(strVal) || "NULL".equals(strVal)) {
-                return null;
             }
         }
 
@@ -725,7 +712,9 @@ public class TypeUtils {
         if (obj instanceof String) {
             String strVal = (String) obj;
 
-            if (strVal.length() == 0) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal) //
+                || "NULL".equals(strVal)) {
                 return null;
             }
 
@@ -779,7 +768,9 @@ public class TypeUtils {
 
         if (obj instanceof String) {
             String strVal = (String) obj;
-            if (strVal.length() == 0) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal) //
+                || "NULL".equals(strVal)) {
                 return null;
             }
         }

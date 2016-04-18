@@ -36,7 +36,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
     private String                single_quoted_fieldPrefix;
     private String                un_quoted_fieldPrefix;
 
-    protected SerializeContext    fieldContext;
+    protected BeanContext    fieldContext;
 
     private String                format;
     protected boolean             writeNumberAsZero       = false;
@@ -50,7 +50,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
     
     public FieldSerializer(Class<?> beanType, FieldInfo fieldInfo){
         this.fieldInfo = fieldInfo;
-        this.fieldContext = new SerializeContext(beanType, fieldInfo);
+        this.fieldContext = new BeanContext(beanType, fieldInfo);
         
         fieldInfo.setAccessible();
 

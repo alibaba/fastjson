@@ -11,12 +11,12 @@ import com.alibaba.fastjson.util.FieldInfo;
  * @since 1.2.9
  *
  */
-public final class SerializeContext {
+public final class BeanContext {
 
     private final Class<?>  beanClass;
     private final FieldInfo fieldInfo;
 
-    SerializeContext(Class<?> beanClass, FieldInfo fieldInfo){
+    BeanContext(Class<?> beanClass, FieldInfo fieldInfo){
         this.beanClass = beanClass;
         this.fieldInfo = fieldInfo;
     }

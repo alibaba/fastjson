@@ -140,8 +140,9 @@ public class ASMSerializerFactory implements Opcodes {
         }
 
         String className = "ASMSerializer_" + seed.incrementAndGet() + "_" + clazz.getSimpleName();
-        String classNameType = "com/alibaba/fastjson/serializer/" + className;
-        String classNameFull = "com.alibaba.fastjson.serializer." + className;
+        String packageName = ASMSerializerFactory.class.getPackage().getName();
+        String classNameType = packageName.replace('.', '/') + "/" + className;
+        String classNameFull = packageName + "." + className;
         int beanSerializeFeatures = TypeUtils.getSerializeFeatures(clazz);
 
         ClassWriter cw = new ClassWriter();

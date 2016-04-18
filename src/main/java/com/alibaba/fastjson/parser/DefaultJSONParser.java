@@ -350,8 +350,8 @@ public class DefaultJSONParser implements Closeable {
 
                         Object refValue = null;
                         if ("@".equals(ref)) {
-                            if (this.getContext() != null) {
-                                ParseContext thisContext = this.getContext();
+                            if (this.context != null) {
+                                ParseContext thisContext = this.context;
                                 Object thisObj = thisContext.object;
                                 if (thisObj instanceof Object[] || thisObj instanceof Collection<?>) {
                                     refValue = thisObj;
@@ -1167,10 +1167,6 @@ public class DefaultJSONParser implements Closeable {
         return resolveTaskList;
     }
 
-    public List<ResolveTask> getResolveTaskListDirect() {
-        return resolveTaskList;
-    }
-
     public void addResolveTask(ResolveTask task) {
         if (resolveTaskList == null) {
             resolveTaskList = new ArrayList<ResolveTask>(2);
@@ -1189,10 +1185,6 @@ public class DefaultJSONParser implements Closeable {
         return extraProcessors;
     }
 
-    public List<ExtraProcessor> getExtraProcessorsDirect() {
-        return extraProcessors;
-    }
-
     public List<ExtraTypeProvider> getExtraTypeProviders() {
         if (extraTypeProviders == null) {
             extraTypeProviders = new ArrayList<ExtraTypeProvider>(2);
@@ -1200,10 +1192,6 @@ public class DefaultJSONParser implements Closeable {
         return extraTypeProviders;
     }
 
-    public List<ExtraTypeProvider> getExtraTypeProvidersDirect() {
-        return extraTypeProviders;
-    }
-    
     public FieldTypeResolver getFieldTypeResolver() {
         return fieldTypeResolver;
     }
@@ -1475,40 +1463,27 @@ public class DefaultJSONParser implements Closeable {
     public void parseExtra(Object object, String key) {
         final JSONLexer lexer = this.lexer; // xxx
         lexer.nextTokenWithColon();
-        Type type = getExtratype(object, key);
+        Type type = null;
+        
+        if (extraTypeProviders != null) {
+            for (ExtraTypeProvider extraProvider : extraTypeProviders) {
+                type = extraProvider.getExtraType(object, key);
+            }
+        }
         Object value = type == null //
             ? parse() // skip
             : parseObject(type);
             
-        processExtra(object, key, value);
-    }
-    
-    public Type getExtratype(Object object, String key) {
-        List<ExtraTypeProvider> extraTypeProviders = this.extraTypeProviders;
-        if (extraTypeProviders == null) {
-            return null;
-        }
-
-        Type type = null;
-        for (ExtraTypeProvider extraProvider : extraTypeProviders) {
-            type = extraProvider.getExtraType(object, key);
-        }
-        return type;
-    }
-
-    public void processExtra(Object object, String key, Object value) {
         if (object instanceof ExtraProcessable) {
             ExtraProcessable extraProcessable = ((ExtraProcessable) object);
             extraProcessable.processExtra(key, value);
             return;
         }
-        
-        List<ExtraProcessor> extraProcessors = this.extraProcessors;
-        if (extraProcessors == null) {
-            return;
-        }
-        for (ExtraProcessor process : extraProcessors) {
-            process.processExtra(object, key, value);
+
+        if (extraProcessors != null) {
+            for (ExtraProcessor process : extraProcessors) {
+                process.processExtra(object, key, value);
+            }
         }
     }
 }

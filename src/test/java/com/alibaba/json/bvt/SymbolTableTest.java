@@ -3,7 +3,7 @@ package com.alibaba.json.bvt;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
-import org.codehaus.jackson.sym.CharsToNameCanonicalizer;
+import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
 
 import com.alibaba.fastjson.parser.SymbolTable;
 

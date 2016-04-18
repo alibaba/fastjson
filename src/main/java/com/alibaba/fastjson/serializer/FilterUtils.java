@@ -24,7 +24,11 @@ public class FilterUtils {
         return seperator;
     }
     
-    public static Object processValue(JSONSerializer serializer, Object object, String key, boolean propertyValueBool) {
+    public static Object processValue(JSONSerializer serializer, // 
+                                      JavaBeanSerializer javaBeanDeser, //
+                                      Object object, // 
+                                      String key, //
+                                      boolean propertyValueBool) {
         List<ValueFilter> valueFilters = serializer.valueFilters;
         
         Object propertyValue = null;
@@ -44,7 +48,11 @@ public class FilterUtils {
         return propertyValue;
     }
     
-    public static Object processValue(JSONSerializer serializer, Object object, String key, byte propertyValueInt) {
+    public static Object processValue(JSONSerializer serializer, // 
+                                      JavaBeanSerializer javaBeanDeser, //
+                                      Object object, // 
+                                      String key, // 
+                                      byte propertyValueInt) {
         List<ValueFilter> valueFilters = serializer.valueFilters;
         
         Object propertyValue = null;
@@ -64,7 +72,11 @@ public class FilterUtils {
         return propertyValue;
     }
     
-    public static Object processValue(JSONSerializer serializer, Object object, String key, short propertyValueInt) {
+    public static Object processValue(JSONSerializer serializer, // 
+                                      JavaBeanSerializer javaBeanDeser, //
+                                      Object object, //
+                                      String key, //
+                                      short propertyValueInt) {
         List<ValueFilter> valueFilters = serializer.valueFilters;
         
         Object propertyValue = null;
@@ -84,7 +96,11 @@ public class FilterUtils {
         return propertyValue;
     }
     
-    public static Object processValue(JSONSerializer serializer, Object object, String key, int propertyValueInt) {
+    public static Object processValue(JSONSerializer serializer, //
+                                      JavaBeanSerializer javaBeanDeser, //
+                                      Object object, // 
+                                      String key, //
+                                      int propertyValueInt) {
         List<ValueFilter> valueFilters = serializer.valueFilters;
         
         Object propertyValue = null;
@@ -104,7 +120,11 @@ public class FilterUtils {
         return propertyValue;
     }
     
-    public static Object processValue(JSONSerializer serializer, Object object, String key, long propertyValueLong) {
+    public static Object processValue(JSONSerializer serializer, //
+                                      JavaBeanSerializer javaBeanDeser, //
+                                      Object object, //
+                                      String key, // 
+                                      long propertyValueLong) {
         List<ValueFilter> valueFilters = serializer.valueFilters;
         
         Object propertyValue = null;
@@ -124,7 +144,11 @@ public class FilterUtils {
         return propertyValue;
     }
     
-    public static Object processValue(JSONSerializer serializer, Object object, String key, float propertyValueFloat) {
+    public static Object processValue(JSONSerializer serializer, // 
+                                      JavaBeanSerializer javaBeanDeser, //
+                                      Object object, // 
+                                      String key, //
+                                      float propertyValueFloat) {
         List<ValueFilter> valueFilters = serializer.valueFilters;
         
         Object propertyValue = null;
@@ -144,7 +168,11 @@ public class FilterUtils {
         return propertyValue;
     }
     
-    public static Object processValue(JSONSerializer serializer, Object object, String key, double propertyValueDouble) {
+    public static Object processValue(JSONSerializer serializer, // 
+                                      JavaBeanSerializer javaBeanDeser, //
+                                      Object object, // 
+                                      String key, // 
+                                      double propertyValueDouble) {
         List<ValueFilter> valueFilters = serializer.valueFilters;
         
         Object propertyValue = null;
@@ -164,7 +192,11 @@ public class FilterUtils {
         return propertyValue;
     }
 
-    public static Object processValue(JSONSerializer serializer, Object object, String key, Object propertyValue) {
+    public static Object processValue(JSONSerializer serializer, // 
+                                      JavaBeanSerializer javaBeanDeser, //
+                                      Object object, // 
+                                      String key, // 
+                                      Object propertyValue) {
         
         if (propertyValue != null // 
                 && serializer.out.writeNonStringValueAsString) {
@@ -179,10 +211,17 @@ public class FilterUtils {
                 propertyValue = valueFilter.process(object, key, propertyValue);
             }
         }
+        
+        List<ContextValueFilter> contextValueFilters = serializer.contextValueFilters;
+        if (contextValueFilters != null) {
+            for (ContextValueFilter valueFilter : contextValueFilters) {
+                propertyValue = valueFilter.process(null, object, key, propertyValue);
+            }
+        }
 
         return propertyValue;
     }
-
+    
     public static String processKey(JSONSerializer serializer, Object object, String key, Object propertyValue) {
         List<NameFilter> nameFilters = serializer.nameFilters;
         if (nameFilters != null) {

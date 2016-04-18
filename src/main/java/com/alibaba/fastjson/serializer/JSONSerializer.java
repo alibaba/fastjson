@@ -29,6 +29,7 @@ import java.util.TimeZone;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.util.FieldInfo;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -46,6 +47,7 @@ public class JSONSerializer {
     protected List<NameFilter>                       nameFilters        = null;
     protected List<PropertyPreFilter>                propertyPreFilters = null;
     protected List<LabelFilter>                      labelFilters       = null;
+    protected List<ContextValueFilter>               contextValueFilters = null;
 
     private int                                      indentCount        = 0;
     private String                                   indent             = "\t";
@@ -208,6 +210,14 @@ public class JSONSerializer {
         }
 
         return valueFilters;
+    }
+    
+    public List<ContextValueFilter> getContextValueFilters() {
+        if (contextValueFilters == null) {
+            contextValueFilters = new ArrayList<ContextValueFilter>();
+        }
+        
+        return contextValueFilters;
     }
 
     public int getIndentCount() {
@@ -399,10 +409,15 @@ public class JSONSerializer {
                 && beforeFilters == null
                 && afterFilters == null
                 && valueFilters == null //
+                && contextValueFilters == null //
                 && propertyFilters == null //
                 && nameFilters == null
                 && propertyPreFilters == null
                 && labelFilters == null
                 ;
+    }
+    
+    public FieldInfo getFieldInfo() {
+        return null;
     }
 }

@@ -281,7 +281,7 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitVarInsn(ASTORE, context.var("entity")); // obj
             generateWriteMethod(clazz, mw, getters, context);
             mw.visitInsn(RETURN);
-            mw.visitMaxs(6, context.variantIndex + 1);
+            mw.visitMaxs(7, context.variantIndex + 2);
             mw.visitEnd();
         }
 
@@ -306,7 +306,7 @@ public class ASMSerializerFactory implements Opcodes {
             generateWriteMethod(clazz, mw, unsortedGetters, context);
 
             mw.visitInsn(RETURN);
-            mw.visitMaxs(6, context.variantIndex + 1);
+            mw.visitMaxs(7, context.variantIndex + 2);
             mw.visitEnd();
         }
 
@@ -329,7 +329,7 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitVarInsn(ASTORE, context.var("entity")); // obj
             generateWriteAsArray(clazz, mw, getters, context);
             mw.visitInsn(RETURN);
-            mw.visitMaxs(6, context.variantIndex + 1);
+            mw.visitMaxs(7, context.variantIndex + 2);
             mw.visitEnd();
         }
 
@@ -1457,6 +1457,8 @@ public class ASMSerializerFactory implements Opcodes {
         Class<?> propertyClass = property.fieldClass;
 
         mw.visitVarInsn(ALOAD, Context.serializer);
+        mw.visitVarInsn(ALOAD, 0);
+        mw.visitFieldInsn(GETFIELD, context.className, "nature", JavaBeanSerializer_desc);
         mw.visitVarInsn(ALOAD, Context.obj);
         mw.visitVarInsn(ALOAD, Context.fieldName);
 
@@ -1526,7 +1528,7 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitMethodInsn(INVOKESTATIC,
                            FilterUtils,
                            "processValue",
-                           "(L" + JSONSerializer + ";Ljava/lang/Object;Ljava/lang/String;" + valueDesc + ")Ljava/lang/Object;");
+                           "(L" + JSONSerializer + ";" + JavaBeanSerializer_desc + "Ljava/lang/Object;Ljava/lang/String;" + valueDesc + ")Ljava/lang/Object;");
 
         mw.visitVarInsn(ASTORE, Context.processValue);
     }

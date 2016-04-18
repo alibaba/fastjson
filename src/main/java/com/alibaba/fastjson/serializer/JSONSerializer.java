@@ -420,4 +420,34 @@ public class JSONSerializer {
     public FieldInfo getFieldInfo() {
         return null;
     }
+    
+    public Object processValue(JavaBeanSerializer javaBeanDeser, //
+                                      Object object, // 
+                                      String key, // 
+                                      Object propertyValue) {
+        
+        if (propertyValue != null // 
+                && out.writeNonStringValueAsString) {
+            if (propertyValue instanceof Number || propertyValue instanceof Boolean) {
+                propertyValue = propertyValue.toString();
+            }
+        }
+        
+        List<ValueFilter> valueFilters = this.valueFilters;
+        if (valueFilters != null) {
+            for (ValueFilter valueFilter : valueFilters) {
+                propertyValue = valueFilter.process(object, key, propertyValue);
+            }
+        }
+        
+        List<ContextValueFilter> contextValueFilters = this.contextValueFilters;
+        if (contextValueFilters != null) {
+            SerilaizeContext fieldContext = javaBeanDeser.getFieldSerializer(key).fieldContext;
+            for (ContextValueFilter valueFilter : contextValueFilters) {
+                propertyValue = valueFilter.process(fieldContext, object, key, propertyValue);
+            }
+        }
+
+        return propertyValue;
+    }
 }

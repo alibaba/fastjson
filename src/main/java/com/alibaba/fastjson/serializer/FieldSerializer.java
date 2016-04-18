@@ -35,12 +35,12 @@ public abstract class FieldSerializer implements Comparable<FieldSerializer> {
     private String          single_quoted_fieldPrefix;
     private String          un_quoted_fieldPrefix;
     
-    protected FieldContext    fieldContext;
+    protected SerilaizeContext    fieldContext;
 
     public FieldSerializer(FieldInfo fieldInfo){
         super();
         this.fieldInfo = fieldInfo;
-        this.fieldContext = new FieldContext(fieldInfo);
+        this.fieldContext = new SerilaizeContext(fieldInfo);
         fieldInfo.setAccessible();
 
         this.double_quoted_fieldPrefix = '"' + fieldInfo.name + "\":";

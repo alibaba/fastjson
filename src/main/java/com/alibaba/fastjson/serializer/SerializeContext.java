@@ -3,6 +3,7 @@ package com.alibaba.fastjson.serializer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 
 import com.alibaba.fastjson.util.FieldInfo;
 
@@ -38,6 +39,14 @@ public final class SerializeContext {
     
     public String getLabel() {
         return fieldInfo.label;
+    }
+    
+    public Class<?> getFieldClass() {
+        return fieldInfo.fieldClass;
+    }
+    
+    public Type getFieldType() {
+        return fieldInfo.fieldType;
     }
     
     public int getFeatures() {

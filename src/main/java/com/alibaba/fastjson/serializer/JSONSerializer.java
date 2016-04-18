@@ -452,7 +452,7 @@ public class JSONSerializer {
         
         List<ContextValueFilter> contextValueFilters = this.contextValueFilters;
         if (contextValueFilters != null) {
-            SerializeContext fieldContext = javaBeanDeser.getFieldSerializer(key).fieldContext;
+            BeanContext fieldContext = javaBeanDeser.getFieldSerializer(key).fieldContext;
             for (ContextValueFilter valueFilter : contextValueFilters) {
                 propertyValue = valueFilter.process(fieldContext, object, key, propertyValue);
             }

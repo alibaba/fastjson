@@ -5,5 +5,5 @@ package com.alibaba.fastjson.serializer;
  *
  */
 public interface ContextValueFilter extends SerializeFilter {
-    Object process(SerializeContext context, Object object, String name, Object value);
+    Object process(BeanContext context, Object object, String name, Object value);
 }

@@ -2756,20 +2756,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                         putChar('\\');
                         break;
                     case 'x':
-                        char x1 = chLocal = next();
-                        char x2 = chLocal = next();
-
-                        int x_val = digits[x1] * 16 + digits[x2];
-                        char x_char = (char) x_val;
-                        putChar(x_char);
+                        putChar((char) (digits[next()] * 16 + digits[next()]));
                         break;
                     case 'u':
-                        char c1 = chLocal = next();
-                        char c2 = chLocal = next();
-                        char c3 = chLocal = next();
-                        char c4 = chLocal = next();
-                        int val = Integer.parseInt(new String(new char[] { c1, c2, c3, c4 }), 16);
-                        putChar((char) val);
+                        putChar((char) Integer.parseInt(new String(new char[] { next(), next(), next(), next() }), 16));
                         break;
                     default:
                         this.ch = chLocal;

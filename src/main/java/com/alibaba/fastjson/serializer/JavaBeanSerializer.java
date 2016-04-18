@@ -169,7 +169,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
             
             final boolean directWritePrefix = out.quoteFieldNames && !out.useSingleQuotes;
-            char newSeperator = FilterUtils.writeBefore(serializer, object, seperator);
+            char newSeperator = serializer.writeBefore(object, seperator);
             commaFlag = newSeperator == ',';
 
             final boolean skipTransient = out.skipTransientField;
@@ -483,7 +483,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 commaFlag = true;
             }
 
-            FilterUtils.writeAfter(serializer, object, commaFlag ? ',' : '\0');
+            serializer.writeAfter(object, commaFlag ? ',' : '\0');
 
             if (getters.length > 0 && out.prettyFormat) {
                 serializer.decrementIdent();

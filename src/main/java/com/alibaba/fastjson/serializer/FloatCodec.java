@@ -45,9 +45,8 @@ public class FloatCodec implements ObjectSerializer, ObjectDeserializer {
 
         float floatValue = ((Float) object).floatValue(); 
         
-        if (Float.isNaN(floatValue)) {
-            out.writeNull();
-        } else if (Float.isInfinite(floatValue)) {
+        if (Float.isNaN(floatValue) // 
+                || Float.isInfinite(floatValue)) {
             out.writeNull();
         } else {
             String floatText= Float.toString(floatValue);

@@ -51,12 +51,9 @@ public class CharArrayCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         Object value = parser.parse();
-
-        if (value == null) {
-            return null;
-        }
-
-        return (T) JSON.toJSONString(value).toCharArray();
+        return value == null //
+            ? null //
+            : (T) JSON.toJSONString(value).toCharArray();
     }
 
     public int getFastMatchToken() {

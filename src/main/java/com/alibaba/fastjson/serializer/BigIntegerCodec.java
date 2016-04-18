@@ -63,12 +63,9 @@ public class BigIntegerCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         Object value = parser.parse();
-
-        if (value == null) {
-            return null;
-        }
-
-        return (T) TypeUtils.castToBigInteger(value);
+        return value == null //
+            ? null //
+            : (T) TypeUtils.castToBigInteger(value);
     }
 
     public int getFastMatchToken() {

@@ -61,13 +61,13 @@ import com.alibaba.fastjson.util.TypeUtils;
  * @author wenshao[szujobs@hotmail.com]
  */
 public abstract class JSON implements JSONStreamAware, JSONAware {
-    public static TimeZone     defaultTimeZone  = TimeZone.getDefault();
-    public static Locale       defaultLocale    = Locale.getDefault();
-    
-    public static String DEFAULT_TYPE_KEY     = "@type";
+    public static TimeZone         defaultTimeZone  = TimeZone.getDefault();
+    public static Locale           defaultLocale    = Locale.getDefault();
 
-    public static int    DEFAULT_PARSER_FEATURE;
-    
+    public static String           DEFAULT_TYPE_KEY = "@type";
+
+    public static int              DEFAULT_PARSER_FEATURE;
+
     static final SerializeFilter[] emptyFilters     = new SerializeFilter[0];
 
 //    /**

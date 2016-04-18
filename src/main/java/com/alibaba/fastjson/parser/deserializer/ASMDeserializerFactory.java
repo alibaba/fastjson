@@ -42,12 +42,11 @@ import com.alibaba.fastjson.util.TypeUtils;
 public class ASMDeserializerFactory implements Opcodes {
 
     public final ASMClassLoader           classLoader;
-    protected final Map<String, Class<?>> classMap = new HashMap<String, Class<?>>();
-    protected final AtomicLong            seed     = new AtomicLong();
-    
-    final static String DefaultJSONParser = type(DefaultJSONParser.class);
-    final static String JSONLexerBase = type(JSONLexerBase.class);
-    final static String JSONToken = type(JSONToken.class);
+    protected final AtomicLong            seed              = new AtomicLong();
+
+    final static String                   DefaultJSONParser = type(DefaultJSONParser.class);
+    final static String                   JSONLexerBase     = type(JSONLexerBase.class);
+    final static String                   JSONToken         = type(JSONToken.class);
 
     public ASMDeserializerFactory(ClassLoader parentClassLoader){
         classLoader = parentClassLoader instanceof ASMClassLoader //
@@ -102,11 +101,7 @@ public class ASMDeserializerFactory implements Opcodes {
     }
 
     private Class<?> defineClassPublic(String name, byte[] b, int off, int len) {
-        if (classMap.containsKey(name)) {
-            return classMap.get(name);
-        } else {
-            return classLoader.defineClassPublic(name, b, off, len);
-        }
+        return classLoader.defineClassPublic(name, b, off, len);
     }
 
     void _setFlag(MethodVisitor mw, Context context, int i) {

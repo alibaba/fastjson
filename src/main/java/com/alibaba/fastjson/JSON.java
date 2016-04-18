@@ -41,19 +41,11 @@ import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
 import com.alibaba.fastjson.parser.deserializer.FieldTypeResolver;
 import com.alibaba.fastjson.parser.deserializer.ParseProcess;
-import com.alibaba.fastjson.serializer.AfterFilter;
-import com.alibaba.fastjson.serializer.BeforeFilter;
-import com.alibaba.fastjson.serializer.ContextValueFilter;
 import com.alibaba.fastjson.serializer.JSONSerializer;
-import com.alibaba.fastjson.serializer.LabelFilter;
-import com.alibaba.fastjson.serializer.NameFilter;
-import com.alibaba.fastjson.serializer.PropertyFilter;
-import com.alibaba.fastjson.serializer.PropertyPreFilter;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.alibaba.fastjson.serializer.ValueFilter;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.TypeUtils;
@@ -242,8 +234,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             return null;
         }
 
-        for (Feature feature : features) {
-            featureValues = Feature.config(featureValues, feature, true);
+        if (features != null) {
+            for (Feature feature : features) {
+                featureValues = Feature.config(featureValues, feature, true);
+            }
         }
 
         DefaultJSONParser parser = new DefaultJSONParser(input, config, featureValues);
@@ -487,41 +481,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
             if (filters != null) {
                 for (SerializeFilter filter : filters) {
-                    if (filter == null) {
-                        continue;
-                    }
-                    
-                    if (filter instanceof PropertyPreFilter) {
-                        serializer.getPropertyPreFilters().add((PropertyPreFilter) filter);
-                    }
-
-                    if (filter instanceof NameFilter) {
-                        serializer.getNameFilters().add((NameFilter) filter);
-                    }
-
-                    if (filter instanceof ValueFilter) {
-                        serializer.getValueFilters().add((ValueFilter) filter);
-                    }
-                    
-                    if (filter instanceof ContextValueFilter) {
-                        serializer.getContextValueFilters().add((ContextValueFilter) filter);
-                    }
-
-                    if (filter instanceof PropertyFilter) {
-                        serializer.getPropertyFilters().add((PropertyFilter) filter);
-                    }
-
-                    if (filter instanceof BeforeFilter) {
-                        serializer.getBeforeFilters().add((BeforeFilter) filter);
-                    }
-
-                    if (filter instanceof AfterFilter) {
-                        serializer.getAfterFilters().add((AfterFilter) filter);
-                    }
-                    
-                    if (filter instanceof LabelFilter) {
-                        serializer.getLabelFilters().add((LabelFilter) filter);
-                    }
+                    serializer.addFilter(filter);
                 }
             }
 

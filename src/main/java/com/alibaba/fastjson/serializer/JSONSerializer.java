@@ -450,4 +450,15 @@ public class JSONSerializer {
 
         return propertyValue;
     }
+    
+    public String processKey(Object object, String key, Object propertyValue) {
+        List<NameFilter> nameFilters = this.nameFilters;
+        if (nameFilters != null) {
+            for (NameFilter nameFilter : nameFilters) {
+                key = nameFilter.process(object, key, propertyValue);
+            }
+        }
+
+        return key;
+    }
 }

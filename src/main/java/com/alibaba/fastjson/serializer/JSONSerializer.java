@@ -212,6 +212,12 @@ public class JSONSerializer {
         return valueFilters;
     }
     
+    public boolean checkValue() {
+        return (valueFilters != null && valueFilters.size() > 0) //
+               || (contextValueFilters != null && contextValueFilters.size() > 0)
+               || out.writeNonStringValueAsString;
+    }
+    
     public List<ContextValueFilter> getContextValueFilters() {
         if (contextValueFilters == null) {
             contextValueFilters = new ArrayList<ContextValueFilter>();
@@ -253,6 +259,10 @@ public class JSONSerializer {
         }
 
         return afterFilters;
+    }
+    
+    public boolean hasNameFilters() {
+        return nameFilters != null && nameFilters.size() > 0;
     }
 
     public List<NameFilter> getNameFilters() {

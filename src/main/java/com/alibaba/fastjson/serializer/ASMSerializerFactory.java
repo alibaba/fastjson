@@ -1465,43 +1465,43 @@ public class ASMSerializerFactory implements Opcodes {
         String valueDesc = "Ljava/lang/Object;";
         if (propertyClass == byte.class) {
             mw.visitVarInsn(ILOAD, context.var("byte"));
-            valueDesc = "B";
-            mw.visitInsn(ACONST_NULL);
+            mw.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;");
+            mw.visitInsn(DUP);
             mw.visitVarInsn(ASTORE, Context.original);
         } else if (propertyClass == short.class) {
             mw.visitVarInsn(ILOAD, context.var("short"));
-            valueDesc = "S";
-            mw.visitInsn(ACONST_NULL);
+            mw.visitMethodInsn(INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;");
+            mw.visitInsn(DUP);
             mw.visitVarInsn(ASTORE, Context.original);
         } else if (propertyClass == int.class) {
             mw.visitVarInsn(ILOAD, context.var("int"));
-            valueDesc = "I";
-            mw.visitInsn(ACONST_NULL);
+            mw.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
+            mw.visitInsn(DUP);
             mw.visitVarInsn(ASTORE, Context.original);
         } else if (propertyClass == char.class) {
             mw.visitVarInsn(ILOAD, context.var("char"));
             mw.visitMethodInsn(INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;");
+            mw.visitInsn(DUP);
             mw.visitVarInsn(ASTORE, Context.original);
-            mw.visitVarInsn(ALOAD, Context.original);
         } else if (propertyClass == long.class) {
             mw.visitVarInsn(LLOAD, context.var("long", 2));
-            valueDesc = "J";
-            mw.visitInsn(ACONST_NULL);
+            mw.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;");
+            mw.visitInsn(DUP);
             mw.visitVarInsn(ASTORE, Context.original);
         } else if (propertyClass == float.class) {
             mw.visitVarInsn(FLOAD, context.var("float"));
-            valueDesc = "F";
-            mw.visitInsn(ACONST_NULL);
+            mw.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;");
+            mw.visitInsn(DUP);
             mw.visitVarInsn(ASTORE, Context.original);
         } else if (propertyClass == double.class) {
             mw.visitVarInsn(DLOAD, context.var("double", 2));
-            valueDesc = "D";
-            mw.visitInsn(ACONST_NULL);
+            mw.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;");
+            mw.visitInsn(DUP);
             mw.visitVarInsn(ASTORE, Context.original);
         } else if (propertyClass == boolean.class) {
             mw.visitVarInsn(ILOAD, context.var("boolean"));
-            valueDesc = "Z";
-            mw.visitInsn(ACONST_NULL);
+            mw.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;");
+            mw.visitInsn(DUP);
             mw.visitVarInsn(ASTORE, Context.original);
         } else if (propertyClass == BigDecimal.class) {
             mw.visitVarInsn(ALOAD, context.var("decimal"));
@@ -1525,10 +1525,10 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitVarInsn(ALOAD, Context.original);
         }
 
-        mw.visitMethodInsn(INVOKESTATIC,
-                           FilterUtils,
+        mw.visitMethodInsn(INVOKEVIRTUAL,
+                           JSONSerializer,
                            "processValue",
-                           "(L" + JSONSerializer + ";" + JavaBeanSerializer_desc + "Ljava/lang/Object;Ljava/lang/String;" + valueDesc + ")Ljava/lang/Object;");
+                           "(" + JavaBeanSerializer_desc + "Ljava/lang/Object;Ljava/lang/String;" + valueDesc + ")Ljava/lang/Object;");
 
         mw.visitVarInsn(ASTORE, Context.processValue);
     }

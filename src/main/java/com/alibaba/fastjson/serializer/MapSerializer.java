@@ -136,10 +136,10 @@ public class MapSerializer implements ObjectSerializer {
                     if ((valueFilters != null && valueFilters.size() > 0) //
                         || (contextValueFilters != null && contextValueFilters.size() > 0)) {
                         if (entryKey == null || entryKey instanceof String) {
-                            value = FilterUtils.processValue(serializer, null, object, (String) entryKey, value);
+                            value = serializer.processValue(null, object, (String) entryKey, value);
                         } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
                             String strKey = JSON.toJSONString(entryKey);
-                            value = FilterUtils.processValue(serializer, null, object, strKey, value);
+                            value = serializer.processValue(null, object, strKey, value);
                         }
                     }
                 }

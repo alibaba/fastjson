@@ -20,7 +20,6 @@ import com.alibaba.fastjson.parser.JSONLexerBase;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParseContext;
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.serializer.FilterUtils;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.JavaBeanInfo;
 import com.alibaba.fastjson.util.TypeUtils;
@@ -543,7 +542,11 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         FieldDeserializer fieldDeserializer = smartMatch(key);
 
         if (fieldDeserializer == null) {
-            parseExtra(parser, object, key);
+            if (!lexer.isEnabled(Feature.IgnoreNotMatch)) {
+                throw new JSONException("setter not found, class " + clazz.getName() + ", property " + key);
+            }
+            
+            parser.parseExtra(object, key);
 
             return false;
         }
@@ -602,29 +605,10 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         return fieldDeserializer;
     }
 
-    void parseExtra(DefaultJSONParser parser, Object object, String key) {
-        final JSONLexer lexer = parser.lexer; // xxx
-        if (!lexer.isEnabled(Feature.IgnoreNotMatch)) {
-            throw new JSONException("setter not found, class " + clazz.getName() + ", property " + key);
-        }
-
-        lexer.nextTokenWithColon();
-        Type type = FilterUtils.getExtratype(parser, object, key);
-        Object value;
-        if (type == null) {
-            value = parser.parse(); // skip
-        } else {
-            value = parser.parseObject(type);
-        }
-
-        FilterUtils.processExtra(parser, object, key, value);
-    }
-
     public int getFastMatchToken() {
         return JSONToken.LBRACE;
     }
 
-    
     public final boolean isSupportArrayToBean(JSONLexer lexer) {
         return Feature.isEnabled(beanInfo.parserFeatures, Feature.SupportArrayToBean) || lexer.isEnabled(Feature.SupportArrayToBean);
     }

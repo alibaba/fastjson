@@ -52,13 +52,14 @@ public class JSONSerializer {
     private DateFormat                               dateFormat;
 
     protected IdentityHashMap<Object, SerialContext> references         = null;
-    public SerialContext                             context;
+    protected SerialContext                          context;
 
     public TimeZone                                  timeZone           = JSON.defaultTimeZone;
     public Locale                                    locale             = JSON.defaultLocale;
 
     public JSONSerializer(){
-        this(new SerializeWriter((Writer) null, JSON.DEFAULT_GENERATE_FEATURE, SerializerFeature.EMPTY), SerializeConfig.globalInstance);
+        this(new SerializeWriter((Writer) null, JSON.DEFAULT_GENERATE_FEATURE, SerializerFeature.EMPTY),
+             SerializeConfig.globalInstance);
     }
 
     public JSONSerializer(SerializeWriter out){
@@ -230,7 +231,8 @@ public class JSONSerializer {
     }
 
     public static final void write(Writer out, Object object) {
-        SerializeWriter writer = new SerializeWriter((Writer) null, JSON.DEFAULT_GENERATE_FEATURE, SerializerFeature.EMPTY);
+        SerializeWriter writer = new SerializeWriter((Writer) null, JSON.DEFAULT_GENERATE_FEATURE,
+                                                     SerializerFeature.EMPTY);
         try {
             JSONSerializer serializer = new JSONSerializer(writer, SerializeConfig.globalInstance);
             serializer.write(object);
@@ -366,7 +368,7 @@ public class JSONSerializer {
             if (key != null && !(key instanceof String)) {
                 key = JSON.toJSONString(key);
             }
-            
+
             if (!filter.apply(this, object, (String) key)) {
                 return false;
             }
@@ -385,7 +387,7 @@ public class JSONSerializer {
         if (key != null && !(key instanceof String)) {
             key = JSON.toJSONString(key);
         }
-        
+
         for (PropertyFilter propertyFilter : propertyFilters) {
             if (!propertyFilter.apply(object, (String) key, propertyValue)) {
                 return false;
@@ -397,5 +399,10 @@ public class JSONSerializer {
 
     public SerializeWriter getWriter() {
         return out;
+    }
+    
+
+    public SerialContext getContext() {
+        return context;
     }
 }

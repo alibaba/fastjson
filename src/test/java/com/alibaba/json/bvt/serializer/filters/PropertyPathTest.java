@@ -42,7 +42,7 @@ public class PropertyPathTest extends TestCase {
     public static class MyPropertyPreFilter implements PropertyPreFilter {
 
         public boolean apply(JSONSerializer serializer, Object source, String name) {
-            String path = serializer.context.toString() + "." + name;
+            String path = serializer.getContext().toString() + "." + name;
 
             if (path.startsWith("$.b.d")) {
                 return false;

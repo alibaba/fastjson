@@ -34,14 +34,14 @@ import com.alibaba.fastjson.util.TypeUtils;
  * @author wenshao[szujobs@hotmail.com]
  */
 public class JavaBeanSerializer implements ObjectSerializer {
-    private static final char[]                    true_chars  = new char[] { 't', 'r', 'u', 'e' };
-    private static final char[]                    false_chars = new char[] { 'f', 'a', 'l', 's', 'e' };
+    private static final char[]       true_chars  = new char[] { 't', 'r', 'u', 'e' };
+    private static final char[]       false_chars = new char[] { 'f', 'a', 'l', 's', 'e' };
 
     // serializers
-    private final FieldSerializer[]                getters;
-    private final FieldSerializer[]                sortedGetters;
+    private final FieldSerializer[]   getters;
+    protected final FieldSerializer[] sortedGetters;
 
-    protected int                                  features    = 0;
+    protected int                     features    = 0;
 
     public JavaBeanSerializer(Class<?> clazz){
         this(clazz, (Map<String, String>) null);
@@ -179,6 +179,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
             final List<PropertyFilter> propertyFilters = serializer.propertyFilters;
             final List<NameFilter> nameFilters = serializer.nameFilters;
             final List<ValueFilter> valueFilters = serializer.valueFilters;
+            final List<ContextValueFilter> contextValueFilters = serializer.contextValueFilters;
             final List<PropertyPreFilter> filters = serializer.propertyPreFilters;
             
             for (int i = 0; i < getters.length; ++i) {
@@ -351,6 +352,29 @@ public class JavaBeanSerializer implements ObjectSerializer {
                         
                         for (ValueFilter valueFilter : valueFilters) {
                             propertyValue = valueFilter.process(object, fieldInfoName, propertyValue);
+                        }
+                    }
+                }
+                {
+                    if (contextValueFilters != null) {
+                        if (valueGot && !propertyValueGot) {
+                            if (fieldClass == int.class) {
+                                propertyValue = Integer.valueOf(propertyValueInt);
+                                originalValue = propertyValue;
+                                propertyValueGot = true;
+                            } else if (fieldClass == long.class) {
+                                propertyValue = Long.valueOf(propertyValueLong);
+                                originalValue = propertyValue;
+                                propertyValueGot = true;
+                            } else if (fieldClass == boolean.class) {
+                                propertyValue = propertyValueBoolean;
+                                originalValue = propertyValue;
+                                propertyValueGot = true;
+                            }
+                        }
+                        
+                        for (ContextValueFilter valueFilter : contextValueFilters) {
+                            propertyValue = valueFilter.process(fieldSerializer.fieldContext, object, fieldInfoName, propertyValue);
                         }
                     }
                 }

@@ -1,5 +1,6 @@
 package com.alibaba.fastjson.util;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
@@ -188,6 +189,24 @@ public class FieldInfo implements Comparable<FieldInfo> {
         name_chars[nameLen + 1] = '"';
         name_chars[nameLen + 2] = ':';
         return name_chars;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public <T extends Annotation> T getAnnation(Class<T> annotationClass) {
+        if (annotationClass == JSONField.class) {
+            return (T) getAnnotation();
+        }
+        
+        T annotatition = null;
+        if (method != null) {
+            annotatition = method.getAnnotation(annotationClass);
+        }
+        
+        if (annotatition == null && field == null) {
+            annotatition = field.getAnnotation(annotationClass);
+        }
+        
+        return annotatition;
     }
 
     public static Type getFieldType(final Class<?> clazz, final Type type, Type fieldType) {

@@ -85,11 +85,8 @@ public class TypeUtils {
 
         if (value instanceof String) {
             String strVal = (String) value;
-            if (strVal.length() == 0) {
-                return null;
-            }
-            
-            if ("null".equals(strVal)) {
+            if (strVal.length() == 0 // 
+                    || "null".equals(strVal)) {
                 return null;
             }
             

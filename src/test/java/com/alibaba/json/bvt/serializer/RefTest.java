@@ -12,8 +12,6 @@ public class RefTest extends TestCase {
     
     public void test_ref() throws Exception {
         JSONSerializer ser = new JSONSerializer();
-        Assert.assertNull(ser.getSerialContext(null));
-        
         Assert.assertFalse(ser.containsReference(null));
     }
     

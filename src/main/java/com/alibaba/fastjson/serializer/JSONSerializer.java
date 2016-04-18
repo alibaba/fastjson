@@ -151,14 +151,6 @@ public class JSONSerializer {
                    || context.parent != null);
     }
 
-    public SerialContext getSerialContext(Object object) {
-        if (references == null) {
-            return null;
-        }
-
-        return references.get(object);
-    }
-
     public boolean containsReference(Object value) {
         return references != null && references.containsKey(value);
     }
@@ -191,17 +183,11 @@ public class JSONSerializer {
 
         if (object == rootContext.object) {
             out.write("{\"$ref\":\"$\"}");
-            return;
+        } else {
+            out.write("{\"$ref\":\"");
+            out.write(references.get(object).toString());
+            out.write("\"}");
         }
-
-        SerialContext refContext = this.getSerialContext(object);
-
-        String path = refContext.toString();
-
-        out.write("{\"$ref\":\"");
-        out.write(path);
-        out.write("\"}");
-        return;
     }
 
     public List<ValueFilter> getValueFilters() {

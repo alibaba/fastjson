@@ -1,42 +1,8 @@
 package com.alibaba.fastjson.serializer;
 
-import java.lang.reflect.Type;
 import java.util.List;
 
-import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.deserializer.ExtraProcessable;
-import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
-import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
-
 public class FilterUtils {
-    public static Type getExtratype(DefaultJSONParser parser, Object object, String key) {
-        List<ExtraTypeProvider> extraTypeProviders = parser.getExtraTypeProvidersDirect();
-        if (extraTypeProviders == null) {
-            return null;
-        }
-        
-        Type type = null;
-        for (ExtraTypeProvider extraProvider : extraTypeProviders) {
-            type = extraProvider.getExtraType(object, key);
-        }
-        return type;
-    }
-    
-    public static void processExtra(DefaultJSONParser parser, Object object, String key, Object value) {
-        if (object instanceof ExtraProcessable) {
-            ExtraProcessable extraProcessable = ((ExtraProcessable) object);
-            extraProcessable.processExtra(key, value);
-            return;
-        }
-        
-        List<ExtraProcessor> extraProcessors = parser.getExtraProcessorsDirect();
-        if (extraProcessors == null) {
-            return;
-        }
-        for (ExtraProcessor process : extraProcessors) {
-            process.processExtra(object, key, value);
-        }
-    }
 
     public static char writeBefore(JSONSerializer serializer, Object object, char seperator) {
         List<BeforeFilter> beforeFilters = serializer.beforeFilters;

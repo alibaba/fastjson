@@ -57,6 +57,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.deserializer.ASMJavaBeanDeserializer;
+import com.alibaba.fastjson.parser.deserializer.ExtraProcessable;
 import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
@@ -1470,5 +1471,44 @@ public class DefaultJSONParser implements Closeable {
             this.ownerContext = ownerContext;
         }
     }
+    
+    public void parseExtra(Object object, String key) {
+        final JSONLexer lexer = this.lexer; // xxx
+        lexer.nextTokenWithColon();
+        Type type = getExtratype(object, key);
+        Object value = type == null //
+            ? parse() // skip
+            : parseObject(type);
+            
+        processExtra(object, key, value);
+    }
+    
+    public Type getExtratype(Object object, String key) {
+        List<ExtraTypeProvider> extraTypeProviders = this.extraTypeProviders;
+        if (extraTypeProviders == null) {
+            return null;
+        }
 
+        Type type = null;
+        for (ExtraTypeProvider extraProvider : extraTypeProviders) {
+            type = extraProvider.getExtraType(object, key);
+        }
+        return type;
+    }
+
+    public void processExtra(Object object, String key, Object value) {
+        if (object instanceof ExtraProcessable) {
+            ExtraProcessable extraProcessable = ((ExtraProcessable) object);
+            extraProcessable.processExtra(key, value);
+            return;
+        }
+        
+        List<ExtraProcessor> extraProcessors = this.extraProcessors;
+        if (extraProcessors == null) {
+            return;
+        }
+        for (ExtraProcessor process : extraProcessors) {
+            process.processExtra(object, key, value);
+        }
+    }
 }

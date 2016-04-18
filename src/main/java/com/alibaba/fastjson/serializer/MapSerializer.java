@@ -122,10 +122,10 @@ public class MapSerializer implements ObjectSerializer {
                     List<NameFilter> nameFilters = serializer.nameFilters;
                     if (nameFilters != null && nameFilters.size() > 0) {
                         if (entryKey == null || entryKey instanceof String) {
-                            entryKey = FilterUtils.processKey(serializer, object, (String) entryKey, value);
+                            entryKey = serializer.processKey(object, (String) entryKey, value);
                         } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
                             String strKey = JSON.toJSONString(entryKey);
-                            entryKey = FilterUtils.processKey(serializer, object, strKey, value);
+                            entryKey = serializer.processKey(object, strKey, value);
                         }
                     }
                 }

@@ -1542,68 +1542,44 @@ public class ASMSerializerFactory implements Opcodes {
 
         if (propertyClass == byte.class) {
             mw.visitVarInsn(ILOAD, context.var("byte"));
-            mw.visitMethodInsn(INVOKESTATIC, FilterUtils, "processKey",
-                               "(L" + JSONSerializer + ";Ljava/lang/Object;Ljava/lang/String;B)Ljava/lang/String;");
+            mw.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;");
         } else if (propertyClass == short.class) {
             mw.visitVarInsn(ILOAD, context.var("short"));
-            mw.visitMethodInsn(INVOKESTATIC, FilterUtils, "processKey",
-                               "(L" + JSONSerializer + ";Ljava/lang/Object;Ljava/lang/String;S)Ljava/lang/String;");
+            mw.visitMethodInsn(INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;");
         } else if (propertyClass == int.class) {
             mw.visitVarInsn(ILOAD, context.var("int"));
-            mw.visitMethodInsn(INVOKESTATIC, FilterUtils, "processKey",
-                               "(L" + JSONSerializer + ";Ljava/lang/Object;Ljava/lang/String;I)Ljava/lang/String;");
+            mw.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
         } else if (propertyClass == char.class) {
             mw.visitVarInsn(ILOAD, context.var("char"));
-            mw.visitMethodInsn(INVOKESTATIC, FilterUtils, "processKey",
-                               "(L" + JSONSerializer + ";Ljava/lang/Object;Ljava/lang/String;C)Ljava/lang/String;");
+            mw.visitMethodInsn(INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;");
         } else if (propertyClass == long.class) {
             mw.visitVarInsn(LLOAD, context.var("long", 2));
-            mw.visitMethodInsn(INVOKESTATIC, FilterUtils, "processKey",
-                               "(L" + JSONSerializer + ";Ljava/lang/Object;Ljava/lang/String;J)Ljava/lang/String;");
+            mw.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;");
         } else if (propertyClass == float.class) {
             mw.visitVarInsn(FLOAD, context.var("float"));
-            mw.visitMethodInsn(INVOKESTATIC, FilterUtils, "processKey",
-                               "(L" + JSONSerializer + ";Ljava/lang/Object;Ljava/lang/String;F)Ljava/lang/String;");
+            mw.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;");
         } else if (propertyClass == double.class) {
             mw.visitVarInsn(DLOAD, context.var("double", 2));
-            mw.visitMethodInsn(INVOKESTATIC, FilterUtils, "processKey",
-                               "(L" + JSONSerializer + ";Ljava/lang/Object;Ljava/lang/String;D)Ljava/lang/String;");
+            mw.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;");
         } else if (propertyClass == boolean.class) {
             mw.visitVarInsn(ILOAD, context.var("boolean"));
-            mw.visitMethodInsn(INVOKESTATIC, FilterUtils, "processKey",
-                               "(L" + JSONSerializer + ";Ljava/lang/Object;Ljava/lang/String;Z)Ljava/lang/String;");
+            mw.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;");
         } else if (propertyClass == BigDecimal.class) {
             mw.visitVarInsn(ALOAD, context.var("decimal"));
-            mw.visitMethodInsn(INVOKESTATIC,
-                               FilterUtils,
-                               "processKey",
-                               "(L" + JSONSerializer + ";Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/String;");
         } else if (propertyClass == String.class) {
             mw.visitVarInsn(ALOAD, context.var("string"));
-            mw.visitMethodInsn(INVOKESTATIC,
-                               FilterUtils,
-                               "processKey",
-                               "(L" + JSONSerializer + ";Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/String;");
         } else if (propertyClass.isEnum()) {
             mw.visitVarInsn(ALOAD, context.var("enum"));
-            mw.visitMethodInsn(INVOKESTATIC,
-                               FilterUtils,
-                               "processKey",
-                               "(L" + JSONSerializer + ";Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/String;");
         } else if (List.class.isAssignableFrom(propertyClass)) {
-
             mw.visitVarInsn(ALOAD, context.var("list"));
-            mw.visitMethodInsn(INVOKESTATIC,
-                               FilterUtils,
-                               "processKey",
-                               "(L" + JSONSerializer + ";Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/String;");
         } else {
             mw.visitVarInsn(ALOAD, context.var("object"));
-            mw.visitMethodInsn(INVOKESTATIC,
-                               FilterUtils,
-                               "processKey",
-                               "(L" + JSONSerializer + ";Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/String;");
         }
+        
+        mw.visitMethodInsn(INVOKEVIRTUAL,
+                           JSONSerializer,
+                           "processKey",
+                           "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/String;");
 
         mw.visitVarInsn(ASTORE, Context.fieldName);
     }

@@ -461,4 +461,74 @@ public class JSONSerializer {
 
         return key;
     }
+    
+    public boolean applyName(Object object, String key) {
+        List<PropertyPreFilter> filters = this.propertyPreFilters;
+
+        if (filters == null) {
+            return true;
+        }
+
+        for (PropertyPreFilter filter : filters) {
+            if (!filter.apply(this, object, key)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+    
+    public boolean apply(Object object, String key, Object propertyValue) {
+        List<PropertyFilter> propertyFilters = this.propertyFilters;
+
+        if (propertyFilters == null) {
+            return true;
+        }
+
+        for (PropertyFilter propertyFilter : propertyFilters) {
+            if (!propertyFilter.apply(object, key, propertyValue)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+    
+    public char writeBefore(Object object, char seperator) {
+        List<BeforeFilter> beforeFilters = this.beforeFilters;
+        if (beforeFilters != null) {
+            for (BeforeFilter beforeFilter : beforeFilters) {
+                seperator = beforeFilter.writeBefore(this, object, seperator);
+            }
+        }
+        return seperator;
+    }
+    
+    public char writeAfter(Object object, char seperator) {
+        List<AfterFilter> afterFilters = this.afterFilters;
+        if (afterFilters != null) {
+            for (AfterFilter afterFilter : afterFilters) {
+                seperator = afterFilter.writeAfter(this, object, seperator);
+            }
+        }
+        return seperator;
+    }
+    
+    public boolean applyLabel(String label) {
+        List<LabelFilter> labelFilters = this.labelFilters;
+
+        if (labelFilters != null) {
+            boolean apply = true;
+
+            for (LabelFilter propertyFilter : labelFilters) {
+                if (!propertyFilter.apply(label)) {
+                    return false;
+                }
+            }
+
+            return apply;
+        }
+
+        return true;
+    }
 }

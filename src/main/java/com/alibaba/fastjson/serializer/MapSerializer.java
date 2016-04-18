@@ -90,12 +90,12 @@ public class MapSerializer implements ObjectSerializer {
                     List<PropertyPreFilter> preFilters = serializer.propertyPreFilters;
                     if (preFilters != null && preFilters.size() > 0) {
                         if (entryKey == null || entryKey instanceof String) {
-                            if (!FilterUtils.applyName(serializer, object, (String) entryKey)) {
+                            if (!serializer.applyName(object, (String) entryKey)) {
                                 continue;
                             }
                         } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
                             String strKey = JSON.toJSONString(entryKey);
-                            if (!FilterUtils.applyName(serializer, object, strKey)) {
+                            if (!serializer.applyName(object, strKey)) {
                                 continue;
                             }
                         }
@@ -106,12 +106,12 @@ public class MapSerializer implements ObjectSerializer {
                     List<PropertyFilter> propertyFilters = serializer.propertyFilters;
                     if (propertyFilters != null && propertyFilters.size() > 0) {
                         if (entryKey == null || entryKey instanceof String) {
-                            if (!FilterUtils.apply(serializer, object, (String) entryKey, value)) {
+                            if (!serializer.apply(object, (String) entryKey, value)) {
                                 continue;
                             }
                         } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
                             String strKey = JSON.toJSONString(entryKey);
-                            if (!FilterUtils.apply(serializer, object, strKey, value)) {
+                            if (!serializer.apply(object, strKey, value)) {
                                 continue;
                             }
                         }

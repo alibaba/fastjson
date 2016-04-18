@@ -924,15 +924,7 @@ public class TypeUtils {
         addBaseClassMappings();
     }
 
-    public static void addClassMapping(String className, Class<?> clazz) {
-        if (className == null) {
-            className = clazz.getName();
-        }
-
-        mappings.put(className, clazz);
-    }
-
-    public static void addBaseClassMappings() {
+    private static void addBaseClassMappings() {
         mappings.put("byte", byte.class);
         mappings.put("short", short.class);
         mappings.put("int", int.class);
@@ -987,8 +979,7 @@ public class TypeUtils {
         try {
             if (classLoader != null) {
                 clazz = classLoader.loadClass(className);
-
-                addClassMapping(className, clazz);
+                mappings.put(className, clazz);
 
                 return clazz;
             }
@@ -1002,8 +993,7 @@ public class TypeUtils {
 
             if (contextClassLoader != null) {
                 clazz = contextClassLoader.loadClass(className);
-
-                addClassMapping(className, clazz);
+                mappings.put(className, clazz);
 
                 return clazz;
             }
@@ -1013,8 +1003,7 @@ public class TypeUtils {
 
         try {
             clazz = Class.forName(className);
-
-            addClassMapping(className, clazz);
+            mappings.put(className, clazz);
 
             return clazz;
         } catch (Throwable e) {

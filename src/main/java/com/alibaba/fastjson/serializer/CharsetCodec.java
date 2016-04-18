@@ -16,11 +16,10 @@ public class CharsetCodec implements ObjectSerializer, ObjectDeserializer {
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         if (object == null) {
             serializer.writeNull();
-            return;
+        } else {
+            Charset charset = (Charset) object;
+            serializer.write(charset.toString());
         }
-
-        Charset charset = (Charset) object;
-        serializer.write(charset.toString());
     }
 
     @SuppressWarnings("unchecked")

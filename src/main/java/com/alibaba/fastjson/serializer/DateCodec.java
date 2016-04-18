@@ -84,11 +84,8 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
 
         long time = date.getTime();
         if (out.isEnabled(SerializerFeature.UseISO8601DateFormat)) {
-            if (out.isEnabled(SerializerFeature.UseSingleQuotes)) {
-                out.append('\'');
-            } else {
-                out.append('\"');
-            }
+            char quote = out.isEnabled(SerializerFeature.UseSingleQuotes) ? '\'' : '\"'; 
+            out.write(quote);
 
             Calendar calendar = Calendar.getInstance(serializer.timeZone, serializer.locale);
             calendar.setTimeInMillis(time);
@@ -133,18 +130,17 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
             
             int timeZone = calendar.getTimeZone().getRawOffset()/(3600*1000);
             if (timeZone == 0) {
-                out.append("Z");
-            } else if (timeZone > 0) {
-                out.append("+").append(String.format("%02d", timeZone)).append(":00");
+                out.write('Z');
             } else {
-                out.append("-").append(String.format("%02d", -timeZone)).append(":00");
+                if (timeZone > 0) {
+                    out.append('+').append(String.format("%02d", timeZone));
+                } else {
+                    out.append('-').append(String.format("%02d", -timeZone));
+                }
+                out.append(":00");
             }
 
-            if (out.isEnabled(SerializerFeature.UseSingleQuotes)) {
-                out.append('\'');
-            } else {
-                out.append('\"');
-            }
+            out.write(quote);
         } else {
             out.writeLong(time);
         }

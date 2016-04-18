@@ -48,9 +48,7 @@ public class EnumerationSerializer implements ObjectSerializer {
                     continue;
                 }
 
-                Class<?> clazz = item.getClass();
-
-                ObjectSerializer itemSerializer = serializer.getObjectWriter(clazz);
+                ObjectSerializer itemSerializer = serializer.getObjectWriter(item.getClass());
                 itemSerializer.write(serializer, item, i - 1, elementType, 0);
             }
             out.append(']');

@@ -98,7 +98,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
             List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
 
             for (FieldInfo fieldInfo : fieldInfoList) {
-                FieldSerializer fieldDeser = new ObjectFieldSerializer(fieldInfo);
+                FieldSerializer fieldDeser = new FieldSerializer(fieldInfo);
                 
                 getterList.add(fieldDeser);
             }
@@ -124,7 +124,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
             List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
 
             for (FieldInfo fieldInfo : fieldInfoList) {
-                FieldSerializer fieldDeser = new ObjectFieldSerializer(fieldInfo);
+                FieldSerializer fieldDeser = new FieldSerializer(fieldInfo);
                 getterList.add(fieldDeser);
             }
 

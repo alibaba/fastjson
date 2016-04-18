@@ -13,7 +13,7 @@
 	
 	<groupId>com.alibaba</groupId>
 	<artifactId>fastjson</artifactId>
-	<version>1.2.9-SNAPSHOT</version>
+	<version>1.2.9</version>
 
 	<packaging>jar</packaging>
 	<name>fastjson</name>
@@ -58,7 +58,7 @@
  
 	<organization>
 		<name>Alibaba Group</name>
-		<url>http://code.alibabatech.com/</url>
+		<url>https://github.com/alibaba</url>
 	</organization>
 
 	<licenses>

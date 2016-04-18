@@ -61,19 +61,22 @@ public class ASMDeserializerFactory implements Opcodes {
             throw new IllegalArgumentException("not support type :" + clazz.getName());
         }
 
-        String className = "Fastjson_ASM_" + clazz.getSimpleName() + "_" + seed.incrementAndGet();
+        String className = "FastjsonASMDeserializer_" + seed.incrementAndGet() + "_" + clazz.getSimpleName();
+        String packageName = ASMDeserializerFactory.class.getPackage().getName();
+        String classNameType = packageName.replace('.', '/') + "/" + className;
+        String classNameFull = packageName + "." + className;
 
         ClassWriter cw = new ClassWriter();
-        cw.visit(V1_5, ACC_PUBLIC + ACC_SUPER, className,
+        cw.visit(V1_5, ACC_PUBLIC + ACC_SUPER, classNameType,
                  type(ASMJavaBeanDeserializer.class), null);
 
         JavaBeanInfo beanInfo = JavaBeanInfo.build(clazz, type);
 
-        _init(cw, new Context(className, config, beanInfo, 3));
-        _createInstance(cw, new Context(className, config, beanInfo, 3));
-        _deserialze(cw, new Context(className, config, beanInfo, 4));
+        _init(cw, new Context(classNameType, config, beanInfo, 3));
+        _createInstance(cw, new Context(classNameType, config, beanInfo, 3));
+        _deserialze(cw, new Context(classNameType, config, beanInfo, 4));
         
-        _deserialzeArrayMapping(cw, new Context(className, config, beanInfo, 4));
+        _deserialzeArrayMapping(cw, new Context(classNameType, config, beanInfo, 4));
         byte[] code = cw.toByteArray();
 
 //        if (JSON.DUMP_CLASS != null) {
@@ -90,7 +93,7 @@ public class ASMDeserializerFactory implements Opcodes {
 //            }
 //        }
 
-        Class<?> exampleClass = defineClassPublic(className, code, 0, code.length);
+        Class<?> exampleClass = defineClassPublic(classNameFull, code, 0, code.length);
 
         Constructor<?> constructor = exampleClass.getConstructor(ParserConfig.class, Class.class);
         Object instance = constructor.newInstance(config, clazz);

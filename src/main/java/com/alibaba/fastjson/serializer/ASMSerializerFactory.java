@@ -607,6 +607,16 @@ public class ASMSerializerFactory implements Opcodes {
                            "()Z");
         mw.visitVarInsn(ISTORE, context.var("notWriteDefaultValue"));
         
+        if (!context.writeDirect) {
+            mw.visitVarInsn(ALOAD, Context.serializer);
+            mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer, "checkValue", "()Z");
+            mw.visitVarInsn(ISTORE, context.var("checkValue"));
+
+            mw.visitVarInsn(ALOAD, Context.serializer);
+            mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer, "hasNameFilters", "()Z");
+            mw.visitVarInsn(ISTORE, context.var("hasNameFilters"));
+        }
+        
         for (int i = 0; i < size; ++i) {
             FieldInfo property = getters.get(i);
             Class<?> propertyClass = property.fieldClass;
@@ -1229,6 +1239,10 @@ public class ASMSerializerFactory implements Opcodes {
         _processKey(mw, property, context);
 
         Label _else_processKey = new Label();
+
+        mw.visitVarInsn(ILOAD, context.var("checkValue"));
+        mw.visitJumpInsn(IFNE, _end);
+        
         _processValue(mw, property, context);
 
         mw.visitVarInsn(ALOAD, Context.original);
@@ -1515,6 +1529,11 @@ public class ASMSerializerFactory implements Opcodes {
     }
 
     private void _processKey(MethodVisitor mw, FieldInfo property, Context context) {
+        Label _else_processKey = new Label();
+        
+        mw.visitVarInsn(ILOAD, context.var("hasNameFilters"));
+        mw.visitJumpInsn(IFNE, _else_processKey);
+        
         Class<?> propertyClass = property.fieldClass;
 
         mw.visitVarInsn(ALOAD, Context.serializer);
@@ -1563,6 +1582,8 @@ public class ASMSerializerFactory implements Opcodes {
                            "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/String;");
 
         mw.visitVarInsn(ASTORE, Context.fieldName);
+        
+        mw.visitLabel(_else_processKey);
     }
 
     private void _if_write_null(MethodVisitor mw, FieldInfo fieldInfo, Context context) {

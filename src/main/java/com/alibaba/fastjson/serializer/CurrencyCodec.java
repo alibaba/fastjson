@@ -26,11 +26,10 @@ public class CurrencyCodec implements ObjectSerializer, ObjectDeserializer {
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         String text = (String) parser.parse();
 
-        if (text == null || text.length() == 0) {
-            return null;
-        }
+        return (text == null || text.length() == 0) //
+            ? null //
+            : (T) Currency.getInstance(text);
         
-        return (T) Currency.getInstance(text);
     }
 
     public int getFastMatchToken() {

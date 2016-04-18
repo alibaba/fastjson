@@ -27,11 +27,10 @@ public class CalendarCodec implements ObjectSerializer, ObjectDeserializer {
         Calendar calendar = (Calendar) object;
 
         if (out.isEnabled(SerializerFeature.UseISO8601DateFormat)) {
-            if (out.isEnabled(SerializerFeature.UseSingleQuotes)) {
-                out.append('\'');
-            } else {
-                out.append('\"');
-            }
+            final char quote = out.isEnabled(SerializerFeature.UseSingleQuotes) //
+                ? '\'' //
+                : '\"';
+            out.append(quote);
 
             int year = calendar.get(Calendar.YEAR);
             int month = calendar.get(Calendar.MONTH) + 1;
@@ -80,11 +79,7 @@ public class CalendarCodec implements ObjectSerializer, ObjectDeserializer {
                 out.append("-").append(String.format("%02d", -timeZone)).append(":00");
             }
 
-            if (out.isEnabled(SerializerFeature.UseSingleQuotes)) {
-                out.append('\'');
-            } else {
-                out.append('\"');
-            }
+            out.append(quote);
         } else {
             Date date = calendar.getTime();
             serializer.write(date);

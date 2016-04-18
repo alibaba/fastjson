@@ -27,13 +27,9 @@ public class CharsetCodec implements ObjectSerializer, ObjectDeserializer {
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         Object value = parser.parse();
 
-        if (value == null) {
-            return null;
-        }
-        
-        String charset = (String) value;
-        
-        return (T) Charset.forName(charset);
+        return value == null //
+            ? null //
+            : (T) Charset.forName((String) value);
     }
 
     public int getFastMatchToken() {

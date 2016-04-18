@@ -73,12 +73,9 @@ public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         Object value = parser.parse();
-
-        if (value == null) {
-            return null;
-        }
-
-        return (T) TypeUtils.castToBigDecimal(value);
+        return value == null //
+            ? null //
+            : (T) TypeUtils.castToBigDecimal(value);
     }
 
     public int getFastMatchToken() {

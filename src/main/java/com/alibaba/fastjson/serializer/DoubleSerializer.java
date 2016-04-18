@@ -54,9 +54,8 @@ public class DoubleSerializer implements ObjectSerializer {
 
         double doubleValue = ((Double) object).doubleValue();
 
-        if (Double.isNaN(doubleValue)) {
-            out.writeNull();
-        } else if (Double.isInfinite(doubleValue)) {
+        if (Double.isNaN(doubleValue) //
+                || Double.isInfinite(doubleValue)) {
             out.writeNull();
         } else {
             String doubleText;

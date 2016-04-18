@@ -2,7 +2,7 @@ package com.alibaba.json.bvt.taobao;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.ContextValueFilter;
-import com.alibaba.fastjson.serializer.SerilaizeContext;
+import com.alibaba.fastjson.serializer.SerializeContext;
 
 import junit.framework.TestCase;
 
@@ -14,8 +14,10 @@ public class MTopTest extends TestCase {
         
         ContextValueFilter valueFilter = new ContextValueFilter() {
             @Override
-            public Object process(SerilaizeContext context, Object object, String name, Object value) {
-                // TODO Auto-generated method stub
+            public Object process(SerializeContext context, Object object, String name, Object value) {
+                Class<?> objectClass = context.getBeanClass();
+                UrlIdentify annotation = context.getAnnation(UrlIdentify.class);
+                
                 if (value instanceof Model) {
                     return value;
                 }

@@ -1438,19 +1438,23 @@ public class ASMSerializerFactory implements Opcodes {
     private void _processValue(MethodVisitor mw, FieldInfo property, Context context, Label _end) {
         Label _else_processKey = new Label();
         
-        Label _end_checkValue = new Label();
-        mw.visitVarInsn(ILOAD, context.var("checkValue"));
-        mw.visitJumpInsn(IFEQ, _end_checkValue);
-        
-        mw.visitInsn(ACONST_NULL);
-        mw.visitInsn(DUP);
-        mw.visitVarInsn(ASTORE, Context.original);
-        mw.visitVarInsn(ASTORE, Context.processValue);
-        mw.visitJumpInsn(GOTO, _else_processKey);
-        
-        mw.visitLabel(_end_checkValue);
+       
         
         Class<?> propertyClass = property.fieldClass;
+        
+        if (propertyClass.isPrimitive()) {
+            Label _end_checkValue = new Label();
+            mw.visitVarInsn(ILOAD, context.var("checkValue"));
+            mw.visitJumpInsn(IFNE, _end_checkValue);
+            
+            mw.visitInsn(ACONST_NULL);
+            mw.visitInsn(DUP);
+            mw.visitVarInsn(ASTORE, Context.original);
+            mw.visitVarInsn(ASTORE, Context.processValue);
+            mw.visitJumpInsn(GOTO, _else_processKey);
+            
+            mw.visitLabel(_end_checkValue);
+        }
 
         mw.visitVarInsn(ALOAD, Context.serializer);
         mw.visitVarInsn(ALOAD, 0);

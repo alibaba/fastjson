@@ -1,5 +1,7 @@
 package com.alibaba.json.bvt.serializer.filters;
 
+import java.util.HashMap;
+
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
@@ -14,18 +16,26 @@ public class MTopFilterTest extends TestCase {
         model.id = 1001;
         model.name = "yongbo";
         model.user = new Person();
-        model.user.id = 2002;
+        model.user.personId = 2002;
 
+        final HashMap<String, Object> values = new HashMap<String, Object>();
         ValueFilter valueFilter = new ValueFilter() {
 
             @Override
             public Object process(Object object, String name, Object value) {
+                values.put(name, value);
                 return value;
             }
         };
-
+        
         String jsonString = JSON.toJSONString(model, valueFilter);
-        Assert.assertEquals("{\"id\":1001,\"name\":\"yongbo\",\"user\":{\"id\":2002}}", jsonString);
+        Assert.assertEquals("{\"id\":1001,\"name\":\"yongbo\",\"user\":{\"personId\":2002}}", jsonString);
+        
+        Assert.assertEquals(4, values.size());
+        Assert.assertEquals(model.id, values.get("id"));
+        Assert.assertSame(model.name, values.get("name"));
+        Assert.assertEquals(model.user, values.get("user"));
+        Assert.assertEquals(model.user.personId, values.get("personId"));
     }
 
     public static class Model {
@@ -62,14 +72,14 @@ public class MTopFilterTest extends TestCase {
 
     public static class Person {
 
-        private int id;
+        private int personId;
 
-        public int getId() {
-            return id;
+        public int getPersonId() {
+            return personId;
         }
 
-        public void setId(int id) {
-            this.id = id;
+        public void setPersonId(int personId) {
+            this.personId = personId;
         }
 
     }

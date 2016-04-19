@@ -21,6 +21,7 @@ public class EnumTest extends TestCase {
         Assert.assertEquals("\"Big\"", JSON.toJSONString(Type.Big, SerializerFeature.WriteEnumUsingToString)); // "Big"
         Assert.assertEquals("\"Medium\"", JSON.toJSONString(Type.Medium, SerializerFeature.WriteEnumUsingToString)); // "Medium"
         Assert.assertEquals("\"Small\"", JSON.toJSONString(Type.Small, SerializerFeature.WriteEnumUsingToString)); // "Small"
+        Assert.assertEquals("'Small'", JSON.toJSONString(Type.Small, SerializerFeature.UseSingleQuotes)); // "Small"
     }
 
 }

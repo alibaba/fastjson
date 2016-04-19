@@ -2,9 +2,8 @@ package com.alibaba.json.test.performance;
 
 import java.util.Collection;
 
-import org.codehaus.jackson.JsonFactory;
-
 import com.alibaba.json.test.codec.Codec;
+import com.fasterxml.jackson.core.JsonFactory;
 
 public class JacksonGroupDecoder implements Codec {
 

@@ -1,8 +1,12 @@
 package com.alibaba.fastjson.support.jaxrs;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -17,12 +21,12 @@ import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.alibaba.fastjson.util.IOUtils;
 
 /**
  * JAX-RS Provider for fastjson.
@@ -32,7 +36,13 @@ import com.alibaba.fastjson.util.IOUtils;
  */
 @Provider
 public class FastJsonProvider implements MessageBodyReader<Object>, MessageBodyWriter<Object> {
-    private Class<?>[] clazzes = null;
+   
+	// default charset
+	private String DEFAULT_CHARSET = "UTF-8";
+
+	private String charset = DEFAULT_CHARSET;
+	 
+	private Class<?>[] clazzes = null;
 
     public SerializeConfig serializeConfig = SerializeConfig.getGlobalInstance();
     public ParserConfig parserConfig = ParserConfig.getGlobalInstance();
@@ -52,6 +62,12 @@ public class FastJsonProvider implements MessageBodyReader<Object>, MessageBodyW
 
     }
 
+    /**
+     * Set charset. the default charset is UTF-8
+     */
+    public FastJsonProvider(String charset) {
+    	this.charset = charset;
+    }
 
     /**
      * Only serialize/deserialize all types in clazzes.
@@ -148,8 +164,10 @@ public class FastJsonProvider implements MessageBodyReader<Object>, MessageBodyW
         }
 
         String jsonStr = JSON.toJSONString(t, filter, serializerFeatures);
+        
         if (jsonStr != null) {
-            entityStream.write(jsonStr.getBytes());
+        	
+        	this.outputStreamWriteString(entityStream, jsonStr);
         }
     }
 
@@ -178,7 +196,7 @@ public class FastJsonProvider implements MessageBodyReader<Object>, MessageBodyW
             InputStream entityStream) throws IOException, WebApplicationException {
         String input = null;
         try {
-            input = IOUtils.toString(entityStream);
+            input = this.inputStreamReadString(entityStream);
         } catch (Exception e) {
             // skip ??
         }
@@ -190,4 +208,48 @@ public class FastJsonProvider implements MessageBodyReader<Object>, MessageBodyW
         return JSON.parseObject(input, type, parserConfig, JSON.DEFAULT_PARSER_FEATURE, features);
     }
 
+    /**
+     * Method that inputStream read String with charset.
+     */
+    private String inputStreamReadString(InputStream in) {
+		
+		StringBuffer buffer = new StringBuffer();
+
+		BufferedReader br;
+		
+		try {
+			br = new BufferedReader(new InputStreamReader(in, charset));
+			
+			String line;
+			
+			while ((line = br.readLine()) != null) {
+			
+				buffer.append(line);
+			}
+			
+		} catch (Exception ex) {
+			 throw new JSONException("read string from reader error", ex);
+		}
+		
+		return buffer.toString();
+	}
+    
+    /**
+     * Method that outputStream write String with charset.
+     */
+    private void outputStreamWriteString(OutputStream out, String str) {
+    	
+    	BufferedWriter bw;
+    	
+		try {
+			bw = new BufferedWriter(new OutputStreamWriter(out, charset));
+			
+			bw.write(str);
+			
+			bw.flush();
+			
+		} catch (Exception ex) {
+			 throw new JSONException("write string to writer error", ex);
+		}
+    }
 }

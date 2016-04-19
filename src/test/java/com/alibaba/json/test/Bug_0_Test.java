@@ -18,12 +18,13 @@ package com.alibaba.json.test;
 import java.io.InputStream;
 import java.text.NumberFormat;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.io.IOUtils;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ArrayNode;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+
+import junit.framework.TestCase;
 
 public class Bug_0_Test extends TestCase {
 

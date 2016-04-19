@@ -5,16 +5,15 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
-import org.codehaus.jackson.JsonLocation;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.JsonToken;
-
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.json.test.entity.Company;
 import com.alibaba.json.test.entity.Department;
 import com.alibaba.json.test.entity.Employee;
 import com.alibaba.json.test.entity.Group;
+import com.fasterxml.jackson.core.JsonLocation;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 
 public class JacksonGroupParser {
 

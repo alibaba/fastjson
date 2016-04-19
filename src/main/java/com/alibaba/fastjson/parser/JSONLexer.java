@@ -174,7 +174,8 @@ public final class JSONLexer {
     }
     
     public final boolean isRef() {
-        return sp == 4 && text.startsWith("$ref", np + 1);
+        return sp == 4 // 
+                && text.startsWith("$ref", np + 1);
     }
 
     public final String numberString() {
@@ -182,7 +183,11 @@ public final class JSONLexer {
         char chLocal = text.charAt(index);
 
         int sp = this.sp;
-        if (chLocal == 'L' || chLocal == 'S' || chLocal == 'B' || chLocal == 'F' || chLocal == 'D') {
+        if (chLocal == 'L' // 
+                || chLocal == 'S' // 
+                || chLocal == 'B' // 
+                || chLocal == 'F' // 
+                || chLocal == 'D') {
             sp--;
         }
 
@@ -496,14 +501,21 @@ public final class JSONLexer {
 
     public final void nextIdent() {
         for (;;) {
-            boolean whitespace = ch <= ' ' && (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b');
+            boolean whitespace = ch <= ' ' //
+                                 && (ch == ' ' //
+                                     || ch == '\n' //
+                                     || ch == '\r' //
+                                     || ch == '\t' //
+                                     || ch == '\f' //
+                                     || ch == '\b');
             if (!whitespace) {
                 break;
             }
             next();
         }
         
-        if (ch == '_' || Character.isLetter(ch)) {
+        if (ch == '_' //
+            || Character.isLetter(ch)) {
             scanIdent();
         } else {
             nextToken();
@@ -607,7 +619,12 @@ public final class JSONLexer {
 
     public final String scanSymbol(final SymbolTable symbolTable) {
         for (;;) {
-            if (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b') {
+            if (ch == ' ' //
+                || ch == '\n' //
+                || ch == '\r' //
+                || ch == '\t' //
+                || ch == '\f' //
+                || ch == '\b') {
                 next();
             } else {
                 break;
@@ -1360,8 +1377,17 @@ public final class JSONLexer {
             bp += 4;
             ch = charAt(bp);
             
-            if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
-                || ch == '\f' || ch == '\b' || ch == ':') {
+            if (ch == ' ' //
+                || ch == ',' //
+                || ch == '}' //
+                || ch == ']' //
+                || ch == '\n' //
+                || ch == '\r' //
+                || ch == '\t' //
+                || ch == EOI //
+                || ch == '\f' //
+                || ch == '\b' //
+                || ch == ':') {
                 token = JSONToken.TRUE;
                 return;
             }
@@ -1374,7 +1400,14 @@ public final class JSONLexer {
             bp += 7;
             ch = charAt(bp);
             
-            if (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b' || ch == '[' || ch == '(') {
+            if (ch == ' ' //
+                || ch == '\n' //
+                || ch == '\r' //
+                || ch == '\t' //
+                || ch == '\f' //
+                || ch == '\b' //
+                || ch == '[' //
+                || ch == '(') {
                 token = JSONToken.TREE_SET;
                 return;
             }
@@ -1394,8 +1427,16 @@ public final class JSONLexer {
         
         if (token != 0) {
             ch = charAt(bp);
-            if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
-                    || ch == '\f' || ch == '\b') {
+            if (ch == ' ' //
+                || ch == ',' //
+                || ch == '}' //
+                || ch == ']' //
+                || ch == '\n' //
+                || ch == '\r' //
+                || ch == '\t' //
+                || ch == EOI //
+                || ch == '\f' //
+                || ch == '\b') {
                 this.token = token;
                 return;
             }
@@ -1409,8 +1450,17 @@ public final class JSONLexer {
             bp += 9;
             ch = charAt(bp);
             
-            if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
-                || ch == '\f' || ch == '\b' || ch == ':') {
+            if (ch == ' ' //
+                || ch == ','//
+                || ch == '}'//
+                || ch == ']'//
+                || ch == '\n'//
+                || ch == '\r'//
+                || ch == '\t'//
+                || ch == EOI //
+                || ch == '\f'//
+                || ch == '\b'//
+                || ch == ':') {
                 token = JSONToken.UNDEFINED;
                 return;
             }
@@ -1423,8 +1473,17 @@ public final class JSONLexer {
             bp += 5;
             ch = charAt(bp);
             
-            if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
-                || ch == '\f' || ch == '\b' || ch == ':') {
+            if (ch == ' '//
+                || ch == ','//
+                || ch == '}'//
+                || ch == ']'//
+                || ch == '\n'//
+                || ch == '\r'//
+                || ch == '\t'//
+                || ch == EOI//
+                || ch == '\f'//
+                || ch == '\b'//
+                || ch == ':') {
                 token = JSONToken.FALSE;
                 return;
             }
@@ -1499,7 +1558,13 @@ public final class JSONLexer {
                 break;
             }
 
-            boolean whitespace = ch <= ' ' && (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b');
+            boolean whitespace = ch <= ' '// 
+                    && (ch == ' '// 
+                    || ch == '\n'// 
+                    || ch == '\r'// 
+                    || ch == '\t'// 
+                    || ch == '\f'// 
+                    || ch == '\b');
             if (!whitespace) {
                 return false;
             }
@@ -1511,7 +1576,12 @@ public final class JSONLexer {
     final void skipWhitespace() {
         for (;;) {
             if (ch <= '/') {
-                if (ch == ' ' || ch == '\r' || ch == '\n' || ch == '\t' || ch == '\f' || ch == '\b') {
+                if (ch == ' '//
+                    || ch == '\r'//
+                    || ch == '\n'//
+                    || ch == '\t'//
+                    || ch == '\f'//
+                    || ch == '\b') {
                     next();
                     continue;
                 } else if (ch == '/') {
@@ -1531,7 +1601,14 @@ public final class JSONLexer {
             bp += 3;
             ch = charAt(bp);
             
-            if (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b' || ch == '[' || ch == '(') {
+            if (ch == ' '//
+                || ch == '\n'//
+                || ch == '\r'//
+                || ch == '\t'//
+                || ch == '\f'//
+                || ch == '\b'//
+                || ch == '['//
+                || ch == '(') {
                 token = JSONToken.SET;
                 return;
             }
@@ -1566,7 +1643,8 @@ public final class JSONLexer {
         }
 
         for (;;) {
-            if (ch >= '0' && ch <= '9') {
+            if (ch >= '0'//
+                && ch <= '9') {
                 sp++;
             } else {
                 break;
@@ -1594,7 +1672,8 @@ public final class JSONLexer {
             isDouble = true;
 
             for (;;) {
-                if (ch >= '0' && ch <= '9') {
+                if (ch >= '0'//
+                    && ch <= '9') {
                     sp++;
                 } else {
                     break;
@@ -1626,7 +1705,8 @@ public final class JSONLexer {
             sp++;
             next();
             isDouble = true;
-        } else if (ch == 'e' || ch == 'E') {
+        } else if (ch == 'e'//
+                   || ch == 'E') {
             sp++;
             // next();
             {
@@ -1636,7 +1716,8 @@ public final class JSONLexer {
                         : text.charAt(index));
             }
 
-            if (ch == '+' || ch == '-') {
+            if (ch == '+' //
+                || ch == '-') {
                 sp++;
                  // next();
                 {
@@ -1648,7 +1729,8 @@ public final class JSONLexer {
             }
 
             for (;;) {
-                if (ch >= '0' && ch <= '9') {
+                if (ch >= '0'//
+                    && ch <= '9') {
                     sp++;
                 } else {
                     break;
@@ -1662,7 +1744,8 @@ public final class JSONLexer {
                 }
             }
 
-            if (ch == 'D' || ch == 'F') {
+            if (ch == 'D'//
+                || ch == 'F') {
                 sp++;
                 next();
             }
@@ -1705,7 +1788,8 @@ public final class JSONLexer {
 
         long longValue = 0;
         for (;;) {
-            if (ch >= '0' && ch <= '9') {
+            if (ch >= '0'//
+                && ch <= '9') {
                 int digit = (ch - '0');
                 if (longValue < -922337203685477580L) {  // Long.MIN_VALUE / 10
                     overflow = true;
@@ -1770,7 +1854,8 @@ public final class JSONLexer {
             }
 
             for (;;) {
-                if (ch >= '0' && ch <= '9') {
+                if (ch >= '0'//
+                    && ch <= '9') {
                     np++;
                 } else {
                     break;
@@ -1785,7 +1870,8 @@ public final class JSONLexer {
             }
         }
         
-        if (ch == 'e' || ch == 'E') {
+        if (ch == 'e'//
+            || ch == 'E') {
             np++;
             // next();
             {
@@ -1795,7 +1881,8 @@ public final class JSONLexer {
                         : text.charAt(index));
             }
 
-            if (ch == '+' || ch == '-') {
+            if (ch == '+'//
+                || ch == '-') {
                 np++;
                  // next();
                 {
@@ -1807,7 +1894,8 @@ public final class JSONLexer {
             }
 
             for (;;) {
-                if (ch >= '0' && ch <= '9') {
+                if (ch >= '0'//
+                    && ch <= '9') {
                     np++;
                 } else {
                     break;
@@ -1821,7 +1909,8 @@ public final class JSONLexer {
                 }
             }
 
-            if (ch == 'D' || ch == 'F') {
+            if (ch == 'D'//
+                || ch == 'F') {
                 bp++;
                 next();
             }
@@ -1829,7 +1918,8 @@ public final class JSONLexer {
             exp = true;
         }
         
-        if ((!isDouble) && (!exp)) {
+        if ((!isDouble) //
+            && (!exp)) {
             if (overflow) {
                 int len = bp - start;
                 char[] chars = new char[len];
@@ -1851,7 +1941,8 @@ public final class JSONLexer {
         char[] chars = new char[len];
         text.getChars(start, bp, chars, 0);
 
-        if ((!exp) && (features & Feature.UseBigDecimal.mask) != 0) {
+        if ((!exp)//
+            && (features & Feature.UseBigDecimal.mask) != 0) {
             number = new BigDecimal(chars);
         } else {
             String strVal = new String(chars);
@@ -1893,7 +1984,9 @@ public final class JSONLexer {
                 }
             }
 
-            if (chLocal == 'L' || chLocal == 'S' || chLocal == 'B') {
+            if (chLocal == 'L'//
+                || chLocal == 'S'//
+                || chLocal == 'B') {
                 break;
             }
 
@@ -1944,7 +2037,13 @@ public final class JSONLexer {
 
     public static final boolean isWhitespace(char ch) {
         // 专门调整了判断顺序
-        return ch <= ' ' && (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b');
+        return ch <= ' '//
+               && (ch == ' '//
+                   || ch == '\n'//
+                   || ch == '\r'//
+                   || ch == '\t'//
+                   || ch == '\f'//
+                   || ch == '\b');
     }
 
     protected final static int[] digits                  = new int[(int) 'f' + 1];
@@ -2164,11 +2263,9 @@ public final class JSONLexer {
         char chLocal;
         {
             int index = bp + (offset++);
-            if (index >= len) {
-                chLocal = EOI;
-            } else {
-                chLocal = text.charAt(index);
-            }
+            chLocal = index >= len //
+                    ? EOI //
+                    : text.charAt(index);
         }
 
         long value;
@@ -2179,25 +2276,22 @@ public final class JSONLexer {
             
             {
                 int index = bp + (offset++);
-                if (index >= len) {
-                    chLocal = EOI;
-                } else {
-                    chLocal = text.charAt(index);
-                }
+                chLocal = index >= len //
+                        ? EOI //
+                        : text.charAt(index);
             }
         }
         
-        if (chLocal >= '0' && chLocal <= '9') {
+        if (chLocal >= '0' //
+            && chLocal <= '9') {
             value = digits[chLocal];
             for (;;) {
                 //chLocal = charAt(bp + (offset++));
                 {
                     int index = bp + (offset++);
-                    if (index >= len) {
-                        chLocal = EOI;
-                    } else {
-                        chLocal = text.charAt(index);
-                    }
+                    chLocal = index >= len //
+                            ? EOI //
+                            : text.charAt(index);
                 }
                 if (chLocal >= '0' && chLocal <= '9') {
                     value = value * 10 + digits[chLocal];
@@ -2210,11 +2304,9 @@ public final class JSONLexer {
                         return 0;
                     }
                     int index = bp + (offset++);
-                    if (index >= len) {
-                        chLocal = EOI;
-                    } else {
-                        chLocal = text.charAt(index);
-                    }
+                    chLocal = index >= len //
+                            ? EOI //
+                            : text.charAt(index);
                     break;
                 } else {
                     break;
@@ -2234,11 +2326,9 @@ public final class JSONLexer {
             // this.next();
             {
                 int index = ++bp;
-                if (index >= this.len) {
-                    this.ch = EOI;
-                } else {
-                    this.ch = this.text.charAt(index);
-                }
+                this.ch = index >= len //
+                        ? EOI //
+                        : text.charAt(index);
             }
             matchStat = VALUE;
             token = JSONToken.COMMA;
@@ -2253,11 +2343,9 @@ public final class JSONLexer {
                 // this.next();
                 {
                     int index = ++bp;
-                    if (index >= this.len) {
-                        this.ch = EOI;
-                    } else {
-                        this.ch = this.text.charAt(index);
-                    }
+                    this.ch = index >= len //
+                            ? EOI //
+                            : text.charAt(index);
                 }
             } else if (chLocal == ']') {
                 token = JSONToken.RBRACKET;
@@ -2265,11 +2353,9 @@ public final class JSONLexer {
                 // this.next();
                 {
                     int index = ++bp;
-                    if (index >= this.len) {
-                        this.ch = EOI;
-                    } else {
-                        this.ch = this.text.charAt(index);
-                    }
+                    this.ch = index >= len //
+                            ? EOI //
+                            : text.charAt(index);
                 }
             } else if (chLocal == '}') {
                 token = JSONToken.RBRACE;
@@ -2277,11 +2363,9 @@ public final class JSONLexer {
                 // this.next();
                 {
                     int index = ++bp;
-                    if (index >= this.len) {
-                        this.ch = EOI;
-                    } else {
-                        this.ch = this.text.charAt(index);
-                    }
+                    this.ch = index >= len //
+                            ? EOI //
+                            : text.charAt(index);
                 }
             } else if (chLocal == EOI) {
                 token = JSONToken.EOF;
@@ -2471,11 +2555,9 @@ public final class JSONLexer {
             // this.next();
             {
                 int index = ++bp;
-                if (index >= this.len) {
-                    this.ch = EOI;
-                } else {
-                    this.ch = this.text.charAt(index);
-                }
+                this.ch = index >= len //
+                        ? EOI //
+                        : text.charAt(index);
             }
             matchStat = VALUE;
             return strVal;
@@ -2537,11 +2619,9 @@ public final class JSONLexer {
             
             {
                 int index = bp + (offset++);
-                if (index >= len) {
-                    chLocal = EOI;
-                } else {
-                    chLocal = text.charAt(index);
-                }
+                chLocal = index >= len //
+                        ? EOI //
+                        : text.charAt(index);
             }
         }
 
@@ -2567,11 +2647,9 @@ public final class JSONLexer {
                     return false;
                 }
                 int index = bp + (offset++);
-                if (index >= len) {
-                    chLocal = EOI;
-                } else {
-                    chLocal = text.charAt(index);
-                }
+                chLocal = index >= len //
+                        ? EOI //
+                        : text.charAt(index);
             }
 
             value = true;
@@ -2601,11 +2679,9 @@ public final class JSONLexer {
                     return false;
                 }
                 int index = bp + (offset++);
-                if (index >= len) {
-                    chLocal = EOI;
-                } else {
-                    chLocal = text.charAt(index);
-                }
+                chLocal = index >= len //
+                        ? EOI //
+                        : text.charAt(index);
             }
 
             value = false;
@@ -2620,11 +2696,9 @@ public final class JSONLexer {
             // this.next();
             {
                 int index = ++bp;
-                if (index >= this.len) {
-                    this.ch = EOI;
-                } else {
-                    this.ch = this.text.charAt(index);
-                }
+                this.ch = index >= len //
+                        ? EOI //
+                        : text.charAt(index);
             }
             matchStat = VALUE;
             token = JSONToken.COMMA;
@@ -2640,11 +2714,9 @@ public final class JSONLexer {
                 // this.next();
                 {
                     int index = ++bp;
-                    if (index >= this.len) {
-                        this.ch = EOI;
-                    } else {
-                        this.ch = this.text.charAt(index);
-                    }
+                    this.ch = index >= len //
+                            ? EOI //
+                            : text.charAt(index);
                 }
             } else if (chLocal == ']') {
                 token = JSONToken.RBRACKET;
@@ -2652,11 +2724,9 @@ public final class JSONLexer {
                 // this.next();
                 {
                     int index = ++bp;
-                    if (index >= this.len) {
-                        this.ch = EOI;
-                    } else {
-                        this.ch = this.text.charAt(index);
-                    }
+                    this.ch = index >= len //
+                            ? EOI //
+                            : text.charAt(index);
                 }
             } else if (chLocal == '}') {
                 token = JSONToken.RBRACE;
@@ -2664,11 +2734,9 @@ public final class JSONLexer {
                 // this.next();
                 {
                     int index = ++bp;
-                    if (index >= this.len) {
-                        this.ch = EOI;
-                    } else {
-                        this.ch = this.text.charAt(index);
-                    }
+                    this.ch = index >= len //
+                            ? EOI //
+                            : text.charAt(index);
                 }
             } else if (chLocal == EOI) {
                 token = JSONToken.EOF;
@@ -2917,11 +2985,9 @@ public final class JSONLexer {
             // this.next();
             {
                 int index = ++bp;
-                if (index >= this.len) {
-                    this.ch = EOI;
-                } else {
-                    this.ch = this.text.charAt(index);
-                }
+                this.ch = index >= len //
+                        ? EOI //
+                        : text.charAt(index);
             }
             matchStat = VALUE;
             return strVal;

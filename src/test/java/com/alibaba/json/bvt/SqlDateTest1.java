@@ -1,6 +1,6 @@
 package com.alibaba.json.bvt;
 
-import java.util.Date;
+import java.sql.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -11,7 +11,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 
 import junit.framework.TestCase;
 
-public class DateTest extends TestCase {
+public class SqlDateTest1 extends TestCase {
     protected void setUp() throws Exception {
         JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
         JSON.defaultLocale = new Locale("zh_CN");
@@ -22,7 +22,7 @@ public class DateTest extends TestCase {
         Date date = new Date(millis);
 
         Assert.assertEquals("1324138987429", JSON.toJSONString(date));
-        Assert.assertEquals("new Date(1324138987429)", JSON.toJSONString(date, SerializerFeature.WriteClassName));
+        Assert.assertEquals("{\"@type\":\"java.sql.Date\",\"val\":1324138987429}", JSON.toJSONString(date, SerializerFeature.WriteClassName));
 
         Assert.assertEquals("\"2011-12-18 00:23:07\"",
                             JSON.toJSONString(date, SerializerFeature.WriteDateUseDateFormat));

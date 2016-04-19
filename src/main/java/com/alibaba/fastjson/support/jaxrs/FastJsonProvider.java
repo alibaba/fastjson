@@ -7,7 +7,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -38,12 +37,9 @@ public class FastJsonProvider implements MessageBodyReader<Object>, MessageBodyW
     public ParserConfig parserConfig = ParserConfig.getGlobalInstance();
     public SerializerFeature[] serializerFeatures = new SerializerFeature[0];
     public Feature[] features = new Feature[0];
-    public Map<Class<?>, SerializeFilter> serializeFilters;
 
     @javax.ws.rs.core.Context
     javax.ws.rs.core.UriInfo uriInfo;
-
-    // protected FastJsonConfig fastJsonConfig = new FastJsonConfig(new SerializeConfig(), null, null, new ParserConfig(), null);
 
     /**
      * Can serialize/deserialize all types.
@@ -141,10 +137,6 @@ public class FastJsonProvider implements MessageBodyReader<Object>, MessageBodyW
                 featureList.add(SerializerFeature.PrettyFormat);
                 serializerFeatures = featureList.toArray(serializerFeatures);
             }
-        }
-
-        if (serializeFilters != null) {
-            filter = serializeFilters.get(type);
         }
 
         String jsonStr = JSON.toJSONString(t, filter, serializerFeatures);

@@ -202,7 +202,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
             annotatition = method.getAnnotation(annotationClass);
         }
         
-        if (annotatition == null && field == null) {
+        if (annotatition == null && field != null) {
             annotatition = field.getAnnotation(annotationClass);
         }
         

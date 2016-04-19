@@ -985,14 +985,22 @@ public final class JSONLexer {
 
         int chars_len;
         char[] chars;
-
+        
         chars_len = endIndex - startIndex;
         chars = sub_chars(bp + 1, chars_len);
         while ((chars_len > 0 // 
                 && chars[chars_len - 1] == '\\')
                 ) {
             
-            if (chars_len > 1 && chars[chars_len - 2] == '\\') {
+            int slashCount = 1;
+            for (int i = chars_len - 2; i >= 0; --i) {
+                if (chars[i] == '\\') {
+                    slashCount++;
+                } else {
+                    break;
+                }
+            }
+            if (slashCount % 2 == 0) {
                 break;
             }
             

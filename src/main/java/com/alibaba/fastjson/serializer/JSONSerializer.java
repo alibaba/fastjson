@@ -24,34 +24,42 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.util.FieldInfo;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
 public class JSONSerializer {
 
-    private final SerializeConfig                  config;
+    private final SerializeConfig                    config;
 
-    private final SerializeWriter                  out;
+    public final SerializeWriter                     out;
 
-    private List<BeforeFilter>                     beforeFilters      = null;
-    private List<AfterFilter>                      afterFilters       = null;
-    private List<PropertyFilter>                   propertyFilters    = null;
-    private List<ValueFilter>                      valueFilters       = null;
-    private List<NameFilter>                       nameFilters        = null;
-    private List<PropertyPreFilter>                propertyPreFilters = null;
-    private List<LabelFilter>                      labelFilters       = null;
+    protected List<BeforeFilter>                     beforeFilters      = null;
+    protected List<AfterFilter>                      afterFilters       = null;
+    protected List<PropertyFilter>                   propertyFilters    = null;
+    protected List<ValueFilter>                      valueFilters       = null;
+    protected List<NameFilter>                       nameFilters        = null;
+    protected List<PropertyPreFilter>                propertyPreFilters = null;
+    protected List<LabelFilter>                      labelFilters       = null;
+    protected List<ContextValueFilter>               contextValueFilters = null;
 
-    private int                                    indentCount        = 0;
-    private String                                 indent             = "\t";
+    private int                                      indentCount        = 0;
+    private String                                   indent             = "\t";
 
-    private String                                 dateFormatPattern;
-    private DateFormat                             dateFormat;
+    private String                                   dateFormatPattern;
+    private DateFormat                               dateFormat;
 
-    private IdentityHashMap<Object, SerialContext> references         = null;
-    private SerialContext                          context;
+    protected IdentityHashMap<Object, SerialContext> references         = null;
+    protected SerialContext                          context;
+    
+    protected TimeZone                               timeZone           = JSON.defaultTimeZone;
+    protected Locale                                 locale             = JSON.defaultLocale;
 
     public JSONSerializer(){
         this(new SerializeWriter(), SerializeConfig.getGlobalInstance());
@@ -63,11 +71,6 @@ public class JSONSerializer {
 
     public JSONSerializer(SerializeConfig config){
         this(new SerializeWriter(), config);
-    }
-
-    @Deprecated
-    public JSONSerializer(JSONSerializerMap mapping){
-        this(new SerializeWriter(), mapping);
     }
 
     public JSONSerializer(SerializeWriter out, SerializeConfig config){
@@ -85,7 +88,8 @@ public class JSONSerializer {
     public DateFormat getDateFormat() {
         if (dateFormat == null) {
             if (dateFormatPattern != null) {
-                dateFormat = new SimpleDateFormat(dateFormatPattern);
+                dateFormat = new SimpleDateFormat(dateFormatPattern, locale);
+                dateFormat.setTimeZone(timeZone);
             }
         }
 
@@ -119,7 +123,7 @@ public class JSONSerializer {
     }
     
     public void setContext(SerialContext parent, Object object, Object fieldName, int features, int fieldFeatures) {
-        if (isEnabled(SerializerFeature.DisableCircularReferenceDetect)) {
+        if (out.disableCircularReferenceDetect) {
             return;
         }
 
@@ -136,58 +140,34 @@ public class JSONSerializer {
 
     public void popContext() {
         if (context != null) {
-            this.context = this.context.getParent();
+            this.context = this.context.parent;
         }
     }
-
+    
     public final boolean isWriteClassName(Type fieldType, Object obj) {
-        boolean result = out.isEnabled(SerializerFeature.WriteClassName);
-
-        if (!result) {
-            return false;
-        }
-
-        if (fieldType == null) {
-            if (this.isEnabled(SerializerFeature.NotWriteRootClassName)) {
-                boolean isRoot = context.getParent() == null;
-                if (isRoot) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    public SerialContext getSerialContext(Object object) {
-        if (references == null) {
-            return null;
-        }
-
-        return references.get(object);
+        return out.isEnabled(SerializerFeature.WriteClassName) //
+               && (fieldType != null //
+                   || (!out.isEnabled(SerializerFeature.NotWriteRootClassName)) //
+                   || context.parent != null);
     }
 
     public boolean containsReference(Object value) {
-        if (references == null) {
-            return false;
-        }
-
-        return references.containsKey(value);
+        return references != null && references.containsKey(value);
     }
 
     public void writeReference(Object object) {
-        SerialContext context = this.getContext();
-        Object current = context.getObject();
+        SerialContext context = this.context;
+        Object current = context.object;
 
         if (object == current) {
             out.write("{\"$ref\":\"@\"}");
             return;
         }
 
-        SerialContext parentContext = context.getParent();
+        SerialContext parentContext = context.parent;
 
         if (parentContext != null) {
-            if (object == parentContext.getObject()) {
+            if (object == parentContext.object) {
                 out.write("{\"$ref\":\"..\"}");
                 return;
             }
@@ -195,25 +175,19 @@ public class JSONSerializer {
 
         SerialContext rootContext = context;
         for (;;) {
-            if (rootContext.getParent() == null) {
+            if (rootContext.parent == null) {
                 break;
             }
-            rootContext = rootContext.getParent();
+            rootContext = rootContext.parent;
         }
 
-        if (object == rootContext.getObject()) {
+        if (object == rootContext.object) {
             out.write("{\"$ref\":\"$\"}");
-            return;
+        } else {
+            out.write("{\"$ref\":\"");
+            out.write(references.get(object).toString());
+            out.write("\"}");
         }
-
-        SerialContext refContext = this.getSerialContext(object);
-
-        String path = refContext.getPath();
-
-        out.write("{\"$ref\":\"");
-        out.write(path);
-        out.write("\"}");
-        return;
     }
 
     public List<ValueFilter> getValueFilters() {
@@ -223,9 +197,19 @@ public class JSONSerializer {
 
         return valueFilters;
     }
-
-    public List<ValueFilter> getValueFiltersDirect() {
-        return valueFilters;
+    
+    public boolean checkValue() {
+        return (valueFilters != null && valueFilters.size() > 0) //
+               || (contextValueFilters != null && contextValueFilters.size() > 0)
+               || out.writeNonStringValueAsString;
+    }
+    
+    public List<ContextValueFilter> getContextValueFilters() {
+        if (contextValueFilters == null) {
+            contextValueFilters = new ArrayList<ContextValueFilter>();
+        }
+        
+        return contextValueFilters;
     }
 
     public int getIndentCount() {
@@ -254,10 +238,6 @@ public class JSONSerializer {
 
         return beforeFilters;
     }
-
-    public List<BeforeFilter> getBeforeFiltersDirect() {
-        return beforeFilters;
-    }
     
     public List<AfterFilter> getAfterFilters() {
         if (afterFilters == null) {
@@ -266,9 +246,9 @@ public class JSONSerializer {
 
         return afterFilters;
     }
-
-    public List<AfterFilter> getAfterFiltersDirect() {
-        return afterFilters;
+    
+    public boolean hasNameFilters() {
+        return nameFilters != null && nameFilters.size() > 0;
     }
 
     public List<NameFilter> getNameFilters() {
@@ -279,19 +259,11 @@ public class JSONSerializer {
         return nameFilters;
     }
 
-    public List<NameFilter> getNameFiltersDirect() {
-        return nameFilters;
-    }
-
     public List<PropertyPreFilter> getPropertyPreFilters() {
         if (propertyPreFilters == null) {
             propertyPreFilters = new ArrayList<PropertyPreFilter>();
         }
 
-        return propertyPreFilters;
-    }
-
-    public List<PropertyPreFilter> getPropertyPreFiltersDirect() {
         return propertyPreFilters;
     }
     
@@ -302,20 +274,12 @@ public class JSONSerializer {
         
         return labelFilters;
     }
-    
-    public List<LabelFilter> getLabelFiltersDirect() {
-        return labelFilters;
-    }
 
     public List<PropertyFilter> getPropertyFilters() {
         if (propertyFilters == null) {
             propertyFilters = new ArrayList<PropertyFilter>();
         }
 
-        return propertyFilters;
-    }
-
-    public List<PropertyFilter> getPropertyFiltersDirect() {
         return propertyFilters;
     }
 
@@ -366,7 +330,7 @@ public class JSONSerializer {
             out.writeNull();
             return;
         }
-
+        
         Class<?> clazz = object.getClass();
         ObjectSerializer writer = getObjectWriter(clazz);
 
@@ -410,7 +374,8 @@ public class JSONSerializer {
         if (object instanceof Date) {
             DateFormat dateFormat = this.getDateFormat();
             if (dateFormat == null) {
-                dateFormat = new SimpleDateFormat(format);
+                dateFormat = new SimpleDateFormat(format, locale);
+                dateFormat.setTimeZone(timeZone);
             }
             String text = dateFormat.format((Date) object);
             out.writeString(text);
@@ -431,4 +396,173 @@ public class JSONSerializer {
         this.out.close();
     }
 
+    /**
+     * only invoke by asm byte
+     * @return
+     */
+    public boolean writeDirect() {
+        return out.writeDirect // 
+                && beforeFilters == null
+                && afterFilters == null
+                && valueFilters == null //
+                && contextValueFilters == null //
+                && propertyFilters == null //
+                && nameFilters == null
+                && propertyPreFilters == null
+                && labelFilters == null
+                ;
+    }
+    
+    public FieldInfo getFieldInfo() {
+        return null;
+    }
+    
+    public Object processValue(JavaBeanSerializer javaBeanDeser, //
+                                      Object object, // 
+                                      String key, // 
+                                      Object propertyValue) {
+        
+        if (propertyValue != null // 
+                && out.writeNonStringValueAsString) {
+            if (propertyValue instanceof Number || propertyValue instanceof Boolean) {
+                propertyValue = propertyValue.toString();
+            }
+        }
+        
+        List<ValueFilter> valueFilters = this.valueFilters;
+        if (valueFilters != null) {
+            for (ValueFilter valueFilter : valueFilters) {
+                propertyValue = valueFilter.process(object, key, propertyValue);
+            }
+        }
+        
+        List<ContextValueFilter> contextValueFilters = this.contextValueFilters;
+        if (contextValueFilters != null) {
+            BeanContext fieldContext = javaBeanDeser.getFieldSerializer(key).fieldContext;
+            for (ContextValueFilter valueFilter : contextValueFilters) {
+                propertyValue = valueFilter.process(fieldContext, object, key, propertyValue);
+            }
+        }
+
+        return propertyValue;
+    }
+    
+    public String processKey(Object object, String key, Object propertyValue) {
+        List<NameFilter> nameFilters = this.nameFilters;
+        if (nameFilters != null) {
+            for (NameFilter nameFilter : nameFilters) {
+                key = nameFilter.process(object, key, propertyValue);
+            }
+        }
+
+        return key;
+    }
+    
+    public boolean applyName(Object object, String key) {
+        List<PropertyPreFilter> filters = this.propertyPreFilters;
+
+        if (filters == null) {
+            return true;
+        }
+
+        for (PropertyPreFilter filter : filters) {
+            if (!filter.apply(this, object, key)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+    
+    public boolean apply(Object object, String key, Object propertyValue) {
+        List<PropertyFilter> propertyFilters = this.propertyFilters;
+
+        if (propertyFilters == null) {
+            return true;
+        }
+
+        for (PropertyFilter propertyFilter : propertyFilters) {
+            if (!propertyFilter.apply(object, key, propertyValue)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+    
+    public char writeBefore(Object object, char seperator) {
+        List<BeforeFilter> beforeFilters = this.beforeFilters;
+        if (beforeFilters != null) {
+            for (BeforeFilter beforeFilter : beforeFilters) {
+                seperator = beforeFilter.writeBefore(this, object, seperator);
+            }
+        }
+        return seperator;
+    }
+    
+    public char writeAfter(Object object, char seperator) {
+        List<AfterFilter> afterFilters = this.afterFilters;
+        if (afterFilters != null) {
+            for (AfterFilter afterFilter : afterFilters) {
+                seperator = afterFilter.writeAfter(this, object, seperator);
+            }
+        }
+        return seperator;
+    }
+    
+    public boolean applyLabel(String label) {
+        List<LabelFilter> labelFilters = this.labelFilters;
+
+        if (labelFilters != null) {
+            boolean apply = true;
+
+            for (LabelFilter propertyFilter : labelFilters) {
+                if (!propertyFilter.apply(label)) {
+                    return false;
+                }
+            }
+
+            return apply;
+        }
+
+        return true;
+    }
+    
+    public void addFilter(SerializeFilter filter) {
+        if (filter == null) {
+            return;
+        }
+        
+        if (filter instanceof PropertyPreFilter) {
+            this.getPropertyPreFilters().add((PropertyPreFilter) filter);
+        }
+
+        if (filter instanceof NameFilter) {
+            this.getNameFilters().add((NameFilter) filter);
+        }
+
+        if (filter instanceof ValueFilter) {
+            this.getValueFilters().add((ValueFilter) filter);
+        }
+        
+        if (filter instanceof ContextValueFilter) {
+            this.getContextValueFilters().add((ContextValueFilter) filter);
+        }
+
+        if (filter instanceof PropertyFilter) {
+            this.getPropertyFilters().add((PropertyFilter) filter);
+        }
+
+        if (filter instanceof BeforeFilter) {
+            this.getBeforeFilters().add((BeforeFilter) filter);
+        }
+
+        if (filter instanceof AfterFilter) {
+            this.getAfterFilters().add((AfterFilter) filter);
+        }
+        
+        if (filter instanceof LabelFilter) {
+            this.getLabelFilters().add((LabelFilter) filter);
+        }
+    }
 }

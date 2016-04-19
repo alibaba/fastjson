@@ -11,7 +11,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.TypeReference;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 
@@ -108,11 +108,11 @@ public class ArrayListStringDeserializerTest extends TestCase {
         }
 
         int featureValues = 0;
-        for (Feature featrue : features) {
-            featureValues = Feature.config(featureValues, featrue, true);
+        for (Feature feature : features) {
+            featureValues = Feature.config(featureValues, feature, true);
         }
 
-        DefaultExtJSONParser parser = new DefaultExtJSONParser(input, ParserConfig.getGlobalInstance(), featureValues);
+        DefaultJSONParser parser = new DefaultJSONParser(input, ParserConfig.getGlobalInstance(), featureValues);
         T value = (T) parser.parseObject(clazz);
 
         if (clazz != JSONArray.class) {

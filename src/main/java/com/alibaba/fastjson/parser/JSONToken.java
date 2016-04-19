@@ -115,7 +115,7 @@ public class JSONToken {
             case UNDEFINED:
                 return "undefined";
             default:
-                return "Unkown";
+                return "Unknown";
         }
     }
 }

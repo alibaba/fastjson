@@ -2,15 +2,21 @@ package com.alibaba.json.bvt.bug;
 
 import java.io.Serializable;
 import java.util.Date;
-
-import junit.framework.TestCase;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.alibaba.json.bvt.parser.GenericTest.Address;
+import com.alibaba.json.bvt.parser.deser.generic.GenericTest4.Address;
+
+import junit.framework.TestCase;
 
 public class Bug_for_lenolix_7 extends TestCase {
-
+    protected void setUp() throws Exception {
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        JSON.defaultLocale = Locale.CHINA;
+    }
+    
     public void test_for_objectKey() throws Exception {
         User user = new User();
         user.setId(1);

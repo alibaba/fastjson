@@ -4,11 +4,11 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 
 import org.junit.Assert;
-import junit.framework.TestCase;
 
 import com.alibaba.fastjson.util.IOUtils;
-import com.alibaba.fastjson.util.ThreadLocalCache;
 import com.alibaba.fastjson.util.UTF8Decoder;
+
+import junit.framework.TestCase;
 
 public class TestUTF8_4 extends TestCase {
 
@@ -17,7 +17,7 @@ public class TestUTF8_4 extends TestCase {
 
         UTF8Decoder charsetDecoder = new UTF8Decoder();
         int scaleLength = (int) (bytes.length * (double) charsetDecoder.maxCharsPerByte());
-        char[] chars = ThreadLocalCache.getChars(scaleLength);
+        char[] chars = IOUtils.getChars(scaleLength);
 
         CharBuffer charBuffer = CharBuffer.wrap(chars);
 
@@ -35,7 +35,7 @@ public class TestUTF8_4 extends TestCase {
 
         UTF8Decoder charsetDecoder = new UTF8Decoder();
         int scaleLength = (int) (bytes.length * (double) charsetDecoder.maxCharsPerByte());
-        char[] chars = ThreadLocalCache.getChars(scaleLength);
+        char[] chars = IOUtils.getChars(scaleLength);
 
         CharBuffer charBuffer = CharBuffer.wrap(chars);
 
@@ -53,7 +53,7 @@ public class TestUTF8_4 extends TestCase {
 
         UTF8Decoder charsetDecoder = new UTF8Decoder();
         int scaleLength = (int) (bytes.length * (double) charsetDecoder.maxCharsPerByte());
-        char[] chars = ThreadLocalCache.getChars(scaleLength);
+        char[] chars = IOUtils.getChars(scaleLength);
 
         CharBuffer charBuffer = CharBuffer.wrap(chars);
 
@@ -67,11 +67,9 @@ public class TestUTF8_4 extends TestCase {
     }
 
     public void test_error_3() throws Exception {
-        UTF8Decoder charsetDecoder = new UTF8Decoder();
-
         Exception error = null;
         try {
-            charsetDecoder.malformedN(null, 5);
+            UTF8Decoder.malformedN(null, 5);
         } catch (Exception ex) {
             error = ex;
         }

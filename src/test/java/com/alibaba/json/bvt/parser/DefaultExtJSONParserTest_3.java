@@ -6,21 +6,21 @@ import org.junit.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 
 public class DefaultExtJSONParserTest_3 extends TestCase {
 
     public void test_0() throws Exception {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("{v1:3}");
+        DefaultJSONParser parser = new DefaultJSONParser("{v1:3}");
         parser.config(Feature.AllowUnQuotedFieldNames, true);
         A a = parser.parseObject(A.class);
         Assert.assertEquals(3, a.getV1());
     }
 
     public void test_1() throws Exception {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("{v1:'3'}");
+        DefaultJSONParser parser = new DefaultJSONParser("{v1:'3'}");
         parser.config(Feature.AllowUnQuotedFieldNames, true);
         parser.config(Feature.AllowSingleQuotes, true);
         A a = parser.parseObject(A.class);
@@ -28,7 +28,7 @@ public class DefaultExtJSONParserTest_3 extends TestCase {
     }
 
     public void test_2() throws Exception {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("{v1:\"3\"}");
+        DefaultJSONParser parser = new DefaultJSONParser("{v1:\"3\"}");
         parser.config(Feature.AllowUnQuotedFieldNames, true);
         parser.config(Feature.AllowSingleQuotes, true);
         A a = parser.parseObject(A.class);
@@ -36,7 +36,7 @@ public class DefaultExtJSONParserTest_3 extends TestCase {
     }
 
     public void test_3() throws Exception {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("{o1:{}}");
+        DefaultJSONParser parser = new DefaultJSONParser("{o1:{}}");
         parser.config(Feature.AllowUnQuotedFieldNames, true);
         parser.config(Feature.AllowSingleQuotes, true);
         A a = parser.parseObject(A.class);
@@ -44,7 +44,7 @@ public class DefaultExtJSONParserTest_3 extends TestCase {
     }
 
     public void test_4() throws Exception {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("{v5:'3'}");
+        DefaultJSONParser parser = new DefaultJSONParser("{v5:'3'}");
         parser.config(Feature.AllowUnQuotedFieldNames, true);
         parser.config(Feature.AllowSingleQuotes, true);
         A a = parser.parseObject(A.class);
@@ -52,7 +52,7 @@ public class DefaultExtJSONParserTest_3 extends TestCase {
     }
 
     public void test_5() throws Exception {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("{v5:\"3\"}");
+        DefaultJSONParser parser = new DefaultJSONParser("{v5:\"3\"}");
         parser.config(Feature.AllowUnQuotedFieldNames, true);
         parser.config(Feature.AllowSingleQuotes, true);
         A a = parser.parseObject(A.class);
@@ -65,13 +65,13 @@ public class DefaultExtJSONParserTest_3 extends TestCase {
 
         Assert.assertEquals(true, Feature.isEnabled(features, Feature.AllowSingleQuotes));
 
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("'abc'", ParserConfig.getGlobalInstance(), features);
+        DefaultJSONParser parser = new DefaultJSONParser("'abc'", ParserConfig.getGlobalInstance(), features);
 
         Assert.assertEquals("abc", parser.parse());
     }
 
     public void test_7() throws Exception {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("123");
+        DefaultJSONParser parser = new DefaultJSONParser("123");
 
         ParserConfig mapping = new ParserConfig();
         parser.setConfig(mapping);

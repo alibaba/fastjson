@@ -8,13 +8,13 @@ import junit.framework.TestCase;
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 
 public class DefaultExtJSONParserTest_7 extends TestCase {
 
     public void test_parse() throws Exception {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("1");
+        DefaultJSONParser parser = new DefaultJSONParser("1");
         Assert.assertEquals(Integer.valueOf(1), parser.parse());
 
         Exception error = null;
@@ -27,14 +27,14 @@ public class DefaultExtJSONParserTest_7 extends TestCase {
     }
 
     public void test_parse_str() throws Exception {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("\"1\"");
+        DefaultJSONParser parser = new DefaultJSONParser("\"1\"");
         parser.config(Feature.AllowISO8601DateFormat, true);
         Assert.assertEquals("1", parser.parse());
 
     }
 
     public void test_parseArray() throws Exception {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("[1]");
+        DefaultJSONParser parser = new DefaultJSONParser("[1]");
         parser.config(Feature.AllowArbitraryCommas, false);
         List<String> list = new ArrayList<String>();
         parser.parseArray(String.class, list);
@@ -42,7 +42,7 @@ public class DefaultExtJSONParserTest_7 extends TestCase {
     }
 
     public void test_parseArray_error() throws Exception {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("[1,2}");
+        DefaultJSONParser parser = new DefaultJSONParser("[1,2}");
         parser.config(Feature.AllowArbitraryCommas, false);
         List<String> list = new ArrayList<String>();
 

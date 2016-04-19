@@ -26,16 +26,16 @@ public class EnumSerializer implements ObjectSerializer {
     public final static EnumSerializer instance = new EnumSerializer();
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
         if (object == null) {
-            serializer.getWriter().writeNull();
+            out.writeNull();
             return;
         }
 
         Enum<?> e = (Enum<?>) object;
-        if(serializer.isEnabled(SerializerFeature.WriteEnumUsingName)){
+        if(out.writeEnumUsingName && !out.writeEnumUsingToString){
             serializer.write(e.name());
-        } else if (serializer.isEnabled(SerializerFeature.WriteEnumUsingToString)) {
+        } else if (out.writeEnumUsingToString) {
             serializer.write(e.toString());
         } else {
             out.writeInt(e.ordinal());

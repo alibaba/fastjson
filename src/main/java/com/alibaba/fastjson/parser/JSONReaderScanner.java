@@ -23,7 +23,6 @@ import java.lang.ref.SoftReference;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.util.Base64;
 import com.alibaba.fastjson.util.IOUtils;
 
 //这个类，为了性能优化做了很多特别处理，一切都是为了性能！！！
@@ -58,8 +57,8 @@ public final class JSONReaderScanner extends JSONLexerBase {
     }
 
     public JSONReaderScanner(Reader reader, int features){
+        super(features);
         this.reader = reader;
-        this.features = features;
 
         SoftReference<char[]> bufRef = BUF_REF_LOCAL.get();
         if (bufRef != null) {
@@ -98,29 +97,43 @@ public final class JSONReaderScanner extends JSONLexerBase {
                 return EOI;
             }
 
-            int rest = bufLength - bp;
-            if (rest > 0) {
-                System.arraycopy(buf, bp, buf, 0, rest);
+            if (bp == 0) {
+                char[] buf = new char[(this.buf.length * 3) /2];
+                System.arraycopy(this.buf, bp, buf, 0, bufLength);
+                
+                int rest = buf.length - bufLength;
+                try {
+                    int len = reader.read(buf, bufLength, rest);
+                    bufLength += len;
+                    this.buf = buf;
+                } catch (IOException e) {
+                    throw new JSONException(e.getMessage(), e);
+                }
+            } else {
+                int rest = bufLength - bp;
+                if (rest > 0) {
+                    System.arraycopy(buf, bp, buf, 0, rest);
+                }
+    
+                try {
+                    bufLength = reader.read(buf, rest, buf.length - rest);
+                } catch (IOException e) {
+                    throw new JSONException(e.getMessage(), e);
+                }
+    
+                if (bufLength == 0) {
+                    throw new JSONException("illegal state, textLength is zero");
+                }
+    
+                if (bufLength == -1) {
+                    return EOI;
+                }
+    
+                bufLength += rest;
+                index -= bp;
+                np -= bp;
+                bp = 0;
             }
-
-            try {
-                bufLength = reader.read(buf, rest, buf.length - rest);
-            } catch (IOException e) {
-                throw new JSONException(e.getMessage(), e);
-            }
-
-            if (bufLength == 0) {
-                throw new JSONException("illegal stat, textLength is zero");
-            }
-
-            if (bufLength == -1) {
-                return EOI;
-            }
-
-            bufLength += rest;
-            index -= bp;
-            np -= bp;
-            bp = 0;
         }
 
         return buf[index];
@@ -142,6 +155,8 @@ public final class JSONReaderScanner extends JSONLexerBase {
     public final String addSymbol(int offset, int len, int hash, final SymbolTable symbolTable) {
         return symbolTable.addSymbol(buf, offset, len, hash);
     }
+
+
 
     public final char next() {
         int index = ++bp;
@@ -206,7 +221,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
     }
 
     public byte[] bytesValue() {
-        return Base64.decodeFast(buf, np + 1, sp);
+        return IOUtils.decodeFast(buf, np + 1, sp);
     }
 
     protected final void arrayCopy(int srcPos, char[] dest, int destPos, int length) {

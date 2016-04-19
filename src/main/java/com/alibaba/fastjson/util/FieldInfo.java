@@ -8,6 +8,7 @@ import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -16,23 +17,35 @@ import com.alibaba.fastjson.annotation.JSONField;
 
 public class FieldInfo implements Comparable<FieldInfo> {
 
-    private final String   name;
-    private final Method   method;
-    private final Field    field;
+    public final String     name;
+    public final Method     method;
+    public final Field      field;
 
-    private int            ordinal = 0;
-    private final Class<?> fieldClass;
-    private final Type     fieldType;
-    private final Class<?> declaringClass;
-    private boolean        getOnly = false;
-    private int            serialzeFeatures;
-    private String         label = "";
+    private int             ordinal = 0;
+    public final Class<?>   fieldClass;
+    public final Type       fieldType;
+    public final Class<?>   declaringClass;
+    public final boolean    getOnly;
+    public final int        serialzeFeatures;
+    public final String     label;
+
+    private final JSONField fieldAnnotation;
+    private final JSONField methodAnnotation;
     
-    public FieldInfo(String name, Class<?> declaringClass, Class<?> fieldClass, Type fieldType, Field field){
-        this(name, declaringClass, fieldClass, fieldType, field, 0, 0);
-    }
+    public final boolean    fieldAccess;
+    public final boolean    fieldTransient;
 
-    public FieldInfo(String name, Class<?> declaringClass, Class<?> fieldClass, Type fieldType, Field field, int ordinal, int serialzeFeatures){
+    public final char[]     name_chars;
+    
+    public final boolean    isEnum;
+    
+    public FieldInfo(String name, // 
+                     Class<?> declaringClass, // 
+                     Class<?> fieldClass, // 
+                     Type fieldType, // 
+                     Field field, // 
+                     int ordinal, // 
+                     int serialzeFeatures){
         this.name = name;
         this.declaringClass = declaringClass;
         this.fieldClass = fieldClass;
@@ -41,37 +54,71 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.field = field;
         this.ordinal = ordinal;
         this.serialzeFeatures = serialzeFeatures;
+        
+        isEnum = fieldClass.isEnum();
+        
+        if (field != null) {
+            int modifiers = field.getModifiers();
+            fieldAccess = (modifiers & Modifier.PUBLIC) != 0 || method == null;
+            fieldTransient = Modifier.isTransient(modifiers);
+        } else {
+            fieldTransient = false;
+            fieldAccess = false;
+        }
+        
+        name_chars = genFieldNameChars();
 
         if (field != null) {
             TypeUtils.setAccessible(field);
         }
-    }
-    
-    public FieldInfo(String name, Method method, Field field){
-        this(name, method, field, null, null);
-    }
-    
-    public FieldInfo(String name, Method method, Field field, int ordinal, int serialzeFeatures){
-        this(name, method, field, ordinal, serialzeFeatures, null);
+        
+        this.label = "";
+        fieldAnnotation = null;
+        methodAnnotation = null;
+        this.getOnly = false;
     }
 
-    public FieldInfo(String name, Method method, Field field, int ordinal, int serialzeFeatures, String label){
-        this(name, method, field, null, null, ordinal, serialzeFeatures);
-        if (label != null && label.length() > 0) {
-            this.label = label;
+    public FieldInfo(String name, // 
+                     Method method, // 
+                     Field field, // 
+                     Class<?> clazz, // 
+                     Type type, // 
+                     int ordinal, // 
+                     int serialzeFeatures, // 
+                     JSONField fieldAnnotation, // 
+                     JSONField methodAnnotation, //
+                     String label){
+        if (field != null) {
+            String fieldName = field.getName();
+            if (fieldName.equals(name)) {
+                name = fieldName;
+            }
         }
-    }
-
-    public FieldInfo(String name, Method method, Field field, Class<?> clazz, Type type){
-        this(name, method, field, clazz, type, 0, 0);
-    }
-
-    public FieldInfo(String name, Method method, Field field, Class<?> clazz, Type type, int ordinal, int serialzeFeatures){
+        
         this.name = name;
         this.method = method;
         this.field = field;
         this.ordinal = ordinal;
         this.serialzeFeatures = serialzeFeatures;
+        this.fieldAnnotation = fieldAnnotation;
+        this.methodAnnotation = methodAnnotation;
+        
+        if (field != null) {
+            int modifiers = field.getModifiers();
+            fieldAccess = ((modifiers & Modifier.PUBLIC) != 0 || method == null);
+            fieldTransient = Modifier.isTransient(modifiers);
+        } else {
+            fieldAccess = false;
+            fieldTransient = false;
+        }
+        
+        if (label != null && label.length() > 0) { 
+            this.label = label;
+        } else {
+            this.label = "";
+        }
+        
+        name_chars = genFieldNameChars();
 
         if (method != null) {
             TypeUtils.setAccessible(method);
@@ -81,11 +128,13 @@ public class FieldInfo implements Comparable<FieldInfo> {
             TypeUtils.setAccessible(field);
         }
 
+        boolean getOnly = false;
         Type fieldType;
         Class<?> fieldClass;
         if (method != null) {
-            if (method.getParameterTypes().length == 1) {
-                fieldClass = method.getParameterTypes()[0];
+        	Class<?>[] types;
+            if ((types = method.getParameterTypes()).length == 1) {
+                fieldClass = types[0];
                 fieldType = method.getGenericParameterTypes()[0];
             } else {
                 fieldClass = method.getReturnType();
@@ -98,6 +147,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
             fieldType = field.getGenericType();
             this.declaringClass = field.getDeclaringClass();
         }
+        this.getOnly = getOnly;
 
         if (clazz != null && fieldClass == Object.class && fieldType instanceof TypeVariable) {
             TypeVariable<?> tv = (TypeVariable<?>) fieldType;
@@ -105,30 +155,61 @@ public class FieldInfo implements Comparable<FieldInfo> {
             if (genericFieldType != null) {
                 this.fieldClass = TypeUtils.getClass(genericFieldType);
                 this.fieldType = genericFieldType;
+                
+                isEnum = fieldClass.isEnum();
                 return;
             }
         }
 
-        Type genericFieldType = getFieldType(clazz, type, fieldType);
-
-        if (genericFieldType != fieldType) {
-            if (genericFieldType instanceof ParameterizedType) {
-                fieldClass = TypeUtils.getClass(genericFieldType);
-            } else if (genericFieldType instanceof Class) {
-                fieldClass = TypeUtils.getClass(genericFieldType);
+        Type genericFieldType = fieldType;
+        
+        if (!(fieldType instanceof Class)) {
+            genericFieldType = getFieldType(clazz, type, fieldType);
+    
+            if (genericFieldType != fieldType) {
+                if (genericFieldType instanceof ParameterizedType) {
+                    fieldClass = TypeUtils.getClass(genericFieldType);
+                } else if (genericFieldType instanceof Class) {
+                    fieldClass = TypeUtils.getClass(genericFieldType);
+                }
             }
         }
 
         this.fieldType = genericFieldType;
         this.fieldClass = fieldClass;
+        
+        isEnum = fieldClass.isEnum();
     }
     
+    protected char[] genFieldNameChars() {
+        int nameLen = this.name.length();
+        char[] name_chars = new char[nameLen + 3];
+        this.name.getChars(0, this.name.length(), name_chars, 1);
+        name_chars[0] = '"';
+        name_chars[nameLen + 1] = '"';
+        name_chars[nameLen + 2] = ':';
+        return name_chars;
+    }
     
-    public String getLabel() {
-        return label;
+    @SuppressWarnings("unchecked")
+    public <T extends Annotation> T getAnnation(Class<T> annotationClass) {
+        if (annotationClass == JSONField.class) {
+            return (T) getAnnotation();
+        }
+        
+        T annotatition = null;
+        if (method != null) {
+            annotatition = method.getAnnotation(annotationClass);
+        }
+        
+        if (annotatition == null && field == null) {
+            annotatition = field.getAnnotation(annotationClass);
+        }
+        
+        return annotatition;
     }
 
-    public static Type getFieldType(Class<?> clazz, Type type, Type fieldType) {
+    public static Type getFieldType(final Class<?> clazz, final Type type, Type fieldType) {
         if (clazz == null || type == null) {
             return fieldType;
         }
@@ -152,10 +233,11 @@ public class FieldInfo implements Comparable<FieldInfo> {
         if (fieldType instanceof TypeVariable) {
             ParameterizedType paramType = (ParameterizedType) TypeUtils.getGenericParamType(type);
             Class<?> parameterizedClass = TypeUtils.getClass(paramType);
-            TypeVariable<?> typeVar = (TypeVariable<?>) fieldType;
-
-            for (int i = 0; i < parameterizedClass.getTypeParameters().length; ++i) {
-                if (parameterizedClass.getTypeParameters()[i].getName().equals(typeVar.getName())) {
+            final TypeVariable<?> typeVar = (TypeVariable<?>) fieldType;
+            
+            TypeVariable<?>[] typeVariables = parameterizedClass.getTypeParameters();
+            for (int i = 0; i < typeVariables.length; ++i) {
+                if (typeVariables[i].getName().equals(typeVar.getName())) {
                     fieldType = paramType.getActualTypeArguments()[i];
                     return fieldType;
                 }
@@ -167,16 +249,23 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
             Type[] arguments = parameterizedFieldType.getActualTypeArguments();
             boolean changed = false;
+            TypeVariable<?>[] typeVariables = null;
+            Type[] actualTypes = null;
             for (int i = 0; i < arguments.length; ++i) {
                 Type feildTypeArguement = arguments[i];
                 if (feildTypeArguement instanceof TypeVariable) {
                     TypeVariable<?> typeVar = (TypeVariable<?>) feildTypeArguement;
 
                     if (type instanceof ParameterizedType) {
-                        ParameterizedType parameterizedType = (ParameterizedType) type;
-                        for (int j = 0; j < clazz.getTypeParameters().length; ++j) {
-                            if (clazz.getTypeParameters()[j].getName().equals(typeVar.getName())) {
-                                arguments[i] = parameterizedType.getActualTypeArguments()[j];
+                        if (typeVariables == null) {
+                        	typeVariables = clazz.getTypeParameters();							
+						}
+                        for (int j = 0; j < typeVariables.length; ++j) {
+                            if (typeVariables[j].getName().equals(typeVar.getName())) {
+                            	if (actualTypes == null) {
+									actualTypes = ((ParameterizedType) type).getActualTypeArguments();
+								}
+                                arguments[i] = actualTypes[j];
                                 changed = true;
                             }
                         }
@@ -221,27 +310,6 @@ public class FieldInfo implements Comparable<FieldInfo> {
         return this.name;
     }
 
-    public Class<?> getDeclaringClass() {
-        return declaringClass;
-    }
-
-    public Class<?> getFieldClass() {
-        return fieldClass;
-    }
-
-    public Type getFieldType() {
-        return fieldType;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getQualifiedName() {
-        Member member = getMember();
-        return member.getDeclaringClass().getName() + "." + member.getName();
-    }
-
     public Member getMember() {
         if (method != null) {
             return method;
@@ -250,12 +318,16 @@ public class FieldInfo implements Comparable<FieldInfo> {
         }
     }
 
-    public Method getMethod() {
-        return method;
-    }
-
-    public Field getField() {
-        return field;
+    protected Class<?> getDeclaredClass() {
+        if (this.method != null) {
+            return this.method.getDeclaringClass();
+        }
+        
+        if (this.field != null) {
+            return this.field.getDeclaringClass();
+        }
+        
+        return null;
     }
 
     public int compareTo(FieldInfo o) {
@@ -267,27 +339,66 @@ public class FieldInfo implements Comparable<FieldInfo> {
             return 1;
         }
 
-        return this.name.compareTo(o.name);
-    }
-
-    public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
-        T annotation = null;
-        if (method != null) {
-            annotation = method.getAnnotation(annotationClass);
+        int result = this.name.compareTo(o.name);
+        
+        if (result != 0) {
+            return result;
         }
-
-        if (annotation == null) {
-            if (field != null) {
-                annotation = field.getAnnotation(annotationClass);
+        
+        Class<?> thisDeclaringClass = this.getDeclaredClass();
+        Class<?> otherDeclaringClass = o.getDeclaredClass();
+        
+        if (thisDeclaringClass != null && otherDeclaringClass != null && thisDeclaringClass != otherDeclaringClass) {
+            if (thisDeclaringClass.isAssignableFrom(otherDeclaringClass)) {
+                return -1;
+            }
+            
+            if (otherDeclaringClass.isAssignableFrom(thisDeclaringClass)) {
+                return 1;
             }
         }
-
-        return annotation;
+        
+        boolean isSampeType = this.field != null && this.field.getType() == this.fieldClass;
+        boolean oSameType = o.field != null && o.field.getType() == o.fieldClass;
+        
+        if (isSampeType && !oSameType) {
+            return 1;
+        }
+        
+        if (oSameType && !isSampeType) {
+            return -1;
+        }
+        
+        if (o.fieldClass.isPrimitive() && !this.fieldClass.isPrimitive()) {
+            return 1;
+        }
+        
+        if (this.fieldClass.isPrimitive() && !o.fieldClass.isPrimitive()) {
+            return -1;
+        }
+        
+        if (o.fieldClass.getName().startsWith("java.") && !this.fieldClass.getName().startsWith("java.")) {
+            return 1;
+        }
+        
+        if (this.fieldClass.getName().startsWith("java.") && !o.fieldClass.getName().startsWith("java.")) {
+            return -1;
+        }
+        
+        return this.fieldClass.getName().compareTo(o.fieldClass.getName());
+    }
+    
+    public JSONField getAnnotation() {
+        if (this.fieldAnnotation != null) {
+            return this.fieldAnnotation;
+        }
+        
+        return this.methodAnnotation;
     }
 
     public String getFormat() {
         String format = null;
-        JSONField annotation = getAnnotation(JSONField.class);
+        JSONField annotation = getAnnotation();
 
         if (annotation != null) {
             format = annotation.format();
@@ -317,7 +428,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         field.set(javaObject, value);
     }
 
-    public void setAccessible(boolean flag) throws SecurityException {
+    public void setAccessible() throws SecurityException {
         if (method != null) {
             TypeUtils.setAccessible(method);
             return;
@@ -325,14 +436,4 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
         TypeUtils.setAccessible(field);
     }
-
-    public boolean isGetOnly() {
-        return getOnly;
-    }
-
-    
-    public int getSerialzeFeatures() {
-        return serialzeFeatures;
-    }
-
 }

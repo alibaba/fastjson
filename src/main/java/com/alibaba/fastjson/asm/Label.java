@@ -38,25 +38,7 @@ package com.alibaba.fastjson.asm;
  * @author Eric Bruneton
  */
 public class Label {
-
-    /**
-     * Indicates if the position of this label is known.
-     */
-    static final int RESOLVED = 2;
-
-    /**
-     * Field used to associate user information to a label. Warning: this field is used by the ASM tree package. In
-     * order to use it with the ASM tree package you must override the
-     *com.alibaba.fastjson.asm.tree.MethodNode#getLabelNode method.
-     */
-    public Object    info;
-
     int              status;
-
-    /**
-     * The line number corresponding to this label, if known.
-     */
-    int              line;
 
     /**
      * The position of this label in the code, if known.
@@ -159,7 +141,7 @@ public class Label {
      * @throws IllegalArgumentException if this label has not been created by the given code writer.
      */
     void put(final MethodWriter owner, final ByteVector out, final int source) {
-        if ((status & RESOLVED) == 0) {
+        if ((status & 2 /* RESOLVED */ ) == 0) {
             addReference(source, out.length);
             out.putShort(-1);
         } else {
@@ -205,7 +187,7 @@ public class Label {
      * given code writer.
      */
     void resolve(final MethodWriter owner, final int position, final byte[] data) {
-        this.status |= RESOLVED;
+        this.status |= 2 /* RESOLVED */ ;
         this.position = position;
         int i = 0;
         while (i < referenceCount) {

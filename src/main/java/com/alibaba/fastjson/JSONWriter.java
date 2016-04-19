@@ -72,8 +72,8 @@ public class JSONWriter implements Closeable, Flushable {
     }
 
     private void beginStructure() {
-        final int state = context.getState();
-        switch (state) {
+        final int state = context.state;
+        switch (context.state) {
             case PropertyKey:
                 writer.write(':');
                 break;
@@ -95,15 +95,14 @@ public class JSONWriter implements Closeable, Flushable {
     }
 
     private void endStructure() {
-        context = context.getParent();
+        context = context.parent;
 
         if (context == null) {
             return;
         }
         
-        final int state = context.getState();
         int newState = -1;
-        switch (state) {
+        switch (context.state) {
             case PropertyKey:
                 newState = PropertyValue;
                 break;
@@ -119,7 +118,7 @@ public class JSONWriter implements Closeable, Flushable {
                 break;
         }
         if (newState != -1) {
-            context.setState(newState);
+            context.state = newState;
         }
     }
 
@@ -128,7 +127,7 @@ public class JSONWriter implements Closeable, Flushable {
             return;
         }
         
-        switch (context.getState()) {
+        switch (context.state) {
             case StartObject:
             case StartArray:
                 break;
@@ -151,7 +150,7 @@ public class JSONWriter implements Closeable, Flushable {
             return;
         }
 
-        final int state = context.getState();
+        final int state = context.state;
         int newState = -1;
         switch (state) {
             case PropertyKey:
@@ -171,7 +170,7 @@ public class JSONWriter implements Closeable, Flushable {
         }
 
         if (newState != -1) {
-            context.setState(newState);
+            context.state = newState;
         }
     }
 

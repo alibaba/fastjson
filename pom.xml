@@ -2,17 +2,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
- <!--  
+<!--
 	<parent>
-	    <groupId>com.alibaba</groupId>
-	   <artifactId>parent-pom</artifactId>
-	   <version>1.0.0-SNAPSHOT</version>
-	 </parent>
--->
-
+		<groupId>com.alibaba</groupId>
+		<artifactId>parent-pom</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+-->	
 	<groupId>com.alibaba</groupId>
 	<artifactId>fastjson</artifactId>
-	<version>1.2.8-SNAPSHOT</version>
+	<version>1.2.10.SNAPSHOT</version>
 
 	<packaging>jar</packaging>
 	<name>fastjson</name>
@@ -23,10 +22,10 @@
 
 	<properties>
 		<junit.version>4.11</junit.version>
-		<gpg.skip>false</gpg.skip>
-		<javadoc.skip>false</javadoc.skip>
+		<gpg.skip>true</gpg.skip>
+		<javadoc.skip>true</javadoc.skip>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jdk.version>1.5</jdk.version>
+		<jdk.version>1.6</jdk.version>
 	</properties>
 
 	<developers>
@@ -47,22 +46,17 @@
 		<connection>scm:git:https://wenshao@github.com/alibaba/fastjson.git</connection>
 	</scm>
 
-<!-- 
-	<distributionManagement>
+	<repositories>
 		<repository>
-			<id>opensesame</id>
-			<url>dav:http://code.alibabatech.com/mvn/releases/</url>
+			<id>local-file</id>
+			<url>file://${basedir}/lib/</url>
+			<layout>default</layout>
 		</repository>
-		<snapshotRepository>
-			<id>opensesame</id>
-			<url>dav:http://code.alibabatech.com/mvn/snapshots/</url>
-		</snapshotRepository>
-	</distributionManagement>
- -->
- 
+	</repositories>
+
 	<organization>
 		<name>Alibaba Group</name>
-		<url>http://code.alibabatech.com/</url>
+		<url>https://github.com/alibaba</url>
 	</organization>
 
 	<licenses>
@@ -202,7 +196,7 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>2.4.2</version>
+			<version>2.7.3</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -214,21 +208,15 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-jaxrs</artifactId>
-			<version>1.9.13</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-smile</artifactId>
-			<version>1.9.13</version>
+			<groupId>com.fasterxml.jackson.jaxrs</groupId>
+			<artifactId>jackson-jaxrs-json-provider</artifactId>
+			<version>2.7.3</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>
 			<artifactId>json-simple</artifactId>
-			<version>1.1</version>
+			<version>1.1.1</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -246,29 +234,29 @@
 			<classifier>jdk15</classifier>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>xom</groupId>
-			<artifactId>xom</artifactId>
-			<version>1.2.5</version>
-			<scope>test</scope>
-		</dependency>
 
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>2.3.1</version>
+			<version>2.6.2</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.minidev</groupId>
 			<artifactId>json-smart</artifactId>
-			<version>1.1.1</version>
+			<version>2.2.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.owlike</groupId>
 			<artifactId>genson</artifactId>
-			<version>0.97</version>
+			<version>1.4</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.owlike</groupId>
+			<artifactId>genson-scala_2.11</artifactId>
+			<version>1.4</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -297,6 +285,50 @@
 			<version>3.18.0-GA</version>
 			<scope>test</scope>
 		</dependency>
-	</dependencies>
-</project>
 
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>3.2.0</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	<profiles>
+		<profile>
+			<id>travis</id>
+			<activation>
+				<property>
+					<name>env.TRAVIS</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<!-- for codecov.io -->
+						<!-- config example: https://github.com/codecov/example-java -->
+						<!-- plugin docs: http://eclemma.org/jacoco/trunk/doc/ -->
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+						<version>0.7.6.201602180812</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>prepare-agent</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>report</id>
+								<phase>test</phase>
+								<goals>
+									<goal>report</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+	</profiles>
+</project>

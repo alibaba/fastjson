@@ -5,48 +5,47 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.junit.Assert;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.ParameterizedTypeImpl;
 
+import junit.framework.TestCase;
+
 public class FieldInfoTest extends TestCase {
     public void test_null() throws Exception {
-        FieldInfo fieldInfo = new FieldInfo("getValue", Entity.class.getMethod("getValue"), null);
-        Assert.assertEquals(null, fieldInfo.getAnnotation(JSONField.class));
+        FieldInfo fieldInfo = new FieldInfo("getValue", Entity.class.getMethod("getValue"), null, null, null, 0, 0, null, null, null);
+        Assert.assertEquals(null, fieldInfo.getAnnotation());
 
         Field field = GenericFieldEntity.class.getField("value");
         Type type = new ParameterizedTypeImpl(new Type[] { ValueObject.class }, null, GenericFieldEntity.class);
-        FieldInfo fieldInfoOfField = new FieldInfo("value", null, field, GenericFieldEntity.class, type);
-        Assert.assertEquals(fieldInfoOfField.getFieldType(), ValueObject.class);
-        Assert.assertEquals(fieldInfoOfField.getFieldClass(), ValueObject.class);
+        FieldInfo fieldInfoOfField = new FieldInfo("value", null, field, GenericFieldEntity.class, type, 0, 0, null, null, null);
+        Assert.assertEquals(fieldInfoOfField.fieldType, ValueObject.class);
+        Assert.assertEquals(fieldInfoOfField.fieldClass, ValueObject.class);
 
         field = GenericListFieldEntity.class.getField("value");
         type = new ParameterizedTypeImpl(new Type[] { ValueObject.class }, null, GenericListFieldEntity.class);
-        FieldInfo fieldInfoOfListField = new FieldInfo("value", null, field, GenericListFieldEntity.class, type);
-        ParameterizedTypeImpl actualFieldType = (ParameterizedTypeImpl) fieldInfoOfListField.getFieldType();
+        FieldInfo fieldInfoOfListField = new FieldInfo("value", null, field, GenericListFieldEntity.class, type, 0, 0, null, null, null);
+        ParameterizedTypeImpl actualFieldType = (ParameterizedTypeImpl) fieldInfoOfListField.fieldType;
         Assert.assertEquals(actualFieldType.getActualTypeArguments()[0], ValueObject.class);
         Assert.assertEquals(actualFieldType.getRawType(), List.class);
-        Assert.assertEquals(fieldInfoOfListField.getFieldClass(), List.class);
+        Assert.assertEquals(fieldInfoOfListField.fieldClass, List.class);
         Assert.assertEquals(null, ((ParameterizedTypeImpl) type).getOwnerType());
 
         Method method = GenericSetterEntity.class.getMethod("setValue", Object.class);
         type = new ParameterizedTypeImpl(new Type[] { ValueObject.class }, null, GenericSetterEntity.class);
-        FieldInfo fieldInfoOfSetter = new FieldInfo("value", method, null, GenericSetterEntity.class, type);
-        Assert.assertEquals(fieldInfoOfSetter.getFieldType(), ValueObject.class);
-        Assert.assertEquals(fieldInfoOfSetter.getFieldClass(), ValueObject.class);
+        FieldInfo fieldInfoOfSetter = new FieldInfo("value", method, null, GenericSetterEntity.class, type, 0, 0, null, null, null);
+        Assert.assertEquals(fieldInfoOfSetter.fieldType, ValueObject.class);
+        Assert.assertEquals(fieldInfoOfSetter.fieldClass, ValueObject.class);
         
         fieldInfoOfSetter.toString();
 
         method = GenericListSetterEntity.class.getMethod("setValue", List.class);
         type = new ParameterizedTypeImpl(new Type[] { ValueObject.class }, null, GenericListSetterEntity.class);
-        FieldInfo fieldInfoOfListSetter = new FieldInfo("value", method, null, GenericListSetterEntity.class, type);
+        FieldInfo fieldInfoOfListSetter = new FieldInfo("value", method, null, GenericListSetterEntity.class, type, 0, 0, null, null, null);
         Assert.assertEquals(actualFieldType.getActualTypeArguments()[0], ValueObject.class);
         Assert.assertEquals(actualFieldType.getRawType(), List.class);
-        Assert.assertEquals(fieldInfoOfListSetter.getFieldClass(), List.class);
+        Assert.assertEquals(fieldInfoOfListSetter.fieldClass, List.class);
     }
 
     public static class Entity {

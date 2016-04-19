@@ -15,12 +15,18 @@
  */
 package com.alibaba.fastjson.util;
 
+import java.io.BufferedReader;
 import java.io.Closeable;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.lang.ref.SoftReference;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
+import java.util.Arrays;
 
 import com.alibaba.fastjson.JSONException;
 
@@ -61,10 +67,12 @@ public class IOUtils {
         }
     }
 
-    public final static byte[]    specicalFlags_doubleQuotes = new byte[256];
-    public final static byte[]    specicalFlags_singleQuotes = new byte[256];
+    public final static byte[]    specicalFlags_doubleQuotes = new byte[161];
+    public final static byte[]    specicalFlags_singleQuotes = new byte[161];
+    public final static boolean[] specicalFlags_doubleQuotesFlags = new boolean[161];
+    public final static boolean[] specicalFlags_singleQuotesFlags = new boolean[161];
 
-    public final static char[]    replaceChars               = new char[128];
+    public final static char[]    replaceChars               = new char[93];
     static {
         specicalFlags_doubleQuotes['\0'] = 4;
         specicalFlags_doubleQuotes['\1'] = 4;
@@ -78,10 +86,10 @@ public class IOUtils {
         specicalFlags_doubleQuotes['\t'] = 1; // 9
         specicalFlags_doubleQuotes['\n'] = 1; // 10
         specicalFlags_doubleQuotes['\u000B'] = 4; // 11
-        specicalFlags_doubleQuotes['\f'] = 1;
-        specicalFlags_doubleQuotes['\r'] = 1;
-        specicalFlags_doubleQuotes['\"'] = 1;
-        specicalFlags_doubleQuotes['\\'] = 1;
+        specicalFlags_doubleQuotes['\f'] = 1; // 12
+        specicalFlags_doubleQuotes['\r'] = 1; // 13
+        specicalFlags_doubleQuotes['\"'] = 1; // 34
+        specicalFlags_doubleQuotes['\\'] = 1; // 92
 
         specicalFlags_singleQuotes['\0'] = 4;
         specicalFlags_singleQuotes['\1'] = 4;
@@ -97,17 +105,22 @@ public class IOUtils {
         specicalFlags_singleQuotes['\u000B'] = 4; // 11
         specicalFlags_singleQuotes['\f'] = 1; // 12
         specicalFlags_singleQuotes['\r'] = 1; // 13
-        specicalFlags_singleQuotes['\\'] = 1;
-        specicalFlags_singleQuotes['\''] = 1;
+        specicalFlags_singleQuotes['\\'] = 1; // 92
+        specicalFlags_singleQuotes['\''] = 1; // 39
 
-        for (int i = 0x0E; i <= 0x1F; ++i) {
+        for (int i = 14; i <= 31; ++i) {
             specicalFlags_doubleQuotes[i] = 4;
             specicalFlags_singleQuotes[i] = 4;
         }
 
-        for (int i = 0x7F; i <= 0xA0; ++i) {
+        for (int i = 127; i <= 160; ++i) {
             specicalFlags_doubleQuotes[i] = 4;
             specicalFlags_singleQuotes[i] = 4;
+        }
+        
+        for (int i = 0; i < 161; ++i) {
+            specicalFlags_doubleQuotesFlags[i] = specicalFlags_doubleQuotes[i] != 0;
+            specicalFlags_singleQuotesFlags[i] = specicalFlags_singleQuotes[i] != 0;
         }
 
         replaceChars['\0'] = '0';
@@ -313,25 +326,296 @@ public class IOUtils {
         } catch (CharacterCodingException x) {
             // Substitution is always enabled,
             // so this shouldn't happen
-            throw new JSONException(x.getMessage(), x);
+            throw new JSONException("utf8 decode error, " + x.getMessage(), x);
         }
     }
 
-    public static boolean[] whitespaceFlags = new boolean[256];
-    static {
-        whitespaceFlags[' '] = true;
-        whitespaceFlags['\n'] = true;
-        whitespaceFlags['\r'] = true;
-        whitespaceFlags['\t'] = true;
-        whitespaceFlags['\f'] = true;
-        whitespaceFlags['\b'] = true;
-    }
-    
     public static boolean firstIdentifier(char ch) {
         return ch < IOUtils.firstIdentifierFlags.length && IOUtils.firstIdentifierFlags[ch];
     }
     
     public static boolean isIdent(char ch) {
         return ch < identifierFlags.length && identifierFlags[ch];
+    }
+    
+    public static final char[] CA = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".toCharArray();
+    public static final int[]  IA = new int[256];
+    static {
+        Arrays.fill(IA, -1);
+        for (int i = 0, iS = CA.length; i < iS; i++)
+            IA[CA[i]] = i;
+        IA['='] = 0;
+    }
+
+    /**
+     * Decodes a BASE64 encoded char array that is known to be resonably well formatted. The method is about twice as
+     * fast as #decode(char[]). The preconditions are:<br>
+     * + The array must have a line length of 76 chars OR no line separators at all (one line).<br>
+     * + Line separator must be "\r\n", as specified in RFC 2045 + The array must not contain illegal characters within
+     * the encoded string<br>
+     * + The array CAN have illegal characters at the beginning and end, those will be dealt with appropriately.<br>
+     * 
+     * @param chars The source array. Length 0 will return an empty array. <code>null</code> will throw an exception.
+     * @return The decoded array of bytes. May be of length 0.
+     */
+    public static byte[] decodeFast(char[] chars, int offset, int charsLen) {
+        // Check special case
+        if (charsLen == 0) {
+            return new byte[0];
+        }
+
+        int sIx = offset, eIx = offset + charsLen - 1; // Start and end index after trimming.
+
+        // Trim illegal chars from start
+        while (sIx < eIx && IA[chars[sIx]] < 0)
+            sIx++;
+
+        // Trim illegal chars from end
+        while (eIx > 0 && IA[chars[eIx]] < 0)
+            eIx--;
+
+        // get the padding count (=) (0, 1 or 2)
+        int pad = chars[eIx] == '=' ? (chars[eIx - 1] == '=' ? 2 : 1) : 0; // Count '=' at end.
+        int cCnt = eIx - sIx + 1; // Content count including possible separators
+        int sepCnt = charsLen > 76 ? (chars[76] == '\r' ? cCnt / 78 : 0) << 1 : 0;
+
+        int len = ((cCnt - sepCnt) * 6 >> 3) - pad; // The number of decoded bytes
+        byte[] bytes = new byte[len]; // Preallocate byte[] of exact length
+
+        // Decode all but the last 0 - 2 bytes.
+        int d = 0;
+        for (int cc = 0, eLen = (len / 3) * 3; d < eLen;) {
+            // Assemble three bytes into an int from four "valid" characters.
+            int i = IA[chars[sIx++]] << 18 | IA[chars[sIx++]] << 12 | IA[chars[sIx++]] << 6 | IA[chars[sIx++]];
+
+            // Add the bytes
+            bytes[d++] = (byte) (i >> 16);
+            bytes[d++] = (byte) (i >> 8);
+            bytes[d++] = (byte) i;
+
+            // If line separator, jump over it.
+            if (sepCnt > 0 && ++cc == 19) {
+                sIx += 2;
+                cc = 0;
+            }
+        }
+
+        if (d < len) {
+            // Decode last 1-3 bytes (incl '=') into 1-3 bytes
+            int i = 0;
+            for (int j = 0; sIx <= eIx - pad; j++)
+                i |= IA[chars[sIx++]] << (18 - j * 6);
+
+            for (int r = 16; d < len; r -= 8)
+                bytes[d++] = (byte) (i >> r);
+        }
+
+        return bytes;
+    }
+    
+    public static byte[] decodeFast(String chars, int offset, int charsLen) {
+        // Check special case
+        if (charsLen == 0) {
+            return new byte[0];
+        }
+
+        int sIx = offset, eIx = offset + charsLen - 1; // Start and end index after trimming.
+
+        // Trim illegal chars from start
+        while (sIx < eIx && IA[chars.charAt(sIx)] < 0)
+            sIx++;
+
+        // Trim illegal chars from end
+        while (eIx > 0 && IA[chars.charAt(eIx)] < 0)
+            eIx--;
+
+        // get the padding count (=) (0, 1 or 2)
+        int pad = chars.charAt(eIx) == '=' ? (chars.charAt(eIx - 1) == '=' ? 2 : 1) : 0; // Count '=' at end.
+        int cCnt = eIx - sIx + 1; // Content count including possible separators
+        int sepCnt = charsLen > 76 ? (chars.charAt(76) == '\r' ? cCnt / 78 : 0) << 1 : 0;
+
+        int len = ((cCnt - sepCnt) * 6 >> 3) - pad; // The number of decoded bytes
+        byte[] bytes = new byte[len]; // Preallocate byte[] of exact length
+
+        // Decode all but the last 0 - 2 bytes.
+        int d = 0;
+        for (int cc = 0, eLen = (len / 3) * 3; d < eLen;) {
+            // Assemble three bytes into an int from four "valid" characters.
+            int i = IA[chars.charAt(sIx++)] << 18 | IA[chars.charAt(sIx++)] << 12 | IA[chars.charAt(sIx++)] << 6 | IA[chars.charAt(sIx++)];
+
+            // Add the bytes
+            bytes[d++] = (byte) (i >> 16);
+            bytes[d++] = (byte) (i >> 8);
+            bytes[d++] = (byte) i;
+
+            // If line separator, jump over it.
+            if (sepCnt > 0 && ++cc == 19) {
+                sIx += 2;
+                cc = 0;
+            }
+        }
+
+        if (d < len) {
+            // Decode last 1-3 bytes (incl '=') into 1-3 bytes
+            int i = 0;
+            for (int j = 0; sIx <= eIx - pad; j++)
+                i |= IA[chars.charAt(sIx++)] << (18 - j * 6);
+
+            for (int r = 16; d < len; r -= 8)
+                bytes[d++] = (byte) (i >> r);
+        }
+
+        return bytes;
+    }
+
+    /**
+     * Decodes a BASE64 encoded string that is known to be resonably well formatted. The method is about twice as fast
+     * as decode(String). The preconditions are:<br>
+     * + The array must have a line length of 76 chars OR no line separators at all (one line).<br>
+     * + Line separator must be "\r\n", as specified in RFC 2045 + The array must not contain illegal characters within
+     * the encoded string<br>
+     * + The array CAN have illegal characters at the beginning and end, those will be dealt with appropriately.<br>
+     * 
+     * @param s The source string. Length 0 will return an empty array. <code>null</code> will throw an exception.
+     * @return The decoded array of bytes. May be of length 0.
+     */
+    public static byte[] decodeFast(String s) {
+        // Check special case
+        int sLen = s.length();
+        if (sLen == 0) {
+            return new byte[0];
+        }
+
+        int sIx = 0, eIx = sLen - 1; // Start and end index after trimming.
+
+        // Trim illegal chars from start
+        while (sIx < eIx && IA[s.charAt(sIx) & 0xff] < 0)
+            sIx++;
+
+        // Trim illegal chars from end
+        while (eIx > 0 && IA[s.charAt(eIx) & 0xff] < 0)
+            eIx--;
+
+        // get the padding count (=) (0, 1 or 2)
+        int pad = s.charAt(eIx) == '=' ? (s.charAt(eIx - 1) == '=' ? 2 : 1) : 0; // Count '=' at end.
+        int cCnt = eIx - sIx + 1; // Content count including possible separators
+        int sepCnt = sLen > 76 ? (s.charAt(76) == '\r' ? cCnt / 78 : 0) << 1 : 0;
+
+        int len = ((cCnt - sepCnt) * 6 >> 3) - pad; // The number of decoded bytes
+        byte[] dArr = new byte[len]; // Preallocate byte[] of exact length
+
+        // Decode all but the last 0 - 2 bytes.
+        int d = 0;
+        for (int cc = 0, eLen = (len / 3) * 3; d < eLen;) {
+            // Assemble three bytes into an int from four "valid" characters.
+            int i = IA[s.charAt(sIx++)] << 18 | IA[s.charAt(sIx++)] << 12 | IA[s.charAt(sIx++)] << 6
+                    | IA[s.charAt(sIx++)];
+
+            // Add the bytes
+            dArr[d++] = (byte) (i >> 16);
+            dArr[d++] = (byte) (i >> 8);
+            dArr[d++] = (byte) i;
+
+            // If line separator, jump over it.
+            if (sepCnt > 0 && ++cc == 19) {
+                sIx += 2;
+                cc = 0;
+            }
+        }
+
+        if (d < len) {
+            // Decode last 1-3 bytes (incl '=') into 1-3 bytes
+            int i = 0;
+            for (int j = 0; sIx <= eIx - pad; j++)
+                i |= IA[s.charAt(sIx++)] << (18 - j * 6);
+
+            for (int r = 16; d < len; r -= 8)
+                dArr[d++] = (byte) (i >> r);
+        }
+
+        return dArr;
+    }
+    
+    private final static ThreadLocal<SoftReference<char[]>> charsBufLocal        = new ThreadLocal<SoftReference<char[]>>();
+
+    private final static ThreadLocal<CharsetDecoder>        decoderLocal         = new ThreadLocal<CharsetDecoder>();
+
+    public static CharsetDecoder getUTF8Decoder() {
+        CharsetDecoder decoder = decoderLocal.get();
+        if (decoder == null) {
+            decoder = new UTF8Decoder();
+            decoderLocal.set(decoder);
+        }
+        return decoder;
+    }
+
+    public static void clearChars() {
+        charsBufLocal.set(null);
+    }
+
+    public static char[] getChars(int length) {
+        SoftReference<char[]> ref = charsBufLocal.get();
+
+        if (ref == null) {
+            return allocate(length);
+        }
+
+        char[] chars = ref.get();
+
+        if (chars == null) {
+            return allocate(length);
+        }
+
+        if (chars.length < length) {
+            chars = allocate(length);
+        }
+
+        return chars;
+    }
+
+    private static char[] allocate(int length) {
+        final int minExp = 10;
+        final int CHARS_CACH_MAX_SIZE = 1024 * 128; // 128k, 2^17;
+        
+        if(length> CHARS_CACH_MAX_SIZE) {
+            return new char[length];
+        }
+
+        int allocateLength;
+        {
+            int part = length >>> minExp;
+            if(part <= 0) {
+                allocateLength = 1<< minExp;
+            } else {
+                allocateLength = 1 << 32 - Integer.numberOfLeadingZeros(length-1);
+            }
+        }
+        char[] chars = new char[allocateLength];
+        charsBufLocal.set(new SoftReference<char[]>(chars));
+        return chars;
+    }
+    
+    public static String toString(InputStream in) throws Exception {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+        return readAll(reader);
+    }
+    
+    public static String readAll(Reader reader) {
+        StringBuilder buf = new StringBuilder();
+        
+        try {
+            char[] chars = new char[2048];
+            for (;;) {
+                int len = reader.read(chars, 0, chars.length);
+                if (len < 0) {
+                    break;
+                }
+                buf.append(chars, 0, len);
+            }
+        } catch(Exception ex) {
+            throw new JSONException("read string from reader error", ex);
+        }
+        
+        return buf.toString();
     }
 }

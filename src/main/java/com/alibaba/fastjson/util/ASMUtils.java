@@ -13,6 +13,8 @@ import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 public class ASMUtils {
 
     public static final String JAVA_VM_NAME = System.getProperty("java.vm.name");
+    
+    public static final boolean IS_ANDROID = isAndroid(JAVA_VM_NAME);
 	
     public static boolean isAndroid(String vmName) {
         if (vmName == null) { // default is false
@@ -26,44 +28,41 @@ public class ASMUtils {
         ;
     }
 
-    public static boolean isAndroid() {
-        return isAndroid(JAVA_VM_NAME);
-    }
-
-    public static String getDesc(Method method) {
-        StringBuffer buf = new StringBuffer();
-        buf.append("(");
-        java.lang.Class<?>[] types = method.getParameterTypes();
+    public static String desc(Method method) {   
+    	Class<?>[] types = method.getParameterTypes();
+        StringBuilder buf = new StringBuilder((types.length + 1) << 4);
+        buf.append('(');
         for (int i = 0; i < types.length; ++i) {
-            buf.append(getDesc(types[i]));
+            buf.append(desc(types[i]));
         }
-        buf.append(")");
-        buf.append(getDesc(method.getReturnType()));
+        buf.append(')');
+        buf.append(desc(method.getReturnType()));
         return buf.toString();
     }
 
-    public static String getDesc(Class<?> returnType) {
+    public static String desc(Class<?> returnType) {
         if (returnType.isPrimitive()) {
             return getPrimitiveLetter(returnType);
         } else if (returnType.isArray()) {
-            return "[" + getDesc(returnType.getComponentType());
+            return "[" + desc(returnType.getComponentType());
         } else {
-            return "L" + getType(returnType) + ";";
+            return "L" + type(returnType) + ";";
         }
     }
 
-    public static String getType(Class<?> parameterType) {
+    public static String type(Class<?> parameterType) {
         if (parameterType.isArray()) {
-            return "[" + getDesc(parameterType.getComponentType());
+            return "[" + desc(parameterType.getComponentType());
         } else {
             if (!parameterType.isPrimitive()) {
                 String clsName = parameterType.getName();
-                return clsName.replaceAll("\\.", "/");
+                return clsName.replace('.', '/'); // 直接基于字符串替换，不使用正则替换
             } else {
                 return getPrimitiveLetter(parameterType);
             }
         }
     }
+    
 
     public static String getPrimitiveLetter(Class<?> type) {
         if (Integer.TYPE.equals(type)) {
@@ -116,7 +115,7 @@ public class ASMUtils {
                                   Type type, //
                                   Object fieldName) {
 
-        final JSONLexer lexer = parser.getLexer();
+        final JSONLexer lexer = parser.lexer;
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken(JSONToken.COMMA);
         }

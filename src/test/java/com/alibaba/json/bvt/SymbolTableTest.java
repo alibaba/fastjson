@@ -3,7 +3,7 @@ package com.alibaba.json.bvt;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
-import org.codehaus.jackson.sym.CharsToNameCanonicalizer;
+import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
 
 import com.alibaba.fastjson.parser.SymbolTable;
 
@@ -36,7 +36,7 @@ public class SymbolTableTest extends TestCase {
             }
         }
 
-        SymbolTable table = new SymbolTable();
+        SymbolTable table = new SymbolTable(512);
         for (int i = 0; i < symbols.length; ++i) {
             String symbol = symbols[i];
             char[] charArray = symbol.toCharArray();

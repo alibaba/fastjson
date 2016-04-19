@@ -6,8 +6,8 @@ import java.util.Calendar;
 import java.util.Date;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
-import com.alibaba.fastjson.parser.deserializer.DateDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.util.IOUtils;
 
@@ -17,7 +17,7 @@ public class CalendarCodec implements ObjectSerializer, ObjectDeserializer {
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
                                                                                                                throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         if (object == null) {
             out.writeNull();
@@ -26,12 +26,11 @@ public class CalendarCodec implements ObjectSerializer, ObjectDeserializer {
 
         Calendar calendar = (Calendar) object;
 
-        if (serializer.isEnabled(SerializerFeature.UseISO8601DateFormat)) {
-            if (serializer.isEnabled(SerializerFeature.UseSingleQuotes)) {
-                out.append('\'');
-            } else {
-                out.append('\"');
-            }
+        if (out.isEnabled(SerializerFeature.UseISO8601DateFormat)) {
+            final char quote = out.isEnabled(SerializerFeature.UseSingleQuotes) //
+                ? '\'' //
+                : '\"';
+            out.append(quote);
 
             int year = calendar.get(Calendar.YEAR);
             int month = calendar.get(Calendar.MONTH) + 1;
@@ -80,11 +79,7 @@ public class CalendarCodec implements ObjectSerializer, ObjectDeserializer {
                 out.append("-").append(String.format("%02d", -timeZone)).append(":00");
             }
 
-            if (serializer.isEnabled(SerializerFeature.UseSingleQuotes)) {
-                out.append('\'');
-            } else {
-                out.append('\"');
-            }
+            out.append(quote);
         } else {
             Date date = calendar.getTime();
             serializer.write(date);
@@ -93,7 +88,7 @@ public class CalendarCodec implements ObjectSerializer, ObjectDeserializer {
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-        Object value = DateDeserializer.instance.deserialze(parser, type, fieldName);
+        Object value = DateCodec.instance.deserialze(parser, type, fieldName);
 
         if (value instanceof Calendar) {
             return (T) value;
@@ -104,7 +99,8 @@ public class CalendarCodec implements ObjectSerializer, ObjectDeserializer {
             return null;
         }
 
-        Calendar calendar = Calendar.getInstance();
+        JSONLexer lexer = parser.lexer;
+        Calendar calendar = Calendar.getInstance(lexer.getTimeZone(), lexer.getLocale());
         calendar.setTime(date);
 
         return (T) calendar;

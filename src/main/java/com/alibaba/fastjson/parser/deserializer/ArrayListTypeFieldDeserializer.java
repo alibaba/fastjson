@@ -25,9 +25,9 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
     public ArrayListTypeFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo){
         super(clazz, fieldInfo);
 
-        Type fieldType = getFieldType();
+        Type fieldType = fieldInfo.fieldType;
         if (fieldType instanceof ParameterizedType) {
-            this.itemType = ((ParameterizedType) getFieldType()).getActualTypeArguments()[0];
+            this.itemType = ((ParameterizedType) fieldInfo.fieldType).getActualTypeArguments()[0];
         } else {
             this.itemType = Object.class;
         }
@@ -40,7 +40,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
     @SuppressWarnings("rawtypes")
     @Override
     public void parseField(DefaultJSONParser parser, Object object, Type objectType, Map<String, Object> fieldValues) {
-        if (parser.getLexer().token() == JSONToken.NULL) {
+        if (parser.lexer.token() == JSONToken.NULL) {
             setValue(object, null);
             return;
         }
@@ -49,12 +49,12 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
         ParseContext context = parser.getContext();
 
-        parser.setContext(context, object, fieldInfo.getName());
+        parser.setContext(context, object, fieldInfo.name);
         parseArray(parser, objectType, list);
         parser.setContext(context);
 
         if (object == null) {
-            fieldValues.put(fieldInfo.getName(), list);
+            fieldValues.put(fieldInfo.name, list);
         } else {
             setValue(object, list);
         }
@@ -94,7 +94,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
             }
         }
 
-        final JSONLexer lexer = parser.getLexer();
+        final JSONLexer lexer = parser.lexer;
 
         if (lexer.token() != JSONToken.LBRACKET) {
             String errorMessage = "exepct '[', but " + JSONToken.name(lexer.token());

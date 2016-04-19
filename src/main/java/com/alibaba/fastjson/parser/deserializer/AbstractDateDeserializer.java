@@ -15,7 +15,7 @@ public abstract class AbstractDateDeserializer implements ObjectDeserializer {
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        JSONLexer lexer = parser.getLexer();
+        JSONLexer lexer = parser.lexer;
 
         Object val;
         if (lexer.token() == JSONToken.LITERAL_INT) {
@@ -48,7 +48,7 @@ public abstract class AbstractDateDeserializer implements ObjectDeserializer {
                     parser.accept(JSONToken.COLON);
                     
                     String typeName = lexer.stringVal();
-                    Class<?> type = TypeUtils.loadClass(typeName);
+                    Class<?> type = TypeUtils.loadClass(typeName, parser.getConfig().getDefaultClassLoader());
                     if (type != null) {
                         clazz = type;
                     }

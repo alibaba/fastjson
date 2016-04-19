@@ -15,7 +15,7 @@ import com.alibaba.fastjson.util.FieldInfo;
 
 public abstract class FieldDeserializer {
 
-    protected final FieldInfo fieldInfo;
+    public final FieldInfo fieldInfo;
 
     protected final Class<?>  clazz;
 
@@ -24,26 +24,6 @@ public abstract class FieldDeserializer {
         this.fieldInfo = fieldInfo;
     }
     
-    public FieldInfo getFieldInfo() {
-        return fieldInfo;
-    }
-
-    public Method getMethod() {
-        return fieldInfo.getMethod();
-    }
-
-    public Field getField() {
-        return fieldInfo.getField();
-    }
-
-    public Class<?> getFieldClass() {
-        return fieldInfo.getFieldClass();
-    }
-
-    public Type getFieldType() {
-        return fieldInfo.getFieldType();
-    }
-
     public abstract void parseField(DefaultJSONParser parser, Object object, Type objectType,
                                     Map<String, Object> fieldValues);
 
@@ -69,21 +49,36 @@ public abstract class FieldDeserializer {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void setValue(Object object, Object value) {
-        Method method = fieldInfo.getMethod();
+        if (value == null) {
+            Class<?> fieldClass = fieldInfo.fieldClass;
+            if (fieldClass == byte.class //
+                    || fieldClass == short.class //
+                    || fieldClass == int.class //
+                    || fieldClass == long.class //
+                    || fieldClass == float.class //
+                    || fieldClass == double.class //
+                    || fieldClass == boolean.class //
+                    || fieldClass == char.class //
+                    ) {
+                return;
+            }
+        }
+        
+        Method method = fieldInfo.method;
         if (method != null) {
             try {
-                if (fieldInfo.isGetOnly()) {
-                    if (fieldInfo.getFieldClass() == AtomicInteger.class) {
+                if (fieldInfo.getOnly) {
+                    if (fieldInfo.fieldClass == AtomicInteger.class) {
                         AtomicInteger atomic = (AtomicInteger) method.invoke(object);
                         if (atomic != null) {
                             atomic.set(((AtomicInteger) value).get());
                         }
-                    } else if (fieldInfo.getFieldClass() == AtomicLong.class) {
+                    } else if (fieldInfo.fieldClass == AtomicLong.class) {
                         AtomicLong atomic = (AtomicLong) method.invoke(object);
                         if (atomic != null) {
                             atomic.set(((AtomicLong) value).get());
                         }
-                    } else if (fieldInfo.getFieldClass() == AtomicBoolean.class) {
+                    } else if (fieldInfo.fieldClass == AtomicBoolean.class) {
                         AtomicBoolean atomic = (AtomicBoolean) method.invoke(object);
                         if (atomic != null) {
                             atomic.set(((AtomicBoolean) value).get());
@@ -100,23 +95,23 @@ public abstract class FieldDeserializer {
                         }
                     }
                 } else {
-                    if (value == null && fieldInfo.getFieldClass().isPrimitive()) {
+                    if (value == null && fieldInfo.fieldClass.isPrimitive()) {
                         return;
                     }
                     method.invoke(object, value);
                 }
             } catch (Exception e) {
-                throw new JSONException("set property error, " + fieldInfo.getName(), e);
+                throw new JSONException("set property error, " + fieldInfo.name, e);
             }
             return;
         }
 
-        final Field field = fieldInfo.getField();
+        final Field field = fieldInfo.field;
         if (field != null) {
             try {
                 field.set(object, value);
             } catch (Exception e) {
-                throw new JSONException("set property error, " + fieldInfo.getName(), e);
+                throw new JSONException("set property error, " + fieldInfo.name, e);
             }
         }
     }

@@ -3028,12 +3028,7 @@ public final class JSONLexer {
         int rest = text.length() - bp;
 
         if ((!strict) && rest > 13) {
-            if (charAt(bp) == '/' //
-                && charAt(bp + 1) == 'D' //
-                && charAt(bp + 2) == 'a' //
-                && charAt(bp + 3) == 't' //
-                && charAt(bp + 4) == 'e' //
-                && charAt(bp + 5) == '(' //
+            if (text.startsWith("/Date(", bp)
                 && charAt(bp + rest - 1) == '/' //
                 && charAt(bp + rest - 2) == ')' //
             ) {
@@ -3061,7 +3056,9 @@ public final class JSONLexer {
             }
         }
 
-        if (rest == 8 || rest == 14 || rest == 17) {
+        if (rest == 8 // 
+                || rest == 14 // 
+                || rest == 17) {
             if (strict) {
                 return false;
             }

@@ -57,7 +57,7 @@ public class JSONToken {
     //
     public final static int IDENTIFIER           = 18;
     //
-    public final static int FIELD_NAME           = 19;
+    // public final static int FIELD_NAME           = 19;
 
     public final static int EOF                  = 20;
 
@@ -104,8 +104,8 @@ public class JSONToken {
                 return ":";
             case IDENTIFIER:
                 return "ident";
-            case FIELD_NAME:
-                return "fieldName";
+//            case FIELD_NAME:
+//                return "fieldName";
             case EOF:
                 return "EOF";
             case SET:

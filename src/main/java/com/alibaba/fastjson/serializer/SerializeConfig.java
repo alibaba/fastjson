@@ -70,7 +70,7 @@ import com.alibaba.fastjson.util.TypeUtils;
  * 
  * @author wenshao[szujobs@hotmail.com]
  */
-public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
+public class SerializeConfig {
     public final static SerializeConfig globalInstance  = new SerializeConfig();
 
 	private static boolean awtError = false;
@@ -83,6 +83,8 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 	
 
 	private String typeKey = JSON.DEFAULT_TYPE_KEY;
+	
+	 private final IdentityHashMap<Type, ObjectSerializer> serializers;
 	
 	public String getTypeKey() {
 		return typeKey;
@@ -167,7 +169,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 	}
 
 	public SerializeConfig(int tableSize) {
-		super(tableSize);
+	    serializers = new IdentityHashMap<Type, ObjectSerializer>(1024);
 		
 		try {
 		    if (asm) {
@@ -292,7 +294,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
 	}
 
 	public ObjectSerializer getObjectWriter(Class<?> clazz) {
-        ObjectSerializer writer = get(clazz);
+        ObjectSerializer writer = serializers.get(clazz);
 
         if (writer == null) {
             try {
@@ -311,7 +313,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
                 // skip
             }
 
-            writer = get(clazz);
+            writer = serializers.get(clazz);
         }
 
         if (writer == null) {
@@ -333,7 +335,7 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
                     // skip
                 }
 
-                writer = get(clazz);
+                writer = serializers.get(clazz);
             }
         }
 
@@ -405,8 +407,16 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
                 put(clazz, createJavaBeanSerializer(clazz));
             }
 
-            writer = get(clazz);
+            writer = serializers.get(clazz);
         }
         return writer;
+    }
+	
+	public final ObjectSerializer get(Type key) {
+	    return this.serializers.get(key);
+	}
+	
+	public boolean put(Type key, ObjectSerializer value) {
+        return this.serializers.put(key, value);
     }
 }

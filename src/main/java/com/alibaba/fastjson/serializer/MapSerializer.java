@@ -28,7 +28,7 @@ import com.alibaba.fastjson.JSONObject;
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
-public class MapSerializer implements ObjectSerializer {
+public class MapSerializer extends SerializeFilterable implements ObjectSerializer {
 
     public static MapSerializer instance = new MapSerializer();
 
@@ -122,10 +122,10 @@ public class MapSerializer implements ObjectSerializer {
                     List<NameFilter> nameFilters = serializer.nameFilters;
                     if (nameFilters != null && nameFilters.size() > 0) {
                         if (entryKey == null || entryKey instanceof String) {
-                            entryKey = serializer.processKey(object, (String) entryKey, value);
+                            entryKey = serializer.processKey(this, object, (String) entryKey, value);
                         } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
                             String strKey = JSON.toJSONString(entryKey);
-                            entryKey = serializer.processKey(object, strKey, value);
+                            entryKey = serializer.processKey(this, object, strKey, value);
                         }
                     }
                 }
@@ -136,10 +136,10 @@ public class MapSerializer implements ObjectSerializer {
                     if ((valueFilters != null && valueFilters.size() > 0) //
                         || (contextValueFilters != null && contextValueFilters.size() > 0)) {
                         if (entryKey == null || entryKey instanceof String) {
-                            value = serializer.processValue(null, object, (String) entryKey, value);
+                            value = serializer.processValue(this, object, (String) entryKey, value);
                         } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
                             String strKey = JSON.toJSONString(entryKey);
-                            value = serializer.processValue(null, object, strKey, value);
+                            value = serializer.processValue(this, object, strKey, value);
                         }
                     }
                 }
@@ -206,4 +206,5 @@ public class MapSerializer implements ObjectSerializer {
         }
         out.write('}');
     }
+
 }

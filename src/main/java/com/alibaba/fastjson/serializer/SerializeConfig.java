@@ -278,6 +278,18 @@ public class SerializeConfig extends IdentityHashMap<Type, ObjectSerializer> {
             }
 		}
 	}
+	
+	public void addFilter(Class<?> clazz, SerializeFilter filter) {
+	    ObjectSerializer serializer = getObjectWriter(clazz);
+	    
+	    if (serializer instanceof ASMJavaBeanSerializer) {
+	        serializer = ((ASMJavaBeanSerializer) serializer).nature;
+	    }
+	    
+	    if (serializer instanceof SerializeFilterable) {
+	        ((SerializeFilterable) serializer).addFilter(filter);
+	    }
+	}
 
 	public ObjectSerializer getObjectWriter(Class<?> clazz) {
         ObjectSerializer writer = get(clazz);

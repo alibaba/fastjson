@@ -258,7 +258,9 @@ public class ASMSerializerFactory implements Opcodes {
                 Label _else = new Label();
                 
                 mw.visitVarInsn(ALOAD, Context.serializer);
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer, "writeDirect", "()Z");
+                mw.visitVarInsn(ALOAD, 0);
+                mw.visitFieldInsn(GETFIELD, context.className, "nature", JavaBeanSerializer_desc);
+                mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer, "writeDirect", "(" + JavaBeanSerializer_desc + ")Z");
                 mw.visitJumpInsn(IFNE, _else);
                 mw.visitVarInsn(ALOAD, 0);
                 mw.visitVarInsn(ALOAD, 1);
@@ -1528,7 +1530,7 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitMethodInsn(INVOKEVIRTUAL,
                            JSONSerializer,
                            "processValue",
-                           "(" + JavaBeanSerializer_desc + "Ljava/lang/Object;Ljava/lang/String;" + valueDesc + ")Ljava/lang/Object;");
+                           "(" + desc(SerializeFilterable.class) + "Ljava/lang/Object;Ljava/lang/String;" + valueDesc + ")Ljava/lang/Object;");
 
         mw.visitVarInsn(ASTORE, Context.processValue);
         
@@ -1550,6 +1552,8 @@ public class ASMSerializerFactory implements Opcodes {
         Class<?> propertyClass = property.fieldClass;
 
         mw.visitVarInsn(ALOAD, Context.serializer);
+        mw.visitVarInsn(ALOAD, 0);
+        mw.visitFieldInsn(GETFIELD, context.className, "nature", JavaBeanSerializer_desc);
         mw.visitVarInsn(ALOAD, Context.obj);
         mw.visitVarInsn(ALOAD, Context.fieldName);
 
@@ -1592,7 +1596,7 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitMethodInsn(INVOKEVIRTUAL,
                            JSONSerializer,
                            "processKey",
-                           "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/String;");
+                           "(" + desc(SerializeFilterable.class) + "Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/String;");
 
         mw.visitVarInsn(ASTORE, Context.fieldName);
         

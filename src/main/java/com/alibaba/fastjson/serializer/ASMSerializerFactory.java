@@ -1445,7 +1445,7 @@ public class ASMSerializerFactory implements Opcodes {
         if (propertyClass.isPrimitive()) {
             Label _end_checkValue = new Label();
             mw.visitVarInsn(ILOAD, context.var("checkValue"));
-            mw.visitJumpInsn(IFEQ, _end_checkValue);
+            mw.visitJumpInsn(IFNE, _end_checkValue);
             
             mw.visitInsn(ACONST_NULL);
             mw.visitInsn(DUP);

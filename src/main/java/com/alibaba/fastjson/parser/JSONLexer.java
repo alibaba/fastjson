@@ -684,7 +684,15 @@ public final class JSONLexer {
                 && chars[chars_len - 1] == '\\')
                 ) {
             
-            if (chars_len > 1 && chars[chars_len - 2] == '\\') {
+            int slashCount = 1;
+            for (int i = chars_len - 2; i >= 0; --i) {
+                if (chars[i] == '\\') {
+                    slashCount++;
+                } else {
+                    break;
+                }
+            }
+            if (slashCount % 2 == 0) {
                 break;
             }
             
@@ -911,7 +919,15 @@ public final class JSONLexer {
                 && chars[chars_len - 1] == '\\')
                 ) {
             
-            if (chars_len > 1 && chars[chars_len - 2] == '\\') {
+            int slashCount = 1;
+            for (int i = chars_len - 2; i >= 0; --i) {
+                if (chars[i] == '\\') {
+                    slashCount++;
+                } else {
+                    break;
+                }
+            }
+            if (slashCount % 2 == 0) {
                 break;
             }
             

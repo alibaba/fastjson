@@ -1,6 +1,6 @@
 /**
- * <p>Title: FastJsonHttpMessageConverterTest.java</p>
- * <p>Description: FastJsonHttpMessageConverterTest</p>
+ * <p>Title: FastJsonJsonViewTest.java</p>
+ * <p>Description: FastJsonJsonViewTest</p>
  * <p>Package: com.alibaba.json.bvt.support.spring.mock.testcase</p>
  * <p>Company: www.github.com/DarkPhoenixs</p>
  * <p>Copyright: Dark Phoenixs (Open-Source Organization) 2016</p>
@@ -25,17 +25,18 @@ import org.springframework.web.context.WebApplicationContext;
 import com.alibaba.fastjson.JSONObject;
 
 /**
- * <p>Title: FastJsonHttpMessageConverterTest</p>
+ * <p>Title: FastJsonJsonViewTest</p>
  * <p>Description: </p>
  *
  * @since 2016年4月20日
  * @author Victor.Zxy
  * @version 1.0
  */
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration({ "classpath*:/com/alibaba/json/bvt/support/spring/mock/resource/applicationContext-mvc1.xml" })
-public class FastJsonHttpMessageConverterTest {
+@ContextConfiguration({ "classpath*:/com/alibaba/json/bvt/support/spring/mock/resource/applicationContext-mvc2.xml" })
+public class FastJsonJsonViewTest {
 
 	@Autowired
 	private WebApplicationContext wac;

@@ -130,8 +130,13 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 long value = lexer.scanLong(seperator);
                 fieldDeser.setValue(object, Long.valueOf(value));
             } else if (fieldClass.isEnum()) {
-                Enum<?> value = lexer.scanEnum(fieldClass, parser.symbolTable, seperator);
+                String enumName = lexer.scanSymbol(parser.symbolTable);
+                @SuppressWarnings("rawtypes")
+                Object value = enumName == null //
+                    ? null//
+                    : Enum.valueOf((Class<? extends Enum>) fieldClass, enumName);
                 fieldDeser.setValue(object, value);
+                lexer.nextToken(JSONToken.COMMA);
             } else {
                 lexer.nextToken(JSONToken.LBRACKET);
                 Object value = parser.parseObject(fieldDeser.fieldInfo.fieldType);

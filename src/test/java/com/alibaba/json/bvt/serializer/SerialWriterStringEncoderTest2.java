@@ -1,5 +1,6 @@
 package com.alibaba.json.bvt.serializer;
 
+import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -7,16 +8,20 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 
 import org.junit.Assert;
-import junit.framework.TestCase;
 
 import com.alibaba.fastjson.serializer.SerialWriterStringEncoder;
+
+import junit.framework.TestCase;
 
 public class SerialWriterStringEncoderTest2 extends TestCase {
 
     public void test_error_0() throws Exception {
         Charset charset = Charset.forName("UTF-8");
         CharsetEncoder charsetEncoder = new MockCharsetEncoder2(charset);
-        SerialWriterStringEncoder encoder = new SerialWriterStringEncoder(charsetEncoder);
+        SerialWriterStringEncoder encoder = new SerialWriterStringEncoder(charset);
+        Field field = SerialWriterStringEncoder.class.getDeclaredField("encoder");
+        field.setAccessible(true);
+        field.set(encoder, charsetEncoder);
 
         Exception error = null;
         char[] chars = "abc".toCharArray();
@@ -31,8 +36,13 @@ public class SerialWriterStringEncoderTest2 extends TestCase {
     public void test_error_1() throws Exception {
         Charset charset = Charset.forName("UTF-8");
         CharsetEncoder realEncoder = charset.newEncoder();
+        
+        SerialWriterStringEncoder encoder = new SerialWriterStringEncoder(charset);
+        
         CharsetEncoder charsetEncoder = new MockCharsetEncoder(charset, realEncoder);
-        SerialWriterStringEncoder encoder = new SerialWriterStringEncoder(charsetEncoder);
+        Field field = SerialWriterStringEncoder.class.getDeclaredField("encoder");
+        field.setAccessible(true);
+        field.set(encoder, charsetEncoder);
 
         Exception error = null;
         char[] chars = "abc".toCharArray();

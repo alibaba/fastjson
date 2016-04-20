@@ -23,8 +23,10 @@ public class Bug_127_for_qiuyan81 extends TestCase {
     
     public void test_parserUndefined_comma() {
         String jsonString = "{PayStatus:0,RunEmpId:undefined,ext:1001}";
-        Object json = JSON.parse(jsonString);
-        Assert.assertEquals("{\"PayStatus\":0,\"ext\":1001}", json.toString());
+        JSONObject json = (JSONObject) JSON.parse(jsonString);
+        Assert.assertEquals(1001, json.get("ext"));
+        Assert.assertEquals(0, json.get("PayStatus"));
+        Assert.assertEquals(2, json.size());
     }
     
     public void test_parserUndefined_array() {

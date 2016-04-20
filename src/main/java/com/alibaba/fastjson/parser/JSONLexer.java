@@ -871,10 +871,11 @@ public final class JSONLexer {
                     if (ch == '/') {
                         next();
                         return;
+                    } else {
+                        continue;
                     }
-                } else {
-                    next();
                 }
+                next();
             }
         } else {
             throw new JSONException("invalid comment");

@@ -18,7 +18,6 @@ import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -38,18 +37,14 @@ public class FastJsonProvider implements MessageBodyReader<Object>,
 
 	private Charset charset = UTF8;
 
+	private Class<?>[] clazzes = null;
+	
 	private SerializerFeature[] serializerFeatures = new SerializerFeature[0];
 
 	protected SerializeFilter[] serialzeFilters = new SerializeFilter[0];
 
 	protected String dateFormat;
-
-	private Class<?>[] clazzes = null;
-
-	public SerializeConfig serializeConfig = SerializeConfig.getGlobalInstance();
 	
-	public ParserConfig parserConfig = ParserConfig.getGlobalInstance();
-
 	@javax.ws.rs.core.Context
 	javax.ws.rs.core.UriInfo uriInfo;
 

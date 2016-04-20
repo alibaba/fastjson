@@ -10,6 +10,8 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -29,6 +31,8 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
  *
  */
 @Provider
+@Produces({ MediaType.APPLICATION_FORM_URLENCODED, MediaType.APPLICATION_JSON })
+@Consumes({ MediaType.APPLICATION_FORM_URLENCODED, MediaType.APPLICATION_JSON })
 public class FastJsonProvider implements MessageBodyReader<Object>,
 		MessageBodyWriter<Object> {
 
@@ -39,15 +43,15 @@ public class FastJsonProvider implements MessageBodyReader<Object>,
 
 	private Class<?>[] clazzes = null;
 	
-	private SerializerFeature[] serializerFeatures = new SerializerFeature[0];
+	private SerializerFeature[] features = new SerializerFeature[0];
 
-	protected SerializeFilter[] serialzeFilters = new SerializeFilter[0];
+	protected SerializeFilter[] filters = new SerializeFilter[0];
 
 	protected String dateFormat;
 	
 	@javax.ws.rs.core.Context
 	javax.ws.rs.core.UriInfo uriInfo;
-
+	
 	/**
 	 * Can serialize/deserialize all types.
 	 */
@@ -69,6 +73,38 @@ public class FastJsonProvider implements MessageBodyReader<Object>,
 		this.clazzes = clazzes;
 	}
 
+	public Charset getCharset() {
+		return this.charset;
+	}
+
+	public void setCharset(Charset charset) {
+		this.charset = charset;
+	}
+
+	public String getDateFormat() {
+		return dateFormat;
+	}
+
+	public void setDateFormat(String dateFormat) {
+		this.dateFormat = dateFormat;
+	}
+
+	public SerializerFeature[] getFeatures() {
+		return features;
+	}
+
+	public void setFeatures(SerializerFeature... features) {
+		this.features = features;
+	}
+
+	public SerializeFilter[] getFilters() {
+		return filters;
+	}
+
+	public void setFilters(SerializeFilter... filters) {
+		this.filters = filters;
+	}
+	
 	/**
 	 * Check whether a class can be serialized or deserialized. It can check
 	 * based on packages, annotations on entities or explicit classes.
@@ -104,10 +140,11 @@ public class FastJsonProvider implements MessageBodyReader<Object>,
 	protected boolean hasMatchingMediaType(MediaType mediaType) {
 		if (mediaType != null) {
 			String subtype = mediaType.getSubtype();
+			
 			return "json".equalsIgnoreCase(subtype)
 					|| subtype.endsWith("+json")
-					|| "javascript".equals(subtype)
-					|| "x-javascript".equals(subtype);
+					|| "x-www-form-urlencoded".equalsIgnoreCase(subtype)
+					|| subtype.endsWith("x-www-form-urlencoded");
 		}
 		return true;
 	}
@@ -149,7 +186,7 @@ public class FastJsonProvider implements MessageBodyReader<Object>,
 			OutputStream entityStream) throws IOException,
 			WebApplicationException {
 
-		SerializerFeature[] serializerFeatures = this.serializerFeatures;
+		SerializerFeature[] serializerFeatures = this.features;
 		if (uriInfo != null
 				&& uriInfo.getQueryParameters().containsKey("pretty")) {
 			if (serializerFeatures == null)
@@ -164,7 +201,7 @@ public class FastJsonProvider implements MessageBodyReader<Object>,
 
 		String text = JSON.toJSONString(obj, //
 				SerializeConfig.globalInstance, //
-				serialzeFilters, //
+				filters, //
 				dateFormat, //
 				JSON.DEFAULT_GENERATE_FEATURE, //
 				serializerFeatures);

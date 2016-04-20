@@ -56,4 +56,12 @@ public class CommentTest extends TestCase {
         }
         Assert.assertNotNull(error);
     }
+    
+    public void test_6() throws Exception {
+        String text = "{'a':1, 'b':2 /***/ }";
+        JSONObject obj = (JSONObject) JSON.parse(text);
+        Assert.assertEquals(2, obj.size());
+        Assert.assertEquals(1, obj.get("a"));
+        Assert.assertEquals(2, obj.get("b"));
+    }
 }

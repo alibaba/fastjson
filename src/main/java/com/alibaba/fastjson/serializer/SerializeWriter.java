@@ -1131,9 +1131,7 @@ public final class SerializeWriter extends Writer {
             } else {
                 for (int j = 0, len = text.length(); j < len; ++j) {
                     char ch = text.charAt(j);
-                    if (ch >= IOUtils.specicalFlags_doubleQuotes.length //
-                            || IOUtils.specicalFlags_doubleQuotes[ch] != 0) {
-                        hasSpecial = true;
+                    if (hasSpecial = (ch < 22 || ch > 125 || ch == '"' || ch == '\\')) {
                         break;
                     }
                 }

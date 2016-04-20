@@ -1114,17 +1114,9 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitVarInsn(ILOAD, context.var("size"));
             mw.visitJumpInsn(IF_ICMPGE, _end_for); // i < list.size - 1
             
-            Label _first = new Label();
-            mw.visitVarInsn(ILOAD, context.var("i"));
-            mw.visitJumpInsn(IFEQ, _first); // i < list.size - 1
-            
-            mw.visitVarInsn(ALOAD, context.var("out"));
-            mw.visitVarInsn(BIPUSH, ',');
-            mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(I)V");
-            
-            mw.visitLabel(_first);
+           
 
-            if (elementType == String.class) {
+            if (elementType == String.class && context.writeDirect) {
                 // out.write((String)list.get(i));
                 mw.visitVarInsn(ALOAD, context.var("out"));
                 mw.visitVarInsn(ALOAD, context.var("list"));
@@ -1132,15 +1124,20 @@ public class ASMSerializerFactory implements Opcodes {
                 mw.visitMethodInsn(INVOKEINTERFACE, "java/util/List", "get", "(I)Ljava/lang/Object;");
                 mw.visitTypeInsn(CHECKCAST, "java/lang/String"); // cast to string
                 
-                if (context.writeDirect) {
-                    mw.visitInsn(ICONST_0);
-                    mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeStringWithDoubleQuoteDirect",
-                            "(Ljava/lang/String;C)V");
-                } else {
-                    mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeString",
-                                       "(Ljava/lang/String;)V");
-                }
+                mw.visitVarInsn(ILOAD, context.var("i"));
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeStringWithDoubleQuoteDirect",
+                        "(Ljava/lang/String;I)V");
             } else {
+                Label _first = new Label();
+                mw.visitVarInsn(ILOAD, context.var("i"));
+                mw.visitJumpInsn(IFEQ, _first); // i < list.size - 1
+                
+                mw.visitVarInsn(ALOAD, context.var("out"));
+                mw.visitVarInsn(BIPUSH, ',');
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(I)V");
+                
+                mw.visitLabel(_first);
+                
                 mw.visitVarInsn(ALOAD, Context.serializer);
                 mw.visitVarInsn(ALOAD, context.var("list"));
                 mw.visitVarInsn(ILOAD, context.var("i"));

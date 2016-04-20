@@ -24,16 +24,14 @@ import com.alibaba.fastjson.JSONException;
 
 public final class JSONLexer {
 
-    public final static char     EOI            = 0x1A;
-    public final static int      NOT_MATCH      = -1;
-    public final static int      NOT_MATCH_NAME = -2;
-    public final static int      UNKNOWN        = 0;
-//    public final static int      OBJECT         = 1;
-//    public final static int      ARRAY          = 2;
-    public final static int      VALUE          = 3;
-    public final static int      END            = 4;
-    
-    private final static boolean V6; // android 6
+    public final static char EOI            = 0x1A;
+    public final static int  NOT_MATCH      = -1;
+    public final static int  NOT_MATCH_NAME = -2;
+    public final static int  UNKNOWN        = 0;
+    public final static int  VALUE          = 3;
+    public final static int  END            = 4;
+
+    private static boolean   V6;                   // android 6
     static {
         int version = -1;
         

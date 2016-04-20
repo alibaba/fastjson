@@ -121,14 +121,33 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             FieldDeserializer fieldDeser = sortedFieldDeserializers[i];
             Class<?> fieldClass = fieldDeser.fieldInfo.fieldClass;
             if (fieldClass == int.class) {
-                int value = lexer.scanInt(seperator);
-                fieldDeser.setValue(object, Integer.valueOf(value));
+                Number number = lexer.scanNumberValue();
+                if (!(number instanceof Integer)) {
+                    number = number.intValue();
+                }
+                fieldDeser.setValue(object, number);
+                lexer.nextToken(JSONToken.COMMA);
             } else if (fieldClass == String.class) {
-                String value = lexer.scanString(seperator);
-                fieldDeser.setValue(object, value);
+                String strVal;
+                if (lexer.ch == '"') {
+                    strVal = lexer.scanStringValue('"');
+                } else {
+                    lexer.nextToken();
+                    if (lexer.token == JSONToken.NULL) {
+                        strVal = null;
+                    } else {
+                        throw new JSONException("not match string. feild : " + fieldName);
+                    }
+                }
+                fieldDeser.setValue(object, strVal);
+                lexer.nextToken(JSONToken.COMMA);
             } else if (fieldClass == long.class) {
-                long value = lexer.scanLong(seperator);
-                fieldDeser.setValue(object, Long.valueOf(value));
+                Number number = lexer.scanNumberValue();
+                if (!(number instanceof Long)) {
+                    number = number.longValue();
+                }
+                fieldDeser.setValue(object, number);
+                lexer.nextToken(JSONToken.COMMA);
             } else if (fieldClass.isEnum()) {
                 String enumName = lexer.scanSymbol(parser.symbolTable);
                 @SuppressWarnings("rawtypes")

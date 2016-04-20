@@ -863,14 +863,17 @@ public final class JSONLexer {
                 }
             }
         } else if (ch == '*') {
-            for (;;) {
-                next();
+            next();
+            
+            for (;ch != EOI;) {
                 if (ch == '*') {
                     next();
                     if (ch == '/') {
                         next();
                         return;
                     }
+                } else {
+                    next();
                 }
             }
         } else {

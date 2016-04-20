@@ -1,5 +1,6 @@
 package com.alibaba.fastjson.serializer;
 
+import java.lang.ref.SoftReference;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -12,61 +13,110 @@ import com.alibaba.fastjson.JSONException;
 
 public class SerialWriterStringEncoder {
 
-    private final CharsetEncoder encoder;
+	private final CharsetEncoder encoder;
 
-    public SerialWriterStringEncoder(Charset cs){
-        this.encoder = cs.newEncoder().onMalformedInput(CodingErrorAction.REPLACE).onUnmappableCharacter(CodingErrorAction.REPLACE);
-    }
+	public SerialWriterStringEncoder(Charset cs) {
+		this(cs.newEncoder().onMalformedInput(CodingErrorAction.REPLACE).onUnmappableCharacter(CodingErrorAction.REPLACE));
+	}
+	
+	public SerialWriterStringEncoder(CharsetEncoder encoder) {
+	    this.encoder = encoder;
+	}
 
-    public byte[] encode(char[] chars, int off, int len) {
-        if (len == 0) {
-            return new byte[0];
-        }
+	public byte[] encode(char[] chars, int off, int len) {
+		if (len == 0) {
+			return new byte[0];
+		}
 
-        encoder.reset();
+		encoder.reset();
 
-        // We need to perform double, not float, arithmetic; otherwise
-        // we lose low order bits when len is larger than 2**24.
-        int bytesLength = (int) (len * (double) encoder.maxBytesPerChar());
-        byte[] bytes = getBytes(bytesLength);
+		int bytesLength = scale(len, encoder.maxBytesPerChar());
 
-        ByteBuffer byteBuf = ByteBuffer.wrap(bytes);
+		byte[] bytes = getBytes(bytesLength);
 
-        CharBuffer charBuf = CharBuffer.wrap(chars, off, len);
-        try {
-            CoderResult cr = encoder.encode(charBuf, byteBuf, true);
-            if (!cr.isUnderflow()) {
-                cr.throwException();
-            }
-            cr = encoder.flush(byteBuf);
-            if (!cr.isUnderflow()) {
-                cr.throwException();
-            }
-        } catch (CharacterCodingException x) {
-            // Substitution is always enabled,
-            // so this shouldn't happen
-            throw new JSONException(x.getMessage(), x);
-        }
+		return encode(chars, off, len, bytes);
+	}
 
-        int position = byteBuf.position();
-        byte[] copy = new byte[position];
-        System.arraycopy(bytes, 0, copy, 0, position);
-        return copy;
-    }
+	public CharsetEncoder getEncoder() {
+		return encoder;
+	}
 
-    private final static ThreadLocal<byte[]> bytesBufLocal = new ThreadLocal<byte[]>();
+	public byte[] encode(char[] chars, int off, int len, byte[] bytes) {
+		ByteBuffer byteBuf = ByteBuffer.wrap(bytes);
 
-    public static byte[] getBytes(int length) {
-        byte[] bytes = bytesBufLocal.get();
+		CharBuffer charBuf = CharBuffer.wrap(chars, off, len);
+		try {
+			CoderResult cr = encoder.encode(charBuf, byteBuf, true);
+			if (!cr.isUnderflow()) {
+				cr.throwException();
+			}
+			cr = encoder.flush(byteBuf);
+			if (!cr.isUnderflow()) {
+				cr.throwException();
+			}
+		} catch (CharacterCodingException x) {
+			// Substitution is always enabled,
+			// so this shouldn't happen
+			throw new JSONException(x.getMessage(), x);
+		}
 
-        if (bytes == null) {
-            bytes = new byte[1024 * 8];
-            bytesBufLocal.set(bytes);
-        }
-        
-        return bytes.length < length //
-            ? new byte[length] //
-            : bytes;
-    }
+		int bytesLength = byteBuf.position();
+		byte[] copy = new byte[bytesLength];
+		System.arraycopy(bytes, 0, copy, 0, bytesLength);
+		return copy;
+	}
 
+	private static int scale(int len, float expansionFactor) {
+		// We need to perform double, not float, arithmetic; otherwise
+		// we lose low order bits when len is larger than 2**24.
+		return (int) (len * (double) expansionFactor);
+	}
+
+	 private final static ThreadLocal<SoftReference<byte[]>> bytesBufLocal        = new ThreadLocal<SoftReference<byte[]>>();
+
+	    public static void clearBytes() {
+	        bytesBufLocal.set(null);
+	    }
+
+	    public static byte[] getBytes(int length) {
+	        SoftReference<byte[]> ref = bytesBufLocal.get();
+
+	        if (ref == null) {
+	            return allocateBytes(length);
+	        }
+
+	        byte[] bytes = ref.get();
+
+	        if (bytes == null) {
+	            return allocateBytes(length);
+	        }
+
+	        if (bytes.length < length) {
+	            bytes = allocateBytes(length);
+	        }
+
+	        return bytes;
+	    }
+
+	    private static byte[] allocateBytes(int length) {
+	        final int minExp = 10;
+	        final int BYTES_CACH_MAX_SIZE = 1024 * 128; // 128k, 2^17;
+	        
+	        if(length > BYTES_CACH_MAX_SIZE) {
+	            return new byte[length];
+	        }
+
+	        int allocateLength;
+	        {
+	            int part = length >>> minExp;
+	            if(part <= 0) {
+	                allocateLength = 1<< minExp;
+	            } else {
+	                allocateLength = 1 << 32 - Integer.numberOfLeadingZeros(length-1);
+	            }
+	        }
+	        byte[] chars = new byte[allocateLength];
+	        bytesBufLocal.set(new SoftReference<byte[]>(chars));
+	        return chars;
+	    }
 }

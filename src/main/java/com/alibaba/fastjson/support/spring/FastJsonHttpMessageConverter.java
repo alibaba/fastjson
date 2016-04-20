@@ -21,122 +21,102 @@ import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
-/**
- * Spring MVC Converter for fastjson.
- *
- * @author Victor.Zxy
- *
- */
-public class FastJsonHttpMessageConverter extends
-		AbstractHttpMessageConverter<Object> implements
-		GenericHttpMessageConverter<Object> {
+public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<Object> implements GenericHttpMessageConverter<Object> {
 
-	public final static Charset UTF8 = Charset.forName("UTF-8");
+    public final static Charset UTF8            = Charset.forName("UTF-8");
 
-	private Charset charset = UTF8;
+    private Charset             charset         = UTF8;
 
-	private SerializerFeature[] features = new SerializerFeature[0];
+    private SerializerFeature[] features        = new SerializerFeature[0];
 
-	protected SerializeFilter[] filters = new SerializeFilter[0];
+    protected SerializeFilter[] serialzeFilters = new SerializeFilter[0];
 
-	protected String dateFormat;
+    protected String            dateFormat;
 
-	public FastJsonHttpMessageConverter() {
-		
-		super(MediaType.APPLICATION_JSON,  MediaType.APPLICATION_FORM_URLENCODED);
-	}
+    public FastJsonHttpMessageConverter(){
+        super(new MediaType("application", "json", UTF8), new MediaType("application", "*+json", UTF8));
+    }
 
-	@Override
-	protected boolean supports(Class<?> clazz) {
-		return true;
-	}
+    @Override
+    protected boolean supports(Class<?> clazz) {
+        return true;
+    }
 
-	public Charset getCharset() {
-		return this.charset;
-	}
+    public Charset getCharset() {
+        return this.charset;
+    }
 
-	public void setCharset(Charset charset) {
-		this.charset = charset;
-	}
+    public void setCharset(Charset charset) {
+        this.charset = charset;
+    }
 
-	public String getDateFormat() {
-		return dateFormat;
-	}
+    public String getDateFormat() {
+        return dateFormat;
+    }
 
-	public void setDateFormat(String dateFormat) {
-		this.dateFormat = dateFormat;
-	}
+    public void setDateFormat(String dateFormat) {
+        this.dateFormat = dateFormat;
+    }
 
-	public SerializerFeature[] getFeatures() {
-		return features;
-	}
+    public SerializerFeature[] getFeatures() {
+        return features;
+    }
 
-	public void setFeatures(SerializerFeature... features) {
-		this.features = features;
-	}
+    public void setFeatures(SerializerFeature... features) {
+        this.features = features;
+    }
 
-	public SerializeFilter[] getFilters() {
-		return filters;
-	}
+    @Override
+    protected Object readInternal(Class<? extends Object> clazz,
+                                  HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
 
-	public void setFilters(SerializeFilter... filters) {
-		this.filters = filters;
-	}
-	
-	@Override
-	protected Object readInternal(Class<? extends Object> clazz,
-			HttpInputMessage inputMessage) throws IOException,
-			HttpMessageNotReadableException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        InputStream in = inputMessage.getBody();
 
-		InputStream in = inputMessage.getBody();
+        byte[] buf = new byte[1024];
+        for (;;) {
+            int len = in.read(buf);
+            if (len == -1) {
+                break;
+            }
 
-		byte[] buf = new byte[1024];
-		for (;;) {
-			int len = in.read(buf);
-			if (len == -1) {
-				break;
-			}
+            if (len > 0) {
+                baos.write(buf, 0, len);
+            }
+        }
 
-			if (len > 0) {
-				baos.write(buf, 0, len);
-			}
-		}
+        byte[] bytes = baos.toByteArray();
+        return JSON.parseObject(bytes, 0, bytes.length, charset.newDecoder(), clazz);
+    }
 
-		byte[] bytes = baos.toByteArray();
-		return JSON.parseObject(bytes, 0, bytes.length, charset.newDecoder(),
-				clazz);
-	}
+    @Override
+    protected void writeInternal(Object obj, HttpOutputMessage outputMessage) throws IOException,
+                                                                              HttpMessageNotWritableException {
+        HttpHeaders headers = outputMessage.getHeaders();
+        String text = JSON.toJSONString(obj, // 
+                                        SerializeConfig.globalInstance, // 
+                                        serialzeFilters, // 
+                                        dateFormat, // 
+                                        JSON.DEFAULT_GENERATE_FEATURE, // 
+                                        features);
+        byte[] bytes = text.getBytes(charset);
+        headers.setContentLength(bytes.length);
+        OutputStream out = outputMessage.getBody();
+        out.write(bytes);
+        out.flush();
+    }
 
-	@Override
-	protected void writeInternal(Object obj, HttpOutputMessage outputMessage)
-			throws IOException, HttpMessageNotWritableException {
-		HttpHeaders headers = outputMessage.getHeaders();
-		String text = JSON.toJSONString(obj, //
-				SerializeConfig.globalInstance, //
-				filters, //
-				dateFormat, //
-				JSON.DEFAULT_GENERATE_FEATURE, //
-				features);
-		byte[] bytes = text.getBytes(charset);
-		headers.setContentLength(bytes.length);
-		OutputStream out = outputMessage.getBody();
-		out.write(bytes);
-		out.flush();
-	}
+    public void addSerializeFilter(SerializeFilter filter) {
+        if (filter == null) {
+            return;
+        }
 
-	public void addSerializeFilter(SerializeFilter filter) {
-		if (filter == null) {
-			return;
-		}
-
-		SerializeFilter[] filters = new SerializeFilter[this.filters.length + 1];
-		System.arraycopy(this.filters, 0, filter, 0,
-				this.filters.length);
-		filters[filters.length - 1] = filter;
-		this.filters = filters;
-	}
+        SerializeFilter[] filters = new SerializeFilter[this.serialzeFilters.length + 1];
+        System.arraycopy(this.serialzeFilters, 0, filter, 0, this.serialzeFilters.length);
+        filters[filters.length - 1] = filter;
+        this.serialzeFilters = filters;
+    }
 
 	@Override
 	public boolean canRead(Type type, Class<?> contextClass, MediaType mediaType) {
@@ -146,29 +126,27 @@ public class FastJsonHttpMessageConverter extends
 
 	@Override
 	public Object read(Type type, Class<?> contextClass,
-			HttpInputMessage inputMessage) throws IOException,
-			HttpMessageNotReadableException {
+            HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
 
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-		InputStream in = inputMessage.getBody();
+        InputStream in = inputMessage.getBody();
 
-		byte[] buf = new byte[1024];
-		for (;;) {
-			int len = in.read(buf);
-			if (len == -1) {
-				break;
-			}
+        byte[] buf = new byte[1024];
+        for (;;) {
+            int len = in.read(buf);
+            if (len == -1) {
+                break;
+            }
 
-			if (len > 0) {
-				baos.write(buf, 0, len);
-			}
-		}
+            if (len > 0) {
+                baos.write(buf, 0, len);
+            }
+        }
 
-		byte[] bytes = baos.toByteArray();
-
-		return JSON.parseObject(bytes, 0, bytes.length, charset.newDecoder(),
-				type);
-	}
+        byte[] bytes = baos.toByteArray();
+        
+        return JSON.parseObject(bytes, 0, bytes.length, charset.newDecoder(), type);
+    }
 
 }

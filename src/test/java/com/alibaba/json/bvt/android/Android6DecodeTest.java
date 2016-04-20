@@ -1,19 +1,26 @@
 package com.alibaba.json.bvt.android;
 
+import java.lang.reflect.Field;
+
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.JSONLexer;
 
 import junit.framework.TestCase;
 
 public class Android6DecodeTest extends TestCase {
     protected void setUp() throws Exception {
-        android.os.Build.VERSION.SDK_INT = 23;
+        Field field = JSONLexer.class.getDeclaredField("V6");
+        field.setAccessible(true);
+        field.setBoolean(null, true);;
     }
     
     protected void tearDown() throws Exception {
-        android.os.Build.VERSION.SDK_INT = 0;
+        Field field = JSONLexer.class.getDeclaredField("V6");
+        field.setAccessible(true);
+        field.setBoolean(null, false);;
     }
     
     public void test_decode() throws Exception {

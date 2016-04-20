@@ -566,16 +566,16 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             next();
             
             for (;ch != EOI;) {
-                next();
                 if (ch == '*') {
                     next();
                     if (ch == '/') {
                         next();
                         return;
+                    } else {
+                        continue;
                     }
-                } else {
-                    next();
                 }
+                next();
             }
         } else {
             throw new JSONException("invalid comment");

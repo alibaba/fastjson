@@ -59,4 +59,9 @@ public class JacksonCodec implements Codec {
     public String encode(Object object) throws Exception {
         return mapper.writeValueAsString(object);
     }
+
+    @Override
+    public byte[] encodeToBytes(Object object) throws Exception {
+        return mapper.writeValueAsBytes(object);
+    }
 }

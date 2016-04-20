@@ -173,4 +173,10 @@ public class FastjsonManualCodec implements Codec {
         }
         
     }
+
+    @Override
+    public byte[] encodeToBytes(Object object) throws Exception {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

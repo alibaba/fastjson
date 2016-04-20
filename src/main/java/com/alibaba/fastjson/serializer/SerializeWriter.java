@@ -379,16 +379,21 @@ public final class SerializeWriter extends Writer {
     }
 
     public byte[] toBytes(String charsetName) {
-        if (this.writer != null) {
-            throw new UnsupportedOperationException("writer not null");
-        }
-
         if (charsetName == null) {
             charsetName = "UTF-8";
         }
 
-        Charset cs = Charset.forName(charsetName);
-        SerialWriterStringEncoder encoder = new SerialWriterStringEncoder(cs);
+        Charset charset = Charset.forName(charsetName);
+
+        return toBytes(charset);
+    }
+    
+    public byte[] toBytes(Charset charset) {
+        if (this.writer != null) {
+            throw new UnsupportedOperationException("writer not null");
+        }
+
+        SerialWriterStringEncoder encoder = new SerialWriterStringEncoder(charset);
 
         return encoder.encode(buf, 0, count);
     }
@@ -1131,7 +1136,10 @@ public final class SerializeWriter extends Writer {
             } else {
                 for (int j = 0, len = text.length(); j < len; ++j) {
                     char ch = text.charAt(j);
-                    if (hasSpecial = (ch < 22 || ch > 125 || ch == '"' || ch == '\\')) {
+                    if (hasSpecial = (ch < ' ' // 
+                            || ch > '~' // 
+                            || ch == '"' // 
+                            || ch == '\\')) {
                         break;
                     }
                 }
@@ -1141,10 +1149,15 @@ public final class SerializeWriter extends Writer {
                 write('[');
                 for (int j = 0; j < list.size(); ++j) {
                     text = list.get(j);
-                    if (i != 0) {
+                    if (j != 0) {
                         write(',');
                     }
-                    writeStringWithDoubleQuote(text, (char) 0);
+                    
+                    if (text == null) {
+                        write("null");
+                    } else {
+                        writeStringWithDoubleQuote(text, (char) 0);
+                    }
                 }
                 write(']');
                 return;

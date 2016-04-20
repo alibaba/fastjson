@@ -563,7 +563,9 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 }
             }
         } else if (ch == '*') {
-            for (;;) {
+            next();
+            
+            for (;ch != EOI;) {
                 next();
                 if (ch == '*') {
                     next();
@@ -571,6 +573,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                         next();
                         return;
                     }
+                } else {
+                    next();
                 }
             }
         } else {

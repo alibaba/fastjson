@@ -26,7 +26,7 @@ public class Bug_127_for_qiuyan81 extends TestCase {
         JSONObject json = (JSONObject) JSON.parse(jsonString);
         Assert.assertEquals(1001, json.get("ext"));
         Assert.assertEquals(0, json.get("PayStatus"));
-        Assert.assertEquals(2, json.size());
+        Assert.assertEquals(3, json.size());
     }
     
     public void test_parserUndefined_array() {

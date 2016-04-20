@@ -123,10 +123,7 @@ public class FastjsonManualCodec implements Codec {
             List<String> persons = image.getPersons();
             for (int i = 0, size = persons.size(); i < size; ++i) {
                 out.write('[');
-                if (i != 0) {
-                    out.write(',');
-                }
-                out.writeStringWithDoubleQuoteDirect(persons.get(i), (char) 0);
+                out.writeStringWithDoubleQuoteDirect(persons.get(i), i);
                 out.write(']');
             }
             out.writeFieldValueStringWithDoubleQuote(',', "player", image.getPlayer().name());

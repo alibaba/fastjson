@@ -2373,94 +2373,35 @@ public final class JSONLexer {
         }
 
         int offset = fieldName.length;
-        char chLocal; // = charAt(bp + (offset++));
-        {
-            int index = bp + (offset++);
-            if (index >= len) {
-                throw new JSONException("unclosed str");
-            } else {
-                chLocal = text.charAt(index);
-            }
-        }
+//        char chLocal; // = charAt(bp + (offset++));
+//        {
+//            int index = bp + (offset++);
+//            if (index >= len) {
+//                throw new JSONException("unclosed str");
+//            } else {
+//                chLocal = text.charAt(index);
+//            }
+//        }
         
-        boolean quote = false;
-        if (chLocal == '"') {
-            quote = true;
-            
-            {
-                int index = bp + (offset++);
-                chLocal = index >= len //
-                        ? EOI //
-                        : text.charAt(index);
-            }
-        }
-
         boolean value;
-        if (chLocal == 't') {
-            if (charAt(bp + (offset++)) != 'r') {
-                matchStat = NOT_MATCH;
-                return false;
-            }
-            if (charAt(bp + (offset++)) != 'u') {
-                matchStat = NOT_MATCH;
-                return false;
-            }
-            if (charAt(bp + (offset++)) != 'e') {
-                matchStat = NOT_MATCH;
-                return false;
-            }
-            
-            chLocal = charAt(bp + (offset));
-            if (chLocal == '\"') {
-                if (!quote) {
-                    matchStat = NOT_MATCH;
-                    return false;
-                }
-                int index = bp + (offset++);
-                chLocal = index >= len //
-                        ? EOI //
-                        : text.charAt(index);
-            }
-
-            value = true;
-        } else if (chLocal == 'f') {
-            if (charAt(bp + (offset++)) != 'a') {
-                matchStat = NOT_MATCH;
-                return false;
-            }
-            if (charAt(bp + (offset++)) != 'l') {
-                matchStat = NOT_MATCH;
-                return false;
-            }
-            if (charAt(bp + (offset++)) != 's') {
-                matchStat = NOT_MATCH;
-                return false;
-            }
-            if (charAt(bp + (offset++)) != 'e') {
-                matchStat = NOT_MATCH;
-                return false;
-            }
-            
-            chLocal = charAt(bp + (offset));
-            
-            if (chLocal == '\"') {
-                if (!quote) {
-                    matchStat = NOT_MATCH;
-                    return false;
-                }
-                int index = bp + (offset++);
-                chLocal = index >= len //
-                        ? EOI //
-                        : text.charAt(index);
-            }
-
+        if (text.startsWith("false", bp + offset)) {
+            offset += 5;
             value = false;
+        } else if (text.startsWith("true", bp + offset)) {
+            offset += 4;
+            value = true;
+        } else if (text.startsWith("\"false\"", bp + offset)) {
+            offset += 7;
+            value = false;
+        } else if (text.startsWith("\"true\"", bp + offset)) {
+            offset += 6;
+            value = true;
         } else {
             matchStat = NOT_MATCH;
             return false;
         }
 
-        chLocal = charAt(bp + offset++);
+        char chLocal = charAt(bp + offset++);
         if (chLocal == ',') {
             bp += (offset - 1);
             // this.next();

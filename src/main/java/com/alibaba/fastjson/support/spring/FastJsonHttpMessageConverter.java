@@ -104,6 +104,7 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
         headers.setContentLength(bytes.length);
         OutputStream out = outputMessage.getBody();
         out.write(bytes);
+        out.flush();
     }
 
     public void addSerializeFilter(SerializeFilter filter) {

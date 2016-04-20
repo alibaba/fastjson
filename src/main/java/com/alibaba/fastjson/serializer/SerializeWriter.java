@@ -23,6 +23,7 @@ import java.io.Writer;
 import java.lang.ref.SoftReference;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.util.List;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
@@ -1113,48 +1114,66 @@ public final class SerializeWriter extends Writer {
             buf[count - 1] = '\"';
         }
     }
-
-    public void writeStringWithDoubleQuoteDirect(String text, final int index) {
-        if (text == null) {
-            if (index != 0) {
-                write(',');
-            }
-            writeNull();
+    
+    public void write(List<String> list) {
+        if (list.isEmpty()) {
+            write("[]");
             return;
         }
 
-        int len = text.length();
-        int newcount = count + len + 2;
-        if (index != 0) {
-            newcount++;
-        }
+        int offset = count;
+        for (int i = 0, list_size = list.size(); i < list_size; ++i) {
+            String text = list.get(i);
 
-        if (newcount > buf.length) {
-            expandCapacity(newcount);
-        }
-
-        for (int i = 0; i < text.length(); ++i) {
-            char ch = text.charAt(i);
-            if (ch < IOUtils.specicalFlags_doubleQuotes.length //
-                    && IOUtils.specicalFlags_doubleQuotes[ch] != 0) {
-                if (index != 0) {
-                    write(',');
+            boolean hasSpecial = false;
+            if (text == null) {
+                hasSpecial = true;
+            } else {
+                for (int j = 0, len = text.length(); j < len; ++j) {
+                    char ch = text.charAt(j);
+                    if (ch >= IOUtils.specicalFlags_doubleQuotes.length //
+                            || IOUtils.specicalFlags_doubleQuotes[ch] != 0) {
+                        hasSpecial = true;
+                        break;
+                    }
                 }
-                writeStringWithDoubleQuote(text, (char) 0);
+            }
+            
+            if (hasSpecial) {
+                write('[');
+                for (int j = 0; j < list.size(); ++j) {
+                    text = list.get(j);
+                    if (i != 0) {
+                        write(',');
+                    }
+                    writeStringWithDoubleQuote(text, (char) 0);
+                }
+                write(']');
                 return;
             }
-        }
 
-        int offset = count;
-        if (index != 0) {
-            buf[offset++] = ',';
+            int newcount = offset + text.length() + 3;
+            if (i == list.size() - 1) {
+                newcount++;
+            }
+            if (newcount > buf.length) {
+                expandCapacity(newcount);
+            }
+            
+            if (i == 0) {
+                buf[offset++] = '[';
+            } else {
+                buf[offset++] = ',';
+            }
+            buf[offset++] = '"';
+            text.getChars(0, text.length(), buf, offset);
+            offset += text.length();
+            buf[offset++] = '"';
         }
-        buf[offset++] = '\"';
-        text.getChars(0, len, buf, offset);
-        buf[newcount - 1] = '\"';
-        count = newcount;
-
+        buf[offset++] = ']';
+        count = offset;
     }
+
 
     public void writeFieldNull(char seperator, String name) {
         write(seperator);

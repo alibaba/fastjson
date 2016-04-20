@@ -1092,7 +1092,11 @@ public class ASMSerializerFactory implements Opcodes {
                                "(Ljava/lang/Object;Ljava/lang/Object;)V");
         }
 
-        {
+        if (elementType == String.class && context.writeDirect) {
+            mw.visitVarInsn(ALOAD, context.var("out"));
+            mw.visitVarInsn(ALOAD, context.var("list"));
+            mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(Ljava/util/List;)V");
+        } else {
             mw.visitVarInsn(ALOAD, context.var("out"));
             mw.visitVarInsn(BIPUSH, '[');
             mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(I)V");

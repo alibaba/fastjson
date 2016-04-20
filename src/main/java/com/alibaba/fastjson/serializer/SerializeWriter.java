@@ -22,7 +22,13 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.lang.ref.SoftReference;
 import java.math.BigDecimal;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CoderResult;
+import java.nio.charset.CodingErrorAction;
 import java.util.List;
 
 import com.alibaba.fastjson.JSON;
@@ -33,6 +39,8 @@ import com.alibaba.fastjson.util.IOUtils;
  * @author wenshao[szujobs@hotmail.com]
  */
 public final class SerializeWriter extends Writer {
+
+    static Charset                                          utf8     = Charset.forName("UTF-8");
 
     /**
      * The buffer where data is stored.
@@ -380,22 +388,79 @@ public final class SerializeWriter extends Writer {
 
     public byte[] toBytes(String charsetName) {
         if (charsetName == null) {
-            charsetName = "UTF-8";
+            return toUTF8Bytes();
         }
 
         Charset charset = Charset.forName(charsetName);
 
         return toBytes(charset);
     }
-    
-    public byte[] toBytes(Charset charset) {
+
+    public byte[] toUTF8Bytes() {
         if (this.writer != null) {
             throw new UnsupportedOperationException("writer not null");
         }
 
-        SerialWriterStringEncoder encoder = new SerialWriterStringEncoder(charset);
+        return toBytes(utf8);
+    }
 
-        return encoder.encode(buf, 0, count);
+    private byte[] toBytes(Charset charset) {
+        if (this.writer != null) {
+            throw new UnsupportedOperationException("writer not null");
+        }
+
+        CharsetEncoder encoder = charset.newEncoder() //
+                                        .onMalformedInput(CodingErrorAction.REPLACE) //
+                                        .onUnmappableCharacter(CodingErrorAction.REPLACE);
+
+        return encode(encoder, buf, 0, count);
+    }
+
+    private final static ThreadLocal<byte[]> bytesBufLocal = new ThreadLocal<byte[]>();
+
+    private static byte[] encode(CharsetEncoder encoder, char[] chars, int off, int len) {
+        if (len == 0) {
+            return new byte[0];
+        }
+
+        encoder.reset();
+
+        // We need to perform double, not float, arithmetic; otherwise
+        // we lose low order bits when len is larger than 2**24.
+        int bytesLength = (int) (len * (double) encoder.maxBytesPerChar());
+        byte[] bytes = bytesBufLocal.get();
+
+        if (bytes == null) {
+            bytes = new byte[1024 * 8];
+            bytesBufLocal.set(bytes);
+        }
+
+        if (bytes.length < bytesLength) {
+            bytes = new byte[bytesLength];
+        }
+
+        ByteBuffer byteBuf = ByteBuffer.wrap(bytes);
+
+        CharBuffer charBuf = CharBuffer.wrap(chars, off, len);
+        try {
+            CoderResult cr = encoder.encode(charBuf, byteBuf, true);
+            if (!cr.isUnderflow()) {
+                cr.throwException();
+            }
+            cr = encoder.flush(byteBuf);
+            if (!cr.isUnderflow()) {
+                cr.throwException();
+            }
+        } catch (CharacterCodingException x) {
+            // Substitution is always enabled,
+            // so this shouldn't happen
+            throw new JSONException(x.getMessage(), x);
+        }
+
+        int position = byteBuf.position();
+        byte[] copy = new byte[position];
+        System.arraycopy(bytes, 0, copy, 0, position);
+        return copy;
     }
 
     public int size() {
@@ -1119,7 +1184,7 @@ public final class SerializeWriter extends Writer {
             buf[count - 1] = '\"';
         }
     }
-    
+
     public void write(List<String> list) {
         if (list.isEmpty()) {
             write("[]");
@@ -1136,15 +1201,15 @@ public final class SerializeWriter extends Writer {
             } else {
                 for (int j = 0, len = text.length(); j < len; ++j) {
                     char ch = text.charAt(j);
-                    if (hasSpecial = (ch < ' ' // 
-                            || ch > '~' // 
-                            || ch == '"' // 
-                            || ch == '\\')) {
+                    if (hasSpecial = (ch < ' ' //
+                                      || ch > '~' //
+                                      || ch == '"' //
+                                      || ch == '\\')) {
                         break;
                     }
                 }
             }
-            
+
             if (hasSpecial) {
                 write('[');
                 for (int j = 0; j < list.size(); ++j) {
@@ -1152,7 +1217,7 @@ public final class SerializeWriter extends Writer {
                     if (j != 0) {
                         write(',');
                     }
-                    
+
                     if (text == null) {
                         write("null");
                     } else {
@@ -1170,7 +1235,7 @@ public final class SerializeWriter extends Writer {
             if (newcount > buf.length) {
                 expandCapacity(newcount);
             }
-            
+
             if (i == 0) {
                 buf[offset++] = '[';
             } else {
@@ -1184,7 +1249,6 @@ public final class SerializeWriter extends Writer {
         buf[offset++] = ']';
         count = offset;
     }
-
 
     public void writeFieldNull(char seperator, String name) {
         write(seperator);

@@ -1,6 +1,6 @@
 package com.alibaba.json.bvt.serializer;
 
-import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -9,7 +9,7 @@ import java.nio.charset.CoderResult;
 
 import org.junit.Assert;
 
-import com.alibaba.fastjson.serializer.SerialWriterStringEncoder;
+import com.alibaba.fastjson.serializer.SerializeWriter;
 
 import junit.framework.TestCase;
 
@@ -18,15 +18,12 @@ public class SerialWriterStringEncoderTest2 extends TestCase {
     public void test_error_0() throws Exception {
         Charset charset = Charset.forName("UTF-8");
         CharsetEncoder charsetEncoder = new MockCharsetEncoder2(charset);
-        SerialWriterStringEncoder encoder = new SerialWriterStringEncoder(charset);
-        Field field = SerialWriterStringEncoder.class.getDeclaredField("encoder");
-        field.setAccessible(true);
-        field.set(encoder, charsetEncoder);
+     
 
         Exception error = null;
         char[] chars = "abc".toCharArray();
         try {
-            encoder.encode(chars, 0, chars.length);
+            encode(charsetEncoder, chars, 0, chars.length);
         } catch (Exception ex) {
             error = ex;
         }
@@ -37,21 +34,22 @@ public class SerialWriterStringEncoderTest2 extends TestCase {
         Charset charset = Charset.forName("UTF-8");
         CharsetEncoder realEncoder = charset.newEncoder();
         
-        SerialWriterStringEncoder encoder = new SerialWriterStringEncoder(charset);
-        
         CharsetEncoder charsetEncoder = new MockCharsetEncoder(charset, realEncoder);
-        Field field = SerialWriterStringEncoder.class.getDeclaredField("encoder");
-        field.setAccessible(true);
-        field.set(encoder, charsetEncoder);
 
         Exception error = null;
         char[] chars = "abc".toCharArray();
         try {
-            encoder.encode(chars, 0, chars.length);
+            encode(charsetEncoder, chars, 0, chars.length);
         } catch (Exception ex) {
             error = ex;
         }
         Assert.assertNotNull(error);
+    }
+    
+    public static byte[] encode(CharsetEncoder encoder, char[] chars, int off, int len) throws Exception {
+        Method method = SerializeWriter.class.getDeclaredMethod("encode", CharsetEncoder.class, char[].class, int.class, int.class);
+        method.setAccessible(true);
+        return (byte[]) method.invoke(null, encoder, chars, off, len);
     }
 
     public static class MockCharsetEncoder extends CharsetEncoder {

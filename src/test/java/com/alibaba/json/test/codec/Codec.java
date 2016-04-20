@@ -17,4 +17,6 @@ public interface Codec {
     Object decode(String text) throws Exception;
 
     String encode(Object object) throws Exception;
+    
+    byte[] encodeToBytes(Object object) throws Exception;
 }

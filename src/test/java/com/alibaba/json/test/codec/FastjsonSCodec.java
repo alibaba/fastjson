@@ -73,4 +73,10 @@ public class FastjsonSCodec implements Codec {
         return (T) JSON.parseObject(input, clazz, Feature.DisableCircularReferenceDetect);
     }
 
+    @Override
+    public byte[] encodeToBytes(Object object) throws Exception {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

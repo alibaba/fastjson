@@ -442,12 +442,6 @@ public final class JSONLexer {
                         return;
                     }
 
-                    if (ch == '[') {
-                        token = JSONToken.LBRACKET;
-                        next();
-                        return;
-                    }
-
                     if (ch == '{') {
                         token = JSONToken.LBRACE;
                         // next();
@@ -543,9 +537,6 @@ public final class JSONLexer {
     public final Number integerValue() throws NumberFormatException {
         long result = 0;
         boolean negative = false;
-        if (np == -1) {
-            np = 0;
-        }
         int i = np, max = np + sp;
         long limit;
         int digit;
@@ -1097,10 +1088,6 @@ public final class JSONLexer {
     public final int intValue() {
 //        final int INT_MULTMIN_RADIX_TEN = -214748364; // Integer.MIN_VALUE / 10;
 //        final int INT_N_MULTMAX_RADIX_TEN = -214748364; // -Integer.MAX_VALUE / 10;
-
-        if (np == -1) {
-            np = 0;
-        }
 
         int result = 0;
         boolean negative = false;

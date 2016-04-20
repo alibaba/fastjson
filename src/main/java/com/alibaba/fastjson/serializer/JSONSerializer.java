@@ -322,10 +322,9 @@ public class JSONSerializer extends SerializeFilterable {
      * @return
      */
     public boolean writeDirect(JavaBeanSerializer javaBeanDeser) {
-        return out.writeDirect // 
-                && this.writeDirect
-                && javaBeanDeser.writeDirect
-                ;
+        return out.writeDirect //
+               && this.writeDirect //
+               && javaBeanDeser.writeDirect;
     }
     
     public FieldInfo getFieldInfo() {

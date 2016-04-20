@@ -164,7 +164,12 @@ public final class JSONLexer {
                 return;
             }
 
-            if (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b') {
+            if (ch == ' ' //
+                || ch == '\n' //
+                || ch == '\r'//
+                || ch == '\t'//
+                || ch == '\f'//
+                || ch == '\b') {
                 next();
                 continue;
             }
@@ -489,7 +494,12 @@ public final class JSONLexer {
                     break;
             }
 
-            if (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b') {
+            if (ch == ' '//
+                || ch == '\n'//
+                || ch == '\r'//
+                || ch == '\t'//
+                || ch == '\f'//
+                || ch == '\b') {
                 next();
                 continue;
             }

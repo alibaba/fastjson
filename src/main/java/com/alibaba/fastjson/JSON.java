@@ -22,7 +22,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,8 +62,6 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     public static int              DEFAULT_PARSER_FEATURE;
 
     static final SerializeFilter[] emptyFilters     = new SerializeFilter[0];
-    
-    static Charset utf8 = Charset.forName("UTF-8");
 
 //    /**
 //     * asm生成代码dump路径

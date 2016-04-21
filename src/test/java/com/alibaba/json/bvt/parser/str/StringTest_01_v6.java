@@ -50,5 +50,8 @@ public class StringTest_01_v6 extends TestCase {
                 Assert.assertTrue(item.charAt(i * 1026 + j + 2) == '0');    
             }
         }
+        
+        Assert.assertEquals(text, JSON.toJSONString(array));
     }
+    
 }

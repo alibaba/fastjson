@@ -35,5 +35,7 @@ public class StringTest_00 extends TestCase {
                 Assert.assertTrue(item.charAt(i * 1025 + j + 1) == '0');    
             }
         }
+        
+        Assert.assertEquals(text, JSON.toJSONString(array));
     }
 }

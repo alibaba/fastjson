@@ -44,21 +44,7 @@ public class FloatCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         float floatValue = ((Float) object).floatValue(); 
-        
-        if (Float.isNaN(floatValue) // 
-                || Float.isInfinite(floatValue)) {
-            out.writeNull();
-        } else {
-            String floatText= Float.toString(floatValue);
-            if (floatText.endsWith(".0")) {
-                floatText = floatText.substring(0, floatText.length() - 2);
-            }
-            out.write(floatText);
-            
-            if (out.isEnabled(SerializerFeature.WriteClassName)) {
-                out.write('F');
-            }
-        }
+        out.writeFloat(floatValue);
     }
     
     @SuppressWarnings("unchecked")

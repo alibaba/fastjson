@@ -351,10 +351,6 @@ public final class SerializeWriter extends Writer {
         return this;
     }
 
-    public void reset() {
-        count = 0;
-    }
-
     /**
      * Returns a copy of the input data.
      * 
@@ -371,21 +367,9 @@ public final class SerializeWriter extends Writer {
     }
 
     public byte[] toBytes(String charsetName) {
-        if (charsetName == null) {
-            return toUTF8Bytes();
-        }
-
-        Charset charset = Charset.forName(charsetName);
-
-        return toBytes(charset);
-    }
-
-    public byte[] toUTF8Bytes() {
-        if (this.writer != null) {
-            throw new UnsupportedOperationException("writer not null");
-        }
-
-        return toBytes(utf8);
+        return toBytes(charsetName == null || "UTF-8".equals(charsetName) //
+            ? utf8 //
+            : Charset.forName(charsetName));
     }
 
     private byte[] toBytes(Charset charset) {
@@ -407,8 +391,6 @@ public final class SerializeWriter extends Writer {
                     .onMalformedInput(CodingErrorAction.REPLACE) //
                     .onUnmappableCharacter(CodingErrorAction.REPLACE);
         }
-
-        
 
         return encode(encoder, buf, 0, count);
     }
@@ -595,149 +577,65 @@ public final class SerializeWriter extends Writer {
         buf[newcount - 1] = quote;
     }
 
-    public void writeFloatAndChar(float value, char c) {
-        String text = Float.toString(value);
-        if (text.endsWith(".0")) {
-            text = text.substring(0, text.length() - 2);
-        }
-        write(text);
-        write(c);
-    }
-
-    public void writeDoubleAndChar(double value, char c) {
-        String text = Double.toString(value);
-        if (text.endsWith(".0")) {
-            text = text.substring(0, text.length() - 2);
-        }
-        write(text);
-        write(c);
-    }
-
-    public void writeBooleanAndChar(boolean value, char c) {
-        if (value) {
-            if (c == ',') {
-                write("true,");
-            } else if (c == ']') {
-                write("true]");
-            } else {
-                write("true");
-                write(c);
-            }
+    public void writeFloat(float value) {
+        if (Float.isNaN(value) // 
+                || Float.isInfinite(value)) {
+            writeNull();
         } else {
-            if (c == ',') {
-                write("false,");
-            } else if (c == ']') {
-                write("false]");
-            } else {
-                write("false");
-                write(c);
+            String floatText= Float.toString(value);
+            if (floatText.endsWith(".0")) {
+                floatText = floatText.substring(0, floatText.length() - 2);
+            }
+            write(floatText);
+            
+            if (isEnabled(SerializerFeature.WriteClassName)) {
+                write('F');
             }
         }
     }
 
-    public void writeCharacterAndChar(char value, char c) {
-        writeString(Character.toString(value));
-        write(c);
+    public void writeDouble(double doubleValue) {
+        if (Double.isNaN(doubleValue) //
+                || Double.isInfinite(doubleValue)) {
+            writeNull();
+        } else {
+            String doubleText = Double.toString(doubleValue);
+            if (doubleText.endsWith(".0")) {
+                doubleText = doubleText.substring(0, doubleText.length() - 2);
+            }
+            
+            write(doubleText);
+
+            if (isEnabled(SerializerFeature.WriteClassName)) {
+                write('D');
+            }
+        }
     }
 
     public void writeEnum(Enum<?> value, char c) {
         if (value == null) {
             writeNull();
-            write(',');
+            write(c);
             return;
         }
 
+        String strVal = null;
         if (isEnabled(SerializerFeature.WriteEnumUsingName)) {
-            writeEnumValue(value.name(), c);
-            return;
+            strVal = value.toString();
+        } else if (isEnabled(SerializerFeature.WriteEnumUsingToString)) {
+            strVal = value.toString();;
         }
 
-        if (isEnabled(SerializerFeature.WriteEnumUsingToString)) {
-            writeEnumValue(value.toString(), c);
-            return;
-        }
-
-        writeIntAndChar(value.ordinal(), c);
-    }
-
-    private void writeEnumValue(String value, char c) {
-        if (isEnabled(SerializerFeature.UseSingleQuotes)) {
-            write('\'');
-            write(value);
-            write('\'');
+        if (strVal != null) {
+            char quote = isEnabled(SerializerFeature.UseSingleQuotes) ? '\'' : '"';
+            write(quote);
+            write(strVal);
+            write(quote);
             write(c);
-
         } else {
-            write('\"');
-            write(value);
-            write('\"');
+            writeInt(value.ordinal());
             write(c);
         }
-    }
-
-    public void writeIntAndChar(int i, char c) {
-        if (i == Integer.MIN_VALUE) {
-            write("-2147483648");
-            write(c);
-            return;
-        }
-
-        int size = (i < 0) ? IOUtils.stringSize(-i) + 1 : IOUtils.stringSize(i);
-
-        int newcount0 = count + size;
-        int newcount1 = newcount0 + 1;
-
-        if (newcount1 > buf.length) {
-            if (writer != null) {
-                writeInt(i);
-                write(c);
-                return;
-            }
-            expandCapacity(newcount1);
-        }
-
-        IOUtils.getChars(i, newcount0, buf);
-        buf[newcount0] = c;
-
-        count = newcount1;
-    }
-
-    public void writeLongAndChar(long i, char c) throws IOException {
-        boolean needQuotationMark = browserCompatible //
-                                    && (!isEnabled(SerializerFeature.WriteClassName)) //
-                                    && (i > 9007199254740991L || i < -9007199254740991L);
-
-        if (i == Long.MIN_VALUE) {
-            if (needQuotationMark) write("\"-9223372036854775808\"");
-            else write("-9223372036854775808");
-            write(c);
-            return;
-        }
-
-        int size = (i < 0) ? IOUtils.stringSize(-i) + 1 : IOUtils.stringSize(i);
-
-        int newcount0 = count + size;
-        if (needQuotationMark) newcount0 += 2;
-        int newcount1 = newcount0 + 1;
-
-        if (newcount1 > buf.length) {
-            if (writer != null) {
-                writeLong(i);
-                write(c);
-                return;
-            }
-            expandCapacity(newcount1);
-        }
-
-        if (needQuotationMark) {
-            buf[count] = '"';
-            IOUtils.getChars(i, newcount0 - 1, buf);
-            buf[newcount0 - 1] = '"';
-        } else IOUtils.getChars(i, newcount0, buf);
-
-        buf[newcount0] = c;
-
-        count = newcount1;
     }
 
     public void writeLong(long i) {
@@ -1347,7 +1245,9 @@ public final class SerializeWriter extends Writer {
 
     public void writeFieldValue(char seperator, String name, int value) {
         if (value == Integer.MIN_VALUE || !quoteFieldNames) {
-            writeFieldValue1(seperator, name, value);
+            write(seperator);
+            writeFieldName(name);
+            writeInt(value);
             return;
         }
 
@@ -1357,7 +1257,9 @@ public final class SerializeWriter extends Writer {
         int newcount = count + nameLen + 4 + intSize;
         if (newcount > buf.length) {
             if (writer != null) {
-                writeFieldValue1(seperator, name, value);
+                write(seperator);
+                writeFieldName(name);
+                writeInt(value);
                 return;
             }
             expandCapacity(newcount);
@@ -1380,15 +1282,11 @@ public final class SerializeWriter extends Writer {
         IOUtils.getChars(value, count, buf);
     }
 
-    public void writeFieldValue1(char seperator, String name, int value) {
-        write(seperator);
-        writeFieldName(name);
-        writeInt(value);
-    }
-
     public void writeFieldValue(char seperator, String name, long value) {
         if (value == Long.MIN_VALUE || !quoteFieldNames) {
-            writeFieldValue1(seperator, name, value);
+            write(seperator);
+            writeFieldName(name);
+            writeLong(value);
             return;
         }
 
@@ -1421,12 +1319,6 @@ public final class SerializeWriter extends Writer {
         buf[nameEnd + 2] = ':';
 
         IOUtils.getChars(value, count, buf);
-    }
-
-    public void writeFieldValue1(char seperator, String name, long value) {
-        write(seperator);
-        writeFieldName(name);
-        writeLong(value);
     }
 
     public void writeFieldValue(char seperator, String name, float value) {

@@ -387,38 +387,45 @@ public class ASMSerializerFactory implements Opcodes {
                 || propertyClass == int.class) {
 
                 mw.visitVarInsn(ALOAD, context.var("out"));
+                mw.visitInsn(DUP);
                 _get(mw, context, property);
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeInt", "(I)V");
                 mw.visitVarInsn(BIPUSH, seperator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeIntAndChar", "(IC)V");
-
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(I)V");
             } else if (propertyClass == long.class) {
                 mw.visitVarInsn(ALOAD, context.var("out"));
+                mw.visitInsn(DUP);
                 _get(mw, context, property);
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeLong", "(J)V");
                 mw.visitVarInsn(BIPUSH, seperator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeLongAndChar", "(JC)V");
-
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(I)V");
             } else if (propertyClass == float.class) {
                 mw.visitVarInsn(ALOAD, context.var("out"));
+                mw.visitInsn(DUP);
                 _get(mw, context, property);
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFloat", "(F)V");
                 mw.visitVarInsn(BIPUSH, seperator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFloatAndChar", "(FC)V");
-
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(I)V");
             } else if (propertyClass == double.class) {
                 mw.visitVarInsn(ALOAD, context.var("out"));
+                mw.visitInsn(DUP);
                 _get(mw, context, property);
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeDouble", "(D)V");
                 mw.visitVarInsn(BIPUSH, seperator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeDoubleAndChar", "(DC)V");
-
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(I)V");
             } else if (propertyClass == boolean.class) {
                 mw.visitVarInsn(ALOAD, context.var("out"));
+                mw.visitInsn(DUP);
                 _get(mw, context, property);
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(Z)V");
                 mw.visitVarInsn(BIPUSH, seperator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeBooleanAndChar", "(ZC)V");
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(I)V");
             } else if (propertyClass == char.class) {
                 mw.visitVarInsn(ALOAD, context.var("out"));
-                _get(mw, context, property);
+                _get(mw, context, property); //Character.toString(value)
+                mw.visitMethodInsn(INVOKESTATIC, "java/lang/Character", "toString", "(C)Ljava/lang/String;");
                 mw.visitVarInsn(BIPUSH, seperator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeCharacterAndChar", "(CC)V");
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeString", "(Ljava/lang/String;C)V");
 
             } else if (propertyClass == String.class) {
                 mw.visitVarInsn(ALOAD, context.var("out"));

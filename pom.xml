@@ -2,13 +2,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-<!--
-	<parent>
-		<groupId>com.alibaba</groupId>
-		<artifactId>parent-pom</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
-	</parent>
--->	
+	<!-- <parent> <groupId>com.alibaba</groupId> <artifactId>parent-pom</artifactId> 
+		<version>1.0.0-SNAPSHOT</version> </parent> -->
 	<groupId>com.alibaba</groupId>
 	<artifactId>fastjson</artifactId>
 	<version>1.2.10.SNAPSHOT</version>
@@ -164,24 +159,44 @@
 	</build>
 
 	<dependencies>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<version>2.5</version>
-			<scope>provided</scope>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>javax.ws.rs</groupId>
-			<artifactId>jsr311-api</artifactId>
-			<version>1.1.1</version>
-			<scope>provided</scope>
-			<optional>true</optional>
-		</dependency>
+		<!-- <dependency> <groupId>javax.servlet</groupId> <artifactId>servlet-api</artifactId> 
+			<version>2.5</version> <scope>provided</scope> <optional>true</optional> 
+			</dependency> <dependency> <groupId>javax.ws.rs</groupId> <artifactId>jsr311-api</artifactId> 
+			<version>1.1.1</version> <scope>provided</scope> <optional>true</optional> 
+			</dependency> -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
 			<version>3.2.2.RELEASE</version>
+			<scope>provided</scope>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-transports-http</artifactId>
+			<version>3.1.2</version>
+			<scope>provided</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-jaxrs</artifactId>
+			<version>3.1.2</version>
+			<scope>provided</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-server</artifactId>
+			<version>8.1.8.v20121106</version>
+			<scope>provided</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-webapp</artifactId>
+			<version>8.1.8.v20121106</version>
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
@@ -283,6 +298,13 @@
 			<groupId>org.javassist</groupId>
 			<artifactId>javassist</artifactId>
 			<version>3.18.0-GA</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-rs-client</artifactId>
+			<version>3.1.2</version>
 			<scope>test</scope>
 		</dependency>
 

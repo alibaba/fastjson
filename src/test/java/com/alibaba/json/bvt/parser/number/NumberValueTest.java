@@ -12,7 +12,14 @@ public class NumberValueTest extends TestCase {
     public void test_0() throws Exception {
         String text = "{\"value\":3D}";
         JSONObject obj = (JSONObject) JSON.parse(text);
-        Assert.assertTrue(3D == obj.getDouble("value").doubleValue()); 
+        Assert.assertTrue(3D == ((Double)obj.get("value")).doubleValue()); 
+
+    }
+    
+    public void test_1() throws Exception {
+        String text = "{\"value\":3.e3D}";
+        JSONObject obj = (JSONObject) JSON.parse(text);
+        Assert.assertTrue(3.e3D == ((Double)obj.get("value")).doubleValue()); 
 
     }
 }

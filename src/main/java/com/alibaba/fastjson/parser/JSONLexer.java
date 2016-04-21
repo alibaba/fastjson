@@ -95,7 +95,7 @@ public final class JSONLexer {
         sbuf = sbufLocal.get();
 
         if (sbuf == null) {
-            sbuf = new char[256];
+            sbuf = new char[512];
         }
 
         this.features = features;

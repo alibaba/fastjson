@@ -225,14 +225,18 @@ public class DefaultJSONParser implements Closeable {
                 } else if ((ch >= '0' && ch <= '9') || ch == '-') {
                     lexer.sp = 0; // resetStringPosition
                     lexer.scanNumber();
-                    if (lexer.token == JSONToken.LITERAL_INT) {
-                        key = lexer.integerValue();
-                    } else {
-                        key = lexer.decimalValue(true);
+                    try {
+                        if (lexer.token == JSONToken.LITERAL_INT) {
+                            key = lexer.integerValue();
+                        } else {
+                            key = lexer.decimalValue(true);
+                        }
+                    } catch (NumberFormatException ex) {
+                        throw new JSONException("parse number key error, " + lexer.info());
                     }
                     ch = lexer.ch;
                     if (ch != ':') {
-                        throw new JSONException("expect ':' at " + lexer.pos + ", name " + key);
+                        throw new JSONException("parse number key error, " + lexer.info());
                     }
                 } else if (ch == '{' || ch == '[') {
                     lexer.nextToken();

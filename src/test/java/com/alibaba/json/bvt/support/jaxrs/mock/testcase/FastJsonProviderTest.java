@@ -7,15 +7,9 @@
  */
 package com.alibaba.json.bvt.support.jaxrs.mock.testcase;
 
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import com.alibaba.fastjson.JSONObject;
 
@@ -27,15 +21,18 @@ import com.alibaba.fastjson.JSONObject;
  * @author Victor.Zxy
  * @version 1.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = Application.class)
-@WebAppConfiguration
 public class FastJsonProviderTest {
 
-	public final String REST_SERVICE_URL = "http://localhost:8088/rest";
+	public static final String REST_SERVICE_URL = "http://localhost:8088/rest";
 
-	@Test
-	public void test1() throws Exception {
+	public static void main(String[] args) throws Exception {
+		
+		test1();
+		
+//		test2();
+	} 
+	
+	public static void test1() throws Exception {
 		
 		JSONObject json = new JSONObject();
 		
@@ -50,8 +47,7 @@ public class FastJsonProviderTest {
 		System.out.println(response.readEntity(String.class));
 	}
 	
-	@Test
-	public void test2() throws Exception {
+	public static void test2() throws Exception {
 		
 		String jsonStr = "[{\"name\":\"p1\",\"sonList\":[{\"name\":\"s1\"}]},{\"name\":\"p2\",\"sonList\":[{\"name\":\"s2\"},{\"name\":\"s3\"}]}]";
 		

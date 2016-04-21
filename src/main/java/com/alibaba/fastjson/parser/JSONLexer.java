@@ -1629,6 +1629,7 @@ public final class JSONLexer {
             }
         }
 
+        char type = 0;
         if (ch == 'e'//
             || ch == 'E') {
             np++;
@@ -1670,7 +1671,8 @@ public final class JSONLexer {
 
             if (ch == 'D'//
                 || ch == 'F') {
-                bp++;
+                np++;
+                type = ch;
                 next();
             }
 
@@ -1697,8 +1699,11 @@ public final class JSONLexer {
         }
 
         int len = bp - start;
+        if (type != 0) {
+            len --;
+        }
         char[] chars = new char[len];
-        text.getChars(start, bp, chars, 0);
+        text.getChars(start, start + len, chars, 0);
 
         if ((!exp)//
             && (features & Feature.UseBigDecimal.mask) != 0) {
@@ -1706,9 +1711,13 @@ public final class JSONLexer {
         } else {
             String strVal = new String(chars);
             try {
-                number = Double.parseDouble(strVal);
+                if (type == 'F') {
+                    number = Float.valueOf(strVal);
+                } else {
+                    number = Double.parseDouble(strVal);
+                }
             } catch (NumberFormatException ex) {
-                throw new JSONException(ex.getMessage() + ", " + info());
+                throw new JSONException(ex.getMessage() + ", " + info(), ex);
             }
         }
 

@@ -546,7 +546,7 @@ public class DefaultJSONParser implements Closeable {
 
                     return object;
                 } else {
-                    throw new JSONException("syntax error, position at " + lexer.bp + ", name " + key);
+                    throw new JSONException("syntax error, " + lexer.info());
                 }
 
             }

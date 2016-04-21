@@ -680,6 +680,25 @@ public final class SerializeWriter extends Writer {
     public void writeNull() {
         write("null");
     }
+    
+    public void writeNull(SerializerFeature feature) {
+        if (!isEnabled(feature)) {
+            writeNull();
+            return;
+        }
+        
+        if (feature == SerializerFeature.WriteNullListAsEmpty) {
+            write("[]");
+        } else if (feature == SerializerFeature.WriteNullStringAsEmpty) {
+            writeString("");
+        } else if (feature == SerializerFeature.WriteNullBooleanAsFalse) {
+            write("false");
+        } else if (feature == SerializerFeature.WriteNullNumberAsZero) {
+            write('0');
+        } else {
+            write("null");
+        }
+    }
 
     public void writeStringWithDoubleQuote(String text, final char seperator) {
         if (text == null) {
@@ -1152,43 +1171,27 @@ public final class SerializeWriter extends Writer {
     public void writeFieldNullString(char seperator, String name) {
         write(seperator);
         writeFieldName(name);
-        if (isEnabled(SerializerFeature.WriteNullStringAsEmpty)) {
-            writeString("");
-        } else {
-            writeNull();
-        }
+        writeNull(SerializerFeature.WriteNullStringAsEmpty);
     }
 
     public void writeFieldNullBoolean(char seperator, String name) {
         write(seperator);
         writeFieldName(name);
-        if (isEnabled(SerializerFeature.WriteNullBooleanAsFalse)) {
-            write("false");
-        } else {
-            writeNull();
-        }
+        writeNull(SerializerFeature.WriteNullBooleanAsFalse);
     }
 
     public void writeFieldNullList(char seperator, String name) {
         write(seperator);
         writeFieldName(name);
-        if (isEnabled(SerializerFeature.WriteNullListAsEmpty)) {
-            write("[]");
-        } else {
-            writeNull();
-        }
+        writeNull(SerializerFeature.WriteNullListAsEmpty);
     }
-
+    
     public void writeFieldNullNumber(char seperator, String name) {
         write(seperator);
         writeFieldName(name);
-        if (isEnabled(SerializerFeature.WriteNullNumberAsZero)) {
-            write('0');
-        } else {
-            writeNull();
-        }
+        writeNull(SerializerFeature.WriteNullNumberAsZero);
     }
-
+    
     public void writeFieldValue(char seperator, String name, char value) {
         write(seperator);
         writeFieldName(name);

@@ -46,11 +46,7 @@ public class ObjectArrayCodec implements ObjectSerializer, ObjectDeserializer {
         Object[] array = (Object[]) object;
 
         if (object == null) {
-            if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {
-                out.write("[]");
-            } else {
-                out.writeNull();
-            }
+            out.writeNull(SerializerFeature.WriteNullListAsEmpty);
             return;
         }
 

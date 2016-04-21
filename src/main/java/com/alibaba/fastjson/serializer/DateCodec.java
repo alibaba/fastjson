@@ -70,7 +70,8 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
             if (object.getClass() != fieldType) {
                 if (object.getClass() == java.util.Date.class) {
                     out.write("new Date(");
-                    out.writeLongAndChar(((Date) object).getTime(), ')');
+                    out.writeLong(((Date) object).getTime());
+                    out.write(')');
                 } else {
                     out.write('{');
                     out.writeFieldName(JSON.DEFAULT_TYPE_KEY);

@@ -44,11 +44,7 @@ public class DoubleSerializer implements ObjectSerializer {
         SerializeWriter out = serializer.out;
 
         if (object == null) {
-            if (out.isEnabled(SerializerFeature.WriteNullNumberAsZero)) {
-                out.write('0');
-            } else {
-                out.writeNull();
-            }
+            out.writeNull(SerializerFeature.WriteNullNumberAsZero);
             return;
         }
 
@@ -58,19 +54,11 @@ public class DoubleSerializer implements ObjectSerializer {
                 || Double.isInfinite(doubleValue)) {
             out.writeNull();
         } else {
-            String doubleText;
             if (decimalFormat == null) {
-                doubleText = Double.toString(doubleValue);
-                if (doubleText.endsWith(".0")) {
-                    doubleText = doubleText.substring(0, doubleText.length() - 2);
-                }
+                out.writeDouble(doubleValue, true);
             } else {
-                doubleText = decimalFormat.format(doubleValue);
-            }
-            out.append(doubleText);
-
-            if (out.isEnabled(SerializerFeature.WriteClassName)) {
-                out.write('D');
+                String doubleText = decimalFormat.format(doubleValue);
+                out.write(doubleText);
             }
         }
     }

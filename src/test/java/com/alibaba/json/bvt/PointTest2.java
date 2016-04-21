@@ -19,6 +19,7 @@ public class PointTest2 extends TestCase {
         Point point = new Point(3, 4);
         String text = JSON.toJSONString(point, SerializerFeature.WriteClassName);
 
+        System.out.println(text);
         Object obj = JSON.parse(text);
         Point point2 = (Point) obj;
 

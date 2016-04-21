@@ -39,11 +39,7 @@ public class StringCodec implements ObjectSerializer, ObjectDeserializer {
         SerializeWriter out = serializer.out;
 
         if (value == null) {
-            if (out.isEnabled(SerializerFeature.WriteNullStringAsEmpty)) {
-                out.writeString("");
-            } else {
-                out.writeNull();
-            }
+            out.writeNull(SerializerFeature.WriteNullStringAsEmpty);
             return;
         }
 

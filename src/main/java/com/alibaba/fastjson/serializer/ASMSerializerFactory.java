@@ -387,38 +387,47 @@ public class ASMSerializerFactory implements Opcodes {
                 || propertyClass == int.class) {
 
                 mw.visitVarInsn(ALOAD, context.var("out"));
+                mw.visitInsn(DUP);
                 _get(mw, context, property);
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeInt", "(I)V");
                 mw.visitVarInsn(BIPUSH, seperator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeIntAndChar", "(IC)V");
-
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(I)V");
             } else if (propertyClass == long.class) {
                 mw.visitVarInsn(ALOAD, context.var("out"));
+                mw.visitInsn(DUP);
                 _get(mw, context, property);
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeLong", "(J)V");
                 mw.visitVarInsn(BIPUSH, seperator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeLongAndChar", "(JC)V");
-
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(I)V");
             } else if (propertyClass == float.class) {
                 mw.visitVarInsn(ALOAD, context.var("out"));
+                mw.visitInsn(DUP);
                 _get(mw, context, property);
+                mw.visitInsn(ICONST_1);
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFloat", "(FZ)V");
                 mw.visitVarInsn(BIPUSH, seperator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFloatAndChar", "(FC)V");
-
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(I)V");
             } else if (propertyClass == double.class) {
                 mw.visitVarInsn(ALOAD, context.var("out"));
+                mw.visitInsn(DUP);
                 _get(mw, context, property);
+                mw.visitInsn(ICONST_1);
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeDouble", "(DZ)V");
                 mw.visitVarInsn(BIPUSH, seperator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeDoubleAndChar", "(DC)V");
-
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(I)V");
             } else if (propertyClass == boolean.class) {
                 mw.visitVarInsn(ALOAD, context.var("out"));
+                mw.visitInsn(DUP);
                 _get(mw, context, property);
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(Z)V");
                 mw.visitVarInsn(BIPUSH, seperator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeBooleanAndChar", "(ZC)V");
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(I)V");
             } else if (propertyClass == char.class) {
                 mw.visitVarInsn(ALOAD, context.var("out"));
-                _get(mw, context, property);
+                _get(mw, context, property); //Character.toString(value)
+                mw.visitMethodInsn(INVOKESTATIC, "java/lang/Character", "toString", "(C)Ljava/lang/String;");
                 mw.visitVarInsn(BIPUSH, seperator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeCharacterAndChar", "(CC)V");
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeString", "(Ljava/lang/String;C)V");
 
             } else if (propertyClass == String.class) {
                 mw.visitVarInsn(ALOAD, context.var("out"));
@@ -428,9 +437,11 @@ public class ASMSerializerFactory implements Opcodes {
                                    "(Ljava/lang/String;C)V");
             } else if (propertyClass.isEnum()) {
                 mw.visitVarInsn(ALOAD, context.var("out"));
+                mw.visitInsn(DUP);
                 _get(mw, context, property);
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeEnum", "(Ljava/lang/Enum;)V");
                 mw.visitVarInsn(BIPUSH, seperator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeEnum", "(Ljava/lang/Enum;C)V");
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(I)V");
             } else {
                 String format = property.getFormat();
 
@@ -1243,7 +1254,7 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitJumpInsn(GOTO, _end);
         
         mw.visitLabel(_not_null);
-        // writeFieldNullNumber
+
         mw.visitVarInsn(ALOAD, context.var("out"));
         mw.visitVarInsn(ILOAD, context.var("seperator"));
         mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(I)V");
@@ -1569,29 +1580,13 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitLabel(_if);
 
         // out.isEnabled(Serializer.WriteMapNullValue)
-        boolean writeNull = false;
-        boolean writeNullNumberAsZero = false;
-        boolean writeNullStringAsEmpty = false;
-        boolean writeNullBooleanAsFalse = false;
-        boolean writeNullListAsEmpty = false;
         JSONField annotation = fieldInfo.getAnnotation();
+        int features = 0;
         if (annotation != null) {
-            for (SerializerFeature feature : annotation.serialzeFeatures()) {
-                if (feature == SerializerFeature.WriteMapNullValue) {
-                    writeNull = true;
-                } else if (feature == SerializerFeature.WriteNullNumberAsZero) {
-                    writeNullNumberAsZero = true;
-                } else if (feature == SerializerFeature.WriteNullStringAsEmpty) {
-                    writeNullStringAsEmpty = true;
-                } else if (feature == SerializerFeature.WriteNullBooleanAsFalse) {
-                    writeNullBooleanAsFalse = true;
-                } else if (feature == SerializerFeature.WriteNullListAsEmpty) {
-                    writeNullListAsEmpty = true;
-                }
-            }
+            features = SerializerFeature.of(annotation.serialzeFeatures());;
         }
 
-        if (!writeNull) {
+        if ((features & SerializerFeature.WriteMapNullValue.mask) == 0) {
             mw.visitVarInsn(ALOAD, context.var("out"));
             mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "isWriteMapNullValue",
                                "()Z");
@@ -1599,50 +1594,31 @@ public class ASMSerializerFactory implements Opcodes {
         }
 
         mw.visitLabel(_write_null);
-        // out.writeFieldNull(seperator, 'fieldName')
+
         mw.visitVarInsn(ALOAD, context.var("out"));
         mw.visitVarInsn(ILOAD, context.var("seperator"));
+        mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(I)V");
+        
+        mw.visitVarInsn(ALOAD, context.var("out"));
         mw.visitVarInsn(ALOAD, Context.fieldName);
-
+        mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldName", "(Ljava/lang/String;)V");
+        
+        mw.visitVarInsn(ALOAD, context.var("out"));
+        mw.visitLdcInsn(features);
+        //features
+        
         if (propertyClass == String.class || propertyClass == Character.class) {
-            if (writeNullStringAsEmpty) {
-                mw.visitLdcInsn("");
-                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldValue",
-                                   "(CLjava/lang/String;Ljava/lang/String;)V");
-            } else {
-                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldNullString",
-                                   "(CLjava/lang/String;)V");
-            }
+            mw.visitLdcInsn(SerializerFeature.WriteNullStringAsEmpty.mask);
         } else if (Number.class.isAssignableFrom(propertyClass)) {
-            if (writeNullNumberAsZero) {
-                mw.visitInsn(ICONST_0);
-                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldValue",
-                                   "(CLjava/lang/String;I)V");
-            } else {
-                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldNullNumber",
-                                   "(CLjava/lang/String;)V");
-            }
+            mw.visitLdcInsn(SerializerFeature.WriteNullNumberAsZero.mask);
         } else if (propertyClass == Boolean.class) {
-            if (writeNullBooleanAsFalse) {
-                mw.visitInsn(ICONST_0);
-                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldValue",
-                                   "(CLjava/lang/String;Z)V");
-            } else {
-                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldNullBoolean",
-                                   "(CLjava/lang/String;)V");
-            }
+            mw.visitLdcInsn(SerializerFeature.WriteNullBooleanAsFalse.mask);
         } else if (Collection.class.isAssignableFrom(propertyClass) || propertyClass.isArray()) {
-            if (writeNullListAsEmpty) {
-                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldEmptyList",
-                                   "(CLjava/lang/String;)V");
-            } else {
-                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldNullList",
-                                   "(CLjava/lang/String;)V");
-            }
+            mw.visitLdcInsn(SerializerFeature.WriteNullListAsEmpty.mask);
         } else {
-            mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldNull",
-                               "(CLjava/lang/String;)V");
+            mw.visitLdcInsn(0);
         }
+        mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeNull", "(II)V");
 
         // seperator = ',';
         _seperator(mw, context);

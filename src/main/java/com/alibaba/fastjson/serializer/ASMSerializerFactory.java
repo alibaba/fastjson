@@ -148,7 +148,7 @@ public class ASMSerializerFactory implements Opcodes {
         cw.visit(V1_5 //
                  , ACC_PUBLIC + ACC_SUPER //
                  , classNameType //
-                 , type(ASMJavaBeanSerializer.class) //
+                 , type(JavaBeanSerializer.class) //
                  , new String[] { type(ObjectSerializer.class) } //
         );
 
@@ -169,7 +169,7 @@ public class ASMSerializerFactory implements Opcodes {
         MethodVisitor mw = new MethodWriter(cw, ACC_PUBLIC, "<init>", "()V", null, null);
         mw.visitVarInsn(ALOAD, 0);
         mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(desc(clazz)));
-        mw.visitMethodInsn(INVOKESPECIAL, type(ASMJavaBeanSerializer.class), "<init>", "(Ljava/lang/Class;)V");
+        mw.visitMethodInsn(INVOKESPECIAL, type(JavaBeanSerializer.class), "<init>", "(Ljava/lang/Class;)V");
 
         // init _asm_fieldType
         for (FieldInfo fieldInfo : getters) {
@@ -259,7 +259,6 @@ public class ASMSerializerFactory implements Opcodes {
                 
                 mw.visitVarInsn(ALOAD, Context.serializer);
                 mw.visitVarInsn(ALOAD, 0);
-                mw.visitFieldInsn(GETFIELD, context.className, "nature", JavaBeanSerializer_desc);
                 mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer, "writeDirect", "(" + JavaBeanSerializer_desc + ")Z");
                 mw.visitJumpInsn(IFNE, _else);
                 mw.visitVarInsn(ALOAD, 0);
@@ -484,27 +483,19 @@ public class ASMSerializerFactory implements Opcodes {
         {
             // 格式化输出不走asm 优化
             Label endFormat_ = new Label();
-            Label notNull_ = new Label();
             mw.visitVarInsn(ALOAD, context.var("out"));
             mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "isPrettyFormat",
                                "()Z");
             mw.visitJumpInsn(IFEQ, endFormat_);
 
-            mw.visitVarInsn(ALOAD, 0);
-            mw.visitFieldInsn(GETFIELD, context.className, "nature", JavaBeanSerializer_desc);
-            mw.visitJumpInsn(IFNONNULL, notNull_);
-
-            // /////
-            mw.visitLabel(notNull_);
 
             mw.visitVarInsn(ALOAD, 0);
-            mw.visitFieldInsn(GETFIELD, context.className, "nature", JavaBeanSerializer_desc);
             mw.visitVarInsn(ALOAD, 1);
             mw.visitVarInsn(ALOAD, 2);
             mw.visitVarInsn(ALOAD, 3);
             mw.visitVarInsn(ALOAD, 4);
             mw.visitVarInsn(ILOAD, 5);
-            mw.visitMethodInsn(INVOKEVIRTUAL, JavaBeanSerializer, "write",
+            mw.visitMethodInsn(INVOKESPECIAL, JavaBeanSerializer, "write",
                                "(L" + JSONSerializer + ";Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;I)V");
             mw.visitInsn(RETURN);
 
@@ -515,16 +506,9 @@ public class ASMSerializerFactory implements Opcodes {
             // if (serializer.containsReference(object)) {
 
             Label endRef_ = new Label();
-            Label notNull_ = new Label();
-
-            mw.visitVarInsn(ALOAD, 0);
-            mw.visitFieldInsn(GETFIELD, context.className, "nature", JavaBeanSerializer_desc);
-            mw.visitJumpInsn(IFNONNULL, notNull_);
 
             // /////
-            mw.visitLabel(notNull_);
             mw.visitVarInsn(ALOAD, 0);
-            mw.visitFieldInsn(GETFIELD, context.className, "nature", JavaBeanSerializer_desc);
             mw.visitVarInsn(ALOAD, Context.serializer);
             mw.visitVarInsn(ALOAD, Context.obj);
             mw.visitVarInsn(ILOAD, Context.features);
@@ -542,7 +526,6 @@ public class ASMSerializerFactory implements Opcodes {
             Label endWriteAsArray_ = new Label();
 
             mw.visitVarInsn(ALOAD, 0);
-            mw.visitFieldInsn(GETFIELD, context.className, "nature", JavaBeanSerializer_desc);
             mw.visitVarInsn(ALOAD, Context.serializer);
             mw.visitMethodInsn(INVOKEVIRTUAL, JavaBeanSerializer, "isWriteAsArray",
                                "(L" + JSONSerializer + ";)Z");
@@ -1426,7 +1409,6 @@ public class ASMSerializerFactory implements Opcodes {
 
         mw.visitVarInsn(ALOAD, Context.serializer);
         mw.visitVarInsn(ALOAD, 0);
-        mw.visitFieldInsn(GETFIELD, context.className, "nature", JavaBeanSerializer_desc);
         mw.visitVarInsn(ALOAD, Context.obj);
         mw.visitVarInsn(ALOAD, Context.fieldName);
 
@@ -1519,7 +1501,6 @@ public class ASMSerializerFactory implements Opcodes {
 
         mw.visitVarInsn(ALOAD, Context.serializer);
         mw.visitVarInsn(ALOAD, 0);
-        mw.visitFieldInsn(GETFIELD, context.className, "nature", JavaBeanSerializer_desc);
         mw.visitVarInsn(ALOAD, Context.obj);
         mw.visitVarInsn(ALOAD, Context.fieldName);
 

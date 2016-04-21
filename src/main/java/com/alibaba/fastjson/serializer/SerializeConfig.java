@@ -284,10 +284,6 @@ public class SerializeConfig {
 	public void addFilter(Class<?> clazz, SerializeFilter filter) {
 	    ObjectSerializer serializer = getObjectWriter(clazz);
 	    
-	    if (serializer instanceof ASMJavaBeanSerializer) {
-	        serializer = ((ASMJavaBeanSerializer) serializer).nature;
-	    }
-	    
 	    if (serializer instanceof SerializeFilterable) {
 	        ((SerializeFilterable) serializer).addFilter(filter);
 	    }

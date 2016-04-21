@@ -2,10 +2,11 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.io.StringWriter;
 import java.lang.reflect.Type;
 import java.sql.Clob;
 import java.sql.SQLException;
+
+import com.alibaba.fastjson.util.IOUtils;
 
 public class ClobSeriliazer implements ObjectSerializer {
 
@@ -21,15 +22,8 @@ public class ClobSeriliazer implements ObjectSerializer {
             Clob clob = (Clob) object;
             Reader reader = clob.getCharacterStream();
 
-            StringWriter writer = new StringWriter();
-            char[] buf = new char[1024];
-            int len = 0;
-            while ((len = reader.read(buf)) != -1) {
-                writer.write(buf, 0, len);
-            }
+            String text = IOUtils.readAll(reader);
             reader.close();
-            
-            String text = writer.toString();
             serializer.write(text);
         } catch (SQLException e) {
             throw new IOException("write clob error", e);

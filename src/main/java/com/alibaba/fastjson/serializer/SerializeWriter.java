@@ -576,8 +576,8 @@ public final class SerializeWriter extends Writer {
         }
         buf[newcount - 1] = quote;
     }
-
-    public void writeFloat(float value) {
+    
+    public void writeFloat(float value, boolean checkWriteClassName) {
         if (Float.isNaN(value) // 
                 || Float.isInfinite(value)) {
             writeNull();
@@ -588,13 +588,13 @@ public final class SerializeWriter extends Writer {
             }
             write(floatText);
             
-            if (isEnabled(SerializerFeature.WriteClassName)) {
+            if (checkWriteClassName && isEnabled(SerializerFeature.WriteClassName)) {
                 write('F');
             }
         }
     }
 
-    public void writeDouble(double doubleValue) {
+    public void writeDouble(double doubleValue, boolean checkWriteClassName) {
         if (Double.isNaN(doubleValue) //
                 || Double.isInfinite(doubleValue)) {
             writeNull();
@@ -606,23 +606,22 @@ public final class SerializeWriter extends Writer {
             
             write(doubleText);
 
-            if (isEnabled(SerializerFeature.WriteClassName)) {
+            if (checkWriteClassName && isEnabled(SerializerFeature.WriteClassName)) {
                 write('D');
             }
         }
     }
 
-    public void writeEnum(Enum<?> value, char c) {
+    public void writeEnum(Enum<?> value) {
         if (value == null) {
             writeNull();
-            write(c);
             return;
         }
-
+        
         String strVal = null;
-        if (isEnabled(SerializerFeature.WriteEnumUsingName)) {
-            strVal = value.toString();
-        } else if (isEnabled(SerializerFeature.WriteEnumUsingToString)) {
+        if (writeEnumUsingName && !writeEnumUsingToString) {
+            strVal = value.name();
+        } else if (writeEnumUsingToString) {
             strVal = value.toString();;
         }
 
@@ -631,10 +630,8 @@ public final class SerializeWriter extends Writer {
             write(quote);
             write(strVal);
             write(quote);
-            write(c);
         } else {
             writeInt(value.ordinal());
-            write(c);
         }
     }
 
@@ -1297,37 +1294,13 @@ public final class SerializeWriter extends Writer {
     public void writeFieldValue(char seperator, String name, float value) {
         write(seperator);
         writeFieldName(name);
-        if (value == 0) {
-            write('0');
-        } else if (Float.isNaN(value)) {
-            writeNull();
-        } else if (Float.isInfinite(value)) {
-            writeNull();
-        } else {
-            String text = Float.toString(value);
-            if (text.endsWith(".0")) {
-                text = text.substring(0, text.length() - 2);
-            }
-            write(text);
-        }
+        writeFloat(value, false);
     }
 
     public void writeFieldValue(char seperator, String name, double value) {
         write(seperator);
         writeFieldName(name);
-        if (value == 0) {
-            write('0');
-        } else if (Double.isNaN(value)) {
-            writeNull();
-        } else if (Double.isInfinite(value)) {
-            writeNull();
-        } else {
-            String text = Double.toString(value);
-            if (text.endsWith(".0")) {
-                text = text.substring(0, text.length() - 2);
-            }
-            write(text);
-        }
+        writeDouble(value, false);
     }
 
     public void writeFieldValue(char seperator, String name, String value) {

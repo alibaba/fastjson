@@ -403,14 +403,16 @@ public class ASMSerializerFactory implements Opcodes {
                 mw.visitVarInsn(ALOAD, context.var("out"));
                 mw.visitInsn(DUP);
                 _get(mw, context, property);
-                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFloat", "(F)V");
+                mw.visitInsn(ICONST_1);
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFloat", "(FZ)V");
                 mw.visitVarInsn(BIPUSH, seperator);
                 mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(I)V");
             } else if (propertyClass == double.class) {
                 mw.visitVarInsn(ALOAD, context.var("out"));
                 mw.visitInsn(DUP);
                 _get(mw, context, property);
-                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeDouble", "(D)V");
+                mw.visitInsn(ICONST_1);
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeDouble", "(DZ)V");
                 mw.visitVarInsn(BIPUSH, seperator);
                 mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(I)V");
             } else if (propertyClass == boolean.class) {
@@ -435,9 +437,11 @@ public class ASMSerializerFactory implements Opcodes {
                                    "(Ljava/lang/String;C)V");
             } else if (propertyClass.isEnum()) {
                 mw.visitVarInsn(ALOAD, context.var("out"));
+                mw.visitInsn(DUP);
                 _get(mw, context, property);
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeEnum", "(Ljava/lang/Enum;)V");
                 mw.visitVarInsn(BIPUSH, seperator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeEnum", "(Ljava/lang/Enum;C)V");
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(I)V");
             } else {
                 String format = property.getFormat();
 

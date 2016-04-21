@@ -55,7 +55,7 @@ public class DoubleSerializer implements ObjectSerializer {
             out.writeNull();
         } else {
             if (decimalFormat == null) {
-                out.writeDouble(doubleValue);
+                out.writeDouble(doubleValue, true);
             } else {
                 String doubleText = decimalFormat.format(doubleValue);
                 out.write(doubleText);

@@ -40,7 +40,7 @@ public class FloatCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         float floatValue = ((Float) object).floatValue(); 
-        out.writeFloat(floatValue);
+        out.writeFloat(floatValue, true);
     }
     
     @SuppressWarnings("unchecked")

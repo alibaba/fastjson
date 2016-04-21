@@ -27,18 +27,6 @@ public class EnumSerializer implements ObjectSerializer {
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.out;
-        if (object == null) {
-            out.writeNull();
-            return;
-        }
-
-        Enum<?> e = (Enum<?>) object;
-        if(out.writeEnumUsingName && !out.writeEnumUsingToString){
-            serializer.write(e.name());
-        } else if (out.writeEnumUsingToString) {
-            serializer.write(e.toString());
-        } else {
-            out.writeInt(e.ordinal());
-        }
+        out.writeEnum((Enum<?>) object);
     }
 }

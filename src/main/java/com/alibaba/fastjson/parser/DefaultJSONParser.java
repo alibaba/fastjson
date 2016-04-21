@@ -56,7 +56,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.parser.deserializer.ASMJavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ExtraProcessable;
 import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
@@ -304,9 +303,7 @@ public class DefaultJSONParser implements Closeable {
                         try {
                             Object instance = null;
                             ObjectDeserializer deserializer = this.config.getDeserializer(clazz);
-                            if (deserializer instanceof ASMJavaBeanDeserializer) {
-                                instance = ((ASMJavaBeanDeserializer) deserializer).createInstance(this, clazz);
-                            } else if (deserializer instanceof JavaBeanDeserializer) {
+                            if (deserializer instanceof JavaBeanDeserializer) {
                                 instance = ((JavaBeanDeserializer) deserializer).createInstance(this, clazz);
                             }
 
@@ -816,8 +813,6 @@ public class DefaultJSONParser implements Closeable {
         ObjectDeserializer deserizer = config.getDeserializer(clazz);
         if (deserizer instanceof JavaBeanDeserializer) {
             beanDeser = (JavaBeanDeserializer) deserizer;
-        } else if (deserizer instanceof ASMJavaBeanDeserializer) {
-            beanDeser = ((ASMJavaBeanDeserializer) deserizer).getInnterSerializer();
         }
 
         if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {

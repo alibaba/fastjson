@@ -4,15 +4,15 @@ import java.lang.reflect.Type;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
-import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexerBase;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParseContext;
-import com.alibaba.fastjson.parser.deserializer.ASMJavaBeanDeserializer;
+import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 
-public class DepartmentCodec extends ASMJavaBeanDeserializer implements ObjectDeserializer {
+public class DepartmentCodec extends JavaBeanDeserializer implements ObjectDeserializer {
     private char[] name_gen_prefix__ = "\"name\":".toCharArray();
     private char[] root_gen_prefix__ = "\"root\":".toCharArray();
     private char[] type_gen_prefix__ = "\"type\":".toCharArray();

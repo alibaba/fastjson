@@ -20,6 +20,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.util.IOUtils;
 
 /**
  * Spring MVC Converter for fastjson.
@@ -31,9 +32,7 @@ public class FastJsonHttpMessageConverter extends
 		AbstractHttpMessageConverter<Object> implements
 		GenericHttpMessageConverter<Object> {
 
-	public final static Charset UTF8 = Charset.forName("UTF-8");
-
-	private Charset charset = UTF8;
+	private Charset charset = IOUtils.UTF8;
 
 	private SerializerFeature[] features = new SerializerFeature[0];
 

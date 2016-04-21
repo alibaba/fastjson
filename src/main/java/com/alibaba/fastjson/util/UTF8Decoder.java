@@ -3,7 +3,6 @@ package com.alibaba.fastjson.util;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 
@@ -29,10 +28,8 @@ import java.nio.charset.CoderResult;
 
 public class UTF8Decoder extends CharsetDecoder {
 
-    private final static Charset charset = Charset.forName("UTF-8");
-
     public UTF8Decoder(){
-        super(charset, 1.0f, 1.0f);
+        super(IOUtils.UTF8, 1.0f, 1.0f);
     }
 
     public static CoderResult malformedN(ByteBuffer src, int nb) {

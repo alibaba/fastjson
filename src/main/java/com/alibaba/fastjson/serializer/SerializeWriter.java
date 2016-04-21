@@ -42,7 +42,7 @@ public final class SerializeWriter extends Writer {
     private final static ThreadLocal<char[]>         bufLocal      = new ThreadLocal<char[]>();
     private final static ThreadLocal<byte[]>         bytesBufLocal = new ThreadLocal<byte[]>();
     private final static ThreadLocal<CharsetEncoder> encoderLocal  = new ThreadLocal<CharsetEncoder>();
-    private final static Charset                     utf8          = Charset.forName("UTF-8");
+    
 
     protected char                                          buf[];
 
@@ -368,7 +368,7 @@ public final class SerializeWriter extends Writer {
 
     public byte[] toBytes(String charsetName) {
         return toBytes(charsetName == null || "UTF-8".equals(charsetName) //
-            ? utf8 //
+            ? IOUtils.UTF8 //
             : Charset.forName(charsetName));
     }
 
@@ -378,10 +378,10 @@ public final class SerializeWriter extends Writer {
         }
         
         CharsetEncoder encoder;
-        if (charset == utf8) {
+        if (charset == IOUtils.UTF8) {
             encoder = encoderLocal.get();
             if (encoder == null) {
-                encoder = utf8.newEncoder() //
+                encoder = IOUtils.UTF8.newEncoder() //
                         .onMalformedInput(CodingErrorAction.REPLACE) //
                         .onUnmappableCharacter(CodingErrorAction.REPLACE);
                 encoderLocal.set(encoder);

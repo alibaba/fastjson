@@ -45,15 +45,15 @@ import com.alibaba.fastjson.util.TypeUtils;
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
+@SuppressWarnings("serial")
 public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAccess, Serializable {
 
-    private static final long  serialVersionUID = 1L;
     private final List<Object> list;
     protected transient Object relatedArray;
     protected transient Type   componentType;
 
     public JSONArray(){
-        this.list = new ArrayList<Object>(10);
+        this.list = new ArrayList<Object>();
     }
 
     public JSONArray(List<Object> list){

@@ -35,11 +35,11 @@ public class JSONPath implements JSONAware {
     private static int                             CACHE_SIZE = 1024;
     private static ConcurrentMap<String, JSONPath> pathCache  = new ConcurrentHashMap<String, JSONPath>(128, 0.75f, 1);
 
-    private final String path;
-    private Segement[]   segments;
+    private final String                           path;
+    private Segement[]                             segments;
 
-    private SerializeConfig serializeConfig;
-    private ParserConfig    parserConfig;
+    private SerializeConfig                        serializeConfig;
+    private ParserConfig                           parserConfig;
 
     public JSONPath(String path){
         this(path, SerializeConfig.getGlobalInstance(), ParserConfig.getGlobalInstance());

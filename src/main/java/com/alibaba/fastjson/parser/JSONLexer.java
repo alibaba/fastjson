@@ -1316,7 +1316,7 @@ public final class JSONLexer {
             text.getChars(offset, offset + count, sbuf, 0);
             return sbuf;
         } else {
-            char[] chars = new char[count];
+            char[] chars = sbuf = new char[count];
             text.getChars(offset, offset + count, chars, 0);
             return chars;
         }

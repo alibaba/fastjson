@@ -14,7 +14,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.parser.deserializer.ASMJavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
@@ -1754,8 +1753,6 @@ public class JSONPath implements JSONAware {
         JavaBeanDeserializer beanDerializer = null;
         if (derializer instanceof JavaBeanDeserializer) {
             beanDerializer = (JavaBeanDeserializer) derializer;
-        } else if (derializer instanceof ASMJavaBeanDeserializer) {
-            beanDerializer = ((ASMJavaBeanDeserializer) derializer).getInnterSerializer();
         }
 
         if (beanDerializer != null) {

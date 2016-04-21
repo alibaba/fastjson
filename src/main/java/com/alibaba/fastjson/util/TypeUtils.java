@@ -58,7 +58,6 @@ import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.parser.deserializer.ASMJavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -904,8 +903,6 @@ public class TypeUtils {
             ObjectDeserializer deserizer = config.getDeserializer(clazz);
             if (deserizer instanceof JavaBeanDeserializer) {
                 javaBeanDeser = (JavaBeanDeserializer) deserizer;
-            } else if (deserizer instanceof ASMJavaBeanDeserializer) {
-                javaBeanDeser = ((ASMJavaBeanDeserializer) deserizer).getInnterSerializer();
             }
             
             if (javaBeanDeser == null) {

@@ -30,6 +30,10 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     protected final FieldDeserializer[] sortedFieldDeserializers;
     protected final Class<?>            clazz;
     public final JavaBeanInfo           beanInfo;
+    
+    public JavaBeanDeserializer(ParserConfig config, Class<?> clazz) {
+        this(config, clazz, clazz);
+    }
 
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz, Type type){
         this.clazz = clazz;
@@ -77,7 +81,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         
         return null;  // key not found.
     }
-
+    
     public Object createInstance(DefaultJSONParser parser, Type type) {
         if (type instanceof Class) {
             if (clazz.isInterface()) {
@@ -667,5 +671,15 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         }
         
         return object;
+    }
+    
+    public Type getFieldType(int ordinal) {
+        return sortedFieldDeserializers[ordinal].fieldInfo.fieldType;
+    }
+    
+    protected Object parseRest(DefaultJSONParser parser, Type type, Object fieldName, Object instance) {
+        Object value = deserialze(parser, type, fieldName, instance);
+
+        return value;
     }
 }

@@ -67,7 +67,7 @@ public class ASMDeserializerFactory implements Opcodes {
 
         ClassWriter cw = new ClassWriter();
         cw.visit(V1_5, ACC_PUBLIC + ACC_SUPER, classNameType,
-                 type(ASMJavaBeanDeserializer.class), null);
+                 type(JavaBeanDeserializer.class), null);
 
         JavaBeanInfo beanInfo = JavaBeanInfo.build(clazz, type);
 
@@ -235,7 +235,7 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitVarInsn(ALOAD, 1); // parser
                 mw.visitVarInsn(ALOAD, 0);
                 mw.visitLdcInsn(i);
-                mw.visitMethodInsn(INVOKEVIRTUAL, type(ASMJavaBeanDeserializer.class),
+                mw.visitMethodInsn(INVOKEVIRTUAL, type(JavaBeanDeserializer.class),
                                    "getFieldType", "(I)Ljava/lang/reflect/Type;");
                 mw.visitMethodInsn(INVOKEVIRTUAL, DefaultJSONParser, "parseObject",
                                    "(Ljava/lang/reflect/Type;)Ljava/lang/Object;");
@@ -328,7 +328,7 @@ public class ASMDeserializerFactory implements Opcodes {
 
             mw.visitVarInsn(ALOAD, 0);
             mw.visitVarInsn(ALOAD, context.var("lexer"));
-            mw.visitMethodInsn(INVOKESPECIAL, type(ASMJavaBeanDeserializer.class),
+            mw.visitMethodInsn(INVOKESPECIAL, type(JavaBeanDeserializer.class),
                                "isSupportArrayToBean", "(" + desc(JSONLexer.class) + ")Z");
             mw.visitJumpInsn(IFEQ, next_);
             // isSupportArrayToBean
@@ -646,7 +646,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ALOAD, 2);
         mw.visitVarInsn(ALOAD, 3);
         mw.visitVarInsn(ALOAD, context.var("instance"));
-        mw.visitMethodInsn(INVOKEVIRTUAL, type(ASMJavaBeanDeserializer.class),
+        mw.visitMethodInsn(INVOKEVIRTUAL, type(JavaBeanDeserializer.class),
                            "parseRest",
                            "(L" + DefaultJSONParser + ";Ljava/lang/reflect/Type;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
         mw.visitTypeInsn(CHECKCAST, type(context.clazz)); // cast
@@ -657,7 +657,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ALOAD, 1);
         mw.visitVarInsn(ALOAD, 2);
         mw.visitVarInsn(ALOAD, 3);
-        mw.visitMethodInsn(INVOKESPECIAL, type(ASMJavaBeanDeserializer.class), //
+        mw.visitMethodInsn(INVOKESPECIAL, type(JavaBeanDeserializer.class), //
                            "deserialze", //
                            "(L" + DefaultJSONParser + ";Ljava/lang/reflect/Type;Ljava/lang/Object;)Ljava/lang/Object;");
         mw.visitInsn(ARETURN);
@@ -695,8 +695,10 @@ public class ASMDeserializerFactory implements Opcodes {
         } else {
             mw.visitVarInsn(ALOAD, 0);
             mw.visitVarInsn(ALOAD, 1);
-            mw.visitMethodInsn(INVOKESPECIAL, type(ASMJavaBeanDeserializer.class),
-                               "createInstance", "(L" + DefaultJSONParser + ";)Ljava/lang/Object;");
+            mw.visitVarInsn(ALOAD, 0);
+            mw.visitFieldInsn(GETFIELD, type(JavaBeanDeserializer.class), "clazz", "Ljava/lang/Class;");
+            mw.visitMethodInsn(INVOKESPECIAL, type(JavaBeanDeserializer.class),
+                               "createInstance", "(L" + DefaultJSONParser + ";Ljava/lang/reflect/Type;)Ljava/lang/Object;");
             mw.visitTypeInsn(CHECKCAST, type(context.getInstClass())); // cast
             mw.visitVarInsn(ASTORE, context.var("instance"));
         }
@@ -1066,7 +1068,7 @@ public class ASMDeserializerFactory implements Opcodes {
         } else {
             mw.visitVarInsn(ALOAD, 0);
             mw.visitLdcInsn(i);
-            mw.visitMethodInsn(INVOKEVIRTUAL, type(ASMJavaBeanDeserializer.class),
+            mw.visitMethodInsn(INVOKEVIRTUAL, type(JavaBeanDeserializer.class),
                                "getFieldType", "(I)Ljava/lang/reflect/Type;");
             mw.visitMethodInsn(INVOKESTATIC, type(TypeUtils.class),
                                "createCollection",
@@ -1122,7 +1124,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ALOAD, context.var("resolveTask"));
         mw.visitVarInsn(ALOAD, 0);
         mw.visitLdcInsn(fieldInfo.name);
-        mw.visitMethodInsn(INVOKEVIRTUAL, type(ASMJavaBeanDeserializer.class),
+        mw.visitMethodInsn(INVOKEVIRTUAL, type(JavaBeanDeserializer.class),
                            "getFieldDeserializer",
                            "(Ljava/lang/String;)" + desc(FieldDeserializer.class));
         mw.visitFieldInsn(PUTFIELD, type(ResolveTask.class), "fieldDeserializer", desc(FieldDeserializer.class));
@@ -1144,7 +1146,7 @@ public class ASMDeserializerFactory implements Opcodes {
         } else {
             mw.visitVarInsn(ALOAD, 0);
             mw.visitLdcInsn(i);
-            mw.visitMethodInsn(INVOKEVIRTUAL, type(ASMJavaBeanDeserializer.class),
+            mw.visitMethodInsn(INVOKEVIRTUAL, type(JavaBeanDeserializer.class),
                                "getFieldType", "(I)Ljava/lang/reflect/Type;");
         }
         mw.visitLdcInsn(fieldInfo.name);
@@ -1264,7 +1266,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ALOAD, 0);
         mw.visitVarInsn(ALOAD, 1);
         mw.visitVarInsn(ALOAD, 2);
-        mw.visitMethodInsn(INVOKESPECIAL, type(ASMJavaBeanDeserializer.class), "<init>",
+        mw.visitMethodInsn(INVOKESPECIAL, type(JavaBeanDeserializer.class), "<init>",
                            "(" + desc(ParserConfig.class) + "Ljava/lang/Class;)V");
 
         // init fieldNamePrefix

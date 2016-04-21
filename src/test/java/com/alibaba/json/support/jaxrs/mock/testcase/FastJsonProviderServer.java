@@ -5,7 +5,7 @@
  * <p>Company: www.github.com/DarkPhoenixs</p>
  * <p>Copyright: Dark Phoenixs (Open-Source Organization) 2016</p>
  */
-package com.alibaba.json.bvt.support.jaxrs.mock.testcase;
+package com.alibaba.json.support.jaxrs.mock.testcase;
 
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.eclipse.jetty.server.Server;

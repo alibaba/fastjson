@@ -39,10 +39,6 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
     protected BeanContext         fieldContext;
 
     private String                format;
-    protected boolean             writeNumberAsZero       = false;
-    protected boolean             writeNullStringAsEmpty  = false;
-    protected boolean             writeNullBooleanAsFalse = false;
-    protected boolean             writeNullListAsEmpty    = false;
     protected boolean             writeEnumUsingToString  = false;
     protected boolean             writeEnumUsingName      = false;
 
@@ -73,15 +69,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
             }
 
             for (SerializerFeature feature : annotation.serialzeFeatures()) {
-                if (feature == SerializerFeature.WriteNullNumberAsZero) {
-                    writeNumberAsZero = true;
-                } else if (feature == SerializerFeature.WriteNullStringAsEmpty) {
-                    writeNullStringAsEmpty = true;
-                } else if (feature == SerializerFeature.WriteNullBooleanAsFalse) {
-                    writeNullBooleanAsFalse = true;
-                } else if (feature == SerializerFeature.WriteNullListAsEmpty) {
-                    writeNullListAsEmpty = true;
-                } else if (feature == SerializerFeature.WriteEnumUsingToString) {
+                if (feature == SerializerFeature.WriteEnumUsingToString) {
                     writeEnumUsingToString = true;
                 }else if(feature == SerializerFeature.WriteEnumUsingName){
                     writeEnumUsingName = true;
@@ -158,18 +146,17 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
         if (propertyValue == null) {
             Class<?> runtimeFieldClass = runtimeInfo.runtimeFieldClass;
             SerializeWriter out  = serializer.out;
-            boolean writeNumberAsZero = this.writeNumberAsZero || (out.features & SerializerFeature.WriteNullNumberAsZero.mask) != 0;
-            if (writeNumberAsZero && Number.class.isAssignableFrom(runtimeFieldClass)) {
-                out.write('0');
+            if (Number.class.isAssignableFrom(runtimeFieldClass)) {
+                out.writeNull(features, SerializerFeature.WriteNullNumberAsZero.mask);
                 return;
-            } else if (writeNullStringAsEmpty && String.class == runtimeFieldClass) {
-                out.write("\"\"");
+            } else if (String.class == runtimeFieldClass) {
+                out.writeNull(features, SerializerFeature.WriteNullStringAsEmpty.mask);
                 return;
-            } else if (writeNullBooleanAsFalse && Boolean.class == runtimeFieldClass) {
-                out.write("false");
+            } else if (Boolean.class == runtimeFieldClass) {
+                out.writeNull(features, SerializerFeature.WriteNullBooleanAsFalse.mask);
                 return;
-            } else if (writeNullListAsEmpty && Collection.class.isAssignableFrom(runtimeFieldClass)) {
-                out.write("[]");
+            } else if (Collection.class.isAssignableFrom(runtimeFieldClass)) {
+                out.writeNull(features, SerializerFeature.WriteNullListAsEmpty.mask);
                 return;
             }
 

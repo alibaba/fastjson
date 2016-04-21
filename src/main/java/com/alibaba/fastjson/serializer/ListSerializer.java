@@ -43,11 +43,7 @@ public final class ListSerializer implements ObjectSerializer {
         }
 
         if (object == null) {
-            if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {
-                out.write("[]");
-            } else {
-                out.writeNull();
-            }
+            out.writeNull(SerializerFeature.WriteNullListAsEmpty);
             return;
         }
 
@@ -112,7 +108,8 @@ public final class ListSerializer implements ObjectSerializer {
                     } else if (clazz == Long.class) {
                         long val = ((Long) item).longValue();
                         if (writeClassName) {
-                            out.writeLongAndChar(val, 'L');
+                            out.writeLong(val);
+                            out.write('L');
                         } else {
                             out.writeLong(val);
                         }

@@ -542,7 +542,7 @@ public class DefaultJSONParser implements Closeable {
 
                     return object;
                 } else {
-                    throw new JSONException("syntax error, position at " + lexer.pos + ", name " + key);
+                    throw new JSONException("syntax error, position at " + lexer.bp + ", name " + key);
                 }
 
             }

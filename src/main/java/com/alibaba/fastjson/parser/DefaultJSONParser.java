@@ -247,7 +247,7 @@ public class DefaultJSONParser implements Closeable {
                     lexer.skipWhitespace();
                     ch = lexer.ch;
                     if (ch != ':') {
-                        throw new JSONException("expect ':' at " + lexer.pos + ", actual " + ch);
+                        throw new JSONException("expect ':' at " + lexer.bp + ", actual " + ch);
                     }
                 }
 

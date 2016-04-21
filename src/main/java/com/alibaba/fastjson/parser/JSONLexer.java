@@ -2184,6 +2184,147 @@ public final class JSONLexer {
 
             return stringDefaultValue();
         }
+        
+        final char quoteChar = '"';
+        boolean hasSpecial = false;
+        int startIndex = bp + offset;
+        int endIndex = text.indexOf(quoteChar, startIndex);
+        if (endIndex == -1) {
+            throw new JSONException("unclosed str");
+        }
+        
+        String strVal = null;
+        boolean match = false;
+        if (V6) {
+            strVal = text.substring(startIndex, endIndex);
+            if (strVal.indexOf('\\') == -1) {
+                match = true;
+            } else {
+                hasSpecial = true;
+            }
+        }
+        
+        if (!match) {
+            int chars_len;
+            char[] chars;
+            
+            chars_len = endIndex - startIndex;
+            chars = sub_chars(bp + offset, chars_len);
+            while ((chars_len > 0 // 
+                    && chars[chars_len - 1] == '\\')
+                    ) {
+                
+                int slashCount = 1;
+                for (int i = chars_len - 2; i >= 0; --i) {
+                    if (chars[i] == '\\') {
+                        slashCount++;
+                    } else {
+                        break;
+                    }
+                }
+                if (slashCount % 2 == 0) {
+                    break;
+                }
+                
+                int nextIndex = text.indexOf(quoteChar, endIndex + 1);
+                int nextLen = nextIndex - endIndex;
+                int next_chars_len = chars_len + nextLen;
+                
+                if (next_chars_len < chars.length) {
+                    text.getChars(endIndex, nextIndex, chars, chars_len);
+                } else {
+                    chars = sub_chars(bp + offset, next_chars_len);
+                }
+                chars_len = next_chars_len;
+                endIndex = nextIndex;
+                hasSpecial = true;
+            }
+            
+            if (!hasSpecial) {
+                for (int i = 0; i < chars_len; ++i) {
+                    if (chars[i] == '\\') {
+                        hasSpecial = true;
+                    }
+                }
+                
+                if (hasSpecial) {
+                    strVal = readString(chars, chars_len);
+                } else {
+                    strVal = new String(chars, 0, chars_len);
+                }
+            } else {
+                strVal = readString(chars, chars_len);
+            }
+        
+        }
+        //bp = endIndex + 1;
+        // ch = charAt(bp);
+        {
+            int index = ++endIndex;
+            if (index >= len) {
+                chLocal = EOI;
+            } else {
+                chLocal = text.charAt(index);
+            }
+        }
+        
+        if (chLocal == '}') {
+            chLocal = charAt(++endIndex);
+            if (chLocal == ',') {
+                token = JSONToken.COMMA;
+                bp = endIndex;
+                this.next();
+            } else if (chLocal == ']') {
+                token = JSONToken.RBRACKET;
+                bp = endIndex;
+                this.next();
+            } else if (chLocal == '}') {
+                token = JSONToken.RBRACE;
+                bp = endIndex;
+                this.next();
+            } else if (chLocal == EOI) {
+                token = JSONToken.EOF;
+                bp = endIndex;
+                ch = EOI;
+            } else {
+                matchStat = NOT_MATCH;
+                return stringDefaultValue();
+            }
+            matchStat = END;
+        } else {
+            matchStat = NOT_MATCH;
+            return stringDefaultValue();
+        }
+
+        return strVal;
+    }
+    
+    public String scanFieldString2(char[] fieldName) {
+        matchStat = UNKNOWN;
+
+        if (!charArrayCompare(fieldName)) {
+            matchStat = NOT_MATCH_NAME;
+            return stringDefaultValue();
+        }
+
+        // int index = bp + fieldName.length;
+
+        int offset = fieldName.length;
+        char chLocal;// = charAt(bp + (offset++));
+        {
+            int index = bp + (offset++);
+            if (index >= len) {
+                throw new JSONException("unclosed str");
+            } else {
+                chLocal = text.charAt(index);
+            }
+        }
+
+        if (chLocal != '"') {
+            matchStat = NOT_MATCH;
+
+            return stringDefaultValue();
+        }
 
         final String strVal;
         {

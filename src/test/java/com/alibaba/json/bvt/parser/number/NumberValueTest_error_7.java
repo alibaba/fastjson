@@ -14,7 +14,7 @@ public class NumberValueTest_error_7 extends TestCase {
         try {
             String text = "{\"value\":-";
             JSON.parse(text);
-        } catch (JSONException e) {
+        } catch (Exception e) {
             error = e;
         }
         Assert.assertNotNull(error);

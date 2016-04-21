@@ -15,7 +15,8 @@ public class BenchmarkMain {
 //        executor.getCodecList().add(new FastjsonGenCodec());
 //        executor.getCodecList().add(new FastjsonBeanToArrayCodec());
 //        executor.getCodecList().add(new JacksonCodec());
-//        executor.getCodecList().add(new Jackson2Codec());
+        executor.getCodecList().add(new Jackson2Codec());
+        executor.getCodecList().add(new Jackson2AfterBurnCodec());
         //
         // executor.getCodecList().add(new SimpleJsonCodec());
         // executor.getCodecList().add(new JsonLibCodec());

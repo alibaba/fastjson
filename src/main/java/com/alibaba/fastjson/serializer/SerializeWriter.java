@@ -20,7 +20,6 @@ import static com.alibaba.fastjson.util.IOUtils.replaceChars;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
-import java.lang.ref.SoftReference;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -40,21 +39,17 @@ import com.alibaba.fastjson.util.IOUtils;
  */
 public final class SerializeWriter extends Writer {
 
-    static Charset                                          utf8     = Charset.forName("UTF-8");
+    private final static ThreadLocal<char[]>         bufLocal      = new ThreadLocal<char[]>();
+    private final static ThreadLocal<byte[]>         bytesBufLocal = new ThreadLocal<byte[]>();
+    private final static ThreadLocal<CharsetEncoder> encoderLocal  = new ThreadLocal<CharsetEncoder>();
+    private final static Charset                     utf8          = Charset.forName("UTF-8");
 
-    /**
-     * The buffer where data is stored.
-     */
     protected char                                          buf[];
-
-    protected SoftReference<char[]>                         bufLocalRef;
 
     /**
      * The number of chars in the buffer.
      */
     protected int                                           count;
-
-    private final static ThreadLocal<SoftReference<char[]>> bufLocal = new ThreadLocal<SoftReference<char[]>>();
 
     protected int                                           features;
 
@@ -87,21 +82,7 @@ public final class SerializeWriter extends Writer {
     }
 
     public SerializeWriter(Writer writer){
-        this.writer = writer;
-        this.features = JSON.DEFAULT_GENERATE_FEATURE;
-
-        computeFeatures();
-
-        bufLocalRef = bufLocal.get();
-
-        if (bufLocalRef != null) {
-            buf = bufLocalRef.get();
-            bufLocal.set(null);
-        }
-
-        if (buf == null) {
-            buf = new char[1024];
-        }
+        this(writer, JSON.DEFAULT_GENERATE_FEATURE, SerializerFeature.EMPTY);
     }
 
     public SerializeWriter(SerializerFeature... features){
@@ -112,17 +93,20 @@ public final class SerializeWriter extends Writer {
         this(writer, 0, features);
     }
 
+    /**
+     * @since 1.2.9
+     * @param writer
+     * @param defaultFeatures
+     * @param features
+     */
     public SerializeWriter(Writer writer, int defaultFeatures, SerializerFeature... features){
         this.writer = writer;
 
-        bufLocalRef = bufLocal.get();
+        buf = bufLocal.get();
 
-        if (bufLocalRef != null) {
-            buf = bufLocalRef.get();
+        if (buf != null) {
             bufLocal.set(null);
-        }
-
-        if (buf == null) {
+        } else {
             buf = new char[1024];
         }
 
@@ -408,15 +392,26 @@ public final class SerializeWriter extends Writer {
         if (this.writer != null) {
             throw new UnsupportedOperationException("writer not null");
         }
+        
+        CharsetEncoder encoder;
+        if (charset == utf8) {
+            encoder = encoderLocal.get();
+            if (encoder == null) {
+                encoder = utf8.newEncoder() //
+                        .onMalformedInput(CodingErrorAction.REPLACE) //
+                        .onUnmappableCharacter(CodingErrorAction.REPLACE);
+                encoderLocal.set(encoder);
+            }
+        } else {
+            encoder = charset.newEncoder() //
+                    .onMalformedInput(CodingErrorAction.REPLACE) //
+                    .onUnmappableCharacter(CodingErrorAction.REPLACE);
+        }
 
-        CharsetEncoder encoder = charset.newEncoder() //
-                                        .onMalformedInput(CodingErrorAction.REPLACE) //
-                                        .onUnmappableCharacter(CodingErrorAction.REPLACE);
+        
 
         return encode(encoder, buf, 0, count);
     }
-
-    private final static ThreadLocal<byte[]> bytesBufLocal = new ThreadLocal<byte[]>();
 
     private static byte[] encode(CharsetEncoder encoder, char[] chars, int off, int len) {
         if (len == 0) {
@@ -480,13 +475,7 @@ public final class SerializeWriter extends Writer {
             flush();
         }
         if (buf.length <= 1024 * 8) {
-            SoftReference<char[]> ref;
-            if (bufLocalRef == null || bufLocalRef.get() != buf) {
-                ref = new SoftReference<char[]>(buf);
-            } else {
-                ref = bufLocalRef;
-            }
-            bufLocal.set(ref);
+            bufLocal.set(buf);
         }
 
         this.buf = null;

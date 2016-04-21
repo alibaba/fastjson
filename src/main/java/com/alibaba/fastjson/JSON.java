@@ -397,9 +397,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         try {
             JSONSerializer serializer = new JSONSerializer(out);
-            
             serializer.write(object);
-
             return out.toString();
         } finally {
             out.close();
@@ -423,16 +421,11 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static byte[] toJSONBytes(Object object, SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter();
+        SerializeWriter out = new SerializeWriter(null, DEFAULT_GENERATE_FEATURE, features);
 
         try {
             JSONSerializer serializer = new JSONSerializer(out);
-            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
-                serializer.config(feature, true);
-            }
-
             serializer.write(object);
-
             return out.toUTF8Bytes();
         } finally {
             out.close();

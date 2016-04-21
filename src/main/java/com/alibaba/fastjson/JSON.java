@@ -426,7 +426,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         try {
             JSONSerializer serializer = new JSONSerializer(out);
             serializer.write(object);
-            return out.toUTF8Bytes();
+            return out.toBytes(null);
         } finally {
             out.close();
         }
@@ -502,7 +502,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
             serializer.write(object);
 
-            return out.toBytes("UTF-8");
+            return out.toBytes(null);
         } finally {
             out.close();
         }

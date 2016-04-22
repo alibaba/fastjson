@@ -24,10 +24,6 @@ import java.lang.reflect.Type;
 class EnumSerializer implements ObjectSerializer {
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
         SerializeWriter out = serializer.out;
-        if (object == null) {
-            out.writeNull();
-            return;
-        }
 
         if ((out.features & SerializerFeature.WriteEnumUsingToString.mask) != 0) {
             Enum<?> e = (Enum<?>) object;

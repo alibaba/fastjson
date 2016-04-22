@@ -18,7 +18,7 @@ public class Issue119 extends TestCase {
     }
     
     public void test_for_issue_b() throws Exception {
-        JSONLexer lexer = new JSONLexer("-10B");
+        JSONScanner lexer = new JSONScanner("-10B");
         lexer.scanNumber();
         Assert.assertEquals(Byte.class, lexer.integerValue().getClass());
         Assert.assertEquals(-10, lexer.integerValue().byteValue());

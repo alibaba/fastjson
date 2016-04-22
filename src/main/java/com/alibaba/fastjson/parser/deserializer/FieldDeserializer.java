@@ -84,30 +84,28 @@ public abstract class FieldDeserializer {
             return;
         }
         
-        if (method != null) {
-            try {
-                if (fieldInfo.getOnly) {
-                    if (Map.class.isAssignableFrom(method.getReturnType())) {
-                        Map map = (Map) method.invoke(object);
-                        if (map != null) {
-                            map.putAll((Map) value);
-                        }
-                    } else {
-                        Collection collection = (Collection) method.invoke(object);
-                        if (collection != null) {
-                            collection.addAll((Collection) value);
-                        }
+        try {
+            if (fieldInfo.getOnly) {
+                if (Map.class.isAssignableFrom(method.getReturnType())) {
+                    Map map = (Map) method.invoke(object);
+                    if (map != null) {
+                        map.putAll((Map) value);
                     }
                 } else {
-                    if (value == null && fieldInfo.fieldClass.isPrimitive()) {
-                        return;
+                    Collection collection = (Collection) method.invoke(object);
+                    if (collection != null) {
+                        collection.addAll((Collection) value);
                     }
-                    method.invoke(object, value);
                 }
-            } catch (Exception e) {
-                throw new JSONException("set property error, " + fieldInfo.name, e);
+            } else {
+                if (value == null && fieldInfo.fieldClass.isPrimitive()) {
+                    return;
+                }
+                method.invoke(object, value);
             }
-            return;
+        } catch (Exception e) {
+            throw new JSONException("set property error, " + fieldInfo.name, e);
         }
+        return;
     }
 }

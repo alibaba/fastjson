@@ -31,6 +31,8 @@ public class JSONSerializerTest3 extends TestCase {
         format.setTimeZone(JSON.defaultTimeZone);
         serializer.setDateFormat(format);
         Assert.assertEquals("yyyy-MM-dd",  serializer.getDateFormatPattern());
+        
+        serializer.close();
     }
 
 }

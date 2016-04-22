@@ -138,10 +138,6 @@ public class JSONReader implements Closeable {
     }
 
     public int peek() {
-        if (context == null) {
-            throw new JSONException("context is null");
-        }
-
         return parser.lexer.token();
     }
 

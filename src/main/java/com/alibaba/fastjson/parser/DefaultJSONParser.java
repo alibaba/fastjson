@@ -1175,10 +1175,6 @@ public class DefaultJSONParser implements Closeable {
     }
 
     protected void popContext() {
-        if ((lexer.features & Feature.DisableCircularReferenceDetect.mask) != 0) {
-            return;
-        }
-
         this.contex = this.contex.parent;
         contextArray[contextArrayIndex - 1] = null;
         contextArrayIndex--;

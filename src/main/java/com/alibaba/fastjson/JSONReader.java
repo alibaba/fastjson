@@ -27,6 +27,7 @@ public class JSONReader implements Closeable {
 
     public JSONReader(Reader reader){
         this(new JSONLexer(readAll(reader)));
+        this.reader = reader;
     }
     
     static String readAll(Reader reader) {

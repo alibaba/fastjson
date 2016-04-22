@@ -147,7 +147,7 @@ public class DefaultJSONParser implements Closeable {
         final JSONLexer lexer = this.lexer;
 
         if (lexer.token == JSONToken.NULL) {
-            lexer.next();
+            lexer.nextToken();
             return null;
         }
 
@@ -991,8 +991,7 @@ public class DefaultJSONParser implements Closeable {
         JSONObject object = (lexer.features & Feature.OrderedField.mask) != 0 //
             ? new JSONObject(new LinkedHashMap<String, Object>()) //
             : new JSONObject();
-        parseObject(object, null);
-        return object;
+        return (JSONObject) parseObject(object, null);
     }
 
     @SuppressWarnings("rawtypes")

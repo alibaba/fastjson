@@ -33,7 +33,6 @@ import static com.alibaba.fastjson.parser.JSONToken.TRUE;
 import static com.alibaba.fastjson.parser.JSONToken.UNDEFINED;
 
 import java.io.Closeable;
-import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;

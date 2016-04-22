@@ -675,7 +675,7 @@ public final class JSONLexer {
         int startIndex = bp + 1;
         int endIndex = text.indexOf(quoteChar, startIndex);
         if (endIndex == -1) {
-            throw new JSONException("unclosed str");
+            throw new JSONException("unclosed str, " + info());
         }
 
         if (V6 && endIndex - startIndex > 5) {
@@ -926,7 +926,7 @@ public final class JSONLexer {
         int startIndex = bp + 1;
         int endIndex = text.indexOf(quoteChar, startIndex);
         if (endIndex == -1) {
-            throw new JSONException("unclosed str");
+            throw new JSONException("unclosed str, " + info());
         }
 
         int chars_len;
@@ -993,7 +993,7 @@ public final class JSONLexer {
         int startIndex = bp + 1;
         int endIndex = text.indexOf(quoteChar, startIndex);
         if (endIndex == -1) {
-            throw new JSONException("unclosed str. " + info());
+            throw new JSONException("unclosed str, " + info());
         }
 
         if (V6) {
@@ -1825,7 +1825,7 @@ public final class JSONLexer {
         // ch = charAt(bp);
         {
             if (bp >= len) {
-                throw new JSONException("unclosed str");
+                throw new JSONException("unclosed str, " + info());
             } else {
                 ch = text.charAt(bp);
             }
@@ -2137,7 +2137,7 @@ public final class JSONLexer {
         {
             int index = bp + (offset++);
             if (index >= this.len) {
-                throw new JSONException("unclosed str");
+                throw new JSONException("unclosed str, " + info());
             } else {
                 chLocal = text.charAt(index);
             }
@@ -2154,7 +2154,7 @@ public final class JSONLexer {
         int startIndex = bp + offset;
         int endIndex = text.indexOf(quoteChar, startIndex);
         if (endIndex == -1) {
-            throw new JSONException("unclosed str");
+            throw new JSONException("unclosed str, " + info());
         }
 
         String strVal = null;

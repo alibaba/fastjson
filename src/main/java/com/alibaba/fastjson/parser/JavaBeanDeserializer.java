@@ -78,7 +78,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 object = constructor.newInstance(parser.contex.object);
             }
         
-
             if (parser != null // 
                     && (parser.lexer.features & Feature.InitStringFieldAsEmpty.mask) != 0) {
                 for (FieldInfo fieldInfo : beanInfo.fields) {
@@ -114,9 +113,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             Class<?> fieldClass = fieldDeser.fieldInfo.fieldClass;
             if (fieldClass == int.class) {
                 Number number = lexer.scanNumberValue();
-                if (!(number instanceof Integer)) {
-                    number = number.intValue();
-                }
                 fieldDeser.setValue(object, number);
                 lexer.nextToken(JSONToken.COMMA);
             } else if (fieldClass == String.class) {

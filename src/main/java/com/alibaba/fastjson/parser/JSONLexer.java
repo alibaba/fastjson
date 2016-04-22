@@ -869,7 +869,7 @@ public final class JSONLexer {
                     next();
                     if (ch == '/') {
                         next();
-                        return;
+                        break;
                     } else {
                         continue;
                     }

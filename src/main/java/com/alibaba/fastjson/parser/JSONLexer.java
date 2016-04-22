@@ -262,7 +262,7 @@ public final class JSONLexer {
                     scanNullOrNew();
                     return;
                 case 'u': // undefined
-                    scanUndefined();
+                    scanIdent();
                     return;
                 case '(':
                     next();
@@ -1208,29 +1208,6 @@ public final class JSONLexer {
         }
 
         throw new JSONException("scan null/new error");
-    }
-
-    private void scanUndefined() {
-        if (text.startsWith("undefined", bp)) {
-            bp += 9;
-            ch = charAt(bp);
-
-            if (ch == ' ' //
-                || ch == ','//
-                || ch == '}'//
-                || ch == ']'//
-                || ch == '\n'//
-                || ch == '\r'//
-                || ch == '\t'//
-                || ch == EOI //
-                || ch == '\f'//
-                || ch == '\b'//
-                || ch == ':') {
-                token = JSONToken.UNDEFINED;
-                return;
-            }
-        }
-        throw new JSONException("scan undefined error");
     }
 
     private void scanFalse() {

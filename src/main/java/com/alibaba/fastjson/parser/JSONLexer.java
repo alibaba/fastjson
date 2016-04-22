@@ -250,19 +250,15 @@ public final class JSONLexer {
                     scanTrue();
                     return;
                 case 'T': // treeSet
-                    scanTreeSet();
-                    return;
                 case 'S': // set
-                    scanSet();
+                case 'u': //undefined
+                    scanIdent();
                     return;
                 case 'f': // false
                     scanFalse();
                     return;
                 case 'n': // new,null
                     scanNullOrNew();
-                    return;
-                case 'u': // undefined
-                    scanIdent();
                     return;
                 case '(':
                     next();
@@ -1160,26 +1156,6 @@ public final class JSONLexer {
         throw new JSONException("scan true error");
     }
 
-    private void scanTreeSet() {
-        if (text.startsWith("TreeSet", bp)) {
-            bp += 7;
-            ch = charAt(bp);
-
-            if (ch == ' ' //
-                || ch == '\n' //
-                || ch == '\r' //
-                || ch == '\t' //
-                || ch == '\f' //
-                || ch == '\b' //
-                || ch == '[' //
-                || ch == '(') {
-                token = JSONToken.TREE_SET;
-                return;
-            }
-        }
-        throw new JSONException("scan TreeSet error");
-    }
-
     private void scanNullOrNew() {
         int token = 0;
         if (text.startsWith("null", bp)) {
@@ -1257,6 +1233,10 @@ public final class JSONLexer {
                 token = JSONToken.NEW;
             } else if (ident.equals("undefined")) {
                 token = JSONToken.UNDEFINED;
+            } else if (ident.equals("Set")) {
+                token = JSONToken.SET;
+            } else if (ident.equals("TreeSet")) {
+                token = JSONToken.TREE_SET;
             } else {
                 token = JSONToken.IDENTIFIER;
             }

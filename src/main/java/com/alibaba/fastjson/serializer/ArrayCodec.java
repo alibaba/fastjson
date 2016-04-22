@@ -153,11 +153,6 @@ public final class ArrayCodec implements ObjectSerializer, ObjectDeserializer {
             }
 
             Object value = parser.parse();
-
-            if (value == null) {
-                return null;
-            }
-
             return (T) JSON.toJSONString(value).toCharArray();
         }
 

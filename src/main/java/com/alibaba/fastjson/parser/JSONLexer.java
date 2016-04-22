@@ -107,8 +107,8 @@ public final class JSONLexer {
         // next();
         {
             int index = ++bp;
-            this.ch = (index >= len //
-                ? EOI //
+            this.ch = (index >= this.len ? //
+                EOI //
                 : text.charAt(index));
         }
         if (ch == 65279) {
@@ -129,8 +129,8 @@ public final class JSONLexer {
 
     public char next() {
         int index = ++bp;
-        return ch = (index >= len //
-            ? EOI //
+        return ch = (index >= this.len ? //
+            EOI //
             : text.charAt(index));
     }
 
@@ -154,8 +154,8 @@ public final class JSONLexer {
                 // next();
                 {
                     int index = ++this.bp;
-                    this.ch = (index >= len //
-                        ? EOI //
+                    this.ch = (index >= this.len ? //
+                        EOI //
                         : text.charAt(index));
                 }
                 nextToken();
@@ -199,7 +199,9 @@ public final class JSONLexer {
     }
 
     protected char charAt(int index) {
-        return index >= len ? EOI : text.charAt(index);
+        return index >= this.len ? // 
+            EOI // 
+            : text.charAt(index);
     }
 
     public final void nextToken() {
@@ -274,8 +276,8 @@ public final class JSONLexer {
                 // next();
                 {
                     int index = ++bp;
-                    this.ch = (index >= len //
-                        ? EOI //
+                    this.ch = (index >= this.len ? //
+                        EOI //
                         : text.charAt(index));
                 }
                     token = LBRACKET;
@@ -288,8 +290,8 @@ public final class JSONLexer {
                 // next();
                 {
                     int index = ++bp;
-                    this.ch = (index >= len //
-                        ? EOI //
+                    this.ch = (index >= this.len ? //
+                        EOI //
                         : text.charAt(index));
                 }
                     token = LBRACE;
@@ -298,8 +300,8 @@ public final class JSONLexer {
                 // next();
                 {
                     int index = ++bp;
-                    this.ch = (index >= len //
-                        ? EOI //
+                    this.ch = (index >= this.len ? //
+                        EOI //
                         : text.charAt(index));
                 }
                     token = RBRACE;
@@ -343,8 +345,8 @@ public final class JSONLexer {
                         // next();
                         {
                             int index = ++bp;
-                            this.ch = (index >= len //
-                                ? EOI //
+                            this.ch = (index >= this.len ? //
+                                EOI //
                                 : text.charAt(index));
                         }
                         return;
@@ -354,8 +356,8 @@ public final class JSONLexer {
                         // next();
                         {
                             int index = ++bp;
-                            this.ch = (index >= len //
-                                ? EOI //
+                            this.ch = (index >= this.len ? //
+                                EOI //
                                 : text.charAt(index));
                         }
                         return;
@@ -367,8 +369,8 @@ public final class JSONLexer {
                         // next();
                         {
                             int index = ++bp;
-                            this.ch = (index >= len //
-                                ? EOI //
+                            this.ch = (index >= this.len ? //
+                                EOI //
                                 : text.charAt(index));
                         }
                         return;
@@ -379,8 +381,8 @@ public final class JSONLexer {
                         // next();
                         {
                             int index = ++bp;
-                            this.ch = (index >= len //
-                                ? EOI //
+                            this.ch = (index >= this.len ? //
+                                EOI //
                                 : text.charAt(index));
                         }
                         return;
@@ -391,8 +393,8 @@ public final class JSONLexer {
                         // next();
                         {
                             int index = ++bp;
-                            this.ch = (index >= len //
-                                ? EOI //
+                            this.ch = (index >= this.len ? //
+                                EOI //
                                 : text.charAt(index));
                         }
                         return;
@@ -447,8 +449,8 @@ public final class JSONLexer {
                         // next();
                         {
                             int index = ++bp;
-                            this.ch = (index >= len //
-                                ? EOI //
+                            this.ch = (index >= this.len ? //
+                                EOI //
                                 : text.charAt(index));
                         }
                         return;
@@ -683,8 +685,8 @@ public final class JSONLexer {
                 // ch = charAt(bp);
                 {
                     int index = bp;
-                    this.ch = (index >= len //
-                        ? EOI //
+                    this.ch = (index >= this.len ? //
+                        EOI //
                         : text.charAt(index));
                 }
                 return strVal;
@@ -748,11 +750,9 @@ public final class JSONLexer {
         // ch = charAt(bp);
         {
             int index = bp;
-            if (index >= len) {
-                ch = EOI;
-            } else {
-                ch = text.charAt(index);
-            }
+            this.ch = index >= this.len ? //
+                EOI //
+                : text.charAt(index);
         }
 
         return strVal;
@@ -980,11 +980,9 @@ public final class JSONLexer {
         // ch = charAt(bp);
         {
             int index = bp;
-            if (index >= len) {
-                ch = EOI;
-            } else {
-                ch = text.charAt(index);
-            }
+            this.ch = index >= this.len ? //
+                EOI //
+                : text.charAt(index);
         }
 
         token = JSONToken.LITERAL_STRING;
@@ -1005,7 +1003,7 @@ public final class JSONLexer {
                 // ch = charAt(bp);
                 {
                     int index = bp;
-                    ch = index >= this.len ? //
+                    this.ch = index >= this.len ? //
                         EOI //
                         : text.charAt(index);
                 }
@@ -1070,7 +1068,7 @@ public final class JSONLexer {
         // ch = charAt(bp);
         {
             int index = bp;
-            ch = index >= len ? //
+            ch = index >= this.len ? //
                 EOI //
                 : text.charAt(index);
         }
@@ -1391,8 +1389,8 @@ public final class JSONLexer {
             // next();
             {
                 int index = ++this.bp;
-                this.ch = (index >= len //
-                    ? EOI //
+                this.ch = (index >= this.len ? //
+                    EOI //
                     : text.charAt(index));
             }
         }
@@ -1407,8 +1405,8 @@ public final class JSONLexer {
             // next();
             {
                 int index = ++bp;
-                this.ch = (index >= len //
-                    ? EOI //
+                this.ch = (index >= this.len ? //
+                    EOI //
                     : text.charAt(index));
             }
         }
@@ -1420,8 +1418,8 @@ public final class JSONLexer {
             // next();
             {
                 int index = ++this.bp;
-                this.ch = (index >= len //
-                    ? EOI //
+                this.ch = (index >= this.len ? //
+                    EOI //
                     : text.charAt(index));
             }
             isDouble = true;
@@ -1436,8 +1434,8 @@ public final class JSONLexer {
                 // next();
                 {
                     int index = ++this.bp;
-                    this.ch = (index >= len //
-                        ? EOI //
+                    this.ch = (index >= this.len ? //
+                        EOI //
                         : text.charAt(index));
                 }
             }
@@ -1466,8 +1464,8 @@ public final class JSONLexer {
             // next();
             {
                 int index = ++this.bp;
-                this.ch = (index >= len //
-                    ? EOI //
+                this.ch = (index >= this.len ? //
+                    EOI //
                     : text.charAt(index));
             }
 
@@ -1477,8 +1475,8 @@ public final class JSONLexer {
                 // next();
                 {
                     int index = ++this.bp;
-                    this.ch = (index >= len //
-                        ? EOI //
+                    this.ch = (index >= this.len ? //
+                        EOI //
                         : text.charAt(index));
                 }
             }
@@ -1493,8 +1491,8 @@ public final class JSONLexer {
                 // next();
                 {
                     int index = ++this.bp;
-                    this.ch = (index >= len //
-                        ? EOI //
+                    this.ch = (index >= this.len ? //
+                        EOI //
                         : text.charAt(index));
                 }
             }
@@ -1532,8 +1530,8 @@ public final class JSONLexer {
             // next();
             {
                 int index = ++this.bp;
-                this.ch = (index >= len //
-                    ? EOI //
+                this.ch = (index >= this.len ? //
+                    EOI //
                     : text.charAt(index));
             }
         } else {
@@ -1563,8 +1561,8 @@ public final class JSONLexer {
             // next();
             {
                 int index = ++bp;
-                this.ch = (index >= len //
-                    ? EOI //
+                this.ch = (index >= this.len ? //
+                    EOI //
                     : text.charAt(index));
             }
         }
@@ -1603,8 +1601,8 @@ public final class JSONLexer {
             // next();
             {
                 int index = ++this.bp;
-                this.ch = (index >= len //
-                    ? EOI //
+                this.ch = (index >= this.len ? //
+                    EOI //
                     : text.charAt(index));
             }
 
@@ -1618,8 +1616,8 @@ public final class JSONLexer {
                 // next();
                 {
                     int index = ++this.bp;
-                    this.ch = (index >= len //
-                        ? EOI //
+                    this.ch = (index >= this.len ? //
+                        EOI //
                         : text.charAt(index));
                 }
             }
@@ -1632,8 +1630,8 @@ public final class JSONLexer {
             // next();
             {
                 int index = ++this.bp;
-                this.ch = (index >= len //
-                    ? EOI //
+                this.ch = (index >= this.len ? //
+                    EOI //
                     : text.charAt(index));
             }
 
@@ -1643,8 +1641,8 @@ public final class JSONLexer {
                 // next();
                 {
                     int index = ++this.bp;
-                    this.ch = (index >= len //
-                        ? EOI //
+                    this.ch = (index >= this.len ? //
+                        EOI //
                         : text.charAt(index));
                 }
             }
@@ -1659,8 +1657,8 @@ public final class JSONLexer {
                 // next();
                 {
                     int index = ++this.bp;
-                    this.ch = (index >= len //
-                        ? EOI //
+                    this.ch = (index >= this.len ? //
+                        EOI //
                         : text.charAt(index));
                 }
             }
@@ -1745,11 +1743,9 @@ public final class JSONLexer {
             char chLocal;
             {
                 int index = i++;
-                if (index >= len) {
-                    chLocal = EOI;
-                } else {
-                    chLocal = text.charAt(index);
-                }
+                chLocal = index >= this.len ? //
+                    EOI //
+                    : text.charAt(index);
             }
 
             if (chLocal == 'L'//
@@ -1849,21 +1845,17 @@ public final class JSONLexer {
         if (ch == '{') {
             {
                 int index = ++bp;
-                if (index >= len) {
-                    ch = EOI;
-                } else {
-                    ch = text.charAt(index);
-                }
+                this.ch = index >= this.len ? //
+                    EOI //
+                    : text.charAt(index);
             }
             token = JSONToken.LBRACE;
         } else if (ch == '[') {
             {
                 int index = ++bp;
-                if (index >= len) {
-                    ch = EOI;
-                } else {
-                    ch = text.charAt(index);
-                }
+                this.ch = index >= this.len ? //
+                    EOI //
+                    : text.charAt(index);
             }
             token = JSONToken.LBRACKET;
         } else {
@@ -1905,11 +1897,9 @@ public final class JSONLexer {
 
             {
                 int index = bp + (offset++);
-                if (index >= len) {
-                    chLocal = EOI;
-                } else {
-                    chLocal = text.charAt(index);
-                }
+                chLocal = index >= this.len ? //
+                    EOI //
+                    : text.charAt(index);
             }
         }
 
@@ -1929,11 +1919,9 @@ public final class JSONLexer {
                         return 0;
                     }
                     int index = bp + (offset++);
-                    if (index >= len) {
-                        chLocal = EOI;
-                    } else {
-                        chLocal = text.charAt(index);
-                    }
+                    chLocal = index >= this.len ? //
+                        EOI //
+                        : text.charAt(index);
                     break;
                 } else {
                     break;
@@ -1953,11 +1941,9 @@ public final class JSONLexer {
             // this.next();
             {
                 int index = ++bp;
-                if (index >= this.len) {
-                    this.ch = EOI;
-                } else {
-                    this.ch = this.text.charAt(index);
-                }
+                this.ch = index >= this.len ? //
+                    EOI //
+                    : text.charAt(index);
             }
             matchStat = VALUE;
             token = JSONToken.COMMA;
@@ -1972,11 +1958,9 @@ public final class JSONLexer {
                 // this.next();
                 {
                     int index = ++bp;
-                    if (index >= this.len) {
-                        this.ch = EOI;
-                    } else {
-                        this.ch = this.text.charAt(index);
-                    }
+                    this.ch = index >= this.len ? //
+                        EOI //
+                        : text.charAt(index);
                 }
             } else if (chLocal == ']') {
                 token = JSONToken.RBRACKET;
@@ -1984,11 +1968,9 @@ public final class JSONLexer {
                 // this.next();
                 {
                     int index = ++bp;
-                    if (index >= this.len) {
-                        this.ch = EOI;
-                    } else {
-                        this.ch = this.text.charAt(index);
-                    }
+                    this.ch = index >= this.len ? //
+                        EOI //
+                        : text.charAt(index);
                 }
             } else if (chLocal == '}') {
                 token = JSONToken.RBRACE;
@@ -1996,11 +1978,9 @@ public final class JSONLexer {
                 // this.next();
                 {
                     int index = ++bp;
-                    if (index >= this.len) {
-                        this.ch = EOI;
-                    } else {
-                        this.ch = this.text.charAt(index);
-                    }
+                    this.ch = index >= this.len ? //
+                        EOI //
+                        : text.charAt(index);
                 }
             } else if (chLocal == EOI) {
                 token = JSONToken.EOF;
@@ -2032,7 +2012,7 @@ public final class JSONLexer {
         char chLocal;
         {
             int index = bp + (offset++);
-            chLocal = index >= len //
+            chLocal = index >= this.len //
                 ? EOI //
                 : text.charAt(index);
         }
@@ -2045,7 +2025,7 @@ public final class JSONLexer {
 
             {
                 int index = bp + (offset++);
-                chLocal = index >= len //
+                chLocal = index >= this.len //
                     ? EOI //
                     : text.charAt(index);
             }
@@ -2058,7 +2038,7 @@ public final class JSONLexer {
                 // chLocal = charAt(bp + (offset++));
                 {
                     int index = bp + (offset++);
-                    chLocal = index >= len //
+                    chLocal = index >= this.len //
                         ? EOI //
                         : text.charAt(index);
                 }
@@ -2073,7 +2053,7 @@ public final class JSONLexer {
                         return 0;
                     }
                     int index = bp + (offset++);
-                    chLocal = index >= len //
+                    chLocal = index >= this.len //
                         ? EOI //
                         : text.charAt(index);
                     break;
@@ -2095,7 +2075,7 @@ public final class JSONLexer {
             // this.next();
             {
                 int index = ++bp;
-                this.ch = index >= len //
+                this.ch = index >= this.len //
                     ? EOI //
                     : text.charAt(index);
             }
@@ -2112,7 +2092,7 @@ public final class JSONLexer {
                 // this.next();
                 {
                     int index = ++bp;
-                    this.ch = index >= len //
+                    this.ch = index >= this.len //
                         ? EOI //
                         : text.charAt(index);
                 }
@@ -2122,7 +2102,7 @@ public final class JSONLexer {
                 // this.next();
                 {
                     int index = ++bp;
-                    this.ch = index >= len //
+                    this.ch = index >= this.len //
                         ? EOI //
                         : text.charAt(index);
                 }
@@ -2132,7 +2112,7 @@ public final class JSONLexer {
                 // this.next();
                 {
                     int index = ++bp;
-                    this.ch = index >= len //
+                    this.ch = index >= this.len //
                         ? EOI //
                         : text.charAt(index);
                 }
@@ -2167,7 +2147,7 @@ public final class JSONLexer {
         char chLocal;// = charAt(bp + (offset++));
         {
             int index = bp + (offset++);
-            if (index >= len) {
+            if (index >= this.len) {
                 throw new JSONException("unclosed str");
             } else {
                 chLocal = text.charAt(index);
@@ -2255,11 +2235,9 @@ public final class JSONLexer {
         // ch = charAt(bp);
         {
             int index = ++endIndex;
-            if (index >= len) {
-                chLocal = EOI;
-            } else {
-                chLocal = text.charAt(index);
-            }
+            chLocal = index >= this.len ? //
+                EOI //
+                : text.charAt(index);
         }
 
         if (chLocal == '}') {
@@ -2302,15 +2280,6 @@ public final class JSONLexer {
         }
 
         int offset = fieldName.length;
-        // char chLocal; // = charAt(bp + (offset++));
-        // {
-        // int index = bp + (offset++);
-        // if (index >= len) {
-        // throw new JSONException("unclosed str");
-        // } else {
-        // chLocal = text.charAt(index);
-        // }
-        // }
 
         boolean value;
         if (text.startsWith("false", bp + offset)) {
@@ -2336,7 +2305,7 @@ public final class JSONLexer {
             // this.next();
             {
                 int index = ++bp;
-                this.ch = index >= len //
+                this.ch = index >= this.len //
                     ? EOI //
                     : text.charAt(index);
             }
@@ -2354,7 +2323,7 @@ public final class JSONLexer {
                 // this.next();
                 {
                     int index = ++bp;
-                    this.ch = index >= len //
+                    this.ch = index >= this.len //
                         ? EOI //
                         : text.charAt(index);
                 }
@@ -2364,7 +2333,7 @@ public final class JSONLexer {
                 // this.next();
                 {
                     int index = ++bp;
-                    this.ch = index >= len //
+                    this.ch = index >= this.len //
                         ? EOI //
                         : text.charAt(index);
                 }
@@ -2374,7 +2343,7 @@ public final class JSONLexer {
                 // this.next();
                 {
                     int index = ++bp;
-                    this.ch = index >= len //
+                    this.ch = index >= this.len //
                         ? EOI //
                         : text.charAt(index);
                 }
@@ -2625,7 +2594,7 @@ public final class JSONLexer {
             // this.next();
             {
                 int index = ++bp;
-                this.ch = index >= len //
+                this.ch = index >= this.len //
                     ? EOI //
                     : text.charAt(index);
             }

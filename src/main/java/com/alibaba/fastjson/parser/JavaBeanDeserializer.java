@@ -7,7 +7,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -78,21 +77,18 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             } else {
                 object = constructor.newInstance(parser.contex.object);
             }
-        } catch (Exception e) {
-            throw new JSONException("create instance error, class " + clazz.getName(), e);
-        }
+        
 
-        if (parser != null // 
-                && (parser.lexer.features & Feature.InitStringFieldAsEmpty.mask) != 0) {
-            for (FieldInfo fieldInfo : beanInfo.fields) {
-                if (fieldInfo.fieldClass == String.class) {
-                    try {
+            if (parser != null // 
+                    && (parser.lexer.features & Feature.InitStringFieldAsEmpty.mask) != 0) {
+                for (FieldInfo fieldInfo : beanInfo.fields) {
+                    if (fieldInfo.fieldClass == String.class) {
                         fieldInfo.set(object, "");
-                    } catch (Exception e) {
-                        throw new JSONException("create instance error, class " + clazz.getName(), e);
                     }
                 }
             }
+        } catch (Exception e) {
+            throw new JSONException("create instance error, class " + clazz.getName(), e);
         }
 
         return object;

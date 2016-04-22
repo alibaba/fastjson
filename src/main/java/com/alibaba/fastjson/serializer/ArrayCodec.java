@@ -192,24 +192,21 @@ public final class ArrayCodec implements ObjectSerializer, ObjectDeserializer {
                 continue;
             }
 
+            Object element;
             if (componentType.isArray()) {
-                Object element;
                 if (componentType.isInstance(value)) {
                     element = value;
                 } else {
                     element = toObjectArray(parser, componentType, (JSONArray) value);
                 }
-
-                Array.set(objArray, i, element);
             } else {
-                Object element  = TypeUtils.cast(value, componentType, parser.config);
-                Array.set(objArray, i, element);
-
+                element  = TypeUtils.cast(value, componentType, parser.config);
             }
+            Array.set(objArray, i, element);
         }
 
         array.setRelatedArray(objArray);
         array.setComponentType(componentType);
-        return (T) objArray; // TODO
+        return (T) objArray;
     }
 }

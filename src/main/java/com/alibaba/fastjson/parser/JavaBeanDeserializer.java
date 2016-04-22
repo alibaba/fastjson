@@ -100,10 +100,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     @SuppressWarnings({ "unchecked" })
     private <T> T deserialzeArrayMapping(DefaultJSONParser parser, Type type, Object fieldName, Object object) {
         final JSONLexer lexer = parser.lexer; // xxx
-        if (lexer.token != JSONToken.LBRACKET) {
-            throw new JSONException("error");
-        }
-
         object = createInstance(parser, type);
 
         int size = sortedFieldDeserializers.length;

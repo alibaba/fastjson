@@ -201,7 +201,7 @@ public class DefaultJSONParser implements Closeable {
                     return object;
                 } else if (ch == '\'') {
                     if ((lexer.features & Feature.AllowSingleQuotes.mask) == 0) {
-                        throw new JSONException("syntax error");
+                        throw new JSONException("syntax error, " + lexer.info());
                     }
 
                     key = lexer.scanSymbol(symbolTable, '\'');
@@ -213,9 +213,9 @@ public class DefaultJSONParser implements Closeable {
                         throw new JSONException("expect ':' at " + lexer.pos);
                     }
                 } else if (ch == EOI) {
-                    throw new JSONException("syntax error");
+                    throw new JSONException("syntax error, " + lexer.info());
                 } else if (ch == ',') {
-                    throw new JSONException("syntax error");
+                    throw new JSONException("syntax error, " + lexer.info());
                 } else if ((ch >= '0' && ch <= '9') || ch == '-') {
                     lexer.sp = 0; // resetStringPosition
                     lexer.scanNumber();
@@ -238,7 +238,7 @@ public class DefaultJSONParser implements Closeable {
                     isObjectKey = true;
                 } else {
                     if ((lexer.features & Feature.AllowUnQuotedFieldNames.mask) == 0) {
-                        throw new JSONException("syntax error");
+                        throw new JSONException("syntax error, " + lexer.info());
                     }
 
                     key = lexer.scanSymbolUnQuoted(symbolTable);
@@ -366,7 +366,7 @@ public class DefaultJSONParser implements Closeable {
                         }
 
                         if (lexer.token != JSONToken.RBRACE) {
-                            throw new JSONException("syntax error");
+                            throw new JSONException("syntax error, " + lexer.info());
                         }
                         lexer.nextToken(JSONToken.COMMA);
 
@@ -423,7 +423,7 @@ public class DefaultJSONParser implements Closeable {
                     } else if (lexer.token == JSONToken.COMMA) {
                         continue;
                     } else {
-                        throw new JSONException("syntax error");
+                        throw new JSONException("syntax error, " + lexer.info());
                     }
                 } else if (ch == '{') { // 减少嵌套，兼容android
                     lexer.nextToken(JSONToken.LITERAL_STRING);
@@ -478,7 +478,7 @@ public class DefaultJSONParser implements Closeable {
                     } else if (lexer.token == JSONToken.COMMA) {
                         continue;
                     } else {
-                        throw new JSONException("syntax error, " + lexer.tokenName());
+                        throw new JSONException("syntax error, " + lexer.info());
                     }
                 } else if (lexer.ch == 't') {
                     if (lexer.text.startsWith("true", lexer.bp)) {
@@ -507,7 +507,7 @@ public class DefaultJSONParser implements Closeable {
                     } else if (lexer.token == JSONToken.COMMA) {
                         continue;
                     } else {
-                        throw new JSONException("syntax error, position at " + lexer.pos + ", name " + key);
+                        throw new JSONException("syntax error, " + lexer.info());
                     }
                 }
 
@@ -690,7 +690,7 @@ public class DefaultJSONParser implements Closeable {
         }
 
         if (lexer.token != JSONToken.LBRACKET) {
-            throw new JSONException("syntax error : " + lexer.tokenName());
+            throw new JSONException("syntax error, " + lexer.info());
         }
 
         Object[] list = new Object[types.length];
@@ -698,7 +698,7 @@ public class DefaultJSONParser implements Closeable {
             lexer.nextToken(JSONToken.RBRACKET);
 
             if (lexer.token != JSONToken.RBRACKET) {
-                throw new JSONException("syntax error");
+                throw new JSONException("syntax error, " + lexer.info());
             }
 
             lexer.nextToken(JSONToken.COMMA);
@@ -758,7 +758,7 @@ public class DefaultJSONParser implements Closeable {
                                 } else if (lexer.token == JSONToken.RBRACKET) {
                                     break;
                                 } else {
-                                    throw new JSONException("syntax error :" + JSONToken.name(lexer.token));
+                                    throw new JSONException("syntax error, " + lexer.info());
                                 }
                             }
                         }
@@ -777,7 +777,7 @@ public class DefaultJSONParser implements Closeable {
             }
 
             if (lexer.token != JSONToken.COMMA) {
-                throw new JSONException("syntax error :" + JSONToken.name(lexer.token));
+                throw new JSONException("syntax error, " + lexer.info());
             }
 
             if (i == types.length - 1) {
@@ -788,7 +788,7 @@ public class DefaultJSONParser implements Closeable {
         }
 
         if (lexer.token != JSONToken.RBRACKET) {
-            throw new JSONException("syntax error");
+            throw new JSONException("syntax error, " + lexer.info());
         }
 
         lexer.nextToken(JSONToken.COMMA);
@@ -1273,7 +1273,7 @@ public class DefaultJSONParser implements Closeable {
                 lexer.nextToken(JSONToken.IDENTIFIER);
 
                 if (lexer.token != JSONToken.IDENTIFIER) {
-                    throw new JSONException("syntax error");
+                    throw new JSONException("syntax error, " + lexer.info());
                 }
                 lexer.nextToken(JSONToken.LPAREN);
 
@@ -1288,10 +1288,10 @@ public class DefaultJSONParser implements Closeable {
                 if (lexer.isBlankInput()) {
                     return null;
                 }
-                throw new JSONException("unterminated json string, pos " + lexer.bp);
+                throw new JSONException("syntax error, " + lexer.info());
             case ERROR:
             default:
-                throw new JSONException("syntax error, pos " + lexer.bp);
+                throw new JSONException("syntax error, " + lexer.info());
         }
     }
 

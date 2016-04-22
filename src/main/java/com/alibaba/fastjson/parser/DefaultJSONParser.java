@@ -573,15 +573,6 @@ public class DefaultJSONParser implements Closeable {
         }
 
         if (lexer.token == JSONToken.LITERAL_STRING) {
-            if (type instanceof GenericArrayType) {
-                Type componentType = ((GenericArrayType) type).getGenericComponentType();
-                if (componentType == byte.class) {
-                    type = byte[].class;
-                } else if (componentType == char.class) {
-                    type = char[].class;
-                }
-            }
-
             if (type == byte[].class) {
                 byte[] bytes = lexer.bytesValue();
                 lexer.nextToken();

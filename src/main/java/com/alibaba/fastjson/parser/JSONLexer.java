@@ -1801,17 +1801,6 @@ public final class JSONLexer {
         return new BigDecimal(numberString());
     }
 
-    public static final boolean isWhitespace(char ch) {
-        // 专门调整了判断顺序
-        return ch <= ' '//
-               && (ch == ' '//
-                   || ch == '\n'//
-                   || ch == '\r'//
-                   || ch == '\t'//
-                   || ch == '\f'//
-                   || ch == '\b');
-    }
-
     protected final static int[] digits = new int[(int) 'f' + 1];
 
     static {

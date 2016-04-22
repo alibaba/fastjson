@@ -482,6 +482,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                                         size++;
                                     }
     
+                                    boolean flushed = false;
                                     int newcount = out.count + size;
                                     if (newcount > out.buf.length) {
                                         if (out.writer == null) {
@@ -490,13 +491,14 @@ public class JavaBeanSerializer implements ObjectSerializer {
                                             char[] chars = new char[size];
                                             SerializeWriter.getChars(propertyValueInt, size, chars);
                                             out.write(chars, 0, chars.length);
-                                            return;
+                                            flushed = true;
                                         }
                                     }
     
-                                    SerializeWriter.getChars(propertyValueInt, newcount, out.buf);
-    
-                                    out.count = newcount;
+                                    if (!flushed) {
+                                        SerializeWriter.getChars(propertyValueInt, newcount, out.buf);
+                                        out.count = newcount;
+                                    }
                                 }
                             }
                         } else if (fieldClass == long.class) {

@@ -995,7 +995,7 @@ public final class JSONLexer {
         int startIndex = bp + 1;
         int endIndex = text.indexOf(quoteChar, startIndex);
         if (endIndex == -1) {
-            throw new JSONException("unclosed str");
+            throw new JSONException("unclosed str. " + info());
         }
 
         if (V6) {
@@ -1005,11 +1005,9 @@ public final class JSONLexer {
                 // ch = charAt(bp);
                 {
                     int index = bp;
-                    if (index >= this.len) {
-                        ch = EOI;
-                    } else {
-                        ch = text.charAt(index);
-                    }
+                    ch = index >= this.len ? //
+                        EOI //
+                        : text.charAt(index);
                 }
                 return strVal;
             } else {
@@ -1072,11 +1070,9 @@ public final class JSONLexer {
         // ch = charAt(bp);
         {
             int index = bp;
-            if (index >= len) {
-                ch = EOI;
-            } else {
-                ch = text.charAt(index);
-            }
+            ch = index >= len ? //
+                EOI //
+                : text.charAt(index);
         }
 
         return strVal;

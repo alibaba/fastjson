@@ -44,15 +44,7 @@ public abstract class FieldDeserializer {
     public void setValue(Object object, Object value) {
         if (value == null) {
             Class<?> fieldClass = fieldInfo.fieldClass;
-            if (fieldClass == byte.class //
-                    || fieldClass == short.class //
-                    || fieldClass == int.class //
-                    || fieldClass == long.class //
-                    || fieldClass == float.class //
-                    || fieldClass == double.class //
-                    || fieldClass == boolean.class //
-                    || fieldClass == char.class //
-                    ) {
+            if (fieldClass.isPrimitive()) {
                 return;
             }
         }
@@ -76,9 +68,6 @@ public abstract class FieldDeserializer {
                         }
                     }
                 } else {
-                    if (value == null && fieldInfo.fieldClass.isPrimitive()) {
-                        return;
-                    }
                     method.invoke(object, value);
                 }
             }

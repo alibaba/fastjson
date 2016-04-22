@@ -202,26 +202,7 @@ public final class ArrayCodec implements ObjectSerializer, ObjectDeserializer {
 
                 Array.set(objArray, i, element);
             } else {
-                Object element = null;
-                if (value instanceof JSONArray) {
-                    boolean contains = false;
-                    JSONArray valueArray = (JSONArray) value;
-                    int valueArraySize = valueArray.size();
-                    for (int y = 0; y < valueArraySize; ++y) {
-                        Object valueItem = valueArray.get(y);
-                        if (valueItem == array) {
-                            valueArray.set(i, objArray);
-                            contains = true;
-                        }
-                    }
-                    if (contains) {
-                        element = valueArray.toArray();
-                    }
-                }
-
-                if (element == null) {
-                    element = TypeUtils.cast(value, componentType, parser.config);
-                }
+                Object element  = TypeUtils.cast(value, componentType, parser.config);
                 Array.set(objArray, i, element);
 
             }

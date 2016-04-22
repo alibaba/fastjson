@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -58,7 +59,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             if (clazz.isInterface()) {
                 Class<?> clazz = (Class<?>) type;
                 ClassLoader loader = Thread.currentThread().getContextClassLoader();
-                JSONObject object = new JSONObject(); 
+                boolean ordred = (parser.lexer.features & Feature.OrderedField.mask) != 0;
+                JSONObject object = new JSONObject(ordred);
                 Object proxy = Proxy.newProxyInstance(loader, new Class<?>[] { clazz }, object);
                 return proxy;
             }

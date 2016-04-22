@@ -890,11 +890,6 @@ public final class SerializeWriter extends Writer {
     }
 
     public void writeFieldName(String key, boolean checkSpecial) {
-        if (key == null) {
-            write("null:");
-            return;
-        }
-
         if ((features & SerializerFeature.UseSingleQuotes.mask) != 0) {
             if ((features & SerializerFeature.QuoteFieldNames.mask) != 0) {
                 writeStringWithSingleQuote(key);

@@ -75,37 +75,31 @@ public abstract class FieldDeserializer {
         
         final Field field = fieldInfo.field;
         final Method method = fieldInfo.method;
-        if (fieldInfo.fieldAccess) {
-            try {
-                field.set(object, value);
-            } catch (Exception e) {
-                throw new JSONException("set property error, " + fieldInfo.name, e);
-            }
-            return;
-        }
-        
         try {
-            if (fieldInfo.getOnly) {
-                if (Map.class.isAssignableFrom(method.getReturnType())) {
-                    Map map = (Map) method.invoke(object);
-                    if (map != null) {
-                        map.putAll((Map) value);
+            if (fieldInfo.fieldAccess) {
+                field.set(object, value);
+            } else {
+                if (fieldInfo.getOnly) {
+                    if (Map.class.isAssignableFrom(method.getReturnType())) {
+                        Map map = (Map) method.invoke(object);
+                        if (map != null) {
+                            map.putAll((Map) value);
+                        }
+                    } else {
+                        Collection collection = (Collection) method.invoke(object);
+                        if (collection != null) {
+                            collection.addAll((Collection) value);
+                        }
                     }
                 } else {
-                    Collection collection = (Collection) method.invoke(object);
-                    if (collection != null) {
-                        collection.addAll((Collection) value);
+                    if (value == null && fieldInfo.fieldClass.isPrimitive()) {
+                        return;
                     }
+                    method.invoke(object, value);
                 }
-            } else {
-                if (value == null && fieldInfo.fieldClass.isPrimitive()) {
-                    return;
-                }
-                method.invoke(object, value);
             }
         } catch (Exception e) {
             throw new JSONException("set property error, " + fieldInfo.name, e);
         }
-        return;
     }
 }

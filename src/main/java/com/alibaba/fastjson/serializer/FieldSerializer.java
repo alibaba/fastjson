@@ -82,14 +82,9 @@ public final class FieldSerializer implements Comparable<FieldSerializer> {
         try {
             return fieldInfo.get(object);
         } catch (Exception ex) {
-            
-            Member member;
-            
-            if (fieldInfo.method != null) {
-                member = fieldInfo.method;
-            } else {
-                member = fieldInfo.field;
-            }
+            Member member = fieldInfo.method != null ? //
+                fieldInfo.method //
+                : fieldInfo.field;
             
             String qualifiedName = member.getDeclaringClass().getName() + "." + member.getName();
             

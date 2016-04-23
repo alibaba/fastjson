@@ -508,10 +508,6 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         nextTokenWithChar(':');
     }
 
-    public final void nextTokenWithComma(int expect) {
-        nextTokenWithChar(',');
-    }
-
     public float floatValue() {
         return Float.parseFloat(numberString());
     }

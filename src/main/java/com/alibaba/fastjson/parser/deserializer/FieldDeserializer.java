@@ -53,10 +53,10 @@ public abstract class FieldDeserializer {
             && fieldInfo.fieldClass.isPrimitive()) {
             return;
         }
-        
-        Method method = fieldInfo.method;
-        if (method != null) {
-            try {
+
+        try {
+            Method method = fieldInfo.method;
+            if (method != null) {
                 if (fieldInfo.getOnly) {
                     if (fieldInfo.fieldClass == AtomicInteger.class) {
                         AtomicInteger atomic = (AtomicInteger) method.invoke(object);
@@ -87,19 +87,16 @@ public abstract class FieldDeserializer {
                 } else {
                     method.invoke(object, value);
                 }
-            } catch (Exception e) {
-                throw new JSONException("set property error, " + fieldInfo.name, e);
+                return;
+            } else {
+                final Field field = fieldInfo.field;
+                if (field != null) {
+                    field.set(object, value);
+    
+                }
             }
-            return;
-        }
-
-        final Field field = fieldInfo.field;
-        if (field != null) {
-            try {
-                field.set(object, value);
-            } catch (Exception e) {
-                throw new JSONException("set property error, " + fieldInfo.name, e);
-            }
+        } catch (Exception e) {
+            throw new JSONException("set property error, " + fieldInfo.name, e);
         }
     }
 }

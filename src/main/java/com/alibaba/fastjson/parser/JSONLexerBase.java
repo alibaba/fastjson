@@ -2189,6 +2189,62 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             return value;
         }
     }
+    
+    public final double scanDouble(char seperator) {
+        matchStat = UNKNOWN;
+
+        int offset = 0;
+        char chLocal = charAt(bp + (offset++));
+
+        double value;
+        if (chLocal >= '0' && chLocal <= '9') {
+            for (;;) {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal >= '0' && chLocal <= '9') {
+                    continue;
+                } else {
+                    break;
+                }
+            }
+
+            if (chLocal == '.') {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal >= '0' && chLocal <= '9') {
+                    for (;;) {
+                        chLocal = charAt(bp + (offset++));
+                        if (chLocal >= '0' && chLocal <= '9') {
+                            continue;
+                        } else {
+                            break;
+                        }
+                    }
+                } else {
+                    matchStat = NOT_MATCH;
+                    return 0;
+                }
+            }
+
+            int start = bp;
+            int count = bp + offset - start - 1;
+            String text = this.subString(start, count);
+            value = Double.parseDouble(text);
+        } else {
+            matchStat = NOT_MATCH;
+            return 0;
+        }
+
+        if (chLocal == seperator) {
+            bp += (offset - 1);
+            this.next();
+            matchStat = VALUE;
+            token = JSONToken.COMMA;
+            return value;
+        } else {
+            matchStat = NOT_MATCH;
+            return value;
+        }
+    }
+
 
     public final double scanFieldDouble(char[] fieldName) {
         matchStat = UNKNOWN;

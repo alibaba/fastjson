@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt;
+package com.alibaba.json.bvt.feature;
 
 import org.junit.Assert;
 import junit.framework.TestCase;
@@ -8,14 +8,14 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
-public class FeaturesTest7 extends TestCase {
+public class FeaturesTest extends TestCase {
 
     public void test_0() throws Exception {
         SerializeConfig config = new SerializeConfig();
         
         
         String text = JSON.toJSONString(new Entity(), config);
-        Assert.assertEquals("{\"value\":\"SECONDS\"}", text);
+        Assert.assertEquals("{\"value\":null}", text);
     }
     
     public void test_1() throws Exception {
@@ -23,22 +23,21 @@ public class FeaturesTest7 extends TestCase {
         
         
         String text = JSON.toJSONString(new Entity(), config);
-        Assert.assertEquals("{\"value\":\"SECONDS\"}", text);
+        Assert.assertEquals("{\"value\":null}", text);
     }
 
     public static class Entity {
 
-        private TimeUnit value = TimeUnit.SECONDS;
+        private Object value;
 
-        @JSONField(serialzeFeatures = { SerializerFeature.WriteEnumUsingToString })
-        public TimeUnit getValue() {
+        @JSONField(serialzeFeatures = { SerializerFeature.WriteMapNullValue })
+        public Object getValue() {
             return value;
         }
 
+        public void setValue(Object value) {
+            this.value = value;
+        }
 
-    }
-    
-    public static enum TimeUnit {
-        SECONDS, MINUTES
     }
 }

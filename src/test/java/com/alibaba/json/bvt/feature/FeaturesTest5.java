@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt;
+package com.alibaba.json.bvt.feature;
 
 import org.junit.Assert;
 import junit.framework.TestCase;
@@ -8,14 +8,14 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
-public class FeaturesTest extends TestCase {
+public class FeaturesTest5 extends TestCase {
 
     public void test_0() throws Exception {
         SerializeConfig config = new SerializeConfig();
         
         
         String text = JSON.toJSONString(new Entity(), config);
-        Assert.assertEquals("{\"value\":null}", text);
+        Assert.assertEquals("{\"value\":false}", text);
     }
     
     public void test_1() throws Exception {
@@ -23,21 +23,18 @@ public class FeaturesTest extends TestCase {
         
         
         String text = JSON.toJSONString(new Entity(), config);
-        Assert.assertEquals("{\"value\":null}", text);
+        Assert.assertEquals("{\"value\":false}", text);
     }
 
     public static class Entity {
 
-        private Object value;
+        private Boolean value;
 
-        @JSONField(serialzeFeatures = { SerializerFeature.WriteMapNullValue })
-        public Object getValue() {
+        @JSONField(serialzeFeatures = { SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullBooleanAsFalse })
+        public Boolean getValue() {
             return value;
         }
 
-        public void setValue(Object value) {
-            this.value = value;
-        }
 
     }
 }

@@ -49,19 +49,9 @@ public abstract class FieldDeserializer {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void setValue(Object object, Object value) {
-        if (value == null) {
-            Class<?> fieldClass = fieldInfo.fieldClass;
-            if (fieldClass == byte.class //
-                    || fieldClass == short.class //
-                    || fieldClass == int.class //
-                    || fieldClass == long.class //
-                    || fieldClass == float.class //
-                    || fieldClass == double.class //
-                    || fieldClass == boolean.class //
-                    || fieldClass == char.class //
-                    ) {
-                return;
-            }
+        if (value == null //
+            && fieldInfo.fieldClass.isPrimitive()) {
+            return;
         }
         
         Method method = fieldInfo.method;
@@ -95,9 +85,6 @@ public abstract class FieldDeserializer {
                         }
                     }
                 } else {
-                    if (value == null && fieldInfo.fieldClass.isPrimitive()) {
-                        return;
-                    }
                     method.invoke(object, value);
                 }
             } catch (Exception e) {

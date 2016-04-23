@@ -1,20 +1,23 @@
-package com.alibaba.json.bvt;
+package com.alibaba.json.bvt.parser.field;
+
+import java.math.BigInteger;
+
+import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 
-import org.junit.Assert;
 import junit.framework.TestCase;
 
-public class PublicFieldLongTest extends TestCase {
+public class PublicFieldTest_BigInteger extends TestCase {
 
     public static class VO {
 
-        public long id;
+        public BigInteger id;
     }
 
     public void test_codec() throws Exception {
         VO vo = new VO();
-        vo.id = 1234;
+        vo.id = new BigInteger("1234567890123456789012345678901234567890");
         
         String str = JSON.toJSONString(vo);
         

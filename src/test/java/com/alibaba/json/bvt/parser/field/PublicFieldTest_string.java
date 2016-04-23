@@ -1,11 +1,11 @@
-package com.alibaba.json.bvt;
+package com.alibaba.json.bvt.parser.field;
 
 import com.alibaba.fastjson.JSON;
 
 import org.junit.Assert;
 import junit.framework.TestCase;
 
-public class PublicFieldStringTest extends TestCase {
+public class PublicFieldTest_string extends TestCase {
 
     public static class VO {
 

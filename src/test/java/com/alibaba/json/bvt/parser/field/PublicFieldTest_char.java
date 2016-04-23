@@ -1,20 +1,20 @@
-package com.alibaba.json.bvt;
+package com.alibaba.json.bvt.parser.field;
 
 import com.alibaba.fastjson.JSON;
 
 import org.junit.Assert;
 import junit.framework.TestCase;
 
-public class PublicFieldDoubleTest extends TestCase {
+public class PublicFieldTest_char extends TestCase {
 
     public static class VO {
 
-        public double id;
+        public char id;
     }
 
     public void test_codec() throws Exception {
         VO vo = new VO();
-        vo.id = 12.34;
+        vo.id = 'a';
         
         String str = JSON.toJSONString(vo);
         

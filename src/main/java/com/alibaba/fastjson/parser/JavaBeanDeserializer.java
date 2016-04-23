@@ -467,6 +467,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                                     } else {
                                         fieldDeser.setValue(object, new Double(fieldValueDouble));
                                     }
+                                } else {
+                                    fieldDeser.setValue(object, fieldValue);
                                 }
                             } catch (IllegalAccessException ex) {
                                 throw new JSONException("set property error, " + fieldInfo.name, ex);

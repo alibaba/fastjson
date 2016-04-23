@@ -23,7 +23,7 @@ import com.alibaba.fastjson.util.IOUtils;
 /**
  * Spring MVC View for fastjson.
  *
- * @author libinsong1204@gmail.com & Victor.Zxy
+ * @author libinsong1204@gmail.com, Victor.Zxy
  *
  */
 public class FastJsonJsonView extends AbstractView {

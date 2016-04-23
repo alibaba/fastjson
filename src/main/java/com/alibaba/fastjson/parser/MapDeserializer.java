@@ -86,7 +86,7 @@ class MapDeserializer implements ObjectDeserializer {
                     lexer.skipWhitespace();
                     ch = lexer.ch;
                     if (ch != ':') {
-                        throw new JSONException("expect ':' at " + lexer.pos);
+                        throw new JSONException("syntax error, " + lexer.info());
                     }
                 } else if (ch == '}') {
                     lexer.next();
@@ -95,14 +95,14 @@ class MapDeserializer implements ObjectDeserializer {
                     return map;
                 } else if (ch == '\'') {
                     if ((lexer.features & Feature.AllowSingleQuotes.mask) == 0) {
-                        throw new JSONException("syntax error");
+                        throw new JSONException("syntax error, " + lexer.info());
                     }
 
                     key = lexer.scanSymbol(parser.symbolTable, '\'');
                     lexer.skipWhitespace();
                     ch = lexer.ch;
                     if (ch != ':') {
-                        throw new JSONException("expect ':' at " + lexer.pos);
+                        throw new JSONException("syntax error, " + lexer.info());
                     }
                 } else {
                     if ((lexer.features & Feature.AllowUnQuotedFieldNames.mask) == 0) {

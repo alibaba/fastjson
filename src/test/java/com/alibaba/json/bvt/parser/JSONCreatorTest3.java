@@ -3,6 +3,7 @@ package com.alibaba.json.bvt.parser;
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONCreator;
 import com.alibaba.fastjson.annotation.JSONField;
 
@@ -15,6 +16,26 @@ public class JSONCreatorTest3 extends TestCase {
         Assert.assertEquals(1001, vo.getId());
         Assert.assertEquals("wenshao", vo.getName());
         Assert.assertSame(vo, vo.getObj());
+    }
+    
+    public void test_create_error() throws Exception {
+        Exception error = null;
+        try {
+            JSON.parseObject("{\"id\":1001,\"name\":\"wenshao\",\"obj\":{\"$ref\":123}}", Entity.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_create_error_2() throws Exception {
+        Exception error = null;
+        try {
+            JSON.parseObject("{\"id\":1001,\"name\":\"wenshao\",\"obj\":{\"$ref\":\"$\",\"value\":123}}", Entity.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
     }
 
     public static class Entity {

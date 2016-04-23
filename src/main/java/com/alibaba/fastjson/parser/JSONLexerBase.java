@@ -158,23 +158,17 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 case 't': // true
                     scanTrue();
                     return;
-                case 'T': // TreeSet
-                    scanTreeSet();
-                    return;
-                case 'S': // Set
-                    scanSet();
-                    return;
                 case 'f': // false
                     scanFalse();
                     return;
                 case 'n': // new,null
                     scanNullOrNew();
                     return;
+                case 'T':
                 case 'N': // NULL
-                    scanNULL();
-                    return;
+                case 'S':
                 case 'u': // undefined
-                    scanUndefined();
+                    scanIdent();
                     return;
                 case '(':
                     next();
@@ -2376,49 +2370,6 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
     }
 
-    public final void scanTreeSet() {
-        if (ch != 'T') {
-            throw new JSONException("error parse treeSet");
-        }
-        next();
-
-        if (ch != 'r') {
-            throw new JSONException("error parse treeSet");
-        }
-        next();
-
-        if (ch != 'e') {
-            throw new JSONException("error parse treeSet");
-        }
-        next();
-
-        if (ch != 'e') {
-            throw new JSONException("error parse treeSet");
-        }
-        next();
-
-        if (ch != 'S') {
-            throw new JSONException("error parse treeSet");
-        }
-        next();
-
-        if (ch != 'e') {
-            throw new JSONException("error parse treeSet");
-        }
-        next();
-
-        if (ch != 't') {
-            throw new JSONException("error parse treeSet");
-        }
-        next();
-
-        if (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b' || ch == '[' || ch == '(') {
-            token = JSONToken.TREE_SET;
-        } else {
-            throw new JSONException("scan treeSet error");
-        }
-    }
-
     public final void scanNullOrNew() {
         if (ch != 'n') {
             throw new JSONException("error parse null or new");
@@ -2461,88 +2412,6 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             token = JSONToken.NEW;
         } else {
             throw new JSONException("scan new error");
-        }
-    }
-
-    public final void scanNULL() {
-        if (ch != 'N') {
-            throw new JSONException("error parse NULL");
-        }
-        next();
-
-        if (ch != 'U') {
-            throw new JSONException("error parse NULL");
-        }
-        next();
-
-        if (ch != 'L') {
-            throw new JSONException("error parse NULL");
-        }
-        next();
-
-        if (ch != 'L') {
-            throw new JSONException("error parse NULL");
-        }
-        next();
-
-        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
-                || ch == '\f' || ch == '\b') {
-            token = JSONToken.NULL;
-        } else {
-            throw new JSONException("scan NULL error");
-        }
-    }
-
-    public final void scanUndefined() {
-        if (ch != 'u') {
-            throw new JSONException("error parse undefined");
-        }
-        next();
-
-        if (ch != 'n') {
-            throw new JSONException("error parse undefined");
-        }
-        next();
-
-        if (ch != 'd') {
-            throw new JSONException("error parse undefined");
-        }
-        next();
-
-        if (ch != 'e') {
-            throw new JSONException("error parse undefined");
-        }
-        next();
-
-        if (ch != 'f') {
-            throw new JSONException("error parse undefined");
-        }
-        next();
-
-        if (ch != 'i') {
-            throw new JSONException("error parse undefined");
-        }
-        next();
-
-        if (ch != 'n') {
-            throw new JSONException("error parse undefined");
-        }
-        next();
-
-        if (ch != 'e') {
-            throw new JSONException("error parse undefined");
-        }
-        next();
-        if (ch != 'd') {
-            throw new JSONException("error parse undefined");
-        }
-        next();
-
-        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
-            || ch == '\f' || ch == '\b') {
-            token = JSONToken.UNDEFINED;
-        } else {
-            throw new JSONException("scan undefined error");
         }
     }
 
@@ -2594,7 +2463,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
             String ident = stringVal();
 
-            if ("null".equals(ident)) {
+            if ("null".equalsIgnoreCase(ident)) {
                 token = JSONToken.NULL;
             } else if ("new".equals(ident)) {
                 token = JSONToken.NEW;
@@ -2604,6 +2473,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 token = JSONToken.FALSE;
             } else if ("undefined".equals(ident)) {
                 token = JSONToken.UNDEFINED;
+            } else if ("Set".equals(ident)) {
+                token = JSONToken.SET;
+            } else if ("TreeSet".equals(ident)) {
+                token = JSONToken.TREE_SET;
             } else {
                 token = JSONToken.IDENTIFIER;
             }
@@ -2769,29 +2642,6 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         token = LITERAL_STRING;
         this.next();
-    }
-
-    public final void scanSet() {
-        if (ch != 'S') {
-            throw new JSONException("error parse set");
-        }
-        next();
-
-        if (ch != 'e') {
-            throw new JSONException("error parse set");
-        }
-        next();
-
-        if (ch != 't') {
-            throw new JSONException("error parse set");
-        }
-        next();
-
-        if (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b' || ch == '[' || ch == '(') {
-            token = JSONToken.SET;
-        } else {
-            throw new JSONException("scan set error");
-        }
     }
 
     /**

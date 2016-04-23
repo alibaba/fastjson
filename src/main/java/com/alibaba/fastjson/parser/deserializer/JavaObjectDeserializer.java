@@ -9,7 +9,6 @@ import java.util.List;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONToken;
-import com.alibaba.fastjson.util.TypeUtils;
 
 public class JavaObjectDeserializer implements ObjectDeserializer {
 

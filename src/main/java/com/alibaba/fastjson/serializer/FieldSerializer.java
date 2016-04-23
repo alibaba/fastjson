@@ -118,10 +118,6 @@ public final class FieldSerializer implements Comparable<FieldSerializer> {
                     && Number.class.isAssignableFrom(runtimeInfo.runtimeFieldClass)) {
                 serializer.out.write('0');
                 return;
-            } else if ((features & SerializerFeature.WriteNullStringAsEmpty.mask) != 0 // 
-                    && String.class == runtimeInfo.runtimeFieldClass) {
-                serializer.out.write("\"\"");
-                return;
             } else if ((features & SerializerFeature.WriteNullBooleanAsFalse.mask) != 0 // 
                     && Boolean.class == runtimeInfo.runtimeFieldClass) {
                 serializer.out.write("false");

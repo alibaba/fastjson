@@ -136,11 +136,6 @@ public final class FieldSerializer implements Comparable<FieldSerializer> {
             return;
         }
 
-        if ((features & SerializerFeature.WriteEnumUsingToString.mask) != 0 && runtimeInfo.runtimeFieldClass.isEnum()) {
-            serializer.out.writeString(((Enum<?>) propertyValue).name());
-            return;
-        }
-
         Class<?> valueClass = propertyValue.getClass();
         if (valueClass == runtimeInfo.runtimeFieldClass) {
             runtimeInfo.fieldSerializer.write(serializer, propertyValue, fieldInfo.name, fieldInfo.fieldType);

@@ -217,7 +217,7 @@ public class ParserConfig {
         derializers.put(boolean.class, BooleanCodec.instance);
         derializers.put(Boolean.class, BooleanCodec.instance);
         derializers.put(Class.class, MiscCodec.instance);
-        derializers.put(char[].class, CharArrayCodec.instance);
+        derializers.put(char[].class, new CharArrayCodec());
 
         derializers.put(AtomicBoolean.class, BooleanCodec.instance);
         derializers.put(AtomicInteger.class, IntegerCodec.instance);

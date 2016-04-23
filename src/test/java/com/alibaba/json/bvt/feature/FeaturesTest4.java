@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt;
+package com.alibaba.json.bvt.feature;
 
 import org.junit.Assert;
 import junit.framework.TestCase;

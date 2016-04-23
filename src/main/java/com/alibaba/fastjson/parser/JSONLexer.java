@@ -1318,26 +1318,6 @@ public final class JSONLexer {
         }
     }
 
-    public final void scanSet() {
-        if (text.startsWith("Set", bp)) {
-            bp += 3;
-            ch = charAt(bp);
-
-            if (ch == ' '//
-                || ch == '\n'//
-                || ch == '\r'//
-                || ch == '\t'//
-                || ch == '\f'//
-                || ch == '\b'//
-                || ch == '['//
-                || ch == '(') {
-                token = JSONToken.SET;
-                return;
-            }
-        }
-        throw new JSONException("error parse set");
-    }
-
     public final void scanNumber() {
         np = bp;
 

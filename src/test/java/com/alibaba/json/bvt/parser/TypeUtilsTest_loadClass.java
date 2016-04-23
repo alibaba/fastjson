@@ -12,9 +12,14 @@ public class TypeUtilsTest_loadClass extends TestCase {
         Assert.assertSame(Entity.class,
                           TypeUtils.loadClass("com.alibaba.json.bvt.parser.TypeUtilsTest_loadClass$Entity",
                                               Entity.class.getClassLoader()));
-        
+
         Assert.assertSame(Entity.class,
                           TypeUtils.loadClass("com.alibaba.json.bvt.parser.TypeUtilsTest_loadClass$Entity", null));
+    }
+
+    public void test_error() throws Exception {
+        Assert.assertNull(TypeUtils.loadClass("com.alibaba.json.bvt.parser.TypeUtilsTest_loadClass.Entity",
+                                              Entity.class.getClassLoader()));
     }
 
     public static class Entity {

@@ -287,9 +287,6 @@ public class FieldInfo implements Comparable<FieldInfo> {
         if (o == this) {
             return true;
         }
-        if (o == null) {
-            return false;
-        }
         return this.compareTo(o) == 0;
     }
     

@@ -53,10 +53,24 @@ public abstract class FieldDeserializer {
         final Method method = fieldInfo.method;
         try {
             if (fieldInfo.fieldAccess) {
-                field.set(object, value);
+                if (fieldInfo.getOnly) {
+                    if (Map.class.isAssignableFrom(fieldInfo.fieldClass)) {
+                        Map map = (Map) field.get(object);
+                        if (map != null) {
+                            map.putAll((Map) value);
+                        }
+                    } else {
+                        Collection collection = (Collection) field.get(object);
+                        if (collection != null) {
+                            collection.addAll((Collection) value);
+                        }
+                    }
+                } else {
+                    field.set(object, value);
+                }
             } else {
                 if (fieldInfo.getOnly) {
-                    if (Map.class.isAssignableFrom(method.getReturnType())) {
+                    if (Map.class.isAssignableFrom(fieldInfo.fieldClass)) {
                         Map map = (Map) method.invoke(object);
                         if (map != null) {
                             map.putAll((Map) value);

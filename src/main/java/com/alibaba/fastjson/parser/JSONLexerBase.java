@@ -158,23 +158,17 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 case 't': // true
                     scanTrue();
                     return;
-                case 'T': // TreeSet
-                    scanTreeSet();
-                    return;
-                case 'S': // Set
-                    scanSet();
-                    return;
                 case 'f': // false
                     scanFalse();
                     return;
                 case 'n': // new,null
                     scanNullOrNew();
                     return;
+                case 'T':
                 case 'N': // NULL
-                    scanNULL();
-                    return;
+                case 'S':
                 case 'u': // undefined
-                    scanUndefined();
+                    scanIdent();
                     return;
                 case '(':
                     next();
@@ -506,10 +500,6 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     public final void nextTokenWithColon(int expect) {
         nextTokenWithChar(':');
-    }
-
-    public final void nextTokenWithComma(int expect) {
-        nextTokenWithChar(',');
     }
 
     public float floatValue() {
@@ -2193,6 +2183,62 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             return value;
         }
     }
+    
+    public final double scanDouble(char seperator) {
+        matchStat = UNKNOWN;
+
+        int offset = 0;
+        char chLocal = charAt(bp + (offset++));
+
+        double value;
+        if (chLocal >= '0' && chLocal <= '9') {
+            for (;;) {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal >= '0' && chLocal <= '9') {
+                    continue;
+                } else {
+                    break;
+                }
+            }
+
+            if (chLocal == '.') {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal >= '0' && chLocal <= '9') {
+                    for (;;) {
+                        chLocal = charAt(bp + (offset++));
+                        if (chLocal >= '0' && chLocal <= '9') {
+                            continue;
+                        } else {
+                            break;
+                        }
+                    }
+                } else {
+                    matchStat = NOT_MATCH;
+                    return 0;
+                }
+            }
+
+            int start = bp;
+            int count = bp + offset - start - 1;
+            String text = this.subString(start, count);
+            value = Double.parseDouble(text);
+        } else {
+            matchStat = NOT_MATCH;
+            return 0;
+        }
+
+        if (chLocal == seperator) {
+            bp += (offset - 1);
+            this.next();
+            matchStat = VALUE;
+            token = JSONToken.COMMA;
+            return value;
+        } else {
+            matchStat = NOT_MATCH;
+            return value;
+        }
+    }
+
 
     public final double scanFieldDouble(char[] fieldName) {
         matchStat = UNKNOWN;
@@ -2295,75 +2341,6 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         return value;
     }
 
-    public final double scanFieldDouble(char seperator) {
-        matchStat = UNKNOWN;
-
-        int offset = 0;
-        char chLocal = charAt(bp + (offset++));
-
-        double value;
-        if (chLocal >= '0' && chLocal <= '9') {
-            for (;;) {
-                chLocal = charAt(bp + (offset++));
-                if (chLocal >= '0' && chLocal <= '9') {
-                    continue;
-                } else {
-                    break;
-                }
-            }
-
-            if (chLocal == '.') {
-                chLocal = charAt(bp + (offset++));
-                if (chLocal >= '0' && chLocal <= '9') {
-                    for (;;) {
-                        chLocal = charAt(bp + (offset++));
-                        if (chLocal >= '0' && chLocal <= '9') {
-                            continue;
-                        } else {
-                            break;
-                        }
-                    }
-                } else {
-                    matchStat = NOT_MATCH;
-                    return 0;
-                }
-            }
-
-            if (chLocal == 'e' || chLocal == 'E') {
-                chLocal = charAt(bp + (offset++));
-                if (chLocal == '+' || chLocal == '-') {
-                    chLocal = charAt(bp + (offset++));
-                }
-                for (;;) {
-                    if (chLocal >= '0' && chLocal <= '9') {
-                        chLocal = charAt(bp + (offset++));
-                    } else {
-                        break;
-                    }
-                }
-            }
-
-            int start = bp;
-            int count = bp + offset - start - 1;
-            String text = this.subString(start, count);
-            value = Double.parseDouble(text);
-        } else {
-            matchStat = NOT_MATCH;
-            return 0;
-        }
-
-        if (chLocal == seperator) {
-            bp += (offset - 1);
-            this.next();
-            matchStat = VALUE;
-            token = JSONToken.COMMA;
-            return value;
-        } else {
-            matchStat = NOT_MATCH;
-            return value;
-        }
-    }
-
     public final void scanTrue() {
         if (ch != 't') {
             throw new JSONException("error parse true");
@@ -2390,49 +2367,6 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             token = JSONToken.TRUE;
         } else {
             throw new JSONException("scan true error");
-        }
-    }
-
-    public final void scanTreeSet() {
-        if (ch != 'T') {
-            throw new JSONException("error parse treeSet");
-        }
-        next();
-
-        if (ch != 'r') {
-            throw new JSONException("error parse treeSet");
-        }
-        next();
-
-        if (ch != 'e') {
-            throw new JSONException("error parse treeSet");
-        }
-        next();
-
-        if (ch != 'e') {
-            throw new JSONException("error parse treeSet");
-        }
-        next();
-
-        if (ch != 'S') {
-            throw new JSONException("error parse treeSet");
-        }
-        next();
-
-        if (ch != 'e') {
-            throw new JSONException("error parse treeSet");
-        }
-        next();
-
-        if (ch != 't') {
-            throw new JSONException("error parse treeSet");
-        }
-        next();
-
-        if (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b' || ch == '[' || ch == '(') {
-            token = JSONToken.TREE_SET;
-        } else {
-            throw new JSONException("scan treeSet error");
         }
     }
 
@@ -2478,88 +2412,6 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             token = JSONToken.NEW;
         } else {
             throw new JSONException("scan new error");
-        }
-    }
-
-    public final void scanNULL() {
-        if (ch != 'N') {
-            throw new JSONException("error parse NULL");
-        }
-        next();
-
-        if (ch != 'U') {
-            throw new JSONException("error parse NULL");
-        }
-        next();
-
-        if (ch != 'L') {
-            throw new JSONException("error parse NULL");
-        }
-        next();
-
-        if (ch != 'L') {
-            throw new JSONException("error parse NULL");
-        }
-        next();
-
-        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
-                || ch == '\f' || ch == '\b') {
-            token = JSONToken.NULL;
-        } else {
-            throw new JSONException("scan NULL error");
-        }
-    }
-
-    public final void scanUndefined() {
-        if (ch != 'u') {
-            throw new JSONException("error parse undefined");
-        }
-        next();
-
-        if (ch != 'n') {
-            throw new JSONException("error parse undefined");
-        }
-        next();
-
-        if (ch != 'd') {
-            throw new JSONException("error parse undefined");
-        }
-        next();
-
-        if (ch != 'e') {
-            throw new JSONException("error parse undefined");
-        }
-        next();
-
-        if (ch != 'f') {
-            throw new JSONException("error parse undefined");
-        }
-        next();
-
-        if (ch != 'i') {
-            throw new JSONException("error parse undefined");
-        }
-        next();
-
-        if (ch != 'n') {
-            throw new JSONException("error parse undefined");
-        }
-        next();
-
-        if (ch != 'e') {
-            throw new JSONException("error parse undefined");
-        }
-        next();
-        if (ch != 'd') {
-            throw new JSONException("error parse undefined");
-        }
-        next();
-
-        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
-            || ch == '\f' || ch == '\b') {
-            token = JSONToken.UNDEFINED;
-        } else {
-            throw new JSONException("scan undefined error");
         }
     }
 
@@ -2611,7 +2463,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
             String ident = stringVal();
 
-            if ("null".equals(ident)) {
+            if ("null".equalsIgnoreCase(ident)) {
                 token = JSONToken.NULL;
             } else if ("new".equals(ident)) {
                 token = JSONToken.NEW;
@@ -2621,6 +2473,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 token = JSONToken.FALSE;
             } else if ("undefined".equals(ident)) {
                 token = JSONToken.UNDEFINED;
+            } else if ("Set".equals(ident)) {
+                token = JSONToken.SET;
+            } else if ("TreeSet".equals(ident)) {
+                token = JSONToken.TREE_SET;
             } else {
                 token = JSONToken.IDENTIFIER;
             }
@@ -2788,29 +2644,6 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         this.next();
     }
 
-    public final void scanSet() {
-        if (ch != 'S') {
-            throw new JSONException("error parse set");
-        }
-        next();
-
-        if (ch != 'e') {
-            throw new JSONException("error parse set");
-        }
-        next();
-
-        if (ch != 't') {
-            throw new JSONException("error parse set");
-        }
-        next();
-
-        if (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b' || ch == '[' || ch == '(') {
-            token = JSONToken.SET;
-        } else {
-            throw new JSONException("scan set error");
-        }
-    }
-
     /**
      * Append a character to sbuf.
      */
@@ -2963,18 +2796,22 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     public final Number decimalValue(boolean decimal) {
         char chLocal = charAt(np + sp - 1);
-        if (chLocal == 'F') {
-            return Float.parseFloat(numberString());
-        }
-
-        if (chLocal == 'D') {
-            return Double.parseDouble(numberString());
-        }
-
-        if (decimal) {
-            return decimalValue();
-        } else {
-            return doubleValue();
+        try {
+            if (chLocal == 'F') {
+                return Float.parseFloat(numberString());
+            }
+    
+            if (chLocal == 'D') {
+                return Double.parseDouble(numberString());
+            }
+    
+            if (decimal) {
+                return decimalValue();
+            } else {
+                return doubleValue();
+            }
+        } catch (NumberFormatException ex) {
+            throw new JSONException(ex.getMessage() + ", " + info());
         }
     }
 

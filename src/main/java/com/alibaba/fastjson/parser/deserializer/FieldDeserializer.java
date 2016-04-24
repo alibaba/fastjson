@@ -49,24 +49,14 @@ public abstract class FieldDeserializer {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void setValue(Object object, Object value) {
-        if (value == null) {
-            Class<?> fieldClass = fieldInfo.fieldClass;
-            if (fieldClass == byte.class //
-                    || fieldClass == short.class //
-                    || fieldClass == int.class //
-                    || fieldClass == long.class //
-                    || fieldClass == float.class //
-                    || fieldClass == double.class //
-                    || fieldClass == boolean.class //
-                    || fieldClass == char.class //
-                    ) {
-                return;
-            }
+        if (value == null //
+            && fieldInfo.fieldClass.isPrimitive()) {
+            return;
         }
-        
-        Method method = fieldInfo.method;
-        if (method != null) {
-            try {
+
+        try {
+            Method method = fieldInfo.method;
+            if (method != null) {
                 if (fieldInfo.getOnly) {
                     if (fieldInfo.fieldClass == AtomicInteger.class) {
                         AtomicInteger atomic = (AtomicInteger) method.invoke(object);
@@ -95,24 +85,18 @@ public abstract class FieldDeserializer {
                         }
                     }
                 } else {
-                    if (value == null && fieldInfo.fieldClass.isPrimitive()) {
-                        return;
-                    }
                     method.invoke(object, value);
                 }
-            } catch (Exception e) {
-                throw new JSONException("set property error, " + fieldInfo.name, e);
+                return;
+            } else {
+                final Field field = fieldInfo.field;
+                if (field != null) {
+                    field.set(object, value);
+    
+                }
             }
-            return;
-        }
-
-        final Field field = fieldInfo.field;
-        if (field != null) {
-            try {
-                field.set(object, value);
-            } catch (Exception e) {
-                throw new JSONException("set property error, " + fieldInfo.name, e);
-            }
+        } catch (Exception e) {
+            throw new JSONException("set property error, " + fieldInfo.name, e);
         }
     }
 }

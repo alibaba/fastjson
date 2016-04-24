@@ -9,7 +9,6 @@ import java.util.List;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONToken;
-import com.alibaba.fastjson.util.TypeUtils;
 
 public class JavaObjectDeserializer implements ObjectDeserializer {
 
@@ -29,20 +28,6 @@ public class JavaObjectDeserializer implements ObjectDeserializer {
             Class<?> componentClass;
             if (componentType instanceof Class) {
                 componentClass = (Class<?>) componentType;
-                if (componentClass == boolean.class) {
-                    return (T) TypeUtils.cast(list, boolean[].class, parser.getConfig());
-                } else if (componentClass == short.class) {
-                    return (T) TypeUtils.cast(list, short[].class, parser.getConfig());
-                } else if (componentClass == int.class) {
-                    return (T) TypeUtils.cast(list, int[].class, parser.getConfig());
-                } else if (componentClass == long.class) {
-                    return (T) TypeUtils.cast(list, long[].class, parser.getConfig());
-                } else if (componentClass == float.class) {
-                    return (T) TypeUtils.cast(list, float[].class, parser.getConfig());
-                } else if (componentClass == double.class) {
-                    return (T) TypeUtils.cast(list, double[].class, parser.getConfig());
-                }
-
                 Object[] array = (Object[]) Array.newInstance(componentClass, list.size());
                 list.toArray(array);
                 return (T) array;

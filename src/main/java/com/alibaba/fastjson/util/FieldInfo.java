@@ -146,6 +146,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
             fieldClass = field.getType();
             fieldType = field.getGenericType();
             this.declaringClass = field.getDeclaringClass();
+            getOnly = Modifier.isFinal(field.getModifiers());
         }
         this.getOnly = getOnly;
 

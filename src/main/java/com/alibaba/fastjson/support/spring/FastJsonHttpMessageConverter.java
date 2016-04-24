@@ -45,11 +45,6 @@ public class FastJsonHttpMessageConverter extends
 		super(MediaType.APPLICATION_JSON,  MediaType.APPLICATION_FORM_URLENCODED);
 	}
 
-	@Override
-	protected boolean supports(Class<?> clazz) {
-		return true;
-	}
-
 	public Charset getCharset() {
 		return this.charset;
 	}
@@ -80,6 +75,11 @@ public class FastJsonHttpMessageConverter extends
 
 	public void setFilters(SerializeFilter... filters) {
 		this.filters = filters;
+	}
+	
+	@Override
+	protected boolean supports(Class<?> clazz) {
+		return true;
 	}
 	
 	@Override
@@ -122,7 +122,7 @@ public class FastJsonHttpMessageConverter extends
 		headers.setContentLength(bytes.length);
 		OutputStream out = outputMessage.getBody();
 		out.write(bytes);
-		out.flush();
+//		out.flush();
 	}
 
 	public void addSerializeFilter(SerializeFilter filter) {
@@ -137,13 +137,25 @@ public class FastJsonHttpMessageConverter extends
 		this.filters = filters;
 	}
 
-	@Override
+	/* 
+	 * @see org.springframework.http.converter.GenericHttpMessageConverter#canRead(java.lang.reflect.Type, java.lang.Class, org.springframework.http.MediaType)
+	 */
 	public boolean canRead(Type type, Class<?> contextClass, MediaType mediaType) {
 
-		return super.canRead(type.getClass(), mediaType);
+		return super.canRead(contextClass, mediaType);
 	}
 
-	@Override
+	/* 
+	 * @see org.springframework.http.converter.GenericHttpMessageConverter#canWrite(java.lang.reflect.Type, java.lang.Class, org.springframework.http.MediaType)
+	 */
+	public boolean canWrite(Type type, Class<?> contextClass, MediaType mediaType) {
+
+		return super.canWrite(contextClass, mediaType);
+	}
+	
+	/* 
+	 * @see org.springframework.http.converter.GenericHttpMessageConverter#read(java.lang.reflect.Type, java.lang.Class, org.springframework.http.HttpInputMessage)
+	 */
 	public Object read(Type type, Class<?> contextClass,
 			HttpInputMessage inputMessage) throws IOException,
 			HttpMessageNotReadableException {
@@ -168,6 +180,32 @@ public class FastJsonHttpMessageConverter extends
 
 		return JSON.parseObject(bytes, 0, bytes.length, charset.newDecoder(),
 				type);
+	}
+
+	/* 
+	 * @see org.springframework.http.converter.GenericHttpMessageConverter#write(java.lang.Object, java.lang.reflect.Type, org.springframework.http.MediaType, org.springframework.http.HttpOutputMessage)
+	 */
+	public void write(final Object t, Type type, MediaType contentType,
+			HttpOutputMessage outputMessage) throws IOException,
+			HttpMessageNotWritableException {
+
+		HttpHeaders headers = outputMessage.getHeaders();
+		if (headers.getContentType() == null) {
+			if (contentType == null || contentType.isWildcardType() || contentType.isWildcardSubtype()) {
+				contentType = getDefaultContentType(t);
+			}
+			if (contentType != null) {
+				headers.setContentType(contentType);
+			}
+		}
+		if (headers.getContentLength() == -1) {
+			Long contentLength = getContentLength(t, headers.getContentType());
+			if (contentLength != null) {
+				headers.setContentLength(contentLength);
+			}
+		}
+		writeInternal(t, outputMessage);
+		outputMessage.getBody().flush();
 	}
 
 }

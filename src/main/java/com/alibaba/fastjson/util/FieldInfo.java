@@ -141,7 +141,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
             }
             
             this.declaringClass = field.getDeclaringClass();
-            getOnly = false;
+            getOnly = Modifier.isFinal(field.getModifiers());
         }
 
         if (clazz != null // 

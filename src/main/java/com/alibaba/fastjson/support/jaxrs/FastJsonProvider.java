@@ -28,7 +28,7 @@ import com.alibaba.fastjson.util.IOUtils;
 /**
  * JAX-RS Provider for fastjson.
  *
- * @author smallnest & Victor.Zxy
+ * @author smallnest, Victor.Zxy
  *
  */
 @Provider

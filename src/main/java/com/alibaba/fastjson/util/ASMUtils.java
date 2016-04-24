@@ -65,23 +65,23 @@ public class ASMUtils {
     
 
     public static String getPrimitiveLetter(Class<?> type) {
-        if (Integer.TYPE.equals(type)) {
+        if (Integer.TYPE == type) {
             return "I";
-        } else if (Void.TYPE.equals(type)) {
+        } else if (Void.TYPE == type) {
             return "V";
-        } else if (Boolean.TYPE.equals(type)) {
+        } else if (Boolean.TYPE == type) {
             return "Z";
-        } else if (Character.TYPE.equals(type)) {
+        } else if (Character.TYPE == type) {
             return "C";
-        } else if (Byte.TYPE.equals(type)) {
+        } else if (Byte.TYPE == type) {
             return "B";
-        } else if (Short.TYPE.equals(type)) {
+        } else if (Short.TYPE == type) {
             return "S";
-        } else if (Float.TYPE.equals(type)) {
+        } else if (Float.TYPE == type) {
             return "F";
-        } else if (Long.TYPE.equals(type)) {
+        } else if (Long.TYPE == type) {
             return "J";
-        } else if (Double.TYPE.equals(type)) {
+        } else if (Double.TYPE == type) {
             return "D";
         }
 

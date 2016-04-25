@@ -25,7 +25,7 @@ import org.springframework.web.context.WebApplicationContext;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.ValueFilter;
-import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverterNew;
+import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter4;
 
 /**
  * <p>Title: FastJsonHttpMessageConverterTest</p>
@@ -38,7 +38,7 @@ import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverterNew;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath*:/com/alibaba/json/bvt/support/spring/mock/resource/applicationContext-mvc3.xml" })
-public class FastJsonHttpMessageConverterNewTest {
+public class FastJsonHttpMessageConverter4Test {
 
 	@Autowired
 	private WebApplicationContext wac;
@@ -81,7 +81,7 @@ public class FastJsonHttpMessageConverterNewTest {
 	@Test
 	public void test3() throws Exception {
 		
-		FastJsonHttpMessageConverterNew converter = new FastJsonHttpMessageConverterNew();
+		FastJsonHttpMessageConverter4 converter = new FastJsonHttpMessageConverter4();
 		
 		SerializeFilter filter = new ValueFilter() {
 	        @Override

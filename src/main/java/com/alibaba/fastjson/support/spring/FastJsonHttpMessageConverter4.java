@@ -29,7 +29,7 @@ import com.alibaba.fastjson.util.IOUtils;
  * @author Victor.Zxy
  *
  */
-public class FastJsonHttpMessageConverterNew extends
+public class FastJsonHttpMessageConverter4 extends
 		AbstractGenericHttpMessageConverter<Object> {
 
 	private Charset charset = IOUtils.UTF8;
@@ -40,7 +40,7 @@ public class FastJsonHttpMessageConverterNew extends
 
 	protected String dateFormat;
 
-	public FastJsonHttpMessageConverterNew() {
+	public FastJsonHttpMessageConverter4() {
 
 		super(MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED);
 	}

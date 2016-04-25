@@ -23,6 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -427,7 +428,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         try {
             JSONSerializer serializer = new JSONSerializer(out);
             serializer.write(object);
-            return out.toBytes(null);
+            return out.toBytes(IOUtils.UTF8);
         } finally {
             out.close();
         }
@@ -465,9 +466,6 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         try {
             JSONSerializer serializer = new JSONSerializer(out, config);
-            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
-                serializer.config(feature, true);
-            }
             
             if (dateFormat != null && dateFormat.length() != 0) {
                 serializer.setDateFormat(dateFormat);
@@ -493,17 +491,12 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static byte[] toJSONBytes(Object object, SerializeConfig config, SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter();
+        SerializeWriter out = new SerializeWriter(null, DEFAULT_GENERATE_FEATURE, features);
 
         try {
             JSONSerializer serializer = new JSONSerializer(out, config);
-            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
-                serializer.config(feature, true);
-            }
-
             serializer.write(object);
-
-            return out.toBytes(null);
+            return out.toBytes(IOUtils.UTF8);
         } finally {
             out.close();
         }
@@ -551,13 +544,56 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
      * @param features serializer features
      * @throws IOException
      */
-    public static final void writeJSONString(Object object, OutputStream os, SerializerFeature... features) throws IOException {
-        SerializeWriter out = new SerializeWriter(null, DEFAULT_GENERATE_FEATURE, features);
+    public static final int writeJSONString(Object object, // 
+                                             OutputStream os, // 
+                                             SerializerFeature... features) throws IOException {
+        return writeJSONString(object, os, IOUtils.UTF8, features);
+    }
+    
+    public static final int writeJSONString(Object object, // 
+                                             OutputStream os, // 
+                                             Charset charset, // 
+                                             SerializerFeature... features) throws IOException {
+        return writeJSONString(object, //
+                               os, //
+                               charset, //
+                               SerializeConfig.globalInstance, //
+                               null, //
+                               null, //
+                               DEFAULT_GENERATE_FEATURE, //
+                               features);
+    }
+    
+    public static final int writeJSONString(Object object, // 
+                                             OutputStream os, // 
+                                             Charset charset, // 
+                                             SerializeConfig config, //
+                                             SerializeFilter[] filters, //
+                                             String dateFormat, //
+                                             int defaultFeatures, //
+                                             SerializerFeature... features) throws IOException {
+        SerializeWriter out = new SerializeWriter(null, defaultFeatures, features);
 
         try {
-            JSONSerializer serializer = new JSONSerializer(out, SerializeConfig.globalInstance);
+            JSONSerializer serializer = new JSONSerializer(out, config);
+            
+            if (dateFormat != null && dateFormat.length() != 0) {
+                serializer.setDateFormat(dateFormat);
+                serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
+            }
+
+            if (filters != null) {
+                for (SerializeFilter filter : filters) {
+                    serializer.addFilter(filter);
+                }
+            }
+            
             serializer.write(object);
-            out.writeTo(os, IOUtils.UTF8);
+            
+            byte[] bytes = out.toBytes(charset);
+            os.write(bytes);
+            
+            return bytes.length;
         } finally {
             out.close();
         }

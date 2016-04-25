@@ -198,16 +198,14 @@ public class FastJsonProvider implements MessageBodyReader<Object>,
 			}
 		}
 
-		String text = JSON.toJSONString(obj, //
-				SerializeConfig.globalInstance, //
-				filters, //
-				dateFormat, //
-				JSON.DEFAULT_GENERATE_FEATURE, //
-				serializerFeatures);
-		
-		byte[] bytes = text.getBytes(charset);
-
-		entityStream.write(bytes);
+        JSON.writeJSONString(obj, //
+                             entityStream, //
+                             charset, //
+                             SerializeConfig.globalInstance, //
+                             filters, //
+                             dateFormat, //
+                             JSON.DEFAULT_GENERATE_FEATURE, //
+                             serializerFeatures);
 		
 		entityStream.flush();
 

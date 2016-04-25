@@ -19,6 +19,12 @@ public class ListStringFieldTest extends TestCase {
         Assert.assertEquals(null, model.values.get(1));
         Assert.assertEquals("b", model.values.get(2));
     }
+    
+    public void test_null() throws Exception {
+        String text = "[null]";
+        Model model = JSON.parseObject(text, Model.class, Feature.SupportArrayToBean);
+        Assert.assertNull(model.values);
+    }
 
     public static class Model {
 

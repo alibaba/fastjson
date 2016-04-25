@@ -43,7 +43,7 @@ http://repo1.maven.org/maven2/com/alibaba/fastjson/
 
 ###*License*
 
-Fastjson is released under the [Apache 2.0 license](LICENSE).
+Fastjson is released under the [Apache 2.0 license](license.txt).
 
 ```
 Copyright 1999-2016 Alibaba Group Holding Ltd.

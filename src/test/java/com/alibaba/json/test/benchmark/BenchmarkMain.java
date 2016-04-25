@@ -26,7 +26,8 @@ public class BenchmarkMain {
 
 //        executor.getCaseList().add(new TradeObjectParse());
 //        executor.getCaseList().add(new EishayDecodeBytes());
-        executor.getCaseList().add(new EishayEncodeToBytes());
+        executor.getCaseList().add(new EishayEncodeOutputStream());
+//        executor.getCaseList().add(new EishayEncodeToBytes());
 //         executor.getCaseList().add(new EishayDecode());
 //         executor.getCaseList().add(new EishayDecodeByClassName());
 //         executor.getCaseList().add(new EishayTreeDecode());

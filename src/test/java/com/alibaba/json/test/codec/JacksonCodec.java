@@ -1,5 +1,6 @@
 package com.alibaba.json.test.codec;
 
+import java.io.OutputStream;
 import java.util.Collection;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -63,5 +64,10 @@ public class JacksonCodec implements Codec {
     @Override
     public byte[] encodeToBytes(Object object) throws Exception {
         return mapper.writeValueAsBytes(object);
+    }
+
+    @Override
+    public void encode(OutputStream out, Object object) throws Exception {
+        out.write(encodeToBytes(object));        
     }
 }

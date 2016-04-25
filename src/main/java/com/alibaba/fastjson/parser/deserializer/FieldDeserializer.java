@@ -90,9 +90,38 @@ public abstract class FieldDeserializer {
                 return;
             } else {
                 final Field field = fieldInfo.field;
-                if (field != null) {
-                    field.set(object, value);
-    
+                
+                if (fieldInfo.getOnly) {
+                    if (fieldInfo.fieldClass == AtomicInteger.class) {
+                        AtomicInteger atomic = (AtomicInteger) field.get(object);
+                        if (atomic != null) {
+                            atomic.set(((AtomicInteger) value).get());
+                        }
+                    } else if (fieldInfo.fieldClass == AtomicLong.class) {
+                        AtomicLong atomic = (AtomicLong) field.get(object);
+                        if (atomic != null) {
+                            atomic.set(((AtomicLong) value).get());
+                        }
+                    } else if (fieldInfo.fieldClass == AtomicBoolean.class) {
+                        AtomicBoolean atomic = (AtomicBoolean) field.get(object);
+                        if (atomic != null) {
+                            atomic.set(((AtomicBoolean) value).get());
+                        }
+                    } else if (Map.class.isAssignableFrom(fieldInfo.fieldClass)) {
+                        Map map = (Map) field.get(object);
+                        if (map != null) {
+                            map.putAll((Map) value);
+                        }
+                    } else {
+                        Collection collection = (Collection) field.get(object);
+                        if (collection != null) {
+                            collection.addAll((Collection) value);
+                        }
+                    }
+                } else {
+                    if (field != null) {
+                        field.set(object, value);
+                    }
                 }
             }
         } catch (Exception e) {

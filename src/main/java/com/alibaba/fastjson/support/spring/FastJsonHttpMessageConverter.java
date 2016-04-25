@@ -29,9 +29,9 @@ import com.alibaba.fastjson.util.IOUtils;
  * @author Victor.Zxy
  *
  */
-public class FastJsonHttpMessageConverter extends
-		AbstractHttpMessageConverter<Object> implements
-		GenericHttpMessageConverter<Object> {
+public class FastJsonHttpMessageConverter //
+        extends AbstractHttpMessageConverter<Object> //
+        implements GenericHttpMessageConverter<Object> {
 
 	private Charset charset = IOUtils.UTF8;
 
@@ -84,9 +84,10 @@ public class FastJsonHttpMessageConverter extends
 	}
 	
 	@Override
-	protected Object readInternal(Class<? extends Object> clazz,
-			HttpInputMessage inputMessage) throws IOException,
-			HttpMessageNotReadableException {
+    protected Object readInternal(Class<? extends Object> clazz, //
+                                  HttpInputMessage inputMessage //
+    ) throws IOException, HttpMessageNotReadableException {
+	    
 		InputStream in = inputMessage.getBody();
         return JSON.parseObject(in, charset, clazz);
 	}
@@ -123,7 +124,6 @@ public class FastJsonHttpMessageConverter extends
 	 * @see org.springframework.http.converter.GenericHttpMessageConverter#canRead(java.lang.reflect.Type, java.lang.Class, org.springframework.http.MediaType)
 	 */
 	public boolean canRead(Type type, Class<?> contextClass, MediaType mediaType) {
-
 		return super.canRead(contextClass, mediaType);
 	}
 
@@ -131,16 +131,17 @@ public class FastJsonHttpMessageConverter extends
 	 * @see org.springframework.http.converter.GenericHttpMessageConverter#canWrite(java.lang.reflect.Type, java.lang.Class, org.springframework.http.MediaType)
 	 */
 	public boolean canWrite(Type type, Class<?> contextClass, MediaType mediaType) {
-
 		return super.canWrite(contextClass, mediaType);
 	}
 	
 	/* 
 	 * @see org.springframework.http.converter.GenericHttpMessageConverter#read(java.lang.reflect.Type, java.lang.Class, org.springframework.http.HttpInputMessage)
 	 */
-	public Object read(Type type, Class<?> contextClass,
-			HttpInputMessage inputMessage) throws IOException,
-			HttpMessageNotReadableException {
+    public Object read(Type type, //
+                       Class<?> contextClass, //
+                       HttpInputMessage inputMessage //
+    ) throws IOException, HttpMessageNotReadableException {
+        
 		InputStream in = inputMessage.getBody();
 		return JSON.parseObject(in, charset, type);
 	}
@@ -148,9 +149,11 @@ public class FastJsonHttpMessageConverter extends
 	/* 
 	 * @see org.springframework.http.converter.GenericHttpMessageConverter#write(java.lang.Object, java.lang.reflect.Type, org.springframework.http.MediaType, org.springframework.http.HttpOutputMessage)
 	 */
-	public void write(final Object t, Type type, MediaType contentType,
-			HttpOutputMessage outputMessage) throws IOException,
-			HttpMessageNotWritableException {
+    public void write(Object t, //
+                      Type type, //
+                      MediaType contentType, //
+                      HttpOutputMessage outputMessage //
+    ) throws IOException, HttpMessageNotWritableException {
 
 		HttpHeaders headers = outputMessage.getHeaders();
 		if (headers.getContentType() == null) {

@@ -28,8 +28,8 @@ import com.alibaba.fastjson.util.IOUtils;
  * @author Victor.Zxy
  *
  */
-public class FastJsonHttpMessageConverter4 extends
-		AbstractGenericHttpMessageConverter<Object> {
+public class FastJsonHttpMessageConverter4 //
+        extends AbstractGenericHttpMessageConverter<Object> {
 
 	private Charset charset = IOUtils.UTF8;
 
@@ -89,22 +89,24 @@ public class FastJsonHttpMessageConverter4 extends
 
 	@Override
 	protected boolean supports(Class<?> paramClass) {
-
 		return true;
 	}
 
     @Override
     public Object read(Type type, //
                        Class<?> contextClass, //
-                       HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
+                       HttpInputMessage inputMessage //
+    ) throws IOException, HttpMessageNotReadableException {
         InputStream in = inputMessage.getBody();
         return JSON.parseObject(in, charset, type);
     }
 
 	@Override
-	protected void writeInternal(Object obj, Type type,
-			HttpOutputMessage outputMessage) throws IOException,
-			HttpMessageNotWritableException {
+    protected void writeInternal(Object obj, //
+                                 Type type, //
+                                 HttpOutputMessage outputMessage //
+    ) throws IOException, HttpMessageNotWritableException {
+	    
         HttpHeaders headers = outputMessage.getHeaders();
         OutputStream out = outputMessage.getBody();
         int len = JSON.writeJSONString(obj, //
@@ -119,9 +121,10 @@ public class FastJsonHttpMessageConverter4 extends
 	}
 
 	@Override
-	protected Object readInternal(Class<? extends Object> clazz,
-			HttpInputMessage inputMessage) throws IOException,
-			HttpMessageNotReadableException {
+    protected Object readInternal(Class<? extends Object> clazz, //
+                                  HttpInputMessage inputMessage //
+    ) throws IOException, HttpMessageNotReadableException {
+
 		InputStream in = inputMessage.getBody();
         return JSON.parseObject(in, charset, clazz);
 	}

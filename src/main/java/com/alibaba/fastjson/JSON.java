@@ -586,10 +586,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                                              String dateFormat, //
                                              int defaultFeatures, //
                                              SerializerFeature... features) throws IOException {
-        SerializeWriter out = new SerializeWriter(null, defaultFeatures, features);
+        SerializeWriter writer = new SerializeWriter(null, defaultFeatures, features);
 
         try {
-            JSONSerializer serializer = new JSONSerializer(out, config);
+            JSONSerializer serializer = new JSONSerializer(writer, config);
             
             if (dateFormat != null && dateFormat.length() != 0) {
                 serializer.setDateFormat(dateFormat);
@@ -604,12 +604,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             
             serializer.write(object);
             
-            byte[] bytes = out.toBytes(charset);
-            os.write(bytes);
-            
-            return bytes.length;
+            int len = writer.writeToEx(os, charset);
+            return len;
         } finally {
-            out.close();
+            writer.close();
         }
     }
 

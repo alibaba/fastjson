@@ -24,6 +24,8 @@ import com.alibaba.fastjson.util.IOUtils;
 
 /**
  * Spring MVC Converter for fastjson.
+ * 
+ * Spring MVC version 4.2- (Below 4.2)
  *
  * @author Victor.Zxy
  *
@@ -131,7 +133,7 @@ public class FastJsonHttpMessageConverter extends
 		}
 
 		SerializeFilter[] filters = new SerializeFilter[this.filters.length + 1];
-		System.arraycopy(this.filters, 0, filter, 0,
+		System.arraycopy(this.filters, 0, filters, 0,
 				this.filters.length);
 		filters[filters.length - 1] = filter;
 		this.filters = filters;

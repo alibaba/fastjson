@@ -47,7 +47,7 @@ public class JSONPath implements JSONAware {
 
     public JSONPath(String path, SerializeConfig serializeConfig, ParserConfig parserConfig){
         if (path == null || path.isEmpty()) {
-            throw new IllegalArgumentException();
+            throw new JSONPathException("json-path can not be null or empty");
         }
 
         this.path = path;
@@ -283,6 +283,10 @@ public class JSONPath implements JSONAware {
     }
 
     public static JSONPath compile(String path) {
+        if (path == null) {
+            throw new JSONPathException("jsonpath can not be null");
+        }
+        
         JSONPath jsonpath = pathCache.get(path);
         if (jsonpath == null) {
             jsonpath = new JSONPath(path);

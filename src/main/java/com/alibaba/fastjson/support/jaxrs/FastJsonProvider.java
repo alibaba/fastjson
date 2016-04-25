@@ -1,6 +1,5 @@
 package com.alibaba.fastjson.support.jaxrs;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -233,28 +232,12 @@ public class FastJsonProvider implements MessageBodyReader<Object>,
 	/**
 	 * Method that JAX-RS container calls to deserialize given value.
 	 */
-	public Object readFrom(Class<Object> type, Type genericType,
-			Annotation[] annotations, MediaType mediaType,
-			MultivaluedMap<String, String> httpHeaders, InputStream entityStream)
-			throws IOException, WebApplicationException {
-		
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-		byte[] buf = new byte[1024];
-		
-        for (;;) {
-            int len = entityStream.read(buf);
-            if (len == -1) {
-                break;
-            }
-
-            if (len > 0) {
-                baos.write(buf, 0, len);
-            }
-        }
-
-        byte[] bytes = baos.toByteArray();
-        
-        return JSON.parseObject(bytes, 0, bytes.length, charset.newDecoder(), genericType);
-	}
+    public Object readFrom(Class<Object> type, //
+                           Type genericType, //
+                           Annotation[] annotations, //
+                           MediaType mediaType, //
+                           MultivaluedMap<String, String> httpHeaders, //
+                           InputStream entityStream) throws IOException, WebApplicationException {
+        return JSON.parseObject(entityStream, charset, genericType);
+    }
 }

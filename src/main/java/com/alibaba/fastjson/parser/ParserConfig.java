@@ -81,6 +81,7 @@ import com.alibaba.fastjson.parser.deserializer.MapDeserializer;
 import com.alibaba.fastjson.parser.deserializer.NumberDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.OptionalCodec;
+import com.alibaba.fastjson.parser.deserializer.PathDeserializer;
 import com.alibaba.fastjson.parser.deserializer.SqlDateDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StackTraceElementDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ThrowableDeserializer;
@@ -134,6 +135,7 @@ public class ParserConfig {
     protected ASMDeserializerFactory                        asmFactory;
 
     private static boolean                                  awtError    = false;
+    private static boolean                                  jdk7Error   = false;
     private static boolean                                  jdk8Error   = false;
 
     private String[]                                        denyList    = new String[] { "java.lang.Thread" };
@@ -259,6 +261,15 @@ public class ParserConfig {
             } catch (Throwable e) {
                 // skip
                 awtError = true;
+            }
+        }
+        
+        if (!jdk7Error) {
+            try {
+                derializers.put(Class.forName("java.nio.file.Path"), new PathDeserializer());
+            } catch (Throwable e) {
+                // skip
+                jdk7Error = true;
             }
         }
         

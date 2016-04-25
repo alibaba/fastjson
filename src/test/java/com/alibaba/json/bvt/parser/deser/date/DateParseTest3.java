@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt.parser.deser;
+package com.alibaba.json.bvt.parser.deser.date;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -11,14 +11,14 @@ import junit.framework.TestCase;
 import com.alibaba.fastjson.JSON;
 
 
-public class DateParseTest2 extends TestCase {
+public class DateParseTest3 extends TestCase {
     protected void setUp() throws Exception {
         JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
         JSON.defaultLocale = Locale.CHINA;
     }
     
     public void test_date() throws Exception {
-        String text = "\"1979-07-14 13:07:23\"";
+        String text = "\"1979-07-14 13:07:23.456\"";
         Date date = JSON.parseObject(text, Date.class);
         Calendar calendar = Calendar.getInstance(JSON.defaultTimeZone, JSON.defaultLocale);
         calendar.setTime(date);
@@ -30,6 +30,6 @@ public class DateParseTest2 extends TestCase {
         Assert.assertEquals(13, calendar.get(Calendar.HOUR_OF_DAY));
         Assert.assertEquals(7, calendar.get(Calendar.MINUTE));
         Assert.assertEquals(23, calendar.get(Calendar.SECOND));
-        Assert.assertEquals(0, calendar.get(Calendar.MILLISECOND));
+        Assert.assertEquals(456, calendar.get(Calendar.MILLISECOND));
     }
 }

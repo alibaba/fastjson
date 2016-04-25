@@ -27,6 +27,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.Locale;
@@ -284,6 +285,10 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         
         if (clazz == Class.class) {
             return (T) TypeUtils.loadClass(strVal, parser.getConfig().getDefaultClassLoader());
+        }
+        
+        if (clazz == Charset.class) {
+            return (T) Charset.forName(strVal);
         }
         
         throw new JSONException("MiscCodec not support " + clazz);

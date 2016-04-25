@@ -74,6 +74,7 @@ public class SerializeConfig {
     public final static SerializeConfig globalInstance  = new SerializeConfig();
 
 	private static boolean awtError = false;
+	private static boolean jdk7Error = false;
 	private static boolean jdk8Error = false;
 	private static boolean oracleJdbcError = false;
 	
@@ -204,22 +205,22 @@ public class SerializeConfig {
 		put(Class.class, MiscCodec.instance);
 
 		put(SimpleDateFormat.class, MiscCodec.instance);
-		put(Locale.class, MiscCodec.instance);
 		put(Currency.class, CurrencyCodec.instance);
 		put(TimeZone.class, MiscCodec.instance);
-		put(UUID.class, MiscCodec.instance);
 		put(InetAddress.class, MiscCodec.instance);
 		put(Inet4Address.class, MiscCodec.instance);
 		put(Inet6Address.class, MiscCodec.instance);
 		put(InetSocketAddress.class, MiscCodec.instance);
 		put(File.class, MiscCodec.instance);
-		put(URI.class, MiscCodec.instance);
-		put(URL.class, MiscCodec.instance);
 		put(Appendable.class, AppendableSerializer.instance);
 		put(StringBuffer.class, AppendableSerializer.instance);
 		put(StringBuilder.class, AppendableSerializer.instance);
-		put(Pattern.class, MiscCodec.instance);
 		put(Charset.class, CharsetCodec.instance);
+		put(Pattern.class, ToStringSerializer.instance);
+		put(Locale.class, ToStringSerializer.instance);
+		put(URI.class, ToStringSerializer.instance);
+		put(URL.class, ToStringSerializer.instance);
+		put(UUID.class, ToStringSerializer.instance);
 
 		// atomic
 		put(AtomicBoolean.class, AtomicCodec.instance);
@@ -243,6 +244,17 @@ public class SerializeConfig {
     		    awtError = true;
     			// skip
     		}
+		}
+		
+		if (!jdk7Error) {
+		    try {
+                put(Class.forName("java.nio.file.Path"), ToStringSerializer.instance);
+                put(Class.forName("sun.nio.fs.UnixPath"), ToStringSerializer.instance);
+                put(Class.forName("com.sun.nio.zipfs.ZipPath"), ToStringSerializer.instance);
+		    } catch (Throwable e) {
+                // skip
+                jdk7Error = true;
+            }
 		}
 		
 		// jdk8

@@ -22,6 +22,7 @@ public class JSONPath_array_put extends TestCase {
         path.arrayAdd(root, 123);
         path.arrayAdd(root, (Object[])null);
         path.arrayAdd(root, new Object[0]);
+        path.arrayAdd(null, new Object[] {1});
 
         Assert.assertEquals(1, list.size());
         Assert.assertEquals(123, ((Integer) list.get(0)).intValue());

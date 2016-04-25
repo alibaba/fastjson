@@ -16,6 +16,7 @@
 package com.alibaba.fastjson;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Writer;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
@@ -515,17 +516,48 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         return toJSONString(object, SerializerFeature.PrettyFormat);
     }
-
+    
+    /**
+     * @deprecated use writeJSONString
+     */
     public static void writeJSONStringTo(Object object, Writer writer, SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter(writer);
+        writeJSONString(object, writer, features);
+    }
+
+    /**
+     * write object as json to Writer
+     * @since 1.2.11
+     * @param object
+     * @param writer output writer
+     * @param features serializer features
+     * @throws IOException
+     */
+    public static void writeJSONString(Object object, Writer writer, SerializerFeature... features) {
+        SerializeWriter out = new SerializeWriter(writer, JSON.DEFAULT_GENERATE_FEATURE, features);
 
         try {
             JSONSerializer serializer = new JSONSerializer(out);
-            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
-                serializer.config(feature, true);
-            }
-
             serializer.write(object);
+        } finally {
+            out.close();
+        }
+    }
+    
+    /**
+     * write object as json to OutputStream
+     * @since 1.2.11
+     * @param object
+     * @param os output stream
+     * @param features serializer features
+     * @throws IOException
+     */
+    public static final void writeJSONString(Object object, OutputStream os, SerializerFeature... features) throws IOException {
+        SerializeWriter out = new SerializeWriter(null, DEFAULT_GENERATE_FEATURE, features);
+
+        try {
+            JSONSerializer serializer = new JSONSerializer(out, SerializeConfig.globalInstance);
+            serializer.write(object);
+            out.writeTo(os, IOUtils.UTF8);
         } finally {
             out.close();
         }

@@ -125,23 +125,17 @@ public class FastJsonHttpMessageConverter4 extends
 	protected void writeInternal(Object obj, Type type,
 			HttpOutputMessage outputMessage) throws IOException,
 			HttpMessageNotWritableException {
-
-		HttpHeaders headers = outputMessage.getHeaders();
-
-		String text = JSON.toJSONString(obj, //
-				SerializeConfig.globalInstance, //
-				filters, //
-				dateFormat, //
-				JSON.DEFAULT_GENERATE_FEATURE, //
-				features);
-
-		byte[] bytes = text.getBytes(charset);
-
-		headers.setContentLength(bytes.length);
-
-		OutputStream out = outputMessage.getBody();
-
-		out.write(bytes);
+        HttpHeaders headers = outputMessage.getHeaders();
+        OutputStream out = outputMessage.getBody();
+        int len = JSON.writeJSONString(obj, //
+                                       out, //
+                                       charset, //
+                                       SerializeConfig.globalInstance, //
+                                       filters, //
+                                       dateFormat, //
+                                       JSON.DEFAULT_GENERATE_FEATURE, //
+                                       features);
+        headers.setContentLength(len);
 	}
 
 	@Override

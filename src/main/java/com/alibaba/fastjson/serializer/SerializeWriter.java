@@ -330,7 +330,7 @@ public final class SerializeWriter extends Writer {
         if (this.writer != null) {
             throw new UnsupportedOperationException("writer not null");
         }
-        byte[] bytes = new String(buf, 0, count).getBytes(charset);
+        byte[] bytes = toBytes(charset);
         out.write(bytes);
     }
 
@@ -372,7 +372,7 @@ public final class SerializeWriter extends Writer {
             : Charset.forName(charsetName));
     }
 
-    private byte[] toBytes(Charset charset) {
+    public byte[] toBytes(Charset charset) {
         if (this.writer != null) {
             throw new UnsupportedOperationException("writer not null");
         }

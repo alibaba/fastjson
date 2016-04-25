@@ -143,10 +143,11 @@ public final class JSONReaderScanner extends JSONLexerBase {
         int offset = startIndex - bp;
         for (;; ++offset) {
             final int index = bp + offset;
-            if (ch == charAt(index)) {
+            char chLoal = charAt(index);
+            if (ch == chLoal) {
                 return offset + bp;
             }
-            if (ch == EOI) {
+            if (chLoal == EOI) {
                 return -1;
             }
         }

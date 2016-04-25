@@ -1,4 +1,7 @@
-package com.alibaba.json.bvt.serializer;
+package com.alibaba.json.bvt.serializer.enum_;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Assert;
 
@@ -7,19 +10,18 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 
 import junit.framework.TestCase;
 
-public class EnumFieldsTest extends TestCase {
+public class EnumFieldsTest3 extends TestCase {
     public void test_enum() throws Exception {
         Model model = new Model();
-        model.t1 = Type.A;
-        model.t2 = null;
+        model.types.add(Type.A);
+        model.types.add(null);
         
         String text = JSON.toJSONString(model, SerializerFeature.WriteMapNullValue);
-        Assert.assertEquals("{\"t1\":\"A\",\"t2\":null}", text);
+        Assert.assertEquals("{\"types\":[\"A\",null]}", text);
     }
     
     public static class Model {
-        public Type t1;
-        public Type t2;
+        public List<Type> types = new ArrayList<Type>();
     }
 
     private static enum Type {

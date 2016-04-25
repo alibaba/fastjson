@@ -107,19 +107,17 @@ public class FastJsonJsonView extends AbstractView {
 			HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
 		Object value = filterModel(model);
-
-		String text = JSON.toJSONString(value, //
-				SerializeConfig.globalInstance, //
-				filters, //
-				dateFormat, //
-				JSON.DEFAULT_GENERATE_FEATURE, //
-				features);
-		
-		byte[] bytes = text.getBytes(charset);
-
 		OutputStream stream = this.updateContentLength ? createTemporaryOutputStream()
-				: response.getOutputStream();
-		stream.write(bytes);
+            : response.getOutputStream();
+        JSON.writeJSONString(value, //
+                             stream, //
+                             charset, //
+                             SerializeConfig.globalInstance, //
+                             filters, //
+                             dateFormat, //
+                             JSON.DEFAULT_GENERATE_FEATURE, //
+                             features);
+		
 		stream.flush();
 		
 		if (this.updateContentLength) {

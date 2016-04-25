@@ -16,6 +16,8 @@
 package com.alibaba.fastjson;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.lang.reflect.Array;
@@ -272,8 +274,12 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T parseObject(byte[] input, int off, int len, CharsetDecoder charsetDecoder, Type clazz,
-                                          Feature... features) {
+    public static <T> T parseObject(byte[] input, //
+                                    int off, //
+                                    int len, //
+                                    CharsetDecoder charsetDecoder, //
+                                    Type clazz, //
+                                    Feature... features) {
         charsetDecoder.reset();
 
         int scaleLength = (int) (len * (double) charsetDecoder.maxCharsPerByte());
@@ -307,6 +313,14 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         parser.close();
 
         return (T) value;
+    }
+    
+    public static <T> T parseObject(InputStream is, //
+                                    Charset charset, //
+                                    Type type, //
+                                    Feature... features) {
+        String text = IOUtils.readAll(new InputStreamReader(is, charset));
+        return parseObject(text, type, features);
     }
 
     public static <T> T parseObject(String text, Class<T> clazz) {

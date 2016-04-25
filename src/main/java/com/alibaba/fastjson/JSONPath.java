@@ -1703,7 +1703,7 @@ public class JSONPath implements JSONAware {
         boolean isDoubleA = isDouble(clazzA);
         boolean isDoubleB = isDouble(clazzB);
 
-        if ((isDoubleA && isDoubleB) || (isDoubleA && isIntA) || (isDoubleB && isIntA)) {
+        if ((isDoubleA && isDoubleB) || (isDoubleA && isIntB) || (isDoubleB && isIntA)) {
             return a.doubleValue() == b.doubleValue();
         }
         

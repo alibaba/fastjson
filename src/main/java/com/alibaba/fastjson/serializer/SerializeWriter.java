@@ -280,6 +280,23 @@ public final class SerializeWriter extends Writer {
         System.arraycopy(buf, 0, newValue, 0, count);
         buf = newValue;
     }
+    
+    public SerializeWriter append(CharSequence csq) {
+        String s = (csq == null ? "null" : csq.toString());
+        write(s, 0, s.length());
+        return this;
+    }
+
+    public SerializeWriter append(CharSequence csq, int start, int end) {
+        String s = (csq == null ? "null" : csq).subSequence(start, end).toString();
+        write(s, 0, s.length());
+        return this;
+    }
+
+    public SerializeWriter append(char c) {
+        write(c);
+        return this;
+    }
 
     /**
      * Write a portion of a string to the buffer.
@@ -325,30 +342,32 @@ public final class SerializeWriter extends Writer {
     public void writeTo(OutputStream out, String charsetName) throws IOException {
         writeTo(out, Charset.forName(charsetName));
     }
-
+    
     public void writeTo(OutputStream out, Charset charset) throws IOException {
+        writeToEx(out, charset);
+    }
+
+    public int writeToEx(OutputStream out, Charset charset) throws IOException {
         if (this.writer != null) {
             throw new UnsupportedOperationException("writer not null");
         }
-        byte[] bytes = toBytes(charset);
-        out.write(bytes);
-    }
+        
+        CharsetEncoder encoder;
+        if (charset == IOUtils.UTF8) {
+            encoder = encoderLocal.get();
+            if (encoder == null) {
+                encoder = IOUtils.UTF8.newEncoder() //
+                        .onMalformedInput(CodingErrorAction.REPLACE) //
+                        .onUnmappableCharacter(CodingErrorAction.REPLACE);
+                encoderLocal.set(encoder);
+            }
+        } else {
+            encoder = charset.newEncoder() //
+                    .onMalformedInput(CodingErrorAction.REPLACE) //
+                    .onUnmappableCharacter(CodingErrorAction.REPLACE);
+        }
 
-    public SerializeWriter append(CharSequence csq) {
-        String s = (csq == null ? "null" : csq.toString());
-        write(s, 0, s.length());
-        return this;
-    }
-
-    public SerializeWriter append(CharSequence csq, int start, int end) {
-        String s = (csq == null ? "null" : csq).subSequence(start, end).toString();
-        write(s, 0, s.length());
-        return this;
-    }
-
-    public SerializeWriter append(char c) {
-        write(c);
-        return this;
+        return encodeTo(out, encoder, buf, 0, count);
     }
 
     /**
@@ -438,6 +457,51 @@ public final class SerializeWriter extends Writer {
         byte[] copy = new byte[position];
         System.arraycopy(bytes, 0, copy, 0, position);
         return copy;
+    }
+    
+    private static int encodeTo(OutputStream out, //
+                                CharsetEncoder encoder, //
+                                char[] chars, //
+                                int off, //
+                                int len //
+    ) throws IOException {
+        
+        if (len == 0) {
+            return 0;
+        }
+
+        encoder.reset();
+
+        // We need to perform double, not float, arithmetic; otherwise
+        // we lose low order bits when len is larger than 2**24.
+        int bytesLength = (int) (len * (double) encoder.maxBytesPerChar());
+        byte[] bytes = bytesBufLocal.get();
+
+        if (bytes == null) {
+            bytes = new byte[1024 * 8];
+            bytesBufLocal.set(bytes);
+        }
+
+        if (bytes.length < bytesLength) {
+            bytes = new byte[bytesLength];
+        }
+
+        ByteBuffer byteBuf = ByteBuffer.wrap(bytes);
+
+        CharBuffer charBuf = CharBuffer.wrap(chars, off, len);
+        
+        CoderResult cr = encoder.encode(charBuf, byteBuf, true);
+        if (!cr.isUnderflow()) {
+            cr.throwException();
+        }
+        cr = encoder.flush(byteBuf);
+        if (!cr.isUnderflow()) {
+            cr.throwException();
+        }
+
+        int position = byteBuf.position();
+        out.write(bytes, 0, position);
+        return position;
     }
 
     public int size() {

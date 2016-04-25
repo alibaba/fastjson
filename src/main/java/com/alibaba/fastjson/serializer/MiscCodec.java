@@ -59,7 +59,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
             return;
         }
         
-        Object objClass = object.getClass();
+        Class<?> objClass = object.getClass();
         
         String strVal;
         if (objClass == SimpleDateFormat.class) {
@@ -115,7 +115,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
             writeIterator(serializer, out, it);
             return;
         } else {
-            strVal = object.toString();
+            throw new JSONException("not support class : " + objClass);
         }
         
         out.writeString(strVal);

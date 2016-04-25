@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt.serializer;
+package com.alibaba.json.bvt.serializer.enum_;
 
 import org.junit.Assert;
 

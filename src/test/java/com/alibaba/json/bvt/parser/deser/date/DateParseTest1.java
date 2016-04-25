@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt.parser.deser;
+package com.alibaba.json.bvt.parser.deser.date;
 
 import java.util.Calendar;
 import java.util.Date;

@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt.parser.deser;
+package com.alibaba.json.bvt.parser.deser.date;
 
 import java.util.Date;
 
@@ -9,7 +9,7 @@ import org.junit.Assert;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.serializer.CalendarCodec;
-import com.alibaba.json.bvt.parser.deser.DateParseTest14.VO;
+import com.alibaba.json.bvt.parser.deser.date.DateParseTest14.VO;
 
 
 public class DateParseTest9 extends TestCase {

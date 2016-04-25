@@ -1,6 +1,7 @@
-package com.alibaba.json.bvt.parser.deser;
+package com.alibaba.json.bvt.parser.deser.awt;
 
 import java.awt.Font;
+import java.awt.Rectangle;
 
 import org.junit.Assert;
 
@@ -11,20 +12,20 @@ import com.alibaba.fastjson.serializer.AwtCodec;
 import junit.framework.TestCase;
 
 
-public class FontDeserializerTest extends TestCase {
+public class RectangleDeserializerTest extends TestCase {
     public void test_0 () throws Exception {
         AwtCodec.instance.getFastMatchToken();
         
-        Assert.assertNull(JSON.parseObject("null", StackTraceElement.class));
-        Assert.assertNull(JSON.parseArray("null", StackTraceElement.class));
-        Assert.assertNull(JSON.parseArray("[null]", StackTraceElement.class).get(0));
+        Assert.assertNull(JSON.parseObject("null", Rectangle.class));
+        Assert.assertNull(JSON.parseArray("null", Rectangle.class));
+        Assert.assertNull(JSON.parseArray("[null]", Rectangle.class).get(0));
         Assert.assertNull(JSON.parseObject("{\"value\":null}", VO.class).getValue());
     }
     
     public void test_stack_error_0() throws Exception {
         Exception error = null;
         try {
-            JSON.parseObject("[]", Font.class);
+            JSON.parseObject("[]", Rectangle.class);
         } catch (JSONException ex) {
             error = ex;
         }
@@ -34,7 +35,7 @@ public class FontDeserializerTest extends TestCase {
     public void test_stack_error_1() throws Exception {
         Exception error = null;
         try {
-            JSON.parseObject("{33:22}", Font.class);
+            JSON.parseObject("{33:22}", Rectangle.class);
         } catch (JSONException ex) {
             error = ex;
         }
@@ -44,7 +45,7 @@ public class FontDeserializerTest extends TestCase {
     public void test_stack_error_2() throws Exception {
         Exception error = null;
         try {
-            JSON.parseObject("{\"name\":22}", Font.class);
+            JSON.parseObject("{\"name\":22}", Rectangle.class);
         } catch (JSONException ex) {
             error = ex;
         }
@@ -54,7 +55,7 @@ public class FontDeserializerTest extends TestCase {
     public void test_stack_error_3() throws Exception {
         Exception error = null;
         try {
-            JSON.parseObject("{\"style\":true}", Font.class);
+            JSON.parseObject("{\"style\":true}", Rectangle.class);
         } catch (JSONException ex) {
             error = ex;
         }
@@ -64,7 +65,7 @@ public class FontDeserializerTest extends TestCase {
     public void test_stack_error_4() throws Exception {
         Exception error = null;
         try {
-            JSON.parseObject("{\"size\":\"33\"}", Font.class);
+            JSON.parseObject("{\"size\":\"33\"}", Rectangle.class);
         } catch (JSONException ex) {
             error = ex;
         }
@@ -83,13 +84,13 @@ public class FontDeserializerTest extends TestCase {
     
     public static class VO {
 
-        private Font value;
+        private Rectangle value;
 
-        public Font getValue() {
+        public Rectangle getValue() {
             return value;
         }
 
-        public void setValue(Font value) {
+        public void setValue(Rectangle value) {
             this.value = value;
         }
 

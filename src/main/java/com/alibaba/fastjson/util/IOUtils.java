@@ -539,19 +539,19 @@ public class IOUtils {
         return dArr;
     }
     
-    private final static ThreadLocal<char[]> charsBufLocal = new ThreadLocal<char[]>();
+    private final static ThreadLocal<char[]> charsLocal = new ThreadLocal<char[]>();
 
     public static void clearChars() {
-        charsBufLocal.set(null);
+        charsLocal.set(null);
     }
 
-    public static char[] getChars(int length) {
-        char[] chars = charsBufLocal.get();
+    public static char[] allocateChars(int length) {
+        char[] chars = charsLocal.get();
 
         if (chars == null) {
             if (length <= 1024 * 64) {
                 chars = new char[1024 * 64];
-                charsBufLocal.set(chars);
+                charsLocal.set(chars);
             } else {
                 chars = new char[length];
             }

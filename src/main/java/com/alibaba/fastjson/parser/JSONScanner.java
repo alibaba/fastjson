@@ -105,7 +105,7 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     public byte[] bytesValue() {
-        return IOUtils.decodeFast(text, np + 1, sp);
+        return IOUtils.decodeBase64(text, np + 1, sp);
     }
 
     // public int scanField2(char[] fieldName, Object object, FieldDeserializer fieldDeserializer) {

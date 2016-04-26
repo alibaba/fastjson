@@ -20,7 +20,6 @@ import java.io.Closeable;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.lang.ref.SoftReference;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -362,7 +361,7 @@ public class IOUtils {
      * @param chars The source array. Length 0 will return an empty array. <code>null</code> will throw an exception.
      * @return The decoded array of bytes. May be of length 0.
      */
-    public static byte[] decodeFast(char[] chars, int offset, int charsLen) {
+    public static byte[] decodeBase64(char[] chars, int offset, int charsLen) {
         // Check special case
         if (charsLen == 0) {
             return new byte[0];
@@ -417,7 +416,7 @@ public class IOUtils {
         return bytes;
     }
     
-    public static byte[] decodeFast(String chars, int offset, int charsLen) {
+    public static byte[] decodeBase64(String chars, int offset, int charsLen) {
         // Check special case
         if (charsLen == 0) {
             return new byte[0];
@@ -483,7 +482,7 @@ public class IOUtils {
      * @param s The source string. Length 0 will return an empty array. <code>null</code> will throw an exception.
      * @return The decoded array of bytes. May be of length 0.
      */
-    public static byte[] decodeFast(String s) {
+    public static byte[] decodeBase64(String s) {
         // Check special case
         int sLen = s.length();
         if (sLen == 0) {
@@ -540,55 +539,29 @@ public class IOUtils {
         return dArr;
     }
     
-    private final static ThreadLocal<SoftReference<char[]>> charsBufLocal        = new ThreadLocal<SoftReference<char[]>>();
-
-
+    private final static ThreadLocal<char[]> charsBufLocal = new ThreadLocal<char[]>();
 
     public static void clearChars() {
         charsBufLocal.set(null);
     }
 
     public static char[] getChars(int length) {
-        SoftReference<char[]> ref = charsBufLocal.get();
-
-        if (ref == null) {
-            return allocate(length);
-        }
-
-        char[] chars = ref.get();
+        char[] chars = charsBufLocal.get();
 
         if (chars == null) {
-            return allocate(length);
-        }
-
-        if (chars.length < length) {
-            chars = allocate(length);
-        }
-
-        return chars;
-    }
-
-    private static char[] allocate(int length) {
-        final int minExp = 10;
-        final int CHARS_CACH_MAX_SIZE = 1024 * 128; // 128k, 2^17;
-        
-        if(length> CHARS_CACH_MAX_SIZE) {
-            return new char[length];
-        }
-
-        int allocateLength;
-        {
-            int part = length >>> minExp;
-            if(part <= 0) {
-                allocateLength = 1<< minExp;
+            if (length <= 1024 * 64) {
+                chars = new char[1024 * 64];
+                charsBufLocal.set(chars);
             } else {
-                allocateLength = 1 << 32 - Integer.numberOfLeadingZeros(length-1);
+                chars = new char[length];
             }
+        } else if (chars.length < length) {
+            chars = new char[length];
         }
-        char[] chars = new char[allocateLength];
-        charsBufLocal.set(new SoftReference<char[]>(chars));
+
         return chars;
     }
+
     
     public static String toString(InputStream in) throws Exception {
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
@@ -758,53 +731,5 @@ public class IOUtils {
             }
         }
         return dp;
-    }
-    
-    public static CoderResult malformedN(ByteBuffer src, int nb) {
-        switch (nb) {
-            case 1:
-                int b1 = src.get();
-                if ((b1 >> 2) == -2) {
-                    // 5 bytes 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
-                    if (src.remaining() < 4) return CoderResult.UNDERFLOW;
-                    
-                    int n = 5;
-                    for (int i = 1; i < n; i++) {
-                        if ((src.get() & 0xc0) != 0x80) {
-                            return CoderResult.malformedForLength(i);
-                        }
-                    }
-                    return CoderResult.malformedForLength(n);
-                }
-                if ((b1 >> 1) == -2) {
-                    // 6 bytes 1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
-                    if (src.remaining() < 5) {
-                        return CoderResult.UNDERFLOW;
-                    }
-                    
-                    int n = 6;
-                    for (int i = 1; i < n; i++) {
-                        if ((src.get() & 0xc0) != 0x80) {
-                            return CoderResult.malformedForLength(i);
-                        }
-                    }
-                    return CoderResult.malformedForLength(n);
-                }
-                return CoderResult.malformedForLength(1);
-            case 2: // always 1
-                return CoderResult.malformedForLength(1);
-            case 3:
-                b1 = src.get();
-                int b2 = src.get(); // no need to lookup b3
-                return CoderResult.malformedForLength(((b1 == (byte) 0xe0 && (b2 & 0xe0) == 0x80) || (b2 & 0xc0) != 0x80) ? 1 : 2);
-            case 4: // we don't care the speed here
-                b1 = src.get() & 0xff;
-                b2 = src.get() & 0xff;
-                if (b1 > 0xf4 || (b1 == 0xf0 && (b2 < 0x90 || b2 > 0xbf)) || (b1 == 0xf4 && (b2 & 0xf0) != 0x80) || (b2 & 0xc0) != 0x80) return CoderResult.malformedForLength(1);
-                if ((src.get() & 0xc0) != 0x80) return CoderResult.malformedForLength(2);
-                return CoderResult.malformedForLength(3);
-            default:
-                throw new IllegalStateException();
-        }
     }
 }

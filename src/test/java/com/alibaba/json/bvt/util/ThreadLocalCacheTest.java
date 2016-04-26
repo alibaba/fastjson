@@ -14,17 +14,19 @@ public class ThreadLocalCacheTest extends TestCase {
     public void test() throws Exception {
 
         IOUtils.clearChars();
-        Assert.assertEquals(IOUtils.getChars(0).length, 1024);
-        Assert.assertEquals(IOUtils.getChars(1024).length, 1024);
-        Assert.assertEquals(IOUtils.getChars(2048).length, 2048);
-        Assert.assertEquals(IOUtils.getChars(0).length, 2048);
+        Assert.assertEquals(IOUtils.getChars(0).length, 1024 * 64);
+        Assert.assertEquals(IOUtils.getChars(1024).length, 1024 * 64);
+        Assert.assertEquals(IOUtils.getChars(2048).length, 1024 * 64);
+        Assert.assertEquals(IOUtils.getChars(0).length, 1024 * 64);
+        Assert.assertEquals(IOUtils.getChars(1024 * 128).length, 1024 * 128);
+        Assert.assertEquals(IOUtils.getChars(0).length, 1024 * 64);
 
         IOUtils.clearChars();
-        Assert.assertEquals(IOUtils.getChars(2048).length, 2048);
+        Assert.assertEquals(IOUtils.getChars(2048).length, 1024 * 64);
 
         IOUtils.clearChars();
         Assert.assertEquals(IOUtils.getChars(1024 * 256).length, 1024 * 256);
-        Assert.assertEquals(IOUtils.getChars(0).length, 1024);
+        Assert.assertEquals(IOUtils.getChars(0).length, 1024 * 64);
         IOUtils.clearChars();
 
     }

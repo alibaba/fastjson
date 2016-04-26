@@ -3,7 +3,10 @@ package com.alibaba.fastjson.support.spring;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -162,11 +165,11 @@ public class FastJsonJsonView extends AbstractView {
 		if (filter == null) {
 			return;
 		}
-
+		
 		SerializeFilter[] filters = new SerializeFilter[this.filters.length + 1];
-		System.arraycopy(this.filters, 0, filters, 0, this.filters.length);
-		filters[filters.length - 1] = filter;
-		this.filters = filters;
+		List<SerializeFilter> filterList = new ArrayList<>(Arrays.asList(this.filters));
+		filterList.add(filter);
+		this.filters = filterList.toArray(filters);
 	}
 
 	/**
@@ -180,9 +183,9 @@ public class FastJsonJsonView extends AbstractView {
 		}
 		
 		SerializerFeature[] features = new SerializerFeature[this.features.length + 1];
-		System.arraycopy(this.features, 0, features, 0, this.features.length);
-		features[features.length - 1] = feature;
-		this.features = features;
+		List<SerializerFeature> featureList = new ArrayList<>(Arrays.asList(this.features));
+		featureList.add(feature);
+		this.features = featureList.toArray(features);
 	}
 	
 	/**

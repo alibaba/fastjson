@@ -33,17 +33,18 @@ public class FastJsonHttpMessageConverter //
         extends AbstractHttpMessageConverter<Object> //
         implements GenericHttpMessageConverter<Object> {
 
+	// default charset
 	private Charset charset = IOUtils.UTF8;
 
 	private SerializerFeature[] features = new SerializerFeature[0];
 
-	protected SerializeFilter[] filters = new SerializeFilter[0];
+	private SerializeFilter[] filters = new SerializeFilter[0];
 
-	protected String dateFormat;
+	private String dateFormat;
 
 	public FastJsonHttpMessageConverter() {
 		
-		super(MediaType.APPLICATION_JSON,  MediaType.APPLICATION_FORM_URLENCODED);
+		super(MediaType.ALL);
 	}
 
 	public Charset getCharset() {
@@ -118,6 +119,18 @@ public class FastJsonHttpMessageConverter //
 				this.filters.length);
 		filters[filters.length - 1] = filter;
 		this.filters = filters;
+	}
+
+
+	public void addSerializerFeature(SerializerFeature feature) {
+		if (feature == null) {
+			return;
+		}
+		
+		SerializerFeature[] features = new SerializerFeature[this.features.length + 1];
+		System.arraycopy(this.features, 0, features, 0, this.features.length);
+		features[features.length - 1] = feature;
+		this.features = features;
 	}
 
 	/* 

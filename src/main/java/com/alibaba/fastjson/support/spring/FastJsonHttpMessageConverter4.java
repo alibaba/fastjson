@@ -31,17 +31,18 @@ import com.alibaba.fastjson.util.IOUtils;
 public class FastJsonHttpMessageConverter4 //
         extends AbstractGenericHttpMessageConverter<Object> {
 
+	// default charset
 	private Charset charset = IOUtils.UTF8;
 
 	private SerializerFeature[] features = new SerializerFeature[0];
 
-	protected SerializeFilter[] filters = new SerializeFilter[0];
+	private SerializeFilter[] filters = new SerializeFilter[0];
 
-	protected String dateFormat;
+	private String dateFormat;
 
 	public FastJsonHttpMessageConverter4() {
 
-		super(MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED);
+		super(MediaType.ALL);
 	}
 
 	public Charset getCharset() {
@@ -87,6 +88,17 @@ public class FastJsonHttpMessageConverter4 //
 		this.filters = filters;
 	}
 
+	public void addSerializerFeature(SerializerFeature feature) {
+		if (feature == null) {
+			return;
+		}
+		
+		SerializerFeature[] features = new SerializerFeature[this.features.length + 1];
+		System.arraycopy(this.features, 0, features, 0, this.features.length);
+		features[features.length - 1] = feature;
+		this.features = features;
+	}
+	
 	@Override
 	protected boolean supports(Class<?> paramClass) {
 		return true;

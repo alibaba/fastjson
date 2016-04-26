@@ -28,15 +28,17 @@ import com.alibaba.fastjson.util.IOUtils;
  */
 public class FastJsonJsonView extends AbstractView {
 
-	public static final String DEFAULT_CONTENT_TYPE = "application/json";
+	// default content type
+	public static final String DEFAULT_CONTENT_TYPE = "application/json;charset=UTF-8";
 
+	// default charset
 	private Charset charset = IOUtils.UTF8;
 
 	private SerializerFeature[] features = new SerializerFeature[0];
 
-	protected SerializeFilter[] filters = new SerializeFilter[0];
+	private SerializeFilter[] filters = new SerializeFilter[0];
 
-	protected String dateFormat;
+	private String dateFormat;
 	
 	private Set<String> renderedAttributes;
 
@@ -102,6 +104,28 @@ public class FastJsonJsonView extends AbstractView {
 		this.extractValueFromSingleKeyModel = extractValueFromSingleKeyModel;
 	}
 
+	public void addSerializeFilter(SerializeFilter filter) {
+		if (filter == null) {
+			return;
+		}
+
+		SerializeFilter[] filters = new SerializeFilter[this.filters.length + 1];
+		System.arraycopy(this.filters, 0, filters, 0, this.filters.length);
+		filters[filters.length - 1] = filter;
+		this.filters = filters;
+	}
+
+	public void addSerializerFeature(SerializerFeature feature) {
+		if (feature == null) {
+			return;
+		}
+		
+		SerializerFeature[] features = new SerializerFeature[this.features.length + 1];
+		System.arraycopy(this.features, 0, features, 0, this.features.length);
+		features[features.length - 1] = feature;
+		this.features = features;
+	}
+	
 	@Override
     protected void renderMergedOutputModel(Map<String, Object> model, //
                                            HttpServletRequest request, //

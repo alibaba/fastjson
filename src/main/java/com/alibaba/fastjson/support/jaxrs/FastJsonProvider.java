@@ -31,14 +31,10 @@ import com.alibaba.fastjson.util.IOUtils;
  *
  */
 @Provider
-@Consumes({ "*/*" })
-@Produces({ "*/*" })
+@Consumes({ MediaType.WILDCARD })
+@Produces({ MediaType.WILDCARD })
 public class FastJsonProvider //
         implements MessageBodyReader<Object>, MessageBodyWriter<Object> {
-
-	public static final String MIME_JAVASCRIPT = "application/javascript";
-	
-	public static final String MIME_JAVASCRIPT_MS = "application/x-javascript";
 
 	// default charset
 	private Charset charset = IOUtils.UTF8;
@@ -47,9 +43,9 @@ public class FastJsonProvider //
 	
 	private SerializerFeature[] features = new SerializerFeature[0];
 
-	protected SerializeFilter[] filters = new SerializeFilter[0];
+	private SerializeFilter[] filters = new SerializeFilter[0];
 
-	protected String dateFormat;
+	private String dateFormat;
 	
 	@javax.ws.rs.core.Context
 	javax.ws.rs.core.UriInfo uriInfo;
@@ -105,6 +101,28 @@ public class FastJsonProvider //
 
 	public void setFilters(SerializeFilter... filters) {
 		this.filters = filters;
+	}
+	
+	public void addSerializeFilter(SerializeFilter filter) {
+		if (filter == null) {
+			return;
+		}
+
+		SerializeFilter[] filters = new SerializeFilter[this.filters.length + 1];
+		System.arraycopy(this.filters, 0, filters, 0, this.filters.length);
+		filters[filters.length - 1] = filter;
+		this.filters = filters;
+	}
+
+	public void addSerializerFeature(SerializerFeature feature) {
+		if (feature == null) {
+			return;
+		}
+		
+		SerializerFeature[] features = new SerializerFeature[this.features.length + 1];
+		System.arraycopy(this.features, 0, features, 0, this.features.length);
+		features[features.length - 1] = feature;
+		this.features = features;
 	}
 	
 	/**

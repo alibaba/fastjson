@@ -121,7 +121,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static Object parse(byte[] input, Feature... features) {
-        return parse(input, 0, input.length, IOUtils.getUTF8Decoder(), features);
+        char[] chars = IOUtils.getChars(input.length);
+        int len = IOUtils.decodeUTF8(input, 0, input.length, chars);
+        return parse(new String(chars, 0, len), features);
     }
 
     public static Object parse(byte[] input, int off, int len, CharsetDecoder charsetDecoder, Feature... features) {
@@ -270,7 +272,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(byte[] input, Type clazz, Feature... features) {
-        return (T) parseObject(input, 0, input.length, IOUtils.getUTF8Decoder(), clazz, features);
+        char[] chars = IOUtils.getChars(input.length);
+        int len = IOUtils.decodeUTF8(input, 0, input.length, chars);
+        return (T) parseObject(new String(chars, 0, len), clazz, features);
     }
 
     @SuppressWarnings("unchecked")

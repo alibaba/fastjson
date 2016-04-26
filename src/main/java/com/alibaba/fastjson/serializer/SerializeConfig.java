@@ -205,7 +205,7 @@ public class SerializeConfig {
 		put(Class.class, MiscCodec.instance);
 
 		put(SimpleDateFormat.class, MiscCodec.instance);
-		put(Currency.class, CurrencyCodec.instance);
+		put(Currency.class, new CurrencySerializer());
 		put(TimeZone.class, MiscCodec.instance);
 		put(InetAddress.class, MiscCodec.instance);
 		put(Inet4Address.class, MiscCodec.instance);
@@ -215,7 +215,7 @@ public class SerializeConfig {
 		put(Appendable.class, AppendableSerializer.instance);
 		put(StringBuffer.class, AppendableSerializer.instance);
 		put(StringBuilder.class, AppendableSerializer.instance);
-		put(Charset.class, CharsetCodec.instance);
+		put(Charset.class, ToStringSerializer.instance);
 		put(Pattern.class, ToStringSerializer.instance);
 		put(Locale.class, ToStringSerializer.instance);
 		put(URI.class, ToStringSerializer.instance);
@@ -377,7 +377,7 @@ public class SerializeConfig {
             } else if (Appendable.class.isAssignableFrom(clazz)) {
                 put(clazz, AppendableSerializer.instance);
             } else if (Charset.class.isAssignableFrom(clazz)) {
-                put(clazz, CharsetCodec.instance);
+                put(clazz, ToStringSerializer.instance);
             } else if (Enumeration.class.isAssignableFrom(clazz)) {
                 put(clazz, EnumerationSerializer.instance);
             } else if (Calendar.class.isAssignableFrom(clazz)) {

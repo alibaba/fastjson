@@ -1,5 +1,6 @@
 package com.alibaba.json.test.codec;
 
+import java.io.OutputStream;
 import java.util.Collection;
 
 public class JsonLibCodec implements Codec {
@@ -41,5 +42,10 @@ public class JsonLibCodec implements Codec {
     public byte[] encodeToBytes(Object object) throws Exception {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public void encode(OutputStream out, Object object) throws Exception {
+        out.write(encodeToBytes(object));
     }
 }

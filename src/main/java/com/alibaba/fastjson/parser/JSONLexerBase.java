@@ -1627,6 +1627,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 && charAt(bp + offset + 2) == 'l') {
                 offset += 3;
                 chLocal = charAt(bp + (offset++));
+                list.add(null);
             } else if (chLocal != '"') {
                 matchStat = NOT_MATCH;
                 return null;

@@ -177,7 +177,13 @@ public class JSONReader implements Closeable {
             object = parser.parse();
         } else {
             readBefore();
-            object = parser.parse();
+            JSONLexer lexer = parser.lexer;
+            if (context.state == JSONStreamContext.StartObject && lexer.token() == JSONToken.IDENTIFIER) {
+                object = lexer.stringVal();
+                lexer.nextToken();
+            } else {
+                object = parser.parse();
+            }
             readAfter();
         }
 

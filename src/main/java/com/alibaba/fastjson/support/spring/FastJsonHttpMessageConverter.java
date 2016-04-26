@@ -1,6 +1,5 @@
 package com.alibaba.fastjson.support.spring;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,9 +29,9 @@ import com.alibaba.fastjson.util.IOUtils;
  * @author Victor.Zxy
  *
  */
-public class FastJsonHttpMessageConverter extends
-		AbstractHttpMessageConverter<Object> implements
-		GenericHttpMessageConverter<Object> {
+public class FastJsonHttpMessageConverter //
+        extends AbstractHttpMessageConverter<Object> //
+        implements GenericHttpMessageConverter<Object> {
 
 	private Charset charset = IOUtils.UTF8;
 
@@ -85,47 +84,29 @@ public class FastJsonHttpMessageConverter extends
 	}
 	
 	@Override
-	protected Object readInternal(Class<? extends Object> clazz,
-			HttpInputMessage inputMessage) throws IOException,
-			HttpMessageNotReadableException {
-
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
+    protected Object readInternal(Class<? extends Object> clazz, //
+                                  HttpInputMessage inputMessage //
+    ) throws IOException, HttpMessageNotReadableException {
+	    
 		InputStream in = inputMessage.getBody();
-
-		byte[] buf = new byte[1024];
-		for (;;) {
-			int len = in.read(buf);
-			if (len == -1) {
-				break;
-			}
-
-			if (len > 0) {
-				baos.write(buf, 0, len);
-			}
-		}
-
-		byte[] bytes = baos.toByteArray();
-		return JSON.parseObject(bytes, 0, bytes.length, charset.newDecoder(),
-				clazz);
+        return JSON.parseObject(in, charset, clazz);
 	}
 
 	@Override
 	protected void writeInternal(Object obj, HttpOutputMessage outputMessage)
 			throws IOException, HttpMessageNotWritableException {
-		HttpHeaders headers = outputMessage.getHeaders();
-		String text = JSON.toJSONString(obj, //
-				SerializeConfig.globalInstance, //
-				filters, //
-				dateFormat, //
-				JSON.DEFAULT_GENERATE_FEATURE, //
-				features);
-		byte[] bytes = text.getBytes(charset);
-		headers.setContentLength(bytes.length);
-		OutputStream out = outputMessage.getBody();
-		out.write(bytes);
-//		out.flush();
-	}
+        HttpHeaders headers = outputMessage.getHeaders();
+        OutputStream out = outputMessage.getBody();
+        int len = JSON.writeJSONString(obj, //
+                                       out, //
+                                       charset, //
+                                       SerializeConfig.globalInstance, //
+                                       filters, //
+                                       dateFormat, //
+                                       JSON.DEFAULT_GENERATE_FEATURE, //
+                                       features);
+        headers.setContentLength(len);
+    }
 
 	public void addSerializeFilter(SerializeFilter filter) {
 		if (filter == null) {
@@ -143,7 +124,6 @@ public class FastJsonHttpMessageConverter extends
 	 * @see org.springframework.http.converter.GenericHttpMessageConverter#canRead(java.lang.reflect.Type, java.lang.Class, org.springframework.http.MediaType)
 	 */
 	public boolean canRead(Type type, Class<?> contextClass, MediaType mediaType) {
-
 		return super.canRead(contextClass, mediaType);
 	}
 
@@ -151,45 +131,29 @@ public class FastJsonHttpMessageConverter extends
 	 * @see org.springframework.http.converter.GenericHttpMessageConverter#canWrite(java.lang.reflect.Type, java.lang.Class, org.springframework.http.MediaType)
 	 */
 	public boolean canWrite(Type type, Class<?> contextClass, MediaType mediaType) {
-
 		return super.canWrite(contextClass, mediaType);
 	}
 	
 	/* 
 	 * @see org.springframework.http.converter.GenericHttpMessageConverter#read(java.lang.reflect.Type, java.lang.Class, org.springframework.http.HttpInputMessage)
 	 */
-	public Object read(Type type, Class<?> contextClass,
-			HttpInputMessage inputMessage) throws IOException,
-			HttpMessageNotReadableException {
-
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
+    public Object read(Type type, //
+                       Class<?> contextClass, //
+                       HttpInputMessage inputMessage //
+    ) throws IOException, HttpMessageNotReadableException {
+        
 		InputStream in = inputMessage.getBody();
-
-		byte[] buf = new byte[1024];
-		for (;;) {
-			int len = in.read(buf);
-			if (len == -1) {
-				break;
-			}
-
-			if (len > 0) {
-				baos.write(buf, 0, len);
-			}
-		}
-
-		byte[] bytes = baos.toByteArray();
-
-		return JSON.parseObject(bytes, 0, bytes.length, charset.newDecoder(),
-				type);
+		return JSON.parseObject(in, charset, type);
 	}
 
 	/* 
 	 * @see org.springframework.http.converter.GenericHttpMessageConverter#write(java.lang.Object, java.lang.reflect.Type, org.springframework.http.MediaType, org.springframework.http.HttpOutputMessage)
 	 */
-	public void write(final Object t, Type type, MediaType contentType,
-			HttpOutputMessage outputMessage) throws IOException,
-			HttpMessageNotWritableException {
+    public void write(Object t, //
+                      Type type, //
+                      MediaType contentType, //
+                      HttpOutputMessage outputMessage //
+    ) throws IOException, HttpMessageNotWritableException {
 
 		HttpHeaders headers = outputMessage.getHeaders();
 		if (headers.getContentType() == null) {

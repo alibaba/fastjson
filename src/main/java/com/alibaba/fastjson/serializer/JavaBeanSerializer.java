@@ -34,10 +34,6 @@ import com.alibaba.fastjson.util.TypeUtils;
  * @author wenshao[szujobs@hotmail.com]
  */
 public class JavaBeanSerializer extends SerializeFilterable implements ObjectSerializer {
-
-    private static final char[]       true_chars  = new char[] { 't', 'r', 'u', 'e' };
-    private static final char[]       false_chars = new char[] { 'f', 'a', 'l', 's', 'e' };
-
     // serializers
     private final FieldSerializer[]   getters;
     protected final FieldSerializer[] sortedGetters;
@@ -256,48 +252,12 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     }
                 }
 
-                Object propertyValue = null;
-                int propertyValueInt = 0;
-                long propertyValueLong = 0L;
-                boolean propertyValueBoolean = false;
+                Object propertyValue = fieldSerializer.getPropertyValue(object);
 
-                boolean propertyValueGot = false;
-                boolean valueGot = false;
-                if (fieldInfo.fieldAccess) {
-                    if (fieldClass == int.class) {
-                        propertyValueInt = fieldInfo.field.getInt(object);
-                        valueGot = true;
-                    } else if (fieldClass == long.class) {
-                        propertyValueLong = fieldInfo.field.getLong(object);
-                        valueGot = true;
-                    } else if (fieldClass == boolean.class) {
-                        propertyValueBoolean = fieldInfo.field.getBoolean(object);
-                        valueGot = true;
-                    } else {
-                        propertyValue = fieldInfo.field.get(object);
-                        propertyValueGot = true;
-                    }
-                } else {
-                    propertyValue = fieldSerializer.getPropertyValue(object);
-                    propertyValueGot = true;
-                }
 
                 boolean apply = true;
                 {
                     if (propertyFilters != null) {
-                        if (valueGot) {
-                            if (fieldClass == int.class) {
-                                propertyValue = Integer.valueOf(propertyValueInt);
-                                propertyValueGot = true;
-                            } else if (fieldClass == long.class) {
-                                propertyValue = Long.valueOf(propertyValueLong);
-                                propertyValueGot = true;
-                            } else if (fieldClass == boolean.class) {
-                                propertyValue = propertyValueBoolean;
-                                propertyValueGot = true;
-                            }
-                        }
-
                         for (PropertyFilter propertyFilter : propertyFilters) {
                             if (!propertyFilter.apply(object, fieldInfoName, propertyValue)) {
                                 apply = false;
@@ -307,19 +267,6 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     }
 
                     if (apply && this.propertyFilters != null) {
-                        if (valueGot && !propertyValueGot) {
-                            if (fieldClass == int.class) {
-                                propertyValue = Integer.valueOf(propertyValueInt);
-                                propertyValueGot = true;
-                            } else if (fieldClass == long.class) {
-                                propertyValue = Long.valueOf(propertyValueLong);
-                                propertyValueGot = true;
-                            } else if (fieldClass == boolean.class) {
-                                propertyValue = propertyValueBoolean;
-                                propertyValueGot = true;
-                            }
-                        }
-
                         for (PropertyFilter propertyFilter : this.propertyFilters) {
                             if (!propertyFilter.apply(object, fieldInfoName, propertyValue)) {
                                 apply = false;
@@ -336,38 +283,12 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 String key = fieldInfoName;
                 {
                     if (nameFilters != null) {
-                        if (valueGot && !propertyValueGot) {
-                            if (fieldClass == int.class) {
-                                propertyValue = Integer.valueOf(propertyValueInt);
-                                propertyValueGot = true;
-                            } else if (fieldClass == long.class) {
-                                propertyValue = Long.valueOf(propertyValueLong);
-                                propertyValueGot = true;
-                            } else if (fieldClass == boolean.class) {
-                                propertyValue = propertyValueBoolean;
-                                propertyValueGot = true;
-                            }
-                        }
-
                         for (NameFilter nameFilter : nameFilters) {
                             key = nameFilter.process(object, key, propertyValue);
                         }
                     }
 
                     if (this.nameFilters != null) {
-                        if (valueGot && !propertyValueGot) {
-                            if (fieldClass == int.class) {
-                                propertyValue = Integer.valueOf(propertyValueInt);
-                                propertyValueGot = true;
-                            } else if (fieldClass == long.class) {
-                                propertyValue = Long.valueOf(propertyValueLong);
-                                propertyValueGot = true;
-                            } else if (fieldClass == boolean.class) {
-                                propertyValue = propertyValueBoolean;
-                                propertyValueGot = true;
-                            }
-                        }
-
                         for (NameFilter nameFilter : this.nameFilters) {
                             key = nameFilter.process(object, key, propertyValue);
                         }
@@ -375,30 +296,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 }
 
                 if (out.writeNonStringValueAsString) {
-                    if (fieldClass == int.class) {
-                        if (!propertyValueGot) {
-                            propertyValue = Integer.toString(propertyValueInt);
-                            propertyValueGot = true;
-                        } else {
-                            propertyValue = propertyValue.toString();
-                        }
-                    } else if (fieldClass == long.class) {
-                        if (!propertyValueGot) {
-                            propertyValue = Long.toString(propertyValueLong);
-                            propertyValueGot = true;
-                        } else {
-                            propertyValue = propertyValue.toString();
-                        }
-                    } else if (fieldClass == boolean.class) {
-                        if (!propertyValueGot) {
-                            propertyValue = Boolean.toString(propertyValueBoolean);
-                            propertyValueGot = true;
-                        } else {
-                            propertyValue = propertyValue.toString();
-                        }
-                    } else if (fieldClass == String.class) {
-                        // skip
-                    } else if (propertyValue instanceof Number || propertyValue instanceof Boolean) {
+                    if (propertyValue instanceof Number || propertyValue instanceof Boolean) {
                         propertyValue = propertyValue.toString();
                     }
                 }
@@ -406,44 +304,12 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 Object originalValue = propertyValue;
                 {
                     if (valueFilters != null) {
-                        if (valueGot && !propertyValueGot) {
-                            if (fieldClass == int.class) {
-                                propertyValue = Integer.valueOf(propertyValueInt);
-                                originalValue = propertyValue;
-                                propertyValueGot = true;
-                            } else if (fieldClass == long.class) {
-                                propertyValue = Long.valueOf(propertyValueLong);
-                                originalValue = propertyValue;
-                                propertyValueGot = true;
-                            } else if (fieldClass == boolean.class) {
-                                propertyValue = propertyValueBoolean;
-                                originalValue = propertyValue;
-                                propertyValueGot = true;
-                            }
-                        }
-
                         for (ValueFilter valueFilter : valueFilters) {
                             propertyValue = valueFilter.process(object, fieldInfoName, propertyValue);
                         }
                     }
 
                     if (this.valueFilters != null) {
-                        if (valueGot && !propertyValueGot) {
-                            if (fieldClass == int.class) {
-                                propertyValue = Integer.valueOf(propertyValueInt);
-                                originalValue = propertyValue;
-                                propertyValueGot = true;
-                            } else if (fieldClass == long.class) {
-                                propertyValue = Long.valueOf(propertyValueLong);
-                                originalValue = propertyValue;
-                                propertyValueGot = true;
-                            } else if (fieldClass == boolean.class) {
-                                propertyValue = propertyValueBoolean;
-                                originalValue = propertyValue;
-                                propertyValueGot = true;
-                            }
-                        }
-
                         for (ValueFilter valueFilter : this.valueFilters) {
                             propertyValue = valueFilter.process(object, fieldInfoName, propertyValue);
                         }
@@ -451,22 +317,6 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 }
                 {
                     if (contextValueFilters != null) {
-                        if (valueGot && !propertyValueGot) {
-                            if (fieldClass == int.class) {
-                                propertyValue = Integer.valueOf(propertyValueInt);
-                                originalValue = propertyValue;
-                                propertyValueGot = true;
-                            } else if (fieldClass == long.class) {
-                                propertyValue = Long.valueOf(propertyValueLong);
-                                originalValue = propertyValue;
-                                propertyValueGot = true;
-                            } else if (fieldClass == boolean.class) {
-                                propertyValue = propertyValueBoolean;
-                                originalValue = propertyValue;
-                                propertyValueGot = true;
-                            }
-                        }
-
                         for (ContextValueFilter valueFilter : contextValueFilters) {
                             propertyValue = valueFilter.process(fieldSerializer.fieldContext, object, fieldInfoName,
                                                                 propertyValue);
@@ -474,22 +324,6 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     }
 
                     if (this.contextValueFilters != null) {
-                        if (valueGot && !propertyValueGot) {
-                            if (fieldClass == int.class) {
-                                propertyValue = Integer.valueOf(propertyValueInt);
-                                originalValue = propertyValue;
-                                propertyValueGot = true;
-                            } else if (fieldClass == long.class) {
-                                propertyValue = Long.valueOf(propertyValueLong);
-                                originalValue = propertyValue;
-                                propertyValueGot = true;
-                            } else if (fieldClass == boolean.class) {
-                                propertyValue = propertyValueBoolean;
-                                originalValue = propertyValue;
-                                propertyValueGot = true;
-                            }
-                        }
-
                         for (ContextValueFilter valueFilter : this.contextValueFilters) {
                             propertyValue = valueFilter.process(fieldSerializer.fieldContext, object, fieldInfoName,
                                                                 propertyValue);
@@ -497,7 +331,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     }
                 }
 
-                if (propertyValueGot && propertyValue == null && !writeAsArray) {
+                if (propertyValue == null && !writeAsArray) {
                     if ((!fieldSerializer.writeNull) && (!out.writeMapNullValue)) {
                         continue;
                     }
@@ -556,44 +390,30 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                         }
                     }
 
-                    if (valueGot && !propertyValueGot) {
-                        if (fieldClass == int.class) {
-                            serializer.out.writeInt(propertyValueInt);
-                        } else if (fieldClass == long.class) {
-                            serializer.out.writeLong(propertyValueLong);
-                        } else if (fieldClass == boolean.class) {
-                            if (propertyValueBoolean) {
-                                serializer.out.write(true_chars, 0, true_chars.length);
-                            } else {
-                                serializer.out.write(false_chars, 0, false_chars.length);
-                            }
-                        }
-                    } else {
-                        if (!writeAsArray) {
-                            if (fieldClass == String.class) {
-                                if (propertyValue == null) {
-                                    if ((out.features & SerializerFeature.WriteNullStringAsEmpty.mask) != 0
-                                        || (fieldSerializer.features
-                                            & SerializerFeature.WriteNullStringAsEmpty.mask) != 0) {
-                                        out.writeString("");
-                                    } else {
-                                        out.writeNull();
-                                    }
+                    if (!writeAsArray) {
+                        if (fieldClass == String.class) {
+                            if (propertyValue == null) {
+                                if ((out.features & SerializerFeature.WriteNullStringAsEmpty.mask) != 0
+                                    || (fieldSerializer.features
+                                        & SerializerFeature.WriteNullStringAsEmpty.mask) != 0) {
+                                    out.writeString("");
                                 } else {
-                                    String propertyValueString = (String) propertyValue;
-
-                                    if (out.useSingleQuotes) {
-                                        out.writeStringWithSingleQuote(propertyValueString);
-                                    } else {
-                                        out.writeStringWithDoubleQuote(propertyValueString, (char) 0);
-                                    }
+                                    out.writeNull();
                                 }
                             } else {
-                                fieldSerializer.writeValue(serializer, propertyValue);
+                                String propertyValueString = (String) propertyValue;
+
+                                if (out.useSingleQuotes) {
+                                    out.writeStringWithSingleQuote(propertyValueString);
+                                } else {
+                                    out.writeStringWithDoubleQuote(propertyValueString, (char) 0);
+                                }
                             }
                         } else {
                             fieldSerializer.writeValue(serializer, propertyValue);
                         }
+                    } else {
+                        fieldSerializer.writeValue(serializer, propertyValue);
                     }
                 }
 

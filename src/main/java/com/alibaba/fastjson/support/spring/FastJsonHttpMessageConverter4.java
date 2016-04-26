@@ -4,10 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
@@ -18,10 +14,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializeConfig;
-import com.alibaba.fastjson.serializer.SerializeFilter;
-import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.alibaba.fastjson.util.IOUtils;
+import com.alibaba.fastjson.support.config.FastJsonConfig;
 
 /**
  * Fastjson for Spring MVC Converter.
@@ -36,17 +29,26 @@ import com.alibaba.fastjson.util.IOUtils;
 public class FastJsonHttpMessageConverter4 //
         extends AbstractGenericHttpMessageConverter<Object> {
 
-	/** default charset */
-	private Charset charset = IOUtils.UTF8;
+	/** with fastJson config */
+	private FastJsonConfig fastJsonConfig; 
 
-	/** serializer features */
-	private SerializerFeature[] features = new SerializerFeature[0];
+	/**
+	 * @since 1.2.11
+	 * 
+	 * @return the fastJsonConfig.
+	 */
+	public FastJsonConfig getFastJsonConfig() {
+		return fastJsonConfig;
+	}
 
-	/** serialize filter */
-	private SerializeFilter[] filters = new SerializeFilter[0];
-
-	/** dateFormat */
-	private String dateFormat;
+	/**
+	 * @since 1.2.11
+	 * 
+	 * @param fastJsonConfig the fastJsonConfig to set.
+	 */
+	public void setFastJsonConfig(FastJsonConfig fastJsonConfig) {
+		this.fastJsonConfig = fastJsonConfig;
+	}
 
 	/**
 	 *	Can serialize/deserialize all types.
@@ -54,110 +56,6 @@ public class FastJsonHttpMessageConverter4 //
 	public FastJsonHttpMessageConverter4() {
 
 		super(MediaType.ALL);
-	}
-
-	/**
-	 * Get charset.
-	 *
-	 * @return charset
-	 */
-	public Charset getCharset() {
-		return this.charset;
-	}
-
-	/**
-	 * Set charset.
-	 * 
-	 * @param charset Charset
-	 */
-	public void setCharset(Charset charset) {
-		this.charset = charset;
-	}
-
-	/**
-	 * Get dateFormat.
-	 * 
-	 * @return dateFormat
-	 */
-	public String getDateFormat() {
-		return dateFormat;
-	}
-
-	/**
-	 * Set dateFormat.
-	 *
-	 * @param dateFormat String
-	 */
-	public void setDateFormat(String dateFormat) {
-		this.dateFormat = dateFormat;
-	}
-
-	/**
-	 * Get features.
-	 *
-	 * @return features SerializerFeature[]
-	 */
-	public SerializerFeature[] getFeatures() {
-		return features;
-	}
-
-	/**
-	 * Set features.
-	 *
-	 * @param features SerializerFeature[]
-	 */
-	public void setFeatures(SerializerFeature... features) {
-		this.features = features;
-	}
-
-	/**
-	 * Get filters.
-	 *
-	 * @return filters SerializeFilter[]
-	 */
-	public SerializeFilter[] getFilters() {
-		return filters;
-	}
-
-	/**
-	 * Set filters.
-	 * 
-	 * @param filters SerializeFilter[]
-	 */
-	public void setFilters(SerializeFilter... filters) {
-		this.filters = filters;
-	}
-
-	/**
-	 * Add SerializeFilter
-	 *
-	 * @param filter SerializeFilter
-	 */
-	public void addSerializeFilter(SerializeFilter filter) {
-		if (filter == null) {
-			return;
-		}
-		
-		SerializeFilter[] filters = new SerializeFilter[this.filters.length + 1];
-		List<SerializeFilter> filterList = new ArrayList<>(Arrays.asList(this.filters));
-		filterList.add(filter);
-		this.filters = filterList.toArray(filters);
-	}
-
-	/**
-	 * Add SerializerFeature
-	 *
-	 * @param feature SerializerFeature
-	 */
-	public void addSerializerFeature(SerializerFeature feature) {
-		if (feature == null) {
-			return;
-		}
-		
-		SerializerFeature[] features = new SerializerFeature[this.features.length + 1];
-		List<SerializerFeature> featureList = new ArrayList<>(Arrays.asList(this.features));
-		featureList.add(feature);
-		this.features = featureList.toArray(features);
 	}
 	
 	@Override
@@ -171,7 +69,7 @@ public class FastJsonHttpMessageConverter4 //
                        HttpInputMessage inputMessage //
     ) throws IOException, HttpMessageNotReadableException {
         InputStream in = inputMessage.getBody();
-        return JSON.parseObject(in, charset, type);
+        return JSON.parseObject(in, fastJsonConfig.getCharset(), type, fastJsonConfig.getFeatures());
     }
 
 	@Override
@@ -184,12 +82,12 @@ public class FastJsonHttpMessageConverter4 //
         OutputStream out = outputMessage.getBody();
         int len = JSON.writeJSONString(obj, //
                                        out, //
-                                       charset, //
-                                       SerializeConfig.globalInstance, //
-                                       filters, //
-                                       dateFormat, //
+                                       fastJsonConfig.getCharset(), //
+                                       fastJsonConfig.getSerializeConfig(), //
+                                       fastJsonConfig.getSerializeFilters(), //
+                                       fastJsonConfig.getDateFormat(), //
                                        JSON.DEFAULT_GENERATE_FEATURE, //
-                                       features);
+                                       fastJsonConfig.getSerializerFeatures());
         headers.setContentLength(len);
 	}
 
@@ -199,6 +97,6 @@ public class FastJsonHttpMessageConverter4 //
     ) throws IOException, HttpMessageNotReadableException {
 
 		InputStream in = inputMessage.getBody();
-        return JSON.parseObject(in, charset, clazz);
+        return JSON.parseObject(in, fastJsonConfig.getCharset(), clazz, fastJsonConfig.getFeatures());
 	}
 }

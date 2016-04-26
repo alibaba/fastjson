@@ -21,6 +21,6 @@ public class OOMTest extends TestCase {
         Field field = SymbolTable.class.getDeclaredField("symbols");
         field.setAccessible(true);
         Object[] symbols = (Object[]) field.get(ParserConfig.global.symbolTable);
-        Assert.assertEquals(4096, symbols.length);
+        Assert.assertEquals(16384, symbols.length);
     }
 }

@@ -156,7 +156,7 @@ public class DefaultJSONParser implements Closeable {
             throw new JSONException("syntax error, expect {, actual " + lexer.tokenName() + ", " + lexer.info());
         }
         
-        Map innerMap = null;
+        final Map innerMap;
         final boolean isJSONObject;
         if (object instanceof JSONObject) {
             JSONObject jsonObject = (JSONObject) object;
@@ -164,6 +164,7 @@ public class DefaultJSONParser implements Closeable {
             isJSONObject = true;
         } else {
             isJSONObject = false;
+            innerMap = null;
         }
         
         //getInnerMap

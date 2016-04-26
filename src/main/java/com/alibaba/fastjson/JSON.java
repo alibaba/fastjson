@@ -121,7 +121,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static Object parse(byte[] input, Feature... features) {
-        char[] chars = IOUtils.getChars(input.length);
+        char[] chars = IOUtils.allocateChars(input.length);
         int len = IOUtils.decodeUTF8(input, 0, input.length, chars);
         return parse(new String(chars, 0, len), features);
     }
@@ -143,7 +143,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         charsetDecoder.reset();
 
         int scaleLength = (int) (len * (double) charsetDecoder.maxCharsPerByte());
-        char[] chars = IOUtils.getChars(scaleLength);
+        char[] chars = IOUtils.allocateChars(scaleLength);
 
         ByteBuffer byteBuf = ByteBuffer.wrap(input, off, len);
         CharBuffer charBuf = CharBuffer.wrap(chars);
@@ -272,7 +272,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(byte[] input, Type clazz, Feature... features) {
-        char[] chars = IOUtils.getChars(input.length);
+        char[] chars = IOUtils.allocateChars(input.length);
         int len = IOUtils.decodeUTF8(input, 0, input.length, chars);
         return (T) parseObject(new String(chars, 0, len), clazz, features);
     }
@@ -287,7 +287,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         charsetDecoder.reset();
 
         int scaleLength = (int) (len * (double) charsetDecoder.maxCharsPerByte());
-        char[] chars = IOUtils.getChars(scaleLength);
+        char[] chars = IOUtils.allocateChars(scaleLength);
 
         ByteBuffer byteBuf = ByteBuffer.wrap(input, off, len);
         CharBuffer charByte = CharBuffer.wrap(chars);

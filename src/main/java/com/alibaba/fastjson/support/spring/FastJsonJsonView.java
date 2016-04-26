@@ -2,11 +2,7 @@ package com.alibaba.fastjson.support.spring;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,10 +14,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.view.AbstractView;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializeConfig;
-import com.alibaba.fastjson.serializer.SerializeFilter;
-import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.alibaba.fastjson.util.IOUtils;
+import com.alibaba.fastjson.support.config.FastJsonConfig;
 
 /**
  * Fastjson for Spring MVC View.
@@ -38,18 +31,6 @@ public class FastJsonJsonView extends AbstractView {
 	/** default content type */
 	public static final String DEFAULT_CONTENT_TYPE = "application/json;charset=UTF-8";
 
-	/** default charset */
-	private Charset charset = IOUtils.UTF8;
-
-	/** serializer feature */
-	private SerializerFeature[] features = new SerializerFeature[0];
-
-	/** serialize filter */
-	private SerializeFilter[] filters = new SerializeFilter[0];
-
-	/** dateFormat */
-	private String dateFormat;
-	
 	/** renderedAttributes */
 	private Set<String> renderedAttributes;
 
@@ -62,15 +43,36 @@ public class FastJsonJsonView extends AbstractView {
 	/** extractValueFromSingleKeyModel */
 	private boolean extractValueFromSingleKeyModel = false;
 
+	/** with fastJson config */
+	private FastJsonConfig fastJsonConfig; 
+
 	/**
 	 * Set default param.
 	 */
 	public FastJsonJsonView() {
-		setCharset(charset);
+
 		setContentType(DEFAULT_CONTENT_TYPE);
 		setExposePathVariables(false);
 	}
 
+	/**
+	 * @since 1.2.11
+	 * 
+	 * @return the fastJsonConfig.
+	 */
+	public FastJsonConfig getFastJsonConfig() {
+		return fastJsonConfig;
+	}
+
+	/**
+	 * @since 1.2.11
+	 * 
+	 * @param fastJsonConfig the fastJsonConfig to set.
+	 */
+	public void setFastJsonConfig(FastJsonConfig fastJsonConfig) {
+		this.fastJsonConfig = fastJsonConfig;
+	}
+	
 	/**
 	 * Set renderedAttributes.
 	 *
@@ -78,115 +80,6 @@ public class FastJsonJsonView extends AbstractView {
 	 */
 	public void setRenderedAttributes(Set<String> renderedAttributes) {
 		this.renderedAttributes = renderedAttributes;
-	}
-
-	@Deprecated
-	public void setSerializerFeature(SerializerFeature... features) {
-		this.setFeatures(features);
-	}
-	
-	/**
-	 * Get charset.
-	 *
-	 * @return charset
-	 */
-	public Charset getCharset() {
-		return this.charset;
-	}
-
-	/**
-	 * Set charset.
-	 * 
-	 * @param charset Charset
-	 */
-	public void setCharset(Charset charset) {
-		this.charset = charset;
-	}
-
-	/**
-	 * Get dateFormat.
-	 * 
-	 * @return dateFormat
-	 */
-	public String getDateFormat() {
-		return dateFormat;
-	}
-
-	/**
-	 * Set dateFormat.
-	 *
-	 * @param dateFormat String
-	 */
-	public void setDateFormat(String dateFormat) {
-		this.dateFormat = dateFormat;
-	}
-
-	/**
-	 * Get features.
-	 *
-	 * @return features SerializerFeature[]
-	 */
-	public SerializerFeature[] getFeatures() {
-		return features;
-	}
-
-	/**
-	 * Set features.
-	 *
-	 * @param features SerializerFeature[]
-	 */
-	public void setFeatures(SerializerFeature... features) {
-		this.features = features;
-	}
-
-	/**
-	 * Get filters.
-	 *
-	 * @return filters SerializeFilter[]
-	 */
-	public SerializeFilter[] getFilters() {
-		return filters;
-	}
-
-	/**
-	 * Set filters.
-	 * 
-	 * @param filters SerializeFilter[]
-	 */
-	public void setFilters(SerializeFilter... filters) {
-		this.filters = filters;
-	}
-
-	/**
-	 * Add SerializeFilter
-	 *
-	 * @param filter SerializeFilter
-	 */
-	public void addSerializeFilter(SerializeFilter filter) {
-		if (filter == null) {
-			return;
-		}
-		
-		SerializeFilter[] filters = new SerializeFilter[this.filters.length + 1];
-		List<SerializeFilter> filterList = new ArrayList<>(Arrays.asList(this.filters));
-		filterList.add(filter);
-		this.filters = filterList.toArray(filters);
-	}
-
-	/**
-	 * Add SerializerFeature
-	 *
-	 * @param feature SerializerFeature
-	 */
-	public void addSerializerFeature(SerializerFeature feature) {
-		if (feature == null) {
-			return;
-		}
-		
-		SerializerFeature[] features = new SerializerFeature[this.features.length + 1];
-		List<SerializerFeature> featureList = new ArrayList<>(Arrays.asList(this.features));
-		featureList.add(feature);
-		this.features = featureList.toArray(features);
 	}
 	
 	/**
@@ -218,12 +111,12 @@ public class FastJsonJsonView extends AbstractView {
             : response.getOutputStream();
         JSON.writeJSONString(value, //
                              stream, //
-                             charset, //
-                             SerializeConfig.globalInstance, //
-                             filters, //
-                             dateFormat, //
+                             fastJsonConfig.getCharset(), //
+                             fastJsonConfig.getSerializeConfig(), //
+                             fastJsonConfig.getSerializeFilters(), //
+                             fastJsonConfig.getDateFormat(), //
                              JSON.DEFAULT_GENERATE_FEATURE, //
-                             features);
+                             fastJsonConfig.getSerializerFeatures());
 		
 		stream.flush();
 		
@@ -237,7 +130,7 @@ public class FastJsonJsonView extends AbstractView {
                                    HttpServletResponse response) {
 	    
 		setResponseContentType(request, response);
-		response.setCharacterEncoding(charset.name());
+		response.setCharacterEncoding(fastJsonConfig.getCharset().name());
 		if (this.disableCaching) {
 			response.addHeader("Pragma", "no-cache");
 			response.addHeader("Cache-Control", "no-cache, no-store, max-age=0");

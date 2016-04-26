@@ -1,6 +1,7 @@
 
 package com.alibaba.fastjson.support.config;
 
+import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -9,6 +10,7 @@ import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.util.IOUtils;
 
 /**
  * Config for FastJson.
@@ -25,21 +27,36 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class FastJsonConfig {
 
+	/** default charset */
+	private Charset charset;
+	
+	/** serializeConfig */
 	private SerializeConfig serializeConfig;
 	
+	/** parserConfig */
 	private ParserConfig parserConfig;
 	
+	/** serializerFeatures */
 	private SerializerFeature[] serializerFeatures;
 	
+	/** serializeFilters */
 	private SerializeFilter[] serializeFilters;
 	
+	/** features */
 	private Feature[] features;
 	
+	/** class level serializeFilter */
 	private Map<Class<?>, SerializeFilter> classSerializeFilters;
 	
+	/** format date type */
 	private String dateFormat;
 	
+	/**
+	 * init param.
+	 */
 	public FastJsonConfig() {
+		
+		this.charset = IOUtils.UTF8;
 		
 		this.serializeConfig = SerializeConfig.getGlobalInstance();
 		this.parserConfig = ParserConfig.getGlobalInstance();
@@ -87,7 +104,7 @@ public class FastJsonConfig {
 	/**
 	 * @param serializerFeatures the serializerFeatures to set
 	 */
-	public void setSerializerFeatures(SerializerFeature[] serializerFeatures) {
+	public void setSerializerFeatures(SerializerFeature... serializerFeatures) {
 		this.serializerFeatures = serializerFeatures;
 	}
 
@@ -101,7 +118,7 @@ public class FastJsonConfig {
 	/**
 	 * @param serializeFilters the serializeFilters to set
 	 */
-	public void setSerializeFilters(SerializeFilter[] serializeFilters) {
+	public void setSerializeFilters(SerializeFilter... serializeFilters) {
 		this.serializeFilters = serializeFilters;
 	}
 
@@ -115,7 +132,7 @@ public class FastJsonConfig {
 	/**
 	 * @param features the features to set
 	 */
-	public void setFeatures(Feature[] features) {
+	public void setFeatures(Feature... features) {
 		this.features = features;
 	}
 
@@ -154,5 +171,19 @@ public class FastJsonConfig {
 	 */
 	public void setDateFormat(String dateFormat) {
 		this.dateFormat = dateFormat;
+	}
+
+	/**
+	 * @return the charset
+	 */
+	public Charset getCharset() {
+		return charset;
+	}
+
+	/**
+	 * @param charset the charset to set
+	 */
+	public void setCharset(Charset charset) {
+		this.charset = charset;
 	}
 }

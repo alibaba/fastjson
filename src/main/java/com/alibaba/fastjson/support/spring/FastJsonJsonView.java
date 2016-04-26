@@ -44,7 +44,7 @@ public class FastJsonJsonView extends AbstractView {
 	private boolean extractValueFromSingleKeyModel = false;
 
 	/** with fastJson config */
-	private FastJsonConfig fastJsonConfig; 
+	private FastJsonConfig fastJsonConfig = new FastJsonConfig(); 
 
 	/**
 	 * Set default param.

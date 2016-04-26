@@ -34,7 +34,7 @@ public class FastJsonHttpMessageConverter //
         implements GenericHttpMessageConverter<Object> {
 
 	/** with fastJson config */
-	private FastJsonConfig fastJsonConfig; 
+	private FastJsonConfig fastJsonConfig = new FastJsonConfig(); 
 
 	/**
 	 * @since 1.2.11

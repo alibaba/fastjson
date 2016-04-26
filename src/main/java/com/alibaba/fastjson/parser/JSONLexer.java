@@ -713,11 +713,13 @@ public final class JSONLexer {
             int nextLen = nextIndex - endIndex;
             int next_chars_len = chars_len + nextLen;
 
-            if (next_chars_len < chars.length) {
-                text.getChars(endIndex, nextIndex, chars, chars_len);
-            } else {
-                chars = sub_chars(bp + 1, next_chars_len);
+            if (next_chars_len >= chars.length) {
+                char[] newChars = new char[chars.length * 3 / 2];
+                System.arraycopy(chars, 0, newChars, 0, chars.length);
+                chars = newChars;
             }
+            text.getChars(endIndex, nextIndex, chars, chars_len);
+            
             chars_len = next_chars_len;
             endIndex = nextIndex;
             hasSpecial = true;
@@ -949,11 +951,13 @@ public final class JSONLexer {
             int nextLen = nextIndex - endIndex;
             int next_chars_len = chars_len + nextLen;
 
-            if (next_chars_len < chars.length) {
-                text.getChars(endIndex, nextIndex, chars, chars_len);
-            } else {
-                chars = sub_chars(bp + 1, next_chars_len);
+            if (next_chars_len >= chars.length) {
+                char[] newChars = new char[chars.length * 3 / 2];
+                System.arraycopy(chars, 0, newChars, 0, chars.length);
+                chars = newChars;
             }
+            text.getChars(endIndex, nextIndex, chars, chars_len);
+            
             chars_len = next_chars_len;
             endIndex = nextIndex;
             hasSpecial = true;
@@ -1033,11 +1037,13 @@ public final class JSONLexer {
             int nextLen = nextIndex - endIndex;
             int next_chars_len = chars_len + nextLen;
 
-            if (next_chars_len < chars.length) {
-                text.getChars(endIndex, nextIndex, chars, chars_len);
-            } else {
-                chars = sub_chars(bp + 1, next_chars_len);
+            if (next_chars_len >= chars.length) {
+                char[] newChars = new char[chars.length * 3 / 2];
+                System.arraycopy(chars, 0, newChars, 0, chars.length);
+                chars = newChars;
             }
+            text.getChars(endIndex, nextIndex, chars, chars_len);
+            
             chars_len = next_chars_len;
             endIndex = nextIndex;
             hasSpecial = true;
@@ -2129,12 +2135,14 @@ public final class JSONLexer {
                 int nextIndex = text.indexOf(quoteChar, endIndex + 1);
                 int nextLen = nextIndex - endIndex;
                 int next_chars_len = chars_len + nextLen;
-
-                if (next_chars_len < chars.length) {
-                    text.getChars(endIndex, nextIndex, chars, chars_len);
-                } else {
-                    chars = sub_chars(bp + offset, next_chars_len);
+                
+                if (next_chars_len >= chars.length) {
+                    char[] newChars = new char[chars.length * 3 / 2];
+                    System.arraycopy(chars, 0, newChars, 0, chars.length);
+                    chars = newChars;
                 }
+                text.getChars(endIndex, nextIndex, chars, chars_len);
+                
                 chars_len = next_chars_len;
                 endIndex = nextIndex;
                 hasSpecial = true;

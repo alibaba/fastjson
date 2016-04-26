@@ -31,10 +31,14 @@ import com.alibaba.fastjson.util.IOUtils;
  *
  */
 @Provider
-@Produces({ MediaType.APPLICATION_FORM_URLENCODED, MediaType.APPLICATION_JSON })
-@Consumes({ MediaType.APPLICATION_FORM_URLENCODED, MediaType.APPLICATION_JSON })
+@Consumes({ "*/*" })
+@Produces({ "*/*" })
 public class FastJsonProvider //
         implements MessageBodyReader<Object>, MessageBodyWriter<Object> {
+
+	public static final String MIME_JAVASCRIPT = "application/javascript";
+	
+	public static final String MIME_JAVASCRIPT_MS = "application/x-javascript";
 
 	// default charset
 	private Charset charset = IOUtils.UTF8;
@@ -139,10 +143,13 @@ public class FastJsonProvider //
 		if (mediaType != null) {
 			String subtype = mediaType.getSubtype();
 			
-            return "json".equalsIgnoreCase(subtype) //
-                   || subtype.endsWith("+json") //
-                   || "x-www-form-urlencoded".equalsIgnoreCase(subtype) //
-                   || subtype.endsWith("x-www-form-urlencoded");
+			return (("json".equalsIgnoreCase(subtype)) //
+					|| (subtype.endsWith("+json")) //
+					|| ("javascript".equals(subtype)) //
+					|| ("x-javascript".equals(subtype)) //
+					|| ("x-json".equals(subtype)) //
+					|| ("x-www-form-urlencoded".equalsIgnoreCase(subtype)) //
+					|| (subtype.endsWith("x-www-form-urlencoded")));
 		}
 		return true;
 	}

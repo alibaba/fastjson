@@ -539,30 +539,6 @@ public class IOUtils {
         return dArr;
     }
     
-    private final static ThreadLocal<char[]> charsLocal = new ThreadLocal<char[]>();
-
-    public static void clearChars() {
-        charsLocal.set(null);
-    }
-
-    public static char[] allocateChars(int length) {
-        char[] chars = charsLocal.get();
-
-        if (chars == null) {
-            if (length <= 1024 * 64) {
-                chars = new char[1024 * 64];
-                charsLocal.set(chars);
-            } else {
-                chars = new char[length];
-            }
-        } else if (chars.length < length) {
-            chars = new char[length];
-        }
-
-        return chars;
-    }
-
-    
     public static String toString(InputStream in) throws Exception {
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         return readAll(reader);

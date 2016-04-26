@@ -30,7 +30,8 @@ import com.alibaba.fastjson.util.IOUtils;
  *
  * @author smallnest
  * @author VictorZeng
- * @since 1.2.10
+ * @since 1.2.9
+ * 
  * @see MessageBodyReader
  * @see MessageBodyWriter
  */

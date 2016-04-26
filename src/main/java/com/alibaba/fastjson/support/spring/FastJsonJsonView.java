@@ -28,7 +28,8 @@ import com.alibaba.fastjson.util.IOUtils;
  *
  * @author libinsong1204@gmail.com
  * @author VictorZeng
- * @since 1.2.10
+ * 
+ * @since 1.2.9
  * @see AbstractView
  */
 

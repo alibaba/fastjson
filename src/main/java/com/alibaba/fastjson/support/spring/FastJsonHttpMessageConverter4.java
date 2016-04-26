@@ -29,7 +29,8 @@ import com.alibaba.fastjson.util.IOUtils;
  * Compatible Spring MVC version 4.2+
  *
  * @author Victor.Zxy
- * @since 1.2.10
+ * @since 1.2.11
+ * 
  * @see AbstractGenericHttpMessageConverter
  */
 public class FastJsonHttpMessageConverter4 //

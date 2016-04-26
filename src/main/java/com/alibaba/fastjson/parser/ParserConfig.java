@@ -71,7 +71,7 @@ public class ParserConfig {
 
     public static ParserConfig                        global      = new ParserConfig();
     private final IdentityHashMap<ObjectDeserializer> derializers = new IdentityHashMap<ObjectDeserializer>(1024);
-    public final SymbolTable                          symbolTable = new SymbolTable(4096);
+    public final SymbolTable                          symbolTable = new SymbolTable(16384);
     public ClassLoader                                defaultClassLoader;
 
     public ParserConfig(){

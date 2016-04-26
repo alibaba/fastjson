@@ -66,7 +66,7 @@ public interface Opcodes {
     int    DCONST_0            = 14;                     // -
     int    BIPUSH              = 16;                     // visitIntInsn
                                                           // int SIPUSH = 17; // -
-    int    LDC                 = 18;                     // visitLdcInsn
+//    int    LDC                 = 18;                     // visitLdcInsn
     // int LDC_W = 19; // -
     // int LDC2_W = 20; // -
     int    ILOAD               = 21;                     // visitVarInsn
@@ -82,12 +82,12 @@ public interface Opcodes {
     int    ASTORE              = 58;                     // -
     
     int    POP                 = 87;                     // -
-    int    POP2                = 88;                     // -
+//    int    POP2                = 88;                     // -
     int    DUP                 = 89;                     // -
                                                          
     int    IADD                = 96;                     // -
 
-    int    ISUB                = 100;                    // -
+//    int    ISUB                = 100;                    // -
                                                   
     int    IAND                = 126;                    // -
                                                           // int LAND = 127; // -

@@ -699,7 +699,11 @@ public final class JSONLexer {
             int next_chars_len = chars_len + nextLen;
 
             if (next_chars_len >= chars.length) {
-                char[] newChars = new char[chars.length * 3 / 2];
+                int newLen = chars.length * 3 /2;
+                if (newLen < next_chars_len) {
+                    newLen = next_chars_len;
+                }
+                char[] newChars = new char[newLen];
                 System.arraycopy(chars, 0, newChars, 0, chars.length);
                 chars = newChars;
             }
@@ -937,7 +941,11 @@ public final class JSONLexer {
             int next_chars_len = chars_len + nextLen;
 
             if (next_chars_len >= chars.length) {
-                char[] newChars = new char[chars.length * 3 / 2];
+                int newLen = chars.length * 3 /2;
+                if (newLen < next_chars_len) {
+                    newLen = next_chars_len;
+                }
+                char[] newChars = new char[newLen];
                 System.arraycopy(chars, 0, newChars, 0, chars.length);
                 chars = newChars;
             }

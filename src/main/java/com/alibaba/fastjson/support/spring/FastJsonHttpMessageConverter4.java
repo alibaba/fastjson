@@ -5,6 +5,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
@@ -133,11 +136,11 @@ public class FastJsonHttpMessageConverter4 //
 		if (filter == null) {
 			return;
 		}
-
+		
 		SerializeFilter[] filters = new SerializeFilter[this.filters.length + 1];
-		System.arraycopy(this.filters, 0, filters, 0, this.filters.length);
-		filters[filters.length - 1] = filter;
-		this.filters = filters;
+		List<SerializeFilter> filterList = new ArrayList<>(Arrays.asList(this.filters));
+		filterList.add(filter);
+		this.filters = filterList.toArray(filters);
 	}
 
 	/**
@@ -151,9 +154,9 @@ public class FastJsonHttpMessageConverter4 //
 		}
 		
 		SerializerFeature[] features = new SerializerFeature[this.features.length + 1];
-		System.arraycopy(this.features, 0, features, 0, this.features.length);
-		features[features.length - 1] = feature;
-		this.features = features;
+		List<SerializerFeature> featureList = new ArrayList<>(Arrays.asList(this.features));
+		featureList.add(feature);
+		this.features = featureList.toArray(features);
 	}
 	
 	@Override

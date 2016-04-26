@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -160,11 +161,11 @@ public class FastJsonProvider //
 		if (filter == null) {
 			return;
 		}
-
+		
 		SerializeFilter[] filters = new SerializeFilter[this.filters.length + 1];
-		System.arraycopy(this.filters, 0, filters, 0, this.filters.length);
-		filters[filters.length - 1] = filter;
-		this.filters = filters;
+		List<SerializeFilter> filterList = new ArrayList<>(Arrays.asList(this.filters));
+		filterList.add(filter);
+		this.filters = filterList.toArray(filters);
 	}
 
 	/**
@@ -178,9 +179,9 @@ public class FastJsonProvider //
 		}
 		
 		SerializerFeature[] features = new SerializerFeature[this.features.length + 1];
-		System.arraycopy(this.features, 0, features, 0, this.features.length);
-		features[features.length - 1] = feature;
-		this.features = features;
+		List<SerializerFeature> featureList = new ArrayList<>(Arrays.asList(this.features));
+		featureList.add(feature);
+		this.features = featureList.toArray(features);
 	}
 	
 	/**
@@ -281,8 +282,8 @@ public class FastJsonProvider //
 			if (serializerFeatures == null)
 				serializerFeatures = new SerializerFeature[] { SerializerFeature.PrettyFormat };
 			else {
-				List<SerializerFeature> featureList = Arrays
-						.asList(serializerFeatures);
+				List<SerializerFeature> featureList = new ArrayList<>(Arrays
+						.asList(serializerFeatures));
 				featureList.add(SerializerFeature.PrettyFormat);
 				serializerFeatures = featureList.toArray(serializerFeatures);
 			}

@@ -674,21 +674,6 @@ public final class JSONLexer {
             throw new JSONException("unclosed str, " + info());
         }
 
-        if (V6 && endIndex - startIndex > 5) {
-            String strVal = text.substring(startIndex, endIndex);
-            if (strVal.indexOf('\\') == -1) {
-                bp = endIndex + 1;
-                // ch = charAt(bp);
-                {
-                    int index = bp;
-                    this.ch = (index >= this.len ? //
-                        EOI //
-                        : text.charAt(index));
-                }
-                return strVal;
-            }
-        }
-
         int chars_len;
         char[] chars;
 

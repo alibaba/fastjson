@@ -21,13 +21,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.math.BigDecimal;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
-import java.nio.charset.CoderResult;
-import java.nio.charset.CodingErrorAction;
 import java.util.List;
 
 import com.alibaba.fastjson.JSON;
@@ -41,8 +35,6 @@ public final class SerializeWriter extends Writer {
 
     private final static ThreadLocal<char[]>         bufLocal      = new ThreadLocal<char[]>();
     private final static ThreadLocal<byte[]>         bytesBufLocal = new ThreadLocal<byte[]>();
-    private final static ThreadLocal<CharsetEncoder> encoderLocal  = new ThreadLocal<CharsetEncoder>();
-    
 
     protected char                                          buf[];
 
@@ -352,22 +344,13 @@ public final class SerializeWriter extends Writer {
             throw new UnsupportedOperationException("writer not null");
         }
         
-        CharsetEncoder encoder;
         if (charset == IOUtils.UTF8) {
-            encoder = encoderLocal.get();
-            if (encoder == null) {
-                encoder = IOUtils.UTF8.newEncoder() //
-                        .onMalformedInput(CodingErrorAction.REPLACE) //
-                        .onUnmappableCharacter(CodingErrorAction.REPLACE);
-                encoderLocal.set(encoder);
-            }
+            return encodeToUTF8(out);
         } else {
-            encoder = charset.newEncoder() //
-                    .onMalformedInput(CodingErrorAction.REPLACE) //
-                    .onUnmappableCharacter(CodingErrorAction.REPLACE);
+            byte[] bytes = new String(buf, 0, count).getBytes(charset);
+            out.write(bytes);
+            return bytes.length;
         }
-
-        return encodeTo(out, encoder, buf, 0, count);
     }
 
     /**
@@ -396,34 +379,16 @@ public final class SerializeWriter extends Writer {
             throw new UnsupportedOperationException("writer not null");
         }
         
-        CharsetEncoder encoder;
         if (charset == IOUtils.UTF8) {
-            encoder = encoderLocal.get();
-            if (encoder == null) {
-                encoder = IOUtils.UTF8.newEncoder() //
-                        .onMalformedInput(CodingErrorAction.REPLACE) //
-                        .onUnmappableCharacter(CodingErrorAction.REPLACE);
-                encoderLocal.set(encoder);
-            }
+            return encodeToUTF8Bytes();
         } else {
-            encoder = charset.newEncoder() //
-                    .onMalformedInput(CodingErrorAction.REPLACE) //
-                    .onUnmappableCharacter(CodingErrorAction.REPLACE);
+            return new String(buf, 0, count).getBytes(charset);
         }
-
-        return encode(encoder, buf, 0, count);
     }
 
-    private static byte[] encode(CharsetEncoder encoder, char[] chars, int off, int len) {
-        if (len == 0) {
-            return new byte[0];
-        }
+    private int encodeToUTF8(OutputStream out) throws IOException {
 
-        encoder.reset();
-
-        // We need to perform double, not float, arithmetic; otherwise
-        // we lose low order bits when len is larger than 2**24.
-        int bytesLength = (int) (len * (double) encoder.maxBytesPerChar());
+        int bytesLength = (int) (count * (double) 3);
         byte[] bytes = bytesBufLocal.get();
 
         if (bytes == null) {
@@ -435,75 +400,30 @@ public final class SerializeWriter extends Writer {
             bytes = new byte[bytesLength];
         }
 
-        ByteBuffer byteBuf = ByteBuffer.wrap(bytes);
+        int position = IOUtils.encodeUTF8(buf, 0, count, bytes);
+        out.write(bytes, 0, position);
+        return position;
+    }
+    
+    private byte[] encodeToUTF8Bytes() {
+        int bytesLength = (int) (count * (double) 3);
+        byte[] bytes = bytesBufLocal.get();
 
-        CharBuffer charBuf = CharBuffer.wrap(chars, off, len);
-        try {
-            CoderResult cr = encoder.encode(charBuf, byteBuf, true);
-            if (!cr.isUnderflow()) {
-                cr.throwException();
-            }
-            cr = encoder.flush(byteBuf);
-            if (!cr.isUnderflow()) {
-                cr.throwException();
-            }
-        } catch (CharacterCodingException x) {
-            // Substitution is always enabled,
-            // so this shouldn't happen
-            throw new JSONException(x.getMessage(), x);
+        if (bytes == null) {
+            bytes = new byte[1024 * 8];
+            bytesBufLocal.set(bytes);
         }
 
-        int position = byteBuf.position();
+        if (bytes.length < bytesLength) {
+            bytes = new byte[bytesLength];
+        }
+
+        int position = IOUtils.encodeUTF8(buf, 0, count, bytes);
         byte[] copy = new byte[position];
         System.arraycopy(bytes, 0, copy, 0, position);
         return copy;
     }
     
-    private static int encodeTo(OutputStream out, //
-                                CharsetEncoder encoder, //
-                                char[] chars, //
-                                int off, //
-                                int len //
-    ) throws IOException {
-        
-        if (len == 0) {
-            return 0;
-        }
-
-        encoder.reset();
-
-        // We need to perform double, not float, arithmetic; otherwise
-        // we lose low order bits when len is larger than 2**24.
-        int bytesLength = (int) (len * (double) encoder.maxBytesPerChar());
-        byte[] bytes = bytesBufLocal.get();
-
-        if (bytes == null) {
-            bytes = new byte[1024 * 8];
-            bytesBufLocal.set(bytes);
-        }
-
-        if (bytes.length < bytesLength) {
-            bytes = new byte[bytesLength];
-        }
-
-        ByteBuffer byteBuf = ByteBuffer.wrap(bytes);
-
-        CharBuffer charBuf = CharBuffer.wrap(chars, off, len);
-        
-        CoderResult cr = encoder.encode(charBuf, byteBuf, true);
-        if (!cr.isUnderflow()) {
-            cr.throwException();
-        }
-        cr = encoder.flush(byteBuf);
-        if (!cr.isUnderflow()) {
-            cr.throwException();
-        }
-
-        int position = byteBuf.position();
-        out.write(bytes, 0, position);
-        return position;
-    }
-
     public int size() {
         return count;
     }
@@ -1956,4 +1876,6 @@ public final class SerializeWriter extends Writer {
         }
         count = 0;
     }
+    
+   
 }

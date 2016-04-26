@@ -27,6 +27,7 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
+import java.nio.charset.MalformedInputException;
 import java.util.Arrays;
 
 import com.alibaba.fastjson.JSONException;
@@ -620,5 +621,67 @@ public class IOUtils {
         }
         
         return buf.toString();
+    }
+    
+    public static int encodeUTF8(char[] sa, int sp, int len, byte[] da) {
+        int sl = sp + len;
+        int dp = 0;
+        int dlASCII = dp + Math.min(len, da.length);
+
+        // ASCII only optimized loop
+        while (dp < dlASCII && sa[sp] < '\u0080')
+            da[dp++] = (byte) sa[sp++];
+
+        while (sp < sl) {
+            char c = sa[sp++];
+            if (c < 0x80) {
+                // Have at most seven bits
+                da[dp++] = (byte) c;
+            } else if (c < 0x800) {
+                // 2 bytes, 11 bits
+                da[dp++] = (byte) (0xc0 | (c >> 6));
+                da[dp++] = (byte) (0x80 | (c & 0x3f));
+            } else if (Character.isSurrogate(c)) {
+                final int uc;
+                {
+                    int ip = sp -1;
+                    assert (sa[ip] == c);
+                    if (Character.isHighSurrogate(c)) {
+                        if (sl - ip < 2) {
+                            uc = -1;
+                        } else {
+                            char d = sa[ip + 1];
+                            if (Character.isLowSurrogate(d)) {
+                                uc = Character.toCodePoint(c, d);
+                            } else {
+                                throw new JSONException("encodeUTF8 error", new MalformedInputException(1));
+                            }
+                        }
+                    } else {
+                        if (Character.isLowSurrogate(c)) {
+                            throw new JSONException("encodeUTF8 error", new MalformedInputException(1));
+                        } else {
+                            uc = c;
+                        }
+                    }
+                }
+                
+                if (uc < 0) {
+                    da[dp++] = (byte) '?';
+                } else {
+                    da[dp++] = (byte) (0xf0 | ((uc >> 18)));
+                    da[dp++] = (byte) (0x80 | ((uc >> 12) & 0x3f));
+                    da[dp++] = (byte) (0x80 | ((uc >> 6) & 0x3f));
+                    da[dp++] = (byte) (0x80 | (uc & 0x3f));
+                    sp++; // 2 chars
+                }
+            } else {
+                // 3 bytes, 16 bits
+                da[dp++] = (byte) (0xe0 | ((c >> 12)));
+                da[dp++] = (byte) (0x80 | ((c >> 6) & 0x3f));
+                da[dp++] = (byte) (0x80 | (c & 0x3f));
+            }
+        }
+        return dp;
     }
 }

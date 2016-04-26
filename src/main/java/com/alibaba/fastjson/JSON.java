@@ -319,6 +319,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                                     Charset charset, //
                                     Type type, //
                                     Feature... features) {
+        if (charset == null) {
+            charset = IOUtils.UTF8;
+        }
         String text = IOUtils.readAll(new InputStreamReader(is, charset));
         return parseObject(text, type, features);
     }

@@ -641,11 +641,12 @@ public class IOUtils {
                 // 2 bytes, 11 bits
                 da[dp++] = (byte) (0xc0 | (c >> 6));
                 da[dp++] = (byte) (0x80 | (c & 0x3f));
-            } else if (Character.isSurrogate(c)) {
+            } else if (c >= '\uD800' && c < ('\uDFFF' + 1)) { //Character.isSurrogate(c) but 1.7
                 final int uc;
                 {
                     int ip = sp -1;
                     assert (sa[ip] == c);
+                    // c >= MIN_LOW_SURROGATE && c < (MAX_LOW_SURROGATE + 1)
                     if (Character.isHighSurrogate(c)) {
                         if (sl - ip < 2) {
                             uc = -1;

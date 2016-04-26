@@ -1,9 +1,11 @@
 package com.alibaba.json.bvt.util;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 import org.junit.Assert;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.util.IOUtils;
 
@@ -13,20 +15,36 @@ public class ThreadLocalCacheTest extends TestCase {
 
     public void test() throws Exception {
 
-        IOUtils.clearChars();
-        Assert.assertEquals(IOUtils.getChars(0).length, 1024);
-        Assert.assertEquals(IOUtils.getChars(1024).length, 1024);
-        Assert.assertEquals(IOUtils.getChars(2048).length, 2048);
-        Assert.assertEquals(IOUtils.getChars(0).length, 2048);
+        clearChars();
+        Assert.assertEquals(allocateChars(0).length, 1024 * 64);
+        Assert.assertEquals(allocateChars(1024).length, 1024 * 64);
+        Assert.assertEquals(allocateChars(2048).length, 1024 * 64);
+        Assert.assertEquals(allocateChars(0).length, 1024 * 64);
+        Assert.assertEquals(allocateChars(1024 * 128).length, 1024 * 128);
+        Assert.assertEquals(allocateChars(0).length, 1024 * 64);
 
-        IOUtils.clearChars();
-        Assert.assertEquals(IOUtils.getChars(2048).length, 2048);
+        clearChars();
+        Assert.assertEquals(allocateChars(2048).length, 1024 * 64);
 
-        IOUtils.clearChars();
-        Assert.assertEquals(IOUtils.getChars(1024 * 256).length, 1024 * 256);
-        Assert.assertEquals(IOUtils.getChars(0).length, 1024);
-        IOUtils.clearChars();
+        clearChars();
+        Assert.assertEquals(allocateChars(1024 * 256).length, 1024 * 256);
+        Assert.assertEquals(allocateChars(0).length, 1024 * 64);
+        clearChars();
 
+    }
+    
+    static char[] allocateChars(int length) throws Exception {
+        Method method = JSON.class.getDeclaredMethod("allocateChars", int.class);
+        method.setAccessible(true);
+        return (char[]) method.invoke(null, length);
+    }
+    
+    public static void clearChars() throws Exception {
+        Field field = JSON.class.getDeclaredField("charsLocal");
+        field.setAccessible(true);
+        
+        ThreadLocal<char[]> charsLocal = (ThreadLocal<char[]>) field.get(null);
+        charsLocal.set(null);
     }
 
     public void testBytes() throws Exception {

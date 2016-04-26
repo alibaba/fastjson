@@ -17,7 +17,6 @@ package com.alibaba.fastjson;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.lang.reflect.Array;
@@ -121,7 +120,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static Object parse(byte[] input, Feature... features) {
-        char[] chars = IOUtils.getChars(input.length);
+        char[] chars = allocateChars(input.length);
         int len = IOUtils.decodeUTF8(input, 0, input.length, chars);
         return parse(new String(chars, 0, len), features);
     }
@@ -143,7 +142,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         charsetDecoder.reset();
 
         int scaleLength = (int) (len * (double) charsetDecoder.maxCharsPerByte());
-        char[] chars = IOUtils.getChars(scaleLength);
+        char[] chars = allocateChars(scaleLength);
 
         ByteBuffer byteBuf = ByteBuffer.wrap(input, off, len);
         CharBuffer charBuf = CharBuffer.wrap(chars);
@@ -271,10 +270,28 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T parseObject(byte[] input, Type clazz, Feature... features) {
-        char[] chars = IOUtils.getChars(input.length);
-        int len = IOUtils.decodeUTF8(input, 0, input.length, chars);
-        return (T) parseObject(new String(chars, 0, len), clazz, features);
+    public static <T> T parseObject(byte[] bytes, Type clazz, Feature... features) {
+        return (T) parseObject(bytes, 0, bytes.length, IOUtils.UTF8, clazz, features);
+    }
+    
+    /**
+     * @since 1.2.11
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T parseObject(byte[] bytes, int offset, int len, Charset charset, Type clazz, Feature... features) {
+        if (charset == null) {
+            charset = IOUtils.UTF8;
+        }
+        
+        String strVal;
+        if (charset == IOUtils.UTF8) {
+            char[] chars = allocateChars(bytes.length);
+            int chars_len = IOUtils.decodeUTF8(bytes, offset, len, chars);
+            strVal = new String(chars, 0, chars_len);
+        } else {
+            strVal = new String(bytes, offset, len, charset);
+        }
+        return (T) parseObject(strVal, clazz, features);
     }
 
     @SuppressWarnings("unchecked")
@@ -287,7 +304,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         charsetDecoder.reset();
 
         int scaleLength = (int) (len * (double) charsetDecoder.maxCharsPerByte());
-        char[] chars = IOUtils.getChars(scaleLength);
+        char[] chars = allocateChars(scaleLength);
 
         ByteBuffer byteBuf = ByteBuffer.wrap(input, off, len);
         CharBuffer charByte = CharBuffer.wrap(chars);
@@ -319,15 +336,44 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return (T) value;
     }
     
+    /**
+     * @since 1.2.11
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T parseObject(InputStream is, //
+                                    Type type, //
+                                    Feature... features) throws IOException {
+        return (T) parseObject(is, IOUtils.UTF8, type, features);
+    }
+    
+    /**
+     * @since 1.2.11
+     */
+    @SuppressWarnings("unchecked")
     public static <T> T parseObject(InputStream is, //
                                     Charset charset, //
                                     Type type, //
-                                    Feature... features) {
+                                    Feature... features) throws IOException {
         if (charset == null) {
             charset = IOUtils.UTF8;
         }
-        String text = IOUtils.readAll(new InputStreamReader(is, charset));
-        return parseObject(text, type, features);
+        
+        byte[] bytes = allocateBytes(1024 * 64);
+        int offset = 0;
+        for (;;) {
+            int readCount = is.read(bytes, offset, bytes.length - offset);
+            if (readCount == -1) {
+                break;
+            }
+            offset += readCount;
+            if (offset == bytes.length) {
+                byte[] newBytes = new byte[bytes.length * 3 / 2];
+                System.arraycopy(bytes, 0, newBytes, 0, bytes.length);
+                bytes = newBytes;
+            }
+        }
+        
+        return (T) parseObject(bytes, 0, offset, charset, type, features);
     }
 
     public static <T> T parseObject(String text, Class<T> clazz) {
@@ -745,4 +791,40 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public final static String VERSION = "1.2.11";
+    
+    private final static ThreadLocal<byte[]> bytesLocal = new ThreadLocal<byte[]>();
+    private static byte[] allocateBytes(int length) {
+        byte[] chars = bytesLocal.get();
+
+        if (chars == null) {
+            if (length <= 1024 * 64) {
+                chars = new byte[1024 * 64];
+                bytesLocal.set(chars);
+            } else {
+                chars = new byte[length];
+            }
+        } else if (chars.length < length) {
+            chars = new byte[length];
+        }
+
+        return chars;
+    }
+    
+    private final static ThreadLocal<char[]> charsLocal = new ThreadLocal<char[]>();
+    private static char[] allocateChars(int length) {
+        char[] chars = charsLocal.get();
+
+        if (chars == null) {
+            if (length <= 1024 * 64) {
+                chars = new char[1024 * 64];
+                charsLocal.set(chars);
+            } else {
+                chars = new char[length];
+            }
+        } else if (chars.length < length) {
+            chars = new char[length];
+        }
+
+        return chars;
+    }
 }

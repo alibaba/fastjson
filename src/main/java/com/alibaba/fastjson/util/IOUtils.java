@@ -15,19 +15,13 @@
  */
 package com.alibaba.fastjson.util;
 
-import java.io.BufferedReader;
 import java.io.Closeable;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.lang.ref.SoftReference;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
-import java.nio.charset.CodingErrorAction;
 import java.nio.charset.MalformedInputException;
 import java.util.Arrays;
 
@@ -363,7 +357,7 @@ public class IOUtils {
      * @param chars The source array. Length 0 will return an empty array. <code>null</code> will throw an exception.
      * @return The decoded array of bytes. May be of length 0.
      */
-    public static byte[] decodeFast(char[] chars, int offset, int charsLen) {
+    public static byte[] decodeBase64(char[] chars, int offset, int charsLen) {
         // Check special case
         if (charsLen == 0) {
             return new byte[0];
@@ -418,7 +412,7 @@ public class IOUtils {
         return bytes;
     }
     
-    public static byte[] decodeFast(String chars, int offset, int charsLen) {
+    public static byte[] decodeBase64(String chars, int offset, int charsLen) {
         // Check special case
         if (charsLen == 0) {
             return new byte[0];
@@ -484,7 +478,7 @@ public class IOUtils {
      * @param s The source string. Length 0 will return an empty array. <code>null</code> will throw an exception.
      * @return The decoded array of bytes. May be of length 0.
      */
-    public static byte[] decodeFast(String s) {
+    public static byte[] decodeBase64(String s) {
         // Check special case
         int sLen = s.length();
         if (sLen == 0) {
@@ -539,80 +533,6 @@ public class IOUtils {
         }
 
         return dArr;
-    }
-    
-    private final static ThreadLocal<SoftReference<char[]>> charsBufLocal        = new ThreadLocal<SoftReference<char[]>>();
-
-
-
-    public static void clearChars() {
-        charsBufLocal.set(null);
-    }
-
-    public static char[] getChars(int length) {
-        SoftReference<char[]> ref = charsBufLocal.get();
-
-        if (ref == null) {
-            return allocate(length);
-        }
-
-        char[] chars = ref.get();
-
-        if (chars == null) {
-            return allocate(length);
-        }
-
-        if (chars.length < length) {
-            chars = allocate(length);
-        }
-
-        return chars;
-    }
-
-    private static char[] allocate(int length) {
-        final int minExp = 10;
-        final int CHARS_CACH_MAX_SIZE = 1024 * 128; // 128k, 2^17;
-        
-        if(length> CHARS_CACH_MAX_SIZE) {
-            return new char[length];
-        }
-
-        int allocateLength;
-        {
-            int part = length >>> minExp;
-            if(part <= 0) {
-                allocateLength = 1<< minExp;
-            } else {
-                allocateLength = 1 << 32 - Integer.numberOfLeadingZeros(length-1);
-            }
-        }
-        char[] chars = new char[allocateLength];
-        charsBufLocal.set(new SoftReference<char[]>(chars));
-        return chars;
-    }
-    
-    public static String toString(InputStream in) throws Exception {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        return readAll(reader);
-    }
-    
-    public static String readAll(Reader reader) {
-        StringBuilder buf = new StringBuilder();
-        
-        try {
-            char[] chars = new char[2048];
-            for (;;) {
-                int len = reader.read(chars, 0, chars.length);
-                if (len < 0) {
-                    break;
-                }
-                buf.append(chars, 0, len);
-            }
-        } catch(Exception ex) {
-            throw new JSONException("read string from reader error", ex);
-        }
-        
-        return buf.toString();
     }
     
     public static int encodeUTF8(char[] sa, int sp, int len, byte[] da) {
@@ -675,17 +595,10 @@ public class IOUtils {
         return dp;
     }
     
-    private static boolean isNotContinuation(int b) {
-        return (b & 0xc0) != 0x80;
-    }
-    
     public static int decodeUTF8(byte[] sa, int sp, int len, char[] da) {
         final int sl = sp + len;
         int dp = 0;
         int dlASCII = Math.min(len, da.length);
-        ByteBuffer bb = null;  // only necessary if malformed
-        final String replacement = "\uFFFD";
-        final CodingErrorAction malformedInputAction = CodingErrorAction.REPORT;
 
         // ASCII only optimized loop
         while (dp < dlASCII && sa[sp] >= 0)
@@ -700,11 +613,8 @@ public class IOUtils {
                 // 2 bytes, 11 bits: 110xxxxx 10xxxxxx
                 if (sp < sl) {
                     int b2 = sa[sp++];
-                    if (isNotContinuation(b2)) {
-                        if (malformedInputAction != CodingErrorAction.REPLACE)
-                            return -1;
-                        da[dp++] = replacement.charAt(0);
-                        sp--;            // malformedN(bb, 2) always returns 1
+                    if ((b2 & 0xc0) != 0x80) { // isNotContinuation(b2)
+                        return -1;
                     } else {
                         da[dp++] = (char) (((b1 << 6) ^ b2)^
                                        (((byte) 0xC0 << 6) ^
@@ -712,22 +622,16 @@ public class IOUtils {
                     }
                     continue;
                 }
-                if (malformedInputAction != CodingErrorAction.REPLACE)
-                    return -1;
-                da[dp++] = replacement.charAt(0);
-                return dp;
+                return -1;
             } else if ((b1 >> 4) == -2) {
                 // 3 bytes, 16 bits: 1110xxxx 10xxxxxx 10xxxxxx
                 if (sp + 1 < sl) {
                     int b2 = sa[sp++];
                     int b3 = sa[sp++];
-                    if (isMalformed3(b1, b2, b3)) {
-                        if (malformedInputAction != CodingErrorAction.REPLACE)
-                            return -1;
-                        da[dp++] = replacement.charAt(0);
-                        sp -= 3;
-                        bb = getByteBuffer(bb, sa, sp);
-                        sp += malformedN(bb, 3).length();
+                    if ((b1 == (byte) 0xe0 && (b2 & 0xe0) == 0x80) //
+                        || (b2 & 0xc0) != 0x80 //
+                        || (b3 & 0xc0) != 0x80) { // isMalformed3(b1, b2, b3)
+                        return -1;
                     } else {
                         char c = (char)((b1 << 12) ^
                                           (b2 <<  6) ^
@@ -736,24 +640,14 @@ public class IOUtils {
                                           ((byte) 0x80 <<  6) ^
                                           ((byte) 0x80 <<  0))));
                         if (Character.isSurrogate(c)) {
-                            if (malformedInputAction != CodingErrorAction.REPLACE)
-                                return -1;
-                            da[dp++] = replacement.charAt(0);
+                            return -1;
                         } else {
                             da[dp++] = c;
                         }
                     }
                     continue;
                 }
-                if (malformedInputAction != CodingErrorAction.REPLACE)
-                    return -1;
-                if (sp  < sl && isMalformed3_2(b1, sa[sp])) {
-                    da[dp++] = replacement.charAt(0);
-                    continue;
-
-                }
-                da[dp++] = replacement.charAt(0);
-                return dp;
+                return -1;
             } else if ((b1 >> 3) == -2) {
                 // 4 bytes, 21 bits: 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
                 if (sp + 2 < sl) {
@@ -768,137 +662,22 @@ public class IOUtils {
                                ((byte) 0x80 << 12) ^
                                ((byte) 0x80 <<  6) ^
                                ((byte) 0x80 <<  0))));
-                    if (isMalformed4(b2, b3, b4) ||
+                    if (((b2 & 0xc0) != 0x80 || (b3 & 0xc0) != 0x80 || (b4 & 0xc0) != 0x80) // isMalformed4
+                        ||
                         // shortest form check
                         !Character.isSupplementaryCodePoint(uc)) {
-                        if (malformedInputAction != CodingErrorAction.REPLACE)
-                            return -1;
-                        da[dp++] = replacement.charAt(0);
-                        sp -= 4;
-                        bb = getByteBuffer(bb, sa, sp);
-                        sp += malformedN(bb, 4).length();
+                        return -1;
                     } else {
                         da[dp++] = Character.highSurrogate(uc);
                         da[dp++] = Character.lowSurrogate(uc);
                     }
                     continue;
                 }
-                if (malformedInputAction != CodingErrorAction.REPLACE)
-                    return -1;
-                b1 &= 0xff;
-                if (b1 > 0xf4 ||
-                    sp  < sl && isMalformed4_2(b1, sa[sp] & 0xff)) {
-                    da[dp++] = replacement.charAt(0);
-                    continue;
-                }
-                sp++;
-                if (sp  < sl && isMalformed4_3(sa[sp])) {
-                    da[dp++] = replacement.charAt(0);
-                    continue;
-                }
-                da[dp++] = replacement.charAt(0);
-                return dp;
+                return -1;
             } else {
-                if (malformedInputAction != CodingErrorAction.REPLACE)
-                    return -1;
-                da[dp++] = replacement.charAt(0);
+                return -1;
             }
         }
         return dp;
-    }
-    
-    private static ByteBuffer getByteBuffer(ByteBuffer bb, byte[] ba, int sp)
-    {
-        if (bb == null)
-            bb = ByteBuffer.wrap(ba);
-        bb.position(sp);
-        return bb;
-    }
-    
-    //  [E0]     [A0..BF] [80..BF]
-    //  [E1..EF] [80..BF] [80..BF]
-    private static boolean isMalformed3(int b1, int b2, int b3) {
-        return (b1 == (byte)0xe0 && (b2 & 0xe0) == 0x80) ||
-               (b2 & 0xc0) != 0x80 || (b3 & 0xc0) != 0x80;
-    }
-
-    // only used when there is only one byte left in src buffer
-    private static boolean isMalformed3_2(int b1, int b2) {
-        return (b1 == (byte)0xe0 && (b2 & 0xe0) == 0x80) ||
-               (b2 & 0xc0) != 0x80;
-    }
-    
-    //  [F0]     [90..BF] [80..BF] [80..BF]
-    //  [F1..F3] [80..BF] [80..BF] [80..BF]
-    //  [F4]     [80..8F] [80..BF] [80..BF]
-    //  only check 80-be range here, the [0xf0,0x80...] and [0xf4,0x90-...]
-    //  will be checked by Character.isSupplementaryCodePoint(uc)
-    private static boolean isMalformed4(int b2, int b3, int b4) {
-        return (b2 & 0xc0) != 0x80 || (b3 & 0xc0) != 0x80 ||
-               (b4 & 0xc0) != 0x80;
-    }
-
-    // only used when there is less than 4 bytes left in src buffer.
-    // both b1 and b2 should be "& 0xff" before passed in.
-    private static boolean isMalformed4_2(int b1, int b2) {
-        return (b1 == 0xf0 && (b2  < 0x90 || b2 > 0xbf)) ||
-               (b1 == 0xf4 && (b2 & 0xf0) != 0x80) ||
-               (b2 & 0xc0) != 0x80;
-    }
-    
- // tests if b1 and b2 are malformed as the first 2 bytes of a
-    // legal`4-byte utf-8 byte sequence.
-    // only used when there is less than 4 bytes left in src buffer,
-    // after isMalformed4_2 has been invoked.
-    private static boolean isMalformed4_3(int b3) {
-        return (b3 & 0xc0) != 0x80;
-    }
-    
-    public static CoderResult malformedN(ByteBuffer src, int nb) {
-        switch (nb) {
-            case 1:
-                int b1 = src.get();
-                if ((b1 >> 2) == -2) {
-                    // 5 bytes 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
-                    if (src.remaining() < 4) return CoderResult.UNDERFLOW;
-                    
-                    int n = 5;
-                    for (int i = 1; i < n; i++) {
-                        if ((src.get() & 0xc0) != 0x80) {
-                            return CoderResult.malformedForLength(i);
-                        }
-                    }
-                    return CoderResult.malformedForLength(n);
-                }
-                if ((b1 >> 1) == -2) {
-                    // 6 bytes 1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
-                    if (src.remaining() < 5) {
-                        return CoderResult.UNDERFLOW;
-                    }
-                    
-                    int n = 6;
-                    for (int i = 1; i < n; i++) {
-                        if ((src.get() & 0xc0) != 0x80) {
-                            return CoderResult.malformedForLength(i);
-                        }
-                    }
-                    return CoderResult.malformedForLength(n);
-                }
-                return CoderResult.malformedForLength(1);
-            case 2: // always 1
-                return CoderResult.malformedForLength(1);
-            case 3:
-                b1 = src.get();
-                int b2 = src.get(); // no need to lookup b3
-                return CoderResult.malformedForLength(((b1 == (byte) 0xe0 && (b2 & 0xe0) == 0x80) || (b2 & 0xc0) != 0x80) ? 1 : 2);
-            case 4: // we don't care the speed here
-                b1 = src.get() & 0xff;
-                b2 = src.get() & 0xff;
-                if (b1 > 0xf4 || (b1 == 0xf0 && (b2 < 0x90 || b2 > 0xbf)) || (b1 == 0xf4 && (b2 & 0xf0) != 0x80) || (b2 & 0xc0) != 0x80) return CoderResult.malformedForLength(1);
-                if ((src.get() & 0xc0) != 0x80) return CoderResult.malformedForLength(2);
-                return CoderResult.malformedForLength(3);
-            default:
-                throw new IllegalStateException();
-        }
     }
 }

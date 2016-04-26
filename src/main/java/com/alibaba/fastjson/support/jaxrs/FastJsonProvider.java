@@ -40,7 +40,7 @@ public class FastJsonProvider //
         implements MessageBodyReader<Object>, MessageBodyWriter<Object> {
 
 	/** with fastJson config */
-	private FastJsonConfig fastJsonConfig;
+	private FastJsonConfig fastJsonConfig = new FastJsonConfig();
 
 	/** allow serialize/deserialize types in clazzes */
 	private Class<?>[] clazzes = null;

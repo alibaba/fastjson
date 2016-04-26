@@ -30,7 +30,7 @@ public class FastJsonHttpMessageConverter4 //
         extends AbstractGenericHttpMessageConverter<Object> {
 
 	/** with fastJson config */
-	private FastJsonConfig fastJsonConfig; 
+	private FastJsonConfig fastJsonConfig = new FastJsonConfig(); 
 
 	/**
 	 * @since 1.2.11

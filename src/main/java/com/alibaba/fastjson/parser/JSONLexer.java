@@ -995,75 +995,43 @@ public final class JSONLexer {
         if (endIndex == -1) {
             throw new JSONException("unclosed str, " + info());
         }
-
+        
+        String strVal = null;
         if (V6) {
-            String strVal = text.substring(startIndex, endIndex);
-            if (strVal.indexOf('\\') == -1) {
-                bp = endIndex + 1;
-                // ch = charAt(bp);
-                {
-                    int index = bp;
-                    this.ch = index >= this.len ? //
-                        EOI //
-                        : text.charAt(index);
-                }
-                return strVal;
-            } else {
-                hasSpecial = true;
-            }
+            strVal = text.substring(startIndex, endIndex);
+        } else {
+            int chars_len = endIndex - startIndex;
+            char[] chars = sub_chars(bp + 1, chars_len);
+            strVal = new String(chars, 0, chars_len);
         }
-
-        int chars_len;
-        char[] chars;
-
-        chars_len = endIndex - startIndex;
-        chars = sub_chars(bp + 1, chars_len);
-        while ((chars_len > 0 //
-                && chars[chars_len - 1] == '\\')) {
-
-            int slashCount = 1;
-            for (int i = chars_len - 2; i >= 0; --i) {
-                if (chars[i] == '\\') {
-                    slashCount++;
-                } else {
+        
+        if (strVal.indexOf('\\') != -1) {
+            for (;;) {
+                int slashCount = 0;
+                for (int i = endIndex - 1; i >= 0; --i) {
+                    if (text.charAt(i) == '\\') {
+                        hasSpecial = true;
+                        slashCount++;
+                    } else {
+                        break;
+                    }
+                }
+                if (slashCount % 2 == 0) {
                     break;
                 }
+                endIndex = text.indexOf(quoteChar, endIndex + 1);
             }
-            if (slashCount % 2 == 0) {
-                break;
-            }
-
-            int nextIndex = text.indexOf(quoteChar, endIndex + 1);
-            int nextLen = nextIndex - endIndex;
-            int next_chars_len = chars_len + nextLen;
-
-            if (next_chars_len >= chars.length) {
-                char[] newChars = new char[chars.length * 3 / 2];
-                System.arraycopy(chars, 0, newChars, 0, chars.length);
-                chars = newChars;
-            }
-            text.getChars(endIndex, nextIndex, chars, chars_len);
-            
-            chars_len = next_chars_len;
-            endIndex = nextIndex;
-            hasSpecial = true;
-        }
-
-        final String strVal;
-        if (!hasSpecial) {
-            for (int i = 0; i < chars_len; ++i) {
-                if (chars[i] == '\\') {
-                    hasSpecial = true;
-                }
-            }
-
+    
+            int chars_len = endIndex - startIndex;
+            char[] chars = sub_chars(bp + 1, chars_len);
             if (hasSpecial) {
                 strVal = readString(chars, chars_len);
             } else {
                 strVal = new String(chars, 0, chars_len);
+                if (strVal.indexOf('\\') != -1) {
+                    strVal = readString(chars, chars_len);    
+                }
             }
-        } else {
-            strVal = readString(chars, chars_len);
         }
 
         bp = endIndex + 1;
@@ -2099,30 +2067,22 @@ public final class JSONLexer {
         if (endIndex == -1) {
             throw new JSONException("unclosed str, " + info());
         }
-
+        
         String strVal = null;
-        boolean match = false;
         if (V6) {
             strVal = text.substring(startIndex, endIndex);
-            if (strVal.indexOf('\\') == -1) {
-                match = true;
-            } else {
-                hasSpecial = true;
-            }
+        } else {
+            int chars_len = endIndex - startIndex;
+            char[] chars = sub_chars(bp + offset, chars_len);
+            strVal = new String(chars, 0, chars_len);
         }
-
-        if (!match) {
-            int chars_len;
-            char[] chars;
-
-            chars_len = endIndex - startIndex;
-            chars = sub_chars(bp + offset, chars_len);
-            while ((chars_len > 0 //
-                    && chars[chars_len - 1] == '\\')) {
-
-                int slashCount = 1;
-                for (int i = chars_len - 2; i >= 0; --i) {
-                    if (chars[i] == '\\') {
+        
+        if (strVal.indexOf('\\') != -1) {
+            for (;;) {
+                int slashCount = 0;
+                for (int i = endIndex - 1; i >= 0; --i) {
+                    if (text.charAt(i) == '\\') {
+                        hasSpecial = true;
                         slashCount++;
                     } else {
                         break;
@@ -2131,40 +2091,21 @@ public final class JSONLexer {
                 if (slashCount % 2 == 0) {
                     break;
                 }
-
-                int nextIndex = text.indexOf(quoteChar, endIndex + 1);
-                int nextLen = nextIndex - endIndex;
-                int next_chars_len = chars_len + nextLen;
-                
-                if (next_chars_len >= chars.length) {
-                    char[] newChars = new char[chars.length * 3 / 2];
-                    System.arraycopy(chars, 0, newChars, 0, chars.length);
-                    chars = newChars;
-                }
-                text.getChars(endIndex, nextIndex, chars, chars_len);
-                
-                chars_len = next_chars_len;
-                endIndex = nextIndex;
-                hasSpecial = true;
+                endIndex = text.indexOf(quoteChar, endIndex + 1);
             }
-
-            if (!hasSpecial) {
-                for (int i = 0; i < chars_len; ++i) {
-                    if (chars[i] == '\\') {
-                        hasSpecial = true;
-                    }
-                }
-
-                if (hasSpecial) {
-                    strVal = readString(chars, chars_len);
-                } else {
-                    strVal = new String(chars, 0, chars_len);
-                }
-            } else {
+    
+            int chars_len = endIndex - startIndex;
+            char[] chars = sub_chars(bp + offset, chars_len);
+            if (hasSpecial) {
                 strVal = readString(chars, chars_len);
+            } else {
+                strVal = new String(chars, 0, chars_len);
+                if (strVal.indexOf('\\') != -1) {
+                    strVal = readString(chars, chars_len);    
+                }
             }
-
         }
+        
         // bp = endIndex + 1;
         // ch = charAt(bp);
         {

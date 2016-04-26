@@ -205,7 +205,7 @@ public class SerializeConfig {
 		put(Class.class, MiscCodec.instance);
 
 		put(SimpleDateFormat.class, MiscCodec.instance);
-		put(Currency.class, CurrencyCodec.instance);
+		put(Currency.class, new CurrencySerializer());
 		put(TimeZone.class, MiscCodec.instance);
 		put(InetAddress.class, MiscCodec.instance);
 		put(Inet4Address.class, MiscCodec.instance);

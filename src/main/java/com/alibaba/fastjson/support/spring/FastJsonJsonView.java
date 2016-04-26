@@ -21,39 +21,57 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.util.IOUtils;
 
 /**
- * Spring MVC View for fastjson.
+ * Fastjson for Spring MVC View.
  *
- * @author libinsong1204@gmail.com, Victor.Zxy
- *
+ * @author libinsong1204@gmail.com
+ * @author VictorZeng
+ * @since 1.2.10
+ * @see AbstractView
  */
+
 public class FastJsonJsonView extends AbstractView {
 
-	// default content type
+	/** default content type */
 	public static final String DEFAULT_CONTENT_TYPE = "application/json;charset=UTF-8";
 
-	// default charset
+	/** default charset */
 	private Charset charset = IOUtils.UTF8;
 
+	/** serializer feature */
 	private SerializerFeature[] features = new SerializerFeature[0];
 
+	/** serialize filter */
 	private SerializeFilter[] filters = new SerializeFilter[0];
 
+	/** dateFormat */
 	private String dateFormat;
 	
+	/** renderedAttributes */
 	private Set<String> renderedAttributes;
 
+	/** disableCaching */
 	private boolean disableCaching = true;
 
+	/** updateContentLength */
 	private boolean updateContentLength = false;
 
+	/** extractValueFromSingleKeyModel */
 	private boolean extractValueFromSingleKeyModel = false;
 
+	/**
+	 * Set default param.
+	 */
 	public FastJsonJsonView() {
 		setCharset(charset);
 		setContentType(DEFAULT_CONTENT_TYPE);
 		setExposePathVariables(false);
 	}
 
+	/**
+	 * Set renderedAttributes.
+	 *
+	 * @param renderedAttributes renderedAttributes
+	 */
 	public void setRenderedAttributes(Set<String> renderedAttributes) {
 		this.renderedAttributes = renderedAttributes;
 	}
@@ -63,47 +81,83 @@ public class FastJsonJsonView extends AbstractView {
 		this.setFeatures(features);
 	}
 	
+	/**
+	 * Get charset.
+	 *
+	 * @return charset
+	 */
 	public Charset getCharset() {
 		return this.charset;
 	}
 
+	/**
+	 * Set charset.
+	 * 
+	 * @param charset Charset
+	 */
 	public void setCharset(Charset charset) {
 		this.charset = charset;
 	}
 
+	/**
+	 * Get dateFormat.
+	 * 
+	 * @return dateFormat
+	 */
 	public String getDateFormat() {
 		return dateFormat;
 	}
 
+	/**
+	 * Set dateFormat.
+	 *
+	 * @param dateFormat String
+	 */
 	public void setDateFormat(String dateFormat) {
 		this.dateFormat = dateFormat;
 	}
-	
+
+	/**
+	 * Get features.
+	 *
+	 * @return features SerializerFeature[]
+	 */
 	public SerializerFeature[] getFeatures() {
 		return features;
 	}
 
+	/**
+	 * Set features.
+	 *
+	 * @param features SerializerFeature[]
+	 */
 	public void setFeatures(SerializerFeature... features) {
 		this.features = features;
 	}
 
+	/**
+	 * Get filters.
+	 *
+	 * @return filters SerializeFilter[]
+	 */
 	public SerializeFilter[] getFilters() {
 		return filters;
 	}
 
+	/**
+	 * Set filters.
+	 * 
+	 * @param filters SerializeFilter[]
+	 */
 	public void setFilters(SerializeFilter... filters) {
 		this.filters = filters;
 	}
-	
-	public boolean isExtractValueFromSingleKeyModel() {
-		return extractValueFromSingleKeyModel;
-	}
 
-	public void setExtractValueFromSingleKeyModel(
-			boolean extractValueFromSingleKeyModel) {
-		this.extractValueFromSingleKeyModel = extractValueFromSingleKeyModel;
-	}
-
+	/**
+	 * Add SerializeFilter
+	 *
+	 * @param filter SerializeFilter
+	 */
 	public void addSerializeFilter(SerializeFilter filter) {
 		if (filter == null) {
 			return;
@@ -115,6 +169,11 @@ public class FastJsonJsonView extends AbstractView {
 		this.filters = filters;
 	}
 
+	/**
+	 * Add SerializerFeature
+	 *
+	 * @param feature SerializerFeature
+	 */
 	public void addSerializerFeature(SerializerFeature feature) {
 		if (feature == null) {
 			return;
@@ -124,6 +183,25 @@ public class FastJsonJsonView extends AbstractView {
 		System.arraycopy(this.features, 0, features, 0, this.features.length);
 		features[features.length - 1] = feature;
 		this.features = features;
+	}
+	
+	/**
+	 * Check extractValueFromSingleKeyModel.
+	 *
+	 * @return extractValueFromSingleKeyModel
+	 */
+	public boolean isExtractValueFromSingleKeyModel() {
+		return extractValueFromSingleKeyModel;
+	}
+
+	/**
+	 * Set extractValueFromSingleKeyModel.
+	 *
+	 * @param extractValueFromSingleKeyModel
+	 */
+	public void setExtractValueFromSingleKeyModel(
+			boolean extractValueFromSingleKeyModel) {
+		this.extractValueFromSingleKeyModel = extractValueFromSingleKeyModel;
 	}
 	
 	@Override

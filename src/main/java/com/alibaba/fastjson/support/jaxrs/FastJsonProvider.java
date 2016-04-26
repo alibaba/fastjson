@@ -25,26 +25,34 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.util.IOUtils;
 
 /**
- * JAX-RS Provider for fastjson.
+ * Fastjson for JAX-RS Provider.
  *
- * @author smallnest, Victor.Zxy
- *
+ * @author smallnest
+ * @author VictorZeng
+ * @since 1.2.10
+ * @see MessageBodyReader
+ * @see MessageBodyWriter
  */
+
 @Provider
 @Consumes({ MediaType.WILDCARD })
 @Produces({ MediaType.WILDCARD })
 public class FastJsonProvider //
         implements MessageBodyReader<Object>, MessageBodyWriter<Object> {
 
-	// default charset
+	/** default charset */
 	private Charset charset = IOUtils.UTF8;
 
+	/** allow serialize/deserialize types in clazzes */
 	private Class<?>[] clazzes = null;
 	
+	/** serializer features */
 	private SerializerFeature[] features = new SerializerFeature[0];
 
+	/** serialize filter */
 	private SerializeFilter[] filters = new SerializeFilter[0];
 
+	/** date format */
 	private String dateFormat;
 	
 	@javax.ws.rs.core.Context
@@ -71,38 +79,83 @@ public class FastJsonProvider //
 		this.clazzes = clazzes;
 	}
 
+	/**
+	 * Get charset.
+	 *
+	 * @return charset
+	 */
 	public Charset getCharset() {
 		return this.charset;
 	}
 
+	/**
+	 * Set charset.
+	 * 
+	 * @param charset Charset
+	 */
 	public void setCharset(Charset charset) {
 		this.charset = charset;
 	}
 
+	/**
+	 * Get dateFormat.
+	 * 
+	 * @return dateFormat
+	 */
 	public String getDateFormat() {
 		return dateFormat;
 	}
 
+	/**
+	 * Set dateFormat.
+	 *
+	 * @param dateFormat String
+	 */
 	public void setDateFormat(String dateFormat) {
 		this.dateFormat = dateFormat;
 	}
 
+	/**
+	 * Get features.
+	 *
+	 * @return features SerializerFeature[]
+	 */
 	public SerializerFeature[] getFeatures() {
 		return features;
 	}
 
+	/**
+	 * Set features.
+	 *
+	 * @param features SerializerFeature[]
+	 */
 	public void setFeatures(SerializerFeature... features) {
 		this.features = features;
 	}
 
+	/**
+	 * Get filters.
+	 *
+	 * @return filters SerializeFilter[]
+	 */
 	public SerializeFilter[] getFilters() {
 		return filters;
 	}
 
+	/**
+	 * Set filters.
+	 * 
+	 * @param filters SerializeFilter[]
+	 */
 	public void setFilters(SerializeFilter... filters) {
 		this.filters = filters;
 	}
 	
+	/**
+	 * Add SerializeFilter
+	 *
+	 * @param filter SerializeFilter
+	 */
 	public void addSerializeFilter(SerializeFilter filter) {
 		if (filter == null) {
 			return;
@@ -114,6 +167,11 @@ public class FastJsonProvider //
 		this.filters = filters;
 	}
 
+	/**
+	 * Add SerializerFeature
+	 *
+	 * @param feature SerializerFeature
+	 */
 	public void addSerializerFeature(SerializerFeature feature) {
 		if (feature == null) {
 			return;

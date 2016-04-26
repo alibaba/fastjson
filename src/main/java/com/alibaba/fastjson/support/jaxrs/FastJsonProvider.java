@@ -1,6 +1,5 @@
 package com.alibaba.fastjson.support.jaxrs;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -34,8 +33,8 @@ import com.alibaba.fastjson.util.IOUtils;
 @Provider
 @Produces({ MediaType.APPLICATION_FORM_URLENCODED, MediaType.APPLICATION_JSON })
 @Consumes({ MediaType.APPLICATION_FORM_URLENCODED, MediaType.APPLICATION_JSON })
-public class FastJsonProvider implements MessageBodyReader<Object>,
-		MessageBodyWriter<Object> {
+public class FastJsonProvider //
+        implements MessageBodyReader<Object>, MessageBodyWriter<Object> {
 
 	// default charset
 	private Charset charset = IOUtils.UTF8;
@@ -140,10 +139,10 @@ public class FastJsonProvider implements MessageBodyReader<Object>,
 		if (mediaType != null) {
 			String subtype = mediaType.getSubtype();
 			
-			return "json".equalsIgnoreCase(subtype)
-					|| subtype.endsWith("+json")
-					|| "x-www-form-urlencoded".equalsIgnoreCase(subtype)
-					|| subtype.endsWith("x-www-form-urlencoded");
+            return "json".equalsIgnoreCase(subtype) //
+                   || subtype.endsWith("+json") //
+                   || "x-www-form-urlencoded".equalsIgnoreCase(subtype) //
+                   || subtype.endsWith("x-www-form-urlencoded");
 		}
 		return true;
 	}
@@ -158,8 +157,10 @@ public class FastJsonProvider implements MessageBodyReader<Object>,
 	 * Method that JAX-RS container calls to try to check whether given value
 	 * (of specified type) can be serialized by this provider.
 	 */
-	public boolean isWriteable(Class<?> type, Type genericType,
-			Annotation[] annotations, MediaType mediaType) {
+    public boolean isWriteable(Class<?> type, //
+                               Type genericType, //
+                               Annotation[] annotations, //
+                               MediaType mediaType) {
 		if (!hasMatchingMediaType(mediaType)) {
 			return false;
 		}
@@ -171,19 +172,25 @@ public class FastJsonProvider implements MessageBodyReader<Object>,
 	 * Method that JAX-RS container calls to try to figure out serialized length
 	 * of given value. always return -1 to denote "not known".
 	 */
-	public long getSize(Object t, Class<?> type, Type genericType,
-			Annotation[] annotations, MediaType mediaType) {
+    public long getSize(Object t, //
+                        Class<?> type, //
+                        Type genericType, //
+                        Annotation[] annotations, //
+                        MediaType mediaType) {
 		return -1;
 	}
 
 	/**
 	 * Method that JAX-RS container calls to serialize given value.
 	 */
-	public void writeTo(Object obj, Class<?> type, Type genericType,
-			Annotation[] annotations, MediaType mediaType,
-			MultivaluedMap<String, Object> httpHeaders,
-			OutputStream entityStream) throws IOException,
-			WebApplicationException {
+    public void writeTo(Object obj, //
+                        Class<?> type, //
+                        Type genericType, //
+                        Annotation[] annotations, //
+                        MediaType mediaType, //
+                        MultivaluedMap<String, Object> httpHeaders, //
+                        OutputStream entityStream //
+    ) throws IOException, WebApplicationException {
 
 		SerializerFeature[] serializerFeatures = this.features;
 		if (uriInfo != null
@@ -198,16 +205,14 @@ public class FastJsonProvider implements MessageBodyReader<Object>,
 			}
 		}
 
-		String text = JSON.toJSONString(obj, //
-				SerializeConfig.globalInstance, //
-				filters, //
-				dateFormat, //
-				JSON.DEFAULT_GENERATE_FEATURE, //
-				serializerFeatures);
-		
-		byte[] bytes = text.getBytes(charset);
-
-		entityStream.write(bytes);
+        JSON.writeJSONString(obj, //
+                             entityStream, //
+                             charset, //
+                             SerializeConfig.globalInstance, //
+                             filters, //
+                             dateFormat, //
+                             JSON.DEFAULT_GENERATE_FEATURE, //
+                             serializerFeatures);
 		
 		entityStream.flush();
 
@@ -223,8 +228,11 @@ public class FastJsonProvider implements MessageBodyReader<Object>,
 	 * Method that JAX-RS container calls to try to check whether values of
 	 * given type (and media type) can be deserialized by this provider.
 	 */
-	public boolean isReadable(Class<?> type, Type genericType,
-			Annotation[] annotations, MediaType mediaType) {
+    public boolean isReadable(Class<?> type, //
+                              Type genericType, //
+                              Annotation[] annotations, //
+                              MediaType mediaType) {
+        
 		if (!hasMatchingMediaType(mediaType)) {
 			return false;
 		}
@@ -235,28 +243,12 @@ public class FastJsonProvider implements MessageBodyReader<Object>,
 	/**
 	 * Method that JAX-RS container calls to deserialize given value.
 	 */
-	public Object readFrom(Class<Object> type, Type genericType,
-			Annotation[] annotations, MediaType mediaType,
-			MultivaluedMap<String, String> httpHeaders, InputStream entityStream)
-			throws IOException, WebApplicationException {
-		
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-		byte[] buf = new byte[1024];
-		
-        for (;;) {
-            int len = entityStream.read(buf);
-            if (len == -1) {
-                break;
-            }
-
-            if (len > 0) {
-                baos.write(buf, 0, len);
-            }
-        }
-
-        byte[] bytes = baos.toByteArray();
-        
-        return JSON.parseObject(bytes, 0, bytes.length, charset.newDecoder(), genericType);
-	}
+    public Object readFrom(Class<Object> type, //
+                           Type genericType, //
+                           Annotation[] annotations, //
+                           MediaType mediaType, //
+                           MultivaluedMap<String, String> httpHeaders, //
+                           InputStream entityStream) throws IOException, WebApplicationException {
+        return JSON.parseObject(entityStream, charset, genericType);
+    }
 }

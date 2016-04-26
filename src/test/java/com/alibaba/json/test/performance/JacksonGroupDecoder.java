@@ -1,5 +1,6 @@
 package com.alibaba.json.test.performance;
 
+import java.io.OutputStream;
 import java.util.Collection;
 
 import com.alibaba.json.test.codec.Codec;
@@ -44,5 +45,11 @@ public class JacksonGroupDecoder implements Codec {
     public byte[] encodeToBytes(Object object) throws Exception {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public void encode(OutputStream out, Object object) throws Exception {
+        // TODO Auto-generated method stub
+        
     }
 }

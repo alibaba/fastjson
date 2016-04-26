@@ -29,6 +29,7 @@ public class JSONPath_containsValue extends TestCase {
         Assert.assertTrue(JSONPath.contains(list, "/2"));
         Assert.assertFalse(JSONPath.contains(list, "/3"));
         Assert.assertFalse(JSONPath.contains(null, "$"));
+        Assert.assertFalse(JSONPath.compile("$").contains(null));
         Assert.assertFalse(JSONPath.containsValue(null, "$", "kiki"));
     }
     

@@ -103,23 +103,22 @@ public class FastJsonJsonView extends AbstractView {
 	}
 
 	@Override
-	protected void renderMergedOutputModel(Map<String, Object> model,
-			HttpServletRequest request, HttpServletResponse response)
-			throws Exception {
+    protected void renderMergedOutputModel(Map<String, Object> model, //
+                                           HttpServletRequest request, //
+                                           HttpServletResponse response) throws Exception {
+	    
 		Object value = filterModel(model);
-
-		String text = JSON.toJSONString(value, //
-				SerializeConfig.globalInstance, //
-				filters, //
-				dateFormat, //
-				JSON.DEFAULT_GENERATE_FEATURE, //
-				features);
-		
-		byte[] bytes = text.getBytes(charset);
-
 		OutputStream stream = this.updateContentLength ? createTemporaryOutputStream()
-				: response.getOutputStream();
-		stream.write(bytes);
+            : response.getOutputStream();
+        JSON.writeJSONString(value, //
+                             stream, //
+                             charset, //
+                             SerializeConfig.globalInstance, //
+                             filters, //
+                             dateFormat, //
+                             JSON.DEFAULT_GENERATE_FEATURE, //
+                             features);
+		
 		stream.flush();
 		
 		if (this.updateContentLength) {
@@ -128,8 +127,9 @@ public class FastJsonJsonView extends AbstractView {
 	}
 
 	@Override
-	protected void prepareResponse(HttpServletRequest request,
-			HttpServletResponse response) {
+    protected void prepareResponse(HttpServletRequest request, //
+                                   HttpServletResponse response) {
+	    
 		setResponseContentType(request, response);
 		response.setCharacterEncoding(charset.name());
 		if (this.disableCaching) {
@@ -174,9 +174,10 @@ public class FastJsonJsonView extends AbstractView {
 	 */
 	protected Object filterModel(Map<String, Object> model) {
 		Map<String, Object> result = new HashMap<String, Object>(model.size());
-		Set<String> renderedAttributes = !CollectionUtils
-				.isEmpty(this.renderedAttributes) ? this.renderedAttributes
-				: model.keySet();
+        Set<String> renderedAttributes = !CollectionUtils.isEmpty(this.renderedAttributes) ? //
+            this.renderedAttributes //
+            : model.keySet();
+        
 		for (Map.Entry<String, Object> entry : model.entrySet()) {
 			if (!(entry.getValue() instanceof BindingResult)
 					&& renderedAttributes.contains(entry.getKey())) {

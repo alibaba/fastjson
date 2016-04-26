@@ -94,9 +94,7 @@ import com.alibaba.fastjson.serializer.BooleanCodec;
 import com.alibaba.fastjson.serializer.CalendarCodec;
 import com.alibaba.fastjson.serializer.CharArrayCodec;
 import com.alibaba.fastjson.serializer.CharacterCodec;
-import com.alibaba.fastjson.serializer.CharsetCodec;
 import com.alibaba.fastjson.serializer.CollectionCodec;
-import com.alibaba.fastjson.serializer.CurrencyCodec;
 import com.alibaba.fastjson.serializer.DateCodec;
 import com.alibaba.fastjson.serializer.FloatCodec;
 import com.alibaba.fastjson.serializer.IntegerCodec;
@@ -232,7 +230,7 @@ public class ParserConfig {
         derializers.put(UUID.class, MiscCodec.instance);
         derializers.put(TimeZone.class, MiscCodec.instance);
         derializers.put(Locale.class, MiscCodec.instance);
-        derializers.put(Currency.class, CurrencyCodec.instance);
+        derializers.put(Currency.class, MiscCodec.instance);
         derializers.put(InetAddress.class, MiscCodec.instance);
         derializers.put(Inet4Address.class, MiscCodec.instance);
         derializers.put(Inet6Address.class, MiscCodec.instance);
@@ -241,7 +239,7 @@ public class ParserConfig {
         derializers.put(URI.class, MiscCodec.instance);
         derializers.put(URL.class, MiscCodec.instance);
         derializers.put(Pattern.class, MiscCodec.instance);
-        derializers.put(Charset.class, CharsetCodec.instance);
+        derializers.put(Charset.class, MiscCodec.instance);
         derializers.put(Number.class, NumberDeserializer.instance);
         derializers.put(AtomicIntegerArray.class, AtomicCodec.instance);
         derializers.put(AtomicLongArray.class, AtomicCodec.instance);

@@ -3,6 +3,8 @@ package com.alibaba.fastjson;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -45,7 +47,7 @@ public class JSONPath implements JSONAware {
 
     public JSONPath(String path, SerializeConfig serializeConfig, ParserConfig parserConfig){
         if (path == null || path.isEmpty()) {
-            throw new IllegalArgumentException();
+            throw new JSONPathException("json-path can not be null or empty");
         }
 
         this.path = path;
@@ -281,6 +283,10 @@ public class JSONPath implements JSONAware {
     }
 
     public static JSONPath compile(String path) {
+        if (path == null) {
+            throw new JSONPathException("jsonpath can not be null");
+        }
+        
         JSONPath jsonpath = pathCache.get(path);
         if (jsonpath == null) {
             jsonpath = new JSONPath(path);
@@ -1664,19 +1670,47 @@ public class JSONPath implements JSONAware {
         Class clazzA = a.getClass();
         boolean isIntA = isInt(clazzA);
 
-        Class clazzB = a.getClass();
+        Class clazzB = b.getClass();
         boolean isIntB = isInt(clazzB);
-
-        if (isIntA && isIntB) {
-            return a.longValue() == b.longValue();
+        
+        if (a instanceof BigDecimal) {
+            BigDecimal decimalA = (BigDecimal) a;
+            
+            if (isIntB) {
+                return decimalA.equals(BigDecimal.valueOf(b.longValue()));
+            }
         }
+
+        if (isIntA) {
+            if (isIntB) {
+                return a.longValue() == b.longValue();
+            }
+            
+            if (b instanceof BigInteger) {
+                BigInteger bigIntB = (BigInteger) a;
+                BigInteger bigIntA = BigInteger.valueOf(a.longValue());
+                
+                return bigIntA.equals(bigIntB);
+            }
+        }
+        
+        if (isIntB) {
+            if (a instanceof BigInteger) {
+                BigInteger bigIntA = (BigInteger) a;
+                BigInteger bigIntB = BigInteger.valueOf(b.longValue());
+                
+                return bigIntA.equals(bigIntB);
+            }
+        }
+        
 
         boolean isDoubleA = isDouble(clazzA);
         boolean isDoubleB = isDouble(clazzB);
 
-        if ((isDoubleA && isDoubleB) || (isDoubleA && isIntA) || (isDoubleB && isIntA)) {
+        if ((isDoubleA && isDoubleB) || (isDoubleA && isIntB) || (isDoubleB && isIntA)) {
             return a.doubleValue() == b.doubleValue();
         }
+        
 
         return false;
     }

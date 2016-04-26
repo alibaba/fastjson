@@ -1,6 +1,5 @@
 package com.alibaba.fastjson.support.spring;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -29,8 +28,8 @@ import com.alibaba.fastjson.util.IOUtils;
  * @author Victor.Zxy
  *
  */
-public class FastJsonHttpMessageConverter4 extends
-		AbstractGenericHttpMessageConverter<Object> {
+public class FastJsonHttpMessageConverter4 //
+        extends AbstractGenericHttpMessageConverter<Object> {
 
 	private Charset charset = IOUtils.UTF8;
 
@@ -90,86 +89,43 @@ public class FastJsonHttpMessageConverter4 extends
 
 	@Override
 	protected boolean supports(Class<?> paramClass) {
-
 		return true;
 	}
 
+    @Override
+    public Object read(Type type, //
+                       Class<?> contextClass, //
+                       HttpInputMessage inputMessage //
+    ) throws IOException, HttpMessageNotReadableException {
+        InputStream in = inputMessage.getBody();
+        return JSON.parseObject(in, charset, type);
+    }
+
 	@Override
-	public Object read(Type type, Class<?> contextClass,
-			HttpInputMessage inputMessage) throws IOException,
-			HttpMessageNotReadableException {
-
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-		InputStream in = inputMessage.getBody();
-
-		byte[] buf = new byte[1024];
-		for (;;) {
-			int len = in.read(buf);
-			if (len == -1) {
-				break;
-			}
-
-			if (len > 0) {
-				baos.write(buf, 0, len);
-			}
-		}
-
-		byte[] bytes = baos.toByteArray();
-
-		return JSON.parseObject(bytes, 0, bytes.length, charset.newDecoder(),
-				type);
+    protected void writeInternal(Object obj, //
+                                 Type type, //
+                                 HttpOutputMessage outputMessage //
+    ) throws IOException, HttpMessageNotWritableException {
+	    
+        HttpHeaders headers = outputMessage.getHeaders();
+        OutputStream out = outputMessage.getBody();
+        int len = JSON.writeJSONString(obj, //
+                                       out, //
+                                       charset, //
+                                       SerializeConfig.globalInstance, //
+                                       filters, //
+                                       dateFormat, //
+                                       JSON.DEFAULT_GENERATE_FEATURE, //
+                                       features);
+        headers.setContentLength(len);
 	}
 
 	@Override
-	protected void writeInternal(Object obj, Type type,
-			HttpOutputMessage outputMessage) throws IOException,
-			HttpMessageNotWritableException {
-
-		HttpHeaders headers = outputMessage.getHeaders();
-
-		String text = JSON.toJSONString(obj, //
-				SerializeConfig.globalInstance, //
-				filters, //
-				dateFormat, //
-				JSON.DEFAULT_GENERATE_FEATURE, //
-				features);
-
-		byte[] bytes = text.getBytes(charset);
-
-		headers.setContentLength(bytes.length);
-
-		OutputStream out = outputMessage.getBody();
-
-		out.write(bytes);
-	}
-
-	@Override
-	protected Object readInternal(Class<? extends Object> clazz,
-			HttpInputMessage inputMessage) throws IOException,
-			HttpMessageNotReadableException {
-
-		// This method should not be executed.
-
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    protected Object readInternal(Class<? extends Object> clazz, //
+                                  HttpInputMessage inputMessage //
+    ) throws IOException, HttpMessageNotReadableException {
 
 		InputStream in = inputMessage.getBody();
-
-		byte[] buf = new byte[1024];
-		for (;;) {
-			int len = in.read(buf);
-			if (len == -1) {
-				break;
-			}
-
-			if (len > 0) {
-				baos.write(buf, 0, len);
-			}
-		}
-
-		byte[] bytes = baos.toByteArray();
-
-		return JSON.parseObject(bytes, 0, bytes.length, charset.newDecoder(),
-				clazz);
+        return JSON.parseObject(in, charset, clazz);
 	}
 }

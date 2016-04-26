@@ -16,12 +16,16 @@
 package com.alibaba.fastjson;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.Writer;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -117,7 +121,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static Object parse(byte[] input, Feature... features) {
-        return parse(input, 0, input.length, IOUtils.getUTF8Decoder(), features);
+        char[] chars = IOUtils.getChars(input.length);
+        int len = IOUtils.decodeUTF8(input, 0, input.length, chars);
+        return parse(new String(chars, 0, len), features);
     }
 
     public static Object parse(byte[] input, int off, int len, CharsetDecoder charsetDecoder, Feature... features) {
@@ -266,12 +272,18 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(byte[] input, Type clazz, Feature... features) {
-        return (T) parseObject(input, 0, input.length, IOUtils.getUTF8Decoder(), clazz, features);
+        char[] chars = IOUtils.getChars(input.length);
+        int len = IOUtils.decodeUTF8(input, 0, input.length, chars);
+        return (T) parseObject(new String(chars, 0, len), clazz, features);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T parseObject(byte[] input, int off, int len, CharsetDecoder charsetDecoder, Type clazz,
-                                          Feature... features) {
+    public static <T> T parseObject(byte[] input, //
+                                    int off, //
+                                    int len, //
+                                    CharsetDecoder charsetDecoder, //
+                                    Type clazz, //
+                                    Feature... features) {
         charsetDecoder.reset();
 
         int scaleLength = (int) (len * (double) charsetDecoder.maxCharsPerByte());
@@ -305,6 +317,17 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         parser.close();
 
         return (T) value;
+    }
+    
+    public static <T> T parseObject(InputStream is, //
+                                    Charset charset, //
+                                    Type type, //
+                                    Feature... features) {
+        if (charset == null) {
+            charset = IOUtils.UTF8;
+        }
+        String text = IOUtils.readAll(new InputStreamReader(is, charset));
+        return parseObject(text, type, features);
     }
 
     public static <T> T parseObject(String text, Class<T> clazz) {
@@ -426,7 +449,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         try {
             JSONSerializer serializer = new JSONSerializer(out);
             serializer.write(object);
-            return out.toBytes(null);
+            return out.toBytes(IOUtils.UTF8);
         } finally {
             out.close();
         }
@@ -464,9 +487,6 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         try {
             JSONSerializer serializer = new JSONSerializer(out, config);
-            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
-                serializer.config(feature, true);
-            }
             
             if (dateFormat != null && dateFormat.length() != 0) {
                 serializer.setDateFormat(dateFormat);
@@ -492,17 +512,12 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static byte[] toJSONBytes(Object object, SerializeConfig config, SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter();
+        SerializeWriter out = new SerializeWriter(null, DEFAULT_GENERATE_FEATURE, features);
 
         try {
             JSONSerializer serializer = new JSONSerializer(out, config);
-            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
-                serializer.config(feature, true);
-            }
-
             serializer.write(object);
-
-            return out.toBytes(null);
+            return out.toBytes(IOUtils.UTF8);
         } finally {
             out.close();
         }
@@ -515,19 +530,91 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         return toJSONString(object, SerializerFeature.PrettyFormat);
     }
-
+    
+    /**
+     * @deprecated use writeJSONString
+     */
     public static void writeJSONStringTo(Object object, Writer writer, SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter(writer);
+        writeJSONString(object, writer, features);
+    }
+
+    /**
+     * write object as json to Writer
+     * @since 1.2.11
+     * @param object
+     * @param writer output writer
+     * @param features serializer features
+     * @throws IOException
+     */
+    public static void writeJSONString(Object object, Writer writer, SerializerFeature... features) {
+        SerializeWriter out = new SerializeWriter(writer, JSON.DEFAULT_GENERATE_FEATURE, features);
 
         try {
             JSONSerializer serializer = new JSONSerializer(out);
-            for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
-                serializer.config(feature, true);
-            }
-
             serializer.write(object);
         } finally {
             out.close();
+        }
+    }
+    
+    /**
+     * write object as json to OutputStream
+     * @since 1.2.11
+     * @param object
+     * @param os output stream
+     * @param features serializer features
+     * @throws IOException
+     */
+    public static final int writeJSONString(Object object, // 
+                                             OutputStream os, // 
+                                             SerializerFeature... features) throws IOException {
+        return writeJSONString(object, os, IOUtils.UTF8, features);
+    }
+    
+    public static final int writeJSONString(Object object, // 
+                                             OutputStream os, // 
+                                             Charset charset, // 
+                                             SerializerFeature... features) throws IOException {
+        return writeJSONString(object, //
+                               os, //
+                               charset, //
+                               SerializeConfig.globalInstance, //
+                               null, //
+                               null, //
+                               DEFAULT_GENERATE_FEATURE, //
+                               features);
+    }
+    
+    public static final int writeJSONString(Object object, // 
+                                             OutputStream os, // 
+                                             Charset charset, // 
+                                             SerializeConfig config, //
+                                             SerializeFilter[] filters, //
+                                             String dateFormat, //
+                                             int defaultFeatures, //
+                                             SerializerFeature... features) throws IOException {
+        SerializeWriter writer = new SerializeWriter(null, defaultFeatures, features);
+
+        try {
+            JSONSerializer serializer = new JSONSerializer(writer, config);
+            
+            if (dateFormat != null && dateFormat.length() != 0) {
+                serializer.setDateFormat(dateFormat);
+                serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
+            }
+
+            if (filters != null) {
+                for (SerializeFilter filter : filters) {
+                    serializer.addFilter(filter);
+                }
+            }
+            
+            serializer.write(object);
+            
+            int len = writer.writeToEx(os, charset);
+            return len;
+        } finally {
+            writer.close();
         }
     }
 

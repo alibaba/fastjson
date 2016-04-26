@@ -1,6 +1,7 @@
 package com.alibaba.json.test.codec;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
@@ -178,5 +179,10 @@ public class FastjsonManualCodec implements Codec {
     public byte[] encodeToBytes(Object object) throws Exception {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public void encode(OutputStream out, Object object) throws Exception {
+        out.write(encodeToBytes(object));        
     }
 }

@@ -21,62 +21,114 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.util.IOUtils;
 
 /**
- * Spring MVC Converter for fastjson.
+ * Fastjson for Spring MVC Converter.
  * 
- * Spring MVC version 4.2+
+ * Compatible Spring MVC version 4.2+
  *
  * @author Victor.Zxy
- *
+ * @since 1.2.10
+ * @see AbstractGenericHttpMessageConverter
  */
 public class FastJsonHttpMessageConverter4 //
         extends AbstractGenericHttpMessageConverter<Object> {
 
-	// default charset
+	/** default charset */
 	private Charset charset = IOUtils.UTF8;
 
+	/** serializer features */
 	private SerializerFeature[] features = new SerializerFeature[0];
 
+	/** serialize filter */
 	private SerializeFilter[] filters = new SerializeFilter[0];
 
+	/** dateFormat */
 	private String dateFormat;
 
+	/**
+	 *	Can serialize/deserialize all types.
+	 */
 	public FastJsonHttpMessageConverter4() {
 
 		super(MediaType.ALL);
 	}
 
+	/**
+	 * Get charset.
+	 *
+	 * @return charset
+	 */
 	public Charset getCharset() {
 		return this.charset;
 	}
 
+	/**
+	 * Set charset.
+	 * 
+	 * @param charset Charset
+	 */
 	public void setCharset(Charset charset) {
 		this.charset = charset;
 	}
 
+	/**
+	 * Get dateFormat.
+	 * 
+	 * @return dateFormat
+	 */
 	public String getDateFormat() {
 		return dateFormat;
 	}
 
+	/**
+	 * Set dateFormat.
+	 *
+	 * @param dateFormat String
+	 */
 	public void setDateFormat(String dateFormat) {
 		this.dateFormat = dateFormat;
 	}
 
+	/**
+	 * Get features.
+	 *
+	 * @return features SerializerFeature[]
+	 */
 	public SerializerFeature[] getFeatures() {
 		return features;
 	}
 
+	/**
+	 * Set features.
+	 *
+	 * @param features SerializerFeature[]
+	 */
 	public void setFeatures(SerializerFeature... features) {
 		this.features = features;
 	}
 
+	/**
+	 * Get filters.
+	 *
+	 * @return filters SerializeFilter[]
+	 */
 	public SerializeFilter[] getFilters() {
 		return filters;
 	}
 
+	/**
+	 * Set filters.
+	 * 
+	 * @param filters SerializeFilter[]
+	 */
 	public void setFilters(SerializeFilter... filters) {
 		this.filters = filters;
 	}
 
+	/**
+	 * Add SerializeFilter
+	 *
+	 * @param filter SerializeFilter
+	 */
 	public void addSerializeFilter(SerializeFilter filter) {
 		if (filter == null) {
 			return;
@@ -88,6 +140,11 @@ public class FastJsonHttpMessageConverter4 //
 		this.filters = filters;
 	}
 
+	/**
+	 * Add SerializerFeature
+	 *
+	 * @param feature SerializerFeature
+	 */
 	public void addSerializerFeature(SerializerFeature feature) {
 		if (feature == null) {
 			return;

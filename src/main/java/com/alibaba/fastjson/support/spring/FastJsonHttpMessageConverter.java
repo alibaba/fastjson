@@ -22,65 +22,148 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.util.IOUtils;
 
 /**
- * Spring MVC Converter for fastjson.
+ * Fastjson for Spring MVC Converter.
  * 
- * Spring MVC version 4.2- (Below 4.2)
+ * Compatible Spring MVC version 4.2- (Below 4.2)
  *
- * @author Victor.Zxy
- *
+ * @author VictorZeng
+ * @since 1.2.10
+ * @see AbstractHttpMessageConverter
+ * @see GenericHttpMessageConverter
  */
+
 public class FastJsonHttpMessageConverter //
         extends AbstractHttpMessageConverter<Object> //
         implements GenericHttpMessageConverter<Object> {
 
-	// default charset
+	/** default charset */
 	private Charset charset = IOUtils.UTF8;
 
+	/** serializer features */
 	private SerializerFeature[] features = new SerializerFeature[0];
 
+	/** serialize filter */
 	private SerializeFilter[] filters = new SerializeFilter[0];
 
+	/** dateFormat */
 	private String dateFormat;
 
+	/**
+	 *	Can serialize/deserialize all types.
+	 */
 	public FastJsonHttpMessageConverter() {
 		
 		super(MediaType.ALL);
 	}
 
+	/**
+	 * Get charset.
+	 *
+	 * @return charset
+	 */
 	public Charset getCharset() {
 		return this.charset;
 	}
 
+	/**
+	 * Set charset.
+	 * 
+	 * @param charset Charset
+	 */
 	public void setCharset(Charset charset) {
 		this.charset = charset;
 	}
 
+	/**
+	 * Get dateFormat.
+	 * 
+	 * @return dateFormat
+	 */
 	public String getDateFormat() {
 		return dateFormat;
 	}
 
+	/**
+	 * Set dateFormat.
+	 *
+	 * @param dateFormat String
+	 */
 	public void setDateFormat(String dateFormat) {
 		this.dateFormat = dateFormat;
 	}
 
+	/**
+	 * Get features.
+	 *
+	 * @return features SerializerFeature[]
+	 */
 	public SerializerFeature[] getFeatures() {
 		return features;
 	}
 
+	/**
+	 * Set features.
+	 *
+	 * @param features SerializerFeature[]
+	 */
 	public void setFeatures(SerializerFeature... features) {
 		this.features = features;
 	}
 
+	/**
+	 * Get filters.
+	 *
+	 * @return filters SerializeFilter[]
+	 */
 	public SerializeFilter[] getFilters() {
 		return filters;
 	}
 
+	/**
+	 * Set filters.
+	 * 
+	 * @param filters SerializeFilter[]
+	 */
 	public void setFilters(SerializeFilter... filters) {
 		this.filters = filters;
 	}
 	
+	/**
+	 * Add SerializeFilter
+	 *
+	 * @param filter SerializeFilter
+	 */
+	public void addSerializeFilter(SerializeFilter filter) {
+		if (filter == null) {
+			return;
+		}
+
+		SerializeFilter[] filters = new SerializeFilter[this.filters.length + 1];
+		System.arraycopy(this.filters, 0, filters, 0,
+				this.filters.length);
+		filters[filters.length - 1] = filter;
+		this.filters = filters;
+	}
+
+	/**
+	 * Add SerializerFeature
+	 *
+	 * @param feature SerializerFeature
+	 */
+	public void addSerializerFeature(SerializerFeature feature) {
+		if (feature == null) {
+			return;
+		}
+		
+		SerializerFeature[] features = new SerializerFeature[this.features.length + 1];
+		System.arraycopy(this.features, 0, features, 0, this.features.length);
+		features[features.length - 1] = feature;
+		this.features = features;
+	}
+	
 	@Override
 	protected boolean supports(Class<?> clazz) {
+		
 		return true;
 	}
 	
@@ -108,30 +191,6 @@ public class FastJsonHttpMessageConverter //
                                        features);
         headers.setContentLength(len);
     }
-
-	public void addSerializeFilter(SerializeFilter filter) {
-		if (filter == null) {
-			return;
-		}
-
-		SerializeFilter[] filters = new SerializeFilter[this.filters.length + 1];
-		System.arraycopy(this.filters, 0, filters, 0,
-				this.filters.length);
-		filters[filters.length - 1] = filter;
-		this.filters = filters;
-	}
-
-
-	public void addSerializerFeature(SerializerFeature feature) {
-		if (feature == null) {
-			return;
-		}
-		
-		SerializerFeature[] features = new SerializerFeature[this.features.length + 1];
-		System.arraycopy(this.features, 0, features, 0, this.features.length);
-		features[features.length - 1] = feature;
-		this.features = features;
-	}
 
 	/* 
 	 * @see org.springframework.http.converter.GenericHttpMessageConverter#canRead(java.lang.reflect.Type, java.lang.Class, org.springframework.http.MediaType)

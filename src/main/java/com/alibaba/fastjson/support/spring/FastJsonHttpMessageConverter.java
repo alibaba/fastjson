@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
-import java.nio.charset.Charset;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
@@ -16,70 +15,56 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializeConfig;
-import com.alibaba.fastjson.serializer.SerializeFilter;
-import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.alibaba.fastjson.util.IOUtils;
+import com.alibaba.fastjson.support.config.FastJsonConfig;
 
 /**
- * Spring MVC Converter for fastjson.
+ * Fastjson for Spring MVC Converter.
  * 
- * Spring MVC version 4.2- (Below 4.2)
+ * Compatible Spring MVC version 4.2- (Below 4.2)
  *
- * @author Victor.Zxy
- *
+ * @author VictorZeng
+ * @since 1.2.10
+ * 
+ * @see AbstractHttpMessageConverter
+ * @see GenericHttpMessageConverter
  */
+
 public class FastJsonHttpMessageConverter //
         extends AbstractHttpMessageConverter<Object> //
         implements GenericHttpMessageConverter<Object> {
 
-	private Charset charset = IOUtils.UTF8;
+	/** with fastJson config */
+	private FastJsonConfig fastJsonConfig = new FastJsonConfig(); 
 
-	private SerializerFeature[] features = new SerializerFeature[0];
+	/**
+	 * @since 1.2.11
+	 * 
+	 * @return the fastJsonConfig.
+	 */
+	public FastJsonConfig getFastJsonConfig() {
+		return fastJsonConfig;
+	}
 
-	protected SerializeFilter[] filters = new SerializeFilter[0];
-
-	protected String dateFormat;
-
+	/**
+	 * @since 1.2.11
+	 * 
+	 * @param fastJsonConfig the fastJsonConfig to set.
+	 */
+	public void setFastJsonConfig(FastJsonConfig fastJsonConfig) {
+		this.fastJsonConfig = fastJsonConfig;
+	}
+	
+	/**
+	 *	Can serialize/deserialize all types.
+	 */
 	public FastJsonHttpMessageConverter() {
 		
-		super(MediaType.APPLICATION_JSON,  MediaType.APPLICATION_FORM_URLENCODED);
-	}
-
-	public Charset getCharset() {
-		return this.charset;
-	}
-
-	public void setCharset(Charset charset) {
-		this.charset = charset;
-	}
-
-	public String getDateFormat() {
-		return dateFormat;
-	}
-
-	public void setDateFormat(String dateFormat) {
-		this.dateFormat = dateFormat;
-	}
-
-	public SerializerFeature[] getFeatures() {
-		return features;
-	}
-
-	public void setFeatures(SerializerFeature... features) {
-		this.features = features;
-	}
-
-	public SerializeFilter[] getFilters() {
-		return filters;
-	}
-
-	public void setFilters(SerializeFilter... filters) {
-		this.filters = filters;
+		super(MediaType.ALL);
 	}
 	
 	@Override
 	protected boolean supports(Class<?> clazz) {
+		
 		return true;
 	}
 	
@@ -89,7 +74,7 @@ public class FastJsonHttpMessageConverter //
     ) throws IOException, HttpMessageNotReadableException {
 	    
 		InputStream in = inputMessage.getBody();
-        return JSON.parseObject(in, charset, clazz);
+        return JSON.parseObject(in, fastJsonConfig.getCharset(), clazz, fastJsonConfig.getFeatures());
 	}
 
 	@Override
@@ -99,26 +84,14 @@ public class FastJsonHttpMessageConverter //
         OutputStream out = outputMessage.getBody();
         int len = JSON.writeJSONString(obj, //
                                        out, //
-                                       charset, //
-                                       SerializeConfig.globalInstance, //
-                                       filters, //
-                                       dateFormat, //
+                                       fastJsonConfig.getCharset(), //
+                                       fastJsonConfig.getSerializeConfig(), //
+                                       fastJsonConfig.getSerializeFilters(), //
+                                       fastJsonConfig.getDateFormat(), //
                                        JSON.DEFAULT_GENERATE_FEATURE, //
-                                       features);
+                                       fastJsonConfig.getSerializerFeatures());
         headers.setContentLength(len);
     }
-
-	public void addSerializeFilter(SerializeFilter filter) {
-		if (filter == null) {
-			return;
-		}
-
-		SerializeFilter[] filters = new SerializeFilter[this.filters.length + 1];
-		System.arraycopy(this.filters, 0, filters, 0,
-				this.filters.length);
-		filters[filters.length - 1] = filter;
-		this.filters = filters;
-	}
 
 	/* 
 	 * @see org.springframework.http.converter.GenericHttpMessageConverter#canRead(java.lang.reflect.Type, java.lang.Class, org.springframework.http.MediaType)
@@ -143,7 +116,7 @@ public class FastJsonHttpMessageConverter //
     ) throws IOException, HttpMessageNotReadableException {
         
 		InputStream in = inputMessage.getBody();
-		return JSON.parseObject(in, charset, type);
+		return JSON.parseObject(in, fastJsonConfig.getCharset(), type, fastJsonConfig.getFeatures());
 	}
 
 	/* 

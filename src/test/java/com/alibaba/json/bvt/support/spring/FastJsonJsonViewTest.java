@@ -12,29 +12,33 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonJsonView;
 
 public class FastJsonJsonViewTest extends TestCase {
 
-    @SuppressWarnings("deprecation")
     public void test_0() throws Exception {
         FastJsonJsonView view = new FastJsonJsonView();
+        
+        FastJsonConfig fastJsonConfig = new FastJsonConfig();
+        
+        view.setFastJsonConfig(fastJsonConfig);
 
-        Assert.assertEquals(Charset.forName("UTF-8"), view.getCharset());
-        view.setCharset(Charset.forName("GBK"));
-        Assert.assertEquals(Charset.forName("GBK"), view.getCharset());
+        Assert.assertEquals(Charset.forName("UTF-8"), fastJsonConfig.getCharset());
+        fastJsonConfig.setCharset(Charset.forName("GBK"));
+        Assert.assertEquals(Charset.forName("GBK"), fastJsonConfig.getCharset());
 
-        Assert.assertNotNull(view.getFeatures());
-        Assert.assertEquals(0, view.getFeatures().length);
+        Assert.assertNotNull(fastJsonConfig.getSerializerFeatures());
+        Assert.assertEquals(0, fastJsonConfig.getSerializerFeatures().length);
 
-        view.setSerializerFeature(SerializerFeature.BrowserCompatible);
-        Assert.assertEquals(1, view.getFeatures().length);
-        Assert.assertEquals(SerializerFeature.BrowserCompatible, view.getFeatures()[0]);
+        fastJsonConfig.setSerializerFeatures(SerializerFeature.BrowserCompatible);
+        Assert.assertEquals(1, fastJsonConfig.getSerializerFeatures().length);
+        Assert.assertEquals(SerializerFeature.BrowserCompatible, fastJsonConfig.getSerializerFeatures()[0]);
 
-        view.setFeatures(SerializerFeature.DisableCheckSpecialChar, SerializerFeature.SortField);
-        Assert.assertEquals(2, view.getFeatures().length);
-        Assert.assertEquals(SerializerFeature.DisableCheckSpecialChar, view.getFeatures()[0]);
-        Assert.assertEquals(SerializerFeature.SortField, view.getFeatures()[1]);
+        fastJsonConfig.setSerializerFeatures(SerializerFeature.DisableCheckSpecialChar, SerializerFeature.SortField);
+        Assert.assertEquals(2, fastJsonConfig.getSerializerFeatures().length);
+        Assert.assertEquals(SerializerFeature.DisableCheckSpecialChar, fastJsonConfig.getSerializerFeatures()[0]);
+        Assert.assertEquals(SerializerFeature.SortField, fastJsonConfig.getSerializerFeatures()[1]);
         
         Map<String, Object> model = new HashMap<String, Object>();
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -43,14 +47,14 @@ public class FastJsonJsonViewTest extends TestCase {
         
         view.setRenderedAttributes(null);
         
-        view.setCharset(Charset.forName("UTF-8"));
+        fastJsonConfig.setCharset(Charset.forName("UTF-8"));
         view.render(model, request, response);
         
         view.setUpdateContentLength(true);
-        view.setFeatures(SerializerFeature.BrowserCompatible);
+        fastJsonConfig.setSerializerFeatures(SerializerFeature.BrowserCompatible);
         view.render(model, request, response);
         
-        view.setCharset(Charset.forName("GBK"));
+        fastJsonConfig.setCharset(Charset.forName("GBK"));
         view.render(Collections.singletonMap("abc", "cde"), request, response);
         
         view.setDisableCaching(true);

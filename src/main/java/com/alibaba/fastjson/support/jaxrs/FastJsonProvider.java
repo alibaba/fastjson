@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,41 +19,54 @@ import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializeConfig;
-import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.alibaba.fastjson.util.IOUtils;
+import com.alibaba.fastjson.support.config.FastJsonConfig;
 
 /**
- * JAX-RS Provider for fastjson.
+ * Fastjson for JAX-RS Provider.
  *
- * @author smallnest, Victor.Zxy
- *
+ * @author smallnest
+ * @author VictorZeng
+ * @since 1.2.9
+ * 
+ * @see MessageBodyReader
+ * @see MessageBodyWriter
  */
+
 @Provider
-@Consumes({ "*/*" })
-@Produces({ "*/*" })
+@Consumes({ MediaType.WILDCARD })
+@Produces({ MediaType.WILDCARD })
 public class FastJsonProvider //
         implements MessageBodyReader<Object>, MessageBodyWriter<Object> {
 
-	public static final String MIME_JAVASCRIPT = "application/javascript";
-	
-	public static final String MIME_JAVASCRIPT_MS = "application/x-javascript";
+	/** with fastJson config */
+	private FastJsonConfig fastJsonConfig = new FastJsonConfig();
 
-	// default charset
-	private Charset charset = IOUtils.UTF8;
-
+	/** allow serialize/deserialize types in clazzes */
 	private Class<?>[] clazzes = null;
-	
-	private SerializerFeature[] features = new SerializerFeature[0];
-
-	protected SerializeFilter[] filters = new SerializeFilter[0];
-
-	protected String dateFormat;
 	
 	@javax.ws.rs.core.Context
 	javax.ws.rs.core.UriInfo uriInfo;
 	
+	
+	/**
+	 * @since 1.2.11
+	 * 
+	 * @return the fastJsonConfig.
+	 */
+	public FastJsonConfig getFastJsonConfig() {
+		return fastJsonConfig;
+	}
+
+	/**
+	 * @since 1.2.11
+	 * 
+	 * @param fastJsonConfig the fastJsonConfig to set.
+	 */
+	public void setFastJsonConfig(FastJsonConfig fastJsonConfig) {
+		this.fastJsonConfig = fastJsonConfig;
+	}
+
 	/**
 	 * Can serialize/deserialize all types.
 	 */
@@ -62,49 +75,10 @@ public class FastJsonProvider //
 	}
 
 	/**
-	 * Set charset. the default charset is UTF-8
-	 */
-	public FastJsonProvider(String charset) {
-		this.charset = Charset.forName(charset);
-	}
-
-	/**
 	 * Only serialize/deserialize all types in clazzes.
 	 */
 	public FastJsonProvider(Class<?>[] clazzes) {
 		this.clazzes = clazzes;
-	}
-
-	public Charset getCharset() {
-		return this.charset;
-	}
-
-	public void setCharset(Charset charset) {
-		this.charset = charset;
-	}
-
-	public String getDateFormat() {
-		return dateFormat;
-	}
-
-	public void setDateFormat(String dateFormat) {
-		this.dateFormat = dateFormat;
-	}
-
-	public SerializerFeature[] getFeatures() {
-		return features;
-	}
-
-	public void setFeatures(SerializerFeature... features) {
-		this.features = features;
-	}
-
-	public SerializeFilter[] getFilters() {
-		return filters;
-	}
-
-	public void setFilters(SerializeFilter... filters) {
-		this.filters = filters;
 	}
 	
 	/**
@@ -199,14 +173,14 @@ public class FastJsonProvider //
                         OutputStream entityStream //
     ) throws IOException, WebApplicationException {
 
-		SerializerFeature[] serializerFeatures = this.features;
+		SerializerFeature[] serializerFeatures = fastJsonConfig.getSerializerFeatures();
 		if (uriInfo != null
 				&& uriInfo.getQueryParameters().containsKey("pretty")) {
 			if (serializerFeatures == null)
 				serializerFeatures = new SerializerFeature[] { SerializerFeature.PrettyFormat };
 			else {
-				List<SerializerFeature> featureList = Arrays
-						.asList(serializerFeatures);
+				List<SerializerFeature> featureList = new ArrayList<SerializerFeature>(Arrays
+						.asList(serializerFeatures));
 				featureList.add(SerializerFeature.PrettyFormat);
 				serializerFeatures = featureList.toArray(serializerFeatures);
 			}
@@ -214,12 +188,12 @@ public class FastJsonProvider //
 
         JSON.writeJSONString(obj, //
                              entityStream, //
-                             charset, //
-                             SerializeConfig.globalInstance, //
-                             filters, //
-                             dateFormat, //
+                             fastJsonConfig.getCharset(), //
+                             fastJsonConfig.getSerializeConfig(), //
+                             fastJsonConfig.getSerializeFilters(), //
+                             fastJsonConfig.getDateFormat(), //
                              JSON.DEFAULT_GENERATE_FEATURE, //
-                             serializerFeatures);
+                             fastJsonConfig.getSerializerFeatures());
 		
 		entityStream.flush();
 
@@ -256,6 +230,6 @@ public class FastJsonProvider //
                            MediaType mediaType, //
                            MultivaluedMap<String, String> httpHeaders, //
                            InputStream entityStream) throws IOException, WebApplicationException {
-        return JSON.parseObject(entityStream, charset, genericType);
+        return JSON.parseObject(entityStream, fastJsonConfig.getCharset(), genericType, fastJsonConfig.getFeatures());
     }
 }

@@ -629,8 +629,9 @@ public class IOUtils {
         int dlASCII = dp + Math.min(len, da.length);
 
         // ASCII only optimized loop
-        while (dp < dlASCII && sa[sp] < '\u0080')
+        while (dp < dlASCII && sa[sp] < '\u0080') {
             da[dp++] = (byte) sa[sp++];
+        }
 
         while (sp < sl) {
             char c = sa[sp++];
@@ -643,27 +644,23 @@ public class IOUtils {
                 da[dp++] = (byte) (0x80 | (c & 0x3f));
             } else if (c >= '\uD800' && c < ('\uDFFF' + 1)) { //Character.isSurrogate(c) but 1.7
                 final int uc;
-                {
-                    int ip = sp -1;
-                    assert (sa[ip] == c);
-                    // c >= MIN_LOW_SURROGATE && c < (MAX_LOW_SURROGATE + 1)
-                    if (Character.isHighSurrogate(c)) {
-                        if (sl - ip < 2) {
-                            uc = -1;
-                        } else {
-                            char d = sa[ip + 1];
-                            if (Character.isLowSurrogate(d)) {
-                                uc = Character.toCodePoint(c, d);
-                            } else {
-                                throw new JSONException("encodeUTF8 error", new MalformedInputException(1));
-                            }
-                        }
+                int ip = sp - 1;
+                if (Character.isHighSurrogate(c)) {
+                    if (sl - ip < 2) {
+                        uc = -1;
                     } else {
-                        if (Character.isLowSurrogate(c)) {
-                            throw new JSONException("encodeUTF8 error", new MalformedInputException(1));
+                        char d = sa[ip + 1];
+                        if (Character.isLowSurrogate(d)) {
+                            uc = Character.toCodePoint(c, d);
                         } else {
-                            uc = c;
+                            throw new JSONException("encodeUTF8 error", new MalformedInputException(1));
                         }
+                    }
+                } else {
+                    if (Character.isLowSurrogate(c)) {
+                        throw new JSONException("encodeUTF8 error", new MalformedInputException(1));
+                    } else {
+                        uc = c;
                     }
                 }
                 

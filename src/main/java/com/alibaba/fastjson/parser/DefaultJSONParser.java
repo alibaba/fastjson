@@ -146,45 +146,48 @@ public class DefaultJSONParser implements Closeable {
     public final Object parseObject(final Map object, Object fieldName) {
         final JSONLexer lexer = this.lexer;
 
-        if (lexer.token == JSONToken.NULL) {
+        int token = lexer.token;
+        if (token == JSONToken.NULL) {
             lexer.nextToken();
             return null;
         }
 
-        if (lexer.token != JSONToken.LBRACE && lexer.token != JSONToken.COMMA) {
+        if (token != JSONToken.LBRACE && token != JSONToken.COMMA) {
             throw new JSONException("syntax error, expect {, actual " + lexer.tokenName() + ", " + lexer.info());
         }
+        
+        final boolean isJSONObject = object instanceof JSONObject;
+        final boolean allowISO8601DateFormat = (lexer.features & Feature.AllowISO8601DateFormat.mask) != 0;
 
         ParseContext context = this.contex;
         try {
             boolean setContextFlag = false;
             for (;;) {
-                if (lexer.ch != '"' && lexer.ch != '}') {
+                char ch = lexer.ch;
+                if (ch != '"' //
+                    && ch != '}') {
                     lexer.skipWhitespace();
+                    ch = lexer.ch;
                 }
 
-                char ch = lexer.ch;
-                if ((lexer.features & Feature.AllowArbitraryCommas.mask) != 0) {
-                    while (ch == ',') {
-                        lexer.next();
-                        lexer.skipWhitespace();
-                        ch = lexer.ch;
-                    }
+                while (ch == ',' // 
+                        && (lexer.features & Feature.AllowArbitraryCommas.mask) != 0) {
+                    lexer.next();
+                    lexer.skipWhitespace();
+                    ch = lexer.ch;
                 }
 
                 boolean isObjectKey = false;
-                boolean strKey = false;
-                String keyStr = null;
                 Object key;
                 if (ch == '"') {
-                    key = keyStr = lexer.scanSymbol(symbolTable, '"');
-                    strKey = true;
-
-                    if (lexer.ch != ':') {
-                        lexer.skipWhitespace();
-                    }
+                    key = lexer.scanSymbol(symbolTable, '"');
 
                     ch = lexer.ch;
+                    if (ch != ':') {
+                        lexer.skipWhitespace();
+                        ch = lexer.ch;
+                    }
+
                     if (ch != ':') {
                         throw new JSONException("expect ':' at " + lexer.pos + ", name " + key);
                     }
@@ -225,6 +228,10 @@ public class DefaultJSONParser implements Closeable {
                         } else {
                             key = lexer.decimalValue(true);
                         }
+                        
+                        if (isJSONObject) {
+                            key = key.toString();
+                        }
                     } catch (NumberFormatException ex) {
                         throw new JSONException("parse number key error, " + lexer.info());
                     }
@@ -236,6 +243,10 @@ public class DefaultJSONParser implements Closeable {
                     lexer.nextToken();
                     key = parse();
                     isObjectKey = true;
+                    
+                    if (isJSONObject) {
+                        key = key.toString();
+                    }
                 } else {
                     if ((lexer.features & Feature.AllowUnQuotedFieldNames.mask) == 0) {
                         throw new JSONException("syntax error, " + lexer.info());
@@ -247,33 +258,45 @@ public class DefaultJSONParser implements Closeable {
                     if (ch != ':') {
                         throw new JSONException("expect ':' at " + lexer.bp + ", actual " + ch);
                     }
+                    
+                    if (isJSONObject) {
+                        key = key.toString();
+                    }
                 }
 
                 if (!isObjectKey) {
                     // lexer.next();
                     {
                         int index = ++lexer.bp;
-                        lexer.ch = (index >= lexer.len //
+                        ch = lexer.ch = (index >= lexer.len //
                                 ? EOI //
                                 : lexer.text.charAt(index));
                     }
 
                     // lexer.skipWhitespace();
                     for (;;) {
-                        if (lexer.ch == ' ' || lexer.ch == '\n' || lexer.ch == '\r' || lexer.ch == '\t'
-                            || lexer.ch == '\f' || lexer.ch == '\b') {
+                        if (ch <= ' ' //
+                            && (ch == ' ' // 32
+                                || ch == '\n' // 10
+                                || ch == '\r' // 13
+                                || ch == '\t' // 9
+                                || ch == '\f' // 12
+                                || ch == '\b') // 8
+                        ) {
                             lexer.next();
+                            ch = lexer.ch;
                         } else {
                             break;
                         }
                     }
+                } else {
+                    ch = lexer.ch;                    
                 }
-
-                ch = lexer.ch;
 
                 lexer.sp = 0; // lexer.resetStringPosition();
 
-                if (key == JSON.DEFAULT_TYPE_KEY && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
+                if (key == JSON.DEFAULT_TYPE_KEY //
+                    && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
                     String typeName = lexer.scanSymbol(symbolTable, '"');
                     Class<?> clazz = TypeUtils.loadClass(typeName, this.config.defaultClassLoader);
 
@@ -324,7 +347,9 @@ public class DefaultJSONParser implements Closeable {
                     return deserializer.deserialze(this, clazz, fieldName);
                 }
 
-                if (key == "$ref" && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
+                if (key == "$ref" //
+                    && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
+                    
                     lexer.nextToken(JSONToken.LITERAL_STRING);
                     if (lexer.token == JSONToken.LITERAL_STRING) {
                         String ref = lexer.stringVal();
@@ -384,20 +409,12 @@ public class DefaultJSONParser implements Closeable {
                     setContextFlag = true;
                 }
 
-                if (object instanceof JSONObject) {
-                    key = key == null //
-                        ? "null" //
-                        : strKey //
-                            ? keyStr //
-                            : key.toString();
-                }
-
                 Object value;
                 if (ch == '"') {
                     String strValue = lexer.scanStringValue('"');
                     value = strValue;
 
-                    if ((lexer.features & Feature.AllowISO8601DateFormat.mask) != 0) {
+                    if (allowISO8601DateFormat) {
                         JSONLexer iso8601Lexer = new JSONLexer(strValue);
                         if (iso8601Lexer.scanISO8601DateIfMatch(true)) {
                             value = iso8601Lexer.calendar.getTime();
@@ -428,7 +445,7 @@ public class DefaultJSONParser implements Closeable {
                 } else if (ch == '{') { // 减少嵌套，兼容android
                     lexer.nextToken(JSONToken.LITERAL_STRING);
 
-                    final boolean parentIsArray = fieldName != null && fieldName instanceof Integer;
+                    final boolean parentIsArray = fieldName instanceof Integer;
 
                     JSONObject input = (lexer.features & Feature.OrderedField.mask) != 0 //
                         ? new JSONObject(new LinkedHashMap<String, Object>()) //
@@ -458,13 +475,10 @@ public class DefaultJSONParser implements Closeable {
                         ctxLocal.object = object;
                     }
 
-                    checkMapResolve(object, strKey ? keyStr : key.toString());
-                    object.put(object instanceof JSONObject //
-                        ? strKey //
-                            ? keyStr //
-                            : key.toString() //
-                        : key, //
-                               obj);
+                    if (resolveStatus == NeedToResolve) {
+                        checkMapResolve(object, key.toString());
+                    }
+                    object.put(key, obj);
 
                     if (parentIsArray) {
                         setContext(context, obj, key);
@@ -511,11 +525,12 @@ public class DefaultJSONParser implements Closeable {
                     }
                 }
 
-                if (lexer.ch != ',' && lexer.ch != '}') {
+                ch = lexer.ch;
+                if (ch != ',' && ch != '}') {
                     lexer.skipWhitespace();
+                    ch = lexer.ch;
                 }
 
-                ch = lexer.ch;
                 if (ch == ',') {
                     // lexer.next();
                     {
@@ -542,7 +557,6 @@ public class DefaultJSONParser implements Closeable {
                 } else {
                     throw new JSONException("syntax error, " + lexer.info());
                 }
-
             }
         } finally {
             this.setContext(context);
@@ -668,7 +682,9 @@ public class DefaultJSONParser implements Closeable {
                         val = deserializer.deserialze(this, type, i);
                     }
                     array.add(val);
-                    checkListResolve(array);
+                    if (resolveStatus == NeedToResolve) {
+                        checkListResolve(array);
+                    }
                 }
 
                 if (lexer.token == JSONToken.COMMA) {
@@ -951,30 +967,26 @@ public class DefaultJSONParser implements Closeable {
 
     @SuppressWarnings("rawtypes")
     protected void checkListResolve(Collection array) {
-        if (resolveStatus == NeedToResolve) {
-            if (array instanceof List) {
-                ResolveTask task = getLastResolveTask();
-                task.fieldDeserializer = new ResolveFieldDeserializer(this, (List) array, array.size() - 1);
-                task.ownerContext = contex;
-                resolveStatus = DefaultJSONParser.NONE;
-            } else {
-                ResolveTask task = getLastResolveTask();
-                task.fieldDeserializer = new ResolveFieldDeserializer(array);
-                task.ownerContext = contex;
-                resolveStatus = DefaultJSONParser.NONE;
-            }
+        if (array instanceof List) {
+            ResolveTask task = getLastResolveTask();
+            task.fieldDeserializer = new ResolveFieldDeserializer(this, (List) array, array.size() - 1);
+            task.ownerContext = contex;
+            resolveStatus = DefaultJSONParser.NONE;
+        } else {
+            ResolveTask task = getLastResolveTask();
+            task.fieldDeserializer = new ResolveFieldDeserializer(array);
+            task.ownerContext = contex;
+            resolveStatus = DefaultJSONParser.NONE;
         }
     }
 
     @SuppressWarnings("rawtypes")
     protected void checkMapResolve(Map object, Object fieldName) {
-        if (resolveStatus == NeedToResolve) {
-            ResolveFieldDeserializer fieldResolver = new ResolveFieldDeserializer(object, fieldName);
-            ResolveTask task = getLastResolveTask();
-            task.fieldDeserializer = fieldResolver;
-            task.ownerContext = contex;
-            resolveStatus = DefaultJSONParser.NONE;
-        }
+        ResolveFieldDeserializer fieldResolver = new ResolveFieldDeserializer(object, fieldName);
+        ResolveTask task = getLastResolveTask();
+        task.fieldDeserializer = fieldResolver;
+        task.ownerContext = contex;
+        resolveStatus = DefaultJSONParser.NONE;
     }
 
     @SuppressWarnings("rawtypes")
@@ -996,26 +1008,39 @@ public class DefaultJSONParser implements Closeable {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public final void parseArray(final Collection array, Object fieldName) {
-        if (lexer.token == JSONToken.SET || lexer.token == JSONToken.TREE_SET) {
+        int token = lexer.token;
+        if (token == JSONToken.SET || token == JSONToken.TREE_SET) {
             lexer.nextToken();
+            token = lexer.token;
         }
 
-        if (lexer.token != JSONToken.LBRACKET) {
-            throw new JSONException("syntax error, expect [, actual " + JSONToken.name(lexer.token) + ", pos "
-                                    + lexer.pos);
+        if (token != JSONToken.LBRACKET) {
+            throw new JSONException("syntax error, expect [, actual " + JSONToken.name(token) + ", pos " + lexer.pos);
         }
 
         ParseContext context = this.contex;
         this.setContext(array, fieldName);
         try {
             final boolean first_quote;
-            if (lexer.ch != '"') {
-                if (lexer.ch == ']') {
+            char ch = lexer.ch;
+            if (ch != '"') {
+                if (ch == ']') {
                     lexer.next();
                     lexer.nextToken(JSONToken.COMMA);
                     return;
                 }
-                lexer.nextToken(JSONToken.LBRACE);
+                if (ch == '{') {
+                    // lexer.next();
+                    {
+                        int index = ++lexer.bp;
+                        lexer.ch = (index >= lexer.len //
+                                ? EOI //
+                                : lexer.text.charAt(index));
+                    }
+                    lexer.token = JSONToken.LBRACE;
+                } else {
+                    lexer.nextToken(JSONToken.LBRACE);
+                }
                 first_quote = false;
             } else {
                 if ((lexer.features & Feature.AllowISO8601DateFormat.mask) == 0) {
@@ -1034,7 +1059,9 @@ public class DefaultJSONParser implements Closeable {
                     if (lexer.ch == ',') {
                         lexer.next();
                         array.add(value);
-                        checkListResolve(array);
+                        if (resolveStatus == NeedToResolve) {
+                            checkListResolve(array);
+                        }
 
                         if (lexer.ch == '"') {
                             continue;
@@ -1044,7 +1071,9 @@ public class DefaultJSONParser implements Closeable {
                     } else if (lexer.ch == ']') {
                         lexer.next();
                         array.add(value);
-                        checkListResolve(array);
+                        if (resolveStatus == NeedToResolve) {
+                            checkListResolve(array);
+                        }
                         lexer.nextToken(JSONToken.COMMA);
                         break;
                     } else {
@@ -1052,14 +1081,15 @@ public class DefaultJSONParser implements Closeable {
                     }
                 }
 
-                if ((lexer.features & Feature.AllowArbitraryCommas.mask) != 0) {
-                    while (lexer.token == JSONToken.COMMA) {
-                        lexer.nextToken();
-                        continue;
-                    }
+                token = lexer.token;
+                while (token == JSONToken.COMMA // 
+                        && (lexer.features & Feature.AllowArbitraryCommas.mask) != 0) {
+                    lexer.nextToken();
+                    token = lexer.token;
+                    continue;
                 }
 
-                switch (lexer.token) {
+                switch (token) {
                     case LITERAL_INT:
                         value = lexer.integerValue();
                         lexer.nextToken(JSONToken.COMMA);
@@ -1130,8 +1160,9 @@ public class DefaultJSONParser implements Closeable {
                 }
 
                 array.add(value);
-                checkListResolve(array);
-
+                if (resolveStatus == NeedToResolve) {
+                    checkListResolve(array);
+                }
                 if (lexer.token == JSONToken.COMMA) {
                     lexer.nextToken(JSONToken.LITERAL_STRING);
                     continue;

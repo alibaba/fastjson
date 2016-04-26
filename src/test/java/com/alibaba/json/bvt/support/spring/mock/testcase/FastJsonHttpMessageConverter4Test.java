@@ -24,6 +24,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializeFilter;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.ValueFilter;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter4;
 
@@ -97,6 +98,15 @@ public class FastJsonHttpMessageConverter4Test {
 	    };
 	    
 	    converter.addSerializeFilter(filter);
+	}
 	
+	@Test
+	public void test4() throws Exception {
+		
+		FastJsonHttpMessageConverter4 converter = new FastJsonHttpMessageConverter4();
+		
+	    converter.addSerializerFeature(SerializerFeature.WriteMapNullValue);
+	    
+	    converter.addSerializerFeature(SerializerFeature.WriteNullStringAsEmpty);
 	}
 }

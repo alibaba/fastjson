@@ -274,6 +274,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return (T) parseObject(bytes, 0, bytes.length, IOUtils.UTF8, clazz, features);
     }
     
+    /**
+     * @since 1.2.11
+     */
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(byte[] bytes, int offset, int len, Charset charset, Type clazz, Feature... features) {
         if (charset == null) {
@@ -333,6 +336,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return (T) value;
     }
     
+    /**
+     * @since 1.2.11
+     */
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(InputStream is, //
                                     Type type, //
@@ -340,6 +346,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return (T) parseObject(is, IOUtils.UTF8, type, features);
     }
     
+    /**
+     * @since 1.2.11
+     */
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(InputStream is, //
                                     Charset charset, //

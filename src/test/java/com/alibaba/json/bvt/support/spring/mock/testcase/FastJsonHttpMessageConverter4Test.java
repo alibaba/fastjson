@@ -26,6 +26,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.ValueFilter;
+import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter4;
 
 /**
@@ -97,7 +98,11 @@ public class FastJsonHttpMessageConverter4Test {
 	        }
 	    };
 	    
-	    converter.addSerializeFilter(filter);
+	    FastJsonConfig fastJsonConfig = new FastJsonConfig();
+	    
+	    fastJsonConfig.setSerializeFilters(filter);
+	    
+	    converter.setFastJsonConfig(fastJsonConfig);
 	}
 	
 	@Test
@@ -105,8 +110,10 @@ public class FastJsonHttpMessageConverter4Test {
 		
 		FastJsonHttpMessageConverter4 converter = new FastJsonHttpMessageConverter4();
 		
-	    converter.addSerializerFeature(SerializerFeature.WriteMapNullValue);
+	    FastJsonConfig fastJsonConfig = new FastJsonConfig();
 	    
-	    converter.addSerializerFeature(SerializerFeature.WriteNullStringAsEmpty);
+	    fastJsonConfig.setSerializerFeatures(SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullStringAsEmpty);
+
+	    converter.setFastJsonConfig(fastJsonConfig);
 	}
 }

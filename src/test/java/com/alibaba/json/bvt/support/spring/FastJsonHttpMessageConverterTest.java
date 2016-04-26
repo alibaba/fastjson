@@ -17,17 +17,24 @@ import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 
 public class FastJsonHttpMessageConverterTest extends TestCase {
 
     public void test_read() throws Exception {
         FastJsonHttpMessageConverter converter = new FastJsonHttpMessageConverter();
-        converter.setCharset(Charset.forName("UTF-8"));
-        converter.setFeatures(SerializerFeature.BrowserCompatible);
-        Assert.assertEquals(Charset.forName("UTF-8"), converter.getCharset());
+        
+        FastJsonConfig fastJsonConfig = new FastJsonConfig();
+        
+        fastJsonConfig.setCharset(Charset.forName("UTF-8"));
+        fastJsonConfig.setSerializerFeatures(SerializerFeature.BrowserCompatible);
+        
+        converter.setFastJsonConfig(fastJsonConfig);
+        
+        Assert.assertEquals(Charset.forName("UTF-8"), fastJsonConfig.getCharset());
 
-        Assert.assertEquals(1, converter.getFeatures().length);
+        Assert.assertEquals(1, fastJsonConfig.getFeatures().length);
         
         Method method = FastJsonHttpMessageConverter.class.getDeclaredMethod("supports", Class.class);
         method.setAccessible(true);

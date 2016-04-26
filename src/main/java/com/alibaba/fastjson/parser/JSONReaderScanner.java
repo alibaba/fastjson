@@ -222,7 +222,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
     }
 
     public byte[] bytesValue() {
-        return IOUtils.decodeFast(buf, np + 1, sp);
+        return IOUtils.decodeBase64(buf, np + 1, sp);
     }
 
     protected final void arrayCopy(int srcPos, char[] dest, int destPos, int length) {

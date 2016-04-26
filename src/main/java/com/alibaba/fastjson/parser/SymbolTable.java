@@ -22,12 +22,12 @@ import com.alibaba.fastjson.JSON;
  */
 public class SymbolTable {
 
-    private final String[] symbols;
+    private final Entry[] symbols;
     private final int      indexMask;
     
     public SymbolTable(int tableSize){
         this.indexMask = tableSize - 1;
-        this.symbols = new String[tableSize];
+        this.symbols = new Entry[tableSize];
         
         this.addSymbol("$ref", 0, 4, "$ref".hashCode());
         this.addSymbol(JSON.DEFAULT_TYPE_KEY, 0, JSON.DEFAULT_TYPE_KEY.length(), JSON.DEFAULT_TYPE_KEY.hashCode());
@@ -45,13 +45,13 @@ public class SymbolTable {
     public String addSymbol(char[] buffer, int offset, int len, int hash) {
         final int bucket = hash & indexMask;
         
-        String symbol = symbols[bucket];
-        if (symbol != null) {
+        Entry entry = symbols[bucket];
+        if (entry != null) {
             boolean eq = true;
-            if (hash == symbol.hashCode() // 
-                    && len == symbol.length()) {
+            if (hash == entry.hashCode // 
+                    && len == entry.chars.length) {
                 for (int i = 0; i < len; i++) {
-                    if (buffer[offset + i] != symbol.charAt(i)) {
+                    if (buffer[offset + i] != entry.chars[i]) {
                         eq = false;
                         break;
                     }
@@ -61,36 +61,38 @@ public class SymbolTable {
             }
             
             if (eq) {
-                return symbol;
+                return entry.value;
             } else {
                 return new String(buffer, offset, len);    
             }
         }
         
-        symbol = new String(buffer, offset, len).intern();
-        symbols[bucket] = symbol;
-        return symbol;
+        String strVal = new String(buffer, offset, len).intern();
+        entry = new Entry(strVal, hash);
+        symbols[bucket] = entry;
+        return strVal;
     }
 
     public String addSymbol(String buffer, int offset, int len, int hash) {
         final int bucket = hash & indexMask;
 
-        String symbol = symbols[bucket];
-        if (symbol != null) {
-            if (hash == symbol.hashCode() // 
-                    && len == symbol.length() //
-                    && buffer.startsWith(symbol, offset)) {
-                return symbol;
+        Entry entry = symbols[bucket];
+        if (entry != null) {
+            if (hash == entry.hashCode // 
+                    && len == entry.chars.length //
+                    && buffer.regionMatches(offset, entry.value, 0, len)) {
+                return entry.value;
             }
             
             return subString(buffer, offset, len);
         }
         
-        symbol = len == buffer.length() //
+        String symbol = len == buffer.length() //
             ? buffer //
             : subString(buffer, offset, len);
         symbol = symbol.intern();
-        symbols[bucket] = symbol;
+        
+        symbols[bucket] = new Entry(symbol, hash);
         return symbol;
     }
     
@@ -108,5 +110,17 @@ public class SymbolTable {
             h = 31 * h + buffer[off++];
         }
         return h;
+    }
+    
+    static class Entry {
+        final String value;
+        final char[] chars;
+        final int hashCode;
+        
+        Entry(String value, int hashCode) {
+            this.value = value;
+            this.chars = value.toCharArray();
+            this.hashCode = hashCode;
+        }
     }
 }

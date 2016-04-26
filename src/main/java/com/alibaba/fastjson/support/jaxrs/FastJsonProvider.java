@@ -179,7 +179,7 @@ public class FastJsonProvider //
 			if (serializerFeatures == null)
 				serializerFeatures = new SerializerFeature[] { SerializerFeature.PrettyFormat };
 			else {
-				List<SerializerFeature> featureList = new ArrayList<>(Arrays
+				List<SerializerFeature> featureList = new ArrayList<SerializerFeature>(Arrays
 						.asList(serializerFeatures));
 				featureList.add(SerializerFeature.PrettyFormat);
 				serializerFeatures = featureList.toArray(serializerFeatures);

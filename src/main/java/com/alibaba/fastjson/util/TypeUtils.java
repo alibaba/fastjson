@@ -536,7 +536,7 @@ public class TypeUtils {
         }
 
         if (value instanceof String) {
-            return IOUtils.decodeFast((String) value);
+            return IOUtils.decodeBase64((String) value);
         }
         throw new JSONException("can not cast to int, value : " + value);
     }

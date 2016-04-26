@@ -6,7 +6,7 @@ import java.lang.reflect.Type;
 import java.sql.Clob;
 import java.sql.SQLException;
 
-import com.alibaba.fastjson.util.IOUtils;
+import com.alibaba.fastjson.JSONException;
 
 public class ClobSeriliazer implements ObjectSerializer {
 
@@ -22,7 +22,22 @@ public class ClobSeriliazer implements ObjectSerializer {
             Clob clob = (Clob) object;
             Reader reader = clob.getCharacterStream();
 
-            String text = IOUtils.readAll(reader);
+            StringBuilder buf = new StringBuilder();
+            
+            try {
+                char[] chars = new char[2048];
+                for (;;) {
+                    int len = reader.read(chars, 0, chars.length);
+                    if (len < 0) {
+                        break;
+                    }
+                    buf.append(chars, 0, len);
+                }
+            } catch(Exception ex) {
+                throw new JSONException("read string from reader error", ex);
+            }
+            
+            String text = buf.toString();
             reader.close();
             serializer.write(text);
         } catch (SQLException e) {

@@ -29,6 +29,7 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
+import java.util.Currency;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -289,6 +290,10 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         
         if (clazz == Charset.class) {
             return (T) Charset.forName(strVal);
+        }
+        
+        if (clazz == Currency.class) {
+            return (T) Currency.getInstance(strVal);
         }
         
         throw new JSONException("MiscCodec not support " + clazz);

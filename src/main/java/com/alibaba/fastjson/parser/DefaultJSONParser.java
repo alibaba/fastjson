@@ -156,8 +156,19 @@ public class DefaultJSONParser implements Closeable {
             throw new JSONException("syntax error, expect {, actual " + lexer.tokenName() + ", " + lexer.info());
         }
         
-        final boolean isJSONObject = object instanceof JSONObject;
+        Map innerMap = null;
+        final boolean isJSONObject;
+        if (object instanceof JSONObject) {
+            JSONObject jsonObject = (JSONObject) object;
+            innerMap = jsonObject.getInnerMap();
+            isJSONObject = true;
+        } else {
+            isJSONObject = false;
+        }
+        
+        //getInnerMap
         final boolean allowISO8601DateFormat = (lexer.features & Feature.AllowISO8601DateFormat.mask) != 0;
+        final boolean disableCircularReferenceDetect = (lexer.features & Feature.DisableCircularReferenceDetect.mask) != 0;
 
         ParseContext context = this.contex;
         try {
@@ -401,8 +412,9 @@ public class DefaultJSONParser implements Closeable {
                     }
                 }
 
-                if (!setContextFlag) {
-                    ParseContext contextR = setContext(object, fieldName);
+                if ((!disableCircularReferenceDetect) // 
+                        && !setContextFlag) {
+                    ParseContext contextR = setContext(this.contex, object, fieldName);
                     if (context == null) {
                         context = contextR;
                     }
@@ -422,17 +434,25 @@ public class DefaultJSONParser implements Closeable {
                         iso8601Lexer.close();
                     }
 
-                    object.put(key, value);
+                    if (innerMap != null) {
+                        innerMap.put(key, value);
+                    } else {
+                        object.put(key, value);
+                    }
                 } else if (ch >= '0' && ch <= '9' || ch == '-') {
                     value = lexer.scanNumberValue();
                     object.put(key, value);
                 } else if (ch == '[') { // 减少嵌套，兼容android
                     lexer.token = JSONToken.LBRACKET;
                     lexer.next();
-                    JSONArray list = new JSONArray();
+                    ArrayList list = new ArrayList();
                     this.parseArray(list, key);
-                    value = list;
-                    object.put(key, value);
+                    value = new JSONArray(list);
+                    if (innerMap != null) {
+                        innerMap.put(key, value);
+                    } else {
+                        object.put(key, value);
+                    }
 
                     if (lexer.token == JSONToken.RBRACE) {
                         lexer.nextToken(JSONToken.COMMA);
@@ -453,7 +473,8 @@ public class DefaultJSONParser implements Closeable {
                     
                     ParseContext ctxLocal = null;
 
-                    if (!parentIsArray) {
+                    if ((!disableCircularReferenceDetect) //
+                        && !parentIsArray) {
                         ctxLocal = setContext(context, input, key);
                     }
 
@@ -478,7 +499,12 @@ public class DefaultJSONParser implements Closeable {
                     if (resolveStatus == NeedToResolve) {
                         checkMapResolve(object, key.toString());
                     }
-                    object.put(key, obj);
+                    
+                    if (innerMap != null) {
+                        innerMap.put(key, obj);
+                    } else {
+                        object.put(key, obj);
+                    }
 
                     if (parentIsArray) {
                         setContext(context, obj, key);
@@ -487,7 +513,9 @@ public class DefaultJSONParser implements Closeable {
                     if (lexer.token == JSONToken.RBRACE) {
                         lexer.nextToken(JSONToken.COMMA);
 
-                        setContext(context);
+                        if (!disableCircularReferenceDetect) {
+                            this.contex = context;
+                        }
                         return object;
                     } else if (lexer.token == JSONToken.COMMA) {
                         continue;
@@ -551,7 +579,9 @@ public class DefaultJSONParser implements Closeable {
                     lexer.sp = 0; // lexer.resetStringPosition();
                     lexer.nextToken(JSONToken.COMMA);
 
-                    this.setContext(object, fieldName);
+                    if (!disableCircularReferenceDetect) {
+                        this.setContext(this.contex, object, fieldName);
+                    }
 
                     return object;
                 } else {
@@ -559,7 +589,9 @@ public class DefaultJSONParser implements Closeable {
                 }
             }
         } finally {
-            this.setContext(context);
+            if (!disableCircularReferenceDetect) {
+                this.contex = context;
+            }
         }
     }
 
@@ -643,7 +675,9 @@ public class DefaultJSONParser implements Closeable {
         }
 
         ParseContext context = this.contex;
-        this.setContext(array, fieldName);
+        if ((lexer.features & Feature.DisableCircularReferenceDetect.mask) == 0) {
+            setContext(this.contex, array, fieldName);
+        }
         try {
             for (int i = 0;; ++i) {
                 if ((lexer.features & Feature.AllowArbitraryCommas.mask) != 0) {
@@ -693,7 +727,7 @@ public class DefaultJSONParser implements Closeable {
                 }
             }
         } finally {
-            this.setContext(context);
+            this.contex = context;
         }
 
         lexer.nextToken(JSONToken.COMMA);
@@ -1017,9 +1051,14 @@ public class DefaultJSONParser implements Closeable {
         if (token != JSONToken.LBRACKET) {
             throw new JSONException("syntax error, expect [, actual " + JSONToken.name(token) + ", pos " + lexer.pos);
         }
+        
+        final boolean disableCircularReferenceDetect = (lexer.features & Feature.DisableCircularReferenceDetect.mask) != 0;
 
         ParseContext context = this.contex;
-        this.setContext(array, fieldName);
+        if (!disableCircularReferenceDetect) {
+            setContext(this.contex, array, fieldName);
+        }
+        
         try {
             final boolean first_quote;
             char ch = lexer.ch;
@@ -1169,7 +1208,9 @@ public class DefaultJSONParser implements Closeable {
                 }
             }
         } finally {
-            this.setContext(context);
+            if (!disableCircularReferenceDetect) {
+                this.contex = context;
+            }
         }
     }
 
@@ -1209,14 +1250,6 @@ public class DefaultJSONParser implements Closeable {
         this.contex = this.contex.parent;
         contextArray[contextArrayIndex - 1] = null;
         contextArrayIndex--;
-    }
-
-    protected ParseContext setContext(Object object, Object fieldName) {
-        if ((lexer.features & Feature.DisableCircularReferenceDetect.mask) != 0) {
-            return null;
-        }
-
-        return setContext(this.contex, object, fieldName);
     }
 
     protected ParseContext setContext(ParseContext parent, Object object, Object fieldName) {

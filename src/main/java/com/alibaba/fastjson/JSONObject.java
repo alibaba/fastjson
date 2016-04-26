@@ -304,7 +304,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
 
     @Override
     public Object clone() {
-        return new JSONObject(new HashMap<String, Object>(map));
+        return new JSONObject(new LinkedHashMap<String, Object>(map));
     }
 
     public boolean equals(Object obj) {
@@ -395,5 +395,9 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         }
 
         throw new UnsupportedOperationException(method.toGenericString());
+    }
+    
+    public Map<String, Object> getInnerMap() {
+        return map;
     }
 }

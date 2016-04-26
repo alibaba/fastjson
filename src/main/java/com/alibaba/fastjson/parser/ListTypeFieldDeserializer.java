@@ -143,7 +143,9 @@ class ListTypeFieldDeserializer extends FieldDeserializer {
             Object val = itemTypeDeser.deserialze(parser, itemType, i);
             array.add(val);
 
-            parser.checkListResolve(array);
+            if (parser.resolveStatus == DefaultJSONParser.NeedToResolve) {
+                parser.checkListResolve(array);
+            }
 
             if (lexer.token == JSONToken.COMMA) {
                 lexer.nextToken();

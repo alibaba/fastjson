@@ -161,7 +161,9 @@ class MapDeserializer implements ObjectDeserializer {
                 }
 
                 map.put(key, value);
-                parser.checkMapResolve(map, key);
+                if (parser.resolveStatus == DefaultJSONParser.NeedToResolve) {
+                    parser.checkMapResolve(map, key);
+                }
                 parser.setContext(context, value, key);                
 
                 final int tok = lexer.token;
@@ -262,7 +264,9 @@ class MapDeserializer implements ObjectDeserializer {
                 lexer.nextToken();
 
                 Object value = valueDeserializer.deserialze(parser, valueType, key);
-                parser.checkMapResolve(map, key);
+                if (parser.resolveStatus == DefaultJSONParser.NeedToResolve) {
+                    parser.checkMapResolve(map, key);
+                }
                 
                 map.put(key, value);
 

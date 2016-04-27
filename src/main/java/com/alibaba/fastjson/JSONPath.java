@@ -1849,15 +1849,7 @@ public class JSONPath implements JSONAware {
         }
 
         try {
-            List<Object> values = beanSerializer.getFieldValues(currentObject);
-
-            int count = 0;
-            for (int i = 0; i < values.size(); ++i) {
-                if (values.get(i) != null) {
-                    count++;
-                }
-            }
-            return count;
+            return beanSerializer.getSize(currentObject);
         } catch (Exception e) {
             throw new JSONException("evalSize error : " + path, e);
         }

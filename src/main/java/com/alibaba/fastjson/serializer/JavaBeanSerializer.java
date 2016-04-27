@@ -21,6 +21,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -501,10 +502,25 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         return fieldValues;
     }
     
-    public void getFieldValues(Object object, Map<String, Object> outMap) throws Exception {
+    public int getSize(Object object) throws Exception {
+        int size = 0;
         for (FieldSerializer getter : sortedGetters) {
-            outMap.put(getter.fieldInfo.name, getter.getPropertyValue(object));
+            Object value = getter.getPropertyValue(object);
+            if (value != null) {
+                size ++;
+            }
         }
+        return size;
+    }
+    
+    public Map<String, Object> getFieldValuesMap(Object object) throws Exception {
+        Map<String, Object> map = new LinkedHashMap<String, Object>(sortedGetters.length);
+        
+        for (FieldSerializer getter : sortedGetters) {
+            map.put(getter.fieldInfo.name, getter.getPropertyValue(object));
+        }
+        
+        return map;
     }
 
     @Override

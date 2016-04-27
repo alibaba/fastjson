@@ -445,7 +445,13 @@ public class DefaultJSONParser implements Closeable {
                     object.put(key, value);
                 } else if (ch == '[') { // 减少嵌套，兼容android
                     lexer.token = JSONToken.LBRACKET;
-                    lexer.next();
+                    // lexer.next();
+                    {
+                        int index = ++lexer.bp;
+                        lexer.ch = (index >= lexer.len //
+                                ? EOI //
+                                : lexer.text.charAt(index));
+                    }
                     ArrayList list = new ArrayList();
                     this.parseArray(list, key);
                     value = new JSONArray(list);
@@ -455,10 +461,11 @@ public class DefaultJSONParser implements Closeable {
                         object.put(key, value);
                     }
 
-                    if (lexer.token == JSONToken.RBRACE) {
+                    token = lexer.token;
+                    if (token == JSONToken.RBRACE) {
                         lexer.nextToken(JSONToken.COMMA);
                         return object;
-                    } else if (lexer.token == JSONToken.COMMA) {
+                    } else if (token == JSONToken.COMMA) {
                         continue;
                     } else {
                         throw new JSONException("syntax error, " + lexer.info());
@@ -511,25 +518,26 @@ public class DefaultJSONParser implements Closeable {
                         setContext(context, obj, key);
                     }
 
-                    if (lexer.token == JSONToken.RBRACE) {
+                    token = lexer.token;
+                    if (token == JSONToken.RBRACE) {
                         lexer.nextToken(JSONToken.COMMA);
 
                         if (!disableCircularReferenceDetect) {
                             this.contex = context;
                         }
                         return object;
-                    } else if (lexer.token == JSONToken.COMMA) {
+                    } else if (token == JSONToken.COMMA) {
                         continue;
                     } else {
                         throw new JSONException("syntax error, " + lexer.info());
                     }
-                } else if (lexer.ch == 't') {
+                } else if (ch == 't') {
                     if (lexer.text.startsWith("true", lexer.bp)) {
                         lexer.bp += 3;
                         lexer.next();
                         object.put(key, Boolean.TRUE);
                     }
-                } else if (lexer.ch == 'f') {
+                } else if (ch == 'f') {
                     if (lexer.text.startsWith("false", lexer.bp)) {
                         lexer.bp += 4;
                         lexer.next();
@@ -1096,20 +1104,33 @@ public class DefaultJSONParser implements Closeable {
                 if (first_quote && lexer.ch == '"') {
                     value = lexer.scanStringValue('"');
 
-                    if (lexer.ch == ',') {
-                        lexer.next();
+                    ch = lexer.ch;
+                    if (ch == ',') {
+                        // lexer.next();
+                        {
+                            int index = ++lexer.bp;
+                            ch = lexer.ch = (index >= lexer.len //
+                                    ? EOI //
+                                    : lexer.text.charAt(index));
+                        }
                         array.add(value);
                         if (resolveStatus == NeedToResolve) {
                             checkListResolve(array);
                         }
 
-                        if (lexer.ch == '"') {
+                        if (ch == '"') {
                             continue;
                         }
 
                         lexer.nextToken();
-                    } else if (lexer.ch == ']') {
-                        lexer.next();
+                    } else if (ch == ']') {
+                        // lexer.next();
+                        {
+                            int index = ++lexer.bp;
+                            lexer.ch = (index >= lexer.len //
+                                    ? EOI //
+                                    : lexer.text.charAt(index));
+                        }
                         array.add(value);
                         if (resolveStatus == NeedToResolve) {
                             checkListResolve(array);

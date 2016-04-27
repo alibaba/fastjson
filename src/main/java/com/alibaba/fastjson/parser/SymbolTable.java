@@ -87,8 +87,8 @@ public class SymbolTable {
             return subString(buffer, offset, len);
         }
         
-        String symbol = len == buffer.length() //
-            ? buffer //
+        String symbol = len == buffer.length() ? //
+            buffer //
             : subString(buffer, offset, len);
         symbol = symbol.intern();
         

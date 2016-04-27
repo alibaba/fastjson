@@ -175,6 +175,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             lexer.nextToken(JSONToken.COMMA);
             return null;
         }
+        
+        final boolean disableCircularReferenceDetect = lexer.disableCircularReferenceDetect;
 
         ParseContext context = parser.contex;
         if (object != null && context != null) {
@@ -423,7 +425,9 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     if (object == null) {
                         fieldValues = new HashMap<String, Object>(this.fieldDeserializers.length);
                     }
-                    childContext = parser.setContext(context, object, fieldName);
+                    if (!disableCircularReferenceDetect) {
+                        childContext = parser.setContext(context, object, fieldName);
+                    }
                 }
 
                 if (matchField) {

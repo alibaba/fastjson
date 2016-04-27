@@ -169,7 +169,7 @@ public class DefaultJSONParser implements Closeable {
         
         //getInnerMap
         final boolean allowISO8601DateFormat = (lexer.features & Feature.AllowISO8601DateFormat.mask) != 0;
-        final boolean disableCircularReferenceDetect = (lexer.features & Feature.DisableCircularReferenceDetect.mask) != 0;
+        final boolean disableCircularReferenceDetect = lexer.disableCircularReferenceDetect;
 
         ParseContext context = this.contex;
         try {
@@ -684,7 +684,7 @@ public class DefaultJSONParser implements Closeable {
         }
 
         ParseContext context = this.contex;
-        if ((lexer.features & Feature.DisableCircularReferenceDetect.mask) == 0) {
+        if (!lexer.disableCircularReferenceDetect) {
             setContext(this.contex, array, fieldName);
         }
         try {
@@ -1061,7 +1061,7 @@ public class DefaultJSONParser implements Closeable {
             throw new JSONException("syntax error, expect [, actual " + JSONToken.name(token) + ", pos " + lexer.pos);
         }
         
-        final boolean disableCircularReferenceDetect = (lexer.features & Feature.DisableCircularReferenceDetect.mask) != 0;
+        final boolean disableCircularReferenceDetect = lexer.disableCircularReferenceDetect;
 
         ParseContext context = this.contex;
         if (!disableCircularReferenceDetect) {
@@ -1262,7 +1262,7 @@ public class DefaultJSONParser implements Closeable {
     }
 
     public void setContext(ParseContext context) {
-        if ((lexer.features & Feature.DisableCircularReferenceDetect.mask) != 0) {
+        if (lexer.disableCircularReferenceDetect) {
             return;
         }
         this.contex = context;
@@ -1275,7 +1275,7 @@ public class DefaultJSONParser implements Closeable {
     }
 
     protected ParseContext setContext(ParseContext parent, Object object, Object fieldName) {
-        if ((lexer.features & Feature.DisableCircularReferenceDetect.mask) != 0) {
+        if (lexer.disableCircularReferenceDetect) {
             return null;
         }
 

@@ -78,6 +78,9 @@ public final class JSONLexer {
 
     protected final String                   text;
     protected final int                      len;
+    
+    protected String                         stringDefaultValue;
+    public boolean                           disableCircularReferenceDetect;
 
     public JSONLexer(String input){
         this(input, JSON.DEFAULT_PARSER_FEATURE);
@@ -114,6 +117,11 @@ public final class JSONLexer {
         if (ch == 65279) {
             next();
         }
+        
+        stringDefaultValue = (features & Feature.InitStringFieldAsEmpty.mask) != 0 //
+            ? "" //
+            : null;
+        disableCircularReferenceDetect = (features & Feature.DisableCircularReferenceDetect.mask) != 0;
     }
 
     public final int token() {
@@ -140,6 +148,13 @@ public final class JSONLexer {
         } else {
             features &= ~feature.mask;
         }
+        
+        if (feature == Feature.InitStringFieldAsEmpty) {
+            stringDefaultValue = (features & Feature.InitStringFieldAsEmpty.mask) != 0 //
+                ? "" //
+                : null;
+        }
+        disableCircularReferenceDetect = (features & Feature.DisableCircularReferenceDetect.mask) != 0;
     }
 
     public final boolean isEnabled(Feature feature) {
@@ -524,12 +539,6 @@ public final class JSONLexer {
 
     public final String tokenName() {
         return JSONToken.name(token);
-    }
-
-    private String stringDefaultValue() {
-        return (features & Feature.InitStringFieldAsEmpty.mask) != 0 //
-            ? "" //
-            : null;
     }
 
     public final Number integerValue() throws NumberFormatException {
@@ -2031,7 +2040,7 @@ public final class JSONLexer {
 
         if (!charArrayCompare(fieldName)) {
             matchStat = NOT_MATCH_NAME;
-            return stringDefaultValue();
+            return stringDefaultValue;
         }
 
         // int index = bp + fieldName.length;
@@ -2050,7 +2059,7 @@ public final class JSONLexer {
         if (chLocal != '"') {
             matchStat = NOT_MATCH;
 
-            return stringDefaultValue();
+            return stringDefaultValue;
         }
 
         final char quoteChar = '"';
@@ -2107,6 +2116,20 @@ public final class JSONLexer {
                 EOI //
                 : text.charAt(index);
         }
+        
+        if (chLocal == ',') {
+            bp = endIndex;
+//            this.next();
+            {
+                int index = ++bp;
+                this.ch = (index >= this.len ? //
+                    EOI //
+                    : text.charAt(index));
+            }
+            matchStat = VALUE;
+            token = JSONToken.COMMA;
+            return strVal;
+        }
 
         if (chLocal == '}') {
             chLocal = charAt(++endIndex);
@@ -2128,12 +2151,12 @@ public final class JSONLexer {
                 ch = EOI;
             } else {
                 matchStat = NOT_MATCH;
-                return stringDefaultValue();
+                return stringDefaultValue;
             }
             matchStat = END;
         } else {
             matchStat = NOT_MATCH;
-            return stringDefaultValue();
+            return stringDefaultValue;
         }
 
         return strVal;

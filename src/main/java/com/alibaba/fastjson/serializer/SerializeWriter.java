@@ -99,7 +99,7 @@ public final class SerializeWriter extends Writer {
         if (buf != null) {
             bufLocal.set(null);
         } else {
-            buf = new char[1024];
+            buf = new char[2048];
         }
 
         int featuresValue = defaultFeatures;

@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -19,8 +20,10 @@ import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
+import com.alibaba.fastjson.util.IOUtils;
 
 /**
  * Fastjson for JAX-RS Provider.
@@ -38,7 +41,19 @@ import com.alibaba.fastjson.support.config.FastJsonConfig;
 @Produces({ MediaType.WILDCARD })
 public class FastJsonProvider //
         implements MessageBodyReader<Object>, MessageBodyWriter<Object> {
+	
+	@Deprecated
+	protected Charset charset = IOUtils.UTF8;
+		
+	@Deprecated
+	protected SerializerFeature[] features = new SerializerFeature[0];
 
+	@Deprecated
+	protected SerializeFilter[] filters = new SerializeFilter[0];
+
+	@Deprecated
+	protected String dateFormat;
+		
 	/** with fastJson config */
 	private FastJsonConfig fastJsonConfig = new FastJsonConfig();
 
@@ -79,6 +94,54 @@ public class FastJsonProvider //
 	 */
 	public FastJsonProvider(Class<?>[] clazzes) {
 		this.clazzes = clazzes;
+	}
+	
+	/**
+	 * Set charset. the default charset is UTF-8
+	 */
+	@Deprecated
+	public FastJsonProvider(String charset) {
+		this.fastJsonConfig.setCharset(Charset.forName(charset));
+	}
+	
+	@Deprecated
+	public Charset getCharset() {
+		return this.fastJsonConfig.getCharset();
+	}
+
+	@Deprecated
+	public void setCharset(Charset charset) {
+		this.fastJsonConfig.setCharset(charset);
+	}
+
+	@Deprecated
+	public String getDateFormat() {
+		return this.fastJsonConfig.getDateFormat();
+	}
+
+	@Deprecated
+	public void setDateFormat(String dateFormat) {
+		this.fastJsonConfig.setDateFormat(dateFormat);
+	}
+
+	@Deprecated
+	public SerializerFeature[] getFeatures() {
+		return this.fastJsonConfig.getSerializerFeatures();
+	}
+
+	@Deprecated
+	public void setFeatures(SerializerFeature... features) {
+		this.fastJsonConfig.setSerializerFeatures(features);
+	}
+
+	@Deprecated
+	public SerializeFilter[] getFilters() {
+		return this.fastJsonConfig.getSerializeFilters();
+	}
+
+	@Deprecated
+	public void setFilters(SerializeFilter... filters) {
+		this.fastJsonConfig.setSerializeFilters(filters);
 	}
 	
 	/**

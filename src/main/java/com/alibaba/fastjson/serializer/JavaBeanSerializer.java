@@ -602,4 +602,9 @@ public class JavaBeanSerializer implements ObjectSerializer {
         }
     }
 
+    public void getFieldValues(Object object, Map<String, Object> outMap) throws Exception {
+        for (FieldSerializer getter : sortedGetters) {
+            outMap.put(getter.fieldInfo.name, getter.getPropertyValue(object));
+        }
+    }
 }

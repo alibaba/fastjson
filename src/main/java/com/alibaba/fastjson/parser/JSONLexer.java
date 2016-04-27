@@ -1425,6 +1425,32 @@ public final class JSONLexer {
             token = JSONToken.LITERAL_INT;
         }
     }
+    
+    public Boolean scanBoolean() {
+        int offset;
+        boolean value;
+        if (text.startsWith("false", bp)) {
+            offset = 5;
+            value = false;
+        } else if (text.startsWith("true", bp)) {
+            offset = 4;
+            value = true;
+        } else if (text.startsWith("\"false\"", bp)) {
+            offset = 7;
+            value = false;
+        } else if (text.startsWith("\"true\"", bp)) {
+            offset = 6;
+            value = true;
+        } else {
+            matchStat = NOT_MATCH;
+            return false;
+        }
+        
+        bp += offset;
+        ch = charAt(bp);
+
+        return value;
+    }
 
     public final Number scanNumberValue() {
         final int start = bp;

@@ -124,16 +124,37 @@ class ListTypeFieldDeserializer extends FieldDeserializer {
         if (itemTypeDeser == null) {
             itemTypeDeser = deserializer = parser.config.getDeserializer(itemType);
         }
+        
+        int ch = lexer.ch;
+        if (ch == '[') {
+            int index = ++lexer.bp;
+            lexer.ch = (index >= lexer.len ? //
+                JSONLexer.EOI //
+                : lexer.text.charAt(index));
+            lexer.token = JSONToken.LBRACKET;
+        } else if (ch == '{') {
+            int index = ++lexer.bp;
+            lexer.ch = (index >= lexer.len ? //
+                JSONLexer.EOI //
+                : lexer.text.charAt(index));
+            lexer.token = JSONToken.LBRACE;
+        } else if (ch == '"') {
+            lexer.scanString();
+        } else if (ch == ']') {
+            int index = ++lexer.bp;
+            lexer.ch = (index >= lexer.len ? //
+                JSONLexer.EOI //
+                : lexer.text.charAt(index));
+            lexer.token = JSONToken.RBRACKET;
+        } else {
+            lexer.nextToken();
+        }
 
-        lexer.nextToken();
-
-        boolean allowArbitraryCommas = (lexer.features & Feature.AllowArbitraryCommas.mask) != 0;
         for (int i = 0;; ++i) {
-            if (allowArbitraryCommas) {
-                while (lexer.token == JSONToken.COMMA) {
-                    lexer.nextToken();
-                    continue;
-                }
+            while (lexer.token == JSONToken.COMMA //
+                    && (lexer.features & Feature.AllowArbitraryCommas.mask) != 0) {
+                lexer.nextToken();
+                continue;
             }
 
             if (lexer.token == JSONToken.RBRACKET) {
@@ -148,12 +169,37 @@ class ListTypeFieldDeserializer extends FieldDeserializer {
             }
 
             if (lexer.token == JSONToken.COMMA) {
-                lexer.nextToken();
+                ch = lexer.ch;
+                if (ch == '[') {
+                    int index = ++lexer.bp;
+                    lexer.ch = (index >= lexer.len ? //
+                        JSONLexer.EOI //
+                        : lexer.text.charAt(index));
+                    lexer.token = JSONToken.LBRACKET;
+                } else if (ch == '{') {
+                    int index = ++lexer.bp;
+                    lexer.ch = (index >= lexer.len ? //
+                        JSONLexer.EOI //
+                        : lexer.text.charAt(index));
+                    lexer.token = JSONToken.LBRACE;
+                } else if (ch == '"') {
+                    lexer.scanString();
+                } else {
+                    lexer.nextToken();
+                }
                 continue;
             }
         }
 
-        lexer.nextToken(JSONToken.COMMA);
+        if (lexer.ch == ',') {
+            int index = ++lexer.bp;
+            lexer.ch = (index >= lexer.len ? //
+                JSONLexer.EOI //
+                : lexer.text.charAt(index));
+            lexer.token = JSONToken.COMMA;
+        } else {
+            lexer.nextToken();
+        }
     }
 
 }

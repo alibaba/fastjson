@@ -108,69 +108,168 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             FieldDeserializer fieldDeser = sortedFieldDeserializers[i];
             FieldInfo fieldInfo = fieldDeser.fieldInfo;
             Class<?> fieldClass = fieldInfo.fieldClass;
-            if (fieldClass == int.class) {
-                Number number = lexer.scanNumberValue();
-                fieldDeser.setValue(object, number);
-                lexer.nextToken(JSONToken.COMMA);
-            } else if (fieldClass == String.class) {
-                String strVal;
-                if (lexer.ch == '"') {
-                    strVal = lexer.scanStringValue('"');
-                } else if (lexer.ch == 'n' //
-                        && lexer.text.startsWith("null", lexer.bp)) {
-                    lexer.bp += 4;
-                    {
-                        int index = lexer.bp;
-                        lexer.ch = lexer.bp >= lexer.len ? //
-                            JSONLexer.EOI //
-                            : lexer.text.charAt(index);
+            try {
+                if (fieldClass == int.class) {
+                    int intValue = (int) lexer.scanLongValue();
+                    if (fieldInfo.fieldAccess) {
+                        fieldInfo.field.setInt(object, intValue);
+                    } else {
+                        fieldDeser.setValue(object, new Integer(intValue));
                     }
-                    strVal = null;
-                } else {
-                    lexer.nextToken();
-                    if (lexer.token == JSONToken.NULL) {
+                    
+                    if (lexer.ch == ',') {
+                        int index = ++lexer.bp;
+                        lexer.ch = (index >= lexer.len ? //
+                            JSONLexer.EOI //
+                            : lexer.text.charAt(index));
+                        lexer.token = JSONToken.COMMA;
+                    } else {
+                        lexer.nextToken();
+                    }
+                } else if (fieldClass == String.class) {
+                    String strVal;
+                    if (lexer.ch == '"') {
+                        strVal = lexer.scanStringValue('"');
+                    } else if (lexer.ch == 'n' //
+                            && lexer.text.startsWith("null", lexer.bp)) {
+                        lexer.bp += 4;
+                        {
+                            int index = lexer.bp;
+                            lexer.ch = lexer.bp >= lexer.len ? //
+                                JSONLexer.EOI //
+                                : lexer.text.charAt(index);
+                        }
                         strVal = null;
                     } else {
-                        throw new JSONException("not match string. feild : " + fieldName);
+                        lexer.nextToken();
+                        if (lexer.token == JSONToken.NULL) {
+                            strVal = null;
+                        } else {
+                            throw new JSONException("not match string. feild : " + fieldName);
+                        }
+                    }
+                    if (fieldInfo.fieldAccess) {
+                        fieldInfo.field.set(object, strVal);
+                    } else {
+                        fieldDeser.setValue(object, strVal);
+                    }
+                    
+                    if (lexer.ch == ',') {
+                        int index = ++lexer.bp;
+                        lexer.ch = (index >= lexer.len ? //
+                            JSONLexer.EOI //
+                            : lexer.text.charAt(index));
+                        lexer.token = JSONToken.COMMA;
+                    } else {
+                        lexer.nextToken();
+                    }
+                } else if (fieldClass == long.class) {
+                    long longValue = lexer.scanLongValue();
+                    if (fieldInfo.fieldAccess) {
+                        fieldInfo.field.setLong(object, longValue);
+                    } else {
+                        fieldDeser.setValue(object, new Long(longValue));
+                    }
+                    
+                    if (lexer.ch == ',') {
+                        int index = ++lexer.bp;
+                        lexer.ch = (index >= lexer.len ? //
+                            JSONLexer.EOI //
+                            : lexer.text.charAt(index));
+                        lexer.token = JSONToken.COMMA;
+                    } else {
+                        lexer.nextToken();
+                    }
+                } else if (fieldClass == boolean.class) {
+                    boolean booleanValue = lexer.scanBoolean();
+                    if (fieldInfo.fieldAccess) {
+                        fieldInfo.field.setBoolean(object, booleanValue);
+                    } else {
+                        fieldDeser.setValue(object, booleanValue);
+                    }
+                    
+                    if (lexer.ch == ',') {
+                        int index = ++lexer.bp;
+                        lexer.ch = (index >= lexer.len ? //
+                            JSONLexer.EOI //
+                            : lexer.text.charAt(index));
+                        lexer.token = JSONToken.COMMA;
+                    } else {
+                        lexer.nextToken();
+                    }
+                } else if (fieldClass.isEnum()) {
+                    String enumName = lexer.scanSymbol(parser.symbolTable);
+                    @SuppressWarnings("rawtypes")
+                    Object value = enumName == null //
+                        ? null//
+                        : Enum.valueOf((Class<? extends Enum>) fieldClass, enumName);
+                    fieldDeser.setValue(object, value);
+                    
+                    if (lexer.ch == ',') {
+                        int index = ++lexer.bp;
+                        lexer.ch = (index >= lexer.len ? //
+                            JSONLexer.EOI //
+                            : lexer.text.charAt(index));
+                        lexer.token = JSONToken.COMMA;
+                    } else {
+                        lexer.nextToken();
+                    }
+                } else if (fieldClass == java.util.Date.class && lexer.ch == '1') {
+                    long longValue = lexer.scanLongValue();
+                    fieldDeser.setValue(object, new java.util.Date(longValue));
+                    
+                    if (lexer.ch == ',') {
+                        int index = ++lexer.bp;
+                        lexer.ch = (index >= lexer.len ? //
+                            JSONLexer.EOI //
+                            : lexer.text.charAt(index));
+                        lexer.token = JSONToken.COMMA;
+                    } else {
+                        lexer.nextToken();
+                    }
+                } else {
+                    if (lexer.ch == '[') {
+                        int index = ++lexer.bp;
+                        lexer.ch = (index >= lexer.len ? //
+                            JSONLexer.EOI //
+                            : lexer.text.charAt(index));
+                        lexer.token = JSONToken.LBRACKET;
+                    } else if (lexer.ch == '{') {
+                        int index = ++lexer.bp;
+                        lexer.ch = (index >= lexer.len ? //
+                            JSONLexer.EOI //
+                            : lexer.text.charAt(index));
+                        lexer.token = JSONToken.LBRACE;
+                    } else {
+                        lexer.nextToken();
+                    }
+                    
+                    fieldDeser.parseField(parser, object, fieldInfo.fieldType, null);
+    
+                    if (seperator == ']') {
+                        if (lexer.token != JSONToken.RBRACKET) {
+                            throw new JSONException("syntax error");
+                        }
+                    } else if (seperator == ',') {
+                        if (lexer.token != JSONToken.COMMA) {
+                            throw new JSONException("syntax error");
+                        }
                     }
                 }
-                fieldDeser.setValue(object, strVal);
-                lexer.nextToken(JSONToken.COMMA);
-            } else if (fieldClass == long.class) {
-                Number number = lexer.scanNumberValue();
-                if (!(number instanceof Long)) {
-                    number = number.longValue();
-                }
-                fieldDeser.setValue(object, number);
-                lexer.nextToken(JSONToken.COMMA);
-            } else if (fieldClass == boolean.class) {
-                Boolean booleanValue = lexer.scanBoolean();
-                fieldDeser.setValue(object, booleanValue);
-                lexer.nextToken(JSONToken.COMMA);
-            } else if (fieldClass.isEnum()) {
-                String enumName = lexer.scanSymbol(parser.symbolTable);
-                @SuppressWarnings("rawtypes")
-                Object value = enumName == null //
-                    ? null//
-                    : Enum.valueOf((Class<? extends Enum>) fieldClass, enumName);
-                fieldDeser.setValue(object, value);
-                lexer.nextToken(JSONToken.COMMA);
-            } else {
-                lexer.nextToken(JSONToken.LBRACKET);
-                fieldDeser.parseField(parser, object, fieldInfo.fieldType, null);
-
-                if (seperator == ']') {
-                    if (lexer.token != JSONToken.RBRACKET) {
-                        throw new JSONException("syntax error");
-                    }
-                } else if (seperator == ',') {
-                    if (lexer.token != JSONToken.COMMA) {
-                        throw new JSONException("syntax error");
-                    }
-                }
+            } catch (IllegalAccessException e) {
+                throw new JSONException("set " + fieldInfo.name + "error", e);
             }
         }
-        lexer.nextToken(JSONToken.COMMA);
+        
+        if (lexer.ch == ',') {
+            int index = ++lexer.bp;
+            lexer.ch = (index >= lexer.len ? //
+                JSONLexer.EOI //
+                : lexer.text.charAt(index));
+            lexer.token = JSONToken.COMMA;
+        } else {
+            lexer.nextToken();
+        }
 
         return (T) object;
     }

@@ -565,7 +565,7 @@ public class ParserConfig {
         return getDeserializer(fieldInfo.fieldClass, fieldInfo.fieldType);
     }
 
-    public boolean isPrimitive(Class<?> clazz) {
+    public static boolean isPrimitive(Class<?> clazz) {
         return clazz.isPrimitive() //
                  || clazz == Boolean.class //
                  || clazz == Character.class //

@@ -5,8 +5,8 @@ import com.alibaba.json.test.benchmark.encode.*;
 import com.alibaba.json.test.codec.*;
 
 public class BenchmarkMain {
-	public static void main(String[] args) throws Exception {
-	     // 注意，byte[]在jackson中是使用base64编码的，不正确的。
+    public static void main(String[] args) throws Exception {
+         // 注意，byte[]在jackson中是使用base64编码的，不正确的。
 
         BenchmarkExecutor executor = new BenchmarkExecutor();
         executor.setExecuteCount(5);
@@ -59,5 +59,5 @@ public class BenchmarkMain {
         // executor.getCaseList().add(new Map1000Encode());
 
         executor.execute();
-	}
+    }
 }

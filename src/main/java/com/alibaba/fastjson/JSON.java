@@ -771,7 +771,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             
             JSONObject json = new JSONObject();
             try {
-                javaBeanSerializer.getFieldValues(json);
+                javaBeanSerializer.getFieldValues(javaObject, json);
             } catch (Exception e) {
                 throw new JSONException("toJSON error", e);
             }

@@ -34,7 +34,7 @@ public class FastJsonHttpMessageConverterTest extends TestCase {
         
         Assert.assertEquals(Charset.forName("UTF-8"), fastJsonConfig.getCharset());
 
-        Assert.assertEquals(1, fastJsonConfig.getFeatures().length);
+        Assert.assertEquals(0, fastJsonConfig.getFeatures().length);
         
         Method method = FastJsonHttpMessageConverter.class.getDeclaredMethod("supports", Class.class);
         method.setAccessible(true);

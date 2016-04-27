@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -34,7 +33,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
@@ -45,11 +43,12 @@ import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
 import com.alibaba.fastjson.parser.deserializer.FieldTypeResolver;
 import com.alibaba.fastjson.parser.deserializer.ParseProcess;
 import com.alibaba.fastjson.serializer.JSONSerializer;
+import com.alibaba.fastjson.serializer.JavaBeanSerializer;
+import com.alibaba.fastjson.serializer.ObjectSerializer;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.TypeUtils;
 
@@ -205,7 +204,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(String input, Type clazz, ParseProcess processor, Feature... features) {
-        return (T) parseObject(input, clazz, ParserConfig.global, DEFAULT_PARSER_FEATURE, features);
+        return (T) parseObject(input, clazz, ParserConfig.global, processor, DEFAULT_PARSER_FEATURE, features);
     }
 
     @SuppressWarnings("unchecked")
@@ -694,11 +693,18 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     // ///////
     public static Object toJSON(Object javaObject) {
-        return toJSON(javaObject, ParserConfig.getGlobalInstance());
+        return toJSON(javaObject, SerializeConfig.globalInstance);
     }
 
+    /**
+     * @deprecated
+     */
+    public static Object toJSON(Object javaObject, ParserConfig parserConfig) {
+        return toJSON(javaObject, SerializeConfig.globalInstance);
+    }
+    
     @SuppressWarnings("unchecked")
-    public static Object toJSON(Object javaObject, ParserConfig mapping) {
+    public static Object toJSON(Object javaObject, SerializeConfig config) {
         if (javaObject == null) {
             return null;
         }
@@ -755,28 +761,24 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             return array;
         }
 
-        if (mapping.isPrimitive(clazz)) {
+        if (ParserConfig.isPrimitive(clazz)) {
             return javaObject;
         }
-
-        try {
-            List<FieldInfo> getters = TypeUtils.computeGetters(clazz, clazz.getAnnotation(JSONType.class), null, false);
-
-            JSONObject json = new JSONObject(getters.size());
-
-            for (FieldInfo field : getters) {
-                Object value = field.get(javaObject);
-                Object jsonValue = toJSON(value);
-
-                json.put(field.name, jsonValue);
+        
+        ObjectSerializer serializer = config.getObjectWriter(clazz);
+        if (serializer instanceof JavaBeanSerializer) {
+            JavaBeanSerializer javaBeanSerializer = (JavaBeanSerializer) serializer;
+            
+            JSONObject json = new JSONObject();
+            try {
+                javaBeanSerializer.getFieldValues(json);
+            } catch (Exception e) {
+                throw new JSONException("toJSON error", e);
             }
-
             return json;
-        } catch (IllegalAccessException e) {
-            throw new JSONException("toJSON error", e);
-        } catch (InvocationTargetException e) {
-            throw new JSONException("toJSON error", e);
         }
+
+        return null;
     }
 
     public static <T> T toJavaObject(JSON json, Class<T> clazz) {

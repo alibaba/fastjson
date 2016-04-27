@@ -500,6 +500,12 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
 
         return fieldValues;
     }
+    
+    public void getFieldValues(Object object, Map<String, Object> outMap) throws Exception {
+        for (FieldSerializer getter : sortedGetters) {
+            outMap.put(getter.fieldInfo.name, getter.getPropertyValue(object));
+        }
+    }
 
     @Override
     public BeanContext getBeanContext(String key) {

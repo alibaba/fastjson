@@ -23,10 +23,10 @@ public class BenchmarkMain {
         executor.setLoopCount(1000 * 100);
 
 //        executor.getCaseList().add(new CartObjectParse());
-//        executor.getCaseList().add(new TradeParse());
+        executor.getCaseList().add(new TradeParse());
 //        executor.getCaseList().add(new XueluDecode());
 //         executor.getCaseList().add(new EishayEncode());
-         executor.getCaseList().add(new EishayDecode());
+//         executor.getCaseList().add(new EishayDecode());
 //         executor.getCaseList().add(new GetHomePageResponseDecode());
 //         executor.getCaseList().add(new EishayTreeDecode());
 //         executor.getCaseList().add(new Eishay3Encode());

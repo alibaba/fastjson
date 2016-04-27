@@ -1377,6 +1377,26 @@ public class DefaultJSONParser implements Closeable {
                                     + JSONToken.name(lexer.token()));
         }
     }
+    
+    public final void accept1(final int token, int nextExpectToken) {
+        final JSONLexer lexer = this.lexer;
+        if (lexer.token() == token) {
+            lexer.nextToken(nextExpectToken);
+        } else {
+            throw new JSONException("syntax error, expect " + JSONToken.name(token) + ", actual "
+                                    + JSONToken.name(lexer.token()));
+        }
+    }
+    
+    public final void accept2(final int token, int nextExpectToken) {
+        final JSONLexer lexer = this.lexer;
+        if (lexer.token() == token) {
+            lexer.nextToken(nextExpectToken);
+        } else {
+            throw new JSONException("syntax error, expect " + JSONToken.name(token) + ", actual "
+                                    + JSONToken.name(lexer.token()));
+        }
+    }
 
     public void close() {
         final JSONLexer lexer = this.lexer;

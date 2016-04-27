@@ -1426,7 +1426,7 @@ public final class JSONLexer {
         }
     }
     
-    public Boolean scanBoolean() {
+    public boolean scanBoolean() {
         int offset;
         boolean value;
         if (text.startsWith("false", bp)) {
@@ -1655,6 +1655,68 @@ public final class JSONLexer {
         }
 
         return number;
+    }
+    
+    public final long scanLongValue() {
+        np = 0;
+        final boolean negative;
+
+        final long limit;
+        if (ch == '-') {
+            negative = true;
+            limit = Long.MIN_VALUE;
+
+            np++;
+            // next();
+            {
+                int index = ++this.bp;
+                this.ch = (index >= this.len ? //
+                    EOI //
+                    : text.charAt(index));
+            }
+        } else {
+            negative = false;
+            limit = -Long.MAX_VALUE;
+        }
+
+        long longValue = 0;
+        for (;;) {
+            if (ch >= '0'//
+                && ch <= '9') {
+                int digit = (ch - '0');
+                if (longValue < -922337203685477580L) { // Long.MIN_VALUE / 10
+                    throw new JSONException("error long value, " + longValue + ", " + info());
+                }
+
+                longValue *= 10;
+                if (longValue < limit + digit) {
+                    throw new JSONException("error long value, " + longValue + ", " + info());
+                }
+                longValue -= digit;
+            } else {
+                break;
+            }
+
+            np++;
+            // next();
+            {
+                int index = ++bp;
+                this.ch = (index >= this.len ? //
+                    EOI //
+                    : text.charAt(index));
+            }
+        }
+
+        if (!negative) {
+            longValue = -longValue;
+        }
+
+        if (ch == 'L') {
+            np++;
+            next();
+        }
+        
+        return longValue;
     }
 
     public final long longValue() throws NumberFormatException {

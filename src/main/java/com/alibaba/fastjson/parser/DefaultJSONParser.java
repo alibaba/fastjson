@@ -139,7 +139,21 @@ public class DefaultJSONParser implements Closeable {
         this.config = config;
         this.symbolTable = config.symbolTable;
 
-        lexer.nextToken(JSONToken.LBRACE); // prime the pump
+        if (lexer.ch == '{') {
+            int index = ++lexer.bp;
+            lexer.ch = (index >= lexer.len ? //
+                JSONLexer.EOI //
+                : lexer.text.charAt(index));
+            lexer.token = JSONToken.LBRACE;
+        } else  if (lexer.ch == '[') {
+            int index = ++lexer.bp;
+            lexer.ch = (index >= lexer.len ? //
+                JSONLexer.EOI //
+                : lexer.text.charAt(index));
+            lexer.token = JSONToken.LBRACKET;
+        } else {
+            lexer.nextToken();
+        }
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -471,7 +485,13 @@ public class DefaultJSONParser implements Closeable {
                         throw new JSONException("syntax error, " + lexer.info());
                     }
                 } else if (ch == '{') { // 减少嵌套，兼容android
-                    lexer.nextToken(JSONToken.LITERAL_STRING);
+                    {
+                        int index = ++lexer.bp;
+                        lexer.ch = (index >= lexer.len //
+                                ? EOI //
+                                : lexer.text.charAt(index));
+                        lexer.token = JSONToken.LBRACE;
+                    }
 
                     final boolean parentIsArray = fieldName instanceof Integer;
 
@@ -581,12 +601,33 @@ public class DefaultJSONParser implements Closeable {
                     // lexer.next();
                     {
                         int index = ++lexer.bp;
-                        lexer.ch = (index >= lexer.len //
+                        ch = lexer.ch = (index >= lexer.len //
                                 ? EOI //
                                 : lexer.text.charAt(index));
                     }
                     lexer.sp = 0; // lexer.resetStringPosition();
-                    lexer.nextToken(JSONToken.COMMA);
+                    
+                    if (ch == ',') {
+                        int index = ++lexer.bp;
+                        lexer.ch = (index >= lexer.len //
+                            ? EOI //
+                            : lexer.text.charAt(index));
+                        lexer.token = JSONToken.COMMA;
+                    } else if (ch == '}') {
+                        int index = ++lexer.bp;
+                        lexer.ch = (index >= lexer.len //
+                            ? EOI //
+                            : lexer.text.charAt(index));
+                        lexer.token = JSONToken.RBRACE;
+                    } else if (ch == ']') {
+                        int index = ++lexer.bp;
+                        lexer.ch = (index >= lexer.len //
+                            ? EOI //
+                            : lexer.text.charAt(index));
+                        lexer.token = JSONToken.RBRACKET;
+                    } else {
+                        lexer.nextToken();
+                    }
 
                     if (!disableCircularReferenceDetect) {
                         this.setContext(this.contex, object, fieldName);
@@ -1442,7 +1483,27 @@ public class DefaultJSONParser implements Closeable {
         int token = lexer.token;
         if (token == JSONToken.LITERAL_STRING) {
             String val = lexer.stringVal();
-            lexer.nextToken(JSONToken.COMMA);
+            if (lexer.ch == ',') {
+                int index = ++lexer.bp;
+                lexer.ch = (index >= lexer.len ? //
+                    JSONLexer.EOI //
+                    : lexer.text.charAt(index));
+                lexer.token = JSONToken.COMMA;
+            } else if (lexer.ch == ']') {
+                int index = ++lexer.bp;
+                lexer.ch = (index >= lexer.len ? //
+                    JSONLexer.EOI //
+                    : lexer.text.charAt(index));
+                lexer.token = JSONToken.RBRACKET;
+            } else if (lexer.ch == '}') {
+                int index = ++lexer.bp;
+                lexer.ch = (index >= lexer.len ? //
+                    JSONLexer.EOI //
+                    : lexer.text.charAt(index));
+                lexer.token = JSONToken.RBRACE;
+            } else {
+                lexer.nextToken();
+            }
             return val;
         }
         

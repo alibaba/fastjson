@@ -16,11 +16,11 @@
 package com.alibaba.fastjson;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -113,11 +113,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static final Object parse(byte[] input, Feature... features) {
-        try {
-            return parseObject(new String(input, "UTF-8"), features);
-        } catch (UnsupportedEncodingException e) {
-            throw new JSONException("parseObject error", e);
-        }
+        return parseObject(new String(input, Charset.forName("UTF-8")), features);
     }
 
     public static final Object parse(String text, Feature... features) {
@@ -229,11 +225,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     @SuppressWarnings("unchecked")
     public static final <T> T parseObject(byte[] input, Type clazz, Feature... features) {
-        try {
-            return (T) parseObject(new String(input, "UTF-8"), clazz, features);
-        } catch (UnsupportedEncodingException e) {
-            throw new JSONException("parseObject error", e);
-        }
+        return (T) parseObject(new String(input, Charset.forName("UTF-8")), clazz, features);
     }
 
     @SuppressWarnings("unchecked")

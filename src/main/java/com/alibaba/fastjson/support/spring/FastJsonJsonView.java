@@ -2,6 +2,7 @@ package com.alibaba.fastjson.support.spring;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -14,7 +15,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.view.AbstractView;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializeFilter;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
+import com.alibaba.fastjson.util.IOUtils;
 
 /**
  * Fastjson for Spring MVC View.
@@ -31,6 +35,18 @@ public class FastJsonJsonView extends AbstractView {
 	/** default content type */
 	public static final String DEFAULT_CONTENT_TYPE = "application/json;charset=UTF-8";
 
+	@Deprecated
+	protected Charset charset = IOUtils.UTF8;
+
+	@Deprecated
+	protected SerializerFeature[] features = new SerializerFeature[0];
+
+	@Deprecated
+	protected SerializeFilter[] filters = new SerializeFilter[0];
+
+	@Deprecated
+	protected String dateFormat;
+	
 	/** renderedAttributes */
 	private Set<String> renderedAttributes;
 
@@ -71,6 +87,51 @@ public class FastJsonJsonView extends AbstractView {
 	 */
 	public void setFastJsonConfig(FastJsonConfig fastJsonConfig) {
 		this.fastJsonConfig = fastJsonConfig;
+	}
+	
+	@Deprecated
+	public void setSerializerFeature(SerializerFeature... features) {
+		this.fastJsonConfig.setSerializerFeatures(features);
+	}
+	
+	@Deprecated
+	public Charset getCharset() {
+		return this.fastJsonConfig.getCharset();
+	}
+
+	@Deprecated
+	public void setCharset(Charset charset) {
+		this.fastJsonConfig.setCharset(charset);
+	}
+
+	@Deprecated
+	public String getDateFormat() {
+		return this.fastJsonConfig.getDateFormat();
+	}
+
+	@Deprecated
+	public void setDateFormat(String dateFormat) {
+		this.fastJsonConfig.setDateFormat(dateFormat);
+	}
+	
+	@Deprecated
+	public SerializerFeature[] getFeatures() {
+		return this.fastJsonConfig.getSerializerFeatures();
+	}
+
+	@Deprecated
+	public void setFeatures(SerializerFeature... features) {
+		this.fastJsonConfig.setSerializerFeatures(features);
+	}
+
+	@Deprecated
+	public SerializeFilter[] getFilters() {
+		return this.fastJsonConfig.getSerializeFilters();
+	}
+
+	@Deprecated
+	public void setFilters(SerializeFilter... filters) {
+		this.fastJsonConfig.setSerializeFilters(filters);
 	}
 	
 	/**

@@ -1125,6 +1125,7 @@ public final class SerializeWriter extends Writer {
                 newcount++;
             }
             if (newcount > buf.length) {
+                count = offset;
                 expandCapacity(newcount);
             }
 

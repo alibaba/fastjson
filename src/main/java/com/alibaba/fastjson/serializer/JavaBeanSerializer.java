@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -602,9 +603,13 @@ public class JavaBeanSerializer implements ObjectSerializer {
         }
     }
 
-    public void getFieldValues(Object object, Map<String, Object> outMap) throws Exception {
+    public Map<String, Object> getFieldValuesMap(Object object) throws Exception {
+        Map<String, Object> map = new LinkedHashMap<String, Object>(sortedGetters.length);
+        
         for (FieldSerializer getter : sortedGetters) {
-            outMap.put(getter.fieldInfo.name, getter.getPropertyValue(object));
+            map.put(getter.fieldInfo.name, getter.getPropertyValue(object));
         }
+        
+        return map;
     }
 }

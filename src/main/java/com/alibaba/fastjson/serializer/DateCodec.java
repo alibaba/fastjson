@@ -188,6 +188,11 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
                 }
             }
             
+            if (strVal.startsWith("/Date(") && strVal.endsWith(")/")) {
+                String dotnetDateStr = strVal.substring(6, strVal.length() - 2);
+                strVal = dotnetDateStr;
+            }
+            
 //            JSONScanner iso8601Lexer = new JSONScanner(strVal);
 //            if (iso8601Lexer.scanISO8601DateIfMatch()) {
 //                val = iso8601Lexer.getCalendar().getTime();

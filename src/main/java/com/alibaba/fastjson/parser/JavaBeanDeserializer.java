@@ -106,7 +106,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         for (int i = 0; i < size; ++i) {
             final char seperator = (i == size - 1) ? ']' : ',';
             FieldDeserializer fieldDeser = sortedFieldDeserializers[i];
-            Class<?> fieldClass = fieldDeser.fieldInfo.fieldClass;
+            FieldInfo fieldInfo = fieldDeser.fieldInfo;
+            Class<?> fieldClass = fieldInfo.fieldClass;
             if (fieldClass == int.class) {
                 Number number = lexer.scanNumberValue();
                 fieldDeser.setValue(object, number);
@@ -115,6 +116,16 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 String strVal;
                 if (lexer.ch == '"') {
                     strVal = lexer.scanStringValue('"');
+                } else if (lexer.ch == 'n' //
+                        && lexer.text.startsWith("null", lexer.bp)) {
+                    lexer.bp += 4;
+                    {
+                        int index = lexer.bp;
+                        lexer.ch = lexer.bp >= lexer.len ? //
+                            JSONLexer.EOI //
+                            : lexer.text.charAt(index);
+                    }
+                    strVal = null;
                 } else {
                     lexer.nextToken();
                     if (lexer.token == JSONToken.NULL) {
@@ -132,6 +143,10 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 }
                 fieldDeser.setValue(object, number);
                 lexer.nextToken(JSONToken.COMMA);
+            } else if (fieldClass == boolean.class) {
+                Boolean booleanValue = lexer.scanBoolean();
+                fieldDeser.setValue(object, booleanValue);
+                lexer.nextToken(JSONToken.COMMA);
             } else if (fieldClass.isEnum()) {
                 String enumName = lexer.scanSymbol(parser.symbolTable);
                 @SuppressWarnings("rawtypes")
@@ -142,14 +157,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 lexer.nextToken(JSONToken.COMMA);
             } else {
                 lexer.nextToken(JSONToken.LBRACKET);
-                Object value = parser.parseObject(fieldDeser.fieldInfo.fieldType);
-                fieldDeser.setValue(object, value);
+                fieldDeser.parseField(parser, object, fieldInfo.fieldType, null);
 
                 if (seperator == ']') {
                     if (lexer.token != JSONToken.RBRACKET) {
                         throw new JSONException("syntax error");
                     }
-                    lexer.nextToken(JSONToken.COMMA);
                 } else if (seperator == ',') {
                     if (lexer.token != JSONToken.COMMA) {
                         throw new JSONException("syntax error");
@@ -196,14 +209,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             }
 
             if (token == JSONToken.LBRACKET) {
-                int beanFeatures = 0;
-                if (beanInfo.jsonType != null) {
-                    for (Feature feature: beanInfo.jsonType.parseFeatures()) {
-                        beanFeatures |= feature.mask;
-                    }
-                }
-                
-                boolean isSupportArrayToBean = (beanFeatures & Feature.SupportArrayToBean.mask) != 0
+                boolean isSupportArrayToBean = beanInfo.supportBeanToArray //
                                                || (lexer.features & Feature.SupportArrayToBean.mask) != 0;
                 if (isSupportArrayToBean) {
                     return deserialzeArrayMapping(parser, type, fieldName, object);

@@ -30,6 +30,7 @@ class JavaBeanInfo {
     final FieldInfo[]    sortedFields;
     final JSONType       jsonType;
     boolean              ordered = false;
+    final boolean        supportBeanToArray;
 
     JavaBeanInfo(Class<?> clazz, //
                  Constructor<?> defaultConstructor, //
@@ -44,7 +45,17 @@ class JavaBeanInfo {
         this.creatorConstructor = creatorConstructor;
         this.factoryMethod = factoryMethod;
         this.fields = fields;
-        this.jsonType = jsonType; 
+        this.jsonType = jsonType;
+        
+        boolean supportBeanToArray = false;
+        if (jsonType != null) {
+            for (Feature feature: jsonType.parseFeatures()) {
+                if (feature == Feature.SupportArrayToBean) {
+                    supportBeanToArray = true;
+                }
+            }
+        }
+        this.supportBeanToArray = supportBeanToArray;
 
         sortedFields = computeSortedFields(fields, sortedFields);
         this.sortedFields = (Arrays.equals(fields, sortedFields)) ? fields : sortedFields;

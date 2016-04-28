@@ -34,6 +34,17 @@ public class ReaderLongFieldTest extends TestCase {
         }
         Assert.assertNotNull(error);
     }
+    
+    public void test_long_error_1_x() throws Exception {
+        Exception error = null;
+        try {
+            JSONReader reader = new JSONReader(new StringReader("{\"value\":922337203685477580892233720368547758088}"));
+            reader.readObject(Model.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
 
     public void test_long_error_2() throws Exception {
         Exception error = null;

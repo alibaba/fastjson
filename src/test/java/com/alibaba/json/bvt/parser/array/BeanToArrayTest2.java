@@ -15,6 +15,12 @@ public class BeanToArrayTest2 extends TestCase {
         Assert.assertEquals(true, model.v1);
         Assert.assertEquals(false, model.v2);
     }
+    
+    public void test_bool_space() throws Exception {
+        Model model = JSON.parseObject("[true ,false ]", Model.class, Feature.SupportArrayToBean);
+        Assert.assertEquals(true, model.v1);
+        Assert.assertEquals(false, model.v2);
+    }
 
     public void test_bool_num() throws Exception {
         Model model = JSON.parseObject("[1,0]", Model.class, Feature.SupportArrayToBean);

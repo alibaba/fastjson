@@ -123,6 +123,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             JSONLexer.EOI //
                             : lexer.text.charAt(index));
                         lexer.token = JSONToken.COMMA;
+                    } else if (lexer.ch == ']') {
+                        int index = ++lexer.bp;
+                        lexer.ch = (index >= lexer.len ? //
+                            JSONLexer.EOI //
+                            : lexer.text.charAt(index));
+                        lexer.token = JSONToken.RBRACKET;
                     } else {
                         lexer.nextToken();
                     }
@@ -156,6 +162,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             JSONLexer.EOI //
                             : lexer.text.charAt(index));
                         lexer.token = JSONToken.COMMA;
+                    } else if (lexer.ch == ']') {
+                        int index = ++lexer.bp;
+                        lexer.ch = (index >= lexer.len ? //
+                            JSONLexer.EOI //
+                            : lexer.text.charAt(index));
+                        lexer.token = JSONToken.RBRACKET;
                     } else {
                         lexer.nextToken();
                     }
@@ -173,6 +185,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             JSONLexer.EOI //
                             : lexer.text.charAt(index));
                         lexer.token = JSONToken.COMMA;
+                    } else if (lexer.ch == ']') {
+                        int index = ++lexer.bp;
+                        lexer.ch = (index >= lexer.len ? //
+                            JSONLexer.EOI //
+                            : lexer.text.charAt(index));
+                        lexer.token = JSONToken.RBRACKET;
                     } else {
                         lexer.nextToken();
                     }
@@ -190,6 +208,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             JSONLexer.EOI //
                             : lexer.text.charAt(index));
                         lexer.token = JSONToken.COMMA;
+                    } else if (lexer.ch == ']') {
+                        int index = ++lexer.bp;
+                        lexer.ch = (index >= lexer.len ? //
+                            JSONLexer.EOI //
+                            : lexer.text.charAt(index));
+                        lexer.token = JSONToken.RBRACKET;
                     } else {
                         lexer.nextToken();
                     }
@@ -207,6 +231,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             JSONLexer.EOI //
                             : lexer.text.charAt(index));
                         lexer.token = JSONToken.COMMA;
+                    } else if (lexer.ch == ']') {
+                        int index = ++lexer.bp;
+                        lexer.ch = (index >= lexer.len ? //
+                            JSONLexer.EOI //
+                            : lexer.text.charAt(index));
+                        lexer.token = JSONToken.RBRACKET;
                     } else {
                         lexer.nextToken();
                     }
@@ -220,6 +250,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             JSONLexer.EOI //
                             : lexer.text.charAt(index));
                         lexer.token = JSONToken.COMMA;
+                    } else if (lexer.ch == ']') {
+                        int index = ++lexer.bp;
+                        lexer.ch = (index >= lexer.len ? //
+                            JSONLexer.EOI //
+                            : lexer.text.charAt(index));
+                        lexer.token = JSONToken.RBRACKET;
                     } else {
                         lexer.nextToken();
                     }

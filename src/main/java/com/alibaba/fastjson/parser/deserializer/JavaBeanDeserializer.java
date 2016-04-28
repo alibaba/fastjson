@@ -155,6 +155,9 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             } else if (fieldClass.isEnum()) {
                 Enum<?> value = lexer.scanEnum(fieldClass, parser.getSymbolTable(), seperator);
                 fieldDeser.setValue(object, value);
+            } else if (fieldClass == boolean.class) {
+                boolean value = lexer.scanBoolean(seperator);
+                fieldDeser.setValue(object, value);
             } else {
                 lexer.nextToken(JSONToken.LBRACKET);
                 Object value = parser.parseObject(fieldDeser.fieldInfo.fieldType);

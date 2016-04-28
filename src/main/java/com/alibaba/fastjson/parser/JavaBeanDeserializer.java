@@ -97,7 +97,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         return deserialze(parser, type, fieldName, null);
     }
 
-    @SuppressWarnings({ "unchecked" })
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private <T> T deserialzeArrayMapping(DefaultJSONParser parser, Type type, Object fieldName, Object object) {
         final JSONLexer lexer = parser.lexer; // xxx
         object = createInstance(parser, type);
@@ -218,11 +218,22 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         lexer.nextToken();
                     }
                 } else if (fieldClass.isEnum()) {
-                    String enumName = lexer.scanSymbol(parser.symbolTable);
-                    @SuppressWarnings("rawtypes")
-                    Object value = enumName == null //
-                        ? null//
-                        : Enum.valueOf((Class<? extends Enum>) fieldClass, enumName);
+                    char ch = lexer.ch;
+                    Object value;
+                    if (ch == '\"') {
+                        String enumName = lexer.scanSymbol(parser.symbolTable);
+                        value = (enumName == null) //
+                            ? null//
+                            : Enum.valueOf((Class<? extends Enum>) fieldClass, enumName);
+                    } else if (ch >= '0' && ch <= '9') {
+                        int ordinal = (int) lexer.scanLongValue();
+                        
+                        EnumDeserializer enumDeser = (EnumDeserializer) ((DefaultFieldDeserializer) fieldDeser).getFieldValueDeserilizer(parser.config);
+                        value = enumDeser.values[ordinal];
+                    } else {
+                        throw new JSONException("illegal enum." + lexer.info());
+                    }
+                    
                     fieldDeser.setValue(object, value);
                     
                     if (lexer.ch == ',') {

@@ -9,7 +9,7 @@ import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 public class EnumDeserializer implements ObjectDeserializer {
 
     private final Class<?> enumClass;
-    private final Enum[]   values;
+    protected final Enum[]   values;
 
     public EnumDeserializer(Class<?> enumClass){
         this.enumClass = enumClass;

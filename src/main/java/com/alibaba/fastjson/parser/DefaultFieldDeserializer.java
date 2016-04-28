@@ -11,10 +11,18 @@ import com.alibaba.fastjson.util.FieldInfo;
 
 public class DefaultFieldDeserializer extends FieldDeserializer {
 
-    private ObjectDeserializer fieldValueDeserilizer;
+    protected ObjectDeserializer fieldValueDeserilizer;
 
     public DefaultFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo){
         super(clazz, fieldInfo, JSONToken.LITERAL_INT);
+    }
+    
+    public ObjectDeserializer getFieldValueDeserilizer(ParserConfig config) {
+        if (fieldValueDeserilizer == null) {
+            fieldValueDeserilizer = config.getDeserializer(fieldInfo.fieldClass, fieldInfo.fieldType);
+        }
+
+        return fieldValueDeserilizer;
     }
 
     @Override

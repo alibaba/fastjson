@@ -519,7 +519,11 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     }
 
     public final boolean isEnabled(Feature feature) {
-        return (this.features & feature.mask) != 0;
+        return isEnabled(feature.mask);
+    }
+    
+    public final boolean isEnabled(int feature) {
+        return (this.features & feature) != 0;
     }
 
     public abstract String numberString();
@@ -1460,14 +1464,21 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             }
         }
 
-        if (chLocal == serperator) {
-            bp += (offset - 1);
-            this.next();
-            matchStat = VALUE;
-            return strVal;
-        } else {
-            matchStat = NOT_MATCH;
-            return strVal;
+        for (;;) {
+            if (chLocal == serperator) {
+                bp += (offset - 1);
+                this.next();
+                matchStat = VALUE;
+                return strVal;
+            } else {
+                if (isWhitespace(chLocal)) {
+                    chLocal = charAt(bp + (offset++));
+                    continue;
+                }
+                
+                matchStat = NOT_MATCH;
+                return strVal;
+            }
         }
     }
 
@@ -1783,16 +1794,28 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 matchStat = NOT_MATCH;
                 return false;
             }
+        } else if (chLocal == '1') {
+            chLocal = charAt(bp + (offset++));
+            value = true;
+        } else if (chLocal == '0') {
+            chLocal = charAt(bp + (offset++));
+            value = false;
         }
 
-        if (chLocal == expectNext) {
-            bp += (offset - 1);
-            this.next();
-            matchStat = VALUE;
-            return value;
-        } else {
-            matchStat = NOT_MATCH;
-            return value;
+        for (;;) {
+            if (chLocal == expectNext) {
+                bp += (offset - 1);
+                this.next();
+                matchStat = VALUE;
+                return value;
+            } else {
+                if (isWhitespace(chLocal)) {
+                    chLocal = charAt(bp + (offset++));
+                    continue;
+                }
+                matchStat = NOT_MATCH;
+                return value;
+            }
         }
     }
 
@@ -1801,6 +1824,11 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         int offset = 0;
         char chLocal = charAt(bp + (offset++));
+        
+        final boolean negative = chLocal == '-';
+        if (negative) {
+            chLocal = charAt(bp + (offset++));
+        }
 
         int value;
         if (chLocal >= '0' && chLocal <= '9') {
@@ -1825,15 +1853,21 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             return 0;
         }
 
-        if (chLocal == expectNext) {
-            bp += (offset - 1);
-            this.next();
-            matchStat = VALUE;
-            token = JSONToken.COMMA;
-            return value;
-        } else {
-            matchStat = NOT_MATCH;
-            return value;
+        for (;;) {
+            if (chLocal == expectNext) {
+                bp += (offset - 1);
+                this.next();
+                matchStat = VALUE;
+                token = JSONToken.COMMA;
+                return negative ? -value : value;
+            } else {
+                if (isWhitespace(chLocal)) {
+                    chLocal = charAt(bp + (offset++));
+                    continue;
+                }
+                matchStat = NOT_MATCH;
+                return negative ? -value : value;
+            }
         }
     }
 
@@ -2007,7 +2041,12 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         int offset = 0;
         char chLocal = charAt(bp + (offset++));
-
+        
+        final boolean negative = chLocal == '-';
+        if (negative) {
+            chLocal = charAt(bp + (offset++));
+        }
+        
         long value;
         if (chLocal >= '0' && chLocal <= '9') {
             value = digits[chLocal];
@@ -2031,15 +2070,22 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             return 0;
         }
 
-        if (chLocal == expectNextChar) {
-            bp += (offset - 1);
-            this.next();
-            matchStat = VALUE;
-            token = JSONToken.COMMA;
-            return value;
-        } else {
-            matchStat = NOT_MATCH;
-            return value;
+        for (;;) {
+            if (chLocal == expectNextChar) {
+                bp += (offset - 1);
+                this.next();
+                matchStat = VALUE;
+                token = JSONToken.COMMA;
+                return negative ? -value : value;
+            } else {
+                if (isWhitespace(chLocal)) {
+                    chLocal = charAt(bp + (offset++));
+                    continue;
+                }
+                
+                matchStat = NOT_MATCH;
+                return value;
+            }
         }
     }
 

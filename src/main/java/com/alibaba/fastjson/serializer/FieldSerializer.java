@@ -16,10 +16,9 @@
 package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
-import java.lang.reflect.Member;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 
-import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.util.FieldInfo;
 
@@ -102,18 +101,9 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
         }
     }
 
-    public Object getPropertyValue(Object object) throws Exception {
-        try {
-            return fieldInfo.get(object);
-        } catch (Exception ex) {
-            Member member =  fieldInfo.getMember();
-            String qualifiedName = member.getDeclaringClass().getName() + "." + member.getName();
-            
-            throw new JSONException("get property error。 " + qualifiedName, ex);
-        }
+    public Object getPropertyValue(Object object) throws InvocationTargetException, IllegalAccessException {
+        return fieldInfo.get(object);
     }
-
-
     
     public int compareTo(FieldSerializer o) {
         return this.fieldInfo.compareTo(o.fieldInfo);

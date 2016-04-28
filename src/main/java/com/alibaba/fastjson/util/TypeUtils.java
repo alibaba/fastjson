@@ -293,6 +293,21 @@ public class TypeUtils {
 
         if (value instanceof String) {
             String strVal = (String) value;
+            
+            JSONScanner dateLexer = new JSONScanner(strVal);
+            try {
+                if (dateLexer.scanISO8601DateIfMatch(false)) {
+                    Calendar calendar = dateLexer.getCalendar();
+                    return calendar.getTime();
+                }
+            } finally {
+                dateLexer.close();
+            }
+            
+            if (strVal.startsWith("/Date(") && strVal.endsWith(")/")) {
+                String dotnetDateStr = strVal.substring(6, strVal.length() - 2);
+                strVal = dotnetDateStr;
+            }
 
             if (strVal.indexOf('-') != -1) {
                 String format;

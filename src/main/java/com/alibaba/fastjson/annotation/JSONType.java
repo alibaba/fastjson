@@ -31,4 +31,8 @@ public @interface JSONType {
     Class<?> mappingTo() default Void.class;
     
     Class<?> builder() default Void.class;
+    
+    String typeName() default "";
+    
+    Class<?>[] seeAlso() default{};
 }

@@ -9,6 +9,7 @@ import org.junit.Assert;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.Feature;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 
 import junit.framework.TestCase;
 
@@ -31,7 +32,7 @@ public class BeanToArrayTest extends TestCase {
         public boolean  success;
     }
 
-    @JSONType(parseFeatures = Feature.SupportArrayToBean)
+    @JSONType(parseFeatures = Feature.SupportArrayToBean, serialzeFeatures=SerializerFeature.BeanToArray)
     public static class GO {
 
         public String       bi;

@@ -17,6 +17,7 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -253,8 +254,17 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     }
                 }
 
-                Object propertyValue = fieldSerializer.getPropertyValue(object);
-
+                Object propertyValue;
+                
+                try {
+                    propertyValue = fieldSerializer.getPropertyValue(object);
+                } catch (InvocationTargetException ex) {
+                    if (out.isEnabled(SerializerFeature.IgnoreErrorGetter)) {
+                        propertyValue = null;
+                    } else {
+                        throw ex;
+                    }
+                }
 
                 boolean apply = true;
                 {

@@ -136,7 +136,12 @@ public enum SerializerFeature {
     /**
      * @since 1.2.9
      */
-    WriteNonStringValueAsString
+    WriteNonStringValueAsString,
+    
+    /**
+     * @since 1.2.11
+     */
+    IgnoreErrorGetter
     ;
 
     SerializerFeature(){

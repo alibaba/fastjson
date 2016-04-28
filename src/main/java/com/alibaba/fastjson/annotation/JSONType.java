@@ -32,7 +32,13 @@ public @interface JSONType {
     
     Class<?> builder() default Void.class;
     
+    /**
+     * @since 1.2.11
+     */
     String typeName() default "";
     
+    /**
+     * @since 1.2.11
+     */
     Class<?>[] seeAlso() default{};
 }

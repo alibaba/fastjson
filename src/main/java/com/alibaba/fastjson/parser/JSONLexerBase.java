@@ -1701,6 +1701,11 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         int offset = fieldName.length;
         char chLocal = charAt(bp + (offset++));
+        
+        final boolean negative = chLocal == '-';
+        if (negative) {
+            chLocal = charAt(bp + (offset++));
+        }
 
         int value;
         if (chLocal >= '0' && chLocal <= '9') {
@@ -1730,7 +1735,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             this.next();
             matchStat = VALUE;
             token = JSONToken.COMMA;
-            return value;
+            return negative ? -value : value;
         }
 
         if (chLocal == '}') {
@@ -1761,7 +1766,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             return 0;
         }
 
-        return value;
+        return negative ? -value : value;
     }
 
     public boolean scanBoolean(char expectNext) {
@@ -1973,6 +1978,12 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         int offset = fieldName.length;
         char chLocal = charAt(bp + (offset++));
+        
+        boolean negative = false;
+        if (chLocal == '-') {
+            chLocal = charAt(bp + (offset++));
+            negative = true;
+        }
 
         long value;
         if (chLocal >= '0' && chLocal <= '9') {
@@ -2002,7 +2013,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             this.next();
             matchStat = VALUE;
             token = JSONToken.COMMA;
-            return value;
+            return negative ? -value : value;
         }
 
         if (chLocal == '}') {
@@ -2033,7 +2044,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             return 0;
         }
 
-        return value;
+        return negative ? -value : value;
     }
 
     public long scanLong(char expectNextChar) {

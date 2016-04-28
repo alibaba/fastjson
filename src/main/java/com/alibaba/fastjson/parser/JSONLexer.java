@@ -1435,12 +1435,12 @@ public final class JSONLexer {
         } else if (text.startsWith("true", bp)) {
             offset = 4;
             value = true;
-        } else if (text.startsWith("\"false\"", bp)) {
-            offset = 7;
-            value = false;
-        } else if (text.startsWith("\"true\"", bp)) {
-            offset = 6;
+        } else if (ch == '1') {
+            offset = 1;
             value = true;
+        } else if (ch == '0') {
+            offset = 1;
+            value = false;
         } else {
             matchStat = NOT_MATCH;
             return false;

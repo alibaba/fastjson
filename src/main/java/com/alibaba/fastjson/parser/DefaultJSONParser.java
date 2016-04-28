@@ -212,10 +212,10 @@ public class DefaultJSONParser implements Closeable {
                     if (ch != ':') {
                         lexer.skipWhitespace();
                         ch = lexer.ch;
-                    }
-
-                    if (ch != ':') {
-                        throw new JSONException("expect ':' at " + lexer.pos + ", name " + key);
+                        
+                        if (ch != ':') {
+                            throw new JSONException("expect ':' at " + lexer.pos + ", name " + key);
+                        }
                     }
                 } else if (ch == '}') {
                     // lexer.next();
@@ -1266,7 +1266,26 @@ public class DefaultJSONParser implements Closeable {
                     checkListResolve(array);
                 }
                 if (lexer.token == JSONToken.COMMA) {
-                    lexer.nextToken(JSONToken.LITERAL_STRING);
+                    // lexer.nextToken(JSONToken.LITERAL_STRING);
+                    ch = lexer.ch;
+                    if (ch == '"') {
+                        lexer.pos = lexer.bp;
+                        lexer.scanString();
+                    } else if (ch >= '0' && ch <= '9') {
+                        lexer.pos = lexer.bp;
+                        lexer.scanNumber();
+                    } else if (ch == '{') {
+                        lexer.token = JSONToken.LBRACE;
+                        // next();
+                        {
+                            int index = ++lexer.bp;
+                            lexer.ch = (index >= lexer.len ? //
+                                EOI //
+                                : lexer.text.charAt(index));
+                        }
+                    } else {
+                        lexer.nextToken();
+                    }
                     continue;
                 }
             }

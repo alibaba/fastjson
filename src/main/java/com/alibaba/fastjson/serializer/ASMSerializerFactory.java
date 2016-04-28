@@ -480,15 +480,32 @@ public class ASMSerializerFactory implements Opcodes {
 
         int size = getters.size();
 
-        {
+        if (!context.writeDirect){
             // 格式化输出不走asm 优化
-            Label endFormat_ = new Label();
+            Label endSupper_ = new Label();
+            Label supper_ = new Label();
             mw.visitVarInsn(ALOAD, context.var("out"));
             mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "isPrettyFormat",
                                "()Z");
-            mw.visitJumpInsn(IFEQ, endFormat_);
-
-
+            mw.visitJumpInsn(IFNE, supper_);
+            
+            boolean hasMethod = false;
+            for (FieldInfo getter : getters) {
+                if (getter.method != null) {
+                    hasMethod = true;
+                }
+            }
+            
+            if (hasMethod) {
+                mw.visitVarInsn(ALOAD, context.var("out"));
+                mw.visitLdcInsn(SerializerFeature.IgnoreErrorGetter.mask);
+                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "isEnabled", "(I)Z");
+                mw.visitJumpInsn(IFEQ, endSupper_);
+            } else {
+                mw.visitJumpInsn(GOTO, endSupper_);
+            }
+            
+            mw.visitLabel(supper_);
             mw.visitVarInsn(ALOAD, 0);
             mw.visitVarInsn(ALOAD, 1);
             mw.visitVarInsn(ALOAD, 2);
@@ -499,7 +516,7 @@ public class ASMSerializerFactory implements Opcodes {
                                "(L" + JSONSerializer + ";Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;I)V");
             mw.visitInsn(RETURN);
 
-            mw.visitLabel(endFormat_);
+            mw.visitLabel(endSupper_);
         }
 
         {

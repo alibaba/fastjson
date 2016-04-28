@@ -1721,7 +1721,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                     break;
                 }
             }
-            if (value < 0) {
+            if (value < 0 || offset > 11) {
                 matchStat = NOT_MATCH;
                 return 0;
             }
@@ -1999,7 +1999,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                     break;
                 }
             }
-            if (value < 0) {
+            if (value < 0 || offset > 21) {
                 matchStat = NOT_MATCH;
                 return 0;
             }

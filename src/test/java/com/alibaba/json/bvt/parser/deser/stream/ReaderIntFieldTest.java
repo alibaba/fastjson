@@ -13,7 +13,7 @@ import junit.framework.TestCase;
 
 public class ReaderIntFieldTest extends TestCase {
 
-    public void test_long_error_0() throws Exception {
+    public void test_int_error_0() throws Exception {
         Exception error = null;
         try {
             JSONReader reader = new JSONReader(new StringReader("{\"value\":1.A}"));
@@ -24,10 +24,32 @@ public class ReaderIntFieldTest extends TestCase {
         Assert.assertNotNull(error);
     }
 
-    public void test_long_error_1() throws Exception {
+    public void test_int_error_1() throws Exception {
         Exception error = null;
         try {
-            JSONReader reader = new JSONReader(new StringReader("{\"value\":2147483648,"));
+            JSONReader reader = new JSONReader(new StringReader("{\"value\":2147483648}"));
+            reader.readObject(Model.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_int_error_1_x() throws Exception {
+        Exception error = null;
+        try {
+            JSONReader reader = new JSONReader(new StringReader("{\"value\":9223372036854775808}"));
+            reader.readObject(Model.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_int_error_1_x1() throws Exception {
+        Exception error = null;
+        try {
+            JSONReader reader = new JSONReader(new StringReader("{\"value\":-2147483649}"));
             reader.readObject(Model.class);
         } catch (JSONException ex) {
             error = ex;
@@ -35,7 +57,7 @@ public class ReaderIntFieldTest extends TestCase {
         Assert.assertNotNull(error);
     }
 
-    public void test_long_error_2() throws Exception {
+    public void test_int_error_2() throws Exception {
         Exception error = null;
         try {
             JSONReader reader = new JSONReader(new StringReader("{\"value\":AA}"));
@@ -46,7 +68,7 @@ public class ReaderIntFieldTest extends TestCase {
         Assert.assertNotNull(error);
     }
 
-    public void test_long_normal() throws Exception {
+    public void test_int_normal() throws Exception {
         JSONReader reader = new JSONReader(new StringReader("{\"value\":1001,\"value2\":-2001}"));
         Model model = reader.readObject(Model.class);
         Assert.assertEquals(1001, model.value);
@@ -54,7 +76,7 @@ public class ReaderIntFieldTest extends TestCase {
         reader.close();
     }
 
-    public void test_long_normal_2() throws Exception {
+    public void test_int_normal_2() throws Exception {
         JSONReader reader = new JSONReader(new StringReader("{\"model\":{\"value\":3001,\"value2\":-4001}}"));
         Map<String, Model> map = reader.readObject(new TypeReference<Map<String, Model>>() {
         });
@@ -64,7 +86,7 @@ public class ReaderIntFieldTest extends TestCase {
         reader.close();
     }
 
-    public void test_long_error_map() throws Exception {
+    public void test_int_error_map() throws Exception {
         Exception error = null;
         try {
             JSONReader reader = new JSONReader(new StringReader("{\"model\":{\"value\":3001,\"value2\":-4001}["));
@@ -76,7 +98,7 @@ public class ReaderIntFieldTest extends TestCase {
         Assert.assertNotNull(error);
     }
 
-    public void test_long_error_end() throws Exception {
+    public void test_int_error_end() throws Exception {
         Exception error = null;
         try {
             JSONReader reader = new JSONReader(new StringReader("{\"value\":1001,\"value2\":-2001["));

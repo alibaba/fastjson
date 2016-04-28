@@ -597,6 +597,12 @@ public final class JSONScanner extends JSONLexerBase {
         int index = bp + fieldName.length;
 
         char ch = charAt(index++);
+        
+        boolean negative = false;
+        if (ch == '-') {
+            ch = charAt(index++);
+            negative = true;
+        }
 
         int value;
         if (ch >= '0' && ch <= '9') {
@@ -630,7 +636,7 @@ public final class JSONScanner extends JSONLexerBase {
             this.ch = charAt(++bp);
             matchStat = VALUE;
             token = JSONToken.COMMA;
-            return value;
+            return negative ? -value : value;
         }
 
         if (ch == '}') {
@@ -655,7 +661,7 @@ public final class JSONScanner extends JSONLexerBase {
             matchStat = END;
         }
 
-        return value;
+        return negative ? -value : value;
     }
 
     public String scanFieldString(char[] fieldName) {
@@ -938,6 +944,12 @@ public final class JSONScanner extends JSONLexerBase {
         int index = bp + fieldName.length;
 
         char ch = charAt(index++);
+        
+        boolean negative = false;
+        if (ch == '-') {
+            ch = charAt(index++);
+            negative = true;
+        }
 
         long value;
         if (ch >= '0' && ch <= '9') {
@@ -973,7 +985,7 @@ public final class JSONScanner extends JSONLexerBase {
             this.ch = charAt(++bp);
             matchStat = VALUE;
             token = JSONToken.COMMA;
-            return value;
+            return negative ? -value : value;
         } else if (ch == '}') {
             ch = charAt(++bp);
             if (ch == ',') {
@@ -999,7 +1011,7 @@ public final class JSONScanner extends JSONLexerBase {
             return 0;
         }
 
-        return value;
+        return negative ? -value : value;
     }
 
     public boolean scanFieldBoolean(char[] fieldName) {

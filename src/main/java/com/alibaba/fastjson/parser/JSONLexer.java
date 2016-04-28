@@ -150,7 +150,7 @@ public final class JSONLexer {
         }
         
         if (feature == Feature.InitStringFieldAsEmpty) {
-            stringDefaultValue = (features & Feature.InitStringFieldAsEmpty.mask) != 0 //
+            stringDefaultValue = state //
                 ? "" //
                 : null;
         }

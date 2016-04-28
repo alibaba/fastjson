@@ -1807,6 +1807,11 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         int offset = 0;
         char chLocal = charAt(bp + (offset++));
+        
+        final boolean negative = chLocal == '-';
+        if (negative) {
+            chLocal = charAt(bp + (offset++));
+        }
 
         int value;
         if (chLocal >= '0' && chLocal <= '9') {
@@ -1836,10 +1841,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             this.next();
             matchStat = VALUE;
             token = JSONToken.COMMA;
-            return value;
+            return negative ? -value : value;
         } else {
             matchStat = NOT_MATCH;
-            return value;
+            return negative ? -value : value;
         }
     }
 

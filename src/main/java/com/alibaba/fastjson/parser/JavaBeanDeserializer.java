@@ -141,13 +141,9 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         }
                         strVal = null;
                     } else {
-                        lexer.nextToken();
-                        if (lexer.token == JSONToken.NULL) {
-                            strVal = null;
-                        } else {
-                            throw new JSONException("not match string. feild : " + fieldName);
-                        }
+                        throw new JSONException("not match string. feild : " + fieldName);
                     }
+                    
                     if (fieldInfo.fieldAccess) {
                         fieldInfo.field.set(object, strVal);
                     } else {

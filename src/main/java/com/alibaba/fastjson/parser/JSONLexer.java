@@ -81,6 +81,8 @@ public interface JSONLexer {
     long scanLong(char expectNextChar);
 
     int scanInt(char expectNext);
+    
+    boolean scanBoolean(char expectNext);
 
     String scanString(char expectNextChar);
 

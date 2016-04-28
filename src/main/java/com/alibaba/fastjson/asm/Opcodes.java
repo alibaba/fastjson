@@ -105,7 +105,9 @@ public interface Opcodes {
     int    IFLE                = 158;                    // -
     int    IF_ICMPEQ           = 159;                    // -
     int    IF_ICMPNE           = 160;                    // -
+    int    IF_ICMPLT           = 161;                    // -
     int    IF_ICMPGE           = 162;                    // -
+    int    IF_ICMPGT           = 163;                    // -
     int    IF_ACMPEQ           = 165;                    // -
     int    GOTO                = 167;                    // -
     int    RET                 = 169;                    // visitVarInsn

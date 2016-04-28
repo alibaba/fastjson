@@ -17,6 +17,10 @@ public class EnumDeserializer implements ObjectDeserializer {
         this.enumClass = enumClass;
         values = (Enum[]) enumClass.getEnumConstants();
     }
+    
+    public Enum<?> valueOf(int ordinal) {
+        return values[ordinal];
+    }
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {

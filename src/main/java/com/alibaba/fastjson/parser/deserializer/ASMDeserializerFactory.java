@@ -381,7 +381,10 @@ public class ASMDeserializerFactory implements Opcodes {
 
         defineVarLexer(context, mw);
 
-        _isEnable(context, mw, Feature.SortFeidFastMatch);
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitLdcInsn(Feature.SortFeidFastMatch.mask);
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "isEnabled", "(I)Z");
+        
         mw.visitJumpInsn(IFEQ, super_);
 
         {
@@ -404,7 +407,9 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitVarInsn(ALOAD, 2);
             mw.visitVarInsn(ALOAD, 3);
             mw.visitVarInsn(ALOAD, 4);
-            mw.visitMethodInsn(INVOKEVIRTUAL, type(JavaBeanDeserializer.class), "deserialzeArrayMapping",
+            mw.visitMethodInsn(INVOKESPECIAL, // 
+                               context.className, // 
+                               "deserialzeArrayMapping", //
                                "(L" + DefaultJSONParser + ";Ljava/lang/reflect/Type;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
             mw.visitInsn(ARETURN);
 
@@ -460,7 +465,9 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitVarInsn(ISTORE, context.var("_asm_flag_" + (i / 32)));
         }
 
-        _isEnable(context, mw, Feature.InitStringFieldAsEmpty);
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitLdcInsn(Feature.InitStringFieldAsEmpty.mask);
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "isEnabled", "(I)Z");
         mw.visitIntInsn(ISTORE, context.var("initStringFieldAsEmpty"));
 
         // declare and init
@@ -718,12 +725,6 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitMaxs(5, context.variantIndex);
         mw.visitEnd();
         
-    }
-
-    private void _isEnable(Context context, MethodVisitor mw, Feature feature) {
-        mw.visitVarInsn(ALOAD, context.var("lexer"));
-        mw.visitFieldInsn(GETSTATIC, type(Feature.class), feature.name(), desc(Feature.class));
-        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "isEnabled", "(" + desc(Feature.class) + ")Z");
     }
 
     private void defineVarLexer(Context context, MethodVisitor mw) {

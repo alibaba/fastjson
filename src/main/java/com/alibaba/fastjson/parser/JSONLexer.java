@@ -1670,9 +1670,10 @@ public final class JSONLexer {
             // next();
             {
                 int index = ++this.bp;
-                this.ch = (index >= this.len ? //
-                    EOI //
-                    : text.charAt(index));
+                if (index >= this.len) {
+                    throw new JSONException("syntax error, " + info());
+                }
+                this.ch = text.charAt(index);
             }
         } else {
             negative = false;
@@ -1711,11 +1712,6 @@ public final class JSONLexer {
             longValue = -longValue;
         }
 
-        if (ch == 'L') {
-            np++;
-            next();
-        }
-        
         return longValue;
     }
 

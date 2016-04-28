@@ -11,11 +11,15 @@ import com.alibaba.fastjson.parser.JSONToken;
 public class EnumDeserializer implements ObjectDeserializer {
 
     private final Class<?> enumClass;
-    private final Enum[]   values;
+    protected final Enum[]   values;
 
     public EnumDeserializer(Class<?> enumClass){
         this.enumClass = enumClass;
         values = (Enum[]) enumClass.getEnumConstants();
+    }
+    
+    public Enum<?> valueOf(int ordinal) {
+        return values[ordinal];
     }
 
     @SuppressWarnings("unchecked")

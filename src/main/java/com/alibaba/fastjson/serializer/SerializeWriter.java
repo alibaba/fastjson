@@ -171,9 +171,12 @@ public final class SerializeWriter extends Writer {
                       && (!browserCompatible) //
                       && (!browserSecure) //
                       && (!browserCompatible) //
+                      && (!prettyFormat) //
                       && writeEnumUsingName //
                       && (!writeEnumUsingToString) && (!writeNonStringValueAsString) //
-                      && (this.features & SerializerFeature.WriteSlashAsSpecial.mask) == 0;
+                      && (this.features & SerializerFeature.WriteSlashAsSpecial.mask) == 0 //
+                      && (this.features & SerializerFeature.IgnoreErrorGetter.mask) == 0 //
+                      ;
 
         keySeperator = useSingleQuotes ? '\'' : '"';
     }
@@ -204,6 +207,10 @@ public final class SerializeWriter extends Writer {
 
     public boolean isEnabled(SerializerFeature feature) {
         return (this.features & feature.mask) != 0;
+    }
+    
+    public boolean isEnabled(int feature) {
+        return (this.features & feature) != 0;
     }
 
     /**

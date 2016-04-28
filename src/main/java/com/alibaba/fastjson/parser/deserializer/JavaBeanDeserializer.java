@@ -153,27 +153,49 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 long value = lexer.scanLong(seperator);
                 fieldDeser.setValue(object, value);
             } else if (fieldClass.isEnum()) {
-                Enum<?> value = lexer.scanEnum(fieldClass, parser.getSymbolTable(), seperator);
+                char ch = lexer.getCurrent();
+                
+                Object value;
+                if (ch == '\"') {
+                    value = lexer.scanEnum(fieldClass, parser.getSymbolTable(), seperator);
+                } else if (ch >= '0' && ch <= '9') {
+                    int ordinal = lexer.scanInt(seperator);
+                    
+                    EnumDeserializer enumDeser = (EnumDeserializer) ((DefaultFieldDeserializer) fieldDeser).getFieldValueDeserilizer(parser.getConfig());
+                    value = enumDeser.valueOf(ordinal);
+                } else {
+                    value = scanEnum(lexer, seperator);
+                }
+                
                 fieldDeser.setValue(object, value);
+            } else if (fieldClass == boolean.class) {
+                boolean value = lexer.scanBoolean(seperator);
+                fieldDeser.setValue(object, value);
+            } else if (fieldClass == java.util.Date.class && lexer.getCurrent() == '1') {
+                long longValue = lexer.scanLong(seperator);
+                fieldDeser.setValue(object, new java.util.Date(longValue));
             } else {
                 lexer.nextToken(JSONToken.LBRACKET);
                 Object value = parser.parseObject(fieldDeser.fieldInfo.fieldType);
                 fieldDeser.setValue(object, value);
 
-                if (seperator == ']') {
-                    if (lexer.token() != JSONToken.RBRACKET) {
-                        throw new JSONException("syntax error");
-                    }
-                } else if (seperator == ',') {
-                    if (lexer.token() != JSONToken.COMMA) {
-                        throw new JSONException("syntax error");
-                    }
-                }
+                check(lexer, seperator == ']' ? JSONToken.RBRACKET : JSONToken.COMMA);
+                // parser.accept(seperator == ']' ? JSONToken.RBRACKET : JSONToken.COMMA);
             }
         }
         lexer.nextToken(JSONToken.COMMA);
 
         return (T) object;
+    }
+
+    protected void check(final JSONLexer lexer, int token) {
+        if (lexer.token() != token) {
+            throw new JSONException("syntax error");
+        }
+    }
+    
+    protected Enum<?> scanEnum(JSONLexer lexer, char seperator) {
+        throw new JSONException("illegal enum. " + lexer.info());
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -406,15 +428,28 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             String typeName = lexer.stringVal();
                             lexer.nextToken(JSONToken.COMMA);
 
-                            if (type instanceof Class && typeName.equals(((Class<?>) type).getName())) {
+                            if (typeName.equals(beanInfo.typeName)) {
                                 if (lexer.token() == JSONToken.RBRACE) {
                                     lexer.nextToken();
                                     break;
                                 }
                                 continue;
                             }
+                            
+                            ParserConfig config = parser.getConfig();
+                            if (beanInfo.jsonType != null) {
+                                for (Class<?> seeAlsoClass : beanInfo.jsonType.seeAlso()) {
+                                    ObjectDeserializer seeAlsoDeser = config.getDeserializer(seeAlsoClass);
+                                    if (seeAlsoDeser instanceof JavaBeanDeserializer) {
+                                        JavaBeanDeserializer seeAlsoJavaBeanDeser = (JavaBeanDeserializer) seeAlsoDeser;
+                                        if (seeAlsoJavaBeanDeser.beanInfo.typeName.equals(typeName)) {
+                                            return (T) seeAlsoJavaBeanDeser.deserialze(parser, seeAlsoClass, fieldName);
+                                        }
+                                    }
+                                }
+                            }
 
-                            Class<?> userType = TypeUtils.loadClass(typeName, parser.getConfig().getDefaultClassLoader());
+                            Class<?> userType = TypeUtils.loadClass(typeName, config.getDefaultClassLoader());
                             ObjectDeserializer deserizer = parser.getConfig().getDeserializer(userType);
                             return (T) deserizer.deserialze(parser, userType, fieldName);
                         } else {

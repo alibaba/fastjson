@@ -428,15 +428,28 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             String typeName = lexer.stringVal();
                             lexer.nextToken(JSONToken.COMMA);
 
-                            if (type instanceof Class && typeName.equals(((Class<?>) type).getName())) {
+                            if (typeName.equals(beanInfo.typeName)) {
                                 if (lexer.token() == JSONToken.RBRACE) {
                                     lexer.nextToken();
                                     break;
                                 }
                                 continue;
                             }
+                            
+                            ParserConfig config = parser.getConfig();
+                            if (beanInfo.jsonType != null) {
+                                for (Class<?> seeAlsoClass : beanInfo.jsonType.seeAlso()) {
+                                    ObjectDeserializer seeAlsoDeser = config.getDeserializer(seeAlsoClass);
+                                    if (seeAlsoDeser instanceof JavaBeanDeserializer) {
+                                        JavaBeanDeserializer seeAlsoJavaBeanDeser = (JavaBeanDeserializer) seeAlsoDeser;
+                                        if (seeAlsoJavaBeanDeser.beanInfo.typeName.equals(typeName)) {
+                                            return (T) seeAlsoJavaBeanDeser.deserialze(parser, seeAlsoClass, fieldName);
+                                        }
+                                    }
+                                }
+                            }
 
-                            Class<?> userType = TypeUtils.loadClass(typeName, parser.getConfig().getDefaultClassLoader());
+                            Class<?> userType = TypeUtils.loadClass(typeName, config.getDefaultClassLoader());
                             ObjectDeserializer deserizer = parser.getConfig().getDeserializer(userType);
                             return (T) deserizer.deserialze(parser, userType, fieldName);
                         } else {

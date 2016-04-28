@@ -162,34 +162,40 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     int ordinal = lexer.scanInt(seperator);
                     
                     EnumDeserializer enumDeser = (EnumDeserializer) ((DefaultFieldDeserializer) fieldDeser).getFieldValueDeserilizer(parser.getConfig());
-                    value = enumDeser.values[ordinal];
+                    value = enumDeser.valueOf(ordinal);
                 } else {
-                    throw new JSONException("illegal enum." + lexer.info());
+                    value = scanEnum(lexer, seperator);
                 }
                 
                 fieldDeser.setValue(object, value);
             } else if (fieldClass == boolean.class) {
                 boolean value = lexer.scanBoolean(seperator);
                 fieldDeser.setValue(object, value);
+            } else if (fieldClass == java.util.Date.class && lexer.getCurrent() == '1') {
+                long longValue = lexer.scanLong(seperator);
+                fieldDeser.setValue(object, new java.util.Date(longValue));
             } else {
                 lexer.nextToken(JSONToken.LBRACKET);
                 Object value = parser.parseObject(fieldDeser.fieldInfo.fieldType);
                 fieldDeser.setValue(object, value);
 
-                if (seperator == ']') {
-                    if (lexer.token() != JSONToken.RBRACKET) {
-                        throw new JSONException("syntax error");
-                    }
-                } else if (seperator == ',') {
-                    if (lexer.token() != JSONToken.COMMA) {
-                        throw new JSONException("syntax error");
-                    }
-                }
+                check(lexer, seperator == ']' ? JSONToken.RBRACKET : JSONToken.COMMA);
+                // parser.accept(seperator == ']' ? JSONToken.RBRACKET : JSONToken.COMMA);
             }
         }
         lexer.nextToken(JSONToken.COMMA);
 
         return (T) object;
+    }
+
+    protected void check(final JSONLexer lexer, int token) {
+        if (lexer.token() != token) {
+            throw new JSONException("syntax error");
+        }
+    }
+    
+    protected Enum<?> scanEnum(JSONLexer lexer, char seperator) {
+        throw new JSONException("illegal enum. " + lexer.info());
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })

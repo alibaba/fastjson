@@ -164,7 +164,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     if (lexer.token() != JSONToken.RBRACKET) {
                         throw new JSONException("syntax error");
                     }
-                    lexer.nextToken(JSONToken.COMMA);
                 } else if (seperator == ',') {
                     if (lexer.token() != JSONToken.COMMA) {
                         throw new JSONException("syntax error");

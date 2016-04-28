@@ -18,6 +18,14 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
     public DefaultFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo){
         super(clazz, fieldInfo);
     }
+    
+    public ObjectDeserializer getFieldValueDeserilizer(ParserConfig config) {
+        if (fieldValueDeserilizer == null) {
+            fieldValueDeserilizer = config.getDeserializer(fieldInfo.fieldClass, fieldInfo.fieldType);
+        }
+
+        return fieldValueDeserilizer;
+    }
 
     @Override
     public void parseField(DefaultJSONParser parser, Object object, Type objectType, Map<String, Object> fieldValues) {

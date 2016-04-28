@@ -11,7 +11,7 @@ import com.alibaba.fastjson.parser.JSONToken;
 public class EnumDeserializer implements ObjectDeserializer {
 
     private final Class<?> enumClass;
-    private final Enum[]   values;
+    protected final Enum[]   values;
 
     public EnumDeserializer(Class<?> enumClass){
         this.enumClass = enumClass;

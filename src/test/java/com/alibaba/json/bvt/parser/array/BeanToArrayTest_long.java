@@ -35,7 +35,7 @@ public class BeanToArrayTest_long extends TestCase {
     public void test_long_error_2() throws Exception {
         Exception error = null;
         try {
-            JSON.parseObject("[-1,", Model.class, Feature.SupportArrayToBean);
+            JSON.parseObject("[-1:", Model.class, Feature.SupportArrayToBean);
         } catch (JSONException ex) {
             error = ex;
         }

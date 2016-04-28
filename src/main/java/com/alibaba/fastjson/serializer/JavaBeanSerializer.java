@@ -43,6 +43,10 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
     protected int                     features    = 0;
 
     protected final Class<?>          beanType;
+    
+    protected String                  typeName;
+    
+    protected final JSONType          jsonType;
 
     public JavaBeanSerializer(Class<?> beanType){
         this(beanType, (Map<String, String>) null);
@@ -69,7 +73,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         this.features = features;
         this.beanType = beanType;
 
-        JSONType jsonType = beanType.getAnnotation(JSONType.class);
+        jsonType = beanType.getAnnotation(JSONType.class);
 
         if (jsonType != null) {
             features = SerializerFeature.of(jsonType.serialzeFeatures());
@@ -90,6 +94,10 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
 
         if (jsonType != null) {
             orders = jsonType.orders();
+            String typeName = jsonType.typeName();
+            if (typeName.length() != 0) {
+                this.typeName = typeName;
+            }
         }
 
         if (orders != null && orders.length != 0) {
@@ -161,7 +169,10 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 Class<?> objClass = object.getClass();
                 if (objClass != fieldType) {
                     out.writeFieldName(JSON.DEFAULT_TYPE_KEY, false);
-                    serializer.write(object.getClass());
+                    if (typeName == null) {
+                        typeName = object.getClass().getName();
+                    }
+                    serializer.write(typeName);
                     commaFlag = true;
                 }
             }

@@ -56,11 +56,13 @@ public class ASMSerializerFactory implements Opcodes {
         private final String className;
         private final int beanSerializeFeatures;
         private final boolean writeDirect;
+        private final JSONType jsonType;
         
         private Map<String, Integer> variants       = new HashMap<String, Integer>();
         private int                  variantIndex   = 9;
 
-        public Context(String className, int beanSerializeFeatures, boolean writeDirect){
+        public Context(JSONType jsonType, String className, int beanSerializeFeatures, boolean writeDirect){
+            this.jsonType = jsonType;
             this.className = className;
             this.beanSerializeFeatures = beanSerializeFeatures;
             this.writeDirect = writeDirect;
@@ -214,7 +216,7 @@ public class ASMSerializerFactory implements Opcodes {
                 methodName = "write1";
             }
             
-            Context context = new Context(classNameType, beanSerializeFeatures, writeDirect);
+            Context context = new Context(jsonType, classNameType, beanSerializeFeatures, writeDirect);
 
             mw = new MethodWriter(cw, //
                                   ACC_PUBLIC, //
@@ -287,7 +289,7 @@ public class ASMSerializerFactory implements Opcodes {
 
         if (!nativeSorted) {
             // sortField support
-            Context context = new Context(classNameType, beanSerializeFeatures, false);
+            Context context = new Context(jsonType, classNameType, beanSerializeFeatures, false);
 
             mw = new MethodWriter(cw, ACC_PUBLIC,
                                 "writeUnsorted",
@@ -312,7 +314,7 @@ public class ASMSerializerFactory implements Opcodes {
 
         // writeAsArray
         {
-            Context context = new Context(classNameType, beanSerializeFeatures, false);
+            Context context = new Context(jsonType, classNameType, beanSerializeFeatures, false);
 
             mw = new MethodWriter(cw, ACC_PUBLIC,
                                 "writeAsArray",
@@ -598,7 +600,15 @@ public class ASMSerializerFactory implements Opcodes {
 
             mw.visitLabel(writeClass_);
             mw.visitVarInsn(ALOAD, context.var("out"));
-            mw.visitLdcInsn("{\"" + JSON.DEFAULT_TYPE_KEY + "\":\"" + clazz.getName() + "\"");
+            
+            String typeName = null;
+            if (context.jsonType != null) {
+                typeName = context.jsonType.typeName();
+            }
+            if (typeName == null || typeName.length() == 0) {
+                typeName = clazz.getName();
+            }
+            mw.visitLdcInsn("{\"" + JSON.DEFAULT_TYPE_KEY + "\":\"" + typeName + "\"");
             mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(Ljava/lang/String;)V");
             mw.visitVarInsn(BIPUSH, ',');
             mw.visitJumpInsn(GOTO, end_);

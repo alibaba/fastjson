@@ -7,6 +7,7 @@
  */
 package com.alibaba.json.bvt.support.jaxrs.mock.testcase;
 
+import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -34,13 +35,12 @@ import com.alibaba.fastjson.JSONObject;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration({ "classpath*:/com/alibaba/json/bvt/support/jaxrs/mock/resource/applicationContext-rest.xml" })
+@ContextConfiguration(classes = Application.class)
 public class FastJsonProviderTest {
 
 	public final String REST_SERVICE_URL = "http://localhost:8088/rest";
 
-	@Before
-	public void setup() throws Exception {
+	static {
 
 		Server server = new Server(8088);
 
@@ -54,8 +54,12 @@ public class FastJsonProviderTest {
 				"contextConfigLocation",
 				"classpath*:/com/alibaba/json/bvt/support/jaxrs/mock/resource/applicationContext-rest.xml");
 		server.setHandler(context);
-		server.start();
-//		server.join();
+		try {
+			server.start();
+//			server.join();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Test

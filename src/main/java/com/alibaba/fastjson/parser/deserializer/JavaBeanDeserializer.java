@@ -171,6 +171,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             } else if (fieldClass == boolean.class) {
                 boolean value = lexer.scanBoolean(seperator);
                 fieldDeser.setValue(object, value);
+            } else if (fieldClass == float.class) {
+                float value = lexer.scanFloat(seperator);
+                fieldDeser.setValue(object, value);
+            } else if (fieldClass == double.class) {
+                double value = lexer.scanDouble(seperator);
+                fieldDeser.setValue(object, value);
             } else if (fieldClass == java.util.Date.class && lexer.getCurrent() == '1') {
                 long longValue = lexer.scanLong(seperator);
                 fieldDeser.setValue(object, new java.util.Date(longValue));

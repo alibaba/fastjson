@@ -1,13 +1,12 @@
 package com.alibaba.json.bvt.writeAsArray;
 
-import junit.framework.TestCase;
-
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.alibaba.json.bvt.writeAsArray.WriteAsArray_enum_public.VO;
+
+import junit.framework.TestCase;
 
 public class WriteAsArray_Object_2_public extends TestCase {
 

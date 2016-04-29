@@ -156,7 +156,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 char ch = lexer.getCurrent();
                 
                 Object value;
-                if (ch == '\"') {
+                if (ch == '\"' || ch == 'n') {
                     value = lexer.scanEnum(fieldClass, parser.getSymbolTable(), seperator);
                 } else if (ch >= '0' && ch <= '9') {
                     int ordinal = lexer.scanInt(seperator);

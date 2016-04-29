@@ -1755,9 +1755,14 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                     break;
                 }
             }
-            if (value < 0 || offset > 11) {
-                matchStat = NOT_MATCH;
-                return 0;
+            if (value < 0 //
+                || offset > 11 + 3 + fieldName.length) {
+                if (value != Integer.MIN_VALUE //
+                    || offset != 17 //
+                    || !negative) {
+                    matchStat = NOT_MATCH;
+                    return 0;
+                }
             }
         } else {
             matchStat = NOT_MATCH;

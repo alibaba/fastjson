@@ -17,7 +17,7 @@ import junit.framework.TestCase;
 public class ListStringFieldTest_stream_array extends TestCase {
 
     public void test_list() throws Exception {
-        String text = "[[\"a\",null,\"b\",\"ab\\\\c\"]]";
+        String text = "[[\"a\",null,\"b\",\"ab\\\\c\\\"a\"]]";
 
         JSONReader reader = new JSONReader(new StringReader(text));
         Model model = reader.readObject(Model.class);
@@ -25,7 +25,7 @@ public class ListStringFieldTest_stream_array extends TestCase {
         Assert.assertEquals("a", model.values.get(0));
         Assert.assertEquals(null, model.values.get(1));
         Assert.assertEquals("b", model.values.get(2));
-        Assert.assertEquals("ab\\c", model.values.get(3));
+        Assert.assertEquals("ab\\c\"a", model.values.get(3));
     }
 
     public void test_null() throws Exception {
@@ -49,6 +49,18 @@ public class ListStringFieldTest_stream_array extends TestCase {
         });
         Model model = (Model) map.get("model");
         Assert.assertEquals(0, model.values.size());
+    }
+    
+    public void test_map_empty_2() throws Exception {
+        String text = "{\"model\":[[]],\"model2\":[[]]}";
+        JSONReader reader = new JSONReader(new StringReader(text));
+        Map<String, Model> map = reader.readObject(new TypeReference<Map<String, Model>>() {
+        });
+        Model model = (Model) map.get("model");
+        Assert.assertEquals(0, model.values.size());
+        
+        Model model2 = (Model) map.get("model2");
+        Assert.assertEquals(0, model2.values.size());
     }
 
     public void test_error() throws Exception {

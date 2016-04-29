@@ -183,6 +183,14 @@ public class ASMDeserializerFactory implements Opcodes {
                 Label enumNumIf_ = new Label();
                 Label enumNumErr_ = new Label();
                 Label enumStore_ = new Label();
+                Label enumQuote_ = new Label();
+                
+                mw.visitVarInsn(ALOAD, context.var("lexer"));
+                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "getCurrent", "()C");
+                mw.visitVarInsn(ISTORE, context.var("ch"));
+                mw.visitVarInsn(ILOAD, context.var("ch"));
+                mw.visitLdcInsn((int) 'n');
+                mw.visitJumpInsn(IF_ICMPEQ, enumQuote_);
                 
                 mw.visitVarInsn(ALOAD, context.var("lexer"));
                 mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "getCurrent", "()C");
@@ -191,6 +199,7 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitLdcInsn((int) '\"');
                 mw.visitJumpInsn(IF_ICMPNE, enumNumIf_);
                 
+                mw.visitLabel(enumQuote_);
                 mw.visitVarInsn(ALOAD, context.var("lexer"));
                 mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(desc(fieldClass)));
                 mw.visitVarInsn(ALOAD, 1);

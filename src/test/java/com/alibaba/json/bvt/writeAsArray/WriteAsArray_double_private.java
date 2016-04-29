@@ -9,7 +9,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 
 import junit.framework.TestCase;
 
-public class WriteAsArray_double_public extends TestCase {
+public class WriteAsArray_double_private extends TestCase {
     public void test_0 () throws Exception {
         VO vo = new VO();
         vo.setId(123D);
@@ -53,7 +53,7 @@ public class WriteAsArray_double_public extends TestCase {
         Assert.assertNotNull(error);
     }
     
-    private static class VO {
+    public static class VO {
         private double id;
         private String name;
 

@@ -9,10 +9,10 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 
 import junit.framework.TestCase;
 
-public class WriteAsArray_double_public extends TestCase {
+public class WriteAsArray_float2_public extends TestCase {
     public void test_0 () throws Exception {
         VO vo = new VO();
-        vo.setId(123D);
+        vo.setId(123F);
         vo.setName("wenshao");
         
         String text = JSON.toJSONString(vo, SerializerFeature.BeanToArray);
@@ -53,15 +53,15 @@ public class WriteAsArray_double_public extends TestCase {
         Assert.assertNotNull(error);
     }
     
-    private static class VO {
-        private double id;
+    public static class VO {
+        private float id;
         private String name;
 
-        public double getId() {
+        public float getId() {
             return id;
         }
 
-        public void setId(double id) {
+        public void setId(float id) {
             this.id = id;
         }
 

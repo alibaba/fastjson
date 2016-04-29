@@ -694,29 +694,37 @@ public final class JSONScanner extends JSONLexerBase {
             return stringDefaultValue();
         }
 
-        boolean hasSpecial = false;
         final String strVal;
         {
             int startIndex = index;
-            int endIndex = text.indexOf('"', startIndex);
+            int endIndex = indexOf('"', startIndex);
             if (endIndex == -1) {
                 throw new JSONException("unclosed str");
             }
 
             String stringVal = subString(startIndex, endIndex - startIndex);
-            for (int i = 0; i < stringVal.length(); ++i) {
-                if (stringVal.charAt(i) == '\\') {
-                    hasSpecial = true;
-                    break;
+            if (stringVal.indexOf('\\') != -1) {
+                for (;;) {
+                    int slashCount = 0;
+                    for (int i = endIndex - 1; i >= 0; --i) {
+                        if (charAt(i) == '\\') {
+                            slashCount++;
+                        } else {
+                            break;
+                        }
+                    }
+                    if (slashCount % 2 == 0) {
+                        break;
+                    }
+                    endIndex = indexOf('"', endIndex + 1);
                 }
+
+                int chars_len = endIndex - (bp + fieldName.length + 1);
+                char[] chars = sub_chars( bp + fieldName.length + 1, chars_len);
+
+                stringVal = readString(chars, chars_len);
             }
-
-            if (hasSpecial) {
-                matchStat = NOT_MATCH;
-
-                return stringDefaultValue();
-            }
-
+            
             ch = charAt(endIndex + 1);
             
             if (ch == ',' || ch == '}') {

@@ -865,73 +865,78 @@ public final class JSONScanner extends JSONLexerBase {
 
         char ch = charAt(index++);
 
-        if (ch != '[') {
-            matchStat = NOT_MATCH;
-            return null;
-        }
+        if (ch == '[') {
+            ch = charAt(index++);
 
-        ch = charAt(index++);
-
-        for (;;) {
-            if (ch == '"') {
-                int startIndex = index;
-                int endIndex = indexOf('"', startIndex);
-                if (endIndex == -1) {
-                    throw new JSONException("unclosed str");
-                }
-
-                String stringVal = subString(startIndex, endIndex - startIndex);
-                if (stringVal.indexOf('\\') != -1) {
-                    for (;;) {
-                        int slashCount = 0;
-                        for (int i = endIndex - 1; i >= 0; --i) {
-                            if (charAt(i) == '\\') {
-                                slashCount++;
-                            } else {
-                                break;
-                            }
-                        }
-                        if (slashCount % 2 == 0) {
-                            break;
-                        }
-                        endIndex = indexOf('"', endIndex + 1);
+            for (;;) {
+                if (ch == '"') {
+                    int startIndex = index;
+                    int endIndex = indexOf('"', startIndex);
+                    if (endIndex == -1) {
+                        throw new JSONException("unclosed str");
                     }
 
-                    int chars_len = endIndex - (bp + index);
-                    char[] chars = sub_chars(bp + index, chars_len);
+                    String stringVal = subString(startIndex, endIndex - startIndex);
+                    if (stringVal.indexOf('\\') != -1) {
+                        for (;;) {
+                            int slashCount = 0;
+                            for (int i = endIndex - 1; i >= 0; --i) {
+                                if (charAt(i) == '\\') {
+                                    slashCount++;
+                                } else {
+                                    break;
+                                }
+                            }
+                            if (slashCount % 2 == 0) {
+                                break;
+                            }
+                            endIndex = indexOf('"', endIndex + 1);
+                        }
 
-                    stringVal = readString(chars, chars_len);
+                        int chars_len = endIndex - (bp + index);
+                        char[] chars = sub_chars(bp + index, chars_len);
+
+                        stringVal = readString(chars, chars_len);
+                    }
+
+                    index += (endIndex - (bp + index) + 1);
+                    index = charAt(bp + (index++));
+
+                    list.add(stringVal);
+                } else if (ch == 'n' && charAt(bp + index) == 'u' && charAt(bp + index + 1) == 'l'
+                           && charAt(bp + index + 2) == 'l') {
+                    index += 3;
+                    ch = charAt(bp + (index++));
+                    list.add(null);
+                } else if (ch == ']' && list.size() == 0) {
+                    ch = charAt(index++);
+                    break;
+                } else {
+                    matchStat = NOT_MATCH;
+                    return null;
                 }
 
-                index += (endIndex - (bp + index) + 1);
-                index = charAt(bp + (index++));
+                if (ch == ',') {
+                    ch = charAt(index++);
+                    continue;
+                }
 
-                list.add(stringVal);
-            } else if (ch == 'n' && charAt(bp + index) == 'u' && charAt(bp + index + 1) == 'l' && charAt(bp + index + 2) == 'l') {
-                index += 3;
-                ch = charAt(bp + (index++));
-                list.add(null);
-            } else if (ch == ']' && list.size() == 0) {
-                ch = charAt(bp + (index++));
-                break;
-            } else {
+                if (ch == ']') {
+                    ch = charAt(index++);
+                    while (isWhitespace(ch)) {
+                        ch = charAt(index++);
+                    }
+                    break;
+                }
+
                 matchStat = NOT_MATCH;
                 return null;
             }
-
-            if (ch == ',') {
-                ch = charAt(index++);
-                continue;
-            }
-
-            if (ch == ']') {
-                ch = charAt(index++);
-                while (isWhitespace(ch)) {
-                    ch = charAt(index++);    
-                }
-                break;
-            }
-
+        } else if (text.startsWith("ull", index)) {
+            index += 3;
+            ch = charAt(index++);
+            list = null;
+        } else {
             matchStat = NOT_MATCH;
             return null;
         }

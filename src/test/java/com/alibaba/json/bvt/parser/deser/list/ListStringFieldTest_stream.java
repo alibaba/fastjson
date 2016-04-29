@@ -15,7 +15,7 @@ import junit.framework.TestCase;
 public class ListStringFieldTest_stream extends TestCase {
 
     public void test_list() throws Exception {
-        String text = "{\"values\":[\"a\",null,\"b\",\"ab\\\\c\"]}";
+        String text = "{\"values\":[\"a\",null,\"b\",\"ab\\\\c\\\"\"]}";
 
         JSONReader reader = new JSONReader(new StringReader(text));
         Model model = reader.readObject(Model.class);
@@ -23,7 +23,7 @@ public class ListStringFieldTest_stream extends TestCase {
         Assert.assertEquals("a", model.values.get(0));
         Assert.assertEquals(null, model.values.get(1));
         Assert.assertEquals("b", model.values.get(2));
-        Assert.assertEquals("ab\\c", model.values.get(3));
+        Assert.assertEquals("ab\\c\"", model.values.get(3));
     }
 
     public void test_null() throws Exception {
@@ -112,6 +112,85 @@ public class ListStringFieldTest_stream extends TestCase {
         Assert.assertNotNull(error);
     }
     
+    public void test_error_4() throws Exception {
+        String text = "{\"model\":{\"values\":[\"aaa]}[";
+        JSONReader reader = new JSONReader(new StringReader(text));
+        
+
+        Exception error = null;
+        try {
+            reader.readObject(new TypeReference<Map<String, Model>>() {
+            });
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_error_n() throws Exception {
+        String text = "{\"values\":[n";
+        JSONReader reader = new JSONReader(new StringReader(text));
+
+        Exception error = null;
+        try {
+            reader.readObject(Model.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_error_nu() throws Exception {
+        String text = "{\"values\":[nu";
+        JSONReader reader = new JSONReader(new StringReader(text));
+
+        Exception error = null;
+        try {
+            reader.readObject(Model.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_error_nul() throws Exception {
+        String text = "{\"values\":[nul";
+        JSONReader reader = new JSONReader(new StringReader(text));
+
+        Exception error = null;
+        try {
+            reader.readObject(Model.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_error_null() throws Exception {
+        String text = "{\"values\":[null";
+        JSONReader reader = new JSONReader(new StringReader(text));
+
+        Exception error = null;
+        try {
+            reader.readObject(Model.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_error_rbacket() throws Exception {
+        String text = "{\"values\":[null,]";
+        JSONReader reader = new JSONReader(new StringReader(text));
+
+        Exception error = null;
+        try {
+            reader.readObject(Model.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
 
     public static class Model {
 

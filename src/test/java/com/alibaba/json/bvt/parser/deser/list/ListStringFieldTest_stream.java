@@ -112,20 +112,6 @@ public class ListStringFieldTest_stream extends TestCase {
         Assert.assertNotNull(error);
     }
     
-    public void test_error_4() throws Exception {
-        String text = "{\"model\":{\"values\":[]}}";
-        JSONReader reader = new JSONReader(new StringReader(text));
-        
-
-        Exception error = null;
-        try {
-            reader.readObject(new TypeReference<Map<String, Model>>() {
-            });
-        } catch (JSONException ex) {
-            error = ex;
-        }
-        Assert.assertNotNull(error);
-    }
 
     public static class Model {
 

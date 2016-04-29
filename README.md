@@ -1,7 +1,7 @@
 # fastjson
 
 [![Build Status](https://travis-ci.org/alibaba/fastjson.svg?branch=android)](https://travis-ci.org/alibaba/fastjson)
-[![Coverage Status](https://img.shields.io/codecov/c/github/alibaba/fastjson/android.svg)](https://codecov.io/github/alibaba/fastjson?branch=android&view=all#sort=coverage&dir=asc)  
+[![Codecov](https://codecov.io/gh/alibaba/fastjson/branch/android/graph/badge.svg)](https://codecov.io/gh/alibaba/fastjson/branch/android)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.alibaba/fastjson/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.alibaba/fastjson/)
 [![GitHub release](https://img.shields.io/github/release/alibaba/fastjson.svg)](https://github.com/alibaba/fastjson/releases)
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jaxws="http://cxf.apache.org/jaxws" xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+	xsi:schemaLocation=" http://www.springframework.org/schema/beans  
+						http://www.springframework.org/schema/beans/spring-beans.xsd 
+						http://www.springframework.org/schema/context 
+						http://www.springframework.org/schema/context/spring-context.xsd 
+						http://cxf.apache.org/jaxws 
+						http://cxf.apache.org/schemas/jaxws.xsd 
+						http://cxf.apache.org/jaxrs
+	     				http://cxf.apache.org/schemas/jaxrs.xsd">
+
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+
+	<!-- Component Scan -->
+	<context:component-scan base-package="com.alibaba.json.bvt.support.jaxrs.mock.service" />
+
+	<bean id="inMessageInterceptor" class="org.apache.cxf.interceptor.LoggingInInterceptor" />
+	<bean id="outMessageInterceptor" class="org.apache.cxf.interceptor.LoggingOutInterceptor" />
+
+	<jaxrs:server id="userServer" address="/">
+		<jaxrs:inInterceptors>
+			<ref bean="inMessageInterceptor" />
+		</jaxrs:inInterceptors>
+		<jaxrs:outInterceptors>
+			<ref bean="outMessageInterceptor" />
+		</jaxrs:outInterceptors>
+		<jaxrs:serviceBeans>
+			<ref bean="fastJsonRestful" />
+		</jaxrs:serviceBeans>
+		<jaxrs:providers>
+			<bean class="com.alibaba.fastjson.support.jaxrs.FastJsonProvider" />
+		</jaxrs:providers>
+		<jaxrs:extensionMappings>
+			<entry key="json" value="application/json" />
+		</jaxrs:extensionMappings>
+		<jaxrs:languageMappings>
+			<entry key="en" value="en-gb" />
+		</jaxrs:languageMappings>
+	</jaxrs:server>
+
+</beans>

@@ -51,7 +51,7 @@ public class FastJsonProviderTest {
 		context.addEventListener(new ContextLoaderListener());
 		context.setInitParameter(
 				"contextConfigLocation",
-				"classpath*:\\com\\alibaba\\json\\bvt\\support\\jaxrs\\mock\\resource\\applicationContext-rest.xml");
+				"classpath*:/config/applicationContext-rest.xml");
 		server.setHandler(context);
 		try {
 			server.start();

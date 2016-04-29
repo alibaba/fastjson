@@ -9,7 +9,9 @@ import static com.alibaba.fastjson.JSONStreamContext.StartObject;
 import java.io.Closeable;
 import java.io.Reader;
 import java.lang.reflect.Type;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
@@ -35,9 +37,25 @@ public class JSONReader implements Closeable {
     public JSONReader(DefaultJSONParser parser){
         this.parser = parser;
     }
+    
+    public void setTimzeZone(TimeZone timezone) {
+        this.parser.lexer.setTimeZone(timezone);
+    }
+    
+    public void setLocale(Locale locale) {
+        this.parser.lexer.setLocale(locale);
+    }
 
     public void config(Feature feature, boolean state) {
         this.parser.config(feature, state);
+    }
+    
+    public Locale getLocal() {
+        return this.parser.lexer.getLocale();
+    }
+    
+    public TimeZone getTimzeZone() {
+        return this.parser.lexer.getTimeZone();
     }
 
     public void startObject() {

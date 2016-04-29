@@ -1553,7 +1553,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 chLocal = charAt(bp + (offset++));
 
                 list.add(stringVal);
-            } else if (chLocal == 'n' && charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
+            } else if (chLocal == 'n' // 
+                    && charAt(bp + offset) == 'u' // 
+                    && charAt(bp + offset + 1) == 'l' //
+                    && charAt(bp + offset + 2) == 'l') {
                 offset += 3;
                 chLocal = charAt(bp + (offset++));
                 list.add(null);

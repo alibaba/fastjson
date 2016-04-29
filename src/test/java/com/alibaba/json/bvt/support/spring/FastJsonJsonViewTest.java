@@ -25,6 +25,9 @@ public class FastJsonJsonViewTest extends TestCase {
         view.setCharset(Charset.forName("GBK"));
         Assert.assertEquals(Charset.forName("GBK"), view.getCharset());
 
+        Assert.assertNull(view.getDateFormat());
+        view.setDateFormat("yyyyMMdd");
+		
         Assert.assertNotNull(view.getFeatures());
         Assert.assertEquals(0, view.getFeatures().length);
 
@@ -76,9 +79,10 @@ public class FastJsonJsonViewTest extends TestCase {
         view.render(model, request, response);
         
         view.setExtractValueFromSingleKeyModel(true);
-        view.render(Collections.singletonMap("abc", "cde"), request, response);
+        Assert.assertEquals(true, view.isExtractValueFromSingleKeyModel());
         
         view.setDisableCaching(true);
+        view.render(Collections.singletonMap("abc", "cde"), request, response);
 
     }
 }

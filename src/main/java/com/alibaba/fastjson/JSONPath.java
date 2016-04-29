@@ -191,7 +191,7 @@ public class JSONPath implements JSONAware {
             }
             newResult = descArray;
         } else {
-            throw new UnsupportedOperationException();
+            throw new JSONException("unsupported array put operation. " + resultClass);
         }
 
         Segement lastSegement = segments[segments.length - 1];
@@ -1600,7 +1600,8 @@ public class JSONPath implements JSONAware {
             return true;
         }
 
-        if (currentObject.getClass().isArray()) {
+        Class<?> clazz = currentObject.getClass();
+        if (clazz.isArray()) {
             int arrayLenth = Array.getLength(currentObject);
 
             if (index >= 0) {
@@ -1616,7 +1617,7 @@ public class JSONPath implements JSONAware {
             return true;
         }
 
-        throw new UnsupportedOperationException();
+        throw new JSONPathException("unsupported set operation." + clazz);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -1851,7 +1852,7 @@ public class JSONPath implements JSONAware {
         try {
             return beanSerializer.getSize(currentObject);
         } catch (Exception e) {
-            throw new JSONException("evalSize error : " + path, e);
+            throw new JSONPathException("evalSize error : " + path, e);
         }
     }
 

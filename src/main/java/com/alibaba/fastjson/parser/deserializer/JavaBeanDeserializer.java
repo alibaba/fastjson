@@ -156,7 +156,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 char ch = lexer.getCurrent();
                 
                 Object value;
-                if (ch == '\"') {
+                if (ch == '\"' || ch == 'n') {
                     value = lexer.scanEnum(fieldClass, parser.getSymbolTable(), seperator);
                 } else if (ch >= '0' && ch <= '9') {
                     int ordinal = lexer.scanInt(seperator);
@@ -170,6 +170,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 fieldDeser.setValue(object, value);
             } else if (fieldClass == boolean.class) {
                 boolean value = lexer.scanBoolean(seperator);
+                fieldDeser.setValue(object, value);
+            } else if (fieldClass == float.class) {
+                float value = lexer.scanFloat(seperator);
+                fieldDeser.setValue(object, value);
+            } else if (fieldClass == double.class) {
+                double value = lexer.scanDouble(seperator);
                 fieldDeser.setValue(object, value);
             } else if (fieldClass == java.util.Date.class && lexer.getCurrent() == '1') {
                 long longValue = lexer.scanLong(seperator);

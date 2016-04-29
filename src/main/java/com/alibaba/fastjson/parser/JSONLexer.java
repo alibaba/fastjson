@@ -78,10 +78,10 @@ public interface JSONLexer {
 
     float floatValue();
 
-    long scanLong(char expectNextChar);
-
     int scanInt(char expectNext);
-    
+    long scanLong(char expectNextChar);
+    float scanFloat(char seperator);
+    double scanDouble(char seperator);
     boolean scanBoolean(char expectNext);
 
     String scanString(char expectNextChar);

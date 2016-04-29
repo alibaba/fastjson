@@ -19,7 +19,6 @@ import java.io.CharArrayReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.lang.ref.SoftReference;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
@@ -32,13 +31,11 @@ import com.alibaba.fastjson.util.IOUtils;
  */
 public final class JSONReaderScanner extends JSONLexerBase {
 
-    public static int                                       BUF_INIT_LEN  = 8192;
-    
-    private final static ThreadLocal<SoftReference<char[]>> BUF_REF_LOCAL = new ThreadLocal<SoftReference<char[]>>();
+    private final static ThreadLocal<char[]> BUF_LOCAL = new ThreadLocal<char[]>();
 
-    private Reader                                          reader;
-    private char[]                                          buf;
-    private int                                             bufLength;
+    private Reader                           reader;
+    private char[]                           buf;
+    private int                              bufLength;
 
     public JSONReaderScanner(String input){
         this(input, JSON.DEFAULT_PARSER_FEATURE);
@@ -60,14 +57,13 @@ public final class JSONReaderScanner extends JSONLexerBase {
         super(features);
         this.reader = reader;
 
-        SoftReference<char[]> bufRef = BUF_REF_LOCAL.get();
-        if (bufRef != null) {
-            this.buf = bufRef.get();
-            BUF_REF_LOCAL.set(null);
+        buf = BUF_LOCAL.get();
+        if (buf != null) {
+            BUF_LOCAL.set(null);
         }
 
-        if (this.buf == null) {
-            this.buf = new char[BUF_INIT_LEN];
+        if (buf == null) {
+            buf = new char[1024 * 8];
         }
 
         try {
@@ -79,7 +75,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
         bp = -1;
 
         next();
-        if (ch == 65279) {
+        if (ch == 65279) { // utf8 bom
             next();
         }
     }
@@ -98,9 +94,9 @@ public final class JSONReaderScanner extends JSONLexerBase {
             }
 
             if (bp == 0) {
-                char[] buf = new char[(this.buf.length * 3) /2];
+                char[] buf = new char[(this.buf.length * 3) / 2];
                 System.arraycopy(this.buf, bp, buf, 0, bufLength);
-                
+
                 int rest = buf.length - bufLength;
                 try {
                     int len = reader.read(buf, bufLength, rest);
@@ -114,21 +110,21 @@ public final class JSONReaderScanner extends JSONLexerBase {
                 if (rest > 0) {
                     System.arraycopy(buf, bp, buf, 0, rest);
                 }
-    
+
                 try {
                     bufLength = reader.read(buf, rest, buf.length - rest);
                 } catch (IOException e) {
                     throw new JSONException(e.getMessage(), e);
                 }
-    
+
                 if (bufLength == 0) {
                     throw new JSONException("illegal state, textLength is zero");
                 }
-    
+
                 if (bufLength == -1) {
                     return EOI;
                 }
-    
+
                 bufLength += rest;
                 index -= bp;
                 np -= bp;
@@ -156,8 +152,6 @@ public final class JSONReaderScanner extends JSONLexerBase {
     public final String addSymbol(int offset, int len, int hash, final SymbolTable symbolTable) {
         return symbolTable.addSymbol(buf, offset, len, hash);
     }
-
-
 
     public final char next() {
         int index = ++bp;
@@ -192,7 +186,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
             } catch (IOException e) {
                 throw new JSONException(e.getMessage(), e);
             }
-            
+
             if (bufLength == 0) {
                 throw new JSONException("illegal stat, textLength is zero");
             }
@@ -256,6 +250,19 @@ public final class JSONReaderScanner extends JSONLexerBase {
         // return text.substring(offset, offset + count);
     }
 
+    public final char[] sub_chars(int offset, int count) {
+        if (count < 0) {
+            throw new StringIndexOutOfBoundsException(count);
+        }
+        
+        if (offset == 0) {
+            return buf;
+        }
+        char[] chars = new char[count];
+        System.arraycopy(buf, offset, chars, 0, count);
+        return chars;
+    }
+
     public final String numberString() {
         int offset = np;
         if (offset == -1) {
@@ -275,7 +282,9 @@ public final class JSONReaderScanner extends JSONLexerBase {
     public void close() {
         super.close();
 
-        BUF_REF_LOCAL.set(new SoftReference<char[]>(buf));
+        if (buf.length <= 1024 * 32) {
+            BUF_LOCAL.set(buf);
+        }
         this.buf = null;
 
         IOUtils.close(reader);

@@ -12,6 +12,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonJsonView;
 
 public class FastJsonJsonViewTest extends TestCase {
@@ -54,5 +55,30 @@ public class FastJsonJsonViewTest extends TestCase {
         view.render(Collections.singletonMap("abc", "cde"), request, response);
         
         view.setDisableCaching(true);
+    }
+ 
+    public void test_1() throws Exception {
+    	
+        FastJsonJsonView view = new FastJsonJsonView();
+        
+        Assert.assertNotNull(view.getFastJsonConfig());
+        view.setFastJsonConfig(new FastJsonConfig());
+        
+        Map<String, Object> model = new HashMap<String, Object>();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        view.render(model, request, response);
+        
+        view.setRenderedAttributes(null);
+        view.render(model, request, response);
+        
+        view.setUpdateContentLength(true);
+        view.render(model, request, response);
+        
+        view.setExtractValueFromSingleKeyModel(true);
+        view.render(Collections.singletonMap("abc", "cde"), request, response);
+        
+        view.setDisableCaching(true);
+
     }
 }

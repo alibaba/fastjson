@@ -10,6 +10,9 @@ import junit.framework.TestCase;
 
 import org.junit.Assert;
 
+import com.alibaba.fastjson.serializer.SerializeFilter;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.serializer.ValueFilter;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.jaxrs.FastJsonProvider;
 
@@ -21,7 +24,24 @@ public class FastJsonProviderTest extends TestCase {
 		FastJsonProvider provider1 = new FastJsonProvider("UTF-8");
 		Assert.assertEquals("UTF-8", provider1.getCharset().name());
 		
-		FastJsonProvider provider = new FastJsonProvider(new Class[0]);
+		FastJsonProvider provider2 = new FastJsonProvider(new Class[0]);
+
+		provider2.setCharset(Charset.forName("GBK"));
+		Assert.assertEquals("GBK", provider2.getCharset().name());
+		
+		Assert.assertNull(provider2.getDateFormat());
+		provider2.setDateFormat("yyyyMMdd");
+		
+		provider2.setFeatures(SerializerFeature.IgnoreErrorGetter);
+		Assert.assertEquals(1, provider2.getFeatures().length);
+		Assert.assertEquals(SerializerFeature.IgnoreErrorGetter,
+				provider2.getFeatures()[0]);
+		
+		provider2.setFilters(serializeFilter);
+		Assert.assertEquals(1, provider2.getFilters().length);
+		Assert.assertEquals(serializeFilter, provider2.getFilters()[0]);
+		
+		FastJsonProvider provider = new FastJsonProvider();
 
 		Assert.assertNotNull(provider.getFastJsonConfig());
 		provider.setFastJsonConfig(new FastJsonConfig());
@@ -42,6 +62,19 @@ public class FastJsonProviderTest extends TestCase {
 		provider.getSize(vo, VO.class, VO.class, null, MediaType.APPLICATION_JSON_TYPE);
 		
 	}
+	
+	private SerializeFilter serializeFilter = new ValueFilter() {
+		@Override
+		public Object process(Object object, String name, Object value) {
+			if (value == null) {
+				return "";
+			}
+			if (value instanceof Number) {
+				return String.valueOf(value);
+			}
+			return value;
+		}
+	};
 	
 	public static class VO {
 

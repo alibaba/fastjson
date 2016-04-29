@@ -35,10 +35,10 @@ public class FastJsonHttpMessageConverter4Test extends TestCase {
 
 		converter.canWrite(VO.class, VO.class, MediaType.APPLICATION_JSON_UTF8);
 		
-		Method method = FastJsonHttpMessageConverter4.class.getDeclaredMethod(
+		Method method1 = FastJsonHttpMessageConverter4.class.getDeclaredMethod(
 				"supports", Class.class);
-		method.setAccessible(true);
-		method.invoke(converter, int.class);
+		method1.setAccessible(true);
+		method1.invoke(converter, int.class);
 		
 		HttpInputMessage input = new HttpInputMessage() {
 
@@ -72,6 +72,10 @@ public class FastJsonHttpMessageConverter4Test extends TestCase {
 		byte[] bytes = byteOut.toByteArray();
 		Assert.assertEquals("{\"id\":123}", new String(bytes, "UTF-8"));
 		
+		Method method2 = FastJsonHttpMessageConverter4.class.getDeclaredMethod(
+				"readInternal", Class.class, HttpInputMessage.class);
+		method2.setAccessible(true);
+		method2.invoke(converter, VO.class, input);
 	}
 	
 	public static class VO {

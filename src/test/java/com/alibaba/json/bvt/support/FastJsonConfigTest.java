@@ -55,6 +55,7 @@ public class FastJsonConfigTest extends TestCase {
 		Assert.assertEquals(1, config.getClassSerializeFilters().size());
 		Assert.assertEquals(classSerializeFilter,
 				config.getClassSerializeFilters());
+		config.setClassSerializeFilters(null);
 	}
 
 	private Map<Class<?>, SerializeFilter> classSerializeFilter = new HashMap<Class<?>, SerializeFilter>();

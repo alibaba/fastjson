@@ -66,6 +66,7 @@ import java.util.regex.Pattern;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPath;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.deserializer.ASMDeserializerFactory;
@@ -240,6 +241,7 @@ public class ParserConfig {
         derializers.put(URL.class, MiscCodec.instance);
         derializers.put(Pattern.class, MiscCodec.instance);
         derializers.put(Charset.class, MiscCodec.instance);
+        derializers.put(JSONPath.class, MiscCodec.instance);
         derializers.put(Number.class, NumberDeserializer.instance);
         derializers.put(AtomicIntegerArray.class, AtomicCodec.instance);
         derializers.put(AtomicLongArray.class, AtomicCodec.instance);

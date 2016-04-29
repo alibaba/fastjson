@@ -45,6 +45,5 @@ public class JSONReaderTest_error extends TestCase {
             }
             Assert.assertNotNull(error);
         }
-        reader.close();
     }
 }

@@ -1659,31 +1659,45 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 offset += 3;
                 chLocal = charAt(bp + (offset++));
                 list.add(null);
+            } else if (chLocal == ']' && list.size() == 0) {
+                chLocal = charAt(bp + (offset++));
+                break;
             } else if (chLocal != '"') {
                 matchStat = NOT_MATCH;
                 return null;
             } else {
-
-                String strVal;
-                // int start = index;
-                int startOffset = offset;
-                for (;;) {
-                    chLocal = charAt(bp + (offset++));
-                    if (chLocal == '\"') {
-                        int start = bp + startOffset;
-                        int len = bp + offset - start - 1;
-                        strVal = subString(start, len);
-                        list.add(strVal);
-
-                        chLocal = charAt(bp + (offset++));
-                        break;
-                    }
-
-                    if (chLocal == '\\') {
-                        matchStat = NOT_MATCH;
-                        return null;
-                    }
+                int startIndex = bp + offset;
+                int endIndex = indexOf('"', startIndex);
+                if (endIndex == -1) {
+                    throw new JSONException("unclosed str");
                 }
+
+                String stringVal = subString(bp + offset, endIndex - startIndex);
+                if (stringVal.indexOf('\\') != -1) {
+                    for (;;) {
+                        int slashCount = 0;
+                        for (int i = endIndex - 1; i >= 0; --i) {
+                            if (charAt(i) == '\\') {
+                                slashCount++;
+                            } else {
+                                break;
+                            }
+                        }
+                        if (slashCount % 2 == 0) {
+                            break;
+                        }
+                        endIndex = indexOf('"', endIndex + 1);
+                    }
+
+                    int chars_len = endIndex - startIndex;
+                    char[] chars = sub_chars(bp + offset, chars_len);
+
+                    stringVal = readString(chars, chars_len);
+                }
+
+                offset += (endIndex - (bp + offset) + 1);
+                chLocal = charAt(bp + (offset++));
+                list.add(stringVal);
             }
 
             if (chLocal == ',') {

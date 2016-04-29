@@ -160,7 +160,7 @@ public class JSONReader implements Closeable {
     }
 
     public void close() {
-        IOUtils.close(parser);
+        parser.close();
     }
 
     public Integer readInteger() {

@@ -14,7 +14,6 @@ public class JSONReaderTest_4 extends TestCase {
         String text = "1001";
         JSONReader reader = new JSONReader(new MyReader(text));
 
-        reader.close();
     }
 
     public static class MyReader extends BufferedReader {

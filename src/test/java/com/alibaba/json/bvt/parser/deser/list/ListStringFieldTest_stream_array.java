@@ -65,6 +65,148 @@ public class ListStringFieldTest_stream_array extends TestCase {
         Assert.assertNotNull(error);
     }
     
+    public void test_error_0() throws Exception {
+        String text = "[{";
+        JSONReader reader = new JSONReader(new StringReader(text));
+
+        Exception error = null;
+        try {
+            reader.readObject(Model.class);
+            reader.close();
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_error_n() throws Exception {
+        String text = "[n";
+        JSONReader reader = new JSONReader(new StringReader(text));
+
+        Exception error = null;
+        try {
+            reader.readObject(Model.class);
+            reader.close();
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_error_nu() throws Exception {
+        String text = "[nu";
+        JSONReader reader = new JSONReader(new StringReader(text));
+
+        Exception error = null;
+        try {
+            reader.readObject(Model.class);
+            reader.close();
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_error_nul() throws Exception {
+        String text = "[nul";
+        JSONReader reader = new JSONReader(new StringReader(text));
+
+        Exception error = null;
+        try {
+            reader.readObject(Model.class);
+            reader.close();
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    
+    public void test_error_null() throws Exception {
+        String text = "[null";
+        JSONReader reader = new JSONReader(new StringReader(text));
+
+        Exception error = null;
+        try {
+            reader.readObject(Model.class);
+            reader.close();
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_error_fn() throws Exception {
+        String text = "[[n";
+        JSONReader reader = new JSONReader(new StringReader(text));
+
+        Exception error = null;
+        try {
+            reader.readObject(Model.class);
+            reader.close();
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_error_fnu() throws Exception {
+        String text = "[[nu";
+        JSONReader reader = new JSONReader(new StringReader(text));
+
+        Exception error = null;
+        try {
+            reader.readObject(Model.class);
+            reader.close();
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_error_fnul() throws Exception {
+        String text = "[[nul";
+        JSONReader reader = new JSONReader(new StringReader(text));
+
+        Exception error = null;
+        try {
+            reader.readObject(Model.class);
+            reader.close();
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    
+    public void test_error_fnull() throws Exception {
+        String text = "[[null";
+        JSONReader reader = new JSONReader(new StringReader(text));
+
+        Exception error = null;
+        try {
+            reader.readObject(Model.class);
+            reader.close();
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_error_notclose() throws Exception {
+        String text = "[[\"aaa";
+        JSONReader reader = new JSONReader(new StringReader(text));
+
+        Exception error = null;
+        try {
+            reader.readObject(Model.class);
+            reader.close();
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
     public void test_error_1() throws Exception {
         String text = "[[\"b\"[[{";
         JSONReader reader = new JSONReader(new StringReader(text));

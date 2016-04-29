@@ -44,6 +44,7 @@ public class FastJsonHttpMessageConverterTest extends TestCase {
 		
 		converter.addSerializeFilter(serializeFilter);
 		Assert.assertEquals(2, converter.getFilters().length);
+		converter.addSerializeFilter(null);
 		
 		converter.setSupportedMediaTypes(Arrays.asList(new MediaType[]{ MediaType.APPLICATION_JSON_UTF8 }));
 		Assert.assertEquals(1, converter.getSupportedMediaTypes().size());

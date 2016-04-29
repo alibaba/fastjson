@@ -35,7 +35,7 @@ import com.alibaba.fastjson.JSONObject;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration({ "classpath*:/com/alibaba/json/bvt/support/spring/mock/resource/applicationContext-mvc2.xml" })
+@ContextConfiguration({ "classpath*:/config/applicationContext-mvc2.xml" })
 public class FastJsonJsonViewTest {
 
 	@Autowired

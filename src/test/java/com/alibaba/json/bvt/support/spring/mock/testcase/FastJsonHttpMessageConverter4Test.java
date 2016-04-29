@@ -23,11 +23,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.serializer.SerializeFilter;
-import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.alibaba.fastjson.serializer.ValueFilter;
-import com.alibaba.fastjson.support.config.FastJsonConfig;
-import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter4;
 
 /**
  * <p>Title: FastJsonHttpMessageConverterTest</p>
@@ -39,7 +34,7 @@ import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter4;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration({ "classpath*:/com/alibaba/json/bvt/support/spring/mock/resource/applicationContext-mvc3.xml" })
+@ContextConfiguration({ "classpath*:/config/applicationContext-mvc3.xml" })
 public class FastJsonHttpMessageConverter4Test {
 
 	@Autowired
@@ -80,40 +75,4 @@ public class FastJsonHttpMessageConverter4Test {
 				.andDo(print());
 	}
 	
-	@Test
-	public void test3() throws Exception {
-		
-		FastJsonHttpMessageConverter4 converter = new FastJsonHttpMessageConverter4();
-		
-		SerializeFilter filter = new ValueFilter() {
-	        @Override
-	        public Object process(Object object, String name, Object value) {
-	            if (value == null) {
-	                return "";
-	            }
-	            if(value instanceof Number) {
-	                return String.valueOf(value);
-	            }
-	            return value;
-	        }
-	    };
-	    
-	    FastJsonConfig fastJsonConfig = new FastJsonConfig();
-	    
-	    fastJsonConfig.setSerializeFilters(filter);
-	    
-	    converter.setFastJsonConfig(fastJsonConfig);
-	}
-	
-	@Test
-	public void test4() throws Exception {
-		
-		FastJsonHttpMessageConverter4 converter = new FastJsonHttpMessageConverter4();
-		
-	    FastJsonConfig fastJsonConfig = new FastJsonConfig();
-	    
-	    fastJsonConfig.setSerializerFeatures(SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullStringAsEmpty);
-
-	    converter.setFastJsonConfig(fastJsonConfig);
-	}
 }

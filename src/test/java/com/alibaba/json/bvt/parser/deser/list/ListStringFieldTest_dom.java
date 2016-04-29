@@ -6,44 +6,50 @@ import java.util.Map;
 
 import org.junit.Assert;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONReader;
 import com.alibaba.fastjson.TypeReference;
+import com.alibaba.json.bvt.parser.deser.list.ListStringFieldTest_stream.Model;
 
 import junit.framework.TestCase;
 
-public class ListStringFieldTest_stream extends TestCase {
+public class ListStringFieldTest_dom extends TestCase {
 
     public void test_list() throws Exception {
-        String text = "{\"values\":[\"a\",null,\"b\",\"ab\\\\c\\\"\"]}";
+        String text = "{\"values\":[\"a\",null,\"b\",\"ab\\\\c\"]}";
 
-        JSONReader reader = new JSONReader(new StringReader(text));
-        Model model = reader.readObject(Model.class);
+        Model model = JSON.parseObject(text, Model.class);
         Assert.assertEquals(4, model.values.size());
         Assert.assertEquals("a", model.values.get(0));
         Assert.assertEquals(null, model.values.get(1));
         Assert.assertEquals("b", model.values.get(2));
-        Assert.assertEquals("ab\\c\"", model.values.get(3));
+        Assert.assertEquals("ab\\c", model.values.get(3));
     }
 
     public void test_null() throws Exception {
         String text = "{\"values\":null}";
-        JSONReader reader = new JSONReader(new StringReader(text));
-        Model model = reader.readObject(Model.class);
+        Model model = JSON.parseObject(text, Model.class);
         Assert.assertNull(model.values);
     }
 
     public void test_empty() throws Exception {
         String text = "{\"values\":[]}";
-        JSONReader reader = new JSONReader(new StringReader(text));
-        Model model = reader.readObject(Model.class);
+        Model model = JSON.parseObject(text, Model.class);
         Assert.assertEquals(0, model.values.size());
+    }
+    
+    public void test_null_element() throws Exception {
+        String text = "{\"values\":[\"abc\",null]}";
+        Model model = JSON.parseObject(text, Model.class);
+        Assert.assertEquals(2, model.values.size());
+        Assert.assertEquals("abc", model.values.get(0));
+        Assert.assertEquals(null, model.values.get(1));
     }
 
     public void test_map_empty() throws Exception {
         String text = "{\"model\":{\"values\":[]}}";
-        JSONReader reader = new JSONReader(new StringReader(text));
-        Map<String, Model> map = reader.readObject(new TypeReference<Map<String, Model>>() {
+        Map<String, Model> map = JSON.parseObject(text, new TypeReference<Map<String, Model>>() {
         });
         Model model = (Model) map.get("model");
         Assert.assertEquals(0, model.values.size());
@@ -51,18 +57,16 @@ public class ListStringFieldTest_stream extends TestCase {
 
     public void test_notMatch() throws Exception {
         String text = "{\"value\":[]}";
-        JSONReader reader = new JSONReader(new StringReader(text));
-        Model model = reader.readObject(Model.class);
+        Model model = JSON.parseObject(text, Model.class);
         Assert.assertNull(model.values);
     }
 
     public void test_error() throws Exception {
         String text = "{\"values\":[1";
-        JSONReader reader = new JSONReader(new StringReader(text));
 
         Exception error = null;
         try {
-            reader.readObject(Model.class);
+            JSON.parseObject(text, Model.class);
         } catch (JSONException ex) {
             error = ex;
         }
@@ -71,11 +75,10 @@ public class ListStringFieldTest_stream extends TestCase {
     
     public void test_error_1() throws Exception {
         String text = "{\"values\":[\"b\"[";
-        JSONReader reader = new JSONReader(new StringReader(text));
 
         Exception error = null;
         try {
-            reader.readObject(Model.class);
+            JSON.parseObject(text, Model.class);
         } catch (JSONException ex) {
             error = ex;
         }
@@ -84,12 +87,11 @@ public class ListStringFieldTest_stream extends TestCase {
     
     public void test_error_2() throws Exception {
         String text = "{\"model\":{\"values\":[][";
-        JSONReader reader = new JSONReader(new StringReader(text));
         
 
         Exception error = null;
         try {
-            reader.readObject(new TypeReference<Map<String, Model>>() {
+            JSON.parseObject(text, new TypeReference<Map<String, Model>>() {
             });
         } catch (JSONException ex) {
             error = ex;
@@ -99,12 +101,10 @@ public class ListStringFieldTest_stream extends TestCase {
     
     public void test_error_3() throws Exception {
         String text = "{\"model\":{\"values\":[]}[";
-        JSONReader reader = new JSONReader(new StringReader(text));
-        
 
         Exception error = null;
         try {
-            reader.readObject(new TypeReference<Map<String, Model>>() {
+            JSON.parseObject(text, new TypeReference<Map<String, Model>>() {
             });
         } catch (JSONException ex) {
             error = ex;
@@ -114,12 +114,11 @@ public class ListStringFieldTest_stream extends TestCase {
     
     public void test_error_4() throws Exception {
         String text = "{\"model\":{\"values\":[\"aaa]}[";
-        JSONReader reader = new JSONReader(new StringReader(text));
         
 
         Exception error = null;
         try {
-            reader.readObject(new TypeReference<Map<String, Model>>() {
+            JSON.parseObject(text, new TypeReference<Map<String, Model>>() {
             });
         } catch (JSONException ex) {
             error = ex;
@@ -129,11 +128,10 @@ public class ListStringFieldTest_stream extends TestCase {
     
     public void test_error_n() throws Exception {
         String text = "{\"values\":[n";
-        JSONReader reader = new JSONReader(new StringReader(text));
 
         Exception error = null;
         try {
-            reader.readObject(Model.class);
+            JSON.parseObject(text, Model.class);
         } catch (JSONException ex) {
             error = ex;
         }
@@ -142,11 +140,10 @@ public class ListStringFieldTest_stream extends TestCase {
     
     public void test_error_nu() throws Exception {
         String text = "{\"values\":[nu";
-        JSONReader reader = new JSONReader(new StringReader(text));
 
         Exception error = null;
         try {
-            reader.readObject(Model.class);
+            JSON.parseObject(text, Model.class);
         } catch (JSONException ex) {
             error = ex;
         }
@@ -155,11 +152,10 @@ public class ListStringFieldTest_stream extends TestCase {
     
     public void test_error_nul() throws Exception {
         String text = "{\"values\":[nul";
-        JSONReader reader = new JSONReader(new StringReader(text));
 
         Exception error = null;
         try {
-            reader.readObject(Model.class);
+            JSON.parseObject(text, Model.class);
         } catch (JSONException ex) {
             error = ex;
         }
@@ -168,11 +164,10 @@ public class ListStringFieldTest_stream extends TestCase {
     
     public void test_error_null() throws Exception {
         String text = "{\"values\":[null";
-        JSONReader reader = new JSONReader(new StringReader(text));
 
         Exception error = null;
         try {
-            reader.readObject(Model.class);
+            JSON.parseObject(text, Model.class);
         } catch (JSONException ex) {
             error = ex;
         }
@@ -181,11 +176,10 @@ public class ListStringFieldTest_stream extends TestCase {
     
     public void test_error_rbacket() throws Exception {
         String text = "{\"values\":[null,]";
-        JSONReader reader = new JSONReader(new StringReader(text));
 
         Exception error = null;
         try {
-            reader.readObject(Model.class);
+            JSON.parseObject(text, Model.class);
         } catch (JSONException ex) {
             error = ex;
         }

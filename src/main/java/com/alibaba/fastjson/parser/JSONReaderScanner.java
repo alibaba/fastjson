@@ -255,6 +255,15 @@ public final class JSONReaderScanner extends JSONLexerBase {
         return new String(buf, offset, count);
         // return text.substring(offset, offset + count);
     }
+    
+    public final char[] sub_chars(int offset, int count) {
+        if (offset == 0) {
+            return buf;
+        }
+        char[] chars = new char[count];
+        System.arraycopy(buf, offset, chars, 0, count);
+        return chars;
+    }
 
     public final String numberString() {
         int offset = np;

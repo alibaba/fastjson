@@ -1295,13 +1295,30 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             }
 
             String stringVal = subString(bp + 1, endIndex - startIndex);
-            for (int i = bp + 1; i < endIndex; ++i) {
-                if (charAt(i) == '\\') {
-                    hasSpecial = true;
-                    break;
+            if (stringVal.indexOf('\\') != -1) {
+                for (;;) {
+                    int slashCount = 0;
+                    for (int i = endIndex - 1; i >= 0; --i) {
+                        if (charAt(i) == '\\') {
+                            hasSpecial = true;
+                            slashCount++;
+                        } else {
+                            break;
+                        }
+                    }
+                    if (slashCount % 2 == 0) {
+                        break;
+                    }
+                    endIndex = indexOf('"', endIndex + 1);
                 }
-            }
+                
 
+                int chars_len = endIndex - startIndex;
+                char[] chars = sub_chars(bp + 1, chars_len);
+                
+                stringVal = readString(chars, chars_len);
+            }
+            
             if (hasSpecial) {
                 matchStat = NOT_MATCH;
 
@@ -2545,6 +2562,93 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     public abstract String stringVal();
 
     public abstract String subString(int offset, int count);
+    
+    protected abstract char[] sub_chars(int offset, int count);
+    
+    public static String readString(char[] chars, int chars_len) {
+        char[] sbuf = new char[chars_len];
+        int len = 0;
+        for (int i = 0; i < chars_len; ++i) {
+            char ch = chars[i];
+
+            if (ch != '\\') {
+                sbuf[len++] = ch;
+                continue;
+            }
+            ch = chars[++i];
+
+            switch (ch) {
+                case '0':
+                    sbuf[len++] = '\0';
+                    break;
+                case '1':
+                    sbuf[len++] = '\1';
+                    break;
+                case '2':
+                    sbuf[len++] = '\2';
+                    break;
+                case '3':
+                    sbuf[len++] = '\3';
+                    break;
+                case '4':
+                    sbuf[len++] = '\4';
+                    break;
+                case '5':
+                    sbuf[len++] = '\5';
+                    break;
+                case '6':
+                    sbuf[len++] = '\6';
+                    break;
+                case '7':
+                    sbuf[len++] = '\7';
+                    break;
+                case 'b': // 8
+                    sbuf[len++] = '\b';
+                    break;
+                case 't': // 9
+                    sbuf[len++] = '\t';
+                    break;
+                case 'n': // 10
+                    sbuf[len++] = '\n';
+                    break;
+                case 'v': // 11
+                    sbuf[len++] = '\u000B';
+                    break;
+                case 'f': // 12
+                case 'F':
+                    sbuf[len++] = '\f';
+                    break;
+                case 'r': // 13
+                    sbuf[len++] = '\r';
+                    break;
+                case '"': // 34
+                    sbuf[len++] = '"';
+                    break;
+                case '\'': // 39
+                    sbuf[len++] = '\'';
+                    break;
+                case '/': // 47
+                    sbuf[len++] = '/';
+                    break;
+                case '\\': // 92
+                    sbuf[len++] = '\\';
+                    break;
+                case 'x':
+                    sbuf[len++] = (char) (digits[chars[++i]] * 16 + digits[chars[++i]]);
+                    break;
+                case 'u':
+                    sbuf[len++] = (char) Integer.parseInt(new String(new char[] { chars[++i], //
+                                                                                  chars[++i], //
+                                                                                  chars[++i], //
+                                                                                  chars[++i] }),
+                                                          16);
+                    break;
+                default:
+                    throw new JSONException("unclosed.str.lit");
+            }
+        }
+        return new String(sbuf, 0, len);
+    }
 
     protected abstract boolean charArrayCompare(char[] chars);
 

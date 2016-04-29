@@ -7,7 +7,6 @@
  */
 package com.alibaba.json.bvt.support.jaxrs.mock.testcase;
 
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -34,8 +33,8 @@ import com.alibaba.fastjson.JSONObject;
  * @version 1.0
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = Application.class)
 @WebAppConfiguration
+@ContextConfiguration({ "classpath*:/com/alibaba/json/bvt/support/jaxrs/mock/resource/applicationContext-rest.xml" })
 public class FastJsonProviderTest {
 
 	public final String REST_SERVICE_URL = "http://localhost:8088/rest";

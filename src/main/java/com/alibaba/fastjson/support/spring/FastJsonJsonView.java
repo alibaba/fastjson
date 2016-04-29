@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.view.AbstractView;
@@ -33,7 +34,7 @@ import com.alibaba.fastjson.util.IOUtils;
 public class FastJsonJsonView extends AbstractView {
 
 	/** default content type */
-	public static final String DEFAULT_CONTENT_TYPE = "application/json;charset=UTF-8";
+	public static final String DEFAULT_CONTENT_TYPE = MediaType.APPLICATION_JSON_UTF8_VALUE;
 
 	@Deprecated
 	protected Charset charset = IOUtils.UTF8;

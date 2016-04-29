@@ -1511,13 +1511,8 @@ public final class SerializeWriter extends Writer {
 
         int newcount = count;
 
-        if (value == null) {
-            valueLen = 4;
-            newcount += nameLen + 8;
-        } else {
-            valueLen = value.length();
-            newcount += nameLen + valueLen + 6;
-        }
+        valueLen = value.length();
+        newcount += nameLen + valueLen + 6;
 
         if (newcount > buf.length) {
             if (writer != null) {
@@ -1543,15 +1538,6 @@ public final class SerializeWriter extends Writer {
 
         int index = nameEnd + 1;
         buf[index++] = ':';
-
-        if (value == null) {
-            buf[index++] = 'n';
-            buf[index++] = 'u';
-            buf[index++] = 'l';
-            buf[index++] = 'l';
-            return;
-        }
-
         buf[index++] = '"';
 
         int valueStart = index;

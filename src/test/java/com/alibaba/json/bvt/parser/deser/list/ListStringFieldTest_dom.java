@@ -10,6 +10,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONReader;
 import com.alibaba.fastjson.TypeReference;
+import com.alibaba.json.bvt.parser.deser.list.ListStringFieldTest_stream.Model;
 
 import junit.framework.TestCase;
 
@@ -111,6 +112,79 @@ public class ListStringFieldTest_dom extends TestCase {
         Assert.assertNotNull(error);
     }
     
+    public void test_error_4() throws Exception {
+        String text = "{\"model\":{\"values\":[\"aaa]}[";
+        
+
+        Exception error = null;
+        try {
+            JSON.parseObject(text, new TypeReference<Map<String, Model>>() {
+            });
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_error_n() throws Exception {
+        String text = "{\"values\":[n";
+
+        Exception error = null;
+        try {
+            JSON.parseObject(text, Model.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_error_nu() throws Exception {
+        String text = "{\"values\":[nu";
+
+        Exception error = null;
+        try {
+            JSON.parseObject(text, Model.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_error_nul() throws Exception {
+        String text = "{\"values\":[nul";
+
+        Exception error = null;
+        try {
+            JSON.parseObject(text, Model.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_error_null() throws Exception {
+        String text = "{\"values\":[null";
+
+        Exception error = null;
+        try {
+            JSON.parseObject(text, Model.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_error_rbacket() throws Exception {
+        String text = "{\"values\":[null,]";
+
+        Exception error = null;
+        try {
+            JSON.parseObject(text, Model.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
 
     public static class Model {
 

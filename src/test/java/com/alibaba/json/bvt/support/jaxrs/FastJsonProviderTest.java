@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt.support.jaxrs.mock;
+package com.alibaba.json.bvt.support.jaxrs;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -24,7 +24,7 @@ public class FastJsonProviderTest extends TestCase {
 		FastJsonProvider provider1 = new FastJsonProvider("UTF-8");
 		Assert.assertEquals("UTF-8", provider1.getCharset().name());
 		
-		FastJsonProvider provider2 = new FastJsonProvider(new Class[0]);
+		FastJsonProvider provider2 = new FastJsonProvider();
 
 		provider2.setCharset(Charset.forName("GBK"));
 		Assert.assertEquals("GBK", provider2.getCharset().name());
@@ -41,13 +41,22 @@ public class FastJsonProviderTest extends TestCase {
 		Assert.assertEquals(1, provider2.getFilters().length);
 		Assert.assertEquals(serializeFilter, provider2.getFilters()[0]);
 		
-		FastJsonProvider provider = new FastJsonProvider();
+		FastJsonProvider provider = new FastJsonProvider(new Class[]{ VO.class });
 
 		Assert.assertNotNull(provider.getFastJsonConfig());
 		provider.setFastJsonConfig(new FastJsonConfig());
 		
-		provider.isReadable(VO.class, VO.class, null, MediaType.APPLICATION_JSON_TYPE);
-		provider.isWriteable(VO.class, VO.class, null, MediaType.APPLICATION_JSON_TYPE);
+		Assert.assertEquals(true, provider.isReadable(VO.class, VO.class, null, MediaType.APPLICATION_JSON_TYPE));
+		Assert.assertEquals(true, provider.isWriteable(VO.class, VO.class, null, MediaType.APPLICATION_JSON_TYPE));
+		Assert.assertEquals(true, provider.isReadable(VO.class, VO.class, null, MediaType.APPLICATION_FORM_URLENCODED_TYPE));
+		Assert.assertEquals(true, provider.isWriteable(VO.class, VO.class, null, MediaType.APPLICATION_FORM_URLENCODED_TYPE));
+		Assert.assertEquals(false, provider.isReadable(VO.class, VO.class, null, MediaType.APPLICATION_XML_TYPE));
+		Assert.assertEquals(false, provider.isWriteable(VO.class, VO.class, null, MediaType.APPLICATION_XML_TYPE));
+		Assert.assertEquals(false, provider.isReadable(String.class, String.class, null, MediaType.valueOf("application/javascript")));
+		Assert.assertEquals(false, provider.isWriteable(String.class, String.class, null, MediaType.valueOf("application/x-javascript")));
+		Assert.assertEquals(false, provider.isReadable(null, null, null, MediaType.valueOf("application/x-javascript")));
+		Assert.assertEquals(false, provider.isWriteable(null, null, null, null));
+
 		
 		VO vo = (VO) provider.readFrom(null, VO.class, null, MediaType.APPLICATION_JSON_TYPE, null, new ByteArrayInputStream("{\"id\":123}".getBytes(Charset
 				.forName("UTF-8"))));

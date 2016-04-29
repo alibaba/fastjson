@@ -20,6 +20,9 @@ import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter4;
 
 public class FastJsonHttpMessageConverter4Test extends TestCase {
+    public FastJsonHttpMessageConverter4Test() {
+        
+    }
 
 	public void test_1() throws Exception {
 

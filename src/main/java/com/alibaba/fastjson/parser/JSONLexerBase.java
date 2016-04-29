@@ -1195,8 +1195,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                     endIndex = indexOf('"', endIndex + 1);
                 }
 
-                int chars_len = endIndex - startIndex;
-                char[] chars = sub_chars(startIndex2, chars_len);
+                int chars_len = endIndex - (bp + fieldName.length + 1);
+                char[] chars = sub_chars( bp + fieldName.length + 1, chars_len);
 
                 stringVal = readString(chars, chars_len);
             }

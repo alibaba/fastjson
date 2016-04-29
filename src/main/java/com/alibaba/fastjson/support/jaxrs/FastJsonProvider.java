@@ -247,6 +247,7 @@ public class FastJsonProvider //
 				featureList.add(SerializerFeature.PrettyFormat);
 				serializerFeatures = featureList.toArray(serializerFeatures);
 			}
+			fastJsonConfig.setSerializerFeatures(serializerFeatures);
 		}
 
         JSON.writeJSONString(obj, //

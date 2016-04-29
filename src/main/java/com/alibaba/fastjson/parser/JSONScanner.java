@@ -873,27 +873,50 @@ public final class JSONScanner extends JSONLexerBase {
         ch = charAt(index++);
 
         for (;;) {
-            if (ch != '"') {
+            if (ch == '"') {
+                int startIndex = index;
+                int endIndex = indexOf('"', startIndex);
+                if (endIndex == -1) {
+                    throw new JSONException("unclosed str");
+                }
+
+                String stringVal = subString(startIndex, endIndex - startIndex);
+                if (stringVal.indexOf('\\') != -1) {
+                    for (;;) {
+                        int slashCount = 0;
+                        for (int i = endIndex - 1; i >= 0; --i) {
+                            if (charAt(i) == '\\') {
+                                slashCount++;
+                            } else {
+                                break;
+                            }
+                        }
+                        if (slashCount % 2 == 0) {
+                            break;
+                        }
+                        endIndex = indexOf('"', endIndex + 1);
+                    }
+
+                    int chars_len = endIndex - (bp + index);
+                    char[] chars = sub_chars(bp + index, chars_len);
+
+                    stringVal = readString(chars, chars_len);
+                }
+
+                index += (endIndex - (bp + index) + 1);
+                index = charAt(bp + (index++));
+
+                list.add(stringVal);
+            } else if (ch == 'n' && charAt(bp + index) == 'u' && charAt(bp + index + 1) == 'l' && charAt(bp + index + 2) == 'l') {
+                index += 3;
+                ch = charAt(bp + (index++));
+                list.add(null);
+            } else if (ch == ']' && list.size() == 0) {
+                ch = charAt(bp + (index++));
+                break;
+            } else {
                 matchStat = NOT_MATCH;
                 return null;
-            }
-
-            String strVal;
-            int start = index;
-            for (;;) {
-                ch = charAt(index++);
-                if (ch == '\"') {
-                    // strVal = text.substring(start, index - 1);
-                    strVal = this.subString(start, index - start - 1);
-                    list.add(strVal);
-                    ch = charAt(index++);
-                    break;
-                }
-
-                if (ch == '\\') {
-                    matchStat = NOT_MATCH;
-                    return null;
-                }
             }
 
             if (ch == ',') {

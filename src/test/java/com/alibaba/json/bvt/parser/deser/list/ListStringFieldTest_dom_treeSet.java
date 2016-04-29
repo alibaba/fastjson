@@ -1,29 +1,27 @@
 package com.alibaba.json.bvt.parser.deser.list;
 
-import java.io.StringReader;
-import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.JSONReader;
 import com.alibaba.fastjson.TypeReference;
 
 import junit.framework.TestCase;
 
-public class ListStringFieldTest_dom extends TestCase {
+public class ListStringFieldTest_dom_treeSet extends TestCase {
 
     public void test_list() throws Exception {
-        String text = "{\"values\":[\"a\",null,\"b\",\"ab\\\\c\"]}";
+        String text = "{\"values\":[\"a\",\"b\",\"ab\\\\c\"]}";
 
         Model model = JSON.parseObject(text, Model.class);
-        Assert.assertEquals(4, model.values.size());
-        Assert.assertEquals("a", model.values.get(0));
-        Assert.assertEquals(null, model.values.get(1));
-        Assert.assertEquals("b", model.values.get(2));
-        Assert.assertEquals("ab\\c", model.values.get(3));
+
+        Assert.assertEquals(3, model.values.size());
+        Assert.assertTrue(model.values.contains("a"));
+        Assert.assertTrue(model.values.contains("b"));
+        Assert.assertTrue(model.values.contains("ab\\c"));
     }
 
     public void test_null() throws Exception {
@@ -36,14 +34,6 @@ public class ListStringFieldTest_dom extends TestCase {
         String text = "{\"values\":[]}";
         Model model = JSON.parseObject(text, Model.class);
         Assert.assertEquals(0, model.values.size());
-    }
-    
-    public void test_null_element() throws Exception {
-        String text = "{\"values\":[\"abc\",null]}";
-        Model model = JSON.parseObject(text, Model.class);
-        Assert.assertEquals(2, model.values.size());
-        Assert.assertEquals("abc", model.values.get(0));
-        Assert.assertEquals(null, model.values.get(1));
     }
 
     public void test_map_empty() throws Exception {
@@ -62,31 +52,28 @@ public class ListStringFieldTest_dom extends TestCase {
 
     public void test_error() throws Exception {
         String text = "{\"values\":[1";
-
         Exception error = null;
         try {
-            JSON.parseObject(text, Model.class);
+            Model model = JSON.parseObject(text, Model.class);
         } catch (JSONException ex) {
             error = ex;
         }
         Assert.assertNotNull(error);
     }
-    
+
     public void test_error_1() throws Exception {
         String text = "{\"values\":[\"b\"[";
-
         Exception error = null;
         try {
-            JSON.parseObject(text, Model.class);
+            Model model = JSON.parseObject(text, Model.class);
         } catch (JSONException ex) {
             error = ex;
         }
         Assert.assertNotNull(error);
     }
-    
+
     public void test_error_2() throws Exception {
         String text = "{\"model\":{\"values\":[][";
-        
 
         Exception error = null;
         try {
@@ -97,7 +84,7 @@ public class ListStringFieldTest_dom extends TestCase {
         }
         Assert.assertNotNull(error);
     }
-    
+
     public void test_error_3() throws Exception {
         String text = "{\"model\":{\"values\":[]}[";
 
@@ -110,17 +97,16 @@ public class ListStringFieldTest_dom extends TestCase {
         }
         Assert.assertNotNull(error);
     }
-    
 
     public static class Model {
 
-        private List<String> values;
+        private TreeSet<String> values;
 
-        public List<String> getValues() {
+        public TreeSet<String> getValues() {
             return values;
         }
 
-        public void setValues(List<String> values) {
+        public void setValues(TreeSet<String> values) {
             this.values = values;
         }
 

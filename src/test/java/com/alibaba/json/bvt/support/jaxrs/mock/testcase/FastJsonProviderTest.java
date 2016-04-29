@@ -15,7 +15,6 @@ import org.apache.cxf.transport.servlet.CXFServlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -52,7 +51,7 @@ public class FastJsonProviderTest {
 		context.addEventListener(new ContextLoaderListener());
 		context.setInitParameter(
 				"contextConfigLocation",
-				"classpath*:/com/alibaba/json/bvt/support/jaxrs/mock/resource/applicationContext-rest.xml");
+				"classpath*:\\com\\alibaba\\json\\bvt\\support\\jaxrs\\mock\\resource\\applicationContext-rest.xml");
 		server.setHandler(context);
 		try {
 			server.start();

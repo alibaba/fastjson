@@ -991,7 +991,6 @@ public final class JSONLexer {
     }
 
     public String scanStringValue(char quoteChar) {
-        boolean hasSpecial = false;
         int startIndex = bp + 1;
         int endIndex = text.indexOf(quoteChar, startIndex);
         if (endIndex == -1) {
@@ -1012,7 +1011,6 @@ public final class JSONLexer {
                 int slashCount = 0;
                 for (int i = endIndex - 1; i >= 0; --i) {
                     if (text.charAt(i) == '\\') {
-                        hasSpecial = true;
                         slashCount++;
                     } else {
                         break;
@@ -1026,14 +1024,7 @@ public final class JSONLexer {
     
             int chars_len = endIndex - startIndex;
             char[] chars = sub_chars(bp + 1, chars_len);
-            if (hasSpecial) {
-                strVal = readString(chars, chars_len);
-            } else {
-                strVal = new String(chars, 0, chars_len);
-                if (strVal.indexOf('\\') != -1) {
-                    strVal = readString(chars, chars_len);    
-                }
-            }
+            strVal = readString(chars, chars_len);
         }
 
         bp = endIndex + 1;

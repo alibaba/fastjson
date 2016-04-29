@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt.support.jaxrs.mock;
+package com.alibaba.json.bvt.support.jaxrs;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

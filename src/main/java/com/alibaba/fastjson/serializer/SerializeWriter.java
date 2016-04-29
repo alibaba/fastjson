@@ -651,7 +651,9 @@ public final class SerializeWriter extends Writer {
                     write('"');
                     write(chars, 0, chars.length);
                     write('"');
-                } else write(chars, 0, chars.length);
+                } else {
+                    write(chars, 0, chars.length);
+                }
                 return;
             }
         }
@@ -660,7 +662,9 @@ public final class SerializeWriter extends Writer {
             buf[count] = '"';
             IOUtils.getChars(i, newcount - 1, buf);
             buf[newcount - 1] = '"';
-        } else IOUtils.getChars(i, newcount, buf);
+        } else {
+            IOUtils.getChars(i, newcount, buf);
+        }
 
         count = newcount;
     }
@@ -1306,17 +1310,7 @@ public final class SerializeWriter extends Writer {
                     writeString(value);
                 }
             } else {
-                if (browserSecure) {
-                    write(seperator);
-                    writeStringWithDoubleQuote(name, ':');
-                    writeStringWithDoubleQuote(value, (char) 0);
-                } else if (browserCompatible) {
-                    write(seperator);
-                    writeStringWithDoubleQuote(name, ':');
-                    writeStringWithDoubleQuote(value, (char) 0);
-                } else {
-                    writeFieldValueStringWithDoubleQuoteCheck(seperator, name, value);
-                }
+                writeFieldValueStringWithDoubleQuoteCheck(seperator, name, value);
             }
         } else {
             write(seperator);
@@ -1517,13 +1511,8 @@ public final class SerializeWriter extends Writer {
 
         int newcount = count;
 
-        if (value == null) {
-            valueLen = 4;
-            newcount += nameLen + 8;
-        } else {
-            valueLen = value.length();
-            newcount += nameLen + valueLen + 6;
-        }
+        valueLen = value.length();
+        newcount += nameLen + valueLen + 6;
 
         if (newcount > buf.length) {
             if (writer != null) {
@@ -1549,15 +1538,6 @@ public final class SerializeWriter extends Writer {
 
         int index = nameEnd + 1;
         buf[index++] = ':';
-
-        if (value == null) {
-            buf[index++] = 'n';
-            buf[index++] = 'u';
-            buf[index++] = 'l';
-            buf[index++] = 'l';
-            return;
-        }
-
         buf[index++] = '"';
 
         int valueStart = index;

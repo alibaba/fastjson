@@ -18,11 +18,12 @@ public class Bug_for_issue_448 extends TestCase {
     }
 
     // skip
-    public void f_test_for_issue() throws Exception {
+    public void test_for_issue() throws Exception {
+        final int value_size = 1024 * 16;
         List<Model> list = new ArrayList<Model>();
         for (int i = 0; i < 10; ++i) {
             Model model = new Model();
-            char[] buf = new char[1024 * 16];
+            char[] buf = new char[value_size];
             for (int j = 0; j < buf.length; ++j) {
                 buf[j] = (char) ('a' + j);
             }
@@ -36,9 +37,10 @@ public class Bug_for_issue_448 extends TestCase {
         while (reader.hasNext()) {
             Model model = reader.readObject(Model.class);
             String value = model.value;
+            Assert.assertEquals(value_size, value.length());
             for (int i = 0; i < value.length(); ++i) {
                 char ch = value.charAt(i);
-                Assert.assertEquals((char) ('a' + i), ch);
+                Assert.assertEquals("error : index_" + i, (char) ('a' + i), ch);
             }
         }
         reader.endArray();

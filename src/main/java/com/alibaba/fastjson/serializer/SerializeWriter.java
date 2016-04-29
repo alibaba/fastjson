@@ -651,7 +651,9 @@ public final class SerializeWriter extends Writer {
                     write('"');
                     write(chars, 0, chars.length);
                     write('"');
-                } else write(chars, 0, chars.length);
+                } else {
+                    write(chars, 0, chars.length);
+                }
                 return;
             }
         }
@@ -660,7 +662,9 @@ public final class SerializeWriter extends Writer {
             buf[count] = '"';
             IOUtils.getChars(i, newcount - 1, buf);
             buf[newcount - 1] = '"';
-        } else IOUtils.getChars(i, newcount, buf);
+        } else {
+            IOUtils.getChars(i, newcount, buf);
+        }
 
         count = newcount;
     }

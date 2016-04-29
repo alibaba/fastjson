@@ -346,11 +346,6 @@ public class JSONPath implements JSONAware {
             while (!isEOF()) {
                 skipWhitespace();
 
-                if (ch == '@') {
-                    next();
-                    return SelfSegement.instance;
-                }
-
                 if (ch == '$') {
                     next();
                     continue;
@@ -1011,23 +1006,6 @@ public class JSONPath implements JSONAware {
         Object eval(JSONPath path, Object rootObject, Object currentObject);
     }
 
-    // static class RootSegement implements Segement {
-    //
-    // public final static RootSegement instance = new RootSegement();
-    //
-    // public Object eval(JSONPath path, Object rootObject, Object currentObject) {
-    // return rootObject;
-    // }
-    // }
-
-    static class SelfSegement implements Segement {
-
-        public final static SelfSegement instance = new SelfSegement();
-
-        public Object eval(JSONPath path, Object rootObject, Object currentObject) {
-            return currentObject;
-        }
-    }
 
     static class SizeSegement implements Segement {
 

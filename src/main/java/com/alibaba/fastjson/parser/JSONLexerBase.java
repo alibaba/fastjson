@@ -1276,7 +1276,6 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             return stringDefaultValue();
         }
 
-        boolean hasSpecial = false;
         final String strVal;
         {
             int startIndex = bp + 1;
@@ -1306,12 +1305,6 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 char[] chars = sub_chars(bp + 1, chars_len);
 
                 stringVal = readString(chars, chars_len);
-            }
-
-            if (hasSpecial) {
-                matchStat = NOT_MATCH;
-
-                return stringDefaultValue();
             }
 
             offset += (endIndex - (bp + 1) + 1);
@@ -1524,30 +1517,51 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         chLocal = charAt(bp + (offset++));
 
         for (;;) {
-            if (chLocal != '"') {
-                matchStat = NOT_MATCH;
-                return null;
-            }
-
-            String strVal;
             // int start = index;
-            int startOffset = offset;
-            for (;;) {
+            if (chLocal == '"') {
+                int startIndex = bp + offset;
+                int endIndex = indexOf('"', startIndex);
+                if (endIndex == -1) {
+                    throw new JSONException("unclosed str");
+                }
+
+                int startIndex2 = bp + offset; // must re compute
+                String stringVal = subString(startIndex2, endIndex - startIndex2);
+                if (stringVal.indexOf('\\') != -1) {
+                    for (;;) {
+                        int slashCount = 0;
+                        for (int i = endIndex - 1; i >= 0; --i) {
+                            if (charAt(i) == '\\') {
+                                slashCount++;
+                            } else {
+                                break;
+                            }
+                        }
+                        if (slashCount % 2 == 0) {
+                            break;
+                        }
+                        endIndex = indexOf('"', endIndex + 1);
+                    }
+
+                    int chars_len = endIndex - (bp + offset);
+                    char[] chars = sub_chars(bp + offset, chars_len);
+
+                    stringVal = readString(chars, chars_len);
+                }
+
+                offset += (endIndex - (bp + offset) + 1);
                 chLocal = charAt(bp + (offset++));
-                if (chLocal == '\"') {
-                    int start = bp + startOffset;
-                    int len = bp + offset - start - 1;
-                    strVal = subString(start, len);
-                    list.add(strVal);
 
-                    chLocal = charAt(bp + (offset++));
-                    break;
-                }
-
-                if (chLocal == '\\') {
-                    matchStat = NOT_MATCH;
-                    return null;
-                }
+                list.add(stringVal);
+            } else if (chLocal == 'n' && charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
+                offset += 3;
+                chLocal = charAt(bp + (offset++));
+                list.add(null);
+            } else if (chLocal == ']' && list.size() == 0) {
+                chLocal = charAt(bp + (offset++));
+                break;
+            } else {
+                throw new JSONException("illega str");
             }
 
             if (chLocal == ',') {

@@ -7,7 +7,7 @@ import java.util.TimeZone;
 
 public interface JSONLexer {
 
-    byte EOI            = 0x1A;
+    char EOI            = 0x1A;
     int  NOT_MATCH      = -1;
     int  NOT_MATCH_NAME = -2;
     int  UNKNOWN         = 0;
@@ -50,6 +50,8 @@ public interface JSONLexer {
 
     String stringVal();
 
+    boolean isEnabled(int feature);
+    
     boolean isEnabled(Feature feature);
 
     void config(Feature feature, boolean state);
@@ -63,8 +65,6 @@ public interface JSONLexer {
     void nextTokenWithColon(int expect);
 
     boolean isBlankInput();
-
-    int getBufferPosition();
 
     void close();
 

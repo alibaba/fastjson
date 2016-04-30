@@ -34,7 +34,6 @@ import com.alibaba.fastjson.parser.ParseContext;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.SymbolTable;
 import com.alibaba.fastjson.util.ASMClassLoader;
-import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.JavaBeanInfo;
 import com.alibaba.fastjson.util.TypeUtils;
@@ -249,14 +248,41 @@ public class ASMDeserializerFactory implements Opcodes {
                     mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
 
                 } else {
-                    mw.visitVarInsn(ALOAD, 1);
-                    if (i == 0) {
-                        mw.visitLdcInsn(JSONToken.LBRACKET);
-                    } else {
-                        mw.visitLdcInsn(JSONToken.COMMA);
-                    }
+                    Label notError_ = new Label();
+                    mw.visitVarInsn(ALOAD, context.var("lexer"));
+                    mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "token", "()I");
+                    mw.visitVarInsn(ISTORE, context.var("token"));
+                    
+                    mw.visitVarInsn(ILOAD, context.var("token"));
+                    int token = i == 0 ? JSONToken.LBRACKET : JSONToken.COMMA;
+                    mw.visitLdcInsn(token);
+                    mw.visitJumpInsn(IF_ICMPEQ, notError_);
+                    
+                    mw.visitVarInsn(ALOAD, 1); // DefaultJSONParser
+                    mw.visitVarInsn(ILOAD, context.var("token"));
+                    mw.visitMethodInsn(INVOKEVIRTUAL, DefaultJSONParser, "throwException", "(I)V");
+                    
+                    mw.visitLabel(notError_);
+                    
+                    Label quickElse_ = new Label(), quickEnd_ = new Label();
+                    mw.visitVarInsn(ALOAD, context.var("lexer"));
+                    mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "getCurrent", "()C");
+                    mw.visitVarInsn(BIPUSH, '[');
+                    mw.visitJumpInsn(IF_ICMPNE, quickElse_);
+                    
+                    mw.visitVarInsn(ALOAD, context.var("lexer"));
+                    mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "next", "()C");
+                    mw.visitInsn(POP);
+                    mw.visitVarInsn(ALOAD, context.var("lexer"));
                     mw.visitLdcInsn(JSONToken.LBRACKET);
-                    mw.visitMethodInsn(INVOKEVIRTUAL, DefaultJSONParser, "accept", "(II)V");
+                    mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "setToken", "(I)V");
+                    mw.visitJumpInsn(GOTO, quickEnd_);
+                    
+                    mw.visitLabel(quickElse_);
+                    mw.visitVarInsn(ALOAD, context.var("lexer"));
+                    mw.visitLdcInsn(JSONToken.LBRACKET);
+                    mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "nextToken", "(I)V");
+                    mw.visitLabel(quickEnd_);
 
                     _newCollection(mw, fieldClass, i, false);
                     mw.visitInsn(DUP);
@@ -265,7 +291,7 @@ public class ASMDeserializerFactory implements Opcodes {
                     mw.visitVarInsn(ALOAD, 1);
                     mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(desc(itemClass)));
                     mw.visitVarInsn(ALOAD, 3);
-                    mw.visitMethodInsn(INVOKESTATIC, type(ASMUtils.class),
+                    mw.visitMethodInsn(INVOKESTATIC, type(JavaBeanDeserializer.class),
                                        "parseArray",
                                        "(Ljava/util/Collection;" //
                                        + desc(ObjectDeserializer.class) //
@@ -314,9 +340,30 @@ public class ASMDeserializerFactory implements Opcodes {
                 
                 mw.visitLabel(objElseIf_);
                 
+//                mw.visitVarInsn(ALOAD, context.var("lexer"));
+//                mw.visitLdcInsn(JSONToken.LBRACKET);
+//                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "nextToken", "(I)V");
+                
+                Label quickElse_ = new Label(), quickEnd_ = new Label();
+                mw.visitVarInsn(ALOAD, context.var("lexer"));
+                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "getCurrent", "()C");
+                mw.visitVarInsn(BIPUSH, '[');
+                mw.visitJumpInsn(IF_ICMPNE, quickElse_);
+                
+                mw.visitVarInsn(ALOAD, context.var("lexer"));
+                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "next", "()C");
+                mw.visitInsn(POP);
                 mw.visitVarInsn(ALOAD, context.var("lexer"));
                 mw.visitLdcInsn(JSONToken.LBRACKET);
+                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "setToken", "(I)V");
+                mw.visitJumpInsn(GOTO, quickEnd_);
+                
+                mw.visitLabel(quickElse_);
+                mw.visitVarInsn(ALOAD, context.var("lexer"));
+                mw.visitLdcInsn(JSONToken.COMMA);
                 mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "nextToken", "(I)V");
+                
+                mw.visitLabel(quickEnd_);
                 
                 _deserObject(context, mw, fieldInfo, fieldClass, i);
 
@@ -338,10 +385,55 @@ public class ASMDeserializerFactory implements Opcodes {
 
         _batchSet(context, mw, false);
 
-        // lexer.nextToken(JSONToken.COMMA);
+        Label quickElse_ = new Label(), quickElseIf_ = new Label(), quickElseIfEOI_ = new Label(), quickEnd_ = new Label();
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "getCurrent", "()C");
+        mw.visitVarInsn(BIPUSH, ',');
+        mw.visitJumpInsn(IF_ICMPNE, quickElseIf_);
+        
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "next", "()C");
+        mw.visitInsn(POP);
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitLdcInsn(JSONToken.COMMA);
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "setToken", "(I)V");
+        mw.visitJumpInsn(GOTO, quickEnd_);
+        
+        mw.visitLabel(quickElseIf_);
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "getCurrent", "()C");
+        mw.visitVarInsn(BIPUSH, ']');
+        mw.visitJumpInsn(IF_ICMPNE, quickElseIfEOI_);
+        
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "next", "()C");
+        mw.visitInsn(POP);
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitLdcInsn(JSONToken.RBRACKET);
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "setToken", "(I)V");
+        mw.visitJumpInsn(GOTO, quickEnd_);
+        
+        mw.visitLabel(quickElseIfEOI_);
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "getCurrent", "()C");
+        mw.visitVarInsn(BIPUSH, (char) JSONLexer.EOI);
+        mw.visitJumpInsn(IF_ICMPNE, quickElse_);
+        
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "next", "()C");
+        mw.visitInsn(POP);
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitLdcInsn(JSONToken.EOF);
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "setToken", "(I)V");
+        mw.visitJumpInsn(GOTO, quickEnd_);
+        
+        mw.visitLabel(quickElse_);
         mw.visitVarInsn(ALOAD, context.var("lexer"));
         mw.visitLdcInsn(JSONToken.COMMA);
         mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "nextToken", "(I)V");
+        
+        mw.visitLabel(quickEnd_);
+        
 
         mw.visitVarInsn(ALOAD, context.var("instance"));
         mw.visitInsn(ARETURN);
@@ -377,7 +469,8 @@ public class ASMDeserializerFactory implements Opcodes {
             }
         }
 
-        context.fieldInfoList = context.beanInfo.sortedFields;
+        JavaBeanInfo beanInfo = context.beanInfo;
+        context.fieldInfoList = beanInfo.sortedFields;
 
         MethodVisitor mw = new MethodWriter(cw, ACC_PUBLIC, "deserialze",
                                             "(L" + DefaultJSONParser + ";Ljava/lang/reflect/Type;Ljava/lang/Object;)Ljava/lang/Object;",
@@ -390,26 +483,22 @@ public class ASMDeserializerFactory implements Opcodes {
 
         defineVarLexer(context, mw);
 
-        mw.visitVarInsn(ALOAD, context.var("lexer"));
-        mw.visitLdcInsn(Feature.SortFeidFastMatch.mask);
-        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "isEnabled", "(I)Z");
-        
-        mw.visitJumpInsn(IFEQ, super_);
-
         {
             Label next_ = new Label();
 
-            mw.visitVarInsn(ALOAD, 0);
-            mw.visitVarInsn(ALOAD, context.var("lexer"));
-            mw.visitMethodInsn(INVOKESPECIAL, type(JavaBeanDeserializer.class),
-                               "isSupportArrayToBean", "(" + desc(JSONLexer.class) + ")Z");
-            mw.visitJumpInsn(IFEQ, next_);
             // isSupportArrayToBean
 
             mw.visitVarInsn(ALOAD, context.var("lexer"));
             mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "token", "()I");
             mw.visitLdcInsn(JSONToken.LBRACKET);
             mw.visitJumpInsn(IF_ICMPNE, next_);
+            
+            if ((beanInfo.parserFeatures & Feature.SupportArrayToBean.mask) == 0) {
+                mw.visitVarInsn(ALOAD, context.var("lexer"));
+                mw.visitLdcInsn(Feature.SupportArrayToBean.mask);
+                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "isEnabled", "(I)Z");
+                mw.visitJumpInsn(IFEQ, next_);
+            }
 
             mw.visitVarInsn(ALOAD, 0);
             mw.visitVarInsn(ALOAD, 1);
@@ -425,6 +514,12 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitLabel(next_);
             // deserialzeArrayMapping
         }
+        
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitLdcInsn(Feature.SortFeidFastMatch.mask);
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "isEnabled", "(I)Z");
+        
+        mw.visitJumpInsn(IFEQ, super_);
 
         mw.visitVarInsn(ALOAD, context.var("lexer"));
         mw.visitLdcInsn(context.clazz.getName());

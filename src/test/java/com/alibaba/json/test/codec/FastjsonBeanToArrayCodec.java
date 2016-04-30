@@ -8,25 +8,31 @@ import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.JSONSerializer;
+import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class FastjsonBeanToArrayCodec implements Codec {
-
-    private ParserConfig    config = ParserConfig.getGlobalInstance();
+    private int serializerFeatures;
+    
+    public FastjsonBeanToArrayCodec() {
+        serializerFeatures |= SerializerFeature.QuoteFieldNames.getMask();
+        serializerFeatures |= SerializerFeature.SkipTransientField.getMask();
+        serializerFeatures |= SerializerFeature.SortField.getMask();
+        serializerFeatures |= SerializerFeature.DisableCircularReferenceDetect.getMask();
+        serializerFeatures |= SerializerFeature.BeanToArray.getMask();
+    }
 
     public String getName() {
         return "fastjson-bean-to-array";
     }
 
     public <T> T decodeObject(String text, Class<T> clazz) {
-        DefaultJSONParser parser = new DefaultJSONParser(text, config);
-        parser.config(Feature.DisableCircularReferenceDetect, true);
-        parser.config(Feature.SupportArrayToBean, true);
-        return parser.parseObject(clazz);
+        return (T) JSON.parseObject(text, clazz, Feature.DisableCircularReferenceDetect, Feature.SupportArrayToBean);
     }
 
     public <T> Collection<T> decodeArray(String text, Class<T> clazz) throws Exception {
+        ParserConfig config = ParserConfig.global;
         DefaultJSONParser parser = new DefaultJSONParser(text, config);
         parser.config(Feature.DisableCircularReferenceDetect, true);
         parser.config(Feature.SupportArrayToBean, true);
@@ -34,6 +40,7 @@ public class FastjsonBeanToArrayCodec implements Codec {
     }
 
     public final Object decodeObject(String text) {
+        ParserConfig config = ParserConfig.global;
         DefaultJSONParser parser = new DefaultJSONParser(text, config);
         parser.config(Feature.DisableCircularReferenceDetect, true);
         parser.config(Feature.SupportArrayToBean, true);
@@ -41,6 +48,7 @@ public class FastjsonBeanToArrayCodec implements Codec {
     }
 
     public final Object decode(String text) {
+        ParserConfig config = ParserConfig.global;
         DefaultJSONParser parser = new DefaultJSONParser(text, config);
         parser.config(Feature.DisableCircularReferenceDetect, true);
         parser.config(Feature.SupportArrayToBean, true);
@@ -50,19 +58,7 @@ public class FastjsonBeanToArrayCodec implements Codec {
     // private JavaBeanSerializer serializer = new JavaBeanSerializer(Long_100_Entity.class);
 
     public String encode(Object object) throws Exception {
-        SerializeWriter out = new SerializeWriter();
-        out.config(SerializerFeature.DisableCircularReferenceDetect, true);
-        out.config(SerializerFeature.BeanToArray, true);
-//        out.config(SerializerFeature.DisableCheckSpecialChar, true);
-
-        JSONSerializer serializer = new JSONSerializer(out);
-        serializer.write(object);
-
-        String text = out.toString();
-
-        out.close();
-
-        return text;
+        return JSON.toJSONString(object, serializerFeatures);
     }
 
     @SuppressWarnings("unchecked")

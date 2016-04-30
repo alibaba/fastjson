@@ -403,9 +403,11 @@ public class JSONSerializer extends SerializeFilterable {
             }
         }
 
-        for (PropertyPreFilter filter : javaBeanDeser.propertyPreFilters) {
-            if (!filter.apply(this, object, key)) {
-                return false;
+        if (javaBeanDeser.propertyPreFilters != null) {
+            for (PropertyPreFilter filter : javaBeanDeser.propertyPreFilters) {
+                if (!filter.apply(this, object, key)) {
+                    return false;
+                }
             }
         }
 

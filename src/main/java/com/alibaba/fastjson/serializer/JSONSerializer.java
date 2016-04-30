@@ -179,9 +179,12 @@ public class JSONSerializer extends SerializeFilterable {
         }
     }
 
-    public boolean checkValue() {
+    public boolean checkValue(SerializeFilterable filterable) {
         return (valueFilters != null && valueFilters.size() > 0) //
-               || (contextValueFilters != null && contextValueFilters.size() > 0) || out.writeNonStringValueAsString;
+               || (contextValueFilters != null && contextValueFilters.size() > 0) //
+               || (filterable.valueFilters != null && filterable.valueFilters.size() > 0)
+               || (filterable.contextValueFilters != null && filterable.contextValueFilters.size() > 0)
+               || out.writeNonStringValueAsString;
     }
 
     public int getIndentCount() {
@@ -417,15 +420,19 @@ public class JSONSerializer extends SerializeFilterable {
     public boolean apply(SerializeFilterable javaBeanDeser, //
                          Object object, //
                          String key, Object propertyValue) {
-        List<PropertyFilter> propertyFilters = this.propertyFilters;
-
-        if (propertyFilters == null) {
-            return true;
+        if (this.propertyFilters != null) {
+            for (PropertyFilter propertyFilter : this.propertyFilters) {
+                if (!propertyFilter.apply(object, key, propertyValue)) {
+                    return false;
+                }
+            }
         }
-
-        for (PropertyFilter propertyFilter : propertyFilters) {
-            if (!propertyFilter.apply(object, key, propertyValue)) {
-                return false;
+        
+        if (javaBeanDeser.propertyFilters != null) {
+            for (PropertyFilter propertyFilter : javaBeanDeser.propertyFilters) {
+                if (!propertyFilter.apply(object, key, propertyValue)) {
+                    return false;
+                }
             }
         }
 

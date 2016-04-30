@@ -1,14 +1,7 @@
 package com.alibaba.fastjson.util;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.Collection;
-
-import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.JSONLexer;
-import com.alibaba.fastjson.parser.JSONToken;
-import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 
 public class ASMUtils {
 
@@ -98,44 +91,6 @@ public class ASMUtils {
         }
     }
 
-    public static Type getFieldType(Class<?> clazz, String fieldName) {
-        try {
-            Field field = clazz.getField(fieldName);
-
-            return field.getGenericType();
-        } catch (Exception ex) {
-            return null;
-        }
-    }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static void parseArray(Collection collection, //
-                                  ObjectDeserializer deser, //
-                                  DefaultJSONParser parser, //
-                                  Type type, //
-                                  Object fieldName) {
-
-        final JSONLexer lexer = parser.lexer;
-        if (lexer.token() == JSONToken.NULL) {
-            lexer.nextToken(JSONToken.COMMA);
-        }
-
-        parser.accept(JSONToken.LBRACKET, JSONToken.LBRACKET);
-
-        int index = 0;
-        for (;;) {
-            Object item = deser.deserialze(parser, type, index);
-            collection.add(item);
-            index++;
-            if (lexer.token() == JSONToken.COMMA) {
-                lexer.nextToken(JSONToken.LBRACKET);
-            } else {
-                break;
-            }
-        }
-        parser.accept(JSONToken.RBRACKET, JSONToken.COMMA);
-    }
-    
     public static boolean checkName(String name) {
         for (int i = 0; i < name.length(); ++i) {
             char c = name.charAt(i);

@@ -188,7 +188,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(String text, Class<T> clazz, Feature... features) {
-        return (T) parseObject(text, (Type) clazz, ParserConfig.global, DEFAULT_PARSER_FEATURE, features);
+        return (T) parseObject(text, (Type) clazz, ParserConfig.global, null, DEFAULT_PARSER_FEATURE, features);
     }
 
     @SuppressWarnings("unchecked")
@@ -241,25 +241,27 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         if (features != null) {
             for (Feature feature : features) {
-                featureValues = Feature.config(featureValues, feature, true);
+                featureValues |= feature.mask;
             }
         }
 
         DefaultJSONParser parser = new DefaultJSONParser(input, config, featureValues);
 
-        if (processor instanceof ExtraTypeProvider) {
-            parser.getExtraTypeProviders().add((ExtraTypeProvider) processor);
+        if (processor != null) {
+            if (processor instanceof ExtraTypeProvider) {
+                parser.getExtraTypeProviders().add((ExtraTypeProvider) processor);
+            }
+
+            if (processor instanceof ExtraProcessor) {
+                parser.getExtraProcessors().add((ExtraProcessor) processor);
+            }
+
+            if (processor instanceof FieldTypeResolver) {
+                parser.setFieldTypeResolver((FieldTypeResolver) processor);
+            }
         }
 
-        if (processor instanceof ExtraProcessor) {
-            parser.getExtraProcessors().add((ExtraProcessor) processor);
-        }
-        
-        if (processor instanceof FieldTypeResolver) {
-            parser.setFieldTypeResolver((FieldTypeResolver) processor);
-        }
-
-        T value = (T) parser.parseObject(clazz);
+        T value = (T) parser.parseObject(clazz, null);
 
         parser.handleResovleTask(value);
 
@@ -461,7 +463,14 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static String toJSONString(Object object, SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter((Writer) null, DEFAULT_GENERATE_FEATURE, features);
+        return toJSONString(object, DEFAULT_GENERATE_FEATURE, features);
+    }
+    
+    /**
+     * @since 1.2.11
+     */
+    public static String toJSONString(Object object, int defaultFeatures, SerializerFeature... features) {
+        SerializeWriter out = new SerializeWriter((Writer) null, defaultFeatures, features);
 
         try {
             JSONSerializer serializer = new JSONSerializer(out);

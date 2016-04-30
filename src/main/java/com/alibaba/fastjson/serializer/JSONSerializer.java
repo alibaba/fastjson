@@ -335,6 +335,7 @@ public class JSONSerializer extends SerializeFilterable {
     }
 
     public Object processValue(SerializeFilterable javaBeanDeser, //
+                               BeanContext beanContext,
                                Object object, //
                                String key, //
                                Object propertyValue) {
@@ -360,21 +361,20 @@ public class JSONSerializer extends SerializeFilterable {
         }
 
         if (this.contextValueFilters != null) {
-            BeanContext fieldContext = javaBeanDeser.getBeanContext(key);
             for (ContextValueFilter valueFilter : this.contextValueFilters) {
-                propertyValue = valueFilter.process(fieldContext, object, key, propertyValue);
+                propertyValue = valueFilter.process(beanContext, object, key, propertyValue);
             }
         }
 
         if (javaBeanDeser.contextValueFilters != null) {
-            BeanContext fieldContext = javaBeanDeser.getBeanContext(key);
             for (ContextValueFilter valueFilter : javaBeanDeser.contextValueFilters) {
-                propertyValue = valueFilter.process(fieldContext, object, key, propertyValue);
+                propertyValue = valueFilter.process(beanContext, object, key, propertyValue);
             }
         }
 
         return propertyValue;
     }
+    
 
     public String processKey(SerializeFilterable javaBeanDeser, //
                              Object object, //
@@ -472,19 +472,21 @@ public class JSONSerializer extends SerializeFilterable {
         return seperator;
     }
 
-    public boolean applyLabel(String label) {
-        List<LabelFilter> labelFilters = this.labelFilters;
-
-        if (labelFilters != null) {
-            boolean apply = true;
-
-            for (LabelFilter propertyFilter : labelFilters) {
+    public boolean applyLabel(SerializeFilterable javaBeanDeser, String label) {
+        if (this.labelFilters != null) {
+            for (LabelFilter propertyFilter : this.labelFilters) {
                 if (!propertyFilter.apply(label)) {
                     return false;
                 }
             }
-
-            return apply;
+        }
+        
+        if (javaBeanDeser.labelFilters != null) {
+            for (LabelFilter propertyFilter : javaBeanDeser.labelFilters) {
+                if (!propertyFilter.apply(label)) {
+                    return false;
+                }
+            }
         }
 
         return true;

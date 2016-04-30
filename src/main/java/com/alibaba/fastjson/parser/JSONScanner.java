@@ -62,7 +62,10 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     public final char next() {
-        return ch = charAt(++bp);
+        int index = ++bp;
+        return ch = (index >= this.len ? //
+            EOI //
+            : text.charAt(index));
     }
 
     public JSONScanner(char[] input, int inputLength){
@@ -162,9 +165,9 @@ public final class JSONScanner extends JSONLexerBase {
         return this.subString(np, sp);
     }
 
-    public final int ISO8601_LEN_0 = "0000-00-00".length();
-    public final int ISO8601_LEN_1 = "0000-00-00T00:00:00".length();
-    public final int ISO8601_LEN_2 = "0000-00-00T00:00:00.000".length();
+    public final static int ISO8601_LEN_0 = "0000-00-00".length();
+    public final static int ISO8601_LEN_1 = "0000-00-00T00:00:00".length();
+    public final static int ISO8601_LEN_2 = "0000-00-00T00:00:00.000".length();
 
     public boolean scanISO8601DateIfMatch() {
         return scanISO8601DateIfMatch(true);
@@ -256,14 +259,14 @@ public final class JSONScanner extends JSONLexerBase {
                         return false;
                     }
 
-                    millis = digits[S0] * 100 + digits[S1] * 10 + digits[S2];
+                    millis = (S0 - '0') * 100 + (S1 - '0') * 10 + (S2 - '0');
                 } else {
                     millis = 0;
                 }
 
-                hour = digits[h0] * 10 + digits[h1];
-                minute = digits[m0] * 10 + digits[m1];
-                seconds = digits[s0] * 10 + digits[s1];
+                hour = (h0 - '0') * 10 + (h1 - '0');
+                minute = (m0 - '0') * 10 + (m1 - '0');
+                seconds = (s0 - '0') * 10 + (s1 - '0');
             } else {
                 hour = 0;
                 minute = 0;
@@ -387,13 +390,13 @@ public final class JSONScanner extends JSONLexerBase {
         if (S0 < '0' || S0 > '9') {
             return false;
         }
-        int millis = digits[S0];
+        int millis = S0 - '0';
         int millisLen = 1;
 
         {
             char S1 = charAt(bp + 21);
             if (S1 >= '0' && S1 <= '9') {
-                millis = millis * 10 + digits[S1];
+                millis = millis * 10 + (S1 - '0');
                 millisLen = 2;
             }
         }
@@ -401,7 +404,7 @@ public final class JSONScanner extends JSONLexerBase {
         if (millisLen == 2) {
             char S2 = charAt(bp + 22);
             if (S2 >= '0' && S2 <= '9') {
-                millis = millis * 10 + digits[S2];
+                millis = millis * 10 + (S2 - '0');
                 millisLen = 3;
             }
         }
@@ -467,16 +470,16 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     protected void setTime(char h0, char h1, char m0, char m1, char s0, char s1) {
-        int hour = digits[h0] * 10 + digits[h1];
-        int minute = digits[m0] * 10 + digits[m1];
-        int seconds = digits[s0] * 10 + digits[s1];
+        int hour = (h0 - '0') * 10 + (h1 - '0');
+        int minute = (m0 - '0') * 10 + (m1 - '0');
+        int seconds = (s0 - '0') * 10 + (s1 - '0');
         calendar.set(Calendar.HOUR_OF_DAY, hour);
         calendar.set(Calendar.MINUTE, minute);
         calendar.set(Calendar.SECOND, seconds);
     }
 
     protected void setTimeZone(char timeZoneFlag, char t0, char t1) {
-        int timeZoneOffset = (digits[t0] * 10 + digits[t1]) * 3600 * 1000;
+        int timeZoneOffset = ((t0 - '0') * 10 + (t1 - '0')) * 3600 * 1000;
         if (timeZoneFlag == '-') {
             timeZoneOffset = -timeZoneOffset;
         }
@@ -536,9 +539,9 @@ public final class JSONScanner extends JSONLexerBase {
 
     private void setCalendar(char y0, char y1, char y2, char y3, char M0, char M1, char d0, char d1) {
         calendar = Calendar.getInstance(timeZone, locale);
-        int year = digits[y0] * 1000 + digits[y1] * 100 + digits[y2] * 10 + digits[y3];
-        int month = digits[M0] * 10 + digits[M1] - 1;
-        int day = digits[d0] * 10 + digits[d1];
+        int year = (y0 - '0') * 1000 + (y1 - '0') * 100 + (y2 - '0') * 10 + (y3 - '0');
+        int month = (M0 - '0') * 10 + (M1 - '0') - 1;
+        int day = (d0 - '0') * 10 + (d1 - '0');
         calendar.set(Calendar.YEAR, year);
         calendar.set(Calendar.MONTH, month);
         calendar.set(Calendar.DAY_OF_MONTH, day);
@@ -616,11 +619,11 @@ public final class JSONScanner extends JSONLexerBase {
 
         int value;
         if (ch >= '0' && ch <= '9') {
-            value = digits[ch];
+            value = ch - '0';
             for (;;) {
                 ch = charAt(index++);
                 if (ch >= '0' && ch <= '9') {
-                    value = value * 10 + digits[ch];
+                    value = value * 10 + (ch - '0');
                 } else if (ch == '.') {
                     matchStat = NOT_MATCH;
                     return 0;
@@ -1010,11 +1013,11 @@ public final class JSONScanner extends JSONLexerBase {
 
         long value;
         if (ch >= '0' && ch <= '9') {
-            value = digits[ch];
+            value = ch - '0';
             for (;;) {
                 ch = charAt(index++);
                 if (ch >= '0' && ch <= '9') {
-                    value = value * 10 + digits[ch];
+                    value = value * 10 + (ch - '0');
                 } else if (ch == '.') {
                     matchStat = NOT_MATCH;
                     return 0;
@@ -1155,6 +1158,111 @@ public final class JSONScanner extends JSONLexerBase {
         }
 
         return value;
+    }
+    
+    public final int scanInt(char expectNext) {
+        matchStat = UNKNOWN;
+
+        int offset = bp;
+        char chLocal = charAt(offset++);
+
+        final boolean negative = chLocal == '-';
+        if (negative) {
+            chLocal = charAt(offset++);
+        }
+
+        int value;
+        if (chLocal >= '0' && chLocal <= '9') {
+            value = chLocal - '0';
+            for (;;) {
+                chLocal = charAt(offset++);
+                if (chLocal >= '0' && chLocal <= '9') {
+                    value = value * 10 + (chLocal - '0');
+                } else if (chLocal == '.') {
+                    matchStat = NOT_MATCH;
+                    return 0;
+                } else {
+                    break;
+                }
+            }
+            if (value < 0) {
+                matchStat = NOT_MATCH;
+                return 0;
+            }
+        } else {
+            matchStat = NOT_MATCH;
+            return 0;
+        }
+
+        for (;;) {
+            if (chLocal == expectNext) {
+                bp = offset;
+                this.ch = charAt(bp);
+                matchStat = VALUE;
+                token = JSONToken.COMMA;
+                return negative ? -value : value;
+            } else {
+                if (isWhitespace(chLocal)) {
+                    chLocal = charAt(offset++);
+                    continue;
+                }
+                matchStat = NOT_MATCH;
+                return negative ? -value : value;
+            }
+        }
+    }
+    
+    public long scanLong(char expectNextChar) {
+        matchStat = UNKNOWN;
+
+        int offset = bp;
+        char chLocal = charAt(offset++);
+
+        final boolean negative = chLocal == '-';
+        if (negative) {
+            chLocal = charAt(offset++);
+        }
+
+        long value;
+        if (chLocal >= '0' && chLocal <= '9') {
+            value = chLocal - '0';
+            for (;;) {
+                chLocal = charAt(offset++);
+                if (chLocal >= '0' && chLocal <= '9') {
+                    value = value * 10 + (chLocal - '0');
+                } else if (chLocal == '.') {
+                    matchStat = NOT_MATCH;
+                    return 0;
+                } else {
+                    break;
+                }
+            }
+            if (value < 0) {
+                matchStat = NOT_MATCH;
+                return 0;
+            }
+        } else {
+            matchStat = NOT_MATCH;
+            return 0;
+        }
+
+        for (;;) {
+            if (chLocal == expectNextChar) {
+                bp = offset;
+                this.ch = charAt(bp);
+                matchStat = VALUE;
+                token = JSONToken.COMMA;
+                return negative ? -value : value;
+            } else {
+                if (isWhitespace(chLocal)) {
+                    chLocal = charAt(offset++);
+                    continue;
+                }
+
+                matchStat = NOT_MATCH;
+                return value;
+            }
+        }
     }
 
     protected final void arrayCopy(int srcPos, char[] dest, int destPos, int length) {

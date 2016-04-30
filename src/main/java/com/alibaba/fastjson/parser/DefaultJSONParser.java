@@ -175,7 +175,16 @@ public class DefaultJSONParser implements Closeable {
         this.config = config;
         this.symbolTable = config.symbolTable;
 
-        lexer.nextToken(JSONToken.LBRACE); // prime the pump
+        int ch = lexer.getCurrent();
+        if (ch == '{') {
+            lexer.next();
+            ((JSONLexerBase) lexer).token = JSONToken.LBRACE;
+        } else if (ch == '[') {
+            lexer.next();
+            ((JSONLexerBase) lexer).token = JSONToken.LBRACKET;
+        } else {
+            lexer.nextToken(); // prime the pump
+        }
     }
 
     public SymbolTable getSymbolTable() {
@@ -572,12 +581,13 @@ public class DefaultJSONParser implements Closeable {
 
     @SuppressWarnings("unchecked")
     public <T> T parseObject(Type type, Object fieldName) {
-        if (lexer.token() == JSONToken.NULL) {
+        int token = lexer.token();
+        if (token == JSONToken.NULL) {
             lexer.nextToken();
             return null;
         }
 
-        if (lexer.token() == JSONToken.LITERAL_STRING) {
+        if (token == JSONToken.LITERAL_STRING) {
             type = TypeUtils.unwrap(type);
             if (type == byte[].class) {
                 byte[] bytes = lexer.bytesValue();
@@ -1339,10 +1349,10 @@ public class DefaultJSONParser implements Closeable {
                 if (lexer.isBlankInput()) {
                     return null;
                 }
-                throw new JSONException("unterminated json string, pos " + lexer.getBufferPosition());
+                throw new JSONException("unterminated json string, " + lexer.info());
             case ERROR:
             default:
-                throw new JSONException("syntax error, pos " + lexer.getBufferPosition());
+                throw new JSONException("syntax error, " + lexer.info());
         }
     }
 
@@ -1373,31 +1383,15 @@ public class DefaultJSONParser implements Closeable {
         if (lexer.token() == token) {
             lexer.nextToken(nextExpectToken);
         } else {
-            throw new JSONException("syntax error, expect " + JSONToken.name(token) + ", actual "
-                                    + JSONToken.name(lexer.token()));
+            throwException(token);
         }
     }
     
-    public final void accept1(final int token, int nextExpectToken) {
-        final JSONLexer lexer = this.lexer;
-        if (lexer.token() == token) {
-            lexer.nextToken(nextExpectToken);
-        } else {
-            throw new JSONException("syntax error, expect " + JSONToken.name(token) + ", actual "
-                                    + JSONToken.name(lexer.token()));
-        }
+    public void throwException(int token) {
+        throw new JSONException("syntax error, expect " + JSONToken.name(token) + ", actual "
+                                + JSONToken.name(lexer.token()));
     }
     
-    public final void accept2(final int token, int nextExpectToken) {
-        final JSONLexer lexer = this.lexer;
-        if (lexer.token() == token) {
-            lexer.nextToken(nextExpectToken);
-        } else {
-            throw new JSONException("syntax error, expect " + JSONToken.name(token) + ", actual "
-                                    + JSONToken.name(lexer.token()));
-        }
-    }
-
     public void close() {
         final JSONLexer lexer = this.lexer;
 

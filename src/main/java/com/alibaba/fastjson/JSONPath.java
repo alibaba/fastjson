@@ -191,7 +191,7 @@ public class JSONPath implements JSONAware {
             }
             newResult = descArray;
         } else {
-            throw new UnsupportedOperationException();
+            throw new JSONException("unsupported array put operation. " + resultClass);
         }
 
         Segement lastSegement = segments[segments.length - 1];
@@ -345,11 +345,6 @@ public class JSONPath implements JSONAware {
             }
             while (!isEOF()) {
                 skipWhitespace();
-
-                if (ch == '@') {
-                    next();
-                    return SelfSegement.instance;
-                }
 
                 if (ch == '$') {
                     next();
@@ -1011,23 +1006,6 @@ public class JSONPath implements JSONAware {
         Object eval(JSONPath path, Object rootObject, Object currentObject);
     }
 
-    // static class RootSegement implements Segement {
-    //
-    // public final static RootSegement instance = new RootSegement();
-    //
-    // public Object eval(JSONPath path, Object rootObject, Object currentObject) {
-    // return rootObject;
-    // }
-    // }
-
-    static class SelfSegement implements Segement {
-
-        public final static SelfSegement instance = new SelfSegement();
-
-        public Object eval(JSONPath path, Object rootObject, Object currentObject) {
-            return currentObject;
-        }
-    }
 
     static class SizeSegement implements Segement {
 
@@ -1600,7 +1578,8 @@ public class JSONPath implements JSONAware {
             return true;
         }
 
-        if (currentObject.getClass().isArray()) {
+        Class<?> clazz = currentObject.getClass();
+        if (clazz.isArray()) {
             int arrayLenth = Array.getLength(currentObject);
 
             if (index >= 0) {
@@ -1616,7 +1595,7 @@ public class JSONPath implements JSONAware {
             return true;
         }
 
-        throw new UnsupportedOperationException();
+        throw new JSONPathException("unsupported set operation." + clazz);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -1851,13 +1830,8 @@ public class JSONPath implements JSONAware {
         try {
             return beanSerializer.getSize(currentObject);
         } catch (Exception e) {
-            throw new JSONException("evalSize error : " + path, e);
+            throw new JSONPathException("evalSize error : " + path, e);
         }
-    }
-
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType,
-                      int features) throws IOException {
-        serializer.write(path);
     }
 
     @Override

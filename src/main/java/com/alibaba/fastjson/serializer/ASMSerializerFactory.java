@@ -1222,10 +1222,11 @@ public class ASMSerializerFactory implements Opcodes {
     private void _nameApply(MethodVisitor mw, FieldInfo property, Context context, Label _end) {
         if (!context.writeDirect) {
             mw.visitVarInsn(ALOAD, Context.serializer);
+            mw.visitVarInsn(ALOAD, 0);
             mw.visitVarInsn(ALOAD, Context.obj);
             mw.visitVarInsn(ALOAD, Context.fieldName);
             mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer, "applyName",
-                               "(Ljava/lang/Object;Ljava/lang/String;)Z");
+                               "(" + desc(SerializeFilterable.class) + "Ljava/lang/Object;Ljava/lang/String;)Z");
             mw.visitJumpInsn(IFEQ, _end);
             
             _labelApply(mw, property, context, _end);
@@ -1371,6 +1372,7 @@ public class ASMSerializerFactory implements Opcodes {
         Class<?> propertyClass = property.fieldClass;
 
         mw.visitVarInsn(ALOAD, Context.serializer);
+        mw.visitVarInsn(ALOAD, 0);
         mw.visitVarInsn(ALOAD, Context.obj);
         mw.visitVarInsn(ALOAD, Context.fieldName);
 
@@ -1410,13 +1412,12 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitVarInsn(ALOAD, context.var("object"));
         }
         mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer, "apply",
-                           "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;)Z");
+                           "(" + desc(SerializeFilterable.class) + "Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;)Z");
     }
 
     private void _processValue(MethodVisitor mw, FieldInfo property, Context context, Label _end) {
         Label _else_processKey = new Label();
         
-       
         
         Class<?> propertyClass = property.fieldClass;
         

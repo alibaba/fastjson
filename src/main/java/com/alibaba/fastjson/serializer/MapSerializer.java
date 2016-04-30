@@ -90,12 +90,12 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                     List<PropertyPreFilter> preFilters = serializer.propertyPreFilters;
                     if (preFilters != null && preFilters.size() > 0) {
                         if (entryKey == null || entryKey instanceof String) {
-                            if (!serializer.applyName(object, (String) entryKey)) {
+                            if (!serializer.applyName(this, object, (String) entryKey)) {
                                 continue;
                             }
                         } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
                             String strKey = JSON.toJSONString(entryKey);
-                            if (!serializer.applyName(object, strKey)) {
+                            if (!serializer.applyName(this, object, strKey)) {
                                 continue;
                             }
                         }
@@ -106,12 +106,12 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                     List<PropertyFilter> propertyFilters = serializer.propertyFilters;
                     if (propertyFilters != null && propertyFilters.size() > 0) {
                         if (entryKey == null || entryKey instanceof String) {
-                            if (!serializer.apply(object, (String) entryKey, value)) {
+                            if (!serializer.apply(this, object, (String) entryKey, value)) {
                                 continue;
                             }
                         } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
                             String strKey = JSON.toJSONString(entryKey);
-                            if (!serializer.apply(object, strKey, value)) {
+                            if (!serializer.apply(this, object, strKey, value)) {
                                 continue;
                             }
                         }

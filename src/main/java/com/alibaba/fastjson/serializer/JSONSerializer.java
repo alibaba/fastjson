@@ -106,11 +106,11 @@ public class JSONSerializer extends SerializeFilterable {
     public void setContext(SerialContext context) {
         this.context = context;
     }
-    
+
     public void setContext(SerialContext parent, Object object, Object fieldName, int features) {
         this.setContext(parent, object, fieldName, features, 0);
     }
-    
+
     public void setContext(SerialContext parent, Object object, Object fieldName, int features, int fieldFeatures) {
         if (out.disableCircularReferenceDetect) {
             return;
@@ -132,7 +132,7 @@ public class JSONSerializer extends SerializeFilterable {
             this.context = this.context.parent;
         }
     }
-    
+
     public final boolean isWriteClassName(Type fieldType, Object obj) {
         return out.isEnabled(SerializerFeature.WriteClassName) //
                && (fieldType != null //
@@ -178,13 +178,12 @@ public class JSONSerializer extends SerializeFilterable {
             out.write("\"}");
         }
     }
-    
+
     public boolean checkValue() {
         return (valueFilters != null && valueFilters.size() > 0) //
-               || (contextValueFilters != null && contextValueFilters.size() > 0)
-               || out.writeNonStringValueAsString;
+               || (contextValueFilters != null && contextValueFilters.size() > 0) || out.writeNonStringValueAsString;
     }
-    
+
     public int getIndentCount() {
         return indentCount;
     }
@@ -251,7 +250,7 @@ public class JSONSerializer extends SerializeFilterable {
             out.writeNull();
             return;
         }
-        
+
         Class<?> clazz = object.getClass();
         ObjectSerializer writer = getObjectWriter(clazz);
 
@@ -319,6 +318,7 @@ public class JSONSerializer extends SerializeFilterable {
 
     /**
      * only invoke by asm byte
+     * 
      * @return
      */
     public boolean writeDirect(JavaBeanSerializer javaBeanDeser) {
@@ -326,43 +326,43 @@ public class JSONSerializer extends SerializeFilterable {
                && this.writeDirect //
                && javaBeanDeser.writeDirect;
     }
-    
+
     public FieldInfo getFieldInfo() {
         return null;
     }
-    
+
     public Object processValue(SerializeFilterable javaBeanDeser, //
-                                      Object object, // 
-                                      String key, // 
-                                      Object propertyValue) {
-        
-        if (propertyValue != null // 
-                && out.writeNonStringValueAsString) {
+                               Object object, //
+                               String key, //
+                               Object propertyValue) {
+
+        if (propertyValue != null //
+            && out.writeNonStringValueAsString) {
             if (propertyValue instanceof Number || propertyValue instanceof Boolean) {
                 propertyValue = propertyValue.toString();
             }
         }
-        
+
         List<ValueFilter> valueFilters = this.valueFilters;
         if (valueFilters != null) {
             for (ValueFilter valueFilter : valueFilters) {
                 propertyValue = valueFilter.process(object, key, propertyValue);
             }
         }
-        
+
         if (javaBeanDeser.valueFilters != null) {
             for (ValueFilter valueFilter : javaBeanDeser.valueFilters) {
                 propertyValue = valueFilter.process(object, key, propertyValue);
             }
         }
-        
+
         if (this.contextValueFilters != null) {
             BeanContext fieldContext = javaBeanDeser.getBeanContext(key);
             for (ContextValueFilter valueFilter : this.contextValueFilters) {
                 propertyValue = valueFilter.process(fieldContext, object, key, propertyValue);
             }
         }
-        
+
         if (javaBeanDeser.contextValueFilters != null) {
             BeanContext fieldContext = javaBeanDeser.getBeanContext(key);
             for (ContextValueFilter valueFilter : javaBeanDeser.contextValueFilters) {
@@ -372,17 +372,17 @@ public class JSONSerializer extends SerializeFilterable {
 
         return propertyValue;
     }
-    
+
     public String processKey(SerializeFilterable javaBeanDeser, //
-                             Object object, // 
-                             String key, // 
+                             Object object, //
+                             String key, //
                              Object propertyValue) {
         if (this.nameFilters != null) {
             for (NameFilter nameFilter : this.nameFilters) {
                 key = nameFilter.process(object, key, propertyValue);
             }
         }
-        
+
         if (javaBeanDeser.nameFilters != null) {
             for (NameFilter nameFilter : javaBeanDeser.nameFilters) {
                 key = nameFilter.process(object, key, propertyValue);
@@ -391,15 +391,19 @@ public class JSONSerializer extends SerializeFilterable {
 
         return key;
     }
-    
-    public boolean applyName(Object object, String key) {
-        List<PropertyPreFilter> filters = this.propertyPreFilters;
 
-        if (filters == null) {
-            return true;
+    public boolean applyName(SerializeFilterable javaBeanDeser, //
+                             Object object, String key) {
+
+        if (this.propertyPreFilters != null) {
+            for (PropertyPreFilter filter : this.propertyPreFilters) {
+                if (!filter.apply(this, object, key)) {
+                    return false;
+                }
+            }
         }
 
-        for (PropertyPreFilter filter : filters) {
+        for (PropertyPreFilter filter : javaBeanDeser.propertyPreFilters) {
             if (!filter.apply(this, object, key)) {
                 return false;
             }
@@ -407,8 +411,10 @@ public class JSONSerializer extends SerializeFilterable {
 
         return true;
     }
-    
-    public boolean apply(Object object, String key, Object propertyValue) {
+
+    public boolean apply(SerializeFilterable javaBeanDeser, //
+                         Object object, //
+                         String key, Object propertyValue) {
         List<PropertyFilter> propertyFilters = this.propertyFilters;
 
         if (propertyFilters == null) {
@@ -423,7 +429,7 @@ public class JSONSerializer extends SerializeFilterable {
 
         return true;
     }
-    
+
     public char writeBefore(Object object, char seperator) {
         List<BeforeFilter> beforeFilters = this.beforeFilters;
         if (beforeFilters != null) {
@@ -433,7 +439,7 @@ public class JSONSerializer extends SerializeFilterable {
         }
         return seperator;
     }
-    
+
     public char writeAfter(Object object, char seperator) {
         List<AfterFilter> afterFilters = this.afterFilters;
         if (afterFilters != null) {
@@ -443,7 +449,7 @@ public class JSONSerializer extends SerializeFilterable {
         }
         return seperator;
     }
-    
+
     public boolean applyLabel(String label) {
         List<LabelFilter> labelFilters = this.labelFilters;
 
@@ -461,6 +467,5 @@ public class JSONSerializer extends SerializeFilterable {
 
         return true;
     }
-    
-    
+
 }

@@ -248,14 +248,41 @@ public class ASMDeserializerFactory implements Opcodes {
                     mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
 
                 } else {
-                    mw.visitVarInsn(ALOAD, 1);
-                    if (i == 0) {
-                        mw.visitLdcInsn(JSONToken.LBRACKET);
-                    } else {
-                        mw.visitLdcInsn(JSONToken.COMMA);
-                    }
+                    Label notError_ = new Label();
+                    mw.visitVarInsn(ALOAD, context.var("lexer"));
+                    mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "token", "()I");
+                    mw.visitVarInsn(ISTORE, context.var("token"));
+                    
+                    mw.visitVarInsn(ILOAD, context.var("token"));
+                    int token = i == 0 ? JSONToken.LBRACKET : JSONToken.COMMA;
+                    mw.visitLdcInsn(token);
+                    mw.visitJumpInsn(IF_ICMPEQ, notError_);
+                    
+                    mw.visitVarInsn(ALOAD, 1); // DefaultJSONParser
+                    mw.visitVarInsn(ILOAD, context.var("token"));
+                    mw.visitMethodInsn(INVOKEVIRTUAL, DefaultJSONParser, "throwException", "(I)V");
+                    
+                    mw.visitLabel(notError_);
+                    
+                    Label quickElse_ = new Label(), quickEnd_ = new Label();
+                    mw.visitVarInsn(ALOAD, context.var("lexer"));
+                    mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "getCurrent", "()C");
+                    mw.visitVarInsn(BIPUSH, '[');
+                    mw.visitJumpInsn(IF_ICMPNE, quickElse_);
+                    
+                    mw.visitVarInsn(ALOAD, context.var("lexer"));
+                    mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "next", "()C");
+                    mw.visitInsn(POP);
+                    mw.visitVarInsn(ALOAD, context.var("lexer"));
                     mw.visitLdcInsn(JSONToken.LBRACKET);
-                    mw.visitMethodInsn(INVOKEVIRTUAL, DefaultJSONParser, "accept", "(II)V");
+                    mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "setToken", "(I)V");
+                    mw.visitJumpInsn(GOTO, quickEnd_);
+                    
+                    mw.visitLabel(quickElse_);
+                    mw.visitVarInsn(ALOAD, context.var("lexer"));
+                    mw.visitLdcInsn(JSONToken.LBRACKET);
+                    mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "nextToken", "(I)V");
+                    mw.visitLabel(quickEnd_);
 
                     _newCollection(mw, fieldClass, i, false);
                     mw.visitInsn(DUP);

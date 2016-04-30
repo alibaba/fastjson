@@ -175,7 +175,16 @@ public class DefaultJSONParser implements Closeable {
         this.config = config;
         this.symbolTable = config.symbolTable;
 
-        lexer.nextToken(JSONToken.LBRACE); // prime the pump
+        int ch = lexer.getCurrent();
+        if (ch == '{') {
+            lexer.next();
+            ((JSONLexerBase) lexer).token = JSONToken.LBRACE;
+        } else if (ch == '[') {
+            lexer.next();
+            ((JSONLexerBase) lexer).token = JSONToken.LBRACKET;
+        } else {
+            lexer.nextToken(); // prime the pump
+        }
     }
 
     public SymbolTable getSymbolTable() {
@@ -1374,9 +1383,13 @@ public class DefaultJSONParser implements Closeable {
         if (lexer.token() == token) {
             lexer.nextToken(nextExpectToken);
         } else {
-            throw new JSONException("syntax error, expect " + JSONToken.name(token) + ", actual "
-                                    + JSONToken.name(lexer.token()));
+            throwException(token);
         }
+    }
+    
+    public void throwException(int token) {
+        throw new JSONException("syntax error, expect " + JSONToken.name(token) + ", actual "
+                                + JSONToken.name(lexer.token()));
     }
     
     public void close() {

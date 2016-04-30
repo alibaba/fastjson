@@ -575,12 +575,12 @@ public final class JSONLexer {
             limit = -Long.MAX_VALUE;
         }
         if (i < max) {
-            digit = digits[charAt(i++)];
+            digit = charAt(i++) - '0';
             result = -digit;
         }
         while (i < max) {
             // Accumulating negatively avoids surprises near MAX_VALUE
-            digit = digits[charAt(i++)];
+            digit = charAt(i++) - '0';
             if (result < -922337203685477580L) { // Long.MIN_VALUE / 10
                 return new BigInteger(numberString());
             }
@@ -1062,7 +1062,7 @@ public final class JSONLexer {
         }
         final int multmin = -214748364; // negative ? INT_MULTMIN_RADIX_TEN : INT_N_MULTMAX_RADIX_TEN;
         if (i < max) {
-            digit = digits[charAt(i++)];
+            digit = charAt(i++) - '0';
             result = -digit;
         }
         while (i < max) {
@@ -1073,7 +1073,7 @@ public final class JSONLexer {
                 break;
             }
 
-            digit = digits[ch];
+            digit = ch - '0';
 
             if (result < multmin) {
                 throw new NumberFormatException(numberString());
@@ -1722,7 +1722,7 @@ public final class JSONLexer {
             limit = -Long.MAX_VALUE;
         }
         if (i < max) {
-            digit = digits[charAt(i++)];
+            digit = charAt(i++) - '0';
             result = -digit;
         }
         while (i < max) {
@@ -1742,7 +1742,7 @@ public final class JSONLexer {
                 break;
             }
 
-            digit = digits[chLocal];
+            digit = chLocal - '0';
             if (result < -922337203685477580L) { // Long.MIN_VALUE / 10
                 throw new NumberFormatException(numberString());
             }
@@ -1882,11 +1882,11 @@ public final class JSONLexer {
 
         int value;
         if (chLocal >= '0' && chLocal <= '9') {
-            value = digits[chLocal];
+            value = chLocal - '0';
             for (;;) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
-                    value = value * 10 + digits[chLocal];
+                    value = value * 10 + (chLocal - '0');
                 } else if (chLocal == '.') {
                     matchStat = NOT_MATCH;
                     return 0;
@@ -2010,7 +2010,7 @@ public final class JSONLexer {
 
         if (chLocal >= '0' //
             && chLocal <= '9') {
-            value = digits[chLocal];
+            value = chLocal - '0';
             for (;;) {
                 // chLocal = charAt(bp + (offset++));
                 {
@@ -2020,7 +2020,7 @@ public final class JSONLexer {
                         : text.charAt(index);
                 }
                 if (chLocal >= '0' && chLocal <= '9') {
-                    value = value * 10 + digits[chLocal];
+                    value = value * 10 + (chLocal - '0');
                 } else if (chLocal == '.') {
                     matchStat = NOT_MATCH;
                     return 0;
@@ -2679,14 +2679,14 @@ public final class JSONLexer {
                         return false;
                     }
 
-                    millis = digits[S0] * 100 + digits[S1] * 10 + digits[S2];
+                    millis = (S0  - '0') * 100 + (S1 - '0') * 10 + (S2 - '0');
                 } else {
                     millis = 0;
                 }
 
-                hour = digits[h0] * 10 + digits[h1];
-                minute = digits[m0] * 10 + digits[m1];
-                seconds = digits[s0] * 10 + digits[s1];
+                hour = (h0 - '0') * 10 + (h1 - '0');
+                minute = (m0 - '0') * 10 + (m1 - '0');
+                seconds = (s0 - '0') * 10 + (s1 - '0');
             } else {
                 hour = minute = seconds = millis = 0;
             }
@@ -2762,9 +2762,9 @@ public final class JSONLexer {
             return false;
         }
 
-        int hour = digits[h0] * 10 + digits[h1];
-        int minute = digits[m0] * 10 + digits[m1];
-        int seconds = digits[s0] * 10 + digits[s1];
+        int hour = (h0 - '0') * 10 + (h1 - '0');
+        int minute = (m0 - '0') * 10 + (m1 - '0');
+        int seconds = (s0 - '0') * 10 + (s1 - '0');
         calendar.set(Calendar.HOUR_OF_DAY, hour);
         calendar.set(Calendar.MINUTE, minute);
         calendar.set(Calendar.SECOND, seconds);
@@ -2934,9 +2934,9 @@ public final class JSONLexer {
 
     private void setCalendar(char y0, char y1, char y2, char y3, char M0, char M1, char d0, char d1) {
         calendar = Calendar.getInstance(timeZone, locale);
-        int year = digits[y0] * 1000 + digits[y1] * 100 + digits[y2] * 10 + digits[y3];
-        int month = digits[M0] * 10 + digits[M1] - 1;
-        int day = digits[d0] * 10 + digits[d1];
+        int year = (y0 - '0') * 1000 + (y1 - '0') * 100 + (y2 - '0') * 10 + (y3 - '0');
+        int month = (M0 - '0') * 10 + (M1 - '0') - 1;
+        int day = (d0 - '0') * 10 + (d1 - '0');
         calendar.set(Calendar.YEAR, year);
         calendar.set(Calendar.MONTH, month);
         calendar.set(Calendar.DAY_OF_MONTH, day);

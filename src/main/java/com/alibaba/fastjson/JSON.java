@@ -334,8 +334,15 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return toJSONString(object, SerializeConfig.globalInstance, null, null, DEFAULT_GENERATE_FEATURE);
     }
 
+    /**
+     * @since 1.2.11
+     */
     public static final String toJSONString(Object object, SerializerFeature... features) {
-        return toJSONString(object, SerializeConfig.globalInstance, null, null, DEFAULT_GENERATE_FEATURE, features);
+        return toJSONString(object, DEFAULT_GENERATE_FEATURE, features);
+    }
+    
+    public static final String toJSONString(Object object, int defaultFeatures, SerializerFeature... features) {
+        return toJSONString(object, SerializeConfig.globalInstance, null, null, defaultFeatures, features);
     }
 
     /**

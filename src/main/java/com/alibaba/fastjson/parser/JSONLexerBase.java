@@ -100,6 +100,14 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     public final int matchStat() {
         return matchStat;
     }
+    
+    /**
+     * internal method, don't invoke
+     * @param token
+     */
+    public void setToken(int token) {
+        this.token = token;
+    }
 
     public final void nextToken() {
         sp = 0;

@@ -745,12 +745,23 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                               Type type, //
                               Object fieldName) {
 
-        final JSONLexer lexer = parser.lexer;
-        if (lexer.token() == JSONToken.NULL) {
+        final JSONLexerBase lexer = (JSONLexerBase) parser.lexer;
+        int token = lexer.token();
+        if (token == JSONToken.NULL) {
             lexer.nextToken(JSONToken.COMMA);
+            token = lexer.token();
         }
 
-        parser.accept(JSONToken.LBRACKET, JSONToken.LBRACKET);
+        if (token != JSONToken.LBRACKET) {
+            parser.throwException(token);
+        }
+        char ch = lexer.getCurrent();
+        if (ch == '[') {
+            lexer.next();
+            lexer.setToken(JSONToken.LBRACKET);
+        } else {
+            lexer.nextToken(JSONToken.LBRACKET);
+        }
 
         int index = 0;
         for (;;) {
@@ -763,7 +774,20 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 break;
             }
         }
-        parser.accept(JSONToken.RBRACKET, JSONToken.COMMA);
+        
+        token = lexer.token();
+        if (token != JSONToken.RBRACKET) {
+            parser.throwException(token);
+        }
+        
+        ch = lexer.getCurrent();
+        if (ch == ',') {
+            lexer.next();
+            lexer.setToken(JSONToken.COMMA);
+        } else {
+            lexer.nextToken(JSONToken.COMMA);
+        }
+//        parser.accept(JSONToken.RBRACKET, JSONToken.COMMA);
     }
     
 }

@@ -13,7 +13,15 @@ import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class FastjsonBeanToArrayCodec implements Codec {
-
+    private int serializerFeatures;
+    
+    public FastjsonBeanToArrayCodec() {
+        serializerFeatures |= SerializerFeature.QuoteFieldNames.getMask();
+        serializerFeatures |= SerializerFeature.SkipTransientField.getMask();
+        serializerFeatures |= SerializerFeature.SortField.getMask();
+        serializerFeatures |= SerializerFeature.DisableCircularReferenceDetect.getMask();
+        serializerFeatures |= SerializerFeature.BeanToArray.getMask();
+    }
 
     public String getName() {
         return "fastjson-bean-to-array";
@@ -50,19 +58,7 @@ public class FastjsonBeanToArrayCodec implements Codec {
     // private JavaBeanSerializer serializer = new JavaBeanSerializer(Long_100_Entity.class);
 
     public String encode(Object object) throws Exception {
-        SerializeWriter out = new SerializeWriter();
-        out.config(SerializerFeature.DisableCircularReferenceDetect, true);
-        out.config(SerializerFeature.BeanToArray, true);
-//        out.config(SerializerFeature.DisableCheckSpecialChar, true);
-
-        JSONSerializer serializer = new JSONSerializer(out);
-        serializer.write(object);
-
-        String text = out.toString();
-
-        out.close();
-
-        return text;
+        return JSON.toJSONString(object, serializerFeatures);
     }
 
     @SuppressWarnings("unchecked")

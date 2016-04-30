@@ -390,12 +390,6 @@ public class ASMDeserializerFactory implements Opcodes {
 
         defineVarLexer(context, mw);
 
-        mw.visitVarInsn(ALOAD, context.var("lexer"));
-        mw.visitLdcInsn(Feature.SortFeidFastMatch.mask);
-        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "isEnabled", "(I)Z");
-        
-        mw.visitJumpInsn(IFEQ, super_);
-
         {
             Label next_ = new Label();
 
@@ -427,6 +421,12 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitLabel(next_);
             // deserialzeArrayMapping
         }
+        
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitLdcInsn(Feature.SortFeidFastMatch.mask);
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "isEnabled", "(I)Z");
+        
+        mw.visitJumpInsn(IFEQ, super_);
 
         mw.visitVarInsn(ALOAD, context.var("lexer"));
         mw.visitLdcInsn(context.clazz.getName());

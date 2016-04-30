@@ -50,6 +50,8 @@ public interface JSONLexer {
 
     String stringVal();
 
+    boolean isEnabled(int feature);
+    
     boolean isEnabled(Feature feature);
 
     void config(Feature feature, boolean state);

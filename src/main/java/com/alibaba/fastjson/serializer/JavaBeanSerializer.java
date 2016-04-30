@@ -47,7 +47,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
     protected String                  typeName;
     
     protected final JSONType          jsonType;
-
+    
     public JavaBeanSerializer(Class<?> beanType){
         this(beanType, (Map<String, String>) null);
     }
@@ -157,7 +157,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
             final char endSeperator = writeAsArray ? ']' : '}';
             out.append(startSeperator);
 
-            if (getters.length > 0 && out.prettyFormat) {
+            if (getters.length > 0 && out.isEnabled(SerializerFeature.PrettyFormat)) {
                 serializer.incrementIndent();
                 serializer.println();
             }
@@ -183,8 +183,8 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
             char newSeperator = serializer.writeBefore(this, object, seperator);
             commaFlag = newSeperator == ',';
 
-            final boolean skipTransient = out.skipTransientField;
-            final boolean ignoreNonFieldGetter = out.ignoreNonFieldGetter;
+            final boolean skipTransient = out.isEnabled(SerializerFeature.SkipTransientField);
+            final boolean ignoreNonFieldGetter = out.isEnabled(SerializerFeature.IgnoreNonFieldGetter);
 
             for (int i = 0; i < getters.length; ++i) {
                 FieldSerializer fieldSerializer = getters[i];
@@ -271,7 +271,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
 
                 if (commaFlag) {
                     out.write(',');
-                    if (out.prettyFormat) {
+                    if (out.isEnabled(SerializerFeature.PrettyFormat)) {
                         serializer.println();
                     }
                 }
@@ -328,7 +328,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
 
             serializer.writeAfter(this, object, commaFlag ? ',' : '\0');
 
-            if (getters.length > 0 && out.prettyFormat) {
+            if (getters.length > 0 && out.isEnabled(SerializerFeature.PrettyFormat)) {
                 serializer.decrementIdent();
                 serializer.println();
             }
@@ -355,7 +355,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
     public boolean writeReference(JSONSerializer serializer, Object object, int fieldFeatures) {
         SerialContext context = serializer.context;
         int mask = SerializerFeature.DisableCircularReferenceDetect.mask;
-        if (context != null && ((context.features & mask) != 0 || (fieldFeatures & mask) != 0)) {
+        if (context == null || (context.features & mask) != 0 || (fieldFeatures & mask) != 0) {
             return false;
         }
 

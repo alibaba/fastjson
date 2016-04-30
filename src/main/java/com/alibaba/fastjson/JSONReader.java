@@ -26,7 +26,14 @@ public class JSONReader implements Closeable {
     private JSONStreamContext       context;
 
     public JSONReader(Reader reader){
+        this(reader, new Feature[0]);
+    }
+    
+    public JSONReader(Reader reader, Feature... features){
         this(new JSONReaderScanner(reader));
+        for (Feature feature : features) {
+            this.config(feature, true);
+        }
     }
 
     public JSONReader(JSONLexer lexer){

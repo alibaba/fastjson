@@ -168,7 +168,6 @@ public final class SerializeWriter extends Writer {
         disableCheckSpecialChar = (this.features & SerializerFeature.DisableCheckSpecialChar.mask) != 0;
 
         writeDirect = quoteFieldNames //
-                      && writeEnumUsingName //
                       && (this.features & nonDirectFeautres) == 0 //
                       ;
 

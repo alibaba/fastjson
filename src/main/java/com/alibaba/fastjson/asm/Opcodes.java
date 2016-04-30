@@ -109,6 +109,7 @@ public interface Opcodes {
     int    IF_ICMPGE           = 162;                    // -
     int    IF_ICMPGT           = 163;                    // -
     int    IF_ACMPEQ           = 165;                    // -
+    int    IF_ACMPNE           = 166;                    // -
     int    GOTO                = 167;                    // -
     int    RET                 = 169;                    // visitVarInsn
     int    ARETURN             = 176;                    // -

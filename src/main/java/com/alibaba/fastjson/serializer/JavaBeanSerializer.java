@@ -186,9 +186,6 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
             final boolean skipTransient = out.skipTransientField;
             final boolean ignoreNonFieldGetter = out.ignoreNonFieldGetter;
 
-            final List<ValueFilter> valueFilters = serializer.valueFilters;
-            final List<ContextValueFilter> contextValueFilters = serializer.contextValueFilters;
-
             for (int i = 0; i < getters.length; ++i) {
                 FieldSerializer fieldSerializer = getters[i];
 
@@ -211,16 +208,11 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     }
                 }
 
-                {
-                    boolean apply = serializer.applyName(this, object, fieldInfo.name);
-                    if (!apply) {
-                        continue;
-                    }
-                }
-
-                if (!serializer.applyLabel(this, fieldInfo.label)) {
+                if ((!serializer.applyName(this, object, fieldInfo.name)) //
+                    || !serializer.applyLabel(this, fieldInfo.label)) {
                     continue;
                 }
+
 
                 Object propertyValue;
                 
@@ -234,51 +226,16 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     }
                 }
 
-                boolean apply = serializer.apply(this, object, fieldInfoName, propertyValue);
-                
-
-                if (!apply) {
+                if (!serializer.apply(this, object, fieldInfoName, propertyValue)) {
                     continue;
                 }
 
                 String key = fieldInfoName;
                 key = serializer.processKey(this, object, key, propertyValue);
 
-                if (out.writeNonStringValueAsString) {
-                    if (propertyValue instanceof Number || propertyValue instanceof Boolean) {
-                        propertyValue = propertyValue.toString();
-                    }
-                }
-
                 Object originalValue = propertyValue;
-                {
-                    if (valueFilters != null) {
-                        for (ValueFilter valueFilter : valueFilters) {
-                            propertyValue = valueFilter.process(object, fieldInfoName, propertyValue);
-                        }
-                    }
-
-                    if (this.valueFilters != null) {
-                        for (ValueFilter valueFilter : this.valueFilters) {
-                            propertyValue = valueFilter.process(object, fieldInfoName, propertyValue);
-                        }
-                    }
-                }
-                {
-                    if (contextValueFilters != null) {
-                        for (ContextValueFilter valueFilter : contextValueFilters) {
-                            propertyValue = valueFilter.process(fieldSerializer.fieldContext, object, fieldInfoName,
-                                                                propertyValue);
-                        }
-                    }
-
-                    if (this.contextValueFilters != null) {
-                        for (ContextValueFilter valueFilter : this.contextValueFilters) {
-                            propertyValue = valueFilter.process(fieldSerializer.fieldContext, object, fieldInfoName,
-                                                                propertyValue);
-                        }
-                    }
-                }
+                propertyValue = serializer.processValue(this, fieldSerializer.fieldContext, object, fieldInfoName,
+                                                        propertyValue);
 
                 if (propertyValue == null && !writeAsArray) {
                     if ((!fieldSerializer.writeNull) && (!out.writeMapNullValue)) {
@@ -471,9 +428,11 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         return map;
     }
 
-    @Override
     public BeanContext getBeanContext(String key) {
         return getFieldSerializer(key).fieldContext;
     }
 
+    protected BeanContext getBeanContext(int orinal) {
+        return sortedGetters[orinal].fieldContext;
+    }
 }

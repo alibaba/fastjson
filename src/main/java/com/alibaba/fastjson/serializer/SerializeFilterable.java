@@ -130,7 +130,4 @@ public abstract class SerializeFilterable {
         }
     }
 
-    public BeanContext getBeanContext(String key) {
-        return null;
-    }
 }

@@ -1418,11 +1418,11 @@ public class ASMSerializerFactory implements Opcodes {
                            "(" + desc(SerializeFilterable.class) + "Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;)Z");
     }
 
-    private void _processValue(MethodVisitor mw, FieldInfo property, Context context, Label _end) {
+    private void _processValue(MethodVisitor mw, FieldInfo fieldInfo, Context context, Label _end) {
         Label _else_processKey = new Label();
         
         
-        Class<?> propertyClass = property.fieldClass;
+        Class<?> propertyClass = fieldInfo.fieldClass;
         
         if (propertyClass.isPrimitive()) {
             Label _end_checkValue = new Label();
@@ -1440,6 +1440,9 @@ public class ASMSerializerFactory implements Opcodes {
 
         mw.visitVarInsn(ALOAD, Context.serializer);
         mw.visitVarInsn(ALOAD, 0);
+        mw.visitVarInsn(ALOAD, 0);
+        mw.visitLdcInsn(fieldInfo.name); 
+        mw.visitMethodInsn(INVOKEVIRTUAL, JavaBeanSerializer, "getBeanContext", "(Ljava/lang/String;)" + desc(BeanContext.class));
         mw.visitVarInsn(ALOAD, Context.obj);
         mw.visitVarInsn(ALOAD, Context.fieldName);
 
@@ -1509,14 +1512,17 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitMethodInsn(INVOKEVIRTUAL,
                            JSONSerializer,
                            "processValue",
-                           "(" + desc(SerializeFilterable.class) + "Ljava/lang/Object;Ljava/lang/String;" + valueDesc + ")Ljava/lang/Object;");
+                           "(" + desc(SerializeFilterable.class) //
+                                           + desc(BeanContext.class) //
+                                           + "Ljava/lang/Object;Ljava/lang/String;" //
+                                           + valueDesc + ")Ljava/lang/Object;");
 
         mw.visitVarInsn(ASTORE, Context.processValue);
         
         mw.visitVarInsn(ALOAD, Context.original);
         mw.visitVarInsn(ALOAD, Context.processValue);
         mw.visitJumpInsn(IF_ACMPEQ, _else_processKey);
-        _writeObject(mw, property, context, _end);
+        _writeObject(mw, fieldInfo, context, _end);
         mw.visitJumpInsn(GOTO, _end);
 
         mw.visitLabel(_else_processKey);

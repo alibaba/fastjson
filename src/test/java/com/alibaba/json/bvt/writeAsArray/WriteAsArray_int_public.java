@@ -12,7 +12,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 
 import junit.framework.TestCase;
 
-public class WriteAsArray_long_public extends TestCase {
+public class WriteAsArray_int_public extends TestCase {
 
     public void test_0() throws Exception {
         VO vo = new VO();
@@ -52,14 +52,14 @@ public class WriteAsArray_long_public extends TestCase {
 
     public static class VO {
 
-        private long   id;
+        private int   id;
         private String name;
 
-        public long getId() {
+        public int getId() {
             return id;
         }
 
-        public void setId(long id) {
+        public void setId(int id) {
             this.id = id;
         }
 

@@ -1156,6 +1156,111 @@ public final class JSONScanner extends JSONLexerBase {
 
         return value;
     }
+    
+    public final int scanInt(char expectNext) {
+        matchStat = UNKNOWN;
+
+        int offset = bp;
+        char chLocal = charAt(offset++);
+
+        final boolean negative = chLocal == '-';
+        if (negative) {
+            chLocal = charAt(offset++);
+        }
+
+        int value;
+        if (chLocal >= '0' && chLocal <= '9') {
+            value = chLocal - '0';
+            for (;;) {
+                chLocal = charAt(offset++);
+                if (chLocal >= '0' && chLocal <= '9') {
+                    value = value * 10 + (chLocal - '0');
+                } else if (chLocal == '.') {
+                    matchStat = NOT_MATCH;
+                    return 0;
+                } else {
+                    break;
+                }
+            }
+            if (value < 0) {
+                matchStat = NOT_MATCH;
+                return 0;
+            }
+        } else {
+            matchStat = NOT_MATCH;
+            return 0;
+        }
+
+        for (;;) {
+            if (chLocal == expectNext) {
+                bp = offset;
+                this.ch = charAt(bp);
+                matchStat = VALUE;
+                token = JSONToken.COMMA;
+                return negative ? -value : value;
+            } else {
+                if (isWhitespace(chLocal)) {
+                    chLocal = charAt(offset++);
+                    continue;
+                }
+                matchStat = NOT_MATCH;
+                return negative ? -value : value;
+            }
+        }
+    }
+    
+    public long scanLong(char expectNextChar) {
+        matchStat = UNKNOWN;
+
+        int offset = bp;
+        char chLocal = charAt(offset++);
+
+        final boolean negative = chLocal == '-';
+        if (negative) {
+            chLocal = charAt(offset++);
+        }
+
+        long value;
+        if (chLocal >= '0' && chLocal <= '9') {
+            value = chLocal - '0';
+            for (;;) {
+                chLocal = charAt(offset++);
+                if (chLocal >= '0' && chLocal <= '9') {
+                    value = value * 10 + (chLocal - '0');
+                } else if (chLocal == '.') {
+                    matchStat = NOT_MATCH;
+                    return 0;
+                } else {
+                    break;
+                }
+            }
+            if (value < 0) {
+                matchStat = NOT_MATCH;
+                return 0;
+            }
+        } else {
+            matchStat = NOT_MATCH;
+            return 0;
+        }
+
+        for (;;) {
+            if (chLocal == expectNextChar) {
+                bp = offset;
+                this.ch = charAt(bp);
+                matchStat = VALUE;
+                token = JSONToken.COMMA;
+                return negative ? -value : value;
+            } else {
+                if (isWhitespace(chLocal)) {
+                    chLocal = charAt(offset++);
+                    continue;
+                }
+
+                matchStat = NOT_MATCH;
+                return value;
+            }
+        }
+    }
 
     protected final void arrayCopy(int srcPos, char[] dest, int destPos, int length) {
         text.getChars(srcPos, srcPos + length, dest, destPos);

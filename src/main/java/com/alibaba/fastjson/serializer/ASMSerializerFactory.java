@@ -1314,19 +1314,21 @@ public class ASMSerializerFactory implements Opcodes {
 
     private void _before(MethodVisitor mw, Context context) {
         mw.visitVarInsn(ALOAD, Context.serializer);
+        mw.visitVarInsn(ALOAD, 0);
         mw.visitVarInsn(ALOAD, Context.obj);
         mw.visitVarInsn(ILOAD, context.var("seperator"));
         mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer, "writeBefore",
-                           "(Ljava/lang/Object;C)C");
+                           "(" + desc(SerializeFilterable.class) + "Ljava/lang/Object;C)C");
         mw.visitVarInsn(ISTORE, context.var("seperator"));
     }
 
     private void _after(MethodVisitor mw, Context context) {
         mw.visitVarInsn(ALOAD, Context.serializer);
+        mw.visitVarInsn(ALOAD, 0);
         mw.visitVarInsn(ALOAD, Context.obj);
         mw.visitVarInsn(ILOAD, context.var("seperator"));
         mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer, "writeAfter",
-                           "(Ljava/lang/Object;C)C");
+                           "(" + desc(SerializeFilterable.class) + "Ljava/lang/Object;C)C");
         mw.visitVarInsn(ISTORE, context.var("seperator"));
     }
     

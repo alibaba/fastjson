@@ -180,7 +180,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
             char seperator = commaFlag ? ',' : '\0';
 
             final boolean directWritePrefix = out.quoteFieldNames && !out.useSingleQuotes;
-            char newSeperator = serializer.writeBefore(object, seperator);
+            char newSeperator = serializer.writeBefore(this, object, seperator);
             commaFlag = newSeperator == ',';
 
             final boolean skipTransient = out.skipTransientField;
@@ -442,7 +442,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 commaFlag = true;
             }
 
-            serializer.writeAfter(object, commaFlag ? ',' : '\0');
+            serializer.writeAfter(this, object, commaFlag ? ',' : '\0');
 
             if (getters.length > 0 && out.prettyFormat) {
                 serializer.decrementIdent();

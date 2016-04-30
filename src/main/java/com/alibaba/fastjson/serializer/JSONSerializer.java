@@ -439,20 +439,33 @@ public class JSONSerializer extends SerializeFilterable {
         return true;
     }
 
-    public char writeBefore(Object object, char seperator) {
-        List<BeforeFilter> beforeFilters = this.beforeFilters;
-        if (beforeFilters != null) {
-            for (BeforeFilter beforeFilter : beforeFilters) {
+    public char writeBefore(SerializeFilterable javaBeanDeser, //
+                            Object object, char seperator) {
+        if (this.beforeFilters != null) {
+            for (BeforeFilter beforeFilter : this.beforeFilters) {
                 seperator = beforeFilter.writeBefore(this, object, seperator);
             }
         }
+        
+        if (javaBeanDeser.beforeFilters != null) {
+            for (BeforeFilter beforeFilter : javaBeanDeser.beforeFilters) {
+                seperator = beforeFilter.writeBefore(this, object, seperator);
+            }
+        }
+        
         return seperator;
     }
 
-    public char writeAfter(Object object, char seperator) {
-        List<AfterFilter> afterFilters = this.afterFilters;
-        if (afterFilters != null) {
-            for (AfterFilter afterFilter : afterFilters) {
+    public char writeAfter(SerializeFilterable javaBeanDeser, // 
+                           Object object, char seperator) {
+        if (this.afterFilters != null) {
+            for (AfterFilter afterFilter : this.afterFilters) {
+                seperator = afterFilter.writeAfter(this, object, seperator);
+            }
+        }
+        
+        if (javaBeanDeser.afterFilters != null) {
+            for (AfterFilter afterFilter : javaBeanDeser.afterFilters) {
                 seperator = afterFilter.writeAfter(this, object, seperator);
             }
         }

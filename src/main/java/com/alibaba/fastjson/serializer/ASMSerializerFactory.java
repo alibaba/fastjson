@@ -176,7 +176,8 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitMethodInsn(INVOKESPECIAL, type(JavaBeanSerializer.class), "<init>", "(Ljava/lang/Class;)V");
 
         // init _asm_fieldType
-        for (FieldInfo fieldInfo : getters) {
+        for (int i = 0; i < getters.size(); ++i) {
+            FieldInfo fieldInfo = getters.get(i);
             if (fieldInfo.fieldClass.isPrimitive() //
                 || fieldInfo.fieldClass.isEnum() //
                 || fieldInfo.fieldClass == String.class) {
@@ -185,17 +186,16 @@ public class ASMSerializerFactory implements Opcodes {
             
             mw.visitVarInsn(ALOAD, 0);
 
-            mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(desc(fieldInfo.declaringClass)));
-
             if (fieldInfo.method != null) {
+                mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(desc(fieldInfo.declaringClass)));
                 mw.visitLdcInsn(fieldInfo.method.getName());
                 mw.visitMethodInsn(INVOKESTATIC, type(ASMUtils.class), "getMethodType",
                                    "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/reflect/Type;");
 
             } else {
-                mw.visitLdcInsn(fieldInfo.field.getName());
-                mw.visitMethodInsn(INVOKESTATIC, type(ASMUtils.class), "getFieldType",
-                                   "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/reflect/Type;");
+                mw.visitVarInsn(ALOAD, 0);
+                mw.visitLdcInsn(i);
+                mw.visitMethodInsn(INVOKESPECIAL, JavaBeanSerializer, "getFieldType", "(I)Ljava/lang/reflect/Type;");
             }
 
             mw.visitFieldInsn(PUTFIELD, classNameType, fieldInfo.name + "_asm_fieldType", "Ljava/lang/reflect/Type;");

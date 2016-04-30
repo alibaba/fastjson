@@ -441,12 +441,12 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
         multmin = MULTMIN_RADIX_TEN;
         if (i < max) {
-            digit = digits[charAt(i++)];
+            digit = charAt(i++) - '0';
             result = -digit;
         }
         while (i < max) {
             // Accumulating negatively avoids surprises near MAX_VALUE
-            digit = digits[charAt(i++)];
+            digit = charAt(i++) - '0';
             if (result < multmin) {
                 return new BigInteger(numberString());
             }
@@ -1018,7 +1018,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
         long multmin = INT_MULTMIN_RADIX_TEN;
         if (i < max) {
-            digit = digits[charAt(i++)];
+            digit = charAt(i++) - '0';
             result = -digit;
         }
         while (i < max) {
@@ -1029,7 +1029,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 break;
             }
 
-            digit = digits[chLocal];
+            digit = chLocal - '0';
 
             if (result < multmin) {
                 throw new NumberFormatException(numberString());
@@ -1746,11 +1746,11 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         int value;
         if (chLocal >= '0' && chLocal <= '9') {
-            value = digits[chLocal];
+            value = chLocal - '0';
             for (;;) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
-                    value = value * 10 + digits[chLocal];
+                    value = value * 10 + (chLocal - '0');
                 } else if (chLocal == '.') {
                     matchStat = NOT_MATCH;
                     return 0;
@@ -1879,11 +1879,11 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         int value;
         if (chLocal >= '0' && chLocal <= '9') {
-            value = digits[chLocal];
+            value = chLocal - '0';
             for (;;) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
-                    value = value * 10 + digits[chLocal];
+                    value = value * 10 + (chLocal - '0');
                 } else if (chLocal == '.') {
                     matchStat = NOT_MATCH;
                     return 0;
@@ -2029,11 +2029,11 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         long value;
         if (chLocal >= '0' && chLocal <= '9') {
-            value = digits[chLocal];
+            value = chLocal - '0';
             for (;;) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
-                    value = value * 10 + digits[chLocal];
+                    value = value * 10 + (chLocal - '0');
                 } else if (chLocal == '.') {
                     matchStat = NOT_MATCH;
                     return 0;
@@ -2102,11 +2102,11 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         long value;
         if (chLocal >= '0' && chLocal <= '9') {
-            value = digits[chLocal];
+            value = chLocal - '0';
             for (;;) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
-                    value = value * 10 + digits[chLocal];
+                    value = value * 10 + (chLocal - '0');
                 } else if (chLocal == '.') {
                     matchStat = NOT_MATCH;
                     return 0;
@@ -2947,7 +2947,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
         long multmin = MULTMIN_RADIX_TEN;
         if (i < max) {
-            digit = digits[charAt(i++)];
+            digit = charAt(i++) - '0';
             result = -digit;
         }
         while (i < max) {
@@ -2958,7 +2958,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 break;
             }
 
-            digit = digits[chLocal];
+            digit = chLocal - '0';
             if (result < multmin) {
                 throw new NumberFormatException(numberString());
             }

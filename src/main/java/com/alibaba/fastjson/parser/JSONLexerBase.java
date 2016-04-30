@@ -1207,8 +1207,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
 
         if (chLocal == ',') {
-            bp += (offset - 1);
-            this.next();
+            bp += offset;
+            this.ch = this.charAt(bp);
             matchStat = VALUE;
             return strVal;
         }
@@ -1217,16 +1217,16 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             chLocal = charAt(bp + (offset++));
             if (chLocal == ',') {
                 token = JSONToken.COMMA;
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
             } else if (chLocal == ']') {
                 token = JSONToken.RBRACKET;
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
             } else if (chLocal == '}') {
                 token = JSONToken.RBRACE;
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
             } else if (chLocal == EOI) {
                 token = JSONToken.EOF;
                 bp += (offset - 1);
@@ -1260,8 +1260,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             }
 
             if (chLocal == expectNextChar) {
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
                 matchStat = VALUE;
                 return null;
             } else {
@@ -1313,8 +1313,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
 
         if (chLocal == expectNextChar) {
-            bp += (offset - 1);
-            this.next();
+            bp += offset;
+            this.ch = charAt(bp);
             matchStat = VALUE;
             return strVal;
         } else {
@@ -1340,13 +1340,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
 
         String strVal;
-        // int start = index;
         int hash = 0;
         for (;;) {
             chLocal = charAt(bp + (offset++));
             if (chLocal == '\"') {
-                // bp = index;
-                // this.ch = chLocal = charAt(bp);
                 int start = bp + fieldName.length + 1;
                 int len = bp + offset - start - 1;
                 strVal = addSymbol(start, len, hash, symbolTable);
@@ -1363,8 +1360,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
 
         if (chLocal == ',') {
-            bp += (offset - 1);
-            this.next();
+            bp += offset;
+            this.ch = this.charAt(bp);
             matchStat = VALUE;
             return strVal;
         }
@@ -1373,16 +1370,16 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             chLocal = charAt(bp + (offset++));
             if (chLocal == ',') {
                 token = JSONToken.COMMA;
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
             } else if (chLocal == ']') {
                 token = JSONToken.RBRACKET;
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
             } else if (chLocal == '}') {
                 token = JSONToken.RBRACE;
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
             } else if (chLocal == EOI) {
                 token = JSONToken.EOF;
                 bp += (offset - 1);
@@ -1425,8 +1422,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             }
 
             if (chLocal == serperator) {
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
                 matchStat = VALUE;
                 return null;
             } else {
@@ -1465,8 +1462,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         for (;;) {
             if (chLocal == serperator) {
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
                 matchStat = VALUE;
                 return strVal;
             } else {
@@ -1582,8 +1579,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
 
         if (chLocal == ',') {
-            bp += (offset - 1);
-            this.next();
+            bp += offset;
+            this.ch = this.charAt(bp);
             matchStat = VALUE;
             return list;
         }
@@ -1592,16 +1589,16 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             chLocal = charAt(bp + (offset++));
             if (chLocal == ',') {
                 token = JSONToken.COMMA;
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
             } else if (chLocal == ']') {
                 token = JSONToken.RBRACKET;
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
             } else if (chLocal == '}') {
                 token = JSONToken.RBRACE;
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
             } else if (chLocal == EOI) {
                 bp += (offset - 1);
                 token = JSONToken.EOF;
@@ -1637,8 +1634,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             }
 
             if (chLocal == seperator) {
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
                 matchStat = VALUE;
                 return null;
             } else {
@@ -1718,8 +1715,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
 
         if (chLocal == seperator) {
-            bp += (offset - 1);
-            this.next();
+            bp += offset;
+            this.ch = this.charAt(bp);
             matchStat = VALUE;
             return list;
         } else {
@@ -1773,8 +1770,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
 
         if (chLocal == ',') {
-            bp += (offset - 1);
-            this.next();
+            bp += offset;
+            this.ch = this.charAt(bp);
             matchStat = VALUE;
             token = JSONToken.COMMA;
             return negative ? -value : value;
@@ -1784,16 +1781,16 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             chLocal = charAt(bp + (offset++));
             if (chLocal == ',') {
                 token = JSONToken.COMMA;
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
             } else if (chLocal == ']') {
                 token = JSONToken.RBRACKET;
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
             } else if (chLocal == '}') {
                 token = JSONToken.RBRACE;
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
             } else if (chLocal == EOI) {
                 token = JSONToken.EOF;
                 bp += (offset - 1);
@@ -1851,8 +1848,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         for (;;) {
             if (chLocal == expectNext) {
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
                 matchStat = VALUE;
                 return value;
             } else {
@@ -1902,8 +1899,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         for (;;) {
             if (chLocal == expectNext) {
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
                 matchStat = VALUE;
                 token = JSONToken.COMMA;
                 return negative ? -value : value;
@@ -1971,8 +1968,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         chLocal = charAt(bp + offset++);
         if (chLocal == ',') {
-            bp += (offset - 1);
-            this.next();
+            bp += offset;
+            this.ch = this.charAt(bp);
             matchStat = VALUE;
             token = JSONToken.COMMA;
 
@@ -1983,16 +1980,16 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             chLocal = charAt(bp + (offset++));
             if (chLocal == ',') {
                 token = JSONToken.COMMA;
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
             } else if (chLocal == ']') {
                 token = JSONToken.RBRACKET;
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
             } else if (chLocal == '}') {
                 token = JSONToken.RBRACE;
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
             } else if (chLocal == EOI) {
                 token = JSONToken.EOF;
                 bp += (offset - 1);
@@ -2051,8 +2048,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
 
         if (chLocal == ',') {
-            bp += (offset - 1);
-            this.next();
+            bp += offset;
+            this.ch = this.charAt(bp);
             matchStat = VALUE;
             token = JSONToken.COMMA;
             return negative ? -value : value;
@@ -2062,16 +2059,16 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             chLocal = charAt(bp + (offset++));
             if (chLocal == ',') {
                 token = JSONToken.COMMA;
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
             } else if (chLocal == ']') {
                 token = JSONToken.RBRACKET;
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
             } else if (chLocal == '}') {
                 token = JSONToken.RBRACE;
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
             } else if (chLocal == EOI) {
                 token = JSONToken.EOF;
                 bp += (offset - 1);
@@ -2125,8 +2122,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         for (;;) {
             if (chLocal == expectNextChar) {
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
                 matchStat = VALUE;
                 token = JSONToken.COMMA;
                 return negative ? -value : value;
@@ -2191,8 +2188,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
 
         if (chLocal == ',') {
-            bp += (offset - 1);
-            this.next();
+            bp += offset;
+            this.ch = this.charAt(bp);
             matchStat = VALUE;
             token = JSONToken.COMMA;
             return value;
@@ -2202,16 +2199,16 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             chLocal = charAt(bp + (offset++));
             if (chLocal == ',') {
                 token = JSONToken.COMMA;
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
             } else if (chLocal == ']') {
                 token = JSONToken.RBRACKET;
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
             } else if (chLocal == '}') {
                 token = JSONToken.RBRACE;
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
             } else if (chLocal == EOI) {
                 bp += (offset - 1);
                 token = JSONToken.EOF;
@@ -2273,8 +2270,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
 
         if (chLocal == seperator) {
-            bp += (offset - 1);
-            this.next();
+            bp += offset;
+            this.ch = this.charAt(bp);
             matchStat = VALUE;
             token = JSONToken.COMMA;
             return value;
@@ -2328,8 +2325,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
 
         if (chLocal == seperator) {
-            bp += (offset - 1);
-            this.next();
+            bp += offset;
+            this.ch = this.charAt(bp);
             matchStat = VALUE;
             token = JSONToken.COMMA;
             return value;
@@ -2402,8 +2399,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
 
         if (chLocal == ',') {
-            bp += (offset - 1);
-            this.next();
+            bp += offset;
+            this.ch = this.charAt(bp);
             matchStat = VALUE;
             token = JSONToken.COMMA;
             return value;
@@ -2413,16 +2410,16 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             chLocal = charAt(bp + (offset++));
             if (chLocal == ',') {
                 token = JSONToken.COMMA;
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
             } else if (chLocal == ']') {
                 token = JSONToken.RBRACKET;
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
             } else if (chLocal == '}') {
                 token = JSONToken.RBRACE;
-                bp += (offset - 1);
-                this.next();
+                bp += offset;
+                this.ch = this.charAt(bp);
             } else if (chLocal == EOI) {
                 token = JSONToken.EOF;
                 bp += (offset - 1);

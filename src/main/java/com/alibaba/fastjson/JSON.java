@@ -463,7 +463,14 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static String toJSONString(Object object, SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter((Writer) null, DEFAULT_GENERATE_FEATURE, features);
+        return toJSONString(object, DEFAULT_GENERATE_FEATURE, features);
+    }
+    
+    /**
+     * @since 1.2.11
+     */
+    public static String toJSONString(Object object, int defaultFeatures, SerializerFeature... features) {
+        SerializeWriter out = new SerializeWriter((Writer) null, defaultFeatures, features);
 
         try {
             JSONSerializer serializer = new JSONSerializer(out);

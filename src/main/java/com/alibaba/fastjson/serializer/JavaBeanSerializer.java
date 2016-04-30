@@ -186,12 +186,8 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
             final boolean skipTransient = out.skipTransientField;
             final boolean ignoreNonFieldGetter = out.ignoreNonFieldGetter;
 
-            final List<LabelFilter> labelFilters = serializer.labelFilters;
-            final List<PropertyFilter> propertyFilters = serializer.propertyFilters;
-            final List<NameFilter> nameFilters = serializer.nameFilters;
             final List<ValueFilter> valueFilters = serializer.valueFilters;
             final List<ContextValueFilter> contextValueFilters = serializer.contextValueFilters;
-            final List<PropertyPreFilter> propertyPreFilters = serializer.propertyPreFilters;
 
             for (int i = 0; i < getters.length; ++i) {
                 FieldSerializer fieldSerializer = getters[i];
@@ -216,53 +212,14 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 }
 
                 {
-                    boolean apply = true;
-
-                    if (propertyPreFilters != null) {
-                        for (PropertyPreFilter filter : propertyPreFilters) {
-                            if (!filter.apply(serializer, object, fieldInfo.name)) {
-                                apply = false;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (apply && this.propertyPreFilters != null) {
-                        for (PropertyPreFilter filter : this.propertyPreFilters) {
-                            if (!filter.apply(serializer, object, fieldInfo.name)) {
-                                apply = false;
-                                break;
-                            }
-                        }
-                    }
-
+                    boolean apply = serializer.applyName(this, object, fieldInfo.name);
                     if (!apply) {
                         continue;
                     }
                 }
 
-                {
-                    boolean apply = true;
-                    if (labelFilters != null) {
-                        for (LabelFilter propertyFilter : labelFilters) {
-                            if (!propertyFilter.apply(fieldInfo.label)) {
-                                apply = false;
-                                break;
-                            }
-                        }
-                    }
-                    if (apply && this.labelFilters != null) {
-                        for (LabelFilter propertyFilter : this.labelFilters) {
-                            if (!propertyFilter.apply(fieldInfo.label)) {
-                                apply = false;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (!apply) {
-                        continue;
-                    }
+                if (!serializer.applyLabel(this, fieldInfo.label)) {
+                    continue;
                 }
 
                 Object propertyValue;
@@ -277,45 +234,15 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     }
                 }
 
-                boolean apply = true;
-                {
-                    if (propertyFilters != null) {
-                        for (PropertyFilter propertyFilter : propertyFilters) {
-                            if (!propertyFilter.apply(object, fieldInfoName, propertyValue)) {
-                                apply = false;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (apply && this.propertyFilters != null) {
-                        for (PropertyFilter propertyFilter : this.propertyFilters) {
-                            if (!propertyFilter.apply(object, fieldInfoName, propertyValue)) {
-                                apply = false;
-                                break;
-                            }
-                        }
-                    }
-                }
+                boolean apply = serializer.apply(this, object, fieldInfoName, propertyValue);
+                
 
                 if (!apply) {
                     continue;
                 }
 
                 String key = fieldInfoName;
-                {
-                    if (nameFilters != null) {
-                        for (NameFilter nameFilter : nameFilters) {
-                            key = nameFilter.process(object, key, propertyValue);
-                        }
-                    }
-
-                    if (this.nameFilters != null) {
-                        for (NameFilter nameFilter : this.nameFilters) {
-                            key = nameFilter.process(object, key, propertyValue);
-                        }
-                    }
-                }
+                key = serializer.processKey(this, object, key, propertyValue);
 
                 if (out.writeNonStringValueAsString) {
                     if (propertyValue instanceof Number || propertyValue instanceof Boolean) {

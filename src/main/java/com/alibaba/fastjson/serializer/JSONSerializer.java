@@ -472,19 +472,21 @@ public class JSONSerializer extends SerializeFilterable {
         return seperator;
     }
 
-    public boolean applyLabel(String label) {
-        List<LabelFilter> labelFilters = this.labelFilters;
-
-        if (labelFilters != null) {
-            boolean apply = true;
-
-            for (LabelFilter propertyFilter : labelFilters) {
+    public boolean applyLabel(SerializeFilterable javaBeanDeser, String label) {
+        if (this.labelFilters != null) {
+            for (LabelFilter propertyFilter : this.labelFilters) {
                 if (!propertyFilter.apply(label)) {
                     return false;
                 }
             }
-
-            return apply;
+        }
+        
+        if (javaBeanDeser.labelFilters != null) {
+            for (LabelFilter propertyFilter : javaBeanDeser.labelFilters) {
+                if (!propertyFilter.apply(label)) {
+                    return false;
+                }
+            }
         }
 
         return true;

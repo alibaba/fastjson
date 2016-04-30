@@ -1244,9 +1244,9 @@ public class ASMSerializerFactory implements Opcodes {
     
     private void _labelApply(MethodVisitor mw, FieldInfo property, Context context, Label _end) {
         mw.visitVarInsn(ALOAD, Context.serializer);
+        mw.visitVarInsn(ALOAD, 0);
         mw.visitLdcInsn(property.label);
-        
-        mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer, "applyLabel", "(Ljava/lang/String;)Z");
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer, "applyLabel", "(" + desc(SerializeFilterable.class) + "Ljava/lang/String;)Z");
         mw.visitJumpInsn(IFEQ, _end);
     }
 

@@ -38,6 +38,7 @@ import java.util.regex.Pattern;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONPath;
 import com.alibaba.fastjson.JSONStreamAware;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
@@ -294,6 +295,10 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         
         if (clazz == Currency.class) {
             return (T) Currency.getInstance(strVal);
+        }
+        
+        if (clazz == JSONPath.class) {
+            return (T) new JSONPath(strVal);
         }
         
         throw new JSONException("MiscCodec not support " + clazz);

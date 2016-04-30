@@ -7,7 +7,7 @@ import java.util.TimeZone;
 
 public interface JSONLexer {
 
-    byte EOI            = 0x1A;
+    char EOI            = 0x1A;
     int  NOT_MATCH      = -1;
     int  NOT_MATCH_NAME = -2;
     int  UNKNOWN         = 0;

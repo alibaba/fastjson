@@ -66,8 +66,6 @@ public interface JSONLexer {
 
     boolean isBlankInput();
 
-    int getBufferPosition();
-
     void close();
 
     long longValue();

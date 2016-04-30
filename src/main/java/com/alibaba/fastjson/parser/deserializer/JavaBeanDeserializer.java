@@ -769,7 +769,13 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             collection.add(item);
             index++;
             if (lexer.token() == JSONToken.COMMA) {
-                lexer.nextToken(JSONToken.LBRACKET);
+                ch = lexer.getCurrent();
+                if (ch == '[') {
+                    lexer.next();
+                    lexer.setToken(JSONToken.LBRACKET);
+                } else {
+                    lexer.nextToken(JSONToken.LBRACKET);
+                }
             } else {
                 break;
             }

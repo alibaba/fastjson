@@ -340,9 +340,30 @@ public class ASMDeserializerFactory implements Opcodes {
                 
                 mw.visitLabel(objElseIf_);
                 
+//                mw.visitVarInsn(ALOAD, context.var("lexer"));
+//                mw.visitLdcInsn(JSONToken.LBRACKET);
+//                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "nextToken", "(I)V");
+                
+                Label quickElse_ = new Label(), quickEnd_ = new Label();
+                mw.visitVarInsn(ALOAD, context.var("lexer"));
+                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "getCurrent", "()C");
+                mw.visitVarInsn(BIPUSH, '[');
+                mw.visitJumpInsn(IF_ICMPNE, quickElse_);
+                
+                mw.visitVarInsn(ALOAD, context.var("lexer"));
+                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "next", "()C");
+                mw.visitInsn(POP);
                 mw.visitVarInsn(ALOAD, context.var("lexer"));
                 mw.visitLdcInsn(JSONToken.LBRACKET);
+                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "setToken", "(I)V");
+                mw.visitJumpInsn(GOTO, quickEnd_);
+                
+                mw.visitLabel(quickElse_);
+                mw.visitVarInsn(ALOAD, context.var("lexer"));
+                mw.visitLdcInsn(JSONToken.COMMA);
                 mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "nextToken", "(I)V");
+                
+                mw.visitLabel(quickEnd_);
                 
                 _deserObject(context, mw, fieldInfo, fieldClass, i);
 
@@ -364,10 +385,55 @@ public class ASMDeserializerFactory implements Opcodes {
 
         _batchSet(context, mw, false);
 
-        // lexer.nextToken(JSONToken.COMMA);
+        Label quickElse_ = new Label(), quickElseIf_ = new Label(), quickElseIfEOI_ = new Label(), quickEnd_ = new Label();
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "getCurrent", "()C");
+        mw.visitVarInsn(BIPUSH, ',');
+        mw.visitJumpInsn(IF_ICMPNE, quickElseIf_);
+        
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "next", "()C");
+        mw.visitInsn(POP);
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitLdcInsn(JSONToken.COMMA);
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "setToken", "(I)V");
+        mw.visitJumpInsn(GOTO, quickEnd_);
+        
+        mw.visitLabel(quickElseIf_);
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "getCurrent", "()C");
+        mw.visitVarInsn(BIPUSH, ']');
+        mw.visitJumpInsn(IF_ICMPNE, quickElseIfEOI_);
+        
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "next", "()C");
+        mw.visitInsn(POP);
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitLdcInsn(JSONToken.RBRACKET);
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "setToken", "(I)V");
+        mw.visitJumpInsn(GOTO, quickEnd_);
+        
+        mw.visitLabel(quickElseIfEOI_);
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "getCurrent", "()C");
+        mw.visitVarInsn(BIPUSH, (char) JSONLexer.EOI);
+        mw.visitJumpInsn(IF_ICMPNE, quickElse_);
+        
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "next", "()C");
+        mw.visitInsn(POP);
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitLdcInsn(JSONToken.EOF);
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "setToken", "(I)V");
+        mw.visitJumpInsn(GOTO, quickEnd_);
+        
+        mw.visitLabel(quickElse_);
         mw.visitVarInsn(ALOAD, context.var("lexer"));
         mw.visitLdcInsn(JSONToken.COMMA);
         mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "nextToken", "(I)V");
+        
+        mw.visitLabel(quickEnd_);
+        
 
         mw.visitVarInsn(ALOAD, context.var("instance"));
         mw.visitInsn(ARETURN);

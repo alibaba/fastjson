@@ -1866,7 +1866,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
     }
 
-    public final int scanInt(char expectNext) {
+    public int scanInt(char expectNext) {
         matchStat = UNKNOWN;
 
         int offset = 0;
@@ -2089,7 +2089,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         return negative ? -value : value;
     }
 
-    public final long scanLong(char expectNextChar) {
+    public long scanLong(char expectNextChar) {
         matchStat = UNKNOWN;
 
         int offset = 0;

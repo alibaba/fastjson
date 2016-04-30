@@ -1340,10 +1340,10 @@ public class DefaultJSONParser implements Closeable {
                 if (lexer.isBlankInput()) {
                     return null;
                 }
-                throw new JSONException("unterminated json string, pos " + lexer.getBufferPosition());
+                throw new JSONException("unterminated json string, " + lexer.info());
             case ERROR:
             default:
-                throw new JSONException("syntax error, pos " + lexer.getBufferPosition());
+                throw new JSONException("syntax error, " + lexer.info());
         }
     }
 

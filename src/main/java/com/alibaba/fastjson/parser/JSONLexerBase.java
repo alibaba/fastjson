@@ -394,10 +394,6 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         return pos;
     }
 
-    public final int getBufferPosition() {
-        return bp;
-    }
-
     public final String stringDefaultValue() {
         return stringDefaultValue;
     }

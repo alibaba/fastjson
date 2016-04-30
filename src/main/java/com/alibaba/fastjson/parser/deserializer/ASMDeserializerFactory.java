@@ -377,7 +377,8 @@ public class ASMDeserializerFactory implements Opcodes {
             }
         }
 
-        context.fieldInfoList = context.beanInfo.sortedFields;
+        JavaBeanInfo beanInfo = context.beanInfo;
+        context.fieldInfoList = beanInfo.sortedFields;
 
         MethodVisitor mw = new MethodWriter(cw, ACC_PUBLIC, "deserialze",
                                             "(L" + DefaultJSONParser + ";Ljava/lang/reflect/Type;Ljava/lang/Object;)Ljava/lang/Object;",
@@ -399,17 +400,19 @@ public class ASMDeserializerFactory implements Opcodes {
         {
             Label next_ = new Label();
 
-            mw.visitVarInsn(ALOAD, 0);
-            mw.visitVarInsn(ALOAD, context.var("lexer"));
-            mw.visitMethodInsn(INVOKESPECIAL, type(JavaBeanDeserializer.class),
-                               "isSupportArrayToBean", "(" + desc(JSONLexer.class) + ")Z");
-            mw.visitJumpInsn(IFEQ, next_);
             // isSupportArrayToBean
 
             mw.visitVarInsn(ALOAD, context.var("lexer"));
             mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "token", "()I");
             mw.visitLdcInsn(JSONToken.LBRACKET);
             mw.visitJumpInsn(IF_ICMPNE, next_);
+            
+            if ((beanInfo.parserFeatures & Feature.SupportArrayToBean.mask) == 0) {
+                mw.visitVarInsn(ALOAD, context.var("lexer"));
+                mw.visitLdcInsn(Feature.SupportArrayToBean.mask);
+                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "isEnabled", "(I)Z");
+                mw.visitJumpInsn(IFEQ, next_);
+            }
 
             mw.visitVarInsn(ALOAD, 0);
             mw.visitVarInsn(ALOAD, 1);

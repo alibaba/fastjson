@@ -36,7 +36,7 @@ public class ImageGenDecoder extends JavaBeanDeserializer implements ObjectDeser
             return super.deserialze(parser, type, fieldName);
         }
         
-        if (isSupportArrayToBean(lexer)) {
+        if (lexer.isEnabled(Feature.SupportArrayToBean)) {
             // deserialzeArrayMapping
         }
         

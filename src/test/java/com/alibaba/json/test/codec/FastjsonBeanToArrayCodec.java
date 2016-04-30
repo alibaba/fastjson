@@ -8,25 +8,23 @@ import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.JSONSerializer;
+import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class FastjsonBeanToArrayCodec implements Codec {
 
-    private ParserConfig    config = ParserConfig.getGlobalInstance();
 
     public String getName() {
         return "fastjson-bean-to-array";
     }
 
     public <T> T decodeObject(String text, Class<T> clazz) {
-        DefaultJSONParser parser = new DefaultJSONParser(text, config);
-        parser.config(Feature.DisableCircularReferenceDetect, true);
-        parser.config(Feature.SupportArrayToBean, true);
-        return parser.parseObject(clazz);
+        return (T) JSON.parseObject(text, clazz, Feature.DisableCircularReferenceDetect, Feature.SupportArrayToBean);
     }
 
     public <T> Collection<T> decodeArray(String text, Class<T> clazz) throws Exception {
+        ParserConfig config = ParserConfig.global;
         DefaultJSONParser parser = new DefaultJSONParser(text, config);
         parser.config(Feature.DisableCircularReferenceDetect, true);
         parser.config(Feature.SupportArrayToBean, true);
@@ -34,6 +32,7 @@ public class FastjsonBeanToArrayCodec implements Codec {
     }
 
     public final Object decodeObject(String text) {
+        ParserConfig config = ParserConfig.global;
         DefaultJSONParser parser = new DefaultJSONParser(text, config);
         parser.config(Feature.DisableCircularReferenceDetect, true);
         parser.config(Feature.SupportArrayToBean, true);
@@ -41,6 +40,7 @@ public class FastjsonBeanToArrayCodec implements Codec {
     }
 
     public final Object decode(String text) {
+        ParserConfig config = ParserConfig.global;
         DefaultJSONParser parser = new DefaultJSONParser(text, config);
         parser.config(Feature.DisableCircularReferenceDetect, true);
         parser.config(Feature.SupportArrayToBean, true);

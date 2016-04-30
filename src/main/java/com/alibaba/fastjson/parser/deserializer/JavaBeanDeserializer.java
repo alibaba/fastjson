@@ -641,10 +641,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     public int getFastMatchToken() {
         return JSONToken.LBRACE;
     }
-
-    public final boolean isSupportArrayToBean(JSONLexer lexer) {
-        return Feature.isEnabled(beanInfo.parserFeatures, Feature.SupportArrayToBean) || lexer.isEnabled(Feature.SupportArrayToBean);
-    }
     
     public Object createInstance(Map<String, Object> map, ParserConfig config) //
                                                                                throws IllegalArgumentException,

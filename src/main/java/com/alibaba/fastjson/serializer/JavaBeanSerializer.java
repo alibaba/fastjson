@@ -37,7 +37,7 @@ import com.alibaba.fastjson.util.TypeUtils;
  */
 public class JavaBeanSerializer extends SerializeFilterable implements ObjectSerializer {
     // serializers
-    private final FieldSerializer[]   getters;
+    protected final FieldSerializer[] getters;
     protected final FieldSerializer[] sortedGetters;
 
     protected int                     features    = 0;
@@ -426,10 +426,6 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         }
         
         return map;
-    }
-
-    public BeanContext getBeanContext(String key) {
-        return getFieldSerializer(key).fieldContext;
     }
 
     protected BeanContext getBeanContext(int orinal) {

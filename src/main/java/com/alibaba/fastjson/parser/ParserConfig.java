@@ -584,6 +584,7 @@ public class ParserConfig {
                  || clazz == java.sql.Date.class //
                  || clazz == java.sql.Time.class //
                  || clazz == java.sql.Timestamp.class //
+                 || clazz.isEnum() //
                  ;
     }
 

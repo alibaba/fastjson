@@ -572,12 +572,13 @@ public class DefaultJSONParser implements Closeable {
 
     @SuppressWarnings("unchecked")
     public <T> T parseObject(Type type, Object fieldName) {
-        if (lexer.token() == JSONToken.NULL) {
+        int token = lexer.token();
+        if (token == JSONToken.NULL) {
             lexer.nextToken();
             return null;
         }
 
-        if (lexer.token() == JSONToken.LITERAL_STRING) {
+        if (token == JSONToken.LITERAL_STRING) {
             type = TypeUtils.unwrap(type);
             if (type == byte[].class) {
                 byte[] bytes = lexer.bytesValue();

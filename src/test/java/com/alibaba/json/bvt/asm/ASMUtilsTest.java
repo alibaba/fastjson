@@ -24,10 +24,6 @@ public class ASMUtilsTest extends TestCase {
         Assert.assertNull(ASMUtils.getMethodType(ParseContext.class, "XX"));
     }
     
-    public void test_getFieldType_null() throws Exception {
-        Assert.assertNull(ASMUtils.getFieldType(ParseContext.class, "XX"));
-    }
-    
     public static Type getMethodType(Class<?> clazz, String methodName) {
         try {
             Method method = clazz.getMethod(methodName);

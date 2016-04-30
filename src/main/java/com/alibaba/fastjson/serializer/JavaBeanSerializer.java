@@ -431,4 +431,8 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
     protected BeanContext getBeanContext(int orinal) {
         return sortedGetters[orinal].fieldContext;
     }
+    
+    protected Type getFieldType(int ordinal) {
+        return sortedGetters[ordinal].fieldInfo.fieldType;
+    }
 }

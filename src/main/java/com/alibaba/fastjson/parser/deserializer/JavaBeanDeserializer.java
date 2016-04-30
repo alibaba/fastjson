@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -736,4 +737,33 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
         return null;
     }
+    
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    protected static void parseArray(Collection collection, //
+                              ObjectDeserializer deser, //
+                              DefaultJSONParser parser, //
+                              Type type, //
+                              Object fieldName) {
+
+        final JSONLexer lexer = parser.lexer;
+        if (lexer.token() == JSONToken.NULL) {
+            lexer.nextToken(JSONToken.COMMA);
+        }
+
+        parser.accept(JSONToken.LBRACKET, JSONToken.LBRACKET);
+
+        int index = 0;
+        for (;;) {
+            Object item = deser.deserialze(parser, type, index);
+            collection.add(item);
+            index++;
+            if (lexer.token() == JSONToken.COMMA) {
+                lexer.nextToken(JSONToken.LBRACKET);
+            } else {
+                break;
+            }
+        }
+        parser.accept(JSONToken.RBRACKET, JSONToken.COMMA);
+    }
+    
 }

@@ -966,6 +966,24 @@ public class TypeUtils {
     public static Class<?> loadClass(String className) {
         return loadClass(className, null);
     }
+    
+    private static Class<?> pathClass;
+    private static boolean pathClass_error = false;
+    public static boolean isPath(Class<?> clazz) {
+        if (pathClass == null && !pathClass_error) {
+            try {
+                pathClass = Class.forName("java.nio.file.Path");
+            } catch (Throwable ex) {
+                pathClass_error = true;
+            }
+        }
+        
+        if (pathClass != null) {
+            return pathClass.isAssignableFrom(clazz);
+        }
+        
+        return false;
+    }
 
     public static Class<?> loadClass(String className, ClassLoader classLoader) {
         if (className == null || className.length() == 0) {

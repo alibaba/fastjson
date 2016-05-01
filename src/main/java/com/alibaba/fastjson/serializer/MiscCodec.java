@@ -109,6 +109,9 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         } else if (object instanceof TimeZone) {
             TimeZone timeZone = (TimeZone) object;
             strVal = timeZone.getID();
+        } else if (object instanceof Currency) {
+            Currency currency = (Currency) object;
+            strVal = currency.getCurrencyCode();
         } else if (object instanceof JSONStreamAware) {
             JSONStreamAware aware = (JSONStreamAware) object;
             aware.writeJSONString(out);

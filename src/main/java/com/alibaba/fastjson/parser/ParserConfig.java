@@ -251,31 +251,6 @@ public class ParserConfig {
         derializers.put(Closeable.class, JavaObjectDeserializer.instance);
 
         
-        if (!jdk8Error) {
-            try {
-                derializers.put(Class.forName("java.time.LocalDateTime"), Jdk8DateCodec.instance);
-                derializers.put(Class.forName("java.time.LocalDate"), Jdk8DateCodec.instance);
-                derializers.put(Class.forName("java.time.LocalTime"), Jdk8DateCodec.instance);
-                derializers.put(Class.forName("java.time.ZonedDateTime"), Jdk8DateCodec.instance);
-                derializers.put(Class.forName("java.time.OffsetDateTime"), Jdk8DateCodec.instance);
-                derializers.put(Class.forName("java.time.OffsetTime"), Jdk8DateCodec.instance);
-                derializers.put(Class.forName("java.time.ZoneOffset"), Jdk8DateCodec.instance);
-                derializers.put(Class.forName("java.time.ZoneRegion"), Jdk8DateCodec.instance);
-                derializers.put(Class.forName("java.time.ZoneId"), Jdk8DateCodec.instance);
-                derializers.put(Class.forName("java.time.Period"), Jdk8DateCodec.instance);
-                derializers.put(Class.forName("java.time.Duration"), Jdk8DateCodec.instance);
-                derializers.put(Class.forName("java.time.Instant"), Jdk8DateCodec.instance);
-                
-                derializers.put(Class.forName("java.util.Optional"), OptionalCodec.instance);
-                derializers.put(Class.forName("java.util.OptionalDouble"), OptionalCodec.instance);
-                derializers.put(Class.forName("java.util.OptionalInt"), OptionalCodec.instance);
-                derializers.put(Class.forName("java.util.OptionalLong"), OptionalCodec.instance);
-            } catch (Throwable e) {
-                // skip
-                jdk8Error = true;
-            }
-        }
-        
         addDeny("java.lang.Thread");
         configFromPropety(System.getProperties());
     }
@@ -381,6 +356,34 @@ public class ParserConfig {
                 }
                 
                 derializer = AwtCodec.instance;
+            }
+        }
+        
+        if ((!jdk8Error) //
+            && (className.startsWith("java.time.") //
+                || className.startsWith("java.util.Optional") //
+            )) {
+            try {
+                derializers.put(Class.forName("java.time.LocalDateTime"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.LocalDate"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.LocalTime"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.ZonedDateTime"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.OffsetDateTime"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.OffsetTime"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.ZoneOffset"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.ZoneRegion"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.ZoneId"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.Period"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.Duration"), Jdk8DateCodec.instance);
+                derializers.put(Class.forName("java.time.Instant"), Jdk8DateCodec.instance);
+
+                derializers.put(Class.forName("java.util.Optional"), OptionalCodec.instance);
+                derializers.put(Class.forName("java.util.OptionalDouble"), OptionalCodec.instance);
+                derializers.put(Class.forName("java.util.OptionalInt"), OptionalCodec.instance);
+                derializers.put(Class.forName("java.util.OptionalLong"), OptionalCodec.instance);
+            } catch (Throwable e) {
+                // skip
+                jdk8Error = true;
             }
         }
         

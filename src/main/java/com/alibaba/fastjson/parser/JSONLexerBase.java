@@ -1070,7 +1070,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             return false;
         }
 
-        return charAt(np + 1) == '$' && charAt(np + 2) == 'r' && charAt(np + 3) == 'e' && charAt(np + 4) == 'f';
+        return charAt(np + 1) == '$' // 
+                && charAt(np + 2) == 'r' // 
+                && charAt(np + 3) == 'e' // 
+                && charAt(np + 4) == 'f';
     }
 
     protected final static char[] typeFieldName = ("\"" + JSON.DEFAULT_TYPE_KEY + "\":\"").toCharArray();

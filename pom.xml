@@ -29,19 +29,6 @@
 		</repository>
 	</repositories>
 
-	<developers>
-		<developer>
-			<id>wenshao</id>
-			<name>wenshao</name>
-			<email>szujobs@hotmail.com</email>
-		</developer>
-		<developer>
-			<id>axmanwang</id>
-			<name>axmanwang</name>
-			<email>iamaxman@hotmail.com</email>
-		</developer>
-	</developers>
-
 	<scm>
 		<url>https://wenshao@github.com/alibaba/fastjson.git</url>
 		<connection>scm:git:https://wenshao@github.com/alibaba/fastjson.git</connection>

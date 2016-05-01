@@ -1,7 +1,7 @@
 package com.alibaba.json.test.benchmark;
 
-import com.alibaba.json.test.benchmark.decode.*;
 import com.alibaba.json.test.benchmark.encode.*;
+import com.alibaba.json.test.benchmark.decode.*;
 import com.alibaba.json.test.codec.*;
 
 public class BenchmarkMain {
@@ -11,7 +11,7 @@ public class BenchmarkMain {
         BenchmarkExecutor executor = new BenchmarkExecutor();
         executor.setExecuteCount(5);
 //        executor.getCodecList().add(new FastjsonManualCodec());
-        executor.getCodecList().add(new FastjsonCodec());
+//        executor.getCodecList().add(new FastjsonCodec());
         executor.getCodecList().add(new FastjsonBeanToArrayCodec());
 //        executor.getCodecList().add(new FastjsonGenCodec());
 //        executor.getCodecList().add(new FastjsonBeanToArrayCodec());
@@ -29,10 +29,10 @@ public class BenchmarkMain {
 //        executor.getCaseList().add(new EishayDecodeBytes());
 //        executor.getCaseList().add(new EishayEncodeOutputStream());
 //        executor.getCaseList().add(new EishayEncodeToBytes());
-//         executor.getCaseList().add(new EishayDecode());
+         executor.getCaseList().add(new EishayDecode());
 //         executor.getCaseList().add(new EishayDecodeByClassName());
 //         executor.getCaseList().add(new EishayTreeDecode());
-         executor.getCaseList().add(new EishayEncode());
+//         executor.getCaseList().add(new EishayEncode());
 //         executor.getCaseList().add(new EishayEncodeManual());
         // executor.getCaseList().add(new IntArray1000Decode());
         // executor.getCaseList().add(new StringArray1000Decode());

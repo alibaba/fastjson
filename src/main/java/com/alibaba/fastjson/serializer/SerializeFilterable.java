@@ -34,10 +34,6 @@ public abstract class SerializeFilterable {
         return afterFilters;
     }
 
-    public boolean hasNameFilters() {
-        return nameFilters != null && nameFilters.size() > 0;
-    }
-
     public List<NameFilter> getNameFilters() {
         if (nameFilters == null) {
             nameFilters = new ArrayList<NameFilter>();

@@ -17,6 +17,14 @@ import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 public class AwtCodec implements ObjectSerializer, ObjectDeserializer {
 
     public final static AwtCodec instance = new AwtCodec();
+    
+    public static boolean support(Class<?> clazz) {
+        return clazz == Point.class //
+               || clazz == Rectangle.class //
+               || clazz == Font.class //
+               || clazz == Color.class //
+        ;
+    }
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType,
                       int features) throws IOException {

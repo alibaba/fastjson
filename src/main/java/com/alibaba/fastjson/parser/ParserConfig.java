@@ -252,17 +252,6 @@ public class ParserConfig {
         derializers.put(Comparable.class, JavaObjectDeserializer.instance);
         derializers.put(Closeable.class, JavaObjectDeserializer.instance);
 
-        if (!awtError) {
-            try {
-                derializers.put(Class.forName("java.awt.Point"), AwtCodec.instance);
-                derializers.put(Class.forName("java.awt.Font"), AwtCodec.instance);
-                derializers.put(Class.forName("java.awt.Rectangle"), AwtCodec.instance);
-                derializers.put(Class.forName("java.awt.Color"), AwtCodec.instance);
-            } catch (Throwable e) {
-                // skip
-                awtError = true;
-            }
-        }
         
         if (!jdk7Error) {
             try {
@@ -379,13 +368,30 @@ public class ParserConfig {
         if (derializer != null) {
             return derializer;
         }
-        
+
+        String className = clazz.getName();
         for (int i = 0; i < denyList.length; ++i) {
             String deny = denyList[i];
-            String className = clazz.getName();
             className = className.replace('$', '.');
             if (className.startsWith(deny)) {
                 throw new JSONException("parser deny : " + className);
+            }
+        }
+        
+        if (className.startsWith("java.awt.") // 
+                && AwtCodec.support(clazz)) {
+            if (!awtError) {
+                try {
+                    derializers.put(Class.forName("java.awt.Point"), AwtCodec.instance);
+                    derializers.put(Class.forName("java.awt.Font"), AwtCodec.instance);
+                    derializers.put(Class.forName("java.awt.Rectangle"), AwtCodec.instance);
+                    derializers.put(Class.forName("java.awt.Color"), AwtCodec.instance);
+                } catch (Throwable e) {
+                    // skip
+                    awtError = true;
+                }
+                
+                derializer = AwtCodec.instance;
             }
         }
 

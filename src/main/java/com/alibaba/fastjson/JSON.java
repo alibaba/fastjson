@@ -226,6 +226,13 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         return (T) value;
     }
+    
+    /**
+     * @since 1.2.11
+     */
+    public static <T> T parseObject(String input, Type clazz, ParserConfig config, Feature... features) {
+        return parseObject(input, clazz, config, null, DEFAULT_PARSER_FEATURE, features);
+    }
 
     public static <T> T parseObject(String input, Type clazz, ParserConfig config, int featureValues,
                                           Feature... features) {

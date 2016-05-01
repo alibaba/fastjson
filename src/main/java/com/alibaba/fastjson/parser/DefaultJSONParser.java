@@ -1438,38 +1438,14 @@ public class DefaultJSONParser implements Closeable {
 
     public static class ResolveTask {
 
-        private final ParseContext context;
-        private final String       referenceValue;
+        public final ParseContext context;
+        public final String       referenceValue;
         public FieldDeserializer  fieldDeserializer;
         public ParseContext       ownerContext;
 
         public ResolveTask(ParseContext context, String referenceValue){
             this.context = context;
             this.referenceValue = referenceValue;
-        }
-        
-        public ParseContext getContext() {
-            return context;
-        }
-
-        public String getReferenceValue() {
-            return referenceValue;
-        }
-
-        public FieldDeserializer getFieldDeserializer() {
-            return fieldDeserializer;
-        }
-
-        public void setFieldDeserializer(FieldDeserializer fieldDeserializer) {
-            this.fieldDeserializer = fieldDeserializer;
-        }
-
-        public ParseContext getOwnerContext() {
-            return ownerContext;
-        }
-
-        public void setOwnerContext(ParseContext ownerContext) {
-            this.ownerContext = ownerContext;
         }
     }
     

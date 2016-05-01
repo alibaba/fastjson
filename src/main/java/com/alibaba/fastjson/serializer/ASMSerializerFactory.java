@@ -721,7 +721,7 @@ public class ASMSerializerFactory implements Opcodes {
                 mw.visitVarInsn(ALOAD, Context.fieldName);
                 mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(desc(fieldClass))); // fieldType
                 mw.visitLdcInsn(fieldInfo.serialzeFeatures); // features
-                mw.visitMethodInsn(INVOKEINTERFACE, type(ObjectSerializer.class), "writeAsArrayNonContext", //
+                mw.visitMethodInsn(INVOKEINTERFACE, type(ObjectSerializer.class), "write", //
                                    "(L" + JSONSerializer + ";Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;I)V");
                 mw.visitLabel(instanceOfEnd_);
                 mw.visitJumpInsn(GOTO, classIfEnd_);
@@ -808,24 +808,22 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitLabel(endSupper_);
         }
 
-        {
-            if (!context.nonContext) {
-                Label endRef_ = new Label();
+        if (!context.nonContext) {
+            Label endRef_ = new Label();
 
-                // /////
-                mw.visitVarInsn(ALOAD, 0);
-                mw.visitVarInsn(ALOAD, Context.serializer);
-                mw.visitVarInsn(ALOAD, Context.obj);
-                mw.visitVarInsn(ILOAD, Context.features);
-                mw.visitMethodInsn(INVOKEVIRTUAL, JavaBeanSerializer, "writeReference",
-                                   "(L" + JSONSerializer + ";Ljava/lang/Object;I)Z");
+            // /////
+            mw.visitVarInsn(ALOAD, 0);
+            mw.visitVarInsn(ALOAD, Context.serializer);
+            mw.visitVarInsn(ALOAD, Context.obj);
+            mw.visitVarInsn(ILOAD, Context.features);
+            mw.visitMethodInsn(INVOKEVIRTUAL, JavaBeanSerializer, "writeReference",
+                               "(L" + JSONSerializer + ";Ljava/lang/Object;I)Z");
 
-                mw.visitJumpInsn(IFEQ, endRef_);
+            mw.visitJumpInsn(IFEQ, endRef_);
 
-                mw.visitInsn(RETURN);
+            mw.visitInsn(RETURN);
 
-                mw.visitLabel(endRef_);
-            }
+            mw.visitLabel(endRef_);
         }
 
         final String writeAsArrayMethodName;
@@ -874,6 +872,7 @@ public class ASMSerializerFactory implements Opcodes {
                                context.className, //
                                writeAsArrayMethodName, //
                                "(L" + JSONSerializer + ";Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;I)V");
+            mw.visitInsn(RETURN);
         }
 
         if (!context.nonContext) {

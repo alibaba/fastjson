@@ -82,7 +82,6 @@ import com.alibaba.fastjson.parser.deserializer.MapDeserializer;
 import com.alibaba.fastjson.parser.deserializer.NumberDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.OptionalCodec;
-import com.alibaba.fastjson.parser.deserializer.PathDeserializer;
 import com.alibaba.fastjson.parser.deserializer.SqlDateDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StackTraceElementDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ThrowableDeserializer;
@@ -134,7 +133,6 @@ public class ParserConfig {
     protected ASMDeserializerFactory                        asmFactory;
 
     private static boolean                                  awtError    = false;
-    private static boolean                                  jdk7Error   = false;
     private static boolean                                  jdk8Error   = false;
 
     private String[]                                        denyList    = new String[] { "java.lang.Thread" };
@@ -252,15 +250,6 @@ public class ParserConfig {
         derializers.put(Comparable.class, JavaObjectDeserializer.instance);
         derializers.put(Closeable.class, JavaObjectDeserializer.instance);
 
-        
-        if (!jdk7Error) {
-            try {
-                derializers.put(Class.forName("java.nio.file.Path"), new PathDeserializer());
-            } catch (Throwable e) {
-                // skip
-                jdk7Error = true;
-            }
-        }
         
         if (!jdk8Error) {
             try {
@@ -393,6 +382,10 @@ public class ParserConfig {
                 
                 derializer = AwtCodec.instance;
             }
+        }
+        
+        if (className.equals("java.nio.file.Path")) {
+            derializers.put(clazz, MiscCodec.instance);
         }
 
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();

@@ -869,10 +869,11 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitVarInsn(ALOAD, 2); // obj
             mw.visitVarInsn(ALOAD, 3); // fieldObj
             mw.visitVarInsn(ALOAD, 4); // fieldType
+            mw.visitVarInsn(ILOAD, 5); // features
             mw.visitMethodInsn(INVOKEVIRTUAL, //
                                context.className, //
                                writeAsArrayMethodName, //
-                               "(L" + JSONSerializer + ";Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;)V");
+                               "(L" + JSONSerializer + ";Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;I)V");
         }
 
         if (!context.nonContext) {

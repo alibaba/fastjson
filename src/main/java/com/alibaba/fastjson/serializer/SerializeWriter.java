@@ -58,7 +58,6 @@ public final class SerializeWriter extends Writer {
     protected boolean                                       notWriteDefaultValue;
     protected boolean                                       writeEnumUsingName;
     protected boolean                                       writeEnumUsingToString;
-    protected boolean                                       writeMapNullValue;
     protected boolean                                       disableCheckSpecialChar;
     protected boolean                                       writeDirect;
 
@@ -151,6 +150,7 @@ public final class SerializeWriter extends Writer {
             | SerializerFeature.WriteSlashAsSpecial.mask
             | SerializerFeature.IgnoreErrorGetter.mask
             | SerializerFeature.WriteClassName.mask
+            | SerializerFeature.NotWriteDefaultValue.mask
             ;
     protected void computeFeatures() {
         browserSecure = (this.features & SerializerFeature.BrowserSecure.mask) != 0;
@@ -164,11 +164,11 @@ public final class SerializeWriter extends Writer {
         notWriteDefaultValue = (this.features & SerializerFeature.NotWriteDefaultValue.mask) != 0;
         writeEnumUsingName = (this.features & SerializerFeature.WriteEnumUsingName.mask) != 0;
         writeEnumUsingToString = (this.features & SerializerFeature.WriteEnumUsingToString.mask) != 0;
-        writeMapNullValue = (this.features & SerializerFeature.WriteMapNullValue.mask) != 0;
         disableCheckSpecialChar = (this.features & SerializerFeature.DisableCheckSpecialChar.mask) != 0;
 
         writeDirect = quoteFieldNames //
                       && (this.features & nonDirectFeautres) == 0 //
+                      && (beanToArray || (this.features & SerializerFeature.WriteMapNullValue.mask) == 0)
                       ;
 
         keySeperator = useSingleQuotes ? '\'' : '"';
@@ -181,15 +181,6 @@ public final class SerializeWriter extends Writer {
     public boolean isNotWriteDefaultValue() {
         return notWriteDefaultValue;
     }
-
-    public boolean isWriteMapNullValue() {
-        return writeMapNullValue;
-    }
-
-//    public boolean isIgnoreNonFieldGetter() {
-//        return ignoreNonFieldGetter;
-//    }
-//
 
     public boolean isEnabled(SerializerFeature feature) {
         return (this.features & feature.mask) != 0;

@@ -122,6 +122,22 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
             }
         }
     }
+    
+    public void writeDirectNonContext(JSONSerializer serializer, //
+                      Object object, //
+                      Object fieldName, //
+                      Type fieldType, //
+                      int features) throws IOException {
+        write(serializer, object, fieldName, fieldType, features);
+    }
+    
+    public void writeAsArrayNonContext(JSONSerializer serializer, //
+                                       Object object, //
+                                       Object fieldName, //
+                                       Type fieldType, //
+                                       int features) throws IOException {
+        write(serializer, object, fieldName, fieldType, features);
+    }
 
     public void write(JSONSerializer serializer, //
                       Object object, //
@@ -238,7 +254,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                                                         propertyValue);
 
                 if (propertyValue == null && !writeAsArray) {
-                    if ((!fieldSerializer.writeNull) && (!out.writeMapNullValue)) {
+                    if ((!fieldSerializer.writeNull) && (!out.isEnabled(SerializerFeature.WriteMapNullValue))) {
                         continue;
                     }
                 }

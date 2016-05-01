@@ -128,6 +128,7 @@ public interface Opcodes {
                                                           // int ARRAYLENGTH = 190; // visitInsn
                                                           // int ATHROW = 191; // -
     int    CHECKCAST           = 192;                    // visitTypeInsn
+    int    INSTANCEOF          = 193;
     
     int    IFNULL              = 198;                    // visitJumpInsn
     int    IFNONNULL           = 199;                    // -

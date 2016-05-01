@@ -51,18 +51,21 @@ public class EnumTest3 {
 		json = JSON.toJSONString(enumMap);
 		Assert.assertEquals(json, "{\"M\":{\"sex\":\"M\"}}");
 	}
-
-    @Test
+	
+	@Test
     public void testDefault1() throws Exception {
 //        JSON.DUMP_CLASS = "/Users/bohr/Downloads/tmp";
         String json = JSON.toJSONString(Sex.M, SerializerFeature.WriteEnumUsingToString);
         Assert.assertEquals(json, "\"男\"");
+	}
 
+    @Test
+    public void testDefault2() throws Exception {
         Pojo pojo = new Pojo();
         pojo.setSex(Sex.M);
-        json = JSON.toJSONString(pojo, SerializerFeature.WriteEnumUsingToString);
+        String json = JSON.toJSONString(pojo, SerializerFeature.WriteEnumUsingToString);
         Assert.assertEquals(json, "{\"sex\":\"男\"}");
-
+        
         try {
             JSON.parseObject(json, Pojo.class);
             Assert.fail("toString的结果不能转换成枚举");

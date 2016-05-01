@@ -1087,23 +1087,8 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldValueStringWithDoubleQuote",
                                "(CLjava/lang/String;Ljava/lang/String;)V");
         } else {
-            Label useNameEnd_ = new Label(), useNameElse_ = new Label();
-            ;
-            mw.visitVarInsn(ALOAD, context.var("out"));
-            mw.visitLdcInsn(SerializerFeature.WriteEnumUsingName.mask);
-            mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "isEnabled", "(I)Z");
-            mw.visitJumpInsn(IFEQ, useNameElse_);
-
-            mw.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Enum", "name", "()Ljava/lang/String;");
-            mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldValueStringWithDoubleQuote",
-                               "(CLjava/lang/String;Ljava/lang/String;)V");
-            mw.visitJumpInsn(GOTO, useNameEnd_);
-
-            mw.visitLabel(useNameElse_);
             mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldValue",
                                "(CLjava/lang/String;Ljava/lang/Enum;)V");
-
-            mw.visitLabel(useNameEnd_);
         }
 
         _seperator(mw, context);
@@ -1504,9 +1489,10 @@ public class ASMSerializerFactory implements Opcodes {
                 Label instanceOfElse_ = new Label(), instanceOfEnd_ = new Label();
 
                 if (context.writeDirect) {
-                    String writeMethodName = context.nonContext ? //
+                    String writeMethodName = context.nonContext && context.writeDirect ? //
                         "writeDirectNonContext" //
-                        : "write";
+                        : context.writeDirect ? //
+                            "write" : "writeNormal";
                     mw.visitVarInsn(ALOAD, context.var("list_item_desc"));
                     mw.visitTypeInsn(INSTANCEOF, type(JavaBeanSerializer.class));
                     mw.visitJumpInsn(IFEQ, instanceOfElse_);
@@ -1696,6 +1682,11 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitTypeInsn(INSTANCEOF, type(JavaBeanSerializer.class));
             mw.visitJumpInsn(IFEQ, instanceOfElse_);
 
+            String writeMethodName = context.nonContext && context.writeDirect ? //
+                "writeDirectNonContext" //
+                : context.writeDirect ? //
+                    "write" : "writeNormal";
+            
             mw.visitVarInsn(ALOAD, context.var("fied_ser"));
             mw.visitTypeInsn(CHECKCAST, type(JavaBeanSerializer.class)); // cast
             mw.visitVarInsn(ALOAD, Context.serializer);
@@ -1703,7 +1694,7 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitVarInsn(ALOAD, Context.fieldName);
             mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(desc(fieldClass))); // fieldType
             mw.visitLdcInsn(fieldInfo.serialzeFeatures); // features
-            mw.visitMethodInsn(INVOKEVIRTUAL, JavaBeanSerializer, context.nonContext ? "writeDirectNonContext" : "write", //
+            mw.visitMethodInsn(INVOKEVIRTUAL, JavaBeanSerializer, writeMethodName, //
                                "(L" + JSONSerializer + ";Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;I)V");
             mw.visitJumpInsn(GOTO, instanceOfEnd_);
 
@@ -1874,22 +1865,22 @@ public class ASMSerializerFactory implements Opcodes {
     }
 
     private void _processValue(MethodVisitor mw, FieldInfo fieldInfo, Context context, Label _end) {
-        Label _else_processKey = new Label();
+        Label processKeyElse_ = new Label();
 
         Class<?> fieldClass = fieldInfo.fieldClass;
 
         if (fieldClass.isPrimitive()) {
-            Label _end_checkValue = new Label();
+            Label checkValueEnd_ = new Label();
             mw.visitVarInsn(ILOAD, context.var("checkValue"));
-            mw.visitJumpInsn(IFNE, _end_checkValue);
+            mw.visitJumpInsn(IFNE, checkValueEnd_);
 
             mw.visitInsn(ACONST_NULL);
             mw.visitInsn(DUP);
             mw.visitVarInsn(ASTORE, Context.original);
             mw.visitVarInsn(ASTORE, Context.processValue);
-            mw.visitJumpInsn(GOTO, _else_processKey);
+            mw.visitJumpInsn(GOTO, processKeyElse_);
 
-            mw.visitLabel(_end_checkValue);
+            mw.visitLabel(checkValueEnd_);
         }
 
         int fieldIndex = -1;
@@ -1982,18 +1973,18 @@ public class ASMSerializerFactory implements Opcodes {
 
         mw.visitVarInsn(ALOAD, Context.original);
         mw.visitVarInsn(ALOAD, Context.processValue);
-        mw.visitJumpInsn(IF_ACMPEQ, _else_processKey);
+        mw.visitJumpInsn(IF_ACMPEQ, processKeyElse_);
         _writeObject(mw, fieldInfo, context, _end);
         mw.visitJumpInsn(GOTO, _end);
 
-        mw.visitLabel(_else_processKey);
+        mw.visitLabel(processKeyElse_);
     }
 
     private void _processKey(MethodVisitor mw, FieldInfo property, Context context) {
         Label _else_processKey = new Label();
 
         mw.visitVarInsn(ILOAD, context.var("hasNameFilters"));
-        mw.visitJumpInsn(IFNE, _else_processKey);
+        mw.visitJumpInsn(IFEQ, _else_processKey);
 
         Class<?> propertyClass = property.fieldClass;
 

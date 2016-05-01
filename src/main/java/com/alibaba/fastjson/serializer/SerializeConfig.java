@@ -231,17 +231,6 @@ public class SerializeConfig {
 		
 		put(WeakReference.class, ReferenceCodec.instance);
 		put(SoftReference.class, ReferenceCodec.instance);
-
-		
-		if (!oracleJdbcError) {
-		    try {
-                put(Class.forName("oracle.sql.DATE"), DateCodec.instance);
-                put(Class.forName("oracle.sql.TIMESTAMP"), DateCodec.instance);
-            } catch (Throwable e) {
-                // skip
-                oracleJdbcError = true;
-            }
-		}
 	}
 	
 	public void addFilter(Class<?> clazz, SerializeFilter filter) {
@@ -383,10 +372,29 @@ public class SerializeConfig {
                         put(Class.forName("java.util.OptionalInt"), OptionalCodec.instance);
                         put(Class.forName("java.util.OptionalLong"), OptionalCodec.instance);
                         
-                        return serializers.get(clazz);
+                        writer = serializers.get(clazz);
+                        if (writer != null) {
+                            return writer;
+                        }
                     } catch (Throwable e) {
                         // skip
                         jdk8Error = true;
+                    }
+                }
+                
+                if ((!oracleJdbcError) //
+                    && className.startsWith("oracle.sql.")) {
+                    try {
+                        put(Class.forName("oracle.sql.DATE"), DateCodec.instance);
+                        put(Class.forName("oracle.sql.TIMESTAMP"), DateCodec.instance);
+                        
+                        writer = serializers.get(clazz);
+                        if (writer != null) {
+                            return writer;
+                        }
+                    } catch (Throwable e) {
+                        // skip
+                        oracleJdbcError = true;
                     }
                 }
                 

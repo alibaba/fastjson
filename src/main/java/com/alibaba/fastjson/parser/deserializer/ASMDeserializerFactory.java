@@ -10,10 +10,12 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicLong;
@@ -231,15 +233,35 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitTypeInsn(CHECKCAST, type(fieldClass)); // cast
                 mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
             } else if (Collection.class.isAssignableFrom(fieldClass)) {
+                
                 Class<?> itemClass = TypeUtils.getCollectionItemClass(fieldType);
                 if (itemClass == String.class) {
-                    mw.visitVarInsn(ALOAD, context.var("lexer"));
-                    mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(desc(fieldClass)));
-                    mw.visitVarInsn(BIPUSH, seperator);
-                    mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanStringArray", //
-                                       "(Ljava/lang/Class;C)Ljava/util/Collection;");
+                    if (fieldClass == List.class || fieldClass == Collections.class || fieldClass == ArrayList.class) {
+                        mw.visitTypeInsn(NEW, type(ArrayList.class));
+                        mw.visitInsn(DUP);
+                        mw.visitMethodInsn(INVOKESPECIAL, type(ArrayList.class), "<init>", "()V");
+                    } else {
+                        mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(desc(fieldClass)));
+                        mw.visitMethodInsn(INVOKESTATIC, type(TypeUtils.class), "createCollection",
+                                           "(Ljava/lang/Class;)Ljava/util/Collection;");
+                    }
                     mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
-
+                    
+                    mw.visitVarInsn(ALOAD, context.var("lexer"));
+                    mw.visitVarInsn(ALOAD, context.var(fieldInfo.name + "_asm"));
+                    mw.visitVarInsn(BIPUSH, seperator);
+                    mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanStringArray", "(Ljava/util/Collection;C)V");
+                    
+                    Label valueNullEnd_ = new Label();
+                    mw.visitVarInsn(ALOAD, context.var("lexer"));
+                    mw.visitFieldInsn(GETFIELD, JSONLexerBase, "matchStat", "I");
+                    mw.visitLdcInsn(com.alibaba.fastjson.parser.JSONLexerBase.VALUE_NULL);
+                    mw.visitJumpInsn(IF_ICMPNE, valueNullEnd_);
+                    mw.visitInsn(ACONST_NULL);
+                    mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
+                    
+                    mw.visitLabel(valueNullEnd_);
+                    
                 } else {
                     Label notError_ = new Label();
                     mw.visitVarInsn(ALOAD, context.var("lexer"));

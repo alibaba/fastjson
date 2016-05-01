@@ -140,7 +140,7 @@ public final class SerializeWriter extends Writer {
         computeFeatures();
     }
 
-    static int nonDirectFeautres = 0 // 
+    final static int nonDirectFeautres = 0 // 
             | SerializerFeature.UseSingleQuotes.mask //
             | SerializerFeature.BrowserSecure.mask //
             | SerializerFeature.BrowserCompatible.mask //

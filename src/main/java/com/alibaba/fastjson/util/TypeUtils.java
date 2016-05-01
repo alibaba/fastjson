@@ -1434,20 +1434,6 @@ public class TypeUtils {
         return type;
     }
 
-    public static Type unwrap(Type type) {
-        if (type instanceof GenericArrayType) {
-            Type componentType = ((GenericArrayType) type).getGenericComponentType();
-            if (componentType == byte.class) {
-                return byte[].class;
-            }
-            if (componentType == char.class) {
-                return char[].class;
-            }
-        }
-
-        return type;
-    }
-
     public static Type unwrapOptional(Type type) {
         if (!optionalClassInited) {
             try {

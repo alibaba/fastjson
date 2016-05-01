@@ -30,6 +30,19 @@ public class ListStringFieldTest_array_big extends TestCase {
             Assert.assertEquals(model.values.get(i), model2.values.get(i));    
         }
     }
+    
+    public void test_list_empty() throws Exception {
+        Model model = new Model();
+        model.values = new ArrayList<String>();
+        
+        String text = JSON.toJSONString(model, SerializerFeature.BeanToArray);
+        
+        Model model2 = JSON.parseObject(text, Model.class, Feature.SupportArrayToBean);
+        Assert.assertEquals(model.values.size(), model2.values.size());
+        for (int i = 0; i < model.values.size(); ++i) {
+            Assert.assertEquals(model.values.get(i), model2.values.get(i));    
+        }
+    }
 
     public static class Model {
         public List<String> values;

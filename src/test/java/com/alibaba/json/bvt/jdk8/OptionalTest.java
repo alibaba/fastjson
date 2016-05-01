@@ -24,6 +24,12 @@ public class OptionalTest extends TestCase {
         Assert.assertEquals(val.get(), val2.get());
     }
     
+    public void test_optionalInt_present() throws Exception {
+        String text = JSON.toJSONString(OptionalInt.empty());
+        
+        Assert.assertEquals("null", text);
+    }
+    
     public void test_optionalInt() throws Exception {
         OptionalInt val = OptionalInt.of(3);
         
@@ -35,6 +41,12 @@ public class OptionalTest extends TestCase {
         Assert.assertEquals(val.getAsInt(), val2.getAsInt());
     }
     
+    public void test_optionalLong_present() throws Exception {
+        String text = JSON.toJSONString(OptionalLong.empty());
+        
+        Assert.assertEquals("null", text);
+    }
+    
     public void test_optionalLong() throws Exception {
         OptionalLong val = OptionalLong.of(3);
         
@@ -44,6 +56,12 @@ public class OptionalTest extends TestCase {
         
         OptionalLong val2 = JSON.parseObject(text, OptionalLong.class);
         Assert.assertEquals(val.getAsLong(), val2.getAsLong());
+    }
+    
+    public void test_optionalDouble_present() throws Exception {
+        String text = JSON.toJSONString(OptionalDouble.empty());
+        
+        Assert.assertEquals("null", text);
     }
     
     public void test_optionalDouble() throws Exception {

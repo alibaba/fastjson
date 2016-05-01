@@ -25,6 +25,36 @@ public class WriteAsArray_int_public extends TestCase {
         Assert.assertEquals(vo.getId(), vo2.getId());
         Assert.assertEquals(vo.getName(), vo2.getName());
     }
+    
+    public void test_1() throws Exception {
+        String text = "[123 ,\"wenshao\"]";
+        VO vo2 = JSON.parseObject(text, VO.class, Feature.SupportArrayToBean);
+        Assert.assertEquals(123, vo2.getId());
+        Assert.assertEquals("wenshao", vo2.getName());
+    }
+    
+    public void test_2() throws Exception {
+        String text = "[-123 ,\"wenshao\"]";
+        VO vo2 = JSON.parseObject(text, VO.class, Feature.SupportArrayToBean);
+        Assert.assertEquals(-123, vo2.getId());
+        Assert.assertEquals("wenshao", vo2.getName());
+    }
+    
+    public void test_1_stream() throws Exception {
+        String text = "[123 ,\"wenshao\"]";
+        JSONReader reader = new JSONReader(new StringReader(text), Feature.SupportArrayToBean);
+        VO vo2 = reader.readObject(VO.class);
+        Assert.assertEquals(123, vo2.getId());
+        Assert.assertEquals("wenshao", vo2.getName());
+    }
+    
+    public void test_2_stream() throws Exception {
+        String text = "[-123 ,\"wenshao\"]";
+        JSONReader reader = new JSONReader(new StringReader(text), Feature.SupportArrayToBean);
+        VO vo2 = reader.readObject(VO.class);
+        Assert.assertEquals(-123, vo2.getId());
+        Assert.assertEquals("wenshao", vo2.getName());
+    }
 
     public void test_error() throws Exception {
         String text = "[123.,\"wenshao\"]";
@@ -38,7 +68,31 @@ public class WriteAsArray_int_public extends TestCase {
     }
     
     public void test_error_stream() throws Exception {
-        String text = "[123.,\"wenshao\"]";
+        String text = "[123.,\"wenshao\" ]";
+        Exception error = null;
+        try {
+            JSONReader reader = new JSONReader(new StringReader(text), Feature.SupportArrayToBean);
+            reader.readObject(VO.class);
+            reader.close();
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_error_1() throws Exception {
+        String text = "[123:\"wenshao\"]";
+        Exception error = null;
+        try {
+            JSON.parseObject(text, VO.class, Feature.SupportArrayToBean);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_error_stream_1() throws Exception {
+        String text = "[123:\"wenshao\" ]";
         Exception error = null;
         try {
             JSONReader reader = new JSONReader(new StringReader(text), Feature.SupportArrayToBean);

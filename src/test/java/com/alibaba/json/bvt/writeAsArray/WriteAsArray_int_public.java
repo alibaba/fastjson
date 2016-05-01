@@ -103,6 +103,102 @@ public class WriteAsArray_int_public extends TestCase {
         }
         Assert.assertNotNull(error);
     }
+    
+    public void test_error_2() throws Exception {
+        String text = "[-123:\"wenshao\"]";
+        Exception error = null;
+        try {
+            JSON.parseObject(text, VO.class, Feature.SupportArrayToBean);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_error_stream_2() throws Exception {
+        String text = "[-123:\"wenshao\" ]";
+        Exception error = null;
+        try {
+            JSONReader reader = new JSONReader(new StringReader(text), Feature.SupportArrayToBean);
+            reader.readObject(VO.class);
+            reader.close();
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_error_overflow() throws Exception {
+        String text = "[2147483649:\"wenshao\"]";
+        Exception error = null;
+        try {
+            JSON.parseObject(text, VO.class, Feature.SupportArrayToBean);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_error_overflow_stream() throws Exception {
+        String text = "[2147483649:\"wenshao\" ]";
+        Exception error = null;
+        try {
+            JSONReader reader = new JSONReader(new StringReader(text), Feature.SupportArrayToBean);
+            reader.readObject(VO.class);
+            reader.close();
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_error_value_notmatch() throws Exception {
+        String text = "[true,\"wenshao\"]";
+        Exception error = null;
+        try {
+            JSON.parseObject(text, VO.class, Feature.SupportArrayToBean);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_error_value_notmatch_stream() throws Exception {
+        String text = "[true,\"wenshao\"]";
+        Exception error = null;
+        try {
+            JSONReader reader = new JSONReader(new StringReader(text), Feature.SupportArrayToBean);
+            reader.readObject(VO.class);
+            reader.close();
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_error_value_notmatch_2() throws Exception {
+        String text = "[+,\"wenshao\"]";
+        Exception error = null;
+        try {
+            JSON.parseObject(text, VO.class, Feature.SupportArrayToBean);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_error_value_notmatch_2_stream() throws Exception {
+        String text = "[+,\"wenshao\"]";
+        Exception error = null;
+        try {
+            JSONReader reader = new JSONReader(new StringReader(text), Feature.SupportArrayToBean);
+            reader.readObject(VO.class);
+            reader.close();
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
 
     public static class VO {
 

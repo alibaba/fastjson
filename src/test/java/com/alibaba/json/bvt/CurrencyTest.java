@@ -3,9 +3,11 @@ package com.alibaba.json.bvt;
 import java.util.Currency;
 import java.util.Locale;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
+
+import junit.framework.TestCase;
 
 public class CurrencyTest extends TestCase {
 
@@ -13,8 +15,16 @@ public class CurrencyTest extends TestCase {
         VO vo = new VO();
         vo.setValue(Currency.getInstance(Locale.CHINA));
         String text = JSON.toJSONString(vo);
-        System.out.println(text);
-        JSON.parseObject(text, VO.class);
+        VO vo2 = JSON.parseObject(text, VO.class);
+        Assert.assertEquals(vo2.value, vo.value);
+    }
+
+    public void test_null() throws Exception {
+        VO vo = new VO();
+        vo.setValue(null);
+        String text = JSON.toJSONString(vo);
+        VO vo2 = JSON.parseObject(text, VO.class);
+        Assert.assertEquals(vo2.value, vo.value);
     }
 
     public static class VO {

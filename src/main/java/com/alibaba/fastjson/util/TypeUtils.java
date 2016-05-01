@@ -18,7 +18,6 @@ package com.alibaba.fastjson.util;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -1484,10 +1483,6 @@ public class TypeUtils {
         }
 
         return null;
-    }
-
-    public static JSONType getJSONType(Class<?> clazz) {
-        return clazz.getAnnotation(JSONType.class);
     }
 
     public static int getSerializeFeatures(Class<?> clazz) {

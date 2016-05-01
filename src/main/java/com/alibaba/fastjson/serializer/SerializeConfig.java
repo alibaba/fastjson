@@ -233,18 +233,6 @@ public class SerializeConfig {
 		put(WeakReference.class, ReferenceCodec.instance);
 		put(SoftReference.class, ReferenceCodec.instance);
 
-		// awt
-		if (!awtError) {
-    		try {
-    			put(Class.forName("java.awt.Color"), AwtCodec.instance);
-    			put(Class.forName("java.awt.Font"), AwtCodec.instance);
-    			put(Class.forName("java.awt.Point"), AwtCodec.instance);
-                put(Class.forName("java.awt.Rectangle"), AwtCodec.instance);
-    		} catch (Throwable e) {
-    		    awtError = true;
-    			// skip
-    		}
-		}
 		
 		if (!jdk7Error) {
 		    try {
@@ -388,6 +376,25 @@ public class SerializeConfig {
                     || Iterator.class.isAssignableFrom(clazz)) {
                 put(clazz, MiscCodec.instance);
             } else {
+                String className = clazz.getName();
+                if (className.startsWith("java.awt.") //
+                    && AwtCodec.support(clazz) //
+                ) {
+                    // awt
+                    if (!awtError) {
+                        try {
+                            put(Class.forName("java.awt.Color"), AwtCodec.instance);
+                            put(Class.forName("java.awt.Font"), AwtCodec.instance);
+                            put(Class.forName("java.awt.Point"), AwtCodec.instance);
+                            put(Class.forName("java.awt.Rectangle"), AwtCodec.instance);
+                        } catch (Throwable e) {
+                            awtError = true;
+                            // skip
+                        }
+                    }
+                    return  AwtCodec.instance;
+                }
+                
                 boolean isCglibProxy = false;
                 boolean isJavassistProxy = false;
                 for (Class<?> item : clazz.getInterfaces()) {

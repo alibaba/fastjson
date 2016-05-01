@@ -168,7 +168,7 @@ public final class SerializeWriter extends Writer {
 
         writeDirect = quoteFieldNames //
                       && (this.features & nonDirectFeautres) == 0 //
-                      && (beanToArray || (this.features & SerializerFeature.WriteMapNullValue.mask) == 0)
+                      && (beanToArray || writeEnumUsingName)
                       ;
 
         keySeperator = useSingleQuotes ? '\'' : '"';

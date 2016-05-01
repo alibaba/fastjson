@@ -958,7 +958,9 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitVarInsn(ISTORE, context.var("checkValue"));
 
             mw.visitVarInsn(ALOAD, Context.serializer);
-            mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer, "hasNameFilters", "()Z");
+            mw.visitVarInsn(ALOAD, 0);
+            mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer, "hasNameFilters",
+                               "(" + desc(SerializeFilterable.class) + ")Z");
             mw.visitVarInsn(ISTORE, context.var("hasNameFilters"));
         }
 

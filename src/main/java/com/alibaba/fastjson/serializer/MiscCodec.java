@@ -17,6 +17,8 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.Inet4Address;
@@ -51,19 +53,21 @@ import com.alibaba.fastjson.util.TypeUtils;
  */
 public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
 
-    public final static MiscCodec instance = new MiscCodec();
+    public final static MiscCodec instance               = new MiscCodec();
+    private static Method         method_paths_get;
+    private static boolean        method_paths_get_error = false;
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType,
                       int features) throws IOException {
         SerializeWriter out = serializer.out;
-        
+
         if (object == null) {
             out.writeNull();
             return;
         }
-        
+
         Class<?> objClass = object.getClass();
-        
+
         String strVal;
         if (objClass == SimpleDateFormat.class) {
             String pattern = ((SimpleDateFormat) object).toPattern();
@@ -78,7 +82,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
                     return;
                 }
             }
-            
+
             strVal = pattern;
         } else if (objClass == Class.class) {
             Class<?> clazz = (Class<?>) object;
@@ -120,7 +124,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         } else {
             throw new JSONException("not support class : " + objClass);
         }
-        
+
         out.writeString(strVal);
     }
 
@@ -142,7 +146,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         JSONLexer lexer = parser.lexer;
-        
+
         if (clazz == InetSocketAddress.class) {
             if (lexer.token() == JSONToken.NULL) {
                 lexer.nextToken();
@@ -156,7 +160,6 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
             for (;;) {
                 String key = lexer.stringVal();
                 lexer.nextToken(JSONToken.COLON);
-               
 
                 if (key.equals("address")) {
                     parser.accept(JSONToken.COLON);
@@ -185,9 +188,9 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
 
             return (T) new InetSocketAddress(address, port);
         }
-        
+
         Object objVal;
-        
+
         if (parser.resolveStatus == DefaultJSONParser.TypeNameRedirect) {
             parser.resolveStatus = DefaultJSONParser.NONE;
             parser.accept(JSONToken.COMMA);
@@ -209,7 +212,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         } else {
             objVal = parser.parse();
         }
-        
+
         String strVal;
 
         if (objVal == null) {
@@ -257,51 +260,73 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
 
             return (T) new Locale(items[0], items[1], items[2]);
         }
-        
+
         if (clazz == SimpleDateFormat.class) {
             SimpleDateFormat dateFormat = new SimpleDateFormat(strVal, lexer.getLocale());
             dateFormat.setTimeZone(lexer.getTimeZone());
             return (T) dateFormat;
         }
-        
-        if (clazz == InetAddress.class || clazz == Inet4Address.class  || clazz == Inet6Address.class) {
+
+        if (clazz == InetAddress.class || clazz == Inet4Address.class || clazz == Inet6Address.class) {
             try {
                 return (T) InetAddress.getByName(strVal);
             } catch (UnknownHostException e) {
                 throw new JSONException("deserialize inet adress error", e);
             }
         }
-        
+
         if (clazz == File.class) {
             return (T) new File(strVal);
         }
-        
+
         if (clazz == TimeZone.class) {
             return (T) TimeZone.getTimeZone(strVal);
         }
-        
+
         if (clazz instanceof ParameterizedType) {
             ParameterizedType parmeterizedType = (ParameterizedType) clazz;
             clazz = parmeterizedType.getRawType();
         }
-        
+
         if (clazz == Class.class) {
             return (T) TypeUtils.loadClass(strVal, parser.getConfig().getDefaultClassLoader());
         }
-        
+
         if (clazz == Charset.class) {
             return (T) Charset.forName(strVal);
         }
-        
+
         if (clazz == Currency.class) {
             return (T) Currency.getInstance(strVal);
         }
-        
+
         if (clazz == JSONPath.class) {
             return (T) new JSONPath(strVal);
         }
-        
-        throw new JSONException("MiscCodec not support " + clazz);
+
+        String className = clazz.getTypeName();
+
+        if (className.equals("java.nio.file.Path")) {
+            try {
+                if (method_paths_get == null && !method_paths_get_error) {
+                    Class<?> paths = TypeUtils.loadClass("java.nio.file.Paths");
+                    method_paths_get = paths.getMethod("get", String.class, String[].class);
+                }
+                if (method_paths_get != null) {
+                    return (T) method_paths_get.invoke(null, strVal, new String[0]);
+                }
+                
+                throw new JSONException("Path deserialize erorr");
+            } catch (NoSuchMethodException ex) {
+                method_paths_get_error = true;
+            } catch (IllegalAccessException ex) {
+                throw new JSONException("Path deserialize erorr", ex);
+            } catch (InvocationTargetException ex) {
+                throw new JSONException("Path deserialize erorr", ex);
+            }
+        }
+
+        throw new JSONException("MiscCodec not support " + className);
     }
 
     public int getFastMatchToken() {

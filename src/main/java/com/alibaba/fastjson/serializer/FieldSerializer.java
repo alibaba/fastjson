@@ -152,7 +152,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
 
             ObjectSerializer fieldSerializer = runtimeInfo.fieldSerializer;
             
-            if ((out.writeMapNullValue) 
+            if ((out.isEnabled(SerializerFeature.WriteMapNullValue)) 
                     && fieldSerializer instanceof JavaBeanSerializer) {
                 out.writeNull();
                 return;

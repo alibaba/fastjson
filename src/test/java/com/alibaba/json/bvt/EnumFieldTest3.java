@@ -36,7 +36,7 @@ public class EnumFieldTest3 extends TestCase {
         }
 
         StringWriter writer = new StringWriter();
-        JSON.writeJSONString(array, writer);
+        JSON.writeJSONString(writer, array);
         String text = writer.toString();
 
         Model[] array2 = JSON.parseObject(text, Model[].class);

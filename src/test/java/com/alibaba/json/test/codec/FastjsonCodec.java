@@ -63,7 +63,7 @@ public class FastjsonCodec implements Codec {
 
     @Override
     public void encode(OutputStream out, Object object) throws Exception {
-       JSON.writeJSONString(object, out, SerializerFeature.DisableCircularReferenceDetect);
+       JSON.writeJSONString(out, object, SerializerFeature.DisableCircularReferenceDetect);
     }
 
 }

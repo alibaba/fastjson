@@ -19,7 +19,7 @@ public class StringFieldTest_special_singquote extends TestCase {
         model.name = buf.toString();
         
         StringWriter writer = new StringWriter();
-        JSON.writeJSONString(model, writer);
+        JSON.writeJSONString(writer, model);
 
         Model model2 = JSON.parseObject(writer.toString(), Model.class);
         Assert.assertEquals(model.name, model2.name);
@@ -34,7 +34,7 @@ public class StringFieldTest_special_singquote extends TestCase {
         model.name = buf.toString();
         
         StringWriter writer = new StringWriter();
-        JSON.writeJSONString(model, writer, SerializerFeature.UseSingleQuotes);
+        JSON.writeJSONString(writer, model, SerializerFeature.UseSingleQuotes);
 
         Model model2 = JSON.parseObject(writer.toString(), Model.class);
         Assert.assertEquals(model.name, model2.name);
@@ -49,7 +49,7 @@ public class StringFieldTest_special_singquote extends TestCase {
         model.name = buf.toString();
         
         StringWriter writer = new StringWriter();
-        JSON.writeJSONString(model, writer, SerializerFeature.UseSingleQuotes);
+        JSON.writeJSONString(writer, model, SerializerFeature.UseSingleQuotes);
 
         Model model2 = JSON.parseObject(writer.toString(), Model.class);
         Assert.assertEquals(model.name, model2.name);

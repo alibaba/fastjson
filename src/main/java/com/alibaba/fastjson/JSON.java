@@ -611,7 +611,6 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
      * @param object
      * @param writer output writer
      * @param features serializer features
-     * @throws IOException
      */
     public static void writeJSONString(Object object, Writer writer, SerializerFeature... features) {
         writeJSONString(object, writer, JSON.DEFAULT_GENERATE_FEATURE, features);

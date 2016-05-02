@@ -985,11 +985,11 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitVarInsn(ASTORE, Context.fieldName);
 
             if (propertyClass == byte.class) {
-                _byte(clazz, mw, property, context);
+                _int(clazz, mw, property, context, context.var("byte"), 'I');
             } else if (propertyClass == short.class) {
-                _short(clazz, mw, property, context);
+                _int(clazz, mw, property, context, context.var("short"), 'I');
             } else if (propertyClass == int.class) {
-                _int(clazz, mw, property, context);
+                _int(clazz, mw, property, context, context.var("int"), 'I');
             } else if (propertyClass == long.class) {
                 _long(clazz, mw, property, context);
             } else if (propertyClass == float.class) {
@@ -997,9 +997,9 @@ public class ASMSerializerFactory implements Opcodes {
             } else if (propertyClass == double.class) {
                 _double(clazz, mw, property, context);
             } else if (propertyClass == boolean.class) {
-                _boolean(clazz, mw, property, context);
+                _int(clazz, mw, property, context, context.var("boolean"), 'Z');
             } else if (propertyClass == char.class) {
-                _char(clazz, mw, property, context);
+                _int(clazz, mw, property, context, context.var("char"), 'C');
             } else if (propertyClass == String.class) {
                 _string(clazz, mw, property, context);
             } else if (propertyClass == BigDecimal.class) {
@@ -1111,15 +1111,36 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitLabel(_end_if);
         mw.visitLabel(_end);
     }
+    
+    private void _int(Class<?> clazz, MethodVisitor mw, FieldInfo property, Context context, int var, char type) {
+        Label end_ = new Label();
+
+        _nameApply(mw, property, context, end_);
+        _get(mw, context, property);
+        mw.visitVarInsn(ISTORE, var);
+
+        _filters(mw, property, context, end_);
+
+        mw.visitVarInsn(ALOAD, context.var("out"));
+        mw.visitVarInsn(ILOAD, context.var("seperator"));
+        mw.visitVarInsn(ALOAD, Context.fieldName);
+        mw.visitVarInsn(ILOAD, var);
+
+        mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldValue", "(CLjava/lang/String;" + type + ")V");
+
+        _seperator(mw, context);
+
+        mw.visitLabel(end_);
+    }
 
     private void _long(Class<?> clazz, MethodVisitor mw, FieldInfo property, Context context) {
-        Label _end = new Label();
+        Label end_ = new Label();
 
-        _nameApply(mw, property, context, _end);
+        _nameApply(mw, property, context, end_);
         _get(mw, context, property);
         mw.visitVarInsn(LSTORE, context.var("long", 2));
 
-        _filters(mw, property, context, _end);
+        _filters(mw, property, context, end_);
 
         mw.visitVarInsn(ALOAD, context.var("out"));
         mw.visitVarInsn(ILOAD, context.var("seperator"));
@@ -1129,17 +1150,17 @@ public class ASMSerializerFactory implements Opcodes {
 
         _seperator(mw, context);
 
-        mw.visitLabel(_end);
+        mw.visitLabel(end_);
     }
-
+    
     private void _float(Class<?> clazz, MethodVisitor mw, FieldInfo property, Context context) {
-        Label _end = new Label();
+        Label end_ = new Label();
 
-        _nameApply(mw, property, context, _end);
+        _nameApply(mw, property, context, end_);
         _get(mw, context, property);
         mw.visitVarInsn(FSTORE, context.var("float"));
 
-        _filters(mw, property, context, _end);
+        _filters(mw, property, context, end_);
 
         mw.visitVarInsn(ALOAD, context.var("out"));
         mw.visitVarInsn(ILOAD, context.var("seperator"));
@@ -1149,17 +1170,17 @@ public class ASMSerializerFactory implements Opcodes {
 
         _seperator(mw, context);
 
-        mw.visitLabel(_end);
+        mw.visitLabel(end_);
     }
 
     private void _double(Class<?> clazz, MethodVisitor mw, FieldInfo property, Context context) {
-        Label _end = new Label();
+        Label end_ = new Label();
 
-        _nameApply(mw, property, context, _end);
+        _nameApply(mw, property, context, end_);
         _get(mw, context, property);
         mw.visitVarInsn(DSTORE, context.var("double", 2));
 
-        _filters(mw, property, context, _end);
+        _filters(mw, property, context, end_);
 
         mw.visitVarInsn(ALOAD, context.var("out"));
         mw.visitVarInsn(ILOAD, context.var("seperator"));
@@ -1169,51 +1190,9 @@ public class ASMSerializerFactory implements Opcodes {
 
         _seperator(mw, context);
 
-        mw.visitLabel(_end);
+        mw.visitLabel(end_);
     }
-
-    private void _char(Class<?> clazz, MethodVisitor mw, FieldInfo property, Context context) {
-        Label _end = new Label();
-
-        _nameApply(mw, property, context, _end);
-        _get(mw, context, property);
-        mw.visitVarInsn(ISTORE, context.var("char"));
-
-        _filters(mw, property, context, _end);
-
-        mw.visitVarInsn(ALOAD, context.var("out"));
-        mw.visitVarInsn(ILOAD, context.var("seperator"));
-        mw.visitVarInsn(ALOAD, Context.fieldName);
-        mw.visitVarInsn(ILOAD, context.var("char"));
-
-        mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldValue", "(CLjava/lang/String;C)V");
-
-        _seperator(mw, context);
-
-        mw.visitLabel(_end);
-    }
-
-    private void _boolean(Class<?> clazz, MethodVisitor mw, FieldInfo property, Context context) {
-        Label _end = new Label();
-
-        _nameApply(mw, property, context, _end);
-        _get(mw, context, property);
-        mw.visitVarInsn(ISTORE, context.var("boolean"));
-
-        _filters(mw, property, context, _end);
-
-        mw.visitVarInsn(ALOAD, context.var("out"));
-        mw.visitVarInsn(ILOAD, context.var("seperator"));
-        mw.visitVarInsn(ALOAD, Context.fieldName);
-        mw.visitVarInsn(ILOAD, context.var("boolean"));
-
-        mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldValue", "(CLjava/lang/String;Z)V");
-
-        _seperator(mw, context);
-
-        mw.visitLabel(_end);
-    }
-
+    
     private void _get(MethodVisitor mw, Context context, FieldInfo property) {
         Method method = property.method;
         if (method != null) {
@@ -1226,91 +1205,28 @@ public class ASMSerializerFactory implements Opcodes {
         }
     }
 
-    private void _byte(Class<?> clazz, MethodVisitor mw, FieldInfo property, Context context) {
-        Label _end = new Label();
-
-        _nameApply(mw, property, context, _end);
-        _get(mw, context, property);
-        mw.visitVarInsn(ISTORE, context.var("byte"));
-
-        _filters(mw, property, context, _end);
-
-        mw.visitVarInsn(ALOAD, context.var("out"));
-        mw.visitVarInsn(ILOAD, context.var("seperator"));
-        mw.visitVarInsn(ALOAD, Context.fieldName);
-        mw.visitVarInsn(ILOAD, context.var("byte"));
-
-        mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldValue", "(CLjava/lang/String;I)V");
-
-        _seperator(mw, context);
-
-        mw.visitLabel(_end);
-    }
-
-    private void _short(Class<?> clazz, MethodVisitor mw, FieldInfo property, Context context) {
-        Label _end = new Label();
-
-        _nameApply(mw, property, context, _end);
-        _get(mw, context, property);
-        mw.visitVarInsn(ISTORE, context.var("short"));
-
-        _filters(mw, property, context, _end);
-
-        mw.visitVarInsn(ALOAD, context.var("out"));
-        mw.visitVarInsn(ILOAD, context.var("seperator"));
-        mw.visitVarInsn(ALOAD, Context.fieldName);
-        mw.visitVarInsn(ILOAD, context.var("short"));
-
-        mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldValue", "(CLjava/lang/String;I)V");
-
-        _seperator(mw, context);
-
-        mw.visitLabel(_end);
-    }
-
-    private void _int(Class<?> clazz, MethodVisitor mw, FieldInfo property, Context context) {
-        Label _end = new Label();
-
-        _nameApply(mw, property, context, _end);
-        _get(mw, context, property);
-        mw.visitVarInsn(ISTORE, context.var("int"));
-
-        _filters(mw, property, context, _end);
-
-        mw.visitVarInsn(ALOAD, context.var("out"));
-        mw.visitVarInsn(ILOAD, context.var("seperator"));
-        mw.visitVarInsn(ALOAD, Context.fieldName);
-        mw.visitVarInsn(ILOAD, context.var("int"));
-
-        mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldValue", "(CLjava/lang/String;I)V");
-
-        _seperator(mw, context);
-
-        mw.visitLabel(_end);
-    }
-
     private void _decimal(Class<?> clazz, MethodVisitor mw, FieldInfo property, Context context) {
-        Label _end = new Label();
+        Label end_ = new Label();
 
-        _nameApply(mw, property, context, _end);
+        _nameApply(mw, property, context, end_);
         _get(mw, context, property);
         mw.visitVarInsn(ASTORE, context.var("decimal"));
 
-        _filters(mw, property, context, _end);
+        _filters(mw, property, context, end_);
 
-        Label _if = new Label();
-        Label _else = new Label();
-        Label _end_if = new Label();
+        Label if_ = new Label();
+        Label else_ = new Label();
+        Label endIf_ = new Label();
 
-        mw.visitLabel(_if);
+        mw.visitLabel(if_);
 
         // if (decimalValue == null) {
         mw.visitVarInsn(ALOAD, context.var("decimal"));
-        mw.visitJumpInsn(IFNONNULL, _else);
+        mw.visitJumpInsn(IFNONNULL, else_);
         _if_write_null(mw, property, context);
-        mw.visitJumpInsn(GOTO, _end_if);
+        mw.visitJumpInsn(GOTO, endIf_);
 
-        mw.visitLabel(_else); // else { out.writeFieldValue(seperator, fieldName, fieldValue)
+        mw.visitLabel(else_); // else { out.writeFieldValue(seperator, fieldName, fieldValue)
 
         mw.visitVarInsn(ALOAD, context.var("out"));
         mw.visitVarInsn(ILOAD, context.var("seperator"));
@@ -1320,34 +1236,34 @@ public class ASMSerializerFactory implements Opcodes {
                            "(CLjava/lang/String;Ljava/math/BigDecimal;)V");
 
         _seperator(mw, context);
-        mw.visitJumpInsn(GOTO, _end_if);
+        mw.visitJumpInsn(GOTO, endIf_);
 
-        mw.visitLabel(_end_if);
+        mw.visitLabel(endIf_);
 
-        mw.visitLabel(_end);
+        mw.visitLabel(end_);
     }
 
     private void _string(Class<?> clazz, MethodVisitor mw, FieldInfo property, Context context) {
-        Label _end = new Label();
+        Label end_ = new Label();
 
-        _nameApply(mw, property, context, _end);
+        _nameApply(mw, property, context, end_);
         _get(mw, context, property);
         mw.visitVarInsn(ASTORE, context.var("string"));
 
-        _filters(mw, property, context, _end);
+        _filters(mw, property, context, end_);
 
-        Label _else = new Label();
-        Label _end_if = new Label();
+        Label else_ = new Label();
+        Label endIf_ = new Label();
 
         // if (value == null) {
         mw.visitVarInsn(ALOAD, context.var("string"));
-        mw.visitJumpInsn(IFNONNULL, _else);
+        mw.visitJumpInsn(IFNONNULL, else_);
 
         _if_write_null(mw, property, context);
 
-        mw.visitJumpInsn(GOTO, _end_if);
+        mw.visitJumpInsn(GOTO, endIf_);
 
-        mw.visitLabel(_else); // else { out.writeFieldValue(seperator, fieldName, fieldValue)
+        mw.visitLabel(else_); // else { out.writeFieldValue(seperator, fieldName, fieldValue)
 
         if (context.writeDirect) {
             mw.visitVarInsn(ALOAD, context.var("out"));
@@ -1366,9 +1282,9 @@ public class ASMSerializerFactory implements Opcodes {
         }
         _seperator(mw, context);
 
-        mw.visitLabel(_end_if);
+        mw.visitLabel(endIf_);
 
-        mw.visitLabel(_end);
+        mw.visitLabel(end_);
     }
 
     private void _list(Class<?> clazz, MethodVisitor mw, FieldInfo fieldInfo, Context context) {
@@ -1391,36 +1307,27 @@ public class ASMSerializerFactory implements Opcodes {
             elementClass = null;
         }
 
-        Label _end = new Label(), _else = new Label(), _end_if = new Label();
+        Label end_ = new Label(), else_ = new Label(), endIf_ = new Label();
 
-        _nameApply(mw, fieldInfo, context, _end);
+        _nameApply(mw, fieldInfo, context, end_);
         _get(mw, context, fieldInfo);
         mw.visitTypeInsn(CHECKCAST, "java/util/List"); // cast
         mw.visitVarInsn(ASTORE, context.var("list"));
 
-        _filters(mw, fieldInfo, context, _end);
+        _filters(mw, fieldInfo, context, end_);
 
         mw.visitVarInsn(ALOAD, context.var("list"));
-        mw.visitJumpInsn(IFNONNULL, _else);
+        mw.visitJumpInsn(IFNONNULL, else_);
         _if_write_null(mw, fieldInfo, context);
-        mw.visitJumpInsn(GOTO, _end_if);
+        mw.visitJumpInsn(GOTO, endIf_);
 
-        mw.visitLabel(_else); // else {
+        mw.visitLabel(else_); // else {
 
         mw.visitVarInsn(ALOAD, context.var("out"));
         mw.visitVarInsn(ILOAD, context.var("seperator"));
         mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(I)V");
 
-        if (context.writeDirect) {
-            mw.visitVarInsn(ALOAD, context.var("out"));
-            mw.visitVarInsn(ALOAD, Context.fieldName);
-            mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldNameDirect", "(Ljava/lang/String;)V");
-        } else {
-            mw.visitVarInsn(ALOAD, context.var("out"));
-            mw.visitVarInsn(ALOAD, Context.fieldName);
-            mw.visitInsn(ICONST_0);
-            mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldName", "(Ljava/lang/String;Z)V");
-        }
+        _writeFieldName(mw, context);
 
         //
         mw.visitVarInsn(ALOAD, context.var("list"));
@@ -1511,8 +1418,7 @@ public class ASMSerializerFactory implements Opcodes {
                 if (context.writeDirect) {
                     String writeMethodName = context.nonContext && context.writeDirect ? //
                         "writeDirectNonContext" //
-                        : context.writeDirect ? //
-                            "write" : "writeNormal";
+                        : "write";
                     mw.visitVarInsn(ALOAD, context.var("list_item_desc"));
                     mw.visitTypeInsn(INSTANCEOF, type(JavaBeanSerializer.class));
                     mw.visitJumpInsn(IFEQ, instanceOfElse_);
@@ -1596,9 +1502,9 @@ public class ASMSerializerFactory implements Opcodes {
 
         _seperator(mw, context);
 
-        mw.visitLabel(_end_if);
+        mw.visitLabel(endIf_);
 
-        mw.visitLabel(_end);
+        mw.visitLabel(end_);
     }
 
     private void _filters(MethodVisitor mw, FieldInfo property, Context context, Label _end) {
@@ -1681,11 +1587,7 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitVarInsn(ILOAD, context.var("seperator"));
         mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(I)V");
 
-        // out.writeFieldName("fieldName")
-        mw.visitVarInsn(ALOAD, context.var("out"));
-        mw.visitVarInsn(ALOAD, Context.fieldName);
-        mw.visitInsn(ICONST_0);
-        mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldName", "(Ljava/lang/String;Z)V");
+        _writeFieldName(mw, context);
 
         Label classIfEnd_ = new Label(), classIfElse_ = new Label();
         if (Modifier.isPublic(fieldClass.getModifiers()) && !ParserConfig.isPrimitive(fieldClass)) {
@@ -1704,8 +1606,7 @@ public class ASMSerializerFactory implements Opcodes {
 
             String writeMethodName = context.nonContext && context.writeDirect ? //
                 "writeDirectNonContext" //
-                : context.writeDirect ? //
-                    "write" : "writeNormal";
+                : "write";
             
             mw.visitVarInsn(ALOAD, context.var("fied_ser"));
             mw.visitTypeInsn(CHECKCAST, type(JavaBeanSerializer.class)); // cast
@@ -2083,9 +1984,7 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitVarInsn(ILOAD, context.var("seperator"));
         mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(I)V");
 
-        mw.visitVarInsn(ALOAD, context.var("out"));
-        mw.visitVarInsn(ALOAD, Context.fieldName);
-        mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldName", "(Ljava/lang/String;)V");
+        _writeFieldName(mw, context);
 
         mw.visitVarInsn(ALOAD, context.var("out"));
         mw.visitLdcInsn(features);
@@ -2112,6 +2011,19 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitLabel(_else);
 
         mw.visitLabel(_end_if);
+    }
+
+    protected void _writeFieldName(MethodVisitor mw, Context context) {
+        if (context.writeDirect) {
+            mw.visitVarInsn(ALOAD, context.var("out"));
+            mw.visitVarInsn(ALOAD, Context.fieldName);
+            mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldNameDirect", "(Ljava/lang/String;)V");
+        } else {
+            mw.visitVarInsn(ALOAD, context.var("out"));
+            mw.visitVarInsn(ALOAD, Context.fieldName);
+            mw.visitInsn(ICONST_0);
+            mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldName", "(Ljava/lang/String;Z)V");
+        }
     }
 
     private void _seperator(MethodVisitor mw, Context context) {

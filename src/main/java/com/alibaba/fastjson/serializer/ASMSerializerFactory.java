@@ -3,6 +3,7 @@ package com.alibaba.fastjson.serializer;
 import static com.alibaba.fastjson.util.ASMUtils.desc;
 import static com.alibaba.fastjson.util.ASMUtils.type;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -1385,7 +1386,8 @@ public class ASMSerializerFactory implements Opcodes {
             elementClass = (Class<?>) elementType;
         }
         
-        if (elementClass == Object.class) {
+        if (elementClass == Object.class //
+            || elementClass == Serializable.class) {
             elementClass = null;
         }
 

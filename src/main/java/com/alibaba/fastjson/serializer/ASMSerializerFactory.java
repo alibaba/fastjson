@@ -2013,7 +2013,7 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitLabel(_end_if);
     }
 
-    protected void _writeFieldName(MethodVisitor mw, Context context) {
+    private void _writeFieldName(MethodVisitor mw, Context context) {
         if (context.writeDirect) {
             mw.visitVarInsn(ALOAD, context.var("out"));
             mw.visitVarInsn(ALOAD, Context.fieldName);

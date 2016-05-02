@@ -123,14 +123,6 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         }
     }
     
-    public void writeNormal(JSONSerializer serializer, //
-                            Object object, //
-                            Object fieldName, //
-                            Type fieldType, //
-                            int features) throws IOException {
-        write(serializer, object, fieldName, fieldType, features);
-    }
-    
     public void writeDirectNonContext(JSONSerializer serializer, //
                       Object object, //
                       Object fieldName, //

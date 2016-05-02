@@ -567,6 +567,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
     }
 
+    /**
+     * @deprecated
+     */
     public static String toJSONStringZ(Object object, SerializeConfig mapping, SerializerFeature... features) {
         return toJSONString(object, mapping, emptyFilters, null, 0, features);
     }
@@ -602,24 +605,24 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
      * @deprecated use writeJSONString
      */
     public static void writeJSONStringTo(Object object, Writer writer, SerializerFeature... features) {
-        writeJSONString(object, writer, features);
+        writeJSONString(writer, object, features);
     }
 
     /**
      * write object as json to Writer
-     * @since 1.2.11
-     * @param object
      * @param writer output writer
+     * @param object
      * @param features serializer features
+     * @since 1.2.11
      */
-    public static void writeJSONString(Object object, Writer writer, SerializerFeature... features) {
-        writeJSONString(object, writer, JSON.DEFAULT_GENERATE_FEATURE, features);
+    public static void writeJSONString(Writer writer, Object object, SerializerFeature... features) {
+        writeJSONString(writer, object, JSON.DEFAULT_GENERATE_FEATURE, features);
     }
     
     /**
      * @since 1.2.11 
      */
-    public static void writeJSONString(Object object, Writer writer, int defaultFeatures, SerializerFeature... features) {
+    public static void writeJSONString(Writer writer, Object object, int defaultFeatures, SerializerFeature... features) {
         SerializeWriter out = new SerializeWriter(writer, defaultFeatures, features);
 
         try {
@@ -632,28 +635,28 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     
     /**
      * write object as json to OutputStream
-     * @since 1.2.11
-     * @param object
      * @param os output stream
+     * @param object
      * @param features serializer features
+     * @since 1.2.11
      * @throws IOException
      */
-    public static final int writeJSONString(Object object, // 
-                                             OutputStream os, // 
+    public static final int writeJSONString(OutputStream os, // 
+                                             Object object, // 
                                              SerializerFeature... features) throws IOException {
-        return writeJSONString(object, os, DEFAULT_GENERATE_FEATURE, features);
+        return writeJSONString(os, object, DEFAULT_GENERATE_FEATURE, features);
     }
     
     /**
      * @since 1.2.11 
      */
-    public static final int writeJSONString(Object object, // 
-                                            OutputStream os, // 
+    public static final int writeJSONString(OutputStream os, // 
+                                            Object object, // 
                                             int defaultFeatures, //
                                             SerializerFeature... features) throws IOException {
-       return writeJSONString(object,  //
-                              os, // 
-                              IOUtils.UTF8, //
+       return writeJSONString(os,  //
+                              IOUtils.UTF8, // 
+                              object, //
                               SerializeConfig.globalInstance, //
                               null, //
                               null, // 
@@ -661,13 +664,13 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                               features);
    }
     
-    public static final int writeJSONString(Object object, // 
-                                             OutputStream os, // 
+    public static final int writeJSONString(OutputStream os, // 
                                              Charset charset, // 
+                                             Object object, // 
                                              SerializerFeature... features) throws IOException {
-        return writeJSONString(object, //
-                               os, //
+        return writeJSONString(os, //
                                charset, //
+                               object, //
                                SerializeConfig.globalInstance, //
                                null, //
                                null, //
@@ -675,9 +678,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                                features);
     }
     
-    public static final int writeJSONString(Object object, // 
-                                             OutputStream os, // 
+    public static final int writeJSONString(OutputStream os, // 
                                              Charset charset, // 
+                                             Object object, // 
                                              SerializeConfig config, //
                                              SerializeFilter[] filters, //
                                              String dateFormat, //

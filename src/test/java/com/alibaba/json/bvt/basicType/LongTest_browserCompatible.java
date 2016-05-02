@@ -28,7 +28,7 @@ public class LongTest_browserCompatible extends TestCase {
         long[] values = new long[] {Long.MIN_VALUE, -1, 0, 1, Long.MAX_VALUE};
         
         StringWriter writer = new StringWriter();
-        JSON.writeJSONString(values, writer, SerializerFeature.BrowserCompatible);
+        JSON.writeJSONString(writer, values, SerializerFeature.BrowserCompatible);
         String text = writer.toString();
         long[] values_2 = JSON.parseObject(text, long[].class);
         Assert.assertEquals(values_2.length, values.length);
@@ -45,7 +45,7 @@ public class LongTest_browserCompatible extends TestCase {
         }
         
         StringWriter writer = new StringWriter();
-        JSON.writeJSONString(values, writer, SerializerFeature.BrowserCompatible);
+        JSON.writeJSONString(writer, values, SerializerFeature.BrowserCompatible);
         String text = writer.toString();
         long[] values_2 = JSON.parseObject(text, long[].class);
         Assert.assertEquals(values_2.length, values.length);

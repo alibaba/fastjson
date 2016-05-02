@@ -186,6 +186,11 @@ public class JSONSerializer extends SerializeFilterable {
                || (filterable.contextValueFilters != null && filterable.contextValueFilters.size() > 0)
                || out.writeNonStringValueAsString;
     }
+    
+    public boolean hasNameFilters(SerializeFilterable filterable) {
+        return (nameFilters != null && nameFilters.size() > 0) //
+               || (filterable.nameFilters != null && filterable.nameFilters.size() > 0);
+    }
 
     public int getIndentCount() {
         return indentCount;

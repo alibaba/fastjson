@@ -250,9 +250,9 @@ public class FastJsonProvider //
 			fastJsonConfig.setSerializerFeatures(serializerFeatures);
 		}
 
-        JSON.writeJSONString(obj, //
-                             entityStream, //
+        JSON.writeJSONString(entityStream, //
                              fastJsonConfig.getCharset(), //
+                             obj, //
                              fastJsonConfig.getSerializeConfig(), //
                              fastJsonConfig.getSerializeFilters(), //
                              fastJsonConfig.getDateFormat(), //

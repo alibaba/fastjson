@@ -22,6 +22,13 @@ public class PathTest extends TestCase {
         Assert.assertEquals(model.path.toString(), model2.path.toString());
     }
     
+    public void test_for_null() throws Exception {
+        String text = "{\"path\":null}";
+        
+        Model model2 = JSON.parseObject(text, Model.class);
+        Assert.assertNull(model2.path);
+    }
+    
     public static class Model {
         public Path path;
     }

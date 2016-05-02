@@ -75,7 +75,7 @@ public class OptionalCodec implements ObjectSerializer, ObjectDeserializer {
 
         if (object instanceof Optional) {
             Optional<?> optional = (Optional<?>) object;
-            Object value = optional.get();
+            Object value = optional.isPresent() ? optional.get() : null;
             serializer.write(value);
             return;
         }

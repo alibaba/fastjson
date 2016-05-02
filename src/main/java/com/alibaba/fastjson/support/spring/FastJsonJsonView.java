@@ -171,9 +171,9 @@ public class FastJsonJsonView extends AbstractView {
 		Object value = filterModel(model);
 		OutputStream stream = this.updateContentLength ? createTemporaryOutputStream()
             : response.getOutputStream();
-        JSON.writeJSONString(value, //
-                             stream, //
+        JSON.writeJSONString(stream, //
                              fastJsonConfig.getCharset(), //
+                             value, //
                              fastJsonConfig.getSerializeConfig(), //
                              fastJsonConfig.getSerializeFilters(), //
                              fastJsonConfig.getDateFormat(), //

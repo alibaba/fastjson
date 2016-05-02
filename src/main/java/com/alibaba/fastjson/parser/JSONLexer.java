@@ -15,6 +15,7 @@ public interface JSONLexer {
     int  ARRAY          = 2;
     int  VALUE          = 3;
     int  END            = 4;
+    int  VALUE_NULL     = 5;
 
     int token();
 
@@ -90,7 +91,7 @@ public interface JSONLexer {
 
     String scanSymbolWithSeperator(final SymbolTable symbolTable, char serperator);
 
-    Collection<String> scanStringArray(Class<?> type, char seperator);
+    void scanStringArray(Collection<String> collection, char seperator);
 
     TimeZone getTimeZone();
     

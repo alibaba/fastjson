@@ -81,7 +81,7 @@ public enum SerializerFeature {
     /**
      * @since 1.1.6
      */
-    DisableCircularReferenceDetect,
+    DisableCircularReferenceDetect, // 32768
 
     /**
      * @since 1.1.9
@@ -105,6 +105,7 @@ public enum SerializerFeature {
 
     /**
      * @since 1.1.19
+     * @deprecated
      */
     DisableCheckSpecialChar,
 

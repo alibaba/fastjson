@@ -18,7 +18,6 @@ package com.alibaba.fastjson.util;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -966,6 +965,24 @@ public class TypeUtils {
     public static Class<?> loadClass(String className) {
         return loadClass(className, null);
     }
+    
+    private static Class<?> pathClass;
+    private static boolean pathClass_error = false;
+    public static boolean isPath(Class<?> clazz) {
+        if (pathClass == null && !pathClass_error) {
+            try {
+                pathClass = Class.forName("java.nio.file.Path");
+            } catch (Throwable ex) {
+                pathClass_error = true;
+            }
+        }
+        
+        if (pathClass != null) {
+            return pathClass.isAssignableFrom(clazz);
+        }
+        
+        return false;
+    }
 
     public static Class<?> loadClass(String className, ClassLoader classLoader) {
         if (className == null || className.length() == 0) {
@@ -1416,20 +1433,6 @@ public class TypeUtils {
         return type;
     }
 
-    public static Type unwrap(Type type) {
-        if (type instanceof GenericArrayType) {
-            Type componentType = ((GenericArrayType) type).getGenericComponentType();
-            if (componentType == byte.class) {
-                return byte[].class;
-            }
-            if (componentType == char.class) {
-                return char[].class;
-            }
-        }
-
-        return type;
-    }
-
     public static Type unwrapOptional(Type type) {
         if (!optionalClassInited) {
             try {
@@ -1480,10 +1483,6 @@ public class TypeUtils {
         }
 
         return null;
-    }
-
-    public static JSONType getJSONType(Class<?> clazz) {
-        return clazz.getAnnotation(JSONType.class);
     }
 
     public static int getSerializeFeatures(Class<?> clazz) {

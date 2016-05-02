@@ -57,7 +57,7 @@ public class FastjsonArrayMappingCodec implements Codec {
 
     @Override
     public void encode(OutputStream out, Object object) throws Exception {
-       JSON.writeJSONString(object, out, SerializerFeature.DisableCircularReferenceDetect, SerializerFeature.BeanToArray);
+       JSON.writeJSONString(out, object, SerializerFeature.DisableCircularReferenceDetect, SerializerFeature.BeanToArray);
     }
 
 }

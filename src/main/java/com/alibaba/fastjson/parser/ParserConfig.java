@@ -82,7 +82,6 @@ import com.alibaba.fastjson.parser.deserializer.MapDeserializer;
 import com.alibaba.fastjson.parser.deserializer.NumberDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.OptionalCodec;
-import com.alibaba.fastjson.parser.deserializer.PathDeserializer;
 import com.alibaba.fastjson.parser.deserializer.SqlDateDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StackTraceElementDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ThrowableDeserializer;
@@ -115,6 +114,7 @@ import com.alibaba.fastjson.util.ServiceLoader;
  * @author wenshao[szujobs@hotmail.com]
  */
 public class ParserConfig {
+
     public final static String DENY_PROPERTY = "fastjson.parser.deny";
 
     public static ParserConfig getGlobalInstance() {
@@ -134,19 +134,18 @@ public class ParserConfig {
     protected ASMDeserializerFactory                        asmFactory;
 
     private static boolean                                  awtError    = false;
-    private static boolean                                  jdk7Error   = false;
     private static boolean                                  jdk8Error   = false;
 
     private String[]                                        denyList    = new String[] { "java.lang.Thread" };
 
-    public ParserConfig() {
+    public ParserConfig(){
         this(null, null);
     }
-    
+
     public ParserConfig(ClassLoader parentClassLoader){
         this(null, parentClassLoader);
     }
-    
+
     public ParserConfig(ASMDeserializerFactory asmFactory){
         this(asmFactory, null);
     }
@@ -155,7 +154,7 @@ public class ParserConfig {
         if (asmFactory == null && !ASMUtils.IS_ANDROID) {
             try {
                 if (parentClassLoader == null) {
-                    asmFactory = new ASMDeserializerFactory(new ASMClassLoader());    
+                    asmFactory = new ASMDeserializerFactory(new ASMClassLoader());
                 } else {
                     asmFactory = new ASMDeserializerFactory(parentClassLoader);
                 }
@@ -167,13 +166,13 @@ public class ParserConfig {
                 // skip
             }
         }
-        
+
         this.asmFactory = asmFactory;
-        
+
         if (asmFactory == null) {
             asmEnable = false;
         }
-        
+
         derializers.put(SimpleDateFormat.class, MiscCodec.instance);
         derializers.put(java.sql.Timestamp.class, SqlDateDeserializer.instance_timestamp);
         derializers.put(java.sql.Date.class, SqlDateDeserializer.instance);
@@ -252,56 +251,10 @@ public class ParserConfig {
         derializers.put(Comparable.class, JavaObjectDeserializer.instance);
         derializers.put(Closeable.class, JavaObjectDeserializer.instance);
 
-        if (!awtError) {
-            try {
-                derializers.put(Class.forName("java.awt.Point"), AwtCodec.instance);
-                derializers.put(Class.forName("java.awt.Font"), AwtCodec.instance);
-                derializers.put(Class.forName("java.awt.Rectangle"), AwtCodec.instance);
-                derializers.put(Class.forName("java.awt.Color"), AwtCodec.instance);
-            } catch (Throwable e) {
-                // skip
-                awtError = true;
-            }
-        }
-        
-        if (!jdk7Error) {
-            try {
-                derializers.put(Class.forName("java.nio.file.Path"), new PathDeserializer());
-            } catch (Throwable e) {
-                // skip
-                jdk7Error = true;
-            }
-        }
-        
-        if (!jdk8Error) {
-            try {
-                derializers.put(Class.forName("java.time.LocalDateTime"), Jdk8DateCodec.instance);
-                derializers.put(Class.forName("java.time.LocalDate"), Jdk8DateCodec.instance);
-                derializers.put(Class.forName("java.time.LocalTime"), Jdk8DateCodec.instance);
-                derializers.put(Class.forName("java.time.ZonedDateTime"), Jdk8DateCodec.instance);
-                derializers.put(Class.forName("java.time.OffsetDateTime"), Jdk8DateCodec.instance);
-                derializers.put(Class.forName("java.time.OffsetTime"), Jdk8DateCodec.instance);
-                derializers.put(Class.forName("java.time.ZoneOffset"), Jdk8DateCodec.instance);
-                derializers.put(Class.forName("java.time.ZoneRegion"), Jdk8DateCodec.instance);
-                derializers.put(Class.forName("java.time.ZoneId"), Jdk8DateCodec.instance);
-                derializers.put(Class.forName("java.time.Period"), Jdk8DateCodec.instance);
-                derializers.put(Class.forName("java.time.Duration"), Jdk8DateCodec.instance);
-                derializers.put(Class.forName("java.time.Instant"), Jdk8DateCodec.instance);
-                
-                derializers.put(Class.forName("java.util.Optional"), OptionalCodec.instance);
-                derializers.put(Class.forName("java.util.OptionalDouble"), OptionalCodec.instance);
-                derializers.put(Class.forName("java.util.OptionalInt"), OptionalCodec.instance);
-                derializers.put(Class.forName("java.util.OptionalLong"), OptionalCodec.instance);
-            } catch (Throwable e) {
-                // skip
-                jdk8Error = true;
-            }
-        }
-        
         addDeny("java.lang.Thread");
         configFromPropety(System.getProperties());
     }
-    
+
     public void configFromPropety(Properties properties) {
         String property = properties.getProperty(DENY_PROPERTY);
         if (property != null && property.length() > 0) {
@@ -379,14 +332,68 @@ public class ParserConfig {
         if (derializer != null) {
             return derializer;
         }
-        
+
+        String className = clazz.getName();
         for (int i = 0; i < denyList.length; ++i) {
             String deny = denyList[i];
-            String className = clazz.getName();
             className = className.replace('$', '.');
             if (className.startsWith(deny)) {
                 throw new JSONException("parser deny : " + className);
             }
+        }
+
+        if (className.startsWith("java.awt.") //
+            && AwtCodec.support(clazz)) {
+            if (!awtError) {
+                try {
+                    derializers.put(Class.forName("java.awt.Point"), AwtCodec.instance);
+                    derializers.put(Class.forName("java.awt.Font"), AwtCodec.instance);
+                    derializers.put(Class.forName("java.awt.Rectangle"), AwtCodec.instance);
+                    derializers.put(Class.forName("java.awt.Color"), AwtCodec.instance);
+                } catch (Throwable e) {
+                    // skip
+                    awtError = true;
+                }
+
+                derializer = AwtCodec.instance;
+            }
+        }
+
+        if (!jdk8Error) {
+            try {
+                if (className.startsWith("java.time.")) {
+                    
+                    derializers.put(Class.forName("java.time.LocalDateTime"), Jdk8DateCodec.instance);
+                    derializers.put(Class.forName("java.time.LocalDate"), Jdk8DateCodec.instance);
+                    derializers.put(Class.forName("java.time.LocalTime"), Jdk8DateCodec.instance);
+                    derializers.put(Class.forName("java.time.ZonedDateTime"), Jdk8DateCodec.instance);
+                    derializers.put(Class.forName("java.time.OffsetDateTime"), Jdk8DateCodec.instance);
+                    derializers.put(Class.forName("java.time.OffsetTime"), Jdk8DateCodec.instance);
+                    derializers.put(Class.forName("java.time.ZoneOffset"), Jdk8DateCodec.instance);
+                    derializers.put(Class.forName("java.time.ZoneRegion"), Jdk8DateCodec.instance);
+                    derializers.put(Class.forName("java.time.ZoneId"), Jdk8DateCodec.instance);
+                    derializers.put(Class.forName("java.time.Period"), Jdk8DateCodec.instance);
+                    derializers.put(Class.forName("java.time.Duration"), Jdk8DateCodec.instance);
+                    derializers.put(Class.forName("java.time.Instant"), Jdk8DateCodec.instance);
+                    
+                    derializer = derializers.get(clazz);
+                } else if (className.startsWith("java.util.Optional")) {
+                    
+                    derializers.put(Class.forName("java.util.Optional"), OptionalCodec.instance);
+                    derializers.put(Class.forName("java.util.OptionalDouble"), OptionalCodec.instance);
+                    derializers.put(Class.forName("java.util.OptionalInt"), OptionalCodec.instance);
+                    derializers.put(Class.forName("java.util.OptionalLong"), OptionalCodec.instance);
+                    
+                    derializer = derializers.get(clazz);
+                }
+            } catch (Throwable e) {
+                // skip
+                jdk8Error = true;
+            }
+        }
+
+        if (className.equals("java.nio.file.Path")) {
+            derializers.put(clazz, MiscCodec.instance);
         }
 
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -401,7 +408,10 @@ public class ParserConfig {
             // skip
         }
 
-        derializer = derializers.get(type);
+        if (derializer == null) {
+            derializer = derializers.get(type);
+        }
+
         if (derializer != null) {
             return derializer;
         }
@@ -432,23 +442,23 @@ public class ParserConfig {
         boolean asmEnable = this.asmEnable;
         if (asmEnable) {
             JSONType jsonType = clazz.getAnnotation(JSONType.class);
-            
+
             if (jsonType != null && !jsonType.asm()) {
                 asmEnable = false;
             }
-            
+
             if (asmEnable) {
                 Class<?> superClass = JavaBeanInfo.getBuilderClass(jsonType);
                 if (superClass == null) {
                     superClass = clazz;
                 }
-    
+
                 for (;;) {
                     if (!Modifier.isPublic(superClass.getModifiers())) {
                         asmEnable = false;
                         break;
                     }
-    
+
                     superClass = superClass.getSuperclass();
                     if (superClass == Object.class || superClass == null) {
                         break;
@@ -464,7 +474,7 @@ public class ParserConfig {
         if (asmEnable && asmFactory != null && asmFactory.classLoader.isExternalClass(clazz)) {
             asmEnable = false;
         }
-        
+
         if (asmEnable) {
             asmEnable = ASMUtils.checkName(clazz.getName());
         }
@@ -474,8 +484,7 @@ public class ParserConfig {
                 asmEnable = false;
             }
             JavaBeanInfo beanInfo = JavaBeanInfo.build(clazz, type);
-            
-            
+
             if (asmEnable && beanInfo.fields.length > 200) {
                 asmEnable = false;
             }
@@ -501,20 +510,20 @@ public class ParserConfig {
                     asmEnable = false;
                     break;
                 }
-                
-                if (fieldInfo.getMember() != null // 
-                        && !ASMUtils.checkName(fieldInfo.getMember().getName())) {
+
+                if (fieldInfo.getMember() != null //
+                    && !ASMUtils.checkName(fieldInfo.getMember().getName())) {
                     asmEnable = false;
                     break;
                 }
-                
+
                 JSONField annotation = fieldInfo.getAnnotation();
                 if (annotation != null && !ASMUtils.checkName(annotation.name())) {
-                	asmEnable = false;
-                	break;
-				}
-                
-                if (fieldClass.isEnum()) { //EnumDeserializer
+                    asmEnable = false;
+                    break;
+                }
+
+                if (fieldClass.isEnum()) { // EnumDeserializer
                     ObjectDeserializer fieldDeser = this.getDeserializer(fieldClass);
                     if (!(fieldDeser instanceof EnumDeserializer)) {
                         asmEnable = false;
@@ -529,7 +538,7 @@ public class ParserConfig {
                 asmEnable = false;
             }
         }
-        
+
         if (!asmEnable) {
             return new JavaBeanDeserializer(this, clazz, type);
         }
@@ -549,7 +558,7 @@ public class ParserConfig {
     }
 
     public FieldDeserializer createFieldDeserializer(ParserConfig mapping, JavaBeanInfo beanInfo, FieldInfo fieldInfo) {
-        Class<?> clazz =beanInfo.clazz;
+        Class<?> clazz = beanInfo.clazz;
         Class<?> fieldClass = fieldInfo.fieldClass;
 
         if (fieldClass == List.class || fieldClass == ArrayList.class) {
@@ -569,36 +578,36 @@ public class ParserConfig {
 
     public static boolean isPrimitive(Class<?> clazz) {
         return clazz.isPrimitive() //
-                 || clazz == Boolean.class //
-                 || clazz == Character.class //
-                 || clazz == Byte.class //
-                 || clazz == Short.class //
-                 || clazz == Integer.class //
-                 || clazz == Long.class //
-                 || clazz == Float.class //
-                 || clazz == Double.class //
-                 || clazz == BigInteger.class //
-                 || clazz == BigDecimal.class //
-                 || clazz == String.class //
-                 || clazz == java.util.Date.class //
-                 || clazz == java.sql.Date.class //
-                 || clazz == java.sql.Time.class //
-                 || clazz == java.sql.Timestamp.class //
-                 || clazz.isEnum() //
-                 ;
+               || clazz == Boolean.class //
+               || clazz == Character.class //
+               || clazz == Byte.class //
+               || clazz == Short.class //
+               || clazz == Integer.class //
+               || clazz == Long.class //
+               || clazz == Float.class //
+               || clazz == Double.class //
+               || clazz == BigInteger.class //
+               || clazz == BigDecimal.class //
+               || clazz == String.class //
+               || clazz == java.util.Date.class //
+               || clazz == java.sql.Date.class //
+               || clazz == java.sql.Time.class //
+               || clazz == java.sql.Timestamp.class //
+               || clazz.isEnum() //
+        ;
     }
 
     public static Field getField(Class<?> clazz, String fieldName) {
         Field field = getField0(clazz, fieldName);
-        
+
         if (field == null) {
             field = getField0(clazz, "_" + fieldName);
         }
-        
+
         if (field == null) {
             field = getField0(clazz, "m_" + fieldName);
         }
-        
+
         return field;
     }
 
@@ -618,16 +627,16 @@ public class ParserConfig {
     public ClassLoader getDefaultClassLoader() {
         return defaultClassLoader;
     }
-    
+
     public void setDefaultClassLoader(ClassLoader defaultClassLoader) {
         this.defaultClassLoader = defaultClassLoader;
     }
-    
+
     public void addDeny(String name) {
         if (name == null || name.length() == 0) {
             return;
         }
-        
+
         String[] denyList = new String[this.denyList.length + 1];
         System.arraycopy(this.denyList, 0, denyList, 0, this.denyList.length);
         denyList[denyList.length - 1] = name;

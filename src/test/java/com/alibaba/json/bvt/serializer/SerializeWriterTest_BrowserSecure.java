@@ -68,7 +68,7 @@ public class SerializeWriterTest_BrowserSecure extends TestCase {
         String json = JSON.toJSONString(vo, SerializerFeature.BrowserSecure);
         Assert.assertEquals(expect, json);
 
-        Assert.assertEquals(value, JSON.parseObject(json, VO.class).getValue());
+        Assert.assertEquals(value, JSON.parseObject(json, VO.class).value);
     }
 
     public static class VO {

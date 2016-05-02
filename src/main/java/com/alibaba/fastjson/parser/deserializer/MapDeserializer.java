@@ -215,8 +215,10 @@ public class MapDeserializer implements ObjectDeserializer {
                     break;
                 }
 
-                if (lexer.token() == JSONToken.LITERAL_STRING && lexer.isRef()
-                    && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
+                if (lexer.token() == JSONToken.LITERAL_STRING //
+                    && lexer.isRef() //
+                    && !lexer.isEnabled(Feature.DisableSpecialKeyDetect) //
+                ) {
                     Object object = null;
 
                     lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);

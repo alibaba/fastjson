@@ -109,6 +109,7 @@ public interface Opcodes {
     int    IF_ICMPGE           = 162;                    // -
     int    IF_ICMPGT           = 163;                    // -
     int    IF_ACMPEQ           = 165;                    // -
+    int    IF_ACMPNE           = 166;                    // -
     int    GOTO                = 167;                    // -
     int    RET                 = 169;                    // visitVarInsn
     int    ARETURN             = 176;                    // -
@@ -127,6 +128,7 @@ public interface Opcodes {
                                                           // int ARRAYLENGTH = 190; // visitInsn
                                                           // int ATHROW = 191; // -
     int    CHECKCAST           = 192;                    // visitTypeInsn
+    int    INSTANCEOF          = 193;
     
     int    IFNULL              = 198;                    // visitJumpInsn
     int    IFNONNULL           = 199;                    // -

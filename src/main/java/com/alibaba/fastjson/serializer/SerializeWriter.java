@@ -1305,7 +1305,17 @@ public final class SerializeWriter extends Writer {
                     writeString(value);
                 }
             } else {
-                writeFieldValueStringWithDoubleQuoteCheck(seperator, name, value);
+                if (browserSecure) {
+                    write(seperator);
+                    writeStringWithDoubleQuote(name, ':');
+                    writeStringWithDoubleQuote(value, (char) 0);
+                } else if (browserCompatible) {
+                    write(seperator);
+                    writeStringWithDoubleQuote(name, ':');
+                    writeStringWithDoubleQuote(value, (char) 0);
+                } else {
+                    writeFieldValueStringWithDoubleQuoteCheck(seperator, name, value);
+                }
             }
         } else {
             write(seperator);

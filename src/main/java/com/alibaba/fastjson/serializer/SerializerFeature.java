@@ -105,6 +105,7 @@ public enum SerializerFeature {
 
     /**
      * @since 1.1.19
+     * @deprecated
      */
     DisableCheckSpecialChar,
 

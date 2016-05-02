@@ -80,9 +80,9 @@ public class FastJsonHttpMessageConverter4 //
 	    
         HttpHeaders headers = outputMessage.getHeaders();
         OutputStream out = outputMessage.getBody();
-        int len = JSON.writeJSONString(obj, //
-                                       out, //
+        int len = JSON.writeJSONString(out, //
                                        fastJsonConfig.getCharset(), //
+                                       obj, //
                                        fastJsonConfig.getSerializeConfig(), //
                                        fastJsonConfig.getSerializeFilters(), //
                                        fastJsonConfig.getDateFormat(), //

@@ -1,7 +1,7 @@
 package com.alibaba.json.test.benchmark;
 
-import com.alibaba.json.test.benchmark.decode.*;
 import com.alibaba.json.test.benchmark.encode.*;
+import com.alibaba.json.test.benchmark.decode.*;
 import com.alibaba.json.test.codec.*;
 
 public class BenchmarkMain {

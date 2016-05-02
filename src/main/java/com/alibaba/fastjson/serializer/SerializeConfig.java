@@ -74,7 +74,6 @@ public class SerializeConfig {
     public final static SerializeConfig globalInstance  = new SerializeConfig();
 
 	private static boolean awtError = false;
-	private static boolean jdk7Error = false;
 	private static boolean jdk8Error = false;
 	private static boolean oracleJdbcError = false;
 	
@@ -205,7 +204,7 @@ public class SerializeConfig {
 		put(Class.class, MiscCodec.instance);
 
 		put(SimpleDateFormat.class, MiscCodec.instance);
-		put(Currency.class, new CurrencySerializer());
+		put(Currency.class, new MiscCodec());
 		put(TimeZone.class, MiscCodec.instance);
 		put(InetAddress.class, MiscCodec.instance);
 		put(Inet4Address.class, MiscCodec.instance);
@@ -232,65 +231,6 @@ public class SerializeConfig {
 		
 		put(WeakReference.class, ReferenceCodec.instance);
 		put(SoftReference.class, ReferenceCodec.instance);
-
-		// awt
-		if (!awtError) {
-    		try {
-    			put(Class.forName("java.awt.Color"), AwtCodec.instance);
-    			put(Class.forName("java.awt.Font"), AwtCodec.instance);
-    			put(Class.forName("java.awt.Point"), AwtCodec.instance);
-                put(Class.forName("java.awt.Rectangle"), AwtCodec.instance);
-    		} catch (Throwable e) {
-    		    awtError = true;
-    			// skip
-    		}
-		}
-		
-		if (!jdk7Error) {
-		    try {
-                put(Class.forName("java.nio.file.Path"), ToStringSerializer.instance);
-                put(Class.forName("sun.nio.fs.UnixPath"), ToStringSerializer.instance);
-                put(Class.forName("com.sun.nio.zipfs.ZipPath"), ToStringSerializer.instance);
-		    } catch (Throwable e) {
-                // skip
-                jdk7Error = true;
-            }
-		}
-		
-		// jdk8
-		if (!jdk8Error) {
-    		try {
-    		    put(Class.forName("java.time.LocalDateTime"), Jdk8DateCodec.instance);
-    		    put(Class.forName("java.time.LocalDate"), Jdk8DateCodec.instance);
-    		    put(Class.forName("java.time.LocalTime"), Jdk8DateCodec.instance);
-    		    put(Class.forName("java.time.ZonedDateTime"), Jdk8DateCodec.instance);
-    		    put(Class.forName("java.time.OffsetDateTime"), Jdk8DateCodec.instance);
-    		    put(Class.forName("java.time.OffsetTime"), Jdk8DateCodec.instance);
-    		    put(Class.forName("java.time.ZoneOffset"), Jdk8DateCodec.instance);
-    		    put(Class.forName("java.time.ZoneRegion"), Jdk8DateCodec.instance);
-    		    put(Class.forName("java.time.Period"), Jdk8DateCodec.instance);
-    		    put(Class.forName("java.time.Duration"), Jdk8DateCodec.instance);
-    		    put(Class.forName("java.time.Instant"), Jdk8DateCodec.instance);
-    		    
-    		    put(Class.forName("java.util.Optional"), OptionalCodec.instance);
-    		    put(Class.forName("java.util.OptionalDouble"), OptionalCodec.instance);
-    		    put(Class.forName("java.util.OptionalInt"), OptionalCodec.instance);
-    		    put(Class.forName("java.util.OptionalLong"), OptionalCodec.instance);
-    		} catch (Throwable e) {
-    		    // skip
-    		    jdk8Error = true;
-    		}
-		}
-		
-		if (!oracleJdbcError) {
-		    try {
-                put(Class.forName("oracle.sql.DATE"), DateCodec.instance);
-                put(Class.forName("oracle.sql.TIMESTAMP"), DateCodec.instance);
-            } catch (Throwable e) {
-                // skip
-                oracleJdbcError = true;
-            }
-		}
 	}
 	
 	public void addFilter(Class<?> clazz, SerializeFilter filter) {
@@ -384,10 +324,80 @@ public class SerializeConfig {
                 put(clazz, CalendarCodec.instance);
             } else if (Clob.class.isAssignableFrom(clazz)) {
                 put(clazz, ClobSeriliazer.instance);
+            } else if (TypeUtils.isPath(clazz)) {
+                put(clazz, ToStringSerializer.instance);
             } else if (Iterable.class.isAssignableFrom(clazz) // 
                     || Iterator.class.isAssignableFrom(clazz)) {
                 put(clazz, MiscCodec.instance);
             } else {
+                String className = clazz.getName();
+                if (className.startsWith("java.awt.") //
+                    && AwtCodec.support(clazz) //
+                ) {
+                    // awt
+                    if (!awtError) {
+                        try {
+                            put(Class.forName("java.awt.Color"), AwtCodec.instance);
+                            put(Class.forName("java.awt.Font"), AwtCodec.instance);
+                            put(Class.forName("java.awt.Point"), AwtCodec.instance);
+                            put(Class.forName("java.awt.Rectangle"), AwtCodec.instance);
+                        } catch (Throwable e) {
+                            awtError = true;
+                            // skip
+                        }
+                    }
+                    return  AwtCodec.instance;
+                }
+                
+                // jdk8
+                if ((!jdk8Error) //
+                    && (className.startsWith("java.time.") //
+                        || className.startsWith("java.util.Optional") //
+                    )) {
+                    try {
+                        put(Class.forName("java.time.LocalDateTime"), Jdk8DateCodec.instance);
+                        put(Class.forName("java.time.LocalDate"), Jdk8DateCodec.instance);
+                        put(Class.forName("java.time.LocalTime"), Jdk8DateCodec.instance);
+                        put(Class.forName("java.time.ZonedDateTime"), Jdk8DateCodec.instance);
+                        put(Class.forName("java.time.OffsetDateTime"), Jdk8DateCodec.instance);
+                        put(Class.forName("java.time.OffsetTime"), Jdk8DateCodec.instance);
+                        put(Class.forName("java.time.ZoneOffset"), Jdk8DateCodec.instance);
+                        put(Class.forName("java.time.ZoneRegion"), Jdk8DateCodec.instance);
+                        put(Class.forName("java.time.Period"), Jdk8DateCodec.instance);
+                        put(Class.forName("java.time.Duration"), Jdk8DateCodec.instance);
+                        put(Class.forName("java.time.Instant"), Jdk8DateCodec.instance);
+
+                        put(Class.forName("java.util.Optional"), OptionalCodec.instance);
+                        put(Class.forName("java.util.OptionalDouble"), OptionalCodec.instance);
+                        put(Class.forName("java.util.OptionalInt"), OptionalCodec.instance);
+                        put(Class.forName("java.util.OptionalLong"), OptionalCodec.instance);
+                        
+                        writer = serializers.get(clazz);
+                        if (writer != null) {
+                            return writer;
+                        }
+                    } catch (Throwable e) {
+                        // skip
+                        jdk8Error = true;
+                    }
+                }
+                
+                if ((!oracleJdbcError) //
+                    && className.startsWith("oracle.sql.")) {
+                    try {
+                        put(Class.forName("oracle.sql.DATE"), DateCodec.instance);
+                        put(Class.forName("oracle.sql.TIMESTAMP"), DateCodec.instance);
+                        
+                        writer = serializers.get(clazz);
+                        if (writer != null) {
+                            return writer;
+                        }
+                    } catch (Throwable e) {
+                        // skip
+                        oracleJdbcError = true;
+                    }
+                }
+                
                 boolean isCglibProxy = false;
                 boolean isJavassistProxy = false;
                 for (Class<?> item : clazz.getInterfaces()) {

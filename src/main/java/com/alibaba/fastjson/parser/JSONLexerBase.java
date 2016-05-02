@@ -40,7 +40,6 @@ import java.util.TimeZone;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.util.IOUtils;
-import com.alibaba.fastjson.util.TypeUtils;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -1070,7 +1069,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             return false;
         }
 
-        return charAt(np + 1) == '$' && charAt(np + 2) == 'r' && charAt(np + 3) == 'e' && charAt(np + 4) == 'f';
+        return charAt(np + 1) == '$' // 
+                && charAt(np + 2) == 'r' // 
+                && charAt(np + 3) == 'e' // 
+                && charAt(np + 4) == 'f';
     }
 
     protected final static char[] typeFieldName = ("\"" + JSON.DEFAULT_TYPE_KEY + "\":\"").toCharArray();
@@ -1619,38 +1621,28 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         return list;
     }
-
-    @SuppressWarnings("unchecked")
-    public Collection<String> scanStringArray(Class<?> type, char seperator) {
-        Collection<String> list = TypeUtils.createCollection(type);
+    
+    public void scanStringArray(Collection<String> list, char seperator) {
         matchStat = UNKNOWN;
 
         int offset = 0;
         char chLocal = charAt(bp + (offset++));
 
-        if (chLocal == 'n') {
-            if (charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
-                offset += 3;
-                chLocal = charAt(bp + (offset++));
-            } else {
-                matchStat = NOT_MATCH;
-                return null;
-            }
-
-            if (chLocal == seperator) {
-                bp += offset;
-                this.ch = this.charAt(bp);
-                matchStat = VALUE;
-                return null;
-            } else {
-                matchStat = NOT_MATCH;
-                return null;
-            }
+        if (chLocal == 'n'
+                && charAt(bp + offset) == 'u'
+                && charAt(bp + offset + 1) == 'l'
+                && charAt(bp + offset + 2) == 'l'
+                && charAt(bp + offset + 3) == seperator
+                ) {
+            bp += 5;
+            ch = charAt(bp);
+            matchStat = VALUE_NULL;
+            return;
         }
 
         if (chLocal != '[') {
             matchStat = NOT_MATCH;
-            return null;
+            return;
         }
 
         chLocal = charAt(bp + (offset++));
@@ -1668,7 +1660,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 break;
             } else if (chLocal != '"') {
                 matchStat = NOT_MATCH;
-                return null;
+                return;
             } else {
                 int startIndex = bp + offset;
                 int endIndex = indexOf('"', startIndex);
@@ -1715,17 +1707,17 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             }
 
             matchStat = NOT_MATCH;
-            return null;
+            return;
         }
 
         if (chLocal == seperator) {
             bp += offset;
             this.ch = this.charAt(bp);
             matchStat = VALUE;
-            return list;
+            return;
         } else {
             matchStat = NOT_MATCH;
-            return list;
+            return;
         }
     }
 

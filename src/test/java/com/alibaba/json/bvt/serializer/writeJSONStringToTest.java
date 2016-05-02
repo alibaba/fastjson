@@ -15,7 +15,7 @@ public class writeJSONStringToTest extends TestCase {
         model.name = "中文名称";
         
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        JSON.writeJSONString(model, os);
+        JSON.writeJSONString(os, model);
         os.close();
         
         byte[] bytes = os.toByteArray();

@@ -10,10 +10,12 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicLong;
@@ -101,7 +103,7 @@ public class ASMDeserializerFactory implements Opcodes {
         return classLoader.defineClassPublic(name, b, off, len);
     }
 
-    void _setFlag(MethodVisitor mw, Context context, int i) {
+    private void _setFlag(MethodVisitor mw, Context context, int i) {
         String varName = "_asm_flag_" + (i / 32);
 
         mw.visitVarInsn(ILOAD, context.var(varName));
@@ -110,7 +112,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ISTORE, context.var(varName));
     }
 
-    void _isFlag(MethodVisitor mw, Context context, int i, Label label) {
+    private void _isFlag(MethodVisitor mw, Context context, int i, Label label) {
         mw.visitVarInsn(ILOAD, context.var("_asm_flag_" + (i / 32)));
         mw.visitLdcInsn(1 << i);
         mw.visitInsn(IAND);
@@ -118,7 +120,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitJumpInsn(IFEQ, label);
     }
 
-    void _deserialzeArrayMapping(ClassWriter cw, Context context) {
+    private void _deserialzeArrayMapping(ClassWriter cw, Context context) {
         MethodVisitor mw = new MethodWriter(cw, ACC_PUBLIC, "deserialzeArrayMapping",
                                             "(L" + DefaultJSONParser + ";Ljava/lang/reflect/Type;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
                                             null, null);
@@ -231,15 +233,35 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitTypeInsn(CHECKCAST, type(fieldClass)); // cast
                 mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
             } else if (Collection.class.isAssignableFrom(fieldClass)) {
+                
                 Class<?> itemClass = TypeUtils.getCollectionItemClass(fieldType);
                 if (itemClass == String.class) {
-                    mw.visitVarInsn(ALOAD, context.var("lexer"));
-                    mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(desc(fieldClass)));
-                    mw.visitVarInsn(BIPUSH, seperator);
-                    mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanStringArray", //
-                                       "(Ljava/lang/Class;C)Ljava/util/Collection;");
+                    if (fieldClass == List.class || fieldClass == Collections.class || fieldClass == ArrayList.class) {
+                        mw.visitTypeInsn(NEW, type(ArrayList.class));
+                        mw.visitInsn(DUP);
+                        mw.visitMethodInsn(INVOKESPECIAL, type(ArrayList.class), "<init>", "()V");
+                    } else {
+                        mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(desc(fieldClass)));
+                        mw.visitMethodInsn(INVOKESTATIC, type(TypeUtils.class), "createCollection",
+                                           "(Ljava/lang/Class;)Ljava/util/Collection;");
+                    }
                     mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
-
+                    
+                    mw.visitVarInsn(ALOAD, context.var("lexer"));
+                    mw.visitVarInsn(ALOAD, context.var(fieldInfo.name + "_asm"));
+                    mw.visitVarInsn(BIPUSH, seperator);
+                    mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanStringArray", "(Ljava/util/Collection;C)V");
+                    
+                    Label valueNullEnd_ = new Label();
+                    mw.visitVarInsn(ALOAD, context.var("lexer"));
+                    mw.visitFieldInsn(GETFIELD, JSONLexerBase, "matchStat", "I");
+                    mw.visitLdcInsn(com.alibaba.fastjson.parser.JSONLexerBase.VALUE_NULL);
+                    mw.visitJumpInsn(IF_ICMPNE, valueNullEnd_);
+                    mw.visitInsn(ACONST_NULL);
+                    mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
+                    
+                    mw.visitLabel(valueNullEnd_);
+                    
                 } else {
                     Label notError_ = new Label();
                     mw.visitVarInsn(ALOAD, context.var("lexer"));
@@ -331,7 +353,7 @@ public class ASMDeserializerFactory implements Opcodes {
 
                 mw.visitLabel(objElseIf_);
 
-                quickNextToken_(context, mw, JSONToken.LBRACKET);
+                _quickNextToken(context, mw, JSONToken.LBRACKET);
 
                 _deserObject(context, mw, fieldInfo, fieldClass, i);
 
@@ -409,7 +431,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitEnd();
     }
 
-    void _deserialze(ClassWriter cw, Context context) {
+    private void _deserialze(ClassWriter cw, Context context) {
         if (context.fieldInfoList.length == 0) {
             return;
         }
@@ -941,7 +963,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitJumpInsn(IF_ICMPNE, reset_);
 
         // mw.visitLabel(nextToken_);
-        quickNextTokenComma_(context, mw);
+        _quickNextTokenComma(context, mw);
     }
 
     private void _deserialze_list_obj(Context context, MethodVisitor mw, Label reset_, FieldInfo fieldInfo,
@@ -1016,7 +1038,7 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitLdcInsn(JSONToken.LBRACE);
             mw.visitVarInsn(ISTORE, context.var("fastMatchToken"));
 
-            quickNextToken_(context, mw, JSONToken.LBRACE);
+            _quickNextToken(context, mw, JSONToken.LBRACE);
         }
 
         { // setContext
@@ -1085,7 +1107,7 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitVarInsn(ILOAD, context.var("fastMatchToken"));
             mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "nextToken", "(I)V");
         } else {
-            quickNextToken_(context, mw, JSONToken.LBRACE);
+            _quickNextToken(context, mw, JSONToken.LBRACE);
         }
         
         mw.visitJumpInsn(GOTO, loop_);
@@ -1105,13 +1127,13 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitLdcInsn(JSONToken.RBRACKET);
         mw.visitJumpInsn(IF_ICMPNE, reset_);
 
-        quickNextTokenComma_(context, mw);
+        _quickNextTokenComma(context, mw);
         // lexer.nextToken(JSONToken.COMMA);
 
         mw.visitLabel(_end_if);
     }
 
-    protected void quickNextToken_(Context context, MethodVisitor mw, int token) {
+    private void _quickNextToken(Context context, MethodVisitor mw, int token) {
         Label quickElse_ = new Label(), quickEnd_ = new Label();
         mw.visitVarInsn(ALOAD, context.var("lexer"));
         mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "getCurrent", "()C");
@@ -1141,7 +1163,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitLabel(quickEnd_);
     }
     
-    protected void quickNextTokenComma_(Context context, MethodVisitor mw) {
+    private void _quickNextTokenComma(Context context, MethodVisitor mw) {
         Label quickElse_ = new Label(), quickElseIf0_ = new Label(), quickElseIf1_ = new Label(), quickElseIf2_ = new Label(), quickEnd_ = new Label();
         mw.visitVarInsn(ALOAD, context.var("lexer"));
         mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "getCurrent", "()C");

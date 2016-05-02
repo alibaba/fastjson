@@ -1384,6 +1384,10 @@ public class ASMSerializerFactory implements Opcodes {
         if (elementType instanceof Class<?>) {
             elementClass = (Class<?>) elementType;
         }
+        
+        if (elementClass == Object.class) {
+            elementClass = null;
+        }
 
         Label _end = new Label(), _else = new Label(), _end_if = new Label();
 

@@ -239,6 +239,7 @@ public class SerializeConfig {
 	}
 	
 	/**
+	 * add class level serialize filter
 	 * @since 1.2.10
 	 */
 	public void addFilter(Class<?> clazz, SerializeFilter filter) {
@@ -250,7 +251,7 @@ public class SerializeConfig {
 	    }
 	}
 	
-    /**
+    /** class level serializer feature config
      * @since 1.2.12
      */
     public void config(Class<?> clazz, SerializerFeature feature, boolean value) {

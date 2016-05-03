@@ -94,15 +94,19 @@ public class SerializeConfig {
 		this.typeKey = typeKey;
 	}
 
-	public final ObjectSerializer createASMSerializer(Class<?> clazz)
-			throws Exception {
-	    SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null);
-		return asmFactory.createJavaBeanSerializer(beanInfo);
-	}
+    final ObjectSerializer createASMSerializer(SerializeBeanInfo beanInfo) throws Exception {
+        return asmFactory.createJavaBeanSerializer(beanInfo);
+    }
 	
 	public ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
-		if (!Modifier.isPublic(clazz.getModifiers())) {
-			return new JavaBeanSerializer(clazz);
+	    SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null);
+	    return createJavaBeanSerializer(beanInfo);
+	}
+	
+	public ObjectSerializer createJavaBeanSerializer(SerializeBeanInfo beanInfo) {
+	    Class<?> clazz = beanInfo.beanType;
+		if (!Modifier.isPublic(beanInfo.beanType.getModifiers())) {
+			return new JavaBeanSerializer(beanInfo);
 		}
 
 		boolean asm = this.asm;
@@ -135,7 +139,7 @@ public class SerializeConfig {
 		
 		if (asm) {
 			try {
-			    ObjectSerializer asmSerializer = createASMSerializer(clazz);
+			    ObjectSerializer asmSerializer = createASMSerializer(beanInfo);
 			    if (asmSerializer != null) {
 			        return asmSerializer;
 			    }
@@ -147,7 +151,7 @@ public class SerializeConfig {
 			}
 		}
 
-		return new JavaBeanSerializer(clazz);
+		return new JavaBeanSerializer(beanInfo);
 	}
 
 	public boolean isAsmEnable() {
@@ -245,6 +249,29 @@ public class SerializeConfig {
 	        filterable.addFilter(filter);
 	    }
 	}
+	
+    /**
+     * @since 1.2.12
+     */
+    public void config(Class<?> clazz, SerializerFeature feature, boolean value) {
+        ObjectSerializer serializer = getObjectWriter(clazz);
+
+        if (serializer instanceof JavaBeanSerializer) {
+            JavaBeanSerializer javaBeanSerializer = (JavaBeanSerializer) serializer;
+            SerializeBeanInfo beanInfo = javaBeanSerializer.beanInfo;
+            if (value) {
+                beanInfo.features |= feature.mask;
+            } else {
+                beanInfo.features &= ~feature.mask;
+            }
+            
+            Class<?> serializerClass = serializer.getClass();
+            if (serializerClass != JavaBeanSerializer.class) {
+                ObjectSerializer newSerializer = this.createJavaBeanSerializer(beanInfo);
+                this.put(clazz, newSerializer);
+            }
+        }
+    }
 	
 	public ObjectSerializer getObjectWriter(Class<?> clazz) {
         ObjectSerializer writer = serializers.get(clazz);

@@ -30,7 +30,6 @@ import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.ASMClassLoader;
 import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.FieldInfo;
-import com.alibaba.fastjson.util.TypeUtils;
 
 public class ASMSerializerFactory implements Opcodes {
 
@@ -59,31 +58,27 @@ public class ASMSerializerFactory implements Opcodes {
         static int                    original       = 7;
         static int                    processValue   = 8;
 
-        private final FieldInfo[] getters;
-        private final String          className;
-        private final int             beanSerializeFeatures;
-        private final boolean         writeDirect;
-        private final JSONType        jsonType;
-        private final int             beanFeatures;
+        private final FieldInfo[]       getters;
+        private final String            className;
+        private final SerializeBeanInfo beanInfo;
+        private final boolean           writeDirect;
+        private final JSONType          jsonType;
 
-        private Map<String, Integer>  variants       = new HashMap<String, Integer>();
-        private int                   variantIndex   = 9;
-        private boolean               nonContext;
+        private Map<String, Integer>    variants       = new HashMap<String, Integer>();
+        private int                     variantIndex   = 9;
+        private boolean                 nonContext;
 
-        public Context(FieldInfo[] getters, JSONType jsonType, String className, int beanSerializeFeatures,
+        public Context(FieldInfo[] getters, SerializeBeanInfo beanInfo, String className,
                        boolean writeDirect, boolean nonContext){
             this.getters = getters;
-            this.jsonType = jsonType;
+            this.jsonType = beanInfo.jsonType;
             this.className = className;
-            this.beanSerializeFeatures = beanSerializeFeatures;
+            this.beanInfo = beanInfo;
             this.writeDirect = writeDirect;
             this.nonContext = nonContext;
             if (this.writeDirect) {
                 processValue = 8;
             }
-            this.beanFeatures = jsonType != null ? //
-                SerializerFeature.of(jsonType.serialzeFeatures()) //
-                : 0;
         }
 
         public int var(String name) {
@@ -154,7 +149,6 @@ public class ASMSerializerFactory implements Opcodes {
         String packageName = ASMSerializerFactory.class.getPackage().getName();
         String classNameType = packageName.replace('.', '/') + "/" + className;
         String classNameFull = packageName + "." + className;
-        int beanSerializeFeatures = TypeUtils.getSerializeFeatures(clazz);
 
         ClassWriter cw = new ClassWriter();
         cw.visit(V1_5 //
@@ -247,7 +241,7 @@ public class ASMSerializerFactory implements Opcodes {
                 methodName = "writeDirectNonContext";
             }
 
-            Context context = new Context(getters, jsonType, classNameType, beanSerializeFeatures, writeDirect,
+            Context context = new Context(getters, beanInfo, classNameType, writeDirect,
                                           nonContext);
 
             mw = new MethodWriter(cw, //
@@ -339,7 +333,7 @@ public class ASMSerializerFactory implements Opcodes {
 
         if (!nativeSorted) {
             // sortField support
-            Context context = new Context(getters, jsonType, classNameType, beanSerializeFeatures, false,
+            Context context = new Context(getters, beanInfo, classNameType, false,
                                           DisableCircularReferenceDetect);
 
             mw = new MethodWriter(cw, ACC_PUBLIC, "writeUnsorted",
@@ -379,7 +373,7 @@ public class ASMSerializerFactory implements Opcodes {
                 methodName = "writeAsArrayNonContext";
             }
 
-            Context context = new Context(getters, jsonType, classNameType, beanSerializeFeatures, writeDirect,
+            Context context = new Context(getters, beanInfo, classNameType, writeDirect,
                                           nonContext);
 
             mw = new MethodWriter(cw, ACC_PUBLIC, methodName,
@@ -847,7 +841,7 @@ public class ASMSerializerFactory implements Opcodes {
             writeAsArrayMethodName = "writeAsArrayNormal";
         }
 
-        if ((context.beanFeatures & SerializerFeature.BeanToArray.mask) == 0) {
+        if ((context.beanInfo.features & SerializerFeature.BeanToArray.mask) == 0) {
             Label endWriteAsArray_ = new Label();
 
             mw.visitVarInsn(ALOAD, context.var("out"));
@@ -893,7 +887,7 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitVarInsn(ALOAD, context.var("parent"));
             mw.visitVarInsn(ALOAD, Context.obj);
             mw.visitVarInsn(ALOAD, Context.paramFieldName);
-            mw.visitLdcInsn(context.beanSerializeFeatures);
+            mw.visitLdcInsn(context.beanInfo.features);
             mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer, "setContext",
                                "(" + SerialContext_desc + "Ljava/lang/Object;Ljava/lang/Object;I)V");
         }

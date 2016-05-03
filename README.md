@@ -37,7 +37,15 @@ http://repo1.maven.org/maven2/com/alibaba/fastjson/
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>fastjson</artifactId>
-    <version>x.x.x</version>
+    <version>1.2.11</version>
+</dependency>
+```
+
+```xml
+<dependency>
+    <groupId>com.alibaba</groupId>
+    <artifactId>fastjson</artifactId>
+    <version>1.1.51.android</version>
 </dependency>
 ```
 

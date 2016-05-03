@@ -259,10 +259,16 @@ public class SerializeConfig {
         if (serializer instanceof JavaBeanSerializer) {
             JavaBeanSerializer javaBeanSerializer = (JavaBeanSerializer) serializer;
             SerializeBeanInfo beanInfo = javaBeanSerializer.beanInfo;
+            
+            int originalFeaturs = beanInfo.features;
             if (value) {
                 beanInfo.features |= feature.mask;
             } else {
                 beanInfo.features &= ~feature.mask;
+            }
+            
+            if (originalFeaturs == beanInfo.features) {
+                return;
             }
             
             Class<?> serializerClass = serializer.getClass();

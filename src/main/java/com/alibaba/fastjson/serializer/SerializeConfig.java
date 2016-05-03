@@ -96,7 +96,8 @@ public class SerializeConfig {
 
 	public final ObjectSerializer createASMSerializer(Class<?> clazz)
 			throws Exception {
-		return asmFactory.createJavaBeanSerializer(clazz, null);
+	    SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null);
+		return asmFactory.createJavaBeanSerializer(beanInfo);
 	}
 	
 	public ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
@@ -233,14 +234,18 @@ public class SerializeConfig {
 		put(SoftReference.class, ReferenceCodec.instance);
 	}
 	
+	/**
+	 * @since 1.2.10
+	 */
 	public void addFilter(Class<?> clazz, SerializeFilter filter) {
 	    ObjectSerializer serializer = getObjectWriter(clazz);
 	    
 	    if (serializer instanceof SerializeFilterable) {
-	        ((SerializeFilterable) serializer).addFilter(filter);
+	        SerializeFilterable filterable = (SerializeFilterable) serializer;
+	        filterable.addFilter(filter);
 	    }
 	}
-
+	
 	public ObjectSerializer getObjectWriter(Class<?> clazz) {
         ObjectSerializer writer = serializers.get(clazz);
 
@@ -309,9 +314,9 @@ public class SerializeConfig {
                 ObjectSerializer compObjectSerializer = getObjectWriter(componentType);
                 put(clazz, new ArraySerializer(componentType, compObjectSerializer));
             } else if (Throwable.class.isAssignableFrom(clazz)) {
-                int features = TypeUtils.getSerializeFeatures(clazz);
-                features |= SerializerFeature.WriteClassName.mask;
-                put(clazz, new JavaBeanSerializer(clazz, null, features));
+                SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null);
+                beanInfo.features |= SerializerFeature.WriteClassName.mask;
+                put(clazz, new JavaBeanSerializer(beanInfo));
             } else if (TimeZone.class.isAssignableFrom(clazz)) {
                 put(clazz, MiscCodec.instance);
             } else if (Appendable.class.isAssignableFrom(clazz)) {

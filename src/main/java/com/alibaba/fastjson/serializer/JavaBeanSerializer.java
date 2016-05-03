@@ -20,7 +20,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -28,7 +27,6 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.TypeUtils;
 
@@ -39,14 +37,8 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
     // serializers
     protected final FieldSerializer[] getters;
     protected final FieldSerializer[] sortedGetters;
-
-    protected int                     features    = 0;
-
-    protected final Class<?>          beanType;
     
-    protected String                  typeName;
-    
-    protected final JSONType          jsonType;
+    protected SerializeBeanInfo       beanInfo;
     
     public JavaBeanSerializer(Class<?> beanType){
         this(beanType, (Map<String, String>) null);
@@ -66,63 +58,27 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
     }
 
     public JavaBeanSerializer(Class<?> beanType, Map<String, String> aliasMap){
-        this(beanType, aliasMap, TypeUtils.getSerializeFeatures(beanType));
-    }
-
-    public JavaBeanSerializer(Class<?> beanType, Map<String, String> aliasMap, int features){
-        this.features = features;
-        this.beanType = beanType;
-
-        jsonType = beanType.getAnnotation(JSONType.class);
-
-        if (jsonType != null) {
-            features = SerializerFeature.of(jsonType.serialzeFeatures());
-        }
-
-        {
-            List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
-            List<FieldInfo> fieldInfoList = TypeUtils.computeGetters(beanType, jsonType, aliasMap, false);
-
-            for (FieldInfo fieldInfo : fieldInfoList) {
-                getterList.add(new FieldSerializer(beanType, fieldInfo));
-            }
-
-            getters = getterList.toArray(new FieldSerializer[getterList.size()]);
-        }
-
-        String[] orders = null;
-
-        if (jsonType != null) {
-            orders = jsonType.orders();
-            String typeName = jsonType.typeName();
-            if (typeName.length() != 0) {
-                this.typeName = typeName;
-            }
-        }
-
-        if (orders != null && orders.length != 0) {
-            List<FieldInfo> fieldInfoList = TypeUtils.computeGetters(beanType, jsonType, aliasMap, true);
-            List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
-
-            for (FieldInfo fieldInfo : fieldInfoList) {
-                FieldSerializer fieldDeser = new FieldSerializer(beanType, fieldInfo);
-                getterList.add(fieldDeser);
-            }
-
-            sortedGetters = getterList.toArray(new FieldSerializer[getterList.size()]);
-        } else {
-            FieldSerializer[] sortedGetters = new FieldSerializer[getters.length];
-            System.arraycopy(getters, 0, sortedGetters, 0, getters.length);
-            Arrays.sort(sortedGetters);
-
-            if (Arrays.equals(sortedGetters, getters)) {
-                this.sortedGetters = getters;
-            } else {
-                this.sortedGetters = sortedGetters;
-            }
-        }
+        this(TypeUtils.buildBeanInfo(beanType, aliasMap));
     }
     
+    public JavaBeanSerializer(SerializeBeanInfo beanInfo) {
+        this.beanInfo = beanInfo;
+        
+        sortedGetters = new FieldSerializer[beanInfo.sortedFields.length];
+        for (int i = 0; i < sortedGetters.length; ++i) {
+            sortedGetters[i] = new FieldSerializer(beanInfo.beanType, beanInfo.sortedFields[i]);
+        }
+        
+        if (beanInfo.fields == beanInfo.sortedFields) {
+            getters = sortedGetters;
+        } else {
+            getters = new FieldSerializer[beanInfo.fields.length]; 
+            for (int i = 0; i < getters.length; ++i) {
+                getters[i] = getFieldSerializer(beanInfo.fields[i].name);
+            }
+        }
+    }
+
     public void writeDirectNonContext(JSONSerializer serializer, //
                       Object object, //
                       Object fieldName, //
@@ -164,7 +120,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         }
 
         SerialContext parent = serializer.context;
-        serializer.setContext(parent, object, fieldName, this.features, features);
+        serializer.setContext(parent, object, fieldName, this.beanInfo.features, features);
 
         final boolean writeAsArray = isWriteAsArray(serializer);
 
@@ -180,11 +136,12 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
 
             boolean commaFlag = false;
 
-            if ((this.features & SerializerFeature.WriteClassName.mask) != 0
+            if ((this.beanInfo.features & SerializerFeature.WriteClassName.mask) != 0
                 || serializer.isWriteClassName(fieldType, object)) {
                 Class<?> objClass = object.getClass();
                 if (objClass != fieldType) {
                     out.writeFieldName(JSON.DEFAULT_TYPE_KEY, false);
+                    String typeName = this.beanInfo.typeName;
                     if (typeName == null) {
                         typeName = object.getClass().getName();
                     }
@@ -384,7 +341,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
     }
 
     public boolean isWriteAsArray(JSONSerializer serializer) {
-        return (features & SerializerFeature.BeanToArray.mask) != 0 || serializer.out.beanToArray;
+        return (beanInfo.features & SerializerFeature.BeanToArray.mask) != 0 || serializer.out.beanToArray;
     }
 
     public FieldSerializer getFieldSerializer(String key) {

@@ -19,6 +19,9 @@ public class ClassLevelFeatureConfigTest extends TestCase {
         
         config.config(Model.class, SerializerFeature.BeanToArray, true);
         Assert.assertEquals("[1001]", JSON.toJSONString(model, config));
+        
+        config.config(Model.class, SerializerFeature.BeanToArray, true);
+        Assert.assertEquals("[1001]", JSON.toJSONString(model, config));
     }
     
     public static class Model {

@@ -181,6 +181,16 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return (JSONObject) JSON.toJSON(obj);
     }
 
+    /**
+     * <pre>
+     * String jsonStr = "[{\"id\":1001,\"name\":\"Jobs\"}]";
+     * List&lt;Model&gt; models = JSON.parseObject(jsonStr, new TypeReference&lt;List&lt;Model&gt;&gt;() {});
+     * </pre>
+     * @param text json string
+     * @param type type refernce
+     * @param features
+     * @return
+     */
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(String text, TypeReference<T> type, Feature... features) {
         return (T) parseObject(text, type.type, ParserConfig.global, DEFAULT_PARSER_FEATURE, features);

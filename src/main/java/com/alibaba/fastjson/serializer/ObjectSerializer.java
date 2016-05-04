@@ -19,6 +19,10 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 /**
+ * Interface representing a custom serializer for fastjson. You should write a custom serializer, if
+ * you are not happy with the default serialization done by fastjson. You will also need to register
+ * this serializer through {@link com.alibaba.fastjson.serializer.SerializeConfig#put(Type, ObjectSerializer)}.
+ *
  * @author wenshao[szujobs@hotmail.com]
  */
 public interface ObjectSerializer {

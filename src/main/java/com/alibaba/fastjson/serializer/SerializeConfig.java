@@ -81,8 +81,8 @@ public class SerializeConfig {
     private ASMSerializerFactory                          asmFactory;
     protected String                                      typeKey         = JSON.DEFAULT_TYPE_KEY;
 
-	 private final IdentityHashMap<Type, ObjectSerializer> serializers;
-	
+    private final IdentityHashMap<Type, ObjectSerializer> serializers;
+    
 	public String getTypeKey() {
 		return typeKey;
 	}
@@ -91,8 +91,21 @@ public class SerializeConfig {
 		this.typeKey = typeKey;
 	}
 
-    private final ObjectSerializer createASMSerializer(SerializeBeanInfo beanInfo) throws Exception {
-        return asmFactory.createJavaBeanSerializer(beanInfo);
+    private final JavaBeanSerializer createASMSerializer(SerializeBeanInfo beanInfo) throws Exception {
+        JavaBeanSerializer serializer = asmFactory.createJavaBeanSerializer(beanInfo);
+        
+        for (int i = 0; i < serializer.sortedGetters.length; ++i) {
+            FieldSerializer fieldDeser = serializer.sortedGetters[i];
+            Class<?> fieldClass = fieldDeser.fieldInfo.fieldClass;
+            if (fieldClass.isEnum()) {
+                ObjectSerializer fieldSer = this.getObjectWriter(fieldClass);
+                if (!(fieldSer instanceof EnumSerializer)) {
+                    serializer.writeDirect = false;
+                }
+            }
+        }
+     
+        return serializer;
     }
 	
 	private final ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
@@ -473,12 +486,12 @@ public class SerializeConfig {
                     Class<?> superClazz = clazz.getSuperclass();
 
                     ObjectSerializer superWriter = getObjectWriter(superClazz);
-                    put(clazz, superWriter);
+                    putInternal(clazz, superWriter);
                     return superWriter;
                 }
 
                 if (create) {
-                    put(clazz, createJavaBeanSerializer(clazz));
+                    putInternal(clazz, createJavaBeanSerializer(clazz));
                 }
             }
 
@@ -491,7 +504,20 @@ public class SerializeConfig {
 	    return this.serializers.get(key);
 	}
 	
-	public boolean put(Type key, ObjectSerializer value) {
+	public boolean put(Type type, ObjectSerializer value) {
+	    boolean isEnum = false;
+	    if (type instanceof Class) {
+	        Class<?> clazz = (Class<?>) type;
+	        isEnum = clazz.isEnum();
+	    }
+	    if (isEnum) {
+	        
+	    }
+	    
+	    return putInternal(type, value);
+	}
+	
+	protected boolean putInternal(Type key, ObjectSerializer value) {
         return this.serializers.put(key, value);
     }
 }

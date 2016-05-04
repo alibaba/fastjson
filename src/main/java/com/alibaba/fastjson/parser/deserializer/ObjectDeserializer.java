@@ -3,11 +3,7 @@ package com.alibaba.fastjson.parser.deserializer;
 import java.lang.reflect.Type;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.json.bvt.bug.Bug_for_Issue_603.OrderActionEnum;
-import com.alibaba.json.bvt.bug.Bug_for_Issue_603.OrderActionEnumDeser;
-import com.google.gson.GsonBuilder;
 
 /**
  * <p>Interface representing a custom deserializer for Json. You should write a custom

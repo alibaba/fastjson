@@ -392,21 +392,6 @@ public class ASMSerializerFactory implements Opcodes {
 
         byte[] code = cw.toByteArray();
 
-        // if(JSON.DUMP_CLASS != null){
-        // FileOutputStream fos=null;
-        // try {
-        // fos=new FileOutputStream(JSON.DUMP_CLASS+ File.separator
-        // + classNameType + ".class");
-        // fos.write(code);
-        // }catch (Exception ex){
-        // System.err.println("FASTJSON dump class:"+classNameType+"失败:"+ex.getMessage());
-        // }finally {
-        // if(fos!=null){
-        // fos.close();
-        // }
-        // }
-        // }
-
         Class<?> exampleClass = classLoader.defineClassPublic(classNameFull, code, 0, code.length);
         Constructor<?> constructor = exampleClass.getConstructor(SerializeBeanInfo.class);
         Object instance = constructor.newInstance(beanInfo);
@@ -1164,15 +1149,19 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitLabel(end_);
     }
     
-    private void _get(MethodVisitor mw, Context context, FieldInfo property) {
-        Method method = property.method;
+    private void _get(MethodVisitor mw, Context context, FieldInfo fieldInfo) {
+        Method method = fieldInfo.method;
         if (method != null) {
             mw.visitVarInsn(ALOAD, context.var("entity"));
-            mw.visitMethodInsn(INVOKEVIRTUAL, type(method.getDeclaringClass()), method.getName(), desc(method));
+            Class<?> declaringClass = method.getDeclaringClass();
+            mw.visitMethodInsn(INVOKEVIRTUAL, type(declaringClass), method.getName(), desc(method));
+            if (!declaringClass.equals(fieldInfo.fieldClass)) {
+                mw.visitTypeInsn(CHECKCAST, type(fieldInfo.fieldClass)); // cast
+            }
         } else {
             mw.visitVarInsn(ALOAD, context.var("entity"));
-            mw.visitFieldInsn(GETFIELD, type(property.declaringClass), property.field.getName(),
-                              desc(property.fieldClass));
+            mw.visitFieldInsn(GETFIELD, type(fieldInfo.declaringClass), fieldInfo.field.getName(),
+                              desc(fieldInfo.fieldClass));
         }
     }
 

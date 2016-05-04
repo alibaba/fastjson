@@ -9,7 +9,8 @@
         http://www.springframework.org/schema/mvc
         http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
-	<context:component-scan base-package="com.alibaba.json.bvt.support.spring.mock.controller" />
+	<context:component-scan
+		base-package="com.alibaba.json.bvt.support.spring.mock.controller" />
 
 	<mvc:annotation-driven />
 
@@ -31,6 +32,11 @@
 					</bean>
 				</constructor-arg>
 			</bean>
+		</property>
+		<property name="viewResolvers">
+			<list>
+				<bean class="org.springframework.web.servlet.view.BeanNameViewResolver" />
+			</list>
 		</property>
 		<property name="defaultViews">
 			<list>

@@ -255,7 +255,22 @@ public class SerializeConfig {
      * @since 1.2.12
      */
     public void config(Class<?> clazz, SerializerFeature feature, boolean value) {
-        ObjectSerializer serializer = getObjectWriter(clazz);
+        ObjectSerializer serializer = getObjectWriter(clazz, false);
+        
+        if (serializer == null) {
+            SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null);
+            
+            if (value) {
+                beanInfo.features |= feature.mask;
+            } else {
+                beanInfo.features &= ~feature.mask;
+            }
+            
+            serializer = this.createJavaBeanSerializer(beanInfo);
+            
+            put(clazz, serializer);
+            return;
+        }
 
         if (serializer instanceof JavaBeanSerializer) {
             JavaBeanSerializer javaBeanSerializer = (JavaBeanSerializer) serializer;
@@ -279,8 +294,12 @@ public class SerializeConfig {
             }
         }
     }
+    
+    public ObjectSerializer getObjectWriter(Class<?> clazz) {
+        return getObjectWriter(clazz, true);
+    }
 	
-	public ObjectSerializer getObjectWriter(Class<?> clazz) {
+	private ObjectSerializer getObjectWriter(Class<?> clazz, boolean create) {
         ObjectSerializer writer = serializers.get(clazz);
 
         if (writer == null) {
@@ -461,7 +480,9 @@ public class SerializeConfig {
                     return superWriter;
                 }
 
-                put(clazz, createJavaBeanSerializer(clazz));
+                if (create) {
+                    put(clazz, createJavaBeanSerializer(clazz));
+                }
             }
 
             writer = serializers.get(clazz);

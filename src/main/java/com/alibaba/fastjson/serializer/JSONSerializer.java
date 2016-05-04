@@ -28,7 +28,6 @@ import java.util.TimeZone;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.util.FieldInfo;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -333,10 +332,6 @@ public class JSONSerializer extends SerializeFilterable {
         return out.writeDirect //
                && this.writeDirect //
                && javaBeanDeser.writeDirect;
-    }
-
-    public FieldInfo getFieldInfo() {
-        return null;
     }
 
     public Object processValue(SerializeFilterable javaBeanDeser, //

@@ -803,7 +803,11 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
     }
 
-    // ///////
+    /**
+     * This method serializes the specified object into its equivalent representation as a tree of
+     * {@link JSONObject}s. 
+     *
+     */
     public static Object toJSON(Object javaObject) {
         return toJSON(javaObject, SerializeConfig.globalInstance);
     }

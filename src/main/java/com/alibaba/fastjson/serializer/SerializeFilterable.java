@@ -126,4 +126,120 @@ public abstract class SerializeFilterable {
         }
     }
 
+    public boolean applyName(JSONSerializer jsonBeanDeser, //
+                             Object object, String key) {
+
+        if (jsonBeanDeser.propertyPreFilters != null) {
+            for (PropertyPreFilter filter : jsonBeanDeser.propertyPreFilters) {
+                if (!filter.apply(jsonBeanDeser, object, key)) {
+                    return false;
+                }
+            }
+        }
+        
+        if (this.propertyPreFilters != null) {
+            for (PropertyPreFilter filter : this.propertyPreFilters) {
+                if (!filter.apply(jsonBeanDeser, object, key)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+    
+    public boolean apply(JSONSerializer jsonBeanDeser, //
+                         Object object, //
+                         String key, Object propertyValue) {
+        
+        if (jsonBeanDeser.propertyFilters != null) {
+            for (PropertyFilter propertyFilter : jsonBeanDeser.propertyFilters) {
+                if (!propertyFilter.apply(object, key, propertyValue)) {
+                    return false;
+                }
+            }
+        }
+        
+        if (this.propertyFilters != null) {
+            for (PropertyFilter propertyFilter : this.propertyFilters) {
+                if (!propertyFilter.apply(object, key, propertyValue)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+    
+    protected String processKey(JSONSerializer jsonBeanDeser, //
+                             Object object, //
+                             String key, //
+                             Object propertyValue) {
+
+        if (jsonBeanDeser.nameFilters != null) {
+            for (NameFilter nameFilter : jsonBeanDeser.nameFilters) {
+                key = nameFilter.process(object, key, propertyValue);
+            }
+        }
+        
+        if (this.nameFilters != null) {
+            for (NameFilter nameFilter : this.nameFilters) {
+                key = nameFilter.process(object, key, propertyValue);
+            }
+        }
+
+        return key;
+    }
+    
+    protected Object processValue(JSONSerializer jsonBeanDeser, //
+                               BeanContext beanContext,
+                               Object object, //
+                               String key, //
+                               Object propertyValue) {
+
+        if (propertyValue != null //
+            && jsonBeanDeser.out.writeNonStringValueAsString) {
+            if (propertyValue instanceof Number || propertyValue instanceof Boolean) {
+                propertyValue = propertyValue.toString();
+            }
+        }
+        
+        if (jsonBeanDeser.valueFilters != null) {
+            for (ValueFilter valueFilter : jsonBeanDeser.valueFilters) {
+                propertyValue = valueFilter.process(object, key, propertyValue);
+            }
+        }
+
+        List<ValueFilter> valueFilters = this.valueFilters;
+        if (valueFilters != null) {
+            for (ValueFilter valueFilter : valueFilters) {
+                propertyValue = valueFilter.process(object, key, propertyValue);
+            }
+        }
+
+        if (jsonBeanDeser.contextValueFilters != null) {
+            for (ContextValueFilter valueFilter : jsonBeanDeser.contextValueFilters) {
+                propertyValue = valueFilter.process(beanContext, object, key, propertyValue);
+            }
+        }
+
+        if (this.contextValueFilters != null) {
+            for (ContextValueFilter valueFilter : this.contextValueFilters) {
+                propertyValue = valueFilter.process(beanContext, object, key, propertyValue);
+            }
+        }
+
+        return propertyValue;
+    }
+    
+    /**
+     * only invoke by asm byte
+     * 
+     * @return
+     */
+    protected boolean writeDirect(JSONSerializer jsonBeanDeser) {
+        return jsonBeanDeser.out.writeDirect //
+               && this.writeDirect //
+               && jsonBeanDeser.writeDirect;
+    }
 }

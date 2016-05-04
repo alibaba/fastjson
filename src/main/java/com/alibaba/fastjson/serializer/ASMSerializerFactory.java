@@ -1155,7 +1155,7 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitVarInsn(ALOAD, context.var("entity"));
             Class<?> declaringClass = method.getDeclaringClass();
             mw.visitMethodInsn(INVOKEVIRTUAL, type(declaringClass), method.getName(), desc(method));
-            if (!declaringClass.equals(fieldInfo.fieldClass)) {
+            if (!method.getReturnType().equals(fieldInfo.fieldClass)) {
                 mw.visitTypeInsn(CHECKCAST, type(fieldInfo.fieldClass)); // cast
             }
         } else {

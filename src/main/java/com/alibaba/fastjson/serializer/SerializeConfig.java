@@ -71,19 +71,16 @@ import com.alibaba.fastjson.util.TypeUtils;
  * @author wenshao[szujobs@hotmail.com]
  */
 public class SerializeConfig {
-    public final static SerializeConfig globalInstance  = new SerializeConfig();
 
-	private static boolean awtError = false;
-	private static boolean jdk8Error = false;
-	private static boolean oracleJdbcError = false;
-	
-	private boolean asm = !ASMUtils.IS_ANDROID;
+    public final static SerializeConfig                   globalInstance  = new SerializeConfig();
 
-	private ASMSerializerFactory asmFactory;
-	
+    private static boolean                                awtError        = false;
+    private static boolean                                jdk8Error       = false;
+    private static boolean                                oracleJdbcError = false;
+    private boolean                                       asm             = !ASMUtils.IS_ANDROID;
+    private ASMSerializerFactory                          asmFactory;
+    protected String                                      typeKey         = JSON.DEFAULT_TYPE_KEY;
 
-	private String typeKey = JSON.DEFAULT_TYPE_KEY;
-	
 	 private final IdentityHashMap<Type, ObjectSerializer> serializers;
 	
 	public String getTypeKey() {
@@ -94,11 +91,11 @@ public class SerializeConfig {
 		this.typeKey = typeKey;
 	}
 
-    final ObjectSerializer createASMSerializer(SerializeBeanInfo beanInfo) throws Exception {
+    private final ObjectSerializer createASMSerializer(SerializeBeanInfo beanInfo) throws Exception {
         return asmFactory.createJavaBeanSerializer(beanInfo);
     }
 	
-	public ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
+	private final ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
 	    SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null);
 	    return createJavaBeanSerializer(beanInfo);
 	}

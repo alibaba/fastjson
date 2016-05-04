@@ -25,7 +25,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.TypeUtils;
@@ -140,7 +139,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 || serializer.isWriteClassName(fieldType, object)) {
                 Class<?> objClass = object.getClass();
                 if (objClass != fieldType) {
-                    out.writeFieldName(JSON.DEFAULT_TYPE_KEY, false);
+                    out.writeFieldName(serializer.config.typeKey, false);
                     String typeName = this.beanInfo.typeName;
                     if (typeName == null) {
                         typeName = object.getClass().getName();

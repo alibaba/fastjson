@@ -35,7 +35,7 @@ import com.alibaba.fastjson.util.FieldInfo;
  */
 public class JSONSerializer extends SerializeFilterable {
 
-    private final SerializeConfig                    config;
+    protected final SerializeConfig                  config;
     public final SerializeWriter                     out;
 
     private int                                      indentCount = 0;

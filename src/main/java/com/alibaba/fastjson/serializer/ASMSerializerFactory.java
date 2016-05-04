@@ -111,7 +111,7 @@ public class ASMSerializerFactory implements Opcodes {
         }
     }
 
-    public ObjectSerializer createJavaBeanSerializer(SerializeBeanInfo beanInfo) throws Exception {
+    public JavaBeanSerializer createJavaBeanSerializer(SerializeBeanInfo beanInfo) throws Exception {
         Class<?> clazz = beanInfo.beanType;
         if (clazz.isPrimitive()) {
             throw new JSONException("unsupportd class " + clazz.getName());
@@ -397,7 +397,7 @@ public class ASMSerializerFactory implements Opcodes {
         Constructor<?> constructor = exampleClass.getConstructor(SerializeBeanInfo.class);
         Object instance = constructor.newInstance(beanInfo);
 
-        return (ObjectSerializer) instance;
+        return (JavaBeanSerializer) instance;
     }
 
     private void generateWriteAsArray(Class<?> clazz, MethodVisitor mw, FieldInfo[] getters,
@@ -1017,50 +1017,50 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitLabel(_end);
     }
 
-    private void _enum(Class<?> clazz, MethodVisitor mw, FieldInfo property, Context context) {
-        boolean writeEnumUsingToString = false;
-        JSONField annotation = property.getAnnotation();
-        if (annotation != null) {
-            for (SerializerFeature feature : annotation.serialzeFeatures()) {
-                if (feature == SerializerFeature.WriteEnumUsingToString) {
-                    writeEnumUsingToString = true;
-                }
-            }
-        }
-
+    private void _enum(Class<?> clazz, MethodVisitor mw, FieldInfo fieldInfo, Context context) {
         Label _not_null = new Label();
         Label _end_if = new Label();
         Label _end = new Label();
 
-        _nameApply(mw, property, context, _end);
-        _get(mw, context, property);
+        _nameApply(mw, fieldInfo, context, _end);
+        _get(mw, context, fieldInfo);
         mw.visitTypeInsn(CHECKCAST, "java/lang/Enum"); // cast
         mw.visitVarInsn(ASTORE, context.var("enum"));
 
-        _filters(mw, property, context, _end);
+        _filters(mw, fieldInfo, context, _end);
 
         mw.visitVarInsn(ALOAD, context.var("enum"));
         mw.visitJumpInsn(IFNONNULL, _not_null);
-        _if_write_null(mw, property, context);
+        _if_write_null(mw, fieldInfo, context);
         mw.visitJumpInsn(GOTO, _end_if);
 
         mw.visitLabel(_not_null);
-        mw.visitVarInsn(ALOAD, context.var("out"));
-        mw.visitVarInsn(ILOAD, context.var("seperator"));
-        mw.visitVarInsn(ALOAD, Context.fieldName);
-        mw.visitVarInsn(ALOAD, context.var("enum"));
 
-        if (writeEnumUsingToString) {
-            mw.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "toString", "()Ljava/lang/String;");
-            mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldValue",
-                               "(CLjava/lang/String;Ljava/lang/String;)V");
-        } else if (context.writeDirect) {
+       if (context.writeDirect) {
+            mw.visitVarInsn(ALOAD, context.var("out"));
+            mw.visitVarInsn(ILOAD, context.var("seperator"));
+            mw.visitVarInsn(ALOAD, Context.fieldName);
+            mw.visitVarInsn(ALOAD, context.var("enum"));
             mw.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Enum", "name", "()Ljava/lang/String;");
             mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldValueStringWithDoubleQuote",
                                "(CLjava/lang/String;Ljava/lang/String;)V");
         } else {
-            mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldValue",
-                               "(CLjava/lang/String;Ljava/lang/Enum;)V");
+            mw.visitVarInsn(ALOAD, context.var("out"));
+            mw.visitVarInsn(ILOAD, context.var("seperator"));
+            mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(I)V");
+            
+            mw.visitVarInsn(ALOAD, context.var("out"));
+            mw.visitVarInsn(ALOAD, Context.fieldName);
+            mw.visitInsn(ICONST_0);
+            mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "writeFieldName", "(Ljava/lang/String;Z)V");
+            
+            mw.visitVarInsn(ALOAD, Context.serializer);
+            mw.visitVarInsn(ALOAD, context.var("enum"));
+            mw.visitVarInsn(ALOAD, Context.fieldName);
+            mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(desc((Class<?>) fieldInfo.fieldClass)));
+            mw.visitLdcInsn(fieldInfo.serialzeFeatures);
+            mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer, "writeWithFieldName",
+                    "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;I)V");
         }
 
         _seperator(mw, context);

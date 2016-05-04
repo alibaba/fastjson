@@ -1,16 +1,15 @@
 package com.alibaba.fastjson.support.spring;
 
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.view.AbstractView;
@@ -34,7 +33,7 @@ import com.alibaba.fastjson.util.IOUtils;
 public class FastJsonJsonView extends AbstractView {
 
 	/** default content type */
-	public static final String DEFAULT_CONTENT_TYPE = MediaType.APPLICATION_JSON_UTF8_VALUE;
+	public static final String DEFAULT_CONTENT_TYPE = "application/json;charset=UTF-8";
 
 	@Deprecated
 	protected Charset charset = IOUtils.UTF8;
@@ -55,7 +54,7 @@ public class FastJsonJsonView extends AbstractView {
 	private boolean disableCaching = true;
 
 	/** updateContentLength */
-	private boolean updateContentLength = false;
+	private boolean updateContentLength = true;
 
 	/** extractValueFromSingleKeyModel */
 	private boolean extractValueFromSingleKeyModel = false;
@@ -167,11 +166,11 @@ public class FastJsonJsonView extends AbstractView {
     protected void renderMergedOutputModel(Map<String, Object> model, //
                                            HttpServletRequest request, //
                                            HttpServletResponse response) throws Exception {
-	    
 		Object value = filterModel(model);
-		OutputStream stream = this.updateContentLength ? createTemporaryOutputStream()
-            : response.getOutputStream();
-        JSON.writeJSONString(stream, //
+		
+		ByteArrayOutputStream outnew = new ByteArrayOutputStream();
+		
+		int len = JSON.writeJSONString(outnew, //
                              fastJsonConfig.getCharset(), //
                              value, //
                              fastJsonConfig.getSerializeConfig(), //
@@ -179,12 +178,17 @@ public class FastJsonJsonView extends AbstractView {
                              fastJsonConfig.getDateFormat(), //
                              JSON.DEFAULT_GENERATE_FEATURE, //
                              fastJsonConfig.getSerializerFeatures());
-		
-		stream.flush();
-		
+
 		if (this.updateContentLength) {
-			writeToResponse(response, (ByteArrayOutputStream) stream);
+			// Write content length (determined via byte array).
+			response.setContentLength(len);
 		}
+
+		// Flush byte array to servlet output stream.
+		ServletOutputStream out = response.getOutputStream();
+		outnew.writeTo(out);
+		outnew.close();
+		out.flush();
 	}
 
 	@Override

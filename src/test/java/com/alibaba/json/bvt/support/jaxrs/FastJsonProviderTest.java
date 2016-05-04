@@ -55,6 +55,8 @@ public class FastJsonProviderTest extends TestCase {
 		Assert.assertEquals(false, provider.isWriteable(VO.class, VO.class, null, MediaType.APPLICATION_XML_TYPE));
 		Assert.assertEquals(false, provider.isReadable(String.class, String.class, null, MediaType.valueOf("application/javascript")));
 		Assert.assertEquals(false, provider.isWriteable(String.class, String.class, null, MediaType.valueOf("application/x-javascript")));
+		Assert.assertEquals(false, provider.isReadable(String.class, String.class, null, MediaType.valueOf("applications/+json")));
+		Assert.assertEquals(false, provider.isWriteable(String.class, String.class, null, MediaType.valueOf("applications/x-json")));
 		Assert.assertEquals(false, provider.isReadable(null, null, null, MediaType.valueOf("application/x-javascript")));
 		Assert.assertEquals(false, provider.isWriteable(null, null, null, null));
 

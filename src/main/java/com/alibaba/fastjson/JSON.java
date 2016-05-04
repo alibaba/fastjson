@@ -18,6 +18,7 @@ package com.alibaba.fastjson;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
@@ -51,6 +52,8 @@ import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.TypeUtils;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSyntaxException;
 
 /**
  * This is the main class for using Fastjson. You usually call these two methods {@link #toJSONString(Object)} and {@link #parseObject(String, Class)}.
@@ -209,9 +212,26 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return (T) parseObject(text, type.type, ParserConfig.global, DEFAULT_PARSER_FEATURE, features);
     }
 
+    /**
+     * 
+     * This method deserializes the specified Json into an object of the specified class. It is not
+     * suitable to use if the specified class is a generic type since it will not have the generic
+     * type information because of the Type Erasure feature of Java. Therefore, this method should not
+     * be used if the desired type is a generic type. Note that this method works fine if the any of
+     * the fields of the specified object are generics, just the object itself should not be a
+     * generic type. For the cases when the object is of generic type, invoke
+     * {@link #parseObject(String, Type, Feature[])}. If you have the Json in a {@link InputStream} instead of
+     * a String, use {@link #parseObject(InputStream, Type, Feature[])} instead.
+     *
+     * @param json the string from which the object is to be deserialized
+     * @param clazz the class of T
+     * @param features parser features
+     * @return an object of type T from the string
+     * classOfT
+     */
     @SuppressWarnings("unchecked")
-    public static <T> T parseObject(String text, Class<T> clazz, Feature... features) {
-        return (T) parseObject(text, (Type) clazz, ParserConfig.global, null, DEFAULT_PARSER_FEATURE, features);
+    public static <T> T parseObject(String json, Class<T> clazz, Feature... features) {
+        return (T) parseObject(json, (Type) clazz, ParserConfig.global, null, DEFAULT_PARSER_FEATURE, features);
     }
 
     @SuppressWarnings("unchecked")
@@ -220,9 +240,25 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                                features);
     }
 
+    /**
+     * This method deserializes the specified Json into an object of the specified type. This method
+     * is useful if the specified object is a generic type. For non-generic objects, use
+     * {@link #parseObject(String, Class, Feature[])} instead. If you have the Json in a {@link InputStream} instead of
+     * a String, use {@link #parseObject(InputStream, Type, Feature[])} instead.
+     *
+     * @param <T> the type of the desired object
+     * @param json the string from which the object is to be deserialized
+     * @param type The specific genericized type of src. You can obtain this type by using the
+     * {@link com.alibaba.fastjson.TypeReference} class. For example, to get the type for
+     * {@code Collection<Foo>}, you should use:
+     * <pre>
+     * Type type = new TypeReference&lt;Collection&lt;Foo&gt;&gt;(){}.getType();
+     * </pre>
+     * @return an object of type T from the string
+     */
     @SuppressWarnings("unchecked")
-    public static <T> T parseObject(String input, Type clazz, Feature... features) {
-        return (T) parseObject(input, clazz, ParserConfig.global, DEFAULT_PARSER_FEATURE, features);
+    public static <T> T parseObject(String json, Type type, Feature... features) {
+        return (T) parseObject(json, type, ParserConfig.global, DEFAULT_PARSER_FEATURE, features);
     }
 
     @SuppressWarnings("unchecked")

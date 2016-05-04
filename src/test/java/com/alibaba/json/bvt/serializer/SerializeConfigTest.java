@@ -33,7 +33,7 @@ public class SerializeConfigTest extends TestCase {
         config.setTypeKey("%type");
         Assert.assertEquals("%type", config.getTypeKey());
 
-        Assert.assertEquals("{\"@type\":\"java.util.LinkedHashMap\"}",
+        Assert.assertEquals("{\"%type\":\"java.util.LinkedHashMap\"}",
                             JSON.toJSONString(new LinkedHashMap(), config, SerializerFeature.WriteClassName));
     }
 }

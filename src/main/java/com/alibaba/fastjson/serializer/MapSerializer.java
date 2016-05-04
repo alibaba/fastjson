@@ -71,11 +71,12 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
             boolean first = true;
 
             if (out.isEnabled(SerializerFeature.WriteClassName)) {
+                String typeKey = serializer.config.typeKey;
                 Class<?> mapClass = map.getClass();
                 boolean containsKey = (mapClass == JSONObject.class || mapClass == HashMap.class || mapClass == LinkedHashMap.class) 
-                        && map.containsKey(JSON.DEFAULT_TYPE_KEY);
+                        && map.containsKey(typeKey);
                 if (!containsKey) {
-                    out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
+                    out.writeFieldName(typeKey);
                     out.writeString(object.getClass().getName());
                     first = false;
                 }
@@ -90,12 +91,12 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                     List<PropertyPreFilter> preFilters = serializer.propertyPreFilters;
                     if (preFilters != null && preFilters.size() > 0) {
                         if (entryKey == null || entryKey instanceof String) {
-                            if (!serializer.applyName(this, object, (String) entryKey)) {
+                            if (!this.applyName(serializer, object, (String) entryKey)) {
                                 continue;
                             }
                         } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
                             String strKey = JSON.toJSONString(entryKey);
-                            if (!serializer.applyName(this, object, strKey)) {
+                            if (!this.applyName(serializer, object, strKey)) {
                                 continue;
                             }
                         }
@@ -106,12 +107,12 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                     List<PropertyFilter> propertyFilters = serializer.propertyFilters;
                     if (propertyFilters != null && propertyFilters.size() > 0) {
                         if (entryKey == null || entryKey instanceof String) {
-                            if (!serializer.apply(this, object, (String) entryKey, value)) {
+                            if (!this.apply(serializer, object, (String) entryKey, value)) {
                                 continue;
                             }
                         } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
                             String strKey = JSON.toJSONString(entryKey);
-                            if (!serializer.apply(this, object, strKey, value)) {
+                            if (!this.apply(serializer, object, strKey, value)) {
                                 continue;
                             }
                         }
@@ -122,10 +123,10 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                     List<NameFilter> nameFilters = serializer.nameFilters;
                     if (nameFilters != null && nameFilters.size() > 0) {
                         if (entryKey == null || entryKey instanceof String) {
-                            entryKey = serializer.processKey(this, object, (String) entryKey, value);
+                            entryKey = this.processKey(serializer, object, (String) entryKey, value);
                         } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
                             String strKey = JSON.toJSONString(entryKey);
-                            entryKey = serializer.processKey(this, object, strKey, value);
+                            entryKey = this.processKey(serializer, object, strKey, value);
                         }
                     }
                 }
@@ -136,10 +137,10 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                     if ((valueFilters != null && valueFilters.size() > 0) //
                         || (contextValueFilters != null && contextValueFilters.size() > 0)) {
                         if (entryKey == null || entryKey instanceof String) {
-                            value = serializer.processValue(this, null, object, (String) entryKey, value);
+                            value = this.processValue(serializer, null, object, (String) entryKey, value);
                         } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
                             String strKey = JSON.toJSONString(entryKey);
-                            value = serializer.processValue(this, null, object, strKey, value);
+                            value = this.processValue(serializer, null, object, strKey, value);
                         }
                     }
                 }

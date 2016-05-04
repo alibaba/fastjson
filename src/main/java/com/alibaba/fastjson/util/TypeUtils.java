@@ -32,6 +32,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -59,6 +60,7 @@ import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
+import com.alibaba.fastjson.serializer.SerializeBeanInfo;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 /**
@@ -1041,8 +1043,50 @@ public class TypeUtils {
 
         return clazz;
     }
+    
+    public static SerializeBeanInfo buildBeanInfo(Class<?> beanType, Map<String, String> aliasMap) {
+        JSONType jsonType = beanType.getAnnotation(JSONType.class);
+        
+        List<FieldInfo> fieldInfoList = computeGetters(beanType, jsonType, aliasMap, false);
+        FieldInfo[] fields = new FieldInfo[fieldInfoList.size()];
+        fieldInfoList.toArray(fields);
+        
+        String[] orders = null;
 
-    public static List<FieldInfo> computeGetters(Class<?> clazz, JSONType jsonType, Map<String, String> aliasMap,
+        final int features;
+        String typeName = null;
+        if (jsonType != null) {
+            orders = jsonType.orders();
+            typeName = jsonType.typeName();
+            if (typeName.length() == 0) {
+                typeName = null;
+            }
+            features = SerializerFeature.of(jsonType.serialzeFeatures());
+        } else {
+            features = 0;
+        }
+        
+        FieldInfo[] sortedFields;
+        List<FieldInfo> sortedFieldList;
+        if (orders != null && orders.length != 0) {
+            sortedFieldList = TypeUtils.computeGetters(beanType, jsonType, aliasMap, true);
+        } else {
+            sortedFieldList = new ArrayList<FieldInfo>(fieldInfoList);
+            Collections.sort(sortedFieldList);
+        }
+        sortedFields = new FieldInfo[sortedFieldList.size()];
+        sortedFieldList.toArray(sortedFields);
+        
+        if (Arrays.equals(sortedFields, fields)) {
+            sortedFields = fields;
+        }
+        
+        return new SerializeBeanInfo(beanType, jsonType, typeName, features, fields, sortedFields);
+    }
+
+    public static List<FieldInfo> computeGetters(Class<?> clazz, // 
+                                                 JSONType jsonType, // 
+                                                 Map<String, String> aliasMap, //
                                                  boolean sorted) {
         Map<String, FieldInfo> fieldInfoMap = new LinkedHashMap<String, FieldInfo>();
 

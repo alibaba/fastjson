@@ -22,20 +22,18 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.IdentityHashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.util.FieldInfo;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
 public class JSONSerializer extends SerializeFilterable {
 
-    private final SerializeConfig                    config;
+    protected final SerializeConfig                  config;
     public final SerializeWriter                     out;
 
     private int                                      indentCount = 0;
@@ -323,178 +321,5 @@ public class JSONSerializer extends SerializeFilterable {
     public void close() {
         this.out.close();
     }
-
-    /**
-     * only invoke by asm byte
-     * 
-     * @return
-     */
-    public boolean writeDirect(JavaBeanSerializer javaBeanDeser) {
-        return out.writeDirect //
-               && this.writeDirect //
-               && javaBeanDeser.writeDirect;
-    }
-
-    public FieldInfo getFieldInfo() {
-        return null;
-    }
-
-    public Object processValue(SerializeFilterable javaBeanDeser, //
-                               BeanContext beanContext,
-                               Object object, //
-                               String key, //
-                               Object propertyValue) {
-
-        if (propertyValue != null //
-            && out.writeNonStringValueAsString) {
-            if (propertyValue instanceof Number || propertyValue instanceof Boolean) {
-                propertyValue = propertyValue.toString();
-            }
-        }
-
-        List<ValueFilter> valueFilters = this.valueFilters;
-        if (valueFilters != null) {
-            for (ValueFilter valueFilter : valueFilters) {
-                propertyValue = valueFilter.process(object, key, propertyValue);
-            }
-        }
-
-        if (javaBeanDeser.valueFilters != null) {
-            for (ValueFilter valueFilter : javaBeanDeser.valueFilters) {
-                propertyValue = valueFilter.process(object, key, propertyValue);
-            }
-        }
-
-        if (this.contextValueFilters != null) {
-            for (ContextValueFilter valueFilter : this.contextValueFilters) {
-                propertyValue = valueFilter.process(beanContext, object, key, propertyValue);
-            }
-        }
-
-        if (javaBeanDeser.contextValueFilters != null) {
-            for (ContextValueFilter valueFilter : javaBeanDeser.contextValueFilters) {
-                propertyValue = valueFilter.process(beanContext, object, key, propertyValue);
-            }
-        }
-
-        return propertyValue;
-    }
-    
-
-    public String processKey(SerializeFilterable javaBeanDeser, //
-                             Object object, //
-                             String key, //
-                             Object propertyValue) {
-        if (this.nameFilters != null) {
-            for (NameFilter nameFilter : this.nameFilters) {
-                key = nameFilter.process(object, key, propertyValue);
-            }
-        }
-
-        if (javaBeanDeser.nameFilters != null) {
-            for (NameFilter nameFilter : javaBeanDeser.nameFilters) {
-                key = nameFilter.process(object, key, propertyValue);
-            }
-        }
-
-        return key;
-    }
-
-    public boolean applyName(SerializeFilterable javaBeanDeser, //
-                             Object object, String key) {
-
-        if (this.propertyPreFilters != null) {
-            for (PropertyPreFilter filter : this.propertyPreFilters) {
-                if (!filter.apply(this, object, key)) {
-                    return false;
-                }
-            }
-        }
-
-        if (javaBeanDeser.propertyPreFilters != null) {
-            for (PropertyPreFilter filter : javaBeanDeser.propertyPreFilters) {
-                if (!filter.apply(this, object, key)) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    public boolean apply(SerializeFilterable javaBeanDeser, //
-                         Object object, //
-                         String key, Object propertyValue) {
-        if (this.propertyFilters != null) {
-            for (PropertyFilter propertyFilter : this.propertyFilters) {
-                if (!propertyFilter.apply(object, key, propertyValue)) {
-                    return false;
-                }
-            }
-        }
-        
-        if (javaBeanDeser.propertyFilters != null) {
-            for (PropertyFilter propertyFilter : javaBeanDeser.propertyFilters) {
-                if (!propertyFilter.apply(object, key, propertyValue)) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    public char writeBefore(SerializeFilterable javaBeanDeser, //
-                            Object object, char seperator) {
-        if (this.beforeFilters != null) {
-            for (BeforeFilter beforeFilter : this.beforeFilters) {
-                seperator = beforeFilter.writeBefore(this, object, seperator);
-            }
-        }
-        
-        if (javaBeanDeser.beforeFilters != null) {
-            for (BeforeFilter beforeFilter : javaBeanDeser.beforeFilters) {
-                seperator = beforeFilter.writeBefore(this, object, seperator);
-            }
-        }
-        
-        return seperator;
-    }
-
-    public char writeAfter(SerializeFilterable javaBeanDeser, // 
-                           Object object, char seperator) {
-        if (this.afterFilters != null) {
-            for (AfterFilter afterFilter : this.afterFilters) {
-                seperator = afterFilter.writeAfter(this, object, seperator);
-            }
-        }
-        
-        if (javaBeanDeser.afterFilters != null) {
-            for (AfterFilter afterFilter : javaBeanDeser.afterFilters) {
-                seperator = afterFilter.writeAfter(this, object, seperator);
-            }
-        }
-        return seperator;
-    }
-
-    public boolean applyLabel(SerializeFilterable javaBeanDeser, String label) {
-        if (this.labelFilters != null) {
-            for (LabelFilter propertyFilter : this.labelFilters) {
-                if (!propertyFilter.apply(label)) {
-                    return false;
-                }
-            }
-        }
-        
-        if (javaBeanDeser.labelFilters != null) {
-            for (LabelFilter propertyFilter : javaBeanDeser.labelFilters) {
-                if (!propertyFilter.apply(label)) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
+   
 }

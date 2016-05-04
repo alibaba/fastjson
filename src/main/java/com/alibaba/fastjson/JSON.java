@@ -53,24 +53,42 @@ import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.TypeUtils;
 
 /**
+ * This is the main class for using Fastjson. You usually call these two methods {@link #toJSONString(Object)} and {@link #parseObject(String, Class)}.
+ * 
+ * <p>Here is an example of how fastjson is used for a simple Class:
+ *
+ * <pre>
+ * Model model = new Model();
+ * String json = JSON.toJSONString(model); // serializes model to Json
+ * Model model2 = JSON.parseObject(json, Model.class); // deserializes json into model2
+ * </pre></p>
+ * 
+* <p>If the object that your are serializing/deserializing is a {@code ParameterizedType}
+ * (i.e. contains at least one type parameter and may be an array) then you must use the
+ * {@link #toJSONString(Object)} or {@link #parseObject(String, Type)} method.  Here is an
+ * example for serializing and deserialing a {@code ParameterizedType}:
+ * 
+ * <pre>
+ * String json = "[{},...]";
+ * Type listType = new TypeReference&lt;List&lt;Model&gt;&gt;() {}.getType();
+ * List&lt;Model&gt; modelList = JSON.parseObject(json, listType);
+ * </pre></p>
+ * 
+ * @see com.alibaba.fastjson.TypeReference
+ * 
  * @author wenshao[szujobs@hotmail.com]
  */
 public abstract class JSON implements JSONStreamAware, JSONAware {
-    public static TimeZone         defaultTimeZone  = TimeZone.getDefault();
-    public static Locale           defaultLocale    = Locale.getDefault();
+    public static TimeZone         defaultTimeZone      = TimeZone.getDefault();
+    public static Locale           defaultLocale        = Locale.getDefault();
 
-    public static String           DEFAULT_TYPE_KEY = "@type";
+    public static String           DEFAULT_TYPE_KEY     = "@type";
+
+    static final SerializeFilter[] emptyFilters         = new SerializeFilter[0];
+
+    public static String           DEFFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     public static int              DEFAULT_PARSER_FEATURE;
-
-    static final SerializeFilter[] emptyFilters     = new SerializeFilter[0];
-    
-
-//    /**
-//     * asm生成代码dump路径
-//     */
-//    public static String DUMP_CLASS           = null;
-
     static {
         int features = 0;
         features |= Feature.AutoCloseSource.getMask();
@@ -84,18 +102,13 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         DEFAULT_PARSER_FEATURE = features;
     }
 
-    public static String DEFFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
-
-    public static int    DEFAULT_GENERATE_FEATURE;
-
+    public static int DEFAULT_GENERATE_FEATURE;
     static {
         int features = 0;
         features |= SerializerFeature.QuoteFieldNames.getMask();
         features |= SerializerFeature.SkipTransientField.getMask();
         features |= SerializerFeature.WriteEnumUsingName.getMask();
         features |= SerializerFeature.SortField.getMask();
-        // features |=
-        // com.alibaba.fastjson.serializer.SerializerFeature.WriteSlashAsSpecial.getMask();
         DEFAULT_GENERATE_FEATURE = features;
     }
     
@@ -181,6 +194,16 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return (JSONObject) JSON.toJSON(obj);
     }
 
+    /**
+     * <pre>
+     * String jsonStr = "[{\"id\":1001,\"name\":\"Jobs\"}]";
+     * List&lt;Model&gt; models = JSON.parseObject(jsonStr, new TypeReference&lt;List&lt;Model&gt;&gt;() {});
+     * </pre>
+     * @param text json string
+     * @param type type refernce
+     * @param features
+     * @return
+     */
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(String text, TypeReference<T> type, Feature... features) {
         return (T) parseObject(text, type.type, ParserConfig.global, DEFAULT_PARSER_FEATURE, features);

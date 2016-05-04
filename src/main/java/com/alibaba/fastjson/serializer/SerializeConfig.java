@@ -71,19 +71,16 @@ import com.alibaba.fastjson.util.TypeUtils;
  * @author wenshao[szujobs@hotmail.com]
  */
 public class SerializeConfig {
-    public final static SerializeConfig globalInstance  = new SerializeConfig();
 
-	private static boolean awtError = false;
-	private static boolean jdk8Error = false;
-	private static boolean oracleJdbcError = false;
-	
-	private boolean asm = !ASMUtils.IS_ANDROID;
+    public final static SerializeConfig                   globalInstance  = new SerializeConfig();
 
-	private ASMSerializerFactory asmFactory;
-	
+    private static boolean                                awtError        = false;
+    private static boolean                                jdk8Error       = false;
+    private static boolean                                oracleJdbcError = false;
+    private boolean                                       asm             = !ASMUtils.IS_ANDROID;
+    private ASMSerializerFactory                          asmFactory;
+    protected String                                      typeKey         = JSON.DEFAULT_TYPE_KEY;
 
-	private String typeKey = JSON.DEFAULT_TYPE_KEY;
-	
 	 private final IdentityHashMap<Type, ObjectSerializer> serializers;
 	
 	public String getTypeKey() {
@@ -94,14 +91,19 @@ public class SerializeConfig {
 		this.typeKey = typeKey;
 	}
 
-	public final ObjectSerializer createASMSerializer(Class<?> clazz)
-			throws Exception {
-		return asmFactory.createJavaBeanSerializer(clazz, null);
+    private final ObjectSerializer createASMSerializer(SerializeBeanInfo beanInfo) throws Exception {
+        return asmFactory.createJavaBeanSerializer(beanInfo);
+    }
+	
+	private final ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
+	    SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null);
+	    return createJavaBeanSerializer(beanInfo);
 	}
 	
-	public ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
-		if (!Modifier.isPublic(clazz.getModifiers())) {
-			return new JavaBeanSerializer(clazz);
+	public ObjectSerializer createJavaBeanSerializer(SerializeBeanInfo beanInfo) {
+	    Class<?> clazz = beanInfo.beanType;
+		if (!Modifier.isPublic(beanInfo.beanType.getModifiers())) {
+			return new JavaBeanSerializer(beanInfo);
 		}
 
 		boolean asm = this.asm;
@@ -134,7 +136,7 @@ public class SerializeConfig {
 		
 		if (asm) {
 			try {
-			    ObjectSerializer asmSerializer = createASMSerializer(clazz);
+			    ObjectSerializer asmSerializer = createASMSerializer(beanInfo);
 			    if (asmSerializer != null) {
 			        return asmSerializer;
 			    }
@@ -146,7 +148,7 @@ public class SerializeConfig {
 			}
 		}
 
-		return new JavaBeanSerializer(clazz);
+		return new JavaBeanSerializer(beanInfo);
 	}
 
 	public boolean isAsmEnable() {
@@ -233,15 +235,68 @@ public class SerializeConfig {
 		put(SoftReference.class, ReferenceCodec.instance);
 	}
 	
+	/**
+	 * add class level serialize filter
+	 * @since 1.2.10
+	 */
 	public void addFilter(Class<?> clazz, SerializeFilter filter) {
 	    ObjectSerializer serializer = getObjectWriter(clazz);
 	    
 	    if (serializer instanceof SerializeFilterable) {
-	        ((SerializeFilterable) serializer).addFilter(filter);
+	        SerializeFilterable filterable = (SerializeFilterable) serializer;
+	        filterable.addFilter(filter);
 	    }
 	}
+	
+    /** class level serializer feature config
+     * @since 1.2.12
+     */
+    public void config(Class<?> clazz, SerializerFeature feature, boolean value) {
+        ObjectSerializer serializer = getObjectWriter(clazz, false);
+        
+        if (serializer == null) {
+            SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null);
+            
+            if (value) {
+                beanInfo.features |= feature.mask;
+            } else {
+                beanInfo.features &= ~feature.mask;
+            }
+            
+            serializer = this.createJavaBeanSerializer(beanInfo);
+            
+            put(clazz, serializer);
+            return;
+        }
 
-	public ObjectSerializer getObjectWriter(Class<?> clazz) {
+        if (serializer instanceof JavaBeanSerializer) {
+            JavaBeanSerializer javaBeanSerializer = (JavaBeanSerializer) serializer;
+            SerializeBeanInfo beanInfo = javaBeanSerializer.beanInfo;
+            
+            int originalFeaturs = beanInfo.features;
+            if (value) {
+                beanInfo.features |= feature.mask;
+            } else {
+                beanInfo.features &= ~feature.mask;
+            }
+            
+            if (originalFeaturs == beanInfo.features) {
+                return;
+            }
+            
+            Class<?> serializerClass = serializer.getClass();
+            if (serializerClass != JavaBeanSerializer.class) {
+                ObjectSerializer newSerializer = this.createJavaBeanSerializer(beanInfo);
+                this.put(clazz, newSerializer);
+            }
+        }
+    }
+    
+    public ObjectSerializer getObjectWriter(Class<?> clazz) {
+        return getObjectWriter(clazz, true);
+    }
+	
+	private ObjectSerializer getObjectWriter(Class<?> clazz, boolean create) {
         ObjectSerializer writer = serializers.get(clazz);
 
         if (writer == null) {
@@ -309,9 +364,9 @@ public class SerializeConfig {
                 ObjectSerializer compObjectSerializer = getObjectWriter(componentType);
                 put(clazz, new ArraySerializer(componentType, compObjectSerializer));
             } else if (Throwable.class.isAssignableFrom(clazz)) {
-                int features = TypeUtils.getSerializeFeatures(clazz);
-                features |= SerializerFeature.WriteClassName.mask;
-                put(clazz, new JavaBeanSerializer(clazz, null, features));
+                SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null);
+                beanInfo.features |= SerializerFeature.WriteClassName.mask;
+                put(clazz, new JavaBeanSerializer(beanInfo));
             } else if (TimeZone.class.isAssignableFrom(clazz)) {
                 put(clazz, MiscCodec.instance);
             } else if (Appendable.class.isAssignableFrom(clazz)) {
@@ -422,7 +477,9 @@ public class SerializeConfig {
                     return superWriter;
                 }
 
-                put(clazz, createJavaBeanSerializer(clazz));
+                if (create) {
+                    put(clazz, createJavaBeanSerializer(clazz));
+                }
             }
 
             writer = serializers.get(clazz);

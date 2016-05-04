@@ -913,16 +913,14 @@ public class ASMSerializerFactory implements Opcodes {
 
             mw.visitLabel(writeClass_);
             mw.visitVarInsn(ALOAD, context.var("out"));
+            mw.visitVarInsn(BIPUSH, '{');
+            mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(I)V");
+            
+            mw.visitVarInsn(ALOAD, 0);
+            mw.visitVarInsn(ALOAD, Context.serializer);
+            mw.visitVarInsn(ALOAD, Context.obj);
 
-            String typeName = null;
-            if (context.jsonType != null) {
-                typeName = context.jsonType.typeName();
-            }
-            if (typeName == null || typeName.length() == 0) {
-                typeName = clazz.getName();
-            }
-            mw.visitLdcInsn("{\"" + JSON.DEFAULT_TYPE_KEY + "\":\"" + typeName + "\"");
-            mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(Ljava/lang/String;)V");
+            mw.visitMethodInsn(INVOKEVIRTUAL, JavaBeanSerializer, "writeClassName", "(L" + JSONSerializer + ";Ljava/lang/Object;)V");
             mw.visitVarInsn(BIPUSH, ',');
             mw.visitJumpInsn(GOTO, end_);
 

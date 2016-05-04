@@ -250,7 +250,7 @@ public class FastJsonProvider //
 			fastJsonConfig.setSerializerFeatures(serializerFeatures);
 		}
 
-        JSON.writeJSONString(entityStream, //
+        int len = JSON.writeJSONString(entityStream, //
                              fastJsonConfig.getCharset(), //
                              obj, //
                              fastJsonConfig.getSerializeConfig(), //
@@ -259,8 +259,10 @@ public class FastJsonProvider //
                              JSON.DEFAULT_GENERATE_FEATURE, //
                              fastJsonConfig.getSerializerFeatures());
 		
-		entityStream.flush();
+        // add Content-Length
+		httpHeaders.add("Content-Length", len);
 
+		entityStream.flush();
 	}
 
 	/*

@@ -91,7 +91,7 @@ public class FastJsonHttpMessageConverter4 //
                                        fastJsonConfig.getSerializerFeatures());
         headers.setContentLength(len);
         OutputStream out = outputMessage.getBody();
-        out.write(outnew.toByteArray());
+        outnew.writeTo(out);
         outnew.close();
 	}
 

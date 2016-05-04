@@ -147,7 +147,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
             char seperator = commaFlag ? ',' : '\0';
 
             final boolean directWritePrefix = out.quoteFieldNames && !out.useSingleQuotes;
-            char newSeperator = serializer.writeBefore(this, object, seperator);
+            char newSeperator = this.writeBefore(serializer, object, seperator);
             commaFlag = newSeperator == ',';
 
             final boolean skipTransient = out.isEnabled(SerializerFeature.SkipTransientField);
@@ -175,8 +175,8 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     }
                 }
 
-                if ((!serializer.applyName(this, object, fieldInfo.name)) //
-                    || !serializer.applyLabel(this, fieldInfo.label)) {
+                if ((!this.applyName(serializer, object, fieldInfo.name)) //
+                    || !this.applyLabel(serializer, fieldInfo.label)) {
                     continue;
                 }
 
@@ -193,15 +193,15 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     }
                 }
 
-                if (!serializer.apply(this, object, fieldInfoName, propertyValue)) {
+                if (!this.apply(serializer, object, fieldInfoName, propertyValue)) {
                     continue;
                 }
 
                 String key = fieldInfoName;
-                key = serializer.processKey(this, object, key, propertyValue);
+                key = this.processKey(serializer, object, key, propertyValue);
 
                 Object originalValue = propertyValue;
-                propertyValue = serializer.processValue(this, fieldSerializer.fieldContext, object, fieldInfoName,
+                propertyValue = this.processValue(serializer, fieldSerializer.fieldContext, object, fieldInfoName,
                                                         propertyValue);
 
                 if (propertyValue == null && !writeAsArray) {
@@ -293,7 +293,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 commaFlag = true;
             }
 
-            serializer.writeAfter(this, object, commaFlag ? ',' : '\0');
+            this.writeAfter(serializer, object, commaFlag ? ',' : '\0');
 
             if (getters.length > 0 && out.isEnabled(SerializerFeature.PrettyFormat)) {
                 serializer.decrementIdent();
@@ -410,5 +410,60 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
     
     protected Type getFieldType(int ordinal) {
         return sortedGetters[ordinal].fieldInfo.fieldType;
+    }
+    
+    protected char writeBefore(JSONSerializer jsonBeanDeser, //
+                            Object object, char seperator) {
+        
+        if (jsonBeanDeser.beforeFilters != null) {
+            for (BeforeFilter beforeFilter : jsonBeanDeser.beforeFilters) {
+                seperator = beforeFilter.writeBefore(jsonBeanDeser, object, seperator);
+            }
+        }
+        
+        if (this.beforeFilters != null) {
+            for (BeforeFilter beforeFilter : this.beforeFilters) {
+                seperator = beforeFilter.writeBefore(jsonBeanDeser, object, seperator);
+            }
+        }
+        
+        return seperator;
+    }
+    
+    protected char writeAfter(JSONSerializer jsonBeanDeser, // 
+                           Object object, char seperator) {
+        if (jsonBeanDeser.afterFilters != null) {
+            for (AfterFilter afterFilter : jsonBeanDeser.afterFilters) {
+                seperator = afterFilter.writeAfter(jsonBeanDeser, object, seperator);
+            }
+        }
+        
+        if (this.afterFilters != null) {
+            for (AfterFilter afterFilter : this.afterFilters) {
+                seperator = afterFilter.writeAfter(jsonBeanDeser, object, seperator);
+            }
+        }
+        
+        return seperator;
+    }
+    
+    protected boolean applyLabel(JSONSerializer jsonBeanDeser, String label) {
+        if (jsonBeanDeser.labelFilters != null) {
+            for (LabelFilter propertyFilter : jsonBeanDeser.labelFilters) {
+                if (!propertyFilter.apply(label)) {
+                    return false;
+                }
+            }
+        }
+        
+        if (this.labelFilters != null) {
+            for (LabelFilter propertyFilter : this.labelFilters) {
+                if (!propertyFilter.apply(label)) {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
     }
 }

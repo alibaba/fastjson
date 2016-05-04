@@ -284,9 +284,9 @@ public class ASMSerializerFactory implements Opcodes {
                 Label _direct = new Label();
                 Label _directElse = new Label();
 
-                mw.visitVarInsn(ALOAD, Context.serializer);
                 mw.visitVarInsn(ALOAD, 0);
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer, "writeDirect", "(" + JavaBeanSerializer_desc + ")Z");
+                mw.visitVarInsn(ALOAD, Context.serializer);
+                mw.visitMethodInsn(INVOKEVIRTUAL, JavaBeanSerializer, "writeDirect", "(L" + JSONSerializer + ";)Z");
                 mw.visitJumpInsn(IFNE, _directElse);
 
                 mw.visitVarInsn(ALOAD, 0);
@@ -1504,12 +1504,12 @@ public class ASMSerializerFactory implements Opcodes {
 
     private void _nameApply(MethodVisitor mw, FieldInfo property, Context context, Label _end) {
         if (!context.writeDirect) {
-            mw.visitVarInsn(ALOAD, Context.serializer);
             mw.visitVarInsn(ALOAD, 0);
+            mw.visitVarInsn(ALOAD, Context.serializer);
             mw.visitVarInsn(ALOAD, Context.obj);
             mw.visitVarInsn(ALOAD, Context.fieldName);
-            mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer, "applyName",
-                               "(" + SerializeFilterable_desc + "Ljava/lang/Object;Ljava/lang/String;)Z");
+            mw.visitMethodInsn(INVOKEVIRTUAL, JavaBeanSerializer, "applyName",
+                               "(L" + JSONSerializer + ";Ljava/lang/Object;Ljava/lang/String;)Z");
             mw.visitJumpInsn(IFEQ, _end);
 
             _labelApply(mw, property, context, _end);
@@ -1526,11 +1526,11 @@ public class ASMSerializerFactory implements Opcodes {
     }
 
     private void _labelApply(MethodVisitor mw, FieldInfo property, Context context, Label _end) {
-        mw.visitVarInsn(ALOAD, Context.serializer);
         mw.visitVarInsn(ALOAD, 0); // this
+        mw.visitVarInsn(ALOAD, Context.serializer);
         mw.visitLdcInsn(property.label);
-        mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer, "applyLabel",
-                           "(" + SerializeFilterable_desc + "Ljava/lang/String;)Z");
+        mw.visitMethodInsn(INVOKEVIRTUAL, JavaBeanSerializer, "applyLabel",
+                           "(L" + JSONSerializer + ";Ljava/lang/String;)Z");
         mw.visitJumpInsn(IFEQ, _end);
     }
 
@@ -1649,22 +1649,22 @@ public class ASMSerializerFactory implements Opcodes {
     }
 
     private void _before(MethodVisitor mw, Context context) {
-        mw.visitVarInsn(ALOAD, Context.serializer);
         mw.visitVarInsn(ALOAD, 0); // this
+        mw.visitVarInsn(ALOAD, Context.serializer);
         mw.visitVarInsn(ALOAD, Context.obj);
         mw.visitVarInsn(ILOAD, context.var("seperator"));
-        mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer, "writeBefore",
-                           "(" + SerializeFilterable_desc + "Ljava/lang/Object;C)C");
+        mw.visitMethodInsn(INVOKEVIRTUAL, JavaBeanSerializer, "writeBefore",
+                           "(L" + JSONSerializer + ";Ljava/lang/Object;C)C");
         mw.visitVarInsn(ISTORE, context.var("seperator"));
     }
 
     private void _after(MethodVisitor mw, Context context) {
-        mw.visitVarInsn(ALOAD, Context.serializer);
         mw.visitVarInsn(ALOAD, 0); // this
+        mw.visitVarInsn(ALOAD, Context.serializer);
         mw.visitVarInsn(ALOAD, 2); // obj
         mw.visitVarInsn(ILOAD, context.var("seperator"));
-        mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer, "writeAfter",
-                           "(" + SerializeFilterable_desc + "Ljava/lang/Object;C)C");
+        mw.visitMethodInsn(INVOKEVIRTUAL, JavaBeanSerializer, "writeAfter",
+                           "(L" + JSONSerializer + ";Ljava/lang/Object;C)C");
         mw.visitVarInsn(ISTORE, context.var("seperator"));
     }
 
@@ -1714,8 +1714,8 @@ public class ASMSerializerFactory implements Opcodes {
     private void _apply(MethodVisitor mw, FieldInfo property, Context context) {
         Class<?> propertyClass = property.fieldClass;
 
-        mw.visitVarInsn(ALOAD, Context.serializer);
         mw.visitVarInsn(ALOAD, 0); // this
+        mw.visitVarInsn(ALOAD, Context.serializer);
         mw.visitVarInsn(ALOAD, Context.obj);
         mw.visitVarInsn(ALOAD, Context.fieldName);
 
@@ -1754,9 +1754,9 @@ public class ASMSerializerFactory implements Opcodes {
         } else {
             mw.visitVarInsn(ALOAD, context.var("object"));
         }
-        mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer,
-                           "apply", "(" + SerializeFilterable_desc
-                                    + "Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;)Z");
+        mw.visitMethodInsn(INVOKEVIRTUAL, JavaBeanSerializer,
+                           "apply", "(L" + JSONSerializer
+                                    + ";Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;)Z");
     }
 
     private void _processValue(MethodVisitor mw, FieldInfo fieldInfo, Context context, Label _end) {
@@ -1778,9 +1778,9 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitLabel(checkValueEnd_);
         }
 
+        mw.visitVarInsn(ALOAD, 0);
         mw.visitVarInsn(ALOAD, Context.serializer);
         mw.visitVarInsn(ALOAD, 0);
-        mw.visitInsn(DUP);
         mw.visitLdcInsn(context.getFieldOrinal(fieldInfo.name));
         mw.visitMethodInsn(INVOKEVIRTUAL, JavaBeanSerializer, "getBeanContext", "(I)" + desc(BeanContext.class));
         mw.visitVarInsn(ALOAD, Context.obj);
@@ -1849,8 +1849,8 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitVarInsn(ALOAD, Context.original);
         }
 
-        mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer, "processValue",
-                           "(" + SerializeFilterable_desc //
+        mw.visitMethodInsn(INVOKEVIRTUAL, JavaBeanSerializer, "processValue",
+                           "(L" + JSONSerializer  + ";" //
                                                                           + desc(BeanContext.class) //
                                                                           + "Ljava/lang/Object;Ljava/lang/String;" //
                                                                           + valueDesc + ")Ljava/lang/Object;");
@@ -1874,8 +1874,8 @@ public class ASMSerializerFactory implements Opcodes {
 
         Class<?> propertyClass = property.fieldClass;
 
-        mw.visitVarInsn(ALOAD, Context.serializer);
         mw.visitVarInsn(ALOAD, 0);
+        mw.visitVarInsn(ALOAD, Context.serializer);
         mw.visitVarInsn(ALOAD, Context.obj);
         mw.visitVarInsn(ALOAD, Context.fieldName);
 
@@ -1915,9 +1915,9 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitVarInsn(ALOAD, context.var("object"));
         }
 
-        mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer,
-                           "processKey", "(" + SerializeFilterable_desc
-                                         + "Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/String;");
+        mw.visitMethodInsn(INVOKEVIRTUAL, JavaBeanSerializer,
+                           "processKey", "(L" + JSONSerializer
+                                         + ";Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/String;");
 
         mw.visitVarInsn(ASTORE, Context.fieldName);
 

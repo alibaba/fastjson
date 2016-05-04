@@ -13,11 +13,7 @@ public class EnumerationSerializer implements ObjectSerializer {
         SerializeWriter out = serializer.out;
 
         if (object == null) {
-            if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {
-                out.write("[]");
-            } else {
-                out.writeNull();
-            }
+            out.writeNull(SerializerFeature.WriteNullListAsEmpty);
             return;
         }
         
@@ -48,9 +44,7 @@ public class EnumerationSerializer implements ObjectSerializer {
                     continue;
                 }
 
-                Class<?> clazz = item.getClass();
-
-                ObjectSerializer itemSerializer = serializer.getObjectWriter(clazz);
+                ObjectSerializer itemSerializer = serializer.getObjectWriter(item.getClass());
                 itemSerializer.write(serializer, item, i - 1, elementType, 0);
             }
             out.append(']');

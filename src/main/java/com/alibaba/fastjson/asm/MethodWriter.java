@@ -30,9 +30,6 @@
 package com.alibaba.fastjson.asm;
 
 /**
- * A {@link MethodVisitor} that generates methods in bytecode form. Each visit method of this class appends the bytecode
- * corresponding to the visited instruction to a byte vector, in the order these methods are called.
- * 
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
@@ -102,19 +99,6 @@ public class MethodWriter implements MethodVisitor {
     // Constructor
     // ------------------------------------------------------------------------
 
-    /**
-     * Constructs a new {@link MethodWriter}.
-     * 
-     * @param cw the class writer in which the method must be added.
-     * @param access the method's access flags (see {@link Opcodes}).
-     * @param name the method's name.
-     * @param desc the method's descriptor (see {@link Type}).
-     * @param signature the method's signature. May be <tt>null</tt>.
-     * @param exceptions the internal names of the method's exceptions. May be <tt>null</tt>.
-     * @param computeMaxs <tt>true</tt> if the maximum stack size and number of local variables must be automatically
-     * computed.
-     * @param computeFrames <tt>true</tt> if the stack map tables must be recomputed from scratch.
-     */
     public MethodWriter(final ClassWriter cw, final int access, final String name, final String desc, final String signature, final String[] exceptions){
         if (cw.firstMethod == null) {
             cw.firstMethod = this;

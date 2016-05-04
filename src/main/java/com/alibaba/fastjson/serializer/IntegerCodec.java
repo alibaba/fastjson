@@ -40,17 +40,17 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
         Number value = (Number) object;
         
         if (value == null) {
-            if (out.isEnabled(SerializerFeature.WriteNullNumberAsZero)) {
-                out.write('0');
-            } else {
-                out.writeNull();
-            }
+            out.writeNull(SerializerFeature.WriteNullNumberAsZero);
             return;
         }
         
-        out.writeInt(value.intValue());
+        if (object instanceof Long) {
+            out.writeLong(value.longValue());
+        } else {
+            out.writeInt(value.intValue());
+        }
         
-        if (out.wrtiteClassName) {
+        if (out.isEnabled(SerializerFeature.WriteClassName)) {
             Class<?> clazz = value.getClass();
             if (clazz == Byte.class) {
                 out.write('B');

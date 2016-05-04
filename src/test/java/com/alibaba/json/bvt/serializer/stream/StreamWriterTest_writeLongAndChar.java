@@ -16,7 +16,8 @@ public class StreamWriterTest_writeLongAndChar extends TestCase {
         Assert.assertEquals(10, writer.getBufferLength());
         
         writer.write("abcde");
-        writer.writeLongAndChar(12345678L, ',');
+        writer.writeLong(12345678L);
+        writer.write(',');
         writer.close();
         
         String text = out.toString();

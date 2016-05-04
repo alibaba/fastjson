@@ -9,14 +9,15 @@ import static com.alibaba.fastjson.JSONStreamContext.StartObject;
 import java.io.Closeable;
 import java.io.Reader;
 import java.lang.reflect.Type;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONReaderScanner;
 import com.alibaba.fastjson.parser.JSONToken;
-import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.TypeUtils;
 
 public class JSONReader implements Closeable {
@@ -25,7 +26,14 @@ public class JSONReader implements Closeable {
     private JSONStreamContext       context;
 
     public JSONReader(Reader reader){
+        this(reader, new Feature[0]);
+    }
+    
+    public JSONReader(Reader reader, Feature... features){
         this(new JSONReaderScanner(reader));
+        for (Feature feature : features) {
+            this.config(feature, true);
+        }
     }
 
     public JSONReader(JSONLexer lexer){
@@ -35,9 +43,25 @@ public class JSONReader implements Closeable {
     public JSONReader(DefaultJSONParser parser){
         this.parser = parser;
     }
+    
+    public void setTimzeZone(TimeZone timezone) {
+        this.parser.lexer.setTimeZone(timezone);
+    }
+    
+    public void setLocale(Locale locale) {
+        this.parser.lexer.setLocale(locale);
+    }
 
     public void config(Feature feature, boolean state) {
         this.parser.config(feature, state);
+    }
+    
+    public Locale getLocal() {
+        return this.parser.lexer.getLocale();
+    }
+    
+    public TimeZone getTimzeZone() {
+        return this.parser.lexer.getTimeZone();
     }
 
     public void startObject() {
@@ -138,15 +162,11 @@ public class JSONReader implements Closeable {
     }
 
     public int peek() {
-        if (context == null) {
-            throw new JSONException("context is null");
-        }
-
         return parser.lexer.token();
     }
 
     public void close() {
-        IOUtils.close(parser);
+        parser.close();
     }
 
     public Integer readInteger() {
@@ -181,7 +201,13 @@ public class JSONReader implements Closeable {
             object = parser.parse();
         } else {
             readBefore();
-            object = parser.parse();
+            JSONLexer lexer = parser.lexer;
+            if (context.state == JSONStreamContext.StartObject && lexer.token() == JSONToken.IDENTIFIER) {
+                object = lexer.stringVal();
+                lexer.nextToken();
+            } else {
+                object = parser.parse();
+            }
             readAfter();
         }
 

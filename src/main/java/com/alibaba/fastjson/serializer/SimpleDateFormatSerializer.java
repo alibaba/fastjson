@@ -20,7 +20,8 @@ public class SimpleDateFormatSerializer implements ObjectSerializer {
     	}
     	
         Date date = (Date) object;
-        SimpleDateFormat format = new SimpleDateFormat(pattern);
+        SimpleDateFormat format = new SimpleDateFormat(pattern, serializer.locale);
+        format.setTimeZone(serializer.timeZone);
 
         String text = format.format(date);
         serializer.write(text);

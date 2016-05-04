@@ -1,7 +1,6 @@
 package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.Type;
-import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
@@ -97,15 +96,28 @@ public class SqlDateDeserializer extends AbstractDateDeserializer implements Obj
                 return null;
             }
 
-            DateFormat dateFormat = parser.getDateFormat();
+            long longVal;
+            JSONScanner dateLexer = new JSONScanner(strVal);
             try {
-                Date date = (Date) dateFormat.parse(strVal);
-                return (T) new Timestamp(date.getTime());
-            } catch (ParseException e) {
-                // skip
+                if (dateLexer.scanISO8601DateIfMatch()) {
+                    longVal = dateLexer.getCalendar().getTimeInMillis();
+                } else {
+
+                    DateFormat dateFormat = parser.getDateFormat();
+                    try {
+                        java.util.Date date = (java.util.Date) dateFormat.parse(strVal);
+                        java.sql.Timestamp sqlDate = new java.sql.Timestamp(date.getTime());
+                        return (T) sqlDate;
+                    } catch (ParseException e) {
+                        // skip
+                    }
+
+                    longVal = Long.parseLong(strVal);
+                }
+            } finally {
+                dateLexer.close();
             }
 
-            long longVal = Long.parseLong(strVal);
             return (T) new java.sql.Timestamp(longVal);
         }
 

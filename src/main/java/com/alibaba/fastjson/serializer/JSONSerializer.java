@@ -20,38 +20,33 @@ import java.io.Writer;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.IdentityHashMap;
-import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
-public class JSONSerializer {
+public class JSONSerializer extends SerializeFilterable {
 
-    private final SerializeConfig                    config;
-
+    protected final SerializeConfig                  config;
     public final SerializeWriter                     out;
 
-    protected List<BeforeFilter>                     beforeFilters      = null;
-    protected List<AfterFilter>                      afterFilters       = null;
-    protected List<PropertyFilter>                   propertyFilters    = null;
-    protected List<ValueFilter>                      valueFilters       = null;
-    protected List<NameFilter>                       nameFilters        = null;
-    protected List<PropertyPreFilter>                propertyPreFilters = null;
-    protected List<LabelFilter>                      labelFilters       = null;
-
-    private int                                      indentCount        = 0;
-    private String                                   indent             = "\t";
+    private int                                      indentCount = 0;
+    private String                                   indent      = "\t";
 
     private String                                   dateFormatPattern;
     private DateFormat                               dateFormat;
 
-    protected IdentityHashMap<Object, SerialContext> references         = null;
+    protected IdentityHashMap<Object, SerialContext> references  = null;
     protected SerialContext                          context;
+
+    protected TimeZone                               timeZone    = JSON.defaultTimeZone;
+    protected Locale                                 locale      = JSON.defaultLocale;
 
     public JSONSerializer(){
         this(new SerializeWriter(), SerializeConfig.getGlobalInstance());
@@ -80,7 +75,8 @@ public class JSONSerializer {
     public DateFormat getDateFormat() {
         if (dateFormat == null) {
             if (dateFormatPattern != null) {
-                dateFormat = new SimpleDateFormat(dateFormatPattern);
+                dateFormat = new SimpleDateFormat(dateFormatPattern, locale);
+                dateFormat.setTimeZone(timeZone);
             }
         }
 
@@ -108,11 +104,11 @@ public class JSONSerializer {
     public void setContext(SerialContext context) {
         this.context = context;
     }
-    
+
     public void setContext(SerialContext parent, Object object, Object fieldName, int features) {
         this.setContext(parent, object, fieldName, features, 0);
     }
-    
+
     public void setContext(SerialContext parent, Object object, Object fieldName, int features, int fieldFeatures) {
         if (out.disableCircularReferenceDetect) {
             return;
@@ -134,20 +130,12 @@ public class JSONSerializer {
             this.context = this.context.parent;
         }
     }
-    
+
     public final boolean isWriteClassName(Type fieldType, Object obj) {
         return out.isEnabled(SerializerFeature.WriteClassName) //
                && (fieldType != null //
                    || (!out.isEnabled(SerializerFeature.NotWriteRootClassName)) //
                    || context.parent != null);
-    }
-
-    public SerialContext getSerialContext(Object object) {
-        if (references == null) {
-            return null;
-        }
-
-        return references.get(object);
     }
 
     public boolean containsReference(Object value) {
@@ -182,25 +170,24 @@ public class JSONSerializer {
 
         if (object == rootContext.object) {
             out.write("{\"$ref\":\"$\"}");
-            return;
+        } else {
+            out.write("{\"$ref\":\"");
+            out.write(references.get(object).toString());
+            out.write("\"}");
         }
-
-        SerialContext refContext = this.getSerialContext(object);
-
-        String path = refContext.toString();
-
-        out.write("{\"$ref\":\"");
-        out.write(path);
-        out.write("\"}");
-        return;
     }
 
-    public List<ValueFilter> getValueFilters() {
-        if (valueFilters == null) {
-            valueFilters = new ArrayList<ValueFilter>();
-        }
-
-        return valueFilters;
+    public boolean checkValue(SerializeFilterable filterable) {
+        return (valueFilters != null && valueFilters.size() > 0) //
+               || (contextValueFilters != null && contextValueFilters.size() > 0) //
+               || (filterable.valueFilters != null && filterable.valueFilters.size() > 0)
+               || (filterable.contextValueFilters != null && filterable.contextValueFilters.size() > 0)
+               || out.writeNonStringValueAsString;
+    }
+    
+    public boolean hasNameFilters(SerializeFilterable filterable) {
+        return (nameFilters != null && nameFilters.size() > 0) //
+               || (filterable.nameFilters != null && filterable.nameFilters.size() > 0);
     }
 
     public int getIndentCount() {
@@ -220,54 +207,6 @@ public class JSONSerializer {
         for (int i = 0; i < indentCount; ++i) {
             out.write(indent);
         }
-    }
-
-    public List<BeforeFilter> getBeforeFilters() {
-        if (beforeFilters == null) {
-            beforeFilters = new ArrayList<BeforeFilter>();
-        }
-
-        return beforeFilters;
-    }
-    
-    public List<AfterFilter> getAfterFilters() {
-        if (afterFilters == null) {
-            afterFilters = new ArrayList<AfterFilter>();
-        }
-
-        return afterFilters;
-    }
-
-    public List<NameFilter> getNameFilters() {
-        if (nameFilters == null) {
-            nameFilters = new ArrayList<NameFilter>();
-        }
-
-        return nameFilters;
-    }
-
-    public List<PropertyPreFilter> getPropertyPreFilters() {
-        if (propertyPreFilters == null) {
-            propertyPreFilters = new ArrayList<PropertyPreFilter>();
-        }
-
-        return propertyPreFilters;
-    }
-    
-    public List<LabelFilter> getLabelFilters() {
-        if (labelFilters == null) {
-            labelFilters = new ArrayList<LabelFilter>();
-        }
-        
-        return labelFilters;
-    }
-
-    public List<PropertyFilter> getPropertyFilters() {
-        if (propertyFilters == null) {
-            propertyFilters = new ArrayList<PropertyFilter>();
-        }
-
-        return propertyFilters;
     }
 
     public SerializeWriter getWriter() {
@@ -317,7 +256,7 @@ public class JSONSerializer {
             out.writeNull();
             return;
         }
-        
+
         Class<?> clazz = object.getClass();
         ObjectSerializer writer = getObjectWriter(clazz);
 
@@ -361,7 +300,8 @@ public class JSONSerializer {
         if (object instanceof Date) {
             DateFormat dateFormat = this.getDateFormat();
             if (dateFormat == null) {
-                dateFormat = new SimpleDateFormat(format);
+                dateFormat = new SimpleDateFormat(format, locale);
+                dateFormat.setTimeZone(timeZone);
             }
             String text = dateFormat.format((Date) object);
             out.writeString(text);
@@ -381,16 +321,5 @@ public class JSONSerializer {
     public void close() {
         this.out.close();
     }
-
-    public boolean writeDirect() {
-        return out.writeDirect // 
-                && beforeFilters == null
-                && afterFilters == null
-                && valueFilters == null //
-                && propertyFilters == null //
-                && nameFilters == null
-                && propertyPreFilters == null
-                && labelFilters == null
-                ;
-    }
+   
 }

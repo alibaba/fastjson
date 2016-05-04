@@ -15,17 +15,14 @@
  */
 package com.alibaba.fastjson.util;
 
-import java.io.BufferedReader;
 import java.io.Closeable;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.lang.ref.SoftReference;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
+import java.nio.charset.MalformedInputException;
 import java.util.Arrays;
 
 import com.alibaba.fastjson.JSONException;
@@ -35,6 +32,8 @@ import com.alibaba.fastjson.JSONException;
  */
 public class IOUtils {
 
+    public final static Charset   UTF8                 = Charset.forName("UTF-8");
+    
     public final static char[]    DIGITS                     = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A',
             'B', 'C', 'D', 'E', 'F'                         };
 
@@ -358,7 +357,7 @@ public class IOUtils {
      * @param chars The source array. Length 0 will return an empty array. <code>null</code> will throw an exception.
      * @return The decoded array of bytes. May be of length 0.
      */
-    public static byte[] decodeFast(char[] chars, int offset, int charsLen) {
+    public static byte[] decodeBase64(char[] chars, int offset, int charsLen) {
         // Check special case
         if (charsLen == 0) {
             return new byte[0];
@@ -413,7 +412,7 @@ public class IOUtils {
         return bytes;
     }
     
-    public static byte[] decodeFast(String chars, int offset, int charsLen) {
+    public static byte[] decodeBase64(String chars, int offset, int charsLen) {
         // Check special case
         if (charsLen == 0) {
             return new byte[0];
@@ -479,7 +478,7 @@ public class IOUtils {
      * @param s The source string. Length 0 will return an empty array. <code>null</code> will throw an exception.
      * @return The decoded array of bytes. May be of length 0.
      */
-    public static byte[] decodeFast(String s) {
+    public static byte[] decodeBase64(String s) {
         // Check special case
         int sLen = s.length();
         if (sLen == 0) {
@@ -536,86 +535,149 @@ public class IOUtils {
         return dArr;
     }
     
-    private final static ThreadLocal<SoftReference<char[]>> charsBufLocal        = new ThreadLocal<SoftReference<char[]>>();
+    public static int encodeUTF8(char[] sa, int sp, int len, byte[] da) {
+        int sl = sp + len;
+        int dp = 0;
+        int dlASCII = dp + Math.min(len, da.length);
 
-    private final static ThreadLocal<CharsetDecoder>        decoderLocal         = new ThreadLocal<CharsetDecoder>();
-
-    public static CharsetDecoder getUTF8Decoder() {
-        CharsetDecoder decoder = decoderLocal.get();
-        if (decoder == null) {
-            decoder = new UTF8Decoder();
-            decoderLocal.set(decoder);
-        }
-        return decoder;
-    }
-
-    public static void clearChars() {
-        charsBufLocal.set(null);
-    }
-
-    public static char[] getChars(int length) {
-        SoftReference<char[]> ref = charsBufLocal.get();
-
-        if (ref == null) {
-            return allocate(length);
+        // ASCII only optimized loop
+        while (dp < dlASCII && sa[sp] < '\u0080') {
+            da[dp++] = (byte) sa[sp++];
         }
 
-        char[] chars = ref.get();
-
-        if (chars == null) {
-            return allocate(length);
-        }
-
-        if (chars.length < length) {
-            chars = allocate(length);
-        }
-
-        return chars;
-    }
-
-    private static char[] allocate(int length) {
-        final int minExp = 10;
-        final int CHARS_CACH_MAX_SIZE = 1024 * 128; // 128k, 2^17;
-        
-        if(length> CHARS_CACH_MAX_SIZE) {
-            return new char[length];
-        }
-
-        int allocateLength;
-        {
-            int part = length >>> minExp;
-            if(part <= 0) {
-                allocateLength = 1<< minExp;
-            } else {
-                allocateLength = 1 << 32 - Integer.numberOfLeadingZeros(length-1);
-            }
-        }
-        char[] chars = new char[allocateLength];
-        charsBufLocal.set(new SoftReference<char[]>(chars));
-        return chars;
-    }
-    
-    public static String toString(InputStream in) throws Exception {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        return readAll(reader);
-    }
-    
-    public static String readAll(Reader reader) {
-        StringBuilder buf = new StringBuilder();
-        
-        try {
-            char[] chars = new char[2048];
-            for (;;) {
-                int len = reader.read(chars, 0, chars.length);
-                if (len < 0) {
-                    break;
+        while (sp < sl) {
+            char c = sa[sp++];
+            if (c < 0x80) {
+                // Have at most seven bits
+                da[dp++] = (byte) c;
+            } else if (c < 0x800) {
+                // 2 bytes, 11 bits
+                da[dp++] = (byte) (0xc0 | (c >> 6));
+                da[dp++] = (byte) (0x80 | (c & 0x3f));
+            } else if (c >= '\uD800' && c < ('\uDFFF' + 1)) { //Character.isSurrogate(c) but 1.7
+                final int uc;
+                int ip = sp - 1;
+                if (Character.isHighSurrogate(c)) {
+                    if (sl - ip < 2) {
+                        uc = -1;
+                    } else {
+                        char d = sa[ip + 1];
+                        if (Character.isLowSurrogate(d)) {
+                            uc = Character.toCodePoint(c, d);
+                        } else {
+                            throw new JSONException("encodeUTF8 error", new MalformedInputException(1));
+                        }
+                    }
+                } else {
+                    if (Character.isLowSurrogate(c)) {
+                        throw new JSONException("encodeUTF8 error", new MalformedInputException(1));
+                    } else {
+                        uc = c;
+                    }
                 }
-                buf.append(chars, 0, len);
+                
+                if (uc < 0) {
+                    da[dp++] = (byte) '?';
+                } else {
+                    da[dp++] = (byte) (0xf0 | ((uc >> 18)));
+                    da[dp++] = (byte) (0x80 | ((uc >> 12) & 0x3f));
+                    da[dp++] = (byte) (0x80 | ((uc >> 6) & 0x3f));
+                    da[dp++] = (byte) (0x80 | (uc & 0x3f));
+                    sp++; // 2 chars
+                }
+            } else {
+                // 3 bytes, 16 bits
+                da[dp++] = (byte) (0xe0 | ((c >> 12)));
+                da[dp++] = (byte) (0x80 | ((c >> 6) & 0x3f));
+                da[dp++] = (byte) (0x80 | (c & 0x3f));
             }
-        } catch(Exception ex) {
-            throw new JSONException("read string from reader error", ex);
         }
-        
-        return buf.toString();
+        return dp;
+    }
+    
+    public static int decodeUTF8(byte[] sa, int sp, int len, char[] da) {
+        final int sl = sp + len;
+        int dp = 0;
+        int dlASCII = Math.min(len, da.length);
+
+        // ASCII only optimized loop
+        while (dp < dlASCII && sa[sp] >= 0)
+            da[dp++] = (char) sa[sp++];
+
+        while (sp < sl) {
+            int b1 = sa[sp++];
+            if (b1 >= 0) {
+                // 1 byte, 7 bits: 0xxxxxxx
+                da[dp++] = (char) b1;
+            } else if ((b1 >> 5) == -2 && (b1 & 0x1e) != 0) {
+                // 2 bytes, 11 bits: 110xxxxx 10xxxxxx
+                if (sp < sl) {
+                    int b2 = sa[sp++];
+                    if ((b2 & 0xc0) != 0x80) { // isNotContinuation(b2)
+                        return -1;
+                    } else {
+                        da[dp++] = (char) (((b1 << 6) ^ b2)^
+                                       (((byte) 0xC0 << 6) ^
+                                        ((byte) 0x80 << 0)));
+                    }
+                    continue;
+                }
+                return -1;
+            } else if ((b1 >> 4) == -2) {
+                // 3 bytes, 16 bits: 1110xxxx 10xxxxxx 10xxxxxx
+                if (sp + 1 < sl) {
+                    int b2 = sa[sp++];
+                    int b3 = sa[sp++];
+                    if ((b1 == (byte) 0xe0 && (b2 & 0xe0) == 0x80) //
+                        || (b2 & 0xc0) != 0x80 //
+                        || (b3 & 0xc0) != 0x80) { // isMalformed3(b1, b2, b3)
+                        return -1;
+                    } else {
+                        char c = (char)((b1 << 12) ^
+                                          (b2 <<  6) ^
+                                          (b3 ^
+                                          (((byte) 0xE0 << 12) ^
+                                          ((byte) 0x80 <<  6) ^
+                                          ((byte) 0x80 <<  0))));
+                        if (Character.isSurrogate(c)) {
+                            return -1;
+                        } else {
+                            da[dp++] = c;
+                        }
+                    }
+                    continue;
+                }
+                return -1;
+            } else if ((b1 >> 3) == -2) {
+                // 4 bytes, 21 bits: 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+                if (sp + 2 < sl) {
+                    int b2 = sa[sp++];
+                    int b3 = sa[sp++];
+                    int b4 = sa[sp++];
+                    int uc = ((b1 << 18) ^
+                              (b2 << 12) ^
+                              (b3 <<  6) ^
+                              (b4 ^
+                               (((byte) 0xF0 << 18) ^
+                               ((byte) 0x80 << 12) ^
+                               ((byte) 0x80 <<  6) ^
+                               ((byte) 0x80 <<  0))));
+                    if (((b2 & 0xc0) != 0x80 || (b3 & 0xc0) != 0x80 || (b4 & 0xc0) != 0x80) // isMalformed4
+                        ||
+                        // shortest form check
+                        !Character.isSupplementaryCodePoint(uc)) {
+                        return -1;
+                    } else {
+                        da[dp++] = Character.highSurrogate(uc);
+                        da[dp++] = Character.lowSurrogate(uc);
+                    }
+                    continue;
+                }
+                return -1;
+            } else {
+                return -1;
+            }
+        }
+        return dp;
     }
 }

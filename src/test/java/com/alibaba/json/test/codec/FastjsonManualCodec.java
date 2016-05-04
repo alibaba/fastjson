@@ -1,6 +1,7 @@
 package com.alibaba.json.test.codec;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
@@ -9,7 +10,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.serializer.FilterUtils;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.ObjectSerializer;
 import com.alibaba.fastjson.serializer.SerializeConfig;
@@ -122,14 +122,8 @@ public class FastjsonManualCodec implements Codec {
             out.writeFieldValue(',', "height", image.getHeight());
             
             List<String> persons = image.getPersons();
-            for (int i = 0, size = persons.size(); i < size; ++i) {
-                out.write('[');
-                if (i != 0) {
-                    out.write(',');
-                }
-                out.writeStringWithDoubleQuoteDirect(persons.get(i), (char) 0);
-                out.write(']');
-            }
+            out.writeFieldName("persons");
+            out.write(persons);
             out.writeFieldValueStringWithDoubleQuote(',', "player", image.getPlayer().name());
             out.writeFieldValue(',', "size", image.getSize());
             
@@ -179,5 +173,16 @@ public class FastjsonManualCodec implements Codec {
             out.write('}');
         }
         
+    }
+
+    @Override
+    public byte[] encodeToBytes(Object object) throws Exception {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void encode(OutputStream out, Object object) throws Exception {
+        out.write(encodeToBytes(object));        
     }
 }

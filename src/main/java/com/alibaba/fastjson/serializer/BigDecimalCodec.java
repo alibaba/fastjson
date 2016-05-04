@@ -36,19 +36,14 @@ public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
         SerializeWriter out = serializer.out;
 
         if (object == null) {
-            if (out.isEnabled(SerializerFeature.WriteNullNumberAsZero)) {
-                out.write('0');
-            } else {
-                out.writeNull();
+            out.writeNull(SerializerFeature.WriteNullNumberAsZero);
+        } else {
+            BigDecimal val = (BigDecimal) object;
+            out.write(val.toString());
+
+            if (out.isEnabled(SerializerFeature.WriteClassName) && fieldType != BigDecimal.class && val.scale() == 0) {
+                out.write('.');
             }
-            return;
-        }
-
-        BigDecimal val = (BigDecimal) object;
-        out.write(val.toString());
-
-        if (out.isEnabled(SerializerFeature.WriteClassName) && fieldType != BigDecimal.class && val.scale() == 0) {
-            out.write('.');
         }
     }
 
@@ -73,12 +68,9 @@ public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         Object value = parser.parse();
-
-        if (value == null) {
-            return null;
-        }
-
-        return (T) TypeUtils.castToBigDecimal(value);
+        return value == null //
+            ? null //
+            : (T) TypeUtils.castToBigDecimal(value);
     }
 
     public int getFastMatchToken() {

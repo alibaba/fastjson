@@ -1,21 +1,23 @@
 package com.alibaba.json.test.benchmark;
 
-import com.alibaba.json.test.benchmark.decode.*;
 import com.alibaba.json.test.benchmark.encode.*;
+import com.alibaba.json.test.benchmark.decode.*;
 import com.alibaba.json.test.codec.*;
 
 public class BenchmarkMain {
-	public static void main(String[] args) throws Exception {
-	     // 注意，byte[]在jackson中是使用base64编码的，不正确的。
+    public static void main(String[] args) throws Exception {
+         // 注意，byte[]在jackson中是使用base64编码的，不正确的。
 
         BenchmarkExecutor executor = new BenchmarkExecutor();
         executor.setExecuteCount(5);
 //        executor.getCodecList().add(new FastjsonManualCodec());
-        executor.getCodecList().add(new FastjsonCodec());
+//        executor.getCodecList().add(new FastjsonCodec());
+        executor.getCodecList().add(new FastjsonBeanToArrayCodec());
 //        executor.getCodecList().add(new FastjsonGenCodec());
 //        executor.getCodecList().add(new FastjsonBeanToArrayCodec());
 //        executor.getCodecList().add(new JacksonCodec());
 //        executor.getCodecList().add(new Jackson2Codec());
+//        executor.getCodecList().add(new Jackson2AfterBurnCodec());
         //
         // executor.getCodecList().add(new SimpleJsonCodec());
         // executor.getCodecList().add(new JsonLibCodec());
@@ -25,7 +27,8 @@ public class BenchmarkMain {
 
 //        executor.getCaseList().add(new TradeObjectParse());
 //        executor.getCaseList().add(new EishayDecodeBytes());
-//        executor.getCaseList().add(new EishayDecode2Bytes());
+//        executor.getCaseList().add(new EishayEncodeOutputStream());
+//        executor.getCaseList().add(new EishayEncodeToBytes());
          executor.getCaseList().add(new EishayDecode());
 //         executor.getCaseList().add(new EishayDecodeByClassName());
 //         executor.getCaseList().add(new EishayTreeDecode());
@@ -57,5 +60,5 @@ public class BenchmarkMain {
         // executor.getCaseList().add(new Map1000Encode());
 
         executor.execute();
-	}
+    }
 }

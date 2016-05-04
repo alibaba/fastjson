@@ -1,10 +1,11 @@
 package com.alibaba.json.test.codec;
 
+import java.io.OutputStream;
 import java.util.Collection;
 
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ObjectNode;
-import org.codehaus.jackson.type.TypeReference;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class JacksonCodec implements Codec {
 
@@ -58,5 +59,15 @@ public class JacksonCodec implements Codec {
 
     public String encode(Object object) throws Exception {
         return mapper.writeValueAsString(object);
+    }
+
+    @Override
+    public byte[] encodeToBytes(Object object) throws Exception {
+        return mapper.writeValueAsBytes(object);
+    }
+
+    @Override
+    public void encode(OutputStream out, Object object) throws Exception {
+        out.write(encodeToBytes(object));        
     }
 }

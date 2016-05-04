@@ -1,19 +1,17 @@
 package com.alibaba.json.bvt.jsonfield;
 
 import java.lang.reflect.Field;
-import java.util.List;
-
-import junit.framework.TestCase;
 
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.parser.deserializer.ASMJavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
+
+import junit.framework.TestCase;
 
 public class JSONFieldTest_1 extends TestCase {
 
@@ -37,11 +35,7 @@ public class JSONFieldTest_1 extends TestCase {
         JavaBeanDeserializer javaBeanDeser = null;
 
         ObjectDeserializer deser = ParserConfig.getGlobalInstance().getDeserializer(VO.class);
-        if (deser instanceof ASMJavaBeanDeserializer) {
-            javaBeanDeser = ((ASMJavaBeanDeserializer) deser).getInnterSerializer();
-        } else {
-            javaBeanDeser = (JavaBeanDeserializer) deser;
-        }
+        javaBeanDeser = (JavaBeanDeserializer) deser;
 
         Field field = JavaBeanDeserializer.class.getDeclaredField("sortedFieldDeserializers");
         field.setAccessible(true);

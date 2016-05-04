@@ -84,13 +84,11 @@ public class Jdk8DateCodec implements ObjectSerializer, ObjectDeserializer {
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.out;
-
         if (object == null) {
             out.writeNull();
-            return;
+        } else {
+            out.writeString(object.toString());
         }
-        
-        out.writeString(object.toString());
     }
 
 }

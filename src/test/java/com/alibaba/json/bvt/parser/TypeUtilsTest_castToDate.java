@@ -2,6 +2,8 @@ package com.alibaba.json.bvt.parser;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
@@ -11,11 +13,18 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.util.TypeUtils;
 
 public class TypeUtilsTest_castToDate extends TestCase {
-
+    protected void setUp() throws Exception {
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        JSON.defaultLocale = Locale.CHINA;
+    }
+    
     public void test_castToDate() throws Exception {
         JSON.DEFFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
         Date date = TypeUtils.castToDate("2012-07-15 12:12:11");
-        Assert.assertEquals(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parseObject("2012-07-15 12:12:11"), date);
+        
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        format.setTimeZone(JSON.defaultTimeZone);
+        Assert.assertEquals(format.parseObject("2012-07-15 12:12:11"), date);
         JSON.DEFFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     }
 

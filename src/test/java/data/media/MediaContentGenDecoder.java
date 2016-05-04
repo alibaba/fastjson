@@ -4,15 +4,15 @@ import java.lang.reflect.Type;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
-import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexerBase;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParseContext;
-import com.alibaba.fastjson.parser.deserializer.ASMJavaBeanDeserializer;
+import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 
-public class MediaContentGenDecoder extends ASMJavaBeanDeserializer implements ObjectDeserializer {
+public class MediaContentGenDecoder extends JavaBeanDeserializer implements ObjectDeserializer {
     private char[] media_gen_prefix__ = "\"media\":".toCharArray();
     private char[] images_gen_prefix__ = "\"images\":".toCharArray();
     
@@ -36,7 +36,7 @@ public class MediaContentGenDecoder extends ASMJavaBeanDeserializer implements O
             return super.deserialze(parser, type, fieldName);
         }
         
-        if (isSupportArrayToBean(lexer)) {
+        if (lexer.isEnabled(Feature.SupportArrayToBean)) {
             // deserialzeArrayMapping
         }
         

@@ -17,9 +17,7 @@ package com.alibaba.fastjson.util;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -34,6 +32,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -59,10 +58,9 @@ import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.parser.deserializer.ASMJavaBeanDeserializer;
-import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
+import com.alibaba.fastjson.serializer.SerializeBeanInfo;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 /**
@@ -114,11 +112,9 @@ public class TypeUtils {
 
         if (value instanceof String) {
             String strVal = (String) value;
-            if (strVal.length() == 0) {
-                return null;
-            }
-
-            if ("null".equals(strVal) || "NULL".equals(strVal)) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal) //
+                || "NULL".equals(strVal)) {
                 return null;
             }
 
@@ -166,11 +162,9 @@ public class TypeUtils {
         if (value instanceof String) {
             String strVal = (String) value;
 
-            if (strVal.length() == 0) {
-                return null;
-            }
-
-            if ("null".equals(strVal) || "NULL".equals(strVal)) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal) //
+                || "NULL".equals(strVal)) {
                 return null;
             }
 
@@ -215,7 +209,9 @@ public class TypeUtils {
         }
 
         String strVal = value.toString();
-        if (strVal.length() == 0) {
+        if (strVal.length() == 0 //
+            || "null".equals(strVal) //
+            || "NULL".equals(strVal)) {
             return null;
         }
 
@@ -233,12 +229,14 @@ public class TypeUtils {
 
         if (value instanceof String) {
             String strVal = value.toString();
-            if (strVal.length() == 0) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal) //
+                || "NULL".equals(strVal)) {
                 return null;
             }
-
-            if ("null".equals(strVal) || "NULL".equals(strVal)) {
-                return null;
+            
+            if (strVal.indexOf(',') != 0) {
+                strVal = strVal.replaceAll(",", "");
             }
 
             return Float.parseFloat(strVal);
@@ -258,12 +256,14 @@ public class TypeUtils {
 
         if (value instanceof String) {
             String strVal = value.toString();
-            if (strVal.length() == 0) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal) //
+                || "NULL".equals(strVal)) {
                 return null;
             }
 
-            if ("null".equals(strVal) || "NULL".equals(strVal)) {
-                return null;
+            if (strVal.indexOf(',') != 0) {
+                strVal = strVal.replaceAll(",", "");
             }
 
             return Double.parseDouble(strVal);
@@ -276,9 +276,9 @@ public class TypeUtils {
         if (value == null) {
             return null;
         }
-        
+
         if (value instanceof Date) { // 使用频率最高的，应优先处理
-        	return (Date) value;
+            return (Date) value;
         }
 
         if (value instanceof Calendar) {
@@ -294,6 +294,21 @@ public class TypeUtils {
 
         if (value instanceof String) {
             String strVal = (String) value;
+            
+            JSONScanner dateLexer = new JSONScanner(strVal);
+            try {
+                if (dateLexer.scanISO8601DateIfMatch(false)) {
+                    Calendar calendar = dateLexer.getCalendar();
+                    return calendar.getTime();
+                }
+            } finally {
+                dateLexer.close();
+            }
+            
+            if (strVal.startsWith("/Date(") && strVal.endsWith(")/")) {
+                String dotnetDateStr = strVal.substring(6, strVal.length() - 2);
+                strVal = dotnetDateStr;
+            }
 
             if (strVal.indexOf('-') != -1) {
                 String format;
@@ -307,7 +322,8 @@ public class TypeUtils {
                     format = "yyyy-MM-dd HH:mm:ss.SSS";
                 }
 
-                SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+                SimpleDateFormat dateFormat = new SimpleDateFormat(format, JSON.defaultLocale);
+                dateFormat.setTimeZone(JSON.defaultTimeZone);
                 try {
                     return (Date) dateFormat.parse(strVal);
                 } catch (ParseException e) {
@@ -374,13 +390,13 @@ public class TypeUtils {
         if (value == null) {
             return null;
         }
-        
+
         if (value instanceof java.sql.Date) {
-        	return (java.sql.Date) value;
+            return (java.sql.Date) value;
         }
-        
+
         if (value instanceof java.util.Date) {
-        	return new java.sql.Date(((java.util.Date) value).getTime());
+            return new java.sql.Date(((java.util.Date) value).getTime());
         }
 
         if (value instanceof Calendar) {
@@ -395,7 +411,9 @@ public class TypeUtils {
 
         if (value instanceof String) {
             String strVal = (String) value;
-            if (strVal.length() == 0) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal) //
+                || "NULL".equals(strVal)) {
                 return null;
             }
 
@@ -434,7 +452,9 @@ public class TypeUtils {
 
         if (value instanceof String) {
             String strVal = (String) value;
-            if (strVal.length() == 0) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal) //
+                || "NULL".equals(strVal)) {
                 return null;
             }
 
@@ -459,12 +479,14 @@ public class TypeUtils {
 
         if (value instanceof String) {
             String strVal = (String) value;
-            if (strVal.length() == 0) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal) //
+                || "NULL".equals(strVal)) {
                 return null;
             }
-
-            if ("null".equals(strVal) || "NULL".equals(strVal)) {
-                return null;
+            
+            if (strVal.indexOf(',') != 0) {
+                strVal = strVal.replaceAll(",", "");
             }
 
             try {
@@ -504,12 +526,14 @@ public class TypeUtils {
         if (value instanceof String) {
             String strVal = (String) value;
 
-            if (strVal.length() == 0) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal) //
+                || "NULL".equals(strVal)) {
                 return null;
             }
-
-            if ("null".equals(strVal) || "NULL".equals(strVal)) {
-                return null;
+            
+            if (strVal.indexOf(',') != 0) {
+                strVal = strVal.replaceAll(",", "");
             }
 
             return Integer.parseInt(strVal);
@@ -528,7 +552,7 @@ public class TypeUtils {
         }
 
         if (value instanceof String) {
-            return IOUtils.decodeFast((String) value);
+            return IOUtils.decodeBase64((String) value);
         }
         throw new JSONException("can not cast to int, value : " + value);
     }
@@ -549,27 +573,20 @@ public class TypeUtils {
         if (value instanceof String) {
             String strVal = (String) value;
 
-            if (strVal.length() == 0) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal) //
+                || "NULL".equals(strVal)) {
                 return null;
             }
 
-            if ("true".equalsIgnoreCase(strVal)) {
+            if ("true".equalsIgnoreCase(strVal) //
+                || "1".equals(strVal)) {
                 return Boolean.TRUE;
             }
-            if ("false".equalsIgnoreCase(strVal)) {
+            
+            if ("false".equalsIgnoreCase(strVal) //
+                || "0".equals(strVal)) {
                 return Boolean.FALSE;
-            }
-
-            if ("1".equals(strVal)) {
-                return Boolean.TRUE;
-            }
-
-            if ("0".equals(strVal)) {
-                return Boolean.FALSE;
-            }
-
-            if ("null".equals(strVal) || "NULL".equals(strVal)) {
-                return null;
             }
         }
 
@@ -581,7 +598,7 @@ public class TypeUtils {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static <T> T cast(Object obj, Class<T> clazz, ParserConfig mapping) {
+    public static <T> T cast(Object obj, Class<T> clazz, ParserConfig config) {
         if (obj == null) {
             return null;
         }
@@ -604,7 +621,7 @@ public class TypeUtils {
                 return (T) obj;
             }
 
-            return castToJavaBean((Map<String, Object>) obj, clazz, mapping);
+            return castToJavaBean((Map<String, Object>) obj, clazz, config);
         }
 
         if (clazz.isArray()) {
@@ -614,7 +631,7 @@ public class TypeUtils {
                 int index = 0;
                 Object array = Array.newInstance(clazz.getComponentType(), collection.size());
                 for (Object item : collection) {
-                    Object value = cast(item, clazz.getComponentType(), mapping);
+                    Object value = cast(item, clazz.getComponentType(), config);
                     Array.set(array, index, value);
                     index++;
                 }
@@ -688,14 +705,14 @@ public class TypeUtils {
         }
 
         if (clazz.isEnum()) {
-            return (T) castToEnum(obj, clazz, mapping);
+            return (T) castToEnum(obj, clazz, config);
         }
 
         if (Calendar.class.isAssignableFrom(clazz)) {
             Date date = castToDate(obj);
             Calendar calendar;
             if (clazz == Calendar.class) {
-                calendar = Calendar.getInstance();
+                calendar = Calendar.getInstance(JSON.defaultTimeZone, JSON.defaultLocale);
             } else {
                 try {
                     calendar = (Calendar) clazz.newInstance();
@@ -710,7 +727,9 @@ public class TypeUtils {
         if (obj instanceof String) {
             String strVal = (String) obj;
 
-            if (strVal.length() == 0) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal) //
+                || "NULL".equals(strVal)) {
                 return null;
             }
 
@@ -736,14 +755,9 @@ public class TypeUtils {
 
             if (obj instanceof Number) {
                 int ordinal = ((Number) obj).intValue();
-
-                Method method = clazz.getMethod("values");
-                Object[] values = (Object[]) method.invoke(null);
-                for (Object value : values) {
-                    Enum e = (Enum) value;
-                    if (e.ordinal() == ordinal) {
-                        return (T) e;
-                    }
+                Object[] values = clazz.getEnumConstants();
+                if (ordinal < values.length) {
+                    return (T) values[ordinal];
                 }
             }
         } catch (Exception ex) {
@@ -769,7 +783,9 @@ public class TypeUtils {
 
         if (obj instanceof String) {
             String strVal = (String) obj;
-            if (strVal.length() == 0) {
+            if (strVal.length() == 0 //
+                || "null".equals(strVal) //
+                || "NULL".equals(strVal)) {
                 return null;
             }
         }
@@ -903,40 +919,13 @@ public class TypeUtils {
             ObjectDeserializer deserizer = config.getDeserializer(clazz);
             if (deserizer instanceof JavaBeanDeserializer) {
                 javaBeanDeser = (JavaBeanDeserializer) deserizer;
-            } else if (deserizer instanceof ASMJavaBeanDeserializer) {
-                javaBeanDeser = ((ASMJavaBeanDeserializer) deserizer).getInnterSerializer();
             }
-
-            Constructor<T> constructor = clazz.getDeclaredConstructor();
-            constructor.setAccessible(true);
-            T object = constructor.newInstance();
-
             
-            if (javaBeanDeser != null) {
-                for (Map.Entry<String, Object> entry : map.entrySet()) {
-                    String key = entry.getKey();
-                    Object value = entry.getValue();
-                    
-                    FieldDeserializer fieldDeser = javaBeanDeser.getFieldDeserializer(key);
-                    if (fieldDeser == null) {
-                        continue;
-                    }
-                    
-                    Method method = fieldDeser.fieldInfo.method;
-                    if (method != null) {
-                        Type paramType = method.getGenericParameterTypes()[0];
-                        value = cast(value, paramType, config);
-                        method.invoke(object, new Object[] { value });
-                    } else {
-                        Field field = fieldDeser.fieldInfo.field;
-                        Type paramType = fieldDeser.fieldInfo.fieldType;
-                        value = cast(value, paramType, config);
-                        field.set(object, value);
-                    }
-                }
+            if (javaBeanDeser == null) {
+                throw new JSONException("can not get javaBeanDeserializer");
             }
-
-            return object;
+            
+            return (T) javaBeanDeser.createInstance(map, config);
         } catch (Exception e) {
             throw new JSONException(e.getMessage(), e);
         }
@@ -948,15 +937,7 @@ public class TypeUtils {
         addBaseClassMappings();
     }
 
-    public static void addClassMapping(String className, Class<?> clazz) {
-        if (className == null) {
-            className = clazz.getName();
-        }
-
-        mappings.put(className, clazz);
-    }
-
-    public static void addBaseClassMappings() {
+    private static void addBaseClassMappings() {
         mappings.put("byte", byte.class);
         mappings.put("short", short.class);
         mappings.put("int", int.class);
@@ -986,6 +967,24 @@ public class TypeUtils {
     public static Class<?> loadClass(String className) {
         return loadClass(className, null);
     }
+    
+    private static Class<?> pathClass;
+    private static boolean pathClass_error = false;
+    public static boolean isPath(Class<?> clazz) {
+        if (pathClass == null && !pathClass_error) {
+            try {
+                pathClass = Class.forName("java.nio.file.Path");
+            } catch (Throwable ex) {
+                pathClass_error = true;
+            }
+        }
+        
+        if (pathClass != null) {
+            return pathClass.isAssignableFrom(clazz);
+        }
+        
+        return false;
+    }
 
     public static Class<?> loadClass(String className, ClassLoader classLoader) {
         if (className == null || className.length() == 0) {
@@ -1007,12 +1006,11 @@ public class TypeUtils {
             String newClassName = className.substring(1, className.length() - 1);
             return loadClass(newClassName, classLoader);
         }
-        
+
         try {
             if (classLoader != null) {
                 clazz = classLoader.loadClass(className);
-
-                addClassMapping(className, clazz);
+                mappings.put(className, clazz);
 
                 return clazz;
             }
@@ -1026,8 +1024,7 @@ public class TypeUtils {
 
             if (contextClassLoader != null) {
                 clazz = contextClassLoader.loadClass(className);
-
-                addClassMapping(className, clazz);
+                mappings.put(className, clazz);
 
                 return clazz;
             }
@@ -1037,8 +1034,7 @@ public class TypeUtils {
 
         try {
             clazz = Class.forName(className);
-
-            addClassMapping(className, clazz);
+            mappings.put(className, clazz);
 
             return clazz;
         } catch (Throwable e) {
@@ -1047,8 +1043,51 @@ public class TypeUtils {
 
         return clazz;
     }
+    
+    public static SerializeBeanInfo buildBeanInfo(Class<?> beanType, Map<String, String> aliasMap) {
+        JSONType jsonType = beanType.getAnnotation(JSONType.class);
+        
+        List<FieldInfo> fieldInfoList = computeGetters(beanType, jsonType, aliasMap, false);
+        FieldInfo[] fields = new FieldInfo[fieldInfoList.size()];
+        fieldInfoList.toArray(fields);
+        
+        String[] orders = null;
 
-    public static List<FieldInfo> computeGetters(Class<?> clazz, JSONType jsonType, Map<String, String> aliasMap, boolean sorted) {
+        final int features;
+        String typeName = null;
+        if (jsonType != null) {
+            orders = jsonType.orders();
+            typeName = jsonType.typeName();
+            if (typeName.length() == 0) {
+                typeName = null;
+            }
+            features = SerializerFeature.of(jsonType.serialzeFeatures());
+        } else {
+            features = 0;
+        }
+        
+        FieldInfo[] sortedFields;
+        List<FieldInfo> sortedFieldList;
+        if (orders != null && orders.length != 0) {
+            sortedFieldList = TypeUtils.computeGetters(beanType, jsonType, aliasMap, true);
+        } else {
+            sortedFieldList = new ArrayList<FieldInfo>(fieldInfoList);
+            Collections.sort(sortedFieldList);
+        }
+        sortedFields = new FieldInfo[sortedFieldList.size()];
+        sortedFieldList.toArray(sortedFields);
+        
+        if (Arrays.equals(sortedFields, fields)) {
+            sortedFields = fields;
+        }
+        
+        return new SerializeBeanInfo(beanType, jsonType, typeName, features, fields, sortedFields);
+    }
+
+    public static List<FieldInfo> computeGetters(Class<?> clazz, // 
+                                                 JSONType jsonType, // 
+                                                 Map<String, String> aliasMap, //
+                                                 boolean sorted) {
         Map<String, FieldInfo> fieldInfoMap = new LinkedHashMap<String, FieldInfo>();
 
         for (Method method : clazz.getMethods()) {
@@ -1101,7 +1140,8 @@ public class TypeUtils {
                         }
                     }
 
-                    FieldInfo fieldInfo = new FieldInfo(propertyName, method, null, clazz, null, ordinal, serialzeFeatures, annotation, null, label);
+                    FieldInfo fieldInfo = new FieldInfo(propertyName, method, null, clazz, null, ordinal,
+                                                        serialzeFeatures, annotation, null, label);
                     fieldInfoMap.put(propertyName, fieldInfo);
                     continue;
                 }
@@ -1184,7 +1224,8 @@ public class TypeUtils {
                     }
                 }
 
-                FieldInfo fieldInfo = new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures, annotation, fieldAnnotation, label);
+                FieldInfo fieldInfo = new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures,
+                                                    annotation, fieldAnnotation, label);
                 fieldInfoMap.put(propertyName, fieldInfo);
             }
 
@@ -1252,7 +1293,8 @@ public class TypeUtils {
                     }
                 }
 
-                FieldInfo fieldInfo = new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures, annotation, fieldAnnotation, label);
+                FieldInfo fieldInfo = new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures,
+                                                    annotation, fieldAnnotation, label);
                 fieldInfoMap.put(propertyName, fieldInfo);
             }
         }
@@ -1292,7 +1334,8 @@ public class TypeUtils {
             }
 
             if (!fieldInfoMap.containsKey(propertyName)) {
-                FieldInfo fieldInfo = new FieldInfo(propertyName, null, field, clazz, null, ordinal, serialzeFeatures, null, fieldAnnotation, label);
+                FieldInfo fieldInfo = new FieldInfo(propertyName, null, field, clazz, null, ordinal, serialzeFeatures,
+                                                    null, fieldAnnotation, label);
                 fieldInfoMap.put(propertyName, fieldInfo);
             }
         }
@@ -1338,15 +1381,15 @@ public class TypeUtils {
     }
 
     public static JSONField getSupperMethodAnnotation(final Class<?> clazz, final Method method) {
-    	Class<?>[] interfaces = clazz.getInterfaces();
-    	if (interfaces.length > 0) {
-    		Class<?>[] types = method.getParameterTypes(); 
-    		for (Class<?> interfaceClass : interfaces) {
+        Class<?>[] interfaces = clazz.getInterfaces();
+        if (interfaces.length > 0) {
+            Class<?>[] types = method.getParameterTypes();
+            for (Class<?> interfaceClass : interfaces) {
                 for (Method interfaceMethod : interfaceClass.getMethods()) {
-                	Class<?>[] interfaceTypes = interfaceMethod.getParameterTypes(); 
-                	if (interfaceTypes.length != types.length) {
-                		continue;					
-					}
+                    Class<?>[] interfaceTypes = interfaceMethod.getParameterTypes();
+                    if (interfaceTypes.length != types.length) {
+                        continue;
+                    }
                     if (!interfaceMethod.getName().equals(method.getName())) {
                         continue;
                     }
@@ -1368,7 +1411,7 @@ public class TypeUtils {
                     }
                 }
             }
-		}
+        }
         return null;
     }
 
@@ -1434,20 +1477,6 @@ public class TypeUtils {
         return type;
     }
 
-    public static Type unwrap(Type type) {
-        if (type instanceof GenericArrayType) {
-            Type componentType = ((GenericArrayType) type).getGenericComponentType();
-            if (componentType == byte.class) {
-                return byte[].class;
-            }
-            if (componentType == char.class) {
-                return char[].class;
-            }
-        }
-
-        return type;
-    }
-
     public static Type unwrapOptional(Type type) {
         if (!optionalClassInited) {
             try {
@@ -1476,7 +1505,7 @@ public class TypeUtils {
         if (type instanceof ParameterizedType) {
             return getClass(((ParameterizedType) type).getRawType());
         }
-        
+
         if (type instanceof TypeVariable) {
             Type boundType = ((TypeVariable<?>) type).getBounds()[0];
             return (Class<?>) boundType;
@@ -1498,10 +1527,6 @@ public class TypeUtils {
         }
 
         return null;
-    }
-
-    public static JSONType getJSONType(Class<?> clazz) {
-        return clazz.getAnnotation(JSONType.class);
     }
 
     public static int getSerializeFeatures(Class<?> clazz) {
@@ -1576,8 +1601,8 @@ public class TypeUtils {
         Class<?> rawClass = getRawClass(type);
 
         Collection list;
-        if (rawClass == AbstractCollection.class // 
-                || rawClass == Collection.class) {
+        if (rawClass == AbstractCollection.class //
+            || rawClass == Collection.class) {
             list = new ArrayList();
         } else if (rawClass.isAssignableFrom(HashSet.class)) {
             list = new HashSet();
@@ -1594,7 +1619,7 @@ public class TypeUtils {
             } else {
                 itemType = Object.class;
             }
-            list = EnumSet.noneOf((Class<Enum>)itemType);
+            list = EnumSet.noneOf((Class<Enum>) itemType);
         } else {
             try {
                 list = (Collection) rawClass.newInstance();

@@ -5,10 +5,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -17,234 +20,280 @@ import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.parser.Feature;
-import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.serializer.AfterFilter;
-import com.alibaba.fastjson.serializer.BeforeFilter;
-import com.alibaba.fastjson.serializer.JSONSerializer;
-import com.alibaba.fastjson.serializer.NameFilter;
-import com.alibaba.fastjson.serializer.PropertyFilter;
-import com.alibaba.fastjson.serializer.PropertyPreFilter;
-import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializeFilter;
-import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.alibaba.fastjson.serializer.ValueFilter;
+import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.util.IOUtils;
 
 /**
- * JAX-RS Provider for fastjson.
- * 
- * @author smallnest
+ * Fastjson for JAX-RS Provider.
  *
+ * @author smallnest
+ * @author VictorZeng
+ * @since 1.2.9
+ * 
+ * @see MessageBodyReader
+ * @see MessageBodyWriter
  */
+
 @Provider
-public class FastJsonProvider implements MessageBodyReader<Object>, MessageBodyWriter<Object> {
-    private Class<?>[] clazzes = null;
-    
-    public SerializeConfig serializeConfig = SerializeConfig.getGlobalInstance();
-    public ParserConfig parserConfig = ParserConfig.getGlobalInstance();
-    public SerializerFeature[] serializerFeatures = new SerializerFeature[0];
-    public Feature[] features = new Feature[0];
-    public Map<Class<?>, SerializeFilter> serializeFilters;
+@Consumes({ MediaType.WILDCARD })
+@Produces({ MediaType.WILDCARD })
+public class FastJsonProvider //
+        implements MessageBodyReader<Object>, MessageBodyWriter<Object> {
+	
+	@Deprecated
+	protected Charset charset = IOUtils.UTF8;
+		
+	@Deprecated
+	protected SerializerFeature[] features = new SerializerFeature[0];
 
-    @javax.ws.rs.core.Context
-    javax.ws.rs.core.UriInfo uriInfo;
+	@Deprecated
+	protected SerializeFilter[] filters = new SerializeFilter[0];
 
-    // protected FastJsonConfig fastJsonConfig = new FastJsonConfig(new SerializeConfig(), null, null, new ParserConfig(), null);
+	@Deprecated
+	protected String dateFormat;
+		
+	/** with fastJson config */
+	private FastJsonConfig fastJsonConfig = new FastJsonConfig();
 
-    /**
-     * Can serialize/deserialize all types.
-     */
-    public FastJsonProvider() {
+	/** allow serialize/deserialize types in clazzes */
+	private Class<?>[] clazzes = null;
+	
+	@javax.ws.rs.core.Context
+	javax.ws.rs.core.UriInfo uriInfo;
+	
+	
+	/**
+	 * @since 1.2.11
+	 * 
+	 * @return the fastJsonConfig.
+	 */
+	public FastJsonConfig getFastJsonConfig() {
+		return fastJsonConfig;
+	}
 
-    }
+	/**
+	 * @since 1.2.11
+	 * 
+	 * @param fastJsonConfig the fastJsonConfig to set.
+	 */
+	public void setFastJsonConfig(FastJsonConfig fastJsonConfig) {
+		this.fastJsonConfig = fastJsonConfig;
+	}
 
-    
-    /**
-     * Only serialize/deserialize all types in clazzes.
-     */
-    public FastJsonProvider(Class<?>[] clazzes) {
-        this.clazzes = clazzes;
-    }
+	/**
+	 * Can serialize/deserialize all types.
+	 */
+	public FastJsonProvider() {
 
-    /**
-     * Check whether a class can be serialized or deserialized. It can check
-     * based on packages, annotations on entities or explicit classes.
-     * 
-     * @param type class need to check
-     * @return true if valid
-     */
-    protected boolean isValidType(Class<?> type, Annotation[] classAnnotations) {
-        if (type == null)
-            return false;
+	}
+
+	/**
+	 * Only serialize/deserialize all types in clazzes.
+	 */
+	public FastJsonProvider(Class<?>[] clazzes) {
+		this.clazzes = clazzes;
+	}
+	
+	/**
+	 * Set charset. the default charset is UTF-8
+	 */
+	@Deprecated
+	public FastJsonProvider(String charset) {
+		this.fastJsonConfig.setCharset(Charset.forName(charset));
+	}
+	
+	@Deprecated
+	public Charset getCharset() {
+		return this.fastJsonConfig.getCharset();
+	}
+
+	@Deprecated
+	public void setCharset(Charset charset) {
+		this.fastJsonConfig.setCharset(charset);
+	}
+
+	@Deprecated
+	public String getDateFormat() {
+		return this.fastJsonConfig.getDateFormat();
+	}
+
+	@Deprecated
+	public void setDateFormat(String dateFormat) {
+		this.fastJsonConfig.setDateFormat(dateFormat);
+	}
+
+	@Deprecated
+	public SerializerFeature[] getFeatures() {
+		return this.fastJsonConfig.getSerializerFeatures();
+	}
+
+	@Deprecated
+	public void setFeatures(SerializerFeature... features) {
+		this.fastJsonConfig.setSerializerFeatures(features);
+	}
+
+	@Deprecated
+	public SerializeFilter[] getFilters() {
+		return this.fastJsonConfig.getSerializeFilters();
+	}
+
+	@Deprecated
+	public void setFilters(SerializeFilter... filters) {
+		this.fastJsonConfig.setSerializeFilters(filters);
+	}
+	
+	/**
+	 * Check whether a class can be serialized or deserialized. It can check
+	 * based on packages, annotations on entities or explicit classes.
+	 *
+	 * @param type
+	 *            class need to check
+	 * @return true if valid
+	 */
+	protected boolean isValidType(Class<?> type, Annotation[] classAnnotations) {
+		if (type == null)
+			return false;
+
+		if (clazzes != null) {
+			for (Class<?> cls : clazzes) { // must strictly equal. Don't check
+											// inheritance
+				if (cls == type)
+					return true;
+			}
+
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check media type like "application/json".
+	 *
+	 * @param mediaType
+	 *            media type
+	 * @return true if the media type is valid
+	 */
+	protected boolean hasMatchingMediaType(MediaType mediaType) {
+		if (mediaType != null) {
+			String subtype = mediaType.getSubtype();
+			
+			return (("json".equalsIgnoreCase(subtype)) //
+					|| (subtype.endsWith("+json")) //
+					|| ("javascript".equals(subtype)) //
+					|| ("x-javascript".equals(subtype)) //
+					|| ("x-json".equals(subtype)) //
+					|| ("x-www-form-urlencoded".equalsIgnoreCase(subtype)) //
+					|| (subtype.endsWith("x-www-form-urlencoded")));
+		}
+		return true;
+	}
+
+	/*
+	 * /********************************************************** /* Partial
+	 * MessageBodyWriter impl
+	 * /**********************************************************
+	 */
+
+	/**
+	 * Method that JAX-RS container calls to try to check whether given value
+	 * (of specified type) can be serialized by this provider.
+	 */
+    public boolean isWriteable(Class<?> type, //
+                               Type genericType, //
+                               Annotation[] annotations, //
+                               MediaType mediaType) {
+		if (!hasMatchingMediaType(mediaType)) {
+			return false;
+		}
+
+		return isValidType(type, annotations);
+	}
+
+	/**
+	 * Method that JAX-RS container calls to try to figure out serialized length
+	 * of given value. always return -1 to denote "not known".
+	 */
+    public long getSize(Object t, //
+                        Class<?> type, //
+                        Type genericType, //
+                        Annotation[] annotations, //
+                        MediaType mediaType) {
+		return -1;
+	}
+
+	/**
+	 * Method that JAX-RS container calls to serialize given value.
+	 */
+    public void writeTo(Object obj, //
+                        Class<?> type, //
+                        Type genericType, //
+                        Annotation[] annotations, //
+                        MediaType mediaType, //
+                        MultivaluedMap<String, Object> httpHeaders, //
+                        OutputStream entityStream //
+    ) throws IOException, WebApplicationException {
+
+		SerializerFeature[] serializerFeatures = fastJsonConfig.getSerializerFeatures();
+		if (uriInfo != null
+				&& uriInfo.getQueryParameters().containsKey("pretty")) {
+			if (serializerFeatures == null)
+				serializerFeatures = new SerializerFeature[] { SerializerFeature.PrettyFormat };
+			else {
+				List<SerializerFeature> featureList = new ArrayList<SerializerFeature>(Arrays
+						.asList(serializerFeatures));
+				featureList.add(SerializerFeature.PrettyFormat);
+				serializerFeatures = featureList.toArray(serializerFeatures);
+			}
+			fastJsonConfig.setSerializerFeatures(serializerFeatures);
+		}
+
+        JSON.writeJSONString(entityStream, //
+                             fastJsonConfig.getCharset(), //
+                             obj, //
+                             fastJsonConfig.getSerializeConfig(), //
+                             fastJsonConfig.getSerializeFilters(), //
+                             fastJsonConfig.getDateFormat(), //
+                             JSON.DEFAULT_GENERATE_FEATURE, //
+                             fastJsonConfig.getSerializerFeatures());
+		
+		entityStream.flush();
+
+	}
+
+	/*
+	 * /********************************************************** /*
+	 * MessageBodyReader impl
+	 * /**********************************************************
+	 */
+
+	/**
+	 * Method that JAX-RS container calls to try to check whether values of
+	 * given type (and media type) can be deserialized by this provider.
+	 */
+    public boolean isReadable(Class<?> type, //
+                              Type genericType, //
+                              Annotation[] annotations, //
+                              MediaType mediaType) {
         
-        if (clazzes != null) {
-            for (Class<?> cls : clazzes) { // must strictly equal. Don't check
-                                            // inheritance
-                if (cls == type)
-                    return true;
-            }
+		if (!hasMatchingMediaType(mediaType)) {
+			return false;
+		}
 
-            return false;
-        }
+		return isValidType(type, annotations);
+	}
 
-        return true;
+	/**
+	 * Method that JAX-RS container calls to deserialize given value.
+	 */
+    public Object readFrom(Class<Object> type, //
+                           Type genericType, //
+                           Annotation[] annotations, //
+                           MediaType mediaType, //
+                           MultivaluedMap<String, String> httpHeaders, //
+                           InputStream entityStream) throws IOException, WebApplicationException {
+        return JSON.parseObject(entityStream, fastJsonConfig.getCharset(), genericType, fastJsonConfig.getFeatures());
     }
-
-    /**
-     * Check media type like "application/json".
-     * 
-     * @param mediaType
-     *            media type
-     * @return true if the media type is valid
-     */
-    protected boolean hasMatchingMediaType(MediaType mediaType) {
-        if (mediaType != null) {
-            String subtype = mediaType.getSubtype();
-            return "json".equalsIgnoreCase(subtype) || subtype.endsWith("+json") || "javascript".equals(subtype) || "x-javascript".equals(subtype);
-        }
-        return true;
-    }
-
-    public String toJSONString(Object object, SerializeFilter filter, SerializerFeature[] features) {
-        SerializeWriter out = new SerializeWriter();
-
-        try {
-            JSONSerializer serializer = new JSONSerializer(out, serializeConfig);
-            if (features != null) {
-                for (com.alibaba.fastjson.serializer.SerializerFeature feature : features) {
-                    serializer.config(feature, true);
-                }
-            }
-            
-            if (filter != null) {
-                if (filter instanceof PropertyPreFilter) {
-                    serializer.getPropertyPreFilters().add((PropertyPreFilter) filter);
-                }
-
-                if (filter instanceof NameFilter) {
-                    serializer.getNameFilters().add((NameFilter) filter);
-                }
-
-                if (filter instanceof ValueFilter) {
-                    serializer.getValueFilters().add((ValueFilter) filter);
-                }
-
-                if (filter instanceof PropertyFilter) {
-                    serializer.getPropertyFilters().add((PropertyFilter) filter);
-                }
-
-                if (filter instanceof BeforeFilter) {
-                    serializer.getBeforeFilters().add((BeforeFilter) filter);
-                }
-                
-                if (filter instanceof AfterFilter) {
-                    serializer.getAfterFilters().add((AfterFilter) filter);
-                }
-            }
-
-            serializer.write(object);
-
-            return out.toString();
-        } finally {
-            out.close();
-        }
-    }
-
-    /*
-     * /********************************************************** /* Partial
-     * MessageBodyWriter impl
-     * /**********************************************************
-     */
-
-    /**
-     * Method that JAX-RS container calls to try to check whether given value
-     * (of specified type) can be serialized by this provider.
-     */
-    public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-        if (!hasMatchingMediaType(mediaType)) {
-            return false;
-        }
-
-        return isValidType(type, annotations);
-    }
-
-    /**
-     * Method that JAX-RS container calls to try to figure out serialized length
-     * of given value. always return -1 to denote "not known".
-     */
-    public long getSize(Object t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-        return -1;
-    }
-
-    /**
-     * Method that JAX-RS container calls to serialize given value.
-     */
-    public void writeTo(Object t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders,
-            OutputStream entityStream) throws IOException, WebApplicationException {
-        SerializeFilter filter = null;
-
-        SerializerFeature[] serializerFeatures = this.serializerFeatures; 
-        if(uriInfo != null &&  uriInfo.getQueryParameters().containsKey("pretty")) {
-            if (serializerFeatures == null)
-                serializerFeatures = new  SerializerFeature[]{SerializerFeature.PrettyFormat};
-            else {
-                List<SerializerFeature> featureList = Arrays.asList(serializerFeatures);
-                featureList.add(SerializerFeature.PrettyFormat);
-                serializerFeatures = featureList.toArray(serializerFeatures);
-            }
-        }
-
-        if (serializeFilters != null) {
-            filter = serializeFilters.get(type);
-        }
-        
-        String jsonStr = toJSONString(t, filter, serializerFeatures);
-        if (jsonStr != null) {
-            entityStream.write(jsonStr.getBytes());
-        }
-    }
-
-    /*
-     * /********************************************************** /*
-     * MessageBodyReader impl
-     * /**********************************************************
-     */
-
-    /**
-     * Method that JAX-RS container calls to try to check whether values of
-     * given type (and media type) can be deserialized by this provider.
-     */
-    public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-        if (!hasMatchingMediaType(mediaType)) {
-            return false;
-        }
-
-        return isValidType(type, annotations);
-    }
-
-    /**
-     * Method that JAX-RS container calls to deserialize given value.
-     */
-    public Object readFrom(Class<Object> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, String> httpHeaders,
-            InputStream entityStream) throws IOException, WebApplicationException {
-        String input = null;
-        try {
-            input = IOUtils.toString(entityStream);
-        } catch (Exception e) {
-            // skip ??
-        }
-        
-        if (input == null) {
-            return null;
-        }
-        
-        if (features == null) {
-            return JSON.parseObject(input, type, parserConfig, JSON.DEFAULT_PARSER_FEATURE);
-        } else {
-            return JSON.parseObject(input, type, parserConfig, JSON.DEFAULT_PARSER_FEATURE, features);
-        }
-    }
-
 }

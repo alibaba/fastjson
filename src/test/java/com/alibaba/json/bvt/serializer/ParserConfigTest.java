@@ -1,8 +1,11 @@
 package com.alibaba.json.bvt.serializer;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.ParserConfig;
+
+import junit.framework.TestCase;
 
 public class ParserConfigTest extends TestCase {
 
@@ -10,16 +13,16 @@ public class ParserConfigTest extends TestCase {
         ParserConfig config = new ParserConfig();
         config.getDerializers();
     }
-
-//    public void test_error_0() throws Exception {
-//        ParserConfig config = new ParserConfig();
-//        
-//        Exception error = null;
-//        try {
-//            config.createJavaBeanDeserializer(int.class, int.class);
-//        } catch (JSONException ex) {
-//            error = ex;
-//        }
-//        Assert.assertNotNull(error);
-//    }
+    
+    
+    public void test_1() throws Exception {
+        ParserConfig config = new ParserConfig(Thread.currentThread().getContextClassLoader());
+        
+        Model model = JSON.parseObject("{\"value\":123}", Model.class, config);
+        Assert.assertEquals(123, model.value);
+    }
+    
+    public static class Model {
+        public int value;
+    }
 }

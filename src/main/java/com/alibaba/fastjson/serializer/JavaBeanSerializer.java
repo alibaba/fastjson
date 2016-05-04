@@ -343,8 +343,23 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         }
     }
 
-    public boolean isWriteAsArray(JSONSerializer serializer) {
+    protected boolean isWriteAsArray(JSONSerializer serializer) {
         return (beanInfo.features & SerializerFeature.BeanToArray.mask) != 0 || serializer.out.beanToArray;
+    }
+    
+    public Object getFieldValue(Object object, String key) {
+        FieldSerializer fieldDeser = getFieldSerializer(key);
+        if (fieldDeser == null) {
+            throw new JSONException("field not found. " + key);
+        }
+        
+        try {
+            return fieldDeser.getPropertyValue(object);
+        } catch (InvocationTargetException ex) {
+            throw new JSONException("getFieldValue error." + key, ex);
+        } catch (IllegalAccessException ex) {
+            throw new JSONException("getFieldValue error." + key, ex);
+        }
     }
 
     public FieldSerializer getFieldSerializer(String key) {

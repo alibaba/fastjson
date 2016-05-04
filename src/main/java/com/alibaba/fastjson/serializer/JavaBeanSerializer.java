@@ -139,12 +139,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 || serializer.isWriteClassName(fieldType, object)) {
                 Class<?> objClass = object.getClass();
                 if (objClass != fieldType) {
-                    out.writeFieldName(serializer.config.typeKey, false);
-                    String typeName = this.beanInfo.typeName;
-                    if (typeName == null) {
-                        typeName = object.getClass().getName();
-                    }
-                    serializer.write(typeName);
+                    writeClassName(serializer, object);
                     commaFlag = true;
                 }
             }
@@ -322,6 +317,15 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         } finally {
             serializer.context = parent;
         }
+    }
+
+    protected void writeClassName(JSONSerializer serializer, Object object) {
+        serializer.out.writeFieldName(serializer.config.typeKey, false);
+        String typeName = this.beanInfo.typeName;
+        if (typeName == null) {
+            typeName = object.getClass().getName();
+        }
+        serializer.write(typeName);
     }
 
     public boolean writeReference(JSONSerializer serializer, Object object, int fieldFeatures) {

@@ -10,7 +10,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 
 import junit.framework.TestCase;
 
-public class SerializeConfigTest2 extends TestCase {
+public class SerializeConfigTest2_private extends TestCase {
 
     public void test_1() throws Exception {
         SerializeConfig config = new SerializeConfig();
@@ -20,11 +20,11 @@ public class SerializeConfigTest2 extends TestCase {
         Model model = new Model();
         model.value = 1001;
 
-        Assert.assertEquals("{\"%type\":\"com.alibaba.json.bvt.serializer.SerializeConfigTest2$Model\",\"value\":1001}",
+        Assert.assertEquals("{\"%type\":\"com.alibaba.json.bvt.serializer.SerializeConfigTest2_private$Model\",\"value\":1001}",
                             JSON.toJSONString(model, config, SerializerFeature.WriteClassName));
     }
     
-    public static class Model {
+    private static class Model {
         public int value;
     }
 }

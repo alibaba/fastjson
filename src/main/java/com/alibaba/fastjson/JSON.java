@@ -520,7 +520,14 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return list;
     }
 
-    // ======================
+    /**
+     * This method serializes the specified object into its equivalent Json representation. Note that this method works fine if the any of the object fields are of generic type,
+     * just the object itself should not be of a generic type. If you want to write out the object to a
+     * {@link Writer}, use {@link #writeJSONString(Writer, Object, SerializerFeature[])} instead.
+     *
+     * @param object the object for which json representation is to be created setting for fastjson
+     * @return Json representation of {@code object}.
+     */
     public static String toJSONString(Object object) {
         return toJSONString(object, emptyFilters);
     }
@@ -665,9 +672,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     /**
-     * write object as json to Writer
-     * @param writer output writer
-     * @param object
+     * This method serializes the specified object into its equivalent json representation.
+     *
+     * @param writer Writer to which the json representation needs to be written
+     * @param object the object for which json representation is to be created setting for fastjson
      * @param features serializer features
      * @since 1.2.11
      */

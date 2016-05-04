@@ -1,11 +1,11 @@
 package com.alibaba.json.bvt.parser;
 
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import junit.framework.TestCase;
+import java.util.concurrent.ConcurrentMap;
 
 import org.junit.Assert;
 
@@ -15,6 +15,8 @@ import com.alibaba.fastjson.serializer.JavaBeanSerializer;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.util.TypeUtils;
+
+import junit.framework.TestCase;
 
 public class TypeUtilsTest_castToJavaBean extends TestCase {
 
@@ -78,14 +80,28 @@ public class TypeUtilsTest_castToJavaBean extends TestCase {
     }
 
     public void test_mapping() throws Exception {
-        TypeUtils.addClassMapping("my_xxx", VO.class);
-        TypeUtils.addClassMapping(null, VO.class);
+        addClassMapping("my_xxx", VO.class);
+        addClassMapping(null, VO.class);
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("@type", "my_xxx");
         map.put("id", 123);
         VO vo = (VO) TypeUtils.castToJavaBean(map, Object.class);
         Assert.assertEquals(123, vo.getId());
         TypeUtils.clearClassMapping();
+    }
+    
+    public static void addClassMapping(String className, Class<?> clazz) throws Exception {
+        Field field = TypeUtils.class.getDeclaredField("mappings");
+        field.setAccessible(true);
+        field.get(null);
+        
+        ConcurrentMap<String, Class<?>> mappings = (ConcurrentMap<String, Class<?>>) field.get(null);
+        
+        if (className == null) {
+            className = clazz.getName();
+        }
+
+        mappings.put(className, clazz);
     }
 
     public void test_interface() throws Exception {

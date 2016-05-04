@@ -18,12 +18,18 @@ public class JSONPath_containsValue extends TestCase {
         
         Assert.assertTrue(JSONPath.containsValue(list, "/0", "kiki"));
         Assert.assertFalse(JSONPath.containsValue(list, "/0", "kiki_"));
+        
+        Assert.assertTrue(JSONPath.containsValue(list, "/", "kiki"));
+        Assert.assertFalse(JSONPath.containsValue(list, "/", "kiki_"));
+        
+        
         Assert.assertTrue(JSONPath.contains(list, "/"));
         Assert.assertTrue(JSONPath.contains(list, "/0"));
         Assert.assertTrue(JSONPath.contains(list, "/1"));
         Assert.assertTrue(JSONPath.contains(list, "/2"));
         Assert.assertFalse(JSONPath.contains(list, "/3"));
         Assert.assertFalse(JSONPath.contains(null, "$"));
+        Assert.assertFalse(JSONPath.compile("$").contains(null));
         Assert.assertFalse(JSONPath.containsValue(null, "$", "kiki"));
     }
     

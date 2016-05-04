@@ -2,10 +2,10 @@ package com.alibaba.json.test.jackson;
 
 import java.util.Map;
 
-import junit.framework.TestCase;
+import com.fasterxml.jackson.core.JsonParser.Feature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.codehaus.jackson.JsonParser.Feature;
-import org.codehaus.jackson.map.ObjectMapper;
+import junit.framework.TestCase;
 
 public class JacksonTest extends TestCase {
 

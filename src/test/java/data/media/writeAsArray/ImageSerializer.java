@@ -17,8 +17,10 @@ public class ImageSerializer implements ObjectSerializer {
         SerializeWriter out = serializer.getWriter();
         out.write('[');
         
-        out.writeIntAndChar(image.getHeight(), ',');
-        out.writeIntAndChar(image.getWidth(), ',');
+        out.writeInt(image.getHeight());
+        out.write(',');
+        out.writeInt(image.getWidth());
+        out.write(',');
         out.writeString(image.getSize().name(), ',');
         out.writeString(image.getTitle(), ',');
         out.writeString(image.getUri());

@@ -18,9 +18,8 @@ package com.alibaba.fastjson;
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
+@SuppressWarnings("serial")
 public class JSONException extends RuntimeException {
-
-    private static final long serialVersionUID = 1L;
 
     public JSONException(){
         super();

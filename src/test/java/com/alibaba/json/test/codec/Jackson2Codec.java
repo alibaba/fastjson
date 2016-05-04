@@ -1,9 +1,15 @@
 package com.alibaba.json.test.codec;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Collection;
 
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 
@@ -59,5 +65,25 @@ public class Jackson2Codec implements Codec {
 
     public String encode(Object object) throws Exception {
         return mapper.writeValueAsString(object);
+    }
+
+    @Override
+    public byte[] encodeToBytes(Object object) throws Exception {
+        return mapper.writeValueAsBytes(object);
+    }
+
+    @Override
+    public void encode(OutputStream out, Object object) throws Exception {
+        Class<?> clazz = object.getClass();
+        JsonGenerator generator = constructGenerator(out);
+        JavaType type = mapper.getTypeFactory().constructType(clazz);
+        ObjectWriter writer = mapper.writerFor(type);
+        writer.writeValue(generator, object);
+        generator.flush();
+        generator.close();
+    }
+    
+    protected final JsonGenerator constructGenerator(OutputStream out) throws IOException {
+        return mapper.getFactory().createGenerator(out, JsonEncoding.UTF8);
     }
 }

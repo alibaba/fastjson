@@ -1,6 +1,5 @@
 package com.alibaba.fastjson.serializer;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
 
 import com.alibaba.fastjson.JSON;
@@ -10,25 +9,7 @@ import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 
 
-public class CharArrayCodec implements ObjectSerializer, ObjectDeserializer {
-
-    public static CharArrayCodec instance = new CharArrayCodec();
-
-    public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
-        SerializeWriter out = serializer.out;
-        
-        if (object == null) {
-            if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {
-                out.write("[]");
-            } else {
-                out.writeNull();
-            }
-            return;
-        }
-
-        char[] chars = (char[]) object;
-        out.writeString(new String(chars));
-    }
+public class CharArrayCodec implements ObjectDeserializer {
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
@@ -51,12 +32,9 @@ public class CharArrayCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         Object value = parser.parse();
-
-        if (value == null) {
-            return null;
-        }
-
-        return (T) JSON.toJSONString(value).toCharArray();
+        return value == null //
+            ? null //
+            : (T) JSON.toJSONString(value).toCharArray();
     }
 
     public int getFastMatchToken() {

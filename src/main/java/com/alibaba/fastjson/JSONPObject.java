@@ -40,7 +40,7 @@ public class JSONPObject implements JSONSerializable {
     }
 
     public String toJSONString() {
-        return null;
+        return toString();
     }
 
     public void write(JSONSerializer serializer, Object fieldName, Type fieldType, int features) throws IOException {

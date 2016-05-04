@@ -14,15 +14,15 @@ public class Base64Test2 extends TestCase {
             byte[] bytes = text.getBytes("UTF-8");
             {
                 String str = com.alibaba.json.test.Base64.encodeToString(bytes, true);
-                Assert.assertEquals(text, new String(IOUtils.decodeFast(str.toCharArray(), 0, str.length()), "UTF-8"));
-                Assert.assertEquals(text, new String(IOUtils.decodeFast(str), "UTF-8"));
-                Assert.assertEquals(text, new String(IOUtils.decodeFast(str, 0, str.length()), "UTF-8"));
+                Assert.assertEquals(text, new String(IOUtils.decodeBase64(str.toCharArray(), 0, str.length()), "UTF-8"));
+                Assert.assertEquals(text, new String(IOUtils.decodeBase64(str), "UTF-8"));
+                Assert.assertEquals(text, new String(IOUtils.decodeBase64(str, 0, str.length()), "UTF-8"));
             }
             {
                 String str = com.alibaba.json.test.Base64.encodeToString(bytes, false);
-                Assert.assertEquals(text, new String(IOUtils.decodeFast(str.toCharArray(), 0, str.length()), "UTF-8"));
-                Assert.assertEquals(text, new String(IOUtils.decodeFast(str), "UTF-8"));
-                Assert.assertEquals(text, new String(IOUtils.decodeFast(str, 0, str.length()), "UTF-8"));
+                Assert.assertEquals(text, new String(IOUtils.decodeBase64(str.toCharArray(), 0, str.length()), "UTF-8"));
+                Assert.assertEquals(text, new String(IOUtils.decodeBase64(str), "UTF-8"));
+                Assert.assertEquals(text, new String(IOUtils.decodeBase64(str, 0, str.length()), "UTF-8"));
             }
             text += ((char) i);
 
@@ -33,8 +33,8 @@ public class Base64Test2 extends TestCase {
         String text = "abc";
         byte[] bytes = text.getBytes("UTF-8");
         String str = "\0" + com.alibaba.json.test.Base64.encodeToString(bytes, false) + "\0";
-        Assert.assertEquals(text, new String(IOUtils.decodeFast(str.toCharArray(), 0, str.length()), "UTF-8"));
-        Assert.assertEquals(text, new String(IOUtils.decodeFast(str), "UTF-8"));
-        Assert.assertEquals(text, new String(IOUtils.decodeFast(str, 0, str.length()), "UTF-8"));
+        Assert.assertEquals(text, new String(IOUtils.decodeBase64(str.toCharArray(), 0, str.length()), "UTF-8"));
+        Assert.assertEquals(text, new String(IOUtils.decodeBase64(str), "UTF-8"));
+        Assert.assertEquals(text, new String(IOUtils.decodeBase64(str, 0, str.length()), "UTF-8"));
     }
 }

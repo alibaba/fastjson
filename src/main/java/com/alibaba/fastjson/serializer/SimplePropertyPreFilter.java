@@ -23,6 +23,7 @@ public class SimplePropertyPreFilter implements PropertyPreFilter {
     private final Class<?>    clazz;
     private final Set<String> includes = new HashSet<String>();
     private final Set<String> excludes = new HashSet<String>();
+    private int               maxLevel = 0;
 
     public SimplePropertyPreFilter(String... properties){
         this(null, properties);
@@ -36,6 +37,20 @@ public class SimplePropertyPreFilter implements PropertyPreFilter {
                 this.includes.add(item);
             }
         }
+    }
+    
+    /**
+     * @since 1.2.9
+     */
+    public int getMaxLevel() {
+        return maxLevel;
+    }
+    
+    /**
+     * @since 1.2.9
+     */
+    public void setMaxLevel(int maxLevel) {
+        this.maxLevel = maxLevel;
     }
 
     public Class<?> getClazz() {
@@ -62,11 +77,23 @@ public class SimplePropertyPreFilter implements PropertyPreFilter {
         if (this.excludes.contains(name)) {
             return false;
         }
+        
+        if (maxLevel > 0) {
+            int level = 0;
+            SerialContext context = serializer.context;
+            while (context != null) {
+                level++;
+                if (level > maxLevel) {
+                    return false;
+                }
+                context = context.parent;
+            }
+        }
 
         if (includes.size() == 0 || includes.contains(name)) {
             return true;
         }
-
+        
         return false;
     }
 

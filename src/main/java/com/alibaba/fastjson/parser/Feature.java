@@ -96,7 +96,12 @@ public enum Feature {
      * @since 1.2.5
      * 
      */
-    DisableSpecialKeyDetect
+    DisableSpecialKeyDetect,
+    
+    /**
+     * @since 1.2.9
+     */
+    UseObjectArray
     ;
 
     Feature(){

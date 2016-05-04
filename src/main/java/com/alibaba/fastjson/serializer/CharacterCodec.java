@@ -50,12 +50,9 @@ public class CharacterCodec implements ObjectSerializer, ObjectDeserializer {
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         Object value = parser.parse();
-
-        if (value == null) {
-            return null;
-        }
-        
-        return (T) TypeUtils.castToChar(value);
+        return value == null //
+            ? null //
+            : (T) TypeUtils.castToChar(value);
     }
 
     public int getFastMatchToken() {

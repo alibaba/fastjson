@@ -39,11 +39,7 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
         SerializeWriter out = serializer.out;
 
         if (object == null) {
-            if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {
-                out.write("[]");
-            } else {
-                out.writeNull();
-            }
+            out.writeNull(SerializerFeature.WriteNullListAsEmpty);
             return;
         }
 
@@ -121,12 +117,23 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         Collection list = TypeUtils.createCollection(type);
-
-        Type itemType;
+        
+        Type itemType = null;
         if (type instanceof ParameterizedType) {
             itemType = ((ParameterizedType) type).getActualTypeArguments()[0];
         } else {
-            itemType = Object.class;
+            Class<?> clazz = null;
+            if (type instanceof Class<?> // 
+                && !(clazz = (Class<?>) type).getName().startsWith("java.")) {
+                Type superClass = clazz.getGenericSuperclass();
+                if (superClass instanceof ParameterizedType) {
+                    itemType = ((ParameterizedType) superClass).getActualTypeArguments()[0];        
+                }
+            }
+            
+            if (itemType == null) {
+                itemType = Object.class;
+            }
         }
         parser.parseArray(itemType, list, fieldName);
 

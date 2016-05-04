@@ -1,15 +1,17 @@
 package com.alibaba.json.bvt.path;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.junit.Assert;
 
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONPath;
+
+import junit.framework.TestCase;
 
 public class JSONPath_array_put extends TestCase {
 
@@ -20,6 +22,9 @@ public class JSONPath_array_put extends TestCase {
 
         JSONPath path = new JSONPath("$.values");
         path.arrayAdd(root, 123);
+        path.arrayAdd(root, (Object[]) null);
+        path.arrayAdd(root, new Object[0]);
+        path.arrayAdd(null, new Object[] { 1 });
 
         Assert.assertEquals(1, list.size());
         Assert.assertEquals(123, ((Integer) list.get(0)).intValue());
@@ -73,4 +78,25 @@ public class JSONPath_array_put extends TestCase {
         Assert.assertEquals(123, array[0]);
     }
 
+    public void test_put_array_error_0() throws Exception {
+        Exception error = null;
+        try {
+            JSONPath path = new JSONPath("$.values");
+            path.arrayAdd(new Object(), 123);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
+    
+    public void test_put_array_error_1() throws Exception {
+        Exception error = null;
+        try {
+            JSONPath path = new JSONPath("$.values");
+            path.arrayAdd(Collections.singletonMap("values", new Object()), 123);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+    }
 }

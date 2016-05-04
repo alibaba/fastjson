@@ -39,6 +39,8 @@ public class JavaBeanInfo {
     public final int            parserFeatures;
 
     public final JSONType       jsonType;
+    
+    public final String         typeName;
 
     public JavaBeanInfo(Class<?> clazz, //
                         Class<?> builderClass, //
@@ -57,6 +59,16 @@ public class JavaBeanInfo {
         this.buildMethod = buildMethod;
 
         this.jsonType = jsonType;
+        if (jsonType != null) {
+            String typeName = jsonType.typeName();
+            if (typeName.length() != 0) {
+                this.typeName = typeName;
+            } else {
+                this.typeName = clazz.getName();
+            }
+        } else {
+            this.typeName = clazz.getName();
+        }
 
         fields = new FieldInfo[fieldList.size()];
         fieldList.toArray(fields);

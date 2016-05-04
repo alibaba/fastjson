@@ -17,7 +17,7 @@ public final class ResolveFieldDeserializer extends FieldDeserializer {
     private final List              list;
     private final DefaultJSONParser parser;
     
-    private final String              key;
+    private final Object              key;
     private final Map map;
     
     private final Collection collection;
@@ -34,7 +34,7 @@ public final class ResolveFieldDeserializer extends FieldDeserializer {
         collection = null;
     }
     
-    public ResolveFieldDeserializer(Map map, String index){
+    public ResolveFieldDeserializer(Map map, Object index){
         super(null, null);
         
         this.parser = null;

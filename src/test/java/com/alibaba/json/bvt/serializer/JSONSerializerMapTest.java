@@ -28,7 +28,11 @@ public class JSONSerializerMapTest extends TestCase {
         Assert.assertFalse(0 == size(map));
     }
     
-    public static int size(IdentityHashMap map) throws Exception {
+    public static int size(SerializeConfig config) throws Exception {
+        Field serializersField = SerializeConfig.class.getDeclaredField("serializers");
+        serializersField.setAccessible(true);
+        Object map = serializersField.get(config);
+        
         Field bucketsField = IdentityHashMap.class.getDeclaredField("buckets");
         bucketsField.setAccessible(true);
         Object[] buckets = (Object[]) bucketsField.get(map);

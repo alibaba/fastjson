@@ -52,27 +52,19 @@ public class AtomicCodec implements ObjectSerializer, ObjectDeserializer {
         
         if (object instanceof AtomicBoolean) {
             AtomicBoolean val = (AtomicBoolean) object;
-            if (val.get()) {
-                out.append("true");
-            } else {
-                out.append("false");
-            }
+            out.append(val.get() ? "true" : "false");
             return;
         }
 
         if (object == null) {
-            if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {
-                out.write("[]");
-            } else {
-                out.writeNull();
-            }
+            out.writeNull(SerializerFeature.WriteNullListAsEmpty);
             return;
         }
 
         if (object instanceof AtomicIntegerArray) {
             AtomicIntegerArray array = (AtomicIntegerArray) object;
             int len = array.length();
-            out.append('[');
+            out.write('[');
             for (int i = 0; i < len; ++i) {
                 int val = array.get(i);
                 if (i != 0) {
@@ -80,14 +72,14 @@ public class AtomicCodec implements ObjectSerializer, ObjectDeserializer {
                 }
                 out.writeInt(val);
             }
-            out.append(']');
+            out.write(']');
             
             return;
         }
         
         AtomicLongArray array = (AtomicLongArray) object;
         int len = array.length();
-        out.append('[');
+        out.write('[');
         for (int i = 0; i < len; ++i) {
             long val = array.get(i);
             if (i != 0) {
@@ -95,7 +87,7 @@ public class AtomicCodec implements ObjectSerializer, ObjectDeserializer {
             }
             out.writeLong(val);
         }
-        out.append(']');
+        out.write(']');
     }
 
     @SuppressWarnings("unchecked")

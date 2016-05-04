@@ -9,7 +9,7 @@ import junit.framework.TestCase;
 
 public class Base64Test extends TestCase {
     public void test_base64() throws Exception {
-        Assert.assertEquals(IOUtils.decodeFast(new char[0], 0, 0).length, 0);
-        Assert.assertEquals(IOUtils.decodeFast("ABC".toCharArray(), 0, 3).length, 2);
+        Assert.assertEquals(IOUtils.decodeBase64(new char[0], 0, 0).length, 0);
+        Assert.assertEquals(IOUtils.decodeBase64("ABC".toCharArray(), 0, 3).length, 2);
     }
 }

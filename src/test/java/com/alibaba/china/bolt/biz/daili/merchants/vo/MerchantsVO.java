@@ -6,6 +6,8 @@ import java.util.Date;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import com.alibaba.fastjson.JSON;
+
 
 /**
  * 商家基本信息
@@ -387,7 +389,9 @@ public class MerchantsVO implements Serializable {
     }
     
     public String getExpirationdateForString(){
-        return new SimpleDateFormat("yyyy年MM月dd日").format(this.expirationdate);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年MM月dd日", JSON.defaultLocale);
+        dateFormat.setTimeZone(JSON.defaultTimeZone);
+        return dateFormat.format(this.expirationdate);
      }
 
     /**

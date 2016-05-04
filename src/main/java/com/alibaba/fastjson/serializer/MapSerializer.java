@@ -71,11 +71,12 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
             boolean first = true;
 
             if (out.isEnabled(SerializerFeature.WriteClassName)) {
+                String typeKey = serializer.config.typeKey;
                 Class<?> mapClass = map.getClass();
                 boolean containsKey = (mapClass == JSONObject.class || mapClass == HashMap.class || mapClass == LinkedHashMap.class) 
-                        && map.containsKey(JSON.DEFAULT_TYPE_KEY);
+                        && map.containsKey(typeKey);
                 if (!containsKey) {
-                    out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
+                    out.writeFieldName(typeKey);
                     out.writeString(object.getClass().getName());
                     first = false;
                 }

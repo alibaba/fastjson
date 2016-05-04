@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
 
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedHashMap;
 
 import junit.framework.TestCase;
 
@@ -63,7 +64,7 @@ public class FastJsonProviderTest extends TestCase {
 		Assert.assertEquals(123, vo.getId());
 
 		final ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-		provider.writeTo(vo, VO.class, VO.class, null, MediaType.APPLICATION_JSON_TYPE, null, byteOut);
+		provider.writeTo(vo, VO.class, VO.class, null, MediaType.APPLICATION_JSON_TYPE, new MultivaluedHashMap<String, Object>(), byteOut);
 		
 		byte[] bytes = byteOut.toByteArray();
 		Assert.assertEquals("{\"id\":123}", new String(bytes, "UTF-8"));

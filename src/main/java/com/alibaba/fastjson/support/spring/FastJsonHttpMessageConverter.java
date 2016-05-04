@@ -1,5 +1,6 @@
 package com.alibaba.fastjson.support.spring;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -150,8 +151,8 @@ public class FastJsonHttpMessageConverter //
 	protected void writeInternal(Object obj, HttpOutputMessage outputMessage)
 			throws IOException, HttpMessageNotWritableException {
         HttpHeaders headers = outputMessage.getHeaders();
-        OutputStream out = outputMessage.getBody();
-        int len = JSON.writeJSONString(out, //
+        ByteArrayOutputStream outnew = new ByteArrayOutputStream();
+        int len = JSON.writeJSONString(outnew, //
                                        fastJsonConfig.getCharset(), //
                                        obj, //
                                        fastJsonConfig.getSerializeConfig(), //
@@ -160,6 +161,9 @@ public class FastJsonHttpMessageConverter //
                                        JSON.DEFAULT_GENERATE_FEATURE, //
                                        fastJsonConfig.getSerializerFeatures());
         headers.setContentLength(len);
+        OutputStream out = outputMessage.getBody();
+        out.write(outnew.toByteArray());
+        outnew.close();
     }
 
 	/* 

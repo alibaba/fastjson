@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Collections;
 
 import junit.framework.TestCase;
 
@@ -130,6 +131,15 @@ public class FastJsonHttpMessageConverterTest extends TestCase {
 
 		byte[] bytes = byteOut.toByteArray();
 		Assert.assertEquals("{\"id\":123}", new String(bytes, "UTF-8"));
+		
+		converter.setSupportedMediaTypes(Collections.singletonList(MediaType.APPLICATION_JSON));
+		
+		converter.write(vo, VO.class, null, out);
+		
+		converter.write(vo, VO.class, MediaType.ALL, out);
+
+		converter.write(vo, VO.class, MediaType.ALL, out);
+
 	}
 
 	private SerializeFilter serializeFilter = new ValueFilter() {

@@ -3,6 +3,7 @@ package com.alibaba.json.bvt.support.spring;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import junit.framework.TestCase;
@@ -63,7 +64,13 @@ public class FastJsonJsonViewTest extends TestCase {
         view.setCharset(Charset.forName("GBK"));
         view.render(Collections.singletonMap("abc", "cde"), request, response);
         
-        view.setDisableCaching(true);
+        view.setDisableCaching(false);
+        view.setUpdateContentLength(false);
+        view.render(model, request, response);
+        
+        view.setRenderedAttributes(new HashSet<String>(Collections.singletonList("abc")));
+        view.render(Collections.singletonMap("abc", "cde"), request, response);
+
     }
  
     public void test_1() throws Exception {

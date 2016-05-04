@@ -6,7 +6,7 @@ import com.alibaba.fastjson.JSON;
 
 import junit.framework.TestCase;
 
-public class GenericTypeTest extends TestCase {
+public class GenericTypeTest2 extends TestCase {
     
     public void test_gerneric() throws Exception {
         MyResultResult result = new MyResultResult();
@@ -17,6 +17,9 @@ public class GenericTypeTest extends TestCase {
     }
     
     public static class BaseResult<T> implements Serializable {
-        public T data;
+        private T data;
+        public T getData() {
+            return data;
+        }
     }
 }

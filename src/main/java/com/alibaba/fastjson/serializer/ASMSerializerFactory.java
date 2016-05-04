@@ -5,6 +5,7 @@ import static com.alibaba.fastjson.util.ASMUtils.type;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -1160,8 +1161,12 @@ public class ASMSerializerFactory implements Opcodes {
             }
         } else {
             mw.visitVarInsn(ALOAD, context.var("entity"));
-            mw.visitFieldInsn(GETFIELD, type(fieldInfo.declaringClass), fieldInfo.field.getName(),
-                              desc(fieldInfo.fieldClass));
+            Field field = fieldInfo.field;
+            mw.visitFieldInsn(GETFIELD, type(fieldInfo.declaringClass), field.getName(),
+                              desc(field.getType()));
+            if (!field.getType().equals(fieldInfo.fieldClass)) {
+                mw.visitTypeInsn(CHECKCAST, type(fieldInfo.fieldClass)); // cast
+            }
         }
     }
 

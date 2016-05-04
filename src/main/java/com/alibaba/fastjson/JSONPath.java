@@ -17,7 +17,6 @@ import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
-import com.alibaba.fastjson.serializer.FieldSerializer;
 import com.alibaba.fastjson.serializer.JavaBeanSerializer;
 import com.alibaba.fastjson.serializer.ObjectSerializer;
 import com.alibaba.fastjson.serializer.SerializeConfig;
@@ -1715,11 +1714,7 @@ public class JSONPath implements JSONAware {
         JavaBeanSerializer beanSerializer = getJavaBeanSerializer(currentClass);
         if (beanSerializer != null) {
             try {
-                FieldSerializer getter = beanSerializer.getFieldSerializer(propertyName);
-                if (getter == null) {
-                    return null;
-                }
-                return getter.getPropertyValue(currentObject);
+                return beanSerializer.getFieldValue(currentObject, propertyName);
             } catch (Exception e) {
                 throw new JSONPathException("jsonpath error, path " + path + ", segement " + propertyName, e);
             }

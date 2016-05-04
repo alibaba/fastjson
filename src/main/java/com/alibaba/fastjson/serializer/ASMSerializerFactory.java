@@ -61,23 +61,21 @@ public class ASMSerializerFactory implements Opcodes {
         private final String            className;
         private final SerializeBeanInfo beanInfo;
         private final boolean           writeDirect;
-        private final JSONType          jsonType;
 
         private Map<String, Integer>    variants       = new HashMap<String, Integer>();
         private int                     variantIndex   = 9;
         private boolean                 nonContext;
 
-        public Context(FieldInfo[] getters, SerializeBeanInfo beanInfo, String className,
-                       boolean writeDirect, boolean nonContext){
+        public Context(FieldInfo[] getters, //
+                       SerializeBeanInfo beanInfo, //
+                       String className, //
+                       boolean writeDirect, //
+                       boolean nonContext){
             this.getters = getters;
-            this.jsonType = beanInfo.jsonType;
             this.className = className;
             this.beanInfo = beanInfo;
             this.writeDirect = writeDirect;
             this.nonContext = nonContext;
-            if (this.writeDirect) {
-                processValue = 8;
-            }
         }
 
         public int var(String name) {

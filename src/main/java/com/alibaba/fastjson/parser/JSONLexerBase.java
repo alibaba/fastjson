@@ -521,6 +521,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     public final boolean isEnabled(int feature) {
         return (this.features & feature) != 0;
     }
+    
+    public final boolean isEnabled(int features, int feature) {
+        return (this.features & feature) != 0 || (features & feature) != 0;
+    }
 
     public abstract String numberString();
 

@@ -175,13 +175,16 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
         }
         
         Class<?> valueClass = propertyValue.getClass();
+        ObjectSerializer valueSerializer;
         if (valueClass == runtimeInfo.runtimeFieldClass) {
-            runtimeInfo.fieldSerializer.write(serializer, propertyValue, fieldInfo.name, fieldInfo.fieldType, fieldFeatures);
-            return;
+            valueSerializer = runtimeInfo.fieldSerializer;
+        } else {
+            valueSerializer = serializer.getObjectWriter(valueClass);
         }
-
-        ObjectSerializer valueSerializer = serializer.getObjectWriter(valueClass);
+        
         valueSerializer.write(serializer, propertyValue, fieldInfo.name, fieldInfo.fieldType, fieldFeatures);
+        
+        
     }
 
     static class RuntimeSerializerInfo {

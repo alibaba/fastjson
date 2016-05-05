@@ -86,6 +86,14 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         write(serializer, object, fieldName, fieldType, features);
     }
     
+    public void writeAsArray(JSONSerializer serializer, //
+                                       Object object, //
+                                       Object fieldName, //
+                                       Type fieldType, //
+                                       int features) throws IOException {
+        write(serializer, object, fieldName, fieldType, features);
+    }
+    
     public void writeAsArrayNonContext(JSONSerializer serializer, //
                                        Object object, //
                                        Object fieldName, //
@@ -121,7 +129,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         SerialContext parent = serializer.context;
         serializer.setContext(parent, object, fieldName, this.beanInfo.features, features);
 
-        final boolean writeAsArray = isWriteAsArray(serializer);
+        final boolean writeAsArray = isWriteAsArray(serializer, features);
 
         try {
             final char startSeperator = writeAsArray ? '[' : '{';
@@ -342,9 +350,16 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
             return false;
         }
     }
-
+    
     protected boolean isWriteAsArray(JSONSerializer serializer) {
-        return (beanInfo.features & SerializerFeature.BeanToArray.mask) != 0 || serializer.out.beanToArray;
+        return isWriteAsArray(serializer, 0);   
+    }
+
+    protected boolean isWriteAsArray(JSONSerializer serializer, int fieldFeatrues) {
+        final int mask = SerializerFeature.BeanToArray.mask;
+        return (beanInfo.features & mask) != 0 //
+                || serializer.out.beanToArray //
+                || (fieldFeatrues & mask) != 0;
     }
     
     public Object getFieldValue(Object object, String key) {

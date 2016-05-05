@@ -126,9 +126,13 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
         return object;
     }
-
+    
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-        return deserialze(parser, type, fieldName, null);
+        return deserialze(parser, type, fieldName, 0);
+    }
+
+    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName, int features) {
+        return deserialze(parser, type, fieldName, null, features);
     }
 
     @SuppressWarnings({ "unchecked" })
@@ -206,7 +210,11 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    protected <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName, Object object) {
+    protected <T> T deserialze(DefaultJSONParser parser, // 
+                               Type type, // 
+                               Object fieldName, // 
+                               Object object, //
+                               int features) {
         if (type == JSON.class || type == JSONObject.class) {
             return (T) parser.parse();
         }
@@ -237,8 +245,11 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             }
 
             if (token == JSONToken.LBRACKET) {
-                boolean isSupportArrayToBean = (beanInfo.parserFeatures & Feature.SupportArrayToBean.mask) != 0
-                                               || lexer.isEnabled(Feature.SupportArrayToBean);
+                final int mask = Feature.SupportArrayToBean.mask;
+                boolean isSupportArrayToBean = (beanInfo.parserFeatures & mask) != 0 //
+                                               || lexer.isEnabled(Feature.SupportArrayToBean) //
+                                               || (features & mask) != 0
+                                               ;
                 if (isSupportArrayToBean) {
                     return deserialzeArrayMapping(parser, type, fieldName, object);
                 }
@@ -707,8 +718,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         return sortedFieldDeserializers[ordinal].fieldInfo.fieldType;
     }
     
-    protected Object parseRest(DefaultJSONParser parser, Type type, Object fieldName, Object instance) {
-        Object value = deserialze(parser, type, fieldName, instance);
+    protected Object parseRest(DefaultJSONParser parser, Type type, Object fieldName, Object instance, int features) {
+        Object value = deserialze(parser, type, fieldName, instance, features);
 
         return value;
     }

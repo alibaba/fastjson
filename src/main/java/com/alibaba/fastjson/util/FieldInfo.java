@@ -27,6 +27,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
     public final Class<?>   declaringClass;
     public final boolean    getOnly;
     public final int        serialzeFeatures;
+    public final int        parserFeatures;
     public final String     label;
 
     private final JSONField fieldAnnotation;
@@ -45,7 +46,8 @@ public class FieldInfo implements Comparable<FieldInfo> {
                      Type fieldType, // 
                      Field field, // 
                      int ordinal, // 
-                     int serialzeFeatures){
+                     int serialzeFeatures, // 
+                     int parserFeatures){
         this.name = name;
         this.declaringClass = declaringClass;
         this.fieldClass = fieldClass;
@@ -54,6 +56,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.field = field;
         this.ordinal = ordinal;
         this.serialzeFeatures = serialzeFeatures;
+        this.parserFeatures = 0;
         
         isEnum = fieldClass.isEnum();
         
@@ -85,6 +88,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
                      Type type, // 
                      int ordinal, // 
                      int serialzeFeatures, // 
+                     int parserFeatures, //
                      JSONField fieldAnnotation, // 
                      JSONField methodAnnotation, //
                      String label){
@@ -100,6 +104,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.field = field;
         this.ordinal = ordinal;
         this.serialzeFeatures = serialzeFeatures;
+        this.parserFeatures = parserFeatures;
         this.fieldAnnotation = fieldAnnotation;
         this.methodAnnotation = methodAnnotation;
         

@@ -53,9 +53,9 @@ public class ASMDeserializerFactory implements Opcodes {
             ? (ASMClassLoader) parentClassLoader //
             : new ASMClassLoader(parentClassLoader);
     }
-
-    public ObjectDeserializer createJavaBeanDeserializer(ParserConfig config, Class<?> clazz,
-                                                         Type type) throws Exception {
+    
+    public ObjectDeserializer createJavaBeanDeserializer(ParserConfig config, JavaBeanInfo beanInfo) throws Exception {
+        Class<?> clazz = beanInfo.clazz;
         if (clazz.isPrimitive()) {
             throw new IllegalArgumentException("not support type :" + clazz.getName());
         }
@@ -68,7 +68,7 @@ public class ASMDeserializerFactory implements Opcodes {
         ClassWriter cw = new ClassWriter();
         cw.visit(V1_5, ACC_PUBLIC + ACC_SUPER, classNameType, type(JavaBeanDeserializer.class), null);
 
-        JavaBeanInfo beanInfo = JavaBeanInfo.build(clazz, type);
+        
 
         _init(cw, new Context(classNameType, config, beanInfo, 3));
         _createInstance(cw, new Context(classNameType, config, beanInfo, 3));
@@ -79,8 +79,8 @@ public class ASMDeserializerFactory implements Opcodes {
 
         Class<?> exampleClass = defineClassPublic(classNameFull, code, 0, code.length);
 
-        Constructor<?> constructor = exampleClass.getConstructor(ParserConfig.class, Class.class);
-        Object instance = constructor.newInstance(config, clazz);
+        Constructor<?> constructor = exampleClass.getConstructor(ParserConfig.class, JavaBeanInfo.class);
+        Object instance = constructor.newInstance(config, beanInfo);
 
         return (ObjectDeserializer) instance;
     }
@@ -1455,8 +1455,6 @@ public class ASMDeserializerFactory implements Opcodes {
         for (int i = 0, size = context.fieldInfoList.length; i < size; ++i) {
             FieldInfo fieldInfo = context.fieldInfoList[i];
 
-            // public FieldVisitor visitField(final int access, final String name, final String desc, final String
-            // signature, final Object value) {
             FieldWriter fw = new FieldWriter(cw, ACC_PUBLIC, fieldInfo.name + "_asm_prefix__", "[C");
             fw.visitEnd();
         }
@@ -1481,12 +1479,12 @@ public class ASMDeserializerFactory implements Opcodes {
         }
 
         MethodVisitor mw = new MethodWriter(cw, ACC_PUBLIC, "<init>",
-                                            "(" + desc(ParserConfig.class) + "Ljava/lang/Class;)V", null, null);
+                                            "(" + desc(ParserConfig.class) + desc(JavaBeanInfo.class) + ")V", null, null);
         mw.visitVarInsn(ALOAD, 0);
         mw.visitVarInsn(ALOAD, 1);
         mw.visitVarInsn(ALOAD, 2);
         mw.visitMethodInsn(INVOKESPECIAL, type(JavaBeanDeserializer.class), "<init>",
-                           "(" + desc(ParserConfig.class) + "Ljava/lang/Class;)V");
+                           "(" + desc(ParserConfig.class) + desc(JavaBeanInfo.class) + ")V");
 
         // init fieldNamePrefix
         for (int i = 0, size = context.fieldInfoList.length; i < size; ++i) {

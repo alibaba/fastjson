@@ -543,21 +543,24 @@ public class ParserConfig {
             return new JavaBeanDeserializer(this, clazz, type);
         }
 
+        JavaBeanInfo beanInfo = JavaBeanInfo.build(clazz, type);
         try {
-            return asmFactory.createJavaBeanDeserializer(this, clazz, type);
+            return asmFactory.createJavaBeanDeserializer(this, beanInfo);
             // } catch (VerifyError e) {
             // e.printStackTrace();
             // return new JavaBeanDeserializer(this, clazz, type);
         } catch (NoSuchMethodException ex) {
             return new JavaBeanDeserializer(this, clazz, type);
         } catch (JSONException asmError) {
-            return new JavaBeanDeserializer(this, clazz, type);
+            return new JavaBeanDeserializer(this, beanInfo);
         } catch (Exception e) {
             throw new JSONException("create asm deserializer error, " + clazz.getName(), e);
         }
     }
 
-    public FieldDeserializer createFieldDeserializer(ParserConfig mapping, JavaBeanInfo beanInfo, FieldInfo fieldInfo) {
+    public FieldDeserializer createFieldDeserializer(ParserConfig mapping, //
+                                                     JavaBeanInfo beanInfo, //
+                                                     FieldInfo fieldInfo) {
         Class<?> clazz = beanInfo.clazz;
         Class<?> fieldClass = fieldInfo.fieldClass;
 

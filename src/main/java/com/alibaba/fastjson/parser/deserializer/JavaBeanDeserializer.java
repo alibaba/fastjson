@@ -37,9 +37,13 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     }
 
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz, Type type){
-        this.clazz = clazz;
-        beanInfo = JavaBeanInfo.build(clazz, type);
-
+        this(config, JavaBeanInfo.build(clazz, type));
+    }
+    
+    public JavaBeanDeserializer(ParserConfig config, JavaBeanInfo beanInfo){
+        this.clazz = beanInfo.clazz;
+        this.beanInfo = beanInfo;
+        
         sortedFieldDeserializers = new FieldDeserializer[beanInfo.sortedFields.length];
         for (int i = 0, size = beanInfo.sortedFields.length; i < size; ++i) {
             FieldInfo fieldInfo = beanInfo.sortedFields[i];

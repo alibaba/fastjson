@@ -1092,7 +1092,7 @@ public class TypeUtils {
 
         for (Method method : clazz.getMethods()) {
             String methodName = method.getName();
-            int ordinal = 0, serialzeFeatures = 0;
+            int ordinal = 0, serialzeFeatures = 0, parserFeatures = 0;
             String label = null;
 
             if (Modifier.isStatic(method.getModifiers())) {
@@ -1129,6 +1129,7 @@ public class TypeUtils {
 
                 ordinal = annotation.ordinal();
                 serialzeFeatures = SerializerFeature.of(annotation.serialzeFeatures());
+                parserFeatures = Feature.of(annotation.parseFeatures());
 
                 if (annotation.name().length() != 0) {
                     String propertyName = annotation.name();
@@ -1141,7 +1142,7 @@ public class TypeUtils {
                     }
 
                     FieldInfo fieldInfo = new FieldInfo(propertyName, method, null, clazz, null, ordinal,
-                                                        serialzeFeatures, annotation, null, label);
+                                                        serialzeFeatures, parserFeatures, annotation, null, label);
                     fieldInfoMap.put(propertyName, fieldInfo);
                     continue;
                 }
@@ -1199,6 +1200,7 @@ public class TypeUtils {
 
                         ordinal = fieldAnnotation.ordinal();
                         serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                        parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
 
                         if (fieldAnnotation.name().length() != 0) {
                             propertyName = fieldAnnotation.name();
@@ -1224,7 +1226,7 @@ public class TypeUtils {
                     }
                 }
 
-                FieldInfo fieldInfo = new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures,
+                FieldInfo fieldInfo = new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures, parserFeatures,
                                                     annotation, fieldAnnotation, label);
                 fieldInfoMap.put(propertyName, fieldInfo);
             }
@@ -1268,7 +1270,8 @@ public class TypeUtils {
 
                         ordinal = fieldAnnotation.ordinal();
                         serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
-
+                        parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
+                        
                         if (fieldAnnotation.name().length() != 0) {
                             propertyName = fieldAnnotation.name();
 
@@ -1293,7 +1296,7 @@ public class TypeUtils {
                     }
                 }
 
-                FieldInfo fieldInfo = new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures,
+                FieldInfo fieldInfo = new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures, parserFeatures,
                                                     annotation, fieldAnnotation, label);
                 fieldInfoMap.put(propertyName, fieldInfo);
             }
@@ -1306,7 +1309,7 @@ public class TypeUtils {
 
             JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
 
-            int ordinal = 0, serialzeFeatures = 0;
+            int ordinal = 0, serialzeFeatures = 0, parserFeatures = 0;
             String propertyName = field.getName();
             String label = null;
             if (fieldAnnotation != null) {
@@ -1316,6 +1319,7 @@ public class TypeUtils {
 
                 ordinal = fieldAnnotation.ordinal();
                 serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
 
                 if (fieldAnnotation.name().length() != 0) {
                     propertyName = fieldAnnotation.name();
@@ -1334,7 +1338,7 @@ public class TypeUtils {
             }
 
             if (!fieldInfoMap.containsKey(propertyName)) {
-                FieldInfo fieldInfo = new FieldInfo(propertyName, null, field, clazz, null, ordinal, serialzeFeatures,
+                FieldInfo fieldInfo = new FieldInfo(propertyName, null, field, clazz, null, ordinal, serialzeFeatures, parserFeatures,
                                                     null, fieldAnnotation, label);
                 fieldInfoMap.put(propertyName, fieldInfo);
             }

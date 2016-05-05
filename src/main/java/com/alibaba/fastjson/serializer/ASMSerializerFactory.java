@@ -1571,9 +1571,13 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitTypeInsn(INSTANCEOF, JavaBeanSerializer);
             mw.visitJumpInsn(IFEQ, instanceOfElse_);
 
-            String writeMethodName = context.nonContext && context.writeDirect ? //
-                "writeDirectNonContext" //
-                : "write";
+            boolean fieldBeanToArray = (fieldInfo.serialzeFeatures & SerializerFeature.BeanToArray.mask) != 0;
+            String writeMethodName;
+            if (context.nonContext && context.writeDirect) {
+                writeMethodName = fieldBeanToArray ? "writeAsArrayNonContext" : "writeDirectNonContext";
+            } else {
+                writeMethodName = fieldBeanToArray ? "writeAsArray" : "write";
+            }
             
             mw.visitVarInsn(ALOAD, context.var("fied_ser"));
             mw.visitTypeInsn(CHECKCAST, JavaBeanSerializer); // cast

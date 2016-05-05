@@ -153,7 +153,7 @@ public class MediaContentGenDecoder extends JavaBeanDeserializer implements Obje
         }
         
         if (restFlag) {
-            return super.parseRest(parser, type, fieldName, instance);
+            return super.parseRest(parser, type, fieldName, instance, 0);
         }
         
         return instance;

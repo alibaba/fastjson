@@ -210,7 +210,7 @@ public class DepartmentCodec extends JavaBeanDeserializer implements ObjectDeser
         }
         
         if (restFlag) {
-            return super.parseRest(parser, type, fieldName, instance);
+            return super.parseRest(parser, type, fieldName, instance, 0);
         }
         
         return instance;

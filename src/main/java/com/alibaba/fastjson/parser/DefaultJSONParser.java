@@ -64,6 +64,7 @@ import com.alibaba.fastjson.parser.deserializer.FieldTypeResolver;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ResolveFieldDeserializer;
+import com.alibaba.fastjson.serializer.BeanContext;
 import com.alibaba.fastjson.serializer.IntegerCodec;
 import com.alibaba.fastjson.serializer.LongCodec;
 import com.alibaba.fastjson.serializer.StringCodec;
@@ -101,6 +102,8 @@ public class DefaultJSONParser implements Closeable {
     private List<ExtraTypeProvider>    extraTypeProviders = null;
     private List<ExtraProcessor>       extraProcessors    = null;
     protected FieldTypeResolver        fieldTypeResolver  = null;
+    
+    protected transient BeanContext    lastBeanContext;
 
     static {
         primitiveClasses.add(boolean.class);

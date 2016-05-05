@@ -12,32 +12,45 @@ import java.time.OffsetTime;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
+import com.alibaba.fastjson.serializer.BeanContext;
+import com.alibaba.fastjson.serializer.ContextObjectSerializer;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.ObjectSerializer;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 
-public class Jdk8DateCodec implements ObjectSerializer, ObjectDeserializer {
+public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSerializer, ContextObjectSerializer, ObjectDeserializer {
 
     public static final Jdk8DateCodec instance = new Jdk8DateCodec();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName, String format, int feature) {
         JSONLexer lexer = parser.lexer;
         if (lexer.token() == JSONToken.LITERAL_STRING) {
             String text = lexer.stringVal();
             lexer.nextToken();
 
+            DateTimeFormatter formatter = null;
+            if (format != null) {
+                formatter = DateTimeFormatter.ofPattern(format);
+            }
+            
             if (type == LocalDateTime.class) {
                 LocalDateTime localDateTime;
-                if (text.length() == 10) {
-                    LocalDate localDate = LocalDate.parse(text);
+                if (text.length() == 10 || text.length() == 8) {
+                    LocalDate localDate = formatter == null ? // 
+                        LocalDate.parse(text) // 
+                        : LocalDate.parse(text, formatter);
                     localDateTime = LocalDateTime.of(localDate, LocalTime.MIN);
                 } else {
-                    localDateTime = LocalDateTime.parse(text);
+                    localDateTime = formatter == null ? // 
+                        LocalDateTime.parse(text) // 
+                        : LocalDateTime.parse(text, formatter);
                 }
                 return (T) localDateTime;
             } else if (type == LocalDate.class) {
@@ -107,4 +120,12 @@ public class Jdk8DateCodec implements ObjectSerializer, ObjectDeserializer {
         }
     }
 
+    @Override
+    public void write(JSONSerializer serializer, Object object, BeanContext context) throws IOException {
+        SerializeWriter out = serializer.out;
+        String format = context.getFormat();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+        String text = formatter.format((TemporalAccessor) object);
+        out.writeString(text);
+    }
 }

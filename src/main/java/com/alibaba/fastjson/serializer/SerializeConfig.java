@@ -140,7 +140,9 @@ public class SerializeConfig {
 		if (asm) {
     		for(Field field : clazz.getDeclaredFields()){
     			JSONField annotation = field.getAnnotation(JSONField.class);
-    			if (annotation != null && !ASMUtils.checkName(annotation.name())) {
+                if (annotation != null //
+                    && ((!ASMUtils.checkName(annotation.name())) //
+                        || annotation.format().length() != 0)) {
     				asm = false;
     				break;
     			}

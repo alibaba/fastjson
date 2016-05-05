@@ -38,12 +38,20 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
             objContext.type = objectType;
         }
 
+        // ContextObjectDeserializer
         Object value;
         if (fieldValueDeserilizer instanceof JavaBeanDeserializer) {
             JavaBeanDeserializer javaBeanDeser = (JavaBeanDeserializer) fieldValueDeserilizer;
             value = javaBeanDeser.deserialze(parser, fieldInfo.fieldType, fieldInfo.name, fieldInfo.parserFeatures);
         } else {
-            value = fieldValueDeserilizer.deserialze(parser, fieldInfo.fieldType, fieldInfo.name);
+            if (this.fieldInfo.format != null
+                    && fieldValueDeserilizer instanceof ContextObjectDeserializer
+                    ) {
+                value = ((ContextObjectDeserializer)fieldValueDeserilizer) //
+                        .deserialze(parser, fieldInfo.fieldType, fieldInfo.name, fieldInfo.format, fieldInfo.parserFeatures);
+            } else {
+                value = fieldValueDeserilizer.deserialze(parser, fieldInfo.fieldType, fieldInfo.name);
+            }
         }
         if (parser.getResolveStatus() == DefaultJSONParser.NeedToResolve) {
             ResolveTask task = parser.getLastResolveTask();

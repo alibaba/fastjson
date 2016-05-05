@@ -15,10 +15,12 @@ public final class BeanContext {
 
     private final Class<?>  beanClass;
     private final FieldInfo fieldInfo;
+    private final String format;
 
-    BeanContext(Class<?> beanClass, FieldInfo fieldInfo){
+    public BeanContext(Class<?> beanClass, FieldInfo fieldInfo){
         this.beanClass = beanClass;
         this.fieldInfo = fieldInfo;
+        this.format = fieldInfo.getFormat();
     }
 
     public Class<?> getBeanClass() {
@@ -55,5 +57,9 @@ public final class BeanContext {
 
     public <T extends Annotation> T getAnnation(Class<T> annotationClass) {
         return fieldInfo.getAnnation(annotationClass);
+    }
+    
+    public String getFormat() {
+        return format;
     }
 }

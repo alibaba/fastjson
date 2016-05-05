@@ -51,8 +51,13 @@ public class Jdk8DateCodec implements ObjectSerializer, ObjectDeserializer {
                 
                 return (T) localDate;
             } else if (type == LocalTime.class) {
-                LocalTime localDate = LocalTime.parse(text);
-                
+                LocalTime localDate;
+                if (text.length() == 23) {
+                    LocalDateTime localDateTime = LocalDateTime.parse(text);
+                    localDate = LocalTime.of(localDateTime.getHour(), localDateTime.getMinute(), localDateTime.getSecond(), localDateTime.getNano());
+                } else {
+                    localDate = LocalTime.parse(text);
+                }
                 return (T) localDate;
             } else if (type == ZonedDateTime.class) {
                 ZonedDateTime zonedDateTime = ZonedDateTime.parse(text);

@@ -111,11 +111,6 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
     
 
     public void writeValue(JSONSerializer serializer, Object propertyValue) throws Exception {
-        if (format != null) {
-            serializer.writeWithFormat(propertyValue, format);
-            return;
-        }
-
         if (runtimeInfo == null) {
 
             Class<?> runtimeFieldClass;
@@ -182,8 +177,15 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
             valueSerializer = serializer.getObjectWriter(valueClass);
         }
         
-        valueSerializer.write(serializer, propertyValue, fieldInfo.name, fieldInfo.fieldType, fieldFeatures);
-        
+        if (format != null) {
+            if (valueSerializer instanceof ContextObjectSerializer) {
+                ((ContextObjectSerializer) valueSerializer).write(serializer, propertyValue, this.fieldContext);    
+            } else {
+                serializer.writeWithFormat(propertyValue, format);
+            }
+        } else {
+            valueSerializer.write(serializer, propertyValue, fieldInfo.name, fieldInfo.fieldType, fieldFeatures);
+        }        
         
     }
 

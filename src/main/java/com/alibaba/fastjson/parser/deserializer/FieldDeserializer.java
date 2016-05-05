@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.serializer.BeanContext;
 import com.alibaba.fastjson.util.FieldInfo;
 
 public abstract class FieldDeserializer {
@@ -18,6 +19,8 @@ public abstract class FieldDeserializer {
     public final FieldInfo fieldInfo;
 
     protected final Class<?>  clazz;
+    
+    protected BeanContext    beanContext;
 
     public FieldDeserializer(Class<?> clazz, FieldInfo fieldInfo){
         this.clazz = clazz;

@@ -9,7 +9,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 
 import junit.framework.TestCase;
 
-public class LocalDateTimeTest3 extends TestCase {
+public class LocalDateTimeTest3_private extends TestCase {
 
     public void test_for_issue() throws Exception {
         String text = "{\"date\":\"20111203\"}";
@@ -25,7 +25,7 @@ public class LocalDateTimeTest3 extends TestCase {
         Assert.assertEquals(text, JSON.toJSONString(vo));
     }
 
-    public static class VO {
+    private static class VO {
         @JSONField(format="yyyyMMdd")
         public LocalDateTime date;
 

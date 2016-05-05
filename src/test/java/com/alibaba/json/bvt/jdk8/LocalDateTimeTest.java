@@ -15,7 +15,6 @@ public class LocalDateTimeTest extends TestCase {
         vo.setDate(LocalDateTime.now());
         
         String text = JSON.toJSONString(vo);
-        System.out.println(text);
         
         VO vo1 = JSON.parseObject(text, VO.class);
         

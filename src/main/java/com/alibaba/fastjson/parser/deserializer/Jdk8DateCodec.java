@@ -32,8 +32,13 @@ public class Jdk8DateCodec implements ObjectSerializer, ObjectDeserializer {
             lexer.nextToken();
 
             if (type == LocalDateTime.class) {
-                LocalDateTime localDateTime = LocalDateTime.parse(text);
-
+                LocalDateTime localDateTime;
+                if (text.length() == 10) {
+                    LocalDate localDate = LocalDate.parse(text);
+                    localDateTime = LocalDateTime.of(localDate, LocalTime.MIN);
+                } else {
+                    localDateTime = LocalDateTime.parse(text);
+                }
                 return (T) localDateTime;
             } else if (type == LocalDate.class) {
                 LocalDate localDate = LocalDate.parse(text);

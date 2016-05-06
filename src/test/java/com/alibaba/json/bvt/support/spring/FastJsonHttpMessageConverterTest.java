@@ -34,20 +34,22 @@ public class FastJsonHttpMessageConverterTest extends TestCase {
 
 		converter.setFeatures(SerializerFeature.BrowserCompatible);
 		Assert.assertEquals(1, converter.getFeatures().length);
-		Assert.assertEquals(SerializerFeature.BrowserCompatible, converter.getFeatures()[0]);
-		
+		Assert.assertEquals(SerializerFeature.BrowserCompatible,
+				converter.getFeatures()[0]);
+
 		Assert.assertNull(converter.getDateFormat());
 		converter.setDateFormat("yyyyMMdd");
-		
+
 		converter.setFilters(serializeFilter);
 		Assert.assertEquals(1, converter.getFilters().length);
 		Assert.assertEquals(serializeFilter, converter.getFilters()[0]);
-		
+
 		converter.addSerializeFilter(serializeFilter);
 		Assert.assertEquals(2, converter.getFilters().length);
 		converter.addSerializeFilter(null);
-		
-		converter.setSupportedMediaTypes(Arrays.asList(new MediaType[]{ MediaType.APPLICATION_JSON_UTF8 }));
+
+		converter.setSupportedMediaTypes(Arrays
+				.asList(new MediaType[] { MediaType.APPLICATION_JSON_UTF8 }));
 		Assert.assertEquals(1, converter.getSupportedMediaTypes().size());
 
 		Method method = FastJsonHttpMessageConverter.class.getDeclaredMethod(
@@ -131,14 +133,42 @@ public class FastJsonHttpMessageConverterTest extends TestCase {
 
 		byte[] bytes = byteOut.toByteArray();
 		Assert.assertEquals("{\"id\":123}", new String(bytes, "UTF-8"));
-		
-		converter.setSupportedMediaTypes(Collections.singletonList(MediaType.APPLICATION_JSON));
-		
+
+		converter.setSupportedMediaTypes(Collections
+				.singletonList(MediaType.APPLICATION_JSON));
+
 		converter.write(vo, VO.class, null, out);
-		
-		converter.write(vo, VO.class, MediaType.ALL, out);
 
 		converter.write(vo, VO.class, MediaType.ALL, out);
+
+		HttpOutputMessage out2 = new HttpOutputMessage() {
+
+			public HttpHeaders getHeaders() {
+
+				return new HttpHeaders() {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public MediaType getContentType() {
+
+						return MediaType.APPLICATION_JSON;
+					}
+
+					@Override
+					public long getContentLength() {
+
+						return 1;
+					}
+				};
+			}
+
+			public OutputStream getBody() throws IOException {
+				return byteOut;
+			}
+		};
+
+		converter.write(vo, VO.class, MediaType.ALL, out2);
 
 	}
 
@@ -154,7 +184,7 @@ public class FastJsonHttpMessageConverterTest extends TestCase {
 			return value;
 		}
 	};
-	
+
 	public static class VO {
 
 		private int id;

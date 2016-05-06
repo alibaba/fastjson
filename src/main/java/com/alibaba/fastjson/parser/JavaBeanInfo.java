@@ -202,9 +202,7 @@ class JavaBeanInfo {
             ? null //
             : clazz.getMethods();
         
-        final Field[] declaredFields = fieldOnly //
-            ? null //
-            : clazz.getDeclaredFields();
+        final Field[] declaredFields = clazz.getDeclaredFields();
 
         if (defaultConstructor == null // 
                 && !(clazz.isInterface() || (classModifiers & Modifier.ABSTRACT) != 0) //
@@ -463,8 +461,28 @@ class JavaBeanInfo {
                 TypeUtils.setAccessible(clazz, method, classModifiers);
             }
         }
+        
+        Field[] classfields;
+        {
+            List<Field> result = new ArrayList<Field>(declaredFields.length);
+            for (Field f : declaredFields) {
+                if ((f.getModifiers() & Modifier.PUBLIC) != 0) {
+                    result.add(f);
+                }
+            }
+            
+            for (Class<?> c = clazz.getSuperclass(); c != null && c != Object.class; c = c.getSuperclass()) {
+                for (Field f : c.getDeclaredFields()) {
+                    if ((f.getModifiers() & Modifier.PUBLIC) != 0) {
+                        result.add(f);
+                    }
+                }
+            }
+            classfields = new Field[result.size()];
+            result.toArray(classfields);
+        }
 
-        for (Field field : clazz.getFields()) {
+        for (Field field : classfields) {
             final String fieldName = field.getName();
             boolean contains = false;
             for (int i = 0, size = fieldList.size(); i < size; ++i) {

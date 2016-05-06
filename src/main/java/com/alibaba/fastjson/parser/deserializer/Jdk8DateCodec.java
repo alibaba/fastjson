@@ -15,6 +15,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -27,6 +28,9 @@ import com.alibaba.fastjson.serializer.SerializeWriter;
 public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSerializer, ContextObjectSerializer, ObjectDeserializer {
 
     public static final Jdk8DateCodec instance = new Jdk8DateCodec();
+    
+    private final static String defaultPatttern = "yyyy-MM-dd HH:mm:ss";
+    private final static DateTimeFormatter defaultFormatter = DateTimeFormatter.ofPattern(defaultPatttern);
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName, String format, int feature) {
@@ -38,6 +42,9 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
             DateTimeFormatter formatter = null;
             if (format != null) {
                 formatter = DateTimeFormatter.ofPattern(format);
+            } else if (defaultPatttern.length() == text.length() // 
+                    && parser.getDateFomartPattern().equals(defaultPatttern)) {
+                formatter = defaultFormatter;
             }
             
             if (type == LocalDateTime.class) {
@@ -116,7 +123,20 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
         if (object == null) {
             out.writeNull();
         } else {
-            out.writeString(object.toString());
+            if (fieldType == LocalDateTime.class) {
+                    LocalDateTime dateTime = (LocalDateTime) object;
+                    if (dateTime.getNano() == 0) {
+                    String format = serializer.getDateFormatPattern();
+                    if (format == null) {
+                        format = JSON.DEFFAULT_DATE_FORMAT;
+                    }
+                    write(out, dateTime, format);
+                } else {
+                    out.writeString(object.toString());    
+                }
+            } else {
+                out.writeString(object.toString());
+            }
         }
     }
 
@@ -124,6 +144,10 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
     public void write(JSONSerializer serializer, Object object, BeanContext context) throws IOException {
         SerializeWriter out = serializer.out;
         String format = context.getFormat();
+        write(out, (TemporalAccessor) object, format);
+    }
+    
+    private void write(SerializeWriter out, TemporalAccessor object, String format) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
         String text = formatter.format((TemporalAccessor) object);
         out.writeString(text);

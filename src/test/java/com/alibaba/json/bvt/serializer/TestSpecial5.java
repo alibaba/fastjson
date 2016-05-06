@@ -1,8 +1,10 @@
 package com.alibaba.json.bvt.serializer;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
+
+import junit.framework.TestCase;
 
 public class TestSpecial5 extends TestCase {
 
@@ -16,7 +18,9 @@ public class TestSpecial5 extends TestCase {
         VO vo = new VO();
         vo.setValue(buf.toString());
 
-        System.out.println(JSON.toJSONString(vo));
+        String text = JSON.toJSONString(vo);
+        VO vo2 = JSON.parseObject(text, VO.class);
+        Assert.assertEquals(vo.value, vo2.value);
     }
 
     public static class VO {

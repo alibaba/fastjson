@@ -1,4 +1,4 @@
-package com.alibaba.json.test;
+package com.alibaba.json.bvt;
 
 
 import com.alibaba.fastjson.JSON;

@@ -6,11 +6,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -104,6 +100,31 @@ public class DeserializeBeanInfo {
         Collections.sort(sortedFieldList);
 
         return true;
+    }
+
+    private static List<Field> getOrderedFields(Class clz) {
+        Set<Field> visited = new HashSet<Field>();
+        List<Field> fields = new ArrayList<Field>();
+        findField0(fields, visited, clz);
+        return fields;
+    }
+
+    private static void findField0(List<Field> fields, Set<Field> visited, Class<?> clz) {
+        if (clz == null) {
+            return;
+        }
+        for (Field f : clz.getDeclaredFields()) {
+            if (Modifier.isPrivate(f.getModifiers())) {
+                continue;
+            }
+            if (visited.add(f)) {
+                fields.add(f);
+            }
+        }
+        findField0(fields, visited, clz.getSuperclass());
+        for (Class<?> i : clz.getInterfaces()) {
+            findField0(fields, visited, i);
+        }
     }
 
     public static DeserializeBeanInfo computeSetters(Class<?> clazz, Type type) {
@@ -273,7 +294,7 @@ public class DeserializeBeanInfo {
             TypeUtils.setAccessible(method);
         }
 
-        for (Field field : clazz.getFields()) {
+        for (Field field : getOrderedFields(clazz)) {
             if (Modifier.isStatic(field.getModifiers())) {
                 continue;
             }

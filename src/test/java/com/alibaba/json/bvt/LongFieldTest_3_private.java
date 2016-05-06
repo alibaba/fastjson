@@ -12,7 +12,7 @@ public class LongFieldTest_3_private extends TestCase {
 
     public void test_min() throws Exception {
         Random random = new Random();
-        Model[] array = new Model[2048];
+        Model[] array = new Model[8192];
         for (int i = 0; i < array.length; ++i) {
             array[i] = new Model();
             array[i].value = random.nextLong();

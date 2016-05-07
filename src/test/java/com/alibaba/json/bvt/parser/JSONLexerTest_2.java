@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.TypeReference;
 
 public class JSONLexerTest_2 extends TestCase {
@@ -17,11 +18,23 @@ public class JSONLexerTest_2 extends TestCase {
     }
 
     public void test_1() throws Exception {
-        JSON.parseObject("{\"@type\":\"com.alibaba.json.bvt.parser.JSONLexerTest_2$VO1\"}", VO.class);
+        Exception error = null;
+        try {
+            JSON.parseObject("{\"@type\":\"com.alibaba.json.bvt.parser.JSONLexerTest_2$VO1\"}", VO.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
     }
 
     public void test_2() throws Exception {
-        JSON.parseObject("{\"@type\":\"com.alibaba.json.bvt.parser.JSONLexerTest_2$A\"}", VO.class);
+        Exception error = null;
+        try {
+            JSON.parseObject("{\"@type\":\"com.alibaba.json.bvt.parser.JSONLexerTest_2$A\"}", VO.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
     }
 
     public void test_a() throws Exception {

@@ -550,6 +550,13 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
     
     /**
+     * @since 1.2.9 back port 1.1.52.android
+     */
+    public <T> T toJavaObject(Class<T> clazz) {
+        return TypeUtils.cast(this, clazz, ParserConfig.getGlobalInstance());
+    }
+    
+    /**
      * @since 1.2.9, back port to 1.1.49.android
      * @return
      */

@@ -15,4 +15,16 @@ public class JacksonTest extends TestCase {
 
         mapper.readValue("{a:3}", Map.class);
     }
+    
+    public void test_1() throws Exception {
+        Model model = new Model();
+        model.id = 1001;
+        ObjectMapper mapper = new ObjectMapper();
+        String text = mapper.writeValueAsString(model);
+        System.out.println(text);
+    }
+    
+    public static class Model {
+        public int id;
+    }
 }

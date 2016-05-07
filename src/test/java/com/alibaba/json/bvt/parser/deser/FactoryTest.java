@@ -26,7 +26,7 @@ public class FactoryTest extends TestCase {
         Assert.assertTrue(45f == vo.getF());
         JSON.parseObject("{\"b\":1,\"i\":33,\"l\":34,\"f\":45.}", V1.class);
         
-        JSON.parseObject("{\"b\":true,\"i\":33,\"l\":34,\"f\":45.}").toJavaObject(V1.class);
+        // JSON.parseObject("{\"b\":true,\"i\":33,\"l\":34,\"f\":45.}").toJavaObject(V1.class);
     }
 
     public static class VO {

@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt.parser.deser;
+package com.alibaba.json.bvt.parser.deser.asm;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,11 +1,12 @@
-package com.alibaba.json.bvt.parser.deser;
+package com.alibaba.json.bvt.parser.deser.asm;
+
+import junit.framework.TestCase;
 
 import org.junit.Assert;
-import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
 
-public class TestASM_double extends TestCase {
+public class TestASM_float extends TestCase {
 
     public void test_asm() throws Exception {
         V0 v = new V0();
@@ -17,13 +18,13 @@ public class TestASM_double extends TestCase {
 
     public static class V0 {
 
-        private double value = 32.5F;
+        private float value = 32.5F;
 
-        public double getValue() {
+        public float getValue() {
             return value;
         }
 
-        public void setValue(double i) {
+        public void setValue(float i) {
             this.value = i;
         }
 

@@ -664,7 +664,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                                                                                InvocationTargetException {
         Object object = null;
         
-        if (beanInfo.creatorConstructor == null && beanInfo.buildMethod == null) {
+        if (beanInfo.creatorConstructor == null && beanInfo.buildMethod == null && beanInfo.factoryMethod == null) {
             object = createInstance(null, clazz);
             
             for (Map.Entry<String, Object> entry : map.entrySet()) {

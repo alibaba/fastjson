@@ -1,12 +1,17 @@
 package com.alibaba.fastjson.util;
 
 import java.security.PrivilegedAction;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializeFilterable;
 
 public class ASMClassLoader extends ClassLoader {
 
     private static java.security.ProtectionDomain DOMAIN;
+    
+    private static Map<String, Class<?>> classMapping = new HashMap<String, Class<?>>();
 
     static {
         DOMAIN = (java.security.ProtectionDomain) java.security.AccessController.doPrivileged(new PrivilegedAction<Object>() {
@@ -15,12 +20,15 @@ public class ASMClassLoader extends ClassLoader {
                 return ASMClassLoader.class.getProtectionDomain();
             }
         });
+        
+        classMapping.put(JavaBeanInfo.class.getName(), JavaBeanInfo.class);
+        classMapping.put(SerializeFilterable.class.getName(), SerializeFilterable.class);
     }
 
     public ASMClassLoader(){
         super(getParentClassLoader());
     }
-    
+
     public ASMClassLoader(ClassLoader parent){
         super (parent);
     }
@@ -36,6 +44,18 @@ public class ASMClassLoader extends ClassLoader {
             }
         }
         return JSON.class.getClassLoader();
+    }
+
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+        Class<?> mappingClass = classMapping.get(name);
+        if (mappingClass != null) {
+            return mappingClass;
+        }
+        try {
+            return super.loadClass(name, resolve);
+        } catch (ClassNotFoundException e) {
+            throw e;
+        }
     }
 
     public Class<?> defineClassPublic(String name, byte[] b, int off, int len) throws ClassFormatError {

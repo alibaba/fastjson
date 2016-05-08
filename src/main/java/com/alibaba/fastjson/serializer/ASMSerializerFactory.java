@@ -33,7 +33,7 @@ import com.alibaba.fastjson.util.FieldInfo;
 
 public class ASMSerializerFactory implements Opcodes {
 
-    protected final ASMClassLoader classLoader             = new ASMClassLoader();
+    protected final ASMClassLoader classLoader             = new ASMClassLoader(ASMSerializerFactory.class.getClassLoader());
 
     private final AtomicLong       seed                    = new AtomicLong();
 

@@ -5,7 +5,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.parser.JSONLexerBase;
+import com.alibaba.fastjson.parser.ParseContext;
+import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
+import com.alibaba.fastjson.serializer.JSONSerializer;
+import com.alibaba.fastjson.serializer.JavaBeanSerializer;
+import com.alibaba.fastjson.serializer.ObjectSerializer;
+import com.alibaba.fastjson.serializer.SerializeBeanInfo;
 import com.alibaba.fastjson.serializer.SerializeFilterable;
+import com.alibaba.fastjson.serializer.SerializeWriter;
 
 public class ASMClassLoader extends ClassLoader {
 
@@ -22,7 +32,17 @@ public class ASMClassLoader extends ClassLoader {
         });
         
         classMapping.put(JavaBeanInfo.class.getName(), JavaBeanInfo.class);
+        classMapping.put(ObjectSerializer.class.getName(), ObjectSerializer.class);
+        classMapping.put(JavaBeanSerializer.class.getName(), JavaBeanSerializer.class);
         classMapping.put(SerializeFilterable.class.getName(), SerializeFilterable.class);
+        classMapping.put(SerializeBeanInfo.class.getName(), SerializeBeanInfo.class);
+        classMapping.put(JSONSerializer.class.getName(), JSONSerializer.class);
+        classMapping.put(JavaBeanDeserializer.class.getName(), JavaBeanDeserializer.class);
+        classMapping.put(ParserConfig.class.getName(), ParserConfig.class);
+        classMapping.put(SerializeWriter.class.getName(), SerializeWriter.class);
+        classMapping.put(DefaultJSONParser.class.getName(), DefaultJSONParser.class);
+        classMapping.put(JSONLexerBase.class.getName(), JSONLexerBase.class);
+        classMapping.put(ParseContext.class.getName(), ParseContext.class);
     }
 
     public ASMClassLoader(){
@@ -51,6 +71,7 @@ public class ASMClassLoader extends ClassLoader {
         if (mappingClass != null) {
             return mappingClass;
         }
+        
         try {
             return super.loadClass(name, resolve);
         } catch (ClassNotFoundException e) {

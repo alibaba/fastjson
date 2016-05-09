@@ -41,6 +41,7 @@ import com.alibaba.fastjson.serializer.ContextValueFilter;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.JavaBeanSerializer;
 import com.alibaba.fastjson.serializer.LabelFilter;
+import com.alibaba.fastjson.serializer.Labels;
 import com.alibaba.fastjson.serializer.NameFilter;
 import com.alibaba.fastjson.serializer.ObjectSerializer;
 import com.alibaba.fastjson.serializer.PropertyFilter;
@@ -68,71 +69,73 @@ public class ASMClassLoader extends ClassLoader {
             }
         });
         
-        mapping(JSON.class);
-        mapping(JSONObject.class);
-        mapping(JSONArray.class);
-        mapping(JSONPath.class);
-        mapping(JSONAware.class);
-        mapping(JSONException.class);
-        mapping(JSONPathException.class);
-        mapping(JSONReader.class);
-        mapping(JSONStreamAware.class);
-        mapping(JSONWriter.class);
-        mapping(TypeReference.class);
+        Class<?>[] jsonClasses = new Class<?>[] {JSON.class,
+            JSONObject.class,
+            JSONArray.class,
+            JSONPath.class,
+            JSONAware.class,
+            JSONException.class,
+            JSONPathException.class,
+            JSONReader.class,
+            JSONStreamAware.class,
+            JSONWriter.class,
+            TypeReference.class,
+                    
+            FieldInfo.class,
+            TypeUtils.class,
+            IOUtils.class,
+            IdentityHashMap.class,
+            ParameterizedTypeImpl.class,
+            JavaBeanInfo.class,
+                    
+            ObjectSerializer.class,
+            JavaBeanSerializer.class,
+            SerializeFilterable.class,
+            SerializeBeanInfo.class,
+            JSONSerializer.class,
+            SerializeWriter.class,
+            SerializeFilter.class,
+            Labels.class,
+            LabelFilter.class,
+            ContextValueFilter.class,
+            AfterFilter.class,
+            BeforeFilter.class,
+            NameFilter.class,
+            PropertyFilter.class,
+            PropertyPreFilter.class,
+            ValueFilter.class,
+            SerializerFeature.class,
+            ContextObjectSerializer.class,
+            SerialContext.class,
+            SerializeConfig.class,
+                    
+            JavaBeanDeserializer.class,
+            ParserConfig.class,
+            DefaultJSONParser.class,
+            JSONLexer.class,
+            JSONLexerBase.class,
+            ParseContext.class,
+            JSONToken.class,
+            SymbolTable.class,
+            Feature.class,
+            JSONScanner.class,
+            JSONReaderScanner.class,
+                    
+            AutowiredObjectDeserializer.class,
+            ObjectDeserializer.class,
+            ExtraProcessor.class,
+            ExtraProcessable.class,
+            ExtraTypeProvider.class,
+            BeanContext.class,
+            FieldDeserializer.class,
+            DefaultFieldDeserializer.class,
+        };
         
-        mapping(FieldInfo.class);
-        mapping(TypeUtils.class);
-        mapping(IOUtils.class);
-        mapping(IdentityHashMap.class);
-        mapping(ParameterizedTypeImpl.class);
-        mapping(JavaBeanInfo.class);
-        
-        mapping(ObjectSerializer.class);
-        mapping(JavaBeanSerializer.class);
-        mapping(SerializeFilterable.class);
-        mapping(SerializeBeanInfo.class);
-        mapping(JSONSerializer.class);
-        mapping(SerializeWriter.class);
-        mapping(SerializeFilter.class);
-        mapping(LabelFilter.class);
-        mapping(ContextValueFilter.class);
-        mapping(AfterFilter.class);
-        mapping(BeforeFilter.class);
-        mapping(NameFilter.class);
-        mapping(PropertyFilter.class);
-        mapping(PropertyPreFilter.class);
-        mapping(ValueFilter.class);
-        mapping(SerializerFeature.class);
-        mapping(ContextObjectSerializer.class);
-        mapping(SerialContext.class);
-        mapping(SerializeConfig.class);
-        
-        mapping(JavaBeanDeserializer.class);
-        mapping(ParserConfig.class);
-        mapping(DefaultJSONParser.class);
-        mapping(JSONLexer.class);
-        mapping(JSONLexerBase.class);
-        mapping(ParseContext.class);
-        mapping(JSONToken.class);
-        mapping(SymbolTable.class);
-        mapping(Feature.class);
-        mapping(JSONScanner.class);
-        mapping(JSONReaderScanner.class);
-        
-        mapping(AutowiredObjectDeserializer.class);
-        mapping(ObjectDeserializer.class);
-        mapping(ExtraProcessor.class);
-        mapping(ExtraProcessable.class);
-        mapping(ExtraTypeProvider.class);
-        mapping(BeanContext.class);
-        mapping(FieldDeserializer.class);
-        mapping(DefaultFieldDeserializer.class);
+        for (Class<?> clazz : jsonClasses) {
+            classMapping.put(clazz.getName(), clazz);
+        }
     }
     
-    private static void mapping(Class<?> clazz) {
-        classMapping.put(clazz.getName(), clazz);
-    }
-
     public ASMClassLoader(){
         super(getParentClassLoader());
     }

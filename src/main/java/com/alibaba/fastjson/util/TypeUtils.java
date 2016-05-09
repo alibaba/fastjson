@@ -1010,6 +1010,10 @@ public class TypeUtils {
         {
             classfields = new ArrayList<Field>(declaredFields.length);
             for (Field f : declaredFields) {
+                if ((f.getModifiers() & Modifier.STATIC) != 0) {
+                    continue;
+                }
+                
                 if ((f.getModifiers() & Modifier.PUBLIC) != 0) {
                     classfields.add(f);
                 }
@@ -1017,6 +1021,10 @@ public class TypeUtils {
             
             for (Class<?> c = clazz.getSuperclass(); c != null && c != Object.class; c = c.getSuperclass()) {
                 for (Field f : c.getDeclaredFields()) {
+                    if ((f.getModifiers() & Modifier.STATIC) != 0) {
+                        continue;
+                    }
+                    
                     if ((f.getModifiers() & Modifier.PUBLIC) != 0) {
                         classfields.add(f);
                     }
@@ -1025,10 +1033,6 @@ public class TypeUtils {
         }
         
         for (Field field : classfields) {
-            if ((field.getModifiers() & Modifier.STATIC) != 0) {
-                continue;
-            }
-
             JSONField fieldAnnotation = jsonFieldSupport ? field.getAnnotation(JSONField.class) : null;
 
             int ordinal = 0, serialzeFeatures = 0;

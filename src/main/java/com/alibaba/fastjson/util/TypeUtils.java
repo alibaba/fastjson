@@ -1257,6 +1257,9 @@ public class TypeUtils {
 
                 if (field == null) {
                     field = ParserConfig.getField(clazz, methodName);
+                    if(field != null){
+                        propertyName = methodName;
+                    }
                 }
 
                 JSONField fieldAnnotation = null;

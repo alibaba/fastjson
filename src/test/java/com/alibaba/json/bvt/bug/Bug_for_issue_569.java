@@ -1,10 +1,10 @@
-package com.alibaba.json.test.bug;
+package com.alibaba.json.bvt.bug;
 
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.json.test.bug.Bug_for_issue_569.LoginResponse.Body;
-import com.alibaba.json.test.bug.Bug_for_issue_569.LoginResponse.MemberInfo;
+import com.alibaba.json.bvt.bug.Bug_for_issue_569.LoginResponse.Body;
+import com.alibaba.json.bvt.bug.Bug_for_issue_569.LoginResponse.MemberInfo;
 
 import junit.framework.TestCase;
 
@@ -12,40 +12,31 @@ public class Bug_for_issue_569 extends TestCase {
 
     public void test_for_issue() throws Exception {
         LoginResponse loginResp = new LoginResponse();
-        loginResp.setResponse(new Response<LoginResponse.Body>());
-        loginResp.getResponse().setContent(new Body());
-        loginResp.getResponse().getContent().setMemberinfo(new MemberInfo());
-        loginResp.getResponse().getContent().getMemberinfo().name = "ding102992";
-        loginResp.getResponse().getContent().getMemberinfo().email = "ding102992@github.com";
+        loginResp.response = new Response<LoginResponse.Body>();
+        loginResp.response.content = new Body();
+        loginResp.response.content.setMemberinfo(new MemberInfo());
+        loginResp.response.content.getMemberinfo().name = "ding102992";
+        loginResp.response.content.getMemberinfo().email = "ding102992@github.com";
 
         String text = JSON.toJSONString(loginResp);
 
         LoginResponse loginResp2 = JSON.parseObject(text, LoginResponse.class);
-
-        Assert.assertEquals(loginResp.getResponse() //
+        
+        Assert.assertEquals(loginResp.response //
                                      .getContent() //
                                      .getMemberinfo().name, //
-                            loginResp2.getResponse() //
+                            loginResp2.response //
                                       .getContent() //
                                       .getMemberinfo().name);
-        Assert.assertEquals(loginResp.getResponse() //
+        Assert.assertEquals(loginResp.response //
                                      .getContent().getMemberinfo().email, //
-                            loginResp2.getResponse().getContent().getMemberinfo().email);
+                            loginResp2.response.getContent().getMemberinfo().email);
 
     }
 
     public static class BaseResponse<T> {
 
-        private Response<T> response;
-
-        public Response<T> getResponse() {
-            return response;
-        }
-
-        public void setResponse(Response<T> response) {
-            this.response = response;
-        }
-
+        public Response<T> response;
 
     
     }
@@ -81,8 +72,8 @@ public class Bug_for_issue_569 extends TestCase {
 
         public static class MemberInfo {
 
-            private String name;
-            private String email;
+            public String name;
+            public String email;
             /*
              * 省略Getter,Setter
              */

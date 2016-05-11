@@ -162,7 +162,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         Type genericFieldType = fieldType;
         
         if (!(fieldType instanceof Class)) {
-            genericFieldType = getFieldType(clazz, type, fieldType);
+            genericFieldType = getFieldType(clazz, type != null ? type : clazz, fieldType);
             if (genericFieldType != fieldType) {
                 if (genericFieldType instanceof ParameterizedType) {
                     fieldClass = TypeUtils.getClass(genericFieldType);
@@ -217,18 +217,30 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
             Type[] arguments = parameterizedFieldType.getActualTypeArguments();
             boolean changed = false;
-            for (int i = 0; i < arguments.length; ++i) {
+            TypeVariable<?>[] typeVariables = null;
+            Type[] actualTypes = null;
+            
+            ParameterizedType paramType = null;
+            if (type instanceof ParameterizedType) {
+                paramType = (ParameterizedType) type;
+                typeVariables = clazz.getTypeParameters();
+            } else if(clazz.getGenericSuperclass() instanceof ParameterizedType) {
+                paramType = (ParameterizedType) clazz.getGenericSuperclass();
+                typeVariables = clazz.getSuperclass().getTypeParameters();
+            }
+            
+            for (int i = 0; i < arguments.length && paramType != null; ++i) {
                 Type feildTypeArguement = arguments[i];
                 if (feildTypeArguement instanceof TypeVariable) {
                     TypeVariable<?> typeVar = (TypeVariable<?>) feildTypeArguement;
 
-                    if (type instanceof ParameterizedType) {
-                        ParameterizedType parameterizedType = (ParameterizedType) type;
-                        for (int j = 0; j < clazz.getTypeParameters().length; ++j) {
-                            if (clazz.getTypeParameters()[j].getName().equals(typeVar.getName())) {
-                                arguments[i] = parameterizedType.getActualTypeArguments()[j];
-                                changed = true;
+                    for (int j = 0; j < typeVariables.length; ++j) {
+                        if (typeVariables[j].getName().equals(typeVar.getName())) {
+                            if (actualTypes == null) {
+                                actualTypes = paramType.getActualTypeArguments();
                             }
+                            arguments[i] = actualTypes[j];
+                            changed = true;
                         }
                     }
                 }

@@ -209,4 +209,5 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
     public int getFastMatchToken() {
         return JSONToken.LITERAL_INT;
     }
+
 }

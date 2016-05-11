@@ -19,6 +19,9 @@ public @interface JSONType {
 
     String[] orders() default {};
 
+    /**
+     * @since 1.2.6
+     */
     String[] includes() default {};
 
     String[] ignores() default {};

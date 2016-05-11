@@ -33,24 +33,26 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
             fieldValueDeserilizer = parser.getConfig().getDeserializer(fieldInfo);
         }
 
+        Type fieldType = fieldInfo.fieldType;
         if (objectType instanceof ParameterizedType) {
             ParseContext objContext = parser.getContext();
             objContext.type = objectType;
+            fieldType= FieldInfo.getFieldType(this.clazz, objectType, fieldType);
         }
 
         // ContextObjectDeserializer
         Object value;
         if (fieldValueDeserilizer instanceof JavaBeanDeserializer) {
             JavaBeanDeserializer javaBeanDeser = (JavaBeanDeserializer) fieldValueDeserilizer;
-            value = javaBeanDeser.deserialze(parser, fieldInfo.fieldType, fieldInfo.name, fieldInfo.parserFeatures);
+            value = javaBeanDeser.deserialze(parser, fieldType, fieldInfo.name, fieldInfo.parserFeatures);
         } else {
             if (this.fieldInfo.format != null
                     && fieldValueDeserilizer instanceof ContextObjectDeserializer
                     ) {
                 value = ((ContextObjectDeserializer)fieldValueDeserilizer) //
-                        .deserialze(parser, fieldInfo.fieldType, fieldInfo.name, fieldInfo.format, fieldInfo.parserFeatures);
+                        .deserialze(parser, fieldType, fieldInfo.name, fieldInfo.format, fieldInfo.parserFeatures);
             } else {
-                value = fieldValueDeserilizer.deserialze(parser, fieldInfo.fieldType, fieldInfo.name);
+                value = fieldValueDeserilizer.deserialze(parser, fieldType, fieldInfo.name);
             }
         }
         if (parser.getResolveStatus() == DefaultJSONParser.NeedToResolve) {

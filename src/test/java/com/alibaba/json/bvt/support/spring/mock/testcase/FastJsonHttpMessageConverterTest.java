@@ -10,7 +10,8 @@ package com.alibaba.json.bvt.support.spring.mock.testcase;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
-
+import java.util.List;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,7 +22,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
-
 import com.alibaba.fastjson.JSONObject;
 
 /**
@@ -73,5 +73,11 @@ public class FastJsonHttpMessageConverterTest {
 						))
 //		.andExpect(status().isOk())
 				.andDo(print());
+	}
+	
+	@Test
+    public void test3() throws Exception {
+	    List<Object> list=this.mockMvc.perform(post("/fastjson/test2")).andReturn().getResponse().getHeaderValues("Content-Length");
+        Assert.assertNotEquals(list.size(), 0);
 	}
 }

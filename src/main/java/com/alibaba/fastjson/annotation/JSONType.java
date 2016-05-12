@@ -27,4 +27,14 @@ public @interface JSONType {
     boolean alphabetic() default true;
     
     Class<?> mappingTo() default Void.class;
+    
+    /**
+     * @since 1.2.11 backport to 1.1.52.android
+     */
+    String typeName() default "";
+    
+    /**
+     * @since 1.2.11 backport to 1.1.52.android
+     */
+    Class<?>[] seeAlso() default{};
 }

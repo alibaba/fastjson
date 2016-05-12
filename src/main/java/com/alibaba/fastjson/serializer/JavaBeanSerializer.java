@@ -26,7 +26,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.util.FieldInfo;
@@ -44,6 +43,8 @@ public class JavaBeanSerializer implements ObjectSerializer {
     private final FieldSerializer[] sortedGetters;
     
     protected int features = 0;
+    
+    protected String                typeName;
     
     public JavaBeanSerializer(Class<?> clazz){
         this(clazz, clazz.getModifiers(), (Map<String, String>) null, false, true, true, true);
@@ -85,6 +86,11 @@ public class JavaBeanSerializer implements ObjectSerializer {
         
         if (jsonType != null) {
             features = SerializerFeature.of(jsonType.serialzeFeatures());
+            
+            typeName = jsonType.typeName();
+            if (typeName.length() == 0) {
+                typeName = null;
+            }
         }
         
         {
@@ -219,7 +225,11 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 Class<?> objClass = object.getClass();
                 if (objClass != fieldType) {
                     out.writeFieldName(serializer.config.typeKey, false);
-                    serializer.write(object.getClass());
+                    String typeName = this.typeName;
+                    if (typeName == null) {
+                        typeName = object.getClass().getName();
+                    }
+                    serializer.write(typeName);
                     commaFlag = true;
                 }
             }

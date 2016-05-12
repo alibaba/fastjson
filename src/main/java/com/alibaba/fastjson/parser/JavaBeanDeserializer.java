@@ -559,13 +559,20 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                                 continue;
                             }
 
-                            Class<?> userType = TypeUtils.loadClass(typeName, parser.config.defaultClassLoader);
-                            Class<?> expectClass = TypeUtils.getClass(type);
-                            if (expectClass != null && (userType != null && !expectClass.isAssignableFrom(userType))) {
-                                throw new JSONException("type not match");
+                            ObjectDeserializer deserizer = getSeeAlso(parser.config, this.beanInfo, typeName);
+                            Class<?> userType = null;
+                            if (deserizer == null) {
+                                userType = TypeUtils.loadClass(typeName, parser.config.defaultClassLoader);
+                                
+                                Class<?> expectClass = TypeUtils.getClass(type);
+                                if (expectClass == null || 
+                                    (userType != null && expectClass.isAssignableFrom(userType))) {
+                                    deserizer = parser.config.getDeserializer(userType);                                        
+                                } else {
+                                    throw new JSONException("type not match");
+                                }
                             }
                             
-                            ObjectDeserializer deserizer = parser.config.getDeserializer(userType);
                             return (T) deserizer.deserialze(parser, userType, fieldName);
                         } else {
                             throw new JSONException("syntax error");
@@ -864,5 +871,30 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         }
         
         return object;
+    }
+    
+    protected JavaBeanDeserializer getSeeAlso(ParserConfig config, JavaBeanInfo beanInfo, String typeName) {
+        if (beanInfo.jsonType == null) {
+            return null;
+        }
+        
+        for (Class<?> seeAlsoClass : beanInfo.jsonType.seeAlso()) {
+            ObjectDeserializer seeAlsoDeser = config.getDeserializer(seeAlsoClass);
+            if (seeAlsoDeser instanceof JavaBeanDeserializer) {
+                JavaBeanDeserializer seeAlsoJavaBeanDeser = (JavaBeanDeserializer) seeAlsoDeser;
+
+                JavaBeanInfo subBeanInfo = seeAlsoJavaBeanDeser.beanInfo;
+                if (subBeanInfo.typeName.equals(typeName)) {
+                    return seeAlsoJavaBeanDeser;
+                }
+                
+                JavaBeanDeserializer subSeeAlso = getSeeAlso(config, subBeanInfo, typeName);
+                if (subSeeAlso != null) {
+                    return subSeeAlso;
+                }
+            }
+        }
+
+        return null;
     }
 }

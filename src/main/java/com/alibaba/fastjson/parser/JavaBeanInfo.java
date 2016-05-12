@@ -31,6 +31,8 @@ class JavaBeanInfo {
     final JSONType       jsonType;
     boolean              ordered = false;
     final boolean        supportBeanToArray;
+    
+    public final String         typeName;
 
     JavaBeanInfo(Class<?> clazz, //
                  Constructor<?> defaultConstructor, //
@@ -46,6 +48,16 @@ class JavaBeanInfo {
         this.factoryMethod = factoryMethod;
         this.fields = fields;
         this.jsonType = jsonType;
+        if (jsonType != null) {
+            String typeName = jsonType.typeName();
+            if (typeName.length() != 0) {
+                this.typeName = typeName;
+            } else {
+                this.typeName = clazz.getName();
+            }
+        } else {
+            this.typeName = clazz.getName();
+        }
         
         boolean supportBeanToArray = false;
         if (jsonType != null) {

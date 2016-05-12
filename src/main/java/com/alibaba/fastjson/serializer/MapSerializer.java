@@ -73,7 +73,7 @@ public final class MapSerializer implements ObjectSerializer {
 
             if ((out.features & SerializerFeature.WriteClassName.mask) != 0) {
                 if (!containsKey) {
-                    out.writeFieldName(JSON.DEFAULT_TYPE_KEY, false);
+                    out.writeFieldName(serializer.config.typeKey, false);
                     out.writeString(object.getClass().getName());
                     first = false;
                 }

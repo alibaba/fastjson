@@ -34,6 +34,7 @@ import java.util.TimeZone;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONStreamAware;
 import com.alibaba.fastjson.util.IdentityHashMap;
@@ -52,6 +53,7 @@ public class SerializeConfig {
     }
     
     private final IdentityHashMap<ObjectSerializer> serializers;
+    protected String                                typeKey = JSON.DEFAULT_TYPE_KEY;
 
     public ObjectSerializer registerIfNotExists(Class<?> clazz) {
         return registerIfNotExists(clazz, clazz.getModifiers(), false, true, true, true);
@@ -171,5 +173,19 @@ public class SerializeConfig {
 
     public boolean put(Type key, ObjectSerializer value) {
         return this.serializers.put(key, value);
+    }
+    
+    /**
+     * @since 1.1.52.android
+     */
+    public String getTypeKey() {
+        return typeKey;
+    }
+
+    /**
+     * @since 1.1.52.android
+     */
+    public void setTypeKey(String typeKey) {
+        this.typeKey = typeKey;
     }
 }

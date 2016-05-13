@@ -1,11 +1,11 @@
-package com.alibaba.json.bvt.parser.deser;
+package com.alibaba.json.bvt.parser.deser.asm;
 
 import org.junit.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
 
-public class TestASM_Long_0 extends TestCase {
+public class TestASM_Byte_0 extends TestCase {
 
     public void test_asm() throws Exception {
         V0 v = new V0();
@@ -17,13 +17,13 @@ public class TestASM_Long_0 extends TestCase {
 
     public static class V0 {
 
-        private Long i = 12L;
+        private Byte i = 12;
 
-        public Long getI() {
+        public Byte getI() {
             return i;
         }
 
-        public void setI(Long i) {
+        public void setI(Byte i) {
             this.i = i;
         }
 

@@ -16,7 +16,7 @@ import com.alibaba.fastjson.util.ParameterizedTypeImpl;
  * create an empty anonymous inner class:
  *
  * <pre>
- * TypeReference&lt;List&lt;String&gt;&gt; list = new TypeReference<List<String>>() {};
+ * TypeReference&lt;List&lt;String&gt;&gt; list = new TypeReference&lt;List&lt;String&gt;&gt;() {};
  * </pre>
  * This syntax cannot be used to create type literals that have wildcard
  * parameters, such as {@code Class<?>} or {@code List<? extends CharSequence>}.

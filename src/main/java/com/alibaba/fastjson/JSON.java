@@ -61,18 +61,18 @@ import com.alibaba.fastjson.util.TypeUtils;
  * Model model = new Model();
  * String json = JSON.toJSONString(model); // serializes model to Json
  * Model model2 = JSON.parseObject(json, Model.class); // deserializes json into model2
- * </pre></p>
+ * </pre>
  * 
 * <p>If the object that your are serializing/deserializing is a {@code ParameterizedType}
  * (i.e. contains at least one type parameter and may be an array) then you must use the
- * {@link #toJSONString(Object)} or {@link #parseObject(String, Type)} method.  Here is an
+ * {@link #toJSONString(Object)} or {@link #parseObject(String, Type, Feature[])} method.  Here is an
  * example for serializing and deserialing a {@code ParameterizedType}:
  * 
  * <pre>
  * String json = "[{},...]";
  * Type listType = new TypeReference&lt;List&lt;Model&gt;&gt;() {}.getType();
  * List&lt;Model&gt; modelList = JSON.parseObject(json, listType);
- * </pre></p>
+ * </pre>
  * 
  * @see com.alibaba.fastjson.TypeReference
  * 

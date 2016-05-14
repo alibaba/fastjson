@@ -43,6 +43,7 @@ class ListTypeFieldDeserializer extends FieldDeserializer {
     public void parseField(DefaultJSONParser parser, Object object, Type objectType, Map<String, Object> fieldValues) {
         if (parser.lexer.token == JSONToken.NULL) {
             setValue(object, null);
+            parser.lexer.nextToken();
             return;
         }
 

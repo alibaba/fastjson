@@ -772,6 +772,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         if (token == JSONToken.NULL) {
             lexer.nextToken(JSONToken.COMMA);
             token = lexer.token();
+            return;
         }
 
         if (token != JSONToken.LBRACKET) {
@@ -783,6 +784,11 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             lexer.setToken(JSONToken.LBRACKET);
         } else {
             lexer.nextToken(JSONToken.LBRACKET);
+        }
+        
+        if (lexer.token() == JSONToken.RBRACKET) {
+            lexer.nextToken();
+            return;
         }
 
         int index = 0;

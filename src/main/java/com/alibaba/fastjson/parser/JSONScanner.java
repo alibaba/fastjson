@@ -283,25 +283,83 @@ public final class JSONScanner extends JSONLexerBase {
             return true;
         }
 
-        if (rest < ISO8601_LEN_0) {
+        if (rest < 9) {
             return false;
         }
 
-        if (charAt(bp + 4) != '-') {
-            return false;
-        }
-        if (charAt(bp + 7) != '-') {
-            return false;
+        char c0 = charAt(bp);
+        char c1 = charAt(bp + 1);
+        char c2 = charAt(bp + 2);
+        char c3 = charAt(bp + 3);
+        char c4 = charAt(bp + 4);
+        char c5 = charAt(bp + 5);
+        char c6 = charAt(bp + 6);
+        char c7 = charAt(bp + 7);
+        char c8 = charAt(bp + 8);
+        char c9 = charAt(bp + 9);
+
+        char y0, y1, y2, y3, M0, M1, d0, d1;
+        if ((c4 == '-' && c7 == '-') // cn
+                ||  (c4 == '/' && c7 == '/') // tw yyyy/mm/dd
+                ) {
+            y0 = c0;
+            y1 = c1;
+            y2 = c2;
+            y3 = c3;
+            M0 = c5;
+            M1 = c6;
+            d0 = c8;
+            d1 = c9;
+        } else if ((c2 == '.' && c5 == '.') // de dd.mm.yyyy
+                || (c2 == '-' && c5 == '-') // in dd-mm-yyyy
+                ) { 
+            d0 = c0;
+            d1 = c1;
+            M0 = c3;
+            M1 = c4;
+            y0 = c6;
+            y1 = c7;
+            y2 = c8;
+            y3 = c9;
+        } else {
+            if (c4 == '年' || c4 == '년') {
+                y0 = c0;
+                y1 = c1;
+                y2 = c2;
+                y3 = c3;
+
+                if (c7 == '月' || c7 == '월') {
+                    M0 = c5;
+                    M1 = c6;
+                    if (c9 == '日' || c9 == '일') {
+                        d0 = '0';
+                        d1 = c8;
+                    } else if (charAt(bp + 10) == '日' || charAt(bp + 10) == '일'){
+                        d0 = c8;
+                        d1 = c9;
+                    } else {
+                        return false;
+                    }
+                } else if (c6 == '月' || c6 == '월') {
+                    M0 = '0';
+                    M1 = c5;
+                    if (c8 == '日' || c8 == '일') {
+                        d0 = '0';
+                        d1 = c7;
+                    } else if (c9 == '日' || c9 == '일'){
+                        d0 = c7;
+                        d1 = c8;
+                    } else {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
         }
 
-        char y0 = charAt(bp);
-        char y1 = charAt(bp + 1);
-        char y2 = charAt(bp + 2);
-        char y3 = charAt(bp + 3);
-        char M0 = charAt(bp + 5);
-        char M1 = charAt(bp + 6);
-        char d0 = charAt(bp + 8);
-        char d1 = charAt(bp + 9);
         if (!checkDate(y0, y1, y2, y3, M0, M1, d0, d1)) {
             return false;
         }
@@ -313,7 +371,7 @@ public final class JSONScanner extends JSONLexerBase {
             if (rest < ISO8601_LEN_1) {
                 return false;
             }
-        } else if (t == '"' || t == EOI) {
+        } else if (t == '"' || t == EOI || t == '日' || t == '일') {
             calendar.set(Calendar.HOUR_OF_DAY, 0);
             calendar.set(Calendar.MINUTE, 0);
             calendar.set(Calendar.SECOND, 0);
@@ -1159,7 +1217,7 @@ public final class JSONScanner extends JSONLexerBase {
 
         return value;
     }
-    
+
     public final int scanInt(char expectNext) {
         matchStat = UNKNOWN;
 
@@ -1211,7 +1269,7 @@ public final class JSONScanner extends JSONLexerBase {
             }
         }
     }
-    
+
     public long scanLong(char expectNextChar) {
         matchStat = UNKNOWN;
 

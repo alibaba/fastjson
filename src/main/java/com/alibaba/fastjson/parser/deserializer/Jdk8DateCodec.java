@@ -28,19 +28,27 @@ import com.alibaba.fastjson.serializer.SerializeWriter;
 
 public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSerializer, ContextObjectSerializer, ObjectDeserializer {
 
-    public static final Jdk8DateCodec      instance          = new Jdk8DateCodec();
+    public static final Jdk8DateCodec      instance           = new Jdk8DateCodec();
 
-    private final static String            defaultPatttern   = "yyyy-MM-dd HH:mm:ss";
-    private final static DateTimeFormatter defaultFormatter  = DateTimeFormatter.ofPattern(defaultPatttern);
+    private final static String            defaultPatttern    = "yyyy-MM-dd HH:mm:ss";
+    private final static DateTimeFormatter defaultFormatter   = DateTimeFormatter.ofPattern(defaultPatttern);
+    private final static DateTimeFormatter formatter_dt19_tw  = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+    private final static DateTimeFormatter formatter_dt19_cn  = DateTimeFormatter.ofPattern("yyyy年M月d日 HH:mm:ss");
+    private final static DateTimeFormatter formatter_dt19_cn_1  = DateTimeFormatter.ofPattern("yyyy年M月d日 H时m分s秒");
+    private final static DateTimeFormatter formatter_dt19_kr  = DateTimeFormatter.ofPattern("yyyy년M월d일 HH:mm:ss");
+    private final static DateTimeFormatter formatter_dt19_us  = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
+    private final static DateTimeFormatter formatter_dt19_eur = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+    private final static DateTimeFormatter formatter_dt19_de  = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
+    private final static DateTimeFormatter formatter_dt19_in  = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
-    private final static DateTimeFormatter formatter_d8      = DateTimeFormatter.ofPattern("yyyyMMdd");
-    private final static DateTimeFormatter formatter_d10_tw  = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-    private final static DateTimeFormatter formatter_d10_cn  = DateTimeFormatter.ofPattern("yyyy年M月d日");
-    private final static DateTimeFormatter formatter_d10_kr  = DateTimeFormatter.ofPattern("yyyy년M월d일");
-    private final static DateTimeFormatter formatter_d10_us  = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-    private final static DateTimeFormatter formatter_d10_eur = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    private final static DateTimeFormatter formatter_d10_de = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-    private final static DateTimeFormatter formatter_d10_in = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    private final static DateTimeFormatter formatter_d8       = DateTimeFormatter.ofPattern("yyyyMMdd");
+    private final static DateTimeFormatter formatter_d10_tw   = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+    private final static DateTimeFormatter formatter_d10_cn   = DateTimeFormatter.ofPattern("yyyy年M月d日");
+    private final static DateTimeFormatter formatter_d10_kr   = DateTimeFormatter.ofPattern("yyyy년M월d일");
+    private final static DateTimeFormatter formatter_d10_us   = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+    private final static DateTimeFormatter formatter_d10_eur  = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private final static DateTimeFormatter formatter_d10_de   = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+    private final static DateTimeFormatter formatter_d10_in   = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName, String format, int feature) {
@@ -52,9 +60,6 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
             DateTimeFormatter formatter = null;
             if (format != null) {
                 formatter = DateTimeFormatter.ofPattern(format);
-            } else if (defaultPatttern.length() == text.length() //
-                       && parser.getDateFomartPattern().equals(defaultPatttern)) {
-                formatter = defaultFormatter;
             }
 
             if (type == LocalDateTime.class) {
@@ -63,9 +68,7 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                     LocalDate localDate = parseLocalDate(text, format, formatter);
                     localDateTime = LocalDateTime.of(localDate, LocalTime.MIN);
                 } else {
-                    localDateTime = formatter == null ? //
-                        LocalDateTime.parse(text) //
-                        : LocalDateTime.parse(text, formatter);
+                    localDateTime = parseDateTime(text, formatter);
                 }
                 return (T) localDateTime;
             } else if (type == LocalDate.class) {
@@ -124,6 +127,76 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
         return null;
     }
 
+    protected LocalDateTime parseDateTime(String text, DateTimeFormatter formatter) {
+        if (formatter == null) {
+            if (text.length() == 19) {
+                char c4 = text.charAt(4);
+                char c7 = text.charAt(7);
+                char c10 = text.charAt(10);
+                char c13 = text.charAt(13);
+                char c16 = text.charAt(16);
+                if (c13 == ':' && c16 == ':') {
+                    if (c4 == '-' && c7 == '-') {
+                        if (c10 == 'T') {
+                            formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+                        } else if (c10 == ' ') {
+                            formatter = defaultFormatter;
+                        }
+                    } else if (c4 == '-' && c7 == '-') {
+                        formatter = defaultFormatter;
+                    } else if (c4 == '/' && c7 == '/') { // tw yyyy/mm/dd
+                        formatter = formatter_dt19_tw;
+                    } else {
+                        char c0 = text.charAt(0);
+                        char c1 = text.charAt(1);
+                        char c2 = text.charAt(2);
+                        char c3 = text.charAt(3);
+                        char c5 = text.charAt(5);
+                        if (c2 == '/' && c5 == '/') { // mm/dd/yyyy or mm/dd/yyyy
+                            int v0 = (c0 - '0') * 10 + (c1 - '0');
+                            int v1 = (c3 - '0') * 10 + (c4 - '0');
+                            if (v0 > 12) {
+                                formatter = formatter_dt19_eur;
+                            } else if (v1 > 12) {
+                                formatter = formatter_dt19_us;
+                            } else {
+                                String country = Locale.getDefault().getCountry();
+
+                                if (country.equals("US")) {
+                                    formatter = formatter_dt19_us;
+                                } else if (country.equals("BR") //
+                                           || country.equals("AU")) {
+                                    formatter = formatter_dt19_eur;
+                                }
+                            }
+                        } else if (c2 == '.' && c5 == '.') { // dd.mm.yyyy
+                            formatter = formatter_dt19_de;
+                        } else if (c2 == '-' && c5 == '-') { // dd-mm-yyyy
+                            formatter = formatter_dt19_in;
+                        }
+                    }
+                }
+            }
+
+            if (text.length() >= 17) {
+                char c4 = text.charAt(4);
+                if (c4 == '年') {
+                    if (text.charAt(text.length() - 1) == '秒') {
+                        formatter = formatter_dt19_cn_1;    
+                    } else {
+                        formatter = formatter_dt19_cn;
+                    }
+                } else if (c4 == '년') {
+                    formatter = formatter_dt19_kr;
+                }
+            }
+        }
+
+        return formatter == null ? //
+            LocalDateTime.parse(text) //
+            : LocalDateTime.parse(text, formatter);
+    }
+
     protected LocalDate parseLocalDate(String text, String format, DateTimeFormatter formatter) {
         if (formatter == null) {
             if (text.length() == 8) {
@@ -151,7 +224,7 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                         formatter = formatter_d10_us;
                     } else {
                         String country = Locale.getDefault().getCountry();
-                        
+
                         if (country.equals("US")) {
                             formatter = formatter_d10_us;
                         } else if (country.equals("BR") //

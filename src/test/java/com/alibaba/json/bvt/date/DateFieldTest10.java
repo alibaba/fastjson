@@ -8,7 +8,6 @@ import java.util.TimeZone;
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.json.bvt.date.DateFieldTest9.Entity;
 
 import junit.framework.TestCase;
 
@@ -22,7 +21,7 @@ public class DateFieldTest10 extends TestCase {
     public void test_tw() throws Exception {
         Entity vo = JSON.parseObject("{\"date\":\"2016/05/06 09:03:16\"}", Entity.class);
 
-        Calendar calendar = Calendar.getInstance(JSON.defaultLocale);
+        Calendar calendar = Calendar.getInstance(JSON.defaultTimeZone, JSON.defaultLocale);
         calendar.setTime(vo.date);
         Assert.assertEquals(2016, calendar.get(Calendar.YEAR));
         Assert.assertEquals(4, calendar.get(Calendar.MONTH));
@@ -36,7 +35,7 @@ public class DateFieldTest10 extends TestCase {
     public void test_cn() throws Exception {
         Entity vo = JSON.parseObject("{\"date\":\"2016-05-06 09:03:16\"}", Entity.class);
 
-        Calendar calendar = Calendar.getInstance(JSON.defaultLocale);
+        Calendar calendar = Calendar.getInstance(JSON.defaultTimeZone, JSON.defaultLocale);
         calendar.setTime(vo.date);
         Assert.assertEquals(2016, calendar.get(Calendar.YEAR));
         Assert.assertEquals(4, calendar.get(Calendar.MONTH));
@@ -50,7 +49,7 @@ public class DateFieldTest10 extends TestCase {
     public void test_de() throws Exception {
         Entity vo = JSON.parseObject("{\"date\":\"06.05.2016 09:03:16\"}", Entity.class);
 
-        Calendar calendar = Calendar.getInstance(JSON.defaultLocale);
+        Calendar calendar = Calendar.getInstance(JSON.defaultTimeZone, JSON.defaultLocale);
         calendar.setTime(vo.date);
         Assert.assertEquals(2016, calendar.get(Calendar.YEAR));
         Assert.assertEquals(4, calendar.get(Calendar.MONTH));
@@ -64,7 +63,7 @@ public class DateFieldTest10 extends TestCase {
     public void test_in() throws Exception {
         Entity vo = JSON.parseObject("{\"date\":\"06-05-2016 09:03:16\"}", Entity.class);
 
-        Calendar calendar = Calendar.getInstance(JSON.defaultLocale);
+        Calendar calendar = Calendar.getInstance(JSON.defaultTimeZone, JSON.defaultLocale);
         calendar.setTime(vo.date);
         Assert.assertEquals(2016, calendar.get(Calendar.YEAR));
         Assert.assertEquals(4, calendar.get(Calendar.MONTH));

@@ -377,7 +377,7 @@ class JavaBeanInfo {
                 // support builder set
 
                 Class<?> returnType = method.getReturnType();
-                if ((!(returnType == Void.TYPE || returnType == clazz)) //
+                if ((!(returnType == Void.TYPE || returnType == method.getDeclaringClass())) //
                         || method.getParameterTypes().length != 1 //
                         || method.getDeclaringClass() == Object.class //
                         ) {

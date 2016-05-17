@@ -336,7 +336,7 @@ public class JavaBeanInfo {
             }
 
             // support builder set
-            if (!(method.getReturnType().equals(Void.TYPE) || method.getReturnType().equals(clazz))) {
+            if (!(method.getReturnType().equals(Void.TYPE) || method.getReturnType().equals(method.getDeclaringClass()))) {
                 continue;
             }
             Class<?>[] types = method.getParameterTypes();

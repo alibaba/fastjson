@@ -142,4 +142,5 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
         lexer.nextToken(JSONToken.COMMA);
     }
 
+
 }

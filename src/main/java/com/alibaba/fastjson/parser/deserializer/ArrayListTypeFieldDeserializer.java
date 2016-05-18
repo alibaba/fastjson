@@ -18,11 +18,11 @@ import com.alibaba.fastjson.util.FieldInfo;
 
 public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
-    private final Type itemType;
-    private int itemFastMatchToken;
+    private final Type         itemType;
+    private int                itemFastMatchToken;
     private ObjectDeserializer deserializer;
 
-    public ArrayListTypeFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
+    public ArrayListTypeFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo){
         super(clazz, fieldInfo);
 
         Type fieldType = fieldInfo.fieldType;
@@ -60,13 +60,13 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
         }
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public final void parseArray(DefaultJSONParser parser, Type objectType, Collection array) {
         Type itemType = this.itemType;
         ObjectDeserializer itemTypeDeser = this.deserializer;
 
         if (itemType instanceof TypeVariable //
-                && objectType instanceof ParameterizedType) {
+            && objectType instanceof ParameterizedType) {
             TypeVariable typeVar = (TypeVariable) itemType;
             ParameterizedType paramType = (ParameterizedType) objectType;
 
@@ -96,14 +96,11 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
         final JSONLexer lexer = parser.lexer;
 
-        int token = lexer.token();
-
-        if (token == JSONToken.LBRACKET) {
+        if (lexer.token() == JSONToken.LBRACKET) {
             parseArray(parser, array, itemType, itemTypeDeser, lexer);
-        } else {
+        }else {
             if (itemTypeDeser == null) {
                 itemTypeDeser = deserializer = parser.getConfig().getDeserializer(itemType);
-                itemFastMatchToken = deserializer.getFastMatchToken();
             }
             Object val = itemTypeDeser.deserialze(parser, itemType, 0);
             array.add(val);
@@ -118,7 +115,8 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
         }
 
         lexer.nextToken(itemFastMatchToken);
-        for (int i = 0; ; ++i) {
+
+        for (int i = 0;; ++i) {
             if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
                 while (lexer.token() == JSONToken.COMMA) {
                     lexer.nextToken();
@@ -140,6 +138,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
                 continue;
             }
         }
+
         lexer.nextToken(JSONToken.COMMA);
     }
 

@@ -15,7 +15,9 @@
  */
 package com.alibaba.fastjson.serializer;
 
-import static com.alibaba.fastjson.util.IOUtils.replaceChars;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.util.IOUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -24,9 +26,7 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.List;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.util.IOUtils;
+import static com.alibaba.fastjson.util.IOUtils.replaceChars;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -1155,6 +1155,12 @@ public final class SerializeWriter extends Writer {
     }
 
     public void writeFieldValue(char seperator, String name, boolean value) {
+        if (!quoteFieldNames) {
+            write(seperator);
+            writeFieldName(name);
+            write(value);
+            return;
+        }
         int intSize = value ? 4 : 5;
 
         int nameLen = name.length();

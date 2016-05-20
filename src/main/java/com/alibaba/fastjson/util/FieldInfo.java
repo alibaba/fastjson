@@ -92,7 +92,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
         if (field != null) {
             int modifiers = field.getModifiers();
-            fieldAccess = method == null || (modifiers & Modifier.PUBLIC) != 0;
+            fieldAccess = method == null || ((modifiers & Modifier.PUBLIC) != 0 && method.getReturnType() == field.getType());
             fieldTransient = (modifiers & Modifier.TRANSIENT) != 0;
         } else {
             fieldAccess = false;

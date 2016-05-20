@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
@@ -97,8 +96,38 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
         final JSONLexer lexer = parser.lexer;
 
         if (lexer.token() == JSONToken.LBRACKET) {
-            parseArray(parser, array, itemType, itemTypeDeser, lexer);
-        }else {
+            if (itemTypeDeser == null) {
+                itemTypeDeser = deserializer = parser.getConfig().getDeserializer(itemType);
+                itemFastMatchToken = deserializer.getFastMatchToken();
+            }
+
+            lexer.nextToken(itemFastMatchToken);
+
+            for (int i = 0;; ++i) {
+                if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
+                    while (lexer.token() == JSONToken.COMMA) {
+                        lexer.nextToken();
+                        continue;
+                    }
+                }
+
+                if (lexer.token() == JSONToken.RBRACKET) {
+                    break;
+                }
+
+                Object val = itemTypeDeser.deserialze(parser, itemType, i);
+                array.add(val);
+
+                parser.checkListResolve(array);
+
+                if (lexer.token() == JSONToken.COMMA) {
+                    lexer.nextToken(itemFastMatchToken);
+                    continue;
+                }
+            }
+
+            lexer.nextToken(JSONToken.COMMA);
+        } else {
             if (itemTypeDeser == null) {
                 itemTypeDeser = deserializer = parser.getConfig().getDeserializer(itemType);
             }
@@ -107,39 +136,4 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
             parser.checkListResolve(array);
         }
     }
-
-    private void parseArray(DefaultJSONParser parser, Collection array, Type itemType, ObjectDeserializer itemTypeDeser, JSONLexer lexer) {
-        if (itemTypeDeser == null) {
-            itemTypeDeser = deserializer = parser.getConfig().getDeserializer(itemType);
-            itemFastMatchToken = deserializer.getFastMatchToken();
-        }
-
-        lexer.nextToken(itemFastMatchToken);
-
-        for (int i = 0;; ++i) {
-            if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
-                while (lexer.token() == JSONToken.COMMA) {
-                    lexer.nextToken();
-                    continue;
-                }
-            }
-
-            if (lexer.token() == JSONToken.RBRACKET) {
-                break;
-            }
-
-            Object val = itemTypeDeser.deserialze(parser, itemType, i);
-            array.add(val);
-
-            parser.checkListResolve(array);
-
-            if (lexer.token() == JSONToken.COMMA) {
-                lexer.nextToken(itemFastMatchToken);
-                continue;
-            }
-        }
-
-        lexer.nextToken(JSONToken.COMMA);
-    }
-
 }

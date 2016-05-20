@@ -702,11 +702,18 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitVarInsn(DLOAD, context.var(fieldInfo.getName() + "_asm", 2));
             _set(context, mw, fieldInfo);
         } else if (fieldClass == String.class) {
+//            if(fieldInfo.isNeedXSSFilter()){
+//                mw.visitMethodInsn(INVOKESTATIC, "org/owasp/esapi/ESAPI", "encoder",
+//                        "()Lorg/owasp/esapi/Encoder;");
+//                mw.visitVarInsn(ALOAD, context.var(fieldInfo.getName() + "_asm"));
+//                mw.visitMethodInsn(INVOKEINTERFACE, "org/owasp/esapi/Encoder", "encodeForHTML",
+//                        "(Ljava/lang/String;)Ljava/lang/String;");
+//                mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
+//            }
+
             if(fieldInfo.isNeedXSSFilter()){
-                mw.visitMethodInsn(INVOKESTATIC, "org/owasp/esapi/ESAPI", "encoder",
-                        "()Lorg/owasp/esapi/Encoder;");
                 mw.visitVarInsn(ALOAD, context.var(fieldInfo.getName() + "_asm"));
-                mw.visitMethodInsn(INVOKEINTERFACE, "org/owasp/esapi/Encoder", "encodeForHTML",
+                mw.visitMethodInsn(INVOKESTATIC, "com/alibaba/fastjson/util/XSSUtils", "escapeHtml",
                         "(Ljava/lang/String;)Ljava/lang/String;");
                 mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
             }

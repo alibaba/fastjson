@@ -16,9 +16,7 @@ public class JsonTest {
 
         TestObj testObj = new TestObj();
 
-        testObj.setScript("<script>alert('xxx')</script>");
-
-        testObj.setNewLine("<a href=\"javasc&NewLine;ript&colon;alert(1)\">click</a>");
+        testObj.setScript("\74script>alert('xxx')</script>");
 
         testObj.setB("<script>alert('xxx')</script>");
 

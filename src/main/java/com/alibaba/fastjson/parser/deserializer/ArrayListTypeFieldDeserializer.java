@@ -64,7 +64,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
     public final void parseArray(DefaultJSONParser parser, Type objectType, Collection array) {
         Type itemType = this.itemType;
         ObjectDeserializer itemTypeDeser = this.deserializer;
-        
+
         if (itemType instanceof TypeVariable //
             && objectType instanceof ParameterizedType) {
             TypeVariable typeVar = (TypeVariable) itemType;
@@ -96,14 +96,19 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
         final JSONLexer lexer = parser.lexer;
 
-        if (lexer.token() != JSONToken.LBRACKET) {
-            String errorMessage = "exepct '[', but " + JSONToken.name(lexer.token());
-            if (objectType != null) {
-                errorMessage += ", type : " + objectType;
+        if (lexer.token() == JSONToken.LBRACKET) {
+            parseArray(parser, array, itemType, itemTypeDeser, lexer);
+        }else {
+            if (itemTypeDeser == null) {
+                itemTypeDeser = deserializer = parser.getConfig().getDeserializer(itemType);
             }
-            throw new JSONException(errorMessage);
+            Object val = itemTypeDeser.deserialze(parser, itemType, 0);
+            array.add(val);
+            parser.checkListResolve(array);
         }
+    }
 
+    private void parseArray(DefaultJSONParser parser, Collection array, Type itemType, ObjectDeserializer itemTypeDeser, JSONLexer lexer) {
         if (itemTypeDeser == null) {
             itemTypeDeser = deserializer = parser.getConfig().getDeserializer(itemType);
             itemFastMatchToken = deserializer.getFastMatchToken();

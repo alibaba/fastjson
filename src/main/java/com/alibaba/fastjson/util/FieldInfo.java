@@ -39,6 +39,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
     public final char[]     name_chars;
     
     public final boolean    isEnum;
+    public final boolean    jsonDirect;
     
     public final String     format;
     
@@ -81,6 +82,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         fieldAnnotation = null;
         methodAnnotation = null;
         this.getOnly = false;
+        this.jsonDirect = false;
         this.format = null;
     }
 
@@ -129,12 +131,16 @@ public class FieldInfo implements Comparable<FieldInfo> {
         String format = null;
         JSONField annotation = getAnnotation();
 
+        boolean jsonDirect = false;
         if (annotation != null) {
             format = annotation.format();
 
             if (format.trim().length() == 0) {
                 format = null;
             }
+            jsonDirect = annotation.jsonDirect();
+        } else {
+            jsonDirect = false;
         }
         this.format = format;
         
@@ -169,6 +175,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
             getOnly = Modifier.isFinal(field.getModifiers());
         }
         this.getOnly = getOnly;
+        this.jsonDirect = jsonDirect && fieldClass == String.class;
 
         if (clazz != null && fieldClass == Object.class && fieldType instanceof TypeVariable) {
             TypeVariable<?> tv = (TypeVariable<?>) fieldType;

@@ -110,6 +110,10 @@ public class SerializeConfig {
 	
 	private final ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
 	    SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null);
+	    if (beanInfo.fields.length == 0 && Iterable.class.isAssignableFrom(clazz)) {
+	        return MiscCodec.instance;
+	    }
+
 	    return createJavaBeanSerializer(beanInfo);
 	}
 	
@@ -361,7 +365,7 @@ public class SerializeConfig {
                 writer = serializers.get(clazz);
             }
         }
-
+        
         if (writer == null) {
             if (Map.class.isAssignableFrom(clazz)) {
                 put(clazz, MapSerializer.instance);
@@ -401,8 +405,7 @@ public class SerializeConfig {
                 put(clazz, ClobSeriliazer.instance);
             } else if (TypeUtils.isPath(clazz)) {
                 put(clazz, ToStringSerializer.instance);
-            } else if (Iterable.class.isAssignableFrom(clazz) // 
-                    || Iterator.class.isAssignableFrom(clazz)) {
+            } else if (Iterator.class.isAssignableFrom(clazz)) {
                 put(clazz, MiscCodec.instance);
             } else {
                 String className = clazz.getName();

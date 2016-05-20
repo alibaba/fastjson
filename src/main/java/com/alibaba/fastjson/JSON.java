@@ -896,8 +896,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             }
             return json;
         }
-
-        return null;
+        
+        String text = JSON.toJSONString(javaObject);
+        return JSON.parse(text);
     }
 
     public static <T> T toJavaObject(JSON json, Class<T> clazz) {

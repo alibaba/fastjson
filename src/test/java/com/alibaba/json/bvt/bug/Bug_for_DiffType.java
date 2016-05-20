@@ -1,5 +1,7 @@
 package com.alibaba.json.bvt.bug;
 
+import org.junit.Assert;
+
 import com.alibaba.fastjson.JSON;
 
 import junit.framework.TestCase;
@@ -9,7 +11,9 @@ public class Bug_for_DiffType extends TestCase {
         Model model = new Model();
         model.setValue(1001);
         
-        JSON.toJSONString(model);
+        String text = JSON.toJSONString(model);
+        Model model2 = JSON.parseObject(text, Model.class);
+        Assert.assertEquals(model.value, model2.value);
     }
     
     public static class Model {

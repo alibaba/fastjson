@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -61,6 +60,7 @@ import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.deserializer.Jdk8DateCodec;
 import com.alibaba.fastjson.parser.deserializer.OptionalCodec;
 import com.alibaba.fastjson.util.ASMUtils;
+import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.ServiceLoader;
 import com.alibaba.fastjson.util.TypeUtils;
@@ -138,11 +138,16 @@ public class SerializeConfig {
 		}
 		
 		if (asm) {
-    		for(Field field : clazz.getDeclaredFields()){
-    			JSONField annotation = field.getAnnotation(JSONField.class);
-                if (annotation != null //
-                    && ((!ASMUtils.checkName(annotation.name())) //
-                        || annotation.format().length() != 0)) {
+    		for(FieldInfo field : beanInfo.fields){
+    			JSONField annotation = field.getAnnotation();
+    			
+    			if (annotation == null) {
+    			    continue;
+    			}
+                if ((!ASMUtils.checkName(annotation.name())) //
+                        || annotation.format().length() != 0
+                        || annotation.jsonDirect()
+                        ) {
     				asm = false;
     				break;
     			}

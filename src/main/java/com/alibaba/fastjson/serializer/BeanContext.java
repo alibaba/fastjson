@@ -54,6 +54,10 @@ public final class BeanContext {
     public int getFeatures() {
         return fieldInfo.serialzeFeatures;
     }
+    
+    public boolean isJsonDirect() {
+        return this.fieldInfo.jsonDirect;
+    }
 
     public <T extends Annotation> T getAnnation(Class<T> annotationClass) {
         return fieldInfo.getAnnation(annotationClass);

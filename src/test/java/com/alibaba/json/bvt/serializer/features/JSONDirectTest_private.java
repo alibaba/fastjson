@@ -14,7 +14,7 @@ public class JSONDirectTest_private extends TestCase {
         model.value = "{}";
         
         String json = JSON.toJSONString(model);
-        System.out.println(json);
+//        System.out.println(json);
         Assert.assertEquals("{\"id\":1001,\"value\":{}}", json);
     }
 

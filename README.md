@@ -37,7 +37,7 @@ http://repo1.maven.org/maven2/com/alibaba/fastjson/
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>fastjson</artifactId>
-    <version>1.2.11</version>
+    <version>1.2.12</version>
 </dependency>
 ```
 
@@ -45,7 +45,7 @@ http://repo1.maven.org/maven2/com/alibaba/fastjson/
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>fastjson</artifactId>
-    <version>1.1.51.android</version>
+    <version>1.1.52.android</version>
 </dependency>
 ```
 

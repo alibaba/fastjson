@@ -896,8 +896,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             }
             return json;
         }
-
-        return null;
+        
+        String text = JSON.toJSONString(javaObject);
+        return JSON.parse(text);
     }
 
     public static <T> T toJavaObject(JSON json, Class<T> clazz) {
@@ -911,7 +912,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return TypeUtils.cast(this, clazz, ParserConfig.getGlobalInstance());
     }
 
-    public final static String VERSION = "1.2.12";
+    public final static String VERSION = "1.2.13";
     
     private final static ThreadLocal<byte[]> bytesLocal = new ThreadLocal<byte[]>();
     private static byte[] allocateBytes(int length) {

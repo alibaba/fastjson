@@ -3,6 +3,8 @@ package com.alibaba.fastjson.serializer;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.alibaba.fastjson.JSON;
+
 public abstract class SerializeFilterable {
 
     protected List<BeforeFilter>       beforeFilters       = null;
@@ -197,10 +199,13 @@ public abstract class SerializeFilterable {
                                String key, //
                                Object propertyValue) {
 
-        if (propertyValue != null //
-            && jsonBeanDeser.out.writeNonStringValueAsString) {
-            if (propertyValue instanceof Number || propertyValue instanceof Boolean) {
+        if (propertyValue != null) {
+            if (jsonBeanDeser.out.writeNonStringValueAsString //
+                    && (propertyValue instanceof Number || propertyValue instanceof Boolean)) {
                 propertyValue = propertyValue.toString();
+            } else if (beanContext != null && beanContext.isJsonDirect()) {
+                String jsonStr = (String) propertyValue;
+                propertyValue = JSON.parse(jsonStr);
             }
         }
         

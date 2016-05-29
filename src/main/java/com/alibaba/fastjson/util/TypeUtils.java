@@ -69,7 +69,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 public class TypeUtils {
 
     public static boolean   compatibleWithJavaBean      = false;
-    /** 根据FieldName的大小写输出输入数据*/
+    /** 根据field name的大小写输出输入数据*/
     public static boolean   compatibleWithFieldName      = false;
     
     private static boolean  setAccessibleEnable         = true;
@@ -84,6 +84,7 @@ public class TypeUtils {
     private static Class<?> optionalClass;
 
     static {
+        //todo 改为fastjson.properties 加载是否更方便配置？
         try {
             compatibleWithJavaBean =readProperty("fastjson.compatibleWithJavaBean");
             compatibleWithFieldName =readProperty("fastjson.compatibleWithFieldName");
@@ -1052,7 +1053,7 @@ public class TypeUtils {
     public static SerializeBeanInfo buildBeanInfo(Class<?> beanType, Map<String, String> aliasMap) {
         JSONType jsonType = beanType.getAnnotation(JSONType.class);
         
-        // fieldName,field
+        // fieldName,field ，先生成fieldName的快照，减少之后的findField的轮询
         Map<String , Field> fieldCacheMap =new HashMap<String, Field>();
         ParserConfig.parserAllFieldToCache( beanType,fieldCacheMap);
         

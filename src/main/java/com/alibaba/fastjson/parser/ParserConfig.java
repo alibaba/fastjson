@@ -629,6 +629,12 @@ public class ParserConfig {
         return null;
     }
     
+    /**
+     * fieldName,field ，先生成fieldName的快照，减少之后的findField的轮询
+     * 
+     * @param clazz
+     * @param fieldCacheMap :map<fieldName ,Field>
+     */
     public static void  parserAllFieldToCache(Class<?> clazz,Map</**fieldName*/String , Field> fieldCacheMap){
         Field[] fields=clazz.getDeclaredFields() ;
         for (Field field : fields) {

@@ -1208,11 +1208,7 @@ public class TypeUtils {
                     continue;
                 }
                 //假如bean的field很多的情况一下，轮询时将大大降低效率
-                Field field =fieldCacheMap.get(propertyName);
-                
-                if (field==null){
-                    ParserConfig.getField(clazz, propertyName);
-                }
+                Field field =ParserConfig.getFieldFromCache(propertyName,fieldCacheMap);
                 
                 JSONField fieldAnnotation = null;
                 if (field != null) {

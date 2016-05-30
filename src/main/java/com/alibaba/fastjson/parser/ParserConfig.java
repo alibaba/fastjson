@@ -647,6 +647,20 @@ public class ParserConfig {
             parserAllFieldToCache(clazz.getSuperclass(),fieldCacheMap);
         }
     }
+    
+    public static Field getFieldFromCache(String fieldName, Map<String, Field> fieldCacheMap) {
+        Field field = fieldCacheMap.get(fieldName);
+
+        if (field == null) {
+            field = fieldCacheMap.get("_" + fieldName);
+        }
+
+        if (field == null) {
+            field = fieldCacheMap.get("m_" + fieldName);
+        }
+
+        return field;
+    }
 
     public ClassLoader getDefaultClassLoader() {
         return defaultClassLoader;

@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
@@ -64,7 +63,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
     public final void parseArray(DefaultJSONParser parser, Type objectType, Collection array) {
         Type itemType = this.itemType;
         ObjectDeserializer itemTypeDeser = this.deserializer;
-        
+
         if (itemType instanceof TypeVariable //
             && objectType instanceof ParameterizedType) {
             TypeVariable typeVar = (TypeVariable) itemType;
@@ -96,45 +95,45 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
         final JSONLexer lexer = parser.lexer;
 
-        if (lexer.token() != JSONToken.LBRACKET) {
-            String errorMessage = "exepct '[', but " + JSONToken.name(lexer.token());
-            if (objectType != null) {
-                errorMessage += ", type : " + objectType;
+        if (lexer.token() == JSONToken.LBRACKET) {
+            if (itemTypeDeser == null) {
+                itemTypeDeser = deserializer = parser.getConfig().getDeserializer(itemType);
+                itemFastMatchToken = deserializer.getFastMatchToken();
             }
-            throw new JSONException(errorMessage);
-        }
 
-        if (itemTypeDeser == null) {
-            itemTypeDeser = deserializer = parser.getConfig().getDeserializer(itemType);
-            itemFastMatchToken = deserializer.getFastMatchToken();
-        }
+            lexer.nextToken(itemFastMatchToken);
 
-        lexer.nextToken(itemFastMatchToken);
+            for (int i = 0;; ++i) {
+                if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
+                    while (lexer.token() == JSONToken.COMMA) {
+                        lexer.nextToken();
+                        continue;
+                    }
+                }
 
-        for (int i = 0;; ++i) {
-            if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
-                while (lexer.token() == JSONToken.COMMA) {
-                    lexer.nextToken();
+                if (lexer.token() == JSONToken.RBRACKET) {
+                    break;
+                }
+
+                Object val = itemTypeDeser.deserialze(parser, itemType, i);
+                array.add(val);
+
+                parser.checkListResolve(array);
+
+                if (lexer.token() == JSONToken.COMMA) {
+                    lexer.nextToken(itemFastMatchToken);
                     continue;
                 }
             }
 
-            if (lexer.token() == JSONToken.RBRACKET) {
-                break;
+            lexer.nextToken(JSONToken.COMMA);
+        } else {
+            if (itemTypeDeser == null) {
+                itemTypeDeser = deserializer = parser.getConfig().getDeserializer(itemType);
             }
-
-            Object val = itemTypeDeser.deserialze(parser, itemType, i);
+            Object val = itemTypeDeser.deserialze(parser, itemType, 0);
             array.add(val);
-
             parser.checkListResolve(array);
-
-            if (lexer.token() == JSONToken.COMMA) {
-                lexer.nextToken(itemFastMatchToken);
-                continue;
-            }
         }
-
-        lexer.nextToken(JSONToken.COMMA);
     }
-
 }

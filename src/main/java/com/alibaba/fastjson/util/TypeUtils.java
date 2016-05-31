@@ -1119,7 +1119,7 @@ public class TypeUtils {
             JSONField annotation = method.getAnnotation(JSONField.class);
 
             if (annotation == null) {
-                annotation = getSupperMethodAnnotation(clazz, method);
+                annotation = getSuperMethodAnnotation(clazz, method);
             }
 
             if (annotation != null) {
@@ -1384,7 +1384,7 @@ public class TypeUtils {
         return fieldInfoList;
     }
 
-    public static JSONField getSupperMethodAnnotation(final Class<?> clazz, final Method method) {
+    public static JSONField getSuperMethodAnnotation(final Class<?> clazz, final Method method) {
         Class<?>[] interfaces = clazz.getInterfaces();
         if (interfaces.length > 0) {
             Class<?>[] types = method.getParameterTypes();

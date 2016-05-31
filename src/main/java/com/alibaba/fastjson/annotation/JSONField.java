@@ -49,4 +49,9 @@ public @interface JSONField {
     Feature[] parseFeatures() default {};
     
     String label() default "";
+    
+    /**
+     * @since 1.2.12
+     */
+    boolean jsonDirect() default false;
 }

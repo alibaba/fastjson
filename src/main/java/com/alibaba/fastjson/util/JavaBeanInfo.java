@@ -242,7 +242,7 @@ public class JavaBeanInfo {
                 JSONField annotation = method.getAnnotation(JSONField.class);
 
                 if (annotation == null) {
-                    annotation = TypeUtils.getSupperMethodAnnotation(clazz, method);
+                    annotation = TypeUtils.getSuperMethodAnnotation(clazz, method);
                 }
 
                 if (annotation != null) {
@@ -347,7 +347,7 @@ public class JavaBeanInfo {
             JSONField annotation = method.getAnnotation(JSONField.class);
 
             if (annotation == null) {
-                annotation = TypeUtils.getSupperMethodAnnotation(clazz, method);
+                annotation = TypeUtils.getSuperMethodAnnotation(clazz, method);
             }
 
             if (annotation != null) {
@@ -403,6 +403,10 @@ public class JavaBeanInfo {
                 fieldAnnotation = field.getAnnotation(JSONField.class);
 
                 if (fieldAnnotation != null) {
+                    if (!fieldAnnotation.deserialize()) {
+                        continue;
+                    }
+                    
                     ordinal = fieldAnnotation.ordinal();
                     serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
                     parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
@@ -444,6 +448,10 @@ public class JavaBeanInfo {
             JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
 
             if (fieldAnnotation != null) {
+                if (!fieldAnnotation.deserialize()) {
+                    continue;
+                }
+                
                 ordinal = fieldAnnotation.ordinal();
                 serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
                 parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
@@ -480,12 +488,16 @@ public class JavaBeanInfo {
                     String propertyName;
 
                     JSONField annotation = method.getAnnotation(JSONField.class);
+                    if (annotation != null && annotation.deserialize()) {
+                        continue;
+                    }
+                    
                     if (annotation != null && annotation.name().length() > 0) {
                         propertyName = annotation.name();
                     } else {
                         propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
                     }
-
+                    
                     FieldInfo fieldInfo = getField(fieldList, propertyName);
                     if (fieldInfo != null) {
                         continue;

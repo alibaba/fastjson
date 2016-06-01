@@ -5,7 +5,9 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Properties;
 
-
+/**
+ * @author niaoge[niaoge@gmail.com]
+ */
 public class JsonPropertiesUtils {
     public  final  static String FASTJSON_PROPERTIES  ="fastjson.properties";
     

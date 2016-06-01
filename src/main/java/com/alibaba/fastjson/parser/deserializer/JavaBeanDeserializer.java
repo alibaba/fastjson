@@ -112,7 +112,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 String parentName = context.object.getClass().getName();
                 String typeName = type.getTypeName();
               
-                if(!parentName.matches(typeName + "$.+[^$]")){
+                if(parentName.length() != typeName.lastIndexOf('$') - 1){
                 	char[] typeChars = typeName.toCharArray();
                 	StringBuilder clsNameBuilder = new StringBuilder();
                 	clsNameBuilder.append(parentName).append("$");

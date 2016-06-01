@@ -108,14 +108,17 @@ import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.JavaBeanInfo;
+import com.alibaba.fastjson.util.JsonPropertiesUtils;
 import com.alibaba.fastjson.util.ServiceLoader;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
 public class ParserConfig {
-
+    
     public final static String DENY_PROPERTY = "fastjson.parser.deny";
+    
+    public static final String[] DENYS=readSystemDenyPropety();
 
     public static ParserConfig getGlobalInstance() {
         return global;
@@ -252,7 +255,16 @@ public class ParserConfig {
         derializers.put(Closeable.class, JavaObjectDeserializer.instance);
 
         addDeny("java.lang.Thread");
-        configFromPropety(System.getProperties());
+        configFromSystemDenyPropety();
+    }
+    
+    public void configFromSystemDenyPropety() {
+        if (DENYS!=null){
+            for (int i = 0; i < DENYS.length; ++i) {
+                String item = DENYS[i];
+                this.addDeny(item);
+            }
+        }
     }
 
     public void configFromPropety(Properties properties) {
@@ -264,6 +276,16 @@ public class ParserConfig {
                 this.addDeny(item);
             }
         }
+    }
+    
+    
+    public static String[] readSystemDenyPropety() {
+        String property = JsonPropertiesUtils.getStringProperty(DENY_PROPERTY);
+        if (property != null && property.length() > 0) {
+            String[] items = property.split(",");
+            return items;
+        }
+        return null;
     }
 
     public boolean isAsmEnable() {
@@ -334,9 +356,9 @@ public class ParserConfig {
         }
 
         String className = clazz.getName();
+        className = className.replace('$', '.');
         for (int i = 0; i < denyList.length; ++i) {
             String deny = denyList[i];
-            className = className.replace('$', '.');
             if (className.startsWith(deny)) {
                 throw new JSONException("parser deny : " + className);
             }

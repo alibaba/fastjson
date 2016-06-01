@@ -69,6 +69,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 public class TypeUtils {
 
     public static boolean   compatibleWithJavaBean      = false;
+    
     /** 根据field name的大小写输出输入数据*/
     public static boolean   compatibleWithFieldName      = false;
     
@@ -82,21 +83,6 @@ public class TypeUtils {
 
     private static boolean  optionalClassInited         = false;
     private static Class<?> optionalClass;
-
-    static {
-        //todo 改为fastjson.properties 加载是否更方便配置？
-        try {
-            compatibleWithJavaBean =readProperty("fastjson.compatibleWithJavaBean");
-            compatibleWithFieldName =readProperty("fastjson.compatibleWithFieldName");
-        } catch (Throwable ex) {
-            // skip
-        }
-    }
-    
-    public static boolean readProperty(String propertyName){
-        String prop = System.getProperty(propertyName);
-        return "true".equals(prop);
-    }
 
     public static String castToString(Object value) {
         if (value == null) {
@@ -1208,7 +1194,7 @@ public class TypeUtils {
                     continue;
                 }
                 //假如bean的field很多的情况一下，轮询时将大大降低效率
-                Field field =ParserConfig.getFieldFromCache(propertyName,fieldCacheMap);
+                Field field = ParserConfig.getField(clazz, propertyName);//ParserConfig.getFieldFromCache(propertyName,fieldCacheMap);
                 
                 JSONField fieldAnnotation = null;
                 if (field != null) {

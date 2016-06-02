@@ -1169,15 +1169,7 @@ public class TypeUtils {
                     } else {
                         propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
                     }
-                   
-                   if (compatibleWithFieldName){
-                       if (!fieldCacheMap.containsKey(propertyName)){
-                           String tempPropertyName=methodName.substring(3);
-                           if (fieldCacheMap.containsKey(tempPropertyName)){
-                               propertyName =tempPropertyName;
-                           }
-                       }
-                   } 
+                    propertyName = getPropertyNameByCompatibleFieldName(fieldCacheMap, methodName,  propertyName,3); 
                 } else if (c3 == '_') {
                     propertyName = methodName.substring(4);
                 } else if (c3 == 'f') {
@@ -1194,7 +1186,7 @@ public class TypeUtils {
                     continue;
                 }
                 //假如bean的field很多的情况一下，轮询时将大大降低效率
-                Field field = ParserConfig.getField(clazz, propertyName);//ParserConfig.getFieldFromCache(propertyName,fieldCacheMap);
+                Field field = ParserConfig.getFieldFromCache(propertyName,fieldCacheMap);
                 
                 JSONField fieldAnnotation = null;
                 if (field != null) {
@@ -1252,6 +1244,7 @@ public class TypeUtils {
                     } else {
                         propertyName = Character.toLowerCase(methodName.charAt(2)) + methodName.substring(3);
                     }
+                    propertyName = getPropertyNameByCompatibleFieldName(fieldCacheMap, methodName,  propertyName,2); 
                 } else if (c2 == '_') {
                     propertyName = methodName.substring(3);
                 } else if (c2 == 'f') {
@@ -1260,10 +1253,10 @@ public class TypeUtils {
                     continue;
                 }
 
-                Field field = ParserConfig.getField(clazz, propertyName);
+                Field field = ParserConfig.getFieldFromCache(propertyName,fieldCacheMap);
 
                 if (field == null) {
-                    field = ParserConfig.getField(clazz, methodName);
+                    field = ParserConfig.getFieldFromCache(methodName,fieldCacheMap); 
                 }
 
                 JSONField fieldAnnotation = null;
@@ -1389,6 +1382,19 @@ public class TypeUtils {
         }
 
         return fieldInfoList;
+    }
+
+    private static String getPropertyNameByCompatibleFieldName(Map<String, Field> fieldCacheMap, String methodName,
+                                                               String propertyName,int fromIdx) {
+        if (compatibleWithFieldName){
+               if (!fieldCacheMap.containsKey(propertyName)){
+                   String tempPropertyName=methodName.substring(fromIdx);
+                   if (fieldCacheMap.containsKey(tempPropertyName)){
+                       return tempPropertyName;
+                   }
+               }
+           }
+        return propertyName;
     }
 
     public static JSONField getSuperMethodAnnotation(final Class<?> clazz, final Method method) {

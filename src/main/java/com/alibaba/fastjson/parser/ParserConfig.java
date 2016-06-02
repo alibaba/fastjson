@@ -106,9 +106,9 @@ import com.alibaba.fastjson.serializer.StringCodec;
 import com.alibaba.fastjson.util.ASMClassLoader;
 import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.FieldInfo;
+import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.JavaBeanInfo;
-import com.alibaba.fastjson.util.JsonPropertiesUtils;
 import com.alibaba.fastjson.util.ServiceLoader;
 
 /**
@@ -280,7 +280,7 @@ public class ParserConfig {
     
     
     public static String[] readSystemDenyPropety() {
-        String property = JsonPropertiesUtils.getStringProperty(DENY_PROPERTY);
+        String property = IOUtils.getStringProperty(DENY_PROPERTY);
         if (property != null && property.length() > 0) {
             String[] items = property.split(",");
             return items;

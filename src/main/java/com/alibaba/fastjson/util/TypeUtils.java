@@ -1389,9 +1389,7 @@ public class TypeUtils {
         if (compatibleWithFieldName){
                if (!fieldCacheMap.containsKey(propertyName)){
                    String tempPropertyName=methodName.substring(fromIdx);
-                   if (fieldCacheMap.containsKey(tempPropertyName)){
-                       return tempPropertyName;
-                   }
+                   return  fieldCacheMap.containsKey(tempPropertyName)?tempPropertyName:propertyName;
                }
            }
         return propertyName;

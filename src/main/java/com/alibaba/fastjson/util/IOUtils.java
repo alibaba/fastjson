@@ -81,7 +81,7 @@ public class IOUtils {
     static {
         try {
             new PropertiesInitializer().autoConfig();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             //skip
         }
     }
@@ -100,7 +100,7 @@ public class IOUtils {
         try {
             prop = System.getProperty(name);
         } catch (SecurityException e) {
-            ; // skip
+            //skip
         }
         return (prop == null) ? DEFAULT_PROPERTIES.getProperty(name) : prop;
     }

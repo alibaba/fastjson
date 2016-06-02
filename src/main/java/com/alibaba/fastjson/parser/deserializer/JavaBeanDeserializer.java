@@ -109,7 +109,53 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 object = constructor.newInstance();
             } else {
                 ParseContext context = parser.getContext();
-                object = constructor.newInstance(context.object);
+                String parentName = context.object.getClass().getName();
+                String typeName = type.getTypeName();
+              
+                if(parentName.length() != typeName.lastIndexOf('$') - 1){
+                	char[] typeChars = typeName.toCharArray();
+                	StringBuilder clsNameBuilder = new StringBuilder();
+                	clsNameBuilder.append(parentName).append("$");
+                	Map<String, Object> outterCached = new HashMap<String, Object>();
+                	outterCached.put(parentName, context.object);//outtest
+    				for(int i = parentName.length() + 1;  i <= typeName.lastIndexOf('$'); i ++){
+    					char thisChar = typeChars[i];
+    					if(thisChar == '$'){
+    						String clsName = clsNameBuilder.toString();
+    						Object outter = outterCached.get(parentName);
+    						Class<?> clazz;
+							try {
+								clazz = Class.forName(parentName);
+							
+        						if(outter != null){
+        							Class<?> innerCls = Class.forName(clsName);
+        							Constructor<?> innerClsConstructor = innerCls.getDeclaredConstructor(clazz);
+        							if(!innerClsConstructor.isAccessible()){
+        								innerClsConstructor.setAccessible(true);
+        							}
+        							Object inner = innerClsConstructor.newInstance(outter);
+        							outterCached.put(clsName, inner);
+        							parentName = clsName;
+        						}
+							}catch(ClassNotFoundException e){
+								throw new JSONException("unable to find class " + parentName);
+							}catch(NoSuchMethodException e){
+								throw new RuntimeException(e);// no default contrutor
+							}catch(InvocationTargetException e){
+								throw new RuntimeException("can not instantiate " + clsName);
+							}catch(IllegalAccessException e){
+								throw new RuntimeException(e);
+							}catch(InstantiationException e){
+								throw new RuntimeException(e);
+							}
+    					}
+    					clsNameBuilder.append(thisChar);
+    				}
+    				object = constructor.newInstance(outterCached.get(parentName));
+                }else{
+                	object = constructor.newInstance(context.object);
+                }
+                
             }
         } catch (Exception e) {
             throw new JSONException("create instance error, class " + clazz.getName(), e);

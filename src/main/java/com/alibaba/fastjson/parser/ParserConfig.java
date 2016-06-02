@@ -255,22 +255,23 @@ public class ParserConfig {
         derializers.put(Closeable.class, JavaObjectDeserializer.instance);
 
         addDeny("java.lang.Thread");
-        configFromSystemDenyPropety();
+        addItemsToDeny(DENYS);
     }
     
-    public void configFromSystemDenyPropety() {
-        if (DENYS!=null){
-            for (int i = 0; i < DENYS.length; ++i) {
-                String item = DENYS[i];
-                this.addDeny(item);
-            }
+    private static String[] splitItemsFormProperty(final String property ){
+        if (property != null && property.length() > 0) {
+            return property.split(",");
         }
+        return null;
     }
-
     public void configFromPropety(Properties properties) {
         String property = properties.getProperty(DENY_PROPERTY);
-        if (property != null && property.length() > 0) {
-            String[] items = property.split(",");
+        String[] items =splitItemsFormProperty(property);
+        addItemsToDeny(items);
+    }
+    
+    private void addItemsToDeny(final String[] items){
+        if (items!=null){
             for (int i = 0; i < items.length; ++i) {
                 String item = items[i];
                 this.addDeny(item);
@@ -278,14 +279,9 @@ public class ParserConfig {
         }
     }
     
-    
     public static String[] readSystemDenyPropety() {
         String property = IOUtils.getStringProperty(DENY_PROPERTY);
-        if (property != null && property.length() > 0) {
-            String[] items = property.split(",");
-            return items;
-        }
-        return null;
+        return splitItemsFormProperty(property);
     }
 
     public boolean isAsmEnable() {
@@ -622,33 +618,6 @@ public class ParserConfig {
                || clazz == java.sql.Timestamp.class //
                || clazz.isEnum() //
         ;
-    }
-
-    public static Field getField(Class<?> clazz, String fieldName) {
-        Field field = getField0(clazz, fieldName);
-
-        if (field == null) {
-            field = getField0(clazz, "_" + fieldName);
-        }
-
-        if (field == null) {
-            field = getField0(clazz, "m_" + fieldName);
-        }
-
-        return field;
-    }
-
-    private static Field getField0(Class<?> clazz, String fieldName) {
-        for (Field item : clazz.getDeclaredFields()) {
-            if (fieldName.equals(item.getName())) {
-                return item;
-            }
-        }
-        if (clazz.getSuperclass() != null && clazz.getSuperclass() != Object.class) {
-            return getField(clazz.getSuperclass(), fieldName);
-        }
-
-        return null;
     }
     
     /**

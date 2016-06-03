@@ -1,10 +1,14 @@
 package com.alibaba.json.bvt.serializer;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import junit.framework.TestCase;
 
 import org.junit.Assert;
-import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.ParserConfig;
@@ -22,9 +26,10 @@ public class TransientTest extends TestCase {
 
         String text = JSON.toJSONString(parent);
         System.out.println(text);
-
-        Assert.assertNotNull(ParserConfig.getField(Category.class, "name"));
-        Assert.assertNull(ParserConfig.getField(Category.class, "abc"));
+        Map</**fieldName*/String , Field> fieldCacheMap =new HashMap<String, Field>();
+        ParserConfig.parserAllFieldToCache(Category.class, fieldCacheMap);  
+        Assert.assertNotNull(ParserConfig.getFieldFromCache("name", fieldCacheMap));
+        Assert.assertNull(ParserConfig.getFieldFromCache("abc",fieldCacheMap));
     }
 
     public static class Category {

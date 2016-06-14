@@ -38,6 +38,8 @@ import java.util.HashSet;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.parser.dtos.AddSymbolDTO;
+import com.alibaba.fastjson.parser.dtos.ArrayCopyDTO;
 
 /**
  * @author wenshao<szujobs@hotmail.com>
@@ -697,7 +699,7 @@ public abstract class JSONLexer implements Closeable {
 
     // public abstract String scanSymbol(final SymbolTable symbolTable, final char quote);
 
-    protected abstract void arrayCopy(int srcPos, char[] dest, int destPos, int length);
+    protected abstract void arrayCopy(ArrayCopyDTO parameterObject);
 
     public final String scanSymbol(final SymbolTable symbolTable, final char quote) {
         int hash = 0;
@@ -733,7 +735,7 @@ public abstract class JSONLexer implements Closeable {
 
                     // text.getChars(np + 1, np + 1 + sp, sbuf, 0);
                     // System.arraycopy(this.buf, np + 1, sbuf, 0, sp);
-                    arrayCopy(np + 1, sbuf, 0, sp);
+                    arrayCopy(new ArrayCopyDTO(np + 1, sbuf, 0, sp));
                 }
 
                 chLocal = charAt(++bp);
@@ -856,7 +858,7 @@ public abstract class JSONLexer implements Closeable {
 
         if (!hasSpecial) {
             // return this.text.substring(np + 1, np + 1 + sp).intern();
-            return addSymbol(np + 1, sp, hash, symbolTable);
+            return addSymbol(new AddSymbolDTO(np + 1, sp, hash, symbolTable));
         } else {
             return symbolTable.addSymbol(sbuf, 0, sp, hash);
         }
@@ -908,7 +910,7 @@ public abstract class JSONLexer implements Closeable {
 
         // return text.substring(np, np + sp).intern();
 
-        return this.addSymbol(np, sp, hash, symbolTable);
+        return this.addSymbol(new AddSymbolDTO(np, sp, hash, symbolTable));
         // return symbolTable.addSymbol(buf, np, sp, hash);
     }
 
@@ -1192,7 +1194,7 @@ public abstract class JSONLexer implements Closeable {
 
     public abstract int indexOf(char ch, int startIndex);
 
-    public abstract String addSymbol(int offset, int len, int hash, final SymbolTable symbolTable);
+    public abstract String addSymbol(AddSymbolDTO parameterObject);
 
     public String scanFieldString(char[] fieldName) {
         matchStat = UNKOWN;
@@ -1305,7 +1307,7 @@ public abstract class JSONLexer implements Closeable {
                 // this.ch = chLocal = charAt(bp);
                 int start = bp + fieldName.length + 1;
                 int len = bp + offset - start - 1;
-                strVal = addSymbol(start, len, hash, symbolTable);
+                strVal = addSymbol(new AddSymbolDTO(start, len, hash, symbolTable));
                 chLocal = charAt(bp + (offset++));
                 break;
             }
@@ -1897,155 +1899,221 @@ public abstract class JSONLexer implements Closeable {
     }
 
     public final void scanTrue() {
-        if (ch != 't') {
-            throw new JSONException("error parse true");
-        }
-        next();
+        scanTrueTreeCharT();
+        scanTrueTreeCharR();
+        scanTrueTreeCharU();
+        scanTrueTreeCharE();
+        
+        scanTrueCharMisc();
+    }
 
-        if (ch != 'r') {
-            throw new JSONException("error parse true");
-        }
-        next();
-
-        if (ch != 'u') {
-            throw new JSONException("error parse true");
-        }
-        next();
-
-        if (ch != 'e') {
-            throw new JSONException("error parse true");
-        }
-        next();
-
-        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
+	private void scanTrueCharMisc() {
+		if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
             || ch == '\f' || ch == '\b') {
             token = JSONToken.TRUE;
         } else {
             throw new JSONException("scan true error");
         }
-    }
+	}
+
+	private void scanTrueTreeCharE() {
+		if (ch != 'e') {
+            throwErrorParseTrue();
+        }
+        next();
+	}
+
+	private void scanTrueTreeCharU() {
+		if (ch != 'u') {
+            throwErrorParseTrue();
+        }
+        next();
+	}
+
+	private void scanTrueTreeCharR() {
+		if (ch != 'r') {
+            throwErrorParseTrue();
+        }
+        next();
+	}
+
+	private void scanTrueTreeCharT() {
+		if (ch != 't') {
+            throwErrorParseTrue();
+        }
+        next();
+	}
+
+	private void throwErrorParseTrue() {
+		throw new JSONException("error parse true");
+	}
 
     public final void scanTreeSet() {
-        if (ch != 'T') {
-            throw new JSONException("error parse true");
-        }
-        next();
+        scanTreeCharCptT();
 
-        if (ch != 'r') {
-            throw new JSONException("error parse true");
-        }
-        next();
+        scanTrueTreeCharR();
 
-        if (ch != 'e') {
-            throw new JSONException("error parse true");
-        }
-        next();
+        scanTrueTreeCharE();
 
-        if (ch != 'e') {
-            throw new JSONException("error parse true");
-        }
-        next();
+        scanTrueTreeCharE();
 
-        if (ch != 'S') {
-            throw new JSONException("error parse true");
-        }
-        next();
+        scanTreeCharCptS();
 
-        if (ch != 'e') {
-            throw new JSONException("error parse true");
-        }
-        next();
+        scanTrueTreeCharE();
 
-        if (ch != 't') {
-            throw new JSONException("error parse true");
-        }
-        next();
+        scanTrueTreeCharT();
 
-        if (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b' || ch == '[' || ch == '(') {
+        scanTreeCharMisc();
+    }
+
+	private void scanTreeCharMisc() {
+		if (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b' || ch == '[' || ch == '(') {
             token = JSONToken.TREE_SET;
         } else {
             throw new JSONException("scan set error");
         }
-    }
+	}
 
-    public final void scanNullOrNew() {
-        if (ch != 'n') {
-            throw new JSONException("error parse null or new");
+	private void scanTreeCharCptS() {
+		if (ch != 'S') {
+            throwErrorParseTrue();
         }
         next();
+	}
+
+	private void scanTreeCharCptT() {
+		if (ch != 'T') {
+            throwErrorParseTrue();
+        }
+        next();
+	}
+
+    public final void scanNullOrNew() {
+        scanNullOrNewCharN();
 
         if (ch == 'u') {
-            next();
-            if (ch != 'l') {
-                throw new JSONException("error parse true");
-            }
-            next();
-
-            if (ch != 'l') {
-                throw new JSONException("error parse true");
-            }
-            next();
-
-            if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
-                || ch == '\f' || ch == '\b') {
-                token = JSONToken.NULL;
-            } else {
-                throw new JSONException("scan true error");
-            }
+            scanNullOrNewCharU();
             return;
         }
 
-        if (ch != 'e') {
-            throw new JSONException("error parse e");
-        }
-        next();
+        scanNullOrNewCharE();
 
-        if (ch != 'w') {
-            throw new JSONException("error parse w");
-        }
-        next();
+        scanNullOrNewCharW();
 
-        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
+        scanNullOrNewCharMisc();
+    }
+
+	private void scanNullOrNewCharMisc() {
+		if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
             || ch == '\f' || ch == '\b') {
             token = JSONToken.NEW;
         } else {
             throw new JSONException("scan true error");
         }
-    }
+	}
+
+	private void scanNullOrNewCharW() {
+		if (ch != 'w') {
+            throw new JSONException("error parse w");
+        }
+        next();
+	}
+
+	private void scanNullOrNewCharE() {
+		if (ch != 'e') {
+            throw new JSONException("error parse e");
+        }
+        next();
+	}
+
+	private void scanNullOrNewCharU() {
+		next();
+		scanNullCharL();
+		scanNullCharL();
+
+		scanNullCharMisc();
+	}
+
+	private void scanNullCharMisc() {
+		if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
+		    || ch == '\f' || ch == '\b') {
+		    token = JSONToken.NULL;
+		} else {
+		    throw new JSONException("scan true error");
+		}
+	}
+
+	private void scanNullCharL() {
+		if (ch != 'l') {
+		    throwErrorParseTrue();
+		}
+		next();
+	}
+
+	private void scanNullOrNewCharN() {
+		if (ch != 'n') {
+            throw new JSONException("error parse null or new");
+        }
+        next();
+	}
 
     public final void scanFalse() {
-        if (ch != 'f') {
-            throw new JSONException("error parse false");
-        }
-        next();
+        scanFalseCharF();
 
-        if (ch != 'a') {
-            throw new JSONException("error parse false");
-        }
-        next();
+        scanFalseCharA();
 
-        if (ch != 'l') {
-            throw new JSONException("error parse false");
-        }
-        next();
+        scanFalseCharL();
 
-        if (ch != 's') {
-            throw new JSONException("error parse false");
-        }
-        next();
+        scanFalseCharS();
 
-        if (ch != 'e') {
-            throw new JSONException("error parse false");
-        }
-        next();
+        scanFalseCharE();
 
-        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
+        scanFalseCharMisc();
+    }
+
+	private void scanFalseCharMisc() {
+		if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
             || ch == '\f' || ch == '\b') {
             token = JSONToken.FALSE;
         } else {
             throw new JSONException("scan false error");
         }
-    }
+	}
+
+	private void scanFalseCharE() {
+		if (ch != 'e') {
+            throw new JSONException("error parse false");
+        }
+        next();
+	}
+
+	private void scanFalseCharS() {
+		if (ch != 's') {
+            throw new JSONException("error parse false");
+        }
+        next();
+	}
+
+	private void scanFalseCharL() {
+		if (ch != 'l') {
+            throw new JSONException("error parse false");
+        }
+        next();
+	}
+
+	private void scanFalseCharA() {
+		if (ch != 'a') {
+            throw new JSONException("error parse false");
+        }
+        next();
+	}
+
+	private void scanFalseCharF() {
+		if (ch != 'f') {
+            throw new JSONException("error parse false");
+        }
+        next();
+	}
 
     public final void scanIdent() {
         np = bp - 1;
@@ -2231,20 +2299,11 @@ public abstract class JSONLexer implements Closeable {
     }
 
     public final void scanSet() {
-        if (ch != 'S') {
-            throw new JSONException("error parse true");
-        }
-        next();
+        scanTreeCharCptS();
 
-        if (ch != 'e') {
-            throw new JSONException("error parse true");
-        }
-        next();
+        scanTrueTreeCharE();
 
-        if (ch != 't') {
-            throw new JSONException("error parse true");
-        }
-        next();
+        scanTrueTreeCharT();
 
         if (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b' || ch == '[' || ch == '(') {
             token = JSONToken.SET;

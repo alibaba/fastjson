@@ -23,6 +23,8 @@ import java.lang.ref.SoftReference;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.parser.dtos.AddSymbolDTO;
+import com.alibaba.fastjson.parser.dtos.ArrayCopyDTO;
 import com.alibaba.fastjson.util.Base64;
 import com.alibaba.fastjson.util.IOUtils;
 
@@ -137,8 +139,8 @@ public final class JSONReaderScanner extends JSONLexer {
         }
     }
 
-    public final String addSymbol(int offset, int len, int hash, final SymbolTable symbolTable) {
-        return symbolTable.addSymbol(buf, offset, len, hash);
+    public final String addSymbol(AddSymbolDTO parameterObject) {
+        return parameterObject.symbolTable.addSymbol(buf, parameterObject.offset, parameterObject.len, parameterObject.hash);
     }
 
     public final char next() {
@@ -200,8 +202,8 @@ public final class JSONReaderScanner extends JSONLexer {
         return Base64.decodeFast(buf, np + 1, sp);
     }
 
-    protected final void arrayCopy(int srcPos, char[] dest, int destPos, int length) {
-        System.arraycopy(buf, srcPos, dest, destPos, length);
+    protected final void arrayCopy(ArrayCopyDTO parameterObject) {
+        System.arraycopy(buf, parameterObject.srcPos, parameterObject.dest, parameterObject.destPos, parameterObject.length);
     }
 
     /**

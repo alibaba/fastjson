@@ -7,8 +7,9 @@ import java.util.Date;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
+import com.alibaba.fastjson.parser.scanner.JSONScanner;
+import com.alibaba.fastjson.parser.scanner.JSONScannerDateTime;
 
 public class SqlDateDeserializer extends AbstractDateDeserializer implements ObjectDeserializer {
 
@@ -32,7 +33,7 @@ public class SqlDateDeserializer extends AbstractDateDeserializer implements Obj
 
             long longVal;
 
-            JSONScanner dateLexer = new JSONScanner(strVal);
+            JSONScannerDateTime dateLexer = new JSONScannerDateTime(strVal);
             try {
                 if (dateLexer.scanISO8601DateIfMatch()) {
                     longVal = dateLexer.getCalendar().getTimeInMillis();

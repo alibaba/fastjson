@@ -38,6 +38,8 @@ import java.util.HashSet;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.parser.dtos.AddSymbolDTO;
+import com.alibaba.fastjson.parser.dtos.ArrayCopyDTO;
 
 /**
  * @author wenshao<szujobs@hotmail.com>
@@ -697,7 +699,7 @@ public abstract class JSONLexer implements Closeable {
 
     // public abstract String scanSymbol(final SymbolTable symbolTable, final char quote);
 
-    protected abstract void arrayCopy(int srcPos, char[] dest, int destPos, int length);
+    protected abstract void arrayCopy(ArrayCopyDTO parameterObject);
 
     public final String scanSymbol(final SymbolTable symbolTable, final char quote) {
         int hash = 0;
@@ -733,7 +735,7 @@ public abstract class JSONLexer implements Closeable {
 
                     // text.getChars(np + 1, np + 1 + sp, sbuf, 0);
                     // System.arraycopy(this.buf, np + 1, sbuf, 0, sp);
-                    arrayCopy(np + 1, sbuf, 0, sp);
+                    arrayCopy(new ArrayCopyDTO(np + 1, sbuf, 0, sp));
                 }
 
                 chLocal = charAt(++bp);
@@ -856,7 +858,7 @@ public abstract class JSONLexer implements Closeable {
 
         if (!hasSpecial) {
             // return this.text.substring(np + 1, np + 1 + sp).intern();
-            return addSymbol(np + 1, sp, hash, symbolTable);
+            return addSymbol(new AddSymbolDTO(np + 1, sp, hash, symbolTable));
         } else {
             return symbolTable.addSymbol(sbuf, 0, sp, hash);
         }
@@ -908,7 +910,7 @@ public abstract class JSONLexer implements Closeable {
 
         // return text.substring(np, np + sp).intern();
 
-        return this.addSymbol(np, sp, hash, symbolTable);
+        return this.addSymbol(new AddSymbolDTO(np, sp, hash, symbolTable));
         // return symbolTable.addSymbol(buf, np, sp, hash);
     }
 
@@ -1192,7 +1194,7 @@ public abstract class JSONLexer implements Closeable {
 
     public abstract int indexOf(char ch, int startIndex);
 
-    public abstract String addSymbol(int offset, int len, int hash, final SymbolTable symbolTable);
+    public abstract String addSymbol(AddSymbolDTO parameterObject);
 
     public String scanFieldString(char[] fieldName) {
         matchStat = UNKOWN;
@@ -1305,7 +1307,7 @@ public abstract class JSONLexer implements Closeable {
                 // this.ch = chLocal = charAt(bp);
                 int start = bp + fieldName.length + 1;
                 int len = bp + offset - start - 1;
-                strVal = addSymbol(start, len, hash, symbolTable);
+                strVal = addSymbol(new AddSymbolDTO(start, len, hash, symbolTable));
                 chLocal = charAt(bp + (offset++));
                 break;
             }

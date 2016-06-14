@@ -66,6 +66,8 @@ import com.alibaba.fastjson.parser.deserializer.LongDeserializer;
 import com.alibaba.fastjson.parser.deserializer.MapResolveFieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.StringDeserializer;
+import com.alibaba.fastjson.parser.scanner.JSONScanner;
+import com.alibaba.fastjson.parser.scanner.JSONScannerDateTime;
 import com.alibaba.fastjson.util.TypeUtils;
 
 /**
@@ -384,7 +386,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                     value = strValue;
 
                     if (lexer.isEnabled(Feature.AllowISO8601DateFormat)) {
-                        JSONScanner iso8601Lexer = new JSONScanner(strValue);
+                    	JSONScannerDateTime iso8601Lexer = new JSONScannerDateTime(strValue);
                         if (iso8601Lexer.scanISO8601DateIfMatch()) {
                             value = iso8601Lexer.getCalendar().getTime();
                         }
@@ -993,7 +995,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                         lexer.nextToken(JSONToken.COMMA);
 
                         if (lexer.isEnabled(Feature.AllowISO8601DateFormat)) {
-                            JSONScanner iso8601Lexer = new JSONScanner(stringLiteral);
+                        	JSONScannerDateTime iso8601Lexer = new JSONScannerDateTime(stringLiteral);
                             if (iso8601Lexer.scanISO8601DateIfMatch()) {
                                 value = iso8601Lexer.getCalendar().getTime();
                             } else {
@@ -1190,7 +1192,7 @@ public class DefaultJSONParser extends AbstractJSONParser implements Closeable {
                 lexer.nextToken(JSONToken.COMMA);
 
                 if (lexer.isEnabled(Feature.AllowISO8601DateFormat)) {
-                    JSONScanner iso8601Lexer = new JSONScanner(stringLiteral);
+                	JSONScannerDateTime iso8601Lexer = new JSONScannerDateTime(stringLiteral);
                     try {
                         if (iso8601Lexer.scanISO8601DateIfMatch()) {
                             return iso8601Lexer.getCalendar().getTime();

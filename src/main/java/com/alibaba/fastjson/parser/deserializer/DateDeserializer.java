@@ -6,8 +6,9 @@ import java.text.ParseException;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
+import com.alibaba.fastjson.parser.scanner.JSONScanner;
+import com.alibaba.fastjson.parser.scanner.JSONScannerDateTime;
 
 public class DateDeserializer extends AbstractDateDeserializer implements ObjectDeserializer {
 
@@ -30,7 +31,7 @@ public class DateDeserializer extends AbstractDateDeserializer implements Object
                 return null;
             }
 
-            JSONScanner dateLexer = new JSONScanner(strVal);
+            JSONScannerDateTime dateLexer = new JSONScannerDateTime(strVal);
             try {
                 if (dateLexer.scanISO8601DateIfMatch(false)) {
                     return (T) dateLexer.getCalendar().getTime();

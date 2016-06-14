@@ -7,8 +7,9 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
-import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
+import com.alibaba.fastjson.parser.scanner.JSONScanner;
+import com.alibaba.fastjson.parser.scanner.JSONScannerDateTime;
 import com.alibaba.fastjson.util.TypeUtils;
 
 public abstract class AbstractDateDeserializer implements ObjectDeserializer {
@@ -27,7 +28,7 @@ public abstract class AbstractDateDeserializer implements ObjectDeserializer {
             lexer.nextToken(JSONToken.COMMA);
             
             if (lexer.isEnabled(Feature.AllowISO8601DateFormat)) {
-                JSONScanner iso8601Lexer = new JSONScanner(strVal);
+            	JSONScannerDateTime iso8601Lexer = new JSONScannerDateTime(strVal);
                 if (iso8601Lexer.scanISO8601DateIfMatch()) {
                     val = iso8601Lexer.getCalendar().getTime();
                 }

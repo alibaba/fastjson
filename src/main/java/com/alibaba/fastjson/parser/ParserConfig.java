@@ -106,6 +106,7 @@ import com.alibaba.fastjson.serializer.StringCodec;
 import com.alibaba.fastjson.util.ASMClassLoader;
 import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.FieldInfo;
+import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.JavaBeanInfo;
 import com.alibaba.fastjson.util.ServiceLoader;
@@ -114,8 +115,10 @@ import com.alibaba.fastjson.util.ServiceLoader;
  * @author wenshao[szujobs@hotmail.com]
  */
 public class ParserConfig {
-
+    
     public final static String DENY_PROPERTY = "fastjson.parser.deny";
+    
+    public static final String[] DENYS=readSystemDenyPropety();
 
     public static ParserConfig getGlobalInstance() {
         return global;
@@ -252,18 +255,33 @@ public class ParserConfig {
         derializers.put(Closeable.class, JavaObjectDeserializer.instance);
 
         addDeny("java.lang.Thread");
-        configFromPropety(System.getProperties());
+        addItemsToDeny(DENYS);
     }
-
+    
+    private static String[] splitItemsFormProperty(final String property ){
+        if (property != null && property.length() > 0) {
+            return property.split(",");
+        }
+        return null;
+    }
     public void configFromPropety(Properties properties) {
         String property = properties.getProperty(DENY_PROPERTY);
-        if (property != null && property.length() > 0) {
-            String[] items = property.split(",");
+        String[] items =splitItemsFormProperty(property);
+        addItemsToDeny(items);
+    }
+    
+    private void addItemsToDeny(final String[] items){
+        if (items!=null){
             for (int i = 0; i < items.length; ++i) {
                 String item = items[i];
                 this.addDeny(item);
             }
         }
+    }
+    
+    public static String[] readSystemDenyPropety() {
+        String property = IOUtils.getStringProperty(DENY_PROPERTY);
+        return splitItemsFormProperty(property);
     }
 
     public boolean isAsmEnable() {
@@ -334,9 +352,9 @@ public class ParserConfig {
         }
 
         String className = clazz.getName();
+        className = className.replace('$', '.');
         for (int i = 0; i < denyList.length; ++i) {
             String deny = denyList[i];
-            className = className.replace('$', '.');
             if (className.startsWith(deny)) {
                 throw new JSONException("parser deny : " + className);
             }
@@ -601,32 +619,38 @@ public class ParserConfig {
                || clazz.isEnum() //
         ;
     }
-
-    public static Field getField(Class<?> clazz, String fieldName) {
-        Field field = getField0(clazz, fieldName);
-
-        if (field == null) {
-            field = getField0(clazz, "_" + fieldName);
-        }
-
-        if (field == null) {
-            field = getField0(clazz, "m_" + fieldName);
-        }
-
-        return field;
-    }
-
-    private static Field getField0(Class<?> clazz, String fieldName) {
-        for (Field item : clazz.getDeclaredFields()) {
-            if (fieldName.equals(item.getName())) {
-                return item;
+    
+    /**
+     * fieldName,field ，先生成fieldName的快照，减少之后的findField的轮询
+     * 
+     * @param clazz
+     * @param fieldCacheMap :map<fieldName ,Field>
+     */
+    public static void  parserAllFieldToCache(Class<?> clazz,Map</**fieldName*/String , Field> fieldCacheMap){
+        Field[] fields=clazz.getDeclaredFields() ;
+        for (Field field : fields) {
+            String fieldName=field.getName();
+            if (!fieldCacheMap.containsKey(fieldName)){
+                fieldCacheMap.put(fieldName, field);
             }
         }
         if (clazz.getSuperclass() != null && clazz.getSuperclass() != Object.class) {
-            return getField(clazz.getSuperclass(), fieldName);
+            parserAllFieldToCache(clazz.getSuperclass(),fieldCacheMap);
+        }
+    }
+    
+    public static Field getFieldFromCache(String fieldName, Map<String, Field> fieldCacheMap) {
+        Field field = fieldCacheMap.get(fieldName);
+
+        if (field == null) {
+            field = fieldCacheMap.get("_" + fieldName);
         }
 
-        return null;
+        if (field == null) {
+            field = fieldCacheMap.get("m_" + fieldName);
+        }
+
+        return field;
     }
 
     public ClassLoader getDefaultClassLoader() {

@@ -242,7 +242,7 @@ public class JavaBeanInfo {
                 JSONField annotation = method.getAnnotation(JSONField.class);
 
                 if (annotation == null) {
-                    annotation = TypeUtils.getSupperMethodAnnotation(clazz, method);
+                    annotation = TypeUtils.getSuperMethodAnnotation(clazz, method);
                 }
 
                 if (annotation != null) {
@@ -347,7 +347,7 @@ public class JavaBeanInfo {
             JSONField annotation = method.getAnnotation(JSONField.class);
 
             if (annotation == null) {
-                annotation = TypeUtils.getSupperMethodAnnotation(clazz, method);
+                annotation = TypeUtils.getSuperMethodAnnotation(clazz, method);
             }
 
             if (annotation != null) {

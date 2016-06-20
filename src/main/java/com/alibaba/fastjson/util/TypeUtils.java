@@ -69,6 +69,10 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 public class TypeUtils {
 
     public static boolean   compatibleWithJavaBean      = false;
+    
+    /** 根据field name的大小写输出输入数据*/
+    public static boolean   compatibleWithFieldName      = false;
+    
     private static boolean  setAccessibleEnable         = true;
 
     private static boolean  oracleTimestampMethodInited = false;
@@ -79,19 +83,6 @@ public class TypeUtils {
 
     private static boolean  optionalClassInited         = false;
     private static Class<?> optionalClass;
-
-    static {
-        try {
-            String prop = System.getProperty("fastjson.compatibleWithJavaBean");
-            if ("true".equals(prop)) {
-                compatibleWithJavaBean = true;
-            } else if ("false".equals(prop)) {
-                compatibleWithJavaBean = false;
-            }
-        } catch (Throwable ex) {
-            // skip
-        }
-    }
 
     public static String castToString(Object value) {
         if (value == null) {
@@ -1044,10 +1035,15 @@ public class TypeUtils {
         return clazz;
     }
     
+
     public static SerializeBeanInfo buildBeanInfo(Class<?> beanType, Map<String, String> aliasMap) {
         JSONType jsonType = beanType.getAnnotation(JSONType.class);
         
-        List<FieldInfo> fieldInfoList = computeGetters(beanType, jsonType, aliasMap, false);
+        // fieldName,field ，先生成fieldName的快照，减少之后的findField的轮询
+        Map<String , Field> fieldCacheMap =new HashMap<String, Field>();
+        ParserConfig.parserAllFieldToCache( beanType,fieldCacheMap);
+        
+        List<FieldInfo> fieldInfoList = computeGetters(beanType, jsonType, aliasMap,fieldCacheMap, false);
         FieldInfo[] fields = new FieldInfo[fieldInfoList.size()];
         fieldInfoList.toArray(fields);
         
@@ -1069,7 +1065,7 @@ public class TypeUtils {
         FieldInfo[] sortedFields;
         List<FieldInfo> sortedFieldList;
         if (orders != null && orders.length != 0) {
-            sortedFieldList = TypeUtils.computeGetters(beanType, jsonType, aliasMap, true);
+            sortedFieldList = TypeUtils.computeGetters(beanType, jsonType, aliasMap,fieldCacheMap, true);
         } else {
             sortedFieldList = new ArrayList<FieldInfo>(fieldInfoList);
             Collections.sort(sortedFieldList);
@@ -1087,6 +1083,7 @@ public class TypeUtils {
     public static List<FieldInfo> computeGetters(Class<?> clazz, // 
                                                  JSONType jsonType, // 
                                                  Map<String, String> aliasMap, //
+                                                 Map<String, Field> fieldCacheMap, //
                                                  boolean sorted) {
         Map<String, FieldInfo> fieldInfoMap = new LinkedHashMap<String, FieldInfo>();
 
@@ -1119,7 +1116,7 @@ public class TypeUtils {
             JSONField annotation = method.getAnnotation(JSONField.class);
 
             if (annotation == null) {
-                annotation = getSupperMethodAnnotation(clazz, method);
+                annotation = getSuperMethodAnnotation(clazz, method);
             }
 
             if (annotation != null) {
@@ -1167,11 +1164,12 @@ public class TypeUtils {
                 if (Character.isUpperCase(c3) //
                     || c3 > 512 // for unicode method name
                 ) {
-                    if (compatibleWithJavaBean) {
+                   if (compatibleWithJavaBean) {
                         propertyName = decapitalize(methodName.substring(3));
                     } else {
                         propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
                     }
+                    propertyName = getPropertyNameByCompatibleFieldName(fieldCacheMap, methodName,  propertyName,3); 
                 } else if (c3 == '_') {
                     propertyName = methodName.substring(4);
                 } else if (c3 == 'f') {
@@ -1187,8 +1185,9 @@ public class TypeUtils {
                 if (ignore) {
                     continue;
                 }
-
-                Field field = ParserConfig.getField(clazz, propertyName);
+                //假如bean的field很多的情况一下，轮询时将大大降低效率
+                Field field = ParserConfig.getFieldFromCache(propertyName,fieldCacheMap);
+                
                 JSONField fieldAnnotation = null;
                 if (field != null) {
                     fieldAnnotation = field.getAnnotation(JSONField.class);
@@ -1245,6 +1244,7 @@ public class TypeUtils {
                     } else {
                         propertyName = Character.toLowerCase(methodName.charAt(2)) + methodName.substring(3);
                     }
+                    propertyName = getPropertyNameByCompatibleFieldName(fieldCacheMap, methodName,  propertyName,2); 
                 } else if (c2 == '_') {
                     propertyName = methodName.substring(3);
                 } else if (c2 == 'f') {
@@ -1253,10 +1253,10 @@ public class TypeUtils {
                     continue;
                 }
 
-                Field field = ParserConfig.getField(clazz, propertyName);
+                Field field = ParserConfig.getFieldFromCache(propertyName,fieldCacheMap);
 
                 if (field == null) {
-                    field = ParserConfig.getField(clazz, methodName);
+                    field = ParserConfig.getFieldFromCache(methodName,fieldCacheMap); 
                 }
 
                 JSONField fieldAnnotation = null;
@@ -1384,7 +1384,18 @@ public class TypeUtils {
         return fieldInfoList;
     }
 
-    public static JSONField getSupperMethodAnnotation(final Class<?> clazz, final Method method) {
+    private static String getPropertyNameByCompatibleFieldName(Map<String, Field> fieldCacheMap, String methodName,
+                                                               String propertyName,int fromIdx) {
+        if (compatibleWithFieldName){
+               if (!fieldCacheMap.containsKey(propertyName)){
+                   String tempPropertyName=methodName.substring(fromIdx);
+                   return  fieldCacheMap.containsKey(tempPropertyName)?tempPropertyName:propertyName;
+               }
+           }
+        return propertyName;
+    }
+
+    public static JSONField getSuperMethodAnnotation(final Class<?> clazz, final Method method) {
         Class<?>[] interfaces = clazz.getInterfaces();
         if (interfaces.length > 0) {
             Class<?>[] types = method.getParameterTypes();

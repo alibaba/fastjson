@@ -164,6 +164,8 @@ public class SerializeConfig {
 			    if (asmSerializer != null) {
 			        return asmSerializer;
 			    }
+			} catch (ClassFormatError e) {
+			    // skip
 			} catch (ClassCastException e) {
 				// skip
 			} catch (Throwable e) {

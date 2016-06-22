@@ -905,6 +905,26 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return TypeUtils.cast(json, clazz, ParserConfig.getGlobalInstance());
     }
     
+	public static Object deepClone(Object obj, SerializerFeature... features) throws Exception {
+        if(null == obj) {
+            return null;
+        }
+        Class<?> clazz=obj.getClass();
+        if(clazz.isArray()) {
+            Object[] arr=(Object[])obj;
+
+            Object[] res=
+                ((Object)clazz == (Object)Object[].class) ? (Object[])new Object[arr.length] : (Object[])Array.newInstance(
+                    clazz.getComponentType(), arr.length);
+            for(int i=0; i < arr.length; i++) {
+                res[i]=deepClone(arr[i]);
+            }
+            return res;
+        } else {
+            String json=JSON.toJSONString(obj, features);
+            return JSON.parseObject(json, clazz);
+        }
+    }
     /**
      * @since 1.2.9
      */

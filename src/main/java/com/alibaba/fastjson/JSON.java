@@ -917,7 +917,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                 ((Object)clazz == (Object)Object[].class) ? (Object[])new Object[arr.length] : (Object[])Array.newInstance(
                     clazz.getComponentType(), arr.length);
             for(int i=0; i < arr.length; i++) {
-                res[i]=deepClone(arr[i]);
+                res[i]=deepClone(arr[i], features);
             }
             return res;
         } else {

@@ -478,8 +478,17 @@ class JavaBeanInfo {
         {
             classfields = new ArrayList<Field>(declaredFields.length);
             for (Field f : declaredFields) {
-                if ((f.getModifiers() & Modifier.STATIC) != 0) {
+                int modifiers = f.getModifiers();
+                if ((modifiers & Modifier.STATIC) != 0) {
                     continue;
+                }
+                
+                if((modifiers & Modifier.FINAL) != 0) {
+                    Class<?> fieldType = f.getType();
+                    boolean supportReadOnly = Map.class.isAssignableFrom(fieldType) || Collection.class.isAssignableFrom(fieldType);
+                    if (!supportReadOnly) {
+                        continue;
+                    }
                 }
                 
                 if ((f.getModifiers() & Modifier.PUBLIC) != 0) {
@@ -489,11 +498,20 @@ class JavaBeanInfo {
             
             for (Class<?> c = clazz.getSuperclass(); c != null && c != Object.class; c = c.getSuperclass()) {
                 for (Field f : c.getDeclaredFields()) {
-                    if ((f.getModifiers() & Modifier.STATIC) != 0) {
+                    int modifiers = f.getModifiers();
+                    if ((modifiers & Modifier.STATIC) != 0) {
                         continue;
                     }
                     
-                    if ((f.getModifiers() & Modifier.PUBLIC) != 0) {
+                    if((modifiers & Modifier.FINAL) != 0) {
+                        Class<?> fieldType = f.getType();
+                        boolean supportReadOnly = Map.class.isAssignableFrom(fieldType) || Collection.class.isAssignableFrom(fieldType);
+                        if (!supportReadOnly) {
+                            continue;
+                        }
+                    }
+                    
+                    if ((modifiers & Modifier.PUBLIC) != 0) {
                         classfields.add(f);
                     }
                 }

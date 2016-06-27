@@ -10,7 +10,7 @@ import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
-public class TestRef4 extends TestCase {
+public class RefTest14 extends TestCase {
 
     public void test_0() throws Exception {
         Group admin = new Group("admin");

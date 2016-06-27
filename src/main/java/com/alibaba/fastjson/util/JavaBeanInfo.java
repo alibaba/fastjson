@@ -433,7 +433,11 @@ public class JavaBeanInfo {
             
             if((modifiers & Modifier.FINAL) != 0) {
                 Class<?> fieldType = field.getType();
-                boolean supportReadOnly = Map.class.isAssignableFrom(fieldType) || Collection.class.isAssignableFrom(fieldType);
+                boolean supportReadOnly = Map.class.isAssignableFrom(fieldType) 
+                        || Collection.class.isAssignableFrom(fieldType)
+                        || AtomicLong.class.equals(fieldType) //
+                        || AtomicInteger.class.equals(fieldType) //
+                        || AtomicBoolean.class.equals(fieldType);
                 if (!supportReadOnly) {
                     continue;
                 }

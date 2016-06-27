@@ -408,11 +408,15 @@ public class DefaultJSONParser implements Closeable {
                 }
 
                 if (!setContextFlag) {
-                    ParseContext contextR = setContext(object, fieldName);
-                    if (context == null) {
-                        context = contextR;
+                    if (this.context != null && fieldName == this.context.fieldName && object == this.context.object) {
+                        context = this.context;
+                    } else {
+                        ParseContext contextR = setContext(object, fieldName);
+                        if (context == null) {
+                            context = contextR;
+                        }
+                        setContextFlag = true;
                     }
-                    setContextFlag = true;
                 }
 
                 if (object.getClass() == JSONObject.class) {

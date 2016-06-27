@@ -426,8 +426,17 @@ public class JavaBeanInfo {
         }
 
         for (Field field : clazz.getFields()) { // public static fields
-            if (Modifier.isStatic(field.getModifiers())) {
+            int modifiers = field.getModifiers();
+            if ((modifiers & Modifier.STATIC) != 0) {
                 continue;
+            }
+            
+            if((modifiers & Modifier.FINAL) != 0) {
+                Class<?> fieldType = field.getType();
+                boolean supportReadOnly = Map.class.isAssignableFrom(fieldType) || Collection.class.isAssignableFrom(fieldType);
+                if (!supportReadOnly) {
+                    continue;
+                }
             }
 
             boolean contains = false;

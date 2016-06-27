@@ -9,44 +9,23 @@ import junit.framework.TestCase;
 
 public class SmartMatchTest_boolean_is extends TestCase {
     
-    public void f_test_0 () throws Exception {
-        String text = "{\"_id\":1001}";
-        
+    public void test_0() throws Exception {
+        String text = "{\"isVisible\":true}";
+
         VO vo = JSON.parseObject(text, VO.class);
-        Assert.assertEquals(1001, vo.getId());
-    }
-    
-    public void test_vo2 () throws Exception {
-        String text = "{\"_id\":1001}";
-        
-        VO2 vo = JSON.parseObject(text, VO2.class);
-        Assert.assertEquals(1001, vo.getId());
+        Assert.assertEquals(true, vo.isVisible());
     }
 
-    private static class VO {
+    public static class VO {
 
-        private int id;
+        private boolean visible;
 
-        public int getId() {
-            return id;
+        public boolean isVisible() {
+            return visible;
         }
 
-        public void setId(int id) {
-            this.id = id;
-        }
-
-    }
-    
-    public static class VO2 {
-
-        private int id;
-
-        public int getId() {
-            return id;
-        }
-
-        public void setId(int id) {
-            this.id = id;
+        public void setVisible(boolean visible) {
+            this.visible = visible;
         }
 
     }

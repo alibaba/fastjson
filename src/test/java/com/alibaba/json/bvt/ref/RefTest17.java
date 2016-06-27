@@ -6,7 +6,7 @@ import junit.framework.TestCase;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 
-public class TestRef7 extends TestCase {
+public class RefTest17 extends TestCase {
 
     public void test_0() throws Exception {
 

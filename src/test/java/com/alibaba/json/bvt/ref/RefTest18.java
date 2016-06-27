@@ -8,7 +8,7 @@ import com.alibaba.fastjson.JSONObject;
 
 import junit.framework.TestCase;
 
-public class TestRef8 extends TestCase {
+public class RefTest18 extends TestCase {
     public void test_array() throws Exception {
         String text = "{\"b\":{},\"a\":[{\"$ref\":\"$.b\"}]}";
         

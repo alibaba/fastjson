@@ -44,4 +44,7 @@ public @interface JSONType {
      * @since 1.2.11
      */
     Class<?>[] seeAlso() default{};
+    
+    Class<?> serializer() default Void.class;
+    Class<?> deserializer() default Void.class;
 }

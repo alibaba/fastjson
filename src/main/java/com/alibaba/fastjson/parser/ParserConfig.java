@@ -101,6 +101,7 @@ import com.alibaba.fastjson.serializer.IntegerCodec;
 import com.alibaba.fastjson.serializer.LongCodec;
 import com.alibaba.fastjson.serializer.MiscCodec;
 import com.alibaba.fastjson.serializer.ObjectArrayCodec;
+import com.alibaba.fastjson.serializer.ObjectSerializer;
 import com.alibaba.fastjson.serializer.ReferenceCodec;
 import com.alibaba.fastjson.serializer.StringCodec;
 import com.alibaba.fastjson.util.ASMClassLoader;
@@ -461,8 +462,20 @@ public class ParserConfig {
         if (asmEnable) {
             JSONType jsonType = clazz.getAnnotation(JSONType.class);
 
-            if (jsonType != null && !jsonType.asm()) {
-                asmEnable = false;
+            if (jsonType != null) {
+                Class<?> deserializerClass = jsonType.deserializer();
+                if (deserializerClass != Void.class) {
+                    try {
+                        Object deseralizer = deserializerClass.newInstance();
+                        if (deseralizer instanceof ObjectDeserializer) {
+                            return (ObjectDeserializer) deseralizer;
+                        }
+                    } catch (Throwable e) {
+                        // skip
+                    }
+                }
+                
+                asmEnable = jsonType.asm();
             }
 
             if (asmEnable) {

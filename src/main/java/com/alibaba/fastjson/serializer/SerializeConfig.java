@@ -118,6 +118,26 @@ public class SerializeConfig {
 	}
 	
 	public ObjectSerializer createJavaBeanSerializer(SerializeBeanInfo beanInfo) {
+	    JSONType jsonType = beanInfo.jsonType;
+	    
+	    if (jsonType != null) {
+	        Class<?> serializerClass = jsonType.serializer();
+	        if (serializerClass != Void.class) {
+	            try {
+                    Object seralizer = serializerClass.newInstance();
+                    if (seralizer instanceof ObjectSerializer) {
+                        return (ObjectSerializer) seralizer;
+                    }
+                } catch (Throwable e) {
+                    // skip
+                }
+	        }
+	        
+	        if (jsonType.asm() == false) {
+	            asm = false;
+	        }
+        }
+	    
 	    Class<?> clazz = beanInfo.beanType;
 		if (!Modifier.isPublic(beanInfo.beanType.getModifiers())) {
 			return new JavaBeanSerializer(beanInfo);
@@ -128,13 +148,6 @@ public class SerializeConfig {
 		if (asm && asmFactory.classLoader.isExternalClass(clazz)
 				|| clazz == Serializable.class || clazz == Object.class) {
 			asm = false;
-		}
-
-		{
-			JSONType annotation = clazz.getAnnotation(JSONType.class);
-			if (annotation != null && annotation.asm() == false) {
-				asm = false;
-			}
 		}
 
 		if (asm && !ASMUtils.checkName(clazz.getName())) {

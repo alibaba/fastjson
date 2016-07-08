@@ -259,6 +259,13 @@ public class SerializeConfig {
 		
 		put(WeakReference.class, ReferenceCodec.instance);
 		put(SoftReference.class, ReferenceCodec.instance);
+
+        // swagger support
+        try {
+            put(Class.forName("springfox.documentation.spring.web.json.Json"), SwaggerJsonSerializer.instance);
+        } catch (ClassNotFoundException e) {
+        }
+
 	}
 	
 	/**

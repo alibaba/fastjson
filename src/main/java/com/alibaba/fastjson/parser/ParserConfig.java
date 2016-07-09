@@ -101,7 +101,6 @@ import com.alibaba.fastjson.serializer.IntegerCodec;
 import com.alibaba.fastjson.serializer.LongCodec;
 import com.alibaba.fastjson.serializer.MiscCodec;
 import com.alibaba.fastjson.serializer.ObjectArrayCodec;
-import com.alibaba.fastjson.serializer.ObjectSerializer;
 import com.alibaba.fastjson.serializer.ReferenceCodec;
 import com.alibaba.fastjson.serializer.StringCodec;
 import com.alibaba.fastjson.util.ASMClassLoader;

@@ -461,8 +461,20 @@ public class ParserConfig {
         if (asmEnable) {
             JSONType jsonType = clazz.getAnnotation(JSONType.class);
 
-            if (jsonType != null && !jsonType.asm()) {
-                asmEnable = false;
+            if (jsonType != null) {
+                Class<?> deserializerClass = jsonType.deserializer();
+                if (deserializerClass != Void.class) {
+                    try {
+                        Object deseralizer = deserializerClass.newInstance();
+                        if (deseralizer instanceof ObjectDeserializer) {
+                            return (ObjectDeserializer) deseralizer;
+                        }
+                    } catch (Throwable e) {
+                        // skip
+                    }
+                }
+                
+                asmEnable = jsonType.asm();
             }
 
             if (asmEnable) {
@@ -624,7 +636,7 @@ public class ParserConfig {
      * fieldName,field ，先生成fieldName的快照，减少之后的findField的轮询
      * 
      * @param clazz
-     * @param fieldCacheMap :map<fieldName ,Field>
+     * @param fieldCacheMap :map&lt;fieldName ,Field&gt;
      */
     public static void  parserAllFieldToCache(Class<?> clazz,Map</**fieldName*/String , Field> fieldCacheMap){
         Field[] fields=clazz.getDeclaredFields() ;

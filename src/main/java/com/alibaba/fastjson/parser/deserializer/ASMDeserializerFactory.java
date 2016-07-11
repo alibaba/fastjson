@@ -673,6 +673,11 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm_enumName"));
 
                 mw.visitJumpInsn(IFNULL, enumNull_);
+                
+                mw.visitVarInsn(ALOAD, context.var(fieldInfo.name + "_asm_enumName"));
+                mw.visitMethodInsn(INVOKEVIRTUAL, type(String.class), "length", "()I");
+                mw.visitJumpInsn(IFEQ, enumNull_);
+                
                 mw.visitVarInsn(ALOAD, context.var(fieldInfo.name + "_asm_enumName"));
                 mw.visitMethodInsn(INVOKESTATIC, type(fieldClass), "valueOf",
                                    "(Ljava/lang/String;)" + desc(fieldClass));

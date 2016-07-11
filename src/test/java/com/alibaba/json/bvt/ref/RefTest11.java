@@ -9,7 +9,7 @@ import junit.framework.TestCase;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
-public class TestRef extends TestCase {
+public class RefTest11 extends TestCase {
 
     public void test_ref() throws Exception {
         Department tech = new Department(1, "技术部");

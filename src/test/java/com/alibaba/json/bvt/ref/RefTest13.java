@@ -8,7 +8,7 @@ import com.alibaba.fastjson.annotation.JSONCreator;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.parser.ParserConfig;
 
-public class TestRef3 extends TestCase {
+public class RefTest13 extends TestCase {
 
     public void test_0() throws Exception {
         Entity entity = new Entity(123, new Child());

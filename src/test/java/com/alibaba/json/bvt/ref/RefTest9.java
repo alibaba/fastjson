@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt.serializer;
+package com.alibaba.json.bvt.ref;
 
 import java.util.HashSet;
 import java.util.Set;

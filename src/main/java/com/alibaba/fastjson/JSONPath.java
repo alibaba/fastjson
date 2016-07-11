@@ -204,6 +204,43 @@ public class JSONPath implements JSONAware {
 
         throw new UnsupportedOperationException();
     }
+    
+    public boolean remove(Object rootObject) {
+        if (rootObject == null) {
+            return false;
+        }
+
+        init();
+
+        Object currentObject = rootObject;
+        Object parentObject = null;
+        for (int i = 0; i < segments.length; ++i) {
+            if (i == segments.length - 1) {
+                parentObject = currentObject;
+                break;
+            }
+            currentObject = segments[i].eval(this, rootObject, currentObject);
+            if (currentObject == null) {
+                break;
+            }
+        }
+
+        if (parentObject == null) {
+            return false;
+        }
+
+        Segement lastSegement = segments[segments.length - 1];
+        if (lastSegement instanceof PropertySegement) {
+            PropertySegement propertySegement = (PropertySegement) lastSegement;
+            return propertySegement.remove(this, parentObject);
+        }
+
+        if (lastSegement instanceof ArrayAccessSegement) {
+            return ((ArrayAccessSegement) lastSegement).remove(this, parentObject);
+        }
+
+        throw new UnsupportedOperationException();
+    }
 
     public boolean set(Object rootObject, Object value) {
         if (rootObject == null) {
@@ -276,6 +313,11 @@ public class JSONPath implements JSONAware {
     public static boolean set(Object rootObject, String path, Object value) {
         JSONPath jsonpath = compile(path);
         return jsonpath.set(rootObject, value);
+    }
+    
+    public static boolean remove(Object root, String path) {
+        JSONPath jsonpath = compile(path);
+        return jsonpath.remove(root);
     }
 
     public static JSONPath compile(String path) {
@@ -1027,6 +1069,10 @@ public class JSONPath implements JSONAware {
         public void setValue(JSONPath path, Object parent, Object value) {
             path.setPropertyValue(parent, propertyName, value);
         }
+        
+        public boolean remove(JSONPath path, Object parent) {
+            return path.removePropertyValue(parent, propertyName);
+        }
     }
 
     static class MultiPropertySegement implements Segement {
@@ -1073,6 +1119,10 @@ public class JSONPath implements JSONAware {
 
         public boolean setValue(JSONPath path, Object currentObject, Object value) {
             return path.setArrayItem(path, currentObject, index, value);
+        }
+        
+        public boolean remove(JSONPath path, Object currentObject) {
+            return path.removeArrayItem(path, currentObject, index);
         }
     }
 
@@ -1594,6 +1644,31 @@ public class JSONPath implements JSONAware {
         throw new JSONPathException("unsupported set operation." + clazz);
     }
 
+    @SuppressWarnings("rawtypes")
+    public boolean removeArrayItem(JSONPath path, Object currentObject, int index) {
+        if (currentObject instanceof List) {
+            List list = (List) currentObject;
+            if (index >= 0) {
+                if (index >= list.size()) {
+                    return false;
+                }
+                list.remove(index);
+            } else {
+                int newIndex = list.size() + index;
+                
+                if (newIndex < 0) {
+                    return false;
+                }
+                
+                list.remove(newIndex);
+            }
+            return true;
+        }
+
+        Class<?> clazz = currentObject.getClass();
+        throw new JSONPathException("unsupported set operation." + clazz);
+    }
+
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected Collection<Object> getPropertyValues(final Object currentObject) {
         final Class<?> currentClass = currentObject.getClass();
@@ -1767,6 +1842,33 @@ public class JSONPath implements JSONAware {
             }
 
             fieldDeserializer.setValue(parent, value);
+            return true;
+        }
+
+        throw new UnsupportedOperationException();
+    }
+    
+    @SuppressWarnings({"rawtypes" })
+    protected boolean removePropertyValue(Object parent, String name) {
+        if (parent instanceof Map) {
+            Object origin = ((Map) parent).remove(name);
+            return origin != null;
+        }
+
+        ObjectDeserializer derializer = parserConfig.getDeserializer(parent.getClass());
+
+        JavaBeanDeserializer beanDerializer = null;
+        if (derializer instanceof JavaBeanDeserializer) {
+            beanDerializer = (JavaBeanDeserializer) derializer;
+        }
+
+        if (beanDerializer != null) {
+            FieldDeserializer fieldDeserializer = beanDerializer.getFieldDeserializer(name);
+            if (fieldDeserializer == null) {
+                return false;
+            }
+
+            fieldDeserializer.setValue(parent, null);
             return true;
         }
 

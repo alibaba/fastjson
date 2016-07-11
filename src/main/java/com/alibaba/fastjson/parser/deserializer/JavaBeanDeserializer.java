@@ -110,7 +110,11 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             } else {
                 ParseContext context = parser.getContext();
                 String parentName = context.object.getClass().getName();
-                String typeName = type.getTypeName();
+                String typeName = "";
+                
+                if (type instanceof Class) {
+                    typeName = ((Class<?>) type).getName();
+                }
               
                 if(parentName.length() != typeName.lastIndexOf('$') - 1){
                 	char[] typeChars = typeName.toCharArray();

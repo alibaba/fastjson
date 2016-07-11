@@ -1,8 +1,4 @@
-package com.alibaba.json.bvt.serializer;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+package com.alibaba.json.bvt.ref;
 
 import junit.framework.TestCase;
 
@@ -10,19 +6,16 @@ import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 
-public class RefTest8 extends TestCase {
+public class RefTest7 extends TestCase {
 
     public void test_bug_for_juqkai() throws Exception {
 
+        VO vo = new VO();
         C c = new C();
- 
-        Map<String, Object> a = Collections.<String,Object>singletonMap("c", c);
-        Map<String, Object> b = Collections.<String,Object>singletonMap("c", c);
-        Map<String, Object> vo = new HashMap<String, Object>();
-        vo.put("a", a);
-        vo.put("b", b);
+        vo.setA(new A(c));
+        vo.setB(new B(c));
 
-        Object[] root = new Object[] { vo };
+        VO[] root = new VO[] { vo };
 
         String text = JSON.toJSONString(root);
         System.out.println(text);
@@ -36,7 +29,7 @@ public class RefTest8 extends TestCase {
         Assert.assertSame(array2[0].getA().getC(), array2[0].getB().getC());
     }
 
-    private static class VO {
+    public static class VO {
 
         private A a;
         private B b;
@@ -59,7 +52,7 @@ public class RefTest8 extends TestCase {
 
     }
 
-    private static class A {
+    public static class A {
 
         private C c;
 
@@ -81,7 +74,7 @@ public class RefTest8 extends TestCase {
 
     }
 
-    private static class B {
+    public static class B {
 
         private C c;
 
@@ -102,7 +95,7 @@ public class RefTest8 extends TestCase {
         }
     }
 
-    private static class C {
+    public static class C {
 
         public C(){
 

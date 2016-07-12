@@ -5,6 +5,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -375,6 +377,104 @@ public class JSONPath implements JSONAware {
         Object object = JSON.parse(json);
         JSONPath jsonpath = compile(path);
         return jsonpath.eval(object);
+    }
+    
+    public static Map<String, Object> paths(Object javaObject) {
+        return paths(javaObject, SerializeConfig.globalInstance);
+    }
+    
+    public static Map<String, Object> paths(Object javaObject, SerializeConfig config) {
+        Map<Object, String> values = new IdentityHashMap<Object, String>();
+        paths(values, "/", javaObject, config);
+        
+        Map<String, Object> paths = new HashMap<String, Object>();
+        for (Map.Entry<Object, String> entry : values.entrySet()) {
+            paths.put(entry.getValue(), entry.getKey());
+        }
+        return paths;
+    }
+
+    @SuppressWarnings("rawtypes")
+    private static void paths(Map<Object, String> paths, String parent, Object javaObject, SerializeConfig config) {
+        if (javaObject == null) {
+            return;
+        }
+        
+        if (paths.containsKey(javaObject)) {
+            return;
+        }
+        
+        paths.put(javaObject, parent);
+        
+        if (javaObject instanceof Map) {
+            Map map = (Map) javaObject;
+
+            for (Object entryObj : map.entrySet()) {
+                Map.Entry entry = (Map.Entry) entryObj;
+                Object key = entry.getKey();
+                
+                if (key instanceof String) {
+                    String path = parent.equals("/") ?  "/" + key : parent + "/" + key;
+                    paths(paths, path, entry.getValue(), config);
+                }
+            }
+            return;
+        }
+
+        if (javaObject instanceof Collection) {
+            Collection collection = (Collection) javaObject;
+
+            int i = 0;
+            for (Object item : collection) {
+                String path = parent.equals("/") ?  "/" + i : parent + "/" + i;
+                paths(paths, path, item, config);
+                ++i;
+            }
+            
+            return;
+        }
+
+        Class<?> clazz = javaObject.getClass();
+
+        if (clazz.isArray()) {
+            int len = Array.getLength(javaObject);
+
+            for (int i = 0; i < len; ++i) {
+                Object item = Array.get(javaObject, i);
+                
+                String path = parent.equals("/") ?  "/" + i : parent + "/" + i;
+                paths(paths, path, item, config);
+                ++i;
+            }
+            
+            return;
+        }
+
+        if (ParserConfig.isPrimitive(clazz) || clazz.isEnum()) {
+            return;
+        }
+
+        ObjectSerializer serializer = config.getObjectWriter(clazz);
+        if (serializer instanceof JavaBeanSerializer) {
+            JavaBeanSerializer javaBeanSerializer = (JavaBeanSerializer) serializer;
+            
+            try {
+                Map<String, Object> fieldValues = javaBeanSerializer.getFieldValuesMap(javaObject);
+                for (Map.Entry<String, Object> entry : fieldValues.entrySet()) {
+                    String key = entry.getKey();
+                    
+                    if (key instanceof String) {
+                        String path = parent.equals("/") ?  "/" + key : parent + "/" + key;
+                        paths(paths, path, entry.getValue(), config);
+                    }
+                }
+            } catch (Exception e) {
+                throw new JSONException("toJSON error", e);
+            }
+            return;
+        }
+        
+        return;
     }
 
     public String getPath() {

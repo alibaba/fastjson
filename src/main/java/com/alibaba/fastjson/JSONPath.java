@@ -252,12 +252,41 @@ public class JSONPath implements JSONAware {
         Object currentObject = rootObject;
         Object parentObject = null;
         for (int i = 0; i < segments.length; ++i) {
-            if (i == segments.length - 1) {
-                parentObject = currentObject;
-                break;
-            }
-            currentObject = segments[i].eval(this, rootObject, currentObject);
+//            if (i == segments.length - 1) {
+//                parentObject = currentObject;
+//                break;
+//            }
+//            
+            parentObject = currentObject;
+            Segement segment = segments[i];
+            currentObject = segment.eval(this, rootObject, currentObject);
             if (currentObject == null) {
+                Segement nextSegement = null;
+                if (i < segments.length - 1) {
+                    nextSegement = segments[i + 1];
+                }
+                
+                Object newObj = null;
+                if (nextSegement instanceof PropertySegement) {
+                    newObj = new JSONObject();   
+                } else if (nextSegement instanceof ArrayAccessSegement) {
+                    newObj = new JSONArray();
+                }
+                
+                if (newObj != null) {
+                    if (segment instanceof PropertySegement) {
+                        PropertySegement propSegement = (PropertySegement) segment;
+                        propSegement.setValue(this, parentObject, newObj);
+                        currentObject = newObj;
+                        continue;
+                    } else if (segment instanceof ArrayAccessSegement) {
+                        ArrayAccessSegement arrayAccessSegement = (ArrayAccessSegement) segment;
+                        arrayAccessSegement.setValue(this, parentObject, newObj);
+                        currentObject = newObj;
+                        continue;
+                    }
+                }
+                
                 break;
             }
         }

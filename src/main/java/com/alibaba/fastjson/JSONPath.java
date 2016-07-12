@@ -551,7 +551,7 @@ public class JSONPath implements JSONAware {
                     final boolean not = (op == Operator.NOT_IN);
                     accept('(');
 
-                    List<Object> valueList = new ArrayList<Object>();
+                    List<Object> valueList = new JSONArray();
                     {
                         Object value = readValue();
                         valueList.add(value);
@@ -728,6 +728,11 @@ public class JSONPath implements JSONAware {
 
                 if (isDigitFirst(ch)) {
                     long value = readLongValue();
+                    double doubleValue = 0D;
+                    if (ch == '.') {
+                        doubleValue = readDoubleValue(value);
+                        
+                    }
 
                     if (predicateFlag) {
                         accept(')');
@@ -737,7 +742,11 @@ public class JSONPath implements JSONAware {
                         accept(']');
                     }
 
-                    return new FilterSegement(new IntOpSegement(propertyName, value, op));
+                    if (doubleValue == 0) {
+                        return new FilterSegement(new IntOpSegement(propertyName, value, op));
+                    } else {
+                        return new FilterSegement(new DoubleOpSegement(propertyName, doubleValue, op));    
+                    }
                 }
 
                 if (ch == 'n') {
@@ -754,6 +763,44 @@ public class JSONPath implements JSONAware {
 
                         if (op == Operator.NE) {
                             return new FilterSegement(new NotNullSegement(propertyName));
+                        }
+
+                        throw new UnsupportedOperationException();
+                    }
+                } else if (ch == 't') {
+                    String name = readName();
+                    
+                    if ("true".equals(name)) {
+                        if (predicateFlag) {
+                            accept(')');
+                        }
+                        accept(']');
+
+                        if (op == Operator.EQ) {
+                            return new FilterSegement(new ValueSegment(propertyName, Boolean.TRUE, true));
+                        }
+
+                        if (op == Operator.NE) {
+                            return new FilterSegement(new ValueSegment(propertyName, Boolean.TRUE, false));
+                        }
+
+                        throw new UnsupportedOperationException();
+                    }
+                } else if (ch == 'f') {
+                    String name = readName();
+                    
+                    if ("false".equals(name)) {
+                        if (predicateFlag) {
+                            accept(')');
+                        }
+                        accept(']');
+
+                        if (op == Operator.EQ) {
+                            return new FilterSegement(new ValueSegment(propertyName, Boolean.FALSE, true));
+                        }
+
+                        if (op == Operator.NE) {
+                            return new FilterSegement(new ValueSegment(propertyName, Boolean.FALSE, false));
                         }
 
                         throw new UnsupportedOperationException();
@@ -804,6 +851,21 @@ public class JSONPath implements JSONAware {
             int endIndex = pos - 1;
             String text = path.substring(beginIndex, endIndex);
             long value = Long.parseLong(text);
+            return value;
+        }
+        
+        protected double readDoubleValue(long longValue) {
+            int beginIndex = pos - 1;
+
+            next();
+            while (ch >= '0' && ch <= '9') {
+                next();
+            }
+
+            int endIndex = pos - 1;
+            String text = path.substring(beginIndex, endIndex);
+            double value = Double.parseDouble(text);
+            value += longValue;
             return value;
         }
 
@@ -1228,6 +1290,32 @@ public class JSONPath implements JSONAware {
             return propertyValue == null;
         }
     }
+    
+    static class ValueSegment implements Filter {
+        private final String propertyName;
+        private final Object value;
+        private boolean eq = true;
+        
+        public ValueSegment(String propertyName, Object value, boolean eq){
+            if (value == null) {
+                throw new IllegalArgumentException("value is null");
+            }
+            this.propertyName = propertyName;
+            this.value = value;
+            this.eq = eq;
+        }
+
+        @Override
+        public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
+            Object propertyValue = path.getPropertyValue(item, propertyName, false);
+            boolean result = value.equals(propertyValue);
+            if (!eq) {
+                result = !result;
+            }
+            return result;
+        }
+        
+    }
 
     static class IntInSegement implements Filter {
 
@@ -1403,7 +1491,49 @@ public class JSONPath implements JSONAware {
 
             return false;
         }
+    }
+    
+    static class DoubleOpSegement implements Filter {
 
+        private final String   propertyName;
+        private final double     value;
+        private final Operator op;
+
+        public DoubleOpSegement(String propertyName, double value, Operator op){
+            this.propertyName = propertyName;
+            this.value = value;
+            this.op = op;
+        }
+
+        public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
+            Object propertyValue = path.getPropertyValue(item, propertyName, false);
+
+            if (propertyValue == null) {
+                return false;
+            }
+
+            if (!(propertyValue instanceof Number)) {
+                return false;
+            }
+
+            double doubleValue = ((Number) propertyValue).doubleValue();
+
+            if (op == Operator.EQ) {
+                return doubleValue == value;
+            } else if (op == Operator.NE) {
+                return doubleValue != value;
+            } else if (op == Operator.GE) {
+                return doubleValue >= value;
+            } else if (op == Operator.GT) {
+                return doubleValue > value;
+            } else if (op == Operator.LE) {
+                return doubleValue <= value;
+            } else if (op == Operator.LT) {
+                return doubleValue < value;
+            }
+
+            return false;
+        }
     }
 
     static class MatchSegement implements Filter {
@@ -1572,7 +1702,7 @@ public class JSONPath implements JSONAware {
                 return null;
             }
 
-            List<Object> items = new ArrayList<Object>();
+            List<Object> items = new JSONArray();
 
             if (currentObject instanceof Iterable) {
                 Iterator it = ((Iterable) currentObject).iterator();
@@ -1827,7 +1957,7 @@ public class JSONPath implements JSONAware {
         if (currentObject instanceof List) {
             List list = (List) currentObject;
 
-            List<Object> fieldValues = new ArrayList<Object>(list.size());
+            List<Object> fieldValues = new JSONArray(list.size());
 
             for (int i = 0; i < list.size(); ++i) {
                 Object obj = list.get(i);

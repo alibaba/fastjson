@@ -507,7 +507,7 @@ public class JSONPath implements JSONAware {
                     int index = ch - '0';
                     return new ArrayAccessSegement(index);
                 } else if ((ch >= 'a' && ch <= 'z') || ((ch >= 'A' && ch <= 'Z'))) {
-                    return new PropertySegement(Character.toString(ch));
+                    return new PropertySegement(Character.toString(ch), false);
                 }
             }
             while (!isEOF()) {
@@ -519,7 +519,13 @@ public class JSONPath implements JSONAware {
                 }
 
                 if (ch == '.' || ch == '/') {
+                    int c0 = ch;
+                    boolean deep = false;
                     next();
+                    if (ch == '.') {
+                        next();
+                        deep = true;
+                    }
                     if (ch == '*') {
                         if (!isEOF()) {
                             next();
@@ -550,7 +556,7 @@ public class JSONPath implements JSONAware {
                         throw new UnsupportedOperationException();
                     }
 
-                    return new PropertySegement(propertyName);
+                    return new PropertySegement(propertyName, deep);
                 }
 
                 if (ch == '[') {
@@ -560,7 +566,7 @@ public class JSONPath implements JSONAware {
                 if (level == 0) {
                     String propertyName = readName();
 
-                    return new PropertySegement(propertyName);
+                    return new PropertySegement(propertyName, false);
                 }
 
                 throw new UnsupportedOperationException();
@@ -1134,6 +1140,12 @@ public class JSONPath implements JSONAware {
                 if (segment == null) {
                     break;
                 }
+                
+                if (level == segements.length) {
+                    Segement[] t = new Segement[level * 3 / 2];
+                    System.arraycopy(segements, 0, t, 0, level);
+                    segements = t;
+                }
                 segements[level++] = segment;
             }
 
@@ -1157,7 +1169,7 @@ public class JSONPath implements JSONAware {
 
                 if (commaIndex == -1) {
                     String propertyName = indexText.substring(1, indexTextLen - 1);
-                    return new PropertySegement(propertyName);
+                    return new PropertySegement(propertyName, false);
                 }
 
                 String[] indexesText = indexText.split(",");
@@ -1248,9 +1260,11 @@ public class JSONPath implements JSONAware {
     static class PropertySegement implements Segement {
 
         private final String propertyName;
+        private final boolean deep;
 
-        public PropertySegement(String propertyName){
+        public PropertySegement(String propertyName, boolean deep){
             this.propertyName = propertyName;
+            this.deep = deep;
         }
 
         public Object eval(JSONPath path, Object rootObject, Object currentObject) {

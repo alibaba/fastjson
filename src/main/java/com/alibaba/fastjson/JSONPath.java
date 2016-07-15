@@ -1,6 +1,7 @@
 package com.alibaba.fastjson;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
+import com.alibaba.fastjson.serializer.FieldSerializer;
 import com.alibaba.fastjson.serializer.JavaBeanSerializer;
 import com.alibaba.fastjson.serializer.ObjectSerializer;
 import com.alibaba.fastjson.serializer.SerializeConfig;
@@ -522,7 +524,7 @@ public class JSONPath implements JSONAware {
                     int c0 = ch;
                     boolean deep = false;
                     next();
-                    if (ch == '.') {
+                    if (c0 == '.' && ch == '.') {
                         next();
                         deep = true;
                     }
@@ -1268,7 +1270,13 @@ public class JSONPath implements JSONAware {
         }
 
         public Object eval(JSONPath path, Object rootObject, Object currentObject) {
-            return path.getPropertyValue(currentObject, propertyName, true);
+            if (deep) {
+                List<Object> results = new ArrayList<Object>();
+                path.deepScan(currentObject, propertyName, results);
+                return results;
+            } else {
+                return path.getPropertyValue(currentObject, propertyName, true);
+            }
         }
 
         public void setValue(JSONPath path, Object parent, Object value) {
@@ -2081,6 +2089,67 @@ public class JSONPath implements JSONAware {
 
             return fieldValues;
         }
+        throw new JSONPathException("jsonpath error, path " + path + ", segement " + propertyName);
+    }
+    
+    @SuppressWarnings("rawtypes")
+    protected void deepScan(final Object currentObject, final String propertyName, List<Object> results) {
+        if (currentObject == null) {
+            return;
+        }
+
+        if (currentObject instanceof Map) {
+            Map<?, ?> map = (Map<?, ?>) currentObject;
+            
+            if (map.containsKey(propertyName)) {
+                Object val = map.get(propertyName);
+                results.add(val);
+                return;
+            }
+            
+            for (Object val : map.values()) {
+                deepScan(val, propertyName, results);
+            }
+            return;
+        }
+
+        final Class<?> currentClass = currentObject.getClass();
+
+        JavaBeanSerializer beanSerializer = getJavaBeanSerializer(currentClass);
+        if (beanSerializer != null) {
+            try {
+                FieldSerializer fieldDeser = beanSerializer.getFieldSerializer(propertyName);
+                if (fieldDeser != null) {
+                    try {
+                        Object val = fieldDeser.getPropertyValue(currentObject);
+                        results.add(val);
+                    } catch (InvocationTargetException ex) {
+                        throw new JSONException("getFieldValue error." + propertyName, ex);
+                    } catch (IllegalAccessException ex) {
+                        throw new JSONException("getFieldValue error." + propertyName, ex);
+                    }
+                    return;
+                }
+                List<Object> fieldValues = beanSerializer.getFieldValues(currentObject);
+                for (Object val : fieldValues) {
+                    deepScan(val, propertyName, results);
+                }
+                return;
+            } catch (Exception e) {
+                throw new JSONPathException("jsonpath error, path " + path + ", segement " + propertyName, e);
+            }
+        }
+
+        if (currentObject instanceof List) {
+            List list = (List) currentObject;
+
+            for (int i = 0; i < list.size(); ++i) {
+                Object val = list.get(i);
+                deepScan(val, propertyName, results);
+            }
+            return;
+        }
+        
         throw new JSONPathException("jsonpath error, path " + path + ", segement " + propertyName);
     }
 

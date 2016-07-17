@@ -112,6 +112,14 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         DEFAULT_GENERATE_FEATURE = features;
     }
     
+    public static void setDefaultTypeKey(String typeKey) {
+        DEFAULT_TYPE_KEY = typeKey;
+        ParserConfig.global.symbolTable.addSymbol(typeKey, 
+                                                  0, 
+                                                  typeKey.length(), 
+                                                  typeKey.hashCode());
+    }
+    
     public static Object parse(String text) {
         return parse(text, DEFAULT_PARSER_FEATURE);
     }

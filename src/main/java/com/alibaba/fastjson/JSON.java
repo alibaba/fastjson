@@ -112,6 +112,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         DEFAULT_GENERATE_FEATURE = features;
     }
     
+    /**
+     * config default type key
+     * @since 1.2.14
+     */
     public static void setDefaultTypeKey(String typeKey) {
         DEFAULT_TYPE_KEY = typeKey;
         ParserConfig.global.symbolTable.addSymbol(typeKey, 

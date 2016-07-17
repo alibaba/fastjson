@@ -8,13 +8,16 @@ import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.Feature;
+import com.alibaba.fastjson.parser.ParserConfig;
 
 import junit.framework.TestCase;
 
 public class Issue585 extends TestCase {
     private String original = JSON.DEFAULT_TYPE_KEY;
+    private ParserConfig originalConfig = ParserConfig.global;
 
     protected void setUp() throws Exception {
+        ParserConfig.global = new ParserConfig();
         if (!JSON.DEFAULT_TYPE_KEY.equals("mySpace")) {
             JSON.setDefaultTypeKey("mySpace");
         }
@@ -22,6 +25,7 @@ public class Issue585 extends TestCase {
 
     protected void tearDown() throws Exception {
         JSON.setDefaultTypeKey(original);
+        ParserConfig.global = originalConfig;
     }
 
     public void test_for_issue() throws Exception {

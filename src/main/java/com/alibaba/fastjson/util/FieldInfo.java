@@ -34,6 +34,8 @@ public class FieldInfo implements Comparable<FieldInfo> {
     public final char[]     name_chars;
 
     public final boolean    isEnum;
+    
+    public final String     format;
 
     public FieldInfo(String name, // 
                      Class<?> declaringClass, // 
@@ -71,6 +73,8 @@ public class FieldInfo implements Comparable<FieldInfo> {
         name_chars[0] = '"';
         name_chars[nameLen + 1] = '"';
         name_chars[nameLen + 2] = ':';
+        
+        this.format = null;
     }
 
     public FieldInfo(String name, // 
@@ -89,6 +93,17 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.ordinal = ordinal;
         this.methodAnnotation = methodAnnotation;
         this.fieldAnnotation = fieldAnnotation;
+        
+        JSONField annotation = getAnnotation();
+        String format = null;
+        if (annotation != null) {
+            format = annotation.format();
+
+            if (format.trim().length() == 0) {
+                format = null;
+            }
+        }
+        this.format = format;
 
         if (field != null) {
             int modifiers = field.getModifiers();

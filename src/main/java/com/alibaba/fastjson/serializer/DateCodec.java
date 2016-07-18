@@ -149,8 +149,12 @@ public final class DateCodec implements ObjectSerializer, ObjectDeserializer {
         }
     }
     
-    @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
+        return deserialze(parser, clazz, fieldName, null);   
+    }
+    
+    @SuppressWarnings("unchecked")
+    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName, String format) {
         JSONLexer lexer = parser.lexer;
 
         Object val;
@@ -237,7 +241,7 @@ public final class DateCodec implements ObjectSerializer, ObjectDeserializer {
             val = parser.parse();
         }
 
-        Object obj = cast(parser, clazz, fieldName, val); 
+        Object obj = cast(parser, clazz, fieldName, val, format); 
         if (clazz == Calendar.class) {
             if (obj instanceof Calendar) {
                 return (T) obj;
@@ -257,7 +261,7 @@ public final class DateCodec implements ObjectSerializer, ObjectDeserializer {
     }
     
     @SuppressWarnings("unchecked")
-    protected <T> T cast(DefaultJSONParser parser, Type clazz, Object fieldName, Object val) {
+    protected <T> T cast(DefaultJSONParser parser, Type clazz, Object fieldName, Object val, String format) {
 
         if (val == null) {
             return null;
@@ -288,7 +292,13 @@ public final class DateCodec implements ObjectSerializer, ObjectDeserializer {
                 dateLexer.close();
             }
 
-            DateFormat dateFormat = parser.getDateFormat();
+            DateFormat dateFormat;
+            
+            if (format != null) {
+                dateFormat = new SimpleDateFormat(format);
+            } else {
+                dateFormat = parser.getDateFormat();    
+            }
             try {
                 return (T) dateFormat.parse(strVal);
             } catch (ParseException e) {

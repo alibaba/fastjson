@@ -463,6 +463,10 @@ class JavaBeanInfo {
                                      fieldOnly);
                             continue;
                         }
+                        
+                        if (annotation == null) {
+                            annotation = fieldAnnotation;
+                        }
                     }
 
                 }

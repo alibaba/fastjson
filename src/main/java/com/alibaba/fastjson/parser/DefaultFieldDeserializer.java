@@ -7,6 +7,7 @@ import java.util.Map;
 import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
+import com.alibaba.fastjson.serializer.DateCodec;
 import com.alibaba.fastjson.util.FieldInfo;
 
 public class DefaultFieldDeserializer extends FieldDeserializer {
@@ -36,7 +37,13 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
             objContext.type = objectType;
         }
 
-        Object value = fieldValueDeserilizer.deserialze(parser, fieldInfo.fieldType, fieldInfo.name);
+        String format = fieldInfo.format;
+        Object value;
+        if (format != null && fieldValueDeserilizer instanceof DateCodec) {
+            value = ((DateCodec) fieldValueDeserilizer).deserialze(parser, fieldInfo.fieldType, fieldInfo.name, format);
+        } else {
+            value = fieldValueDeserilizer.deserialze(parser, fieldInfo.fieldType, fieldInfo.name);
+        }
         if (parser.resolveStatus == DefaultJSONParser.NeedToResolve) {
             ResolveTask task = parser.getLastResolveTask();
             task.fieldDeserializer = this;

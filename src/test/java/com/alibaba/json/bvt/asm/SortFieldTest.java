@@ -32,32 +32,32 @@ public void test_1() throws Exception {
 
     // 按字段顺序输出
     // {"f1":0,"f2":0,"f3":0,"f4":0,"f5":0} 
-    Assert.assertEquals("{\"f1\":0,\"f2\":0,\"f3\":0,\"f4\":0,\"f5\":0}", text);
+    Assert.assertEquals("{\"abc\":0,\"bar\":0,\"baz\":0,\"foo\":0,\"xyz\":0}", text);
 
     JSONObject object = JSON.parseObject(text);
     text = JSON.toJSONString(object, SerializerFeature.SortField);
-    Assert.assertEquals("{\"f1\":0,\"f2\":0,\"f3\":0,\"f4\":0,\"f5\":0}", text);
+    Assert.assertEquals("{\"abc\":0,\"bar\":0,\"baz\":0,\"foo\":0,\"xyz\":0}", text);
 
 }
 
 public static class V1 {
 
-    private int f2;
-    private int f1;
-    private int f4;
-    private int f3;
-    private int f5;
+    private int abc;
+    private int xyz;
+    private int foo;
+    private int bar;
+    private int baz;
 
-    public int getF2() { return f2;}
-    public void setF2(int f2) {this.f2 = f2;}
-    public int getF1() {return f1;}
-    public void setF1(int f1) {this.f1 = f1;}
-    public int getF4() {return f4;}
-    public void setF4(int f4) {this.f4 = f4;}
-    public int getF3() {return f3;}
-    public void setF3(int f3) {this.f3 = f3;}
-    public int getF5() {return f5;}
-    public void setF5(int f5) {this.f5 = f5;}
+    public int getAbc() {return abc;}
+    public void setAbc(int abc) {this.abc = abc;}
+    public int getXyz() {return xyz;}
+    public void setXyz(int xyz) {this.xyz = xyz;}
+    public int getFoo() {return foo;}
+    public void setFoo(int foo) {this.foo = foo;}
+    public int getBar() {return bar;}
+    public void setBar(int bar) {this.bar = bar;}
+    public int getBaz() {return baz;}
+    public void setBaz(int baz) {this.baz = baz;}
 }
 
     public static class V0 {

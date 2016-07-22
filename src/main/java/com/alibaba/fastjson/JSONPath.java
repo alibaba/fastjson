@@ -939,7 +939,8 @@ public class JSONPath implements JSONAware {
             String text = path.substring(start, end);
             
             if (text.indexOf("\\.") != -1) {
-                return new PropertySegement(text, false);
+                String propName = text.replaceAll("\\\\\\.","\\.");
+                return new PropertySegement(propName, false);
             }
 
             Segement segment = buildArraySegement(text);

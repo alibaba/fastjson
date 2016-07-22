@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -936,6 +937,10 @@ public class JSONPath implements JSONAware {
             }
             
             String text = path.substring(start, end);
+            
+            if (text.indexOf("\\.") != -1) {
+                return new PropertySegement(text, false);
+            }
 
             Segement segment = buildArraySegement(text);
 
@@ -2062,7 +2067,13 @@ public class JSONPath implements JSONAware {
 
         if (currentObject instanceof Map) {
             Map map = (Map) currentObject;
-            return map.get(propertyName);
+            Object val = map.get(propertyName);
+            
+            if (val == null && "size".equals(propertyName)) {
+                val = map.size();
+            }
+            
+            return val;
         }
 
         final Class<?> currentClass = currentObject.getClass();
@@ -2078,6 +2089,10 @@ public class JSONPath implements JSONAware {
 
         if (currentObject instanceof List) {
             List list = (List) currentObject;
+            
+            if ("size".equals(propertyName)) {
+                return list.size();
+            }
 
             List<Object> fieldValues = new JSONArray(list.size());
 
@@ -2089,6 +2104,46 @@ public class JSONPath implements JSONAware {
 
             return fieldValues;
         }
+        
+        if (currentObject instanceof Enum) {
+            Enum e = (Enum) currentObject;
+            if ("name".equals(propertyName)) {
+                return e.name();
+            }
+            
+            if ("ordinal".equals(propertyName)) {
+                return e.ordinal();
+            }
+        }
+        
+        if (currentObject instanceof Calendar) {
+            Calendar e = (Calendar) currentObject;
+            
+            if ("year".equals(propertyName)) {
+                return e.get(Calendar.YEAR);
+            }
+            
+            if ("month".equals(propertyName)) {
+                return e.get(Calendar.MONTH);
+            }
+            
+            if ("day".equals(propertyName)) {
+                return e.get(Calendar.DAY_OF_MONTH);
+            }
+            
+            if ("hour".equals(propertyName)) {
+                return e.get(Calendar.HOUR_OF_DAY);
+            }
+            
+            if ("minute".equals(propertyName)) {
+                return e.get(Calendar.MINUTE);
+            }
+            
+            if ("second".equals(propertyName)) {
+                return e.get(Calendar.SECOND);
+            }
+        }
+        
         throw new JSONPathException("jsonpath error, path " + path + ", segement " + propertyName);
     }
     

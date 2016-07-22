@@ -46,12 +46,12 @@ public class DefaultExtJSONParserTest_4 extends TestCase {
             ext.config(Feature.AllowArbitraryCommas, true);
 
             JSONObject extRes = ext.parseObject();
-            Assert.assertEquals(res.toString(), extRes.toString());
+            Assert.assertEquals(res, extRes);
 
             DefaultJSONParser basic = new DefaultJSONParser(t);
             basic.config(Feature.AllowArbitraryCommas, true);
             JSONObject basicRes = basic.parseObject();
-            Assert.assertEquals(res.toString(), basicRes.toString());
+            Assert.assertEquals(res, basicRes);
         }
     }
 

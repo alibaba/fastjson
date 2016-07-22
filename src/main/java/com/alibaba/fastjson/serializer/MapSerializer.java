@@ -75,8 +75,14 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
             if (out.isEnabled(SerializerFeature.WriteClassName)) {
                 String typeKey = serializer.config.typeKey;
                 Class<?> mapClass = map.getClass();
-                boolean containsKey = (mapClass == JSONObject.class || mapClass == HashMap.class || mapClass == LinkedHashMap.class) 
-                        && map.containsKey(typeKey);
+                boolean containsKey;
+                try {
+                    containsKey = (mapClass == JSONObject.class || mapClass == HashMap.class ||
+                            mapClass == LinkedHashMap.class || mapClass == TreeMap.class)
+                            && map.containsKey(typeKey);
+                } catch (java.lang.ClassCastException e) {
+                    containsKey = false;
+                }
                 if (!containsKey) {
                     out.writeFieldName(typeKey);
                     out.writeString(object.getClass().getName());

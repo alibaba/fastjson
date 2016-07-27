@@ -2,6 +2,7 @@ package com.alibaba.json.bvt.path;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,19 +46,15 @@ public class JSONPath_set extends TestCase {
     }
     
     public void test_object_not_exits() throws Exception {
-        Assert.assertFalse(JSONPath.set(Collections.singletonMap("values", null), "$.values[0]", "abc"));
+        Map<String, Object> root = new HashMap<String, Object>();
+        root.put("values", null);
+        Assert.assertTrue(JSONPath.set(root, "$.values[0]", "abc"));
     }
 
     public void test_error() throws Exception {
-        Map<String, Object> root = Collections.singletonMap("values", new Object());
-
-        Exception error = null;
-        try {
-            JSONPath.set(root, "$.values[0]", "abc");
-        } catch (JSONPathException ex) {
-            error = ex;
-        }
-        Assert.assertNotNull(error);
+        Map<String, Object> root = new HashMap<String, Object>();
+        root.put("values", null);
+        JSONPath.set(root, "$.values[0]", "abc");
     }
 
     static class Entity {

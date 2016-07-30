@@ -60,6 +60,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.deserializer.Jdk8DateCodec;
 import com.alibaba.fastjson.parser.deserializer.OptionalCodec;
+import com.alibaba.fastjson.support.springfox.SwaggerJsonSerializer;
 import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.IdentityHashMap;
@@ -78,6 +79,7 @@ public class SerializeConfig {
     private static boolean                                awtError        = false;
     private static boolean                                jdk8Error       = false;
     private static boolean                                oracleJdbcError = false;
+    private static boolean                                springfoxError  = false;
     private boolean                                       asm             = !ASMUtils.IS_ANDROID;
     private ASMSerializerFactory                          asmFactory;
     protected String                                      typeKey         = JSON.DEFAULT_TYPE_KEY;
@@ -274,13 +276,6 @@ public class SerializeConfig {
 		
 		put(WeakReference.class, ReferenceCodec.instance);
 		put(SoftReference.class, ReferenceCodec.instance);
-
-        // swagger support
-        try {
-            put(Class.forName("springfox.documentation.spring.web.json.Json"), SwaggerJsonSerializer.instance);
-        } catch (ClassNotFoundException e) {
-        }
-
 	}
 	
 	/**
@@ -497,6 +492,16 @@ public class SerializeConfig {
                     } catch (Throwable e) {
                         // skip
                         oracleJdbcError = true;
+                    }
+                }
+                
+                if ((!springfoxError) //
+                    && className.equals("springfox.documentation.spring.web.json.Json")) {
+                    try {
+                        put(Class.forName("springfox.documentation.spring.web.json.Json"), SwaggerJsonSerializer.instance);
+                    } catch (ClassNotFoundException e) {
+                        // skip
+                        springfoxError = true;
                     }
                 }
                 

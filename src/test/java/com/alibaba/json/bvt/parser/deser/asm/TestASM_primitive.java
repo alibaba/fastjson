@@ -12,7 +12,7 @@ import junit.framework.TestCase;
 public class TestASM_primitive extends TestCase {
 
     public void test_asm() throws Exception {
-        JavaBeanInfo beanInfo = JavaBeanInfo.build(int.class, int.class);
+        JavaBeanInfo beanInfo = JavaBeanInfo.build(int.class, int.class, null);
         ASMDeserializerFactory factory = new ASMDeserializerFactory(new ASMClassLoader());
         Exception error = null;
         try {

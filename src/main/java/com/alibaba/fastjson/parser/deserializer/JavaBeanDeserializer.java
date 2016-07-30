@@ -37,7 +37,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     }
 
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz, Type type){
-        this(config, JavaBeanInfo.build(clazz, type));
+        this(config, JavaBeanInfo.build(clazz, type, config.propertyNamingStrategy));
     }
     
     public JavaBeanDeserializer(ParserConfig config, JavaBeanInfo beanInfo){
@@ -694,10 +694,22 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         }
         
         if (fieldDeserializer == null) {
-            if (key.indexOf('_') != -1) {
-                String key2 = key.replaceAll("_", "");
+            boolean snakeOrkebab = false;
+            String key2 = null;
+            for (int i = 0; i < key.length(); ++i) {
+                char ch = key.charAt(i);
+                if (ch == '_') {
+                    snakeOrkebab = true;
+                    key2 = key.replaceAll("_", "");
+                    break;
+                } else if (ch == '-') {
+                    snakeOrkebab = true;
+                    key2 = key.replaceAll("-", "");
+                    break;
+                }
+            }
+            if (snakeOrkebab) {
                 fieldDeserializer = getFieldDeserializer(key2);
-                
                 if (fieldDeserializer == null) {
                     for (FieldDeserializer fieldDeser : sortedFieldDeserializers) {
                         if (fieldDeser.fieldInfo.name.equalsIgnoreCase(key2)) {

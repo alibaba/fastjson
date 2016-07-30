@@ -13,7 +13,7 @@ public class NamingSerTest extends TestCase {
 
     public void test_snake() throws Exception {
         SerializeConfig config = new SerializeConfig();
-        config.propertyNamingStrategy = PropertyNamingStrategy.Snake;
+        config.propertyNamingStrategy = PropertyNamingStrategy.SnakeCase;
 
         Model model = new Model();
         model.personId = 1001;
@@ -21,7 +21,7 @@ public class NamingSerTest extends TestCase {
         Assert.assertEquals("{\"person_id\":1001}", text);
 
         ParserConfig parserConfig = new ParserConfig();
-        parserConfig.propertyNamingStrategy = PropertyNamingStrategy.Snake;
+        parserConfig.propertyNamingStrategy = PropertyNamingStrategy.SnakeCase;
         Model model2 = JSON.parseObject(text, Model.class, parserConfig);
         Assert.assertEquals(model.personId, model2.personId);
 
@@ -31,7 +31,7 @@ public class NamingSerTest extends TestCase {
 
     public void test_kebab() throws Exception {
         SerializeConfig config = new SerializeConfig();
-        config.propertyNamingStrategy = PropertyNamingStrategy.Kebab;
+        config.propertyNamingStrategy = PropertyNamingStrategy.KebabCase;
 
         Model model = new Model();
         model.personId = 1001;
@@ -39,7 +39,7 @@ public class NamingSerTest extends TestCase {
         Assert.assertEquals("{\"person-id\":1001}", text);
         
         ParserConfig parserConfig = new ParserConfig();
-        parserConfig.propertyNamingStrategy = PropertyNamingStrategy.Kebab;
+        parserConfig.propertyNamingStrategy = PropertyNamingStrategy.KebabCase;
         Model model2 = JSON.parseObject(text, Model.class, parserConfig);
         Assert.assertEquals(model.personId, model2.personId);
 
@@ -49,7 +49,7 @@ public class NamingSerTest extends TestCase {
 
     public void test_pascal() throws Exception {
         SerializeConfig config = new SerializeConfig();
-        config.propertyNamingStrategy = PropertyNamingStrategy.Pascal;
+        config.propertyNamingStrategy = PropertyNamingStrategy.PascalCase;
 
         Model model = new Model();
         model.personId = 1001;
@@ -57,7 +57,7 @@ public class NamingSerTest extends TestCase {
         Assert.assertEquals("{\"PersonId\":1001}", text);
         
         ParserConfig parserConfig = new ParserConfig();
-        parserConfig.propertyNamingStrategy = PropertyNamingStrategy.Pascal;
+        parserConfig.propertyNamingStrategy = PropertyNamingStrategy.PascalCase;
         Model model2 = JSON.parseObject(text, Model.class, parserConfig);
         Assert.assertEquals(model.personId, model2.personId);
 
@@ -67,7 +67,7 @@ public class NamingSerTest extends TestCase {
 
     public void test_camel() throws Exception {
         SerializeConfig config = new SerializeConfig();
-        config.propertyNamingStrategy = PropertyNamingStrategy.Camel;
+        config.propertyNamingStrategy = PropertyNamingStrategy.CamelCase;
 
         Model model = new Model();
         model.personId = 1001;
@@ -75,7 +75,7 @@ public class NamingSerTest extends TestCase {
         Assert.assertEquals("{\"personId\":1001}", text);
         
         ParserConfig parserConfig = new ParserConfig();
-        parserConfig.propertyNamingStrategy = PropertyNamingStrategy.Camel;
+        parserConfig.propertyNamingStrategy = PropertyNamingStrategy.CamelCase;
         Model model2 = JSON.parseObject(text, Model.class, parserConfig);
         Assert.assertEquals(model.personId, model2.personId);
 

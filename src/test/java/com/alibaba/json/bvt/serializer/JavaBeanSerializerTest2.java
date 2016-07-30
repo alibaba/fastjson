@@ -10,7 +10,7 @@ import com.alibaba.fastjson.serializer.JavaBeanSerializer;
 public class JavaBeanSerializerTest2 extends TestCase {
 
     public void test_0() throws Exception {
-        new JavaBeanSerializer(A.class, A.class.getModifiers(), Collections.<String, String> emptyMap(), false, true, true, true);
+        new JavaBeanSerializer(A.class, A.class.getModifiers(), Collections.<String, String> emptyMap(), false, true, true, true, null);
     }
 
     public static class A {

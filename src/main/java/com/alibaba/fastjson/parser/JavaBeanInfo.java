@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.annotation.JSONCreator;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
@@ -183,7 +184,8 @@ class JavaBeanInfo {
                                      boolean fieldOnly, //
                                      boolean jsonTypeSupport, //
                                      boolean jsonFieldSupport, //
-                                     boolean fieldGenericSupport
+                                     boolean fieldGenericSupport, //
+                                     PropertyNamingStrategy propertyNamingStrategy
     ) {
         List<FieldInfo> fieldList = new ArrayList<FieldInfo>();
 
@@ -468,8 +470,12 @@ class JavaBeanInfo {
                             annotation = fieldAnnotation;
                         }
                     }
-
                 }
+                
+                if (propertyNamingStrategy != null) {
+                    propertyName = propertyNamingStrategy.translate(propertyName);
+                }
+                
                 addField(fieldList, //
                          new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures, annotation,
                                        null, fieldGenericSupport), //
@@ -550,6 +556,11 @@ class JavaBeanInfo {
                     propertyName = fieldAnnotation.name();
                 }
             }
+            
+            if (propertyNamingStrategy != null) {
+                propertyName = propertyNamingStrategy.translate(propertyName);
+            }
+            
             TypeUtils.setAccessible(clazz, field, classModifiers);
             addField(fieldList, //
                      new FieldInfo(propertyName, //

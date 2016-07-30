@@ -55,6 +55,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONStreamAware;
+import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.deserializer.Jdk8DateCodec;
@@ -80,6 +81,7 @@ public class SerializeConfig {
     private boolean                                       asm             = !ASMUtils.IS_ANDROID;
     private ASMSerializerFactory                          asmFactory;
     protected String                                      typeKey         = JSON.DEFAULT_TYPE_KEY;
+    public PropertyNamingStrategy                         propertyNamingStrategy;
 
     private final IdentityHashMap<Type, ObjectSerializer> serializers;
     
@@ -90,7 +92,7 @@ public class SerializeConfig {
 	public void setTypeKey(String typeKey) {
 		this.typeKey = typeKey;
 	}
-
+	
     private final JavaBeanSerializer createASMSerializer(SerializeBeanInfo beanInfo) throws Exception {
         JavaBeanSerializer serializer = asmFactory.createJavaBeanSerializer(beanInfo);
         
@@ -109,7 +111,7 @@ public class SerializeConfig {
     }
 	
 	private final ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
-	    SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null);
+	    SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null, propertyNamingStrategy);
 	    if (beanInfo.fields.length == 0 && Iterable.class.isAssignableFrom(clazz)) {
 	        return MiscCodec.instance;
 	    }
@@ -294,7 +296,7 @@ public class SerializeConfig {
         ObjectSerializer serializer = getObjectWriter(clazz, false);
         
         if (serializer == null) {
-            SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null);
+            SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null, propertyNamingStrategy);
             
             if (value) {
                 beanInfo.features |= feature.mask;
@@ -403,7 +405,7 @@ public class SerializeConfig {
                 ObjectSerializer compObjectSerializer = getObjectWriter(componentType);
                 put(clazz, new ArraySerializer(componentType, compObjectSerializer));
             } else if (Throwable.class.isAssignableFrom(clazz)) {
-                SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null);
+                SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null, propertyNamingStrategy);
                 beanInfo.features |= SerializerFeature.WriteClassName.mask;
                 put(clazz, new JavaBeanSerializer(beanInfo));
             } else if (TimeZone.class.isAssignableFrom(clazz)) {

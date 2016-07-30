@@ -53,6 +53,7 @@ import java.util.concurrent.ConcurrentMap;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.Feature;
@@ -1036,14 +1037,17 @@ public class TypeUtils {
     }
     
 
-    public static SerializeBeanInfo buildBeanInfo(Class<?> beanType, Map<String, String> aliasMap) {
+    public static SerializeBeanInfo buildBeanInfo(Class<?> beanType //
+                                                  , Map<String, String> aliasMap //
+                                                  , PropertyNamingStrategy propertyNamingStrategy) {
+        
         JSONType jsonType = beanType.getAnnotation(JSONType.class);
         
         // fieldName,field ，先生成fieldName的快照，减少之后的findField的轮询
         Map<String , Field> fieldCacheMap =new HashMap<String, Field>();
         ParserConfig.parserAllFieldToCache( beanType,fieldCacheMap);
         
-        List<FieldInfo> fieldInfoList = computeGetters(beanType, jsonType, aliasMap,fieldCacheMap, false);
+        List<FieldInfo> fieldInfoList = computeGetters(beanType, jsonType, aliasMap,fieldCacheMap, false, propertyNamingStrategy);
         FieldInfo[] fields = new FieldInfo[fieldInfoList.size()];
         fieldInfoList.toArray(fields);
         
@@ -1065,7 +1069,7 @@ public class TypeUtils {
         FieldInfo[] sortedFields;
         List<FieldInfo> sortedFieldList;
         if (orders != null && orders.length != 0) {
-            sortedFieldList = TypeUtils.computeGetters(beanType, jsonType, aliasMap,fieldCacheMap, true);
+            sortedFieldList = TypeUtils.computeGetters(beanType, jsonType, aliasMap,fieldCacheMap, true, propertyNamingStrategy);
         } else {
             sortedFieldList = new ArrayList<FieldInfo>(fieldInfoList);
             Collections.sort(sortedFieldList);
@@ -1080,11 +1084,13 @@ public class TypeUtils {
         return new SerializeBeanInfo(beanType, jsonType, typeName, features, fields, sortedFields);
     }
 
-    public static List<FieldInfo> computeGetters(Class<?> clazz, // 
-                                                 JSONType jsonType, // 
+    public static List<FieldInfo> computeGetters(Class<?> clazz, //
+                                                 JSONType jsonType, //
                                                  Map<String, String> aliasMap, //
                                                  Map<String, Field> fieldCacheMap, //
-                                                 boolean sorted) {
+                                                 boolean sorted, //
+                                                 PropertyNamingStrategy propertyNamingStrategy //
+    ) {
         Map<String, FieldInfo> fieldInfoMap = new LinkedHashMap<String, FieldInfo>();
 
         for (Method method : clazz.getMethods()) {
@@ -1224,6 +1230,10 @@ public class TypeUtils {
                         continue;
                     }
                 }
+                
+                if (propertyNamingStrategy != null) {
+                    propertyName = propertyNamingStrategy.getName(propertyName);
+                }
 
                 FieldInfo fieldInfo = new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures, parserFeatures,
                                                     annotation, fieldAnnotation, label);
@@ -1295,6 +1305,10 @@ public class TypeUtils {
                         continue;
                     }
                 }
+                
+                if (propertyNamingStrategy != null) {
+                    propertyName = propertyNamingStrategy.getName(propertyName);
+                }
 
                 FieldInfo fieldInfo = new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures, parserFeatures,
                                                     annotation, fieldAnnotation, label);
@@ -1335,6 +1349,10 @@ public class TypeUtils {
                 if (propertyName == null) {
                     continue;
                 }
+            }
+            
+            if (propertyNamingStrategy != null) {
+                propertyName = propertyNamingStrategy.getName(propertyName);
             }
 
             if (!fieldInfoMap.containsKey(propertyName)) {

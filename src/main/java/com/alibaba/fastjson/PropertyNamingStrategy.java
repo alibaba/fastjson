@@ -4,14 +4,14 @@ package com.alibaba.fastjson;
  * @since 1.2.15
  */
 public enum PropertyNamingStrategy {
-                                    Camel, //
-                                    Pascal, //
-                                    Snake, //
-                                    Kebab;
+                                    CamelCase, //
+                                    PascalCase, //
+                                    SnakeCase, //
+                                    KebabCase;
 
     public String getName(String propertyName) {
         switch (this) {
-            case Snake: {
+            case SnakeCase: {
                 StringBuilder buf = new StringBuilder();
                 for (int i = 0; i < propertyName.length(); ++i) {
                     char ch = propertyName.charAt(i);
@@ -27,7 +27,7 @@ public enum PropertyNamingStrategy {
                 }
                 return buf.toString();
             }
-            case Kebab: {
+            case KebabCase: {
                 StringBuilder buf = new StringBuilder();
                 for (int i = 0; i < propertyName.length(); ++i) {
                     char ch = propertyName.charAt(i);
@@ -43,7 +43,7 @@ public enum PropertyNamingStrategy {
                 }
                 return buf.toString();
             }
-            case Pascal: {
+            case PascalCase: {
                 char ch = propertyName.charAt(0);
                 if (ch >= 'a' && ch <= 'z') {
                     char[] chars = propertyName.toCharArray();
@@ -53,7 +53,7 @@ public enum PropertyNamingStrategy {
 
                 return propertyName;
             }
-            case Camel: {
+            case CamelCase: {
                 char ch = propertyName.charAt(0);
                 if (ch >= 'A' && ch <= 'Z') {
                     char[] chars = propertyName.toCharArray();

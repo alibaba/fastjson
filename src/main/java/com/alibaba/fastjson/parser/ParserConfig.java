@@ -45,6 +45,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 
+import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
@@ -73,6 +74,7 @@ public class ParserConfig {
     private final IdentityHashMap<ObjectDeserializer> derializers = new IdentityHashMap<ObjectDeserializer>(1024);
     public final SymbolTable                          symbolTable = new SymbolTable(16384);
     public ClassLoader                                defaultClassLoader;
+    public PropertyNamingStrategy                     propertyNamingStrategy;
 
     public ParserConfig(){
         derializers.put(SimpleDateFormat.class, MiscCodec.instance);
@@ -231,7 +233,11 @@ public class ParserConfig {
         
         JavaBeanInfo beanInfo = JavaBeanInfo.build(clazz, // 
                                                    classModifiers, // 
-                                                   clazz, fieldOnly, jsonTypeSupport, jsonFieldSupport, fieldGenericSupport);
+                                                   clazz, fieldOnly, // 
+                                                   jsonTypeSupport, // 
+                                                   jsonFieldSupport, // 
+                                                   fieldGenericSupport, //
+                                                   propertyNamingStrategy);
         deserializer = new JavaBeanDeserializer(this, clazz, clazz, beanInfo);
         putDeserializer(clazz, deserializer);
         

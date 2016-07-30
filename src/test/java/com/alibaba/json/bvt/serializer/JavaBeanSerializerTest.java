@@ -23,7 +23,7 @@ public class JavaBeanSerializerTest extends TestCase {
         a.getL0().add("A");
         a.getL0().add("B");
 
-        JavaBeanSerializer serializer = new JavaBeanSerializer(A.class, A.class.getModifiers(), (Map<String, String>) null, false, true, true, true);
+        JavaBeanSerializer serializer = new JavaBeanSerializer(A.class, A.class.getModifiers(), (Map<String, String>) null, false, true, true, true, null);
         serializer.write(new JSONSerializer(out), a, null, null);
 
         Assert.assertEquals("{\"l0\":[\"A\",\"B\"]}", out.toString());

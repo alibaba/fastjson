@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.TypeUtils;
@@ -46,12 +47,16 @@ public class JavaBeanSerializer implements ObjectSerializer {
     
     protected String                typeName;
     
-    public JavaBeanSerializer(Class<?> clazz){
-        this(clazz, clazz.getModifiers(), (Map<String, String>) null, false, true, true, true);
+    public JavaBeanSerializer(Class<?> clazz) {
+        this(clazz, (PropertyNamingStrategy) null);
+    }
+    
+    public JavaBeanSerializer(Class<?> clazz, PropertyNamingStrategy propertyNamingStrategy){
+        this(clazz, clazz.getModifiers(), (Map<String, String>) null, false, true, true, true, propertyNamingStrategy);
     }
 
     public JavaBeanSerializer(Class<?> clazz, String... aliasList){
-        this(clazz, clazz.getModifiers(), map(aliasList), false, true, true, true);
+        this(clazz, clazz.getModifiers(), map(aliasList), false, true, true, true, null);
     }
 
     private static Map<String, String> map(String... aliasList) {
@@ -79,7 +84,9 @@ public class JavaBeanSerializer implements ObjectSerializer {
                               boolean fieldOnly, //
                               boolean jsonTypeSupport, // 
                               boolean jsonFieldSupport, //
-                              boolean fieldGenericSupport){
+                              boolean fieldGenericSupport, //
+                              PropertyNamingStrategy propertyNamingStrategy
+                              ){
         JSONType jsonType = jsonTypeSupport //
             ? clazz.getAnnotation(JSONType.class) //
             : null;
@@ -101,7 +108,8 @@ public class JavaBeanSerializer implements ObjectSerializer {
                                                                      aliasMap, // 
                                                                      false, // sorted = false
                                                                      jsonFieldSupport, // 
-                                                                     fieldGenericSupport);
+                                                                     fieldGenericSupport, //
+                                                                     propertyNamingStrategy);
             List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
 
             for (FieldInfo fieldInfo : fieldInfoList) {
@@ -127,7 +135,8 @@ public class JavaBeanSerializer implements ObjectSerializer {
                                                                      aliasMap, //
                                                                      true, // sorted = true
                                                                      jsonFieldSupport, //
-                                                                     fieldGenericSupport);
+                                                                     fieldGenericSupport, //
+                                                                     propertyNamingStrategy);
             List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
 
             for (FieldInfo fieldInfo : fieldInfoList) {

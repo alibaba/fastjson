@@ -37,6 +37,7 @@ import java.util.regex.Pattern;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONStreamAware;
+import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.util.IdentityHashMap;
 
 /**
@@ -54,6 +55,7 @@ public class SerializeConfig {
     
     private final IdentityHashMap<ObjectSerializer> serializers;
     protected String                                typeKey = JSON.DEFAULT_TYPE_KEY;
+    public PropertyNamingStrategy                   propertyNamingStrategy;
 
     public ObjectSerializer registerIfNotExists(Class<?> clazz) {
         return registerIfNotExists(clazz, clazz.getModifiers(), false, true, true, true);
@@ -67,7 +69,15 @@ public class SerializeConfig {
                                                 boolean fieldGenericSupport) {
         ObjectSerializer serializer = serializers.get(clazz);
         if (serializer == null) {
-            serializer = new JavaBeanSerializer(clazz, classModifers, null, fieldOnly, jsonTypeSupport, jsonFieldSupport, fieldGenericSupport);
+            serializer = new JavaBeanSerializer(clazz, // 
+                                                classModifers, // 
+                                                null, // 
+                                                fieldOnly, // 
+                                                jsonTypeSupport, // 
+                                                jsonFieldSupport, // 
+                                                fieldGenericSupport, //
+                                                propertyNamingStrategy
+                                                );
             this.serializers.put(clazz, serializer);
         }
         
@@ -130,7 +140,7 @@ public class SerializeConfig {
                 ObjectSerializer compObjectSerializer = get(componentType);
                 serializers.put(clazz, new ArraySerializer(componentType, compObjectSerializer));
             } else if (Throwable.class.isAssignableFrom(clazz)) {
-                JavaBeanSerializer serializer = new JavaBeanSerializer(clazz);
+                JavaBeanSerializer serializer = new JavaBeanSerializer(clazz, propertyNamingStrategy);
                 serializer.features |= SerializerFeature.WriteClassName.mask;
                 serializers.put(clazz, serializer);
             } else if (TimeZone.class.isAssignableFrom(clazz)) {
@@ -163,7 +173,7 @@ public class SerializeConfig {
                     return superWriter;
                 }
 
-                serializers.put(clazz, new JavaBeanSerializer(clazz));
+                serializers.put(clazz, new JavaBeanSerializer(clazz, propertyNamingStrategy));
             }
 
             writer = serializers.get(clazz);

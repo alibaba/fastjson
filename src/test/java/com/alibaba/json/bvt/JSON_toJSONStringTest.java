@@ -47,7 +47,7 @@ public class JSON_toJSONStringTest extends TestCase {
         user.setName("毛头");
 
         SerializeConfig mapping = new SerializeConfig();
-        mapping.put(User.class, new JavaBeanSerializer(User.class, User.class.getModifiers(), Collections.singletonMap("id", "uid"), false, true, true, true));
+        mapping.put(User.class, new JavaBeanSerializer(User.class, User.class.getModifiers(), Collections.singletonMap("id", "uid"), false, true, true, true, null));
 
         JSONSerializer serializer = new JSONSerializer(mapping);
         serializer.write(user);

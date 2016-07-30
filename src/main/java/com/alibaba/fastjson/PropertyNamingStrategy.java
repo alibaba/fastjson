@@ -9,7 +9,7 @@ public enum PropertyNamingStrategy {
                                     SnakeCase, //
                                     KebabCase;
 
-    public String getName(String propertyName) {
+    public String translate(String propertyName) {
         switch (this) {
             case SnakeCase: {
                 StringBuilder buf = new StringBuilder();

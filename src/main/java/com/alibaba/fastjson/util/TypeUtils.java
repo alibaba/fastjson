@@ -1232,7 +1232,7 @@ public class TypeUtils {
                 }
                 
                 if (propertyNamingStrategy != null) {
-                    propertyName = propertyNamingStrategy.getName(propertyName);
+                    propertyName = propertyNamingStrategy.translate(propertyName);
                 }
 
                 FieldInfo fieldInfo = new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures, parserFeatures,
@@ -1307,7 +1307,7 @@ public class TypeUtils {
                 }
                 
                 if (propertyNamingStrategy != null) {
-                    propertyName = propertyNamingStrategy.getName(propertyName);
+                    propertyName = propertyNamingStrategy.translate(propertyName);
                 }
 
                 FieldInfo fieldInfo = new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures, parserFeatures,
@@ -1352,7 +1352,7 @@ public class TypeUtils {
             }
             
             if (propertyNamingStrategy != null) {
-                propertyName = propertyNamingStrategy.getName(propertyName);
+                propertyName = propertyNamingStrategy.translate(propertyName);
             }
 
             if (!fieldInfoMap.containsKey(propertyName)) {

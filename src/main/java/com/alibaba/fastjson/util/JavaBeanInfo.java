@@ -423,7 +423,7 @@ public class JavaBeanInfo {
             }
             
             if (propertyNamingStrategy != null) {
-                propertyName = propertyNamingStrategy.getName(propertyName);
+                propertyName = propertyNamingStrategy.translate(propertyName);
             }
 
             add(fieldList, new FieldInfo(propertyName, method, field, clazz, type, ordinal, serialzeFeatures, parserFeatures,
@@ -480,7 +480,7 @@ public class JavaBeanInfo {
             }
             
             if (propertyNamingStrategy != null) {
-                propertyName = propertyNamingStrategy.getName(propertyName);
+                propertyName = propertyNamingStrategy.translate(propertyName);
             }
             
             add(fieldList, new FieldInfo(propertyName, null, field, clazz, type, ordinal, serialzeFeatures, parserFeatures, null,
@@ -527,7 +527,7 @@ public class JavaBeanInfo {
                     }
 
                     if (propertyNamingStrategy != null) {
-                        propertyName = propertyNamingStrategy.getName(propertyName);
+                        propertyName = propertyNamingStrategy.translate(propertyName);
                     }
                     
                     add(fieldList, new FieldInfo(propertyName, method, null, clazz, type, 0, 0, 0, annotation, null, null));

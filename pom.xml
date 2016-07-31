@@ -11,7 +11,7 @@
 -->
 	<groupId>com.alibaba</groupId>
 	<artifactId>fastjson</artifactId>
-	<version>1.2.15-SNAPSHOT</version>
+	<version>1.2.15</version>
 
 	<packaging>jar</packaging>
 	<name>fastjson</name>
@@ -23,7 +23,7 @@
 	<properties>
 		<junit.version>4.11</junit.version>
 		<gpg.skip>true</gpg.skip>
-		<javadoc.skip>true</javadoc.skip>
+		<javadoc.skip>false</javadoc.skip>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk.version>1.5</jdk.version>
 	</properties>

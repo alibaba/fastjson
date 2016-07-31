@@ -498,7 +498,13 @@ public class SerializeConfig {
                 if ((!springfoxError) //
                     && className.equals("springfox.documentation.spring.web.json.Json")) {
                     try {
-                        put(Class.forName("springfox.documentation.spring.web.json.Json"), SwaggerJsonSerializer.instance);
+                        put(Class.forName("springfox.documentation.spring.web.json.Json"), //
+                            SwaggerJsonSerializer.instance);
+                        
+                        writer = serializers.get(clazz);
+                        if (writer != null) {
+                            return writer;
+                        }
                     } catch (ClassNotFoundException e) {
                         // skip
                         springfoxError = true;

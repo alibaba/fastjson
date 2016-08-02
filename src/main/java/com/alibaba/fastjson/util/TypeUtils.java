@@ -1192,7 +1192,15 @@ public class TypeUtils {
                     continue;
                 }
                 //假如bean的field很多的情况一下，轮询时将大大降低效率
-                Field field = ParserConfig.getFieldFromCache(propertyName,fieldCacheMap);
+                Field field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
+                
+                if (field == null && propertyName.length() > 1) {
+                    char ch = propertyName.charAt(1);
+                    if (ch >= 'A' && ch <= 'Z') {
+                        String javaBeanCompatiblePropertyName = decapitalize(methodName.substring(3));
+                        field = ParserConfig.getFieldFromCache(javaBeanCompatiblePropertyName, fieldCacheMap);
+                    }
+                }
                 
                 JSONField fieldAnnotation = null;
                 if (field != null) {

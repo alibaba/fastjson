@@ -27,7 +27,7 @@ public class FastjsonSockJsMessageCodec extends AbstractSockJsMessageCodec {
         try {
             JSONSerializer serializer = new JSONSerializer(out);
             serializer.write(content);
-            return out.toCharArray();
+            return out.toCharArrayForSpringWebSocket();
         } finally {
             out.close();
         }

@@ -7,60 +7,84 @@
  */
 package com.alibaba.json.bvt.support.spring.mock.controller;
 
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.json.bvt.support.spring.mock.entity.FastJsonEnumTestVO;
+import com.alibaba.json.bvt.support.spring.mock.entity.FastJsonGenericityTestVO;
+import com.alibaba.json.bvt.support.spring.mock.entity.FastJsonParentTestVO;
+import com.alibaba.json.bvt.support.spring.mock.entity.FastJsonTestVO;
+import com.alibaba.json.test.entity.Company;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.json.bvt.support.spring.mock.entity.FastJsonParentTestVO;
-import com.alibaba.json.bvt.support.spring.mock.entity.FastJsonTestVO;
-import com.alibaba.json.test.entity.Company;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * <p>Title: FastJsonControllerTest</p>
  * <p>Description: </p>
  *
- * @since 2016年4月20日
  * @author Victor.Zxy
  * @version 1.0
+ * @since 2016年4月20日
  */
 @Controller
 @RequestMapping("fastjson")
 public class FastJsonControllerTest {
 
-	@RequestMapping("test1")
-	public @ResponseBody JSONObject test1(@RequestBody FastJsonTestVO vo) {
+    @RequestMapping("test1")
+    public
+    @ResponseBody
+    JSONObject test1(@RequestBody FastJsonTestVO vo) {
 
-		JSONObject jsonObj = new JSONObject();
-		
-		jsonObj.put("id", vo.getId());
-		
-		jsonObj.put("name", vo.getName());
-		
-		return jsonObj;
-	}
+        JSONObject jsonObj = new JSONObject();
 
-	@RequestMapping("test2")
-	public @ResponseBody JSONObject test1(@RequestBody List<FastJsonParentTestVO> vos) {
+        jsonObj.put("id", vo.getId());
 
-		JSONObject jsonObj = new JSONObject();
-		
-		for (FastJsonParentTestVO fastJsonParentTestVO : vos) {
-			
-			jsonObj.put(fastJsonParentTestVO.getName(), fastJsonParentTestVO.getSonList().size());
-		}
-		
-		return jsonObj;
-	}
-	
-	@ResponseBody
+        jsonObj.put("name", vo.getName());
+
+        return jsonObj;
+    }
+
+    @RequestMapping("test2")
+    public
+    @ResponseBody
+    JSONObject test1(@RequestBody List<FastJsonParentTestVO> vos) {
+
+        JSONObject jsonObj = new JSONObject();
+
+        for (FastJsonParentTestVO fastJsonParentTestVO : vos) {
+
+            jsonObj.put(fastJsonParentTestVO.getName(), fastJsonParentTestVO.getSonList().size());
+        }
+
+        return jsonObj;
+    }
+
+    @ResponseBody
     @RequestMapping(value = "test3", method = RequestMethod.POST)
     public Company test3(HttpServletRequest request, HttpServletResponse response) {
-        Company company=new Company();
+        Company company = new Company();
         return company;
+    }
+
+    @RequestMapping("test4")
+    public
+    @ResponseBody
+    String test4(@RequestBody FastJsonGenericityTestVO<FastJsonTestVO> queryCondition) {
+
+        return JSON.toJSONString(queryCondition);
+    }
+
+    @RequestMapping("test5")
+    public
+    @ResponseBody
+    String test5(@RequestBody FastJsonEnumTestVO vo) {
+
+        return JSON.toJSONString(vo);
     }
 }

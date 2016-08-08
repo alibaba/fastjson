@@ -23,13 +23,13 @@ public class JSONFeidDemo2 extends TestCase {
 		System.out.println(text);
 
 		assertEquals(
-				"{\"iM_PREQ_NO\":\"111111\",\"tB_PR_INFO\":[{\"PREQ_NO\":\"t1\"},{\"PREQ_NO\":\"t2\"}]}",
+				"{\"IM_PREQ_NO\":\"111111\",\"TB_PR_INFO\":[{\"PREQ_NO\":\"t1\"},{\"PREQ_NO\":\"t2\"}]}",
 				text);
 
 	}
 
 	public void test_1() throws Exception {
-		String text = "{\"iM_PREQ_NO\":\"111111\",\"TB_PR_INFO\":[{\"pREQ_NO\":\"t1\"},{\"pREQ_NO\":\"t2\"}]}";
+		String text = "{\"IM_PREQ_NO\":\"111111\",\"TB_PR_INFO\":[{\"pREQ_NO\":\"t1\"},{\"pREQ_NO\":\"t2\"}]}";
 		Z_OA_MM_PR_INFO_IN in = JSON
 				.parseObject(text, Z_OA_MM_PR_INFO_IN.class);
 		assertEquals("111111", in.getIM_PREQ_NO());

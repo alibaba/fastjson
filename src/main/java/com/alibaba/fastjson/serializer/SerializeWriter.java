@@ -345,6 +345,20 @@ public final class SerializeWriter extends Writer {
         System.arraycopy(buf, 0, newValue, 0, count);
         return newValue;
     }
+    
+    /**
+     * only for springwebsocket
+     * @return
+     */
+    public char[] toCharArrayForSpringWebSocket() {
+        if (this.writer != null) {
+            throw new UnsupportedOperationException("writer not null");
+        }
+
+        char[] newValue = new char[count - 2];
+        System.arraycopy(buf, 1, newValue, 0, count - 2);
+        return newValue;
+    }
 
     public byte[] toBytes(String charsetName) {
         return toBytes(charsetName == null || "UTF-8".equals(charsetName) //

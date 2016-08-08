@@ -28,7 +28,7 @@ public class DeserializerGen extends ClassGen {
 
     @Override
     public void gen() throws IOException {
-        beanInfo = JavaBeanInfo.build(clazz, type);
+        beanInfo = JavaBeanInfo.build(clazz, type, null);
         genClassName = clazz.getSimpleName() + "GenDecoder";
 
         print("package ");

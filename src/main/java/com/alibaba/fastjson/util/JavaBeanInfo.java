@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.annotation.JSONCreator;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONPOJOBuilder;
@@ -125,7 +126,7 @@ public class JavaBeanInfo {
         return true;
     }
 
-    public static JavaBeanInfo build(Class<?> clazz, Type type) {
+    public static JavaBeanInfo build(Class<?> clazz, Type type, PropertyNamingStrategy propertyNamingStrategy) {
         JSONType jsonType = clazz.getAnnotation(JSONType.class);
 
         Class<?> builderClass = getBuilderClass(jsonType);
@@ -281,7 +282,7 @@ public class JavaBeanInfo {
                 properNameBuilder.setCharAt(0, Character.toLowerCase(c0));
 
                 String propertyName = properNameBuilder.toString();
-
+                
                 add(fieldList, new FieldInfo(propertyName, method, null, clazz, type, ordinal, serialzeFeatures, parserFeatures, 
                                              annotation, null, null));
             }
@@ -420,6 +421,10 @@ public class JavaBeanInfo {
                 }
 
             }
+            
+            if (propertyNamingStrategy != null) {
+                propertyName = propertyNamingStrategy.translate(propertyName);
+            }
 
             add(fieldList, new FieldInfo(propertyName, method, field, clazz, type, ordinal, serialzeFeatures, parserFeatures,
                                          annotation, fieldAnnotation, null));
@@ -473,6 +478,11 @@ public class JavaBeanInfo {
                     propertyName = fieldAnnotation.name();
                 }
             }
+            
+            if (propertyNamingStrategy != null) {
+                propertyName = propertyNamingStrategy.translate(propertyName);
+            }
+            
             add(fieldList, new FieldInfo(propertyName, null, field, clazz, type, ordinal, serialzeFeatures, parserFeatures, null,
                                          fieldAnnotation, null));
         }
@@ -516,6 +526,10 @@ public class JavaBeanInfo {
                         continue;
                     }
 
+                    if (propertyNamingStrategy != null) {
+                        propertyName = propertyNamingStrategy.translate(propertyName);
+                    }
+                    
                     add(fieldList, new FieldInfo(propertyName, method, null, clazz, type, 0, 0, 0, annotation, null, null));
                 }
             }

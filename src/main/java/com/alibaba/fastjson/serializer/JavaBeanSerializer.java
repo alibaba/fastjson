@@ -57,7 +57,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
     }
 
     public JavaBeanSerializer(Class<?> beanType, Map<String, String> aliasMap){
-        this(TypeUtils.buildBeanInfo(beanType, aliasMap));
+        this(TypeUtils.buildBeanInfo(beanType, aliasMap, null));
     }
     
     public JavaBeanSerializer(SerializeBeanInfo beanInfo) {

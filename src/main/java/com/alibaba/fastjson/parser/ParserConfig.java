@@ -67,6 +67,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
+import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.deserializer.ASMDeserializerFactory;
@@ -131,6 +132,8 @@ public class ParserConfig {
     private boolean                                         asmEnable   = !ASMUtils.IS_ANDROID;
 
     public final SymbolTable                                symbolTable = new SymbolTable(4096);
+    
+    public PropertyNamingStrategy                           propertyNamingStrategy;
 
     protected ClassLoader                                   defaultClassLoader;
 
@@ -513,7 +516,7 @@ public class ParserConfig {
             if (clazz.isInterface()) {
                 asmEnable = false;
             }
-            JavaBeanInfo beanInfo = JavaBeanInfo.build(clazz, type);
+            JavaBeanInfo beanInfo = JavaBeanInfo.build(clazz, type, propertyNamingStrategy);
 
             if (asmEnable && beanInfo.fields.length > 200) {
                 asmEnable = false;
@@ -575,7 +578,7 @@ public class ParserConfig {
             return new JavaBeanDeserializer(this, clazz, type);
         }
 
-        JavaBeanInfo beanInfo = JavaBeanInfo.build(clazz, type);
+        JavaBeanInfo beanInfo = JavaBeanInfo.build(clazz, type, propertyNamingStrategy);
         try {
             return asmFactory.createJavaBeanDeserializer(this, beanInfo);
             // } catch (VerifyError e) {

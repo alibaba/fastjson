@@ -922,6 +922,15 @@ public class JSONPath implements JSONAware {
 
             int start = pos - 1;
             while (ch != ']' && ch != '/' && !isEOF()) {
+                if (ch == '.' //
+                        && (!predicateFlag) // 
+                        && !predicateFlag) {
+                    break;
+                }
+                
+                if (ch == '\\') {
+                    next();
+                }
                 next();
             }
             
@@ -929,7 +938,7 @@ public class JSONPath implements JSONAware {
             if (acceptBracket) {
                 end = pos - 1;
             } else {
-                if (ch == '/') {
+                if (ch == '/' || ch == '.') {
                     end = pos - 1;
                 } else {
                     end = pos;

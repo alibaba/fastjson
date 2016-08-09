@@ -142,7 +142,12 @@ public enum SerializerFeature {
     /**
      * @since 1.2.11
      */
-    IgnoreErrorGetter
+    IgnoreErrorGetter,
+
+    /**
+     * @since 1.2.16
+     */
+    WriteBigDecimalAsPlain
     ;
 
     SerializerFeature(){

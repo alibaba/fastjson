@@ -39,7 +39,14 @@ public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
             out.writeNull(SerializerFeature.WriteNullNumberAsZero);
         } else {
             BigDecimal val = (BigDecimal) object;
-            out.write(val.toString());
+
+            String outText;
+            if (out.isEnabled(SerializerFeature.WriteBigDecimalAsPlain)) {
+                outText = val.toPlainString();
+            } else {
+                outText = val.toString();
+            }
+            out.write(outText);
 
             if (out.isEnabled(SerializerFeature.WriteClassName) && fieldType != BigDecimal.class && val.scale() == 0) {
                 out.write('.');

@@ -168,6 +168,7 @@ public class SerializeConfig {
                 if ((!ASMUtils.checkName(annotation.name())) //
                         || annotation.format().length() != 0
                         || annotation.jsonDirect()
+                        || annotation.serializeUsing() != Void.class
                         ) {
     				asm = false;
     				break;

@@ -54,4 +54,9 @@ public @interface JSONField {
      * @since 1.2.12
      */
     boolean jsonDirect() default false;
+    
+    /**
+     * @since 1.2.16
+     */
+    Class<?> serializeUsing() default Void.class;
 }

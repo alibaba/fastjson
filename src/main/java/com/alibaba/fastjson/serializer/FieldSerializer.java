@@ -119,8 +119,15 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
             } else {
                 runtimeFieldClass = propertyValue.getClass();
             }
-
-            ObjectSerializer fieldSerializer = serializer.getObjectWriter(runtimeFieldClass);
+            
+            ObjectSerializer fieldSerializer;
+            JSONField fieldAnnotation = fieldInfo.getAnnotation();
+            if (fieldAnnotation != null && fieldAnnotation.serializeUsing() != Void.class) {
+                fieldSerializer = (ObjectSerializer) fieldAnnotation.serializeUsing().newInstance();
+            } else {
+                fieldSerializer = serializer.getObjectWriter(runtimeFieldClass);
+            }
+            
             runtimeInfo = new RuntimeSerializerInfo(fieldSerializer, runtimeFieldClass);
         }
         

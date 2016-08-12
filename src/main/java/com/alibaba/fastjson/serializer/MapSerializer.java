@@ -102,9 +102,39 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                         }
                     }
                 }
+                {
+                    List<PropertyPreFilter> preFilters = this.propertyPreFilters;
+                    if (preFilters != null && preFilters.size() > 0) {
+                        if (entryKey == null || entryKey instanceof String) {
+                            if (!this.applyName(serializer, object, (String) entryKey)) {
+                                continue;
+                            }
+                        } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
+                            String strKey = JSON.toJSONString(entryKey);
+                            if (!this.applyName(serializer, object, strKey)) {
+                                continue;
+                            }
+                        }
+                    }
+                }
                 
                 {
                     List<PropertyFilter> propertyFilters = serializer.propertyFilters;
+                    if (propertyFilters != null && propertyFilters.size() > 0) {
+                        if (entryKey == null || entryKey instanceof String) {
+                            if (!this.apply(serializer, object, (String) entryKey, value)) {
+                                continue;
+                            }
+                        } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
+                            String strKey = JSON.toJSONString(entryKey);
+                            if (!this.apply(serializer, object, strKey, value)) {
+                                continue;
+                            }
+                        }
+                    }
+                }
+                {
+                    List<PropertyFilter> propertyFilters = this.propertyFilters;
                     if (propertyFilters != null && propertyFilters.size() > 0) {
                         if (entryKey == null || entryKey instanceof String) {
                             if (!this.apply(serializer, object, (String) entryKey, value)) {
@@ -130,10 +160,34 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                         }
                     }
                 }
+                {
+                    List<NameFilter> nameFilters = this.nameFilters;
+                    if (nameFilters != null && nameFilters.size() > 0) {
+                        if (entryKey == null || entryKey instanceof String) {
+                            entryKey = this.processKey(serializer, object, (String) entryKey, value);
+                        } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
+                            String strKey = JSON.toJSONString(entryKey);
+                            entryKey = this.processKey(serializer, object, strKey, value);
+                        }
+                    }
+                }
                 
                 {
                     List<ValueFilter> valueFilters = serializer.valueFilters;
-                    List<ContextValueFilter> contextValueFilters = serializer.contextValueFilters;
+                    List<ContextValueFilter> contextValueFilters = this.contextValueFilters;
+                    if ((valueFilters != null && valueFilters.size() > 0) //
+                        || (contextValueFilters != null && contextValueFilters.size() > 0)) {
+                        if (entryKey == null || entryKey instanceof String) {
+                            value = this.processValue(serializer, null, object, (String) entryKey, value);
+                        } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
+                            String strKey = JSON.toJSONString(entryKey);
+                            value = this.processValue(serializer, null, object, strKey, value);
+                        }
+                    }
+                }
+                {
+                    List<ValueFilter> valueFilters = this.valueFilters;
+                    List<ContextValueFilter> contextValueFilters = this.contextValueFilters;
                     if ((valueFilters != null && valueFilters.size() > 0) //
                         || (contextValueFilters != null && contextValueFilters.size() > 0)) {
                         if (entryKey == null || entryKey instanceof String) {

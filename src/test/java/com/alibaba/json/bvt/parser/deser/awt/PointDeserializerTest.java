@@ -49,7 +49,7 @@ public class PointDeserializerTest extends TestCase {
     public void test_error_3() throws Exception {
         Exception error = null;
         try {
-            JSON.parseObject("{\"x\":44.}", Point.class);
+            JSON.parseObject("{\"x\":\"aaa\"}", Point.class);
         } catch (JSONException ex) {
             error = ex;
         }

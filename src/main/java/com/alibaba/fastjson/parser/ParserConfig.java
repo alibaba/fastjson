@@ -553,7 +553,8 @@ public class ParserConfig {
                 JSONField annotation = fieldInfo.getAnnotation();
                 if (annotation != null //
                     && ((!ASMUtils.checkName(annotation.name())) //
-                        || annotation.format().length() != 0)) {
+                        || annotation.format().length() != 0 //
+                        || annotation.deserializeUsing() != Void.class)) {
                     asmEnable = false;
                     break;
                 }

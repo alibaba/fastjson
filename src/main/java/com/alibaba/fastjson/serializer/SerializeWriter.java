@@ -1098,6 +1098,7 @@ public final class SerializeWriter extends Writer {
         }
 
         int offset = count;
+        final int initOffset = offset;
         for (int i = 0, list_size = list.size(); i < list_size; ++i) {
             String text = list.get(i);
 
@@ -1117,6 +1118,7 @@ public final class SerializeWriter extends Writer {
             }
 
             if (hasSpecial) {
+                count = initOffset;
                 write('[');
                 for (int j = 0; j < list.size(); ++j) {
                     text = list.get(j);

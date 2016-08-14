@@ -2214,8 +2214,6 @@ public class JSONPath implements JSONAware {
             }
             return;
         }
-        
-        throw new JSONPathException("jsonpath error, path " + path + ", segement " + propertyName);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })

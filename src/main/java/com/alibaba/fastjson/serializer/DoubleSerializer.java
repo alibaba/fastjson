@@ -41,37 +41,24 @@ public class DoubleSerializer implements ObjectSerializer {
     }
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         if (object == null) {
-            if (serializer.isEnabled(SerializerFeature.WriteNullNumberAsZero)) {
-                out.write('0');
-            } else {
-                out.writeNull();
-            }
+            out.writeNull(SerializerFeature.WriteNullNumberAsZero);
             return;
         }
 
         double doubleValue = ((Double) object).doubleValue();
 
-        if (Double.isNaN(doubleValue)) {
-            out.writeNull();
-        } else if (Double.isInfinite(doubleValue)) {
+        if (Double.isNaN(doubleValue) //
+                || Double.isInfinite(doubleValue)) {
             out.writeNull();
         } else {
-            String doubleText;
             if (decimalFormat == null) {
-                doubleText = Double.toString(doubleValue);
-                if (doubleText.endsWith(".0")) {
-                    doubleText = doubleText.substring(0, doubleText.length() - 2);
-                }
+                out.writeDouble(doubleValue, true);
             } else {
-                doubleText = decimalFormat.format(doubleValue);
-            }
-            out.append(doubleText);
-
-            if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
-                out.write('D');
+                String doubleText = decimalFormat.format(doubleValue);
+                out.write(doubleText);
             }
         }
     }

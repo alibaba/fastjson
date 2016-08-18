@@ -33,14 +33,10 @@ public class BigIntegerCodec implements ObjectSerializer, ObjectDeserializer {
     public final static BigIntegerCodec instance = new BigIntegerCodec();
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         if (object == null) {
-            if (out.isEnabled(SerializerFeature.WriteNullNumberAsZero)) {
-                out.write('0');
-            } else {
-                out.writeNull();
-            }
+            out.writeNull(SerializerFeature.WriteNullNumberAsZero);
             return;
         }
         
@@ -55,7 +51,7 @@ public class BigIntegerCodec implements ObjectSerializer, ObjectDeserializer {
 
     @SuppressWarnings("unchecked")
     public static <T> T deserialze(DefaultJSONParser parser) {
-        final JSONLexer lexer = parser.getLexer();
+        final JSONLexer lexer = parser.lexer;
         if (lexer.token() == JSONToken.LITERAL_INT) {
             String val = lexer.numberString();
             lexer.nextToken(JSONToken.COMMA);
@@ -63,12 +59,9 @@ public class BigIntegerCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         Object value = parser.parse();
-
-        if (value == null) {
-            return null;
-        }
-
-        return (T) TypeUtils.castToBigInteger(value);
+        return value == null //
+            ? null //
+            : (T) TypeUtils.castToBigInteger(value);
     }
 
     public int getFastMatchToken() {

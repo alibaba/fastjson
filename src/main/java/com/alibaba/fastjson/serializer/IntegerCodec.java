@@ -20,6 +20,7 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -34,22 +35,22 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
     public static IntegerCodec instance = new IntegerCodec();
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         Number value = (Number) object;
         
         if (value == null) {
-            if (out.isEnabled(SerializerFeature.WriteNullNumberAsZero)) {
-                out.write('0');
-            } else {
-                out.writeNull();
-            }
+            out.writeNull(SerializerFeature.WriteNullNumberAsZero);
             return;
         }
         
-        out.writeInt(value.intValue());
+        if (object instanceof Long) {
+            out.writeLong(value.longValue());
+        } else {
+            out.writeInt(value.intValue());
+        }
         
-        if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
+        if (out.isEnabled(SerializerFeature.WriteClassName)) {
             Class<?> clazz = value.getClass();
             if (clazz == Byte.class) {
                 out.write('B');
@@ -61,7 +62,7 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
     
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        final JSONLexer lexer = parser.getLexer();
+        final JSONLexer lexer = parser.lexer;
 
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken(JSONToken.COMMA);
@@ -70,7 +71,12 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
 
         Integer intObj;
         if (lexer.token() == JSONToken.LITERAL_INT) {
-            int val = lexer.intValue();
+            int val;
+            try {
+                 val = lexer.intValue();
+            } catch (NumberFormatException ex) {
+                throw new JSONException("int value overflow, field : " + fieldName, ex);
+            }
             lexer.nextToken(JSONToken.COMMA);
             intObj = Integer.valueOf(val);
         } else if (lexer.token() == JSONToken.LITERAL_FLOAT) {

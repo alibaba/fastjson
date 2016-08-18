@@ -5,7 +5,7 @@ import junit.framework.TestCase;
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.ParserConfig;
 
 public class FieldDeserializerTest3 extends TestCase {
@@ -15,7 +15,7 @@ public class FieldDeserializerTest3 extends TestCase {
         try {
             String input = "{\"value\":null}";
             int featureValues = 0;
-            DefaultExtJSONParser parser = new DefaultExtJSONParser(input, ParserConfig.getGlobalInstance(),
+            DefaultJSONParser parser = new DefaultJSONParser(input, ParserConfig.getGlobalInstance(),
                                                                    featureValues);
 
             Entity object = new Entity();
@@ -31,7 +31,7 @@ public class FieldDeserializerTest3 extends TestCase {
         try {
             String input = "{,,\"value\":null}";
             int featureValues = 0;
-            DefaultExtJSONParser parser = new DefaultExtJSONParser(input, ParserConfig.getGlobalInstance(),
+            DefaultJSONParser parser = new DefaultJSONParser(input, ParserConfig.getGlobalInstance(),
                                                                    featureValues);
 
             Entity object = new Entity();

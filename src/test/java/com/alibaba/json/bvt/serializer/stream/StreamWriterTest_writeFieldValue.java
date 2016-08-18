@@ -1,12 +1,13 @@
 package com.alibaba.json.bvt.serializer.stream;
 
-import java.io.StringWriter;
-
-import org.junit.Assert;
-import junit.framework.TestCase;
-
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+
+import junit.framework.TestCase;
+
+import org.junit.Assert;
+
+import java.io.StringWriter;
 
 
 public class StreamWriterTest_writeFieldValue extends TestCase {
@@ -16,6 +17,7 @@ public class StreamWriterTest_writeFieldValue extends TestCase {
         SerializeWriter writer = new SerializeWriter(out, 10);
         Assert.assertEquals(10, writer.getBufferLength());
         
+        writer.config(SerializerFeature.QuoteFieldNames, true);
         writer.writeFieldValue(',', "abcde01245abcde", true);
         writer.close();
         

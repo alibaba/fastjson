@@ -17,12 +17,12 @@ import com.alibaba.fastjson.util.TypeUtils;
 public class ThrowableDeserializer extends JavaBeanDeserializer {
 
     public ThrowableDeserializer(ParserConfig mapping, Class<?> clazz){
-        super(mapping, clazz);
+        super(mapping, clazz, clazz);
     }
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-        JSONLexer lexer = parser.getLexer();
+        JSONLexer lexer = parser.lexer;
         
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken();

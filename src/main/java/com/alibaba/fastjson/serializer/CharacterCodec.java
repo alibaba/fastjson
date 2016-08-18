@@ -31,7 +31,7 @@ public class CharacterCodec implements ObjectSerializer, ObjectDeserializer {
     public final static CharacterCodec instance = new CharacterCodec();
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         Character value = (Character) object;
         if (value == null) {
@@ -50,12 +50,9 @@ public class CharacterCodec implements ObjectSerializer, ObjectDeserializer {
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         Object value = parser.parse();
-
-        if (value == null) {
-            return null;
-        }
-        
-        return (T) TypeUtils.castToChar(value);
+        return value == null //
+            ? null //
+            : (T) TypeUtils.castToChar(value);
     }
 
     public int getFastMatchToken() {

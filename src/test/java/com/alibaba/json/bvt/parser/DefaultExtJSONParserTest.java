@@ -40,18 +40,18 @@ import java.util.Map;
 
 import org.junit.Assert;
 
-import junit.framework.TestCase;
-
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.TypeUtils;
 
+import junit.framework.TestCase;
+
 public class DefaultExtJSONParserTest extends TestCase {
 
     public void test_parseObject() {
-        new DefaultExtJSONParser("".toCharArray(), 0, ParserConfig.getGlobalInstance(), 0).close();
+        new DefaultJSONParser("".toCharArray(), 0, ParserConfig.getGlobalInstance(), 0).close();
         User user = new User();
         user.setName("校长");
         user.setAge(3);
@@ -63,7 +63,7 @@ public class DefaultExtJSONParserTest extends TestCase {
 
         JSON.parseObject(jsonString);
 
-        DefaultExtJSONParser parser = new DefaultExtJSONParser(jsonString);
+        DefaultJSONParser parser = new DefaultJSONParser(jsonString);
         User user1 = new User();
         parser.parseObject(user1);
 
@@ -80,7 +80,7 @@ public class DefaultExtJSONParserTest extends TestCase {
 
     public void testCast() throws Exception {
         new TypeUtils();
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("");
+        DefaultJSONParser parser = new DefaultJSONParser("");
 
         Assert.assertNull(castToByte(null));
         Assert.assertNull(castToShort(null));
@@ -134,7 +134,7 @@ public class DefaultExtJSONParserTest extends TestCase {
     }
 
     public void test_casterror2() {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("");
+        DefaultJSONParser parser = new DefaultJSONParser("");
         {
             Exception error = null;
             try {
@@ -228,7 +228,7 @@ public class DefaultExtJSONParserTest extends TestCase {
     }
 
     public void test_casterror() {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("");
+        DefaultJSONParser parser = new DefaultJSONParser("");
 
         {
             Exception error = null;
@@ -330,19 +330,19 @@ public class DefaultExtJSONParserTest extends TestCase {
         Type[] types = method.getGenericParameterTypes();
         {
             String text = "[{\"old\":false,\"name\":\"校长\",\"age\":3,\"salary\":123456789.0123}]";
-            DefaultExtJSONParser parser = new DefaultExtJSONParser(text);
+            DefaultJSONParser parser = new DefaultJSONParser(text);
             Assert.assertEquals(true, ((List) parser.parseArrayWithType(types[0])).get(0) instanceof Map);
         }
         {
             String text = "[{\"old\":false,\"name\":\"校长\",\"age\":3,\"salary\":123456789.0123}]";
-            DefaultExtJSONParser parser = new DefaultExtJSONParser(text);
+            DefaultJSONParser parser = new DefaultJSONParser(text);
             Assert.assertEquals(true, ((List) parser.parseArrayWithType(types[1])).get(0) instanceof User);
         }
         {
             Exception error = null;
             try {
                 String text = "[{\"old\":false,\"name\":\"校长\",\"age\":3,\"salary\":123456789.0123}]";
-                DefaultExtJSONParser parser = new DefaultExtJSONParser(text);
+                DefaultJSONParser parser = new DefaultJSONParser(text);
                 parser.parseArrayWithType(types[2]);
                 ;
             } catch (Exception ex) {
@@ -352,14 +352,14 @@ public class DefaultExtJSONParserTest extends TestCase {
         }
         {
             String text = "[{\"old\":false,\"name\":\"校长\",\"age\":3,\"salary\":123456789.0123}]";
-            DefaultExtJSONParser parser = new DefaultExtJSONParser(text);
+            DefaultJSONParser parser = new DefaultJSONParser(text);
             Assert.assertEquals(true, ((List) parser.parseArrayWithType(types[3])).get(0) instanceof User);
         }
         {
             Exception error = null;
             try {
                 String text = "[{\"old\":false,\"name\":\"校长\",\"age\":3,\"salary\":123456789.0123}]";
-                DefaultExtJSONParser parser = new DefaultExtJSONParser(text);
+                DefaultJSONParser parser = new DefaultJSONParser(text);
                 parser.parseArrayWithType(types[4]);
                 ;
             } catch (Exception ex) {
@@ -369,7 +369,7 @@ public class DefaultExtJSONParserTest extends TestCase {
         }
         {
             String text = "[{\"old\":false,\"name\":\"校长\",\"age\":3,\"salary\":123456789.0123}]";
-            DefaultExtJSONParser parser = new DefaultExtJSONParser(text);
+            DefaultJSONParser parser = new DefaultJSONParser(text);
             Assert.assertEquals(true, ((List) parser.parseArrayWithType(types[5])).get(0) instanceof User);
         }
 
@@ -377,7 +377,7 @@ public class DefaultExtJSONParserTest extends TestCase {
             Exception error = null;
             try {
                 String text = "[{\"old\":false,\"name\":\"校长\",\"age\":3,\"salary\":123456789.0123}]";
-                DefaultExtJSONParser parser = new DefaultExtJSONParser(text);
+                DefaultJSONParser parser = new DefaultJSONParser(text);
                 parser.parseArrayWithType(types[6]);
                 ;
             } catch (Exception ex) {
@@ -395,7 +395,7 @@ public class DefaultExtJSONParserTest extends TestCase {
         Exception error = null;
         try {
             String text = "[{\"old\":false,\"name\":\"校长\",\"age\":3,\"salary\":123456789.0123}]";
-            DefaultExtJSONParser parser = new DefaultExtJSONParser(text);
+            DefaultJSONParser parser = new DefaultJSONParser(text);
             parser.parseArrayWithType(types[6]);
             ;
         } catch (Exception ex) {
@@ -412,7 +412,7 @@ public class DefaultExtJSONParserTest extends TestCase {
 
     public void test_not_match() throws Exception {
         String text = "[{\"old\":false,\"name\":\"校长\",\"age\":3,\"salary\":123456789.0123, \"kxxx\":33}]";
-        DefaultExtJSONParser parser = new DefaultExtJSONParser(text);
+        DefaultJSONParser parser = new DefaultJSONParser(text);
         Assert.assertEquals(true, (parser.parseArray(User.class).get(0) instanceof User));
     }
 
@@ -420,7 +420,7 @@ public class DefaultExtJSONParserTest extends TestCase {
         Exception error = null;
         try {
             String text = "[{\"old\":false,\"name\":\"校长\",\"age\":3,\"salary\":123456789.0123, \"kxxx\":33}]";
-            DefaultExtJSONParser parser = new DefaultExtJSONParser(text);
+            DefaultJSONParser parser = new DefaultJSONParser(text);
             parser.config(Feature.IgnoreNotMatch, false);
             Assert.assertEquals(true, (parser.parseArray(User.class).get(0) instanceof User));
         } catch (Exception ex) {
@@ -434,7 +434,7 @@ public class DefaultExtJSONParserTest extends TestCase {
             Exception error = null;
             try {
                 String text = "[{\"old\":false,\"name\":\"校长\",\"age\":3,\"salary\":123456789.0123]";
-                DefaultExtJSONParser parser = new DefaultExtJSONParser(text);
+                DefaultJSONParser parser = new DefaultJSONParser(text);
                 parser.parseArray(User.class);
             } catch (Exception ex) {
                 error = ex;
@@ -445,7 +445,7 @@ public class DefaultExtJSONParserTest extends TestCase {
             Exception error = null;
             try {
                 String text = "{\"reader\":3}";
-                DefaultExtJSONParser parser = new DefaultExtJSONParser(text);
+                DefaultJSONParser parser = new DefaultJSONParser(text);
                 parser.parseObject(ErrorObject.class);
             } catch (Exception ex) {
                 error = ex;
@@ -456,7 +456,7 @@ public class DefaultExtJSONParserTest extends TestCase {
             Exception error = null;
             try {
                 String text = "{\"name\":3}";
-                DefaultExtJSONParser parser = new DefaultExtJSONParser(text);
+                DefaultJSONParser parser = new DefaultJSONParser(text);
                 parser.parseObject(ErrorObject2.class);
             } catch (Exception ex) {
                 error = ex;
@@ -497,7 +497,7 @@ public class DefaultExtJSONParserTest extends TestCase {
             Exception error = null;
             try {
                 String text = "{}";
-                DefaultExtJSONParser parser = new DefaultExtJSONParser(text);
+                DefaultJSONParser parser = new DefaultJSONParser(text);
                 parser.parseArray(User.class);
             } catch (Exception ex) {
                 error = ex;

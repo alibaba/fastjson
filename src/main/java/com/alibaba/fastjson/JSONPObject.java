@@ -40,11 +40,11 @@ public class JSONPObject implements JSONSerializable {
     }
 
     public String toJSONString() {
-        return null;
+        return toString();
     }
 
     public void write(JSONSerializer serializer, Object fieldName, Type fieldType, int features) throws IOException {
-        SerializeWriter writer = serializer.getWriter();
+        SerializeWriter writer = serializer.out;
         writer.write(function);
         writer.write('(');
         for (int i = 0; i < parameters.size(); ++i) {

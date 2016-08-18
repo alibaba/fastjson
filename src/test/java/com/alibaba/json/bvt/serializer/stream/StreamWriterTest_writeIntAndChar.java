@@ -16,7 +16,8 @@ public class StreamWriterTest_writeIntAndChar extends TestCase {
         Assert.assertEquals(10, writer.getBufferLength());
         
         writer.write("abcde");
-        writer.writeIntAndChar(12345678, ',');
+        writer.writeInt(12345678);
+        writer.write(',');
         writer.close();
         
         String text = out.toString();

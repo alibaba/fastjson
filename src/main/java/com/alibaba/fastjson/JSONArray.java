@@ -53,7 +53,7 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
     protected transient Type   componentType;
 
     public JSONArray(){
-        this.list = new ArrayList<Object>(10);
+        this.list = new ArrayList<Object>();
     }
 
     public JSONArray(List<Object> list){

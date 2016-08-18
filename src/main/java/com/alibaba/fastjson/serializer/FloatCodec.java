@@ -32,34 +32,15 @@ public class FloatCodec implements ObjectSerializer, ObjectDeserializer {
     public static FloatCodec instance = new FloatCodec();
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
         
         if (object == null) {
-            if (serializer.isEnabled(SerializerFeature.WriteNullNumberAsZero)) {
-                out.write('0');
-            } else {
-                out.writeNull();                
-            }
+            out.writeNull(SerializerFeature.WriteNullNumberAsZero);
             return;
         }
 
         float floatValue = ((Float) object).floatValue(); 
-        
-        if (Float.isNaN(floatValue)) {
-            out.writeNull();
-        } else if (Float.isInfinite(floatValue)) {
-            out.writeNull();
-        } else {
-            String floatText= Float.toString(floatValue);
-            if (floatText.endsWith(".0")) {
-                floatText = floatText.substring(0, floatText.length() - 2);
-            }
-            out.write(floatText);
-            
-            if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
-                out.write('F');
-            }
-        }
+        out.writeFloat(floatValue, true);
     }
     
     @SuppressWarnings("unchecked")
@@ -69,7 +50,7 @@ public class FloatCodec implements ObjectSerializer, ObjectDeserializer {
 
     @SuppressWarnings("unchecked")
     public static <T> T deserialze(DefaultJSONParser parser) {
-        final JSONLexer lexer = parser.getLexer();
+        final JSONLexer lexer = parser.lexer;
         if (lexer.token() == JSONToken.LITERAL_INT) {
             String val = lexer.numberString();
             lexer.nextToken(JSONToken.COMMA);

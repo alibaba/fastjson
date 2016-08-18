@@ -8,22 +8,21 @@ import java.util.List;
 public class Media implements java.io.Serializable {
 
     public enum Player {
-        JAVA, FLASH
+                        JAVA, FLASH
     }
 
-    private String       uri;
-    private String       title;     // Can be unset.
-    private int          width;
-    private int          height;
-    private String       format;
-    private long         duration;
-    private long         size;
     private int          bitrate;   // Can be unset.
-    // required by JSONiJ
     private boolean      hasBitrate;
-    private List<String> persons;
 
+    private long         duration;
+    private String       format;
+    private int          height;
+    private List<String> persons;
     private Player       player;
+    private long         size;
+    private String       title;     // Can be unset.
+    private String       uri;
+    private int          width;
 
     // msgpack requires this
     public String        copyright; // Can be unset.

@@ -1,6 +1,8 @@
 package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.Type;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
@@ -11,11 +13,16 @@ import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.util.TypeUtils;
 
-public abstract class AbstractDateDeserializer implements ObjectDeserializer {
+public abstract class AbstractDateDeserializer extends ContextObjectDeserializer implements ObjectDeserializer {
 
-    @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        JSONLexer lexer = parser.getLexer();
+        return deserialze(parser, clazz, fieldName, null, 0);
+    }
+    
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName, String format, int features) {
+        JSONLexer lexer = parser.lexer;
 
         Object val;
         if (lexer.token() == JSONToken.LITERAL_INT) {
@@ -23,15 +30,30 @@ public abstract class AbstractDateDeserializer implements ObjectDeserializer {
             lexer.nextToken(JSONToken.COMMA);
         } else if (lexer.token() == JSONToken.LITERAL_STRING) {
             String strVal = lexer.stringVal();
-            val = strVal;
-            lexer.nextToken(JSONToken.COMMA);
             
-            if (lexer.isEnabled(Feature.AllowISO8601DateFormat)) {
-                JSONScanner iso8601Lexer = new JSONScanner(strVal);
-                if (iso8601Lexer.scanISO8601DateIfMatch()) {
-                    val = iso8601Lexer.getCalendar().getTime();
+            if (format != null) {
+                try {
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
+                    val = simpleDateFormat.parse(strVal);
+                } catch (ParseException ex) {
+                    // skip
+                    val = null;
                 }
-                iso8601Lexer.close();
+            } else {
+                val = null;
+            }
+            
+            if (val == null) {
+                val = strVal;
+                lexer.nextToken(JSONToken.COMMA);
+                
+                if (lexer.isEnabled(Feature.AllowISO8601DateFormat)) {
+                    JSONScanner iso8601Lexer = new JSONScanner(strVal);
+                    if (iso8601Lexer.scanISO8601DateIfMatch()) {
+                        val = iso8601Lexer.getCalendar().getTime();
+                    }
+                    iso8601Lexer.close();
+                }
             }
         } else if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken();

@@ -56,11 +56,6 @@ public class JavaBeanSerializerTest extends TestCase {
         JavaBeanSerializer serializer = new JavaBeanSerializer(F.class);
         serializer.write(new JSONSerializer(out), new F(null), null, null, 0);
 
-        for (FieldSerializer getter : serializer.getGetters()) {
-            getter.getName();
-            getter.getMethod();
-        }
-
         Assert.assertEquals("{}", out.toString());
     }
 

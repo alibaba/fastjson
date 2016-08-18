@@ -33,32 +33,25 @@ public class LongCodec implements ObjectSerializer, ObjectDeserializer {
     public static LongCodec instance = new LongCodec();
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         if (object == null) {
-            if (out.isEnabled(SerializerFeature.WriteNullNumberAsZero)) {
-                out.write('0');
-            } else {
-                out.writeNull();
-            }
-            return;
-        }
-
-        long value = ((Long) object).longValue();
-        out.writeLong(value);
-
-        if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
-            if (value <= Integer.MAX_VALUE && value >= Integer.MIN_VALUE) {
-                if (fieldType != Long.class) {
-                    out.write('L');
-                }
+            out.writeNull(SerializerFeature.WriteNullNumberAsZero);
+        } else {
+            long value = ((Long) object).longValue();
+            out.writeLong(value);
+    
+            if (out.isEnabled(SerializerFeature.WriteClassName) //
+                && value <= Integer.MAX_VALUE && value >= Integer.MIN_VALUE //
+                && fieldType != Long.class) {
+                out.write('L');
             }
         }
     }
     
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        final JSONLexer lexer = parser.getLexer();
+        final JSONLexer lexer = parser.lexer;
 
         Long longObject;
         if (lexer.token() == JSONToken.LITERAL_INT) {
@@ -76,11 +69,9 @@ public class LongCodec implements ObjectSerializer, ObjectDeserializer {
             longObject = TypeUtils.castToLong(value);
         }
         
-        if (clazz == AtomicLong.class) {
-            return (T) new AtomicLong(longObject.longValue());
-        }
-        
-        return (T) longObject;
+        return clazz == AtomicLong.class //
+            ? (T) new AtomicLong(longObject.longValue()) //
+            : (T) longObject;
     }
 
     public int getFastMatchToken() {

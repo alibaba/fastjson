@@ -10,14 +10,14 @@ import org.junit.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.TypeReference;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 
 @SuppressWarnings("deprecation")
 public class DefaultExtJSONParser_parseArray_2 extends TestCase {
 
 	public void test_0() throws Exception {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("[['1']]");
+        DefaultJSONParser parser = new DefaultJSONParser("[['1']]");
         parser.config(Feature.AllowISO8601DateFormat, false);
         List<List<Integer>> list = (List<List<Integer>>) parser.parseArrayWithType(new TypeReference<List<List<Integer>>>() {
         }.getType());
@@ -25,7 +25,7 @@ public class DefaultExtJSONParser_parseArray_2 extends TestCase {
     }
 
     public void test_1() throws Exception {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("['1','2']");
+        DefaultJSONParser parser = new DefaultJSONParser("['1','2']");
         parser.config(Feature.AllowISO8601DateFormat, false);
         List<Object> list = new ArrayList<Object>();
         parser.parseArray(Integer.class, list);
@@ -34,7 +34,7 @@ public class DefaultExtJSONParser_parseArray_2 extends TestCase {
     }
 
     public void test_error_0() throws Exception {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("['1','2'}");
+        DefaultJSONParser parser = new DefaultJSONParser("['1','2'}");
         parser.config(Feature.AllowISO8601DateFormat, false);
 
         Exception error = null;
@@ -48,7 +48,7 @@ public class DefaultExtJSONParser_parseArray_2 extends TestCase {
     }
 
     public void test_error_1() throws Exception {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("[['1']]");
+        DefaultJSONParser parser = new DefaultJSONParser("[['1']]");
         parser.config(Feature.AllowISO8601DateFormat, false);
 
         Exception error = null;
@@ -62,7 +62,7 @@ public class DefaultExtJSONParser_parseArray_2 extends TestCase {
     }
 
     public void test_error_2() throws Exception {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("[new X()]");
+        DefaultJSONParser parser = new DefaultJSONParser("[new X()]");
         parser.config(Feature.AllowISO8601DateFormat, false);
 
         List list = new ArrayList();
@@ -76,7 +76,7 @@ public class DefaultExtJSONParser_parseArray_2 extends TestCase {
     }
 
     public void test_error_3() throws Exception {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("[] a");
+        DefaultJSONParser parser = new DefaultJSONParser("[] a");
         parser.config(Feature.AllowISO8601DateFormat, false);
 
         List list = new ArrayList();
@@ -91,7 +91,7 @@ public class DefaultExtJSONParser_parseArray_2 extends TestCase {
     }
 
     public void test_error_4() throws Exception {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("['1','2'}");
+        DefaultJSONParser parser = new DefaultJSONParser("['1','2'}");
         parser.config(Feature.AllowISO8601DateFormat, false);
 
         Exception error = null;
@@ -104,14 +104,14 @@ public class DefaultExtJSONParser_parseArray_2 extends TestCase {
     }
 
     public void test_error_5() throws Exception {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("[]");
+        DefaultJSONParser parser = new DefaultJSONParser("[]");
         parser.config(Feature.AllowISO8601DateFormat, false);
 
         Assert.assertEquals(1, parser.parseArray(new Type[] { Integer[].class }).length);
     }
     
     public void test_error_6() throws Exception {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("['1' 1 '2'}");
+        DefaultJSONParser parser = new DefaultJSONParser("['1' 1 '2'}");
         parser.config(Feature.AllowISO8601DateFormat, false);
 
         Exception error = null;

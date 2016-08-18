@@ -49,4 +49,23 @@ public @interface JSONField {
     Feature[] parseFeatures() default {};
     
     String label() default "";
+    
+    /**
+     * @since 1.2.12
+     */
+    boolean jsonDirect() default false;
+    
+    /**
+     * Serializer class to use for serializing associated value.
+     * 
+     * @since 1.2.16
+     */
+    Class<?> serializeUsing() default Void.class;
+    
+    /**
+     * Deserializer class to use for deserializing associated value. 
+     * 
+     * @since 1.2.16 
+     */
+    Class<?> deserializeUsing() default Void.class;
 }

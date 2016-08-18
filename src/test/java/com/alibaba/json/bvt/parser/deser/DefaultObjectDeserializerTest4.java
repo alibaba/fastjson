@@ -3,14 +3,14 @@ package com.alibaba.json.bvt.parser.deser;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 
 public class DefaultObjectDeserializerTest4 extends TestCase {
 
     public void test_0() throws Exception {
-        DefaultExtJSONParser parser = new DefaultExtJSONParser("{\"id\":3, \"name\":\"xx\"}", ParserConfig.getGlobalInstance());
+        DefaultJSONParser parser = new DefaultJSONParser("{\"id\":3, \"name\":\"xx\"}", ParserConfig.getGlobalInstance());
 
         Entity entity = new Entity();
         parser.parseObject(entity);

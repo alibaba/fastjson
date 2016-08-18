@@ -33,21 +33,17 @@ public class ArraySerializer implements ObjectSerializer {
 
     public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
                                                                                                        throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         if (object == null) {
-            if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {
-                out.write("[]");
-            } else {
-                out.writeNull();
-            }
+            out.writeNull(SerializerFeature.WriteNullListAsEmpty);
             return;
         }
 
         Object[] array = (Object[]) object;
         int size = array.length;
 
-        SerialContext context = serializer.getContext();
+        SerialContext context = serializer.context;
         serializer.setContext(context, object, fieldName, 0);
 
         try {
@@ -69,7 +65,7 @@ public class ArraySerializer implements ObjectSerializer {
             }
             out.append(']');
         } finally {
-            serializer.setContext(context);
+            serializer.context = context;
         }
     }
 }

@@ -7,13 +7,12 @@ import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.ObjectSerializer;
 import com.alibaba.fastjson.util.TypeUtils;
-
-import net.sf.json.JSONException;
 
 public class OptionalCodec implements ObjectSerializer, ObjectDeserializer {
 
@@ -76,7 +75,7 @@ public class OptionalCodec implements ObjectSerializer, ObjectDeserializer {
 
         if (object instanceof Optional) {
             Optional<?> optional = (Optional<?>) object;
-            Object value = optional.get();
+            Object value = optional.isPresent() ? optional.get() : null;
             serializer.write(value);
             return;
         }
@@ -96,7 +95,7 @@ public class OptionalCodec implements ObjectSerializer, ObjectDeserializer {
             OptionalInt optional = (OptionalInt) object;
             if (optional.isPresent()) {
                 int value = optional.getAsInt();
-                serializer.getWriter().writeInt(value);
+                serializer.out.writeInt(value);
             } else {
                 serializer.writeNull();
             }
@@ -107,7 +106,7 @@ public class OptionalCodec implements ObjectSerializer, ObjectDeserializer {
             OptionalLong optional = (OptionalLong) object;
             if (optional.isPresent()) {
                 long value = optional.getAsLong();
-                serializer.getWriter().writeLong(value);
+                serializer.out.writeLong(value);
             } else {
                 serializer.writeNull();
             }

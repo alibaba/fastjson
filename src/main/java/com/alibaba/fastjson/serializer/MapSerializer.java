@@ -28,13 +28,13 @@ import com.alibaba.fastjson.JSONObject;
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
-public class MapSerializer implements ObjectSerializer {
+public class MapSerializer extends SerializeFilterable implements ObjectSerializer {
 
     public static MapSerializer instance = new MapSerializer();
 
     @SuppressWarnings({ "rawtypes"})
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         if (object == null) {
             out.writeNull();
@@ -58,7 +58,7 @@ public class MapSerializer implements ObjectSerializer {
             return;
         }
 
-        SerialContext parent = serializer.getContext();
+        SerialContext parent = serializer.context;
         serializer.setContext(parent, object, fieldName, 0);
         try {
             out.write('{');
@@ -71,11 +71,12 @@ public class MapSerializer implements ObjectSerializer {
             boolean first = true;
 
             if (out.isEnabled(SerializerFeature.WriteClassName)) {
+                String typeKey = serializer.config.typeKey;
                 Class<?> mapClass = map.getClass();
                 boolean containsKey = (mapClass == JSONObject.class || mapClass == HashMap.class || mapClass == LinkedHashMap.class) 
-                        && map.containsKey(JSON.DEFAULT_TYPE_KEY);
+                        && map.containsKey(typeKey);
                 if (!containsKey) {
-                    out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
+                    out.writeFieldName(typeKey);
                     out.writeString(object.getClass().getName());
                     first = false;
                 }
@@ -87,15 +88,30 @@ public class MapSerializer implements ObjectSerializer {
                 Object entryKey = entry.getKey();
 
                 {
-                    List<PropertyPreFilter> preFilters = serializer.getPropertyPreFiltersDirect();
+                    List<PropertyPreFilter> preFilters = serializer.propertyPreFilters;
                     if (preFilters != null && preFilters.size() > 0) {
                         if (entryKey == null || entryKey instanceof String) {
-                            if (!FilterUtils.applyName(serializer, object, (String) entryKey)) {
+                            if (!this.applyName(serializer, object, (String) entryKey)) {
                                 continue;
                             }
                         } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
                             String strKey = JSON.toJSONString(entryKey);
-                            if (!FilterUtils.applyName(serializer, object, strKey)) {
+                            if (!this.applyName(serializer, object, strKey)) {
+                                continue;
+                            }
+                        }
+                    }
+                }
+                {
+                    List<PropertyPreFilter> preFilters = this.propertyPreFilters;
+                    if (preFilters != null && preFilters.size() > 0) {
+                        if (entryKey == null || entryKey instanceof String) {
+                            if (!this.applyName(serializer, object, (String) entryKey)) {
+                                continue;
+                            }
+                        } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
+                            String strKey = JSON.toJSONString(entryKey);
+                            if (!this.applyName(serializer, object, strKey)) {
                                 continue;
                             }
                         }
@@ -103,15 +119,30 @@ public class MapSerializer implements ObjectSerializer {
                 }
                 
                 {
-                    List<PropertyFilter> propertyFilters = serializer.getPropertyFiltersDirect();
+                    List<PropertyFilter> propertyFilters = serializer.propertyFilters;
                     if (propertyFilters != null && propertyFilters.size() > 0) {
                         if (entryKey == null || entryKey instanceof String) {
-                            if (!FilterUtils.apply(serializer, object, (String) entryKey, value)) {
+                            if (!this.apply(serializer, object, (String) entryKey, value)) {
                                 continue;
                             }
                         } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
                             String strKey = JSON.toJSONString(entryKey);
-                            if (!FilterUtils.apply(serializer, object, strKey, value)) {
+                            if (!this.apply(serializer, object, strKey, value)) {
+                                continue;
+                            }
+                        }
+                    }
+                }
+                {
+                    List<PropertyFilter> propertyFilters = this.propertyFilters;
+                    if (propertyFilters != null && propertyFilters.size() > 0) {
+                        if (entryKey == null || entryKey instanceof String) {
+                            if (!this.apply(serializer, object, (String) entryKey, value)) {
+                                continue;
+                            }
+                        } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
+                            String strKey = JSON.toJSONString(entryKey);
+                            if (!this.apply(serializer, object, strKey, value)) {
                                 continue;
                             }
                         }
@@ -119,31 +150,57 @@ public class MapSerializer implements ObjectSerializer {
                 }
                 
                 {
-                    List<NameFilter> nameFilters = serializer.getNameFiltersDirect();
+                    List<NameFilter> nameFilters = serializer.nameFilters;
                     if (nameFilters != null && nameFilters.size() > 0) {
                         if (entryKey == null || entryKey instanceof String) {
-                            entryKey = FilterUtils.processKey(serializer, object, (String) entryKey, value);
+                            entryKey = this.processKey(serializer, object, (String) entryKey, value);
                         } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
                             String strKey = JSON.toJSONString(entryKey);
-                            entryKey = FilterUtils.processKey(serializer, object, strKey, value);
+                            entryKey = this.processKey(serializer, object, strKey, value);
+                        }
+                    }
+                }
+                {
+                    List<NameFilter> nameFilters = this.nameFilters;
+                    if (nameFilters != null && nameFilters.size() > 0) {
+                        if (entryKey == null || entryKey instanceof String) {
+                            entryKey = this.processKey(serializer, object, (String) entryKey, value);
+                        } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
+                            String strKey = JSON.toJSONString(entryKey);
+                            entryKey = this.processKey(serializer, object, strKey, value);
                         }
                     }
                 }
                 
                 {
-                    List<ValueFilter> valueFilters = serializer.getValueFiltersDirect();
-                    if (valueFilters != null && valueFilters.size() > 0) {
+                    List<ValueFilter> valueFilters = serializer.valueFilters;
+                    List<ContextValueFilter> contextValueFilters = this.contextValueFilters;
+                    if ((valueFilters != null && valueFilters.size() > 0) //
+                        || (contextValueFilters != null && contextValueFilters.size() > 0)) {
                         if (entryKey == null || entryKey instanceof String) {
-                            value = FilterUtils.processValue(serializer, object, (String) entryKey, value);
+                            value = this.processValue(serializer, null, object, (String) entryKey, value);
                         } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
                             String strKey = JSON.toJSONString(entryKey);
-                            value = FilterUtils.processValue(serializer, object, strKey, value);
+                            value = this.processValue(serializer, null, object, strKey, value);
+                        }
+                    }
+                }
+                {
+                    List<ValueFilter> valueFilters = this.valueFilters;
+                    List<ContextValueFilter> contextValueFilters = this.contextValueFilters;
+                    if ((valueFilters != null && valueFilters.size() > 0) //
+                        || (contextValueFilters != null && contextValueFilters.size() > 0)) {
+                        if (entryKey == null || entryKey instanceof String) {
+                            value = this.processValue(serializer, null, object, (String) entryKey, value);
+                        } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
+                            String strKey = JSON.toJSONString(entryKey);
+                            value = this.processValue(serializer, null, object, strKey, value);
                         }
                     }
                 }
                 
                 if (value == null) {
-                    if (!serializer.isEnabled(SerializerFeature.WriteMapNullValue)) {
+                    if (!out.isEnabled(SerializerFeature.WriteMapNullValue)) {
                         continue;
                     }
                 }
@@ -195,7 +252,7 @@ public class MapSerializer implements ObjectSerializer {
                 }
             }
         } finally {
-            serializer.setContext(parent);
+            serializer.context = parent;
         }
 
         serializer.decrementIdent();
@@ -204,4 +261,5 @@ public class MapSerializer implements ObjectSerializer {
         }
         out.write('}');
     }
+
 }

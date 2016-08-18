@@ -12,7 +12,7 @@ import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.ParserConfig;
 
 @SuppressWarnings("deprecation")
@@ -21,7 +21,7 @@ public class DefaultObjectDeserializerTest2 extends TestCase {
 
     public void test_1() throws Exception {
         String input = "{'map':{}}";
-        DefaultExtJSONParser parser = new DefaultExtJSONParser(input, ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
+        DefaultJSONParser parser = new DefaultJSONParser(input, ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
 
 
         SortedMap<String, SortedMap> map = JSON.parseObject(input, new TypeReference<SortedMap<String, SortedMap>>() {

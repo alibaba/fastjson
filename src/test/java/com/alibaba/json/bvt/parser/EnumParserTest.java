@@ -3,14 +3,14 @@ package com.alibaba.json.bvt.parser;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.deserializer.EnumDeserializer;
 
 public class EnumParserTest extends TestCase {
 
     public void test_0() throws Exception {
         String text = "\"A\"";
-        DefaultExtJSONParser parser = new DefaultExtJSONParser(text);
+        DefaultJSONParser parser = new DefaultJSONParser(text);
 
         Type type = parser.parseObject(Type.class);
         Assert.assertEquals(Type.A, type);
@@ -18,7 +18,7 @@ public class EnumParserTest extends TestCase {
 
     public void test_1() throws Exception {
         String text = "0";
-        DefaultExtJSONParser parser = new DefaultExtJSONParser(text);
+        DefaultJSONParser parser = new DefaultJSONParser(text);
 
         Type type = parser.parseObject(Type.class);
         Assert.assertEquals(Type.A, type);
@@ -28,7 +28,7 @@ public class EnumParserTest extends TestCase {
         Exception error = null;
         try {
             String text = "\"C\"";
-            DefaultExtJSONParser parser = new DefaultExtJSONParser(text);
+            DefaultJSONParser parser = new DefaultJSONParser(text);
 
             parser.parseObject(Type.class);
         } catch (Exception ex) {
@@ -41,7 +41,7 @@ public class EnumParserTest extends TestCase {
         Exception error = null;
         try {
             String text = "4";
-            DefaultExtJSONParser parser = new DefaultExtJSONParser(text);
+            DefaultJSONParser parser = new DefaultJSONParser(text);
 
             parser.parseObject(Type.class);
         } catch (Exception ex) {
@@ -54,7 +54,7 @@ public class EnumParserTest extends TestCase {
         Exception error = null;
         try {
             String text = "4";
-            DefaultExtJSONParser parser = new DefaultExtJSONParser(text);
+            DefaultJSONParser parser = new DefaultJSONParser(text);
 
             parser.parseObject(TypeA.class);
         } catch (Exception ex) {
@@ -67,7 +67,7 @@ public class EnumParserTest extends TestCase {
         Exception error = null;
         try {
             String text = "4";
-            DefaultExtJSONParser parser = new DefaultExtJSONParser(text);
+            DefaultJSONParser parser = new DefaultJSONParser(text);
 
             new EnumDeserializer(Object.class).deserialze(parser, Object.class, null);
         } catch (Exception ex) {
@@ -80,7 +80,7 @@ public class EnumParserTest extends TestCase {
         Exception error = null;
         try {
             String text = "true";
-            DefaultExtJSONParser parser = new DefaultExtJSONParser(text);
+            DefaultJSONParser parser = new DefaultJSONParser(text);
 
             new EnumDeserializer(Object.class).deserialze(parser, Object.class, null);
         } catch (Exception ex) {

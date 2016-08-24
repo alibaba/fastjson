@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
@@ -11,9 +12,15 @@ import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.util.IOUtils;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+
 public class CalendarCodec implements ObjectSerializer, ObjectDeserializer {
 
     public final static CalendarCodec instance = new CalendarCodec();
+
+    private DatatypeFactory dateFactory;
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
                                                                                                                throws IOException {
@@ -24,7 +31,12 @@ public class CalendarCodec implements ObjectSerializer, ObjectDeserializer {
             return;
         }
 
-        Calendar calendar = (Calendar) object;
+        Calendar calendar;
+        if (object instanceof XMLGregorianCalendar) {
+            calendar = ((XMLGregorianCalendar) object).toGregorianCalendar();
+        } else {
+            calendar = (Calendar) object;
+        }
 
         if (out.isEnabled(SerializerFeature.UseISO8601DateFormat)) {
             final char quote = out.isEnabled(SerializerFeature.UseSingleQuotes) //
@@ -102,6 +114,18 @@ public class CalendarCodec implements ObjectSerializer, ObjectDeserializer {
         JSONLexer lexer = parser.lexer;
         Calendar calendar = Calendar.getInstance(lexer.getTimeZone(), lexer.getLocale());
         calendar.setTime(date);
+
+        if (type == XMLGregorianCalendar.class) {
+            if (dateFactory == null) {
+                try {
+                    dateFactory = DatatypeFactory.newInstance();
+                } catch (DatatypeConfigurationException e) {
+                    throw new IllegalStateException("Could not obtain an instance of DatatypeFactory.", e);
+                }
+            }
+
+            return (T) dateFactory.newXMLGregorianCalendar((GregorianCalendar) calendar);
+        }
 
         return (T) calendar;
     }

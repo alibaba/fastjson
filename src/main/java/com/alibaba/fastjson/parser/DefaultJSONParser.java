@@ -1110,7 +1110,7 @@ public class DefaultJSONParser implements Closeable {
         }
         
         try {
-            final boolean first_quote;
+            boolean first_quote;
             char ch = lexer.ch;
             if (ch != '"') {
                 if (ch == ']') {
@@ -1161,6 +1161,8 @@ public class DefaultJSONParser implements Closeable {
 
                         if (ch == '"') {
                             continue;
+                        } else {
+                            first_quote = false;
                         }
 
                         lexer.nextToken();

@@ -49,7 +49,7 @@ http://repo1.maven.org/maven2/com/alibaba/fastjson/
 </dependency>
 ```
 
-## Gradle
+## Gradle via JCenter
 
 ``` groovy
 compile 'com.alibaba:fastjson:1.2.16'

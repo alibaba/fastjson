@@ -2,8 +2,6 @@ package com.alibaba.fastjson.serializer;
 
 import com.alibaba.fastjson.JSON;
 
-import static com.alibaba.fastjson.serializer.ASMSerializerFactory.Context.features;
-
 /**
  * Created with IntelliJ IDEA.
  * User: jarvan4dev
@@ -27,7 +25,6 @@ public class TestWithoutSortField {
                 return name.toUpperCase();
             }
         };
-        SerializerFeature.config(features, SerializerFeature.SortField, false);
         String json = JSON.toJSONString(user);
         System.out.println(json);
     }

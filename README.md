@@ -49,6 +49,16 @@ http://repo1.maven.org/maven2/com/alibaba/fastjson/
 </dependency>
 ```
 
+## Gradle
+
+``` groovy
+compile 'com.alibaba:fastjson:1.2.15'
+```
+
+``` groovy
+compile 'com.alibaba:fastjson:1.1.52.android'
+```
+
 ###*License*
 
 Fastjson is released under the [Apache 2.0 license](license.txt).

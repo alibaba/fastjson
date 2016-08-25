@@ -120,6 +120,10 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
             return (JSONArray) value;
         }
 
+        if (value instanceof String) {
+            return (JSONArray) JSON.parse((String) value);
+        }
+
         return (JSONArray) toJSON(value);
     }
 

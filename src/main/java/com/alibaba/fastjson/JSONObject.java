@@ -106,6 +106,10 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
             return (JSONObject) value;
         }
 
+        if (value instanceof String) {
+            return JSON.parseObject((String) value);
+        }
+
         return (JSONObject) toJSON(value);
     }
 

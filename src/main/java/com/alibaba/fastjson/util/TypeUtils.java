@@ -15,41 +15,6 @@
  */
 package com.alibaba.fastjson.util;
 
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.security.AccessControlException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.AbstractCollection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
@@ -63,6 +28,16 @@ import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.serializer.SerializeBeanInfo;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+
+import java.lang.reflect.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.security.AccessControlException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -1044,13 +1019,15 @@ public class TypeUtils {
         JSONType jsonType = beanType.getAnnotation(JSONType.class);
         
         // fieldName,field ，先生成fieldName的快照，减少之后的findField的轮询
-        Map<String , Field> fieldCacheMap =new HashMap<String, Field>();
+        Map<String , Field> fieldCacheMap =new LinkedHashMap<String, Field>();
         ParserConfig.parserAllFieldToCache( beanType,fieldCacheMap);
-        
+
+        // 是否按照字段在类中的声明顺序排序
+        boolean orderByDeclare = false;
+
         List<FieldInfo> fieldInfoList = computeGetters(beanType, jsonType, aliasMap,fieldCacheMap, false, propertyNamingStrategy);
-        FieldInfo[] fields = new FieldInfo[fieldInfoList.size()];
-        fieldInfoList.toArray(fields);
-        
+        FieldInfo[] fieldInfos = new FieldInfo[fieldInfoList.size()];
+
         String[] orders = null;
 
         final int features;
@@ -1062,26 +1039,45 @@ public class TypeUtils {
                 typeName = null;
             }
             features = SerializerFeature.of(jsonType.serialzeFeatures());
+            orderByDeclare = jsonType.orderByDeclare();
+            if (orderByDeclare){
+                Field[] fields = new Field[fieldCacheMap.size()];
+                fieldCacheMap.values().toArray(fields);
+                for (FieldInfo fieldInfo : fieldInfoList) {
+                    for (int i = 0; i < fields.length; i++) {
+                        if (fieldInfo.field.equals(fields[i])) {
+                            fieldInfos[i] = fieldInfo;
+                            break;
+                        }
+                    }
+                }
+            } else {
+                fieldInfoList.toArray(fieldInfos);
+            }
         } else {
+            fieldInfoList.toArray(fieldInfos);
             features = 0;
         }
         
         FieldInfo[] sortedFields;
-        List<FieldInfo> sortedFieldList;
-        if (orders != null && orders.length != 0) {
-            sortedFieldList = TypeUtils.computeGetters(beanType, jsonType, aliasMap,fieldCacheMap, true, propertyNamingStrategy);
+        if (!orderByDeclare) {
+            List<FieldInfo> sortedFieldList;
+            if (orders != null && orders.length != 0) {
+                sortedFieldList = TypeUtils.computeGetters(beanType, jsonType, aliasMap, fieldCacheMap, true, propertyNamingStrategy);
+            } else {
+                sortedFieldList = new ArrayList<FieldInfo>(fieldInfoList);
+                Collections.sort(sortedFieldList);
+            }
+            sortedFields = new FieldInfo[sortedFieldList.size()];
+            sortedFieldList.toArray(sortedFields);
         } else {
-            sortedFieldList = new ArrayList<FieldInfo>(fieldInfoList);
-            Collections.sort(sortedFieldList);
+            sortedFields = fieldInfos;
         }
-        sortedFields = new FieldInfo[sortedFieldList.size()];
-        sortedFieldList.toArray(sortedFields);
-        
-        if (Arrays.equals(sortedFields, fields)) {
-            sortedFields = fields;
+        if (Arrays.equals(sortedFields, fieldInfos)) {
+            sortedFields = fieldInfos;
         }
         
-        return new SerializeBeanInfo(beanType, jsonType, typeName, features, fields, sortedFields);
+        return new SerializeBeanInfo(beanType, jsonType, typeName, features, fieldInfos, sortedFields);
     }
 
     public static List<FieldInfo> computeGetters(Class<?> clazz, //

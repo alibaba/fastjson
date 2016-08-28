@@ -569,7 +569,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         }
 
                         continue;
-                    } else if (lexer.token == JSONToken.COLON) {
+                    } else if (lexer.token() == JSONToken.COLON) {
                         throw new JSONException("syntax error, unexpect token ':'");
                     }
                 }

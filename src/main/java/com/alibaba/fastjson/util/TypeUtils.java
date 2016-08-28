@@ -1023,6 +1023,10 @@ public class TypeUtils {
                 if ((f.getModifiers() & Modifier.STATIC) != 0) {
                     continue;
                 }
+
+                if (f.getName().equals("this$0")) {
+                    continue;
+                }
                 
                 if ((f.getModifiers() & Modifier.PUBLIC) != 0) {
                     classfields.add(f);

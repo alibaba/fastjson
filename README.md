@@ -45,7 +45,7 @@ http://repo1.maven.org/maven2/com/alibaba/fastjson/
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>fastjson</artifactId>
-    <version>1.1.53.android</version>
+    <version>1.1.54.android</version>
 </dependency>
 ```
 
@@ -56,7 +56,7 @@ compile 'com.alibaba:fastjson:1.2.16'
 ```
 
 ``` groovy
-compile 'com.alibaba:fastjson:1.1.53.android'
+compile 'com.alibaba:fastjson:1.1.54.android'
 ```
 
 ###*License*

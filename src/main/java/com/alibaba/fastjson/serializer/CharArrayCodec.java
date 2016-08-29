@@ -1,8 +1,11 @@
 package com.alibaba.fastjson.serializer;
 
 import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.List;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -32,6 +35,30 @@ public class CharArrayCodec implements ObjectDeserializer {
         }
 
         Object value = parser.parse();
+
+        if (value instanceof  String) {
+            return (T) ((String) value).toCharArray();
+        }
+
+        if (value instanceof Collection) {
+            Collection<?> collection = (Collection) value;
+
+            boolean accept = true;
+            for (Object item : collection) {
+                if (item instanceof String) {
+                    int itemLength = ((String) item).length();
+                    if (itemLength != 1) {
+                        accept = false;
+                        break;
+                    }
+                }
+            }
+
+            if (!accept) {
+                throw new JSONException("can not cast to char[]");
+            }
+        }
+
         return value == null //
             ? null //
             : (T) JSON.toJSONString(value).toCharArray();

@@ -55,7 +55,7 @@ public class JSONScannerTest_scanFieldStringArray extends TestCase {
         } catch (JSONException e) {
             error = e;
         }
-        Assert.assertNotNull(error);
+        Assert.assertNull(error);
     }
 
     public void test_string_error_2() throws Exception {

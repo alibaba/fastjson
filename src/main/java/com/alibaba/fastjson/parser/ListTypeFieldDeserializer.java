@@ -145,18 +145,24 @@ class ListTypeFieldDeserializer extends FieldDeserializer {
 
         final JSONLexer lexer = parser.lexer;
 
-        if (lexer.token != JSONToken.LBRACKET) {
-            String errorMessage = "exepct '[', but " + JSONToken.name(lexer.token);
-            if (objectType != null) {
-                errorMessage += ", type : " + objectType;
-            }
-            throw new JSONException(errorMessage);
-        }
-
         if (itemTypeDeser == null) {
             itemTypeDeser = deserializer = parser.config.getDeserializer(itemType);
         }
-        
+
+        if (lexer.token != JSONToken.LBRACKET) {
+            if (lexer.token == JSONToken.LBRACE) {
+                Object val = itemTypeDeser.deserialze(parser, itemType, 0);
+                array.add(val);
+                return;
+            } else {
+                String errorMessage = "exepct '[', but " + JSONToken.name(lexer.token);
+                if (objectType != null) {
+                    errorMessage += ", type : " + objectType;
+                }
+                throw new JSONException(errorMessage);
+            }
+        }
+
         int ch = lexer.ch;
         if (ch == '[') {
             int index = ++lexer.bp;

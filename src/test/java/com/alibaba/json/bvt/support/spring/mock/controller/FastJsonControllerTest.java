@@ -15,10 +15,7 @@ import com.alibaba.json.bvt.support.spring.mock.entity.FastJsonParentTestVO;
 import com.alibaba.json.bvt.support.spring.mock.entity.FastJsonTestVO;
 import com.alibaba.json.test.entity.Company;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -86,5 +83,20 @@ public class FastJsonControllerTest {
     String test5(@RequestBody FastJsonEnumTestVO vo) {
 
         return JSON.toJSONString(vo);
+    }
+
+    @RequestMapping(value = "/test6", method = {RequestMethod.POST, RequestMethod.GET}, produces = {"text/plain", "application/*"})
+    public
+    @ResponseBody
+    Object test6(@RequestParam long userId, @RequestParam boolean flag) {
+
+        JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put("userId",userId);
+        jsonObject.put("flag",flag);
+
+        System.out.println(jsonObject.toJSONString());
+
+        return jsonObject;
     }
 }

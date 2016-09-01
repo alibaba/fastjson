@@ -112,6 +112,8 @@ import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.JavaBeanInfo;
 import com.alibaba.fastjson.util.ServiceLoader;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
@@ -185,6 +187,7 @@ public class ParserConfig {
         derializers.put(java.sql.Time.class, TimeDeserializer.instance);
         derializers.put(java.util.Date.class, DateCodec.instance);
         derializers.put(Calendar.class, CalendarCodec.instance);
+        derializers.put(XMLGregorianCalendar.class, CalendarCodec.instance);
 
         derializers.put(JSONObject.class, MapDeserializer.instance);
         derializers.put(JSONArray.class, CollectionCodec.instance);

@@ -1389,7 +1389,12 @@ public class JSONPath implements JSONAware {
             int start = this.start >= 0 ? this.start : this.start + size;
             int end = this.end >= 0 ? this.end : this.end + size;
 
-            List<Object> items = new ArrayList<Object>((end - start) / step + 1);
+            int array_size = (end - start) / step + 1;
+            if (array_size == -1) {
+                return null;
+            }
+
+            List<Object> items = new ArrayList<Object>(array_size);
             for (int i = start; i <= end && i < size; i += step) {
                 Object item = path.getArrayItem(currentObject, i);
                 items.add(item);

@@ -67,6 +67,8 @@ import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.ServiceLoader;
 import com.alibaba.fastjson.util.TypeUtils;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 /**
  * circular references detect
  * 
@@ -429,7 +431,8 @@ public class SerializeConfig {
                 put(clazz, ToStringSerializer.instance);
             } else if (Enumeration.class.isAssignableFrom(clazz)) {
                 put(clazz, EnumerationSerializer.instance);
-            } else if (Calendar.class.isAssignableFrom(clazz)) {
+            } else if (Calendar.class.isAssignableFrom(clazz) //
+                    || XMLGregorianCalendar.class.isAssignableFrom(clazz)) {
                 put(clazz, CalendarCodec.instance);
             } else if (Clob.class.isAssignableFrom(clazz)) {
                 put(clazz, ClobSeriliazer.instance);

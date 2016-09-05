@@ -1,6 +1,4 @@
-package com.alibaba.json.bvt.parser;
-
-import junit.framework.TestCase;
+package com.alibaba.json.bvt.parser.creator;
 
 import org.junit.Assert;
 
@@ -9,12 +7,14 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONCreator;
 import com.alibaba.fastjson.annotation.JSONField;
 
-public class JSONCreatorTest_error2 extends TestCase {
+import junit.framework.TestCase;
 
-    public void test_create() throws Exception {
+public class JSONCreatorTest5 extends TestCase {
+
+    public void test_create_error() throws Exception {
         Exception error = null;
         try {
-            JSON.parseObject("{\"id\":123,\"name\":\"abc\"}", Entity.class);
+            JSON.parseObject("{\"id\":1001,\"name\":\"wenshao\",\"obj\":{\"$ref\":\"$\"}}", Entity.class);
         } catch (JSONException ex) {
             error = ex;
         }
@@ -25,16 +25,20 @@ public class JSONCreatorTest_error2 extends TestCase {
 
         private final int    id;
         private final String name;
+        private final Entity obj;
         
-        private Entity(int id, String name) {
+        private Entity(int id, String name, Entity obj) {
             this.id = id;
             this.name = name;
+            this.obj = obj;
+        }
+        
+        @JSONCreator
+        public static Entity create(@JSONField(name = "id") int id, @JSONField(name = "name") String name,
+                      Entity obj){
+            return new Entity(id, name, obj);
         }
 
-        @JSONCreator
-        public static Entity create(@JSONField(name = "id") int id, @JSONField(name = "name") String name){
-            throw new UnsupportedOperationException();
-        }
 
         public int getId() {
             return id;
@@ -42,6 +46,10 @@ public class JSONCreatorTest_error2 extends TestCase {
 
         public String getName() {
             return name;
+        }
+
+        public Entity getObj() {
+            return obj;
         }
 
     }

@@ -761,7 +761,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 String key = entry.getKey();
                 Object value = entry.getValue();
 
-                FieldDeserializer fieldDeser = getFieldDeserializer(key);
+                FieldDeserializer fieldDeser = smartMatch(key);
                 if (fieldDeser == null) {
                     continue;
                 }

@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt.parser;
+package com.alibaba.json.bvt.parser.creator;
 
 import java.util.List;
 

@@ -26,9 +26,9 @@ public class JsonValueTest extends TestCase {
 
     public void test_toJSONString() throws Exception {
         Assert.assertEquals("null", JSON.toJSONString(Double.NaN));
-        Assert.assertEquals("3", JSON.toJSONString(3D));
+        Assert.assertEquals("3.0", JSON.toJSONString(3D));
         Assert.assertEquals("null", JSON.toJSONString(Float.NaN));
-        Assert.assertEquals("3", JSON.toJSONString(3F));
+        Assert.assertEquals("3.0", JSON.toJSONString(3F));
         Assert.assertEquals("1292939095640", JSON.toJSONString(new Date(1292939095640L)));
         Assert.assertEquals(new Date(1292939095640L), JSON.parse("new Date(1292939095640)"));
     }

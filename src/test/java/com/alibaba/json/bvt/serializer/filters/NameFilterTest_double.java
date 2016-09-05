@@ -33,7 +33,7 @@ public class NameFilterTest_double extends TestCase {
         serializer.write(a);
 
         String text = out.toString();
-        Assert.assertEquals("{\"ID\":0}", text);
+        Assert.assertEquals("{\"ID\":0.0}", text);
     }
 
     public void test_namefilter_1() throws Exception {

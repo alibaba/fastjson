@@ -16,7 +16,7 @@ public class WriteAsArray_double_private extends TestCase {
         vo.setName("wenshao");
         
         String text = JSON.toJSONString(vo, SerializerFeature.BeanToArray);
-        Assert.assertEquals("[123,\"wenshao\"]", text);
+        Assert.assertEquals("[123.0,\"wenshao\"]", text);
         
         VO vo2 = JSON.parseObject(text, VO.class, Feature.SupportArrayToBean);
         Assert.assertTrue(vo.id == vo2.id);

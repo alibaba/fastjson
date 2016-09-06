@@ -37,7 +37,7 @@ http://repo1.maven.org/maven2/com/alibaba/fastjson/
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>fastjson</artifactId>
-    <version>1.2.16</version>
+    <version>1.2.17</version>
 </dependency>
 ```
 

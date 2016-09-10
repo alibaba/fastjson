@@ -29,7 +29,9 @@ https://github.com/eishay/jvm-serializers/wiki
 
 ## Download
 
-http://repo1.maven.org/maven2/com/alibaba/fastjson/
+- http://repo1.maven.org/maven2/com/alibaba/fastjson/  
+- [the latest JAR][1]  
+[1]: https://search.maven.org/remote_content?g=com.alibaba&a=fastjson&v=LATEST
 
 ## Maven
 
@@ -52,12 +54,15 @@ http://repo1.maven.org/maven2/com/alibaba/fastjson/
 ## Gradle via JCenter
 
 ``` groovy
-compile 'com.alibaba:fastjson:1.2.16'
+compile 'com.alibaba:fastjson:1.2.17'
 ```
 
 ``` groovy
 compile 'com.alibaba:fastjson:1.1.54.android'
 ```
+
+Please see this [Wiki Download Page][Wiki] for more repository infos.
+[Wiki]: https://github.com/alibaba/fastjson/wiki#download
 
 ###*License*
 

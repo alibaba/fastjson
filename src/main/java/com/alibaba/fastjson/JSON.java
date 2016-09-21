@@ -924,7 +924,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return TypeUtils.cast(this, clazz, ParserConfig.getGlobalInstance());
     }
 
-    public final static String VERSION = "1.2.17";
+    public final static String VERSION = "1.2.18";
     
     private final static ThreadLocal<byte[]> bytesLocal = new ThreadLocal<byte[]>();
     private static byte[] allocateBytes(int length) {

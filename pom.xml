@@ -358,7 +358,7 @@
 			<version>1.4.1.RELEASE</version>
 			<scope>test</scope>
 		</dependency>
-	</dependencies>
+    	</dependencies>
 	<profiles>
 		<profile>
 			<id>travis</id>

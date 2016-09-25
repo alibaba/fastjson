@@ -34,7 +34,6 @@ public class SerializeUsingTest extends TestCase {
 
     public static class ModelValueSerializer implements ObjectSerializer {
 
-        @Override
         public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType,
                           int features) throws IOException {
             Integer value = (Integer) object;
@@ -45,7 +44,6 @@ public class SerializeUsingTest extends TestCase {
 
     public static class ModelValueDeserializer implements ObjectDeserializer {
 
-        @Override
         public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
             String text = (String) parser.parse();
             if (text != null) {

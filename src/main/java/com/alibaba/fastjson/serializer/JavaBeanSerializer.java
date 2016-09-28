@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.TypeUtils;
 
@@ -272,7 +273,8 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     }
 
                     if (!writeAsArray) {
-                        if (fieldClass == String.class) {
+                        JSONField fieldAnnotation = fieldInfo.getAnnotation();
+                        if (fieldClass == String.class && (fieldAnnotation == null || fieldAnnotation.serializeUsing() == Void.class)) {
                             if (propertyValue == null) {
                                 if ((out.features & SerializerFeature.WriteNullStringAsEmpty.mask) != 0
                                     || (fieldSerializer.features

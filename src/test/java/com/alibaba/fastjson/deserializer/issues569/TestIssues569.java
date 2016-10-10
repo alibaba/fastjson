@@ -34,7 +34,7 @@ public class TestIssues569 {
     private Type mType;//MyResponse<List<Dept>>
 
     ParserConfig config = ParserConfig.getGlobalInstance();
-    ParserConfig configBug569;
+    ParserConfig configBug569 = new ParserConfigBug569();//这个是包含bug的代码
 
     @Before
     public void init() {
@@ -42,18 +42,16 @@ public class TestIssues569 {
         }.getType();
         mType1 = new TypeReference<MyResponse>() {
         }.getType();
+    }
 
-        configBug569 = new ParserConfigBug569();//这个是包含bug的代码
-
+    //复现
+    @Test
+    public void testBug569() {
         //第一次反序列化是使用的 MyResponse， 没有指定泛型类型，貌似会缓存 MyResponse， 后面在调用的MyResponse<?>反序列化就受影响了
         MyResponse resp1 = JSON.parseObject(jsonData, mType1, configBug569, featureValues,
                 features != null ? features : EMPTY_SERIALIZER_FEATURES);
 
-    }
-
-    @Test
-    public void testBug569() {
-        //expect MyResponse<List<Dept>>
+        //expect MyResponse<JSONArray<JSONObject>>
         MyResponse resp = JSON.parseObject(jsonData, mType, configBug569, featureValues,
                 features != null ? features : EMPTY_SERIALIZER_FEATURES);
         Assert.assertNotNull(resp);
@@ -61,8 +59,12 @@ public class TestIssues569 {
         Assert.assertEquals(JSONArray.class, resp.getResult().getClass());//这里会受到 resp1 的影响
     }
 
+    //修复
     @Test
     public void testFixBug569() {
+        MyResponse resp1 = JSON.parseObject(jsonData, mType1, config, featureValues,
+                features != null ? features : EMPTY_SERIALIZER_FEATURES);
+
         //expect MyResponse<List<Dept>>
         MyResponse resp = JSON.parseObject(jsonData, mType, config, featureValues,
                 features != null ? features : EMPTY_SERIALIZER_FEATURES);

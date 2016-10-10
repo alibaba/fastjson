@@ -349,7 +349,7 @@ public class ParserConfig {
             }
         }
 
-        if (clazz == Object.class || !(type instanceof WildcardType || type instanceof TypeVariable || type instanceof ParameterizedType)) {
+        if (type instanceof WildcardType || type instanceof TypeVariable || type instanceof ParameterizedType) {
             derializer = derializers.get(clazz);
         }
 

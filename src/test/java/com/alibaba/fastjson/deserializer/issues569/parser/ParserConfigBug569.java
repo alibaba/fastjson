@@ -1,6 +1,7 @@
 package com.alibaba.fastjson.deserializer.issues569.parser;
 
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.*;
@@ -8,6 +9,8 @@ import com.alibaba.fastjson.serializer.AwtCodec;
 import com.alibaba.fastjson.serializer.CollectionCodec;
 import com.alibaba.fastjson.serializer.MiscCodec;
 import com.alibaba.fastjson.serializer.ObjectArrayCodec;
+import com.alibaba.fastjson.util.FieldInfo;
+import com.alibaba.fastjson.util.JavaBeanInfo;
 import com.alibaba.fastjson.util.ServiceLoader;
 
 import java.lang.reflect.ParameterizedType;
@@ -25,6 +28,28 @@ public class ParserConfigBug569 extends ParserConfig {
     private static boolean                                  awtError    = false;
     private static boolean                                  jdk8Error   = false;
     private String[]                                        denyList    = new String[] { "java.lang.Thread" };
+
+    public FieldDeserializer createFieldDeserializer(ParserConfig mapping, //
+                                                     JavaBeanInfo beanInfo, //
+                                                     FieldInfo fieldInfo) {
+        Class<?> clazz = beanInfo.clazz;
+        Class<?> fieldClass = fieldInfo.fieldClass;
+
+        Class<?> deserializeUsing = null;
+        JSONField annotation = fieldInfo.getAnnotation();
+        if (annotation != null) {
+            deserializeUsing = annotation.deserializeUsing();
+            if (deserializeUsing == Void.class) {
+                deserializeUsing = null;
+            }
+        }
+
+        if (deserializeUsing == null && (fieldClass == List.class || fieldClass == ArrayList.class)) {
+            return new ArrayListTypeFieldDeserializer(mapping, clazz, fieldInfo);
+        }
+
+        return new DefaultFieldDeserializerBug569(mapping, clazz, fieldInfo);
+    }
 
     public ObjectDeserializer getDeserializer(Class<?> clazz, Type type) {
         com.alibaba.fastjson.util.IdentityHashMap<Type, ObjectDeserializer> derializers = super.getDerializers();
@@ -53,7 +78,7 @@ public class ParserConfigBug569 extends ParserConfig {
         }
 
         if (type instanceof WildcardType || type instanceof TypeVariable || type instanceof ParameterizedType) {
-            derializer = derializers.get(clazz);//如果type是泛型，就使用class代替type从缓存中获取解析器
+            derializer = derializers.get(clazz);
         }
 
         if (derializer != null) {

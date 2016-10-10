@@ -15,7 +15,7 @@ import com.alibaba.fastjson.util.FieldInfo;
 
 public class DefaultFieldDeserializer extends FieldDeserializer {
 
-    private ObjectDeserializer fieldValueDeserilizer;
+    protected ObjectDeserializer fieldValueDeserilizer;
 
     public DefaultFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo){
         super(clazz, fieldInfo);
@@ -50,6 +50,7 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
             ParseContext objContext = parser.getContext();
             objContext.type = objectType;
             fieldType = FieldInfo.getFieldType(this.clazz, objectType, fieldType);
+            fieldValueDeserilizer = parser.getConfig().getDeserializer(fieldType);
         }
 
         // ContextObjectDeserializer

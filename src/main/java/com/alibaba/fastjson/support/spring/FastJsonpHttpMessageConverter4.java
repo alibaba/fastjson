@@ -63,7 +63,7 @@ import com.alibaba.fastjson.util.IOUtils;
  *         }
  * 
  *         &#064;Override
- *         public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+ *         public void extendMessageConverters(List&lt;HttpMessageConverter&lt;?&gt;&gt; converters) {
  *             converters.add(0, new FastJsonpHttpMessageConverter4());
  *             super.extendMessageConverters(converters);
  *         }

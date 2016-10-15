@@ -313,13 +313,19 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 if (lexer.isBlankInput()) {
                     return null;
                 }
-                
+
                 if (token == JSONToken.LITERAL_STRING) {
                     String strVal = lexer.stringVal();
                     if (strVal.length() == 0) {
                         lexer.nextToken();
                         return null;
                     }
+                }
+
+                if (token == JSONToken.LBRACKET && lexer.getCurrent() == ']') {
+                    lexer.next();
+                    lexer.nextToken();
+                    return null;
                 }
                 
                 StringBuffer buf = (new StringBuffer()) //

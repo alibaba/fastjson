@@ -953,7 +953,7 @@ public final class SerializeWriter extends Writer {
             }
 
             if (ch >= ']') {
-                if (ch >= 0x7F && ch <= 0xA0) {
+                if (ch >= 0x7F && ch < 0xA0) {
                     if (firstSpecialIndex == -1) {
                         firstSpecialIndex = i;
                     }
@@ -1409,7 +1409,7 @@ public final class SerializeWriter extends Writer {
             if (ch >= ']') {
                 if (ch >= 0x7F //
                     && (ch == '\u2028' //
-                        || ch <= 0xA0)) {
+                        || ch < 0xA0)) {
                     if (firstSpecialIndex == -1) {
                         firstSpecialIndex = i;
                     }

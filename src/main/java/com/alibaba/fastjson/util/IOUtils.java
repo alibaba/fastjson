@@ -173,7 +173,7 @@ public class IOUtils {
             specicalFlags_singleQuotes[i] = 4;
         }
 
-        for (int i = 127; i <= 160; ++i) {
+        for (int i = 127; i < 160; ++i) {
             specicalFlags_doubleQuotes[i] = 4;
             specicalFlags_singleQuotes[i] = 4;
         }

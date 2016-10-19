@@ -1,15 +1,9 @@
 package com.alibaba.fastjson.parser;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.IdentityHashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -281,8 +275,8 @@ class MapDeserializer implements ObjectDeserializer {
         return map;
     }
 
-    @SuppressWarnings({ "rawtypes" })
-    protected Map<?, ?> createMap(Type type) {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+        protected Map<?, ?> createMap(Type type) {
         if (type == Properties.class) {
             return new Properties();
         }
@@ -318,7 +312,14 @@ class MapDeserializer implements ObjectDeserializer {
         if (type instanceof ParameterizedType) {
             ParameterizedType parameterizedType = (ParameterizedType) type;
 
-            return createMap(parameterizedType.getRawType());
+            Type rawType = parameterizedType.getRawType();
+            if (EnumMap.class.equals(rawType)) {
+                Type[] actualArgs = parameterizedType.getActualTypeArguments();
+
+                return new EnumMap((Class) actualArgs[0]);
+            }
+
+            return createMap(rawType);
         }
 
         Class<?> clazz = (Class<?>) type;

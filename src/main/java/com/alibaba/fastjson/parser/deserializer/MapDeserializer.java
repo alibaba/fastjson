@@ -285,8 +285,6 @@ public class MapDeserializer implements ObjectDeserializer {
         return map;
     }
 
-    static Constructor<EnumMap> enumMapconstructor;
-
     @SuppressWarnings({ "unchecked", "rawtypes" })
     protected Map<Object, Object> createMap(Type type) {
         if (type == Properties.class) {
@@ -323,15 +321,7 @@ public class MapDeserializer implements ObjectDeserializer {
             Type rawType = parameterizedType.getRawType();
             if (EnumMap.class.equals(rawType)) {
                 Type[] actualArgs = parameterizedType.getActualTypeArguments();
-
-                if (enumMapconstructor == null) {
-                    try {
-                        enumMapconstructor = EnumMap.class.getConstructor(Class.class);
-                        return enumMapconstructor.newInstance(actualArgs[0]);
-                    } catch (Exception ex) {
-                        throw new JSONException("create enumMap error. ", ex);
-                    }
-                }
+                return new EnumMap((Class) actualArgs[0]);
             }
 
             return createMap(rawType);

@@ -467,6 +467,12 @@ public class DefaultJSONParser implements Closeable {
                                 : lexer.text.charAt(index));
                     }
                     ArrayList list = new ArrayList();
+
+                    final boolean parentIsArray = fieldName != null && fieldName.getClass() == Integer.class;
+                    if (!parentIsArray) {
+                        this.setContext(context);
+                    }
+                    
                     this.parseArray(list, key);
                     value = new JSONArray(list);
                     if (innerMap != null) {

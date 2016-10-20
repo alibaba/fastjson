@@ -8,6 +8,7 @@ public class ParseContext {
     public final ParseContext parent;
     public final Object       fieldName;
     public Type               type;
+    private transient String  path;
 
     public ParseContext(ParseContext parent, Object object, Object fieldName){
         this.parent = parent;
@@ -16,15 +17,18 @@ public class ParseContext {
     }
 
     public String toString() {
-        if (parent == null) {
-            return "$";
-        } else {
-            if (fieldName instanceof Integer) {
-                return parent.toString() + "[" + fieldName + "]";
+        if (path == null) {
+            if (parent == null) {
+                path = "$";
             } else {
-                return parent.toString() + "." + fieldName;
+                if (fieldName instanceof Integer) {
+                    path = parent.toString() + "[" + fieldName + "]";
+                } else {
+                    path = parent.toString() + "." + fieldName;
+                }
             }
-
         }
+
+        return path;
     }
 }

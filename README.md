@@ -54,7 +54,7 @@ https://github.com/eishay/jvm-serializers/wiki
 ## Gradle via JCenter
 
 ``` groovy
-compile 'com.alibaba:fastjson:1.2.18'
+compile 'com.alibaba:fastjson:1.2.19'
 ```
 
 ``` groovy

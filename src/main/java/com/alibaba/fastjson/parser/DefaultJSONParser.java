@@ -1424,8 +1424,7 @@ public class DefaultJSONParser implements Closeable {
             return;
         }
 
-        int size = resolveTaskList.size();
-        for (int i = 0; i < size; ++i) {
+        for (int i = 0, size = resolveTaskList.size(); i < size; ++i) {
             ResolveTask task = resolveTaskList.get(i);
             String ref = task.referenceValue;
 
@@ -1434,12 +1433,9 @@ public class DefaultJSONParser implements Closeable {
                 object = task.ownerContext.object;
             }
 
-            Object refValue;
-            if (ref.startsWith("$")) {
-                refValue = getObject(ref);
-            } else {
-                refValue = task.context.object;
-            }
+            Object refValue = ref.startsWith("$")
+                    ? getObject(ref)
+                    : task.context.object;
             
             FieldDeserializer fieldDeser = task.fieldDeserializer;
 

@@ -449,7 +449,14 @@ public class DefaultJSONParser implements Closeable {
                     object.put(key, value);
                 } else if (ch == '[') { // 减少嵌套，兼容android
                     lexer.nextToken();
+
                     JSONArray list = new JSONArray();
+
+                    final boolean parentIsArray = fieldName != null && fieldName.getClass() == Integer.class;
+                    if (!parentIsArray) {
+                        this.setContext(context);
+                    }
+
                     this.parseArray(list, key);
                     
                     if (lexer.isEnabled(Feature.UseObjectArray)) {

@@ -472,7 +472,7 @@ public class DefaultJSONParser implements Closeable {
                     if (!parentIsArray) {
                         this.setContext(context);
                     }
-                    
+
                     this.parseArray(list, key);
                     value = new JSONArray(list);
                     if (innerMap != null) {

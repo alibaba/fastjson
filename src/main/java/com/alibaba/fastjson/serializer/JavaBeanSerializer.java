@@ -214,7 +214,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                                                         propertyValue);
 
                 if (propertyValue == null && !writeAsArray) {
-                    if ((!fieldSerializer.writeNull) && (!out.isEnabled(SerializerFeature.WriteMapNullValue))) {
+                    if ((!fieldSerializer.writeNull) && (!out.isEnabled(SerializerFeature.WRITE_MAP_NULL_FEATURES))) {
                         continue;
                     }
                 }

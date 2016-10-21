@@ -55,7 +55,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
         JSONField annotation = fieldInfo.getAnnotation();
         if (annotation != null) {
             for (SerializerFeature feature : annotation.serialzeFeatures()) {
-                if (feature == SerializerFeature.WriteMapNullValue) {
+                if ((feature.getMask() & SerializerFeature.WRITE_MAP_NULL_FEATURES) != 0) {
                     writeNull = true;
                     break;
                 }
@@ -154,7 +154,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
 
             ObjectSerializer fieldSerializer = runtimeInfo.fieldSerializer;
             
-            if ((out.isEnabled(SerializerFeature.WriteMapNullValue)) 
+            if ((out.isEnabled(SerializerFeature.WRITE_MAP_NULL_FEATURES))
                     && fieldSerializer instanceof JavaBeanSerializer) {
                 out.writeNull();
                 return;

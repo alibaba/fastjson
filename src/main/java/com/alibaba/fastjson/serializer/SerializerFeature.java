@@ -195,4 +195,12 @@ public enum SerializerFeature {
     }
     
     public final static SerializerFeature[] EMPTY = new SerializerFeature[0];
+
+    public static final int WRITE_MAP_NULL_FEATURES
+            = WriteMapNullValue.getMask()
+            | WriteNullBooleanAsFalse.getMask()
+            | WriteNullListAsEmpty.getMask()
+            | WriteNullNumberAsZero.getMask()
+            | WriteNullStringAsEmpty.getMask()
+            ;
 }

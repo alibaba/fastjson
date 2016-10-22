@@ -1531,6 +1531,11 @@ public class ASMDeserializerFactory implements Opcodes {
     }
 
     private void _createInstance(ClassWriter cw, Context context) {
+        Constructor<?> defaultConstructor = context.beanInfo.defaultConstructor;
+        if (!Modifier.isPublic(defaultConstructor.getModifiers())) {
+            return;
+        }
+        
         MethodVisitor mw = new MethodWriter(cw, ACC_PUBLIC, "createInstance",
                                             "(L" + DefaultJSONParser + ";Ljava/lang/reflect/Type;)Ljava/lang/Object;",
                                             null, null);

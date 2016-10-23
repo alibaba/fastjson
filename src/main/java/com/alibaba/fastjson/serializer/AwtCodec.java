@@ -12,6 +12,7 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
+import com.alibaba.fastjson.parser.ParseContext;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 
 public class AwtCodec implements ObjectSerializer, ObjectDeserializer {
@@ -104,24 +105,25 @@ public class AwtCodec implements ObjectSerializer, ObjectDeserializer {
             throw new JSONException("syntax error");
         }
         lexer.nextToken();
-        
+
+        T obj;
         if (type == Point.class) {
-            return (T) parsePoint(parser);
-        }
-        
-        if (type == Rectangle.class) {
-            return (T) parseRectangle(parser);
-        }
-        
-        if (type == Color.class) {
-            return (T) parseColor(parser);
-        }
-        
-        if (type == Font.class) {
-            return (T) parseFont(parser);
+            obj = (T) parsePoint(parser, fieldName);
+        } else if (type == Rectangle.class) {
+            obj = (T) parseRectangle(parser);
+        } else if (type == Color.class) {
+            obj = (T) parseColor(parser);
+        } else if (type == Font.class) {
+            obj = (T) parseFont(parser);
+        } else {
+            throw new JSONException("not support awt class : " + type);
         }
 
-        throw new JSONException("not support awt class : " + type);
+        ParseContext context = parser.getContext();
+        parser.setContext(obj, fieldName);
+        parser.setContext(context);
+
+        return obj;
     }
     
     protected Font parseFont(DefaultJSONParser parser) {
@@ -273,7 +275,7 @@ public class AwtCodec implements ObjectSerializer, ObjectDeserializer {
         return new Rectangle(x, y, width, height);
     }
 
-    protected Point parsePoint(DefaultJSONParser parser) {
+    protected Point parsePoint(DefaultJSONParser parser, Object fieldName) {
         JSONLexer lexer = parser.lexer;
         
         int x = 0, y = 0;
@@ -290,6 +292,10 @@ public class AwtCodec implements ObjectSerializer, ObjectDeserializer {
                 if (JSON.DEFAULT_TYPE_KEY.equals(key)) {
                     parser.acceptType("java.awt.Point");
                     continue;
+                }
+
+                if ("$ref".equals(key)) {
+                    return (Point) parseRef(parser, fieldName);
                 }
 
                 lexer.nextTokenWithColon(JSONToken.LITERAL_INT);
@@ -323,6 +329,19 @@ public class AwtCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         return new Point(x, y);
+    }
+
+    private Object parseRef(DefaultJSONParser parser, Object fieldName) {
+        JSONLexer lexer = parser.getLexer();
+        lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
+        String ref = lexer.stringVal();
+        parser.setContext(parser.getContext(), fieldName);
+        parser.addResolveTask(new DefaultJSONParser.ResolveTask(parser.getContext(), ref));
+        parser.popContext();
+        parser.setResolveStatus(DefaultJSONParser.NeedToResolve);
+        lexer.nextToken(JSONToken.RBRACE);
+        parser.accept(JSONToken.RBRACE);
+        return null;
     }
 
     public int getFastMatchToken() {

@@ -21,7 +21,7 @@ public class FieldOrderTest extends TestCase {
         private String name;
         private School school;
 
-        private boolean isSchool() {
+        public boolean isSchool() {
             return false;
         }
 

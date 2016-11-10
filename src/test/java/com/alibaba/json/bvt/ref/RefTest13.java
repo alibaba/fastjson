@@ -45,7 +45,7 @@ public class RefTest13 extends TestCase {
         }
 
         public String toString() {
-            return "Entity-" + id;
+            return "Model-" + id;
         }
     }
 

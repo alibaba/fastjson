@@ -1253,6 +1253,11 @@ public class TypeUtils {
                     continue;
                 }
 
+                if (method.getReturnType() != Boolean.TYPE
+                        && method.getReturnType() != Boolean.class) {
+                    continue;
+                }
+
                 char c2 = methodName.charAt(2);
 
                 String propertyName;
@@ -1316,6 +1321,11 @@ public class TypeUtils {
                 
                 if (propertyNamingStrategy != null) {
                     propertyName = propertyNamingStrategy.translate(propertyName);
+                }
+
+                //优先选择get
+                if (fieldInfoMap.containsKey(propertyName)) {
+                    continue;
                 }
 
                 FieldInfo fieldInfo = new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures, parserFeatures,
@@ -1665,7 +1675,7 @@ public class TypeUtils {
             try {
                 list = (Collection) rawClass.newInstance();
             } catch (Exception e) {
-                throw new JSONException("create instane error, class " + rawClass.getName());
+                throw new JSONException("create instance error, class " + rawClass.getName());
             }
         }
         return list;

@@ -3,6 +3,7 @@ package com.alibaba.fastjson.parser.deserializer;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -26,10 +27,17 @@ public class NumberDeserializer implements ObjectDeserializer {
             lexer.nextToken(JSONToken.COMMA);
 
             if (clazz == short.class || clazz == Short.class) {
+                if (val > Short.MAX_VALUE || val < Short.MIN_VALUE) {
+                    throw new JSONException("short overflow : " + val);
+                }
                 return (T) Short.valueOf((short) val);
             }
 
             if (clazz == byte.class || clazz == Byte.class) {
+                if (val > Byte.MAX_VALUE || val < Byte.MIN_VALUE) {
+                    throw new JSONException("short overflow : " + val);
+                }
+
                 return (T) Byte.valueOf((byte) val);
             }
 

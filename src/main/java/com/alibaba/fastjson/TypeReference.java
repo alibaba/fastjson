@@ -3,6 +3,8 @@ package com.alibaba.fastjson;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.alibaba.fastjson.util.ParameterizedTypeImpl;
 
@@ -22,6 +24,8 @@ import com.alibaba.fastjson.util.ParameterizedTypeImpl;
  * parameters, such as {@code Class<?>} or {@code List<? extends CharSequence>}.
  */
 public class TypeReference<T> {
+    static ConcurrentMap<Class<?>, ConcurrentMap<Type, ConcurrentMap<Type, Type>>> classTypeCache
+            = new ConcurrentHashMap<Class<?>, ConcurrentMap<Type, ConcurrentMap<Type, Type>>>(16, 0.75f, 1);
 
     protected final Type type;
 
@@ -44,7 +48,8 @@ public class TypeReference<T> {
      * @param actualTypeArguments
      */
     protected TypeReference(Type... actualTypeArguments){
-        Type superClass = getClass().getGenericSuperclass();
+        Class<?> thisClass = this.getClass();
+        Type superClass = thisClass.getGenericSuperclass();
 
         ParameterizedType argType = (ParameterizedType) ((ParameterizedType) superClass).getActualTypeArguments()[0];
         Type rawType = argType.getRawType();
@@ -59,7 +64,32 @@ public class TypeReference<T> {
                 }
             }
         }
-        type = new ParameterizedTypeImpl(argTypes, this.getClass(), rawType);
+
+        if (actualTypeArguments.length == 1 && argTypes.length == 1) {
+            ConcurrentMap<Type, ConcurrentMap<Type, Type>> classCache = classTypeCache.get(thisClass);
+            if (classCache == null) {
+                classTypeCache.putIfAbsent(thisClass, new ConcurrentHashMap<Type, ConcurrentMap<Type, Type>>(16, 0.75f, 1));
+                classCache = classTypeCache.get(thisClass);
+            }
+
+            ConcurrentMap<Type, Type> typeCached = classCache.get(argType);
+            if (typeCached == null) {
+                classCache.putIfAbsent(argType, new ConcurrentHashMap<Type, Type>(16, 0.75f, 1));
+                typeCached = classCache.get(argType);
+            }
+
+            Type actualTypeArgument = actualTypeArguments[0];
+
+            Type cachedType = typeCached.get(actualTypeArgument);
+            if (cachedType == null) {
+                typeCached.putIfAbsent(actualTypeArgument, actualTypeArgument);
+                cachedType = typeCached.get(actualTypeArgument);
+            }
+
+            type = cachedType;
+        } else {
+            type = new ParameterizedTypeImpl(argTypes, thisClass, rawType);
+        }
     }
     
     /**

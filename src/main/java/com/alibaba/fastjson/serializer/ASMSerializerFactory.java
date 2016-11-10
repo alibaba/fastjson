@@ -1939,9 +1939,9 @@ public class ASMSerializerFactory implements Opcodes {
             ;
         }
 
-        if ((features & SerializerFeature.WriteMapNullValue.mask) == 0) {
+        if ((features & SerializerFeature.WRITE_MAP_NULL_FEATURES) == 0) {
             mw.visitVarInsn(ALOAD, context.var("out"));
-            mw.visitLdcInsn(SerializerFeature.WriteMapNullValue.mask);
+            mw.visitLdcInsn(SerializerFeature.WRITE_MAP_NULL_FEATURES);
             mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "isEnabled", "(I)Z");
             mw.visitJumpInsn(IFEQ, _else);
         }

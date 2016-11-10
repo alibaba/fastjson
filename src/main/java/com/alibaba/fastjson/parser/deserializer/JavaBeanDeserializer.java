@@ -313,13 +313,19 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 if (lexer.isBlankInput()) {
                     return null;
                 }
-                
+
                 if (token == JSONToken.LITERAL_STRING) {
                     String strVal = lexer.stringVal();
                     if (strVal.length() == 0) {
                         lexer.nextToken();
                         return null;
                     }
+                }
+
+                if (token == JSONToken.LBRACKET && lexer.getCurrent() == ']') {
+                    lexer.next();
+                    lexer.nextToken();
+                    return null;
                 }
                 
                 StringBuffer buf = (new StringBuffer()) //
@@ -602,7 +608,26 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 Object[] params = new Object[size];
                 for (int i = 0; i < size; ++i) {
                     FieldInfo fieldInfo = fieldInfoList[i];
-                    params[i] = fieldValues.get(fieldInfo.name);
+                    Object param = fieldValues.get(fieldInfo.name);
+                    if (param == null) {
+                        Type fieldType = fieldInfo.fieldType;
+                        if (fieldType == byte.class) {
+                            param = (byte) 0;
+                        } else if (fieldType == short.class) {
+                            param = (short) 0;
+                        } else if (fieldType == int.class) {
+                            param = 0;
+                        } else if (fieldType == long.class) {
+                            param = 0L;
+                        } else if (fieldType == float.class) {
+                            param = 0F;
+                        } else if (fieldType == double.class) {
+                            param = 0D;
+                        } else if (fieldType == boolean.class) {
+                            param = Boolean.FALSE;
+                        }
+                    }
+                    params[i] = param;
                 }
 
                 if (beanInfo.creatorConstructor != null) {
@@ -722,6 +747,16 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 }
             }
         }
+
+        if (fieldDeserializer == null) {
+            for (FieldDeserializer fieldDeser : sortedFieldDeserializers) {
+                if (fieldDeser.fieldInfo.alternateName(key)) {
+                    fieldDeserializer = fieldDeser;
+                    break;
+                }
+            }
+        }
+
         return fieldDeserializer;
     }
 
@@ -742,7 +777,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 String key = entry.getKey();
                 Object value = entry.getValue();
 
-                FieldDeserializer fieldDeser = getFieldDeserializer(key);
+                FieldDeserializer fieldDeser = smartMatch(key);
                 if (fieldDeser == null) {
                     continue;
                 }

@@ -983,8 +983,7 @@ public class ASMDeserializerFactory implements Opcodes {
 
         mw.visitLabel(valueNotNull_);
 
-        Label storeCollection_ = new Label();
-        Label endSet_ = new Label();
+        Label storeCollection_ = new Label(), endSet_ = new Label(), lbacketNormal_ = new Label();
         mw.visitVarInsn(ALOAD, context.var("lexer"));
         mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "token", "()I");
         mw.visitLdcInsn(JSONToken.SET);
@@ -993,12 +992,6 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ALOAD, context.var("lexer"));
         mw.visitLdcInsn(JSONToken.LBRACKET);
         mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "nextToken", "(I)V");
-
-        mw.visitVarInsn(ALOAD, context.var("lexer"));
-        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "token", "()I");
-        mw.visitLdcInsn(JSONToken.LBRACKET);
-
-        mw.visitJumpInsn(IF_ICMPNE, reset_);
 
         _newCollection(mw, fieldClass, i, true);
 
@@ -1010,8 +1003,38 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ALOAD, context.var("lexer"));
         mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "token", "()I");
         mw.visitLdcInsn(JSONToken.LBRACKET);
+        mw.visitJumpInsn(IF_ICMPEQ, lbacketNormal_);
 
+        // if (lexer.token() == JSONToken.LBRACE) reset
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "token", "()I");
+        mw.visitLdcInsn(JSONToken.LBRACE);
         mw.visitJumpInsn(IF_ICMPNE, reset_);
+
+        _newCollection(mw, fieldClass, i, false);
+        mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
+
+        _getCollectionFieldItemDeser(context, mw, fieldInfo, itemType);
+        mw.visitVarInsn(ALOAD, 1);
+        mw.visitLdcInsn(com.alibaba.fastjson.asm.Type.getType(desc(itemType)));
+        mw.visitInsn(ICONST_0);
+        mw.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
+        mw.visitMethodInsn(INVOKEINTERFACE, type(ObjectDeserializer.class), "deserialze",
+                "(L" + DefaultJSONParser + ";Ljava/lang/reflect/Type;Ljava/lang/Object;)Ljava/lang/Object;");
+        mw.visitVarInsn(ASTORE, context.var("list_item_value"));
+
+        mw.visitVarInsn(ALOAD, context.var(fieldInfo.name + "_asm"));
+        mw.visitVarInsn(ALOAD, context.var("list_item_value"));
+        if (fieldClass.isInterface()) {
+            mw.visitMethodInsn(INVOKEINTERFACE, type(fieldClass), "add", "(Ljava/lang/Object;)Z");
+        } else {
+            mw.visitMethodInsn(INVOKEVIRTUAL, type(fieldClass), "add", "(Ljava/lang/Object;)Z");
+        }
+        mw.visitInsn(POP);
+
+        mw.visitJumpInsn(GOTO, _end_if);
+
+        mw.visitLabel(lbacketNormal_);
 
         _newCollection(mw, fieldClass, i, false);
 
@@ -1508,6 +1531,11 @@ public class ASMDeserializerFactory implements Opcodes {
     }
 
     private void _createInstance(ClassWriter cw, Context context) {
+        Constructor<?> defaultConstructor = context.beanInfo.defaultConstructor;
+        if (!Modifier.isPublic(defaultConstructor.getModifiers())) {
+            return;
+        }
+        
         MethodVisitor mw = new MethodWriter(cw, ACC_PUBLIC, "createInstance",
                                             "(L" + DefaultJSONParser + ";Ljava/lang/reflect/Type;)Ljava/lang/Object;",
                                             null, null);

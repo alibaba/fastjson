@@ -603,7 +603,16 @@ public class ParserConfig {
         Class<?> clazz = beanInfo.clazz;
         Class<?> fieldClass = fieldInfo.fieldClass;
 
-        if (fieldClass == List.class || fieldClass == ArrayList.class) {
+        Class<?> deserializeUsing = null;
+        JSONField annotation = fieldInfo.getAnnotation();
+        if (annotation != null) {
+            deserializeUsing = annotation.deserializeUsing();
+            if (deserializeUsing == Void.class) {
+                deserializeUsing = null;
+            }
+        }
+
+        if (deserializeUsing == null && (fieldClass == List.class || fieldClass == ArrayList.class)) {
             return new ArrayListTypeFieldDeserializer(mapping, clazz, fieldInfo);
         }
 

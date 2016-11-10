@@ -51,7 +51,7 @@ public class PropertyFilter_double extends TestCase {
         serializer.write(a);
 
         String text = out.toString();
-        Assert.assertEquals("{\"id\":0}", text);
+        Assert.assertEquals("{\"id\":0.0}", text);
     }
 
     public void test_2() throws Exception {

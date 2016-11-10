@@ -559,7 +559,7 @@ public final class SerializeWriter extends Writer {
             writeNull();
         } else {
             String floatText= Float.toString(value);
-            if (floatText.endsWith(".0")) {
+            if (isEnabled(SerializerFeature.WriteNullNumberAsZero) && floatText.endsWith(".0")) {
                 floatText = floatText.substring(0, floatText.length() - 2);
             }
             write(floatText);
@@ -576,7 +576,7 @@ public final class SerializeWriter extends Writer {
             writeNull();
         } else {
             String doubleText = Double.toString(doubleValue);
-            if (doubleText.endsWith(".0")) {
+            if (isEnabled(SerializerFeature.WriteNullNumberAsZero) && doubleText.endsWith(".0")) {
                 doubleText = doubleText.substring(0, doubleText.length() - 2);
             }
             
@@ -953,7 +953,7 @@ public final class SerializeWriter extends Writer {
             }
 
             if (ch >= ']') {
-                if (ch >= 0x7F && ch <= 0xA0) {
+                if (ch >= 0x7F && ch < 0xA0) {
                     if (firstSpecialIndex == -1) {
                         firstSpecialIndex = i;
                     }
@@ -1409,7 +1409,7 @@ public final class SerializeWriter extends Writer {
             if (ch >= ']') {
                 if (ch >= 0x7F //
                     && (ch == '\u2028' //
-                        || ch <= 0xA0)) {
+                        || ch < 0xA0)) {
                     if (firstSpecialIndex == -1) {
                         firstSpecialIndex = i;
                     }

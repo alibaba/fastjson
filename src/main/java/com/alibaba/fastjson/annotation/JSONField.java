@@ -68,4 +68,10 @@ public @interface JSONField {
      * @since 1.2.16 
      */
     Class<?> deserializeUsing() default Void.class;
+
+    /**
+     * @since 1.2.20
+     * @return
+     */
+    String[] alternateNames() default {};
 }

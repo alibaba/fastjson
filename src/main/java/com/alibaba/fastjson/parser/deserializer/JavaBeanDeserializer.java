@@ -747,6 +747,16 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 }
             }
         }
+
+        if (fieldDeserializer == null) {
+            for (FieldDeserializer fieldDeser : sortedFieldDeserializers) {
+                if (fieldDeser.fieldInfo.alternateName(key)) {
+                    fieldDeserializer = fieldDeser;
+                    break;
+                }
+            }
+        }
+
         return fieldDeserializer;
     }
 

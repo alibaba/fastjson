@@ -70,7 +70,7 @@ public @interface JSONField {
     Class<?> deserializeUsing() default Void.class;
 
     /**
-     * @since 1.2.20
+     * @since 1.2.21
      * @return
      */
     String[] alternateNames() default {};

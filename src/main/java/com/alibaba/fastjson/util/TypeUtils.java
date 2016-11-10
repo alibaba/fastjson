@@ -1675,7 +1675,7 @@ public class TypeUtils {
             try {
                 list = (Collection) rawClass.newInstance();
             } catch (Exception e) {
-                throw new JSONException("create instane error, class " + rawClass.getName());
+                throw new JSONException("create instance error, class " + rawClass.getName());
             }
         }
         return list;

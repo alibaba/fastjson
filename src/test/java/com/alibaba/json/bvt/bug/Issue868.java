@@ -73,4 +73,26 @@ public class Issue868 extends TestCase {
         }
         assertNotNull(error);
     }
+
+    public void test_float_min() throws Exception {
+        Exception error = null;
+        try {
+            String str = String.valueOf(Double.MIN_VALUE);
+            JSON.parseObject(str, float.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        assertNotNull(error);
+    }
+
+    public void test_float_max() throws Exception {
+        Exception error = null;
+        try {
+            String str = String.valueOf(Double.MAX_VALUE);
+            JSON.parseObject(str, float.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        assertNotNull(error);
+    }
 }

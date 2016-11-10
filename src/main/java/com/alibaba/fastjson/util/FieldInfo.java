@@ -42,6 +42,8 @@ public class FieldInfo implements Comparable<FieldInfo> {
     public final boolean    jsonDirect;
     
     public final String     format;
+
+    private final String[]  alternateNames;
     
     public FieldInfo(String name, // 
                      Class<?> declaringClass, // 
@@ -84,6 +86,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.getOnly = false;
         this.jsonDirect = false;
         this.format = null;
+        this.alternateNames = new String[0];
     }
 
     public FieldInfo(String name, // 
@@ -139,8 +142,10 @@ public class FieldInfo implements Comparable<FieldInfo> {
                 format = null;
             }
             jsonDirect = annotation.jsonDirect();
+            alternateNames = annotation.alternateNames();
         } else {
             jsonDirect = false;
+            alternateNames = new String[0];
         }
         this.format = format;
         
@@ -458,5 +463,14 @@ public class FieldInfo implements Comparable<FieldInfo> {
         }
 
         TypeUtils.setAccessible(field);
+    }
+
+    public boolean alternateName(String name) {
+        for (String item : this.alternateNames) {
+            if (item.equals(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

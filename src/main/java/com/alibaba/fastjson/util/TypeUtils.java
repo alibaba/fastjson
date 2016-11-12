@@ -1690,4 +1690,22 @@ public class TypeUtils {
             throw new JSONException("TODO");
         }
     }
+
+    public static boolean isProxy(Class<?> clazz) {
+        for (Class<?> item : clazz.getInterfaces()) {
+            String interfaceName = item.getName();
+            if (interfaceName.equals("net.sf.cglib.proxy.Factory") //
+                    || interfaceName.equals("org.springframework.cglib.proxy.Factory")) {
+                return true;
+            }
+
+            if (interfaceName.equals("javassist.util.proxy.ProxyObject") //
+                    || interfaceName.equals("org.apache.ibatis.javassist.util.proxy.ProxyObject")
+                    ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

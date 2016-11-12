@@ -1042,12 +1042,12 @@ public class TypeUtils {
                                                   , PropertyNamingStrategy propertyNamingStrategy) {
         
         JSONType jsonType = beanType.getAnnotation(JSONType.class);
-        
+
         // fieldName,field ，先生成fieldName的快照，减少之后的findField的轮询
-        Map<String , Field> fieldCacheMap =new HashMap<String, Field>();
-        ParserConfig.parserAllFieldToCache( beanType,fieldCacheMap);
-        
-        List<FieldInfo> fieldInfoList = computeGetters(beanType, jsonType, aliasMap,fieldCacheMap, false, propertyNamingStrategy);
+        Map<String, Field> fieldCacheMap = new HashMap<String, Field>();
+        ParserConfig.parserAllFieldToCache(beanType, fieldCacheMap);
+
+        List<FieldInfo> fieldInfoList = computeGetters(beanType, jsonType, aliasMap, fieldCacheMap, false, propertyNamingStrategy);
         FieldInfo[] fields = new FieldInfo[fieldInfoList.size()];
         fieldInfoList.toArray(fields);
         

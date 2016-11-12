@@ -1463,6 +1463,42 @@ public class TypeUtils {
                 }
             }
         }
+
+        Class<?> superClass = clazz.getSuperclass();
+        if (superClass == null) {
+            return null;
+        }
+
+        if (Modifier.isAbstract(superClass.getModifiers())) {
+            Class<?>[] types = method.getParameterTypes();
+
+            for (Method interfaceMethod : superClass.getMethods()) {
+                Class<?>[] interfaceTypes = interfaceMethod.getParameterTypes();
+                if (interfaceTypes.length != types.length) {
+                    continue;
+                }
+                if (!interfaceMethod.getName().equals(method.getName())) {
+                    continue;
+                }
+                boolean match = true;
+                for (int i = 0; i < types.length; ++i) {
+                    if (!interfaceTypes[i].equals(types[i])) {
+                        match = false;
+                        break;
+                    }
+                }
+
+                if (!match) {
+                    continue;
+                }
+
+                JSONField annotation = interfaceMethod.getAnnotation(JSONField.class);
+                if (annotation != null) {
+                    return annotation;
+                }
+            }
+        }
+
         return null;
     }
 

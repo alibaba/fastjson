@@ -2681,10 +2681,11 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     protected abstract boolean charArrayCompare(char[] chars);
 
-    public final boolean isBlankInput() {
+    public boolean isBlankInput() {
         for (int i = 0;; ++i) {
             char chLocal = charAt(i);
             if (chLocal == EOI) {
+                token = JSONToken.EOF;
                 break;
             }
 

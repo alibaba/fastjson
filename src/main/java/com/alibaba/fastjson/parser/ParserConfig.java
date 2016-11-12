@@ -512,7 +512,7 @@ public class ParserConfig {
         }
 
         if (asmEnable) {
-            asmEnable = ASMUtils.checkName(clazz.getName());
+            asmEnable = ASMUtils.checkName(clazz.getSimpleName());
         }
 
         if (asmEnable) {

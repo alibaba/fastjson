@@ -62,8 +62,10 @@ public class FastJsonProvider //
      */
     private Class<?>[] clazzes = null;
 
-    @javax.ws.rs.core.Context
-    javax.ws.rs.core.UriInfo uriInfo;
+    /**
+     * whether set PrettyFormat while exec WriteTo()
+     */
+    private boolean pretty;
 
 
     /**
@@ -82,6 +84,8 @@ public class FastJsonProvider //
         this.fastJsonConfig = fastJsonConfig;
     }
 
+
+
     /**
      * Can serialize/deserialize all types.
      */
@@ -94,6 +98,14 @@ public class FastJsonProvider //
      */
     public FastJsonProvider(Class<?>[] clazzes) {
         this.clazzes = clazzes;
+    }
+
+    /**
+     * Set pretty format
+     */
+    public FastJsonProvider setPretty(boolean p) {
+        this.pretty = p;
+        return this;
     }
 
     /**
@@ -143,6 +155,8 @@ public class FastJsonProvider //
     public void setFilters(SerializeFilter... filters) {
         this.fastJsonConfig.setSerializeFilters(filters);
     }
+
+
 
     /**
      * Check whether a class can be serialized or deserialized. It can check
@@ -235,8 +249,7 @@ public class FastJsonProvider //
     ) throws IOException, WebApplicationException {
 
         SerializerFeature[] serializerFeatures = fastJsonConfig.getSerializerFeatures();
-        if (uriInfo != null
-                && uriInfo.getQueryParameters().containsKey("pretty")) {
+        if (pretty) {
             if (serializerFeatures == null)
                 serializerFeatures = new SerializerFeature[]{SerializerFeature.PrettyFormat};
             else {

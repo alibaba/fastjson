@@ -1,6 +1,6 @@
 /**
- * <p>Title: FastJsonProviderTest.java</p>
- * <p>Description: FastJsonProviderTest</p>
+ * <p>Title: TestIssue885.java</p>
+ * <p>Description: TestIssue885</p>
  * <p>Package: com.alibaba.json.bvt.support.jaxrs.mock.testcase</p>
  * <p>Company: www.github.com/DarkPhoenixs</p>
  * <p>Copyright: Dark Phoenixs (Open-Source Organization) 2016</p>
@@ -25,7 +25,7 @@ import org.springframework.web.context.ContextLoaderListener;
 import com.alibaba.fastjson.JSONObject;
 
 /**
- * <p>Title: FastJsonProviderTest</p>
+ * <p>Title: TestIssue885</p>
  * <p>Description: </p>
  *
  * @since 2016年4月20日

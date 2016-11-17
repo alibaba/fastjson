@@ -1,14 +1,12 @@
 package com.alibaba.fastjson.parser;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
@@ -28,6 +26,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     private final FieldDeserializer[] sortedFieldDeserializers;
     private final Class<?>            clazz;
     public final JavaBeanInfo         beanInfo;
+    private ConcurrentMap<String, Object> extraFieldDeserializers;
 
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz, Type type){
         this(config, clazz, type, JavaBeanInfo.build(clazz, clazz.getModifiers(), type, false, true, true, true, config.propertyNamingStrategy));
@@ -670,6 +669,10 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 if (lexer.token == JSONToken.IDENTIFIER || lexer.token == JSONToken.ERROR) {
                     throw new JSONException("syntax error, unexpect token " + JSONToken.name(lexer.token));
                 }
+//
+//                if (lexer.token == JSONToken.EOF) {
+//                    break;
+//                }
             }
 
             if (object == null) {
@@ -773,6 +776,38 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         && fieldName.equalsIgnoreCase(key.substring(2))) {
                     fieldDeserializer = fieldDeser;
                     break;
+                }
+            }
+        }
+
+        if (fieldDeserializer == null && parser.lexer.isEnabled(Feature.NonPublicFieldSupport)) {
+            if (this.extraFieldDeserializers == null) {
+                ConcurrentHashMap extraFieldDeserializers = new ConcurrentHashMap<String, Object>(1, 0.75f, 1);
+                Field[] fields = this.clazz.getDeclaredFields();
+                for (Field field : fields) {
+                    String fieldName = field.getName();
+                    if (this.getFieldDeserializer(fieldName) != null) {
+                        continue;
+                    }
+                    int fieldModifiers = field.getModifiers();
+                    if ((fieldModifiers & Modifier.FINAL) != 0) {
+                        continue;
+                    }
+                    extraFieldDeserializers.put(fieldName, field);
+                }
+                this.extraFieldDeserializers = extraFieldDeserializers;
+            }
+
+            Object deserOrField = extraFieldDeserializers.get(key);
+            if (deserOrField != null) {
+                if (deserOrField instanceof FieldDeserializer) {
+                    fieldDeserializer = ((FieldDeserializer) deserOrField);
+                } else {
+                    Field field = (Field) deserOrField;
+                    field.setAccessible(true);
+                    FieldInfo fieldInfo = new FieldInfo(key, field.getDeclaringClass(), field.getType(), field.getGenericType(), field, 0, 0);
+                    fieldDeserializer = new DefaultFieldDeserializer(parser.config, clazz, fieldInfo);
+                    extraFieldDeserializers.put(key, fieldDeserializer);
                 }
             }
         }

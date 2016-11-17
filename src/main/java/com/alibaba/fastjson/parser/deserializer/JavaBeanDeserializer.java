@@ -1,14 +1,11 @@
 package com.alibaba.fastjson.parser.deserializer;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
@@ -31,6 +28,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     protected final FieldDeserializer[] sortedFieldDeserializers;
     protected final Class<?>            clazz;
     public final JavaBeanInfo           beanInfo;
+    private ConcurrentMap<String, Object> extraFieldDeserializers;
     
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz) {
         this(config, clazz, clazz);
@@ -673,6 +671,38 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         JSONLexer lexer = parser.lexer; // xxx
 
         FieldDeserializer fieldDeserializer = smartMatch(key);
+
+        if (fieldDeserializer == null && parser.lexer.isEnabled(Feature.NonPublicFieldSupport)) {
+            if (this.extraFieldDeserializers == null) {
+                ConcurrentHashMap extraFieldDeserializers = new ConcurrentHashMap<String, Object>(1, 0.75f, 1);
+                Field[] fields = this.clazz.getDeclaredFields();
+                for (Field field : fields) {
+                    String fieldName = field.getName();
+                    if (this.getFieldDeserializer(fieldName) != null) {
+                        continue;
+                    }
+                    int fieldModifiers = field.getModifiers();
+                    if ((fieldModifiers & Modifier.FINAL) != 0) {
+                        continue;
+                    }
+                    extraFieldDeserializers.put(fieldName, field);
+                }
+                this.extraFieldDeserializers = extraFieldDeserializers;
+            }
+
+            Object deserOrField = extraFieldDeserializers.get(key);
+            if (deserOrField != null) {
+                if (deserOrField instanceof FieldDeserializer) {
+                    fieldDeserializer = ((FieldDeserializer) deserOrField);
+                } else {
+                    Field field = (Field) deserOrField;
+                    field.setAccessible(true);
+                    FieldInfo fieldInfo = new FieldInfo(key, field.getDeclaringClass(), field.getType(), field.getGenericType(), field, 0, 0, 0);
+                    fieldDeserializer = new DefaultFieldDeserializer(parser.getConfig(), clazz, fieldInfo);
+                    extraFieldDeserializers.put(key, fieldDeserializer);
+                }
+            }
+        }
 
         if (fieldDeserializer == null) {
             if (!lexer.isEnabled(Feature.IgnoreNotMatch)) {

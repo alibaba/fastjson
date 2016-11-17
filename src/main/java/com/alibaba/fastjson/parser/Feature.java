@@ -94,7 +94,12 @@ public enum Feature {
     /**
      * @since 1.2.5, backport to 1.1.49.android
      */
-    DisableSpecialKeyDetect
+    DisableSpecialKeyDetect,
+
+    /**
+     * @since 1.2.22 & 1.1.54.android
+     */
+    NonPublicFieldSupport
     ;
 
     private Feature(){

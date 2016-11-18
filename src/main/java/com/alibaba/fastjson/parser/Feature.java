@@ -99,7 +99,7 @@ public enum Feature {
     /**
      * @since 1.2.22 & 1.1.54.android
      */
-    NonPublicFieldSupport
+    SupportNonPublicField
     ;
 
     private Feature(){

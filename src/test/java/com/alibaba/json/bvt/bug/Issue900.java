@@ -9,7 +9,7 @@ import junit.framework.TestCase;
  */
 public class Issue900 extends TestCase {
     public void test_for_issue() throws Exception {
-        Model model = JSON.parseObject("{\"id\":123}", Model.class, Feature.NonPublicFieldSupport);
+        Model model = JSON.parseObject("{\"id\":123}", Model.class, Feature.SupportNonPublicField);
         assertEquals(123, model.id);
     }
 

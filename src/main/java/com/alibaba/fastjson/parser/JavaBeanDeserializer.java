@@ -4,7 +4,6 @@ import java.lang.reflect.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -780,7 +779,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             }
         }
 
-        if (fieldDeserializer == null && parser.lexer.isEnabled(Feature.NonPublicFieldSupport)) {
+        if (fieldDeserializer == null && parser.lexer.isEnabled(Feature.SupportNonPublicField)) {
             if (this.extraFieldDeserializers == null) {
                 ConcurrentHashMap extraFieldDeserializers = new ConcurrentHashMap<String, Object>(1, 0.75f, 1);
                 Field[] fields = this.clazz.getDeclaredFields();

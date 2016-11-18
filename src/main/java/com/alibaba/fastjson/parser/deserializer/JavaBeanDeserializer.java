@@ -672,7 +672,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
         FieldDeserializer fieldDeserializer = smartMatch(key);
 
-        if (fieldDeserializer == null && parser.lexer.isEnabled(Feature.NonPublicFieldSupport)) {
+        if (fieldDeserializer == null && parser.lexer.isEnabled(Feature.SupportNonPublicField)) {
             if (this.extraFieldDeserializers == null) {
                 ConcurrentHashMap extraFieldDeserializers = new ConcurrentHashMap<String, Object>(1, 0.75f, 1);
                 Field[] fields = this.clazz.getDeclaredFields();

@@ -35,6 +35,8 @@ class JavaBeanInfo {
     
     public final String         typeName;
 
+    public final int parserFeatures;
+
     JavaBeanInfo(Class<?> clazz, //
                  Constructor<?> defaultConstructor, //
                  Constructor<?> creatorConstructor, //
@@ -49,6 +51,8 @@ class JavaBeanInfo {
         this.factoryMethod = factoryMethod;
         this.fields = fields;
         this.jsonType = jsonType;
+
+        int parserFeatures = 0;
         if (jsonType != null) {
             String typeName = jsonType.typeName();
             if (typeName.length() != 0) {
@@ -56,9 +60,14 @@ class JavaBeanInfo {
             } else {
                 this.typeName = clazz.getName();
             }
+
+            for (Feature feature : jsonType.parseFeatures()) {
+                parserFeatures |= feature.mask;
+            }
         } else {
             this.typeName = clazz.getName();
         }
+        this.parserFeatures = parserFeatures;
         
         boolean supportBeanToArray = false;
         if (jsonType != null) {

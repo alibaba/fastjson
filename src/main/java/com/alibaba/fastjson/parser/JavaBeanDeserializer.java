@@ -779,7 +779,10 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             }
         }
 
-        if (fieldDeserializer == null && parser.lexer.isEnabled(Feature.SupportNonPublicField)) {
+        final int mask = Feature.SupportNonPublicField.mask;
+        if (fieldDeserializer == null
+                && ((parser.lexer.features & mask) != 0
+                    || (this.beanInfo.parserFeatures & mask) != 0)) {
             if (this.extraFieldDeserializers == null) {
                 ConcurrentHashMap extraFieldDeserializers = new ConcurrentHashMap<String, Object>(1, 0.75f, 1);
                 Field[] fields = this.clazz.getDeclaredFields();

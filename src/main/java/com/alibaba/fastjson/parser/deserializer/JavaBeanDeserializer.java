@@ -685,7 +685,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         continue;
                     }
                     int fieldModifiers = field.getModifiers();
-                    if ((fieldModifiers & Modifier.FINAL) != 0) {
+                    if ((fieldModifiers & Modifier.FINAL) != 0 || (fieldModifiers & Modifier.STATIC) != 0) {
                         continue;
                     }
                     extraFieldDeserializers.put(fieldName, field);

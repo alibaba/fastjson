@@ -104,7 +104,7 @@ public enum Feature {
     UseObjectArray,
 
     /**
-     * @since 1.2.22 & 1.1.54.android
+     * @since 1.2.22, 1.1.54.android
      */
     SupportNonPublicField
     ;

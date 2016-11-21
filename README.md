@@ -39,7 +39,7 @@ https://github.com/eishay/jvm-serializers/wiki
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>fastjson</artifactId>
-    <version>1.2.20</version>
+    <version>1.2.21</version>
 </dependency>
 ```
 
@@ -47,18 +47,18 @@ https://github.com/eishay/jvm-serializers/wiki
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>fastjson</artifactId>
-    <version>1.1.54.android</version>
+    <version>1.1.55.android</version>
 </dependency>
 ```
 
 ## Gradle via JCenter
 
 ``` groovy
-compile 'com.alibaba:fastjson:1.2.19'
+compile 'com.alibaba:fastjson:1.2.21'
 ```
 
 ``` groovy
-compile 'com.alibaba:fastjson:1.1.54.android'
+compile 'com.alibaba:fastjson:1.1.55.android'
 ```
 
 Please see this [Wiki Download Page][Wiki] for more repository infos.

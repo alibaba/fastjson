@@ -1042,12 +1042,12 @@ public class TypeUtils {
                                                   , PropertyNamingStrategy propertyNamingStrategy) {
         
         JSONType jsonType = beanType.getAnnotation(JSONType.class);
-        
+
         // fieldName,field ，先生成fieldName的快照，减少之后的findField的轮询
-        Map<String , Field> fieldCacheMap =new HashMap<String, Field>();
-        ParserConfig.parserAllFieldToCache( beanType,fieldCacheMap);
-        
-        List<FieldInfo> fieldInfoList = computeGetters(beanType, jsonType, aliasMap,fieldCacheMap, false, propertyNamingStrategy);
+        Map<String, Field> fieldCacheMap = new HashMap<String, Field>();
+        ParserConfig.parserAllFieldToCache(beanType, fieldCacheMap);
+
+        List<FieldInfo> fieldInfoList = computeGetters(beanType, jsonType, aliasMap, fieldCacheMap, false, propertyNamingStrategy);
         FieldInfo[] fields = new FieldInfo[fieldInfoList.size()];
         fieldInfoList.toArray(fields);
         
@@ -1463,6 +1463,42 @@ public class TypeUtils {
                 }
             }
         }
+
+        Class<?> superClass = clazz.getSuperclass();
+        if (superClass == null) {
+            return null;
+        }
+
+        if (Modifier.isAbstract(superClass.getModifiers())) {
+            Class<?>[] types = method.getParameterTypes();
+
+            for (Method interfaceMethod : superClass.getMethods()) {
+                Class<?>[] interfaceTypes = interfaceMethod.getParameterTypes();
+                if (interfaceTypes.length != types.length) {
+                    continue;
+                }
+                if (!interfaceMethod.getName().equals(method.getName())) {
+                    continue;
+                }
+                boolean match = true;
+                for (int i = 0; i < types.length; ++i) {
+                    if (!interfaceTypes[i].equals(types[i])) {
+                        match = false;
+                        break;
+                    }
+                }
+
+                if (!match) {
+                    continue;
+                }
+
+                JSONField annotation = interfaceMethod.getAnnotation(JSONField.class);
+                if (annotation != null) {
+                    return annotation;
+                }
+            }
+        }
+
         return null;
     }
 
@@ -1689,5 +1725,23 @@ public class TypeUtils {
         } else {
             throw new JSONException("TODO");
         }
+    }
+
+    public static boolean isProxy(Class<?> clazz) {
+        for (Class<?> item : clazz.getInterfaces()) {
+            String interfaceName = item.getName();
+            if (interfaceName.equals("net.sf.cglib.proxy.Factory") //
+                    || interfaceName.equals("org.springframework.cglib.proxy.Factory")) {
+                return true;
+            }
+
+            if (interfaceName.equals("javassist.util.proxy.ProxyObject") //
+                    || interfaceName.equals("org.apache.ibatis.javassist.util.proxy.ProxyObject")
+                    ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

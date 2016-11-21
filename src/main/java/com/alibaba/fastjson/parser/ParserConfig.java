@@ -512,7 +512,7 @@ public class ParserConfig {
         }
 
         if (asmEnable) {
-            asmEnable = ASMUtils.checkName(clazz.getName());
+            asmEnable = ASMUtils.checkName(clazz.getSimpleName());
         }
 
         if (asmEnable) {
@@ -655,15 +655,15 @@ public class ParserConfig {
      * @param fieldCacheMap :map&lt;fieldName ,Field&gt;
      */
     public static void  parserAllFieldToCache(Class<?> clazz,Map</**fieldName*/String , Field> fieldCacheMap){
-        Field[] fields=clazz.getDeclaredFields() ;
+        Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
-            String fieldName=field.getName();
-            if (!fieldCacheMap.containsKey(fieldName)){
+            String fieldName = field.getName();
+            if (!fieldCacheMap.containsKey(fieldName)) {
                 fieldCacheMap.put(fieldName, field);
             }
         }
         if (clazz.getSuperclass() != null && clazz.getSuperclass() != Object.class) {
-            parserAllFieldToCache(clazz.getSuperclass(),fieldCacheMap);
+            parserAllFieldToCache(clazz.getSuperclass(), fieldCacheMap);
         }
     }
     

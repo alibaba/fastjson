@@ -333,7 +333,13 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         serializer.out.writeFieldName(serializer.config.typeKey, false);
         String typeName = this.beanInfo.typeName;
         if (typeName == null) {
-            typeName = object.getClass().getName();
+            Class<?> clazz = object.getClass();
+
+            if (TypeUtils.isProxy(clazz)) {
+                clazz = clazz.getSuperclass();
+            }
+
+            typeName = clazz.getName();
         }
         serializer.write(typeName);
     }

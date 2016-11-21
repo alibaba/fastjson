@@ -156,7 +156,7 @@ public class SerializeConfig {
 			asm = false;
 		}
 
-		if (asm && !ASMUtils.checkName(clazz.getName())) {
+		if (asm && !ASMUtils.checkName(clazz.getSimpleName())) {
 		    asm = false;
 		}
 		
@@ -524,24 +524,8 @@ public class SerializeConfig {
                         springfoxError = true;
                     }
                 }
-                
-                boolean isCglibProxy = false;
-                boolean isJavassistProxy = false;
-                for (Class<?> item : clazz.getInterfaces()) {
-                    String interfaceName = item.getName();
-                    if (interfaceName.equals("net.sf.cglib.proxy.Factory") //
-                        || interfaceName.equals("org.springframework.cglib.proxy.Factory")) {
-                        isCglibProxy = true;
-                        break;
-                    } else if (interfaceName.equals("javassist.util.proxy.ProxyObject") //
-                            || interfaceName.equals("org.apache.ibatis.javassist.util.proxy.ProxyObject")
-                            ) {
-                        isJavassistProxy = true;
-                        break;
-                    }
-                }
 
-                if (isCglibProxy || isJavassistProxy) {
+                if (TypeUtils.isProxy(clazz)) {
                     Class<?> superClazz = clazz.getSuperclass();
 
                     ObjectSerializer superWriter = getObjectWriter(superClazz);

@@ -71,7 +71,7 @@ public @interface JSONField {
 
     /**
      * @since 1.2.21
-     * @return
+     * @return the alternative names of the field when it is deserialized
      */
     String[] alternateNames() default {};
 }

@@ -948,6 +948,15 @@ public class TypeUtils {
         mappings.put("[boolean", boolean[].class);
         mappings.put("[char", char[].class);
 
+        mappings.put("[B", byte[].class);
+        mappings.put("[S", short[].class);
+        mappings.put("[I", int[].class);
+        mappings.put("[J", long[].class);
+        mappings.put("[F", float[].class);
+        mappings.put("[D", double[].class);
+        mappings.put("[C", char[].class);
+        mappings.put("[Z", boolean[].class);
+
         mappings.put(HashMap.class.getName(), HashMap.class);
     }
 

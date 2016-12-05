@@ -59,6 +59,7 @@ import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.deserializer.Jdk8DateCodec;
+import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.OptionalCodec;
 import com.alibaba.fastjson.support.springfox.SwaggerJsonSerializer;
 import com.alibaba.fastjson.util.ASMUtils;
@@ -546,7 +547,11 @@ public class SerializeConfig {
 	public final ObjectSerializer get(Type key) {
 	    return this.serializers.get(key);
 	}
-	
+
+    public boolean put(Object type, Object value) {
+        return put((Type)type, (ObjectDeserializer)value);
+    }
+
 	public boolean put(Type type, ObjectSerializer value) {
 	    boolean isEnum = false;
 	    if (type instanceof Class) {

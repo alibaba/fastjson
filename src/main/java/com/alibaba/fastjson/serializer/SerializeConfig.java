@@ -530,12 +530,12 @@ public class SerializeConfig {
                     Class<?> superClazz = clazz.getSuperclass();
 
                     ObjectSerializer superWriter = getObjectWriter(superClazz);
-                    putInternal(clazz, superWriter);
+                    put(clazz, superWriter);
                     return superWriter;
                 }
 
                 if (create) {
-                    putInternal(clazz, createJavaBeanSerializer(clazz));
+                    put(clazz, createJavaBeanSerializer(clazz));
                 }
             }
 
@@ -553,19 +553,6 @@ public class SerializeConfig {
     }
 
 	public boolean put(Type type, ObjectSerializer value) {
-	    boolean isEnum = false;
-	    if (type instanceof Class) {
-	        Class<?> clazz = (Class<?>) type;
-	        isEnum = clazz.isEnum();
-	    }
-	    if (isEnum) {
-	        
-	    }
-	    
-	    return putInternal(type, value);
+        return this.serializers.put(type, value);
 	}
-	
-	protected boolean putInternal(Type key, ObjectSerializer value) {
-        return this.serializers.put(key, value);
-    }
 }

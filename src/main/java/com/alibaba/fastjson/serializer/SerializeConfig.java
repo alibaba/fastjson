@@ -549,7 +549,7 @@ public class SerializeConfig {
 	}
 
     public boolean put(Object type, Object value) {
-        return put((Type)type, (ObjectDeserializer)value);
+        return put((Type)type, (ObjectSerializer)value);
     }
 
 	public boolean put(Type type, ObjectSerializer value) {

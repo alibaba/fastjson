@@ -42,4 +42,12 @@ public class ParameterizedTypeImpl implements ParameterizedType {
         return rawType != null ? rawType.equals(that.rawType) : that.rawType == null;
 
     }
+
+    @Override
+    public int hashCode() {
+        int result = actualTypeArguments != null ? Arrays.hashCode(actualTypeArguments) : 0;
+        result = 31 * result + (ownerType != null ? ownerType.hashCode() : 0);
+        result = 31 * result + (rawType != null ? rawType.hashCode() : 0);
+        return result;
+    }
 }

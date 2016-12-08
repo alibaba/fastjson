@@ -453,7 +453,10 @@ public class DefaultJSONParser implements Closeable {
                     JSONArray list = new JSONArray();
 
                     final boolean parentIsArray = fieldName != null && fieldName.getClass() == Integer.class;
-                    if (!parentIsArray) {
+//                    if (!parentIsArray) {
+//                        this.setContext(context);
+//                    }
+                    if (fieldName == null) {
                         this.setContext(context);
                     }
 

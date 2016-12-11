@@ -918,9 +918,10 @@ public class ASMDeserializerFactory implements Opcodes {
     }
 
     private void _set(Context context, MethodVisitor mw, FieldInfo fieldInfo) {
-        if (fieldInfo.method != null) {
-            mw.visitMethodInsn(INVOKEVIRTUAL, type(fieldInfo.declaringClass), fieldInfo.method.getName(),
-                               desc(fieldInfo.method));
+        Method method = fieldInfo.method;
+        if (method != null) {
+            Class<?> declaringClass = method.getDeclaringClass();
+            mw.visitMethodInsn(declaringClass.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL, type(fieldInfo.declaringClass), method.getName(), desc(method));
 
             if (!fieldInfo.method.getReturnType().equals(Void.TYPE)) {
                 mw.visitInsn(POP);

@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import junit.framework.TestCase;
 
+import java.util.List;
+
 /**
  * Created by wenshao on 09/12/2016.
  */
@@ -12,19 +14,8 @@ public class Issue943 extends TestCase {
     public void test_for_issue() throws Exception {
         String text = "{\n" +
                 "\t\"symbols\":[\n" +
-                "\t    {\"id\":1,\"type\":\"NORMAL\"},\n" +
-                "\t    {\"id\":2,\"type\":\"NORMAL\"},\n" +
-                "\t    {\"id\":3,\"type\":\"NORMAL\"},\n" +
-                "\t    {\"id\":4,\"type\":\"NORMAL\"},\n" +
-                "\t    {\"id\":5,\"type\":\"NORMAL\"},\n" +
-                "\t    {\"id\":6,\"type\":\"NORMAL\"},\n" +
-                "\t    {\"id\":7,\"type\":\"NORMAL\"},\n" +
-                "\t    {\"id\":8,\"type\":\"NORMAL\"},\n" +
-                "\t    {\"id\":9,\"type\":\"NORMAL\"},\n" +
-                "\t    {\"id\":10,\"type\":\"NORMAL\"},\n" +
-                "\t    {\"id\":11,\"type\":\"WILD\"},\n" +
-                "\t    {\"id\":12,\"type\":\"SCATTER\"},\n" +
-                "\t    {\"id\":13,\"type\":\"BONUS\"}\n" +
+                "\t    {\"id\":1,\"type\":\"SCATTER\"},\n" +
+                "\t    {\"id\":2,\"type\":\"BONUS\"}\n" +
                 "\t]\n" +
                 "}";
 
@@ -32,44 +23,60 @@ public class Issue943 extends TestCase {
 
         JSONArray symbols = root.getJSONArray("symbols");
         assertNotNull(symbols);
-        assertEquals(13, symbols.size());
+        assertEquals(2, symbols.size());
         assertEquals(1, symbols.getJSONObject(0).get("id"));
-        assertEquals("NORMAL", symbols.getJSONObject(0).get("type"));
+        assertEquals("SCATTER", symbols.getJSONObject(0).get("type"));
 
         assertEquals(2, symbols.getJSONObject(1).get("id"));
-        assertEquals("NORMAL", symbols.getJSONObject(1).get("type"));
+        assertEquals("BONUS", symbols.getJSONObject(1).get("type"));
 
-        assertEquals(3, symbols.getJSONObject(2).get("id"));
-        assertEquals("NORMAL", symbols.getJSONObject(2).get("type"));
+        SlotConfig slotConfig = JSON.parseObject(text, SlotConfig.class);
 
-        assertEquals(4, symbols.getJSONObject(3).get("id"));
-        assertEquals("NORMAL", symbols.getJSONObject(3).get("type"));
+        assertNotNull(slotConfig);
+        assertEquals(2, slotConfig.symbols.size());
+        assertEquals(1, slotConfig.symbols.get(0).getId());
+        assertEquals(SymbolType.SCATTER, slotConfig.symbols.get(0).getType());
 
-        assertEquals(5, symbols.getJSONObject(4).get("id"));
-        assertEquals("NORMAL", symbols.getJSONObject(4).get("type"));
+        assertEquals(2, slotConfig.symbols.get(1).getId());
+        assertEquals(SymbolType.BONUS, slotConfig.symbols.get(1).getType());
 
-        assertEquals(6, symbols.getJSONObject(5).get("id"));
-        assertEquals("NORMAL", symbols.getJSONObject(5).get("type"));
+    }
 
-        assertEquals(7, symbols.getJSONObject(6).get("id"));
-        assertEquals("NORMAL", symbols.getJSONObject(6).get("type"));
+    private static class SlotConfig {
+        private List<Symbol> symbols;
 
-        assertEquals(8, symbols.getJSONObject(7).get("id"));
-        assertEquals("NORMAL", symbols.getJSONObject(7).get("type"));
+        public List<Symbol> getSymbols() {
+            return symbols;
+        }
 
-        assertEquals(9, symbols.getJSONObject(8).get("id"));
-        assertEquals("NORMAL", symbols.getJSONObject(8).get("type"));
+        public void setSymbols(List<Symbol> symbols) {
+            this.symbols = symbols;
+        }
+    }
 
-        assertEquals(10, symbols.getJSONObject(9).get("id"));
-        assertEquals("NORMAL", symbols.getJSONObject(9).get("type"));
+    private static class Symbol {
+        private int id;
 
-        assertEquals(11, symbols.getJSONObject(10).get("id"));
-        assertEquals("WILD", symbols.getJSONObject(10).get("type"));
+        private SymbolType type;
 
-        assertEquals(12, symbols.getJSONObject(11).get("id"));
-        assertEquals("SCATTER", symbols.getJSONObject(11).get("type"));
+        public int getId() {
+            return id;
+        }
 
-        assertEquals(13, symbols.getJSONObject(12).get("id"));
-        assertEquals("BONUS", symbols.getJSONObject(12).get("type"));
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public SymbolType getType() {
+            return type;
+        }
+
+        public void setType(SymbolType type) {
+            this.type = type;
+        }
+    }
+
+    enum SymbolType {
+        NORMAL, WILD, SCATTER, BONUS
     }
 }

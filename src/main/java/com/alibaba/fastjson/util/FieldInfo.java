@@ -119,7 +119,8 @@ public class FieldInfo implements Comparable<FieldInfo> {
         if (field != null) {
             int modifiers = field.getModifiers();
             fieldAccess = ((modifiers & Modifier.PUBLIC) != 0 || method == null);
-            fieldTransient = Modifier.isTransient(modifiers);
+            fieldTransient = Modifier.isTransient(modifiers)
+                    || TypeUtils.isTransient(method);
         } else {
             fieldAccess = false;
             fieldTransient = false;

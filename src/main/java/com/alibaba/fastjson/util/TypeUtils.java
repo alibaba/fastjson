@@ -15,6 +15,7 @@
  */
 package com.alibaba.fastjson.util;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -84,6 +85,10 @@ public class TypeUtils {
 
     private static boolean  optionalClassInited         = false;
     private static Class<?> optionalClass;
+
+    private static boolean transientClassInited         = false;
+    private static Class<? extends Annotation> transientClass;
+
 
     public static String castToString(Object value) {
         if (value == null) {
@@ -1749,6 +1754,29 @@ public class TypeUtils {
                     ) {
                 return true;
             }
+        }
+
+        return false;
+    }
+
+    public static boolean isTransient(Method method) {
+        if (method == null) {
+            return false;
+        }
+
+        if (!transientClassInited) {
+            try {
+                transientClass = (Class<? extends Annotation>) Class.forName("java.beans.Transient");
+            } catch (Exception e) {
+                // skip
+            } finally {
+                transientClassInited = true;
+            }
+        }
+
+        if (transientClass != null) {
+            Annotation annotation = method.getAnnotation(transientClass);
+            return annotation != null;
         }
 
         return false;

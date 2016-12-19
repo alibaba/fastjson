@@ -267,7 +267,7 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
             if (fieldType == null) {
                 fieldType = object.getClass();
             }
-            
+
             if (fieldType == LocalDateTime.class) {
                 LocalDateTime dateTime = (LocalDateTime) object;
                 String format = serializer.getDateFormatPattern();

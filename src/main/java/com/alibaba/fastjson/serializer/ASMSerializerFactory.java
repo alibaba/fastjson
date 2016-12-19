@@ -1473,13 +1473,11 @@ public class ASMSerializerFactory implements Opcodes {
     }
 
     private void _filters(MethodVisitor mw, FieldInfo property, Context context, Label _end) {
-        if (property.field != null) {
-            if (Modifier.isTransient(property.field.getModifiers())) {
-                mw.visitVarInsn(ALOAD, context.var("out"));
-                mw.visitLdcInsn(SerializerFeature.SkipTransientField.mask);
-                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "isEnabled", "(I)Z");
-                mw.visitJumpInsn(IFNE, _end);
-            }
+        if (property.fieldTransient) {
+            mw.visitVarInsn(ALOAD, context.var("out"));
+            mw.visitLdcInsn(SerializerFeature.SkipTransientField.mask);
+            mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "isEnabled", "(I)Z");
+            mw.visitJumpInsn(IFNE, _end);
         }
 
         _notWriteDefault(mw, property, context, _end);

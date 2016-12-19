@@ -280,7 +280,9 @@ public class FieldInfo implements Comparable<FieldInfo> {
             }
             if (type instanceof ParameterizedType) {
                 ParameterizedType ptype = (ParameterizedType) type;
-                if (ptype.getRawType() == gd) {
+                Type rawType = ptype.getRawType();
+                boolean eq = gd.equals(rawType) || (gd instanceof Class && rawType instanceof Class && ((Class) gd).isAssignableFrom((Class) rawType));
+                if (eq) {
                     TypeVariable<?>[] tvs = gd.getTypeParameters();
                     Type[] types = ptype.getActualTypeArguments();
                     for (int i = 0; i < tvs.length; i++) {

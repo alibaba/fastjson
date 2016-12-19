@@ -111,16 +111,11 @@ public final class JSONScanner extends JSONLexerBase {
         return IOUtils.decodeBase64(text, np + 1, sp);
     }
 
-    // public int scanField2(char[] fieldName, Object object, FieldDeserializer fieldDeserializer) {
-    // return NOT_MATCH;
-    // }
-
     /**
      * The value of a literal token, recorded as a string. For integers, leading 0x and 'l' suffixes are suppressed.
      */
     public final String stringVal() {
         if (!hasSpecial) {
-            // return text.substring(np + 1, np + 1 + sp);
             return this.subString(np + 1, sp);
         } else {
             return new String(sbuf, 0, sp);
@@ -161,7 +156,6 @@ public final class JSONScanner extends JSONLexerBase {
             sp--;
         }
 
-        // return text.substring(np, np + sp);
         return this.subString(np, sp);
     }
 
@@ -802,7 +796,8 @@ public final class JSONScanner extends JSONLexerBase {
             this.ch = charAt(++bp);
             matchStat = VALUE;
             return strVal;
-        } else if (ch == '}') {
+        } else {
+            //condition ch == '}' is always 'true'
             ch = charAt(++bp);
             if (ch == ',') {
                 token = JSONToken.COMMA;
@@ -822,12 +817,7 @@ public final class JSONScanner extends JSONLexerBase {
                 return stringDefaultValue();
             }
             matchStat = END;
-        } else {
-            matchStat = NOT_MATCH;
-
-            return stringDefaultValue();
         }
-
         return strVal;
     }
 
@@ -855,7 +845,6 @@ public final class JSONScanner extends JSONLexerBase {
             if (ch == '\"') {
                 bp = index;
                 this.ch = ch = charAt(bp);
-                // strVal = text.substring(start, index - 1).intern();
                 strVal = symbolTable.addSymbol(text, start, index - start - 1, hash);
                 break;
             }
@@ -873,7 +862,9 @@ public final class JSONScanner extends JSONLexerBase {
             matchStat = VALUE;
             return strVal;
         } else if (ch == '}') {
-            ch = charAt(++bp);
+            next();
+            skipWhitespace();
+            ch = getCurrent();
             if (ch == ',') {
                 token = JSONToken.COMMA;
                 this.ch = charAt(++bp);

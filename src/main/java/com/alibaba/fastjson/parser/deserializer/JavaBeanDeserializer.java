@@ -803,7 +803,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                                                                                InvocationTargetException {
         Object object = null;
         
-        if (beanInfo.creatorConstructor == null && beanInfo.buildMethod == null && beanInfo.factoryMethod == null) {
+        if (beanInfo.creatorConstructor == null && beanInfo.factoryMethod == null) {
             object = createInstance(null, clazz);
             
             for (Map.Entry<String, Object> entry : map.entrySet()) {
@@ -827,9 +827,21 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     field.set(object, value);
                 }
             }
-            
+
+            if (beanInfo.buildMethod != null) {
+                Object builtObj;
+                try {
+                    builtObj = beanInfo.buildMethod.invoke(object);
+                } catch (Exception e) {
+                    throw new JSONException("build object error", e);
+                }
+
+                return builtObj;
+            }
+
             return object;
         }
+
         
         FieldInfo[] fieldInfoList = beanInfo.fields;
         int size = fieldInfoList.length;

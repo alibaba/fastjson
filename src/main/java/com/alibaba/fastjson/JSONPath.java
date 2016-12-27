@@ -447,7 +447,6 @@ public class JSONPath implements JSONAware {
                 
                 String path = parent.equals("/") ?  "/" + i : parent + "/" + i;
                 paths(paths, path, item, config);
-                ++i;
             }
             
             return;

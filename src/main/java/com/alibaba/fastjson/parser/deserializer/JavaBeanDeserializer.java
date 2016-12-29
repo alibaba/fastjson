@@ -815,17 +815,11 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     continue;
                 }
 
-                Method method = fieldDeser.fieldInfo.method;
-                if (method != null) {
-                    Type paramType = method.getGenericParameterTypes()[0];
-                    value = TypeUtils.cast(value, paramType, config);
-                    method.invoke(object, new Object[] { value });
-                } else {
-                    Field field = fieldDeser.fieldInfo.field;
-                    Type paramType = fieldDeser.fieldInfo.fieldType;
-                    value = TypeUtils.cast(value, paramType, config);
-                    field.set(object, value);
-                }
+                final FieldInfo fieldInfo = fieldDeser.fieldInfo;
+                Type paramType = fieldInfo.fieldType;
+                value = TypeUtils.cast(value, paramType, config);
+
+                fieldDeser.setValue(object, value);
             }
 
             if (beanInfo.buildMethod != null) {

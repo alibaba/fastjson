@@ -1,7 +1,4 @@
-package com.vans.test.vansdemo.vo;
-
-import com.alibaba.fastjson.JSONObject;
-import com.vans.test.vansdemo.util.ModelUtils;
+package com.alibaba.json.test.vans;
 
 import java.io.Serializable;
 
@@ -13,14 +10,6 @@ public class VansGeometry implements Serializable{
     public String type;
     public VansGeometryData data;
 
-    public VansGeometry(JSONObject object){
-        if(object == null){
-            return;
-        }
-        uuid = ModelUtils.nullToEmpty(object.getString("uuid"));
-        type = ModelUtils.nullToEmpty(object.getString("type"));
-        data = new VansGeometryData(object.getJSONObject("data"));
-    }
     public VansGeometry(){
 
     }

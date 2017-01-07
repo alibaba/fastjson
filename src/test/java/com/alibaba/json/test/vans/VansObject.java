@@ -1,7 +1,6 @@
-package com.vans.test.vansdemo.vo;
+package com.alibaba.json.test.vans;
 
-import com.alibaba.fastjson.JSONObject;
-import com.vans.test.vansdemo.util.ModelUtils;
+import com.alibaba.fastjson.annotation.JSONType;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -9,26 +8,10 @@ import java.util.ArrayList;
 /**
  * Created by xiaolin_kxl on 17/1/5.
  */
+@JSONType(orders = {"uuid","type","matrix","children"})
 public class VansObject implements Serializable {
     public String uuid;
     public String type;
-    //        public ArrayList<Float> matrix;
     public ArrayList<VansObjectChildren> children;
-    public VansObject(JSONObject object){
-        if(object == null){
-            return;
-        }
-        uuid = ModelUtils.nullToEmpty(object.getString("uuid"));
-        type = ModelUtils.nullToEmpty(object.getString("type"));
-        children = ModelUtils.convertJSONArray(object.getJSONArray("children"), new ModelUtils.EntryConverter<VansObjectChildren>() {
-            @Override
-            public VansObjectChildren convert(Object obj) {
-                return new VansObjectChildren((JSONObject) obj);
-            }
-        });
-//            matrix = ModelUtils.convertJSONArray(object.getJSONArray("matrix"));
-    }
-    public VansObject(){
-
-    }
+    public float[] matrix;
 }

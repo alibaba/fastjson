@@ -54,4 +54,6 @@ public @interface JSONType {
      * @since 1.2.14
      */
     Class<?> deserializer() default Void.class;
+
+    boolean serializeEnumAsJavaBean() default false;
 }

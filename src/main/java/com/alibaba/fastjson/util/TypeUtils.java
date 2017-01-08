@@ -1178,6 +1178,10 @@ public class TypeUtils {
                     continue;
                 }
 
+                if (methodName.equals("getDeclaringClass") && clazz.isEnum()) {
+                    continue;
+                }
+
                 char c3 = methodName.charAt(3);
 
                 String propertyName;

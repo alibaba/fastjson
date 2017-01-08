@@ -14,6 +14,13 @@ public class IntArrayTest extends TestCase {
         assertEquals(-41, model.faces[0]);
     }
 
+    public void test_int_array_empty() throws Exception {
+        String text = "{\"faces\":[]}";
+        Model model = JSON.parseObject(text, Model.class);
+        assertEquals(text, JSON.toJSONString(model));
+        assertEquals(0, model.faces.length);
+    }
+
     public static class Model {
         public int[] faces;
     }

@@ -114,8 +114,11 @@ public class SerializeConfig {
      
         return serializer;
     }
-	
-	private final ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
+
+    /**
+     * @since 1.2.24
+     */
+    public final ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
 	    SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null, propertyNamingStrategy);
 	    if (beanInfo.fields.length == 0 && Iterable.class.isAssignableFrom(clazz)) {
 	        return MiscCodec.instance;
@@ -415,7 +418,12 @@ public class SerializeConfig {
             } else if (JSONStreamAware.class.isAssignableFrom(clazz)) {
                 put(clazz, MiscCodec.instance);
             } else if (clazz.isEnum() || (clazz.getSuperclass() != null && clazz.getSuperclass().isEnum())) {
-                put(clazz, EnumSerializer.instance);
+                JSONType jsonType = clazz.getAnnotation(JSONType.class);
+                if (jsonType != null && jsonType.serializeEnumAsJavaBean()) {
+                    put(clazz, createJavaBeanSerializer(clazz));
+                } else {
+                    put(clazz, EnumSerializer.instance);
+                }
             } else if (clazz.isArray()) {
                 Class<?> componentType = clazz.getComponentType();
                 ObjectSerializer compObjectSerializer = getObjectWriter(componentType);

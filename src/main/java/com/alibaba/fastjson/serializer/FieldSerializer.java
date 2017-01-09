@@ -120,12 +120,22 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
                 runtimeFieldClass = propertyValue.getClass();
             }
             
-            ObjectSerializer fieldSerializer;
+            ObjectSerializer fieldSerializer = null;
             JSONField fieldAnnotation = fieldInfo.getAnnotation();
             if (fieldAnnotation != null && fieldAnnotation.serializeUsing() != Void.class) {
                 fieldSerializer = (ObjectSerializer) fieldAnnotation.serializeUsing().newInstance();
             } else {
-                fieldSerializer = serializer.getObjectWriter(runtimeFieldClass);
+                if (format != null) {
+                    if (runtimeFieldClass == double.class || runtimeFieldClass == Double.class) {
+                        fieldSerializer = new DoubleSerializer(format);
+                    } else if (runtimeFieldClass == float.class || runtimeFieldClass == Float.class) {
+                        fieldSerializer = new FloatCodec(format);
+                    }
+                }
+
+                if (fieldSerializer == null) {
+                    fieldSerializer = serializer.getObjectWriter(runtimeFieldClass);
+                }
             }
             
             runtimeInfo = new RuntimeSerializerInfo(fieldSerializer, runtimeFieldClass);
@@ -184,7 +194,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
             valueSerializer = serializer.getObjectWriter(valueClass);
         }
         
-        if (format != null) {
+        if (format != null && !(valueSerializer instanceof DoubleSerializer || valueSerializer instanceof FloatCodec)) {
             if (valueSerializer instanceof ContextObjectSerializer) {
                 ((ContextObjectSerializer) valueSerializer).write(serializer, propertyValue, this.fieldContext);    
             } else {

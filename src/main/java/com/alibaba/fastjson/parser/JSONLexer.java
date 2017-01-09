@@ -2455,23 +2455,29 @@ public final class JSONLexer {
 
         float value;
         if (chLocal >= '0' && chLocal <= '9') {
+            int intVal = chLocal - '0';
             for (;;) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
+                    intVal = intVal * 10 + (chLocal - '0');
                     continue;
                 } else {
                     break;
                 }
             }
 
-            int dotOffset = offset;
+            int power = 1;
             boolean small = (chLocal == '.');
             if (small) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
+                    intVal = intVal * 10 + (chLocal - '0');
+                    power *= 10;
                     for (; ; ) {
                         chLocal = charAt(bp + (offset++));
                         if (chLocal >= '0' && chLocal <= '9') {
+                            intVal = intVal * 10 + (chLocal - '0');
+                            power *= 10;
                             continue;
                         } else {
                             break;
@@ -2499,21 +2505,8 @@ public final class JSONLexer {
             }
 
             int count = bp + offset - start - 1;
-            int intVal = 0;
             if (!exp && count < 10) {
-                int dotPos = dotOffset + bp - 1;
-                for (int i = negative ? start + 1 : start; i < dotPos; ++i) {
-                    char c = this.text.charAt(i);
-                    int digit = c - '0';
-                    intVal = intVal * 10 + digit;
-                }
-                for (int i = dotPos + 1, end = bp + offset - 1; i < end; ++i) {
-                    char c = this.text.charAt(i);
-                    int digit = c - '0';
-                    intVal = intVal * 10 + digit;
-                }
-
-                value = small ? ((float) intVal) / xDigits[offset - dotOffset - 2] : (float) intVal;
+                value = ((float) intVal) / power;
                 if (negative) {
                     value = -value;
                 }
@@ -2606,23 +2599,29 @@ public final class JSONLexer {
             }
 
             if (chLocal >= '0' && chLocal <= '9') {
+                int intVal = chLocal - '0';
                 for (; ; ) {
                     chLocal = charAt(bp + (offset++));
                     if (chLocal >= '0' && chLocal <= '9') {
+                        intVal = intVal * 10 + (chLocal - '0');
                         continue;
                     } else {
                         break;
                     }
                 }
 
-                int dotOffset = offset;
+                int power = 1;
                 boolean small = (chLocal == '.');
                 if (small) {
                     chLocal = charAt(bp + (offset++));
+                    power *= 10;
                     if (chLocal >= '0' && chLocal <= '9') {
+                        intVal = intVal * 10 + (chLocal - '0');
                         for (; ; ) {
                             chLocal = charAt(bp + (offset++));
                             if (chLocal >= '0' && chLocal <= '9') {
+                                intVal = intVal * 10 + (chLocal - '0');
+                                power *= 10;
                                 continue;
                             } else {
                                 break;
@@ -2650,22 +2649,10 @@ public final class JSONLexer {
                 }
 
                 int count = bp + offset - start - 1;
-                int intVal = 0;
+
                 float value;
                 if (!exp && count < 10) {
-                    int dotPos = dotOffset + bp - 1;
-                    for (int i = negative ? start + 1 : start; i < dotPos; ++i) {
-                        char c = this.text.charAt(i);
-                        int digit = c - '0';
-                        intVal = intVal * 10 + digit;
-                    }
-                    for (int i = dotPos + 1, end = bp + offset - 1; i < end; ++i) {
-                        char c = this.text.charAt(i);
-                        int digit = c - '0';
-                        intVal = intVal * 10 + digit;
-                    }
-
-                    value = small ? ((float) intVal) / xDigits[offset - dotOffset - 2] : (float) intVal;
+                    value = ((float) intVal) / power;
                     if (negative) {
                         value = -value;
                     }
@@ -2773,23 +2760,29 @@ public final class JSONLexer {
                     }
 
                     if (chLocal >= '0' && chLocal <= '9') {
+                        int intVal = chLocal - '0';
                         for (; ; ) {
                             chLocal = charAt(bp + (offset++));
                             if (chLocal >= '0' && chLocal <= '9') {
+                                intVal = intVal * 10 + (chLocal - '0');
                                 continue;
                             } else {
                                 break;
                             }
                         }
 
-                        int dotOffset = offset;
+                        int power = 1;
                         boolean small = (chLocal == '.');
                         if (small) {
                             chLocal = charAt(bp + (offset++));
                             if (chLocal >= '0' && chLocal <= '9') {
+                                intVal = intVal * 10 + (chLocal - '0');
+                                power *= 10;
                                 for (; ; ) {
                                     chLocal = charAt(bp + (offset++));
                                     if (chLocal >= '0' && chLocal <= '9') {
+                                        intVal = intVal * 10 + (chLocal - '0');
+                                        power *= 10;
                                         continue;
                                     } else {
                                         break;
@@ -2817,22 +2810,9 @@ public final class JSONLexer {
                         }
 
                         int count = bp + offset - start - 1;
-                        int intVal = 0;
                         float value;
                         if (!exp && count < 10) {
-                            int dotPos = dotOffset + bp - 1;
-                            for (int i = negative ? start + 1 : start; i < dotPos; ++i) {
-                                char c = this.text.charAt(i);
-                                int digit = c - '0';
-                                intVal = intVal * 10 + digit;
-                            }
-                            for (int i = dotPos + 1, end = bp + offset - 1; i < end; ++i) {
-                                char c = this.text.charAt(i);
-                                int digit = c - '0';
-                                intVal = intVal * 10 + digit;
-                            }
-
-                            value = small ? ((float) intVal) / xDigits[offset - dotOffset - 2] : (float) intVal;
+                            value = ((float) intVal) / power;
                             if (negative) {
                                 value = -value;
                             }

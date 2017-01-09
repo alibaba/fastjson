@@ -11,7 +11,7 @@ import junit.framework.TestCase;
 public class SerializeEnumAsJavaBeanTest_manual extends TestCase {
     protected void setUp() throws Exception {
         SerializeConfig serializeConfig = SerializeConfig.globalInstance;
-        serializeConfig.put(OrderType.class, serializeConfig.createJavaBeanSerializer(OrderType.class));
+        serializeConfig.configEnumAsJavaBean(OrderType.class);
     }
 
     public void test_serializeEnumAsJavaBean() throws Exception {

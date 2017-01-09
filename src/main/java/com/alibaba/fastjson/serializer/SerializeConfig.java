@@ -115,10 +115,7 @@ public class SerializeConfig {
         return serializer;
     }
 
-    /**
-     * @since 1.2.24
-     */
-    public final ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
+    private final ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
 	    SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null, propertyNamingStrategy);
 	    if (beanInfo.fields.length == 0 && Iterable.class.isAssignableFrom(clazz)) {
 	        return MiscCodec.instance;
@@ -563,4 +560,14 @@ public class SerializeConfig {
 	public boolean put(Type type, ObjectSerializer value) {
         return this.serializers.put(type, value);
 	}
+
+    /**
+     * 1.2.24
+     * @param enumClasses
+     */
+	public void configEnumAsJavaBean(Class<? extends Enum>... enumClasses) {
+        for (Class<? extends Enum> enumClass : enumClasses) {
+            put(enumClass, createJavaBeanSerializer(enumClass));
+        }
+    }
 }

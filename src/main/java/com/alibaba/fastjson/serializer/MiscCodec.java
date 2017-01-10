@@ -31,17 +31,10 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
-import java.util.Currency;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.TimeZone;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.JSONPath;
-import com.alibaba.fastjson.JSONStreamAware;
+import com.alibaba.fastjson.*;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -223,6 +216,12 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         } else if (objVal instanceof String) {
             strVal = (String) objVal;
         } else {
+            if (objVal instanceof JSONObject) {
+                if (clazz == Map.Entry.class) {
+                   JSONObject jsonObject = (JSONObject) objVal;
+                   return (T) jsonObject.entrySet().iterator().next();
+                }
+            }
             throw new JSONException("expect string");
         }
 

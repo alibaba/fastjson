@@ -43,6 +43,8 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
     protected boolean             writeEnumUsingToString  = false;
     protected boolean             writeEnumUsingName      = false;
 
+    protected boolean             serializeUsing          = false;
+
     private RuntimeSerializerInfo runtimeInfo;
     
     public FieldSerializer(Class<?> beanType, FieldInfo fieldInfo){
@@ -132,6 +134,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
             JSONField fieldAnnotation = fieldInfo.getAnnotation();
             if (fieldAnnotation != null && fieldAnnotation.serializeUsing() != Void.class) {
                 fieldSerializer = (ObjectSerializer) fieldAnnotation.serializeUsing().newInstance();
+                serializeUsing = true;
             } else {
                 if (format != null) {
                     if (runtimeFieldClass == double.class || runtimeFieldClass == Double.class) {
@@ -196,7 +199,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
         
         Class<?> valueClass = propertyValue.getClass();
         ObjectSerializer valueSerializer;
-        if (valueClass == runtimeInfo.runtimeFieldClass) {
+        if (valueClass == runtimeInfo.runtimeFieldClass || serializeUsing) {
             valueSerializer = runtimeInfo.fieldSerializer;
         } else {
             valueSerializer = serializer.getObjectWriter(valueClass);

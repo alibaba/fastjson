@@ -117,6 +117,30 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
             Iterator<?> it = ((Iterable<?>) object).iterator();
             writeIterator(serializer, out, it);
             return;
+        } else if (object instanceof Map.Entry) {
+            Map.Entry entry = (Map.Entry) object;
+            Object objKey = entry.getKey();
+            Object objVal = entry.getValue();
+
+            if (objKey instanceof String) {
+                String key = (String) objKey;
+
+                if (objVal instanceof String) {
+                    String value = (String) objVal;
+                    out.writeFieldValueStringWithDoubleQuote('{', key, value);
+                } else {
+                    out.write('{');
+                    out.writeFieldName(key);
+                    serializer.write(objVal);
+                }
+            } else {
+                out.write('{');
+                serializer.write(objVal);
+                out.write(':');
+                serializer.write(objVal);
+            }
+            out.write('}');
+            return;
         } else {
             throw new JSONException("not support class : " + objClass);
         }

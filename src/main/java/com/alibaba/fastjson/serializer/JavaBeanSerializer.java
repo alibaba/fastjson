@@ -193,7 +193,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 Object propertyValue;
                 
                 try {
-                    propertyValue = fieldSerializer.getPropertyValue(object);
+                    propertyValue = fieldSerializer.getPropertyValueDirect(object);
                 } catch (InvocationTargetException ex) {
                     if (out.isEnabled(SerializerFeature.IgnoreErrorGetter)) {
                         propertyValue = null;
@@ -424,7 +424,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
     public int getSize(Object object) throws Exception {
         int size = 0;
         for (FieldSerializer getter : sortedGetters) {
-            Object value = getter.getPropertyValue(object);
+            Object value = getter.getPropertyValueDirect(object);
             if (value != null) {
                 size ++;
             }

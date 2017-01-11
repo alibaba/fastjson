@@ -2986,6 +2986,50 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
     }
 
+    public long readObjectFieldAsHash() {
+        final char quote = ch;
+        if (quote != '"' && quote != '\'') {
+            throw new JSONException("object field exprect \"");
+        }
+        next();
+
+        long hash = 0x811c9dc5;
+        for (;;) {
+            if (ch == quote || isEOF()) {
+                break;
+            }
+
+            hash ^= ch;
+            hash *= 0x1000193;
+
+            next();
+        }
+
+        if (ch != quote) {
+            throw new JSONException("readObjectFieldAsHash expect " + quote);
+        }
+        next();
+
+        if (ch != ':') {
+            throw new JSONException("readObjectFieldAsHash expect :");
+        }
+        next();
+
+        return (int) hash;
+    }
+
+    public boolean readObjectStart() {
+        if (ch != '{') {
+            throw new JSONException("readObjectStart expect {");
+        }
+        next();
+        if (ch == '}') {
+            next();
+            return true;
+        }
+        return false;
+    }
+
     public final Number decimalValue(boolean decimal) {
         char chLocal = charAt(np + sp - 1);
         try {
@@ -3007,9 +3051,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
     }
 
-    public final BigDecimal decimalValue() {
-        return new BigDecimal(numberString());
-    }
+    public abstract BigDecimal decimalValue();
 
     public static boolean isWhitespace(char ch) {
         // 专门调整了判断顺序

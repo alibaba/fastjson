@@ -19,6 +19,7 @@ import java.io.CharArrayReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.math.BigDecimal;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
@@ -277,6 +278,21 @@ public final class JSONReaderScanner extends JSONLexerBase {
 
         String value = new String(buf, offset, sp);
         return value;
+    }
+
+    public final BigDecimal decimalValue() {
+        int offset = np;
+        if (offset == -1) {
+            offset = 0;
+        }
+        char chLocal = charAt(offset + sp - 1);
+
+        int sp = this.sp;
+        if (chLocal == 'L' || chLocal == 'S' || chLocal == 'B' || chLocal == 'F' || chLocal == 'D') {
+            sp--;
+        }
+
+        return new BigDecimal(buf, offset, sp);
     }
 
     public void close() {

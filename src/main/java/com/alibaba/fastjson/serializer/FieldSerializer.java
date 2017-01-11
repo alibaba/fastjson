@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.util.FieldInfo;
 
@@ -105,11 +106,17 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
         }
     }
 
+    public Object getPropertyValueDirect(Object object) throws InvocationTargetException, IllegalAccessException {
+        return  fieldInfo.get(object);
+    }
+
     public Object getPropertyValue(Object object) throws InvocationTargetException, IllegalAccessException {
         Object propertyValue =  fieldInfo.get(object);
         if (format != null && propertyValue != null) {
             if (fieldInfo.fieldClass == Date.class) {
-                return new SimpleDateFormat(format).format(propertyValue);
+                SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+                dateFormat.setTimeZone(JSON.defaultTimeZone);
+                return dateFormat.format(propertyValue);
             }
         }
         return propertyValue;

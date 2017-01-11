@@ -179,10 +179,6 @@ public final class JSONScanner extends JSONLexerBase {
         }
     }
 
-    public final static int ISO8601_LEN_0 = "0000-00-00".length();
-    public final static int ISO8601_LEN_1 = "0000-00-00T00:00:00".length();
-    public final static int ISO8601_LEN_2 = "0000-00-00T00:00:00.000".length();
-
     public boolean scanISO8601DateIfMatch() {
         return scanISO8601DateIfMatch(true);
     }
@@ -382,7 +378,7 @@ public final class JSONScanner extends JSONLexerBase {
 
         char t = charAt(bp + 10);
         if (t == 'T' || (t == ' ' && !strict)) {
-            if (rest < ISO8601_LEN_1) {
+            if (rest < 19) { // "0000-00-00T00:00:00".length()
                 return false;
             }
         } else if (t == '"' || t == EOI || t == '日' || t == '일') {
@@ -435,7 +431,7 @@ public final class JSONScanner extends JSONLexerBase {
 
         char dot = charAt(bp + 19);
         if (dot == '.') {
-            if (rest < ISO8601_LEN_2) {
+            if (rest < 21) { //  // 0000-00-00T00:00:00.000
                 return false;
             }
         } else {
@@ -465,7 +461,7 @@ public final class JSONScanner extends JSONLexerBase {
         int millis = S0 - '0';
         int millisLen = 1;
 
-        {
+        if (rest > 21) {
             char S1 = charAt(bp + 21);
             if (S1 >= '0' && S1 <= '9') {
                 millis = millis * 10 + (S1 - '0');

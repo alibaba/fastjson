@@ -88,8 +88,8 @@ public class JSONScannerTest_ISO8601 extends TestCase {
         Assert.assertEquals(false, new JSONLexer("2000-02-10T00:00:A0").scanISO8601DateIfMatch(true));
         Assert.assertEquals(true, new JSONLexer("2000-02-10T00:00:00").scanISO8601DateIfMatch(true));
         Assert.assertEquals(false, new JSONLexer("2000-02-10T00:00:00.").scanISO8601DateIfMatch(true));
-        Assert.assertEquals(false, new JSONLexer("2000-02-10T00:00:00.0").scanISO8601DateIfMatch(true));
-        Assert.assertEquals(false, new JSONLexer("2000-02-10T00:00:00.00").scanISO8601DateIfMatch(true));
+        Assert.assertEquals(true, new JSONLexer("2000-02-10T00:00:00.0").scanISO8601DateIfMatch(true));
+        Assert.assertEquals(true, new JSONLexer("2000-02-10T00:00:00.00").scanISO8601DateIfMatch(true));
         Assert.assertEquals(true, new JSONLexer("2000-02-10T00:00:00.000").scanISO8601DateIfMatch(true));
         Assert.assertEquals(false, new JSONLexer("2000-02-10T00:00:00.A00").scanISO8601DateIfMatch(true));
         Assert.assertEquals(false, new JSONLexer("2000-02-10T00:00:00.!00").scanISO8601DateIfMatch(true));

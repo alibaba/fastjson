@@ -60,6 +60,8 @@ public final class JSONLexer {
      */
     protected char[]                         sbuf;
     protected int                            sp;
+    protected boolean                        exp = false;
+    protected boolean                        isDouble = false;
 
     /**
      * number start position
@@ -550,7 +552,12 @@ public final class JSONLexer {
 
         char type = ' ';
 
-        switch (charAt(max - 1)) {
+        int charIndex = max - 1;
+        char chLocal = charIndex >= this.len ? //
+                EOI //
+                : text.charAt(charIndex);
+
+        switch (chLocal) {
             case 'L':
                 max--;
                 type = 'L';
@@ -567,7 +574,10 @@ public final class JSONLexer {
                 break;
         }
 
-        if (charAt(np) == '-') {
+        chLocal = np >= this.len ? //
+                EOI //
+                : text.charAt(np);
+        if (chLocal == '-') {
             negative = true;
             limit = Long.MIN_VALUE;
             i++;
@@ -575,12 +585,20 @@ public final class JSONLexer {
             limit = -Long.MAX_VALUE;
         }
         if (i < max) {
-            digit = charAt(i++) - '0';
+            charIndex = i++;
+            chLocal = charIndex >= this.len ? //
+                    EOI //
+                    : text.charAt(charIndex);
+            digit = chLocal - '0';
             result = -digit;
         }
         while (i < max) {
             // Accumulating negatively avoids surprises near MAX_VALUE
-            digit = charAt(i++) - '0';
+            charIndex = i++;
+            chLocal = charIndex >= this.len ? //
+                    EOI //
+                    : text.charAt(charIndex);
+            digit = chLocal - '0';
             if (result < -922337203685477580L) { // Long.MIN_VALUE / 10
                 return new BigInteger(numberString());
             }
@@ -1299,6 +1317,7 @@ public final class JSONLexer {
 
     public final void scanNumber() {
         np = bp;
+        exp = false;
 
         if (ch == '-') {
             sp++;
@@ -1327,7 +1346,7 @@ public final class JSONLexer {
             }
         }
 
-        boolean isDouble = false;
+        isDouble = false;
 
         if (ch == '.') {
             sp++;
@@ -1419,6 +1438,7 @@ public final class JSONLexer {
                 next();
             }
 
+            exp = true;
             isDouble = true;
         }
 
@@ -1638,15 +1658,66 @@ public final class JSONLexer {
         if (type != 0) {
             len --;
         }
-        char[] chars = new char[len];
-        text.getChars(start, start + len, chars, 0);
+
+        char[] chars;
+        if (len < sbuf.length) {
+            text.getChars(start, start + len, sbuf, 0);
+            chars = sbuf;
+        } else {
+            chars = new char[len];
+            text.getChars(start, start + len, chars, 0);
+        }
+
+        // text.getChars(start, start + len, chars, 0);
 
         if ((!exp)//
             && (features & Feature.UseBigDecimal.mask) != 0) {
-            number = new BigDecimal(chars);
+            number = new BigDecimal(chars, 0, len);
         } else {
-            String strVal = new String(chars);
+
             try {
+                if (len <= 9 && !exp) {
+                    int i = 0;
+                    char c = chars[i++];
+                    if (c == '-' || c == '+') {
+                        c = chars[i++];
+                    }
+
+                    int intVal = c - '0';
+                    int power = 0;
+                    for (; i < len; ++i) {
+                        c = chars[i];
+
+                        if (c == '.') {
+                            power = 1;
+                            continue;
+                        }
+                        int digit = c - '0';
+                        intVal = intVal * 10 + digit;
+
+                        if (power != 0) {
+                            power *= 10;
+                        }
+                    }
+
+                    if (type == 'F') {
+                        float floatVal = ((float) intVal) / power;
+                        if (negative) {
+                            floatVal = -floatVal;
+                        }
+
+                        return floatVal;
+                    }
+
+                    double doubleVal = ((double) intVal) / power;
+                    if (negative) {
+                        doubleVal = -doubleVal;
+                    }
+
+                    return doubleVal;
+                }
+
+                String strVal = new String(chars, 0, len);
                 if (type == 'F') {
                     number = Float.valueOf(strVal);
                 } else {
@@ -1794,7 +1865,75 @@ public final class JSONLexer {
             if (decimal) {
                 return decimalValue();
             } else {
-                return Double.parseDouble(numberString());
+                int index = np + sp - 1;
+                chLocal = text.charAt(index);
+
+                int sp = this.sp;
+                if (chLocal == 'L' //
+                        || chLocal == 'S' //
+                        || chLocal == 'B' //
+                        || chLocal == 'F' //
+                        || chLocal == 'D') {
+                    sp--;
+                }
+
+                // return text.substring(np, np + sp);
+                // String str = this.subString(np, sp);
+                String str;
+                int offset = np, count = sp;
+                char[] chars;
+                if (count < sbuf.length) {
+                    text.getChars(offset, offset + count, sbuf, 0);
+                    chars = sbuf;
+                } else {
+                    chars = new char[count];
+                    text.getChars(offset, offset + count, chars, 0);
+                }
+
+                if (count <= 9 && !exp) {
+                    boolean negative = false;
+
+                    int i = 0;
+                    char c = chars[i++];
+                    int off;
+                    if (c == '-') {
+                        negative = true;
+                        c = chars[i++];
+                        off = 1;
+                    } else if (c == '+') {
+                        c = chars[i++];
+                        off = 1;
+                    } else {
+                        off = 0;
+                    }
+
+                    int intVal = c - '0';
+                    int power = 0;
+                    for (; i < count; ++i) {
+                        c = chars[i];
+
+                        if (c == '.') {
+                            power = 1;
+                            continue;
+                        }
+                        int digit = c - '0';
+                        intVal = intVal * 10 + digit;
+
+                        if (power != 0) {
+                            power *= 10;
+                        }
+                    }
+
+                    double doubleVal = ((double) intVal) / power;
+                    if (negative) {
+                        doubleVal = -doubleVal;
+                    }
+
+                    return doubleVal;
+                }
+                str = new String(chars, 0, count);
+
+                return Double.parseDouble(str);
             }
         } catch (NumberFormatException ex) {
             throw new JSONException(ex.getMessage() + ", " + info());
@@ -1802,7 +1941,29 @@ public final class JSONLexer {
     }
 
     public final BigDecimal decimalValue() {
-        return new BigDecimal(numberString());
+        int index = np + sp - 1;
+        char chLocal = text.charAt(index);
+
+        int sp = this.sp;
+        if (chLocal == 'L' //
+                || chLocal == 'S' //
+                || chLocal == 'B' //
+                || chLocal == 'F' //
+                || chLocal == 'D') {
+            sp--;
+        }
+
+        // return text.substring(np, np + sp);
+
+        int offset = np, count = sp;
+        if (count < sbuf.length) {
+            text.getChars(offset, offset + count, sbuf, 0);
+            return new BigDecimal(sbuf, 0, count);
+        } else {
+            char[] chars = new char[count];
+            text.getChars(offset, offset + count, chars, 0);
+            return new BigDecimal(chars);
+        }
     }
 
     protected final static int[] digits = new int[(int) 'f' + 1];
@@ -3266,7 +3427,7 @@ public final class JSONLexer {
                 }
                 int offset = bp + 6;
                 String numberText = this.subString(offset, plusIndex - offset);
-                long millis = Long.parseLong(numberText);
+                long millis = Long.parseLong(numberText, 10);
 
                 calendar = Calendar.getInstance(timeZone, locale);
                 calendar.setTimeInMillis(millis);

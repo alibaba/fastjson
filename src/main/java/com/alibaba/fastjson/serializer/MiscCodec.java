@@ -135,7 +135,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
                 }
             } else {
                 out.write('{');
-                serializer.write(objVal);
+                serializer.write(objKey);
                 out.write(':');
                 serializer.write(objVal);
             }

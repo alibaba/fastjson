@@ -2189,7 +2189,7 @@ public class JSONPath implements JSONAware {
                 FieldSerializer fieldDeser = beanSerializer.getFieldSerializer(propertyName);
                 if (fieldDeser != null) {
                     try {
-                        Object val = fieldDeser.getPropertyValue(currentObject);
+                        Object val = fieldDeser.getPropertyValueDirect(currentObject);
                         results.add(val);
                     } catch (InvocationTargetException ex) {
                         throw new JSONException("getFieldValue error." + propertyName, ex);

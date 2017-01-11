@@ -3578,7 +3578,7 @@ public final class JSONLexer {
 
         char dot = charAt(bp + 19);
         if (dot == '.') {
-            if (rest < 23) { // 0000-00-00T00:00:00.000
+            if (rest < 21) { // 0000-00-00T00:00:00.000
                 return false;
             }
         } else {
@@ -3608,7 +3608,7 @@ public final class JSONLexer {
         int millis = digits[S0];
         int millisLen = 1;
 
-        {
+        if (rest > 21) {
             char S1 = charAt(bp + 21);
             if (S1 >= '0' && S1 <= '9') {
                 millis = millis * 10 + digits[S1];

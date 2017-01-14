@@ -19,10 +19,11 @@ public class ImageGenDecoder extends JavaBeanDeserializer implements ObjectDeser
     
     private ObjectDeserializer uri_gen_deser__;
     private ObjectDeserializer title_gen_deser__;
+    private ObjectDeserializer size_gen_deser__;
     
     public ImageGenDecoder (ParserConfig config, Class clazz) {
         super(config, clazz);
-        
+        size_gen_deser__ = config.getDeserializer(data.media.Image.Size.class);
     }
     
     public Object createInstance(DefaultJSONParser parser, Type type) {
@@ -91,10 +92,7 @@ public class ImageGenDecoder extends JavaBeanDeserializer implements ObjectDeser
             
         }
         if ((!endFlag) && (!restFlag)) {
-            String size_gen_enum_name = lexer.scanFieldSymbol(size_gen_prefix__, parser.getSymbolTable());
-            if (size_gen_enum_name == null) {
-                size_gen = data.media.Image.Size.valueOf(size_gen_enum_name);
-            }
+            size_gen = (data.media.Image.Size) this.scanEnum(lexer, size_gen_prefix__, size_gen_deser__);
             if(lexer.matchStat > 0) {
                 _asm_flag_0 |= 2;
                 matchedCount++;

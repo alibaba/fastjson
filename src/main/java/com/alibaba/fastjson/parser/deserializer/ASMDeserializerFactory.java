@@ -672,35 +672,45 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldFloatArray2", "([C)[[F");
                 mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
             } else if (fieldClass.isEnum()) {
+                mw.visitVarInsn(ALOAD, 0);
                 mw.visitVarInsn(ALOAD, context.var("lexer"));
                 mw.visitVarInsn(ALOAD, 0);
                 mw.visitFieldInsn(GETFIELD, context.className, fieldInfo.name + "_asm_prefix__", "[C");
-                Label enumNull_ = new Label();
-                mw.visitInsn(ACONST_NULL);
+                _getFieldDeser(context, mw, fieldInfo);
+                mw.visitMethodInsn(INVOKEVIRTUAL, type(JavaBeanDeserializer.class), "scanEnum"
+                        , "(L" + JSONLexerBase + ";[C" + desc(ObjectDeserializer.class) + ")Ljava/lang/Enum;");
                 mw.visitTypeInsn(CHECKCAST, type(fieldClass)); // cast
                 mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
 
-                mw.visitVarInsn(ALOAD, 1);
-
-                mw.visitMethodInsn(INVOKEVIRTUAL, DefaultJSONParser, "getSymbolTable", "()" + desc(SymbolTable.class));
-
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldSymbol",
-                                   "([C" + desc(SymbolTable.class) + ")Ljava/lang/String;");
-                mw.visitInsn(DUP);
-                mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm_enumName"));
-
-                mw.visitJumpInsn(IFNULL, enumNull_);
-                
-                mw.visitVarInsn(ALOAD, context.var(fieldInfo.name + "_asm_enumName"));
-                mw.visitMethodInsn(INVOKEVIRTUAL, type(String.class), "length", "()I");
-                mw.visitJumpInsn(IFEQ, enumNull_);
-                
-                mw.visitVarInsn(ALOAD, context.var(fieldInfo.name + "_asm_enumName"));
-                mw.visitMethodInsn(INVOKESTATIC, type(fieldClass), "valueOf",
-                                   "(Ljava/lang/String;)" + desc(fieldClass));
-                mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
-                mw.visitLabel(enumNull_);
-
+//            } else if (fieldClass.isEnum()) {
+//                mw.visitVarInsn(ALOAD, context.var("lexer"));
+//                mw.visitVarInsn(ALOAD, 0);
+//                mw.visitFieldInsn(GETFIELD, context.className, fieldInfo.name + "_asm_prefix__", "[C");
+//                Label enumNull_ = new Label();
+//                mw.visitInsn(ACONST_NULL);
+//                mw.visitTypeInsn(CHECKCAST, type(fieldClass)); // cast
+//                mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
+//
+//                mw.visitVarInsn(ALOAD, 1);
+//
+//                mw.visitMethodInsn(INVOKEVIRTUAL, DefaultJSONParser, "getSymbolTable", "()" + desc(SymbolTable.class));
+//
+//                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldSymbol",
+//                        "([C" + desc(SymbolTable.class) + ")Ljava/lang/String;");
+//                mw.visitInsn(DUP);
+//                mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm_enumName"));
+//
+//                mw.visitJumpInsn(IFNULL, enumNull_);
+//
+//                mw.visitVarInsn(ALOAD, context.var(fieldInfo.name + "_asm_enumName"));
+//                mw.visitMethodInsn(INVOKEVIRTUAL, type(String.class), "length", "()I");
+//                mw.visitJumpInsn(IFEQ, enumNull_);
+//
+//                mw.visitVarInsn(ALOAD, context.var(fieldInfo.name + "_asm_enumName"));
+//                mw.visitMethodInsn(INVOKESTATIC, type(fieldClass), "valueOf",
+//                        "(Ljava/lang/String;)" + desc(fieldClass));
+//                mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
+//                mw.visitLabel(enumNull_);
             } else if (Collection.class.isAssignableFrom(fieldClass)) {
                 mw.visitVarInsn(ALOAD, context.var("lexer"));
                 mw.visitVarInsn(ALOAD, 0);

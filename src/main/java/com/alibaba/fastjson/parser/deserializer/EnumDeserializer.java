@@ -1,6 +1,7 @@
 package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.Type;
+import java.util.Arrays;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
@@ -11,15 +12,60 @@ import com.alibaba.fastjson.parser.JSONToken;
 public class EnumDeserializer implements ObjectDeserializer {
 
     private final Class<?> enumClass;
-    protected final Enum[]   values;
+    protected final Enum[] enums;
+
+    protected final Enum[] ordinalEnums;
+
+    protected long[] enumNameHashCodes;
 
     public EnumDeserializer(Class<?> enumClass){
         this.enumClass = enumClass;
-        values = (Enum[]) enumClass.getEnumConstants();
+
+        ordinalEnums = (Enum[]) enumClass.getEnumConstants();
+
+        long[] enumNameHashCodes = new long[ordinalEnums.length];
+        this.enumNameHashCodes = new long[ordinalEnums.length];
+        for (int i = 0; i < ordinalEnums.length; ++i) {
+            String name = ordinalEnums[i].name();
+            long hash = 0x811c9dc5;
+            for (int j = 0; j < name.length(); ++j) {
+                char ch = name.charAt(j);
+                hash ^= ch;
+                hash *= 0x1000193;
+            }
+            enumNameHashCodes[i] = hash;
+            this.enumNameHashCodes[i] = hash;
+        }
+
+        Arrays.sort(this.enumNameHashCodes);
+
+        this.enums = new Enum[ordinalEnums.length];
+        for (int i = 0; i < this.enumNameHashCodes.length; ++i) {
+            for (int j = 0; j < enumNameHashCodes.length; ++j) {
+                if (this.enumNameHashCodes[i] == enumNameHashCodes[j]) {
+                    this.enums[i] = ordinalEnums[j];
+                    break;
+                }
+            }
+        }
+    }
+
+    public Enum getEnumByHashCode(long hashCode) {
+        if (enums == null) {
+            return null;
+        }
+
+        int enumIndex = Arrays.binarySearch(this.enumNameHashCodes, hashCode);
+
+        if (enumIndex < 0) {
+            return null;
+        }
+
+        return enums[enumIndex];
     }
     
     public Enum<?> valueOf(int ordinal) {
-        return values[ordinal];
+        return ordinalEnums[ordinal];
     }
 
     @SuppressWarnings("unchecked")
@@ -32,11 +78,11 @@ public class EnumDeserializer implements ObjectDeserializer {
                 int intValue = lexer.intValue();
                 lexer.nextToken(JSONToken.COMMA);
 
-                if (intValue < 0 || intValue > values.length) {
+                if (intValue < 0 || intValue > ordinalEnums.length) {
                     throw new JSONException("parse enum " + enumClass.getName() + " error, value : " + intValue);
                 }
 
-                return (T) values[intValue];
+                return (T) ordinalEnums[intValue];
             } else if (token == JSONToken.LITERAL_STRING) {
                 String strVal = lexer.stringVal();
                 lexer.nextToken(JSONToken.COMMA);

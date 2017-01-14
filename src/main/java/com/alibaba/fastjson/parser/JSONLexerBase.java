@@ -1341,12 +1341,12 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
     }
 
-    public String scanFieldSymbol(char[] fieldName, final SymbolTable symbolTable) {
+    public long scanFieldSymbol(char[] fieldName) {
         matchStat = UNKNOWN;
 
         if (!charArrayCompare(fieldName)) {
             matchStat = NOT_MATCH_NAME;
-            return null;
+            return 0;
         }
 
         int offset = fieldName.length;
@@ -1354,26 +1354,23 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         if (chLocal != '"') {
             matchStat = NOT_MATCH;
-            return null;
+            return 0;
         }
 
-        String strVal;
-        int hash = 0;
+        long hash = 0x811c9dc5;
         for (;;) {
             chLocal = charAt(bp + (offset++));
             if (chLocal == '\"') {
-                int start = bp + fieldName.length + 1;
-                int len = bp + offset - start - 1;
-                strVal = addSymbol(start, len, hash, symbolTable);
                 chLocal = charAt(bp + (offset++));
                 break;
             }
 
-            hash = 31 * hash + chLocal;
+            hash ^= chLocal;
+            hash *= 0x1000193;
 
             if (chLocal == '\\') {
                 matchStat = NOT_MATCH;
-                return null;
+                return 0;
             }
         }
 
@@ -1381,7 +1378,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             bp += offset;
             this.ch = this.charAt(bp);
             matchStat = VALUE;
-            return strVal;
+            return hash;
         }
 
         if (chLocal == '}') {
@@ -1404,15 +1401,15 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 ch = EOI;
             } else {
                 matchStat = NOT_MATCH;
-                return null;
+                return 0;
             }
             matchStat = END;
         } else {
             matchStat = NOT_MATCH;
-            return null;
+            return 0;
         }
 
-        return strVal;
+        return hash;
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -3433,50 +3430,6 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         } else {
             return -result;
         }
-    }
-
-    public long readObjectFieldAsHash() {
-        final char quote = ch;
-        if (quote != '"' && quote != '\'') {
-            throw new JSONException("object field exprect \"");
-        }
-        next();
-
-        long hash = 0x811c9dc5;
-        for (;;) {
-            if (ch == quote || isEOF()) {
-                break;
-            }
-
-            hash ^= ch;
-            hash *= 0x1000193;
-
-            next();
-        }
-
-        if (ch != quote) {
-            throw new JSONException("readObjectFieldAsHash expect " + quote);
-        }
-        next();
-
-        if (ch != ':') {
-            throw new JSONException("readObjectFieldAsHash expect :");
-        }
-        next();
-
-        return (int) hash;
-    }
-
-    public boolean readObjectStart() {
-        if (ch != '{') {
-            throw new JSONException("readObjectStart expect {");
-        }
-        next();
-        if (ch == '}') {
-            next();
-            return true;
-        }
-        return false;
     }
 
     public final Number decimalValue(boolean decimal) {

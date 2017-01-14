@@ -67,8 +67,8 @@ public class EnumTest3 {
         Assert.assertEquals(json, "{\"sex\":\"男\"}");
         
         try {
-            JSON.parseObject(json, Pojo.class);
-            Assert.fail("toString的结果不能转换成枚举");
+            Pojo pojo1 = JSON.parseObject(json, Pojo.class);
+            Assert.assertNull(pojo1.getSex());
         } catch (Exception e) {
             Assert.assertTrue(true);
         }

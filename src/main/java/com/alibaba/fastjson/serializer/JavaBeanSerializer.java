@@ -455,7 +455,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                         if (directWritePrefix) {
                             // out.write(fieldInfo.name_chars, 0, fieldInfo.name_chars.length);
                             {
-                                final char[] c = fieldInfo.name_chars;
+                                final char[] c = fieldSerializer.name_chars;
                                 int off = 0;
                                 int len = c.length;
                                 

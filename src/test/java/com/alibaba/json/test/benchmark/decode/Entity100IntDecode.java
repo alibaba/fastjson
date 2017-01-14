@@ -10,7 +10,7 @@ public class Entity100IntDecode extends BenchmarkCase {
     private String text;
 
     public Entity100IntDecode(){
-        super("StringArray1000Decode");
+        super("Entity100IntDecode");
 
         this.text = JSON.toJSONString(new Entity100Int());
     }

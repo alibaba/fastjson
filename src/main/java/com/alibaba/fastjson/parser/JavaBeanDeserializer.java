@@ -406,9 +406,10 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 float fieldValueFloat = 0;
                 double fieldValueDouble = 0;
                 if (fieldDeser != null) {
-                    char[] name_chars = fieldInfo.name_chars;
+                    long fieldHashCode = fieldInfo.nameHashCode;
                     if (fieldClass == int.class || fieldClass == Integer.class) {
-                        fieldValueInt = lexer.scanFieldInt(name_chars);
+                        // fieldValueInt = lexer.scanFieldInt(name_chars);
+                        fieldValueInt = lexer.scanFieldInt(fieldHashCode);
                         
                         if (lexer.matchStat > 0) {
                             matchField = true;
@@ -417,7 +418,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             continue;  
                         }
                     } else if (fieldClass == long.class || fieldClass == Long.class) {
-                        fieldValueLong = lexer.scanFieldLong(name_chars);
+                        // fieldValueLong = lexer.scanFieldLong(name_chars);
+                        fieldValueLong = lexer.scanFieldLong(fieldHashCode);
                         
                         if (lexer.matchStat > 0) {
                             matchField = true;
@@ -426,7 +428,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             continue;  
                         }
                     } else if (fieldClass == String.class) {
-                        fieldValue = lexer.scanFieldString(name_chars);
+                        // fieldValue = lexer.scanFieldString(name_chars);
+                        fieldValue = lexer.scanFieldString(fieldHashCode);
                         
                         if (lexer.matchStat > 0) {
                             matchField = true;
@@ -435,7 +438,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             continue;  
                         }
                     } else if (fieldClass == boolean.class || fieldClass == Boolean.class) {
-                        fieldValue = lexer.scanFieldBoolean(name_chars);
+                        // fieldValue = lexer.scanFieldBoolean(name_chars);
+                        fieldValue = lexer.scanFieldBoolean(fieldHashCode);
                         
                         if (lexer.matchStat > 0) {
                             matchField = true;
@@ -444,7 +448,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             continue;  
                         }
                     } else if (fieldClass == float.class || fieldClass == Float.class) {
-                        fieldValueFloat = lexer.scanFieldFloat(name_chars);
+                        fieldValueFloat = lexer.scanFieldFloat(fieldHashCode);
                         
                         if (lexer.matchStat > 0) {
                             matchField = true;
@@ -453,7 +457,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             continue;  
                         }
                     } else if (fieldClass == double.class || fieldClass == Double.class) {
-                        fieldValueDouble = lexer.scanFieldDouble(name_chars);
+                        fieldValueDouble = lexer.scanFieldDouble(fieldHashCode);
                         
                         if (lexer.matchStat > 0) {
                             matchField = true;
@@ -464,18 +468,20 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     } else if (fieldInfo.isEnum
                             && parser.config.getDeserializer(fieldClass) instanceof EnumDeserializer
                             ) {
-                        String enumName = lexer.scanFieldSymbol(name_chars, parser.symbolTable);
+                        // String enumName = lexer.scanFieldSymbol(name_chars, parser.symbolTable);
+                        // String enumName = lexer.scanFieldSymbol(fieldHashCode, parser.symbolTable);
+                        long enumNameHashCode = lexer.scanFieldSymbol(fieldHashCode);
 
                         if (lexer.matchStat > 0) {
                             matchField = true;
                             valueParsed = true;
 
-                            fieldValue = Enum.valueOf((Class<Enum>) fieldClass, enumName);
+                            fieldValue = fieldDeser.getEnumByHashCode(enumNameHashCode);
                         } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
                             continue;
                         }
                     } else if (fieldClass == int[].class) {
-                        fieldValue = lexer.scanFieldIntArray(name_chars);
+                        fieldValue = lexer.scanFieldIntArray(fieldHashCode);
 
                         if (lexer.matchStat > 0) {
                             matchField = true;
@@ -484,7 +490,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             continue;
                         }
                     } else if (fieldClass == float[].class) {
-                        fieldValue = lexer.scanFieldFloatArray(name_chars);
+                        fieldValue = lexer.scanFieldFloatArray(fieldHashCode);
 
                         if (lexer.matchStat > 0) {
                             matchField = true;
@@ -493,7 +499,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             continue;
                         }
                     } else if (fieldClass == float[][].class) {
-                        fieldValue = lexer.scanFieldFloatArray2(name_chars);
+                        fieldValue = lexer.scanFieldFloatArray2(fieldHashCode);
 
                         if (lexer.matchStat > 0) {
                             matchField = true;
@@ -501,7 +507,9 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
                             continue;
                         }
-                    } else if (lexer.matchField(name_chars)) {
+//                    } else if (lexer.matchField(name_chars)) {
+//                        matchField = true;
+                    } else if (lexer.matchField(fieldInfo.nameHashCode)) {
                         matchField = true;
                     } else {
                         continue;

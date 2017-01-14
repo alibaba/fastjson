@@ -487,7 +487,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                         if (fieldClass == int.class) {
                             // serializer.out.writeInt(propertyValueInt);
                             {
-                                if (propertyValueInt == Integer.MIN_VALUE) {
+                                if (propertyValueInt == 0x80000000 /*Integer.MIN_VALUE*/) {
                                     out.write("-2147483648");
                                 } else {
                                     int size;
@@ -498,6 +498,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                                             break;
                                         }
                                     }
+
                                     if (propertyValueInt < 0) {
                                         size++;
                                     }

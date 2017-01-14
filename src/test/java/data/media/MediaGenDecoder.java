@@ -29,10 +29,12 @@ public class MediaGenDecoder extends JavaBeanDeserializer implements ObjectDeser
     private Type persons_gen_list_item_type__ = java.lang.String.class;
     private ObjectDeserializer copyright_gen_deser__;
     private ObjectDeserializer format_gen_deser__;
+    private ObjectDeserializer player_gen_deser__;
     
     public MediaGenDecoder (ParserConfig config, Class clazz) {
         super(config, clazz);
-        
+        // data.media.Media.Player
+        player_gen_deser__ = config.getDeserializer(data.media.Media.Player.class);
     }
     
     public Object createInstance(DefaultJSONParser parser, Type type) {
@@ -189,10 +191,7 @@ public class MediaGenDecoder extends JavaBeanDeserializer implements ObjectDeser
             
         }
         if ((!endFlag) && (!restFlag)) {
-            String player_gen_enum_name = lexer.scanFieldSymbol(player_gen_prefix__, parser.getSymbolTable());
-            if (player_gen_enum_name == null) {
-                player_gen = data.media.Media.Player.valueOf(player_gen_enum_name);
-            }
+            player_gen = (data.media.Media.Player) this.scanEnum(lexer, player_gen_prefix__, player_gen_deser__);
             if(lexer.matchStat > 0) {
                 _asm_flag_0 |= 64;
                 matchedCount++;

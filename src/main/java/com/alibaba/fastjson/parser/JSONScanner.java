@@ -837,12 +837,12 @@ public final class JSONScanner extends JSONLexerBase {
         return strVal;
     }
 
-    public String scanFieldSymbol(char[] fieldName, final SymbolTable symbolTable) {
+    public long scanFieldSymbol(char[] fieldName) {
         matchStat = UNKNOWN;
 
         if (!charArrayCompare(text, bp, fieldName)) {
             matchStat = NOT_MATCH_NAME;
-            return null;
+            return 0;
         }
 
         int index = bp + fieldName.length;
@@ -850,33 +850,29 @@ public final class JSONScanner extends JSONLexerBase {
         char ch = charAt(index++);
         if (ch != '"') {
             matchStat = NOT_MATCH;
-            return null;
+            return 0;
         }
 
-        String strVal;
-        int start = index;
-        int hash = 0;
+        long hash = 0x811c9dc5;
         for (;;) {
             ch = charAt(index++);
             if (ch == '\"') {
                 bp = index;
                 this.ch = ch = charAt(bp);
-                strVal = symbolTable.addSymbol(text, start, index - start - 1, hash);
                 break;
-            }
-
-            hash = 31 * hash + ch;
-
-            if (ch == '\\') {
+            } else if (index > len) {
                 matchStat = NOT_MATCH;
-                return null;
+                return 0;
             }
+
+            hash ^= ch;
+            hash *= 0x1000193;
         }
 
         if (ch == ',') {
             this.ch = charAt(++bp);
             matchStat = VALUE;
-            return strVal;
+            return hash;
         } else if (ch == '}') {
             next();
             skipWhitespace();
@@ -894,15 +890,15 @@ public final class JSONScanner extends JSONLexerBase {
                 token = JSONToken.EOF;
             } else {
                 matchStat = NOT_MATCH;
-                return null;
+                return 0;
             }
             matchStat = END;
         } else {
             matchStat = NOT_MATCH;
-            return null;
+            return 0;
         }
 
-        return strVal;
+        return hash;
     }
 
     @SuppressWarnings("unchecked")

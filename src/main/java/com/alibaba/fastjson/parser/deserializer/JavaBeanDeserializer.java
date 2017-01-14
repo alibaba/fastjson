@@ -423,15 +423,16 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             && parser.getConfig().getDeserializer(fieldClass) instanceof EnumDeserializer
                             && (feildAnnotation == null || feildAnnotation.deserializeUsing() == Void.class)
                             ) {
-                        String enumName = lexer.scanFieldSymbol(name_chars, parser.symbolTable);
-                        
-                        if (lexer.matchStat > 0) {
-                            matchField = true;
-                            valueParsed = true;
-                            
-                            fieldValue = Enum.valueOf((Class<Enum>)fieldClass, enumName);
-                        } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
-                            continue;  
+                        if (fieldDeser instanceof DefaultFieldDeserializer) {
+                            ObjectDeserializer fieldValueDeserilizer = ((DefaultFieldDeserializer) fieldDeser).fieldValueDeserilizer;
+                            fieldValue = this.scanEnum(lexer, name_chars, fieldValueDeserilizer);
+
+                            if (lexer.matchStat > 0) {
+                                matchField = true;
+                                valueParsed = true;
+                            } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
+                                continue;
+                            }
                         }
                     } else if (fieldClass == int[].class) {
                         fieldValue = lexer.scanFieldIntArray(name_chars);
@@ -694,6 +695,25 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 childContext.object = object;
             }
             parser.setContext(context);
+        }
+    }
+
+    protected Enum scanEnum(JSONLexerBase lexer, char[] name_chars, ObjectDeserializer fieldValueDeserilizer) {
+        EnumDeserializer enumDeserializer = null;
+        if (fieldValueDeserilizer instanceof EnumDeserializer) {
+            enumDeserializer = (EnumDeserializer) fieldValueDeserilizer;
+        }
+
+        if (enumDeserializer == null) {
+            lexer.matchStat = JSONLexer.NOT_MATCH;
+            return null;
+        }
+
+        long enumNameHashCode = lexer.scanFieldSymbol(name_chars);
+        if (lexer.matchStat > 0) {
+            return enumDeserializer.getEnumByHashCode(enumNameHashCode);
+        } else {
+            return null;
         }
     }
     

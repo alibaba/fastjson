@@ -290,7 +290,7 @@ public final class SerializeWriter extends Writer {
     }
 
     public void writeInt(int i) {
-        if (i == Integer.MIN_VALUE) {
+        if (i == 0x80000000 /* Integer.MIN_VALUE*/) {
             write("-2147483648");
             return;
         }
@@ -1117,7 +1117,7 @@ public final class SerializeWriter extends Writer {
         }
     }
     
-    final static int[]  sizeTable = { 9, 99, 999, 9999, 99999, 999999, 9999999, 99999999, 999999999, Integer.MAX_VALUE };
+    final static int[]  sizeTable = { 9, 99, 999, 9999, 99999, 999999, 9999999, 99999999, 999999999, 0x7fffffff /*Integer.MAX_VALUE*/ };
 
     protected static void getChars(long i, int index, char[] buf) {
         long q;
@@ -1131,7 +1131,7 @@ public final class SerializeWriter extends Writer {
         }
 
         // Get 2 digits/iteration using longs until quotient fits into an int
-        while (i > Integer.MAX_VALUE) {
+        while (i > 0x7fffffff /* Integer.MAX_VALUE */ ) {
             q = i / 100;
             // really: r = i - (q * 100);
             r = (int) (i - ((q << 6) + (q << 5) + (q << 2)));

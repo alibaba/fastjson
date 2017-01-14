@@ -1334,4 +1334,14 @@ public class TypeUtils {
                    ? getField(superClass, fieldName, superClass.getDeclaredFields()) //
                    : null;
     }
+
+//    public static long fnv_hash(char[] chars) {
+//        long hash = 0x811c9dc5;
+//        for (int i = 0; i < chars.length; ++i) {
+//            char c = chars[i];
+//            hash ^= c;
+//            hash *= 0x1000193;
+//        }
+//        return hash;
+//    }
 }

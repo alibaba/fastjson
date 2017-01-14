@@ -31,6 +31,7 @@ public final class FieldSerializer implements Comparable<FieldSerializer> {
     protected final boolean writeNull;
     protected final int     features;
     protected final String  format;
+    protected char[] name_chars;
     
     private RuntimeSerializerInfo runtimeInfo;
     
@@ -60,6 +61,14 @@ public final class FieldSerializer implements Comparable<FieldSerializer> {
         }
         this.writeNull = writeNull;
         this.format = format;
+
+        String name = fieldInfo.name;
+        int nameLen = name.length();
+        name_chars = new char[nameLen + 3];
+        name.getChars(0, name.length(), name_chars, 1);
+        name_chars[0] = '"';
+        name_chars[nameLen + 1] = '"';
+        name_chars[nameLen + 2] = ':';
     }
 
     public void writePrefix(JSONSerializer serializer) throws IOException {
@@ -71,7 +80,7 @@ public final class FieldSerializer implements Comparable<FieldSerializer> {
             if ((featurs & SerializerFeature.UseSingleQuotes.mask) != 0) {
                 out.writeFieldName(fieldInfo.name, true);
             } else {
-                out.write(fieldInfo.name_chars, 0, fieldInfo.name_chars.length);
+                out.write(name_chars, 0, name_chars.length);
             }
         } else {
             out.writeFieldName(fieldInfo.name, true);

@@ -31,11 +31,11 @@ public class FieldInfo implements Comparable<FieldInfo> {
     private final JSONField fieldAnnotation;
     private final JSONField methodAnnotation;
 
-    public final char[]     name_chars;
-
     public final boolean    isEnum;
     
     public final String     format;
+
+    public final long       nameHashCode;
 
     public FieldInfo(String name, // 
                      Class<?> declaringClass, // 
@@ -66,13 +66,14 @@ public class FieldInfo implements Comparable<FieldInfo> {
             fieldTransient = false;
         }
         getOnly = false;
-        
-        int nameLen = this.name.length();
-        name_chars = new char[nameLen + 3];
-        this.name.getChars(0, this.name.length(), name_chars, 1);
-        name_chars[0] = '"';
-        name_chars[nameLen + 1] = '"';
-        name_chars[nameLen + 2] = ':';
+
+        long hashCode = 0x811c9dc5;
+        for (int i = 0; i < name.length(); ++i) {
+            char c = name.charAt(i);
+            hashCode ^= c;
+            hashCode *= 0x1000193;
+        }
+        this.nameHashCode = hashCode;
         
         this.format = null;
     }
@@ -113,13 +114,14 @@ public class FieldInfo implements Comparable<FieldInfo> {
             fieldAccess = false;
             fieldTransient = false;
         }
-        
-        int nameLen = this.name.length();
-        name_chars = new char[nameLen + 3];
-        this.name.getChars(0, this.name.length(), name_chars, 1);
-        name_chars[0] = '"';
-        name_chars[nameLen + 1] = '"';
-        name_chars[nameLen + 2] = ':';
+
+        long hashCode = 0x811c9dc5;
+        for (int i = 0; i < name.length(); ++i) {
+            char c = name.charAt(i);
+            hashCode ^= c;
+            hashCode *= 0x1000193;
+        }
+        this.nameHashCode = hashCode;
         
         Type fieldType;
         Class<?> fieldClass;

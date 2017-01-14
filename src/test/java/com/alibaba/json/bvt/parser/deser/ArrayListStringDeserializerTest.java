@@ -99,7 +99,7 @@ public class ArrayListStringDeserializerTest extends TestCase {
         } catch (JSONException e) {
             ex = e;
         }
-        Assert.assertNotNull(ex);
+        assertNull(ex);
     }
 
     public static final <T> T parseObject(String input, Type clazz, Feature... features) {

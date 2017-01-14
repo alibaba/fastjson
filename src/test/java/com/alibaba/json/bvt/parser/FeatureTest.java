@@ -13,10 +13,10 @@ public class FeatureTest extends TestCase {
         DefaultJSONParser parser = new DefaultJSONParser("");
 
         Assert.assertEquals(false, parser.lexer.isEnabled(Feature.AllowComment));
-        Assert.assertEquals(true, parser.lexer.isEnabled(Feature.AllowSingleQuotes));
-        Assert.assertEquals(true, parser.lexer.isEnabled(Feature.AllowUnQuotedFieldNames));
-        Assert.assertEquals(true, parser.lexer.isEnabled(Feature.AutoCloseSource));
-        Assert.assertEquals(true, parser.lexer.isEnabled(Feature.InternFieldNames));
+        Assert.assertEquals(false, parser.lexer.isEnabled(Feature.AllowSingleQuotes));
+        Assert.assertEquals(false, parser.lexer.isEnabled(Feature.AllowUnQuotedFieldNames));
+        Assert.assertEquals(false, parser.lexer.isEnabled(Feature.AutoCloseSource));
+        Assert.assertEquals(false, parser.lexer.isEnabled(Feature.InternFieldNames));
     }
 
     public void test_config() throws Exception {
@@ -24,10 +24,10 @@ public class FeatureTest extends TestCase {
         DefaultJSONParser parser = new DefaultJSONParser("");
 
         Assert.assertEquals(false, parser.lexer.isEnabled(Feature.AllowComment));
-        Assert.assertEquals(true, parser.lexer.isEnabled(Feature.AllowSingleQuotes));
-        Assert.assertEquals(true, parser.lexer.isEnabled(Feature.AllowUnQuotedFieldNames));
-        Assert.assertEquals(true, parser.lexer.isEnabled(Feature.AutoCloseSource));
-        Assert.assertEquals(true, parser.lexer.isEnabled(Feature.InternFieldNames));
+        Assert.assertEquals(false, parser.lexer.isEnabled(Feature.AllowSingleQuotes));
+        Assert.assertEquals(false, parser.lexer.isEnabled(Feature.AllowUnQuotedFieldNames));
+        Assert.assertEquals(false, parser.lexer.isEnabled(Feature.AutoCloseSource));
+        Assert.assertEquals(false, parser.lexer.isEnabled(Feature.InternFieldNames));
 
         parser.config(Feature.AllowComment, true);
         Assert.assertEquals(true, parser.lexer.isEnabled(Feature.AllowComment));

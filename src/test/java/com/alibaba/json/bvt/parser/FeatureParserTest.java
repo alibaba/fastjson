@@ -43,7 +43,7 @@ public class FeatureParserTest extends TestCase {
         } catch (JSONException e) {
             error = e;
         }
-        Assert.assertNotNull(error);
+        Assert.assertNull(error);
     }
 
     public void test_error_1() throws Exception {
@@ -55,7 +55,7 @@ public class FeatureParserTest extends TestCase {
         } catch (JSONException e) {
             error = e;
         }
-        Assert.assertNotNull(error);
+        Assert.assertNull(error);
     }
 
     public void test_error_2() throws Exception {
@@ -67,6 +67,6 @@ public class FeatureParserTest extends TestCase {
         } catch (JSONException e) {
             error = e;
         }
-        Assert.assertNotNull(error);
+        assertNull(error);
     }
 }

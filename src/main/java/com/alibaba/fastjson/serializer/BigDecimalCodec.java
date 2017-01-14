@@ -69,12 +69,14 @@ public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
 
         int token = lexer.token();
         if (token == JSONToken.LITERAL_INT) {
-            String val = lexer.numberString();
-            lexer.nextToken(JSONToken.COMMA);
             if (clazz == BigInteger.class) {
-                return (T) new BigInteger(val);
+                String val = lexer.numberString();
+                lexer.nextToken(JSONToken.COMMA);
+                return (T) new BigInteger(val, 10);
             } else {
-                return (T) new BigDecimal(val);
+                BigDecimal decimal = lexer.decimalValue();
+                lexer.nextToken(JSONToken.COMMA);
+                return (T) decimal;
             }
         }
 

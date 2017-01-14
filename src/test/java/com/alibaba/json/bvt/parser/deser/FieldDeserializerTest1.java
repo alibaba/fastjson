@@ -26,7 +26,7 @@ public class FieldDeserializerTest1 extends TestCase {
         } catch (JSONException ex) {
             error = ex;
         }
-        Assert.assertNotNull(error);
+        assertNull(error);
     }
     
     public void test_error_2() throws Exception {

@@ -189,8 +189,7 @@ class ListTypeFieldDeserializer extends FieldDeserializer {
         }
 
         for (int i = 0;; ++i) {
-            while (lexer.token == JSONToken.COMMA //
-                    && (lexer.features & Feature.AllowArbitraryCommas.mask) != 0) {
+            while (lexer.token == JSONToken.COMMA) {
                 lexer.nextToken();
                 continue;
             }

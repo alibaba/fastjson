@@ -67,12 +67,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     
     static {
         int features = 0;
-        features |= Feature.AutoCloseSource.mask;
-        features |= Feature.InternFieldNames.mask;
+        // features |= Feature.AutoCloseSource.mask; always allow
         features |= Feature.UseBigDecimal.mask;
-        features |= Feature.AllowUnQuotedFieldNames.mask;
-        features |= Feature.AllowSingleQuotes.mask;
-        features |= Feature.AllowArbitraryCommas.mask;
+        // features |= Feature.AllowArbitraryCommas.mask; always allow
         features |= Feature.SortFeidFastMatch.mask;
         features |= Feature.IgnoreNotMatch.mask;
         DEFAULT_PARSER_FEATURE = features;
@@ -116,7 +113,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         try {
             return parseObject(new String(input, "UTF-8"), features);
         } catch (UnsupportedEncodingException e) {
-            throw new JSONException("UTF-8 not support");
+            throw new JSONException("UTF-8 not support", e);
         }
     }
 

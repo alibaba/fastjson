@@ -56,9 +56,7 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
                     break;
                 }
                 if (lexer.token == JSONToken.COMMA) {
-                    if ((lexer.features & Feature.AllowArbitraryCommas.mask) != 0) {
-                        continue;
-                    }
+                    continue;
                 }
             }
 

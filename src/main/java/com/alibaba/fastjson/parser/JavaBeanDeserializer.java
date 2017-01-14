@@ -56,8 +56,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             if (clazz.isInterface()) {
                 Class<?> clazz = (Class<?>) type;
                 ClassLoader loader = Thread.currentThread().getContextClassLoader();
-                boolean ordred = (parser.lexer.features & Feature.OrderedField.mask) != 0;
-                JSONObject object = new JSONObject(ordred);
+                boolean ordered = (parser.lexer.features & Feature.OrderedField.mask) != 0;
+                JSONObject object = new JSONObject(ordered);
                 Object proxy = Proxy.newProxyInstance(loader, new Class<?>[] { clazz }, object);
                 return proxy;
             }

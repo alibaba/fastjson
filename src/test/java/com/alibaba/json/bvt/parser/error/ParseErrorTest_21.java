@@ -40,7 +40,7 @@ public class ParseErrorTest_21 extends TestCase {
         } catch (JSONException ex) {
             error = ex;
         }
-        Assert.assertNotNull(error);
+        Assert.assertNull(error);
     }
     
     public void test_for_error_3() throws Exception {
@@ -60,7 +60,7 @@ public class ParseErrorTest_21 extends TestCase {
         } catch (JSONException ex) {
             error = ex;
         }
-        Assert.assertNotNull(error);
+        assertNull(error);
     }
     
     public void test_for_error_5() throws Exception {

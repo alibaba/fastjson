@@ -38,7 +38,7 @@ import com.alibaba.fastjson.util.TypeUtils;
 public final class DateCodec implements ObjectSerializer, ObjectDeserializer {
 
     public final static DateCodec instance = new DateCodec();
-    
+
     private DateCodec() {
         
     }
@@ -170,7 +170,7 @@ public final class DateCodec implements ObjectSerializer, ObjectDeserializer {
             if ((lexer.features & Feature.AllowISO8601DateFormat.mask) != 0) {
                 JSONLexer iso8601Lexer = new JSONLexer(strVal);
                 if (iso8601Lexer.scanISO8601DateIfMatch(true)) {
-                    Calendar calendar = iso8601Lexer.getCalendar(); 
+                    Calendar calendar = iso8601Lexer.calendar;
                     if (clazz == Calendar.class) {
                         iso8601Lexer.close();
                         return (T) calendar;
@@ -209,11 +209,12 @@ public final class DateCodec implements ObjectSerializer, ObjectDeserializer {
             }
             
             long timeMillis;
-            if (lexer.token() == JSONToken.LITERAL_INT) {
+            token = lexer.token();
+            if (token == JSONToken.LITERAL_INT) {
                 timeMillis = lexer.longValue();
                 lexer.nextToken();
             } else {
-                throw new JSONException("syntax error : " + lexer.tokenName());
+                throw new JSONException("syntax error : " + JSONToken.name(token));
             }
             
             val = timeMillis;
@@ -280,7 +281,7 @@ public final class DateCodec implements ObjectSerializer, ObjectDeserializer {
             JSONLexer dateLexer = new JSONLexer(strVal);
             try {
                 if (dateLexer.scanISO8601DateIfMatch(false)) {
-                    Calendar calendar = dateLexer.getCalendar();
+                    Calendar calendar = dateLexer.calendar;
                     
                     if (clazz == Calendar.class) {
                         return (T) calendar;

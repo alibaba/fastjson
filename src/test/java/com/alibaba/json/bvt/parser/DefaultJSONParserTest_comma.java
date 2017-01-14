@@ -20,6 +20,6 @@ public class DefaultJSONParserTest_comma extends TestCase {
         } catch (JSONException ex) {
             error = ex;
         }
-        Assert.assertNotNull(error);
+        assertNull(error);
     }
 }

@@ -117,7 +117,7 @@ public class DefaultExtJSONParserTest_2 extends TestCase {
         } catch (JSONException e) {
             error = e;
         }
-        Assert.assertNotNull(error);
+        assertNull(error);
     }
 
     public void test_error_6() throws Exception {
@@ -129,7 +129,7 @@ public class DefaultExtJSONParserTest_2 extends TestCase {
         } catch (JSONException e) {
             error = e;
         }
-        Assert.assertNotNull(error);
+        Assert.assertNull(error);
     }
 
     public static class A {

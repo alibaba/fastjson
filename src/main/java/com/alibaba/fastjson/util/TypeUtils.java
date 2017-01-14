@@ -316,7 +316,7 @@ public class TypeUtils {
             JSONLexer dateParser = new JSONLexer(strVal);
             Calendar calendar = null;
             if (dateParser.scanISO8601DateIfMatch(false)) {
-                calendar = dateParser.getCalendar();
+                calendar = dateParser.calendar;
             }
             dateParser.close();
 
@@ -360,7 +360,8 @@ public class TypeUtils {
         }
 
         if (value instanceof String) {
-            return JSONLexer.decodeFast((String) value);
+            String string = (String) value;
+            return JSONLexer.decodeFast(string, 0, string.length());
         }
         throw new JSONException("can not cast to int, value : " + value);
     }

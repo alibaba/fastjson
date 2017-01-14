@@ -259,9 +259,7 @@ public final class MiscCodec implements ObjectSerializer, ObjectDeserializer {
                     break;
                 }
                 if (lexer.token() == JSONToken.COMMA) {
-                    if ((lexer.features & Feature.AllowArbitraryCommas.mask) != 0) {
-                        continue;
-                    }
+                    continue;
                 }
             }
 

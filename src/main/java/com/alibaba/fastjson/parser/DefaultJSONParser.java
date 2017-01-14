@@ -167,7 +167,7 @@ public class DefaultJSONParser implements Closeable {
         }
 
         if (token != JSONToken.LBRACE && token != JSONToken.COMMA) {
-            throw new JSONException("syntax error, expect {, actual " + lexer.tokenName() + ", " + lexer.info());
+            throw new JSONException("syntax error, expect {, actual " + JSONToken.name(token) + ", " + lexer.info());
         }
         
         final Map innerMap;
@@ -196,8 +196,7 @@ public class DefaultJSONParser implements Closeable {
                     ch = lexer.ch;
                 }
 
-                while (ch == ',' // 
-                        && (lexer.features & Feature.AllowArbitraryCommas.mask) != 0) {
+                while (ch == ',') {
                     lexer.next();
                     lexer.skipWhitespace();
                     ch = lexer.ch;
@@ -229,10 +228,6 @@ public class DefaultJSONParser implements Closeable {
                     lexer.nextToken(JSONToken.COMMA);
                     return object;
                 } else if (ch == '\'') {
-                    if ((lexer.features & Feature.AllowSingleQuotes.mask) == 0) {
-                        throw new JSONException("syntax error, " + lexer.info());
-                    }
-
                     key = lexer.scanSymbol(symbolTable, '\'');
                     if (lexer.ch != ':') {
                         lexer.skipWhitespace();
@@ -274,10 +269,6 @@ public class DefaultJSONParser implements Closeable {
                         key = key.toString();
                     }
                 } else {
-                    if ((lexer.features & Feature.AllowUnQuotedFieldNames.mask) == 0) {
-                        throw new JSONException("syntax error, " + lexer.info());
-                    }
-
                     key = lexer.scanSymbolUnQuoted(symbolTable);
                     lexer.skipWhitespace();
                     ch = lexer.ch;
@@ -736,11 +727,9 @@ public class DefaultJSONParser implements Closeable {
         }
         try {
             for (int i = 0;; ++i) {
-                if ((lexer.features & Feature.AllowArbitraryCommas.mask) != 0) {
-                    while (lexer.token == JSONToken.COMMA) {
-                        lexer.nextToken();
-                        continue;
-                    }
+                while (lexer.token == JSONToken.COMMA) {
+                    lexer.nextToken();
+                    continue;
                 }
 
                 if (lexer.token == JSONToken.RBRACKET) {
@@ -912,8 +901,9 @@ public class DefaultJSONParser implements Closeable {
 
         // Map<String, FieldDeserializer> setters = config.getFieldDeserializers(clazz);
 
-        if (lexer.token != JSONToken.LBRACE && lexer.token != JSONToken.COMMA) {
-            throw new JSONException("syntax error, expect {, actual " + lexer.tokenName());
+        int token = lexer.token;
+        if (token != JSONToken.LBRACE && token != JSONToken.COMMA) {
+            throw new JSONException("syntax error, expect {, actual " + JSONToken.name(token));
         }
 
         for (;;) {
@@ -925,8 +915,7 @@ public class DefaultJSONParser implements Closeable {
                     lexer.nextToken(JSONToken.COMMA);
                     break;
                 }
-                if (lexer.token == JSONToken.COMMA //
-                    && (lexer.features & Feature.AllowArbitraryCommas.mask) != 0) {
+                if (lexer.token == JSONToken.COMMA) {
                     continue;
                 }
             }
@@ -1192,8 +1181,7 @@ public class DefaultJSONParser implements Closeable {
                 }
 
                 token = lexer.token;
-                while (token == JSONToken.COMMA // 
-                        && (lexer.features & Feature.AllowArbitraryCommas.mask) != 0) {
+                while (token == JSONToken.COMMA) {
                     lexer.nextToken();
                     token = lexer.token;
                     continue;
@@ -1464,8 +1452,7 @@ public class DefaultJSONParser implements Closeable {
 
     public void close() {
         try {
-            if ((lexer.features & Feature.AutoCloseSource.mask) != 0 //
-                    && lexer.token != JSONToken.EOF) {
+            if (lexer.token != JSONToken.EOF) {
                 throw new JSONException("not close json text, token : " + JSONToken.name(lexer.token));
             }
         } finally {

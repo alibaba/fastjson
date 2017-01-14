@@ -66,12 +66,10 @@ class MapDeserializer implements ObjectDeserializer {
             for (;;) {
                 lexer.skipWhitespace();
                 char ch = lexer.ch;
-                if ((lexer.features & Feature.AllowArbitraryCommas.mask) != 0) {
-                    while (ch == ',') {
-                        lexer.next();
-                        lexer.skipWhitespace();
-                        ch = lexer.ch;
-                    }
+                while (ch == ',') {
+                    lexer.next();
+                    lexer.skipWhitespace();
+                    ch = lexer.ch;
                 }
 
                 String key;
@@ -88,10 +86,6 @@ class MapDeserializer implements ObjectDeserializer {
                     lexer.nextToken(JSONToken.COMMA);
                     return map;
                 } else if (ch == '\'') {
-                    if ((lexer.features & Feature.AllowSingleQuotes.mask) == 0) {
-                        throw new JSONException("syntax error, " + lexer.info());
-                    }
-
                     key = lexer.scanSymbol(parser.symbolTable, '\'');
                     lexer.skipWhitespace();
                     ch = lexer.ch;
@@ -99,10 +93,6 @@ class MapDeserializer implements ObjectDeserializer {
                         throw new JSONException("syntax error, " + lexer.info());
                     }
                 } else {
-                    if ((lexer.features & Feature.AllowUnQuotedFieldNames.mask) == 0) {
-                        throw new JSONException("syntax error");
-                    }
-
                     key = lexer.scanSymbolUnQuoted(parser.symbolTable);
                     lexer.skipWhitespace();
                     ch = lexer.ch;
@@ -198,8 +188,8 @@ class MapDeserializer implements ObjectDeserializer {
                     break;
                 }
 
-                if (token == JSONToken.LITERAL_STRING // 
-                        && lexer.isRef() //
+                if (token == JSONToken.LITERAL_STRING //
+                        && (lexer.sp == 4 && lexer.text.startsWith("$ref", lexer.np + 1)) // isRef
                         && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
                     Object object = null;
 

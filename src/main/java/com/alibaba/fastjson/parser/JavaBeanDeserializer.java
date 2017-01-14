@@ -526,9 +526,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             break;
                         }
                         if (token == JSONToken.COMMA) {
-                            if ((lexer.features & Feature.AllowArbitraryCommas.mask) != 0) {
-                                continue;
-                            }
+                            continue;
                         }
                     }
 

@@ -47,7 +47,7 @@ https://github.com/eishay/jvm-serializers/wiki
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>fastjson</artifactId>
-    <version>1.1.55.android</version>
+    <version>1.1.56.android</version>
 </dependency>
 ```
 

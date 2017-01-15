@@ -83,8 +83,31 @@ public class NamingSerTest extends TestCase {
         Assert.assertEquals(model.personId, model3.personId);
     }
 
+    public void test_camel_1() throws Exception {
+        SerializeConfig config = new SerializeConfig();
+        config.propertyNamingStrategy = PropertyNamingStrategy.CamelCase;
+
+        Model2 model = new Model2();
+        model.PersonId = 1001;
+        String text = JSON.toJSONString(model, config);
+        Assert.assertEquals("{\"personId\":1001}", text);
+
+        ParserConfig parserConfig = new ParserConfig();
+        parserConfig.propertyNamingStrategy = PropertyNamingStrategy.CamelCase;
+        Model2 model2 = JSON.parseObject(text, Model2.class, parserConfig, JSON.DEFAULT_PARSER_FEATURE);
+        Assert.assertEquals(model.PersonId, model2.PersonId);
+
+        Model model3 = JSON.parseObject(text, Model.class);
+        Assert.assertEquals(model.PersonId, model3.personId);
+    }
+
     public static class Model {
 
         public int personId;
+    }
+
+    public static class Model2 {
+
+        public int PersonId;
     }
 }

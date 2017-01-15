@@ -3315,26 +3315,40 @@ public final class JSONLexer {
         if (offset == 0) {
             return 0;
         }
-        int start = bp + offset;
+
         char chLocal = charAt(bp + (offset++));
+
+        int start = bp + offset - 1;
+        boolean negative = chLocal == '-';
+        if (negative) {
+            chLocal = charAt(bp + (offset++));
+        }
 
         double value;
         if (chLocal >= '0' && chLocal <= '9') {
+            int intVal = chLocal - '0';
             for (;;) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
+                    intVal = intVal * 10 + (chLocal - '0');
                     continue;
                 } else {
                     break;
                 }
             }
 
-            if (chLocal == '.') {
+            int power = 1;
+            boolean small = (chLocal == '.');
+            if (small) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
-                    for (;;) {
+                    intVal = intVal * 10 + (chLocal - '0');
+                    power *= 10;
+                    for (; ; ) {
                         chLocal = charAt(bp + (offset++));
                         if (chLocal >= '0' && chLocal <= '9') {
+                            intVal = intVal * 10 + (chLocal - '0');
+                            power *= 10;
                             continue;
                         } else {
                             break;
@@ -3346,7 +3360,8 @@ public final class JSONLexer {
                 }
             }
 
-            if (chLocal == 'e' || chLocal == 'E') {
+            boolean exp = chLocal == 'e' || chLocal == 'E';
+            if (exp) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal == '+' || chLocal == '-') {
                     chLocal = charAt(bp + (offset++));
@@ -3361,8 +3376,15 @@ public final class JSONLexer {
             }
 
             int count = bp + offset - start - 1;
-            String text = this.subString(start, count);
-            value = Double.parseDouble(text);
+            if (!exp && count < 10) {
+                value = ((double) intVal) / power;
+                if (negative) {
+                    value = -value;
+                }
+            } else {
+                String text = this.subString(start, count);
+                value = Double.parseDouble(text);
+            }
         } else {
             matchStat = NOT_MATCH;
             return 0;
@@ -3391,8 +3413,8 @@ public final class JSONLexer {
                 bp += (offset - 1);
                 this.next();
             } else if (chLocal == EOI) {
-                token = JSONToken.EOF;
                 bp += (offset - 1);
+                token = JSONToken.EOF;
                 ch = EOI;
             } else {
                 matchStat = NOT_MATCH;
@@ -3405,6 +3427,446 @@ public final class JSONLexer {
         }
 
         return value;
+    }
+
+    public final double[] scanFieldDoubleArray(long fieldHashCode) {
+        matchStat = UNKNOWN;
+
+        int offset = matchFieldHash(fieldHashCode);
+        if (offset == 0) {
+            return null;
+        }
+        int charIndex = bp + (offset++);
+        char chLocal = charIndex >= this.len ? //
+                EOI //
+                : text.charAt(charIndex);
+        if (chLocal != '[') {
+            matchStat = NOT_MATCH_NAME;
+            return null;
+        }
+        // chLocal = charAt(bp + (offset++));
+        charIndex = bp + (offset++);
+        chLocal = charIndex >= this.len ? //
+                EOI //
+                : text.charAt(charIndex);
+
+        double[] array = new double[16];
+        int arrayIndex = 0;
+
+        for (;;) {
+            int start = bp + offset - 1;
+
+            boolean negative = chLocal == '-';
+            if (negative) {
+                // chLocal = charAt(bp + (offset++));
+                charIndex = bp + (offset++);
+                chLocal = charIndex >= this.len ? //
+                        EOI //
+                        : text.charAt(charIndex);
+            }
+
+            if (chLocal >= '0' && chLocal <= '9') {
+                int intVal = chLocal - '0';
+                for (; ; ) {
+                    // chLocal = charAt(bp + (offset++));
+                    charIndex = bp + (offset++);
+                    chLocal = charIndex >= this.len ? //
+                            EOI //
+                            : text.charAt(charIndex);
+                    if (chLocal >= '0' && chLocal <= '9') {
+                        intVal = intVal * 10 + (chLocal - '0');
+                        continue;
+                    } else {
+                        break;
+                    }
+                }
+
+                int power = 1;
+                boolean small = (chLocal == '.');
+                if (small) {
+                    // chLocal = charAt(bp + (offset++));
+                    charIndex = bp + (offset++);
+                    chLocal = charIndex >= this.len ? //
+                            EOI //
+                            : text.charAt(charIndex);
+                    power *= 10;
+                    if (chLocal >= '0' && chLocal <= '9') {
+                        intVal = intVal * 10 + (chLocal - '0');
+                        for (; ; ) {
+                            // chLocal = charAt(bp + (offset++));
+                            charIndex = bp + (offset++);
+                            chLocal = charIndex >= this.len ? //
+                                    EOI //
+                                    : text.charAt(charIndex);
+
+                            if (chLocal >= '0' && chLocal <= '9') {
+                                intVal = intVal * 10 + (chLocal - '0');
+                                power *= 10;
+                                continue;
+                            } else {
+                                break;
+                            }
+                        }
+                    } else {
+                        matchStat = NOT_MATCH;
+                        return null;
+                    }
+                }
+
+                boolean exp = chLocal == 'e' || chLocal == 'E';
+                if (exp) {
+                    // chLocal = charAt(bp + (offset++));
+                    charIndex = bp + (offset++);
+                    chLocal = charIndex >= this.len ? //
+                            EOI //
+                            : text.charAt(charIndex);
+                    if (chLocal == '+' || chLocal == '-') {
+                        // chLocal = charAt(bp + (offset++));
+                        charIndex = bp + (offset++);
+                        chLocal = charIndex >= this.len ? //
+                                EOI //
+                                : text.charAt(charIndex);
+                    }
+                    for (;;) {
+                        if (chLocal >= '0' && chLocal <= '9') {
+                            // chLocal = charAt(bp + (offset++));
+                            charIndex = bp + (offset++);
+                            chLocal = charIndex >= this.len ? //
+                                    EOI //
+                                    : text.charAt(charIndex);
+                        } else {
+                            break;
+                        }
+                    }
+                }
+
+                int count = bp + offset - start - 1;
+
+                double value;
+                if (!exp && count < 10) {
+                    value = ((double) intVal) / power;
+                    if (negative) {
+                        value = -value;
+                    }
+                } else {
+                    String text = this.subString(start, count);
+                    value = Double.parseDouble(text);
+                }
+
+                if (arrayIndex >= array.length) {
+                    double[] tmp = new double[array.length * 3 / 2];
+                    System.arraycopy(array, 0, tmp, 0, arrayIndex);
+                    array = tmp;
+                }
+                array[arrayIndex++] = value;
+
+                if (chLocal == ',') {
+                    // chLocal = charAt(bp + (offset++));
+                    charIndex = bp + (offset++);
+                    chLocal = charIndex >= this.len ? //
+                            EOI //
+                            : text.charAt(charIndex);
+                } else if (chLocal == ']') {
+                    //chLocal = charAt(bp + (offset++));
+                    charIndex = bp + (offset++);
+                    chLocal = charIndex >= this.len ? //
+                            EOI //
+                            : text.charAt(charIndex);
+                    break;
+                }
+            } else {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+        }
+
+
+        if (arrayIndex != array.length) {
+            double[] tmp = new double[arrayIndex];
+            System.arraycopy(array, 0, tmp, 0, arrayIndex);
+            array = tmp;
+        }
+
+        if (chLocal == ',') {
+            bp += (offset - 1);
+            this.next();
+            matchStat = VALUE;
+            token = JSONToken.COMMA;
+            return array;
+        }
+
+        if (chLocal == '}') {
+            // chLocal = charAt(bp + (offset++));
+            charIndex = bp + (offset++);
+            chLocal = charIndex >= this.len ? //
+                    EOI //
+                    : text.charAt(charIndex);
+            if (chLocal == ',') {
+                token = JSONToken.COMMA;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == ']') {
+                token = JSONToken.RBRACKET;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == '}') {
+                token = JSONToken.RBRACE;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == EOI) {
+                bp += (offset - 1);
+                token = JSONToken.EOF;
+                ch = EOI;
+            } else {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+            matchStat = END;
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        return array;
+    }
+
+    public final double[][] scanFieldDoubleArray2(long fieldHashCode) {
+        matchStat = UNKNOWN;
+
+        int offset = matchFieldHash(fieldHashCode);
+        if (offset == 0) {
+            return null;
+        }
+        int charIndex = bp + (offset++);
+        char chLocal = charIndex >= this.len ? //
+                EOI //
+                : text.charAt(charIndex);
+
+        if (chLocal != '[') {
+            matchStat = NOT_MATCH_NAME;
+            return null;
+        }
+        // chLocal = charAt(bp + (offset++));
+        charIndex = bp + (offset++);
+        chLocal = charIndex >= this.len ? //
+                EOI //
+                : text.charAt(charIndex);
+
+        double[][] arrayarray = new double[16][];
+        int arrayarrayIndex = 0;
+
+        for (;;) {
+            if (chLocal == '[') {
+                // chLocal = charAt(bp + (offset++));
+                charIndex = bp + (offset++);
+                chLocal = charIndex >= this.len ? //
+                        EOI //
+                        : text.charAt(charIndex);
+
+                double[] array = new double[16];
+                int arrayIndex = 0;
+
+                for (; ; ) {
+                    int start = bp + offset - 1;
+                    boolean negative = chLocal == '-';
+                    if (negative) {
+                        // chLocal = charAt(bp + (offset++));
+                        charIndex = bp + (offset++);
+                        chLocal = charIndex >= this.len ? //
+                                EOI //
+                                : text.charAt(charIndex);
+                    }
+
+                    if (chLocal >= '0' && chLocal <= '9') {
+                        int intVal = chLocal - '0';
+                        for (; ; ) {
+                            // chLocal = charAt(bp + (offset++));
+                            charIndex = bp + (offset++);
+                            chLocal = charIndex >= this.len ? //
+                                    EOI //
+                                    : text.charAt(charIndex);
+
+                            if (chLocal >= '0' && chLocal <= '9') {
+                                intVal = intVal * 10 + (chLocal - '0');
+                                continue;
+                            } else {
+                                break;
+                            }
+                        }
+
+                        int power = 1;
+                        if (chLocal == '.') {
+                            // chLocal = charAt(bp + (offset++));
+                            charIndex = bp + (offset++);
+                            chLocal = charIndex >= this.len ? //
+                                    EOI //
+                                    : text.charAt(charIndex);
+
+                            if (chLocal >= '0' && chLocal <= '9') {
+                                intVal = intVal * 10 + (chLocal - '0');
+                                power *= 10;
+                                for (; ; ) {
+                                    // chLocal = charAt(bp + (offset++));
+                                    charIndex = bp + (offset++);
+                                    chLocal = charIndex >= this.len ? //
+                                            EOI //
+                                            : text.charAt(charIndex);
+
+                                    if (chLocal >= '0' && chLocal <= '9') {
+                                        intVal = intVal * 10 + (chLocal - '0');
+                                        power *= 10;
+                                        continue;
+                                    } else {
+                                        break;
+                                    }
+                                }
+                            } else {
+                                matchStat = NOT_MATCH;
+                                return null;
+                            }
+                        }
+
+                        boolean exp = chLocal == 'e' || chLocal == 'E';
+                        if (exp) {
+                            // chLocal = charAt(bp + (offset++));
+                            charIndex = bp + (offset++);
+                            chLocal = charIndex >= this.len ? //
+                                    EOI //
+                                    : text.charAt(charIndex);
+                            if (chLocal == '+' || chLocal == '-') {
+                                // chLocal = charAt(bp + (offset++));
+                                charIndex = bp + (offset++);
+                                chLocal = charIndex >= this.len ? //
+                                        EOI //
+                                        : text.charAt(charIndex);
+                            }
+                            for (;;) {
+                                if (chLocal >= '0' && chLocal <= '9') {
+                                    // chLocal = charAt(bp + (offset++));
+                                    charIndex = bp + (offset++);
+                                    chLocal = charIndex >= this.len ? //
+                                            EOI //
+                                            : text.charAt(charIndex);
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+
+                        int count = bp + offset - start - 1;
+                        double value;
+                        if (!exp && count < 10) {
+                            value = ((double) intVal) / power;
+                            if (negative) {
+                                value = -value;
+                            }
+                        } else {
+                            String text = this.subString(start, count);
+                            value = Double.parseDouble(text);
+                        }
+
+                        if (arrayIndex >= array.length) {
+                            double[] tmp = new double[array.length * 3 / 2];
+                            System.arraycopy(array, 0, tmp, 0, arrayIndex);
+                            array = tmp;
+                        }
+                        array[arrayIndex++] = value;
+
+                        if (chLocal == ',') {
+                            // chLocal = charAt(bp + (offset++));
+                            charIndex = bp + (offset++);
+                            chLocal = charIndex >= this.len ? //
+                                    EOI //
+                                    : text.charAt(charIndex);
+                        } else if (chLocal == ']') {
+                            // chLocal = charAt(bp + (offset++));
+                            charIndex = bp + (offset++);
+                            chLocal = charIndex >= this.len ? //
+                                    EOI //
+                                    : text.charAt(charIndex);
+                            break;
+                        }
+                    } else {
+                        matchStat = NOT_MATCH;
+                        return null;
+                    }
+                }
+
+                // compact
+                if (arrayIndex != array.length) {
+                    double[] tmp = new double[arrayIndex];
+                    System.arraycopy(array, 0, tmp, 0, arrayIndex);
+                    array = tmp;
+                }
+
+                if (arrayarrayIndex >= arrayarray.length) {
+                    double[][] tmp = new double[arrayarray.length * 3 / 2][];
+                    System.arraycopy(array, 0, tmp, 0, arrayIndex);
+                    arrayarray = tmp;
+                }
+                arrayarray[arrayarrayIndex++] = array;
+
+                if (chLocal == ',') {
+                    // chLocal = charAt(bp + (offset++));
+                    charIndex = bp + (offset++);
+                    chLocal = charIndex >= this.len ? //
+                            EOI //
+                            : text.charAt(charIndex);
+                } else if (chLocal == ']') {
+                    // chLocal = charAt(bp + (offset++));
+                    charIndex = bp + (offset++);
+                    chLocal = charIndex >= this.len ? //
+                            EOI //
+                            : text.charAt(charIndex);
+                    break;
+                }
+            }
+        }
+
+        // compact
+        if (arrayarrayIndex != arrayarray.length) {
+            double[][] tmp = new double[arrayarrayIndex][];
+            System.arraycopy(arrayarray, 0, tmp, 0, arrayarrayIndex);
+            arrayarray = tmp;
+        }
+
+        if (chLocal == ',') {
+            bp += (offset - 1);
+            this.next();
+            matchStat = VALUE;
+            token = JSONToken.COMMA;
+            return arrayarray;
+        }
+
+        if (chLocal == '}') {
+            chLocal = charAt(bp + (offset++));
+            if (chLocal == ',') {
+                token = JSONToken.COMMA;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == ']') {
+                token = JSONToken.RBRACKET;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == '}') {
+                token = JSONToken.RBRACE;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == EOI) {
+                bp += (offset - 1);
+                token = JSONToken.EOF;
+                ch = EOI;
+            } else {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+            matchStat = END;
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        return arrayarray;
     }
 
     public long scanFieldSymbol(long fieldHashCode) {

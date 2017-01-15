@@ -58,7 +58,7 @@ compile 'com.alibaba:fastjson:1.2.21'
 ```
 
 ``` groovy
-compile 'com.alibaba:fastjson:1.1.55.android'
+compile 'com.alibaba:fastjson:1.1.56.android'
 ```
 
 Please see this [Wiki Download Page][Wiki] for more repository infos.

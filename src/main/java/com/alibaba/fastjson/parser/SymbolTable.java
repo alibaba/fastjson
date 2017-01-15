@@ -101,16 +101,6 @@ public class SymbolTable {
         src.getChars(offset, offset + len, chars, 0);
         return new String(chars);
     }
-
-    public static int hash(char[] buffer, int offset, int len) {
-        int h = 0;
-        int off = offset;
-
-        for (int i = 0; i < len; i++) {
-            h = 31 * h + buffer[off++];
-        }
-        return h;
-    }
     
     static class Entry {
         final String value;

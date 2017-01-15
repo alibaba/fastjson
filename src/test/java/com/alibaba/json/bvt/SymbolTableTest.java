@@ -46,8 +46,16 @@ public class SymbolTableTest extends TestCase {
     }
     
     public String addSymbol(SymbolTable table, char[] buffer, int offset, int len) {
-        int hash = SymbolTable.hash(buffer, offset, len);
+        int hash = hash(buffer, offset, len);
         return table.addSymbol(buffer, offset, len, hash);
+    }
+
+    public static int hash(char[] buffer, int offset, int len) {
+        int h = 0;
+        for (int i = offset; i < len; i++) {
+            h = 31 * h + buffer[i];
+        }
+        return h;
     }
 
 }

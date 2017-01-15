@@ -87,4 +87,12 @@ public class FNV32_CollisionTest extends TestCase {
         }
         return hash;
     }
+
+    static long hash(char[] chars) {
+        long hash = 0;
+        for (int i = 0; i < chars.length; ++i) {
+            hash = 31 * hash + chars[i];
+        }
+        return hash;
+    }
 }

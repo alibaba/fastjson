@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.alibaba.json.bvt.SymbolTableTest;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.parser.SymbolTable;
@@ -76,14 +77,14 @@ public class SymbolTableDupTest extends TestCase {
     }
 
     private void test3(char[] chars) {
-        int hash = SymbolTable.hash(chars, 0, chars.length);
+        int hash = SymbolTableTest.hash(chars, 0, chars.length);
         if (hash == VALUE) {
             System.out.println(new String(chars));
         }
     }
 
     private void test2(char[] chars) {
-        int hash = SymbolTable.hash(chars, 0, chars.length);
+        int hash = SymbolTableTest.hash(chars, 0, chars.length);
         if (dupHashCodes.contains(hash)) {
             List<String> list = dupList.get(hash);
             if (list == null) {
@@ -95,7 +96,7 @@ public class SymbolTableDupTest extends TestCase {
     }
 
     private void test(char[] chars) {
-        int hash = SymbolTable.hash(chars, 0, chars.length);
+        int hash = SymbolTableTest.hash(chars, 0, chars.length);
         Integer count = map.get(hash);
         if (count != null) {
             dupHashCodes.add(hash);

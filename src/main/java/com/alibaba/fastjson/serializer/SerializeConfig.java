@@ -83,6 +83,8 @@ public class SerializeConfig {
     private static boolean                                jdk8Error       = false;
     private static boolean                                oracleJdbcError = false;
     private static boolean                                springfoxError  = false;
+    private static boolean                                guavaError      = false;
+
     private boolean                                       asm             = !ASMUtils.IS_ANDROID;
     private ASMSerializerFactory                          asmFactory;
     protected String                                      typeKey         = JSON.DEFAULT_TYPE_KEY;
@@ -528,6 +530,28 @@ public class SerializeConfig {
                     } catch (ClassNotFoundException e) {
                         // skip
                         springfoxError = true;
+                    }
+                }
+
+                if ((!guavaError) //
+                        && className.startsWith("com.google.common.collect.")) {
+                    try {
+                        put(Class.forName("com.google.common.collect.HashMultimap"), //
+                                GuavaCodec.instance);
+                        put(Class.forName("com.google.common.collect.LinkedListMultimap"), //
+                                GuavaCodec.instance);
+                        put(Class.forName("com.google.common.collect.ArrayListMultimap"), //
+                                GuavaCodec.instance);
+                        put(Class.forName("com.google.common.collect.TreeMultimap"), //
+                                GuavaCodec.instance);
+
+                        writer = serializers.get(clazz);
+                        if (writer != null) {
+                            return writer;
+                        }
+                    } catch (ClassNotFoundException e) {
+                        // skip
+                        guavaError = true;
                     }
                 }
 

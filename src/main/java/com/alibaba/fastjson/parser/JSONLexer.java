@@ -256,19 +256,86 @@ public final class JSONLexer {
                     next();
                     break;
                 case 't': // true
-                    scanTrue();
-                    return;
+                {
+                    if (text.startsWith("true", bp)) {
+                        bp += 4;
+                        ch = charAt(bp);
+
+                        if (ch == ' ' //
+                                || ch == ',' //
+                                || ch == '}' //
+                                || ch == ']' //
+                                || ch == '\n' //
+                                || ch == '\r' //
+                                || ch == '\t' //
+                                || ch == EOI //
+                                || ch == '\f' //
+                                || ch == '\b' //
+                                || ch == ':') {
+                            token = JSONToken.TRUE;
+                            return;
+                        }
+                    }
+                    throw new JSONException("scan true error");
+                }
                 case 'T': // treeSet
                 case 'S': // set
                 case 'u': //undefined
                     scanIdent();
                     return;
                 case 'f': // false
-                    scanFalse();
-                    return;
+                {
+                    if (text.startsWith("false", bp)) {
+                        bp += 5;
+                        ch = charAt(bp);
+
+                        if (ch == ' '//
+                                || ch == ','//
+                                || ch == '}'//
+                                || ch == ']'//
+                                || ch == '\n'//
+                                || ch == '\r'//
+                                || ch == '\t'//
+                                || ch == EOI//
+                                || ch == '\f'//
+                                || ch == '\b'//
+                                || ch == ':') {
+                            token = JSONToken.FALSE;
+                            return;
+                        }
+                    }
+                    throw new JSONException("scan false error");
+                }
                 case 'n': // new,null
-                    scanNullOrNew();
-                    return;
+                {
+                    int token = 0;
+                    if (text.startsWith("null", bp)) {
+                        bp += 4;
+                        token = JSONToken.NULL;
+                    } else if (text.startsWith("new", bp)) {
+                        bp += 3;
+                        token = JSONToken.NEW;
+                    }
+
+                    if (token != 0) {
+                        ch = charAt(bp);
+                        if (ch == ' ' //
+                                || ch == ',' //
+                                || ch == '}' //
+                                || ch == ']' //
+                                || ch == '\n' //
+                                || ch == '\r' //
+                                || ch == '\t' //
+                                || ch == EOI //
+                                || ch == '\f' //
+                                || ch == '\b') {
+                            this.token = token;
+                            return;
+                        }
+                    }
+
+                    throw new JSONException("scan null/new error");
+                }
                 case '(':
                     next();
                     token = LPAREN;
@@ -1108,82 +1175,6 @@ public final class JSONLexer {
 
     public byte[] bytesValue() {
         return decodeFast(text, np + 1, sp);
-    }
-
-    private void scanTrue() {
-        if (text.startsWith("true", bp)) {
-            bp += 4;
-            ch = charAt(bp);
-
-            if (ch == ' ' //
-                || ch == ',' //
-                || ch == '}' //
-                || ch == ']' //
-                || ch == '\n' //
-                || ch == '\r' //
-                || ch == '\t' //
-                || ch == EOI //
-                || ch == '\f' //
-                || ch == '\b' //
-                || ch == ':') {
-                token = JSONToken.TRUE;
-                return;
-            }
-        }
-        throw new JSONException("scan true error");
-    }
-
-    private void scanNullOrNew() {
-        int token = 0;
-        if (text.startsWith("null", bp)) {
-            bp += 4;
-            token = JSONToken.NULL;
-        } else if (text.startsWith("new", bp)) {
-            bp += 3;
-            token = JSONToken.NEW;
-        }
-
-        if (token != 0) {
-            ch = charAt(bp);
-            if (ch == ' ' //
-                || ch == ',' //
-                || ch == '}' //
-                || ch == ']' //
-                || ch == '\n' //
-                || ch == '\r' //
-                || ch == '\t' //
-                || ch == EOI //
-                || ch == '\f' //
-                || ch == '\b') {
-                this.token = token;
-                return;
-            }
-        }
-
-        throw new JSONException("scan null/new error");
-    }
-
-    private void scanFalse() {
-        if (text.startsWith("false", bp)) {
-            bp += 5;
-            ch = charAt(bp);
-
-            if (ch == ' '//
-                || ch == ','//
-                || ch == '}'//
-                || ch == ']'//
-                || ch == '\n'//
-                || ch == '\r'//
-                || ch == '\t'//
-                || ch == EOI//
-                || ch == '\f'//
-                || ch == '\b'//
-                || ch == ':') {
-                token = JSONToken.FALSE;
-                return;
-            }
-        }
-        throw new JSONException("scan false error");
     }
 
     private void scanIdent() {

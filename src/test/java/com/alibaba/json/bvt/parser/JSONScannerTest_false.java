@@ -9,34 +9,18 @@ import com.alibaba.fastjson.parser.JSONLexer;
 import junit.framework.TestCase;
 
 public class JSONScannerTest_false extends TestCase {
-    Method method;
-    
-    protected void setUp() throws Exception {
-        method = JSONLexer.class.getDeclaredMethod("scanFalse");
-        method.setAccessible(true);
-    }
+   
 
     public void test_scan_false_0() throws Exception {
         JSONLexer lexer = new JSONLexer("false");
-        method.invoke(lexer);
-    }
-
-    public void test_scan_false_1() throws Exception {
-        Exception error = null;
-        try {
-            JSONLexer lexer = new JSONLexer("zalse");
-            method.invoke(lexer);
-        } catch (Exception e) {
-            error = e;
-        }
-        Assert.assertNotNull(error);
+        lexer.nextToken();
     }
 
     public void test_scan_false_2() throws Exception {
         Exception error = null;
         try {
             JSONLexer lexer = new JSONLexer("fzlse");
-            method.invoke(lexer);
+            lexer.nextToken();
         } catch (Exception e) {
             error = e;
         }
@@ -47,7 +31,7 @@ public class JSONScannerTest_false extends TestCase {
         Exception error = null;
         try {
             JSONLexer lexer = new JSONLexer("fazse");
-            method.invoke(lexer);
+            lexer.nextToken();
         } catch (Exception e) {
             error = e;
         }
@@ -58,7 +42,7 @@ public class JSONScannerTest_false extends TestCase {
         Exception error = null;
         try {
             JSONLexer lexer = new JSONLexer("falze");
-            method.invoke(lexer);
+            lexer.nextToken();
         } catch (Exception e) {
             error = e;
         }
@@ -69,7 +53,7 @@ public class JSONScannerTest_false extends TestCase {
         Exception error = null;
         try {
             JSONLexer lexer = new JSONLexer("falsz");
-            method.invoke(lexer);
+            lexer.nextToken();
         } catch (Exception e) {
             error = e;
         }
@@ -80,7 +64,7 @@ public class JSONScannerTest_false extends TestCase {
         Exception error = null;
         try {
             JSONLexer lexer = new JSONLexer("falsee");
-            method.invoke(lexer);
+            lexer.nextToken();
         } catch (Exception e) {
             error = e;
         }
@@ -91,7 +75,7 @@ public class JSONScannerTest_false extends TestCase {
         Exception error = null;
         try {
             JSONLexer lexer = new JSONLexer("false\"");
-            method.invoke(lexer);
+            lexer.nextToken();
         } catch (Exception e) {
             error = e;
         }
@@ -100,46 +84,46 @@ public class JSONScannerTest_false extends TestCase {
 
     public void test_scan_false_7() throws Exception {
         JSONLexer lexer = new JSONLexer("false a");
-        method.invoke(lexer);
+        lexer.nextToken();
     }
 
     public void test_scan_false_8() throws Exception {
         JSONLexer lexer = new JSONLexer("false,");
-        method.invoke(lexer);
+        lexer.nextToken();
     }
 
     public void test_scan_false_9() throws Exception {
         JSONLexer lexer = new JSONLexer("false\na");
-        method.invoke(lexer);
+        lexer.nextToken();
     }
 
     public void test_scan_false_10() throws Exception {
         JSONLexer lexer = new JSONLexer("false\ra");
-        method.invoke(lexer);
+        lexer.nextToken();
     }
 
     public void test_scan_false_11() throws Exception {
         JSONLexer lexer = new JSONLexer("false\ta");
-        method.invoke(lexer);
+        lexer.nextToken();
     }
 
     public void test_scan_false_12() throws Exception {
         JSONLexer lexer = new JSONLexer("false\fa");
-        method.invoke(lexer);
+        lexer.nextToken();
     }
 
     public void test_scan_false_13() throws Exception {
         JSONLexer lexer = new JSONLexer("false\ba");
-        method.invoke(lexer);
+        lexer.nextToken();
     }
 
     public void test_scan_false_14() throws Exception {
         JSONLexer lexer = new JSONLexer("false}");
-        method.invoke(lexer);
+        lexer.nextToken();
     }
 
     public void test_scan_false_15() throws Exception {
         JSONLexer lexer = new JSONLexer("false]");
-        method.invoke(lexer);
+        lexer.nextToken();
     }
 }

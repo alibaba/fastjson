@@ -9,23 +9,17 @@ import com.alibaba.fastjson.parser.JSONLexer;
 import junit.framework.TestCase;
 
 public class JSONScannerTest_new extends TestCase {
-    Method method;
-    
-    protected void setUp() throws Exception {
-        method = JSONLexer.class.getDeclaredMethod("scanNullOrNew");
-        method.setAccessible(true);
-    }
 
     public void test_scan_new_0() throws Exception {
         JSONLexer lexer = new JSONLexer("new");
-        method.invoke(lexer);
+        lexer.nextToken();
     }
 
     public void test_scan_new_1() throws Exception {
         Exception error = null;
         try {
             JSONLexer lexer = new JSONLexer("nww");
-            method.invoke(lexer);
+            lexer.nextToken();
         } catch (Exception e) {
             error = e;
         }
@@ -36,7 +30,7 @@ public class JSONScannerTest_new extends TestCase {
         Exception error = null;
         try {
             JSONLexer lexer = new JSONLexer("nee");
-            method.invoke(lexer);
+            lexer.nextToken();
         } catch (Exception e) {
             error = e;
         }
@@ -47,7 +41,7 @@ public class JSONScannerTest_new extends TestCase {
         Exception error = null;
         try {
             JSONLexer lexer = new JSONLexer("neel");
-            method.invoke(lexer);
+            lexer.nextToken();
         } catch (Exception e) {
             error = e;
         }
@@ -58,7 +52,7 @@ public class JSONScannerTest_new extends TestCase {
         Exception error = null;
         try {
             JSONLexer lexer = new JSONLexer("neww");
-            method.invoke(lexer);
+            lexer.nextToken();
         } catch (Exception e) {
             error = e;
         }
@@ -69,7 +63,7 @@ public class JSONScannerTest_new extends TestCase {
         Exception error = null;
         try {
             JSONLexer lexer = new JSONLexer("newe");
-            method.invoke(lexer);
+            lexer.nextToken();
         } catch (Exception e) {
             error = e;
         }
@@ -80,7 +74,7 @@ public class JSONScannerTest_new extends TestCase {
         Exception error = null;
         try {
             JSONLexer lexer = new JSONLexer("new\"");
-            method.invoke(lexer);
+            lexer.nextToken();
         } catch (Exception e) {
             error = e;
         }
@@ -89,46 +83,46 @@ public class JSONScannerTest_new extends TestCase {
 
     public void test_scan_new_7() throws Exception {
         JSONLexer lexer = new JSONLexer("new a");
-        method.invoke(lexer);
+        lexer.nextToken();
     }
 
     public void test_scan_new_8() throws Exception {
         JSONLexer lexer = new JSONLexer("new,");
-        method.invoke(lexer);
+        lexer.nextToken();
     }
 
     public void test_scan_new_9() throws Exception {
         JSONLexer lexer = new JSONLexer("new\na");
-        method.invoke(lexer);
+        lexer.nextToken();
     }
 
     public void test_scan_new_10() throws Exception {
         JSONLexer lexer = new JSONLexer("new\ra");
-        method.invoke(lexer);
+        lexer.nextToken();
     }
 
     public void test_scan_new_11() throws Exception {
         JSONLexer lexer = new JSONLexer("new\ta");
-        method.invoke(lexer);
+        lexer.nextToken();
     }
 
     public void test_scan_new_12() throws Exception {
         JSONLexer lexer = new JSONLexer("new\fa");
-        method.invoke(lexer);
+        lexer.nextToken();
     }
 
     public void test_scan_new_13() throws Exception {
         JSONLexer lexer = new JSONLexer("new\ba");
-        method.invoke(lexer);
+        lexer.nextToken();
     }
 
     public void test_scan_new_14() throws Exception {
         JSONLexer lexer = new JSONLexer("new}");
-        method.invoke(lexer);
+        lexer.nextToken();
     }
 
     public void test_scan_new_15() throws Exception {
         JSONLexer lexer = new JSONLexer("new]");
-        method.invoke(lexer);
+        lexer.nextToken();
     }
 }

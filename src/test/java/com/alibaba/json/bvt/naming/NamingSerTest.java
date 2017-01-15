@@ -88,17 +88,17 @@ public class NamingSerTest extends TestCase {
         config.propertyNamingStrategy = PropertyNamingStrategy.CamelCase;
 
         Model2 model = new Model2();
-        model.PersonId = 1001;
+        model.PersonId_1 = 1001;
         String text = JSON.toJSONString(model, config);
-        Assert.assertEquals("{\"personId\":1001}", text);
+        Assert.assertEquals("{\"personId_1\":1001}", text);
 
         ParserConfig parserConfig = new ParserConfig();
         parserConfig.propertyNamingStrategy = PropertyNamingStrategy.CamelCase;
         Model2 model2 = JSON.parseObject(text, Model2.class, parserConfig, JSON.DEFAULT_PARSER_FEATURE);
-        Assert.assertEquals(model.PersonId, model2.PersonId);
+        Assert.assertEquals(model.PersonId_1, model2.PersonId_1);
 
-        Model model3 = JSON.parseObject(text, Model.class);
-        Assert.assertEquals(model.PersonId, model3.personId);
+        Model2 model3 = JSON.parseObject(text, Model2.class);
+        Assert.assertEquals(model.PersonId_1, model3.PersonId_1);
     }
 
     public static class Model {
@@ -108,6 +108,6 @@ public class NamingSerTest extends TestCase {
 
     public static class Model2 {
 
-        public int PersonId;
+        public int PersonId_1;
     }
 }

@@ -270,9 +270,15 @@ public class JSONPath implements JSONAware {
                 if (i < segments.length - 1) {
                     nextSegement = segments[i + 1];
                 }
-                
+
                 Object newObj = null;
                 if (nextSegement instanceof PropertySegement) {
+                    Class<?> parentClass = parentObject.getClass();
+                    JavaBeanSerializer beanSerializer = getJavaBeanSerializer(parentClass);
+                    if (beanSerializer != null) {
+                        return false;
+                    }
+
                     newObj = new JSONObject();   
                 } else if (nextSegement instanceof ArrayAccessSegement) {
                     newObj = new JSONArray();

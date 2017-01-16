@@ -12,6 +12,7 @@ import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.ParameterizedTypeImpl;
+import com.alibaba.fastjson.util.TypeUtils;
 
 class ListTypeFieldDeserializer extends FieldDeserializer {
 
@@ -24,22 +25,11 @@ class ListTypeFieldDeserializer extends FieldDeserializer {
 
         Type fieldType = fieldInfo.fieldType;
         Class<?> fieldClass= fieldInfo.fieldClass;
-        if (fieldType instanceof ParameterizedType) {
-            Type argType = ((ParameterizedType) fieldInfo.fieldType).getActualTypeArguments()[0];
-            if (argType instanceof WildcardType) {
-                WildcardType wildcardType = (WildcardType) argType;
-                Type[] upperBounds = wildcardType.getUpperBounds();
-                if (upperBounds.length == 1) {
-                    argType = upperBounds[0];
-                }
-            }
-            this.itemType = argType;
-            array = false;
-        } else if (fieldClass.isArray()) {
+        if (fieldClass.isArray()) {
             this.itemType = fieldClass.getComponentType();
             array = true;
         } else {
-            this.itemType = Object.class;
+            this.itemType = TypeUtils.getCollectionItemType(fieldType);
             array = false;
         }
     }

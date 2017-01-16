@@ -1,9 +1,6 @@
 package com.alibaba.fastjson.parser;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
+import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -28,7 +25,15 @@ class ListTypeFieldDeserializer extends FieldDeserializer {
         Type fieldType = fieldInfo.fieldType;
         Class<?> fieldClass= fieldInfo.fieldClass;
         if (fieldType instanceof ParameterizedType) {
-            this.itemType = ((ParameterizedType) fieldType).getActualTypeArguments()[0];
+            Type argType = ((ParameterizedType) fieldInfo.fieldType).getActualTypeArguments()[0];
+            if (argType instanceof WildcardType) {
+                WildcardType wildcardType = (WildcardType) argType;
+                Type[] upperBounds = wildcardType.getUpperBounds();
+                if (upperBounds.length == 1) {
+                    argType = upperBounds[0];
+                }
+            }
+            this.itemType = argType;
             array = false;
         } else if (fieldClass.isArray()) {
             this.itemType = fieldClass.getComponentType();

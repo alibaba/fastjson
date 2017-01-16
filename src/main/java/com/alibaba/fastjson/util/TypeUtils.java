@@ -1336,6 +1336,34 @@ public class TypeUtils {
                    : null;
     }
 
+    public static Type getCollectionItemType(Type fieldType) {
+        Type itemType = null;
+        Class<?> clazz = null;
+        if (fieldType instanceof ParameterizedType) {
+            Type actualTypeArgument = ((ParameterizedType) fieldType).getActualTypeArguments()[0];
+
+            if (actualTypeArgument instanceof WildcardType) {
+                WildcardType wildcardType = (WildcardType) actualTypeArgument;
+                Type[] upperBounds = wildcardType.getUpperBounds();
+                if (upperBounds.length == 1) {
+                    actualTypeArgument = upperBounds[0];
+                }
+            }
+
+            itemType = actualTypeArgument;
+        } else if (fieldType instanceof Class<?> //
+                && !(clazz = (Class<?>) fieldType).getName().startsWith("java.")) {
+            Type superClass = clazz.getGenericSuperclass();
+            itemType = TypeUtils.getCollectionItemType(superClass);
+        }
+
+        if (itemType == null) {
+            itemType = Object.class;
+        }
+
+        return itemType;
+    }
+
 //    public static long fnv_hash(char[] chars) {
 //        long hash = 0x811c9dc5;
 //        for (int i = 0; i < chars.length; ++i) {

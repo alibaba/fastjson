@@ -15,9 +15,12 @@
  */
 package com.alibaba.fastjson.serializer;
 
+import com.alibaba.fastjson.util.TypeUtils;
+
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 import java.util.List;
 
 /**
@@ -36,10 +39,7 @@ public final class ListSerializer implements ObjectSerializer {
 
         Type elementType = null;
         if (writeClassName) {
-            if (fieldType instanceof ParameterizedType) {
-                ParameterizedType param = (ParameterizedType) fieldType;
-                elementType = param.getActualTypeArguments()[0];
-            }
+            elementType = TypeUtils.getCollectionItemType(fieldType);
         }
 
         if (object == null) {

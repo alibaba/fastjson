@@ -1,7 +1,6 @@
 package com.alibaba.json.bvt.bug;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import junit.framework.TestCase;
 
@@ -11,7 +10,7 @@ import java.util.List;
 /**
  * Created by wenshao on 16/01/2017.
  */
-public class Issue998 extends TestCase {
+public class Issue998_private extends TestCase {
     public void test_for_issue() throws Exception {
         Model model = JSON.parseObject("{\"items\":[{\"id\":123}]}", Model.class);
         assertNotNull(model);
@@ -31,11 +30,11 @@ public class Issue998 extends TestCase {
         assertEquals(123, items.get(0).id);
     }
 
-    public static class Model {
+    private static class Model {
         public List<? extends Item> items;
     }
 
-    public static class Item {
+    private static class Item {
         private int id;
 
         public int getId() {

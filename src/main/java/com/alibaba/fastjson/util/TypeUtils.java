@@ -1682,10 +1682,46 @@ public class TypeUtils {
         }
     }
 
+    public static Type getCollectionItemType(Type fieldType) {
+        Type itemType = null;
+        Class<?> clazz = null;
+        if (fieldType instanceof ParameterizedType) {
+            Type actualTypeArgument = ((ParameterizedType) fieldType).getActualTypeArguments()[0];
+
+            if (actualTypeArgument instanceof WildcardType) {
+                WildcardType wildcardType = (WildcardType) actualTypeArgument;
+                Type[] upperBounds = wildcardType.getUpperBounds();
+                if (upperBounds.length == 1) {
+                    actualTypeArgument = upperBounds[0];
+                }
+            }
+
+            itemType = actualTypeArgument;
+        } else if (fieldType instanceof Class<?> //
+                && !(clazz = (Class<?>) fieldType).getName().startsWith("java.")) {
+            Type superClass = clazz.getGenericSuperclass();
+            itemType = TypeUtils.getCollectionItemType(superClass);
+        }
+
+        if (itemType == null) {
+            itemType = Object.class;
+        }
+
+        return itemType;
+    }
+
     public static Class<?> getCollectionItemClass(Type fieldType) {
         if (fieldType instanceof ParameterizedType) {
             Class<?> itemClass;
             Type actualTypeArgument = ((ParameterizedType) fieldType).getActualTypeArguments()[0];
+
+            if (actualTypeArgument instanceof WildcardType) {
+                WildcardType wildcardType = (WildcardType) actualTypeArgument;
+                Type[] upperBounds = wildcardType.getUpperBounds();
+                if (upperBounds.length == 1) {
+                    actualTypeArgument = upperBounds[0];
+                }
+            }
 
             if (actualTypeArgument instanceof Class) {
                 itemClass = (Class<?>) actualTypeArgument;

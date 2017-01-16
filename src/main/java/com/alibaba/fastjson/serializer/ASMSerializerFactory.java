@@ -4,12 +4,7 @@ import static com.alibaba.fastjson.util.ASMUtils.desc;
 import static com.alibaba.fastjson.util.ASMUtils.type;
 
 import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,6 +25,7 @@ import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.ASMClassLoader;
 import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.FieldInfo;
+import com.alibaba.fastjson.util.TypeUtils;
 
 public class ASMSerializerFactory implements Opcodes {
 
@@ -1255,12 +1251,7 @@ public class ASMSerializerFactory implements Opcodes {
     private void _list(Class<?> clazz, MethodVisitor mw, FieldInfo fieldInfo, Context context) {
         Type propertyType = fieldInfo.fieldType;
 
-        Type elementType;
-        if (propertyType instanceof Class) {
-            elementType = Object.class;
-        } else {
-            elementType = ((ParameterizedType) propertyType).getActualTypeArguments()[0];
-        }
+        Type elementType = TypeUtils.getCollectionItemType(propertyType);
 
         Class<?> elementClass = null;
         if (elementType instanceof Class<?>) {

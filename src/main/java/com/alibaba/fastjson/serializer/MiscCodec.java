@@ -141,6 +141,9 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
             }
             out.write('}');
             return;
+        } else if (object.getClass().getName().equals("net.sf.json.JSONNull")) {
+            out.writeNull();
+            return;
         } else {
             throw new JSONException("not support class : " + objClass);
         }

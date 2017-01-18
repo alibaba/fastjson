@@ -555,6 +555,19 @@ public class SerializeConfig {
                     }
                 }
 
+                if (className.equals("net.sf.json.JSONNull")) {
+                    try {
+                        put(Class.forName("net.sf.json.JSONNull"), //
+                                MiscCodec.instance);
+                    } catch (ClassNotFoundException e) {
+                        // skip
+                    }
+                    writer = serializers.get(clazz);
+                    if (writer != null) {
+                        return writer;
+                    }
+                }
+
                 if (TypeUtils.isProxy(clazz)) {
                     Class<?> superClazz = clazz.getSuperclass();
 

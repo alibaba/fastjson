@@ -174,7 +174,7 @@ public class ObjectArrayCodec implements ObjectSerializer, ObjectDeserializer {
             componentType = componentClass = clazz.getComponentType();
         }
         JSONArray array = new JSONArray();
-        parser.parseArray(componentClass, array, fieldName);
+        parser.parseArray(componentType, array, fieldName);
 
         return (T) toObjectArray(parser, componentClass, array);
     }

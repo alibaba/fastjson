@@ -11,7 +11,7 @@
 -->
 	<groupId>com.alibaba</groupId>
 	<artifactId>fastjson</artifactId>
-	<version>1.2.24-SNAPSHOT</version>
+	<version>1.2.24</version>
 
 	<packaging>jar</packaging>
 	<name>fastjson</name>

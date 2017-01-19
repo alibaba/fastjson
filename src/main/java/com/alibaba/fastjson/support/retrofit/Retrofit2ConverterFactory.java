@@ -29,11 +29,6 @@ public class Retrofit2ConverterFactory extends Converter.Factory {
     private SerializeConfig serializeConfig;
     private SerializerFeature[] serializerFeatures;
 
-    /**
-     * Create an default instance for conversion. Encoding to JSON and
-     * decoding from JSON (when no charset is specified by a header) will use UTF-8.
-     * @return The instance of FastJsonConverterFactory
-     */
     public Retrofit2ConverterFactory() {
     }
 

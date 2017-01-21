@@ -64,7 +64,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
         }
 
         if (buf == null) {
-            buf = new char[1024 * 8];
+            buf = new char[1024 * 16];
         }
 
         try {

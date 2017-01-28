@@ -104,14 +104,9 @@ import com.alibaba.fastjson.serializer.MiscCodec;
 import com.alibaba.fastjson.serializer.ObjectArrayCodec;
 import com.alibaba.fastjson.serializer.ReferenceCodec;
 import com.alibaba.fastjson.serializer.StringCodec;
-import com.alibaba.fastjson.util.ASMClassLoader;
-import com.alibaba.fastjson.util.ASMUtils;
-import com.alibaba.fastjson.util.FieldInfo;
-import com.alibaba.fastjson.util.IOUtils;
-import com.alibaba.fastjson.util.IdentityHashMap;
-import com.alibaba.fastjson.util.JavaBeanInfo;
-import com.alibaba.fastjson.util.ServiceLoader;
+import com.alibaba.fastjson.util.*;
 
+import javax.sql.DataSource;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 /**
@@ -120,20 +115,38 @@ import javax.xml.datatype.XMLGregorianCalendar;
 public class ParserConfig {
     
     public final static String DENY_PROPERTY = "fastjson.parser.deny";
+    public final static String AUTOTYPE_ACCEPT = "fastjson.parser.autoTypeAccept";
+    public final static String AUTOTYPE_SUPPORT_PROPERTY = "fastjson.parser.autoTypeSupport";
     
-    public static final String[] DENYS=readSystemDenyPropety();
+    public static final String[] DENYS;
+    private static final String[] AUTO_TYPE_ACCEPT_LIST;
+    public static final boolean AUTO_SUPPORT;
+    static  {
+        {
+            String property = IOUtils.getStringProperty(DENY_PROPERTY);
+            DENYS = splitItemsFormProperty(property);
+        }
+        {
+            String property = IOUtils.getStringProperty(AUTOTYPE_SUPPORT_PROPERTY);
+            AUTO_SUPPORT = "true".equals(property);
+        }
+        {
+            String property = IOUtils.getStringProperty(AUTOTYPE_ACCEPT);
+            AUTO_TYPE_ACCEPT_LIST = splitItemsFormProperty(property);
+        }
+    }
 
     public static ParserConfig getGlobalInstance() {
         return global;
     }
 
-    public static ParserConfig                              global      = new ParserConfig();
+    public static ParserConfig                              global         = new ParserConfig();
 
-    private final IdentityHashMap<Type, ObjectDeserializer> derializers = new IdentityHashMap<Type, ObjectDeserializer>();
+    private final IdentityHashMap<Type, ObjectDeserializer> derializers    = new IdentityHashMap<Type, ObjectDeserializer>();
 
-    private boolean                                         asmEnable   = !ASMUtils.IS_ANDROID;
+    private boolean                                         asmEnable      = !ASMUtils.IS_ANDROID;
 
-    public final SymbolTable                                symbolTable = new SymbolTable(4096);
+    public final SymbolTable                                symbolTable    = new SymbolTable(4096);
     
     public PropertyNamingStrategy                           propertyNamingStrategy;
 
@@ -141,10 +154,12 @@ public class ParserConfig {
 
     protected ASMDeserializerFactory                        asmFactory;
 
-    private static boolean                                  awtError    = false;
-    private static boolean                                  jdk8Error   = false;
+    private static boolean                                  awtError        = false;
+    private static boolean                                  jdk8Error       = false;
 
-    private String[]                                        denyList    = new String[] { "java.lang.Thread" };
+    private boolean                                         autoTypeSupport = AUTO_SUPPORT;
+    private String[]                                        denyList        = "bsh,com.mchange,com.sun.,java.lang.Thread,java.net.Socket,java.rmi,javax.xml,org.apache.bcel,org.apache.commons.beanutils,org.apache.commons.collections.Transformer,org.apache.commons.collections.functors,org.apache.commons.collections4.comparators,org.apache.commons.fileupload,org.apache.myfaces.context.servlet,org.apache.tomcat,org.apache.wicket.util,org.codehaus.groovy.runtime,org.hibernate,org.jboss,org.mozilla.javascript,org.python.core,org.springframework".split(",");
+    private String[]                                        acceptList      = new String[0];
 
     public ParserConfig(){
         this(null, null);
@@ -260,8 +275,9 @@ public class ParserConfig {
         derializers.put(Comparable.class, JavaObjectDeserializer.instance);
         derializers.put(Closeable.class, JavaObjectDeserializer.instance);
 
-        addDeny("java.lang.Thread");
         addItemsToDeny(DENYS);
+        addItemsToAccept(AUTO_TYPE_ACCEPT_LIST);
+
     }
     
     private static String[] splitItemsFormProperty(final String property ){
@@ -270,24 +286,56 @@ public class ParserConfig {
         }
         return null;
     }
+
     public void configFromPropety(Properties properties) {
-        String property = properties.getProperty(DENY_PROPERTY);
-        String[] items =splitItemsFormProperty(property);
-        addItemsToDeny(items);
-    }
-    
-    private void addItemsToDeny(final String[] items){
-        if (items!=null){
-            for (int i = 0; i < items.length; ++i) {
-                String item = items[i];
-                this.addDeny(item);
+        {
+            String property = properties.getProperty(DENY_PROPERTY);
+            String[] items = splitItemsFormProperty(property);
+            addItemsToDeny(items);
+        }
+        {
+            String property = properties.getProperty(AUTOTYPE_ACCEPT);
+            String[] items = splitItemsFormProperty(property);
+            addItemsToAccept(items);
+        }
+        {
+            String property = properties.getProperty(AUTOTYPE_SUPPORT_PROPERTY);
+            if ("true".equals(property)) {
+                this.autoTypeSupport = true;
+            } else if ("false".equals(property)) {
+                this.autoTypeSupport = false;
             }
         }
     }
     
-    public static String[] readSystemDenyPropety() {
-        String property = IOUtils.getStringProperty(DENY_PROPERTY);
-        return splitItemsFormProperty(property);
+    private void addItemsToDeny(final String[] items){
+        if (items == null){
+            return;
+        }
+
+        for (int i = 0; i < items.length; ++i) {
+            String item = items[i];
+            this.addDeny(item);
+        }
+    }
+
+    private void addItemsToAccept(final String[] items){
+        if (items == null){
+            return;
+        }
+
+        for (int i = 0; i < items.length; ++i) {
+            String item = items[i];
+            this.addAccept(item);
+        }
+    }
+
+    public boolean isAutoTypeSupport() {
+        return autoTypeSupport;
+    }
+
+    public void setAutoTypeSupport(boolean autoTypeSupport) {
+        this.autoTypeSupport = autoTypeSupport;
     }
 
     public boolean isAsmEnable() {
@@ -359,12 +407,6 @@ public class ParserConfig {
 
         String className = clazz.getName();
         className = className.replace('$', '.');
-        for (int i = 0; i < denyList.length; ++i) {
-            String deny = denyList[i];
-            if (className.startsWith(deny)) {
-                throw new JSONException("parser deny : " + className);
-            }
-        }
 
         if (className.startsWith("java.awt.") //
             && AwtCodec.support(clazz)) {
@@ -464,6 +506,24 @@ public class ParserConfig {
         putDeserializer(type, derializer);
 
         return derializer;
+    }
+
+    /**
+     *
+     * @since 1.2.25
+     */
+    public void initJavaBeanDeserializers(Class<?>... classes) {
+        if (classes == null) {
+            return;
+        }
+
+        for (Class<?> type : classes) {
+            if (type == null) {
+                continue;
+            }
+            ObjectDeserializer deserializer = createJavaBeanDeserializer(type, type);
+            putDeserializer(type, deserializer);
+        }
     }
 
     public ObjectDeserializer createJavaBeanDeserializer(Class<?> clazz, Type type) {
@@ -698,9 +758,91 @@ public class ParserConfig {
             return;
         }
 
+        for (String item : denyList) {
+            if (name.equals(item)) {
+                return; // skip duplication
+            }
+        }
+
         String[] denyList = new String[this.denyList.length + 1];
         System.arraycopy(this.denyList, 0, denyList, 0, this.denyList.length);
         denyList[denyList.length - 1] = name;
         this.denyList = denyList;
+    }
+
+    public void addAccept(String name) {
+        if (name == null || name.length() == 0) {
+            return;
+        }
+
+        for (String item : acceptList) {
+            if (name.equals(item)) {
+                return; // skip duplication
+            }
+        }
+
+        String[] acceptList = new String[this.acceptList.length + 1];
+        System.arraycopy(this.acceptList, 0, acceptList, 0, this.acceptList.length);
+        acceptList[acceptList.length - 1] = name;
+        this.acceptList = acceptList;
+    }
+
+    public Class<?> checkAutoType(String typeName) {
+        if (typeName == null) {
+            return null;
+        }
+
+        final String className = typeName.replace('$', '.');
+
+        if (autoTypeSupport) {
+            for (int i = 0; i < denyList.length; ++i) {
+                String deny = denyList[i];
+                if (className.startsWith(deny)) {
+                    throw new JSONException("autoType is not support. " + typeName);
+                }
+            }
+        }
+
+        Class<?> clazz = TypeUtils.getClassFromMapping(typeName);
+        if (clazz == null) {
+            clazz = derializers.findClass(typeName);
+        }
+
+        if (clazz != null) {
+            return clazz;
+        }
+
+        for (int i = 0; i < acceptList.length; ++i) {
+            String accept = acceptList[i];
+            if (className.startsWith(accept)) {
+                return TypeUtils.loadClass(typeName, defaultClassLoader);
+            }
+        }
+
+        if (autoTypeSupport) {
+            clazz = TypeUtils.loadClass(typeName, defaultClassLoader);
+        }
+
+        if (clazz != null) {
+            if (ClassLoader.class.isAssignableFrom(clazz) || DataSource.class.isAssignableFrom(clazz)) {
+                throw new JSONException("autoType is not support. " + typeName);
+            }
+
+            if (derializers.get(clazz) != null) {
+                return clazz;
+            }
+
+            if (Throwable.class.isAssignableFrom(clazz)) {
+                return clazz;
+            }
+        }
+
+        // java.awt.Desktop
+
+        if (!autoTypeSupport) {
+            throw new JSONException("autoType is not support. " + typeName);
+        }
+
+        return clazz;
     }
 }

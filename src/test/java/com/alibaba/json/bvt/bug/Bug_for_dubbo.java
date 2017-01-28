@@ -1,5 +1,6 @@
 package com.alibaba.json.bvt.bug;
 
+import com.alibaba.fastjson.parser.ParserConfig;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -11,6 +12,10 @@ import com.alibaba.json.test.dubbo.Tigers;
 
 
 public class Bug_for_dubbo extends TestCase {
+    protected void setUp() throws Exception {
+        ParserConfig.global.addAccept("com.alibaba.json.test.dubbo.Tigers");
+    }
+
     public void test_0 () throws Exception {
         HelloServiceImpl helloService = new HelloServiceImpl();
         

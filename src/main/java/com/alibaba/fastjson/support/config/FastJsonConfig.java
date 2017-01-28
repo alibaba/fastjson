@@ -74,7 +74,7 @@ public class FastJsonConfig {
         this.charset = IOUtils.UTF8;
 
         this.serializeConfig = SerializeConfig.getGlobalInstance();
-        this.parserConfig = ParserConfig.getGlobalInstance();
+        this.parserConfig = new ParserConfig();
 
         this.serializerFeatures = new SerializerFeature[0];
         this.serializeFilters = new SerializeFilter[0];

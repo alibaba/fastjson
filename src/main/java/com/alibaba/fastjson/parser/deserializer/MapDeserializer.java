@@ -10,12 +10,8 @@ import java.util.concurrent.ConcurrentMap;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.parser.*;
 import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
-import com.alibaba.fastjson.parser.Feature;
-import com.alibaba.fastjson.parser.JSONLexer;
-import com.alibaba.fastjson.parser.JSONToken;
-import com.alibaba.fastjson.parser.ParseContext;
 import com.alibaba.fastjson.util.TypeUtils;
 
 public class MapDeserializer implements ObjectDeserializer {
@@ -129,7 +125,9 @@ public class MapDeserializer implements ObjectDeserializer {
 
                 if (key == JSON.DEFAULT_TYPE_KEY && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
                     String typeName = lexer.scanSymbol(parser.getSymbolTable(), '"');
-                    Class<?> clazz = TypeUtils.loadClass(typeName, parser.getConfig().getDefaultClassLoader());
+                    final ParserConfig config = parser.getConfig();
+
+                    Class<?> clazz = config.checkAutoType(typeName);
 
                     if (Map.class.isAssignableFrom(clazz) ) {
                         lexer.nextToken(JSONToken.COMMA);
@@ -140,7 +138,7 @@ public class MapDeserializer implements ObjectDeserializer {
                         continue;
                     }
 
-                    ObjectDeserializer deserializer = parser.getConfig().getDeserializer(clazz);
+                    ObjectDeserializer deserializer = config.getDeserializer(clazz);
 
                     lexer.nextToken(JSONToken.COMMA);
 

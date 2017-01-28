@@ -1,4 +1,6 @@
-package com.alibaba.json.bvt.parser.deser;
+package com.alibaba.json.bvt.parser.deser.deny;
+
+import java.util.Properties;
 
 import org.junit.Assert;
 
@@ -9,19 +11,20 @@ import com.alibaba.json.bvtVO.deny.A;
 
 import junit.framework.TestCase;
 
-public class DenyTest extends TestCase {
+public class DenyTest3 extends TestCase {
 
     public void test_0() throws Exception {
         String text = "{}";
 
         ParserConfig config = new ParserConfig();
 
-        config.addDeny(null);
-        config.addDeny("com.alibaba.json.bvtVO.deny");
-
+        Properties properties = new Properties();
+        properties.put(ParserConfig.DENY_PROPERTY, "com.alibaba.json.bvtVO.deny,,aa");
+        config.configFromPropety(properties);
+        
         Exception error = null;
         try {
-            JSON.parseObject(text, A.class, config, JSON.DEFAULT_PARSER_FEATURE);
+            JSON.parseObject("{\"@type\":\"com.alibaba.json.bvtVO.deny$A\"}", Object.class, config, JSON.DEFAULT_PARSER_FEATURE);
         } catch (JSONException ex) {
             error = ex;
         }
@@ -29,9 +32,9 @@ public class DenyTest extends TestCase {
         
         JSON.parseObject(text, B.class, config, JSON.DEFAULT_PARSER_FEATURE);
     }
-
     
-  public static class B {
+    public static class B {
         
     }
+
 }

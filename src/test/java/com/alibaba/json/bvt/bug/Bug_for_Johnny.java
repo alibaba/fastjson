@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.alibaba.fastjson.parser.ParserConfig;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -14,7 +15,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class Bug_for_Johnny extends TestCase {
-	
+	protected void setUp() throws Exception {
+		ParserConfig.global.addAccept("com.alibaba.json.bvt.bug.Bug_for_Johnny.");
+	}
+
 	public void test_bug()throws Exception {
 		MyObject myObject = new MyObject();
         List<String> listObj = new LinkedList<String>();

@@ -62,7 +62,6 @@ public class FastJsonHttpMessageConverter4 //
         return true;
     }
 
-    @Override
     public Object read(Type type, //
                        Class<?> contextClass, //
                        HttpInputMessage inputMessage //

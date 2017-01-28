@@ -10,6 +10,9 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import junit.framework.TestCase;
 
 public class Issue_748 extends TestCase {
+    protected void setUp() throws Exception {
+        com.alibaba.fastjson.parser.ParserConfig.global.addAccept("com.alibaba.json.bvt.bug.Issue_748.");
+    }
 
     public void testJsonObjectWithClassName() {
         JSONObject jsonObject = new JSONObject();

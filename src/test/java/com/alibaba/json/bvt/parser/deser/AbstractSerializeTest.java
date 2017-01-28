@@ -9,8 +9,9 @@ import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 
 public class AbstractSerializeTest extends TestCase {
-
     protected void setUp() throws Exception {
+        ParserConfig.global.addAccept("com.alibaba.json.bvt.bug.AbstractSerializeTest");
+
         ObjectDeserializer serializerB = ParserConfig.getGlobalInstance().getDeserializer(B.class);
         ParserConfig.getGlobalInstance().putDeserializer(A.class, serializerB);
     }

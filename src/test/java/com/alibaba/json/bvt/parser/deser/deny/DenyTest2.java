@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt.parser.deser;
+package com.alibaba.json.bvt.parser.deser.deny;
 
 import java.util.Properties;
 
@@ -24,7 +24,7 @@ public class DenyTest2 extends TestCase {
         
         Exception error = null;
         try {
-            JSON.parseObject(text, A.class, config, JSON.DEFAULT_PARSER_FEATURE);
+            JSON.parseObject("{\"@type\":\"com.alibaba.json.bvtVO.deny$A\"}", Object.class, config, JSON.DEFAULT_PARSER_FEATURE);
         } catch (JSONException ex) {
             error = ex;
         }

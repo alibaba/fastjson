@@ -142,7 +142,7 @@ public class ParserConfig {
 
     public static ParserConfig                              global         = new ParserConfig();
 
-    private final IdentityHashMap<Type, ObjectDeserializer> derializers    = new IdentityHashMap<Type, ObjectDeserializer>();
+    private final IdentityHashMap<Type, ObjectDeserializer> deserializers = new IdentityHashMap<Type, ObjectDeserializer>();
 
     private boolean                                         asmEnable      = !ASMUtils.IS_ANDROID;
 
@@ -196,84 +196,84 @@ public class ParserConfig {
             asmEnable = false;
         }
 
-        derializers.put(SimpleDateFormat.class, MiscCodec.instance);
-        derializers.put(java.sql.Timestamp.class, SqlDateDeserializer.instance_timestamp);
-        derializers.put(java.sql.Date.class, SqlDateDeserializer.instance);
-        derializers.put(java.sql.Time.class, TimeDeserializer.instance);
-        derializers.put(java.util.Date.class, DateCodec.instance);
-        derializers.put(Calendar.class, CalendarCodec.instance);
-        derializers.put(XMLGregorianCalendar.class, CalendarCodec.instance);
+        deserializers.put(SimpleDateFormat.class, MiscCodec.instance);
+        deserializers.put(java.sql.Timestamp.class, SqlDateDeserializer.instance_timestamp);
+        deserializers.put(java.sql.Date.class, SqlDateDeserializer.instance);
+        deserializers.put(java.sql.Time.class, TimeDeserializer.instance);
+        deserializers.put(java.util.Date.class, DateCodec.instance);
+        deserializers.put(Calendar.class, CalendarCodec.instance);
+        deserializers.put(XMLGregorianCalendar.class, CalendarCodec.instance);
 
-        derializers.put(JSONObject.class, MapDeserializer.instance);
-        derializers.put(JSONArray.class, CollectionCodec.instance);
+        deserializers.put(JSONObject.class, MapDeserializer.instance);
+        deserializers.put(JSONArray.class, CollectionCodec.instance);
 
-        derializers.put(Map.class, MapDeserializer.instance);
-        derializers.put(HashMap.class, MapDeserializer.instance);
-        derializers.put(LinkedHashMap.class, MapDeserializer.instance);
-        derializers.put(TreeMap.class, MapDeserializer.instance);
-        derializers.put(ConcurrentMap.class, MapDeserializer.instance);
-        derializers.put(ConcurrentHashMap.class, MapDeserializer.instance);
+        deserializers.put(Map.class, MapDeserializer.instance);
+        deserializers.put(HashMap.class, MapDeserializer.instance);
+        deserializers.put(LinkedHashMap.class, MapDeserializer.instance);
+        deserializers.put(TreeMap.class, MapDeserializer.instance);
+        deserializers.put(ConcurrentMap.class, MapDeserializer.instance);
+        deserializers.put(ConcurrentHashMap.class, MapDeserializer.instance);
 
-        derializers.put(Collection.class, CollectionCodec.instance);
-        derializers.put(List.class, CollectionCodec.instance);
-        derializers.put(ArrayList.class, CollectionCodec.instance);
+        deserializers.put(Collection.class, CollectionCodec.instance);
+        deserializers.put(List.class, CollectionCodec.instance);
+        deserializers.put(ArrayList.class, CollectionCodec.instance);
 
-        derializers.put(Object.class, JavaObjectDeserializer.instance);
-        derializers.put(String.class, StringCodec.instance);
-        derializers.put(StringBuffer.class, StringCodec.instance);
-        derializers.put(StringBuilder.class, StringCodec.instance);
-        derializers.put(char.class, CharacterCodec.instance);
-        derializers.put(Character.class, CharacterCodec.instance);
-        derializers.put(byte.class, NumberDeserializer.instance);
-        derializers.put(Byte.class, NumberDeserializer.instance);
-        derializers.put(short.class, NumberDeserializer.instance);
-        derializers.put(Short.class, NumberDeserializer.instance);
-        derializers.put(int.class, IntegerCodec.instance);
-        derializers.put(Integer.class, IntegerCodec.instance);
-        derializers.put(long.class, LongCodec.instance);
-        derializers.put(Long.class, LongCodec.instance);
-        derializers.put(BigInteger.class, BigIntegerCodec.instance);
-        derializers.put(BigDecimal.class, BigDecimalCodec.instance);
-        derializers.put(float.class, FloatCodec.instance);
-        derializers.put(Float.class, FloatCodec.instance);
-        derializers.put(double.class, NumberDeserializer.instance);
-        derializers.put(Double.class, NumberDeserializer.instance);
-        derializers.put(boolean.class, BooleanCodec.instance);
-        derializers.put(Boolean.class, BooleanCodec.instance);
-        derializers.put(Class.class, MiscCodec.instance);
-        derializers.put(char[].class, new CharArrayCodec());
+        deserializers.put(Object.class, JavaObjectDeserializer.instance);
+        deserializers.put(String.class, StringCodec.instance);
+        deserializers.put(StringBuffer.class, StringCodec.instance);
+        deserializers.put(StringBuilder.class, StringCodec.instance);
+        deserializers.put(char.class, CharacterCodec.instance);
+        deserializers.put(Character.class, CharacterCodec.instance);
+        deserializers.put(byte.class, NumberDeserializer.instance);
+        deserializers.put(Byte.class, NumberDeserializer.instance);
+        deserializers.put(short.class, NumberDeserializer.instance);
+        deserializers.put(Short.class, NumberDeserializer.instance);
+        deserializers.put(int.class, IntegerCodec.instance);
+        deserializers.put(Integer.class, IntegerCodec.instance);
+        deserializers.put(long.class, LongCodec.instance);
+        deserializers.put(Long.class, LongCodec.instance);
+        deserializers.put(BigInteger.class, BigIntegerCodec.instance);
+        deserializers.put(BigDecimal.class, BigDecimalCodec.instance);
+        deserializers.put(float.class, FloatCodec.instance);
+        deserializers.put(Float.class, FloatCodec.instance);
+        deserializers.put(double.class, NumberDeserializer.instance);
+        deserializers.put(Double.class, NumberDeserializer.instance);
+        deserializers.put(boolean.class, BooleanCodec.instance);
+        deserializers.put(Boolean.class, BooleanCodec.instance);
+        deserializers.put(Class.class, MiscCodec.instance);
+        deserializers.put(char[].class, new CharArrayCodec());
 
-        derializers.put(AtomicBoolean.class, BooleanCodec.instance);
-        derializers.put(AtomicInteger.class, IntegerCodec.instance);
-        derializers.put(AtomicLong.class, LongCodec.instance);
-        derializers.put(AtomicReference.class, ReferenceCodec.instance);
+        deserializers.put(AtomicBoolean.class, BooleanCodec.instance);
+        deserializers.put(AtomicInteger.class, IntegerCodec.instance);
+        deserializers.put(AtomicLong.class, LongCodec.instance);
+        deserializers.put(AtomicReference.class, ReferenceCodec.instance);
 
-        derializers.put(WeakReference.class, ReferenceCodec.instance);
-        derializers.put(SoftReference.class, ReferenceCodec.instance);
+        deserializers.put(WeakReference.class, ReferenceCodec.instance);
+        deserializers.put(SoftReference.class, ReferenceCodec.instance);
 
-        derializers.put(UUID.class, MiscCodec.instance);
-        derializers.put(TimeZone.class, MiscCodec.instance);
-        derializers.put(Locale.class, MiscCodec.instance);
-        derializers.put(Currency.class, MiscCodec.instance);
-        derializers.put(InetAddress.class, MiscCodec.instance);
-        derializers.put(Inet4Address.class, MiscCodec.instance);
-        derializers.put(Inet6Address.class, MiscCodec.instance);
-        derializers.put(InetSocketAddress.class, MiscCodec.instance);
-        derializers.put(File.class, MiscCodec.instance);
-        derializers.put(URI.class, MiscCodec.instance);
-        derializers.put(URL.class, MiscCodec.instance);
-        derializers.put(Pattern.class, MiscCodec.instance);
-        derializers.put(Charset.class, MiscCodec.instance);
-        derializers.put(JSONPath.class, MiscCodec.instance);
-        derializers.put(Number.class, NumberDeserializer.instance);
-        derializers.put(AtomicIntegerArray.class, AtomicCodec.instance);
-        derializers.put(AtomicLongArray.class, AtomicCodec.instance);
-        derializers.put(StackTraceElement.class, StackTraceElementDeserializer.instance);
+        deserializers.put(UUID.class, MiscCodec.instance);
+        deserializers.put(TimeZone.class, MiscCodec.instance);
+        deserializers.put(Locale.class, MiscCodec.instance);
+        deserializers.put(Currency.class, MiscCodec.instance);
+        deserializers.put(InetAddress.class, MiscCodec.instance);
+        deserializers.put(Inet4Address.class, MiscCodec.instance);
+        deserializers.put(Inet6Address.class, MiscCodec.instance);
+        deserializers.put(InetSocketAddress.class, MiscCodec.instance);
+        deserializers.put(File.class, MiscCodec.instance);
+        deserializers.put(URI.class, MiscCodec.instance);
+        deserializers.put(URL.class, MiscCodec.instance);
+        deserializers.put(Pattern.class, MiscCodec.instance);
+        deserializers.put(Charset.class, MiscCodec.instance);
+        deserializers.put(JSONPath.class, MiscCodec.instance);
+        deserializers.put(Number.class, NumberDeserializer.instance);
+        deserializers.put(AtomicIntegerArray.class, AtomicCodec.instance);
+        deserializers.put(AtomicLongArray.class, AtomicCodec.instance);
+        deserializers.put(StackTraceElement.class, StackTraceElementDeserializer.instance);
 
-        derializers.put(Serializable.class, JavaObjectDeserializer.instance);
-        derializers.put(Cloneable.class, JavaObjectDeserializer.instance);
-        derializers.put(Comparable.class, JavaObjectDeserializer.instance);
-        derializers.put(Closeable.class, JavaObjectDeserializer.instance);
+        deserializers.put(Serializable.class, JavaObjectDeserializer.instance);
+        deserializers.put(Cloneable.class, JavaObjectDeserializer.instance);
+        deserializers.put(Comparable.class, JavaObjectDeserializer.instance);
+        deserializers.put(Closeable.class, JavaObjectDeserializer.instance);
 
         addItemsToDeny(DENYS);
         addItemsToAccept(AUTO_TYPE_ACCEPT_LIST);
@@ -346,12 +346,12 @@ public class ParserConfig {
         this.asmEnable = asmEnable;
     }
 
-    public IdentityHashMap<Type, ObjectDeserializer> getDerializers() {
-        return derializers;
+    public IdentityHashMap<Type, ObjectDeserializer> getDeserializers() {
+        return deserializers;
     }
 
     public ObjectDeserializer getDeserializer(Type type) {
-        ObjectDeserializer derializer = this.derializers.get(type);
+        ObjectDeserializer derializer = this.deserializers.get(type);
         if (derializer != null) {
             return derializer;
         }
@@ -373,7 +373,7 @@ public class ParserConfig {
     }
 
     public ObjectDeserializer getDeserializer(Class<?> clazz, Type type) {
-        ObjectDeserializer derializer = derializers.get(type);
+        ObjectDeserializer derializer = deserializers.get(type);
         if (derializer != null) {
             return derializer;
         }
@@ -382,7 +382,7 @@ public class ParserConfig {
             type = clazz;
         }
 
-        derializer = derializers.get(type);
+        derializer = deserializers.get(type);
         if (derializer != null) {
             return derializer;
         }
@@ -398,7 +398,7 @@ public class ParserConfig {
         }
 
         if (type instanceof WildcardType || type instanceof TypeVariable || type instanceof ParameterizedType) {
-            derializer = derializers.get(clazz);
+            derializer = deserializers.get(clazz);
         }
 
         if (derializer != null) {
@@ -412,10 +412,10 @@ public class ParserConfig {
             && AwtCodec.support(clazz)) {
             if (!awtError) {
                 try {
-                    derializers.put(Class.forName("java.awt.Point"), AwtCodec.instance);
-                    derializers.put(Class.forName("java.awt.Font"), AwtCodec.instance);
-                    derializers.put(Class.forName("java.awt.Rectangle"), AwtCodec.instance);
-                    derializers.put(Class.forName("java.awt.Color"), AwtCodec.instance);
+                    deserializers.put(Class.forName("java.awt.Point"), AwtCodec.instance);
+                    deserializers.put(Class.forName("java.awt.Font"), AwtCodec.instance);
+                    deserializers.put(Class.forName("java.awt.Rectangle"), AwtCodec.instance);
+                    deserializers.put(Class.forName("java.awt.Color"), AwtCodec.instance);
                 } catch (Throwable e) {
                     // skip
                     awtError = true;
@@ -429,28 +429,28 @@ public class ParserConfig {
             try {
                 if (className.startsWith("java.time.")) {
                     
-                    derializers.put(Class.forName("java.time.LocalDateTime"), Jdk8DateCodec.instance);
-                    derializers.put(Class.forName("java.time.LocalDate"), Jdk8DateCodec.instance);
-                    derializers.put(Class.forName("java.time.LocalTime"), Jdk8DateCodec.instance);
-                    derializers.put(Class.forName("java.time.ZonedDateTime"), Jdk8DateCodec.instance);
-                    derializers.put(Class.forName("java.time.OffsetDateTime"), Jdk8DateCodec.instance);
-                    derializers.put(Class.forName("java.time.OffsetTime"), Jdk8DateCodec.instance);
-                    derializers.put(Class.forName("java.time.ZoneOffset"), Jdk8DateCodec.instance);
-                    derializers.put(Class.forName("java.time.ZoneRegion"), Jdk8DateCodec.instance);
-                    derializers.put(Class.forName("java.time.ZoneId"), Jdk8DateCodec.instance);
-                    derializers.put(Class.forName("java.time.Period"), Jdk8DateCodec.instance);
-                    derializers.put(Class.forName("java.time.Duration"), Jdk8DateCodec.instance);
-                    derializers.put(Class.forName("java.time.Instant"), Jdk8DateCodec.instance);
+                    deserializers.put(Class.forName("java.time.LocalDateTime"), Jdk8DateCodec.instance);
+                    deserializers.put(Class.forName("java.time.LocalDate"), Jdk8DateCodec.instance);
+                    deserializers.put(Class.forName("java.time.LocalTime"), Jdk8DateCodec.instance);
+                    deserializers.put(Class.forName("java.time.ZonedDateTime"), Jdk8DateCodec.instance);
+                    deserializers.put(Class.forName("java.time.OffsetDateTime"), Jdk8DateCodec.instance);
+                    deserializers.put(Class.forName("java.time.OffsetTime"), Jdk8DateCodec.instance);
+                    deserializers.put(Class.forName("java.time.ZoneOffset"), Jdk8DateCodec.instance);
+                    deserializers.put(Class.forName("java.time.ZoneRegion"), Jdk8DateCodec.instance);
+                    deserializers.put(Class.forName("java.time.ZoneId"), Jdk8DateCodec.instance);
+                    deserializers.put(Class.forName("java.time.Period"), Jdk8DateCodec.instance);
+                    deserializers.put(Class.forName("java.time.Duration"), Jdk8DateCodec.instance);
+                    deserializers.put(Class.forName("java.time.Instant"), Jdk8DateCodec.instance);
                     
-                    derializer = derializers.get(clazz);
+                    derializer = deserializers.get(clazz);
                 } else if (className.startsWith("java.util.Optional")) {
                     
-                    derializers.put(Class.forName("java.util.Optional"), OptionalCodec.instance);
-                    derializers.put(Class.forName("java.util.OptionalDouble"), OptionalCodec.instance);
-                    derializers.put(Class.forName("java.util.OptionalInt"), OptionalCodec.instance);
-                    derializers.put(Class.forName("java.util.OptionalLong"), OptionalCodec.instance);
+                    deserializers.put(Class.forName("java.util.Optional"), OptionalCodec.instance);
+                    deserializers.put(Class.forName("java.util.OptionalDouble"), OptionalCodec.instance);
+                    deserializers.put(Class.forName("java.util.OptionalInt"), OptionalCodec.instance);
+                    deserializers.put(Class.forName("java.util.OptionalLong"), OptionalCodec.instance);
                     
-                    derializer = derializers.get(clazz);
+                    derializer = deserializers.get(clazz);
                 }
             } catch (Throwable e) {
                 // skip
@@ -459,11 +459,11 @@ public class ParserConfig {
         }
 
         if (className.equals("java.nio.file.Path")) {
-            derializers.put(clazz, MiscCodec.instance);
+            deserializers.put(clazz, MiscCodec.instance);
         }
 
         if (clazz == Map.Entry.class) {
-            derializers.put(clazz, MiscCodec.instance);
+            deserializers.put(clazz, MiscCodec.instance);
         }
 
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -471,7 +471,7 @@ public class ParserConfig {
             for (AutowiredObjectDeserializer autowired : ServiceLoader.load(AutowiredObjectDeserializer.class,
                                                                             classLoader)) {
                 for (Type forType : autowired.getAutowiredFor()) {
-                    derializers.put(forType, autowired);
+                    deserializers.put(forType, autowired);
                 }
             }
         } catch (Exception ex) {
@@ -479,7 +479,7 @@ public class ParserConfig {
         }
 
         if (derializer == null) {
-            derializer = derializers.get(type);
+            derializer = deserializers.get(type);
         }
 
         if (derializer != null) {
@@ -684,7 +684,7 @@ public class ParserConfig {
     }
 
     public void putDeserializer(Type type, ObjectDeserializer deserializer) {
-        derializers.put(type, deserializer);
+        deserializers.put(type, deserializer);
     }
 
     public ObjectDeserializer getDeserializer(FieldInfo fieldInfo) {
@@ -787,14 +787,21 @@ public class ParserConfig {
         this.acceptList = acceptList;
     }
 
-    public Class<?> checkAutoType(String typeName) {
+    public Class<?> checkAutoType(String typeName, Class<?> expectClass) {
         if (typeName == null) {
             return null;
         }
 
         final String className = typeName.replace('$', '.');
 
-        if (autoTypeSupport) {
+        if (autoTypeSupport || expectClass != null) {
+            for (int i = 0; i < acceptList.length; ++i) {
+                String accept = acceptList[i];
+                if (className.startsWith(accept)) {
+                    return TypeUtils.loadClass(typeName, defaultClassLoader);
+                }
+            }
+
             for (int i = 0; i < denyList.length; ++i) {
                 String deny = denyList[i];
                 if (className.startsWith(deny)) {
@@ -805,39 +812,57 @@ public class ParserConfig {
 
         Class<?> clazz = TypeUtils.getClassFromMapping(typeName);
         if (clazz == null) {
-            clazz = derializers.findClass(typeName);
+            clazz = deserializers.findClass(typeName);
         }
 
         if (clazz != null) {
+            if (expectClass != null && !expectClass.isAssignableFrom(clazz)) {
+                throw new JSONException("type not match. " + typeName + " -> " + expectClass.getName());
+            }
+
             return clazz;
         }
 
-        for (int i = 0; i < acceptList.length; ++i) {
-            String accept = acceptList[i];
-            if (className.startsWith(accept)) {
-                return TypeUtils.loadClass(typeName, defaultClassLoader);
+        if (!autoTypeSupport) {
+            for (int i = 0; i < denyList.length; ++i) {
+                String deny = denyList[i];
+                if (className.startsWith(deny)) {
+                    throw new JSONException("autoType is not support. " + typeName);
+                }
+            }
+            for (int i = 0; i < acceptList.length; ++i) {
+                String accept = acceptList[i];
+                if (className.startsWith(accept)) {
+                    clazz = TypeUtils.loadClass(typeName, defaultClassLoader);
+
+                    if (expectClass != null && expectClass.isAssignableFrom(clazz)) {
+                        throw new JSONException("type not match. " + typeName + " -> " + expectClass.getName());
+                    }
+                    return clazz;
+                }
             }
         }
 
-        if (autoTypeSupport) {
+        if (autoTypeSupport || expectClass != null) {
             clazz = TypeUtils.loadClass(typeName, defaultClassLoader);
         }
 
         if (clazz != null) {
-            if (ClassLoader.class.isAssignableFrom(clazz) || DataSource.class.isAssignableFrom(clazz)) {
+
+            if (ClassLoader.class.isAssignableFrom(clazz) // classloader is danger
+                    || DataSource.class.isAssignableFrom(clazz) // dataSource can load jdbc driver
+                    ) {
                 throw new JSONException("autoType is not support. " + typeName);
             }
 
-            if (derializers.get(clazz) != null) {
-                return clazz;
-            }
-
-            if (Throwable.class.isAssignableFrom(clazz)) {
-                return clazz;
+            if (expectClass != null) {
+                if (expectClass.isAssignableFrom(clazz)) {
+                    return clazz;
+                } else {
+                    throw new JSONException("type not match. " + typeName + " -> " + expectClass.getName());
+                }
             }
         }
-
-        // java.awt.Desktop
 
         if (!autoTypeSupport) {
             throw new JSONException("autoType is not support. " + typeName);

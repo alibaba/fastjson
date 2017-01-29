@@ -72,7 +72,7 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
             if (JSON.DEFAULT_TYPE_KEY.equals(key)) {
                 if (lexer.token() == JSONToken.LITERAL_STRING) {
                     String exClassName = lexer.stringVal();
-                    exClass = TypeUtils.loadClass(exClassName, parser.getConfig().getDefaultClassLoader());
+                    exClass = parser.getConfig().checkAutoType(exClassName, Throwable.class);
                 } else {
                     throw new JSONException("syntax error");
                 }
@@ -105,6 +105,10 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
         if (exClass == null) {
             ex = new Exception(message, cause);
         } else {
+            if (!Throwable.class.isAssignableFrom(exClass)) {
+                throw new JSONException("type not match, not Throwable. " + exClass.getName());
+            }
+
             try {
                 ex = createException(message, cause, exClass);
                 if (ex == null) {

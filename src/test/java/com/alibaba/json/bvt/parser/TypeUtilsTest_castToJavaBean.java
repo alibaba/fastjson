@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
+import com.alibaba.fastjson.parser.ParserConfig;
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
@@ -19,6 +20,9 @@ import com.alibaba.fastjson.util.TypeUtils;
 import junit.framework.TestCase;
 
 public class TypeUtilsTest_castToJavaBean extends TestCase {
+    protected void setUp() throws Exception {
+        ParserConfig.global.addAccept("com.alibaba.json.bvt.parser.TypeUtilsTest_castToJavaBean.");
+    }
 
     public void test_castToJavaBean_StackTraceElement() throws Exception {
         Map<String, Object> map = new HashMap<String, Object>();

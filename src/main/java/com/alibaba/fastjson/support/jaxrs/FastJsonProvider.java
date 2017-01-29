@@ -39,9 +39,8 @@ import java.util.List;
 @Produces({MediaType.WILDCARD})
 public class FastJsonProvider //
         implements MessageBodyReader<Object>, MessageBodyWriter<Object> {
-
     @Deprecated
-    protected Charset charset = IOUtils.UTF8;
+    protected Charset charset = Charset.forName("UTF-8");
 
     @Deprecated
     protected SerializerFeature[] features = new SerializerFeature[0];

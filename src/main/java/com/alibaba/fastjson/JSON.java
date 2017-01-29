@@ -731,7 +731,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                                             int defaultFeatures, //
                                             SerializerFeature... features) throws IOException {
        return writeJSONString(os,  //
-                              IOUtils.UTF8, // 
+                              IOUtils.UTF8, //
                               object, //
                               SerializeConfig.globalInstance, //
                               null, //

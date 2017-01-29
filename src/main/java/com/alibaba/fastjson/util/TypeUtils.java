@@ -883,7 +883,11 @@ public class TypeUtils {
                 if (iClassObject instanceof String) {
                     String className = (String) iClassObject;
 
-                    Class<?> loadClazz = (Class<T>) loadClass(className);
+                    Class<?> loadClazz;
+                    if (config == null) {
+                        config = ParserConfig.global;
+                    }
+                    loadClazz = config.checkAutoType(className, null);
 
                     if (loadClazz == null) {
                         throw new ClassNotFoundException(className + " not found");
@@ -1019,6 +1023,7 @@ public class TypeUtils {
                 java.sql.Time.class,
                 java.sql.Date.class,
                 java.sql.Timestamp.class,
+                java.text.SimpleDateFormat.class,
                 loadClass("java.awt.Rectangle"),
                 loadClass("java.awt.Point"),
                 loadClass("java.awt.Font"),
@@ -1100,7 +1105,7 @@ public class TypeUtils {
         try {
             ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
 
-            if (contextClassLoader != null) {
+            if (contextClassLoader != null && contextClassLoader != classLoader) {
                 clazz = contextClassLoader.loadClass(className);
                 mappings.put(className, clazz);
 

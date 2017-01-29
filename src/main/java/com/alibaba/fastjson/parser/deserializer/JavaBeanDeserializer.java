@@ -548,15 +548,9 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             ObjectDeserializer deserizer = getSeeAlso(config, this.beanInfo, typeName);
                             Class<?> userType = null;
                             if (deserizer == null) {
-                                userType = TypeUtils.loadClass(typeName, config.getDefaultClassLoader());
-                                
                                 Class<?> expectClass = TypeUtils.getClass(type);
-                                if (expectClass == null || 
-                                    (userType != null && expectClass.isAssignableFrom(userType))) {
-                                    deserizer = parser.getConfig().getDeserializer(userType);                                        
-                                } else {
-                                    throw new JSONException("type not match");
-                                }
+                                userType = config.checkAutoType(typeName, expectClass);
+                                deserizer = parser.getConfig().getDeserializer(userType);
                             }
                             
                             return (T) deserizer.deserialze(parser, userType, fieldName);

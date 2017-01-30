@@ -21,7 +21,7 @@ import java.lang.reflect.Type;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao(szujobs@hotmail.com)
  */
 public class ReferenceSerializer implements ObjectSerializer {
 

@@ -67,7 +67,8 @@ public class SimplePropertyPreFilterTest extends TestCase {
     
     public void test_map() throws Exception {
         SimplePropertyPreFilter filter = new SimplePropertyPreFilter(VO.class, "name");
-        Assert.assertEquals("{\"id\":123,\"name\":\"sandzhangtoo\"}", JSON.toJSONString(map, filter));
+        String json = JSON.toJSONString(map, filter);
+        Assert.assertTrue("{\"id\":123,\"name\":\"sandzhangtoo\"}".equals(json) || "{\"name\":\"sandzhangtoo\",\"id\":123}".equals(json));
     }
     
     public void test_map_id() throws Exception {
@@ -87,7 +88,8 @@ public class SimplePropertyPreFilterTest extends TestCase {
     
     public void test_all_map() throws Exception {
         SimplePropertyPreFilter filter = new SimplePropertyPreFilter(VO.class);
-        Assert.assertEquals("{\"id\":123,\"name\":\"sandzhangtoo\"}", JSON.toJSONString(map, filter));
+        String json = JSON.toJSONString(map, filter);
+        Assert.assertTrue("{\"id\":123,\"name\":\"sandzhangtoo\"}".equals(json) || "{\"name\":\"sandzhangtoo\",\"id\":123}".equals(json));
     }
     
     public void test_exclude_id() throws Exception {

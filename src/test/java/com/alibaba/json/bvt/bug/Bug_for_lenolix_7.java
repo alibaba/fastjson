@@ -10,6 +10,9 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.json.bvt.parser.GenericTest.Address;
 
 public class Bug_for_lenolix_7 extends TestCase {
+    protected void setUp() throws Exception {
+        com.alibaba.fastjson.parser.ParserConfig.getGlobalInstance().addAccept(this.getClass().getName() + ".");
+    }
 
     public void test_for_objectKey() throws Exception {
         User user = new User();

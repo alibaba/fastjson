@@ -18,7 +18,7 @@ package com.alibaba.fastjson.util;
 /**
  * for concurrent IdentityHashMap
  * 
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao(szujobs@hotmail.com)
  */
 @SuppressWarnings("unchecked")
 public class IdentityHashMap<K, V> {
@@ -93,4 +93,24 @@ public class IdentityHashMap<K, V> {
         }
     }
 
+    public Class findClass(String keyString) {
+        for (Entry bucket : buckets) {
+            if (bucket == null) {
+                continue;
+            }
+
+            for (Entry<K, V> entry = bucket; entry != null; entry = entry.next) {
+                Object key = bucket.key;
+                if (key instanceof Class) {
+                    Class clazz = ((Class) key);
+                    String className = clazz.getName();
+                    if (className.equals(keyString)) {
+                        return clazz;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
 }

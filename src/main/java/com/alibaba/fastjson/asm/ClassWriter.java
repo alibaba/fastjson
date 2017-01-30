@@ -30,32 +30,12 @@
 package com.alibaba.fastjson.asm;
 
 /**
- * A {@link ClassVisitor} that generates classes in bytecode form. More precisely this visitor generates a byte array
- * conforming to the Java class file format. It can be used alone, to generate a Java class "from scratch", or with one
- * or more and adapter class visitor to generate a modified class from one or more existing Java classes.
- * 
  * @author Eric Bruneton
  */
 public class ClassWriter {
 
-    /**
-     * Flag to automatically compute the maximum stack size and the maximum number of local variables of methods. If
-     * this flag is set, then the arguments of the {@link MethodVisitor#visitMaxs visitMaxs} method of the
-     * {@link MethodVisitor} returned by the {@link #visitMethod visitMethod} method will be ignored, and computed
-     * automatically from the signature and the bytecode of each method.
-     * 
-     * @see #ClassWriter(int)
-     */
     public static final int COMPUTE_MAXS            = 1;
 
-    /**
-     * Flag to automatically compute the stack map frames of methods from scratch. If this flag is set, then the calls
-     * to the {@link MethodVisitor#visitFrame} method are ignored, and the stack map frames are recomputed from the
-     * methods bytecode. The arguments of the {@link MethodVisitor#visitMaxs visitMaxs} method are also ignored and
-     * recomputed from the bytecode. In other words, computeFrames implies computeMaxs.
-     * 
-     * @see #ClassWriter(int)
-     */
     public static final int COMPUTE_FRAMES          = 2;
 
     /**
@@ -266,14 +246,6 @@ public class ClassWriter {
      */
     final Item              key3;
 
-    /**
-     * A type table used to temporarily store internal names that will not necessarily be stored in the constant pool.
-     * This type table is used by the control flow and data flow analysis algorithm used to compute stack map frames
-     * from scratch. This array associates to each index <tt>i</tt> the Item whose index is <tt>i</tt>. All Item objects
-     * stored in this array are also stored in the {@link #items} hash table. These two arrays allow to retrieve an Item
-     * from its index or, conversely, to get the index of an Item from its value. Each Item stores an internal name in
-     * its {@link Item#strVal1} field.
-     */
     Item[]                  typeTable;
 
     /**
@@ -526,14 +498,6 @@ public class ClassWriter {
     // Utility methods: constant pool management
     // ------------------------------------------------------------------------
 
-    /**
-     * Adds a number or string constant to the constant pool of the class being build. Does nothing if the constant pool
-     * already contains a similar item.
-     * 
-     * @param cst the value of the constant to be added to the constant pool. This parameter must be an {@link Integer},
-     * a {@link Float}, a {@link Long}, a {@link Double}, a {@link String} or a {@link Type}.
-     * @return a new or already existing constant item with the given value.
-     */
     Item newConstItem(final Object cst) {
         if (cst instanceof Integer) {
             int val = ((Integer) cst).intValue();
@@ -605,16 +569,6 @@ public class ClassWriter {
         return result;
     }
 
-    /**
-     * Adds a method reference to the constant pool of the class being build. Does nothing if the constant pool already
-     * contains a similar item.
-     * 
-     * @param owner the internal name of the method's owner class.
-     * @param name the method's name.
-     * @param desc the method's descriptor.
-     * @param itf <tt>true</tt> if <tt>owner</tt> is an interface.
-     * @return a new or already existing method reference item.
-     */
     Item newMethodItem(final String owner, final String name, final String desc, final boolean itf) {
         int type = itf ? IMETH : METH;
         key3.set(type, owner, name, desc);
@@ -668,13 +622,6 @@ public class ClassWriter {
         return result;
     }
 
-    /**
-     * Returns the constant pool's hash table item which is equal to the given item.
-     * 
-     * @param key a constant pool item.
-     * @return the constant pool's hash table item which is equal to the given item, or <tt>null</tt> if there is no
-     * such item.
-     */
     private Item get(final Item key) {
         Item i = items[key.hashCode % items.length];
         while (i != null && (i.type != key.type || !key.isEqualTo(i))) {
@@ -683,11 +630,6 @@ public class ClassWriter {
         return i;
     }
 
-    /**
-     * Puts the given item in the constant pool's hash table. The hash table <i>must</i> not already contains this item.
-     * 
-     * @param i the item to be added to the constant pool's hash table.
-     */
     private void put(final Item i) {
         if (index > threshold) {
             int ll = items.length;

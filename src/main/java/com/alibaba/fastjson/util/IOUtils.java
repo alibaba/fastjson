@@ -21,11 +21,12 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
+import java.util.Properties;
 
 import com.alibaba.fastjson.JSONException;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao(szujobs@hotmail.com)
  */
 public class IOUtils {
 
@@ -207,5 +208,16 @@ public class IOUtils {
             // so this shouldn't happen
             throw new JSONException(x.getMessage(), x);
         }
+    }
+
+    public final static Properties DEFAULT_PROPERTIES = new Properties();
+    public static String getStringProperty(String name) {
+        String prop = null;
+        try {
+            prop = System.getProperty(name);
+        } catch (SecurityException e) {
+            //skip
+        }
+        return (prop == null) ? DEFAULT_PROPERTIES.getProperty(name) : prop;
     }
 }

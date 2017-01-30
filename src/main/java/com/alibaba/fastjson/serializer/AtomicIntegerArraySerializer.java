@@ -20,7 +20,7 @@ import java.lang.reflect.Type;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao(szujobs@hotmail.com)
  */
 public class AtomicIntegerArraySerializer implements ObjectSerializer {
 

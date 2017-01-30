@@ -20,7 +20,7 @@ import java.lang.reflect.Type;
 import java.net.URI;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao(szujobs@hotmail.com)
  */
 public class URISerializer implements ObjectSerializer {
 

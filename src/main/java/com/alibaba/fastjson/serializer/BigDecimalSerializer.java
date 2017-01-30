@@ -20,7 +20,7 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao(szujobs@hotmail.com)
  */
 public class BigDecimalSerializer implements ObjectSerializer {
 

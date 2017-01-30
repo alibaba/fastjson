@@ -20,7 +20,7 @@ import java.lang.reflect.Type;
 import java.util.regex.Pattern;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao(szujobs@hotmail.com)
  */
 public class PatternSerializer implements ObjectSerializer {
 

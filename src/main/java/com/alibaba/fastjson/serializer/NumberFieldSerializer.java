@@ -19,7 +19,7 @@ import com.alibaba.fastjson.util.FieldInfo;
 
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao(szujobs@hotmail.com)
  */
 class NumberFieldSerializer extends FieldSerializer {
 

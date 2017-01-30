@@ -50,7 +50,7 @@ import com.alibaba.fastjson.util.ThreadLocalCache;
 import com.alibaba.fastjson.util.TypeUtils;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao(szujobs@hotmail.com)
  */
 public abstract class JSON implements JSONStreamAware, JSONAware {
 
@@ -656,6 +656,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     public static final <T> T toJavaObject(JSON json, Class<T> clazz) {
         return TypeUtils.cast(json, clazz, ParserConfig.getGlobalInstance());
+    }
+
+    public static <T> T parseObject(String input, Type clazz, ParserConfig config, Feature... features) {
+        return parseObject(input, clazz, config, DEFAULT_PARSER_FEATURE, features);
     }
 
     public final static String VERSION = "1.1.33";

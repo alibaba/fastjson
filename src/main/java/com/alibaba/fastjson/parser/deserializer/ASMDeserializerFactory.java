@@ -1069,7 +1069,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitLabel(storeCollection_);
         mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
 
-        boolean isPrimitive = ParserConfig.isPrimitive(fieldInfo.fieldClass);
+        boolean isPrimitive = ParserConfig.isPrimitive2(fieldInfo.fieldClass);
         _getCollectionFieldItemDeser(context, mw, fieldInfo, itemType);
         if (isPrimitive) {
             mw.visitMethodInsn(INVOKEINTERFACE, type(ObjectDeserializer.class), "getFastMatchToken", "()I");

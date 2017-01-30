@@ -1545,7 +1545,7 @@ public class ASMSerializerFactory implements Opcodes {
 
         Label classIfEnd_ = new Label(), classIfElse_ = new Label();
         if (Modifier.isPublic(fieldClass.getModifiers()) //
-            && !ParserConfig.isPrimitive(fieldClass) //
+            && !ParserConfig.isPrimitive2(fieldClass) //
         ) {
             mw.visitVarInsn(ALOAD, context.var("object"));
             mw.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;");

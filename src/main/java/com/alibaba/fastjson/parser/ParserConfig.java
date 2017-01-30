@@ -339,6 +339,9 @@ public class ParserConfig {
         } catch (Throwable e) {
             
         }
+
+        addItemsToDeny(DENYS);
+        addItemsToAccept(AUTO_TYPE_ACCEPT_LIST);
     }
 
     private static String[] splitItemsFormProperty(final String property ){

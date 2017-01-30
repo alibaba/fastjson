@@ -900,6 +900,23 @@ public final class JSONScanner extends JSONLexerBase {
 
         return hash;
     }
+    
+    public Collection<String> newCollectionByType(Class<?> type){
+    	if (type.isAssignableFrom(HashSet.class)) {
+    		HashSet<String> list = new HashSet<String>();
+    		return list;
+        } else if (type.isAssignableFrom(ArrayList.class)) {
+        	ArrayList<String> list = new ArrayList<String>();
+        	return list;
+        } else {
+            try {
+            	Collection<String> list = (Collection<String>) type.newInstance();
+            	return list;
+            } catch (Exception e) {
+                throw new JSONException(e.getMessage(), e);
+            }
+        }
+    }
 
     @SuppressWarnings("unchecked")
     public Collection<String> scanFieldStringArray(char[] fieldName, Class<?> type) {
@@ -910,19 +927,19 @@ public final class JSONScanner extends JSONLexerBase {
             return null;
         }
 
-        Collection<String> list;
+        Collection<String> list = newCollectionByType(type);
 
-        if (type.isAssignableFrom(HashSet.class)) {
-            list = new HashSet<String>();
-        } else if (type.isAssignableFrom(ArrayList.class)) {
-            list = new ArrayList<String>();
-        } else {
-            try {
-                list = (Collection<String>) type.newInstance();
-            } catch (Exception e) {
-                throw new JSONException(e.getMessage(), e);
-            }
-        }
+//        if (type.isAssignableFrom(HashSet.class)) {
+//            list = new HashSet<String>();
+//        } else if (type.isAssignableFrom(ArrayList.class)) {
+//            list = new ArrayList<String>();
+//        } else {
+//            try {
+//                list = (Collection<String>) type.newInstance();
+//            } catch (Exception e) {
+//                throw new JSONException(e.getMessage(), e);
+//            }
+//        }
 
         int index = bp + fieldName.length;
 

@@ -889,7 +889,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             return array;
         }
 
-        if (ParserConfig.isPrimitive(clazz)) {
+        if (ParserConfig.isPrimitive2(clazz)) {
             return javaObject;
         }
         
@@ -958,6 +958,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
 
         return chars;
+    }
+
+    public static <T> void handleResovleTask(DefaultJSONParser parser, T value) {
+        parser.handleResovleTask(value);
     }
 
     public final static String VERSION = "1.2.25";

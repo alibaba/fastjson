@@ -691,7 +691,17 @@ public class ParserConfig {
         return getDeserializer(fieldInfo.fieldClass, fieldInfo.fieldType);
     }
 
-    public static boolean isPrimitive(Class<?> clazz) {
+    /**
+     * @deprecated  internal method, dont call
+     */
+    public boolean isPrimitive(Class<?> clazz) {
+        return isPrimitive2(clazz);
+    }
+
+    /**
+     * @deprecated  internal method, dont call
+     */
+    public static boolean isPrimitive2(Class<?> clazz) {
         return clazz.isPrimitive() //
                || clazz == Boolean.class //
                || clazz == Character.class //

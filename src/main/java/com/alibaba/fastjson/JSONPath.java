@@ -458,7 +458,7 @@ public class JSONPath implements JSONAware {
             return;
         }
 
-        if (ParserConfig.isPrimitive(clazz) || clazz.isEnum()) {
+        if (ParserConfig.isPrimitive2(clazz) || clazz.isEnum()) {
             return;
         }
 

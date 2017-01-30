@@ -311,7 +311,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             continue;
                         }
 
-                        Class<?> userType = TypeUtils.loadClass(typeName);
+                        Class<?> userType = parser.getConfig().checkAutoType(typeName, this.clazz);
                         ObjectDeserializer deserizer = parser.getConfig().getDeserializer(userType);
                         return (T) deserizer.deserialze(parser, userType, fieldName);
                     } else {

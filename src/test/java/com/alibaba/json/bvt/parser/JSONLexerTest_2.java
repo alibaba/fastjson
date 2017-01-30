@@ -17,11 +17,23 @@ public class JSONLexerTest_2 extends TestCase {
     }
 
     public void test_1() throws Exception {
-        JSON.parseObject("{\"@type\":\"com.alibaba.json.bvt.parser.JSONLexerTest_2$VO1\"}", VO.class);
+        Throwable error = null;
+        try {
+            JSON.parseObject("{\"@type\":\"com.alibaba.json.bvt.parser.JSONLexerTest_2$VO1\"}", VO.class);
+        } catch (Exception ex) {
+            error = ex;
+        }
+        assertNotNull(error);
     }
 
     public void test_2() throws Exception {
-        JSON.parseObject("{\"@type\":\"com.alibaba.json.bvt.parser.JSONLexerTest_2$A\"}", VO.class);
+        Throwable error = null;
+        try {
+            JSON.parseObject("{\"@type\":\"com.alibaba.json.bvt.parser.JSONLexerTest_2$A\"}", VO.class);
+        } catch (Exception ex) {
+            error = ex;
+        }
+        assertNotNull(error);
     }
 
     public void test_a() throws Exception {

@@ -11,6 +11,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class WriteClassNameTest_Set extends TestCase {
+    protected void setUp() throws Exception {
+        com.alibaba.fastjson.parser.ParserConfig.getGlobalInstance().addAccept("com.alibaba.json.bvt.writeClassName.WriteClassNameTest_Set.");
+    }
 
     public void test_list() throws Exception {
         A a = new A();

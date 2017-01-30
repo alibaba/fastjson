@@ -10,6 +10,9 @@ import junit.framework.TestCase;
 import com.alibaba.fastjson.JSON;
 
 public class Bug_for_generic extends TestCase {
+    protected void setUp() throws Exception {
+        com.alibaba.fastjson.parser.ParserConfig.getGlobalInstance().addAccept("NotifyDetail");
+    }
 
     public void test() throws Exception {
         String json = "{\"@type\":\"com.alibaba.json.bvt.bug.Bug_for_generic$NotifyDetail\",\"args\":[\"61354557\",\"依依\",\"六\"],\"destId\":60721687,\"detailId\":3155063,\"display\":false,\"foundTime\":{\"@type\":\"java.sql.Timestamp\",\"val\":1344530416000},\"hotId\":0,\"srcId\":1000,\"templateId\":482}";

@@ -13,6 +13,9 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class Bug_for_dragoon26 extends TestCase {
+    protected void setUp() throws Exception {
+        com.alibaba.fastjson.parser.ParserConfig.getGlobalInstance().addAccept(this.getClass().getName() + ".");
+    }
 
     public void test_0() throws Exception {
         MonitorConfigMessage message = new MonitorConfigMessage();

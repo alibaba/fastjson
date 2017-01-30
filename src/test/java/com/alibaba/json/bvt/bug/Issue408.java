@@ -16,7 +16,9 @@ public class Issue408 extends TestCase {
     public void setUp() throws Exception {
         String resource = "json/Issue408.json";
         inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
+        com.alibaba.fastjson.parser.ParserConfig.getGlobalInstance().addAccept(this.getClass().getName() + ".");
     }
+
 
     @Override
     public void tearDown() throws Exception {

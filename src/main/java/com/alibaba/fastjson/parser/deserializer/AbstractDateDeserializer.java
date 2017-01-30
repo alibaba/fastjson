@@ -48,7 +48,7 @@ public abstract class AbstractDateDeserializer implements ObjectDeserializer {
                     parser.accept(JSONToken.COLON);
                     
                     String typeName = lexer.stringVal();
-                    Class<?> type = TypeUtils.loadClass(typeName);
+                    Class<?> type = parser.getConfig().checkAutoType(typeName, null);
                     if (type != null) {
                         clazz = type;
                     }

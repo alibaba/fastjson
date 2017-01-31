@@ -906,8 +906,8 @@ public final class JSONScanner extends JSONLexerBase {
     		HashSet<String> list = new HashSet<String>();
     		return list;
         } else if (type.isAssignableFrom(ArrayList.class)) {
-        	ArrayList<String> list = new ArrayList<String>();
-        	return list;
+        	ArrayList<String> list2 = new ArrayList<String>();
+        	return list2;
         } else {
             try {
             	Collection<String> list = (Collection<String>) type.newInstance();

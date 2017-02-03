@@ -741,5 +741,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return parseObject(input, clazz, config, null, DEFAULT_PARSER_FEATURE, features);
     }
 
+    public static <T> void handleResovleTask(DefaultJSONParser parser, T value) {
+        parser.handleResovleTask(value);
+    }
+
     public final static String VERSION = "1.1.46";
 }

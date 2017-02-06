@@ -12,8 +12,9 @@ public class Issue408 extends TestCase {
 
     private InputStream inputStream;
 
-    @Override
-    public void setUp() throws Exception {
+    protected void setUp() throws Exception {
+        com.alibaba.fastjson.parser.ParserConfig.getGlobalInstance().addAccept(this.getClass().getName() + ".");
+
         String resource = "json/Issue408.json";
         inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
     }

@@ -11,6 +11,11 @@ import com.alibaba.json.test.dubbo.Tigers;
 
 
 public class Bug_for_dubbo extends TestCase {
+    protected void setUp() throws Exception {
+        com.alibaba.fastjson.parser.ParserConfig.getGlobalInstance().addAccept("com.alibaba.json.test.dubbo.");
+    }
+
+
     public void test_0 () throws Exception {
         HelloServiceImpl helloService = new HelloServiceImpl();
         

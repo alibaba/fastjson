@@ -12,6 +12,8 @@ import junit.framework.TestCase;
 
 public class Bug_for_lenolix_7 extends TestCase {
     protected void setUp() throws Exception {
+        com.alibaba.fastjson.parser.ParserConfig.getGlobalInstance().addAccept(this.getClass().getName() + ".");
+
         JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
         JSON.defaultLocale = Locale.CHINA;
     }

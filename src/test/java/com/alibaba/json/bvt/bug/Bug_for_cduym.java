@@ -10,6 +10,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class Bug_for_cduym extends TestCase {
+    protected void setUp() throws Exception {
+        com.alibaba.fastjson.parser.ParserConfig.getGlobalInstance().addAccept(this.getClass().getName() + ".");
+    }
+
 
     @SuppressWarnings("rawtypes")
     public void test0() {

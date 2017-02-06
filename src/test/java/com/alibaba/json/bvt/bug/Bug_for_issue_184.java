@@ -7,6 +7,9 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import junit.framework.TestCase;
 
 public class Bug_for_issue_184 extends TestCase {
+    protected void setUp() throws Exception {
+        com.alibaba.fastjson.parser.ParserConfig.getGlobalInstance().addAccept(this.getClass().getName() + ".");
+    }
 
     public void test_for_issue() throws Exception {
         TUser user = new TUser();

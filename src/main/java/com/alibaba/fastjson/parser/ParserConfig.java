@@ -113,7 +113,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
  * @author wenshao[szujobs@hotmail.com]
  */
 public class ParserConfig {
-    
+
     public final static String DENY_PROPERTY = "fastjson.parser.deny";
     public final static String AUTOTYPE_ACCEPT = "fastjson.parser.autoTypeAccept";
     public final static String AUTOTYPE_SUPPORT_PROPERTY = "fastjson.parser.autoTypeSupport";
@@ -132,7 +132,11 @@ public class ParserConfig {
         }
         {
             String property = IOUtils.getStringProperty(AUTOTYPE_ACCEPT);
-            AUTO_TYPE_ACCEPT_LIST = splitItemsFormProperty(property);
+            String[] items = splitItemsFormProperty(property);
+            if (items == null) {
+                items = new String[0];
+            }
+            AUTO_TYPE_ACCEPT_LIST = items;
         }
     }
 
@@ -159,7 +163,7 @@ public class ParserConfig {
 
     private boolean                                         autoTypeSupport = AUTO_SUPPORT;
     private String[]                                        denyList        = "bsh,com.mchange,com.sun.,java.lang.Thread,java.net.Socket,java.rmi,javax.xml,org.apache.bcel,org.apache.commons.beanutils,org.apache.commons.collections.Transformer,org.apache.commons.collections.functors,org.apache.commons.collections4.comparators,org.apache.commons.fileupload,org.apache.myfaces.context.servlet,org.apache.tomcat,org.apache.wicket.util,org.codehaus.groovy.runtime,org.hibernate,org.jboss,org.mozilla.javascript,org.python.core,org.springframework".split(",");
-    private String[]                                        acceptList      = new String[0];
+    private String[]                                        acceptList      = AUTO_TYPE_ACCEPT_LIST;
 
     public ParserConfig(){
         this(null, null);

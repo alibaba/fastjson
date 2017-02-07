@@ -653,37 +653,64 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitFieldInsn(GETFIELD, context.className, fieldInfo.name + "_asm_prefix__", "[C");
                 mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldString", "([C)Ljava/lang/String;");
                 mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
-
-            } else if (fieldClass.isEnum()) {
+            } else if (fieldClass == int[].class) {
                 mw.visitVarInsn(ALOAD, context.var("lexer"));
                 mw.visitVarInsn(ALOAD, 0);
                 mw.visitFieldInsn(GETFIELD, context.className, fieldInfo.name + "_asm_prefix__", "[C");
-                Label enumNull_ = new Label();
-                mw.visitInsn(ACONST_NULL);
+                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldIntArray", "([C)[I");
+                mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
+            } else if (fieldClass == float[].class) {
+                mw.visitVarInsn(ALOAD, context.var("lexer"));
+                mw.visitVarInsn(ALOAD, 0);
+                mw.visitFieldInsn(GETFIELD, context.className, fieldInfo.name + "_asm_prefix__", "[C");
+                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldFloatArray", "([C)[F");
+                mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
+            } else if (fieldClass == float[][].class) {
+                mw.visitVarInsn(ALOAD, context.var("lexer"));
+                mw.visitVarInsn(ALOAD, 0);
+                mw.visitFieldInsn(GETFIELD, context.className, fieldInfo.name + "_asm_prefix__", "[C");
+                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldFloatArray2", "([C)[[F");
+                mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
+            } else if (fieldClass.isEnum()) {
+                mw.visitVarInsn(ALOAD, 0);
+                mw.visitVarInsn(ALOAD, context.var("lexer"));
+                mw.visitVarInsn(ALOAD, 0);
+                mw.visitFieldInsn(GETFIELD, context.className, fieldInfo.name + "_asm_prefix__", "[C");
+                _getFieldDeser(context, mw, fieldInfo);
+                mw.visitMethodInsn(INVOKEVIRTUAL, type(JavaBeanDeserializer.class), "scanEnum"
+                        , "(L" + JSONLexerBase + ";[C" + desc(ObjectDeserializer.class) + ")Ljava/lang/Enum;");
                 mw.visitTypeInsn(CHECKCAST, type(fieldClass)); // cast
                 mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
 
-                mw.visitVarInsn(ALOAD, 1);
-
-                mw.visitMethodInsn(INVOKEVIRTUAL, DefaultJSONParser, "getSymbolTable", "()" + desc(SymbolTable.class));
-
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldSymbol",
-                                   "([C" + desc(SymbolTable.class) + ")Ljava/lang/String;");
-                mw.visitInsn(DUP);
-                mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm_enumName"));
-
-                mw.visitJumpInsn(IFNULL, enumNull_);
-                
-                mw.visitVarInsn(ALOAD, context.var(fieldInfo.name + "_asm_enumName"));
-                mw.visitMethodInsn(INVOKEVIRTUAL, type(String.class), "length", "()I");
-                mw.visitJumpInsn(IFEQ, enumNull_);
-                
-                mw.visitVarInsn(ALOAD, context.var(fieldInfo.name + "_asm_enumName"));
-                mw.visitMethodInsn(INVOKESTATIC, type(fieldClass), "valueOf",
-                                   "(Ljava/lang/String;)" + desc(fieldClass));
-                mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
-                mw.visitLabel(enumNull_);
-
+//            } else if (fieldClass.isEnum()) {
+//                mw.visitVarInsn(ALOAD, context.var("lexer"));
+//                mw.visitVarInsn(ALOAD, 0);
+//                mw.visitFieldInsn(GETFIELD, context.className, fieldInfo.name + "_asm_prefix__", "[C");
+//                Label enumNull_ = new Label();
+//                mw.visitInsn(ACONST_NULL);
+//                mw.visitTypeInsn(CHECKCAST, type(fieldClass)); // cast
+//                mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
+//
+//                mw.visitVarInsn(ALOAD, 1);
+//
+//                mw.visitMethodInsn(INVOKEVIRTUAL, DefaultJSONParser, "getSymbolTable", "()" + desc(SymbolTable.class));
+//
+//                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldSymbol",
+//                        "([C" + desc(SymbolTable.class) + ")Ljava/lang/String;");
+//                mw.visitInsn(DUP);
+//                mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm_enumName"));
+//
+//                mw.visitJumpInsn(IFNULL, enumNull_);
+//
+//                mw.visitVarInsn(ALOAD, context.var(fieldInfo.name + "_asm_enumName"));
+//                mw.visitMethodInsn(INVOKEVIRTUAL, type(String.class), "length", "()I");
+//                mw.visitJumpInsn(IFEQ, enumNull_);
+//
+//                mw.visitVarInsn(ALOAD, context.var(fieldInfo.name + "_asm_enumName"));
+//                mw.visitMethodInsn(INVOKESTATIC, type(fieldClass), "valueOf",
+//                        "(Ljava/lang/String;)" + desc(fieldClass));
+//                mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
+//                mw.visitLabel(enumNull_);
             } else if (Collection.class.isAssignableFrom(fieldClass)) {
                 mw.visitVarInsn(ALOAD, context.var("lexer"));
                 mw.visitVarInsn(ALOAD, 0);
@@ -918,9 +945,10 @@ public class ASMDeserializerFactory implements Opcodes {
     }
 
     private void _set(Context context, MethodVisitor mw, FieldInfo fieldInfo) {
-        if (fieldInfo.method != null) {
-            mw.visitMethodInsn(INVOKEVIRTUAL, type(fieldInfo.declaringClass), fieldInfo.method.getName(),
-                               desc(fieldInfo.method));
+        Method method = fieldInfo.method;
+        if (method != null) {
+            Class<?> declaringClass = method.getDeclaringClass();
+            mw.visitMethodInsn(declaringClass.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL, type(fieldInfo.declaringClass), method.getName(), desc(method));
 
             if (!fieldInfo.method.getReturnType().equals(Void.TYPE)) {
                 mw.visitInsn(POP);

@@ -15,6 +15,7 @@
  */
 package com.alibaba.fastjson.parser;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -111,16 +112,11 @@ public final class JSONScanner extends JSONLexerBase {
         return IOUtils.decodeBase64(text, np + 1, sp);
     }
 
-    // public int scanField2(char[] fieldName, Object object, FieldDeserializer fieldDeserializer) {
-    // return NOT_MATCH;
-    // }
-
     /**
      * The value of a literal token, recorded as a string. For integers, leading 0x and 'l' suffixes are suppressed.
      */
     public final String stringVal() {
         if (!hasSpecial) {
-            // return text.substring(np + 1, np + 1 + sp);
             return this.subString(np + 1, sp);
         } else {
             return new String(sbuf, 0, sp);
@@ -161,13 +157,27 @@ public final class JSONScanner extends JSONLexerBase {
             sp--;
         }
 
-        // return text.substring(np, np + sp);
         return this.subString(np, sp);
     }
 
-    public final static int ISO8601_LEN_0 = "0000-00-00".length();
-    public final static int ISO8601_LEN_1 = "0000-00-00T00:00:00".length();
-    public final static int ISO8601_LEN_2 = "0000-00-00T00:00:00.000".length();
+    public final BigDecimal decimalValue() {
+        char chLocal = charAt(np + sp - 1);
+
+        int sp = this.sp;
+        if (chLocal == 'L' || chLocal == 'S' || chLocal == 'B' || chLocal == 'F' || chLocal == 'D') {
+            sp--;
+        }
+
+        int offset = np, count = sp;
+        if (count < sbuf.length) {
+            text.getChars(offset, offset + count, sbuf, 0);
+            return new BigDecimal(sbuf, 0, count);
+        } else {
+            char[] chars = new char[count];
+            text.getChars(offset, offset + count, chars, 0);
+            return new BigDecimal(chars);
+        }
+    }
 
     public boolean scanISO8601DateIfMatch() {
         return scanISO8601DateIfMatch(true);
@@ -368,7 +378,7 @@ public final class JSONScanner extends JSONLexerBase {
 
         char t = charAt(bp + 10);
         if (t == 'T' || (t == ' ' && !strict)) {
-            if (rest < ISO8601_LEN_1) {
+            if (rest < 19) { // "0000-00-00T00:00:00".length()
                 return false;
             }
         } else if (t == '"' || t == EOI || t == '日' || t == '일') {
@@ -421,7 +431,7 @@ public final class JSONScanner extends JSONLexerBase {
 
         char dot = charAt(bp + 19);
         if (dot == '.') {
-            if (rest < ISO8601_LEN_2) {
+            if (rest < 21) { //  // 0000-00-00T00:00:00.000
                 return false;
             }
         } else {
@@ -451,7 +461,7 @@ public final class JSONScanner extends JSONLexerBase {
         int millis = S0 - '0';
         int millisLen = 1;
 
-        {
+        if (rest > 21) {
             char S1 = charAt(bp + 21);
             if (S1 >= '0' && S1 <= '9') {
                 millis = millis * 10 + (S1 - '0');
@@ -802,7 +812,8 @@ public final class JSONScanner extends JSONLexerBase {
             this.ch = charAt(++bp);
             matchStat = VALUE;
             return strVal;
-        } else if (ch == '}') {
+        } else {
+            //condition ch == '}' is always 'true'
             ch = charAt(++bp);
             if (ch == ',') {
                 token = JSONToken.COMMA;
@@ -822,21 +833,16 @@ public final class JSONScanner extends JSONLexerBase {
                 return stringDefaultValue();
             }
             matchStat = END;
-        } else {
-            matchStat = NOT_MATCH;
-
-            return stringDefaultValue();
         }
-
         return strVal;
     }
 
-    public String scanFieldSymbol(char[] fieldName, final SymbolTable symbolTable) {
+    public long scanFieldSymbol(char[] fieldName) {
         matchStat = UNKNOWN;
 
         if (!charArrayCompare(text, bp, fieldName)) {
             matchStat = NOT_MATCH_NAME;
-            return null;
+            return 0;
         }
 
         int index = bp + fieldName.length;
@@ -844,36 +850,33 @@ public final class JSONScanner extends JSONLexerBase {
         char ch = charAt(index++);
         if (ch != '"') {
             matchStat = NOT_MATCH;
-            return null;
+            return 0;
         }
 
-        String strVal;
-        int start = index;
-        int hash = 0;
+        long hash = 0x811c9dc5;
         for (;;) {
             ch = charAt(index++);
             if (ch == '\"') {
                 bp = index;
                 this.ch = ch = charAt(bp);
-                // strVal = text.substring(start, index - 1).intern();
-                strVal = symbolTable.addSymbol(text, start, index - start - 1, hash);
                 break;
-            }
-
-            hash = 31 * hash + ch;
-
-            if (ch == '\\') {
+            } else if (index > len) {
                 matchStat = NOT_MATCH;
-                return null;
+                return 0;
             }
+
+            hash ^= ch;
+            hash *= 0x1000193;
         }
 
         if (ch == ',') {
             this.ch = charAt(++bp);
             matchStat = VALUE;
-            return strVal;
+            return hash;
         } else if (ch == '}') {
-            ch = charAt(++bp);
+            next();
+            skipWhitespace();
+            ch = getCurrent();
             if (ch == ',') {
                 token = JSONToken.COMMA;
                 this.ch = charAt(++bp);
@@ -887,15 +890,15 @@ public final class JSONScanner extends JSONLexerBase {
                 token = JSONToken.EOF;
             } else {
                 matchStat = NOT_MATCH;
-                return null;
+                return 0;
             }
             matchStat = END;
         } else {
             matchStat = NOT_MATCH;
-            return null;
+            return 0;
         }
 
-        return strVal;
+        return hash;
     }
 
     @SuppressWarnings("unchecked")

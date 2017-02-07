@@ -1341,12 +1341,12 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
     }
 
-    public String scanFieldSymbol(char[] fieldName, final SymbolTable symbolTable) {
+    public long scanFieldSymbol(char[] fieldName) {
         matchStat = UNKNOWN;
 
         if (!charArrayCompare(fieldName)) {
             matchStat = NOT_MATCH_NAME;
-            return null;
+            return 0;
         }
 
         int offset = fieldName.length;
@@ -1354,26 +1354,23 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         if (chLocal != '"') {
             matchStat = NOT_MATCH;
-            return null;
+            return 0;
         }
 
-        String strVal;
-        int hash = 0;
+        long hash = 0x811c9dc5;
         for (;;) {
             chLocal = charAt(bp + (offset++));
             if (chLocal == '\"') {
-                int start = bp + fieldName.length + 1;
-                int len = bp + offset - start - 1;
-                strVal = addSymbol(start, len, hash, symbolTable);
                 chLocal = charAt(bp + (offset++));
                 break;
             }
 
-            hash = 31 * hash + chLocal;
+            hash ^= chLocal;
+            hash *= 0x1000193;
 
             if (chLocal == '\\') {
                 matchStat = NOT_MATCH;
-                return null;
+                return 0;
             }
         }
 
@@ -1381,7 +1378,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             bp += offset;
             this.ch = this.charAt(bp);
             matchStat = VALUE;
-            return strVal;
+            return hash;
         }
 
         if (chLocal == '}') {
@@ -1404,15 +1401,15 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 ch = EOI;
             } else {
                 matchStat = NOT_MATCH;
-                return null;
+                return 0;
             }
             matchStat = END;
         } else {
             matchStat = NOT_MATCH;
-            return null;
+            return 0;
         }
 
-        return strVal;
+        return hash;
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -1814,6 +1811,113 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
 
         return negative ? -value : value;
+    }
+
+    public final int[] scanFieldIntArray(char[] fieldName) {
+        matchStat = UNKNOWN;
+
+        if (!charArrayCompare(fieldName)) {
+            matchStat = NOT_MATCH_NAME;
+            return null;
+        }
+
+        int offset = fieldName.length;
+        char chLocal = charAt(bp + (offset++));
+
+        if (chLocal != '[') {
+            matchStat = NOT_MATCH_NAME;
+            return null;
+        }
+        chLocal = charAt(bp + (offset++));
+
+        int[] array = new int[16];
+        int arrayIndex = 0;
+
+        if (chLocal == ']') {
+            chLocal = charAt(bp + (offset++));
+        } else {
+            for (;;) {
+                boolean nagative = false;
+                if (chLocal == '-') {
+                    chLocal = charAt(bp + (offset++));
+                    nagative = true;
+                }
+                if (chLocal >= '0' && chLocal <= '9') {
+                    int value = chLocal - '0';
+                    for (; ; ) {
+                        chLocal = charAt(bp + (offset++));
+
+                        if (chLocal >= '0' && chLocal <= '9') {
+                            value = value * 10 + (chLocal - '0');
+                        } else {
+                            break;
+                        }
+                    }
+
+                    if (arrayIndex >= array.length) {
+                        int[] tmp = new int[array.length * 3 / 2];
+                        System.arraycopy(array, 0, tmp, 0, arrayIndex);
+                        array = tmp;
+                    }
+                    array[arrayIndex++] = nagative ? -value : value;
+
+                    if (chLocal == ',') {
+                        chLocal = charAt(bp + (offset++));
+                    } else if (chLocal == ']') {
+                        chLocal = charAt(bp + (offset++));
+                        break;
+                    }
+                } else {
+                    matchStat = NOT_MATCH;
+                    return null;
+                }
+            }
+        }
+
+
+        if (arrayIndex != array.length) {
+            int[] tmp = new int[arrayIndex];
+            System.arraycopy(array, 0, tmp, 0, arrayIndex);
+            array = tmp;
+        }
+
+        if (chLocal == ',') {
+            bp += (offset - 1);
+            this.next();
+            matchStat = VALUE;
+            token = JSONToken.COMMA;
+            return array;
+        }
+
+        if (chLocal == '}') {
+            chLocal = charAt(bp + (offset++));
+            if (chLocal == ',') {
+                token = JSONToken.COMMA;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == ']') {
+                token = JSONToken.RBRACKET;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == '}') {
+                token = JSONToken.RBRACE;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == EOI) {
+                bp += (offset - 1);
+                token = JSONToken.EOF;
+                ch = EOI;
+            } else {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+            matchStat = END;
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        return array;
     }
 
     public boolean scanBoolean(char expectNext) {
@@ -2344,6 +2448,348 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
     }
 
+    public final float[] scanFieldFloatArray(char[] fieldName) {
+        matchStat = UNKNOWN;
+
+        if (!charArrayCompare(fieldName)) {
+            matchStat = NOT_MATCH_NAME;
+            return null;
+        }
+
+        int offset = fieldName.length;
+        char chLocal = charAt(bp + (offset++));
+        if (chLocal != '[') {
+            matchStat = NOT_MATCH_NAME;
+            return null;
+        }
+        chLocal = charAt(bp + (offset++));
+
+        float[] array = new float[16];
+        int arrayIndex = 0;
+
+        for (;;) {
+            int start = bp + offset - 1;
+
+            boolean negative = chLocal == '-';
+            if (negative) {
+                chLocal = charAt(bp + (offset++));
+            }
+
+            if (chLocal >= '0' && chLocal <= '9') {
+                int intVal = chLocal - '0';
+                for (; ; ) {
+                    chLocal = charAt(bp + (offset++));
+                    if (chLocal >= '0' && chLocal <= '9') {
+                        intVal = intVal * 10 + (chLocal - '0');
+                        continue;
+                    } else {
+                        break;
+                    }
+                }
+
+                int power = 1;
+                boolean small = (chLocal == '.');
+                if (small) {
+                    chLocal = charAt(bp + (offset++));
+                    power *= 10;
+                    if (chLocal >= '0' && chLocal <= '9') {
+                        intVal = intVal * 10 + (chLocal - '0');
+                        for (; ; ) {
+                            chLocal = charAt(bp + (offset++));
+
+                            if (chLocal >= '0' && chLocal <= '9') {
+                                intVal = intVal * 10 + (chLocal - '0');
+                                power *= 10;
+                                continue;
+                            } else {
+                                break;
+                            }
+                        }
+                    } else {
+                        matchStat = NOT_MATCH;
+                        return null;
+                    }
+                }
+
+                boolean exp = chLocal == 'e' || chLocal == 'E';
+                if (exp) {
+                    chLocal = charAt(bp + (offset++));
+                    if (chLocal == '+' || chLocal == '-') {
+                        chLocal = charAt(bp + (offset++));
+                    }
+                    for (;;) {
+                        if (chLocal >= '0' && chLocal <= '9') {
+                            chLocal = charAt(bp + (offset++));
+                        } else {
+                            break;
+                        }
+                    }
+                }
+
+                int count = bp + offset - start - 1;
+
+                float value;
+                if (!exp && count < 10) {
+                    value = ((float) intVal) / power;
+                    if (negative) {
+                        value = -value;
+                    }
+                } else {
+                    String text = this.subString(start, count);
+                    value = Float.parseFloat(text);
+                }
+
+                if (arrayIndex >= array.length) {
+                    float[] tmp = new float[array.length * 3 / 2];
+                    System.arraycopy(array, 0, tmp, 0, arrayIndex);
+                    array = tmp;
+                }
+                array[arrayIndex++] = value;
+
+                if (chLocal == ',') {
+                    chLocal = charAt(bp + (offset++));
+                } else if (chLocal == ']') {
+                    chLocal = charAt(bp + (offset++));
+                    break;
+                }
+            } else {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+        }
+
+
+        if (arrayIndex != array.length) {
+            float[] tmp = new float[arrayIndex];
+            System.arraycopy(array, 0, tmp, 0, arrayIndex);
+            array = tmp;
+        }
+
+        if (chLocal == ',') {
+            bp += (offset - 1);
+            this.next();
+            matchStat = VALUE;
+            token = JSONToken.COMMA;
+            return array;
+        }
+
+        if (chLocal == '}') {
+            chLocal = charAt(bp + (offset++));
+            if (chLocal == ',') {
+                token = JSONToken.COMMA;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == ']') {
+                token = JSONToken.RBRACKET;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == '}') {
+                token = JSONToken.RBRACE;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == EOI) {
+                bp += (offset - 1);
+                token = JSONToken.EOF;
+                ch = EOI;
+            } else {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+            matchStat = END;
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        return array;
+    }
+
+    public final float[][] scanFieldFloatArray2(char[] fieldName) {
+        matchStat = UNKNOWN;
+
+        if (!charArrayCompare(fieldName)) {
+            matchStat = NOT_MATCH_NAME;
+            return null;
+        }
+
+        int offset = fieldName.length;
+        char chLocal = charAt(bp + (offset++));
+
+        if (chLocal != '[') {
+            matchStat = NOT_MATCH_NAME;
+            return null;
+        }
+        chLocal = charAt(bp + (offset++));
+
+        float[][] arrayarray = new float[16][];
+        int arrayarrayIndex = 0;
+
+        for (;;) {
+            if (chLocal == '[') {
+                chLocal = charAt(bp + (offset++));
+
+                float[] array = new float[16];
+                int arrayIndex = 0;
+
+                for (; ; ) {
+                    int start = bp + offset - 1;
+                    boolean negative = chLocal == '-';
+                    if (negative) {
+                        chLocal = charAt(bp + (offset++));
+                    }
+
+                    if (chLocal >= '0' && chLocal <= '9') {
+                        int intVal = chLocal - '0';
+                        for (; ; ) {
+                            chLocal = charAt(bp + (offset++));
+
+                            if (chLocal >= '0' && chLocal <= '9') {
+                                intVal = intVal * 10 + (chLocal - '0');
+                                continue;
+                            } else {
+                                break;
+                            }
+                        }
+
+                        int power = 1;
+                        if (chLocal == '.') {
+                            chLocal = charAt(bp + (offset++));
+
+                            if (chLocal >= '0' && chLocal <= '9') {
+                                intVal = intVal * 10 + (chLocal - '0');
+                                power *= 10;
+                                for (; ; ) {
+                                    chLocal = charAt(bp + (offset++));
+
+                                    if (chLocal >= '0' && chLocal <= '9') {
+                                        intVal = intVal * 10 + (chLocal - '0');
+                                        power *= 10;
+                                        continue;
+                                    } else {
+                                        break;
+                                    }
+                                }
+                            } else {
+                                matchStat = NOT_MATCH;
+                                return null;
+                            }
+                        }
+
+                        boolean exp = chLocal == 'e' || chLocal == 'E';
+                        if (exp) {
+                            chLocal = charAt(bp + (offset++));
+                            if (chLocal == '+' || chLocal == '-') {
+                                chLocal = charAt(bp + (offset++));
+                            }
+                            for (;;) {
+                                if (chLocal >= '0' && chLocal <= '9') {
+                                    chLocal = charAt(bp + (offset++));
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+
+                        int count = bp + offset - start - 1;
+                        float value;
+                        if (!exp && count < 10) {
+                            value = ((float) intVal) / power;
+                            if (negative) {
+                                value = -value;
+                            }
+                        } else {
+                            String text = this.subString(start, count);
+                            value = Float.parseFloat(text);
+                        }
+
+                        if (arrayIndex >= array.length) {
+                            float[] tmp = new float[array.length * 3 / 2];
+                            System.arraycopy(array, 0, tmp, 0, arrayIndex);
+                            array = tmp;
+                        }
+                        array[arrayIndex++] = value;
+
+                        if (chLocal == ',') {
+                            chLocal = charAt(bp + (offset++));
+                        } else if (chLocal == ']') {
+                            chLocal = charAt(bp + (offset++));
+                            break;
+                        }
+                    } else {
+                        matchStat = NOT_MATCH;
+                        return null;
+                    }
+                }
+
+                // compact
+                if (arrayIndex != array.length) {
+                    float[] tmp = new float[arrayIndex];
+                    System.arraycopy(array, 0, tmp, 0, arrayIndex);
+                    array = tmp;
+                }
+
+                if (arrayarrayIndex >= arrayarray.length) {
+                    float[][] tmp = new float[arrayarray.length * 3 / 2][];
+                    System.arraycopy(array, 0, tmp, 0, arrayIndex);
+                    arrayarray = tmp;
+                }
+                arrayarray[arrayarrayIndex++] = array;
+
+                if (chLocal == ',') {
+                    chLocal = charAt(bp + (offset++));
+                } else if (chLocal == ']') {
+                    chLocal = charAt(bp + (offset++));
+                    break;
+                }
+            }
+        }
+
+        // compact
+        if (arrayarrayIndex != arrayarray.length) {
+            float[][] tmp = new float[arrayarrayIndex][];
+            System.arraycopy(arrayarray, 0, tmp, 0, arrayarrayIndex);
+            arrayarray = tmp;
+        }
+
+        if (chLocal == ',') {
+            bp += (offset - 1);
+            this.next();
+            matchStat = VALUE;
+            token = JSONToken.COMMA;
+            return arrayarray;
+        }
+
+        if (chLocal == '}') {
+            chLocal = charAt(bp + (offset++));
+            if (chLocal == ',') {
+                token = JSONToken.COMMA;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == ']') {
+                token = JSONToken.RBRACKET;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == '}') {
+                token = JSONToken.RBRACE;
+                bp += (offset - 1);
+                this.next();
+            } else if (chLocal == EOI) {
+                bp += (offset - 1);
+                token = JSONToken.EOF;
+                ch = EOI;
+            } else {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+            matchStat = END;
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        return arrayarray;
+    }
+
     public final double scanFieldDouble(char[] fieldName) {
         matchStat = UNKNOWN;
 
@@ -2467,7 +2913,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         next();
 
         if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
-            || ch == '\f' || ch == '\b' || ch == ':') {
+            || ch == '\f' || ch == '\b' || ch == ':' || ch == '/') {
             token = JSONToken.TRUE;
         } else {
             throw new JSONException("scan true error");
@@ -2546,7 +2992,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         next();
 
         if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
-            || ch == '\f' || ch == '\b' || ch == ':') {
+            || ch == '\f' || ch == '\b' || ch == ':' || ch == '/') {
             token = JSONToken.FALSE;
         } else {
             throw new JSONException("scan false error");
@@ -3007,9 +3453,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
     }
 
-    public final BigDecimal decimalValue() {
-        return new BigDecimal(numberString());
-    }
+    public abstract BigDecimal decimalValue();
 
     public static boolean isWhitespace(char ch) {
         // 专门调整了判断顺序

@@ -4,12 +4,7 @@ import static com.alibaba.fastjson.util.ASMUtils.desc;
 import static com.alibaba.fastjson.util.ASMUtils.type;
 
 import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,6 +25,7 @@ import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.ASMClassLoader;
 import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.FieldInfo;
+import com.alibaba.fastjson.util.TypeUtils;
 
 public class ASMSerializerFactory implements Opcodes {
 
@@ -1155,7 +1151,7 @@ public class ASMSerializerFactory implements Opcodes {
         if (method != null) {
             mw.visitVarInsn(ALOAD, context.var("entity"));
             Class<?> declaringClass = method.getDeclaringClass();
-            mw.visitMethodInsn(INVOKEVIRTUAL, type(declaringClass), method.getName(), desc(method));
+            mw.visitMethodInsn(declaringClass.isInterface() ? INVOKEINTERFACE : INVOKEVIRTUAL, type(declaringClass), method.getName(), desc(method));
             if (!method.getReturnType().equals(fieldInfo.fieldClass)) {
                 mw.visitTypeInsn(CHECKCAST, type(fieldInfo.fieldClass)); // cast
             }
@@ -1255,12 +1251,7 @@ public class ASMSerializerFactory implements Opcodes {
     private void _list(Class<?> clazz, MethodVisitor mw, FieldInfo fieldInfo, Context context) {
         Type propertyType = fieldInfo.fieldType;
 
-        Type elementType;
-        if (propertyType instanceof Class) {
-            elementType = Object.class;
-        } else {
-            elementType = ((ParameterizedType) propertyType).getActualTypeArguments()[0];
-        }
+        Type elementType = TypeUtils.getCollectionItemType(propertyType);
 
         Class<?> elementClass = null;
         if (elementType instanceof Class<?>) {
@@ -1473,13 +1464,11 @@ public class ASMSerializerFactory implements Opcodes {
     }
 
     private void _filters(MethodVisitor mw, FieldInfo property, Context context, Label _end) {
-        if (property.field != null) {
-            if (Modifier.isTransient(property.field.getModifiers())) {
-                mw.visitVarInsn(ALOAD, context.var("out"));
-                mw.visitLdcInsn(SerializerFeature.SkipTransientField.mask);
-                mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "isEnabled", "(I)Z");
-                mw.visitJumpInsn(IFNE, _end);
-            }
+        if (property.fieldTransient) {
+            mw.visitVarInsn(ALOAD, context.var("out"));
+            mw.visitLdcInsn(SerializerFeature.SkipTransientField.mask);
+            mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "isEnabled", "(I)Z");
+            mw.visitJumpInsn(IFNE, _end);
         }
 
         _notWriteDefault(mw, property, context, _end);

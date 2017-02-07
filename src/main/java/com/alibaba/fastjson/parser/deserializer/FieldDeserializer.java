@@ -3,6 +3,7 @@ package com.alibaba.fastjson.parser.deserializer;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -25,6 +26,10 @@ public abstract class FieldDeserializer {
     public FieldDeserializer(Class<?> clazz, FieldInfo fieldInfo){
         this.clazz = clazz;
         this.fieldInfo = fieldInfo;
+
+        if (fieldInfo == null) {
+            return;
+        }
     }
     
     public abstract void parseField(DefaultJSONParser parser, Object object, Type objectType,

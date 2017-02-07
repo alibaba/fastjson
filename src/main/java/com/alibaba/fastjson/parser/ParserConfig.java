@@ -420,6 +420,10 @@ public class ParserConfig {
             derializers.put(clazz, MiscCodec.instance);
         }
 
+        if (clazz == Map.Entry.class) {
+            derializers.put(clazz, MiscCodec.instance);
+        }
+
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         try {
             for (AutowiredObjectDeserializer autowired : ServiceLoader.load(AutowiredObjectDeserializer.class,

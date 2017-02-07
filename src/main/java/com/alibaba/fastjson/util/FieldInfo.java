@@ -119,7 +119,8 @@ public class FieldInfo implements Comparable<FieldInfo> {
         if (field != null) {
             int modifiers = field.getModifiers();
             fieldAccess = ((modifiers & Modifier.PUBLIC) != 0 || method == null);
-            fieldTransient = Modifier.isTransient(modifiers);
+            fieldTransient = Modifier.isTransient(modifiers)
+                    || TypeUtils.isTransient(method);
         } else {
             fieldAccess = false;
             fieldTransient = false;
@@ -323,6 +324,8 @@ public class FieldInfo implements Comparable<FieldInfo> {
     public static Type getInheritGenericType(Class<?> clazz, TypeVariable<?> tv) {
         Type type = null;
         GenericDeclaration gd = tv.getGenericDeclaration();
+        Type superGenericType = clazz.getGenericSuperclass();
+
         do {
             type = clazz.getGenericSuperclass();
             if (type == null) {
@@ -330,11 +333,16 @@ public class FieldInfo implements Comparable<FieldInfo> {
             }
             if (type instanceof ParameterizedType) {
                 ParameterizedType ptype = (ParameterizedType) type;
-                if (ptype.getRawType() == gd) {
+
+                Type rawType = ptype.getRawType();
+                boolean eq = gd.equals(rawType) || (gd instanceof Class && rawType instanceof Class && ((Class) gd).isAssignableFrom((Class) rawType));
+                if (eq) {
                     TypeVariable<?>[] tvs = gd.getTypeParameters();
                     Type[] types = ptype.getActualTypeArguments();
                     for (int i = 0; i < tvs.length; i++) {
-                        if (tvs[i] == tv) return types[i];
+                        if (tv.equals(tvs[i])) {
+                            return types[i];
+                        }
                     }
                     return null;
                 }

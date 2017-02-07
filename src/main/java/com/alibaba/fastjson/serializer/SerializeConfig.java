@@ -59,6 +59,7 @@ import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.deserializer.Jdk8DateCodec;
+import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.OptionalCodec;
 import com.alibaba.fastjson.support.springfox.SwaggerJsonSerializer;
 import com.alibaba.fastjson.util.ASMUtils;
@@ -82,6 +83,8 @@ public class SerializeConfig {
     private static boolean                                jdk8Error       = false;
     private static boolean                                oracleJdbcError = false;
     private static boolean                                springfoxError  = false;
+    private static boolean                                guavaError      = false;
+
     private boolean                                       asm             = !ASMUtils.IS_ANDROID;
     private ASMSerializerFactory                          asmFactory;
     protected String                                      typeKey         = JSON.DEFAULT_TYPE_KEY;
@@ -113,8 +116,8 @@ public class SerializeConfig {
      
         return serializer;
     }
-	
-	private final ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
+
+    private final ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
 	    SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null, propertyNamingStrategy);
 	    if (beanInfo.fields.length == 0 && Iterable.class.isAssignableFrom(clazz)) {
 	        return MiscCodec.instance;
@@ -414,7 +417,12 @@ public class SerializeConfig {
             } else if (JSONStreamAware.class.isAssignableFrom(clazz)) {
                 put(clazz, MiscCodec.instance);
             } else if (clazz.isEnum() || (clazz.getSuperclass() != null && clazz.getSuperclass().isEnum())) {
-                put(clazz, EnumSerializer.instance);
+                JSONType jsonType = clazz.getAnnotation(JSONType.class);
+                if (jsonType != null && jsonType.serializeEnumAsJavaBean()) {
+                    put(clazz, createJavaBeanSerializer(clazz));
+                } else {
+                    put(clazz, EnumSerializer.instance);
+                }
             } else if (clazz.isArray()) {
                 Class<?> componentType = clazz.getComponentType();
                 ObjectSerializer compObjectSerializer = getObjectWriter(componentType);
@@ -423,7 +431,7 @@ public class SerializeConfig {
                 SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null, propertyNamingStrategy);
                 beanInfo.features |= SerializerFeature.WriteClassName.mask;
                 put(clazz, new JavaBeanSerializer(beanInfo));
-            } else if (TimeZone.class.isAssignableFrom(clazz)) {
+            } else if (TimeZone.class.isAssignableFrom(clazz) || Map.Entry.class.isAssignableFrom(clazz)) {
                 put(clazz, MiscCodec.instance);
             } else if (Appendable.class.isAssignableFrom(clazz)) {
                 put(clazz, AppendableSerializer.instance);
@@ -525,16 +533,51 @@ public class SerializeConfig {
                     }
                 }
 
+                if ((!guavaError) //
+                        && className.startsWith("com.google.common.collect.")) {
+                    try {
+                        put(Class.forName("com.google.common.collect.HashMultimap"), //
+                                GuavaCodec.instance);
+                        put(Class.forName("com.google.common.collect.LinkedListMultimap"), //
+                                GuavaCodec.instance);
+                        put(Class.forName("com.google.common.collect.ArrayListMultimap"), //
+                                GuavaCodec.instance);
+                        put(Class.forName("com.google.common.collect.TreeMultimap"), //
+                                GuavaCodec.instance);
+
+                        writer = serializers.get(clazz);
+                        if (writer != null) {
+                            return writer;
+                        }
+                    } catch (ClassNotFoundException e) {
+                        // skip
+                        guavaError = true;
+                    }
+                }
+
+                if (className.equals("net.sf.json.JSONNull")) {
+                    try {
+                        put(Class.forName("net.sf.json.JSONNull"), //
+                                MiscCodec.instance);
+                    } catch (ClassNotFoundException e) {
+                        // skip
+                    }
+                    writer = serializers.get(clazz);
+                    if (writer != null) {
+                        return writer;
+                    }
+                }
+
                 if (TypeUtils.isProxy(clazz)) {
                     Class<?> superClazz = clazz.getSuperclass();
 
                     ObjectSerializer superWriter = getObjectWriter(superClazz);
-                    putInternal(clazz, superWriter);
+                    put(clazz, superWriter);
                     return superWriter;
                 }
 
                 if (create) {
-                    putInternal(clazz, createJavaBeanSerializer(clazz));
+                    put(clazz, createJavaBeanSerializer(clazz));
                 }
             }
 
@@ -546,21 +589,22 @@ public class SerializeConfig {
 	public final ObjectSerializer get(Type key) {
 	    return this.serializers.get(key);
 	}
-	
+
+    public boolean put(Object type, Object value) {
+        return put((Type)type, (ObjectSerializer)value);
+    }
+
 	public boolean put(Type type, ObjectSerializer value) {
-	    boolean isEnum = false;
-	    if (type instanceof Class) {
-	        Class<?> clazz = (Class<?>) type;
-	        isEnum = clazz.isEnum();
-	    }
-	    if (isEnum) {
-	        
-	    }
-	    
-	    return putInternal(type, value);
+        return this.serializers.put(type, value);
 	}
-	
-	protected boolean putInternal(Type key, ObjectSerializer value) {
-        return this.serializers.put(key, value);
+
+    /**
+     * 1.2.24
+     * @param enumClasses
+     */
+	public void configEnumAsJavaBean(Class<? extends Enum>... enumClasses) {
+        for (Class<? extends Enum> enumClass : enumClasses) {
+            put(enumClass, createJavaBeanSerializer(enumClass));
+        }
     }
 }

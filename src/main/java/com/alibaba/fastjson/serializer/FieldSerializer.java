@@ -17,8 +17,11 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.util.FieldInfo;
 
@@ -40,6 +43,8 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
     private String                format;
     protected boolean             writeEnumUsingToString  = false;
     protected boolean             writeEnumUsingName      = false;
+
+    protected boolean             serializeUsing          = false;
 
     private RuntimeSerializerInfo runtimeInfo;
     
@@ -101,8 +106,20 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
         }
     }
 
+    public Object getPropertyValueDirect(Object object) throws InvocationTargetException, IllegalAccessException {
+        return  fieldInfo.get(object);
+    }
+
     public Object getPropertyValue(Object object) throws InvocationTargetException, IllegalAccessException {
-        return fieldInfo.get(object);
+        Object propertyValue =  fieldInfo.get(object);
+        if (format != null && propertyValue != null) {
+            if (fieldInfo.fieldClass == Date.class) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+                dateFormat.setTimeZone(JSON.defaultTimeZone);
+                return dateFormat.format(propertyValue);
+            }
+        }
+        return propertyValue;
     }
     
     public int compareTo(FieldSerializer o) {
@@ -120,12 +137,23 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
                 runtimeFieldClass = propertyValue.getClass();
             }
             
-            ObjectSerializer fieldSerializer;
+            ObjectSerializer fieldSerializer = null;
             JSONField fieldAnnotation = fieldInfo.getAnnotation();
             if (fieldAnnotation != null && fieldAnnotation.serializeUsing() != Void.class) {
                 fieldSerializer = (ObjectSerializer) fieldAnnotation.serializeUsing().newInstance();
+                serializeUsing = true;
             } else {
-                fieldSerializer = serializer.getObjectWriter(runtimeFieldClass);
+                if (format != null) {
+                    if (runtimeFieldClass == double.class || runtimeFieldClass == Double.class) {
+                        fieldSerializer = new DoubleSerializer(format);
+                    } else if (runtimeFieldClass == float.class || runtimeFieldClass == Float.class) {
+                        fieldSerializer = new FloatCodec(format);
+                    }
+                }
+
+                if (fieldSerializer == null) {
+                    fieldSerializer = serializer.getObjectWriter(runtimeFieldClass);
+                }
             }
             
             runtimeInfo = new RuntimeSerializerInfo(fieldSerializer, runtimeFieldClass);
@@ -178,13 +206,13 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
         
         Class<?> valueClass = propertyValue.getClass();
         ObjectSerializer valueSerializer;
-        if (valueClass == runtimeInfo.runtimeFieldClass) {
+        if (valueClass == runtimeInfo.runtimeFieldClass || serializeUsing) {
             valueSerializer = runtimeInfo.fieldSerializer;
         } else {
             valueSerializer = serializer.getObjectWriter(valueClass);
         }
         
-        if (format != null) {
+        if (format != null && !(valueSerializer instanceof DoubleSerializer || valueSerializer instanceof FloatCodec)) {
             if (valueSerializer instanceof ContextObjectSerializer) {
                 ((ContextObjectSerializer) valueSerializer).write(serializer, propertyValue, this.fieldContext);    
             } else {

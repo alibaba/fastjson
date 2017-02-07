@@ -15,6 +15,7 @@
  */
 package com.alibaba.fastjson.util;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -84,6 +85,10 @@ public class TypeUtils {
 
     private static boolean  optionalClassInited         = false;
     private static Class<?> optionalClass;
+
+    private static boolean transientClassInited         = false;
+    private static Class<? extends Annotation> transientClass;
+
 
     public static String castToString(Object value) {
         if (value == null) {
@@ -948,6 +953,15 @@ public class TypeUtils {
         mappings.put("[boolean", boolean[].class);
         mappings.put("[char", char[].class);
 
+        mappings.put("[B", byte[].class);
+        mappings.put("[S", short[].class);
+        mappings.put("[I", int[].class);
+        mappings.put("[J", long[].class);
+        mappings.put("[F", float[].class);
+        mappings.put("[D", double[].class);
+        mappings.put("[C", char[].class);
+        mappings.put("[Z", boolean[].class);
+
         mappings.put(HashMap.class.getName(), HashMap.class);
     }
 
@@ -1161,6 +1175,10 @@ public class TypeUtils {
                 }
 
                 if (methodName.equals("getClass")) {
+                    continue;
+                }
+
+                if (methodName.equals("getDeclaringClass") && clazz.isEnum()) {
                     continue;
                 }
 
@@ -1664,10 +1682,46 @@ public class TypeUtils {
         }
     }
 
+    public static Type getCollectionItemType(Type fieldType) {
+        Type itemType = null;
+        Class<?> clazz = null;
+        if (fieldType instanceof ParameterizedType) {
+            Type actualTypeArgument = ((ParameterizedType) fieldType).getActualTypeArguments()[0];
+
+            if (actualTypeArgument instanceof WildcardType) {
+                WildcardType wildcardType = (WildcardType) actualTypeArgument;
+                Type[] upperBounds = wildcardType.getUpperBounds();
+                if (upperBounds.length == 1) {
+                    actualTypeArgument = upperBounds[0];
+                }
+            }
+
+            itemType = actualTypeArgument;
+        } else if (fieldType instanceof Class<?> //
+                && !(clazz = (Class<?>) fieldType).getName().startsWith("java.")) {
+            Type superClass = clazz.getGenericSuperclass();
+            itemType = TypeUtils.getCollectionItemType(superClass);
+        }
+
+        if (itemType == null) {
+            itemType = Object.class;
+        }
+
+        return itemType;
+    }
+
     public static Class<?> getCollectionItemClass(Type fieldType) {
         if (fieldType instanceof ParameterizedType) {
             Class<?> itemClass;
             Type actualTypeArgument = ((ParameterizedType) fieldType).getActualTypeArguments()[0];
+
+            if (actualTypeArgument instanceof WildcardType) {
+                WildcardType wildcardType = (WildcardType) actualTypeArgument;
+                Type[] upperBounds = wildcardType.getUpperBounds();
+                if (upperBounds.length == 1) {
+                    actualTypeArgument = upperBounds[0];
+                }
+            }
 
             if (actualTypeArgument instanceof Class) {
                 itemClass = (Class<?>) actualTypeArgument;
@@ -1740,6 +1794,29 @@ public class TypeUtils {
                     ) {
                 return true;
             }
+        }
+
+        return false;
+    }
+
+    public static boolean isTransient(Method method) {
+        if (method == null) {
+            return false;
+        }
+
+        if (!transientClassInited) {
+            try {
+                transientClass = (Class<? extends Annotation>) Class.forName("java.beans.Transient");
+            } catch (Exception e) {
+                // skip
+            } finally {
+                transientClassInited = true;
+            }
+        }
+
+        if (transientClass != null) {
+            Annotation annotation = method.getAnnotation(transientClass);
+            return annotation != null;
         }
 
         return false;

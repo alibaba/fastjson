@@ -24,10 +24,11 @@ public class DepartmentCodec extends JavaBeanDeserializer implements ObjectDeser
     private ObjectDeserializer leader_gen_deser__;
     private ObjectDeserializer members_gen_list_item_deser__;
     private Type members_gen_list_item_type__ = com.alibaba.json.test.codegen.Employee.class;
+    private ObjectDeserializer type_gen_deser__;
     
     public DepartmentCodec (ParserConfig config, Class clazz) {
         super(config, clazz);
-        
+        type_gen_deser__ = config.getDeserializer(com.alibaba.json.test.codegen.DepartmentType.class);
     }
     
     public Object createInstance(DefaultJSONParser parser, Type type) {
@@ -192,10 +193,7 @@ public class DepartmentCodec extends JavaBeanDeserializer implements ObjectDeser
             
         }
         if ((!endFlag) && (!restFlag)) {
-            String type_gen_enum_name = lexer.scanFieldSymbol(type_gen_prefix__, parser.getSymbolTable());
-            if (type_gen_enum_name == null) {
-                type_gen = com.alibaba.json.test.codegen.DepartmentType.valueOf(type_gen_enum_name);
-            }
+            type_gen = (com.alibaba.json.test.codegen.DepartmentType) this.scanEnum(lexer, type_gen_prefix__, type_gen_deser__);
             if(lexer.matchStat > 0) {
                 _asm_flag_0 |= 32;
                 matchedCount++;

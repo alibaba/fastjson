@@ -246,6 +246,19 @@ public class DefaultJSONParser implements Closeable {
                     lexer.next();
                     lexer.resetStringPosition();
                     lexer.nextToken();
+
+                    if (!setContextFlag) {
+                        if (this.context != null && fieldName == this.context.fieldName && object == this.context.object) {
+                            context = this.context;
+                        } else {
+                            ParseContext contextR = setContext(object, fieldName);
+                            if (context == null) {
+                                context = contextR;
+                            }
+                            setContextFlag = true;
+                        }
+                    }
+
                     return object;
                 } else if (ch == '\'') {
                     if (!lexer.isEnabled(Feature.AllowSingleQuotes)) {
@@ -453,7 +466,10 @@ public class DefaultJSONParser implements Closeable {
                     JSONArray list = new JSONArray();
 
                     final boolean parentIsArray = fieldName != null && fieldName.getClass() == Integer.class;
-                    if (!parentIsArray) {
+//                    if (!parentIsArray) {
+//                        this.setContext(context);
+//                    }
+                    if (fieldName == null) {
                         this.setContext(context);
                     }
 
@@ -526,6 +542,8 @@ public class DefaultJSONParser implements Closeable {
                     } else if (lexer.token() == JSONToken.COMMA) {
                         if (parentIsArray) {
                             this.popContext();
+                        } else {
+                            this.setContext(context);
                         }
                         continue;
                     } else {

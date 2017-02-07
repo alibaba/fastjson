@@ -18,6 +18,7 @@ package com.alibaba.fastjson.serializer;
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.TreeSet;
@@ -45,10 +46,7 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
 
         Type elementType = null;
         if (out.isEnabled(SerializerFeature.WriteClassName)) {
-            if (fieldType instanceof ParameterizedType) {
-                ParameterizedType param = (ParameterizedType) fieldType;
-                elementType = param.getActualTypeArguments()[0];
-            }
+            elementType = TypeUtils.getCollectionItemType(fieldType);
         }
 
         Collection<?> collection = (Collection<?>) object;
@@ -118,23 +116,7 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
 
         Collection list = TypeUtils.createCollection(type);
         
-        Type itemType = null;
-        if (type instanceof ParameterizedType) {
-            itemType = ((ParameterizedType) type).getActualTypeArguments()[0];
-        } else {
-            Class<?> clazz = null;
-            if (type instanceof Class<?> // 
-                && !(clazz = (Class<?>) type).getName().startsWith("java.")) {
-                Type superClass = clazz.getGenericSuperclass();
-                if (superClass instanceof ParameterizedType) {
-                    itemType = ((ParameterizedType) superClass).getActualTypeArguments()[0];        
-                }
-            }
-            
-            if (itemType == null) {
-                itemType = Object.class;
-            }
-        }
+        Type itemType = TypeUtils.getCollectionItemType(type);
         parser.parseArray(itemType, list, fieldName);
 
         return (T) list;

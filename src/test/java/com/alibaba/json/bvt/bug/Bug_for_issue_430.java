@@ -10,6 +10,9 @@ import com.alibaba.fastjson.JSONArray;
 import junit.framework.TestCase;
 
 public class Bug_for_issue_430 extends TestCase {
+    protected void setUp() throws Exception {
+        com.alibaba.fastjson.parser.ParserConfig.global.addAccept(this.getClass().getName() + ".");
+    }
 
     public void test_for_issue() throws Exception {
         String text = "[{\"@type\": \"com.alibaba.json.bvt.bug.Bug_for_issue_430$FooModel\", \"fooCollection\": null}, {\"@type\": \"com.alibaba.json.bvt.bug.Bug_for_issue_430$FooModel\", \"fooCollection\": null}]";

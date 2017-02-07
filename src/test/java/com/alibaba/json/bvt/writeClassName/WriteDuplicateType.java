@@ -12,7 +12,9 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import junit.framework.TestCase;
 
 public class WriteDuplicateType extends TestCase {
-
+    protected void setUp() throws Exception {
+        com.alibaba.fastjson.parser.ParserConfig.global.addAccept(this.getClass().getName() + ".");
+    }
     public void test_dupType() throws Exception {
         DianDianCart cart = new DianDianCart();
         cart.setId(1001);

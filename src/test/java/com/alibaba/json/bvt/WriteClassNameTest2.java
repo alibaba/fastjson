@@ -7,7 +7,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class WriteClassNameTest2 extends TestCase {
-
+    protected void setUp() throws Exception {
+        com.alibaba.fastjson.parser.ParserConfig.global.addAccept(this.getClass().getName() + ".");
+    }
     public void test_0() throws Exception {
         Entity entity = new Entity(3, "jobs");
         String text = JSON.toJSONString(entity, SerializerFeature.WriteClassName, SerializerFeature.PrettyFormat);

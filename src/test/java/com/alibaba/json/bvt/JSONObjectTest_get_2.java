@@ -12,6 +12,9 @@ import com.alibaba.fastjson.annotation.JSONField;
 import junit.framework.TestCase;
 
 public class JSONObjectTest_get_2 extends TestCase {
+    protected void setUp() throws Exception {
+        com.alibaba.fastjson.parser.ParserConfig.global.addAccept(this.getClass().getName() + ".");
+    }
 
     public void test_get() throws Exception {
         JSONObject obj = JSON.parseObject("{\"value\":{}}");

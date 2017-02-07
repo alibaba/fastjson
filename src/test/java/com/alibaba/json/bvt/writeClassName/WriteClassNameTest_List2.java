@@ -10,7 +10,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class WriteClassNameTest_List2 extends TestCase {
-
+    protected void setUp() throws Exception {
+        com.alibaba.fastjson.parser.ParserConfig.global.addAccept(this.getClass().getName() + ".");
+    }
     public void test_list() throws Exception {
         A a = new A();
         a.setList(Collections.singletonList(new B()));

@@ -9,6 +9,10 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import junit.framework.TestCase;
 
 public class Bug_for_NonStringKeyMap extends TestCase {
+    protected void setUp() throws Exception {
+        com.alibaba.fastjson.parser.ParserConfig.global.addAccept(this.getClass().getName() + ".");
+    }
+
 
     public void test_bug() throws Exception {
         VO vo = new VO();

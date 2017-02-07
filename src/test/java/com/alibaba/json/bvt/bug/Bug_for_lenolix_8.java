@@ -16,6 +16,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class Bug_for_lenolix_8 extends TestCase {
     protected void setUp() throws Exception {
+        com.alibaba.fastjson.parser.ParserConfig.global.addAccept(this.getClass().getName() + ".");
         JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
         JSON.defaultLocale = Locale.CHINA;
     }

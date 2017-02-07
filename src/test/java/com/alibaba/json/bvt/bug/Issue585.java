@@ -21,6 +21,7 @@ public class Issue585 extends TestCase {
         if (!JSON.DEFAULT_TYPE_KEY.equals("mySpace")) {
             JSON.setDefaultTypeKey("mySpace");
         }
+        com.alibaba.fastjson.parser.ParserConfig.global.addAccept(this.getClass().getName() + ".");
     }
 
     protected void tearDown() throws Exception {

@@ -9,6 +9,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class Bug_for_SpitFire_6 extends TestCase {
+    protected void setUp() throws Exception {
+        com.alibaba.fastjson.parser.ParserConfig.global.addAccept(this.getClass().getName() + ".");
+    }
 
     public void test_ref() throws Exception {
         GenericRS<HotelAvailRS> rs = new GenericRS<HotelAvailRS>();
@@ -22,7 +25,7 @@ public class Bug_for_SpitFire_6 extends TestCase {
 
         String text = JSON.toJSONString(rs, SerializerFeature.WriteClassName, SerializerFeature.PrettyFormat);
         System.out.println(text);
-        
+
         JSON.parseObject(text, GenericRS.class);
     }
 

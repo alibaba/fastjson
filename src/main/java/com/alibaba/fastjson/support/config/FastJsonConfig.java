@@ -66,6 +66,8 @@ public class FastJsonConfig {
      */
     private String dateFormat;
 
+    protected boolean writeContentLength = true;
+
     /**
      * init param.
      */
@@ -200,5 +202,13 @@ public class FastJsonConfig {
      */
     public void setCharset(Charset charset) {
         this.charset = charset;
+    }
+
+    public boolean isWriteContentLength() {
+        return writeContentLength;
+    }
+
+    public void setWriteContentLength(boolean writeContentLength) {
+        this.writeContentLength = writeContentLength;
     }
 }

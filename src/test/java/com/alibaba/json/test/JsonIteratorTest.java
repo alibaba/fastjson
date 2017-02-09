@@ -9,7 +9,7 @@ import junit.framework.TestCase;
  */
 public class JsonIteratorTest extends TestCase {
     public void test_for_iterator() throws Exception {
-        String text = "{\"id\":1001,\"name\":\"wenshao\"}";
+        String text = "{\"id\":1001,\"name\":\"wenshao\",\"type\":\"Small\"}";
 
 
         fastjson(text);
@@ -46,5 +46,10 @@ public class JsonIteratorTest extends TestCase {
     public static class Model {
         public int id;
         public String name;
+        public Type type;
+    }
+
+    public static enum Type {
+        Big, Small
     }
 }

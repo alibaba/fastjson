@@ -10,7 +10,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 public class WriteClassNameTest extends TestCase {
 
     protected void setUp() throws Exception {
-        ParserConfig.global.addAccept("com.alibaba.json.bvt.writeClassName.WriteClassNameTest");
+         ParserConfig.global.addAccept("com.alibaba.json.bvt.writeClassName.WriteClassNameTest");
     }
 
     public void test_list() throws Exception {

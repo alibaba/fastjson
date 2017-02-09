@@ -147,7 +147,9 @@ public class FastJsonpHttpMessageConverter4 extends AbstractGenericHttpMessageCo
                 JSON.DEFAULT_GENERATE_FEATURE, //
                 fastJsonConfig.getSerializerFeatures());
         len += writeSuffix(outnew, obj);
-        headers.setContentLength(len);
+        if (fastJsonConfig.isWriteContentLength()) {
+            headers.setContentLength(len);
+        }
         OutputStream out = outputMessage.getBody();
         outnew.writeTo(out);
         outnew.close();

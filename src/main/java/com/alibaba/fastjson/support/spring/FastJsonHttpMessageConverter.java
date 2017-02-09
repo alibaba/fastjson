@@ -156,7 +156,11 @@ public class FastJsonHttpMessageConverter //
                 fastJsonConfig.getDateFormat(), //
                 JSON.DEFAULT_GENERATE_FEATURE, //
                 fastJsonConfig.getSerializerFeatures());
-        headers.setContentLength(len);
+
+        if (fastJsonConfig.isWriteContentLength()) {
+            headers.setContentLength(len);
+        }
+
         OutputStream out = outputMessage.getBody();
         outnew.writeTo(out);
         outnew.close();

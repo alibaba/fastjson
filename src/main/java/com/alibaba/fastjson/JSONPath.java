@@ -248,6 +248,10 @@ public class JSONPath implements JSONAware {
     }
 
     public boolean set(Object rootObject, Object value) {
+        return set(rootObject, value, true);
+    }
+
+    public boolean set(Object rootObject, Object value, boolean p) {
         if (rootObject == null) {
             return false;
         }
@@ -273,13 +277,29 @@ public class JSONPath implements JSONAware {
 
                 Object newObj = null;
                 if (nextSegement instanceof PropertySegement) {
-                    Class<?> parentClass = parentObject.getClass();
-                    JavaBeanSerializer beanSerializer = getJavaBeanSerializer(parentClass);
-                    if (beanSerializer != null) {
-                        return false;
+                    JavaBeanDeserializer beanDeserializer = null;
+                    Class<?> fieldClass = null;
+                    if (segment instanceof PropertySegement) {
+                        String propertyName = ((PropertySegement) segment).propertyName;
+                        Class<?> parentClass = parentObject.getClass();
+                        JavaBeanDeserializer parentBeanDeserializer = getJavaBeanDeserializer(parentClass);
+                        if (parentBeanDeserializer != null) {
+                            FieldDeserializer fieldDeserializer = parentBeanDeserializer.getFieldDeserializer(propertyName);
+                            fieldClass = fieldDeserializer.fieldInfo.fieldClass;
+                            beanDeserializer = getJavaBeanDeserializer(fieldClass);
+                        }
                     }
 
-                    newObj = new JSONObject();   
+                    if (beanDeserializer != null) {
+
+                        if (beanDeserializer.beanInfo.defaultConstructor != null) {
+                            newObj = beanDeserializer.createInstance(null, fieldClass);
+                        } else {
+                            return false;
+                        }
+                    } else {
+                        newObj = new JSONObject();
+                    }
                 } else if (nextSegement instanceof ArrayAccessSegement) {
                     newObj = new JSONArray();
                 }
@@ -2298,6 +2318,17 @@ public class JSONPath implements JSONAware {
             }
         }
         return beanSerializer;
+    }
+
+    protected JavaBeanDeserializer getJavaBeanDeserializer(final Class<?> currentClass) {
+        JavaBeanDeserializer beanDeserializer = null;
+        {
+            ObjectDeserializer deserializer = parserConfig.getDeserializer(currentClass);
+            if (deserializer instanceof JavaBeanDeserializer) {
+                beanDeserializer = (JavaBeanDeserializer) deserializer;
+            }
+        }
+        return beanDeserializer;
     }
 
     @SuppressWarnings("rawtypes")

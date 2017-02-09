@@ -92,8 +92,12 @@ public class JavaBeanInfo {
             if (item.name.equals(propertyName)) {
                 return item;
             }
-        }
 
+            Field field = item.field;
+            if (field != null && item.getAnnotation() != null && field.getName().equals(propertyName)) {
+                return item;
+            }
+        }
         return null;
     }
 

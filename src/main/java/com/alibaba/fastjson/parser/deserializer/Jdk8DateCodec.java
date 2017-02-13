@@ -67,7 +67,12 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                     formatter = DateTimeFormatter.ofPattern(format);
                 }
             }
-
+            if (text == null) {
+                return text;
+            }
+            if (text.trim().equals("")) {
+                return "";
+            }
             if (type == LocalDateTime.class) {
                 LocalDateTime localDateTime;
                 if (text.length() == 10 || text.length() == 8) {

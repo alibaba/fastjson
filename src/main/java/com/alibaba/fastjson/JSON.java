@@ -109,9 +109,20 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         features |= SerializerFeature.SkipTransientField.getMask();
         features |= SerializerFeature.WriteEnumUsingName.getMask();
         features |= SerializerFeature.SortField.getMask();
+
+        {
+            String featuresProperty = IOUtils.getStringProperty("fastjson.serializerFeatures.MapSortField");
+            int mask = SerializerFeature.MapSortField.getMask();
+            if ("true".equals(featuresProperty)) {
+                features |= mask;
+            } else if ("false".equals(featuresProperty)) {
+                features &= ~mask;
+            }
+        }
+
         DEFAULT_GENERATE_FEATURE = features;
     }
-    
+
     /**
      * config default type key
      * @since 1.2.14
@@ -964,5 +975,5 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         parser.handleResovleTask(value);
     }
 
-    public final static String VERSION = "1.2.26";
+    public final static String VERSION = "1.2.27";
 }

@@ -1,6 +1,5 @@
 package com.alibaba.json.bvt.writeClassName;
 
-import com.alibaba.fastjson.parser.ParserConfig;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -10,7 +9,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 public class WriteClassNameTest extends TestCase {
 
     protected void setUp() throws Exception {
-         ParserConfig.global.addAccept("com.alibaba.json.bvt.writeClassName.WriteClassNameTest");
+        com.alibaba.fastjson.parser.ParserConfig.getGlobalInstance().addAccept(this.getClass().getName() + ".");
     }
 
     public void test_list() throws Exception {

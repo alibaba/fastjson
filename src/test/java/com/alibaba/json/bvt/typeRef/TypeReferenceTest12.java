@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt;
+package com.alibaba.json.bvt.typeRef;
 
 import com.alibaba.fastjson.TypeReference;
 import junit.framework.TestCase;

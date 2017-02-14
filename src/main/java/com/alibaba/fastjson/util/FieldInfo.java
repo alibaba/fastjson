@@ -305,8 +305,10 @@ public class FieldInfo implements Comparable<FieldInfo> {
                             if (actualTypes == null) {
                                 actualTypes = paramType.getActualTypeArguments();
                             }
-                            arguments[i] = actualTypes[j];
-                            changed = true;
+                            if (arguments[i] != actualTypes[j]) {
+                                arguments[i] = actualTypes[j];
+                                changed = true;
+                            }
                         }
                     }
                 }

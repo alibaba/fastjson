@@ -1029,6 +1029,9 @@ public class TypeUtils {
                 loadClass("java.awt.Point"),
                 loadClass("java.awt.Font"),
                 loadClass("java.awt.Color"),
+
+                loadClass("org.springframework.remoting.support.RemoteInvocation"),
+                loadClass("org.springframework.remoting.support.RemoteInvocationResult"),
         };
 
         for (Class clazz : classes) {

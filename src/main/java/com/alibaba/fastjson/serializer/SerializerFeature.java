@@ -147,7 +147,12 @@ public enum SerializerFeature {
     /**
      * @since 1.2.16
      */
-    WriteBigDecimalAsPlain
+    WriteBigDecimalAsPlain,
+
+    /**
+     * @since 1.2.27
+     */
+    MapSortField
     ;
 
     SerializerFeature(){

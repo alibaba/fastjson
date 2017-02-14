@@ -154,7 +154,7 @@ public class ASMSerializerFactory implements Opcodes {
 
         for (FieldInfo fieldInfo : getters) {
             if (fieldInfo.fieldClass.isPrimitive() //
-                || fieldInfo.fieldClass.isEnum() //
+                //|| fieldInfo.fieldClass.isEnum() //
                 || fieldInfo.fieldClass == String.class) {
                 continue;
             }
@@ -181,7 +181,7 @@ public class ASMSerializerFactory implements Opcodes {
         for (int i = 0; i < getters.length; ++i) {
             FieldInfo fieldInfo = getters[i];
             if (fieldInfo.fieldClass.isPrimitive() //
-                || fieldInfo.fieldClass.isEnum() //
+//                || fieldInfo.fieldClass.isEnum() //
                 || fieldInfo.fieldClass == String.class) {
                 continue;
             }

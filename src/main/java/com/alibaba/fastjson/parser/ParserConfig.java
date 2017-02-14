@@ -114,13 +114,14 @@ import javax.xml.datatype.XMLGregorianCalendar;
  */
 public class ParserConfig {
 
-    public final static String DENY_PROPERTY = "fastjson.parser.deny";
-    public final static String AUTOTYPE_ACCEPT = "fastjson.parser.autoTypeAccept";
+    public final static String DENY_PROPERTY             = "fastjson.parser.deny";
+    public final static String AUTOTYPE_ACCEPT           = "fastjson.parser.autoTypeAccept";
     public final static String AUTOTYPE_SUPPORT_PROPERTY = "fastjson.parser.autoTypeSupport";
     
     public static final String[] DENYS;
     private static final String[] AUTO_TYPE_ACCEPT_LIST;
     public static final boolean AUTO_SUPPORT;
+
     static  {
         {
             String property = IOUtils.getStringProperty(DENY_PROPERTY);
@@ -144,13 +145,13 @@ public class ParserConfig {
         return global;
     }
 
-    public static ParserConfig                              global         = new ParserConfig();
+    public static ParserConfig                              global                = new ParserConfig();
 
-    private final IdentityHashMap<Type, ObjectDeserializer> deserializers = new IdentityHashMap<Type, ObjectDeserializer>();
+    private final IdentityHashMap<Type, ObjectDeserializer> deserializers         = new IdentityHashMap<Type, ObjectDeserializer>();
 
-    private boolean                                         asmEnable      = !ASMUtils.IS_ANDROID;
+    private boolean                                         asmEnable             = !ASMUtils.IS_ANDROID;
 
-    public final SymbolTable                                symbolTable    = new SymbolTable(4096);
+    public final SymbolTable                                symbolTable           = new SymbolTable(4096);
     
     public PropertyNamingStrategy                           propertyNamingStrategy;
 
@@ -158,12 +159,13 @@ public class ParserConfig {
 
     protected ASMDeserializerFactory                        asmFactory;
 
-    private static boolean                                  awtError        = false;
-    private static boolean                                  jdk8Error       = false;
+    private static boolean                                  awtError              = false;
+    private static boolean                                  jdk8Error             = false;
 
-    private boolean                                         autoTypeSupport = AUTO_SUPPORT;
-    private String[]                                        denyList        = "bsh,com.mchange,com.sun.,java.lang.Thread,java.net.Socket,java.rmi,javax.xml,org.apache.bcel,org.apache.commons.beanutils,org.apache.commons.collections.Transformer,org.apache.commons.collections.functors,org.apache.commons.collections4.comparators,org.apache.commons.fileupload,org.apache.myfaces.context.servlet,org.apache.tomcat,org.apache.wicket.util,org.codehaus.groovy.runtime,org.hibernate,org.jboss,org.mozilla.javascript,org.python.core,org.springframework".split(",");
-    private String[]                                        acceptList      = AUTO_TYPE_ACCEPT_LIST;
+    private boolean                                         autoTypeSupport       = AUTO_SUPPORT;
+    private String[]                                        denyList              = "bsh,com.mchange,com.sun.,java.lang.Thread,java.net.Socket,java.rmi,javax.xml,org.apache.bcel,org.apache.commons.beanutils,org.apache.commons.collections.Transformer,org.apache.commons.collections.functors,org.apache.commons.collections4.comparators,org.apache.commons.fileupload,org.apache.myfaces.context.servlet,org.apache.tomcat,org.apache.wicket.util,org.codehaus.groovy.runtime,org.hibernate,org.jboss,org.mozilla.javascript,org.python.core,org.springframework".split(",");
+    private String[]                                        acceptList            = AUTO_TYPE_ACCEPT_LIST;
+    private int                                             maxTypeNameLength     = 256;
 
     public ParserConfig(){
         this(null, null);
@@ -806,6 +808,10 @@ public class ParserConfig {
             return null;
         }
 
+        if (typeName.length() >= maxTypeNameLength) {
+            throw new JSONException("autoType is not support. " + typeName);
+        }
+
         final String className = typeName.replace('$', '.');
 
         if (autoTypeSupport || expectClass != null) {
@@ -862,7 +868,6 @@ public class ParserConfig {
         }
 
         if (clazz != null) {
-
             if (ClassLoader.class.isAssignableFrom(clazz) // classloader is danger
                     || DataSource.class.isAssignableFrom(clazz) // dataSource can load jdbc driver
                     ) {

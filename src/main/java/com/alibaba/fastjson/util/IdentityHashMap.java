@@ -48,11 +48,11 @@ public class IdentityHashMap<K, V> {
     }
 
     public boolean put(K key, V value) {
-        final int hash = System.identityHashCode(key);
+        final int hash = key.hashCode();
         final int bucket = hash & indexMask;
 
         for (Entry<K, V> entry = buckets[bucket]; entry != null; entry = entry.next) {
-            if (key == entry.key) {
+            if (hash == entry.hashCode) {
                 entry.value = value;
                 return true;
             }

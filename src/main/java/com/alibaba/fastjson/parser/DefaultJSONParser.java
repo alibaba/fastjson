@@ -360,7 +360,7 @@ public class DefaultJSONParser implements Closeable {
                     
                     this.setResolveStatus(TypeNameRedirect);
 
-                    if (this.context != null && !(fieldName instanceof Integer)) {
+                    if (this.context != null && !(fieldName instanceof Integer) && !(this.context.fieldName instanceof Integer)) {
                         this.popContext();
                     }
                     
@@ -1259,8 +1259,13 @@ public class DefaultJSONParser implements Closeable {
         }
 
         this.context = this.context.parent;
-        contextArray[contextArrayIndex - 1] = null;
+
+        if (contextArrayIndex <= 0) {
+            return;
+        }
+
         contextArrayIndex--;
+        contextArray[contextArrayIndex] = null;
     }
 
     public ParseContext setContext(Object object, Object fieldName) {

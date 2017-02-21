@@ -585,6 +585,16 @@ public class TypeUtils {
                 || "0".equals(strVal)) {
                 return Boolean.FALSE;
             }
+
+            if ("Y".equalsIgnoreCase(strVal) //
+                    || "T".equals(strVal)) {
+                return Boolean.TRUE;
+            }
+
+            if ("F".equalsIgnoreCase(strVal) //
+                    || "N".equals(strVal)) {
+                return Boolean.FALSE;
+            }
         }
 
         throw new JSONException("can not cast to boolean, value : " + value);

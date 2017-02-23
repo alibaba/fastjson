@@ -1,6 +1,7 @@
 package com.alibaba.json.bvt.date;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import junit.framework.TestCase;
 import org.junit.Assert;
 
@@ -19,7 +20,19 @@ public class XMLGregorianCalendarTest extends TestCase {
 
         XMLGregorianCalendar calendar1 = JSON.parseObject(text, XMLGregorianCalendar.class);
 
-
         assertEquals(calendar.toGregorianCalendar().getTimeInMillis(), calendar1.toGregorianCalendar().getTimeInMillis());
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("calendar", calendar);
+
+        String json = JSON.toJSONString(jsonObject);
+
+        Model model = JSON.parseObject(json).toJavaObject(Model.class);
+
+        assertEquals(calendar.toGregorianCalendar().getTimeInMillis(), model.calendar.toGregorianCalendar().getTimeInMillis());
+    }
+
+    public static class Model {
+        public XMLGregorianCalendar calendar;
     }
 }

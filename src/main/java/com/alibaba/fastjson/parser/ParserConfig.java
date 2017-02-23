@@ -63,30 +63,10 @@ import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.JSONPath;
-import com.alibaba.fastjson.PropertyNamingStrategy;
+import com.alibaba.fastjson.*;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
-import com.alibaba.fastjson.parser.deserializer.ASMDeserializerFactory;
-import com.alibaba.fastjson.parser.deserializer.ArrayListTypeFieldDeserializer;
-import com.alibaba.fastjson.parser.deserializer.AutowiredObjectDeserializer;
-import com.alibaba.fastjson.parser.deserializer.DefaultFieldDeserializer;
-import com.alibaba.fastjson.parser.deserializer.EnumDeserializer;
-import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
-import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
-import com.alibaba.fastjson.parser.deserializer.JavaObjectDeserializer;
-import com.alibaba.fastjson.parser.deserializer.Jdk8DateCodec;
-import com.alibaba.fastjson.parser.deserializer.MapDeserializer;
-import com.alibaba.fastjson.parser.deserializer.NumberDeserializer;
-import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
-import com.alibaba.fastjson.parser.deserializer.OptionalCodec;
-import com.alibaba.fastjson.parser.deserializer.SqlDateDeserializer;
-import com.alibaba.fastjson.parser.deserializer.StackTraceElementDeserializer;
-import com.alibaba.fastjson.parser.deserializer.ThrowableDeserializer;
-import com.alibaba.fastjson.parser.deserializer.TimeDeserializer;
+import com.alibaba.fastjson.parser.deserializer.*;
 import com.alibaba.fastjson.serializer.AtomicCodec;
 import com.alibaba.fastjson.serializer.AwtCodec;
 import com.alibaba.fastjson.serializer.BigDecimalCodec;
@@ -280,6 +260,8 @@ public class ParserConfig {
         deserializers.put(Cloneable.class, JavaObjectDeserializer.instance);
         deserializers.put(Comparable.class, JavaObjectDeserializer.instance);
         deserializers.put(Closeable.class, JavaObjectDeserializer.instance);
+
+        deserializers.put(JSONPObject.class, new JSONPDeserializer());
 
         addItemsToDeny(DENYS);
         addItemsToAccept(AUTO_TYPE_ACCEPT_LIST);

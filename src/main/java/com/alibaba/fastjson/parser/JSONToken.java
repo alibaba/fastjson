@@ -66,6 +66,8 @@ public class JSONToken {
     
     public final static int UNDEFINED            = 23; // undefined
 
+    public final static int SEMI                 = 24;
+
     public static String name(int value) {
         switch (value) {
             case ERROR:
@@ -102,6 +104,8 @@ public class JSONToken {
                 return ",";
             case COLON:
                 return ":";
+            case SEMI:
+                return ";";
             case IDENTIFIER:
                 return "ident";
             case FIELD_NAME:

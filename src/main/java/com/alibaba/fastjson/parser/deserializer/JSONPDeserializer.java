@@ -2,10 +2,7 @@ package com.alibaba.fastjson.parser.deserializer;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONPObject;
-import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.JSONLexer;
-import com.alibaba.fastjson.parser.JSONLexerBase;
-import com.alibaba.fastjson.parser.JSONToken;
+import com.alibaba.fastjson.parser.*;
 
 import java.lang.reflect.Type;
 
@@ -18,12 +15,23 @@ public class JSONPDeserializer implements ObjectDeserializer {
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         JSONLexerBase lexer = (JSONLexerBase) parser.getLexer();
 
-        String funcName = lexer.scanSymbolUnQuoted(parser.getSymbolTable());
+        SymbolTable symbolTable = parser.getSymbolTable();
+
+        String funcName = lexer.scanSymbolUnQuoted(symbolTable);
         lexer.nextToken();
+
+        int tok = lexer.token();
+
+        if (tok == JSONToken.DOT) {
+            String name = lexer.scanSymbolUnQuoted(parser.getSymbolTable());
+            funcName += ".";
+            funcName += name;
+            lexer.nextToken();
+            tok = lexer.token();
+        }
 
         JSONPObject jsonp = new JSONPObject(funcName);
 
-        int tok = lexer.token();
         if (tok != JSONToken.LPAREN) {
             throw new JSONException("illegal jsonp : " + lexer.info());
         }

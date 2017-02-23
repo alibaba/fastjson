@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -43,15 +45,15 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
 
         Map<?, ?> map = (Map<?, ?>) object;
 
-//        if (out.isEnabled(SerializerFeature.SortField)) {
-//            if ((!(map instanceof SortedMap)) && !(map instanceof LinkedHashMap)) {
-//                try {
-//                    map = new TreeMap(map);
-//                } catch (Exception ex) {
-//                    // skip
-//                }
-//            }
-//        }
+        if (out.isEnabled(SerializerFeature.SortField)) {
+            if ((!(map instanceof SortedMap)) && !(map instanceof LinkedHashMap)) {
+                try {
+                    map = new TreeMap(map);
+                } catch (Exception ex) {
+                    // skip
+                }
+            }
+        }
 
         if (serializer.containsReference(object)) {
             serializer.writeReference(object);
@@ -73,8 +75,14 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
             if (out.isEnabled(SerializerFeature.WriteClassName)) {
                 String typeKey = serializer.config.typeKey;
                 Class<?> mapClass = map.getClass();
-                boolean containsKey = (mapClass == JSONObject.class || mapClass == HashMap.class || mapClass == LinkedHashMap.class) 
-                        && map.containsKey(typeKey);
+                boolean containsKey;
+                try {
+                    containsKey = (mapClass == JSONObject.class || mapClass == HashMap.class ||
+                            mapClass == LinkedHashMap.class || mapClass == TreeMap.class)
+                            && map.containsKey(typeKey);
+                } catch (java.lang.ClassCastException e) {
+                    containsKey = false;
+                }
                 if (!containsKey) {
                     out.writeFieldName(typeKey);
                     out.writeString(object.getClass().getName());

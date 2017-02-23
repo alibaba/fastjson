@@ -43,7 +43,7 @@ public class JSONLexerAllowCommentTest extends TestCase {
 
         Assert
             .assertEquals(
-                "{\"hello\":\"asafsadf\",\"test\":1,\"array\":[\"10000sfsaf\",100,{\"nihao\":{\"test\":\"sdfasdf\"}}],\"object\":{\"teset\":1000}}",
+                "{\"array\":[\"10000sfsaf\",100,{\"nihao\":{\"test\":\"sdfasdf\"}}],\"hello\":\"asafsadf\",\"object\":{\"teset\":1000},\"test\":1}",
                 object.toJSONString());
     }
 }

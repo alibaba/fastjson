@@ -62,6 +62,8 @@ import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
+import com.alibaba.fastjson.serializer.CalendarCodec;
+import com.alibaba.fastjson.serializer.DateCodec;
 import com.alibaba.fastjson.serializer.SerializeBeanInfo;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
@@ -729,6 +731,14 @@ public class TypeUtils {
             }
             calendar.setTime(date);
             return (T) calendar;
+        }
+
+        if (clazz.getName().equals("javax.xml.datatype.XMLGregorianCalendar")) {
+            Date date = castToDate(obj);
+            Calendar calendar = Calendar.getInstance(JSON.defaultTimeZone, JSON.defaultLocale);
+            calendar.setTime(date);
+
+            return (T) CalendarCodec.instance.createXMLGregorianCalendar(calendar);
         }
 
         if (obj instanceof String) {

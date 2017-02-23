@@ -77,7 +77,6 @@ public class IOUtils {
                 identifierFlags[c] = true;
             }
         }
-        identifierFlags['.'] = true;
     }
     
     static {

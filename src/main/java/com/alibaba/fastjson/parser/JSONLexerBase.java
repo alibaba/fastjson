@@ -192,6 +192,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                     next();
                     token = SEMI;
                     return;
+                case '.':
+                    next();
+                    token = DOT;
+                    return;
                 default:
                     if (isEOF()) { // JLS
                         if (token == EOF) {

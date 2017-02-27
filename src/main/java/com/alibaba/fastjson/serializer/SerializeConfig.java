@@ -240,10 +240,10 @@ public class SerializeConfig {
 		    if (asm) {
 		        asmFactory = new ASMSerializerFactory();
 		    }
-		} catch (NoClassDefFoundError eror) {
+		} catch (Throwable eror) {
 		    asm = false;
-		} catch (ExceptionInInitializerError error) {
-		    asm = false;
+//		} catch (ExceptionInInitializerError error) {
+//		    asm = false;
 		}
 
 		put(Boolean.class, BooleanCodec.instance);

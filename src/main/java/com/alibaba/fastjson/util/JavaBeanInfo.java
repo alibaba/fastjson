@@ -132,7 +132,12 @@ public class JavaBeanInfo {
         Class<?> builderClass = getBuilderClass(jsonType);
 
         Field[] declaredFields = clazz.getDeclaredFields();
-        Method[] methods = clazz.getDeclaredMethods();
+        Method[] publicMethods = clazz.getMethods();
+        Method[] declaredMethods = clazz.getDeclaredMethods();
+        Set<Method> methodSet = new HashSet<Method>();
+        Collections.addAll(methodSet, publicMethods);
+        Collections.addAll(methodSet, declaredMethods);
+        Method[] methods = (Method[]) methodSet.toArray(new Method[methodSet.size()]);
 
         Constructor<?> defaultConstructor = getDefaultConstructor(builderClass == null ? clazz : builderClass);
         Constructor<?> creatorConstructor = null;

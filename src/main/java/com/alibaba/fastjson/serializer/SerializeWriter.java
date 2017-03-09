@@ -941,7 +941,7 @@ public final class SerializeWriter extends Writer {
         for (int i = start; i < end; ++i) {
             char ch = buf[i];
 
-            if (ch == '\u2028') {
+            if (ch == '\u2028' || ch == '\u2029') {
                 specialCount++;
                 lastSpecialIndex = i;
                 lastSpecial = ch;
@@ -1003,6 +1003,17 @@ public final class SerializeWriter extends Writer {
                     buf[++lastSpecialIndex] = '0';
                     buf[++lastSpecialIndex] = '2';
                     buf[++lastSpecialIndex] = '8';
+                } else if (lastSpecial == '\u2029') {
+                    int srcPos = lastSpecialIndex + 1;
+                    int destPos = lastSpecialIndex + 6;
+                    int LengthOfCopy = end - lastSpecialIndex - 1;
+                    System.arraycopy(buf, srcPos, buf, destPos, LengthOfCopy);
+                    buf[lastSpecialIndex] = '\\';
+                    buf[++lastSpecialIndex] = 'u';
+                    buf[++lastSpecialIndex] = '2';
+                    buf[++lastSpecialIndex] = '0';
+                    buf[++lastSpecialIndex] = '2';
+                    buf[++lastSpecialIndex] = '9';
                 } else {
                     final char ch = lastSpecial;
                     if (ch < IOUtils.specicalFlags_doubleQuotes.length //
@@ -1050,7 +1061,7 @@ public final class SerializeWriter extends Writer {
                             end++;
                         }
                     } else {
-                        if (ch == '\u2028') {
+                        if (ch == '\u2028' || ch == '\u2029') {
                             buf[bufIndex++] = '\\';
                             buf[bufIndex++] = 'u';
                             buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 12) & 15];
@@ -1410,6 +1421,7 @@ public final class SerializeWriter extends Writer {
             if (ch >= ']') {
                 if (ch >= 0x7F //
                     && (ch == '\u2028' //
+                        || ch == '\u2029' //
                         || ch < 0xA0)) {
                     if (firstSpecialIndex == -1) {
                         firstSpecialIndex = i;
@@ -1459,6 +1471,17 @@ public final class SerializeWriter extends Writer {
                     buf[++lastSpecialIndex] = '0';
                     buf[++lastSpecialIndex] = '2';
                     buf[++lastSpecialIndex] = '8';
+                } else if (lastSpecial == '\u2029') {
+                    int srcPos = lastSpecialIndex + 1;
+                    int destPos = lastSpecialIndex + 6;
+                    int LengthOfCopy = valueEnd - lastSpecialIndex - 1;
+                    System.arraycopy(buf, srcPos, buf, destPos, LengthOfCopy);
+                    buf[lastSpecialIndex] = '\\';
+                    buf[++lastSpecialIndex] = 'u';
+                    buf[++lastSpecialIndex] = '2';
+                    buf[++lastSpecialIndex] = '0';
+                    buf[++lastSpecialIndex] = '2';
+                    buf[++lastSpecialIndex] = '9';
                 } else {
                     final char ch = lastSpecial;
                     if (ch < IOUtils.specicalFlags_doubleQuotes.length //
@@ -1506,7 +1529,7 @@ public final class SerializeWriter extends Writer {
                             valueEnd++;
                         }
                     } else {
-                        if (ch == '\u2028') {
+                        if (ch == '\u2028' || ch == '\u2029') {
                             buf[bufIndex++] = '\\';
                             buf[bufIndex++] = 'u';
                             buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 12) & 15];

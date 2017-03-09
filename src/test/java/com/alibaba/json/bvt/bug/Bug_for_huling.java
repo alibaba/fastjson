@@ -50,6 +50,20 @@ public class Bug_for_huling extends TestCase {
         Assert.assertEquals("\u2028\u2028", vo2.getValue());
     }
 
+    public void test_for_2029() throws Exception {
+        VO vo = new VO();
+        vo.setValue("\u2029\u2029");
+
+        Assert.assertEquals('\u2029', vo.getValue().charAt(0));
+
+        String text = JSON.toJSONString(vo);
+        System.out.println(text);
+        Assert.assertEquals("{\"value\":\"\\u2029\\u2029\"}", text);
+
+        VO vo2 = JSON.parseObject(text, VO.class);
+        Assert.assertEquals("\u2029\u2029", vo2.getValue());
+    }
+
     public static class VO {
 
         private String value;

@@ -184,6 +184,7 @@ public class SerializeConfig {
     			if (annotation == null) {
     			    continue;
     			}
+
                 if ((!ASMUtils.checkName(annotation.name())) //
                         || annotation.format().length() != 0
                         || annotation.jsonDirect()
@@ -192,6 +193,13 @@ public class SerializeConfig {
     				asm = false;
     				break;
     			}
+
+                for (SerializerFeature feature : annotation.serialzeFeatures()) {
+    			    if (SerializerFeature.WriteNonStringValueAsString == feature) {
+    			        asm = false;
+    			        break;
+                    }
+                }
     		}
 		}
 		

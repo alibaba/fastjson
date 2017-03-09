@@ -57,7 +57,7 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
 
         // ContextObjectDeserializer
         Object value;
-        if (fieldValueDeserilizer.getClass().equals(JavaBeanDeserializer.class)) {
+        if (fieldValueDeserilizer instanceof JavaBeanDeserializer && fieldInfo.parserFeatures != 0) {
             JavaBeanDeserializer javaBeanDeser = (JavaBeanDeserializer) fieldValueDeserilizer;
             value = javaBeanDeser.deserialze(parser, fieldType, fieldInfo.name, fieldInfo.parserFeatures);
         } else {

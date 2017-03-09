@@ -202,7 +202,8 @@ public abstract class SerializeFilterable {
                                Object propertyValue) {
 
         if (propertyValue != null) {
-            if (jsonBeanDeser.out.writeNonStringValueAsString //
+            if ((jsonBeanDeser.out.writeNonStringValueAsString //
+                    || (beanContext != null && (beanContext.getFeatures() & SerializerFeature.WriteNonStringValueAsString.mask) != 0))
                     && (propertyValue instanceof Number || propertyValue instanceof Boolean)) {
                 String format = null;
                 if (propertyValue instanceof Number

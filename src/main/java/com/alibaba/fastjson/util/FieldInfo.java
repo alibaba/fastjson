@@ -450,7 +450,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
     public Object get(Object javaObject) throws IllegalAccessException, InvocationTargetException {
         if (method != null) {
-            Object value = method.invoke(javaObject, new Object[0]);
+            Object value = method.invoke(javaObject);
             return value;
         }
 

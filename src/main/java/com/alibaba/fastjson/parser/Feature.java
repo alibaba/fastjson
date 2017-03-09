@@ -108,7 +108,12 @@ public enum Feature {
      */
     SupportNonPublicField,
 
-    IgnoreType
+    /**
+     * @since 1.2.29
+     *
+     * disable autotype key '@type'
+     */
+    IgnoreAutoType
     ;
 
     Feature(){

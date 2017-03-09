@@ -147,8 +147,12 @@ public enum SerializerFeature {
     /**
      * @since 1.2.16
      */
-    WriteBigDecimalAsPlain
-    ;
+    WriteBigDecimalAsPlain,
+
+    /**
+     * @since 1.2.22
+     */
+    DisableWriteFieldNullValue;
 
     SerializerFeature(){
         mask = (1 << ordinal());

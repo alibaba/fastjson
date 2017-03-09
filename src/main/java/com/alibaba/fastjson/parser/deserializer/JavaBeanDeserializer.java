@@ -536,7 +536,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             String typeName = lexer.stringVal();
                             lexer.nextToken(JSONToken.COMMA);
 
-                            if (typeName.equals(beanInfo.typeName)) {
+                            if (typeName.equals(beanInfo.typeName)|| parser.isEnabled(Feature.IgnoreType)) {
                                 if (lexer.token() == JSONToken.RBRACE) {
                                     lexer.nextToken();
                                     break;
@@ -545,21 +545,21 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             }
                             
                             ParserConfig config = parser.getConfig();
-                            ObjectDeserializer deserizer = getSeeAlso(config, this.beanInfo, typeName);
+                            ObjectDeserializer deserializer = getSeeAlso(config, this.beanInfo, typeName);
                             Class<?> userType = null;
-                            if (deserizer == null) {
+                            if (deserializer == null) {
                                 userType = TypeUtils.loadClass(typeName, config.getDefaultClassLoader());
                                 
                                 Class<?> expectClass = TypeUtils.getClass(type);
                                 if (expectClass == null || 
                                     (userType != null && expectClass.isAssignableFrom(userType))) {
-                                    deserizer = parser.getConfig().getDeserializer(userType);                                        
+                                    deserializer = parser.getConfig().getDeserializer(userType);
                                 } else {
                                     throw new JSONException("type not match");
                                 }
                             }
                             
-                            return (T) deserizer.deserialze(parser, userType, fieldName);
+                            return (T) deserializer.deserialze(parser, userType, fieldName);
                         } else {
                             throw new JSONException("syntax error");
                         }

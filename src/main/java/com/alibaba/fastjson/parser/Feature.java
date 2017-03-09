@@ -106,7 +106,9 @@ public enum Feature {
     /**
      * @since 1.2.22, 1.1.54.android
      */
-    SupportNonPublicField
+    SupportNonPublicField,
+
+    IgnoreType
     ;
 
     Feature(){

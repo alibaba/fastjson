@@ -39,7 +39,7 @@ https://github.com/eishay/jvm-serializers/wiki
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>fastjson</artifactId>
-    <version>1.2.24</version>
+    <version>1.2.28</version>
 </dependency>
 ```
 

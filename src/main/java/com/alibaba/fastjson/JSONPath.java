@@ -237,6 +237,23 @@ public class JSONPath implements JSONAware {
         Segement lastSegement = segments[segments.length - 1];
         if (lastSegement instanceof PropertySegement) {
             PropertySegement propertySegement = (PropertySegement) lastSegement;
+
+            if (parentObject instanceof Collection) {
+                if (segments.length > 1) {
+                    Segement parentSegement = segments[segments.length - 2];
+                    if (parentSegement instanceof RangeSegement || parentSegement instanceof MultiIndexSegement) {
+                        Collection collection = (Collection) parentObject;
+                        boolean removedOnce = false;
+                        for (Object item : collection) {
+                            boolean removed = propertySegement.remove(this, item);
+                            if (removed) {
+                                removedOnce = true;
+                            }
+                        }
+                        return removedOnce;
+                    }
+                }
+            }
             return propertySegement.remove(this, parentObject);
         }
 

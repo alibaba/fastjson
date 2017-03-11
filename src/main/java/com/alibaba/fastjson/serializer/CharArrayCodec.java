@@ -57,6 +57,13 @@ public class CharArrayCodec implements ObjectDeserializer {
             if (!accept) {
                 throw new JSONException("can not cast to char[]");
             }
+
+            char[] chars = new char[collection.size()];
+            int pos = 0;
+            for (Object item : collection) {
+                chars[pos++] = ((String) item).charAt(0);
+            }
+            return (T) chars;
         }
 
         return value == null //

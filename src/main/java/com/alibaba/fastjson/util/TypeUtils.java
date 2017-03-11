@@ -416,7 +416,16 @@ public class TypeUtils {
                 return null;
             }
 
-            longValue = Long.parseLong(strVal);
+            if (isNumber(strVal)) {
+                longValue = Long.parseLong(strVal);
+            } else {
+                JSONScanner scanner = new JSONScanner(strVal);
+                if (scanner.scanISO8601DateIfMatch(false)) {
+                    longValue = scanner.getCalendar().getTime().getTime();
+                } else {
+                    throw new JSONException("can not cast to Timestamp, value : " + strVal);
+                }
+            }
         }
 
         if (longValue <= 0) {
@@ -457,14 +466,40 @@ public class TypeUtils {
                 return null;
             }
 
-            longValue = Long.parseLong(strVal);
+            if (isNumber(strVal)) {
+                longValue = Long.parseLong(strVal);
+            } else {
+                JSONScanner scanner = new JSONScanner(strVal);
+                if (scanner.scanISO8601DateIfMatch(false)) {
+                    longValue = scanner.getCalendar().getTime().getTime();
+                } else {
+                    throw new JSONException("can not cast to Timestamp, value : " + strVal);
+                }
+            }
         }
 
         if (longValue <= 0) {
-            throw new JSONException("can not cast to Date, value : " + value);
+            throw new JSONException("can not cast to Timestamp, value : " + value);
         }
 
         return new java.sql.Timestamp(longValue);
+    }
+
+    public static boolean isNumber(String str) {
+        for (int i = 0; i < str.length(); ++i) {
+            char ch = str.charAt(i);
+            if (ch == '+' || ch == '-') {
+                if (i != 0) {
+                    return false;
+                } else {
+                    continue;
+                }
+            } else if (ch < '0' || ch > '9') {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public static Long castToLong(Object value) {

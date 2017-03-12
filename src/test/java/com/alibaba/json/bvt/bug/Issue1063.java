@@ -12,9 +12,6 @@ import java.sql.Timestamp;
  */
 public class Issue1063 extends TestCase {
     public void test_for_issue() throws Exception {
-        JSON.DEFAULT_GENERATE_FEATURE |= SerializerFeature.DisableCircularReferenceDetect.getMask();
-        JSON.DEFAULT_GENERATE_FEATURE |= SerializerFeature.WriteDateUseDateFormat.getMask();
-
         long currentMillis = System.currentTimeMillis();
         TimestampBean bean = new TimestampBean();
         bean.setTimestamp(new Timestamp(currentMillis));

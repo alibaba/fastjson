@@ -78,7 +78,8 @@ public class JSONPath implements JSONAware {
 
         Object currentObject = rootObject;
         for (int i = 0; i < segments.length; ++i) {
-            currentObject = segments[i].eval(this, rootObject, currentObject);
+            Segement segement = segments[i];
+            currentObject = segement.eval(this, rootObject, currentObject);
         }
         return currentObject;
     }
@@ -2155,7 +2156,12 @@ public class JSONPath implements JSONAware {
             for (int i = 0; i < list.size(); ++i) {
                 Object obj = list.get(i);
                 Object itemValue = getPropertyValue(obj, propertyName, strictMode);
-                fieldValues.add(itemValue);
+                if (itemValue instanceof Collection) {
+                    Collection collection = (Collection) itemValue;
+                    fieldValues.addAll(collection);
+                } else {
+                    fieldValues.add(itemValue);
+                }
             }
 
             return fieldValues;

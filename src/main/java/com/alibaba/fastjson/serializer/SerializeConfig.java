@@ -494,6 +494,8 @@ public class SerializeConfig {
                 if ((!jdk8Error) //
                     && (className.startsWith("java.time.") //
                         || className.startsWith("java.util.Optional") //
+                        || className.equals("java.util.concurrent.atomic.LongAdder")
+                        || className.equals("java.util.concurrent.atomic.DoubleAdder")
                     )) {
                     try {
                         put(Class.forName("java.time.LocalDateTime"), Jdk8DateCodec.instance);
@@ -512,6 +514,9 @@ public class SerializeConfig {
                         put(Class.forName("java.util.OptionalDouble"), OptionalCodec.instance);
                         put(Class.forName("java.util.OptionalInt"), OptionalCodec.instance);
                         put(Class.forName("java.util.OptionalLong"), OptionalCodec.instance);
+
+                        put(Class.forName("java.util.concurrent.atomic.LongAdder"), AdderSerializer.instance);
+                        put(Class.forName("java.util.concurrent.atomic.DoubleAdder"), AdderSerializer.instance);
                         
                         writer = serializers.get(clazz);
                         if (writer != null) {

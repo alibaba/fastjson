@@ -31,23 +31,7 @@ import java.math.BigInteger;
 import java.security.AccessControlException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.AbstractCollection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -788,9 +772,27 @@ public class TypeUtils {
             if (clazz == java.util.Currency.class) {
                 return (T) java.util.Currency.getInstance(strVal);
             }
+
+            if (clazz == java.util.Locale.class) {
+                return (T) toLocale(strVal);
+            }
         }
 
         throw new JSONException("can not cast to : " + clazz.getName());
+    }
+
+    public static Locale toLocale(String strVal) {
+        String[] items = strVal.split("_");
+
+        if (items.length == 1) {
+            return new Locale(items[0]);
+        }
+
+        if (items.length == 2) {
+            return new Locale(items[0], items[1]);
+        }
+
+        return new Locale(items[0], items[1], items[2]);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -967,6 +969,20 @@ public class TypeUtils {
                                                   new Class<?>[] { clazz }, object);
             }
 
+            if (clazz == Locale.class) {
+                Object arg0 = map.get("language");
+                Object arg1 = map.get("country");
+                if (arg0 instanceof String) {
+                    String language = (String) arg0;
+                    if (arg1 instanceof String) {
+                        String country = (String) arg1;
+                        return (T) new Locale(language, country);
+                    } else if (arg1 == null) {
+                        return (T) new Locale(language);
+                    }
+                }
+            }
+
             if (config == null) {
                 config = ParserConfig.getGlobalInstance();
             }
@@ -978,7 +994,7 @@ public class TypeUtils {
             }
             
             if (javaBeanDeser == null) {
-                throw new JSONException("can not get javaBeanDeserializer");
+                throw new JSONException("can not get javaBeanDeserializer. " + clazz.getName());
             }
             
             return (T) javaBeanDeser.createInstance(map, config);

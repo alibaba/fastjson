@@ -247,6 +247,19 @@ public class ASMSerializerFactory implements Opcodes {
                                   new String[] { "java/io/IOException" } //
             );
 
+            {
+                Label endIf_ = new Label();
+                mw.visitVarInsn(ALOAD, Context.obj);
+                //serializer.writeNull();
+                mw.visitJumpInsn(IFNONNULL, endIf_);
+                mw.visitVarInsn(ALOAD, Context.serializer);
+                mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer,
+                        "writeNull", "()V");
+
+                mw.visitInsn(RETURN);
+                mw.visitLabel(endIf_);
+            }
+
             mw.visitVarInsn(ALOAD, Context.serializer);
             mw.visitFieldInsn(GETFIELD, JSONSerializer, "out", SerializeWriter_desc);
             mw.visitVarInsn(ASTORE, context.var("out"));
@@ -745,6 +758,7 @@ public class ASMSerializerFactory implements Opcodes {
 
     private void generateWriteMethod(Class<?> clazz, MethodVisitor mw, FieldInfo[] getters,
                                      Context context) throws Exception {
+
         // if (serializer.containsReference(object)) {
         Label end = new Label();
 

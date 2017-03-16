@@ -811,7 +811,13 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ALOAD, context.var("instance"));
         mw.visitVarInsn(ILOAD, 4);
 
-        int flagSize = (fieldListSize / 32) + 1;
+
+        int flagSize = (fieldListSize / 32);
+
+        if (fieldListSize != 0 && (fieldListSize % 32) != 0) {
+            flagSize += 1;
+        }
+
         if (flagSize == 1) {
             mw.visitInsn(ICONST_1);
         } else {

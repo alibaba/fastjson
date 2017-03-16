@@ -5,7 +5,6 @@ import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.FieldInfo;
-import com.alibaba.fastjson.util.XSSUtils;
 
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -42,8 +41,8 @@ public class StringFieldDeserializer extends FieldDeserializer {
         if (object == null) {
             fieldValues.put(fieldInfo.getName(), value);
         } else {
-            if(fieldInfo.isNeedXSSFilter()){
-                value = XSSUtils.escapeHtml(value);
+            if(fieldInfo.isTrimField()){
+                value = value.trim();
             }
             setValue(object, value);
         }

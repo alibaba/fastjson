@@ -711,10 +711,10 @@ public class ASMDeserializerFactory implements Opcodes {
 //                mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
 //            }
 
-            if(fieldInfo.isNeedXSSFilter()){
+            if(fieldInfo.isTrimField()){
                 mw.visitVarInsn(ALOAD, context.var(fieldInfo.getName() + "_asm"));
-                mw.visitMethodInsn(INVOKESTATIC, "com/alibaba/fastjson/util/XSSUtils", "escapeHtml",
-                        "(Ljava/lang/String;)Ljava/lang/String;");
+                mw.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "trim",
+                        "()Ljava/lang/String;");
                 mw.visitVarInsn(ASTORE, context.var(fieldInfo.getName() + "_asm"));
             }
 

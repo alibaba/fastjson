@@ -16,9 +16,7 @@ public class JsonTest {
 
         TestObj testObj = new TestObj();
 
-        testObj.setScript("\74script>alert('xxx')</script>");
-
-        testObj.setB("<script>alert('xxx')</script>");
+        testObj.setScript("  abcd   dddd   ");
 
         String jsonStr = JSON.toJSONString(testObj);
 

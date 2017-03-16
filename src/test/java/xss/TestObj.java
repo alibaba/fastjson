@@ -1,13 +1,14 @@
 package xss;
 
-import com.alibaba.fastjson.annotation.JSONXSSFilter;
+
+import com.alibaba.fastjson.annotation.JSONTrimFilter;
 
 /**
  * Created by Jintao on 2015/11/3.
  */
 public class TestObj {
 
-    @JSONXSSFilter
+    @JSONTrimFilter
     private String script;
 
     private String b;

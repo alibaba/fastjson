@@ -113,7 +113,14 @@ public enum Feature {
      *
      * disable autotype key '@type'
      */
-    IgnoreAutoType
+    IgnoreAutoType,
+
+    /**
+     * @since 1.2.30
+     * 
+     * disable field smart match, improve performance in some scenarios.
+     */
+    DisableFieldSmartMatch
     ;
 
     Feature(){

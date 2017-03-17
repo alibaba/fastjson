@@ -726,11 +726,17 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                               Map<String, Object> fieldValues, int[] setFlags) {
         JSONLexer lexer = parser.lexer; // xxx
 
-        FieldDeserializer fieldDeserializer = smartMatch(key);
+        final int disableFieldSmartMatchMask = Feature.DisableFieldSmartMatch.mask;
+        FieldDeserializer fieldDeserializer;
+        if (lexer.isEnabled(disableFieldSmartMatchMask) || (this.beanInfo.parserFeatures & disableFieldSmartMatchMask) != 0) {
+            fieldDeserializer = getFieldDeserializer(key);
+        } else {
+            fieldDeserializer = smartMatch(key);
+        }
 
         final int mask = Feature.SupportNonPublicField.mask;
         if (fieldDeserializer == null
-                && (parser.lexer.isEnabled(mask)
+                && (lexer.isEnabled(mask)
                     || (this.beanInfo.parserFeatures & mask) != 0)) {
             if (this.extraFieldDeserializers == null) {
                 ConcurrentHashMap extraFieldDeserializers = new ConcurrentHashMap<String, Object>(1, 0.75f, 1);

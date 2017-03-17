@@ -108,6 +108,10 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 object = constructor.newInstance();
             } else {
                 ParseContext context = parser.getContext();
+                if (context == null || context.object == null) {
+                    throw new JSONException("can't create non-static inner class instance.");
+                }
+
                 String parentName = context.object.getClass().getName();
                 String typeName = "";
                 

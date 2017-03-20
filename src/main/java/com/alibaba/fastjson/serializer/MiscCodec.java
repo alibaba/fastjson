@@ -1,6 +1,7 @@
 package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
@@ -227,6 +228,20 @@ public final class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         } else if (clazz == char.class || clazz == Character.class) {
             return (T) TypeUtils.castToChar(strVal);
         } else {
+            if (clazz instanceof Class) {
+                String className = ((Class) clazz).getName();
+                if ("android.net.Uri".equals(className)) {
+                    try {
+                        Class uriClass = Class.forName("android.net.Uri");
+                        Method method = uriClass.getMethod("parse", String.class);
+                        Object uri = method.invoke(null, strVal);
+                        return (T) uri;
+                    } catch (Exception ex) {
+                        throw new JSONException("parse android.net.Uri error.", ex);
+                    }
+                }
+            }
+
             return (T) TimeZone.getTimeZone(strVal);
         }
     }

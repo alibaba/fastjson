@@ -9,6 +9,12 @@ import junit.framework.TestCase;
 public class Issue1074 extends TestCase {
     public void test_for_issue() throws Exception {
         String json = "//123456";
-        JSON.parse(json);
+        Throwable error = null;
+        try {
+            JSON.parse(json);
+        } catch (Exception ex) {
+            error = ex;
+        }
+        assertNotNull(error);
     }
 }

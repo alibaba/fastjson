@@ -1250,6 +1250,18 @@ public class TypeUtils {
         return new SerializeBeanInfo(beanType, jsonType, typeName, features, fields, sortedFields);
     }
 
+    public static List<FieldInfo> computeGetters(Class<?> clazz, Map<String, String> aliasMap) {
+        return computeGetters(clazz, aliasMap, true);
+    }
+
+    public static List<FieldInfo> computeGetters(Class<?> clazz, Map<String, String> aliasMap, boolean sorted) {
+        JSONType jsonType = clazz.getAnnotation(JSONType.class);
+        Map<String, Field> fieldCacheMap = new HashMap<String, Field>();
+        ParserConfig.parserAllFieldToCache(clazz, fieldCacheMap);
+
+        return computeGetters(clazz, jsonType, aliasMap, fieldCacheMap, sorted, PropertyNamingStrategy.CamelCase);
+    }
+
     public static List<FieldInfo> computeGetters(Class<?> clazz, //
                                                  JSONType jsonType, //
                                                  Map<String, String> aliasMap, //

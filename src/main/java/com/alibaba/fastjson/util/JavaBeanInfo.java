@@ -84,7 +84,13 @@ public class JavaBeanInfo {
         }
         this.sortedFields = sortedFields;
 
-        defaultConstructorParameterSize = defaultConstructor != null ? defaultConstructor.getParameterTypes().length : 0;
+        if (defaultConstructor != null) {
+            defaultConstructorParameterSize = defaultConstructor.getParameterTypes().length;
+        } else if (factoryMethod != null) {
+            defaultConstructorParameterSize = factoryMethod.getParameterTypes().length;
+        } else {
+            defaultConstructorParameterSize = 0;
+        }
     }
 
     private static FieldInfo getField(List<FieldInfo> fieldList, String propertyName) {
@@ -141,12 +147,14 @@ public class JavaBeanInfo {
         Constructor<?> defaultConstructor = getDefaultConstructor(builderClass == null ? clazz : builderClass);
         Constructor<?> creatorConstructor = null;
         Method buildMethod = null;
+        Method factoryMethod = null;
 
         List<FieldInfo> fieldList = new ArrayList<FieldInfo>();
 
-        if (defaultConstructor == null && !(clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers()))) {
+        boolean isInterfaceOrAbstract = clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers());
+        if (defaultConstructor == null || isInterfaceOrAbstract) {
             creatorConstructor = getCreatorConstructor(clazz);
-            if (creatorConstructor != null) { // 基于标记 JSONCreator 注解的构造方法
+            if (creatorConstructor != null && !isInterfaceOrAbstract) { // 基于标记 JSONCreator 注解的构造方法
                 TypeUtils.setAccessible(creatorConstructor);
 
                 Class<?>[] types = creatorConstructor.getParameterTypes();
@@ -179,7 +187,7 @@ public class JavaBeanInfo {
                 return new JavaBeanInfo(clazz, builderClass, null, creatorConstructor, null, null, jsonType, fieldList);
             }
 
-            Method factoryMethod = getFactoryMethod(clazz, methods); // 基于标记 JSONCreator 注解的工厂方法
+            factoryMethod = getFactoryMethod(clazz, methods); // 基于标记 JSONCreator 注解的工厂方法
             if (factoryMethod != null) {
                 TypeUtils.setAccessible(factoryMethod);
 
@@ -209,12 +217,12 @@ public class JavaBeanInfo {
                                                             ordinal, serialzeFeatures, parserFeatures);
                         add(fieldList, fieldInfo);
                     }
+
+                    return new JavaBeanInfo(clazz, builderClass, null, null, factoryMethod, null, jsonType, fieldList);
                 }
-
-                return new JavaBeanInfo(clazz, builderClass, null, null, factoryMethod, null, jsonType, fieldList);
+            } else if (!isInterfaceOrAbstract){
+                throw new JSONException("default constructor not found. " + clazz);
             }
-
-            throw new JSONException("default constructor not found. " + clazz);
         }
 
         if (defaultConstructor != null) {
@@ -539,7 +547,7 @@ public class JavaBeanInfo {
             }
         }
 
-        return new JavaBeanInfo(clazz, builderClass, defaultConstructor, null, null, buildMethod, jsonType, fieldList);
+        return new JavaBeanInfo(clazz, builderClass, defaultConstructor, null, factoryMethod, buildMethod, jsonType, fieldList);
     }
 
     static Constructor<?> getDefaultConstructor(Class<?> clazz) {

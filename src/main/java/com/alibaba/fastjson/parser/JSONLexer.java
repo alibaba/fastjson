@@ -84,6 +84,8 @@ public final class JSONLexer {
     protected String                         stringDefaultValue;
     public boolean                           disableCircularReferenceDetect;
 
+    protected long                           fieldHash;
+
     public JSONLexer(String input){
         this(input, JSON.DEFAULT_PARSER_FEATURE);
     }
@@ -1973,6 +1975,7 @@ public final class JSONLexer {
                         EOI //
                         : text.charAt(charIndex);
             } else {
+                fieldHash = 0L;
                 matchStat = NOT_MATCH_NAME;
                 return false;
             }
@@ -1993,6 +1996,7 @@ public final class JSONLexer {
 
         if (hash != fieldHashCode) {
             matchStat = NOT_MATCH_NAME;
+            fieldHash = hash;
             return false;
         }
 
@@ -2070,6 +2074,7 @@ public final class JSONLexer {
                         EOI //
                         : text.charAt(charIndex);
             } else {
+                fieldHash = 0;
                 matchStat = NOT_MATCH_NAME;
                 return 0;
             }
@@ -2089,6 +2094,7 @@ public final class JSONLexer {
         }
 
         if (hash != fieldHashCode) {
+            fieldHash = hash;
             matchStat = NOT_MATCH_NAME;
             return 0;
         }
@@ -2260,7 +2266,7 @@ public final class JSONLexer {
                 EOI //
                 : text.charAt(charIndex);
         if (chLocal != '[') {
-            matchStat = NOT_MATCH_NAME;
+            matchStat = NOT_MATCH;
             return null;
         }
         // chLocal = charAt(bp + (offset++));
@@ -2871,7 +2877,7 @@ public final class JSONLexer {
                 EOI //
                 : text.charAt(charIndex);
         if (chLocal != '[') {
-            matchStat = NOT_MATCH_NAME;
+            matchStat = NOT_MATCH;
             return null;
         }
         // chLocal = charAt(bp + (offset++));
@@ -3073,7 +3079,7 @@ public final class JSONLexer {
                 : text.charAt(charIndex);
 
         if (chLocal != '[') {
-            matchStat = NOT_MATCH_NAME;
+            matchStat = NOT_MATCH;
             return null;
         }
         // chLocal = charAt(bp + (offset++));
@@ -3432,7 +3438,7 @@ public final class JSONLexer {
                 EOI //
                 : text.charAt(charIndex);
         if (chLocal != '[') {
-            matchStat = NOT_MATCH_NAME;
+            matchStat = NOT_MATCH;
             return null;
         }
         // chLocal = charAt(bp + (offset++));
@@ -3634,7 +3640,7 @@ public final class JSONLexer {
                 : text.charAt(charIndex);
 
         if (chLocal != '[') {
-            matchStat = NOT_MATCH_NAME;
+            matchStat = NOT_MATCH;
             return null;
         }
         // chLocal = charAt(bp + (offset++));

@@ -97,7 +97,11 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             }
         }
 
-        if (beanInfo.defaultConstructor == null) {
+        if (beanInfo.defaultConstructor == null && beanInfo.factoryMethod == null) {
+            return null;
+        }
+
+        if (beanInfo.factoryMethod != null && beanInfo.defaultConstructorParameterSize > 0) {
             return null;
         }
 
@@ -105,7 +109,11 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         try {
             Constructor<?> constructor = beanInfo.defaultConstructor;
             if (beanInfo.defaultConstructorParameterSize == 0) {
-                object = constructor.newInstance();
+                if (constructor != null) {
+                    object = constructor.newInstance();
+                } else {
+                    object = beanInfo.factoryMethod.invoke(null);
+                }
             } else {
                 ParseContext context = parser.getContext();
                 if (context == null || context.object == null) {

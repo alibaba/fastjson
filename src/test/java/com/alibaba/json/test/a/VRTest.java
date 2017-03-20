@@ -14,6 +14,9 @@ public class VRTest extends TestCase {
     public void test_vr() throws Exception {
         File file = new File("/Users/wenshao/Downloads/model_p_30687.json");
 
+        file = new File("/Users/wenshao/Downloads/model_p_30687_2.json");
+        //
+
         String str = FileUtils.readFileToString(file);
 
         for (int i = 0; i < 10; ++i) {

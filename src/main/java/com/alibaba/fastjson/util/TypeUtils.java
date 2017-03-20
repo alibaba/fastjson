@@ -762,6 +762,10 @@ public class TypeUtils {
         if (className == null || className.length() == 0) {
             return null;
         }
+
+        if (className.length() >= 256) {
+            throw new JSONException("className too long. " + className);
+        }
         
         Class<?> clazz = mappings.get(className);
 
@@ -795,7 +799,7 @@ public class TypeUtils {
         try {
             ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
 
-            if (contextClassLoader != null) {
+            if (contextClassLoader != null && contextClassLoader != classLoader) {
                 clazz = contextClassLoader.loadClass(className);
 
                 mappings.put(className, clazz);

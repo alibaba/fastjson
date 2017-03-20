@@ -208,7 +208,13 @@ public class ParserConfig {
         } else if (Throwable.class.isAssignableFrom(clazz)) {
             deserializer = new ThrowableDeserializer(this, clazz);
         } else {
-            deserializer = new JavaBeanDeserializer(this, clazz, type);
+            String clazzName = clazz.getName();
+
+            if (clazzName.equals("android.net.Uri")) {
+                deserializer = MiscCodec.instance;
+            } else {
+                deserializer = new JavaBeanDeserializer(this, clazz, type);
+            }
         }
 
         putDeserializer(type, deserializer);

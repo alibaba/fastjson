@@ -8,7 +8,7 @@ import junit.framework.TestCase;
  */
 public class Issue1074 extends TestCase {
     public void test_for_issue() throws Exception {
-        String json = "/*xxx*/{}";
-        JSON.parseObject(json);
+        String json = "//123456";
+        JSON.parse(json);
     }
 }

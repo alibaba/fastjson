@@ -561,6 +561,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 if (ch == '\n') {
                     next();
                     return;
+                } else if (ch == EOI) {
+                    return;
                 }
             }
         } else if (ch == '*') {

@@ -39,6 +39,7 @@ import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONStreamAware;
 import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.util.IdentityHashMap;
+import com.alibaba.fastjson.util.TypeUtils;
 
 /**
  * circular references detect
@@ -173,7 +174,13 @@ public class SerializeConfig {
                     return superWriter;
                 }
 
-                serializers.put(clazz, new JavaBeanSerializer(clazz, propertyNamingStrategy));
+                String className = clazz.getName();
+
+                if (className.startsWith("android.net.Uri$")) {
+                    serializers.put(clazz, MiscCodec.instance);
+                } else {
+                    serializers.put(clazz, new JavaBeanSerializer(clazz, propertyNamingStrategy));
+                }
             }
 
             writer = serializers.get(clazz);

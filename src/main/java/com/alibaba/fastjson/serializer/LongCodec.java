@@ -17,8 +17,10 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -54,19 +56,24 @@ public class LongCodec implements ObjectSerializer, ObjectDeserializer {
         final JSONLexer lexer = parser.lexer;
 
         Long longObject;
-        if (lexer.token() == JSONToken.LITERAL_INT) {
+        final int token = lexer.token();
+        if (token == JSONToken.LITERAL_INT) {
             long longValue = lexer.longValue();
             lexer.nextToken(JSONToken.COMMA);
             longObject = Long.valueOf(longValue);
         } else {
+            if (token == JSONToken.LBRACE) {
+                JSONObject jsonObject = new JSONObject(true);
+                parser.parseObject(jsonObject);
+                longObject = TypeUtils.castToLong(jsonObject);
+            } else {
+                Object value = parser.parse();
 
-            Object value = parser.parse();
-
-            if (value == null) {
+                longObject = TypeUtils.castToLong(value);
+            }
+            if (longObject == null) {
                 return null;
             }
-
-            longObject = TypeUtils.castToLong(value);
         }
         
         return clazz == AtomicLong.class //

@@ -525,6 +525,18 @@ public class TypeUtils {
             }
         }
 
+        if (value instanceof Map) {
+            Map map = (Map) value;
+            if (map.size() == 2
+                    && map.containsKey("andIncrement")
+                    && map.containsKey("andDecrement")) {
+                Iterator iter = map.values().iterator();
+                iter.next();
+                Object value2 = iter.next();
+                return castToLong(value2);
+            }
+        }
+
         throw new JSONException("can not cast to long, value : " + value);
     }
 
@@ -559,6 +571,18 @@ public class TypeUtils {
 
         if (value instanceof Boolean) {
             return ((Boolean) value).booleanValue() ? 1 : 0;
+        }
+
+        if (value instanceof Map) {
+            Map map = (Map) value;
+            if (map.size() == 2
+                    && map.containsKey("andIncrement")
+                    && map.containsKey("andDecrement")) {
+                Iterator iter = map.values().iterator();
+                iter.next();
+                Object value2 = iter.next();
+                return castToInt(value2);
+            }
         }
 
         throw new JSONException("can not cast to int, value : " + value);

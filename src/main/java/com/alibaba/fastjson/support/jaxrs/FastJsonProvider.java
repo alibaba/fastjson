@@ -270,7 +270,7 @@ public class FastJsonProvider //
                 fastJsonConfig.getSerializerFeatures());
 
         // add Content-Length
-        httpHeaders.add("Content-Length", len);
+        httpHeaders.add("Content-Length", String.valueOf(len));
 
         entityStream.flush();
     }

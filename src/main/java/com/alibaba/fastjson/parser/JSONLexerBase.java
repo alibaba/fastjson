@@ -196,6 +196,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                     next();
                     token = DOT;
                     return;
+                case '+':
+                    next();
+                    scanNumber();
+                    return;
                 default:
                     if (isEOF()) { // JLS
                         if (token == EOF) {

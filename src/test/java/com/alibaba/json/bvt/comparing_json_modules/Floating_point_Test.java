@@ -42,6 +42,5 @@ public class Floating_point_Test extends TestCase {
         assertTrue(json.equals(1.9275814160560206E-50)
                 || json.equals("1.9275814160560204E-50") // raspberry pi
         );
-        assertEquals("1.9275814160560206E-50", json);
     }
 }

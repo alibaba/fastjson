@@ -35,6 +35,13 @@ public class Floating_point_Test extends TestCase {
 
     public void test_2_7() throws Exception {
         double doubeValue = Math.pow(Math.PI, -100);
-        assertEquals("1.9275814160560206E-50", JSON.toJSONString(doubeValue));
+
+        String json = JSON.toJSONString(doubeValue);
+        // 1.9275814160560204E-50
+        // 1.9275814160560206E-50
+        assertTrue(json.equals(1.9275814160560206E-50)
+                || json.equals("1.9275814160560204E-50") // raspberry pi
+        );
+        assertEquals("1.9275814160560206E-50", json);
     }
 }

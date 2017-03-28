@@ -127,7 +127,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
 
                 if (objVal instanceof String) {
                     String value = (String) objVal;
-                    out.writeFieldValueStringWithDoubleQuote('{', key, value);
+                    out.writeFieldValueStringWithDoubleQuoteCheck('{', key, value);
                 } else {
                     out.write('{');
                     out.writeFieldName(key);

@@ -137,10 +137,15 @@ public class JavaBeanInfo {
     }
 
     public static JavaBeanInfo build(Class<?> clazz, Type type, PropertyNamingStrategy propertyNamingStrategy) {
-        return build(clazz, type, propertyNamingStrategy, false);
+        return build(clazz, type, propertyNamingStrategy, false, TypeUtils.compatibleWithJavaBean);
     }
 
-    public static JavaBeanInfo build(Class<?> clazz, Type type, PropertyNamingStrategy propertyNamingStrategy, boolean fieldBase) {
+    public static JavaBeanInfo build(Class<?> clazz //
+            , Type type //
+            , PropertyNamingStrategy propertyNamingStrategy //
+            , boolean fieldBase //
+            , boolean compatibleWithJavaBean
+    ) {
         JSONType jsonType = clazz.getAnnotation(JSONType.class);
 
         Class<?> builderClass = getBuilderClass(jsonType);

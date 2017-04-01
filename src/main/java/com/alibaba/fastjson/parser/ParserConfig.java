@@ -149,6 +149,8 @@ public class ParserConfig {
 
     public final boolean                                   fieldBase;
 
+    public boolean                                         compatibleWithJavaBean = TypeUtils.compatibleWithJavaBean;
+
     public ParserConfig(){
         this(false);
     }

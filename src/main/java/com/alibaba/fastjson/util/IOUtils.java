@@ -81,18 +81,9 @@ public class IOUtils {
     
     static {
         try {
-            new PropertiesInitializer().autoConfig();
+            loadPropertiesFromFile();
         } catch (Throwable e) {
             //skip
-        }
-    }
-    
-    
-    static class PropertiesInitializer{
-        public void autoConfig(){
-            loadPropertiesFromFile();
-            TypeUtils.compatibleWithJavaBean ="true".equals(getStringProperty(FASTJSON_COMPATIBLEWITHJAVABEAN)) ;
-            TypeUtils.compatibleWithFieldName ="true".equals(getStringProperty(FASTJSON_COMPATIBLEWITHFIELDNAME)) ;
         }
     }
     

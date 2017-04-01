@@ -93,6 +93,8 @@ public class SerializeConfig {
     public PropertyNamingStrategy                         propertyNamingStrategy;
 
     private final IdentityHashMap<Type, ObjectSerializer> serializers;
+
+    private final boolean                                 fieldBase;
     
 	public String getTypeKey() {
 		return typeKey;
@@ -120,7 +122,7 @@ public class SerializeConfig {
     }
 
     private final ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
-	    SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null, propertyNamingStrategy);
+	    SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null, propertyNamingStrategy, fieldBase);
 	    if (beanInfo.fields.length == 0 && Iterable.class.isAssignableFrom(clazz)) {
 	        return MiscCodec.instance;
 	    }
@@ -163,7 +165,7 @@ public class SerializeConfig {
 			return new JavaBeanSerializer(beanInfo);
 		}
 
-		boolean asm = this.asm;
+		boolean asm = this.asm && !fieldBase;
 
 		if (asm && asmFactory.classLoader.isExternalClass(clazz)
 				|| clazz == Serializable.class || clazz == Object.class) {
@@ -252,7 +254,16 @@ public class SerializeConfig {
 		this(1024);
 	}
 
-	public SerializeConfig(int tableSize) {
+    public SerializeConfig(boolean fieldBase) {
+	    this(1024, fieldBase);
+    }
+
+    public SerializeConfig(int tableSize) {
+        this(tableSize, false);
+    }
+
+	public SerializeConfig(int tableSize, boolean fieldBase) {
+	    this.fieldBase = fieldBase;
 	    serializers = new IdentityHashMap<Type, ObjectSerializer>(1024);
 		
 		try {

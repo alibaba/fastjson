@@ -15,10 +15,18 @@ public class Issue1112 extends TestCase {
         assertEquals("abc", JSONPath.eval(object, "$.123"));
     }
 
-    public void test_for_issue() throws Exception {
+    public void test_for_issue_2() throws Exception {
         JSONObject object = new JSONObject();
         object.put("345_xiu", "abc");
 
         assertEquals("abc", JSONPath.eval(object, "$.345_xiu"));
+    }
+
+
+    public void test_for_issue_3() throws Exception {
+        JSONObject object = new JSONObject();
+        object.put("345.xiu", "abc");
+
+        assertEquals("abc", JSONPath.eval(object, "$.345\\.xiu"));
     }
 }

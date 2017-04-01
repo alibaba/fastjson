@@ -147,6 +147,15 @@ public class SerializeConfig {
 	        if (jsonType.asm() == false) {
 	            asm = false;
 	        }
+
+            for (SerializerFeature feature : jsonType.serialzeFeatures()) {
+                if (SerializerFeature.WriteNonStringValueAsString == feature //
+                        || SerializerFeature.WriteEnumUsingToString == feature //
+                        || SerializerFeature.NotWriteDefaultValue == feature) {
+                    asm = false;
+                    break;
+                }
+            }
         }
 	    
 	    Class<?> clazz = beanInfo.beanType;
@@ -195,9 +204,11 @@ public class SerializeConfig {
     			}
 
                 for (SerializerFeature feature : annotation.serialzeFeatures()) {
-    			    if (SerializerFeature.WriteNonStringValueAsString == feature || SerializerFeature.WriteEnumUsingToString == feature) {
-    			        asm = false;
-    			        break;
+                    if (SerializerFeature.WriteNonStringValueAsString == feature //
+                            || SerializerFeature.WriteEnumUsingToString == feature //
+                            || SerializerFeature.NotWriteDefaultValue == feature) {
+                        asm = false;
+                        break;
                     }
                 }
     		}

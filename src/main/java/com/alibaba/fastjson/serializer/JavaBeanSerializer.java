@@ -219,7 +219,11 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     }
                 }
 
-                if (propertyValue != null && out.notWriteDefaultValue) {
+                if (propertyValue != null  //
+                        && (out.notWriteDefaultValue //
+                        || (fieldInfo.serialzeFeatures & SerializerFeature.NotWriteDefaultValue.mask) != 0 //
+                        || (beanInfo.features & SerializerFeature.NotWriteDefaultValue.mask) != 0 //
+                        )) {
                     Class<?> fieldCLass = fieldInfo.fieldClass;
                     if (fieldCLass == byte.class && propertyValue instanceof Byte
                         && ((Byte) propertyValue).byteValue() == 0) {

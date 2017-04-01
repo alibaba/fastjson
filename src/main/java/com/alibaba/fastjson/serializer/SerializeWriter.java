@@ -61,6 +61,8 @@ public final class SerializeWriter extends Writer {
 
     protected char                                          keySeperator;
 
+    protected int                                           maxBufSize = -1;
+
     public SerializeWriter(){
         this((Writer) null);
     }
@@ -101,6 +103,18 @@ public final class SerializeWriter extends Writer {
         this.features = featuresValue;
 
         computeFeatures();
+    }
+
+    public int getMaxBufSize() {
+        return maxBufSize;
+    }
+
+    public void setMaxBufSize(int maxBufSize) {
+        if (maxBufSize < this.buf.length) {
+            throw new JSONException("must > " + buf.length);
+        }
+
+        this.maxBufSize = maxBufSize;
     }
 
     public int getBufferLength() {
@@ -242,6 +256,10 @@ public final class SerializeWriter extends Writer {
     }
 
     public void expandCapacity(int minimumCapacity) {
+        if (maxBufSize != -1 && minimumCapacity >= maxBufSize) {
+            throw new JSONException("serialize exceeded MAX_OUTPUT_LENGTH=" + maxBufSize + ", minimumCapacity=" + minimumCapacity);
+        }
+
         int newCapacity = (buf.length * 3) / 2 + 1;
 
         if (newCapacity < minimumCapacity) {

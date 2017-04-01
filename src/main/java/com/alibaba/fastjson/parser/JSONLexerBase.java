@@ -388,7 +388,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 continue;
             }
 
-            throw new JSONException("not match " + expect + " - " + ch);
+            throw new JSONException("not match " + expect + " - " + ch + ", info : " + this.info());
         }
     }
 

@@ -1466,6 +1466,14 @@ public class DefaultJSONParser implements Closeable {
             FieldDeserializer fieldDeser = task.fieldDeserializer;
 
             if (fieldDeser != null) {
+                if (refValue != null
+                        && refValue.getClass() == JSONObject.class
+                        && fieldDeser.fieldInfo != null
+                        && !Map.class.isAssignableFrom(fieldDeser.fieldInfo.fieldClass)) {
+                    Object root = this.contextArray[0].object;
+                    refValue = JSONPath.eval(root, ref);
+                }
+
                 fieldDeser.setValue(object, refValue);
             }
         }

@@ -740,6 +740,16 @@ public class ParserConfig {
             field = fieldCacheMap.get("m_" + fieldName);
         }
 
+        if (field == null) {
+            char c0 = fieldName.charAt(0);
+            if (c0 >= 'a' && c0 <= 'z') {
+                char[] chars = fieldName.toCharArray();
+                chars[0] -= 32; // lower
+                String fieldNameX = new String(chars);
+                field = fieldCacheMap.get(fieldNameX);
+            }
+        }
+
         return field;
     }
 

@@ -45,7 +45,8 @@ public class LongCodec implements ObjectSerializer, ObjectDeserializer {
     
             if (out.isEnabled(SerializerFeature.WriteClassName) //
                 && value <= Integer.MAX_VALUE && value >= Integer.MIN_VALUE //
-                && fieldType != Long.class) {
+                && fieldType != Long.class
+                && fieldType != long.class) {
                 out.write('L');
             }
         }

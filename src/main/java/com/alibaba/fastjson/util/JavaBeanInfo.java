@@ -137,6 +137,10 @@ public class JavaBeanInfo {
     }
 
     public static JavaBeanInfo build(Class<?> clazz, Type type, PropertyNamingStrategy propertyNamingStrategy) {
+        return build(clazz, type, propertyNamingStrategy, false);
+    }
+
+    public static JavaBeanInfo build(Class<?> clazz, Type type, PropertyNamingStrategy propertyNamingStrategy, boolean fieldBase) {
         JSONType jsonType = clazz.getAnnotation(JSONType.class);
 
         Class<?> builderClass = getBuilderClass(jsonType);
@@ -150,6 +154,15 @@ public class JavaBeanInfo {
         Method factoryMethod = null;
 
         List<FieldInfo> fieldList = new ArrayList<FieldInfo>();
+
+        if (fieldBase) {
+            for (Class<?> currentClass = clazz; currentClass != null; currentClass = currentClass.getSuperclass()) {
+                Field[] fields = currentClass.getDeclaredFields();
+
+                computeFields(clazz, type, propertyNamingStrategy, fieldList, fields);
+            }
+            return new JavaBeanInfo(clazz, builderClass, defaultConstructor, null, factoryMethod, buildMethod, jsonType, fieldList);
+        }
 
         boolean isInterfaceOrAbstract = clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers());
         if (defaultConstructor == null || isInterfaceOrAbstract) {
@@ -442,62 +455,8 @@ public class JavaBeanInfo {
                                          annotation, fieldAnnotation, null));
         }
 
-        for (Field field : clazz.getFields()) { // public static fields
-            int modifiers = field.getModifiers();
-            if ((modifiers & Modifier.STATIC) != 0) {
-                continue;
-            }
-            
-            if((modifiers & Modifier.FINAL) != 0) {
-                Class<?> fieldType = field.getType();
-                boolean supportReadOnly = Map.class.isAssignableFrom(fieldType) 
-                        || Collection.class.isAssignableFrom(fieldType)
-                        || AtomicLong.class.equals(fieldType) //
-                        || AtomicInteger.class.equals(fieldType) //
-                        || AtomicBoolean.class.equals(fieldType);
-                if (!supportReadOnly) {
-                    continue;
-                }
-            }
-
-            boolean contains = false;
-            for (FieldInfo item : fieldList) {
-                if (item.name.equals(field.getName())) {
-                    contains = true;
-                    break; // 已经是 contains = true，无需继续遍历
-                }
-            }
-
-            if (contains) {
-                continue;
-            }
-
-            int ordinal = 0, serialzeFeatures = 0, parserFeatures = 0;
-            String propertyName = field.getName();
-
-            JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
-
-            if (fieldAnnotation != null) {
-                if (!fieldAnnotation.deserialize()) {
-                    continue;
-                }
-                
-                ordinal = fieldAnnotation.ordinal();
-                serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
-                parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
-
-                if (fieldAnnotation.name().length() != 0) {
-                    propertyName = fieldAnnotation.name();
-                }
-            }
-            
-            if (propertyNamingStrategy != null) {
-                propertyName = propertyNamingStrategy.translate(propertyName);
-            }
-            
-            add(fieldList, new FieldInfo(propertyName, null, field, clazz, type, ordinal, serialzeFeatures, parserFeatures, null,
-                                         fieldAnnotation, null));
-        }
+        Field[] fields = clazz.getFields();
+        computeFields(clazz, type, propertyNamingStrategy, fieldList, fields);
 
         for (Method method : clazz.getMethods()) { // getter methods
             String methodName = method.getName();
@@ -548,6 +507,65 @@ public class JavaBeanInfo {
         }
 
         return new JavaBeanInfo(clazz, builderClass, defaultConstructor, null, factoryMethod, buildMethod, jsonType, fieldList);
+    }
+
+    private static void computeFields(Class<?> clazz, Type type, PropertyNamingStrategy propertyNamingStrategy, List<FieldInfo> fieldList, Field[] fields) {
+        for (Field field : fields) { // public static fields
+            int modifiers = field.getModifiers();
+            if ((modifiers & Modifier.STATIC) != 0) {
+                continue;
+            }
+
+            if((modifiers & Modifier.FINAL) != 0) {
+                Class<?> fieldType = field.getType();
+                boolean supportReadOnly = Map.class.isAssignableFrom(fieldType)
+                        || Collection.class.isAssignableFrom(fieldType)
+                        || AtomicLong.class.equals(fieldType) //
+                        || AtomicInteger.class.equals(fieldType) //
+                        || AtomicBoolean.class.equals(fieldType);
+                if (!supportReadOnly) {
+                    continue;
+                }
+            }
+
+            boolean contains = false;
+            for (FieldInfo item : fieldList) {
+                if (item.name.equals(field.getName())) {
+                    contains = true;
+                    break; // 已经是 contains = true，无需继续遍历
+                }
+            }
+
+            if (contains) {
+                continue;
+            }
+
+            int ordinal = 0, serialzeFeatures = 0, parserFeatures = 0;
+            String propertyName = field.getName();
+
+            JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
+
+            if (fieldAnnotation != null) {
+                if (!fieldAnnotation.deserialize()) {
+                    continue;
+                }
+
+                ordinal = fieldAnnotation.ordinal();
+                serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
+
+                if (fieldAnnotation.name().length() != 0) {
+                    propertyName = fieldAnnotation.name();
+                }
+            }
+
+            if (propertyNamingStrategy != null) {
+                propertyName = propertyNamingStrategy.translate(propertyName);
+            }
+
+            add(fieldList, new FieldInfo(propertyName, null, field, clazz, type, ordinal, serialzeFeatures, parserFeatures, null,
+                                         fieldAnnotation, null));
+        }
     }
 
     static Constructor<?> getDefaultConstructor(Class<?> clazz) {

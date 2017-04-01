@@ -36,7 +36,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     }
 
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz, Type type){
-        this(config, JavaBeanInfo.build(clazz, type, config.propertyNamingStrategy, config.fieldBase));
+        this(config, JavaBeanInfo.build(clazz, type, config.propertyNamingStrategy, config.fieldBase, config.compatibleWithJavaBean));
     }
     
     public JavaBeanDeserializer(ParserConfig config, JavaBeanInfo beanInfo){

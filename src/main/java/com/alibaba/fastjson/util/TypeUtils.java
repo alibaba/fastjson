@@ -75,6 +75,15 @@ public class TypeUtils {
     private static boolean transientClassInited         = false;
     private static Class<? extends Annotation> transientClass;
 
+    static {
+        try {
+            TypeUtils.compatibleWithJavaBean = "true".equals(IOUtils.getStringProperty(IOUtils.FASTJSON_COMPATIBLEWITHJAVABEAN));
+            TypeUtils.compatibleWithFieldName = "true".equals(IOUtils.getStringProperty(IOUtils.FASTJSON_COMPATIBLEWITHFIELDNAME));
+        } catch (Throwable e) {
+            // skip
+        }
+    }
+
 
     public static String castToString(Object value) {
         if (value == null) {

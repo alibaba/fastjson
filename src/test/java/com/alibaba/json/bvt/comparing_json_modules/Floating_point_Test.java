@@ -39,7 +39,7 @@ public class Floating_point_Test extends TestCase {
         String json = JSON.toJSONString(doubeValue);
         // 1.9275814160560204E-50
         // 1.9275814160560206E-50
-        assertTrue(json.equals(1.9275814160560206E-50)
+        assertTrue(json.equals("1.9275814160560206E-50")
                 || json.equals("1.9275814160560204E-50") // raspberry pi
         );
     }

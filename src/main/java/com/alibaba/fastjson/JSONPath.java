@@ -26,6 +26,7 @@ import com.alibaba.fastjson.serializer.JavaBeanSerializer;
 import com.alibaba.fastjson.serializer.ObjectSerializer;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.util.IOUtils;
+import com.alibaba.fastjson.util.TypeUtils;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -1243,9 +1244,14 @@ public class JSONPath implements JSONAware {
             }
 
             int colonIndex = indexText.indexOf(':');
+
             if (commaIndex == -1 && colonIndex == -1) {
-                int index = Integer.parseInt(indexText);
-                return new ArrayAccessSegement(index);
+                if (TypeUtils.isNumber(indexText)) {
+                    int index = Integer.parseInt(indexText);
+                    return new ArrayAccessSegement(index);
+                } else {
+                    return new PropertySegement(indexText, false);
+                }
             }
 
             if (commaIndex != -1) {
@@ -1950,6 +1956,15 @@ public class JSONPath implements JSONAware {
                 }
                 return null;
             }
+        }
+
+        if (currentObject instanceof Map) {
+            Map map = (Map) currentObject;
+            Object value = map.get(index);
+            if (value == null) {
+                value = map.get(Integer.toString(index));
+            }
+            return value;
         }
 
         throw new UnsupportedOperationException();

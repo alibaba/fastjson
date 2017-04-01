@@ -1225,11 +1225,18 @@ public class TypeUtils {
 
         return clazz;
     }
-    
 
     public static SerializeBeanInfo buildBeanInfo(Class<?> beanType //
-                                                  , Map<String, String> aliasMap //
-                                                  , PropertyNamingStrategy propertyNamingStrategy) {
+            , Map<String, String> aliasMap //
+            , PropertyNamingStrategy propertyNamingStrategy) {
+        return buildBeanInfo(beanType, aliasMap, propertyNamingStrategy, false);
+    }
+
+    public static SerializeBeanInfo buildBeanInfo(Class<?> beanType //
+            , Map<String, String> aliasMap //
+            , PropertyNamingStrategy propertyNamingStrategy //
+            , boolean fieldBased //
+    ) {
         
         JSONType jsonType = beanType.getAnnotation(JSONType.class);
 
@@ -1237,7 +1244,9 @@ public class TypeUtils {
         Map<String, Field> fieldCacheMap = new HashMap<String, Field>();
         ParserConfig.parserAllFieldToCache(beanType, fieldCacheMap);
 
-        List<FieldInfo> fieldInfoList = computeGetters(beanType, jsonType, aliasMap, fieldCacheMap, false, propertyNamingStrategy);
+        List<FieldInfo> fieldInfoList = fieldBased
+                ? computeGettersWithFieldBase(beanType, aliasMap, false, propertyNamingStrategy) //
+                : computeGetters(beanType, jsonType, aliasMap, fieldCacheMap, false, propertyNamingStrategy);
         FieldInfo[] fields = new FieldInfo[fieldInfoList.size()];
         fieldInfoList.toArray(fields);
         
@@ -1259,7 +1268,9 @@ public class TypeUtils {
         FieldInfo[] sortedFields;
         List<FieldInfo> sortedFieldList;
         if (orders != null && orders.length != 0) {
-            sortedFieldList = TypeUtils.computeGetters(beanType, jsonType, aliasMap,fieldCacheMap, true, propertyNamingStrategy);
+            sortedFieldList = fieldBased
+                    ? computeGettersWithFieldBase(beanType, aliasMap, true, propertyNamingStrategy) //
+                    : computeGetters(beanType, jsonType, aliasMap,fieldCacheMap, true, propertyNamingStrategy);
         } else {
             sortedFieldList = new ArrayList<FieldInfo>(fieldInfoList);
             Collections.sort(sortedFieldList);
@@ -1272,6 +1283,22 @@ public class TypeUtils {
         }
         
         return new SerializeBeanInfo(beanType, jsonType, typeName, features, fields, sortedFields);
+    }
+
+    public static List<FieldInfo> computeGettersWithFieldBase(
+            Class<?> clazz, //
+            Map<String, String> aliasMap, //
+            boolean sorted, //
+            PropertyNamingStrategy propertyNamingStrategy) {
+        Map<String, FieldInfo> fieldInfoMap = new LinkedHashMap<String, FieldInfo>();
+
+        for (Class<?> currentClass = clazz; currentClass != null; currentClass = currentClass.getSuperclass()) {
+            Field[] fields = currentClass.getDeclaredFields();
+
+            computeFields(currentClass, aliasMap, propertyNamingStrategy, fieldInfoMap, fields);
+        }
+
+        return getFieldInfos(clazz, sorted, fieldInfoMap);
     }
 
     public static List<FieldInfo> computeGetters(Class<?> clazz, Map<String, String> aliasMap) {
@@ -1381,7 +1408,7 @@ public class TypeUtils {
                     } else {
                         propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
                     }
-                    propertyName = getPropertyNameByCompatibleFieldName(fieldCacheMap, methodName,  propertyName,3); 
+                    propertyName = getPropertyNameByCompatibleFieldName(fieldCacheMap, methodName,  propertyName,3);
                 } else if (c3 == '_') {
                     propertyName = methodName.substring(4);
                 } else if (c3 == 'f') {
@@ -1399,7 +1426,7 @@ public class TypeUtils {
                 }
                 //假如bean的field很多的情况一下，轮询时将大大降低效率
                 Field field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
-                
+
                 if (field == null && propertyName.length() > 1) {
                     char ch = propertyName.charAt(1);
                     if (ch >= 'A' && ch <= 'Z') {
@@ -1407,7 +1434,7 @@ public class TypeUtils {
                         field = ParserConfig.getFieldFromCache(javaBeanCompatiblePropertyName, fieldCacheMap);
                     }
                 }
-                
+
                 JSONField fieldAnnotation = null;
                 if (field != null) {
                     fieldAnnotation = field.getAnnotation(JSONField.class);
@@ -1444,7 +1471,7 @@ public class TypeUtils {
                         continue;
                     }
                 }
-                
+
                 if (propertyNamingStrategy != null) {
                     propertyName = propertyNamingStrategy.translate(propertyName);
                 }
@@ -1473,7 +1500,7 @@ public class TypeUtils {
                     } else {
                         propertyName = Character.toLowerCase(methodName.charAt(2)) + methodName.substring(3);
                     }
-                    propertyName = getPropertyNameByCompatibleFieldName(fieldCacheMap, methodName,  propertyName,2); 
+                    propertyName = getPropertyNameByCompatibleFieldName(fieldCacheMap, methodName,  propertyName,2);
                 } else if (c2 == '_') {
                     propertyName = methodName.substring(3);
                 } else if (c2 == 'f') {
@@ -1485,7 +1512,7 @@ public class TypeUtils {
                 Field field = ParserConfig.getFieldFromCache(propertyName,fieldCacheMap);
 
                 if (field == null) {
-                    field = ParserConfig.getFieldFromCache(methodName,fieldCacheMap); 
+                    field = ParserConfig.getFieldFromCache(methodName,fieldCacheMap);
                 }
 
                 JSONField fieldAnnotation = null;
@@ -1500,7 +1527,7 @@ public class TypeUtils {
                         ordinal = fieldAnnotation.ordinal();
                         serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
                         parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
-                        
+
                         if (fieldAnnotation.name().length() != 0) {
                             propertyName = fieldAnnotation.name();
 
@@ -1524,7 +1551,7 @@ public class TypeUtils {
                         continue;
                     }
                 }
-                
+
                 if (propertyNamingStrategy != null) {
                     propertyName = propertyNamingStrategy.translate(propertyName);
                 }
@@ -1540,52 +1567,13 @@ public class TypeUtils {
             }
         }
 
-        for (Field field : clazz.getFields()) {
-            if (Modifier.isStatic(field.getModifiers())) {
-                continue;
-            }
+        Field[] fields = clazz.getFields();
+        computeFields(clazz, aliasMap, propertyNamingStrategy, fieldInfoMap, fields);
 
-            JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
+        return getFieldInfos(clazz, sorted, fieldInfoMap);
+    }
 
-            int ordinal = 0, serialzeFeatures = 0, parserFeatures = 0;
-            String propertyName = field.getName();
-            String label = null;
-            if (fieldAnnotation != null) {
-                if (!fieldAnnotation.serialize()) {
-                    continue;
-                }
-
-                ordinal = fieldAnnotation.ordinal();
-                serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
-                parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
-
-                if (fieldAnnotation.name().length() != 0) {
-                    propertyName = fieldAnnotation.name();
-                }
-
-                if (fieldAnnotation.label().length() != 0) {
-                    label = fieldAnnotation.label();
-                }
-            }
-
-            if (aliasMap != null) {
-                propertyName = aliasMap.get(propertyName);
-                if (propertyName == null) {
-                    continue;
-                }
-            }
-            
-            if (propertyNamingStrategy != null) {
-                propertyName = propertyNamingStrategy.translate(propertyName);
-            }
-
-            if (!fieldInfoMap.containsKey(propertyName)) {
-                FieldInfo fieldInfo = new FieldInfo(propertyName, null, field, clazz, null, ordinal, serialzeFeatures, parserFeatures,
-                                                    null, fieldAnnotation, label);
-                fieldInfoMap.put(propertyName, fieldInfo);
-            }
-        }
-
+    private static List<FieldInfo> getFieldInfos(Class<?> clazz, boolean sorted, Map<String, FieldInfo> fieldInfoMap) {
         List<FieldInfo> fieldInfoList = new ArrayList<FieldInfo>();
 
         boolean containsAll = false;
@@ -1624,6 +1612,60 @@ public class TypeUtils {
         }
 
         return fieldInfoList;
+    }
+
+    private static void computeFields(
+            Class<?> clazz, //
+            Map<String, String> aliasMap, //
+            PropertyNamingStrategy propertyNamingStrategy, //
+            Map<String, FieldInfo> fieldInfoMap, //
+            Field[] fields) {
+
+        for (Field field : fields) {
+            if (Modifier.isStatic(field.getModifiers())) {
+                continue;
+            }
+
+            JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
+
+            int ordinal = 0, serialzeFeatures = 0, parserFeatures = 0;
+            String propertyName = field.getName();
+            String label = null;
+            if (fieldAnnotation != null) {
+                if (!fieldAnnotation.serialize()) {
+                    continue;
+                }
+
+                ordinal = fieldAnnotation.ordinal();
+                serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
+
+                if (fieldAnnotation.name().length() != 0) {
+                    propertyName = fieldAnnotation.name();
+                }
+
+                if (fieldAnnotation.label().length() != 0) {
+                    label = fieldAnnotation.label();
+                }
+            }
+
+            if (aliasMap != null) {
+                propertyName = aliasMap.get(propertyName);
+                if (propertyName == null) {
+                    continue;
+                }
+            }
+
+            if (propertyNamingStrategy != null) {
+                propertyName = propertyNamingStrategy.translate(propertyName);
+            }
+
+            if (!fieldInfoMap.containsKey(propertyName)) {
+                FieldInfo fieldInfo = new FieldInfo(propertyName, null, field, clazz, null, ordinal, serialzeFeatures, parserFeatures,
+                                                    null, fieldAnnotation, label);
+                fieldInfoMap.put(propertyName, fieldInfo);
+            }
+        }
     }
 
     private static String getPropertyNameByCompatibleFieldName(Map<String, Field> fieldCacheMap, String methodName,

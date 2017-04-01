@@ -13,6 +13,10 @@ public class JSONObectNullTest extends TestCase {
         Model model = JSON.parseObject("{\"value\":null}", Model.class);
     }
 
+    public void test_for_null2() throws Exception {
+        JSON.parseObject("null");
+    }
+
     public static class Model {
         public JSONObject value;
     }

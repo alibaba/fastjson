@@ -65,7 +65,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
                     break;
                 }
             }
-            
+
             format = annotation.format();
 
             if (format.trim().length() == 0) {
@@ -136,9 +136,10 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
             } else {
                 runtimeFieldClass = propertyValue.getClass();
             }
-            
+
             ObjectSerializer fieldSerializer = null;
             JSONField fieldAnnotation = fieldInfo.getAnnotation();
+
             if (fieldAnnotation != null && fieldAnnotation.serializeUsing() != Void.class) {
                 fieldSerializer = (ObjectSerializer) fieldAnnotation.serializeUsing().newInstance();
                 serializeUsing = true;
@@ -155,7 +156,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
                     fieldSerializer = serializer.getObjectWriter(runtimeFieldClass);
                 }
             }
-            
+
             runtimeInfo = new RuntimeSerializerInfo(fieldSerializer, runtimeFieldClass);
         }
         
@@ -218,15 +219,21 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
             } else {
                 serializer.writeWithFormat(propertyValue, format);
             }
-        } else {
-            valueSerializer.write(serializer, propertyValue, fieldInfo.name, fieldInfo.fieldType, fieldFeatures);
-        }        
-        
+            return;
+        }
+
+        if (fieldInfo.unwrapped && valueSerializer instanceof JavaBeanSerializer) {
+            JavaBeanSerializer javaBeanSerializer = (JavaBeanSerializer) valueSerializer;
+            javaBeanSerializer.write(serializer, propertyValue, fieldInfo.name, fieldInfo.fieldType, fieldFeatures, true);
+            return;
+        }
+
+        valueSerializer.write(serializer, propertyValue, fieldInfo.name, fieldInfo.fieldType, fieldFeatures);
     }
 
     static class RuntimeSerializerInfo {
-        ObjectSerializer fieldSerializer;
-        Class<?>         runtimeFieldClass;
+        final ObjectSerializer fieldSerializer;
+        final Class<?>         runtimeFieldClass;
 
         public RuntimeSerializerInfo(ObjectSerializer fieldSerializer, Class<?> runtimeFieldClass){
             this.fieldSerializer = fieldSerializer;

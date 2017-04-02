@@ -108,6 +108,16 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                       Object fieldName, //
                       Type fieldType, //
                       int features) throws IOException {
+        write(serializer, object, fieldName, fieldType, features, false);
+    }
+
+    public void write(JSONSerializer serializer, //
+                      Object object, //
+                      Object fieldName, //
+                      Type fieldType, //
+                      int features,
+                      boolean unwrapped
+    ) throws IOException {
         SerializeWriter out = serializer.out;
 
         if (object == null) {
@@ -135,7 +145,9 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         try {
             final char startSeperator = writeAsArray ? '[' : '{';
             final char endSeperator = writeAsArray ? ']' : '}';
-            out.append(startSeperator);
+            if (!unwrapped) {
+                out.append(startSeperator);
+            }
 
             if (getters.length > 0 && out.isEnabled(SerializerFeature.PrettyFormat)) {
                 serializer.incrementIndent();
@@ -269,10 +281,12 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     serializer.write(propertyValue);
                 } else {
                     if (!writeAsArray) {
-                        if (directWritePrefix) {
-                            out.write(fieldInfo.name_chars, 0, fieldInfo.name_chars.length);
-                        } else {
-                            fieldSerializer.writePrefix(serializer);
+                        if (!fieldInfo.unwrapped) {
+                            if (directWritePrefix) {
+                                out.write(fieldInfo.name_chars, 0, fieldInfo.name_chars.length);
+                            } else {
+                                fieldSerializer.writePrefix(serializer);
+                            }
                         }
                     }
 
@@ -314,7 +328,9 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 serializer.println();
             }
 
-            out.append(endSeperator);
+            if (!unwrapped) {
+                out.append(endSeperator);
+            }
         } catch (Exception e) {
             String errorMessage = "write javaBean error";
             if (object != null) {

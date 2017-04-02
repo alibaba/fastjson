@@ -74,4 +74,9 @@ public @interface JSONField {
      * @return the alternative names of the field when it is deserialized
      */
     String[] alternateNames() default {};
+
+    /**
+     * @since 1.2.31
+     */
+    boolean unwrapped() default false;
 }

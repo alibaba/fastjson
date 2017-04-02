@@ -852,6 +852,10 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 FieldDeserializer fieldDeser = sortedFieldDeserializers[i];
 
                 FieldInfo fieldInfo = fieldDeser.fieldInfo;
+                if ((fieldInfo.parserFeatures & Feature.DisableFieldSmartMatch.mask) != 0) {
+                    return null;
+                }
+
                 Class<?> fieldClass = fieldInfo.fieldClass;
                 String fieldName = fieldInfo.name;
                 

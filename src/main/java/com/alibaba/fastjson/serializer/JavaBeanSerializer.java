@@ -111,7 +111,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         write(serializer, object, fieldName, fieldType, features, false);
     }
 
-    public void write(JSONSerializer serializer, //
+    protected void write(JSONSerializer serializer, //
                       Object object, //
                       Object fieldName, //
                       Type fieldType, //

@@ -200,6 +200,7 @@ public class SerializeConfig {
                         || annotation.format().length() != 0
                         || annotation.jsonDirect()
                         || annotation.serializeUsing() != Void.class
+                        || annotation.unwrapped()
                         ) {
     				asm = false;
     				break;

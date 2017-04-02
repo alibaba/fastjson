@@ -40,6 +40,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
     
     public final boolean    isEnum;
     public final boolean    jsonDirect;
+    public final boolean    unwrapped;
     
     public final String     format;
 
@@ -85,6 +86,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         methodAnnotation = null;
         this.getOnly = false;
         this.jsonDirect = false;
+        this.unwrapped = false;
         this.format = null;
         this.alternateNames = new String[0];
     }
@@ -143,9 +145,11 @@ public class FieldInfo implements Comparable<FieldInfo> {
                 format = null;
             }
             jsonDirect = annotation.jsonDirect();
+            unwrapped = annotation.unwrapped();
             alternateNames = annotation.alternateNames();
         } else {
             jsonDirect = false;
+            unwrapped = false;
             alternateNames = new String[0];
         }
         this.format = format;

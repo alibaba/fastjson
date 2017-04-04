@@ -132,4 +132,8 @@ public abstract class FieldDeserializer {
             throw new JSONException("set property error, " + fieldInfo.name, e);
         }
     }
+
+    public void setWrappedValue(String key, Object value) {
+        throw new JSONException("TODO");
+    }
 }

@@ -618,7 +618,8 @@ public class ParserConfig {
                 if (annotation != null //
                     && ((!ASMUtils.checkName(annotation.name())) //
                         || annotation.format().length() != 0 //
-                        || annotation.deserializeUsing() != Void.class)) {
+                        || annotation.deserializeUsing() != Void.class //
+                        || annotation.unwrapped())) {
                     asmEnable = false;
                     break;
                 }

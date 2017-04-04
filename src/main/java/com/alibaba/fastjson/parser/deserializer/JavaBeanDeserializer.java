@@ -19,6 +19,7 @@ import com.alibaba.fastjson.parser.JSONLexerBase;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParseContext;
 import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.serializer.JavaBeanSerializer;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.JavaBeanInfo;
 import com.alibaba.fastjson.util.TypeUtils;
@@ -804,6 +805,53 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         if (fieldDeserializer == null) {
             if (!lexer.isEnabled(Feature.IgnoreNotMatch)) {
                 throw new JSONException("setter not found, class " + clazz.getName() + ", property " + key);
+            }
+
+            for (FieldDeserializer fieldDeser : this.sortedFieldDeserializers) {
+                FieldInfo fieldInfo = fieldDeser.fieldInfo;
+                if (fieldInfo.unwrapped //
+                        && fieldInfo.field != null //
+                        && fieldDeser instanceof DefaultFieldDeserializer) {
+                    DefaultFieldDeserializer defaultFieldDeserializer = (DefaultFieldDeserializer) fieldDeser;
+                    ObjectDeserializer fieldValueDeser = defaultFieldDeserializer.getFieldValueDeserilizer(parser.getConfig());
+                    if (fieldValueDeser instanceof JavaBeanDeserializer) {
+                        JavaBeanDeserializer javaBeanFieldValueDeserializer = (JavaBeanDeserializer) fieldValueDeser;
+                        FieldDeserializer unwrappedFieldDeser = javaBeanFieldValueDeserializer.getFieldDeserializer(key);
+                        if (unwrappedFieldDeser != null) {
+                            Object fieldObject;
+                            try {
+                                fieldObject = fieldInfo.field.get(object);
+                                if (fieldObject == null) {
+                                    fieldObject = ((JavaBeanDeserializer) fieldValueDeser).createInstance(parser, fieldInfo.fieldType);
+                                    fieldDeser.setValue(object, fieldObject);
+                                }
+                                lexer.nextTokenWithColon(defaultFieldDeserializer.getFastMatchToken());
+                                unwrappedFieldDeser.parseField(parser, fieldObject, objectType, fieldValues);
+                                return true;
+                            } catch (Exception e) {
+                                throw new JSONException("parse unwrapped field error.", e);
+                            }
+                        }
+                    } else if (fieldValueDeser instanceof MapDeserializer) {
+                        MapDeserializer javaBeanFieldValueDeserializer = (MapDeserializer) fieldValueDeser;
+
+                        Map fieldObject;
+                        try {
+                            fieldObject = (Map) fieldInfo.field.get(object);
+                            if (fieldObject == null) {
+                                fieldObject = javaBeanFieldValueDeserializer.createMap(fieldInfo.fieldType);
+                                fieldDeser.setValue(object, fieldObject);
+                            }
+
+                            lexer.nextTokenWithColon();
+                            Object fieldValue = parser.parse(key);
+                            fieldObject.put(key, fieldValue);
+                            return true;
+                        } catch (Exception e) {
+                            throw new JSONException("parse unwrapped field error.", e);
+                        }
+                    }
+                }
             }
             
             parser.parseExtra(object, key);

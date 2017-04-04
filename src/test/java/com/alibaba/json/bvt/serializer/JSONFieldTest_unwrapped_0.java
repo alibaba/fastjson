@@ -15,6 +15,10 @@ public class JSONFieldTest_unwrapped_0 extends TestCase {
         String text = JSON.toJSONString(vo);
         Assert.assertEquals("{\"id\":123,\"latitude\":37,\"longitude\":127}", text);
 
+        VO vo2 = JSON.parseObject(text, VO.class);
+        assertNotNull(vo2.localtion);
+        assertEquals(vo.localtion.latitude, vo2.localtion.latitude);
+        assertEquals(vo.localtion.longitude, vo2.localtion.longitude);
     }
 
     public static class VO {
@@ -27,6 +31,10 @@ public class JSONFieldTest_unwrapped_0 extends TestCase {
     public static class Localtion {
         public int longitude;
         public int latitude;
+
+        public Localtion() {
+
+        }
 
         public Localtion(int longitude, int latitude) {
             this.longitude = longitude;

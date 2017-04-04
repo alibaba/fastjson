@@ -147,9 +147,9 @@ public class ParserConfig {
     private String[]                                        acceptList            = AUTO_TYPE_ACCEPT_LIST;
     private int                                             maxTypeNameLength     = 256;
 
-    public final boolean                                   fieldBase;
+    public final boolean                                    fieldBased;
 
-    public boolean                                         compatibleWithJavaBean = TypeUtils.compatibleWithJavaBean;
+    public boolean                                          compatibleWithJavaBean = TypeUtils.compatibleWithJavaBean;
 
     public ParserConfig(){
         this(false);
@@ -167,8 +167,8 @@ public class ParserConfig {
         this(asmFactory, null, false);
     }
 
-    private ParserConfig(ASMDeserializerFactory asmFactory, ClassLoader parentClassLoader, boolean fieldBase){
-        this.fieldBase = fieldBase;
+    private ParserConfig(ASMDeserializerFactory asmFactory, ClassLoader parentClassLoader, boolean fieldBased){
+        this.fieldBased = fieldBased;
         if (asmFactory == null && !ASMUtils.IS_ANDROID) {
             try {
                 if (parentClassLoader == null) {
@@ -524,7 +524,7 @@ public class ParserConfig {
     }
 
     public ObjectDeserializer createJavaBeanDeserializer(Class<?> clazz, Type type) {
-        boolean asmEnable = this.asmEnable & !this.fieldBase;
+        boolean asmEnable = this.asmEnable & !this.fieldBased;
         if (asmEnable) {
             JSONType jsonType = clazz.getAnnotation(JSONType.class);
 

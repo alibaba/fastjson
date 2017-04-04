@@ -29,8 +29,21 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
 
     public static MapSerializer instance = new MapSerializer();
 
+    public void write(JSONSerializer serializer
+            , Object object
+            , Object fieldName
+            , Type fieldType
+            , int features) throws IOException {
+        write(serializer, object, fieldName, fieldType, features, false);
+    }
+
     @SuppressWarnings({ "rawtypes"})
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
+    public void write(JSONSerializer serializer
+            , Object object
+            , Object fieldName
+            , Type fieldType
+            , int features //
+            , boolean unwrapped) throws IOException {
         SerializeWriter out = serializer.out;
 
         if (object == null) {
@@ -58,7 +71,9 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
         SerialContext parent = serializer.context;
         serializer.setContext(parent, object, fieldName, 0);
         try {
-            out.write('{');
+            if (!unwrapped) {
+                out.write('{');
+            }
 
             serializer.incrementIndent();
 
@@ -256,7 +271,10 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
         if (out.isEnabled(SerializerFeature.PrettyFormat) && map.size() > 0) {
             serializer.println();
         }
-        out.write('}');
+
+        if (!unwrapped) {
+            out.write('}');
+        }
     }
 
 }

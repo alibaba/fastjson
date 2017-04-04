@@ -20,6 +20,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
@@ -222,10 +223,18 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
             return;
         }
 
-        if (fieldInfo.unwrapped && valueSerializer instanceof JavaBeanSerializer) {
-            JavaBeanSerializer javaBeanSerializer = (JavaBeanSerializer) valueSerializer;
-            javaBeanSerializer.write(serializer, propertyValue, fieldInfo.name, fieldInfo.fieldType, fieldFeatures, true);
-            return;
+        if (fieldInfo.unwrapped) {
+            if (valueSerializer instanceof JavaBeanSerializer) {
+                JavaBeanSerializer javaBeanSerializer = (JavaBeanSerializer) valueSerializer;
+                javaBeanSerializer.write(serializer, propertyValue, fieldInfo.name, fieldInfo.fieldType, fieldFeatures, true);
+                return;
+            }
+
+            if (valueSerializer instanceof MapSerializer) {
+                MapSerializer mapSerializer = (MapSerializer) valueSerializer;
+                mapSerializer.write(serializer, propertyValue, fieldInfo.name, fieldInfo.fieldType, fieldFeatures, true);
+                return;
+            }
         }
 
         valueSerializer.write(serializer, propertyValue, fieldInfo.name, fieldInfo.fieldType, fieldFeatures);

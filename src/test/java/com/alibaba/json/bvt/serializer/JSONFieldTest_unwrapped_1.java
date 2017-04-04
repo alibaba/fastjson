@@ -5,12 +5,18 @@ import com.alibaba.fastjson.annotation.JSONField;
 import junit.framework.TestCase;
 import org.junit.Assert;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Properties;
+
 public class JSONFieldTest_unwrapped_1 extends TestCase {
 
     public void test_jsonField() throws Exception {
         VO vo = new VO();
         vo.id = 123;
-        vo.localtion = new Localtion(127, 37);
+        vo.properties.put("latitude", 37);
+        vo.properties.put("longitude", 127);
 
         String text = JSON.toJSONString(vo);
         Assert.assertEquals("{\"id\":123,\"latitude\":37,\"longitude\":127}", text);
@@ -21,16 +27,6 @@ public class JSONFieldTest_unwrapped_1 extends TestCase {
         public int id;
 
         @JSONField(unwrapped = true)
-        public Localtion localtion;
-    }
-
-    public static class Localtion {
-        public int longitude;
-        public int latitude;
-
-        public Localtion(int longitude, int latitude) {
-            this.longitude = longitude;
-            this.latitude = latitude;
-        }
+        public Map<String, Object> properties = new LinkedHashMap<String, Object>();
     }
 }

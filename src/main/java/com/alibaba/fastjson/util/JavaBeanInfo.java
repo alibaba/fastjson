@@ -371,11 +371,25 @@ public class JavaBeanInfo {
                 continue;
             }
             Class<?>[] types = method.getParameterTypes();
-            if (types.length != 1) {
+
+            if (types.length == 0 || types.length > 2) {
                 continue;
             }
 
             JSONField annotation = method.getAnnotation(JSONField.class);
+            if (annotation != null
+                    && types.length == 2
+                    && types[0] == String.class
+                    && types[1] == Object.class) {
+                add(fieldList, new FieldInfo("", method, null, clazz, type, ordinal,
+                        serialzeFeatures, parserFeatures, annotation, null, null));
+                 continue;
+            }
+
+            if (types.length != 1) {
+                continue;
+            }
+
 
             if (annotation == null) {
                 annotation = TypeUtils.getSuperMethodAnnotation(clazz, method);
@@ -398,7 +412,7 @@ public class JavaBeanInfo {
                 }
             }
 
-            if (!methodName.startsWith("set")) { // TODO "set"的判断放在 JSONField 注解后面，意思是允许非 setter 方法标记 JSONField 注解？
+            if (annotation == null && !methodName.startsWith("set")) { // TODO "set"的判断放在 JSONField 注解后面，意思是允许非 setter 方法标记 JSONField 注解？
                 continue;
             }
 

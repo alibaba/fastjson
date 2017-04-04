@@ -21,7 +21,7 @@
 	<inceptionYear>2012</inceptionYear>
 
 	<properties>
-		<junit.version>4.11</junit.version>
+		<junit.version>4.12</junit.version>
 		<gpg.skip>true</gpg.skip>
 		<javadoc.skip>false</javadoc.skip>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

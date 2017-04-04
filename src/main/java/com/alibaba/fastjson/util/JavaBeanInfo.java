@@ -143,7 +143,7 @@ public class JavaBeanInfo {
     public static JavaBeanInfo build(Class<?> clazz //
             , Type type //
             , PropertyNamingStrategy propertyNamingStrategy //
-            , boolean fieldBase //
+            , boolean fieldBased //
             , boolean compatibleWithJavaBean
     ) {
         JSONType jsonType = clazz.getAnnotation(JSONType.class);
@@ -160,7 +160,7 @@ public class JavaBeanInfo {
 
         List<FieldInfo> fieldList = new ArrayList<FieldInfo>();
 
-        if (fieldBase) {
+        if (fieldBased) {
             for (Class<?> currentClass = clazz; currentClass != null; currentClass = currentClass.getSuperclass()) {
                 Field[] fields = currentClass.getDeclaredFields();
 

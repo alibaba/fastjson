@@ -61,7 +61,6 @@ import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.deserializer.Jdk8DateCodec;
-import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.parser.deserializer.OptionalCodec;
 import com.alibaba.fastjson.support.springfox.SwaggerJsonSerializer;
 import com.alibaba.fastjson.util.ASMUtils;
@@ -94,7 +93,7 @@ public class SerializeConfig {
 
     private final IdentityHashMap<Type, ObjectSerializer> serializers;
 
-    private final boolean                                 fieldBase;
+    private final boolean                                 fieldBased;
     
 	public String getTypeKey() {
 		return typeKey;
@@ -122,7 +121,7 @@ public class SerializeConfig {
     }
 
     private final ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
-	    SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null, propertyNamingStrategy, fieldBase);
+	    SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null, propertyNamingStrategy, fieldBased);
 	    if (beanInfo.fields.length == 0 && Iterable.class.isAssignableFrom(clazz)) {
 	        return MiscCodec.instance;
 	    }
@@ -165,7 +164,7 @@ public class SerializeConfig {
 			return new JavaBeanSerializer(beanInfo);
 		}
 
-		boolean asm = this.asm && !fieldBase;
+		boolean asm = this.asm && !fieldBased;
 
 		if (asm && asmFactory.classLoader.isExternalClass(clazz)
 				|| clazz == Serializable.class || clazz == Object.class) {
@@ -264,7 +263,7 @@ public class SerializeConfig {
     }
 
 	public SerializeConfig(int tableSize, boolean fieldBase) {
-	    this.fieldBase = fieldBase;
+	    this.fieldBased = fieldBase;
 	    serializers = new IdentityHashMap<Type, ObjectSerializer>(1024);
 		
 		try {

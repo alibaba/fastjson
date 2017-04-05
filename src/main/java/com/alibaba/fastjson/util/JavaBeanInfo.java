@@ -358,18 +358,21 @@ public class JavaBeanInfo {
         for (Method method : methods) { //
             int ordinal = 0, serialzeFeatures = 0, parserFeatures = 0;
             String methodName = method.getName();
-            if (methodName.length() < 4) {
-                continue;
-            }
 
             if (Modifier.isStatic(method.getModifiers())) {
                 continue;
             }
 
             // support builder set
-            if (!(method.getReturnType().equals(Void.TYPE) || method.getReturnType().equals(method.getDeclaringClass()))) {
+            Class<?> returnType = method.getReturnType();
+            if (!(returnType.equals(Void.TYPE) || returnType.equals(method.getDeclaringClass()))) {
                 continue;
             }
+
+            if (method.getDeclaringClass() == Object.class) {
+                continue;
+            }
+
             Class<?>[] types = method.getParameterTypes();
 
             if (types.length == 0 || types.length > 2) {
@@ -390,9 +393,12 @@ public class JavaBeanInfo {
                 continue;
             }
 
-
             if (annotation == null) {
                 annotation = TypeUtils.getSuperMethodAnnotation(clazz, method);
+            }
+
+            if (annotation == null && methodName.length() < 4) {
+                continue;
             }
 
             if (annotation != null) {

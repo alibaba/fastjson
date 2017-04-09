@@ -64,7 +64,7 @@ compile 'com.alibaba:fastjson:1.1.56.android'
 Please see this [Wiki Download Page][Wiki] for more repository infos.
 [Wiki]: https://github.com/alibaba/fastjson/wiki#download
 
-###*License*
+### *License*
 
 Fastjson is released under the [Apache 2.0 license](license.txt).
 

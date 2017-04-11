@@ -20,6 +20,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -30,6 +32,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -51,6 +54,7 @@ import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.TypeUtils;
+import sun.reflect.annotation.AnnotationType;
 
 /**
  * This is the main class for using Fastjson. You usually call these two methods {@link #toJSONString(Object)} and {@link #parseObject(String, Class)}.
@@ -904,6 +908,28 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             return javaObject;
         }
         
+        Class[] interfaces = clazz.getInterfaces();
+        if (interfaces.length == 1 && interfaces[0].isAnnotation()) {
+            AnnotationType type = AnnotationType.getInstance(interfaces[0]);
+            Map<String, Method> members = type.members();
+            JSONObject json = new JSONObject(members.size());
+            Iterator<Map.Entry<String, Method>> iterator = members.entrySet().iterator();
+            Map.Entry<String, Method> entry;
+            Object val = null;
+            while (iterator.hasNext()) {
+                entry = iterator.next();
+                try {
+                    val = entry.getValue().invoke(javaObject);
+                } catch (IllegalAccessException e) {
+                    // skip
+                } catch (InvocationTargetException e) {
+                    // skip
+                }
+                json.put(entry.getKey(), toJSON(val));
+            }
+            return json;
+        }
+
         ObjectSerializer serializer = config.getObjectWriter(clazz);
         if (serializer instanceof JavaBeanSerializer) {
             JavaBeanSerializer javaBeanSerializer = (JavaBeanSerializer) serializer;

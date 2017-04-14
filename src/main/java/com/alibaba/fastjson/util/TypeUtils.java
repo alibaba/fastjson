@@ -979,6 +979,10 @@ public class TypeUtils {
                         continue;
                     }
 
+                    if (isJSONTypeIgnore(clazz, jsonType, propertyName)) {
+                        continue;
+                    }
+
                     Field field = getField(clazz, propertyName, declaredFields);
 
                     if (field == null) {

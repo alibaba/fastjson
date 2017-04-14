@@ -1518,6 +1518,12 @@ public class TypeUtils {
                     continue;
                 }
 
+                boolean ignore = isJSONTypeIgnore(clazz, propertyName);
+
+                if (ignore) {
+                    continue;
+                }
+
                 Field field = ParserConfig.getFieldFromCache(propertyName,fieldCacheMap);
 
                 if (field == null) {

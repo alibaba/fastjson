@@ -37,7 +37,10 @@ class ListTypeFieldDeserializer extends FieldDeserializer {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public void parseField(DefaultJSONParser parser, Object object, Type objectType, Map<String, Object> fieldValues) {
-        if (parser.lexer.token == JSONToken.NULL) {
+        JSONLexer lexer = parser.lexer;
+        final int token = lexer.token();
+        if (token == JSONToken.NULL
+                || (token == JSONToken.LITERAL_STRING && lexer.stringVal().length() == 0)) {
             setValue(object, null);
             parser.lexer.nextToken();
             return;

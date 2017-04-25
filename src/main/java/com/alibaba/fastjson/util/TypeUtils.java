@@ -184,6 +184,10 @@ public class TypeUtils {
             return null;
         }
 
+        if (value instanceof Map && ((Map) value).size() == 0) {
+            return null;
+        }
+
         return new BigDecimal(strVal);
     }
 

@@ -135,6 +135,11 @@ public class ObjectArrayCodec implements ObjectSerializer, ObjectDeserializer {
         if (lexer.token() == JSONToken.LITERAL_STRING) {
             byte[] bytes = lexer.bytesValue();
             lexer.nextToken(JSONToken.COMMA);
+
+            if (bytes.length == 0 && type != byte[].class) {
+                return null;
+            }
+
             return (T) bytes;
         }
 

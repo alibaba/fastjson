@@ -14,6 +14,11 @@ public class Issue1150 extends TestCase {
         assertNull(model.values);
     }
 
+    public void test_for_issue_null() throws Exception {
+        Model model = JSON.parseObject("{\"values\":null}", Model.class);
+        assertNull(model.values);
+    }
+
     public void test_for_issue_array() throws Exception {
         Model2 model = JSON.parseObject("{\"values\":\"\"}", Model2.class);
         assertNull(model.values);

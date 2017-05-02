@@ -6,11 +6,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.PropertyNamingStrategy;
@@ -201,6 +197,7 @@ class JavaBeanInfo {
                                      PropertyNamingStrategy propertyNamingStrategy
     ) {
         List<FieldInfo> fieldList = new ArrayList<FieldInfo>();
+        Map<Class<?>, Field[]> classFieldCache = new HashMap<Class<?>, Field[]>();
 
         // DeserializeBeanInfo beanInfo = null;
         Constructor<?> defaultConstructor = null;
@@ -226,9 +223,40 @@ class JavaBeanInfo {
         
         Constructor<?> creatorConstructor = null;
         Method factoryMethod = null;
-        Method[] methods = fieldOnly //
-            ? null //
-            : clazz.getMethods();
+
+        Method[] methods;
+        if (fieldOnly) {
+            methods = null;
+        } else {
+            List<Method> methodList = new ArrayList<Method>();
+
+            for (Class cls = clazz; cls != null && cls != Object.class; cls = cls.getSuperclass()) {
+                Method[] declaredMethods = cls.getDeclaredMethods();
+                for (Method method : declaredMethods) {
+                    int modifier = method.getModifiers();
+
+                    if ((modifier & Modifier.STATIC) != 0) {
+                        if (method.isAnnotationPresent(JSONCreator.class)) {
+                            if (factoryMethod != null) {
+                                throw new JSONException("multi-json creator");
+                            }
+
+                            factoryMethod = method;
+                        }
+                        continue;
+                    }
+
+                    if ((modifier & Modifier.PRIVATE) != 0 || (modifier & Modifier.NATIVE) != 0 || (modifier & Modifier.PROTECTED) != 0) {
+                        continue;
+                    }
+
+                    methodList.add(method);
+                }
+            }
+
+            methods = new Method[methodList.size()];
+            methodList.toArray(methods);
+        }
         
         final Field[] declaredFields = clazz.getDeclaredFields();
 
@@ -271,7 +299,7 @@ class JavaBeanInfo {
 
                     Class<?> fieldClass = parameterTypes[i];
                     Type fieldType = getGenericParameterTypes[i];
-                    Field field = TypeUtils.getField(clazz, fieldAnnotation.name(), declaredFields);
+                    Field field = TypeUtils.getField(clazz, fieldAnnotation.name(), declaredFields, classFieldCache);
 
                     if (field != null) {
                         TypeUtils.setAccessible(clazz, field, classModifiers);
@@ -299,26 +327,6 @@ class JavaBeanInfo {
                 JSONType jsonType = jsonTypeSupport ? clazz.getAnnotation(JSONType.class) : null;
                 return new JavaBeanInfo(clazz, null, creatorConstructor, null, fields, sortedFields, jsonType);
             }
-
-            {
-                for (Method method : methods) {
-                    if ((!Modifier.isStatic(method.getModifiers())) //
-                        || !clazz.isAssignableFrom(method.getReturnType()) //
-                    ) {
-                        continue;
-                    }
-
-                    JSONCreator annotation = method.getAnnotation(JSONCreator.class);
-                    if (annotation != null) {
-                        if (factoryMethod != null) {
-                            throw new JSONException("multi-json creator");
-                        }
-
-                        factoryMethod = method;
-                        break;
-                    }
-                }
-            }
             
             if (factoryMethod != null) {
                 TypeUtils.setAccessible(clazz, factoryMethod, classModifiers);
@@ -345,7 +353,7 @@ class JavaBeanInfo {
 
                         Class<?> fieldClass = parameterTypes[i];
                         Type fieldType = genericParameterTypes[i];
-                        Field field = TypeUtils.getField(clazz, fieldAnnotation.name(), declaredFields);
+                        Field field = TypeUtils.getField(clazz, fieldAnnotation.name(), declaredFields, classFieldCache);
                         final int ordinal = fieldAnnotation.ordinal();
                         final int serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
                         FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name() //
@@ -386,22 +394,18 @@ class JavaBeanInfo {
             for (Method method : methods) {
                 int ordinal = 0, serialzeFeatures = 0;
                 String methodName = method.getName();
-                if (methodName.length() < 4 //
-                        || Modifier.isStatic(method.getModifiers())
+                if (methodName.length() < 4) {
+                    continue;
+                }
+
+                Class<?> returnType = method.getReturnType();
+                if ((!(returnType == Void.TYPE || returnType == method.getDeclaringClass())) //
+                        || method.getParameterTypes().length != 1 //
                         ) {
                     continue;
                 }
 
                 // support builder set
-
-                Class<?> returnType = method.getReturnType();
-                if ((!(returnType == Void.TYPE || returnType == method.getDeclaringClass())) //
-                        || method.getParameterTypes().length != 1 //
-                        || method.getDeclaringClass() == Object.class //
-                        ) {
-                    continue;
-                }
-
                 JSONField annotation = jsonFieldSupport ? method.getAnnotation(JSONField.class) : null;
 
                 if (annotation == null && jsonFieldSupport) {
@@ -458,11 +462,11 @@ class JavaBeanInfo {
                     continue;
                 }
 
-                Field field = TypeUtils.getField(clazz, propertyName, declaredFields);
+                Field field = TypeUtils.getField(clazz, propertyName, declaredFields, classFieldCache);
                 if (field == null && method.getParameterTypes()[0] == boolean.class) {
                     String isFieldName = "is" + Character.toUpperCase(propertyName.charAt(0))
                                          + propertyName.substring(1);
-                    field = TypeUtils.getField(clazz, isFieldName, declaredFields);
+                    field = TypeUtils.getField(clazz, isFieldName, declaredFields, classFieldCache);
                 }
 
                 if (field != null) {
@@ -593,15 +597,12 @@ class JavaBeanInfo {
         }
 
         if (!fieldOnly) {
-            for (Method method : clazz.getMethods()) {
+            for (Method method : methods) {
                 String methodName = method.getName();
-                if (methodName.length() < 4 //
-                    || Modifier.isStatic(method.getModifiers()) //
-                ) {
+                if (methodName.length() < 4) {
                     continue;
                 }
-    
-    
+
                 if (methodName.startsWith("get") && Character.isUpperCase(methodName.charAt(3))) {
                     if (method.getParameterTypes().length != 0) {
                         continue;

@@ -1020,6 +1020,10 @@ public class TypeUtils {
                 }
             }
 
+            if (clazz == String.class && map instanceof JSONObject) {
+                return (T) map.toString();
+            }
+
             if (config == null) {
                 config = ParserConfig.getGlobalInstance();
             }

@@ -707,6 +707,10 @@ public class TypeUtils {
                                                   new Class<?>[] { clazz }, object);
             }
 
+            if (clazz == String.class && map instanceof JSONObject) {
+                return (T) map.toString();
+            }
+
             if (config == null) {
                 config = ParserConfig.global;
             }

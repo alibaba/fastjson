@@ -65,7 +65,7 @@ public final class ListSerializer implements ObjectSerializer {
             if (serializer.references == null) {
                 serializer.references = new IdentityHashMap<Object, SerialContext>();
             }
-            serializer.references.put(object, context);
+            serializer.references.put(object, serializer.context);
         }
 
         ObjectSerializer itemSerializer = null;

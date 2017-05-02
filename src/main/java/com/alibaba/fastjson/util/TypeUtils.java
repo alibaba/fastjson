@@ -51,6 +51,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.PropertyNamingStrategy;
+import com.alibaba.fastjson.annotation.JSONCreator;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.JSONLexer;
@@ -835,21 +836,43 @@ public class TypeUtils {
                                                  boolean fieldGenericSupport, //
                                                  PropertyNamingStrategy propertyNamingStrategy) {
         Map<String, FieldInfo> fieldInfoMap = new LinkedHashMap<String, FieldInfo>();
+        Map<Class<?>, Field[]> classFieldCache = new HashMap<Class<?>, Field[]>();
 
         Field[] declaredFields = clazz.getDeclaredFields();
         if (!fieldOnly) {
-            for (Method method : clazz.getMethods()) {
+            List<Method> methodList = new ArrayList<Method>();
+
+            for (Class cls = clazz; cls != null && cls != Object.class; cls = cls.getSuperclass()) {
+                Method[] declaredMethods = cls.getDeclaredMethods();
+                for (Method method : declaredMethods) {
+                    int modifier = method.getModifiers();
+
+                    if ((modifier & Modifier.STATIC) != 0
+                            || (modifier & Modifier.PRIVATE) != 0
+                            || (modifier & Modifier.NATIVE) != 0
+                            || (modifier & Modifier.PROTECTED) != 0) {
+                        continue;
+                    }
+
+                    if (method.getReturnType().equals(Void.TYPE) //
+                            || method.getParameterTypes().length != 0 //
+                            || method.getReturnType() == ClassLoader.class //
+                            || method.getDeclaringClass() == Object.class //
+                            ) {
+                        continue;
+                    }
+
+                    methodList.add(method);
+                }
+            }
+
+
+            for (Method method : methodList) {
                 String methodName = method.getName();
                 int ordinal = 0, serialzeFeatures = 0;
 
-                if ((method.getModifiers() & Modifier.STATIC) != 0 //
-                    || method.getReturnType().equals(Void.TYPE) //
-                    || method.getParameterTypes().length != 0 //
-                    || method.getReturnType() == ClassLoader.class //
-                    || method.getDeclaringClass() == Object.class //
-                    || (methodName.equals("getMetaClass") //
-                        && method.getReturnType().getName().equals("groovy.lang.MetaClass")) //
-                        ) {
+                if (methodName.equals("getMetaClass") //
+                        && method.getReturnType().getName().equals("groovy.lang.MetaClass")) {
                     continue;
                 }
 
@@ -914,7 +937,7 @@ public class TypeUtils {
                         continue;
                     }
 
-                    Field field = getField(clazz, propertyName, declaredFields);
+                    Field field = getField(clazz, propertyName, declaredFields, classFieldCache);
                     JSONField fieldAnnotation = null;
                     if (field != null) {
                         fieldAnnotation = jsonFieldSupport ? field.getAnnotation(JSONField.class) : null;
@@ -983,10 +1006,10 @@ public class TypeUtils {
                         continue;
                     }
 
-                    Field field = getField(clazz, propertyName, declaredFields);
+                    Field field = getField(clazz, propertyName, declaredFields, classFieldCache);
 
                     if (field == null) {
-                        field = getField(clazz, methodName, declaredFields);
+                        field = getField(clazz, methodName, declaredFields, classFieldCache);
                     }
 
                     JSONField fieldAnnotation = null;
@@ -1311,26 +1334,30 @@ public class TypeUtils {
             return false;
         }
     }
-    
+
     public static Field getField(Class<?> clazz, String fieldName, Field[] declaredFields) {
-        Field field = getField0(clazz, fieldName, declaredFields);
+        return getField(clazz, fieldName, declaredFields, null);
+    }
+    
+    public static Field getField(Class<?> clazz, String fieldName, Field[] declaredFields, Map<Class<?>, Field[]> classFieldCache) {
+        Field field = getField0(clazz, fieldName, declaredFields, classFieldCache);
         if (field == null) {
-            field = getField0(clazz, "_" + fieldName, declaredFields);
+            field = getField0(clazz, "_" + fieldName, declaredFields, classFieldCache);
         }
         
         if (field == null) {
-            field = getField0(clazz, "m_" + fieldName, declaredFields);
+            field = getField0(clazz, "m_" + fieldName, declaredFields, classFieldCache);
         }
         
         if (field == null) {
             String mName = "m" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
-            field = getField0(clazz, mName, declaredFields);
+            field = getField0(clazz, mName, declaredFields, classFieldCache);
         }
         
         return field;
     }
 
-    private static Field getField0(Class<?> clazz, String fieldName, Field[] declaredFields) {
+    private static Field getField0(Class<?> clazz, String fieldName, Field[] declaredFields, Map<Class<?>, Field[]> classFieldCache) {
         for (Field item : declaredFields) {
             if (fieldName.equals(item.getName())) {
                 return item;
@@ -1338,10 +1365,20 @@ public class TypeUtils {
         }
         
         Class<?> superClass = clazz.getSuperclass();
-        return superClass != null //
-               && superClass != Object.class //
-                   ? getField(superClass, fieldName, superClass.getDeclaredFields()) //
-                   : null;
+
+        if (superClass == null || superClass == Object.class) {
+            return  null;
+        }
+
+        Field[] superClassFields = classFieldCache != null ? classFieldCache.get(superClass) : null;
+        if (superClassFields == null) {
+            superClassFields = superClass.getDeclaredFields();
+            if (classFieldCache != null) {
+                classFieldCache.put(superClass, superClassFields);
+            }
+        }
+
+        return getField(superClass, fieldName, superClassFields, classFieldCache);
     }
 
     public static Type getCollectionItemType(Type fieldType) {

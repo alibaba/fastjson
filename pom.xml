@@ -230,6 +230,13 @@
 		</dependency>
 
 		<dependency>
+			<groupId>io.javaslang</groupId>
+			<artifactId>javaslang</artifactId>
+			<version>2.0.6</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-server</artifactId>
 			<version>8.1.8.v20121106</version>

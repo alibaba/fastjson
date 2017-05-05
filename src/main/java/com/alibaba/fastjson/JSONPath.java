@@ -1344,7 +1344,11 @@ public class JSONPath implements JSONAware {
         }
 
         public void setValue(JSONPath path, Object parent, Object value) {
-            path.setPropertyValue(parent, propertyName, value);
+            if (deep) {
+                path.deepSet(parent, propertyName, value);
+            } else {
+                path.setPropertyValue(parent, propertyName, value);
+            }
         }
         
         public boolean remove(JSONPath path, Object parent) {
@@ -2278,6 +2282,59 @@ public class JSONPath implements JSONAware {
             for (int i = 0; i < list.size(); ++i) {
                 Object val = list.get(i);
                 deepScan(val, propertyName, results);
+            }
+            return;
+        }
+    }
+
+    protected void deepSet(final Object currentObject, final String propertyName, Object value) {
+        if (currentObject == null) {
+            return;
+        }
+
+        if (currentObject instanceof Map) {
+            Map map = (Map) currentObject;
+
+            if (map.containsKey(propertyName)) {
+                Object val = map.get(propertyName);
+                map.put(propertyName, value);
+                return;
+            }
+
+            for (Object val : map.values()) {
+                deepSet(val, propertyName, value);
+            }
+            return;
+        }
+
+        final Class<?> currentClass = currentObject.getClass();
+
+        JavaBeanDeserializer beanDeserializer = getJavaBeanDeserializer(currentClass);
+        if (beanDeserializer != null) {
+            try {
+                FieldDeserializer fieldDeser = beanDeserializer.getFieldDeserializer(propertyName);
+                if (fieldDeser != null) {
+                    fieldDeser.setValue(currentObject, value);
+                    return;
+                }
+
+                JavaBeanSerializer beanSerializer = getJavaBeanSerializer(currentClass);
+                List<Object> fieldValues = beanSerializer.getObjectFieldValues(currentObject);
+                for (Object val : fieldValues) {
+                    deepSet(val, propertyName, value);
+                }
+                return;
+            } catch (Exception e) {
+                throw new JSONPathException("jsonpath error, path " + path + ", segement " + propertyName, e);
+            }
+        }
+
+        if (currentObject instanceof List) {
+            List list = (List) currentObject;
+
+            for (int i = 0; i < list.size(); ++i) {
+                Object val = list.get(i);
+                deepSet(val, propertyName, value);
             }
             return;
         }

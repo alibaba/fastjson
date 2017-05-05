@@ -453,6 +453,23 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
 
         return fieldValues;
     }
+
+    // for jsonpath deepSet
+    public List<Object> getObjectFieldValues(Object object) throws Exception {
+        List<Object> fieldValues = new ArrayList<Object>(sortedGetters.length);
+        for (FieldSerializer getter : sortedGetters) {
+            Class fieldClass = getter.fieldInfo.fieldClass;
+            if (fieldClass.isPrimitive()) {
+                continue;
+            }
+            if (fieldClass.getName().startsWith("java.lang.")) {
+                continue;
+            }
+            fieldValues.add(getter.getPropertyValue(object));
+        }
+
+        return fieldValues;
+    }
     
     public int getSize(Object object) throws Exception {
         int size = 0;

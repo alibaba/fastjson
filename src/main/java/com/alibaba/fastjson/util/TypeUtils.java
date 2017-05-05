@@ -50,6 +50,7 @@ import com.alibaba.fastjson.serializer.CalendarCodec;
 import com.alibaba.fastjson.serializer.DateCodec;
 import com.alibaba.fastjson.serializer.SerializeBeanInfo;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import org.springframework.util.LinkedMultiValueMap;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -1144,6 +1145,8 @@ public class TypeUtils {
 
                 loadClass("org.springframework.remoting.support.RemoteInvocation"),
                 loadClass("org.springframework.remoting.support.RemoteInvocationResult"),
+                loadClass("org.springframework.util.LinkedCaseInsensitiveMap"),
+                loadClass("org.springframework.util.LinkedMultiValueMap"),
         };
 
         for (Class clazz : classes) {

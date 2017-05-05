@@ -262,6 +262,12 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 }
 
                 if (commaFlag) {
+                    if (fieldInfo.unwrapped
+                            && propertyValue instanceof Map
+                            && ((Map) propertyValue).size() == 0) {
+                        continue;
+                    }
+
                     out.write(',');
                     if (out.isEnabled(SerializerFeature.PrettyFormat)) {
                         serializer.println();
@@ -311,6 +317,13 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                                 }
                             }
                         } else {
+                            if (fieldInfo.unwrapped
+                                    && propertyValue instanceof Map
+                                    && ((Map) propertyValue).size() == 0) {
+                                commaFlag = false;
+                                continue;
+                            }
+
                             fieldSerializer.writeValue(serializer, propertyValue);
                         }
                     } else {

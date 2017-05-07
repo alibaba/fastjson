@@ -198,6 +198,10 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
 //                val = iso8601Lexer.getCalendar().getTime();
 //            }
 //            iso8601Lexer.close();
+
+            if ("0000-00-00".equals(strVal)) {
+                return null;
+            }
 //            
             long longVal = Long.parseLong(strVal);
             return (T) new java.util.Date(longVal);

@@ -199,7 +199,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
 //            }
 //            iso8601Lexer.close();
 
-            if ("0000-00-00".equals(strVal)) {
+            if ("0000-00-00".equals(strVal) || "0000-00-00T00:00:00".equalsIgnoreCase(strVal)) {
                 return null;
             }
 //            

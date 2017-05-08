@@ -1,6 +1,7 @@
 package com.alibaba.json.bvt.issue_1100;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import junit.framework.TestCase;
 
 /**
@@ -13,6 +14,7 @@ public class Issue1153 extends TestCase {
                 "test : '//helo'\n" +
                 "}";
 
-        JSON.parseObject(json);
+        JSONObject jsonObject =JSON.parseObject(json);
+        System.out.println(jsonObject);
     }
 }

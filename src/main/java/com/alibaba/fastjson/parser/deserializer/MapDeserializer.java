@@ -64,7 +64,15 @@ public class MapDeserializer implements ObjectDeserializer {
         JSONLexer lexer = parser.lexer;
 
         if (lexer.token() != JSONToken.LBRACE) {
-            throw new JSONException("syntax error, expect {, actual " + lexer.token());
+            String msg = "syntax error, expect {, actual " + lexer.tokenName();
+            if (fieldName instanceof String) {
+                msg += ", fieldName ";
+                msg += fieldName;
+            }
+            msg += ", ";
+            msg += lexer.info();
+            
+            throw new JSONException(msg);
         }
 
         ParseContext context = parser.getContext();

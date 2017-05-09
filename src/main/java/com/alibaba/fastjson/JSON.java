@@ -907,28 +907,6 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         if (ParserConfig.isPrimitive2(clazz)) {
             return javaObject;
         }
-        
-        Class[] interfaces = clazz.getInterfaces();
-        if (interfaces.length == 1 && interfaces[0].isAnnotation()) {
-            AnnotationType type = AnnotationType.getInstance(interfaces[0]);
-            Map<String, Method> members = type.members();
-            JSONObject json = new JSONObject(members.size());
-            Iterator<Map.Entry<String, Method>> iterator = members.entrySet().iterator();
-            Map.Entry<String, Method> entry;
-            Object val = null;
-            while (iterator.hasNext()) {
-                entry = iterator.next();
-                try {
-                    val = entry.getValue().invoke(javaObject);
-                } catch (IllegalAccessException e) {
-                    // skip
-                } catch (InvocationTargetException e) {
-                    // skip
-                }
-                json.put(entry.getKey(), toJSON(val));
-            }
-            return json;
-        }
 
         ObjectSerializer serializer = config.getObjectWriter(clazz);
         if (serializer instanceof JavaBeanSerializer) {

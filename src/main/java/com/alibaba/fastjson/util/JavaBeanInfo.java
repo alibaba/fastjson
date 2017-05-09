@@ -515,6 +515,14 @@ public class JavaBeanInfo {
                         propertyName = annotation.name();
                     } else {
                         propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+
+                        Field field = TypeUtils.getField(clazz, propertyName, declaredFields);
+                        if (field != null) {
+                            JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
+                            if (fieldAnnotation != null && !fieldAnnotation.deserialize()) {
+                                continue;
+                            }
+                        }
                     }
                     
                     FieldInfo fieldInfo = getField(fieldList, propertyName);

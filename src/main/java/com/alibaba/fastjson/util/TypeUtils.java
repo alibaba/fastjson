@@ -50,7 +50,6 @@ import com.alibaba.fastjson.serializer.CalendarCodec;
 import com.alibaba.fastjson.serializer.DateCodec;
 import com.alibaba.fastjson.serializer.SerializeBeanInfo;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import org.springframework.util.LinkedMultiValueMap;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -1003,6 +1002,15 @@ public class TypeUtils {
                     object = new JSONObject(map);
                 }
 
+                if (config == null) {
+                    config = ParserConfig.getGlobalInstance();
+                }
+                ObjectDeserializer deserializer = config.getDeserializers().get(clazz);
+                if (deserializer != null) {
+                    String json = JSON.toJSONString(object);
+                    return (T) JSON.parseObject(json, clazz);
+                }
+
                 return (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
                                                   new Class<?>[] { clazz }, object);
             }
@@ -1145,8 +1153,6 @@ public class TypeUtils {
 
                 loadClass("org.springframework.remoting.support.RemoteInvocation"),
                 loadClass("org.springframework.remoting.support.RemoteInvocationResult"),
-                loadClass("org.springframework.util.LinkedCaseInsensitiveMap"),
-                loadClass("org.springframework.util.LinkedMultiValueMap"),
         };
 
         for (Class clazz : classes) {

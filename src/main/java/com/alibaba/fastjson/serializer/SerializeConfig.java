@@ -19,10 +19,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.Inet4Address;
@@ -53,11 +50,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONAware;
-import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.JSONStreamAware;
-import com.alibaba.fastjson.PropertyNamingStrategy;
+import com.alibaba.fastjson.*;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.deserializer.Jdk8DateCodec;
@@ -68,6 +61,7 @@ import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.ServiceLoader;
 import com.alibaba.fastjson.util.TypeUtils;
+import sun.reflect.annotation.AnnotationType;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
@@ -615,6 +609,11 @@ public class SerializeConfig {
                     if (writer != null) {
                         return writer;
                     }
+                }
+
+                Class[] interfaces = clazz.getInterfaces();
+                if (interfaces.length == 1 && interfaces[0].isAnnotation()) {
+                    return AnnotationSerializer.instance;
                 }
 
                 if (TypeUtils.isProxy(clazz)) {

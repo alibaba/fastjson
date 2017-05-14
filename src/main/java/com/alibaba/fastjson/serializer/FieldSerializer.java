@@ -24,6 +24,7 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.util.FieldInfo;
 
 /**
@@ -49,9 +50,22 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
 
     private RuntimeSerializerInfo runtimeInfo;
     
-    public FieldSerializer(Class<?> beanType, FieldInfo fieldInfo){
+    public FieldSerializer(Class<?> beanType, FieldInfo fieldInfo) {
         this.fieldInfo = fieldInfo;
         this.fieldContext = new BeanContext(beanType, fieldInfo);
+
+        if (beanType != null && fieldInfo.isEnum) {
+            JSONType jsonType = beanType.getAnnotation(JSONType.class);
+            if (jsonType != null) {
+                for (SerializerFeature feature : jsonType.serialzeFeatures()) {
+                    if (feature == SerializerFeature.WriteEnumUsingToString) {
+                        writeEnumUsingToString = true;
+                    }else if(feature == SerializerFeature.WriteEnumUsingName){
+                        writeEnumUsingName = true;
+                    }
+                }
+            }
+        }
         
         fieldInfo.setAccessible();
 

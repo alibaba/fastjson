@@ -12,6 +12,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.Arrays;
 
 import com.alibaba.fastjson.annotation.JSONField;
 
@@ -44,7 +45,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
     
     public final String     format;
 
-    private final String[]  alternateNames;
+    public final String[]  alternateNames;
     
     public FieldInfo(String name, // 
                      Class<?> declaringClass, // 
@@ -479,14 +480,5 @@ public class FieldInfo implements Comparable<FieldInfo> {
         }
 
         TypeUtils.setAccessible(field);
-    }
-
-    public boolean alternateName(String name) {
-        for (String item : this.alternateNames) {
-            if (item.equals(name)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

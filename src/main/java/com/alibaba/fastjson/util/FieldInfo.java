@@ -204,11 +204,6 @@ public class FieldInfo implements Comparable<FieldInfo> {
         isEnum = (!fieldClass.isArray()) && fieldClass.isEnum();
     }
 
-    public boolean alternateName(String name) {
-        int index = Arrays.binarySearch(this.alternateNames, name);
-        return index >= 0;
-    }
-
     public static Type getFieldType(Class<?> clazz, Type type, Type fieldType) {
         if (clazz == null || type == null) {
             return fieldType;

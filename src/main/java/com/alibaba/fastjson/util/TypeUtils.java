@@ -75,6 +75,12 @@ public class TypeUtils {
     private static boolean transientClassInited         = false;
     private static Class<? extends Annotation> transientClass;
 
+    private static Class<? extends Annotation> class_OneToMany = null;
+    private static boolean class_OneToMany_error = false;
+
+    private static Method method_HibernateIsInitialized = null;
+    private static boolean method_HibernateIsInitialized_error = false;
+
     static {
         try {
             TypeUtils.compatibleWithJavaBean = "true".equals(IOUtils.getStringProperty(IOUtils.FASTJSON_COMPATIBLEWITHJAVABEAN));
@@ -2082,5 +2088,53 @@ public class TypeUtils {
         }
 
         return false;
+    }
+
+    public static boolean isAnnotationPresentOneToMany(Method method) {
+        if (method == null) {
+            return false;
+        }
+
+        if (class_OneToMany == null && !class_OneToMany_error) {
+            try {
+                class_OneToMany = (Class<? extends Annotation>) Class.forName("javax.persistence.OneToMany");
+            } catch (Throwable e) {
+                // skip
+                class_OneToMany_error = true;
+            }
+        }
+
+        if (class_OneToMany == null) {
+            return false;
+        }
+
+        return method.isAnnotationPresent(class_OneToMany);
+    }
+
+    public static boolean isHibernateInitialized(Object object) {
+        if (object == null) {
+            return false;
+        }
+
+        if (method_HibernateIsInitialized == null && !method_HibernateIsInitialized_error) {
+            try {
+                Class<?> class_Hibernate = (Class<? extends Annotation>) Class.forName("org.hibernate.Hibernate");
+                method_HibernateIsInitialized = class_Hibernate.getMethod("isInitialized", Object.class);
+            } catch (Throwable e) {
+                // skip
+                method_HibernateIsInitialized_error = true;
+            }
+        }
+
+        if (method_HibernateIsInitialized != null) {
+            try {
+                Boolean initialized = (Boolean) method_HibernateIsInitialized.invoke(null, object);
+                return initialized.booleanValue();
+            } catch (Throwable e) {
+                // skip
+            }
+        }
+
+        return true;
     }
 }

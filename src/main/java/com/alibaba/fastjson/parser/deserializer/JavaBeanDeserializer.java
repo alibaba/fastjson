@@ -31,6 +31,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     protected final Class<?>            clazz;
     public final JavaBeanInfo           beanInfo;
     private ConcurrentMap<String, Object> extraFieldDeserializers;
+
+    private final Map<String, FieldDeserializer> alterNameFieldDeserializers;
     
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz) {
         this(config, clazz, clazz);
@@ -45,14 +47,23 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     public JavaBeanDeserializer(ParserConfig config, JavaBeanInfo beanInfo){
         this.clazz = beanInfo.clazz;
         this.beanInfo = beanInfo;
-        
+
+        Map<String, FieldDeserializer> alterNameFieldDeserializers = null;
         sortedFieldDeserializers = new FieldDeserializer[beanInfo.sortedFields.length];
         for (int i = 0, size = beanInfo.sortedFields.length; i < size; ++i) {
             FieldInfo fieldInfo = beanInfo.sortedFields[i];
             FieldDeserializer fieldDeserializer = config.createFieldDeserializer(config, beanInfo, fieldInfo);
 
             sortedFieldDeserializers[i] = fieldDeserializer;
+
+            for (String name : fieldInfo.alternateNames) {
+                if (alterNameFieldDeserializers == null) {
+                    alterNameFieldDeserializers = new HashMap<String, FieldDeserializer>();
+                }
+                alterNameFieldDeserializers.put(name, fieldDeserializer);
+            }
         }
+        this.alterNameFieldDeserializers = alterNameFieldDeserializers;
 
         fieldDeserializers = new FieldDeserializer[beanInfo.fields.length];
         for (int i = 0, size = beanInfo.fields.length; i < size; ++i) {
@@ -966,18 +977,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             }
         }
 
-        if (fieldDeserializer == null) {
-            for (int i = 0; i < sortedFieldDeserializers.length; ++i) {
-                if (isSetFlag(i, setFlags)) {
-                    continue;
-                }
-
-                FieldDeserializer fieldDeser = sortedFieldDeserializers[i];
-                if (fieldDeser.fieldInfo.alternateName(key)) {
-                    fieldDeserializer = fieldDeser;
-                    break;
-                }
-            }
+        if (fieldDeserializer == null && this.alterNameFieldDeserializers != null) {
+            fieldDeserializer = this.alterNameFieldDeserializers.get(key);
         }
 
         return fieldDeserializer;

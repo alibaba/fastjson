@@ -152,7 +152,7 @@ public class SerializeConfig {
                 }
             }
         }
-	    
+
 	    Class<?> clazz = beanInfo.beanType;
 		if (!Modifier.isPublic(beanInfo.beanType.getModifiers())) {
 			return new JavaBeanSerializer(beanInfo);
@@ -206,6 +206,11 @@ public class SerializeConfig {
                         asm = false;
                         break;
                     }
+                }
+
+                if (TypeUtils.isAnnotationPresentOneToMany(method)) {
+    			    asm = true;
+    			    break;
                 }
     		}
 		}
@@ -440,6 +445,8 @@ public class SerializeConfig {
         }
         
         if (writer == null) {
+            String className = clazz.getName();
+
             if (Map.class.isAssignableFrom(clazz)) {
                 put(clazz, MapSerializer.instance);
             } else if (List.class.isAssignableFrom(clazz)) {
@@ -487,7 +494,6 @@ public class SerializeConfig {
             } else if (Iterator.class.isAssignableFrom(clazz)) {
                 put(clazz, MiscCodec.instance);
             } else {
-                String className = clazz.getName();
                 if (className.startsWith("java.awt.") //
                     && AwtCodec.support(clazz) //
                 ) {

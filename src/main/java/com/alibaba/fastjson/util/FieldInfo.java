@@ -10,6 +10,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.Arrays;
 
 import com.alibaba.fastjson.annotation.JSONField;
 
@@ -36,6 +37,8 @@ public class FieldInfo implements Comparable<FieldInfo> {
     public final String     format;
 
     public final long       nameHashCode;
+
+    public final String[]  alternateNames;
 
     public FieldInfo(String name, // 
                      Class<?> declaringClass, // 
@@ -76,6 +79,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.nameHashCode = hashCode;
         
         this.format = null;
+        this.alternateNames = new String[0];
     }
 
     public FieldInfo(String name, // 
@@ -103,6 +107,11 @@ public class FieldInfo implements Comparable<FieldInfo> {
             if (format.trim().length() == 0) {
                 format = null;
             }
+
+            alternateNames = annotation.alternateNames();
+            Arrays.sort(alternateNames);
+        } else {
+            alternateNames = new String[0];
         }
         this.format = format;
 
@@ -191,8 +200,13 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
         this.fieldType = genericFieldType;
         this.fieldClass = fieldClass;
-        
+
         isEnum = (!fieldClass.isArray()) && fieldClass.isEnum();
+    }
+
+    public boolean alternateName(String name) {
+        int index = Arrays.binarySearch(this.alternateNames, name);
+        return index >= 0;
     }
 
     public static Type getFieldType(Class<?> clazz, Type type, Type fieldType) {

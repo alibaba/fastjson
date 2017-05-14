@@ -23,6 +23,9 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
     private final FieldDeserializer[] fieldDeserializers;
     private final FieldDeserializer[] sortedFieldDeserializers;
+
+    private final Map<String, FieldDeserializer> alterNameFieldDeserializers;
+
     private final Class<?>            clazz;
     public final JavaBeanInfo         beanInfo;
     private ConcurrentMap<String, Object> extraFieldDeserializers;
@@ -34,14 +37,23 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz, Type type, JavaBeanInfo beanInfo){
         this.clazz = clazz;
         this.beanInfo = beanInfo;
-        
+
+        Map<String, FieldDeserializer> alterNameFieldDeserializers = null;
         sortedFieldDeserializers = new FieldDeserializer[beanInfo.sortedFields.length];
         for (int i = 0, size = beanInfo.sortedFields.length; i < size; ++i) {
             FieldInfo fieldInfo = beanInfo.sortedFields[i];
             FieldDeserializer fieldDeserializer = config.createFieldDeserializer(config, clazz, fieldInfo);
 
             sortedFieldDeserializers[i] = fieldDeserializer;
+
+            for (String name : fieldInfo.alternateNames) {
+                if (alterNameFieldDeserializers == null) {
+                    alterNameFieldDeserializers = new HashMap<String, FieldDeserializer>();
+                }
+                alterNameFieldDeserializers.put(name, fieldDeserializer);
+            }
         }
+        this.alterNameFieldDeserializers = alterNameFieldDeserializers;
 
         fieldDeserializers = new FieldDeserializer[beanInfo.fields.length];
         for (int i = 0, size = beanInfo.fields.length; i < size; ++i) {
@@ -862,6 +874,10 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             } else {
                 return sortedFieldDeserializers[mid]; // key found
             }
+        }
+
+        if (alterNameFieldDeserializers != null) {
+            return alterNameFieldDeserializers.get(key);
         }
         
         return null;  // key not found.

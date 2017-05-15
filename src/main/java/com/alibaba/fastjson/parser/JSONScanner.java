@@ -118,7 +118,7 @@ public final class JSONScanner extends JSONLexerBase {
             byte[] bytes = new byte[len / 2];
             for (int i = 0; i < bytes.length; ++i) {
                 char c0 = text.charAt(start + i * 2);
-                char c1 = text.charAt(i * 2 + 1);
+                char c1 = text.charAt(start + i * 2 + 1);
 
                 int b0 = c0 - (c0 <= 57 ? 48 : 55);
                 int b1 = c1 - (c1 <= 57 ? 48 : 55);

@@ -16,21 +16,7 @@
 package com.alibaba.fastjson.parser;
 
 import static com.alibaba.fastjson.parser.JSONLexer.EOI;
-import static com.alibaba.fastjson.parser.JSONToken.EOF;
-import static com.alibaba.fastjson.parser.JSONToken.ERROR;
-import static com.alibaba.fastjson.parser.JSONToken.FALSE;
-import static com.alibaba.fastjson.parser.JSONToken.LBRACE;
-import static com.alibaba.fastjson.parser.JSONToken.LBRACKET;
-import static com.alibaba.fastjson.parser.JSONToken.LITERAL_FLOAT;
-import static com.alibaba.fastjson.parser.JSONToken.LITERAL_INT;
-import static com.alibaba.fastjson.parser.JSONToken.LITERAL_STRING;
-import static com.alibaba.fastjson.parser.JSONToken.NEW;
-import static com.alibaba.fastjson.parser.JSONToken.NULL;
-import static com.alibaba.fastjson.parser.JSONToken.RBRACKET;
-import static com.alibaba.fastjson.parser.JSONToken.SET;
-import static com.alibaba.fastjson.parser.JSONToken.TREE_SET;
-import static com.alibaba.fastjson.parser.JSONToken.TRUE;
-import static com.alibaba.fastjson.parser.JSONToken.UNDEFINED;
+import static com.alibaba.fastjson.parser.JSONToken.*;
 
 import java.io.Closeable;
 import java.lang.reflect.ParameterizedType;
@@ -1389,6 +1375,10 @@ public class DefaultJSONParser implements Closeable {
                     return null;
                 }
                 throw new JSONException("unterminated json string, " + lexer.info());
+            case HEX:
+                byte[] bytes = lexer.bytesValue();
+                lexer.nextToken();
+                return bytes;
             case ERROR:
             default:
                 throw new JSONException("syntax error, " + lexer.info());

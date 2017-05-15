@@ -27,6 +27,7 @@ import java.util.TimeZone;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.util.IOUtils;
 
 import static com.alibaba.fastjson.parser.JSONToken.*;
@@ -199,6 +200,9 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 case '+':
                     next();
                     scanNumber();
+                    return;
+                case 'x':
+                    scanHex();
                     return;
                 default:
                     if (isEOF()) { // JLS
@@ -3321,6 +3325,34 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             sbuf = newsbuf;
         }
         sbuf[sp++] = ch;
+    }
+
+    public final void scanHex() {
+        if (ch != 'x') {
+            throw new JSONException("illegal state. " + ch);
+        }
+        next();
+        if (ch != '\'') {
+            throw new JSONException("illegal state. " + ch);
+        }
+
+        np = bp;
+        next();
+
+        for (int i = 0;;++i) {
+            char ch = next();
+            if ((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F')) {
+                sp++;
+                continue;
+            } else if (ch == '\'') {
+                sp++;
+                next();
+                break;
+            } else {
+                throw new JSONException("illegal state. " + ch);
+            }
+        }
+        token = JSONToken.HEX;
     }
 
     public final void scanNumber() {

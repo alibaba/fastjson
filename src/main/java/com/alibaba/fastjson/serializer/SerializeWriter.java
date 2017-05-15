@@ -493,9 +493,55 @@ public final class SerializeWriter extends Writer {
     }
 
     public void writeByteArray(byte[] bytes) {
+        if (isEnabled(SerializerFeature.WriteClassName.mask)) {
+            int newcount = count + bytes.length * 2 + 3;
+            if (newcount > buf.length) {
+                if (writer != null) {
+                    char[] chars = new char[bytes.length + 3];
+                    int pos = 0;
+                    chars[pos++] = 'x';
+                    chars[pos++] = '\'';
+
+                    for (int i = 0; i < bytes.length; ++i) {
+                        byte b = bytes[i];
+
+                        int a = b & 0xFF;
+                        int b0 = a >> 4;
+                        int b1 = a & 0xf;
+
+                        chars[pos++] = (char) (b0 + (b0 < 10 ? 48 : 55));
+                        chars[pos++] = (char) (b1 + (b1 < 10 ? 48 : 55));
+                    }
+                    chars[pos++] = '\'';
+                    try {
+                        writer.write(chars);
+                    } catch (IOException ex) {
+                        throw new JSONException("writeBytes error.", ex);
+                    }
+                    return;
+                }
+                expandCapacity(newcount);
+            }
+
+            buf[count++] = 'x';
+            buf[count++] = '\'';
+
+            for (int i = 0; i < bytes.length; ++i) {
+                byte b = bytes[i];
+
+                int a = b & 0xFF;
+                int b0 = a >> 4;
+                int b1 = a & 0xf;
+
+                buf[count++] = (char) (b0 + (b0 < 10 ? 48 : 55));
+                buf[count++] = (char) (b1 + (b1 < 10 ? 48 : 55));
+            }
+            buf[count++] = '\'';
+            return;
+        }
+
         int bytesLen = bytes.length;
         final char quote = useSingleQuotes ? '\'' : '"';
-
         if (bytesLen == 0) {
             String emptyString = useSingleQuotes ? "''" : "\"\"";
             write(emptyString);
@@ -1926,6 +1972,6 @@ public final class SerializeWriter extends Writer {
         }
         count = 0;
     }
-    
-   
+
+
 }

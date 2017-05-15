@@ -220,7 +220,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
         if (token == JSONToken.HEX) {
             throw new JSONException("TODO");
         }
-        
+
         return IOUtils.decodeBase64(buf, np + 1, sp);
     }
 

@@ -8,6 +8,7 @@ import junit.framework.TestCase;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.asm.ClassWriter;
 import com.alibaba.fastjson.asm.MethodVisitor;
+import com.alibaba.fastjson.asm.MethodWriter;
 import com.alibaba.fastjson.asm.Opcodes;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.SerializeWriter;
@@ -53,14 +54,14 @@ public class TestASM extends TestCase implements Opcodes {
         ClassWriter cw = new ClassWriter();
         cw.visit(V1_5, ACC_PUBLIC + ACC_SUPER, "DateSerializer", "java/lang/Object", new String[] { "com/alibaba/fastjson/serializer/ObjectSerializer" });
 
-        MethodVisitor mw = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+        MethodVisitor mw = new MethodWriter(cw, ACC_PUBLIC, "<init>", "()V", null, null);
         mw.visitVarInsn(ALOAD, 0);
         mw.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
         mw.visitInsn(RETURN);
         mw.visitMaxs(1, 1);
         mw.visitEnd();
 
-        mw = cw.visitMethod(ACC_PUBLIC, "write", "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;)V", null, new String[] { "java/io/IOException" });
+        mw = new MethodWriter(cw, ACC_PUBLIC, "write", "(Lcom/alibaba/fastjson/serializer/JSONSerializer;Ljava/lang/Object;)V", null, new String[] { "java/io/IOException" });
 
         mw.visitVarInsn(ALOAD, 1); // serializer
         mw.visitMethodInsn(INVOKEVIRTUAL, "com/alibaba/fastjson/serializer/JSONSerializer", "getWriter", "()Lcom/alibaba/fastjson/serializer/SerializeWriter;");

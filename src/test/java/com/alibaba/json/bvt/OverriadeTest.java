@@ -7,26 +7,26 @@ import junit.framework.TestCase;
 public class OverriadeTest extends TestCase {
 
     public void test_override() throws Exception {
-        JSON.parseObject("{}", B.class);
+        JSON.parseObject("{\"id\":123}", B.class);
     }
 
     public static class A {
 
-        private long id;
+        protected long id;
 
         public long getId() {
             return id;
         }
 
         public void setId(long id) {
-            this.id = id;
+            throw new UnsupportedOperationException();
         }
 
     }
 
     public static class B extends A {
         public void setId(String id) {
-            setId(Long.parseLong(id));
+            this.id = Long.parseLong(id);
         }
     }
 }

@@ -2,17 +2,20 @@ package com.alibaba.fastjson.parser;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public interface JSONLexer {
 
-    public final static byte EOI            = 0x1A;
-    public final static int  NOT_MATCH      = -1;
-    public final static int  NOT_MATCH_NAME = -2;
-    public final static int  UNKOWN         = 0;
-    public final static int  OBJECT         = 1;
-    public final static int  ARRAY          = 2;
-    public final static int  VALUE          = 3;
-    public final static int  END            = 4;
+    char EOI            = 0x1A;
+    int  NOT_MATCH      = -1;
+    int  NOT_MATCH_NAME = -2;
+    int  UNKNOWN         = 0;
+    int  OBJECT         = 1;
+    int  ARRAY          = 2;
+    int  VALUE          = 3;
+    int  END            = 4;
+    int  VALUE_NULL     = 5;
 
     int token();
 
@@ -48,13 +51,13 @@ public interface JSONLexer {
 
     String stringVal();
 
+    boolean isEnabled(int feature);
+    
     boolean isEnabled(Feature feature);
 
     void config(Feature feature, boolean state);
 
     void scanString();
-
-    Number numberValue();
 
     int intValue();
 
@@ -63,8 +66,6 @@ public interface JSONLexer {
     void nextTokenWithColon(int expect);
 
     boolean isBlankInput();
-
-    int getBufferPosition();
 
     void close();
 
@@ -78,9 +79,11 @@ public interface JSONLexer {
 
     float floatValue();
 
-    long scanLong(char expectNextChar);
-
     int scanInt(char expectNext);
+    long scanLong(char expectNextChar);
+    float scanFloat(char seperator);
+    double scanDouble(char seperator);
+    boolean scanBoolean(char expectNext);
 
     String scanString(char expectNextChar);
 
@@ -88,6 +91,15 @@ public interface JSONLexer {
 
     String scanSymbolWithSeperator(final SymbolTable symbolTable, char serperator);
 
-    Collection<String> scanStringArray(Class<?> type, char seperator);
+    void scanStringArray(Collection<String> collection, char seperator);
 
+    TimeZone getTimeZone();
+    
+    void setTimeZone(TimeZone timeZone);
+    
+    Locale getLocale();
+    
+    void setLocale(Locale locale);
+    
+    String info();
 }

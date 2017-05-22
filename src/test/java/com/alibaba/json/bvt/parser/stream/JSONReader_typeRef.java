@@ -34,6 +34,19 @@ public class JSONReader_typeRef extends TestCase {
         reader.close();
     }
     
+    public void test_array_2() throws Exception {
+        JSONReader reader = new JSONReader(new StringReader("[[{\"id\":123}]]"));
+        
+        reader.startArray();
+        List<VO> list = reader.readObject(new TypeReference<List<VO>>() {});
+        
+        Assert.assertEquals(123, list.get(0).getId());
+        
+        reader.endArray();
+        
+        reader.close();
+    }
+    
     public static class VO {
 
         private int id;

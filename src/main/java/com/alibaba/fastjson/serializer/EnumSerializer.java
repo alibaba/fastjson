@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,25 +19,14 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public class EnumSerializer implements ObjectSerializer {
 
     public final static EnumSerializer instance = new EnumSerializer();
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
-        SerializeWriter out = serializer.getWriter();
-        if (object == null) {
-            serializer.getWriter().writeNull();
-            return;
-        }
-
-        if (serializer.isEnabled(SerializerFeature.WriteEnumUsingToString)) {
-            Enum<?> e = (Enum<?>) object;
-            serializer.write(e.toString());
-        } else {
-            Enum<?> e = (Enum<?>) object;
-            out.writeInt(e.ordinal());
-        }
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
+        SerializeWriter out = serializer.out;
+        out.writeEnum((Enum<?>) object);
     }
 }

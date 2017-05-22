@@ -8,18 +8,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonLocation;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.JsonToken;
-
 import com.alibaba.json.test.entity.pagemodel.LayoutInstance;
 import com.alibaba.json.test.entity.pagemodel.PageInstance;
 import com.alibaba.json.test.entity.pagemodel.RegionEnum;
 import com.alibaba.json.test.entity.pagemodel.RegionInstance;
 import com.alibaba.json.test.entity.pagemodel.SegmentInstance;
 import com.alibaba.json.test.entity.pagemodel.WidgetInstance;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonLocation;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 
 public class JacksonPageModelParser {
 

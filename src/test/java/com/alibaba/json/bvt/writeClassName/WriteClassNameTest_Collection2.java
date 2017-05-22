@@ -3,6 +3,7 @@ package com.alibaba.json.bvt.writeClassName;
 import java.util.Collection;
 import java.util.Collections;
 
+import com.alibaba.fastjson.parser.ParserConfig;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -10,6 +11,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class WriteClassNameTest_Collection2 extends TestCase {
+    protected void setUp() throws Exception {
+        ParserConfig.global.addAccept("com.alibaba.json.bvt.writeClassName.WriteClassNameTest_Collection2");
+    }
 
     public void test_list() throws Exception {
         A a = new A();

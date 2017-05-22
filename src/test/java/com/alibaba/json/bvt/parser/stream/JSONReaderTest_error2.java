@@ -38,7 +38,6 @@ public class JSONReaderTest_error2 extends TestCase {
             }
             Assert.assertNotNull(error);
         }
-        reader.close();
     }
     
     public static class VO {

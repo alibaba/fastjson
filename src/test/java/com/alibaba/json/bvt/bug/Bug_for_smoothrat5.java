@@ -1,6 +1,6 @@
 package com.alibaba.json.bvt.bug;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -13,9 +13,9 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 public class Bug_for_smoothrat5 extends TestCase {
 
     public void test_map() throws Exception {
-        Map<Object, Object> map = new HashMap<Object, Object>();
-        map.put(12, "a");
+        Map<Object, Object> map = new LinkedHashMap<Object, Object>();
         map.put(34L, "b");
+        map.put(12, "a");
 
         Entity entity = new Entity();
 
@@ -23,7 +23,7 @@ public class Bug_for_smoothrat5 extends TestCase {
 
         String text = JSON.toJSONString(entity, SerializerFeature.WriteClassName);
         System.out.println(text);
-        Assert.assertEquals("{\"@type\":\"com.alibaba.json.bvt.bug.Bug_for_smoothrat5$Entity\",\"value\":{\"@type\":\"java.util.HashMap\",34L:\"b\",12:\"a\"}}",
+        Assert.assertEquals("{\"@type\":\"com.alibaba.json.bvt.bug.Bug_for_smoothrat5$Entity\",\"value\":{\"@type\":\"java.util.LinkedHashMap\",34L:\"b\",12:\"a\"}}",
                             text);
 
         Entity entity2 = JSON.parseObject(text, Entity.class);

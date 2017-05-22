@@ -47,6 +47,13 @@ public class BenchmarkExecutor {
     	
         for (BenchmarkCase benchmarkCase : caseList) {
             for (Codec codec : codecList) {
+                try {
+                    benchmarkCase.init(codec);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    break;
+                }
+                
                 for (int i = 0; i < executeCount; ++i) {
                     Result result = executeLoop(codec, benchmarkCase);
                     handleResult(codec, result);

@@ -2,6 +2,8 @@ package com.alibaba.json.bvt.serializer;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import org.junit.Assert;
 import junit.framework.TestCase;
@@ -17,11 +19,20 @@ public class SimpleDataFormatSerializerTest extends TestCase {
         mapping.put(Date.class, new SimpleDateFormatSerializer("yyyy-MM-dd"));
     }
     
+    protected void setUp() throws Exception {
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        JSON.defaultLocale = Locale.CHINA;
+    }
+    
     public void test_0() throws Exception {
         Date date = new Date();
         String text = JSON.toJSONString(date, mapping);
-        Assert.assertEquals(JSON.toJSONString(new SimpleDateFormat("yyyy-MM-dd").format(date)), text);
-        Assert.assertEquals(JSON.toJSONString(new SimpleDateFormat("yyyy-MM-dd").format(date)), text);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", JSON.defaultLocale);
+        format.setTimeZone(JSON.defaultTimeZone);
+        SimpleDateFormat format2 = new SimpleDateFormat("yyyy-MM-dd", JSON.defaultLocale);
+        format2.setTimeZone(JSON.defaultTimeZone);
+        Assert.assertEquals(JSON.toJSONString(format.format(date)), text);
+        Assert.assertEquals(JSON.toJSONString(format2.format(date)), text);
     }
 
 }

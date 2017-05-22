@@ -28,6 +28,9 @@ import com.alibaba.json.bvtVO.TempAttachMetaOption;
  * @author lei.yaol 2011-12-27 下午03:44:18
  */
 public class SerDeserTest extends TestCase {
+    protected void setUp() throws Exception {
+        com.alibaba.fastjson.parser.ParserConfig.global.addAccept("com.alibaba.json.bvtVO.");
+    }
 
     /** 用于被FastJson序列和反序列化的对象 */
     private static Map<OptionKey, OptionValue<?>> options;

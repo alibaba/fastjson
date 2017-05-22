@@ -10,7 +10,7 @@ import com.alibaba.fastjson.parser.JSONToken;
 /**
  * 测试字符':'的处理
  * 
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public class JSONScannerTest_colon extends TestCase {
 

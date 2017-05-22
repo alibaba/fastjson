@@ -5,7 +5,7 @@ import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 
@@ -15,7 +15,7 @@ public class FieldDeserializerTest2 extends TestCase {
         String input = "{,,,\"value\":null,,,,}";
         int featureValues = 0;
         featureValues |= Feature.AllowArbitraryCommas.getMask();
-        DefaultExtJSONParser parser = new DefaultExtJSONParser(input, ParserConfig.getGlobalInstance(), featureValues);
+        DefaultJSONParser parser = new DefaultJSONParser(input, ParserConfig.getGlobalInstance(), featureValues);
         
         Entity object = new Entity();
         parser.parseObject(object);
@@ -26,7 +26,7 @@ public class FieldDeserializerTest2 extends TestCase {
         int featureValues = 0;
         featureValues |= Feature.AllowArbitraryCommas.getMask();
         featureValues |= Feature.IgnoreNotMatch.getMask();
-        DefaultExtJSONParser parser = new DefaultExtJSONParser(input, ParserConfig.getGlobalInstance(), featureValues);
+        DefaultJSONParser parser = new DefaultJSONParser(input, ParserConfig.getGlobalInstance(), featureValues);
         
         Entity object = new Entity();
         parser.parseObject(object);
@@ -37,7 +37,7 @@ public class FieldDeserializerTest2 extends TestCase {
         try {
             String input = "{\"value\":null,\"id\":123}";
             int featureValues = 0;
-            DefaultExtJSONParser parser = new DefaultExtJSONParser(input, ParserConfig.getGlobalInstance(), featureValues);
+            DefaultJSONParser parser = new DefaultJSONParser(input, ParserConfig.getGlobalInstance(), featureValues);
             
             Entity object = new Entity();
             parser.parseObject(object);

@@ -1,82 +1,80 @@
 package com.alibaba.fastjson.util;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.Collection;
-
-import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.JSONLexer;
-import com.alibaba.fastjson.parser.JSONToken;
-import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 
 public class ASMUtils {
 
+    public static final String JAVA_VM_NAME = System.getProperty("java.vm.name");
+    
+    public static final boolean IS_ANDROID = isAndroid(JAVA_VM_NAME);
+	
     public static boolean isAndroid(String vmName) {
+        if (vmName == null) { // default is false
+            return false;
+        }
+        
         String lowerVMName = vmName.toLowerCase();
-
+        
         return lowerVMName.contains("dalvik") //
                || lowerVMName.contains("lemur") // aliyun-vm name
         ;
     }
 
-    public static boolean isAndroid() {
-        return isAndroid(System.getProperty("java.vm.name"));
-    }
-
-    public static String getDesc(Method method) {
-        StringBuffer buf = new StringBuffer();
-        buf.append("(");
-        java.lang.Class<?>[] types = method.getParameterTypes();
+    public static String desc(Method method) {   
+    	Class<?>[] types = method.getParameterTypes();
+        StringBuilder buf = new StringBuilder((types.length + 1) << 4);
+        buf.append('(');
         for (int i = 0; i < types.length; ++i) {
-            buf.append(getDesc(types[i]));
+            buf.append(desc(types[i]));
         }
-        buf.append(")");
-        buf.append(getDesc(method.getReturnType()));
+        buf.append(')');
+        buf.append(desc(method.getReturnType()));
         return buf.toString();
     }
 
-    public static String getDesc(Class<?> returnType) {
+    public static String desc(Class<?> returnType) {
         if (returnType.isPrimitive()) {
             return getPrimitiveLetter(returnType);
         } else if (returnType.isArray()) {
-            return "[" + getDesc(returnType.getComponentType());
+            return "[" + desc(returnType.getComponentType());
         } else {
-            return "L" + getType(returnType) + ";";
+            return "L" + type(returnType) + ";";
         }
     }
 
-    public static String getType(Class<?> parameterType) {
+    public static String type(Class<?> parameterType) {
         if (parameterType.isArray()) {
-            return "[" + getDesc(parameterType.getComponentType());
+            return "[" + desc(parameterType.getComponentType());
         } else {
             if (!parameterType.isPrimitive()) {
                 String clsName = parameterType.getName();
-                return clsName.replaceAll("\\.", "/");
+                return clsName.replace('.', '/'); // 直接基于字符串替换，不使用正则替换
             } else {
                 return getPrimitiveLetter(parameterType);
             }
         }
     }
+    
 
     public static String getPrimitiveLetter(Class<?> type) {
-        if (Integer.TYPE.equals(type)) {
+        if (Integer.TYPE == type) {
             return "I";
-        } else if (Void.TYPE.equals(type)) {
+        } else if (Void.TYPE == type) {
             return "V";
-        } else if (Boolean.TYPE.equals(type)) {
+        } else if (Boolean.TYPE == type) {
             return "Z";
-        } else if (Character.TYPE.equals(type)) {
+        } else if (Character.TYPE == type) {
             return "C";
-        } else if (Byte.TYPE.equals(type)) {
+        } else if (Byte.TYPE == type) {
             return "B";
-        } else if (Short.TYPE.equals(type)) {
+        } else if (Short.TYPE == type) {
             return "S";
-        } else if (Float.TYPE.equals(type)) {
+        } else if (Float.TYPE == type) {
             return "F";
-        } else if (Long.TYPE.equals(type)) {
+        } else if (Long.TYPE == type) {
             return "J";
-        } else if (Double.TYPE.equals(type)) {
+        } else if (Double.TYPE == type) {
             return "D";
         }
 
@@ -93,41 +91,14 @@ public class ASMUtils {
         }
     }
 
-    public static Type getFieldType(Class<?> clazz, String fieldName) {
-        try {
-            Field field = clazz.getField(fieldName);
-
-            return field.getGenericType();
-        } catch (Exception ex) {
-            return null;
-        }
-    }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static void parseArray(Collection collection, //
-                                  ObjectDeserializer deser, //
-                                  DefaultJSONParser parser, //
-                                  Type type, //
-                                  Object fieldName) {
-
-        final JSONLexer lexer = parser.getLexer();
-        if (lexer.token() == JSONToken.NULL) {
-            lexer.nextToken(JSONToken.COMMA);
-        }
-
-        parser.accept(JSONToken.LBRACKET, JSONToken.LBRACKET);
-
-        int index = 0;
-        for (;;) {
-            Object item = deser.deserialze(parser, type, index);
-            collection.add(item);
-            index++;
-            if (lexer.token() == JSONToken.COMMA) {
-                lexer.nextToken(JSONToken.LBRACKET);
-            } else {
-                break;
+    public static boolean checkName(String name) {
+        for (int i = 0; i < name.length(); ++i) {
+            char c = name.charAt(i);
+            if (c < '\001' || c > '\177' || c == '.') {
+                return false;
             }
         }
-        parser.accept(JSONToken.RBRACKET, JSONToken.COMMA);
+        
+        return true;
     }
 }

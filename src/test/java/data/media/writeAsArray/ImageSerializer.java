@@ -11,14 +11,16 @@ import data.media.Image;
 
 public class ImageSerializer implements ObjectSerializer {
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         Image image = (Image) object;
 
         SerializeWriter out = serializer.getWriter();
         out.write('[');
         
-        out.writeIntAndChar(image.getHeight(), ',');
-        out.writeIntAndChar(image.getWidth(), ',');
+        out.writeInt(image.getHeight());
+        out.write(',');
+        out.writeInt(image.getWidth());
+        out.write(',');
         out.writeString(image.getSize().name(), ',');
         out.writeString(image.getTitle(), ',');
         out.writeString(image.getUri());

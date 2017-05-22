@@ -3,6 +3,7 @@ package com.alibaba.json.bvt.bug;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.alibaba.fastjson.parser.ParserConfig;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -10,6 +11,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class Bug_for_cduym extends TestCase {
+    protected void setUp() throws Exception {
+        ParserConfig.global.addAccept("com.alibaba.json.bvt.bug.Bug_for_cduym");
+    }
 
     @SuppressWarnings("rawtypes")
     public void test0() {

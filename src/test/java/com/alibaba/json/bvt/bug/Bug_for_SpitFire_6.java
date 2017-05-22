@@ -3,12 +3,16 @@ package com.alibaba.json.bvt.bug;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.alibaba.fastjson.parser.ParserConfig;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class Bug_for_SpitFire_6 extends TestCase {
+    protected void setUp() throws Exception {
+        com.alibaba.fastjson.parser.ParserConfig.global.addAccept("com.alibaba.json.bvt.bug.Bug_for_SpitFire_6.");
+    }
 
     public void test_ref() throws Exception {
         GenericRS<HotelAvailRS> rs = new GenericRS<HotelAvailRS>();

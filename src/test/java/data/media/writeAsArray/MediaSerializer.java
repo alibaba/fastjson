@@ -11,17 +11,21 @@ import data.media.Media;
 
 public class MediaSerializer implements ObjectSerializer {
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         Media media = (Media) object;
 
         SerializeWriter out = serializer.getWriter();
         out.write('[');
         
-        out.writeIntAndChar(media.getBitrate(), ',');
-        out.writeIntAndChar(media.getHeight(), ',');
-        out.writeIntAndChar(media.getWidth(), ',');
+        out.writeInt(media.getBitrate());
+        out.write(',');
+        out.writeInt(media.getHeight());
+        out.write(',');
+        out.writeInt(media.getWidth());
+        out.write(',');
         out.writeString(media.getCopyright(), ',');
-        out.writeLongAndChar(media.getDuration(), ',');
+        out.writeLong(media.getDuration());
+        out.write(',');
         out.writeString(media.getFormat(), ',');
         out.write('[');
         for (int i = 0; i < media.getPersons().size(); ++i) {
@@ -32,7 +36,8 @@ public class MediaSerializer implements ObjectSerializer {
         }
         out.write("],");
         out.writeString(media.getPlayer().name(), ',');
-        out.writeLongAndChar(media.getSize(), ',');
+        out.writeLong(media.getSize());
+        out.write(',');
         out.writeString(media.getTitle(), ',');
         out.writeString(media.getUri(), ']');
     }

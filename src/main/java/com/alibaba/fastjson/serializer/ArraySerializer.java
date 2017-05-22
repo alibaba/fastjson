@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public class ArraySerializer implements ObjectSerializer {
 
@@ -31,24 +31,20 @@ public class ArraySerializer implements ObjectSerializer {
         this.compObjectSerializer = compObjectSerializer;
     }
 
-    public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType)
+    public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
                                                                                                        throws IOException {
-        SerializeWriter out = serializer.getWriter();
+        SerializeWriter out = serializer.out;
 
         if (object == null) {
-            if (out.isEnabled(SerializerFeature.WriteNullListAsEmpty)) {
-                out.write("[]");
-            } else {
-                out.writeNull();
-            }
+            out.writeNull(SerializerFeature.WriteNullListAsEmpty);
             return;
         }
 
         Object[] array = (Object[]) object;
         int size = array.length;
 
-        SerialContext context = serializer.getContext();
-        serializer.setContext(context, object, fieldName);
+        SerialContext context = serializer.context;
+        serializer.setContext(context, object, fieldName, 0);
 
         try {
             out.append('[');
@@ -59,17 +55,21 @@ public class ArraySerializer implements ObjectSerializer {
                 Object item = array[i];
 
                 if (item == null) {
-                    out.append("null");
+                    if (out.isEnabled(SerializerFeature.WriteNullStringAsEmpty) && object instanceof String[]) {
+                        out.writeString("");
+                    } else {
+                        out.append("null");
+                    }
                 } else if (item.getClass() == componentType) {
-                	compObjectSerializer.write(serializer, item, i, null);
+                	compObjectSerializer.write(serializer, item, i, null, 0);
                 } else {
                 	ObjectSerializer itemSerializer = serializer.getObjectWriter(item.getClass());
-                	itemSerializer.write(serializer, item, i, null);
+                	itemSerializer.write(serializer, item, i, null, 0);
                 }
             }
             out.append(']');
         } finally {
-            serializer.setContext(context);
+            serializer.context = context;
         }
     }
 }

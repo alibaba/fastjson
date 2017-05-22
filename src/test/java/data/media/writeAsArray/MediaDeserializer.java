@@ -1,6 +1,7 @@
 package data.media.writeAsArray;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.alibaba.fastjson.JSONException;
@@ -31,7 +32,8 @@ public class MediaDeserializer implements ObjectDeserializer {
         long duration = lexer.scanLong(',');
         String format = lexer.scanString(',');
 
-        List<String> persons = (List<String>) lexer.scanStringArray(List.class, ',');
+        List<String> persons = new ArrayList<String>();
+        lexer.scanStringArray(persons, ',');
 
         String playerName = lexer.scanSymbolWithSeperator(parser.getSymbolTable(), ',');
         long size = lexer.scanLong(',');

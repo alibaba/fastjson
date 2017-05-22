@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import java.lang.reflect.Type;
 import java.text.DecimalFormat;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public class DoubleSerializer implements ObjectSerializer {
 
@@ -40,38 +40,25 @@ public class DoubleSerializer implements ObjectSerializer {
         this(new DecimalFormat(decimalFormat));
     }
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
+        SerializeWriter out = serializer.out;
 
         if (object == null) {
-            if (serializer.isEnabled(SerializerFeature.WriteNullNumberAsZero)) {
-                out.write('0');
-            } else {
-                out.writeNull();
-            }
+            out.writeNull(SerializerFeature.WriteNullNumberAsZero);
             return;
         }
 
         double doubleValue = ((Double) object).doubleValue();
 
-        if (Double.isNaN(doubleValue)) {
-            out.writeNull();
-        } else if (Double.isInfinite(doubleValue)) {
+        if (Double.isNaN(doubleValue) //
+                || Double.isInfinite(doubleValue)) {
             out.writeNull();
         } else {
-            String doubleText;
             if (decimalFormat == null) {
-                doubleText = Double.toString(doubleValue);
-                if (doubleText.endsWith(".0")) {
-                    doubleText = doubleText.substring(0, doubleText.length() - 2);
-                }
+                out.writeDouble(doubleValue, true);
             } else {
-                doubleText = decimalFormat.format(doubleValue);
-            }
-            out.append(doubleText);
-
-            if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
-                out.write('D');
+                String doubleText = decimalFormat.format(doubleValue);
+                out.write(doubleText);
             }
         }
     }

@@ -47,7 +47,9 @@ public class SimplePropertyPreFilterTest extends TestCase {
         Assert.assertEquals(VO.class, filter.getClazz());
         Assert.assertEquals(1, filter.getIncludes().size());
         Assert.assertTrue(filter.apply(null, null, null));
-        Assert.assertEquals("{\"id\":123,\"name\":\"sandzhangtoo\"}", JSON.toJSONString(a, filter));
+        
+        String text = JSON.toJSONString(a, filter);
+        Assert.assertTrue("{\"id\":123,\"name\":\"sandzhangtoo\"}".equals(text) || "{\"name\":\"sandzhangtoo\",\"id\":123}".equals(text));
     }
     
     public void test_name_a1() throws Exception {
@@ -67,7 +69,8 @@ public class SimplePropertyPreFilterTest extends TestCase {
     
     public void test_map() throws Exception {
         SimplePropertyPreFilter filter = new SimplePropertyPreFilter(VO.class, "name");
-        Assert.assertEquals("{\"id\":123,\"name\":\"sandzhangtoo\"}", JSON.toJSONString(map, filter));
+        String text = JSON.toJSONString(map, filter);
+        Assert.assertTrue("{\"id\":123,\"name\":\"sandzhangtoo\"}".equals(text) || "{\"name\":\"sandzhangtoo\",\"id\":123}".equals(text));
     }
     
     public void test_map_id() throws Exception {
@@ -82,12 +85,14 @@ public class SimplePropertyPreFilterTest extends TestCase {
     
     public void test_all() throws Exception {
         SimplePropertyPreFilter filter = new SimplePropertyPreFilter(VO.class);
-        Assert.assertEquals("{\"id\":123,\"name\":\"sandzhangtoo\"}", JSON.toJSONString(vo, filter));
+        String text = JSON.toJSONString(vo, filter);
+        Assert.assertTrue("{\"id\":123,\"name\":\"sandzhangtoo\"}".equals(text) || "{\"name\":\"sandzhangtoo\",\"id\":123}".equals(text));
     }
     
     public void test_all_map() throws Exception {
         SimplePropertyPreFilter filter = new SimplePropertyPreFilter(VO.class);
-        Assert.assertEquals("{\"id\":123,\"name\":\"sandzhangtoo\"}", JSON.toJSONString(map, filter));
+        String text = JSON.toJSONString(map, filter);
+        Assert.assertTrue("{\"id\":123,\"name\":\"sandzhangtoo\"}".equals(text) || "{\"name\":\"sandzhangtoo\",\"id\":123}".equals(text));
     }
     
     public void test_exclude_id() throws Exception {

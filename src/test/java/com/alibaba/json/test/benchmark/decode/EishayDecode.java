@@ -7,16 +7,18 @@ import data.media.MediaContent;
 
 public class EishayDecode extends BenchmarkCase {
 
-    private final String text;
+    private String text;
 
     public EishayDecode(){
         super("EishayDecode");
 
-        this.text = EishayDecodeBytes.instance.getText();
+        // JavaBeanMapping.getGlobalInstance().putDeserializer(Image.class, new ImageDeserializer());
+        // JavaBeanMapping.getGlobalInstance().putDeserializer(Media.class, new MediaDeserializer());
+    }
+
+    public void init(Codec codec) throws Exception {
+        this.text = codec.encode(EishayDecodeBytes.instance.getContent());
         System.out.println(text);
-        
-        //JavaBeanMapping.getGlobalInstance().putDeserializer(Image.class, new ImageDeserializer());
-        //JavaBeanMapping.getGlobalInstance().putDeserializer(Media.class, new MediaDeserializer());
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package com.alibaba.json.bvt;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Assert;
 import junit.framework.TestCase;
@@ -32,6 +33,14 @@ public class DefaultJSONParserTest extends TestCase {
 		Assert.assertEquals(false, parser.isEnabled(Feature.UseBigDecimal));
 		Object result = parser.parse();
 		Assert.assertEquals(3.4D, result);
+	}
+
+	public void test_double_in_object() {
+		DefaultJSONParser parser = new DefaultJSONParser("{\"double\":3.4}");
+		parser.config(Feature.UseBigDecimal, false);
+		Assert.assertEquals("{\"double\":3.4}", parser.getInput());
+		Object result = parser.parse();
+		Assert.assertEquals(3.4D, ((Map) result).get("double"));
 	}
 
 	public void test_error() {

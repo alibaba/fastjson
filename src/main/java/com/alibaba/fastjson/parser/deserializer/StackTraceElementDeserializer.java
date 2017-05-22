@@ -13,9 +13,9 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
 
     public final static StackTraceElementDeserializer instance = new StackTraceElementDeserializer();
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "unused" })
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-        JSONLexer lexer = parser.getLexer();
+        JSONLexer lexer = parser.lexer;
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken();
             return null;
@@ -29,6 +29,8 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
         String methodName = null;
         String fileName = null;
         int lineNumber = 0;
+        String moduleName = null;
+        String moduleVersion = null;
 
         for (;;) {
             // lexer.scanSymbol
@@ -47,7 +49,7 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
             }
 
             lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
-            if (key == "className") {
+            if ("className".equals(key)) {
                 if (lexer.token() == JSONToken.NULL) {
                     declaringClass = null;
                 } else if (lexer.token() == JSONToken.LITERAL_STRING) {
@@ -55,7 +57,7 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
                 } else {
                     throw new JSONException("syntax error");
                 }
-            } else if (key == "methodName") {
+            } else if ("methodName".equals(key)) {
                 if (lexer.token() == JSONToken.NULL) {
                     methodName = null;
                 } else if (lexer.token() == JSONToken.LITERAL_STRING) {
@@ -63,7 +65,7 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
                 } else {
                     throw new JSONException("syntax error");
                 }
-            } else if (key == "fileName") {
+            } else if ("fileName".equals(key)) {
                 if (lexer.token() == JSONToken.NULL) {
                     fileName = null;
                 } else if (lexer.token() == JSONToken.LITERAL_STRING) {
@@ -71,7 +73,7 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
                 } else {
                     throw new JSONException("syntax error");
                 }
-            } else if (key == "lineNumber") {
+            } else if ("lineNumber".equals(key)) {
                 if (lexer.token() == JSONToken.NULL) {
                     lineNumber = 0;
                 } else if (lexer.token() == JSONToken.LITERAL_INT) {
@@ -79,7 +81,7 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
                 } else {
                     throw new JSONException("syntax error");
                 }
-            } else if (key == "nativeMethod") {
+            } else if ("nativeMethod".equals(key)) {
                 if (lexer.token() == JSONToken.NULL) {
                     lexer.nextToken(JSONToken.COMMA);
                 } else if (lexer.token() == JSONToken.TRUE) {
@@ -99,6 +101,22 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
                     if (lexer.token() != JSONToken.NULL) {
                         throw new JSONException("syntax error");
                     }
+                }
+            } else if ("moduleName".equals(key)) {
+                if (lexer.token() == JSONToken.NULL) {
+                    moduleName = null;
+                } else if (lexer.token() == JSONToken.LITERAL_STRING) {
+                    moduleName = lexer.stringVal();
+                } else {
+                    throw new JSONException("syntax error");
+                }
+            } else if ("moduleVersion".equals(key)) {
+                if (lexer.token() == JSONToken.NULL) {
+                    moduleVersion = null;
+                } else if (lexer.token() == JSONToken.LITERAL_STRING) {
+                    moduleVersion = lexer.stringVal();
+                } else {
+                    throw new JSONException("syntax error");
                 }
             } else {
                 throw new JSONException("syntax error : " + key);

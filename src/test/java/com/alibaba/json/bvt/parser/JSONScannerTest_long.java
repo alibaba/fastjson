@@ -8,7 +8,7 @@ import com.alibaba.fastjson.parser.JSONScanner;
 /**
  * parseLong
  * 
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public class JSONScannerTest_long extends TestCase {
 

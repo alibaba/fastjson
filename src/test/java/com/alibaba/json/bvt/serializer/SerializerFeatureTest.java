@@ -14,4 +14,12 @@ public class SerializerFeatureTest extends TestCase {
         feature = SerializerFeature.config(feature, SerializerFeature.BrowserCompatible, false);
         Assert.assertEquals(false, SerializerFeature.isEnabled(feature, SerializerFeature.BrowserCompatible));
     }
+    
+    public void test_1 () throws Exception {
+        int feature = 0;
+        feature = SerializerFeature.config(feature, SerializerFeature.BrowserSecure, true);
+        Assert.assertEquals(true, SerializerFeature.isEnabled(feature, SerializerFeature.BrowserSecure));
+        feature = SerializerFeature.config(feature, SerializerFeature.BrowserSecure, false);
+        Assert.assertEquals(false, SerializerFeature.isEnabled(feature, SerializerFeature.BrowserSecure));
+    }
 }

@@ -1,5 +1,6 @@
 package com.alibaba.json.test.codec;
 
+import java.io.OutputStream;
 import java.util.Collection;
 
 import net.minidev.json.JSONValue;
@@ -37,5 +38,16 @@ public class JsonSmartCodec implements Codec {
 
     public <T> T decodeObject(byte[] input, Class<T> clazz) throws Exception {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public byte[] encodeToBytes(Object object) throws Exception {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void encode(OutputStream out, Object object) throws Exception {
+        out.write(encodeToBytes(object));        
     }
 }

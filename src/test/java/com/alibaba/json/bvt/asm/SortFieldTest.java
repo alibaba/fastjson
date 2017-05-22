@@ -3,6 +3,8 @@ package com.alibaba.json.bvt.asm;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
+import java.util.LinkedHashMap;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -16,7 +18,7 @@ public class SortFieldTest extends TestCase {
 
         Assert.assertEquals("{'f0':0,'f1':0,'f10':0,'f11':0,'f12':0,'f13':0,'f14':0,'f2':0,'f3':0,'f4':0,'f5':0,'f6':0,'f7':0,'f8':0,'f9':0}", text);
 
-        JSONObject object = JSON.parseObject(text);
+        LinkedHashMap object = JSON.parseObject(text, LinkedHashMap.class);
         text = JSON.toJSONString(object, SerializerFeature.UseSingleQuotes, SerializerFeature.SortField);
         Assert.assertEquals("{'f0':0,'f1':0,'f10':0,'f11':0,'f12':0,'f13':0,'f14':0,'f2':0,'f3':0,'f4':0,'f5':0,'f6':0,'f7':0,'f8':0,'f9':0}", text);
 

@@ -10,26 +10,14 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 @SuppressWarnings("deprecation")
 public class TestWriteSlashAsSpecial extends TestCase {
 
-    private int defaultValue = JSON.DEFAULT_GENERATE_FEATURE;
-
-    protected void setUp() throws Exception {
-        defaultValue = JSON.DEFAULT_GENERATE_FEATURE;
-    }
-
-    protected void tearDown() throws Exception {
-        JSON.DEFAULT_GENERATE_FEATURE = defaultValue;
-    }
 
     public void test_writeSlashAsSpecial() throws Exception {
-        JSON.DEFAULT_GENERATE_FEATURE = SerializerFeature.config(JSON.DEFAULT_GENERATE_FEATURE,
-                                                                 SerializerFeature.WriteSlashAsSpecial, true);
-        JSON.DEFAULT_GENERATE_FEATURE = SerializerFeature.config(JSON.DEFAULT_GENERATE_FEATURE,
-                                                                 SerializerFeature.WriteTabAsSpecial, true);
-        JSON.DEFAULT_GENERATE_FEATURE = SerializerFeature.config(JSON.DEFAULT_GENERATE_FEATURE,
-                                                                 SerializerFeature.DisableCircularReferenceDetect, true);
-        JSON.DEFAULT_GENERATE_FEATURE = SerializerFeature.config(JSON.DEFAULT_GENERATE_FEATURE,
-                                                                 SerializerFeature.SortField, false);
+        int features = JSON.DEFAULT_GENERATE_FEATURE;
+        features = SerializerFeature.config(features, SerializerFeature.WriteSlashAsSpecial, true);
+        features = SerializerFeature.config(features, SerializerFeature.WriteTabAsSpecial, true);
+        features = SerializerFeature.config(features, SerializerFeature.DisableCircularReferenceDetect, true);
+        features = SerializerFeature.config(features, SerializerFeature.SortField, false);
 
-        Assert.assertEquals("\"\\/\"", JSON.toJSONString("/"));
+        Assert.assertEquals("\"\\/\"", JSON.toJSONString("/", features));
     }
 }

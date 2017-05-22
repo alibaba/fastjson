@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,12 @@ package com.alibaba.json.test;
 import java.io.InputStream;
 import java.text.NumberFormat;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.io.IOUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import junit.framework.TestCase;
 
 public class JSONParser2Test extends TestCase {
 

@@ -13,9 +13,24 @@ import com.alibaba.fastjson.parser.JSONToken;
 public class SqlDateDeserializer extends AbstractDateDeserializer implements ObjectDeserializer {
 
     public final static SqlDateDeserializer instance = new SqlDateDeserializer();
+    public final static SqlDateDeserializer instance_timestamp = new SqlDateDeserializer(true);
+    
+    private boolean                           timestamp = false;
+    
+    public SqlDateDeserializer() {
+        
+    }
+    
+    public SqlDateDeserializer(boolean timestmap) {
+        this.timestamp = true;
+    }
 
     @SuppressWarnings("unchecked")
     protected <T> T cast(DefaultJSONParser parser, Type clazz, Object fieldName, Object val) {
+        if (timestamp) {
+            return castTimestamp(parser, clazz, fieldName, val);
+        }
+        
         if (val == null) {
             return null;
         }
@@ -58,6 +73,55 @@ public class SqlDateDeserializer extends AbstractDateDeserializer implements Obj
         }
 
         return (T) val;
+    }
+    
+    @SuppressWarnings("unchecked")
+    protected <T> T castTimestamp(DefaultJSONParser parser, Type clazz, Object fieldName, Object val) {
+
+        if (val == null) {
+            return null;
+        }
+
+        if (val instanceof java.util.Date) {
+            return (T) new java.sql.Timestamp(((Date) val).getTime());
+        }
+
+        if (val instanceof Number) {
+            return (T) new java.sql.Timestamp(((Number) val).longValue());
+        }
+
+        if (val instanceof String) {
+            String strVal = (String) val;
+            if (strVal.length() == 0) {
+                return null;
+            }
+
+            long longVal;
+            JSONScanner dateLexer = new JSONScanner(strVal);
+            try {
+                if (dateLexer.scanISO8601DateIfMatch()) {
+                    longVal = dateLexer.getCalendar().getTimeInMillis();
+                } else {
+
+                    DateFormat dateFormat = parser.getDateFormat();
+                    try {
+                        java.util.Date date = (java.util.Date) dateFormat.parse(strVal);
+                        java.sql.Timestamp sqlDate = new java.sql.Timestamp(date.getTime());
+                        return (T) sqlDate;
+                    } catch (ParseException e) {
+                        // skip
+                    }
+
+                    longVal = Long.parseLong(strVal);
+                }
+            } finally {
+                dateLexer.close();
+            }
+
+            return (T) new java.sql.Timestamp(longVal);
+        }
+
+        throw new JSONException("parse error");
     }
 
     public int getFastMatchToken() {

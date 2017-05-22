@@ -14,7 +14,7 @@ public class TimeDeserializer implements ObjectDeserializer {
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        JSONLexer lexer = parser.getLexer();
+        JSONLexer lexer = parser.lexer;
         
         if (lexer.token() == JSONToken.COMMA) {
             lexer.nextToken(JSONToken.LITERAL_STRING);
@@ -60,6 +60,19 @@ public class TimeDeserializer implements ObjectDeserializer {
             if (dateLexer.scanISO8601DateIfMatch()) {
                 longVal = dateLexer.getCalendar().getTimeInMillis();
             } else {
+                boolean isDigit = true;
+                for (int i = 0; i< strVal.length(); ++i) {
+                    char ch = strVal.charAt(i);
+                    if (ch < '0' || ch > '9') {
+                        isDigit = false;
+                        break;
+                    }
+                }
+                if (!isDigit) {
+                    dateLexer.close();
+                    return (T) java.sql.Time.valueOf(strVal);    
+                }
+                
                 longVal = Long.parseLong(strVal);
             }
             dateLexer.close();

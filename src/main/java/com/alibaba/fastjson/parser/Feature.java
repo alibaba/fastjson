@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,9 @@
  */
 package com.alibaba.fastjson.parser;
 
+
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 public enum Feature {
     /**
@@ -83,30 +84,80 @@ public enum Feature {
      * @since 1.1.35
      * 
      */
-    SupportArrayToBean
+    SupportArrayToBean,
+    
+    /**
+     * @since 1.2.3
+     * 
+     */
+    OrderedField,
+    
+    /**
+     * @since 1.2.5
+     * 
+     */
+    DisableSpecialKeyDetect,
+    
+    /**
+     * @since 1.2.9
+     */
+    UseObjectArray,
+
+    /**
+     * @since 1.2.22, 1.1.54.android
+     */
+    SupportNonPublicField,
+
+    /**
+     * @since 1.2.29
+     *
+     * disable autotype key '@type'
+     */
+    IgnoreAutoType,
+
+    /**
+     * @since 1.2.30
+     *
+     * disable field smart match, improve performance in some scenarios.
+     */
+    DisableFieldSmartMatch
     ;
 
-    private Feature(){
+    Feature(){
         mask = (1 << ordinal());
     }
 
-    private final int mask;
+    public final int mask;
 
     public final int getMask() {
         return mask;
     }
 
     public static boolean isEnabled(int features, Feature feature) {
-        return (features & feature.getMask()) != 0;
+        return (features & feature.mask) != 0;
     }
 
     public static int config(int features, Feature feature, boolean state) {
         if (state) {
-            features |= feature.getMask();
+            features |= feature.mask;
         } else {
-            features &= ~feature.getMask();
+            features &= ~feature.mask;
         }
 
         return features;
+    }
+    
+    public static int of(Feature[] features) {
+        if (features == null) {
+            return 0;
+        }
+        
+        int value = 0;
+        
+        for (Feature feature: features) {
+            value |= feature.mask;
+        }
+        
+        return value;
     }
 }

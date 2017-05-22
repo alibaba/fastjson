@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,17 @@ import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER })
 public @interface JSONField {
+    /**
+     * config encode/decode ordinal
+     * @since 1.1.42
+     * @return
+     */
+    int ordinal() default 0;
 
     String name() default "";
 
@@ -41,4 +47,36 @@ public @interface JSONField {
     SerializerFeature[] serialzeFeatures() default {};
 
     Feature[] parseFeatures() default {};
+    
+    String label() default "";
+    
+    /**
+     * @since 1.2.12
+     */
+    boolean jsonDirect() default false;
+    
+    /**
+     * Serializer class to use for serializing associated value.
+     * 
+     * @since 1.2.16
+     */
+    Class<?> serializeUsing() default Void.class;
+    
+    /**
+     * Deserializer class to use for deserializing associated value. 
+     * 
+     * @since 1.2.16 
+     */
+    Class<?> deserializeUsing() default Void.class;
+
+    /**
+     * @since 1.2.21
+     * @return the alternative names of the field when it is deserialized
+     */
+    String[] alternateNames() default {};
+
+    /**
+     * @since 1.2.31
+     */
+    boolean unwrapped() default false;
 }

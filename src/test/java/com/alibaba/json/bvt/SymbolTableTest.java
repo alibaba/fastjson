@@ -3,8 +3,6 @@ package com.alibaba.json.bvt;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
-import org.codehaus.jackson.sym.CharsToNameCanonicalizer;
-
 import com.alibaba.fastjson.parser.SymbolTable;
 
 public class SymbolTableTest extends TestCase {
@@ -28,15 +26,9 @@ public class SymbolTableTest extends TestCase {
             symbols_char[i] = symbols[i].toCharArray();
         }
 
-        {
-            CharsToNameCanonicalizer table = CharsToNameCanonicalizer.createRoot();
-            for (int i = 0; i < symbols.length; ++i) {
-                String symbol = symbols[i];
-                table.findSymbol(symbol.toCharArray(), 0, symbol.length(), symbol.hashCode());
-            }
-        }
 
-        SymbolTable table = new SymbolTable();
+
+        SymbolTable table = new SymbolTable(512);
         for (int i = 0; i < symbols.length; ++i) {
             String symbol = symbols[i];
             char[] charArray = symbol.toCharArray();

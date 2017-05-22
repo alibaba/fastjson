@@ -1,13 +1,13 @@
 package com.alibaba.json.bvt;
 
-import junit.framework.TestCase;
+import com.alibaba.fastjson.parser.ParserConfig;
 
-import com.alibaba.fastjson.parser.JavaBeanMapping;
+import junit.framework.TestCase;
 
 @SuppressWarnings("deprecation")
 public class JavaBeanMappingTest extends TestCase {
 	
 	public void test_0 () throws Exception {
-		JavaBeanMapping.getGlobalInstance();
+	    ParserConfig.getGlobalInstance();
 	}
 }

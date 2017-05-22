@@ -30,6 +30,8 @@ public class ReadOnlyMapTest extends TestCase {
     }
 
     public static class A {
-
+        public A() {
+            
+        }
     }
 }

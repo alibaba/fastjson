@@ -10,13 +10,12 @@ public class Image implements java.io.Serializable {
         SMALL, LARGE
     }
 
-    public String uri;
-
-    public String title; // Can be null
-    public int    width;
     public int    height;
     public Size   size;
-
+    public String title; // Can be null
+    public String uri;
+    public int    width;
+    
     public Image(){
     }
 

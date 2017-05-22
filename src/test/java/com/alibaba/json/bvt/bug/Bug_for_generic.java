@@ -1,15 +1,19 @@
 package com.alibaba.json.bvt.bug;
 
 import java.io.Serializable;
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.alibaba.fastjson.parser.ParserConfig;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
 
 public class Bug_for_generic extends TestCase {
+
+    protected void setUp() throws Exception {
+        ParserConfig.global.addAccept("NotifyDetail");
+    }
 
     public void test() throws Exception {
         String json = "{\"@type\":\"com.alibaba.json.bvt.bug.Bug_for_generic$NotifyDetail\",\"args\":[\"61354557\",\"依依\",\"六\"],\"destId\":60721687,\"detailId\":3155063,\"display\":false,\"foundTime\":{\"@type\":\"java.sql.Timestamp\",\"val\":1344530416000},\"hotId\":0,\"srcId\":1000,\"templateId\":482}";
@@ -211,7 +215,7 @@ public class Bug_for_generic extends TestCase {
 
         private boolean           display;
 
-        private Date              foundTime;
+        private java.sql.Date     foundTime;
 
         private List<String>      args             = new ArrayList<String>();
 
@@ -271,11 +275,11 @@ public class Bug_for_generic extends TestCase {
             this.display = display;
         }
 
-        public Date getFoundTime() {
+        public java.sql.Date getFoundTime() {
             return foundTime;
         }
 
-        public void setFoundTime(Date foundTime) {
+        public void setFoundTime(java.sql.Date foundTime) {
             this.foundTime = foundTime;
         }
 

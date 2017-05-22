@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,21 +15,20 @@
  */
 package com.alibaba.fastjson.util;
 
+import java.util.Collections;
+
 /**
  * for concurrent IdentityHashMap
  * 
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
 @SuppressWarnings("unchecked")
 public class IdentityHashMap<K, V> {
-
-    public static final int     DEFAULT_TABLE_SIZE = 1024;
-
     private final Entry<K, V>[] buckets;
     private final int           indexMask;
 
     public IdentityHashMap(){
-        this(DEFAULT_TABLE_SIZE);
+        this(1024);
     }
 
     public IdentityHashMap(int tableSize){
@@ -44,6 +43,27 @@ public class IdentityHashMap<K, V> {
         for (Entry<K, V> entry = buckets[bucket]; entry != null; entry = entry.next) {
             if (key == entry.key) {
                 return (V) entry.value;
+            }
+        }
+
+        return null;
+    }
+
+    public Class findClass(String keyString) {
+        for (Entry bucket : buckets) {
+            if (bucket == null) {
+                continue;
+            }
+
+            for (Entry<K, V> entry = bucket; entry != null; entry = entry.next) {
+                Object key = bucket.key;
+                if (key instanceof Class) {
+                    Class clazz = ((Class) key);
+                    String className = clazz.getName();
+                    if (className.equals(keyString)) {
+                        return clazz;
+                    }
+                }
             }
         }
 
@@ -65,16 +85,6 @@ public class IdentityHashMap<K, V> {
         buckets[bucket] = entry;  // 并发是处理时会可能导致缓存丢失，但不影响正确性
 
         return false;
-    }
-
-    public int size() {
-        int size = 0;
-        for (int i = 0; i < buckets.length; ++i) {
-            for (Entry<K, V> entry = buckets[i]; entry != null; entry = entry.next) {
-                size++;
-            }
-        }
-        return size;
     }
 
     protected static final class Entry<K, V> {

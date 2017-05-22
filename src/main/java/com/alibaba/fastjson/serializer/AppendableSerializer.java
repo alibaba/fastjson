@@ -7,14 +7,10 @@ public class AppendableSerializer implements ObjectSerializer {
 
     public final static AppendableSerializer instance = new AppendableSerializer();
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         if (object == null) {
-            SerializeWriter out = serializer.getWriter();
-            if (out.isEnabled(SerializerFeature.WriteNullStringAsEmpty)) {
-                out.writeString("");
-            } else {
-                out.writeNull();
-            }
+            SerializeWriter out = serializer.out;
+            out.writeNull(SerializerFeature.WriteNullStringAsEmpty);
             return;
         }
 

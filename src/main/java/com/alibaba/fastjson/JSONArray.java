@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,12 +40,14 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.RandomAccess;
 
+import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.util.TypeUtils;
 
 /**
- * @author wenshao<szujobs@hotmail.com>
+ * @author wenshao[szujobs@hotmail.com]
  */
-public class JSONArray extends JSON implements List<Object>, JSONAware, Cloneable, RandomAccess, Serializable {
+public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAccess, Serializable {
 
     private static final long  serialVersionUID = 1L;
     private final List<Object> list;
@@ -53,7 +55,7 @@ public class JSONArray extends JSON implements List<Object>, JSONAware, Cloneabl
     protected transient Type   componentType;
 
     public JSONArray(){
-        this.list = new ArrayList<Object>(10);
+        this.list = new ArrayList<Object>();
     }
 
     public JSONArray(List<Object> list){
@@ -112,8 +114,18 @@ public class JSONArray extends JSON implements List<Object>, JSONAware, Cloneabl
         return list.add(e);
     }
 
+    public JSONArray fluentAdd(Object e) {
+        list.add(e);
+        return this;
+    }
+
     public boolean remove(Object o) {
         return list.remove(o);
+    }
+
+    public JSONArray fluentRemove(Object o) {
+        list.remove(o);
+        return this;
     }
 
     public boolean containsAll(Collection<?> c) {
@@ -124,32 +136,85 @@ public class JSONArray extends JSON implements List<Object>, JSONAware, Cloneabl
         return list.addAll(c);
     }
 
+    public JSONArray fluentAddAll(Collection<? extends Object> c) {
+        list.addAll(c);
+        return this;
+    }
+
     public boolean addAll(int index, Collection<? extends Object> c) {
         return list.addAll(index, c);
+    }
+
+    public JSONArray fluentAddAll(int index, Collection<? extends Object> c) {
+        list.addAll(index, c);
+        return this;
     }
 
     public boolean removeAll(Collection<?> c) {
         return list.removeAll(c);
     }
 
+    public JSONArray fluentRemoveAll(Collection<?> c) {
+        list.removeAll(c);
+        return this;
+    }
+
     public boolean retainAll(Collection<?> c) {
         return list.retainAll(c);
+    }
+
+    public JSONArray fluentRetainAll(Collection<?> c) {
+        list.retainAll(c);
+        return this;
     }
 
     public void clear() {
         list.clear();
     }
 
+    public JSONArray fluentClear() {
+        list.clear();
+        return this;
+    }
+
     public Object set(int index, Object element) {
+        if (index == -1) {
+            list.add(element);
+            return null;
+        }
+        
+        if (list.size() <= index) {
+            for (int i = list.size(); i < index; ++i) {
+                list.add(null);
+            }
+            list.add(element);
+            return null;
+        }
+        
         return list.set(index, element);
+    }
+
+    public JSONArray fluentSet(int index, Object element) {
+        set(index, element);
+        return this;
     }
 
     public void add(int index, Object element) {
         list.add(index, element);
     }
 
+    public JSONArray fluentAdd(int index, Object element) {
+        list.add(index, element);
+        return this;
+    }
+
     public Object remove(int index) {
         return list.remove(index);
+    }
+
+    public JSONArray fluentRemove(int index) {
+        list.remove(index);
+        return this;
     }
 
     public int indexOf(Object o) {
@@ -351,6 +416,22 @@ public class JSONArray extends JSON implements List<Object>, JSONAware, Cloneabl
         Object value = get(index);
 
         return castToTimestamp(value);
+    }
+
+    /**
+     * @since  1.2.23
+     */
+    public <T> List<T> toJavaList(Class<T> clazz) {
+        List<T> list = new ArrayList<T>(this.size());
+
+        ParserConfig config = ParserConfig.getGlobalInstance();
+
+        for (Object item : this) {
+            T classItem = (T) TypeUtils.cast(item, clazz, config);
+            list.add(classItem);
+        }
+
+        return list;
     }
 
     @Override

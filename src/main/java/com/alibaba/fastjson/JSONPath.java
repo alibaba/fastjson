@@ -1247,8 +1247,12 @@ public class JSONPath implements JSONAware {
 
             if (commaIndex == -1 && colonIndex == -1) {
                 if (TypeUtils.isNumber(indexText)) {
-                    int index = Integer.parseInt(indexText);
-                    return new ArrayAccessSegement(index);
+                    try {
+                        int index = Integer.parseInt(indexText);
+                        return new ArrayAccessSegement(index);
+                    }catch (NumberFormatException ex){
+                        return new PropertySegement(indexText, false); // fix ISSUE-1208
+                    }
                 } else {
                     return new PropertySegement(indexText, false);
                 }

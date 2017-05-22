@@ -11,7 +11,7 @@
 -->
 	<groupId>com.alibaba</groupId>
 	<artifactId>fastjson</artifactId>
-	<version>1.2.32-SNAPSHOT</version>
+	<version>1.2.33-preview_01</version>
 
 	<packaging>jar</packaging>
 	<name>fastjson</name>
@@ -401,6 +401,26 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.4</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>5.1.0.Final</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-entitymanager</artifactId>
+			<version>5.1.0.Final</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>1.3.155</version>
 			<scope>test</scope>
 		</dependency>
 

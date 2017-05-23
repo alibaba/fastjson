@@ -1,6 +1,7 @@
 package com.alibaba.fastjson.support.spring;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
@@ -77,9 +78,17 @@ public class FastJsonHttpMessageConverter4 //
 
         HttpHeaders headers = outputMessage.getHeaders();
         ByteArrayOutputStream outnew = new ByteArrayOutputStream();
+
+        Object value = obj;
+        if(obj instanceof FastJsonContainer){
+            PropertyPreFilters filters = ((FastJsonContainer) obj).getFilters();
+            fastJsonConfig.setSerializeFilters(filters.getFilters().toArray(new SerializeFilter[filters.getFilters().size()]));
+            value = ((FastJsonContainer) obj).getValue();
+        }
+
         int len = JSON.writeJSONString(outnew, //
                 fastJsonConfig.getCharset(), //
-                obj, //
+                value, //
                 fastJsonConfig.getSerializeConfig(), //
                 fastJsonConfig.getSerializeFilters(), //
                 fastJsonConfig.getDateFormat(), //

@@ -85,7 +85,7 @@ public class FastJsonHttpMessageConverter4 //
         Object value = obj;
         //获取全局配置的filter
         SerializeFilter[] globalFilters = fastJsonConfig.getSerializeFilters();
-        List<SerializeFilter> allFilters = Arrays.asList(globalFilters);
+        List<SerializeFilter> allFilters = new ArrayList<SerializeFilter>(Arrays.asList(globalFilters));
 
         if(obj instanceof FastJsonContainer){
             PropertyPreFilters filters = ((FastJsonContainer) obj).getFilters();

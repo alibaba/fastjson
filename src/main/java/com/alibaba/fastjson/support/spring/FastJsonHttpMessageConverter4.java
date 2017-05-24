@@ -16,6 +16,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Fastjson for Spring MVC Converter.
@@ -80,17 +83,23 @@ public class FastJsonHttpMessageConverter4 //
         ByteArrayOutputStream outnew = new ByteArrayOutputStream();
 
         Object value = obj;
+        //获取全局配置的filter
+        SerializeFilter[] globalFilters = fastJsonConfig.getSerializeFilters();
+        List<SerializeFilter> allFilters = Arrays.asList(globalFilters);
+
         if(obj instanceof FastJsonContainer){
             PropertyPreFilters filters = ((FastJsonContainer) obj).getFilters();
-            fastJsonConfig.setSerializeFilters(filters.getFilters().toArray(new SerializeFilter[filters.getFilters().size()]));
+            allFilters.addAll(filters.getFilters());
             value = ((FastJsonContainer) obj).getValue();
         }
 
+        SerializeFilter[] serializeFilters = new SerializeFilter[allFilters.size()];
         int len = JSON.writeJSONString(outnew, //
                 fastJsonConfig.getCharset(), //
                 value, //
                 fastJsonConfig.getSerializeConfig(), //
-                fastJsonConfig.getSerializeFilters(), //
+                //fastJsonConfig.getSerializeFilters(), //
+                allFilters.toArray(serializeFilters),
                 fastJsonConfig.getDateFormat(), //
                 JSON.DEFAULT_GENERATE_FEATURE, //
                 fastJsonConfig.getSerializerFeatures());

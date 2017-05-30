@@ -365,6 +365,7 @@ public class DefaultJSONParser implements Closeable {
                 }
 
                 if (key == "$ref" //
+                    && context != null
                     && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
                     
                     lexer.nextToken(JSONToken.LITERAL_STRING);
@@ -374,14 +375,12 @@ public class DefaultJSONParser implements Closeable {
 
                         Object refValue = null;
                         if ("@".equals(ref)) {
-                            if (this.contex != null) {
-                                ParseContext thisContext = this.contex;
-                                Object thisObj = thisContext.object;
-                                if (thisObj instanceof Object[] || thisObj instanceof Collection<?>) {
-                                    refValue = thisObj;
-                                } else if (thisContext.parent != null) {
-                                    refValue = thisContext.parent.object;
-                                }
+                            ParseContext thisContext = this.contex;
+                            Object thisObj = thisContext.object;
+                            if (thisObj instanceof Object[] || thisObj instanceof Collection<?>) {
+                                refValue = thisObj;
+                            } else if (thisContext.parent != null) {
+                                refValue = thisContext.parent.object;
                             }
                         } else if ("..".equals(ref)) {
                             if (context.object != null) {

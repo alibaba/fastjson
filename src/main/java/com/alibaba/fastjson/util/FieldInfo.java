@@ -174,7 +174,36 @@ public class FieldInfo implements Comparable<FieldInfo> {
                 && fieldType instanceof TypeVariable) {
             
             TypeVariable<?> tv = (TypeVariable<?>) fieldType;
-            Type genericFieldType = getInheritGenericType(clazz, type, tv);
+            Type genericFieldType = null;
+            {
+                Type[] arguments = null;
+                if (type instanceof ParameterizedType) {
+                    ParameterizedType ptype = (ParameterizedType) type;
+                    arguments = ptype.getActualTypeArguments();
+                }
+
+                for (Class<?> c = clazz; c != null && c != Object.class && c != declaringClass; c = c.getSuperclass()) {
+                    Type superType = c.getGenericSuperclass();
+
+                    if (superType instanceof ParameterizedType) {
+                        ParameterizedType p_superType = (ParameterizedType) superType;
+                        Type[] p_superType_args = p_superType.getActualTypeArguments();
+                        getArgument(p_superType_args, c.getTypeParameters(), arguments);
+                        arguments = p_superType_args;
+                    }
+                }
+
+                if (arguments != null) {
+                    TypeVariable<?>[] typeVariables = declaringClass.getTypeParameters();
+                    for (int j = 0; j < typeVariables.length; ++j) {
+                        if (tv.equals(typeVariables[j])) {
+                            genericFieldType = arguments[j];
+                            break;
+                        }
+                    }
+                }
+            }
+
             if (genericFieldType != null) {
                 this.fieldClass = TypeUtils.getClass(genericFieldType);
                 this.fieldType = genericFieldType;
@@ -307,42 +336,6 @@ public class FieldInfo implements Comparable<FieldInfo> {
         }
 
         return changed;
-    }
-
-    private static Type getInheritGenericType(Class<?> clazz, Type type, TypeVariable<?> tv) {
-        Class<?> gd = (Class<?>) tv.getGenericDeclaration();
-
-        Type[] arguments = null;
-        if (type instanceof ParameterizedType) {
-            ParameterizedType ptype = (ParameterizedType) type;
-            arguments = ptype.getActualTypeArguments();
-        }
-
-        for (Class<?> c = clazz; c != null && c != Object.class && c != gd; c = c.getSuperclass()) {
-            Type superType = c.getGenericSuperclass();
-
-            if (superType instanceof ParameterizedType) {
-                ParameterizedType p_superType = (ParameterizedType) superType;
-                Type[] p_superType_args = p_superType.getActualTypeArguments();
-                getArgument(p_superType_args, c.getTypeParameters(), arguments);
-                arguments = p_superType_args;
-            }
-        }
-
-        if (arguments == null) {
-            return null;
-        }
-
-        Type actualType = null;
-        TypeVariable<?>[] typeVariables = gd.getTypeParameters();
-        for (int j = 0; j < typeVariables.length; ++j) {
-            if (tv.equals(typeVariables[j])) {
-                actualType = arguments[j];
-                break;
-            }
-        }
-
-        return actualType;
     }
 
     public String toString() {

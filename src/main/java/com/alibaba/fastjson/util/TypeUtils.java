@@ -709,6 +709,16 @@ public class TypeUtils {
                     object = new JSONObject(map);
                 }
 
+                if (config == null) {
+                    config = ParserConfig.getGlobalInstance();
+                }
+
+                ObjectDeserializer deserializer = config.getDeserializer(clazz);
+                if (deserializer != null) {
+                    String json = JSON.toJSONString(object);
+                    return (T) JSON.parseObject(json, clazz);
+                }
+
                 return (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
                                                   new Class<?>[] { clazz }, object);
             }

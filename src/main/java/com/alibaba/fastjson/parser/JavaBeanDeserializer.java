@@ -406,6 +406,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 parser.resolveStatus = DefaultJSONParser.NONE;
             }
 
+            String typeKey = beanInfo.typeKey;
             long matchFieldHash = 0L;
             FieldDeserializer fieldDeser;
             for (int fieldIndex = 0, size = sortedFieldDeserializers.length;; ) {
@@ -638,7 +639,9 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         return (T) object;
                     }
 
-                    if (JSON.DEFAULT_TYPE_KEY == key) {
+
+                    if ((typeKey != null && typeKey.equals(key))
+                            || JSON.DEFAULT_TYPE_KEY == key) {
                         lexer.nextTokenWithChar(':');
                         if (lexer.token == JSONToken.LITERAL_STRING) {
                             String typeName = lexer.stringVal();
@@ -665,8 +668,19 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                                     throw new JSONException("type not match");
                                 }
                             }
-                            
-                            return (T) deserizer.deserialze(parser, userType, fieldName);
+
+                            Object typedObject;
+                            if (deserizer instanceof JavaBeanDeserializer) {
+                                JavaBeanDeserializer javaBeanDeserializer = (JavaBeanDeserializer) deserizer;
+                                typedObject = javaBeanDeserializer.deserialze(parser, userType, fieldName, null);
+                                if (typeKey != null) {
+                                    FieldDeserializer typeKeyFieldDeser = javaBeanDeserializer.getFieldDeserializer(typeKey);
+                                    typeKeyFieldDeser.setValue(typedObject, typeName);
+                                }
+                            } else {
+                                typedObject = deserizer.deserialze(parser, userType, fieldName);
+                            }
+                            return (T) typedObject;
                         } else {
                             throw new JSONException("syntax error");
                         }

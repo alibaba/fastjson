@@ -32,6 +32,8 @@ public @interface JSONType {
      * @since 1.2.11 backport to 1.1.52.android
      */
     String typeName() default "";
+
+    String typeKey() default "";
     
     /**
      * @since 1.2.11 backport to 1.1.52.android

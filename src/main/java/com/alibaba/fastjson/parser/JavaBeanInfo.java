@@ -29,9 +29,10 @@ class JavaBeanInfo {
     boolean              ordered = false;
     final boolean        supportBeanToArray;
     
-    public final String         typeName;
+    public final String  typeName;
+    public final String  typeKey;
 
-    public final int parserFeatures;
+    public final int     parserFeatures;
 
     JavaBeanInfo(Class<?> clazz, //
                  Constructor<?> defaultConstructor, //
@@ -51,17 +52,17 @@ class JavaBeanInfo {
         int parserFeatures = 0;
         if (jsonType != null) {
             String typeName = jsonType.typeName();
-            if (typeName.length() != 0) {
-                this.typeName = typeName;
-            } else {
-                this.typeName = clazz.getName();
-            }
+            this.typeName = typeName.length() > 0 ? typeName : clazz.getName();
+
+            String typeKey = jsonType.typeKey();
+            this.typeKey = typeKey.length() > 0 ? typeKey : null;
 
             for (Feature feature : jsonType.parseFeatures()) {
                 parserFeatures |= feature.mask;
             }
         } else {
             this.typeName = clazz.getName();
+            this.typeKey = null;
         }
         this.parserFeatures = parserFeatures;
         

@@ -463,9 +463,15 @@ public class TypeUtils {
             return (T) castToByte(obj);
         }
 
-        // if (clazz == char.class || clazz == Character.class) {
-        // return (T) castToCharacter(obj);
-        // }
+         if (clazz == char.class
+                 || clazz == Character.class) {
+            if (obj instanceof String) {
+                String strVal = (String) obj;
+                if (strVal.length() == 1) {
+                    return (T) Character.valueOf(strVal.charAt(0));
+                }
+            }
+         }
 
         if (clazz == short.class || clazz == Short.class) {
             return (T) castToShort(obj);

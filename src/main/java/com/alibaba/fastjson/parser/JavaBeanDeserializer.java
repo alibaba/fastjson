@@ -592,7 +592,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         }
                     }
 
-                    if ("$ref" == key) {
+                    if ("$ref" == key && context != null) {
                         lexer.nextTokenWithChar(':');
                         token = lexer.token;
                         if (token == JSONToken.LITERAL_STRING) {

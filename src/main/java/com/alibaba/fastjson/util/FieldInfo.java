@@ -174,7 +174,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
                 && fieldType instanceof TypeVariable) {
             
             TypeVariable<?> tv = (TypeVariable<?>) fieldType;
-            Type genericFieldType = getInheritGenericType(clazz, tv);
+            Type genericFieldType = getInheritGenericType(clazz, type, tv);
             if (genericFieldType != null) {
                 this.fieldClass = TypeUtils.getClass(genericFieldType);
                 this.fieldType = genericFieldType;
@@ -280,30 +280,69 @@ public class FieldInfo implements Comparable<FieldInfo> {
         return fieldType;
     }
 
-    public static Type getInheritGenericType(Class<?> clazz, TypeVariable<?> tv) {
-        Type type = null;
-        GenericDeclaration gd = tv.getGenericDeclaration();
-        do {
-            type = clazz.getGenericSuperclass();
-            if (type == null) {
-                return null;
-            }
-            if (type instanceof ParameterizedType) {
-                ParameterizedType ptype = (ParameterizedType) type;
-                Type rawType = ptype.getRawType();
-                boolean eq = gd.equals(rawType) || (gd instanceof Class && rawType instanceof Class && ((Class) gd).isAssignableFrom((Class) rawType));
-                if (eq) {
-                    TypeVariable<?>[] tvs = gd.getTypeParameters();
-                    Type[] types = ptype.getActualTypeArguments();
-                    for (int i = 0; i < tvs.length; i++) {
-                        if (tvs[i] == tv) return types[i];
+    private static boolean getArgument(Type[] typeArgs, TypeVariable[] typeVariables, Type[] arguments) {
+        if (arguments == null || typeVariables.length == 0) {
+            return false;
+        }
+
+        boolean changed = false;
+        for (int i = 0; i < typeArgs.length; ++i) {
+            Type typeArg = typeArgs[i];
+            if (typeArg instanceof ParameterizedType) {
+                ParameterizedType p_typeArg = (ParameterizedType) typeArg;
+                Type[] p_typeArg_args = p_typeArg.getActualTypeArguments();
+                boolean p_changed = getArgument(p_typeArg_args, typeVariables, arguments);
+                if (p_changed) {
+                    typeArgs[i] = new ParameterizedTypeImpl(p_typeArg_args, p_typeArg.getOwnerType(), p_typeArg.getRawType());
+                    changed = true;
+                }
+            } else if (typeArg instanceof TypeVariable) {
+                for (int j = 0; j < typeVariables.length; ++j) {
+                    if (typeArg.equals(typeVariables[j])) {
+                        typeArgs[i] = arguments[j];
+                        changed = true;
                     }
-                    return null;
                 }
             }
-            clazz = TypeUtils.getClass(type);
-        } while (type != null);
-        return null;
+        }
+
+        return changed;
+    }
+
+    private static Type getInheritGenericType(Class<?> clazz, Type type, TypeVariable<?> tv) {
+        Class<?> gd = (Class<?>) tv.getGenericDeclaration();
+
+        Type[] arguments = null;
+        if (type instanceof ParameterizedType) {
+            ParameterizedType ptype = (ParameterizedType) type;
+            arguments = ptype.getActualTypeArguments();
+        }
+
+        for (Class<?> c = clazz; c != null && c != Object.class && c != gd; c = c.getSuperclass()) {
+            Type superType = c.getGenericSuperclass();
+
+            if (superType instanceof ParameterizedType) {
+                ParameterizedType p_superType = (ParameterizedType) superType;
+                Type[] p_superType_args = p_superType.getActualTypeArguments();
+                getArgument(p_superType_args, c.getTypeParameters(), arguments);
+                arguments = p_superType_args;
+            }
+        }
+
+        if (arguments == null) {
+            return null;
+        }
+
+        Type actualType = null;
+        TypeVariable<?>[] typeVariables = gd.getTypeParameters();
+        for (int j = 0; j < typeVariables.length; ++j) {
+            if (tv.equals(typeVariables[j])) {
+                actualType = arguments[j];
+                break;
+            }
+        }
+
+        return actualType;
     }
 
     public String toString() {

@@ -36,16 +36,17 @@ import com.alibaba.fastjson.util.TypeUtils;
  * @author wenshao[szujobs@hotmail.com]
  */
 public class JavaBeanSerializer implements ObjectSerializer {
-    private static final char[] true_chars = new char[] {'t', 'r', 'u', 'e'};
-    private static final char[] false_chars = new char[] {'f', 'a', 'l', 's', 'e'};
+    private static final char[]     true_chars = new char[] {'t', 'r', 'u', 'e'};
+    private static final char[]     false_chars = new char[] {'f', 'a', 'l', 's', 'e'};
     
     // serializers
     private final FieldSerializer[] getters;
     private final FieldSerializer[] sortedGetters;
     
-    protected int features = 0;
+    protected int                   features = 0;
     
-    protected String                typeName;
+    protected final String          typeName;
+    protected final String          typeKey;
     
     public JavaBeanSerializer(Class<?> clazz) {
         this(clazz, (PropertyNamingStrategy) null);
@@ -90,15 +91,45 @@ public class JavaBeanSerializer implements ObjectSerializer {
         JSONType jsonType = jsonTypeSupport //
             ? clazz.getAnnotation(JSONType.class) //
             : null;
-        
+
+        String typeName = null, typeKey = null;
         if (jsonType != null) {
             features = SerializerFeature.of(jsonType.serialzeFeatures());
             
             typeName = jsonType.typeName();
             if (typeName.length() == 0) {
                 typeName = null;
+            } else {
+                for (Class<?> supperClass = clazz.getSuperclass()
+                     ; supperClass != null && supperClass != Object.class
+                     ; supperClass = supperClass.getSuperclass()) {
+                    JSONType superJsonType = supperClass.getAnnotation(JSONType.class);
+                    if (superJsonType == null) {
+                        break;
+                    }
+
+                    typeKey = superJsonType.typeKey();
+                    if (typeKey.length() != 0) {
+                        break;
+                    }
+                }
+
+                for (Class<?> interfaceClass : clazz.getInterfaces()) {
+                    JSONType superJsonType = interfaceClass.getAnnotation(JSONType.class);
+                    if (superJsonType != null) {
+                        typeKey = superJsonType.typeKey();
+                        if (typeKey.length() != 0) {
+                            break;
+                        }
+                    }
+                }
+                if (typeKey != null && typeKey.length() == 0) {
+                    typeKey = null;
+                }
             }
         }
+        this.typeName = typeName;
+        this.typeKey = typeKey;
         
         {
             List<FieldInfo> fieldInfoList = TypeUtils.computeGetters(clazz, // 
@@ -233,7 +264,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
             if (isWriteClassName) {
                 Class<?> objClass = object.getClass();
                 if (objClass != fieldType) {
-                    out.writeFieldName(serializer.config.typeKey, false);
+                    out.writeFieldName(typeKey != null ? typeKey : serializer.config.typeKey, false);
                     String typeName = this.typeName;
                     if (typeName == null) {
                         typeName = object.getClass().getName();
@@ -275,6 +306,10 @@ public class JavaBeanSerializer implements ObjectSerializer {
                             continue;
                         }
                     }
+                }
+
+                if (typeKey != null && typeKey.equals(fieldInfoName)) {
+                    continue;
                 }
 
                 boolean applyName = true;

@@ -109,7 +109,6 @@ public class FieldInfo implements Comparable<FieldInfo> {
             }
 
             alternateNames = annotation.alternateNames();
-            Arrays.sort(alternateNames);
         } else {
             alternateNames = new String[0];
         }

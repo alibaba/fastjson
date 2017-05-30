@@ -198,7 +198,11 @@ final class ArraySerializer implements ObjectSerializer {
                 Object item = array[i];
 
                 if (item == null) {
-                    out.append("null");
+                    if (out.isEnabled(SerializerFeature.WriteNullStringAsEmpty) && object instanceof String[]) {
+                        out.writeString("");
+                    } else {
+                        out.append("null");
+                    }
                 } else if (item.getClass() == componentType) {
                 	compObjectSerializer.write(serializer, item, i, null);
                 } else {

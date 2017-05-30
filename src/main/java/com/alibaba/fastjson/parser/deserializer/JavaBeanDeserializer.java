@@ -377,6 +377,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         .append(", fieldName ") //
                         .append(fieldName);
                 }
+
+                buf.append(", fastjson-version ").append(JSON.VERSION);
                 
                 throw new JSONException(buf.toString());
             }

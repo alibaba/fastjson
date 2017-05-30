@@ -20,6 +20,11 @@ public class WriteClassNameTest_bytes extends TestCase {
 
         byte[] bytes = hex("84C1F969587F5FD1942148EE9D36A0FB");
         String hex = hex(bytes);
+
+        byte[] bytes_2 = hex(hex);
+        String hex_2 = hex(bytes_2);
+
+        assertEquals(hex, hex_2);
         System.out.println(hex);
         assertEquals("84C1F969587F5FD1942148EE9D36A0FB", hex);
 
@@ -36,6 +41,10 @@ public class WriteClassNameTest_bytes extends TestCase {
         assertTrue(array.get(1) instanceof byte[]);
 
         // list.add(new )
+    }
+
+    public void test_bytes2() throws Exception {
+        JSON.parseArray("[x'84C1F969587F5FD1942148EE9D36A0FB']");
     }
 
     private static final byte[] hexBytes = new byte[71];

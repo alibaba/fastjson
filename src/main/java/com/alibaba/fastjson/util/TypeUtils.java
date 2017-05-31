@@ -1167,18 +1167,38 @@ public class TypeUtils {
                 java.sql.Timestamp.class,
                 java.text.SimpleDateFormat.class,
                 com.alibaba.fastjson.JSONObject.class,
-                loadClass("java.awt.Rectangle"),
-                loadClass("java.awt.Point"),
-                loadClass("java.awt.Font"),
-                loadClass("java.awt.Color"),
-
-                loadClass("org.springframework.remoting.support.RemoteInvocation"),
-                loadClass("org.springframework.remoting.support.RemoteInvocationResult"),
         };
 
         for (Class clazz : classes) {
             if (clazz == null) {
                 continue;
+            }
+            mappings.put(clazz.getName(), clazz);
+        }
+
+        String[] awt = new String[] {
+                "java.awt.Rectangle",
+                "java.awt.Point",
+                "java.awt.Font",
+                "java.awt.Color"};
+        for (String className : awt) {
+            Class<?> clazz = loadClass(className);
+            if (clazz == null) {
+                break;
+            }
+            mappings.put(clazz.getName(), clazz);
+        }
+
+        String[] spring = new String[] {
+                "org.springframework.util.LinkedMultiValueMap",
+                "org.springframework.util.LinkedCaseInsensitiveMap",
+                "org.springframework.remoting.support.RemoteInvocation",
+                "org.springframework.remoting.support.RemoteInvocationResult"
+        };
+        for (String className : spring) {
+            Class<?> clazz = loadClass(className);
+            if (clazz == null) {
+                break;
             }
             mappings.put(clazz.getName(), clazz);
         }

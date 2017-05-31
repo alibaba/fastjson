@@ -377,6 +377,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         .append(", fieldName ") //
                         .append(fieldName);
                 }
+
+                buf.append(", fastjson-version ").append(JSON.VERSION);
                 
                 throw new JSONException(buf.toString());
             }
@@ -523,7 +525,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         }
                     }
 
-                    if ("$ref" == key) {
+                    if ("$ref" == key && context != null) {
                         lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
                         token = lexer.token();
                         if (token == JSONToken.LITERAL_STRING) {

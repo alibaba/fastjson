@@ -826,7 +826,7 @@ public class ParserConfig {
 
             for (int i = 0; i < denyList.length; ++i) {
                 String deny = denyList[i];
-                if (className.startsWith(deny)) {
+                if (className.startsWith(deny) && TypeUtils.getClassFromMapping(typeName) == null) {
                     throw new JSONException("autoType is not support. " + typeName);
                 }
             }

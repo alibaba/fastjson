@@ -1,6 +1,7 @@
 package com.alibaba.fastjson.support.spring;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
@@ -15,6 +16,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Fastjson for Spring MVC Converter.
@@ -77,11 +81,25 @@ public class FastJsonHttpMessageConverter4 //
 
         HttpHeaders headers = outputMessage.getHeaders();
         ByteArrayOutputStream outnew = new ByteArrayOutputStream();
+
+        Object value = obj;
+        //获取全局配置的filter
+        SerializeFilter[] globalFilters = fastJsonConfig.getSerializeFilters();
+        List<SerializeFilter> allFilters = new ArrayList<SerializeFilter>(Arrays.asList(globalFilters));
+
+        if(obj instanceof FastJsonContainer){
+            PropertyPreFilters filters = ((FastJsonContainer) obj).getFilters();
+            allFilters.addAll(filters.getFilters());
+            value = ((FastJsonContainer) obj).getValue();
+        }
+
+        SerializeFilter[] serializeFilters = new SerializeFilter[allFilters.size()];
         int len = JSON.writeJSONString(outnew, //
                 fastJsonConfig.getCharset(), //
-                obj, //
+                value, //
                 fastJsonConfig.getSerializeConfig(), //
-                fastJsonConfig.getSerializeFilters(), //
+                //fastJsonConfig.getSerializeFilters(), //
+                allFilters.toArray(serializeFilters),
                 fastJsonConfig.getDateFormat(), //
                 JSON.DEFAULT_GENERATE_FEATURE, //
                 fastJsonConfig.getSerializerFeatures());

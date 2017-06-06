@@ -34,7 +34,7 @@ public abstract class AbstractDateDeserializer extends ContextObjectDeserializer
             if (format != null) {
                 SimpleDateFormat simpleDateFormat = null;
                 try {
-                    simpleDateFormat = new SimpleDateFormat(format);
+                    simpleDateFormat = new SimpleDateFormat(format,JSON.defaultLocale);
                 } catch (IllegalArgumentException ex) {
                     if (format.equals("yyyy-MM-ddTHH:mm:ss.SSS")) {
                         format = "yyyy-MM-dd'T'HH:mm:ss.SSS";

@@ -14,9 +14,21 @@ public class Issue1246 extends TestCase {
     public void test_for_issue() throws Exception {
         B b = new B();
         b.setX("xx");
+
         String test = JSON.toJSONString( b );
         System.out.println(test);
-        assertEquals("{}",test);
+        assertEquals("{}", test);
+
+        C c = new C();
+        c.ab = b;
+
+        String testC = JSON.toJSONString( c );
+        System.out.println(testC);
+        assertEquals("{\"ab\":{}}",testC);
+    }
+
+    public static class C{
+        public A ab;
     }
 
     public static class A{

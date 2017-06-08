@@ -9,8 +9,11 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -151,7 +154,12 @@ public class JavaBeanInfo {
         Class<?> builderClass = getBuilderClass(jsonType);
 
         Field[] declaredFields = clazz.getDeclaredFields();
-        Method[] methods = clazz.getMethods();
+        Method[] publicMethods = clazz.getMethods();
+        Method[] declaredMethods = clazz.getDeclaredMethods();
+        Set<Method> methodSet = new HashSet<Method>();
+        Collections.addAll(methodSet, publicMethods);
+        Collections.addAll(methodSet, declaredMethods);
+        Method[] methods = (Method[]) methodSet.toArray(new Method[methodSet.size()]);
 
         Constructor<?> defaultConstructor = getDefaultConstructor(builderClass == null ? clazz : builderClass);
         Constructor<?> creatorConstructor = null;

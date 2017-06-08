@@ -59,7 +59,7 @@ public class TypeUtils {
     public static boolean   compatibleWithJavaBean      = false;
     
     /** 根据field name的大小写输出输入数据*/
-    public static boolean   compatibleWithFieldName      = false;
+    public static boolean   compatibleWithFieldName     = false;
     
     private static boolean  setAccessibleEnable         = true;
 

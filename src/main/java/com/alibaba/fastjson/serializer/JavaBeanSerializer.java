@@ -160,7 +160,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 || serializer.isWriteClassName(fieldType, object)) {
                 Class<?> objClass = object.getClass();
                 if (objClass != fieldType) {
-                    writeClassName(serializer, object);
+                    writeClassName(serializer, beanInfo.typeKey, object);
                     commaFlag = true;
                 }
             }
@@ -196,11 +196,16 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     }
                 }
 
-                if ((!this.applyName(serializer, object, fieldInfo.name)) //
+                if ((!this.applyName(serializer, object, fieldInfoName)) //
                     || !this.applyLabel(serializer, fieldInfo.label)) {
                     continue;
                 }
 
+                if (beanInfo.typeKey != null
+                        && fieldInfoName.equals(beanInfo.typeKey)
+                        && serializer.isWriteClassName(fieldType, object)) {
+                    continue;
+                }
 
                 Object propertyValue;
                 
@@ -362,8 +367,11 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         }
     }
 
-    protected void writeClassName(JSONSerializer serializer, Object object) {
-        serializer.out.writeFieldName(serializer.config.typeKey, false);
+    protected void writeClassName(JSONSerializer serializer, String typeKey, Object object) {
+        if (typeKey == null) {
+            typeKey = serializer.config.typeKey;
+        }
+        serializer.out.writeFieldName(typeKey, false);
         String typeName = this.beanInfo.typeName;
         if (typeName == null) {
             Class<?> clazz = object.getClass();

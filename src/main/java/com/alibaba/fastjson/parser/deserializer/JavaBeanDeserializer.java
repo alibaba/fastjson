@@ -387,6 +387,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 parser.resolveStatus = DefaultJSONParser.NONE;
             }
 
+            String typeKey = beanInfo.typeKey;
             for (int fieldIndex = 0;; fieldIndex++) {
                 String key = null;
                 FieldDeserializer fieldDeser = null;
@@ -571,7 +572,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         return (T) object;
                     }
 
-                    if (JSON.DEFAULT_TYPE_KEY == key) {
+                    if ((typeKey != null && typeKey.equals(key))
+                            || JSON.DEFAULT_TYPE_KEY == key) {
                         lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
                         if (lexer.token() == JSONToken.LITERAL_STRING) {
                             String typeName = lexer.stringVal();
@@ -594,8 +596,16 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                                 userType = config.checkAutoType(typeName, expectClass);
                                 deserializer = parser.getConfig().getDeserializer(userType);
                             }
-                            
-                            return (T) deserializer.deserialze(parser, userType, fieldName);
+
+                            Object typedObject = deserializer.deserialze(parser, userType, fieldName);
+                            if (deserializer instanceof JavaBeanDeserializer) {
+                                JavaBeanDeserializer javaBeanDeserializer = (JavaBeanDeserializer) deserializer;
+                                if (typeKey != null) {
+                                    FieldDeserializer typeKeyFieldDeser = javaBeanDeserializer.getFieldDeserializer(typeKey);
+                                    typeKeyFieldDeser.setValue(typedObject, typeName);
+                                }
+                            }
+                            return (T) typedObject;
                         } else {
                             throw new JSONException("syntax error");
                         }

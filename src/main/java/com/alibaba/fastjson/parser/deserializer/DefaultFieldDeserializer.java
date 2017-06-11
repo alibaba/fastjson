@@ -2,6 +2,7 @@ package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONException;
@@ -41,10 +42,11 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
 
     @Override
     public void parseField(DefaultJSONParser parser, Object object, Type objectType, Map<String, Object> fieldValues) {
-        if (fieldValueDeserilizer == null) {
+        if (this.fieldValueDeserilizer == null) {
             getFieldValueDeserilizer(parser.getConfig());
         }
 
+        ObjectDeserializer fieldValueDeserilizer = this.fieldValueDeserilizer;
         Type fieldType = fieldInfo.fieldType;
         if (objectType instanceof ParameterizedType) {
             ParseContext objContext = parser.getContext();

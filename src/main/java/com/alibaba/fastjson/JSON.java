@@ -938,6 +938,13 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     public <T> T toJavaObject(Class<T> clazz) {
         return TypeUtils.cast(this, clazz, ParserConfig.getGlobalInstance());
     }
+
+    /**
+     * @since 1.2.33
+     */
+    public <T> T toJavaObject(Type type) {
+        return TypeUtils.cast(this, type, ParserConfig.getGlobalInstance());
+    }
     
     private final static ThreadLocal<byte[]> bytesLocal = new ThreadLocal<byte[]>();
     private static byte[] allocateBytes(int length) {

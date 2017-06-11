@@ -1306,6 +1306,46 @@ public class TypeUtils {
     ) {
         
         JSONType jsonType = beanType.getAnnotation(JSONType.class);
+        String[] orders = null;
+
+        final int features;
+        String typeName = null, typeKey = null;
+        if (jsonType != null) {
+            orders = jsonType.orders();
+            typeName = jsonType.typeName();
+            if (typeName.length() == 0) {
+                typeName = null;
+            }
+            features = SerializerFeature.of(jsonType.serialzeFeatures());
+            for (Class<?> supperClass = beanType.getSuperclass()
+                 ; supperClass != null && supperClass != Object.class
+                    ; supperClass = supperClass.getSuperclass()) {
+                JSONType superJsonType = supperClass.getAnnotation(JSONType.class);
+                if (superJsonType == null) {
+                    break;
+                }
+
+                typeKey = superJsonType.typeKey();
+                if (typeKey.length() != 0) {
+                    break;
+                }
+            }
+
+            for (Class<?> interfaceClass : beanType.getInterfaces()) {
+                JSONType superJsonType = interfaceClass.getAnnotation(JSONType.class);
+                if (superJsonType != null) {
+                    typeKey = superJsonType.typeKey();
+                    if (typeKey.length() != 0) {
+                        break;
+                    }
+                }
+            }
+            if (typeKey != null && typeKey.length() == 0) {
+                typeKey = null;
+            }
+        } else {
+            features = 0;
+        }
 
         // fieldName,field ，先生成fieldName的快照，减少之后的findField的轮询
         Map<String, Field> fieldCacheMap = new HashMap<String, Field>();
@@ -1316,21 +1356,6 @@ public class TypeUtils {
                 : computeGetters(beanType, jsonType, aliasMap, fieldCacheMap, false, propertyNamingStrategy);
         FieldInfo[] fields = new FieldInfo[fieldInfoList.size()];
         fieldInfoList.toArray(fields);
-        
-        String[] orders = null;
-
-        final int features;
-        String typeName = null;
-        if (jsonType != null) {
-            orders = jsonType.orders();
-            typeName = jsonType.typeName();
-            if (typeName.length() == 0) {
-                typeName = null;
-            }
-            features = SerializerFeature.of(jsonType.serialzeFeatures());
-        } else {
-            features = 0;
-        }
         
         FieldInfo[] sortedFields;
         List<FieldInfo> sortedFieldList;
@@ -1349,7 +1374,7 @@ public class TypeUtils {
             sortedFields = fields;
         }
         
-        return new SerializeBeanInfo(beanType, jsonType, typeName, features, fields, sortedFields);
+        return new SerializeBeanInfo(beanType, jsonType, typeName, typeKey, features, fields, sortedFields);
     }
 
     public static List<FieldInfo> computeGettersWithFieldBase(

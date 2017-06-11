@@ -23,11 +23,6 @@ public class Issue1254 extends TestCase {
         b.set_parentId("001");
 
 
-//        Object o = BeanUtils.getProperty(b,"_parentId");
-//        System.out.println(o); //test ok, println 001
-//
-//        //BeanUtils.getProperty(b,"parentId"); //java.lang.NoSuchMethodException: Unknown property 'parentId' on class 'class com.alibaba.json.bvt.issue_1200.Issue1254$B'
-
         String testB = JSON.toJSONString(b);
         System.out.println(testB);
         assertEquals("{\"_parentId\":\"001\"}", testB);
@@ -39,6 +34,7 @@ public class Issue1254 extends TestCase {
     }
 
     public static class B {
+        @JSONField(name = "_parentId")
         private String _parentId;
 
         public String get_parentId() {

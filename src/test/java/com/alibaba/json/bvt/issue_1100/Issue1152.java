@@ -13,7 +13,11 @@ import java.util.Date;
 public class Issue1152 extends TestCase {
     public void test_for_issue() throws Exception {
         TestBean tb = JSONObject.parseObject("{shijian:\"0000-00-00T00:00:00\"}",TestBean.class);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        assertNull(tb.getShijian());
+    }
+
+    public void test_for_issue_2() throws Exception {
+        TestBean tb = JSONObject.parseObject("{shijian:\"0001-01-01T00:00:00+08:00\"}",TestBean.class);
         assertNull(tb.getShijian());
     }
 

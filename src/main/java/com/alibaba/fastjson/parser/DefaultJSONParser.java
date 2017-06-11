@@ -652,12 +652,14 @@ public class DefaultJSONParser implements Closeable {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void parseArray(Type type, Collection array, Object fieldName) {
-        if (lexer.token() == JSONToken.SET || lexer.token() == JSONToken.TREE_SET) {
+        int token = lexer.token();
+        if (token == JSONToken.SET || token == JSONToken.TREE_SET) {
             lexer.nextToken();
+            token = lexer.token();
         }
 
-        if (lexer.token() != JSONToken.LBRACKET) {
-            throw new JSONException("exepct '[', but " + JSONToken.name(lexer.token()) + ", " + lexer.info());
+        if (token != JSONToken.LBRACKET) {
+            throw new JSONException("exepct '[', but " + JSONToken.name(token) + ", " + lexer.info());
         }
 
         ObjectDeserializer deserializer = null;

@@ -122,6 +122,8 @@ public class JSONToken {
                 return "TreeSet";
             case UNDEFINED:
                 return "undefined";
+            case HEX:
+                return "hex";
             default:
                 return "Unknown";
         }

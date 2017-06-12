@@ -1,6 +1,7 @@
 package com.alibaba.json.bvt.issue_1000;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import junit.framework.TestCase;
@@ -16,6 +17,6 @@ public class Issue1083 extends TestCase {
         Map map = new HashMap();
         map.put("userId", 456);
         String json = JSON.toJSONString(map, SerializerFeature.WriteNonStringValueAsString);
-        System.out.println(json);
+        assertEquals("{\"userId\":\"456\"}", json);
     }
 }

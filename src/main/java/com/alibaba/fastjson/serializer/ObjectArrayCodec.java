@@ -127,12 +127,13 @@ public class ObjectArrayCodec implements ObjectSerializer, ObjectDeserializer {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         final JSONLexer lexer = parser.lexer;
-        if (lexer.token() == JSONToken.NULL) {
+        int token = lexer.token();
+        if (token == JSONToken.NULL) {
             lexer.nextToken(JSONToken.COMMA);
             return null;
         }
 
-        if (lexer.token() == JSONToken.LITERAL_STRING) {
+        if (token == JSONToken.LITERAL_STRING || token == JSONToken.HEX) {
             byte[] bytes = lexer.bytesValue();
             lexer.nextToken(JSONToken.COMMA);
 

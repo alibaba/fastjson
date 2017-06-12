@@ -217,10 +217,12 @@ public class SerializeConfig {
 		
 		if (asm) {
 			try {
-			    ObjectSerializer asmSerializer = createASMSerializer(beanInfo);
-			    if (asmSerializer != null) {
-			        return asmSerializer;
-			    }
+                ObjectSerializer asmSerializer = createASMSerializer(beanInfo);
+                if (asmSerializer != null) {
+                    return asmSerializer;
+                }
+            } catch (ClassNotFoundException ex) {
+			    // skip
 			} catch (ClassFormatError e) {
 			    // skip
 			} catch (ClassCastException e) {

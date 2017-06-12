@@ -27,7 +27,7 @@ public class LocaleFieldTest extends TestCase {
         Model model2 = jsonObject.toJavaObject(Model.class);
         assertEquals("CN", model2.locale.getCountry());
         assertEquals("zh", model2.locale.getLanguage());
-        assertEquals("China", model2.locale.getDisplayCountry());
+        assertEquals(Locale.CHINA.getDisplayCountry(), model2.locale.getDisplayCountry());
     }
 
     public static class Model {

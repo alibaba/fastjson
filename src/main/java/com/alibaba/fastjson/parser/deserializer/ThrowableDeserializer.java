@@ -1,6 +1,7 @@
 package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
@@ -91,7 +92,6 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
             } else if ("stackTrace".equals(key)) {
                 stackTrace = parser.parseObject(StackTraceElement[].class);
             } else {
-                // TODO
                 otherValues.put(key, parser.parse());
             }
 
@@ -121,6 +121,16 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
 
         if (stackTrace != null) {
             ex.setStackTrace(stackTrace);
+        }
+
+        for (Map.Entry<String, Object> entry : otherValues.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+
+            FieldDeserializer fieldDeserializer = this.getFieldDeserializer(key);
+            if (fieldDeserializer != null) {
+                fieldDeserializer.setValue(ex, value);
+            }
         }
 
         return (T) ex;

@@ -48,6 +48,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
     private String                format;
     protected boolean             writeEnumUsingToString  = false;
     protected boolean             writeEnumUsingName      = false;
+    protected boolean             disableCircularReferenceDetect = false;
 
     protected boolean             serializeUsing          = false;
 
@@ -67,6 +68,8 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
                         writeEnumUsingToString = true;
                     }else if(feature == SerializerFeature.WriteEnumUsingName){
                         writeEnumUsingName = true;
+                    }else if(feature == SerializerFeature.DisableCircularReferenceDetect){
+                        disableCircularReferenceDetect = true;
                     }
                 }
             }
@@ -97,6 +100,8 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
                     writeEnumUsingToString = true;
                 }else if(feature == SerializerFeature.WriteEnumUsingName){
                     writeEnumUsingName = true;
+                }else if(feature == SerializerFeature.DisableCircularReferenceDetect){
+                    disableCircularReferenceDetect = true;
                 }
             }
             
@@ -188,7 +193,8 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
         
         final RuntimeSerializerInfo runtimeInfo = this.runtimeInfo;
         
-        final int fieldFeatures = fieldInfo.serialzeFeatures;
+        final int fieldFeatures = disableCircularReferenceDetect?
+                (fieldInfo.serialzeFeatures|SerializerFeature.DisableCircularReferenceDetect.getMask()):fieldInfo.serialzeFeatures;
 
         if (propertyValue == null) {
             Class<?> runtimeFieldClass = runtimeInfo.runtimeFieldClass;

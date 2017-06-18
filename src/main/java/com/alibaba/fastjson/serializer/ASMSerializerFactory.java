@@ -1588,9 +1588,10 @@ public class ASMSerializerFactory implements Opcodes {
             mw.visitTypeInsn(INSTANCEOF, JavaBeanSerializer);
             mw.visitJumpInsn(IFEQ, instanceOfElse_);
 
+            boolean disableCircularReferenceDetect = (fieldInfo.serialzeFeatures & SerializerFeature.DisableCircularReferenceDetect.mask) != 0;
             boolean fieldBeanToArray = (fieldInfo.serialzeFeatures & SerializerFeature.BeanToArray.mask) != 0;
             String writeMethodName;
-            if (context.nonContext && context.writeDirect) {
+            if (disableCircularReferenceDetect || (context.nonContext && context.writeDirect)) {
                 writeMethodName = fieldBeanToArray ? "writeAsArrayNonContext" : "writeDirectNonContext";
             } else {
                 writeMethodName = fieldBeanToArray ? "writeAsArray" : "write";

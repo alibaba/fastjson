@@ -1,6 +1,7 @@
 package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;

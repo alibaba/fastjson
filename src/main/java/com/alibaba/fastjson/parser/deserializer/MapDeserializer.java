@@ -49,8 +49,12 @@ public class MapDeserializer implements ObjectDeserializer {
         if (type instanceof ParameterizedType) {
             ParameterizedType parameterizedType = (ParameterizedType) type;
             Type keyType = parameterizedType.getActualTypeArguments()[0];
-            Type valueType = parameterizedType.getActualTypeArguments()[1];
-
+            Type valueType = null;
+            if(map.getClass().getName().equals("org.springframework.util.LinkedMultiValueMap")){
+                valueType = List.class;
+            }else{
+                valueType = parameterizedType.getActualTypeArguments()[1];
+            }
             if (String.class == keyType) {
                 return parseMap(parser, (Map<String, Object>) map, valueType, fieldName);
             } else {

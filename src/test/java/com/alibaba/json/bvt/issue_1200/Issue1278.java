@@ -59,7 +59,6 @@ public class Issue1278 extends TestCase {
      * {"name":"name","id":1}
      * {"user":"user","id":2}
      */
-    @JSONType(asm=false)
     public static class AlternateNames {
         @JSONField(alternateNames = {"name", "user"})
         public String name;

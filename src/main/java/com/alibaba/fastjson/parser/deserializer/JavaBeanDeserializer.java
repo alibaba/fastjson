@@ -104,6 +104,10 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 return sortedFieldDeserializers[mid]; // key found
             }
         }
+
+        if(this.alterNameFieldDeserializers != null){
+            return this.alterNameFieldDeserializers.get(key);
+        }
         
         return null;  // key not found.
     }

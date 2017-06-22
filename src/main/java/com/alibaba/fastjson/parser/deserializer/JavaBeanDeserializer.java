@@ -993,10 +993,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             }
         }
 
-        if (fieldDeserializer == null && this.alterNameFieldDeserializers != null) {
-            fieldDeserializer = this.alterNameFieldDeserializers.get(key);
-        }
-
         return fieldDeserializer;
     }
 

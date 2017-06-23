@@ -41,7 +41,15 @@ public class TypeReference<T> {
     protected TypeReference(){
         Type superClass = getClass().getGenericSuperclass();
 
-        type = ((ParameterizedType) superClass).getActualTypeArguments()[0];
+        Type type = ((ParameterizedType) superClass).getActualTypeArguments()[0];
+
+        Type cachedType = classTypeCache.get(type);
+        if (cachedType == null) {
+            classTypeCache.putIfAbsent(type, type);
+            cachedType = classTypeCache.get(type);
+        }
+
+        this.type = cachedType;
     }
 
     /**

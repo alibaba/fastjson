@@ -152,7 +152,12 @@ public enum SerializerFeature {
     /**
      * @since 1.2.27
      */
-    MapSortField
+    MapSortField,
+
+    /**
+     * @since 1.2.34
+     */
+    FormatAnnotationFirst //annotation与field同时存在format，annotation优先
     ;
 
     SerializerFeature(){

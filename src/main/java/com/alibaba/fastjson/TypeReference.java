@@ -32,7 +32,16 @@ public class TypeReference<T> {
     protected TypeReference(){
         Type superClass = getClass().getGenericSuperclass();
 
-        type = ((ParameterizedType) superClass).getActualTypeArguments()[0];
+        Type oriType = ((ParameterizedType) superClass).getActualTypeArguments()[0];
+
+        //修复在安卓环境中问题
+        Type cachedType = classTypeCache.get(oriType);
+        if (cachedType == null) {
+            classTypeCache.putIfAbsent(oriType, oriType);
+            cachedType = classTypeCache.get(oriType);
+        }
+
+        type = cachedType;
     }
 
     /**

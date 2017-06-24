@@ -313,7 +313,7 @@ public class JSONSerializer extends SerializeFilterable {
     public final void writeWithFormat(Object object, String format) {
         if (object instanceof Date) {
             DateFormat dateFormat = this.getDateFormat();
-            if (dateFormat == null ||( this.isEnabled(SerializerFeature.FormatAnnotationFirst) && format != null )) {
+            if (dateFormat == null) {
                 dateFormat = new SimpleDateFormat(format, locale);
                 dateFormat.setTimeZone(timeZone);
             }

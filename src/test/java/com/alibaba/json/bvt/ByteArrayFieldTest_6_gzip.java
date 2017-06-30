@@ -26,11 +26,8 @@ public class ByteArrayFieldTest_6_gzip extends TestCase {
         Assert.assertArrayEquals(model.value, model1.value);
     }
 
-    private static class Model {
-
+    public static class Model {
         @JSONField(format = "gzip")
         public byte[] value;
-
-
     }
 }

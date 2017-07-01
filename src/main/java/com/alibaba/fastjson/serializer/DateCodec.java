@@ -293,6 +293,12 @@ public final class DateCodec implements ObjectSerializer, ObjectDeserializer {
                 dateLexer.close();
             }
 
+            if ("0000-00-00".equals(strVal)
+                    || "0000-00-00T00:00:00".equalsIgnoreCase(strVal)
+                    || "0001-01-01T00:00:00+08:00".equalsIgnoreCase(strVal)) {
+                return null;
+            }
+
             DateFormat dateFormat;
             
             if (format != null) {

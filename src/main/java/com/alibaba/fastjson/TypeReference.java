@@ -34,14 +34,18 @@ public class TypeReference<T> {
 
         Type oriType = ((ParameterizedType) superClass).getActualTypeArguments()[0];
 
-        //修复在安卓环境中问题
-        Type cachedType = classTypeCache.get(oriType);
-        if (cachedType == null) {
-            classTypeCache.putIfAbsent(oriType, oriType);
-            cachedType = classTypeCache.get(oriType);
-        }
+        if (oriType instanceof Class) {
+            type = oriType;
+        } else {
+            //修复在安卓环境中问题
+            Type cachedType = classTypeCache.get(oriType);
+            if (cachedType == null) {
+                classTypeCache.putIfAbsent(oriType, oriType);
+                cachedType = classTypeCache.get(oriType);
+            }
 
-        type = cachedType;
+            type = cachedType;
+        }
     }
 
     /**

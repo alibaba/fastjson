@@ -12,6 +12,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
 
+import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.annotation.JSONField;
 
 public class FieldInfo implements Comparable<FieldInfo> {
@@ -55,7 +56,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.field = field;
         this.ordinal = ordinal;
         
-        isEnum = fieldClass.isEnum();
+        isEnum = fieldClass.isEnum() && !JSONAware.class.isAssignableFrom(fieldClass);
         
         fieldAnnotation = null;
         methodAnnotation = null;
@@ -208,7 +209,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
                 this.fieldClass = TypeUtils.getClass(genericFieldType);
                 this.fieldType = genericFieldType;
                 
-                isEnum = fieldClass.isEnum();
+                isEnum = fieldClass.isEnum() && !JSONAware.class.isAssignableFrom(fieldClass);
                 return;
             }
         }
@@ -229,7 +230,9 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.fieldType = genericFieldType;
         this.fieldClass = fieldClass;
 
-        isEnum = (!fieldClass.isArray()) && fieldClass.isEnum();
+        isEnum = (!fieldClass.isArray())
+                && fieldClass.isEnum()
+                && !JSONAware.class.isAssignableFrom(fieldClass);
     }
 
     public static Type getFieldType(Class<?> clazz, Type type, Type fieldType) {

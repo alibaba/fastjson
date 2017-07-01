@@ -796,29 +796,11 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 Object[] params = new Object[size];
                 for (int i = 0; i < size; ++i) {
                     FieldInfo fieldInfo = fieldDeserializers[i].fieldInfo;
-                    params[i] = fieldValues.get(fieldInfo.name);
                     Object param = fieldValues.get(fieldInfo.name);
                     if (param == null) {
-                        Type fieldType = fieldInfo.fieldType;
-                        if (fieldType == byte.class) {
-                            param = (byte) 0;
-                        } else if (fieldType == short.class) {
-                            param = (short) 0;
-                        } else if (fieldType == int.class) {
-                            param = 0;
-                        } else if (fieldType == long.class) {
-                            param = 0L;
-                        } else if (fieldType == float.class) {
-                            param = 0F;
-                        } else if (fieldType == double.class) {
-                            param = 0D;
-                        } else if (fieldType == boolean.class) {
-                            param = Boolean.FALSE;
-                        } else if (fieldType == char.class) {
-                            param = '0';
-                        }
-                        params[i] = param;
+                        param = TypeUtils.defaultValue(fieldInfo.fieldClass);
                     }
+                    params[i] = param;
                 }
 
                 if (beanInfo.creatorConstructor != null) {
@@ -1046,24 +1028,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             FieldInfo fieldInfo = fieldInfoList[i];
             Object param = map.get(fieldInfo.name);
             if (param == null) {
-                Type fieldType = fieldInfo.fieldType;
-                if (fieldType == byte.class) {
-                    param = (byte) 0;
-                } else if (fieldType == short.class) {
-                    param = (short) 0;
-                } else if (fieldType == int.class) {
-                    param = 0;
-                } else if (fieldType == long.class) {
-                    param = 0L;
-                } else if (fieldType == float.class) {
-                    param = 0F;
-                } else if (fieldType == double.class) {
-                    param = 0D;
-                } else if (fieldType == boolean.class) {
-                    param = Boolean.FALSE;
-                } else if (fieldType == char.class) {
-                    param = '0';
-                }
+                param = TypeUtils.defaultValue(fieldInfo.fieldClass);
             }
             params[i] = param;
         }

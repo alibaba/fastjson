@@ -1429,6 +1429,27 @@ public class TypeUtils {
         return itemType;
     }
 
+    public static Object defaultValue(Class<?> fieldType) {
+        if (fieldType == byte.class) {
+            return (byte) 0;
+        } else if (fieldType == short.class) {
+            return  (short) 0;
+        } else if (fieldType == int.class) {
+            return  0;
+        } else if (fieldType == long.class) {
+            return  0L;
+        } else if (fieldType == float.class) {
+            return  0F;
+        } else if (fieldType == double.class) {
+            return  0D;
+        } else if (fieldType == boolean.class) {
+            return Boolean.FALSE;
+        } else if (fieldType == char.class) {
+            return  '0';
+        }
+        return null;
+    }
+
 //    public static long fnv_hash(char[] chars) {
 //        long hash = 0x811c9dc5;
 //        for (int i = 0; i < chars.length; ++i) {

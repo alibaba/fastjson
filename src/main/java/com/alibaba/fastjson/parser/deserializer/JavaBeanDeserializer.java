@@ -1045,7 +1045,28 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         Object[] params = new Object[size];
         for (int i = 0; i < size; ++i) {
             FieldInfo fieldInfo = fieldInfoList[i];
-            params[i] = map.get(fieldInfo.name);
+            Object param = map.get(fieldInfo.name);
+            if (param == null) {
+                Class<?> fieldClass = fieldInfo.fieldClass;
+                if (fieldClass == int.class) {
+                    param = 0;
+                } else if (fieldClass == long.class) {
+                    param = 0L;
+                } else if (fieldClass == short.class) {
+                    param = Short.valueOf((short) 0);
+                } else if (fieldClass == byte.class) {
+                    param = Byte.valueOf((byte) 0);
+                } else if (fieldClass == float.class) {
+                    param = Float.valueOf(0);
+                } else if (fieldClass == double.class) {
+                    param = Double.valueOf(0);
+                } else if (fieldClass == char.class) {
+                    param = '0';
+                } else if (fieldClass == boolean.class) {
+                    param = false;
+                }
+            }
+            params[i] = param;
         }
         
         if (beanInfo.creatorConstructor != null) {

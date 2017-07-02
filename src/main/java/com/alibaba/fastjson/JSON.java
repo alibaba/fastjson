@@ -218,7 +218,11 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             return (JSONObject) obj;
         }
 
-        return (JSONObject) JSON.toJSON(obj);
+        try {
+            return (JSONObject) JSON.toJSON(obj);
+        } catch (RuntimeException e) {
+            throw new JSONException("can not cast to JSONObject.", e);
+        }
     }
 
     /**

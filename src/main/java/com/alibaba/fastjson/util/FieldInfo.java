@@ -289,8 +289,8 @@ public class FieldInfo implements Comparable<FieldInfo> {
             ParameterizedType parameterizedFieldType = (ParameterizedType) fieldType;
 
             Type[] arguments = parameterizedFieldType.getActualTypeArguments();
-            TypeVariable<?>[] typeVariables = null;
-            ParameterizedType paramType = null;
+            TypeVariable<?>[] typeVariables = type.getClass().getTypeParameters();
+            ParameterizedType paramType = parameterizedFieldType;
             if (type instanceof ParameterizedType) {
                 paramType = (ParameterizedType) type;
                 typeVariables = clazz.getTypeParameters();

@@ -114,7 +114,7 @@ public class SerializeConfig {
         return serializer;
     }
 
-    private final ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
+    public final ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
 	    SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null, propertyNamingStrategy, fieldBased);
 	    if (beanInfo.fields.length == 0 && Iterable.class.isAssignableFrom(clazz)) {
 	        return MiscCodec.instance;

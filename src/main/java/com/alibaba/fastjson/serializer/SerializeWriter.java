@@ -774,7 +774,13 @@ public final class SerializeWriter extends Writer {
                     char ch = text.charAt(i);
 
                     if (isEnabled(SerializerFeature.BrowserSecure)) {
-                        if (!(ch >= '0' && ch <= '9') && !(ch >= 'a' && ch <= 'z') && !(ch >= 'A' && ch <= 'Z')
+                        if (ch == '<') {
+                            write("&lt;");
+                            continue;
+                        } else if (ch == '>') {
+                            write("&gt;");
+                            continue;
+                        } else if (!(ch >= '0' && ch <= '9') && !(ch >= 'a' && ch <= 'z') && !(ch >= 'A' && ch <= 'Z')
                             && !(ch == ',') && !(ch == '.') && !(ch == '_')) {
                             write('\\');
                             write('u');
@@ -864,7 +870,11 @@ public final class SerializeWriter extends Writer {
                 if (!(ch >= '0' && ch <= '9') && !(ch >= 'a' && ch <= 'z') && !(ch >= 'A' && ch <= 'Z') && !(ch == ',')
                     && !(ch == '.') && !(ch == '_')) {
                     lastSpecialIndex = i;
-                    newcount += 5;
+                    if (ch == '<' || ch == '>') {
+                        newcount += 3;
+                    } else {
+                        newcount += 5;
+                    }
                     continue;
                 }
             }
@@ -879,14 +889,32 @@ public final class SerializeWriter extends Writer {
 
                 if (!(ch >= '0' && ch <= '9') && !(ch >= 'a' && ch <= 'z') && !(ch >= 'A' && ch <= 'Z') && !(ch == ',')
                     && !(ch == '.') && !(ch == '_')) {
-                    System.arraycopy(buf, i + 1, buf, i + 6, end - i - 1);
-                    buf[i] = '\\';
-                    buf[i + 1] = 'u';
-                    buf[i + 2] = IOUtils.DIGITS[(ch >>> 12) & 15];
-                    buf[i + 3] = IOUtils.DIGITS[(ch >>> 8) & 15];
-                    buf[i + 4] = IOUtils.DIGITS[(ch >>> 4) & 15];
-                    buf[i + 5] = IOUtils.DIGITS[ch & 15];
-                    end += 5;
+                    if (ch == '<') {
+                        // &lt;
+                        System.arraycopy(buf, i + 1, buf, i + 4, end - i - 1);
+                        buf[i] = '&';
+                        buf[i + 1] = 'l';
+                        buf[i + 2] = 't';
+                        buf[i + 3] = ';';
+                        end += 3;
+                    } else if (ch == '>') {
+                        // &lt;
+                        System.arraycopy(buf, i + 1, buf, i + 4, end - i - 1);
+                        buf[i] = '&';
+                        buf[i + 1] = 'g';
+                        buf[i + 2] = 't';
+                        buf[i + 3] = ';';
+                        end += 3;
+                    } else {
+                        System.arraycopy(buf, i + 1, buf, i + 6, end - i - 1);
+                        buf[i] = '\\';
+                        buf[i + 1] = 'u';
+                        buf[i + 2] = IOUtils.DIGITS[(ch >>> 12) & 15];
+                        buf[i + 3] = IOUtils.DIGITS[(ch >>> 8) & 15];
+                        buf[i + 4] = IOUtils.DIGITS[(ch >>> 4) & 15];
+                        buf[i + 5] = IOUtils.DIGITS[ch & 15];
+                        end += 5;
+                    }
                 }
             }
 

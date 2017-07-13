@@ -36,8 +36,13 @@ public class StringFieldTest_special_3 extends TestCase {
         StringWriter writer = new StringWriter();
         JSON.writeJSONString(writer, model, SerializerFeature.BrowserSecure);
 
-        Model model2 = JSON.parseObject(writer.toString(), Model.class);
-        Assert.assertEquals(model.name, model2.name);
+        String text = writer.toString();
+
+        text = text.replaceAll("&lt;", "<");
+        text = text.replaceAll("&gt;", ">");
+
+        Model model2 = JSON.parseObject(text, Model.class);
+        assertEquals(model.name, model2.name);
     }
     
     public void test_special_browsecompatible() throws Exception {

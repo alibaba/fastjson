@@ -161,6 +161,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     public static Object parse(byte[] input, Feature... features) {
         char[] chars = allocateChars(input.length);
         int len = IOUtils.decodeUTF8(input, 0, input.length, chars);
+        if (len < 0) {
+            return null;
+        }
         return parse(new String(chars, 0, len), features);
     }
 
@@ -382,8 +385,14 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         if (charset == IOUtils.UTF8) {
             char[] chars = allocateChars(bytes.length);
             int chars_len = IOUtils.decodeUTF8(bytes, offset, len, chars);
+            if (chars_len < 0) {
+                return null;
+            }
             strVal = new String(chars, 0, chars_len);
         } else {
+            if (len < 0) {
+                return null;
+            }
             strVal = new String(bytes, offset, len, charset);
         }
         return (T) parseObject(strVal, clazz, features);

@@ -30,6 +30,11 @@ public class JSONAwareSerializer implements ObjectSerializer {
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.out;
 
+        if (object == null) {
+            out.writeNull();
+            return;
+        }
+
         JSONAware aware = (JSONAware) object;
         out.write(aware.toJSONString());
     }

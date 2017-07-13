@@ -18,7 +18,7 @@ public class CurrencyTest5 extends TestCase {
         jsonObject.put("value", Currency.getInstance("CNY"));
 
         String text = JSON.toJSONString(jsonObject, config);
-        System.out.println(text);
+        assertEquals("{\"value\":{\"currencyCode\":\"CNY\",\"displayName\":\"Chinese Yuan\",\"symbol\":\"CNY\"}}", text);
 
         Currency currency = JSON.parseObject(text, VO.class).value;
 

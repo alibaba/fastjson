@@ -41,7 +41,7 @@ public class SerializeWriterTest_BrowserSecure extends TestCase {
 
     public void test_all() throws Exception {
         String value = ".,_~!@<>'\"\\/hello world 0123;汉字；\u2028\u2028\r\n<script></scirpt>";
-        String expect = "\".,_\\u007E\\u0021\\u0040\\u003C\\u003E\\u0027\\u0022\\u005C\\u002Fhello\\u0020world\\u00200123\\u003B\\u6C49\\u5B57\\uFF1B\\u2028\\u2028\\u000D\\u000A\\u003Cscript\\u003E\\u003C\\u002Fscirpt\\u003E\"";
+        String expect = "\".,_\\u007E\\u0021\\u0040&lt;&gt;\\u0027\\u0022\\u005C\\u002Fhello\\u0020world\\u00200123\\u003B\\u6C49\\u5B57\\uFF1B\\u2028\\u2028\\u000D\\u000A&lt;script&gt;&lt;\\u002Fscirpt&gt;\"";
         Assert.assertEquals(expect, JSON.toJSONString(value, SerializerFeature.BrowserSecure));
     }
 
@@ -51,11 +51,14 @@ public class SerializeWriterTest_BrowserSecure extends TestCase {
         Map<String, String> map = new HashMap<String, String>();
         map.put("value", value);
 
-        String expect = "{\"value\":\".,_\\u007E\\u0021\\u0040\\u003C\\u003E\\u0027\\u0022\\u005C\\u002Fhello\\u0020world\\u00200123\\u003B\\u6C49\\u5B57\\uFF1B\\u2028\\u2028\\u000D\\u000A\\u003Cscript\\u003E\\u003C\\u002Fscirpt\\u003E\"}";
+        String expect = "{\"value\":\".,_\\u007E\\u0021\\u0040&lt;&gt;\\u0027\\u0022\\u005C\\u002Fhello\\u0020world\\u00200123\\u003B\\u6C49\\u5B57\\uFF1B\\u2028\\u2028\\u000D\\u000A&lt;script&gt;&lt;\\u002Fscirpt&gt;\"}";
         String json = JSON.toJSONString(map, SerializerFeature.BrowserSecure);
-        Assert.assertEquals(expect, json);
+        assertEquals(expect, json);
 
-        Assert.assertEquals(value, JSON.parseObject(json).get("value"));
+        json = json.replaceAll("&lt;", "<");
+        json = json.replaceAll("&gt;", ">");
+
+        assertEquals(value, JSON.parseObject(json).get("value"));
     }
 
     public void test_all_entity() throws Exception {
@@ -64,11 +67,14 @@ public class SerializeWriterTest_BrowserSecure extends TestCase {
         VO vo = new VO();
         vo.setValue(value);
 
-        String expect = "{\"value\":\".,_\\u007E\\u0021\\u0040\\u003C\\u003E\\u0027\\u0022\\u005C\\u002Fhello\\u0020world\\u00200123\\u003B\\u6C49\\u5B57\\uFF1B\\u2028\\u2028\\u000D\\u000A\\u003Cscript\\u003E\\u003C\\u002Fscirpt\\u003E\"}";
+        String expect = "{\"value\":\".,_\\u007E\\u0021\\u0040&lt;&gt;\\u0027\\u0022\\u005C\\u002Fhello\\u0020world\\u00200123\\u003B\\u6C49\\u5B57\\uFF1B\\u2028\\u2028\\u000D\\u000A&lt;script&gt;&lt;\\u002Fscirpt&gt;\"}";
         String json = JSON.toJSONString(vo, SerializerFeature.BrowserSecure);
-        Assert.assertEquals(expect, json);
+        assertEquals(expect, json);
 
-        Assert.assertEquals(value, JSON.parseObject(json, VO.class).value);
+        json = json.replaceAll("&lt;", "<");
+        json = json.replaceAll("&gt;", ">");
+
+        assertEquals(value, JSON.parseObject(json, VO.class).value);
     }
 
     public static class VO {

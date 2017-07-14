@@ -136,7 +136,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         ParserConfig.global.symbolTable.addSymbol(typeKey, 
                                                   0, 
                                                   typeKey.length(), 
-                                                  typeKey.hashCode());
+                                                  typeKey.hashCode(), true);
     }
     
     public static Object parse(String text) {

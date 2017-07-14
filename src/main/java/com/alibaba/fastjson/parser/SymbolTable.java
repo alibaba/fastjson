@@ -79,6 +79,10 @@ public class SymbolTable {
     }
 
     public String addSymbol(String buffer, int offset, int len, int hash) {
+        return addSymbol(buffer, offset, len, hash, false);
+    }
+
+    public String addSymbol(String buffer, int offset, int len, int hash, boolean replace) {
         final int bucket = hash & indexMask;
 
         String symbol = symbols[bucket];
@@ -88,8 +92,14 @@ public class SymbolTable {
                     && buffer.startsWith(symbol, offset)) {
                 return symbol;
             }
-            
-            return subString(buffer, offset, len);
+
+            String str = subString(buffer, offset, len);
+
+            if (replace) {
+                symbols[bucket] = str;
+            }
+
+            return str;
         }
         
         symbol = len == buffer.length() //

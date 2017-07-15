@@ -223,7 +223,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     }
     
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-        return deserialze(parser, type, fieldName, 0);
+        return deserialze(parser, type, fieldName, null, 0, null);
     }
 
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName, int features) {
@@ -316,6 +316,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         }
 
         final JSONLexerBase lexer = (JSONLexerBase) parser.lexer; // xxx
+        final ParserConfig config = parser.getConfig();
 
         int token = lexer.token();
         if (token == JSONToken.NULL) {
@@ -362,6 +363,17 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         lexer.nextToken();
                         return null;
                     }
+
+                    for (Class<?> seeAlsoClass : beanInfo.jsonType.seeAlso()) {
+                        if (Enum.class.isAssignableFrom(seeAlsoClass)) {
+                            try {
+                                Enum<?> e = Enum.valueOf((Class<Enum>) seeAlsoClass, strVal);
+                                return (T) e;
+                            } catch (IllegalArgumentException e) {
+                                // skip
+                            }
+                        }
+                    }
                 }
 
                 if (token == JSONToken.LBRACKET && lexer.getCurrent() == ']') {
@@ -374,8 +386,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                                                         .append("syntax error, expect {, actual ") //
                                                         .append(lexer.tokenName()) //
                                                         .append(", pos ") //
-                                                        .append(lexer.pos()) //
-                ;
+                                                        .append(lexer.pos());
+
                 if (fieldName instanceof String) {
                     buf //
                         .append(", fieldName ") //
@@ -591,7 +603,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                                 continue;
                             }
                             
-                            ParserConfig config = parser.getConfig();
+
                             ObjectDeserializer deserializer = getSeeAlso(config, this.beanInfo, typeName);
                             Class<?> userType = null;
 

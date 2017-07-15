@@ -289,14 +289,17 @@ public class FieldInfo implements Comparable<FieldInfo> {
             ParameterizedType parameterizedFieldType = (ParameterizedType) fieldType;
 
             Type[] arguments = parameterizedFieldType.getActualTypeArguments();
-            TypeVariable<?>[] typeVariables = type.getClass().getTypeParameters();
-            ParameterizedType paramType = parameterizedFieldType;
+            TypeVariable<?>[] typeVariables;
+            ParameterizedType paramType;
             if (type instanceof ParameterizedType) {
                 paramType = (ParameterizedType) type;
                 typeVariables = clazz.getTypeParameters();
             } else if(clazz.getGenericSuperclass() instanceof ParameterizedType) {
                 paramType = (ParameterizedType) clazz.getGenericSuperclass();
                 typeVariables = clazz.getSuperclass().getTypeParameters();
+            } else {
+                paramType = parameterizedFieldType;
+                typeVariables = type.getClass().getTypeParameters();
             }
 
             boolean changed = getArgument(arguments, typeVariables, paramType.getActualTypeArguments());

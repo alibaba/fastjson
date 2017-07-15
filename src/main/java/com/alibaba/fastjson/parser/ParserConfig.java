@@ -496,6 +496,8 @@ public class ParserConfig {
             derializer = MapDeserializer.instance;
         } else if (Throwable.class.isAssignableFrom(clazz)) {
             derializer = new ThrowableDeserializer(this, clazz);
+        } else if (PropertyProcessable.class.isAssignableFrom(clazz)) {
+            derializer = new PropertyProcessableDeserializer((Class<PropertyProcessable>)clazz);
         } else {
             derializer = createJavaBeanDeserializer(clazz, type);
         }

@@ -223,7 +223,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     }
     
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-        return deserialze(parser, type, fieldName, null, 0, null);
+        return deserialze(parser, type, fieldName, 0);
     }
 
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName, int features) {

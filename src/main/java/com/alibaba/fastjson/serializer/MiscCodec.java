@@ -252,7 +252,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
                         return (T) Currency.getInstance(currency);
                     }
 
-                    String symbol = jsonObject.getString("symbol");
+                    String symbol = jsonObject.getString("currencyCode");
                     if (symbol != null) {
                         return (T) Currency.getInstance(symbol);
                     }

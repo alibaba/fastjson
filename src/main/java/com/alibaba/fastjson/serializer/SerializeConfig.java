@@ -252,11 +252,11 @@ public class SerializeConfig {
 	}
 
 	public SerializeConfig() {
-		this(1024);
+		this(IdentityHashMap.DEFAULT_SIZE);
 	}
 
     public SerializeConfig(boolean fieldBase) {
-	    this(1024, fieldBase);
+	    this(IdentityHashMap.DEFAULT_SIZE, fieldBase);
     }
 
     public SerializeConfig(int tableSize) {
@@ -265,7 +265,7 @@ public class SerializeConfig {
 
 	public SerializeConfig(int tableSize, boolean fieldBase) {
 	    this.fieldBased = fieldBase;
-	    serializers = new IdentityHashMap<Type, ObjectSerializer>(1024);
+	    serializers = new IdentityHashMap<Type, ObjectSerializer>(tableSize);
 		
 		try {
 		    if (asm) {
@@ -273,8 +273,6 @@ public class SerializeConfig {
 		    }
 		} catch (Throwable eror) {
 		    asm = false;
-//		} catch (ExceptionInInitializerError error) {
-//		    asm = false;
 		}
 
 		put(Boolean.class, BooleanCodec.instance);

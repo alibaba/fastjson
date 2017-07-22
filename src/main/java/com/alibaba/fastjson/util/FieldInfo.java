@@ -33,7 +33,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
     private final JSONField fieldAnnotation;
     private final JSONField methodAnnotation;
-    
+
     public final boolean    fieldAccess;
     public final boolean    fieldTransient;
 
@@ -475,12 +475,9 @@ public class FieldInfo implements Comparable<FieldInfo> {
     }
 
     public Object get(Object javaObject) throws IllegalAccessException, InvocationTargetException {
-        if (method != null) {
-            Object value = method.invoke(javaObject);
-            return value;
-        }
-
-        return field.get(javaObject);
+        return method != null
+                ? method.invoke(javaObject)
+                : field.get(javaObject);
     }
 
     public void set(Object javaObject, Object value) throws IllegalAccessException, InvocationTargetException {

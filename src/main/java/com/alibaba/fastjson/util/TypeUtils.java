@@ -2201,4 +2201,23 @@ public class TypeUtils {
 
         return true;
     }
+
+    public static long fnv_64_lower(String key) {
+        long hashCode = 0x811c9dc5;
+        for (int i = 0; i < key.length(); ++i) {
+            char ch = key.charAt(i);
+            if (ch == '_' || ch == '-') {
+                continue;
+            }
+
+            if (ch >= 'A' && ch <= 'Z') {
+                ch = (char) (ch + 32);
+            }
+
+            hashCode ^= ch;
+            hashCode *= 0x1000193;
+        }
+
+        return hashCode;
+    }
 }

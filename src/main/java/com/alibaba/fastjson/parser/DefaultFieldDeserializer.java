@@ -31,16 +31,22 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
 
     @Override
     public void parseField(DefaultJSONParser parser, Object object, Type objectType, Map<String, Object> fieldValues) {
-        if (fieldValueDeserilizer == null) {
-            fieldValueDeserilizer = parser.config.getDeserializer(fieldInfo.fieldClass, fieldInfo.fieldType);
-        }
-
-        if (objectType instanceof ParameterizedType) {
-            ParseContext objContext = parser.contex;
-            objContext.type = objectType;
+        if (this.fieldValueDeserilizer == null) {
+            this.fieldValueDeserilizer = parser.config.getDeserializer(fieldInfo.fieldClass, fieldInfo.fieldType);
         }
 
         Type fieldType = fieldInfo.fieldType;
+        if (objectType instanceof ParameterizedType) {
+            ParseContext objContext = parser.contex;
+
+            if (objContext != null) {
+                objContext.type = objectType;
+            }
+
+            fieldType = FieldInfo.getFieldType(this.clazz, objectType, fieldType);
+            fieldValueDeserilizer = parser.config.getDeserializer(fieldType);
+        }
+
         if (fieldType instanceof ParameterizedType
                 && objectType instanceof ParameterizedType) {
             ParameterizedType fieldParamType = (ParameterizedType) fieldType;

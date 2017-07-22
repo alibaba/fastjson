@@ -2776,11 +2776,9 @@ public final class JSONLexer {
             int power = 1;
             boolean small = (chLocal == '.');
             if (small) {
-                chLocal = charAt(bp + (offset++));
-                if (chLocal >= '0' && chLocal <= '9') {
+                if ((chLocal = charAt(bp + (offset++))) >= '0' && chLocal <= '9') {
                     intVal = intVal * 10 + (chLocal - '0');
-                    power *= 10;
-                    for (; ; ) {
+                    for (power = 10; ; ) {
                         chLocal = charAt(bp + (offset++));
                         if (chLocal >= '0' && chLocal <= '9') {
                             intVal = intVal * 10 + (chLocal - '0');

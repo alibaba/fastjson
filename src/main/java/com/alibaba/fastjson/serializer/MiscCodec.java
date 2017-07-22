@@ -9,17 +9,10 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
-import java.util.Currency;
-import java.util.Enumeration;
-import java.util.Locale;
-import java.util.TimeZone;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONAware;
-import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.JSONStreamAware;
+import com.alibaba.fastjson.*;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
@@ -184,6 +177,25 @@ public final class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         if (objVal instanceof String) {
             strVal = (String) objVal;
         } else {
+            if (objVal instanceof JSONObject) {
+                JSONObject jsonObject = (JSONObject) objVal;
+
+                if (clazz == Currency.class) {
+                    String currency = jsonObject.getString("currency");
+                    if (currency != null) {
+                        return (T) Currency.getInstance(currency);
+                    }
+
+                    String symbol = jsonObject.getString("currencyCode");
+                    if (symbol != null) {
+                        return (T) Currency.getInstance(symbol);
+                    }
+                }
+
+                if (clazz == Map.Entry.class) {
+                    return (T) jsonObject.entrySet().iterator().next();
+                }
+            }
             throw new JSONException("except string value");
         }
         

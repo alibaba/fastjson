@@ -3,6 +3,7 @@ package com.alibaba.fastjson.support.spring;
 import com.alibaba.fastjson.support.spring.annotation.FastJsonFilter;
 import com.alibaba.fastjson.support.spring.annotation.FastJsonView;
 import org.springframework.core.MethodParameter;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
@@ -19,11 +20,12 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  * @author yanquanyu
  * @author liuming
  */
+@Order
 @ControllerAdvice
 public class FastJsonViewResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-        return FastJsonHttpMessageConverter4.class.isAssignableFrom(converterType) && returnType.hasMethodAnnotation(FastJsonView.class);
+        return FastJsonHttpMessageConverter.class.isAssignableFrom(converterType) && returnType.hasMethodAnnotation(FastJsonView.class);
     }
 
     public FastJsonContainer beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {

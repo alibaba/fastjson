@@ -930,20 +930,31 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     fieldDeserializer = fieldDeser;
                     break;
                 }
-                
-                if (startsWithIs //
-                        && (fieldClass == boolean.class || fieldClass == Boolean.class) //
-                        && fieldName.equalsIgnoreCase(key.substring(2))) {
-                    fieldDeserializer = fieldDeser;
-                    break;
-                }
 
                 char[] fieldSmartMatchKey = fieldDeser.smartMatchKey;
                 if (fieldSmartMatchKey == null) {
                     fieldSmartMatchKey = buildSmartKey(fieldName);
                     fieldDeser.smartMatchKey = fieldSmartMatchKey;
                 }
-                if (Arrays.equals(smartKey, fieldSmartMatchKey)) {
+
+                boolean eq = smartKey.length == fieldSmartMatchKey.length;
+                if (eq) {
+                    for (int i = 0; i < smartKey.length; ++i) {
+                        if (smartKey[i] != fieldSmartMatchKey[i]) {
+                            eq = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (eq) {
+                    fieldDeserializer = fieldDeser;
+                    break;
+                }
+
+                if (startsWithIs //
+                        && (fieldClass == boolean.class || fieldClass == Boolean.class) //
+                        && fieldName.equalsIgnoreCase(key.substring(2))) {
                     fieldDeserializer = fieldDeser;
                     break;
                 }

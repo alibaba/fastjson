@@ -343,16 +343,21 @@ public class FieldInfo implements Comparable<FieldInfo> {
     }
 
     private static Type getInheritGenericType(Class<?> clazz, Type type, TypeVariable<?> tv) {
-        Class<?> gd = (Class<?>) tv.getGenericDeclaration();
+        GenericDeclaration gd = tv.getGenericDeclaration();
+
+        Class<?> class_gd = null;
+        if (gd instanceof Class) {
+            class_gd = (Class<?>) tv.getGenericDeclaration();
+        }
 
         Type[] arguments = null;
-        if (gd == clazz) {
+        if (class_gd == clazz) {
             if (type instanceof ParameterizedType) {
                 ParameterizedType ptype = (ParameterizedType) type;
                 arguments = ptype.getActualTypeArguments();
             }
         } else {
-            for (Class<?> c = clazz; c != null && c != Object.class && c != gd; c = c.getSuperclass()) {
+            for (Class<?> c = clazz; c != null && c != Object.class && c != class_gd; c = c.getSuperclass()) {
                 Type superType = c.getGenericSuperclass();
 
                 if (superType instanceof ParameterizedType) {
@@ -369,7 +374,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         }
 
         Type actualType = null;
-        TypeVariable<?>[] typeVariables = gd.getTypeParameters();
+        TypeVariable<?>[] typeVariables = class_gd.getTypeParameters();
         for (int j = 0; j < typeVariables.length; ++j) {
             if (tv.equals(typeVariables[j])) {
                 actualType = arguments[j];

@@ -1,6 +1,7 @@
 package com.alibaba.fastjson.parser;
 
 import java.lang.reflect.*;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -881,6 +882,35 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         return null;  // key not found.
     }
 
+    private static char[] buildSmartKey(String key) {
+        final int key_len = key.length();
+
+        char[] buf = new char[key_len];
+
+        int buf_size = 0;
+        for (int i = 0, j = 0; i < key_len; ++i) {
+            char ch = key.charAt(i);
+            if (ch == '_' || ch == '-') {
+                continue;
+            }
+
+            if (ch >= 'A' && ch <= 'Z') {
+                ch = (char) (ch + 32);
+            }
+            buf[buf_size++] = ch;
+        }
+
+        if (buf_size == buf.length) {
+            return buf;
+        }
+
+        char[] buf2 = new char[buf_size];
+        for (int i = 0; i < buf_size; ++i) {
+            buf2[i] = buf[i];
+        }
+        return buf2;
+    }
+
     private boolean parseField(DefaultJSONParser parser, String key, Object object, Type objectType,
                               Map<String, Object> fieldValues) {
         JSONLexer lexer = parser.lexer; // xxx
@@ -889,7 +919,9 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
         if (fieldDeserializer == null) {
             boolean startsWithIs = key.startsWith("is");
-            
+
+            char[] smartKey = buildSmartKey(key);
+
             for (FieldDeserializer fieldDeser : sortedFieldDeserializers) {
                 FieldInfo fieldInfo = fieldDeser.fieldInfo;
                 Class<?> fieldClass = fieldInfo.fieldClass;
@@ -902,6 +934,16 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 if (startsWithIs //
                         && (fieldClass == boolean.class || fieldClass == Boolean.class) //
                         && fieldName.equalsIgnoreCase(key.substring(2))) {
+                    fieldDeserializer = fieldDeser;
+                    break;
+                }
+
+                char[] fieldSmartMatchKey = fieldDeser.smartMatchKey;
+                if (fieldSmartMatchKey == null) {
+                    fieldSmartMatchKey = buildSmartKey(fieldName);
+                    fieldDeser.smartMatchKey = fieldSmartMatchKey;
+                }
+                if (Arrays.equals(smartKey, fieldSmartMatchKey)) {
                     fieldDeserializer = fieldDeser;
                     break;
                 }

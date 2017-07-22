@@ -37,7 +37,6 @@ import javax.servlet.http.HttpServletRequest;
 @ControllerAdvice
 public class JSONPResponseBodyAdvice implements ResponseBodyAdvice<Object>{
 
-
     public JSONPResponseBodyAdvice() {
     }
 
@@ -67,7 +66,7 @@ public class JSONPResponseBodyAdvice implements ResponseBodyAdvice<Object>{
     public void beforeBodyWriteInternal(JSONPObject jsonpObject, MediaType contentType,
                                         MethodParameter returnType, ServerHttpRequest request, ServerHttpResponse response) {
         MediaType contentTypeToUse = getContentType(contentType, request, response);
-        response.getHeaders().setContentType(contentTypeToUse);
+        //response.getHeaders().setContentType(contentTypeToUse);
     }
 
     /**
@@ -80,6 +79,6 @@ public class JSONPResponseBodyAdvice implements ResponseBodyAdvice<Object>{
      * @return the content type to set the response to
      */
     protected MediaType getContentType(MediaType contentType, ServerHttpRequest request, ServerHttpResponse response) {
-        return new MediaType("application", "javascript");
+        return FastJsonHttpMessageConverter.APPLICATION_JAVASCRIPT;
     }
 }

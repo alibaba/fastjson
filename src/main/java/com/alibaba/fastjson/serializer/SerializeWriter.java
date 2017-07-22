@@ -24,6 +24,7 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.alibaba.fastjson.util.IOUtils.replaceChars;
@@ -260,7 +261,7 @@ public final class SerializeWriter extends Writer {
             throw new JSONException("serialize exceeded MAX_OUTPUT_LENGTH=" + maxBufSize + ", minimumCapacity=" + minimumCapacity);
         }
 
-        int newCapacity = (buf.length * 3) / 2 + 1;
+        int newCapacity = buf.length + (buf.length >> 1) + 1;
 
         if (newCapacity < minimumCapacity) {
             newCapacity = minimumCapacity;

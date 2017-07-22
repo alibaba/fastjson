@@ -32,6 +32,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     private ConcurrentMap<String, Object> extraFieldDeserializers;
 
     private transient long[] smartMatchHashArray;
+    private transient int[] smartMatchHashArrayMapping;
 
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz, Type type){
         this(config, clazz, type, JavaBeanInfo.build(clazz, clazz.getModifiers(), type, false, true, true, true, config.propertyNamingStrategy));
@@ -899,23 +900,35 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 for (int i = 0; i < sortedFieldDeserializers.length; i++) {
                     hashArray[i] = TypeUtils.fnv_64_lower(sortedFieldDeserializers[i].fieldInfo.name);
                 }
+                Arrays.sort(hashArray);
                 this.smartMatchHashArray = hashArray;
             }
 
-            for (int i = 0; i < this.smartMatchHashArray.length; i++) {
-                if (this.smartMatchHashArray[i] == smartKeyHash) {
-                    fieldDeserializer = sortedFieldDeserializers[i];
-                    break;
-                }
+            // smartMatchHashArrayMapping
+
+            int pos = Arrays.binarySearch(smartMatchHashArray, smartKeyHash);
+            if (pos < 0 && key.startsWith("is")) {
+                smartKeyHash = TypeUtils.fnv_64_lower(key.substring(2));
+                pos = Arrays.binarySearch(smartMatchHashArray, smartKeyHash);
             }
 
-            if (fieldDeserializer == null && key.startsWith("is")) {
-                smartKeyHash = TypeUtils.fnv_64_lower(key.substring(2));
-                for (int i = 0; i < this.smartMatchHashArray.length; i++) {
-                    if (this.smartMatchHashArray[i] == smartKeyHash) {
-                        fieldDeserializer = sortedFieldDeserializers[i];
-                        break;
+            if (pos >= 0) {
+                if (smartMatchHashArrayMapping == null) {
+                    int[] mapping = new int[smartMatchHashArray.length];
+                    Arrays.fill(mapping, -1);
+                    for (int i = 0; i < sortedFieldDeserializers.length; i++) {
+                        int p = Arrays.binarySearch(smartMatchHashArray
+                                , TypeUtils.fnv_64_lower(sortedFieldDeserializers[i].fieldInfo.name));
+                        if (p >= 0) {
+                            mapping[p] = i;
+                        }
                     }
+                    smartMatchHashArrayMapping = mapping;
+                }
+
+                int deserIndex = smartMatchHashArrayMapping[pos];
+                if (deserIndex != -1) {
+                    fieldDeserializer = sortedFieldDeserializers[deserIndex];
                 }
             }
         }

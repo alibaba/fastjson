@@ -24,7 +24,7 @@ public class CurrencyTest4 extends TestCase {
 
     public void test_1() throws Exception {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("symbol", "CNY");
+        jsonObject.put("currencyCode", "CNY");
 
         String text = JSON.toJSONString(jsonObject);
 

@@ -918,9 +918,10 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         FieldDeserializer fieldDeserializer = getFieldDeserializer(key);
 
         if (fieldDeserializer == null) {
-            boolean startsWithIs = key.startsWith("is");
-
             char[] smartKey = buildSmartKey(key);
+
+            char[] smartKey_is = null;
+            boolean startsWithIs = key.startsWith("is");
 
             for (FieldDeserializer fieldDeser : sortedFieldDeserializers) {
                 FieldInfo fieldInfo = fieldDeser.fieldInfo;
@@ -953,10 +954,25 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 }
 
                 if (startsWithIs //
-                        && (fieldClass == boolean.class || fieldClass == Boolean.class) //
-                        && fieldName.equalsIgnoreCase(key.substring(2))) {
-                    fieldDeserializer = fieldDeser;
-                    break;
+                        && (fieldClass == boolean.class || fieldClass == Boolean.class)) {
+                    if (smartKey_is == null) {
+                        smartKey_is = buildSmartKey(key.substring(2));
+                    }
+
+                    eq = smartKey_is.length == fieldSmartMatchKey.length;
+                    if (eq) {
+                        for (int i = 0; i < smartKey_is.length; ++i) {
+                            if (smartKey_is[i] != fieldSmartMatchKey[i]) {
+                                eq = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (eq) {
+                        fieldDeserializer = fieldDeser;
+                        break;
+                    }
                 }
             }
         }

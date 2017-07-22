@@ -20,8 +20,6 @@ public abstract class FieldDeserializer {
     protected Enum[] enums;
     protected long[] enumNameHashCodes;
 
-    public char[] smartMatchKey;
-    
     public FieldDeserializer(Class<?> clazz, FieldInfo fieldInfo, int fastMatchToken){
         this.clazz = clazz;
         this.fieldInfo = fieldInfo;

@@ -31,6 +31,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     public final JavaBeanInfo         beanInfo;
     private ConcurrentMap<String, Object> extraFieldDeserializers;
 
+    private transient long[] smartMatchHashArray;
+
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz, Type type){
         this(config, clazz, type, JavaBeanInfo.build(clazz, clazz.getModifiers(), type, false, true, true, true, config.propertyNamingStrategy));
     }
@@ -882,34 +884,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         return null;  // key not found.
     }
 
-    private static char[] buildSmartKey(String key) {
-        final int key_len = key.length();
 
-        char[] buf = new char[key_len];
-
-        int buf_size = 0;
-        for (int i = 0, j = 0; i < key_len; ++i) {
-            char ch = key.charAt(i);
-            if (ch == '_' || ch == '-') {
-                continue;
-            }
-
-            if (ch >= 'A' && ch <= 'Z') {
-                ch = (char) (ch + 32);
-            }
-            buf[buf_size++] = ch;
-        }
-
-        if (buf_size == buf.length) {
-            return buf;
-        }
-
-        char[] buf2 = new char[buf_size];
-        for (int i = 0; i < buf_size; ++i) {
-            buf2[i] = buf[i];
-        }
-        return buf2;
-    }
 
     private boolean parseField(DefaultJSONParser parser, String key, Object object, Type objectType,
                               Map<String, Object> fieldValues) {
@@ -918,59 +893,27 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         FieldDeserializer fieldDeserializer = getFieldDeserializer(key);
 
         if (fieldDeserializer == null) {
-            char[] smartKey = buildSmartKey(key);
+            long smartKeyHash = TypeUtils.fnv_64_lower(key);
+            if (this.smartMatchHashArray == null) {
+                long[] hashArray = new long[sortedFieldDeserializers.length];
+                for (int i = 0; i < sortedFieldDeserializers.length; i++) {
+                    hashArray[i] = TypeUtils.fnv_64_lower(sortedFieldDeserializers[i].fieldInfo.name);
+                }
+                this.smartMatchHashArray = hashArray;
+            }
 
-            char[] smartKey_is = null;
-            boolean startsWithIs = key.startsWith("is");
-
-            for (FieldDeserializer fieldDeser : sortedFieldDeserializers) {
-                FieldInfo fieldInfo = fieldDeser.fieldInfo;
-                Class<?> fieldClass = fieldInfo.fieldClass;
-                String fieldName = fieldInfo.name;
-                if (fieldName.equalsIgnoreCase(key)) {
-                    fieldDeserializer = fieldDeser;
+            for (int i = 0; i < this.smartMatchHashArray.length; i++) {
+                if (this.smartMatchHashArray[i] == smartKeyHash) {
+                    fieldDeserializer = sortedFieldDeserializers[i];
                     break;
                 }
+            }
 
-                char[] fieldSmartMatchKey = fieldDeser.smartMatchKey;
-                if (fieldSmartMatchKey == null) {
-                    fieldSmartMatchKey = buildSmartKey(fieldName);
-                    fieldDeser.smartMatchKey = fieldSmartMatchKey;
-                }
-
-                boolean eq = smartKey.length == fieldSmartMatchKey.length;
-                if (eq) {
-                    for (int i = 0; i < smartKey.length; ++i) {
-                        if (smartKey[i] != fieldSmartMatchKey[i]) {
-                            eq = false;
-                            break;
-                        }
-                    }
-                }
-
-                if (eq) {
-                    fieldDeserializer = fieldDeser;
-                    break;
-                }
-
-                if (startsWithIs //
-                        && (fieldClass == boolean.class || fieldClass == Boolean.class)) {
-                    if (smartKey_is == null) {
-                        smartKey_is = buildSmartKey(key.substring(2));
-                    }
-
-                    eq = smartKey_is.length == fieldSmartMatchKey.length;
-                    if (eq) {
-                        for (int i = 0; i < smartKey_is.length; ++i) {
-                            if (smartKey_is[i] != fieldSmartMatchKey[i]) {
-                                eq = false;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (eq) {
-                        fieldDeserializer = fieldDeser;
+            if (fieldDeserializer == null && key.startsWith("is")) {
+                smartKeyHash = TypeUtils.fnv_64_lower(key.substring(2));
+                for (int i = 0; i < this.smartMatchHashArray.length; i++) {
+                    if (this.smartMatchHashArray[i] == smartKeyHash) {
+                        fieldDeserializer = sortedFieldDeserializers[i];
                         break;
                     }
                 }
@@ -1138,4 +1081,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
         return null;
     }
+
+
 }

@@ -26,9 +26,11 @@ public class Issue1229 extends TestCase {
         assertEquals(0, result2.data.size());
     }
 
-    public void parseErr() throws Exception {
-        JSON.parseObject("{\"data\":{}}", new TypeReference<Result<List<Data>>>(){});
-        fail("should be failed due to error json");
+    public void test_parseErr() throws Exception {
+        Result<List<Data>> result = JSON.parseObject("{\"data\":{}}", new TypeReference<Result<List<Data>>>(){});
+        assertNotNull(result);
+        assertEquals(1, result.data.size());
+        assertTrue(result.data.get(0) instanceof Data);
     }
 
     public static class Result<T>{

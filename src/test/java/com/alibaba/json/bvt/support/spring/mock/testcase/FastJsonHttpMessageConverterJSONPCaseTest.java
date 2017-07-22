@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration
-public class FastJsonHttpMessageConverterJSONPCase3Test {
+public class FastJsonHttpMessageConverterJSONPCaseTest {
     private static final MediaType APPLICATION_JAVASCRIPT = new MediaType("application", "javascript");
 
     @Autowired

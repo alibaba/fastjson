@@ -2,6 +2,7 @@ package com.alibaba.fastjson.support.spring;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONPObject;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
@@ -49,6 +50,9 @@ import java.util.List;
 
 public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<Object>//
         implements GenericHttpMessageConverter<Object> {
+
+    public static final MediaType APPLICATION_JAVASCRIPT = new MediaType("application", "javascript");
+
     private Charset charset = Charset.forName("UTF-8");
 
     @Deprecated
@@ -153,7 +157,7 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
         return super.canRead(contextClass, mediaType);
     }
 
-    @Override
+
     public boolean canWrite(Type type, Class<?> clazz, MediaType mediaType) {
         return super.canWrite(clazz, mediaType);
     }
@@ -172,7 +176,8 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
      * @see org.springframework.http.converter.GenericHttpMessageConverter.write
      */
     public void write(Object o, Type type, MediaType contentType, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
-        writeInternal(o, outputMessage);
+        super.write(o, contentType, outputMessage);// support StreamingHttpOutputMessage in spring4.0+
+        //writeInternal(o, outputMessage);
     }
 
 
@@ -210,6 +215,8 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
             SerializeFilter[] globalFilters = fastJsonConfig.getSerializeFilters();
             List<SerializeFilter> allFilters = new ArrayList<SerializeFilter>(Arrays.asList(globalFilters));
 
+            boolean isJsonp = false;
+
             //不知道为什么会有这行代码， 但是为了保持和原来的行为一致，还是保留下来
             Object value = strangeCodeForJackson(object);
 
@@ -223,7 +230,10 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
             //jsonp，保留对原本直接返回MappingFastJsonValue方法的支持
             //更好的方式是直接返回com.alibaba.fastjson.JSONPObject
             if (value instanceof MappingFastJsonValue) {
+                isJsonp = true;
                 value = ((MappingFastJsonValue) value).getValue();
+            } else if (value instanceof JSONPObject) {
+                isJsonp = true;
             }
 
 
@@ -239,6 +249,9 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
                     fastJsonConfig.getSerializerFeatures());
             len += writeSuffix(outnew, object);
 
+            if (isJsonp) {
+                headers.setContentType(APPLICATION_JAVASCRIPT);
+            }
             if (fastJsonConfig.isWriteContentLength()) {
                 headers.setContentLength(len);
             }

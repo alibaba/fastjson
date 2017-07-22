@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.concurrent.Callable;
+
 /**
  * FastJsonView注解测试controller
  * Created by yanquanyu on 17-5-31.
@@ -98,5 +100,15 @@ public class FastJsonViewAndJSONPControllerTest {
     public Company test7() {
         Company company = new Company();
         return company;
+    }
+
+    @ResponseJSONP
+    @RequestMapping("test8")
+    public Callable<Company> test8(){
+        return new Callable<Company>() {
+            public Company call() throws Exception {
+                return new Company();
+            }
+        };
     }
 }

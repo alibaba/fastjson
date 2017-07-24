@@ -1,122 +1,53 @@
 package com.alibaba.fastjson.support.spring;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializeFilter;
-import com.alibaba.fastjson.support.config.FastJsonConfig;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.AbstractGenericHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+
 
 /**
- * Fastjson for Spring MVC Converter.
- * <p>
- * Compatible Spring MVC version 4.2+
- *
- * @author Victor.Zxy
- * @see AbstractGenericHttpMessageConverter
- * @since 1.2.11
+ * keep the class for compatibility
+ * @see FastJsonHttpMessageConverter
  */
-public class FastJsonHttpMessageConverter4 //
-        extends AbstractGenericHttpMessageConverter<Object> {
-    /**
-     * with fastJson config
-     */
-    private FastJsonConfig fastJsonConfig = new FastJsonConfig();
-
-    /**
-     * @return the fastJsonConfig.
-     * @since 1.2.11
-     */
-    public FastJsonConfig getFastJsonConfig() {
-        return fastJsonConfig;
-    }
-
-    /**
-     * @param fastJsonConfig the fastJsonConfig to set.
-     * @since 1.2.11
-     */
-    public void setFastJsonConfig(FastJsonConfig fastJsonConfig) {
-        this.fastJsonConfig = fastJsonConfig;
-    }
-
-    /**
-     * Can serialize/deserialize all types.
-     */
-    public FastJsonHttpMessageConverter4() {
-
-        super(MediaType.ALL);
+@Deprecated
+public class FastJsonHttpMessageConverter4 extends FastJsonHttpMessageConverter {
+    @Override
+    protected boolean supports(Class<?> clazz) {
+        return super.supports(clazz);
     }
 
     @Override
-    protected boolean supports(Class<?> paramClass) {
-        return true;
-    }
-
-    public Object read(Type type, //
-                       Class<?> contextClass, //
-                       HttpInputMessage inputMessage //
-    ) throws IOException, HttpMessageNotReadableException {
-        InputStream in = inputMessage.getBody();
-        return JSON.parseObject(in, fastJsonConfig.getCharset(), type, fastJsonConfig.getFeatures());
+    public boolean canRead(Type type, Class<?> contextClass, MediaType mediaType) {
+        return super.canRead(type, contextClass, mediaType);
     }
 
     @Override
-    protected void writeInternal(Object obj, //
-                                 Type type, //
-                                 HttpOutputMessage outputMessage //
-    ) throws IOException, HttpMessageNotWritableException {
-
-        HttpHeaders headers = outputMessage.getHeaders();
-        ByteArrayOutputStream outnew = new ByteArrayOutputStream();
-
-        Object value = obj;
-        //获取全局配置的filter
-        SerializeFilter[] globalFilters = fastJsonConfig.getSerializeFilters();
-        List<SerializeFilter> allFilters = new ArrayList<SerializeFilter>(Arrays.asList(globalFilters));
-
-        if(obj instanceof FastJsonContainer){
-            PropertyPreFilters filters = ((FastJsonContainer) obj).getFilters();
-            allFilters.addAll(filters.getFilters());
-            value = ((FastJsonContainer) obj).getValue();
-        }
-
-        SerializeFilter[] serializeFilters = new SerializeFilter[allFilters.size()];
-        int len = JSON.writeJSONString(outnew, //
-                fastJsonConfig.getCharset(), //
-                value, //
-                fastJsonConfig.getSerializeConfig(), //
-                //fastJsonConfig.getSerializeFilters(), //
-                allFilters.toArray(serializeFilters),
-                fastJsonConfig.getDateFormat(), //
-                JSON.DEFAULT_GENERATE_FEATURE, //
-                fastJsonConfig.getSerializerFeatures());
-        if (fastJsonConfig.isWriteContentLength()) {
-            headers.setContentLength(len);
-        }
-        OutputStream out = outputMessage.getBody();
-        outnew.writeTo(out);
-        outnew.close();
+    public boolean canWrite(Type type, Class<?> clazz, MediaType mediaType) {
+        return super.canWrite(type, clazz, mediaType);
     }
 
     @Override
-    protected Object readInternal(Class<? extends Object> clazz, //
-                                  HttpInputMessage inputMessage //
-    ) throws IOException, HttpMessageNotReadableException {
+    public Object read(Type type, Class<?> contextClass, HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
+        return super.read(type, contextClass, inputMessage);
+    }
 
-        InputStream in = inputMessage.getBody();
-        return JSON.parseObject(in, fastJsonConfig.getCharset(), clazz, fastJsonConfig.getFeatures());
+    @Override
+    public void write(Object o, Type type, MediaType contentType, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
+        super.write(o, type, contentType, outputMessage);
+    }
+
+    @Override
+    protected Object readInternal(Class<?> clazz, HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
+        return super.readInternal(clazz, inputMessage);
+    }
+
+    @Override
+    protected void writeInternal(Object object, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
+        super.writeInternal(object, outputMessage);
     }
 }

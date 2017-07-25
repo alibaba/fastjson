@@ -3,6 +3,7 @@ package com.alibaba.json.bvt;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.alibaba.fastjson.parser.ParserConfig;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -11,6 +12,9 @@ import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class MapRefTest3 extends TestCase {
+    protected void setUp() throws Exception {
+        ParserConfig.global.addAccept("com.alibaba.json.bvt.MapRefTest3");
+    }
 
     public void test_0() throws Exception {
         String text;

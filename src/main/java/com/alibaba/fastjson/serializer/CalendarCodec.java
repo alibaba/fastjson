@@ -116,18 +116,21 @@ public class CalendarCodec implements ObjectSerializer, ObjectDeserializer {
         calendar.setTime(date);
 
         if (type == XMLGregorianCalendar.class) {
-            if (dateFactory == null) {
-                try {
-                    dateFactory = DatatypeFactory.newInstance();
-                } catch (DatatypeConfigurationException e) {
-                    throw new IllegalStateException("Could not obtain an instance of DatatypeFactory.", e);
-                }
-            }
-
-            return (T) dateFactory.newXMLGregorianCalendar((GregorianCalendar) calendar);
+            return (T) createXMLGregorianCalendar((GregorianCalendar) calendar);
         }
 
         return (T) calendar;
+    }
+
+    public XMLGregorianCalendar createXMLGregorianCalendar(Calendar calendar) {
+        if (dateFactory == null) {
+            try {
+                dateFactory = DatatypeFactory.newInstance();
+            } catch (DatatypeConfigurationException e) {
+                throw new IllegalStateException("Could not obtain an instance of DatatypeFactory.", e);
+            }
+        }
+        return dateFactory.newXMLGregorianCalendar((GregorianCalendar) calendar);
     }
 
     public int getFastMatchToken() {

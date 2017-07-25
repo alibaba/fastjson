@@ -3,6 +3,7 @@ package com.alibaba.fastjson;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -40,7 +41,15 @@ public class TypeReference<T> {
     protected TypeReference(){
         Type superClass = getClass().getGenericSuperclass();
 
-        type = ((ParameterizedType) superClass).getActualTypeArguments()[0];
+        Type type = ((ParameterizedType) superClass).getActualTypeArguments()[0];
+
+        Type cachedType = classTypeCache.get(type);
+        if (cachedType == null) {
+            classTypeCache.putIfAbsent(type, type);
+            cachedType = classTypeCache.get(type);
+        }
+
+        this.type = cachedType;
     }
 
     /**
@@ -82,4 +91,6 @@ public class TypeReference<T> {
     public Type getType() {
         return type;
     }
+
+    public final static Type LIST_STRING = new TypeReference<List<String>>() {}.getType();
 }

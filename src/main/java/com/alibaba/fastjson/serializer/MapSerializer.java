@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,7 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -32,8 +29,21 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
 
     public static MapSerializer instance = new MapSerializer();
 
+    public void write(JSONSerializer serializer
+            , Object object
+            , Object fieldName
+            , Type fieldType
+            , int features) throws IOException {
+        write(serializer, object, fieldName, fieldType, features, false);
+    }
+
     @SuppressWarnings({ "rawtypes"})
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
+    public void write(JSONSerializer serializer
+            , Object object
+            , Object fieldName
+            , Type fieldType
+            , int features //
+            , boolean unwrapped) throws IOException {
         SerializeWriter out = serializer.out;
 
         if (object == null) {
@@ -42,16 +52,16 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
         }
 
         Map<?, ?> map = (Map<?, ?>) object;
-
-//        if (out.isEnabled(SerializerFeature.SortField)) {
-//            if ((!(map instanceof SortedMap)) && !(map instanceof LinkedHashMap)) {
-//                try {
-//                    map = new TreeMap(map);
-//                } catch (Exception ex) {
-//                    // skip
-//                }
-//            }
-//        }
+        final int mapSortFieldMask = SerializerFeature.MapSortField.mask;
+        if ((out.features & mapSortFieldMask) != 0 || (features & mapSortFieldMask) != 0) {
+            if ((!(map instanceof SortedMap)) && !(map instanceof LinkedHashMap)) {
+                try {
+                    map = new TreeMap(map);
+                } catch (Exception ex) {
+                    // skip
+                }
+            }
+        }
 
         if (serializer.containsReference(object)) {
             serializer.writeReference(object);
@@ -61,7 +71,9 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
         SerialContext parent = serializer.context;
         serializer.setContext(parent, object, fieldName, 0);
         try {
-            out.write('{');
+            if (!unwrapped) {
+                out.write('{');
+            }
 
             serializer.incrementIndent();
 
@@ -171,31 +183,13 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                         }
                     }
                 }
-                
+
                 {
-                    List<ValueFilter> valueFilters = serializer.valueFilters;
-                    List<ContextValueFilter> contextValueFilters = this.contextValueFilters;
-                    if ((valueFilters != null && valueFilters.size() > 0) //
-                        || (contextValueFilters != null && contextValueFilters.size() > 0)) {
-                        if (entryKey == null || entryKey instanceof String) {
-                            value = this.processValue(serializer, null, object, (String) entryKey, value);
-                        } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
-                            String strKey = JSON.toJSONString(entryKey);
-                            value = this.processValue(serializer, null, object, strKey, value);
-                        }
-                    }
-                }
-                {
-                    List<ValueFilter> valueFilters = this.valueFilters;
-                    List<ContextValueFilter> contextValueFilters = this.contextValueFilters;
-                    if ((valueFilters != null && valueFilters.size() > 0) //
-                        || (contextValueFilters != null && contextValueFilters.size() > 0)) {
-                        if (entryKey == null || entryKey instanceof String) {
-                            value = this.processValue(serializer, null, object, (String) entryKey, value);
-                        } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
-                            String strKey = JSON.toJSONString(entryKey);
-                            value = this.processValue(serializer, null, object, strKey, value);
-                        }
+                    if (entryKey == null || entryKey instanceof String) {
+                        value = this.processValue(serializer, null, object, (String) entryKey, value);
+                    } else {
+                        String strKey = JSON.toJSONString(entryKey);
+                        value = this.processValue(serializer, null, object, strKey, value);
                     }
                 }
 
@@ -259,7 +253,10 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
         if (out.isEnabled(SerializerFeature.PrettyFormat) && map.size() > 0) {
             serializer.println();
         }
-        out.write('}');
+
+        if (!unwrapped) {
+            out.write('}');
+        }
     }
 
 }

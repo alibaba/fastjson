@@ -23,11 +23,11 @@ public class BigStringFieldTest_private extends TestCase {
         
         String text = JSON.toJSONString(model);
         Model model2 = JSON.parseObject(text, Model.class);
-        Assert.assertEquals(model2.f0, model.f0);
-        Assert.assertEquals(model2.f1, model.f1);
-        Assert.assertEquals(model2.f2, model.f2);
-        Assert.assertEquals(model2.f3, model.f3);
-        Assert.assertEquals(model2.f4, model.f4);
+        assertEquals(model2.f0, model.f0);
+        assertEquals(model2.f1, model.f1);
+        assertEquals(model2.f2, model.f2);
+        assertEquals(model2.f3, model.f3);
+        assertEquals(model2.f4, model.f4);
     }
     
     public void test_list() throws Exception {
@@ -43,13 +43,13 @@ public class BigStringFieldTest_private extends TestCase {
         }
         String text = JSON.toJSONString(list);
         List<Model> list2 = JSON.parseObject(text, new TypeReference<List<Model>>() {});
-        Assert.assertEquals(list.size(), list2.size());
+        assertEquals(list.size(), list2.size());
         for (int i = 0; i < 1000; ++i) {
-            Assert.assertEquals(list.get(i).f0, list2.get(i).f0);    
-            Assert.assertEquals(list.get(i).f1, list2.get(i).f1);    
-            Assert.assertEquals(list.get(i).f2, list2.get(i).f2);    
-            Assert.assertEquals(list.get(i).f3, list2.get(i).f3);    
-            Assert.assertEquals(list.get(i).f4, list2.get(i).f4);    
+            assertEquals(list.get(i).f0, list2.get(i).f0);    
+            assertEquals(list.get(i).f1, list2.get(i).f1);    
+            assertEquals(list.get(i).f2, list2.get(i).f2);    
+            assertEquals(list.get(i).f3, list2.get(i).f3);    
+            assertEquals(list.get(i).f4, list2.get(i).f4);    
         }
     }
     
@@ -65,14 +65,18 @@ public class BigStringFieldTest_private extends TestCase {
             list.add(model);
         }
         String text = JSON.toJSONString(list, SerializerFeature.BrowserSecure);
+
+        text = text.replaceAll("&lt;", "<");
+        text = text.replaceAll("&gt;", ">");
+
         List<Model> list2 = JSON.parseObject(text, new TypeReference<List<Model>>() {});
-        Assert.assertEquals(list.size(), list2.size());
+        assertEquals(list.size(), list2.size());
         for (int i = 0; i < 1000; ++i) {
-            Assert.assertEquals(list.get(i).f0, list2.get(i).f0);    
-            Assert.assertEquals(list.get(i).f1, list2.get(i).f1);    
-            Assert.assertEquals(list.get(i).f2, list2.get(i).f2);    
-            Assert.assertEquals(list.get(i).f3, list2.get(i).f3);    
-            Assert.assertEquals(list.get(i).f4, list2.get(i).f4);    
+            assertEquals(list.get(i).f0, list2.get(i).f0);    
+            assertEquals(list.get(i).f1, list2.get(i).f1);    
+            assertEquals(list.get(i).f2, list2.get(i).f2);    
+            assertEquals(list.get(i).f3, list2.get(i).f3);    
+            assertEquals(list.get(i).f4, list2.get(i).f4);    
         }
     }
     

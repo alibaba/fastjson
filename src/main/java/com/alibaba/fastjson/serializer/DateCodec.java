@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -198,6 +198,12 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
 //                val = iso8601Lexer.getCalendar().getTime();
 //            }
 //            iso8601Lexer.close();
+
+            if ("0000-00-00".equals(strVal)
+                    || "0000-00-00T00:00:00".equalsIgnoreCase(strVal)
+                    || "0001-01-01T00:00:00+08:00".equalsIgnoreCase(strVal)) {
+                return null;
+            }
 //            
             long longVal = Long.parseLong(strVal);
             return (T) new java.util.Date(longVal);

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.alibaba.fastjson.util;
 
 import java.io.Closeable;
 import java.io.InputStream;
+import java.io.Reader;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -80,18 +81,9 @@ public class IOUtils {
     
     static {
         try {
-            new PropertiesInitializer().autoConfig();
+            loadPropertiesFromFile();
         } catch (Throwable e) {
             //skip
-        }
-    }
-    
-    
-    static class PropertiesInitializer{
-        public void autoConfig(){
-            loadPropertiesFromFile();
-            TypeUtils.compatibleWithJavaBean ="true".equals(getStringProperty(FASTJSON_COMPATIBLEWITHJAVABEAN)) ;
-            TypeUtils.compatibleWithFieldName ="true".equals(getStringProperty(FASTJSON_COMPATIBLEWITHFIELDNAME)) ;
         }
     }
     
@@ -283,8 +275,7 @@ public class IOUtils {
      * backwards from there. Will fail if i == Integer.MIN_VALUE
      */
     public static void getChars(int i, int index, char[] buf) {
-        int q, r;
-        int charPos = index;
+        int q, r, p = index;
         char sign = 0;
 
         if (i < 0) {
@@ -292,14 +283,13 @@ public class IOUtils {
             i = -i;
         }
 
-        // Generate two digits per iteration
         while (i >= 65536) {
             q = i / 100;
             // really: r = i - (q * 100);
             r = i - ((q << 6) + (q << 5) + (q << 2));
             i = q;
-            buf[--charPos] = DigitOnes[r];
-            buf[--charPos] = DigitTens[r];
+            buf[--p] = DigitOnes[r];
+            buf[--p] = DigitTens[r];
         }
 
         // Fall thru to fast mode for smaller numbers
@@ -307,12 +297,12 @@ public class IOUtils {
         for (;;) {
             q = (i * 52429) >>> (16 + 3);
             r = i - ((q << 3) + (q << 1)); // r = i-(q*10) ...
-            buf[--charPos] = digits[r];
+            buf[--p] = digits[r];
             i = q;
             if (i == 0) break;
         }
         if (sign != 0) {
-            buf[--charPos] = sign;
+            buf[--p] = sign;
         }
     }
 
@@ -700,7 +690,8 @@ public class IOUtils {
                                           (((byte) 0xE0 << 12) ^
                                           ((byte) 0x80 <<  6) ^
                                           ((byte) 0x80 <<  0))));
-                        if (Character.isSurrogate(c)) {
+                        boolean isSurrogate =  c >= Character.MIN_SURROGATE && c < (Character.MAX_SURROGATE + 1);
+                        if (isSurrogate) {
                             return -1;
                         } else {
                             da[dp++] = c;
@@ -729,8 +720,8 @@ public class IOUtils {
                         !Character.isSupplementaryCodePoint(uc)) {
                         return -1;
                     } else {
-                        da[dp++] = Character.highSurrogate(uc);
-                        da[dp++] = Character.lowSurrogate(uc);
+                        da[dp++] =  (char) ((uc >>> 10) + (Character.MIN_HIGH_SURROGATE - (Character.MIN_SUPPLEMENTARY_CODE_POINT >>> 10))); // Character.highSurrogate(uc);
+                        da[dp++] = (char) ((uc & 0x3ff) + Character.MIN_LOW_SURROGATE); // Character.lowSurrogate(uc);
                     }
                     continue;
                 }
@@ -740,5 +731,27 @@ public class IOUtils {
             }
         }
         return dp;
+    }
+
+    /**
+     * @deprecated
+     */
+    public static String readAll(Reader reader) {
+        StringBuilder buf = new StringBuilder();
+
+        try {
+            char[] chars = new char[2048];
+            for (;;) {
+                int len = reader.read(chars, 0, chars.length);
+                if (len < 0) {
+                    break;
+                }
+                buf.append(chars, 0, len);
+            }
+        } catch(Exception ex) {
+            throw new JSONException("read string from reader error", ex);
+        }
+
+        return buf.toString();
     }
 }

@@ -1,8 +1,13 @@
 package com.alibaba.fastjson.parser.deserializer;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.Map;
+import java.util.zip.GZIPInputStream;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONField;
@@ -41,10 +46,11 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
 
     @Override
     public void parseField(DefaultJSONParser parser, Object object, Type objectType, Map<String, Object> fieldValues) {
-        if (fieldValueDeserilizer == null) {
+        if (this.fieldValueDeserilizer == null) {
             getFieldValueDeserilizer(parser.getConfig());
         }
 
+        ObjectDeserializer fieldValueDeserilizer = this.fieldValueDeserilizer;
         Type fieldType = fieldInfo.fieldType;
         if (objectType instanceof ParameterizedType) {
             ParseContext objContext = parser.getContext();
@@ -57,20 +63,47 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
 
         // ContextObjectDeserializer
         Object value;
-        if (fieldValueDeserilizer instanceof JavaBeanDeserializer) {
+        if (fieldValueDeserilizer instanceof JavaBeanDeserializer && fieldInfo.parserFeatures != 0) {
             JavaBeanDeserializer javaBeanDeser = (JavaBeanDeserializer) fieldValueDeserilizer;
             value = javaBeanDeser.deserialze(parser, fieldType, fieldInfo.name, fieldInfo.parserFeatures);
         } else {
             if (this.fieldInfo.format != null && fieldValueDeserilizer instanceof ContextObjectDeserializer) {
                 value = ((ContextObjectDeserializer) fieldValueDeserilizer) //
-                                                                            .deserialze(parser, fieldType,
-                                                                                        fieldInfo.name,
-                                                                                        fieldInfo.format,
-                                                                                        fieldInfo.parserFeatures);
+                                        .deserialze(parser,
+                                                    fieldType,
+                                                    fieldInfo.name,
+                                                    fieldInfo.format,
+                                                    fieldInfo.parserFeatures);
             } else {
                 value = fieldValueDeserilizer.deserialze(parser, fieldType, fieldInfo.name);
             }
         }
+
+        if (value instanceof byte[]
+                && ("gzip".equals(fieldInfo.format) || "gzip,base64".equals(fieldInfo.format))) {
+            byte[] bytes = (byte[]) value;
+            GZIPInputStream gzipIn = null;
+            try {
+                gzipIn = new GZIPInputStream(new ByteArrayInputStream(bytes));
+
+                ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+                for (;;) {
+                    byte[] buf = new byte[1024];
+                    int len = gzipIn.read(buf);
+                    if (len == -1) {
+                        break;
+                    }
+                    if (len > 0) {
+                        byteOut.write(buf, 0, len);
+                    }
+                }
+                value = byteOut.toByteArray();
+
+            } catch (IOException ex) {
+                throw new JSONException("unzip bytes error.", ex);
+            }
+        }
+
         if (parser.getResolveStatus() == DefaultJSONParser.NeedToResolve) {
             ResolveTask task = parser.getLastResolveTask();
             task.fieldDeserializer = this;
@@ -91,5 +124,9 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
         }
 
         return JSONToken.LITERAL_INT;
+    }
+
+    public void parseFieldUnwrapped(DefaultJSONParser parser, Object object, Type objectType, Map<String, Object> fieldValues) {
+        throw new JSONException("TODO");
     }
 }

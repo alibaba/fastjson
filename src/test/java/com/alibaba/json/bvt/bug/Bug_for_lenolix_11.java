@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import com.alibaba.fastjson.parser.ParserConfig;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -14,6 +15,8 @@ public class Bug_for_lenolix_11 extends TestCase {
     protected void setUp() throws Exception {
         JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
         JSON.defaultLocale = Locale.CHINA;
+
+        ParserConfig.global.addAccept("com.alibaba.json.bvt.bug.Bug_for_lenolix_11.");
     }
     
     public void test_for_objectKey() throws Exception {

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,4 +74,9 @@ public @interface JSONField {
      * @return the alternative names of the field when it is deserialized
      */
     String[] alternateNames() default {};
+
+    /**
+     * @since 1.2.31
+     */
+    boolean unwrapped() default false;
 }

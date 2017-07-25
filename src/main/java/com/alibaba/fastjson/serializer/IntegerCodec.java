@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,12 @@ package com.alibaba.fastjson.serializer;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -64,13 +67,16 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         final JSONLexer lexer = parser.lexer;
 
-        if (lexer.token() == JSONToken.NULL) {
+        final int token = lexer.token();
+
+        if (token == JSONToken.NULL) {
             lexer.nextToken(JSONToken.COMMA);
             return null;
         }
 
+
         Integer intObj;
-        if (lexer.token() == JSONToken.LITERAL_INT) {
+        if (token == JSONToken.LITERAL_INT) {
             int val;
             try {
                  val = lexer.intValue();
@@ -79,14 +85,20 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
             }
             lexer.nextToken(JSONToken.COMMA);
             intObj = Integer.valueOf(val);
-        } else if (lexer.token() == JSONToken.LITERAL_FLOAT) {
+        } else if (token == JSONToken.LITERAL_FLOAT) {
             BigDecimal decimalValue = lexer.decimalValue();
             lexer.nextToken(JSONToken.COMMA);
             intObj = Integer.valueOf(decimalValue.intValue());
         } else {
-            Object value = parser.parse();
+            if (token == JSONToken.LBRACE) {
+                JSONObject jsonObject = new JSONObject(true);
+                parser.parseObject(jsonObject);
+                intObj = TypeUtils.castToInt(jsonObject);
+            } else {
+                Object value = parser.parse();
 
-            intObj = TypeUtils.castToInt(value);
+                intObj = TypeUtils.castToInt(value);
+            }
         }
         
         if (clazz == AtomicInteger.class) {

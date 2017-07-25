@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package com.alibaba.fastjson.util;
 
+import java.util.Collections;
+
 /**
  * for concurrent IdentityHashMap
  * 
@@ -24,9 +26,10 @@ package com.alibaba.fastjson.util;
 public class IdentityHashMap<K, V> {
     private final Entry<K, V>[] buckets;
     private final int           indexMask;
+    public final static int DEFAULT_SIZE = 1024;
 
     public IdentityHashMap(){
-        this(1024);
+        this(DEFAULT_SIZE);
     }
 
     public IdentityHashMap(int tableSize){
@@ -41,6 +44,27 @@ public class IdentityHashMap<K, V> {
         for (Entry<K, V> entry = buckets[bucket]; entry != null; entry = entry.next) {
             if (key == entry.key) {
                 return (V) entry.value;
+            }
+        }
+
+        return null;
+    }
+
+    public Class findClass(String keyString) {
+        for (Entry bucket : buckets) {
+            if (bucket == null) {
+                continue;
+            }
+
+            for (Entry<K, V> entry = bucket; entry != null; entry = entry.next) {
+                Object key = bucket.key;
+                if (key instanceof Class) {
+                    Class clazz = ((Class) key);
+                    String className = clazz.getName();
+                    if (className.equals(keyString)) {
+                        return clazz;
+                    }
+                }
             }
         }
 

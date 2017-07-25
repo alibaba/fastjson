@@ -16,6 +16,14 @@ public class bug_for_pengsong0302 extends TestCase {
         Assert.assertEquals("{\"value\":\"a\\u2028b\"}", JSON.toJSONString(new A("a\u2028b")));
     }
 
+    public void test_2029() throws Exception {
+        Assert.assertEquals("\"a\\u2029b\"", JSON.toJSONString("a\u2029b"));
+    }
+
+    public void test_2029_1() throws Exception {
+        Assert.assertEquals("{\"value\":\"a\\u2029b\"}", JSON.toJSONString(new A("a\u2029b")));
+    }
+
     public static class A {
 
         private String value;

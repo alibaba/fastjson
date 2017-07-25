@@ -810,9 +810,36 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ALOAD, 3);
         mw.visitVarInsn(ALOAD, context.var("instance"));
         mw.visitVarInsn(ILOAD, 4);
+
+
+        int flagSize = (fieldListSize / 32);
+
+        if (fieldListSize != 0 && (fieldListSize % 32) != 0) {
+            flagSize += 1;
+        }
+
+        if (flagSize == 1) {
+            mw.visitInsn(ICONST_1);
+        } else {
+            mw.visitIntInsn(BIPUSH, flagSize);
+        }
+        mw.visitIntInsn(NEWARRAY, T_INT);
+        for (int i = 0; i < flagSize; ++i) {
+            mw.visitInsn(DUP);
+            if (i == 0) {
+                mw.visitInsn(ICONST_0);
+            } else if (i == 1) {
+                mw.visitInsn(ICONST_1);
+            } else {
+                mw.visitIntInsn(BIPUSH, i);
+            }
+            mw.visitVarInsn(ILOAD, context.var("_asm_flag_" + i));
+            mw.visitInsn(IASTORE);
+        }
+
         mw.visitMethodInsn(INVOKEVIRTUAL, type(JavaBeanDeserializer.class),
                            "parseRest", "(L" + DefaultJSONParser
-                                        + ";Ljava/lang/reflect/Type;Ljava/lang/Object;Ljava/lang/Object;I)Ljava/lang/Object;");
+                                        + ";Ljava/lang/reflect/Type;Ljava/lang/Object;Ljava/lang/Object;I[I)Ljava/lang/Object;");
         mw.visitTypeInsn(CHECKCAST, type(context.clazz)); // cast
         mw.visitInsn(ARETURN);
 
@@ -827,7 +854,7 @@ public class ASMDeserializerFactory implements Opcodes {
                            "(L" + DefaultJSONParser + ";Ljava/lang/reflect/Type;Ljava/lang/Object;I)Ljava/lang/Object;");
         mw.visitInsn(ARETURN);
 
-        mw.visitMaxs(6, context.variantIndex);
+        mw.visitMaxs(10, context.variantIndex);
         mw.visitEnd();
 
     }
@@ -1069,7 +1096,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitLabel(storeCollection_);
         mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
 
-        boolean isPrimitive = ParserConfig.isPrimitive(fieldInfo.fieldClass);
+        boolean isPrimitive = ParserConfig.isPrimitive2(fieldInfo.fieldClass);
         _getCollectionFieldItemDeser(context, mw, fieldInfo, itemType);
         if (isPrimitive) {
             mw.visitMethodInsn(INVOKEINTERFACE, type(ObjectDeserializer.class), "getFastMatchToken", "()I");

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,23 +31,7 @@ import java.math.BigInteger;
 import java.security.AccessControlException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.AbstractCollection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -62,6 +46,8 @@ import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
+import com.alibaba.fastjson.serializer.CalendarCodec;
+import com.alibaba.fastjson.serializer.DateCodec;
 import com.alibaba.fastjson.serializer.SerializeBeanInfo;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
@@ -88,6 +74,21 @@ public class TypeUtils {
 
     private static boolean transientClassInited         = false;
     private static Class<? extends Annotation> transientClass;
+
+    private static Class<? extends Annotation> class_OneToMany = null;
+    private static boolean class_OneToMany_error = false;
+
+    private static Method method_HibernateIsInitialized = null;
+    private static boolean method_HibernateIsInitialized_error = false;
+
+    static {
+        try {
+            TypeUtils.compatibleWithJavaBean = "true".equals(IOUtils.getStringProperty(IOUtils.FASTJSON_COMPATIBLEWITHJAVABEAN));
+            TypeUtils.compatibleWithFieldName = "true".equals(IOUtils.getStringProperty(IOUtils.FASTJSON_COMPATIBLEWITHFIELDNAME));
+        } catch (Throwable e) {
+            // skip
+        }
+    }
 
 
     public static String castToString(Object value) {
@@ -186,6 +187,10 @@ public class TypeUtils {
 
         String strVal = value.toString();
         if (strVal.length() == 0) {
+            return null;
+        }
+
+        if (value instanceof Map && ((Map) value).size() == 0) {
             return null;
         }
 
@@ -315,6 +320,10 @@ public class TypeUtils {
                     format = "yyyy-MM-dd";
                 } else if (strVal.length() == "yyyy-MM-dd HH:mm:ss".length()) {
                     format = "yyyy-MM-dd HH:mm:ss";
+                } else if (strVal.length() == 29
+                        && strVal.charAt(26) == ':'
+                        && strVal.charAt(28) == '0') {
+                    format = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
                 } else {
                     format = "yyyy-MM-dd HH:mm:ss.SSS";
                 }
@@ -414,7 +423,16 @@ public class TypeUtils {
                 return null;
             }
 
-            longValue = Long.parseLong(strVal);
+            if (isNumber(strVal)) {
+                longValue = Long.parseLong(strVal);
+            } else {
+                JSONScanner scanner = new JSONScanner(strVal);
+                if (scanner.scanISO8601DateIfMatch(false)) {
+                    longValue = scanner.getCalendar().getTime().getTime();
+                } else {
+                    throw new JSONException("can not cast to Timestamp, value : " + strVal);
+                }
+            }
         }
 
         if (longValue <= 0) {
@@ -455,14 +473,40 @@ public class TypeUtils {
                 return null;
             }
 
-            longValue = Long.parseLong(strVal);
+            if (isNumber(strVal)) {
+                longValue = Long.parseLong(strVal);
+            } else {
+                JSONScanner scanner = new JSONScanner(strVal);
+                if (scanner.scanISO8601DateIfMatch(false)) {
+                    longValue = scanner.getCalendar().getTime().getTime();
+                } else {
+                    throw new JSONException("can not cast to Timestamp, value : " + strVal);
+                }
+            }
         }
 
         if (longValue <= 0) {
-            throw new JSONException("can not cast to Date, value : " + value);
+            throw new JSONException("can not cast to Timestamp, value : " + value);
         }
 
         return new java.sql.Timestamp(longValue);
+    }
+
+    public static boolean isNumber(String str) {
+        for (int i = 0; i < str.length(); ++i) {
+            char ch = str.charAt(i);
+            if (ch == '+' || ch == '-') {
+                if (i != 0) {
+                    return false;
+                } else {
+                    continue;
+                }
+            } else if (ch < '0' || ch > '9') {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public static Long castToLong(Object value) {
@@ -504,6 +548,18 @@ public class TypeUtils {
             }
         }
 
+        if (value instanceof Map) {
+            Map map = (Map) value;
+            if (map.size() == 2
+                    && map.containsKey("andIncrement")
+                    && map.containsKey("andDecrement")) {
+                Iterator iter = map.values().iterator();
+                iter.next();
+                Object value2 = iter.next();
+                return castToLong(value2);
+            }
+        }
+
         throw new JSONException("can not cast to long, value : " + value);
     }
 
@@ -538,6 +594,18 @@ public class TypeUtils {
 
         if (value instanceof Boolean) {
             return ((Boolean) value).booleanValue() ? 1 : 0;
+        }
+
+        if (value instanceof Map) {
+            Map map = (Map) value;
+            if (map.size() == 2
+                    && map.containsKey("andIncrement")
+                    && map.containsKey("andDecrement")) {
+                Iterator iter = map.values().iterator();
+                iter.next();
+                Object value2 = iter.next();
+                return castToInt(value2);
+            }
         }
 
         throw new JSONException("can not cast to int, value : " + value);
@@ -585,6 +653,16 @@ public class TypeUtils {
                 || "0".equals(strVal)) {
                 return Boolean.FALSE;
             }
+
+            if ("Y".equalsIgnoreCase(strVal) //
+                    || "T".equals(strVal)) {
+                return Boolean.TRUE;
+            }
+
+            if ("F".equalsIgnoreCase(strVal) //
+                    || "N".equals(strVal)) {
+                return Boolean.FALSE;
+            }
         }
 
         throw new JSONException("can not cast to boolean, value : " + value);
@@ -597,6 +675,21 @@ public class TypeUtils {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static <T> T cast(Object obj, Class<T> clazz, ParserConfig config) {
         if (obj == null) {
+            if (clazz == int.class) {
+                return (T) Integer.valueOf(0);
+            } else if (clazz == long.class) {
+                return (T) Long.valueOf(0);
+            } else if (clazz == short.class) {
+                return (T) Short.valueOf((short) 0);
+            } else if (clazz == byte.class) {
+                return (T) Byte.valueOf((byte) 0);
+            } else if (clazz == float.class) {
+                return (T) Float.valueOf(0);
+            } else if (clazz == double.class) {
+                return (T) Double.valueOf(0);
+            } else if (clazz == boolean.class) {
+                return (T) Boolean.FALSE;
+            }
             return null;
         }
 
@@ -653,9 +746,9 @@ public class TypeUtils {
             return (T) castToByte(obj);
         }
 
-        // if (clazz == char.class || clazz == Character.class) {
-        // return (T) castToCharacter(obj);
-        // }
+        if (clazz == char.class || clazz == Character.class) {
+            return (T) castToChar(obj);
+        }
 
         if (clazz == short.class || clazz == Short.class) {
             return (T) castToShort(obj);
@@ -721,6 +814,14 @@ public class TypeUtils {
             return (T) calendar;
         }
 
+        if (clazz.getName().equals("javax.xml.datatype.XMLGregorianCalendar")) {
+            Date date = castToDate(obj);
+            Calendar calendar = Calendar.getInstance(JSON.defaultTimeZone, JSON.defaultLocale);
+            calendar.setTime(date);
+
+            return (T) CalendarCodec.instance.createXMLGregorianCalendar(calendar);
+        }
+
         if (obj instanceof String) {
             String strVal = (String) obj;
 
@@ -733,9 +834,27 @@ public class TypeUtils {
             if (clazz == java.util.Currency.class) {
                 return (T) java.util.Currency.getInstance(strVal);
             }
+
+            if (clazz == java.util.Locale.class) {
+                return (T) toLocale(strVal);
+            }
         }
 
         throw new JSONException("can not cast to : " + clazz.getName());
+    }
+
+    public static Locale toLocale(String strVal) {
+        String[] items = strVal.split("_");
+
+        if (items.length == 1) {
+            return new Locale(items[0]);
+        }
+
+        if (items.length == 2) {
+            return new Locale(items[0], items[1]);
+        }
+
+        return new Locale(items[0], items[1], items[2]);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -883,7 +1002,11 @@ public class TypeUtils {
                 if (iClassObject instanceof String) {
                     String className = (String) iClassObject;
 
-                    Class<?> loadClazz = (Class<T>) loadClass(className);
+                    Class<?> loadClazz;
+                    if (config == null) {
+                        config = ParserConfig.global;
+                    }
+                    loadClazz = config.checkAutoType(className, null);
 
                     if (loadClazz == null) {
                         throw new ClassNotFoundException(className + " not found");
@@ -904,8 +1027,35 @@ public class TypeUtils {
                     object = new JSONObject(map);
                 }
 
+                if (config == null) {
+                    config = ParserConfig.getGlobalInstance();
+                }
+                ObjectDeserializer deserializer = config.getDeserializers().get(clazz);
+                if (deserializer != null) {
+                    String json = JSON.toJSONString(object);
+                    return (T) JSON.parseObject(json, clazz);
+                }
+
                 return (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
                                                   new Class<?>[] { clazz }, object);
+            }
+
+            if (clazz == Locale.class) {
+                Object arg0 = map.get("language");
+                Object arg1 = map.get("country");
+                if (arg0 instanceof String) {
+                    String language = (String) arg0;
+                    if (arg1 instanceof String) {
+                        String country = (String) arg1;
+                        return (T) new Locale(language, country);
+                    } else if (arg1 == null) {
+                        return (T) new Locale(language);
+                    }
+                }
+            }
+
+            if (clazz == String.class && map instanceof JSONObject) {
+                return (T) map.toString();
             }
 
             if (config == null) {
@@ -919,7 +1069,7 @@ public class TypeUtils {
             }
             
             if (javaBeanDeser == null) {
-                throw new JSONException("can not get javaBeanDeserializer");
+                throw new JSONException("can not get javaBeanDeserializer. " + clazz.getName());
             }
             
             return (T) javaBeanDeser.createInstance(map, config);
@@ -928,7 +1078,7 @@ public class TypeUtils {
         }
     }
 
-    private static ConcurrentMap<String, Class<?>> mappings = new ConcurrentHashMap<String, Class<?>>();
+    private static ConcurrentMap<String, Class<?>> mappings = new ConcurrentHashMap<String, Class<?>>(16, 0.75f, 1);
 
     static {
         addBaseClassMappings();
@@ -962,7 +1112,100 @@ public class TypeUtils {
         mappings.put("[C", char[].class);
         mappings.put("[Z", boolean[].class);
 
-        mappings.put(HashMap.class.getName(), HashMap.class);
+        Class<?>[] classes = new Class[] {
+                Object.class,
+                java.lang.Cloneable.class,
+                loadClass("java.lang.AutoCloseable"),
+                java.lang.Exception.class,
+                java.lang.RuntimeException.class,
+                java.lang.IllegalAccessError.class,
+                java.lang.IllegalAccessException.class,
+                java.lang.IllegalArgumentException.class,
+                java.lang.IllegalMonitorStateException.class,
+                java.lang.IllegalStateException.class,
+                java.lang.IllegalThreadStateException.class,
+                java.lang.IndexOutOfBoundsException.class,
+                java.lang.InstantiationError.class,
+                java.lang.InstantiationException.class,
+                java.lang.InternalError.class,
+                java.lang.InterruptedException.class,
+                java.lang.LinkageError.class,
+                java.lang.NegativeArraySizeException.class,
+                java.lang.NoClassDefFoundError.class,
+                java.lang.NoSuchFieldError.class,
+                java.lang.NoSuchFieldException.class,
+                java.lang.NoSuchMethodError.class,
+                java.lang.NoSuchMethodException.class,
+                java.lang.NullPointerException.class,
+                java.lang.NumberFormatException.class,
+                java.lang.OutOfMemoryError.class,
+                java.lang.SecurityException.class,
+                java.lang.StackOverflowError.class,
+                java.lang.StringIndexOutOfBoundsException.class,
+                java.lang.TypeNotPresentException.class,
+                java.lang.VerifyError.class,
+                java.lang.StackTraceElement.class,
+                java.util.HashMap.class,
+                java.util.Hashtable.class,
+                java.util.TreeMap.class,
+                java.util.IdentityHashMap.class,
+                java.util.WeakHashMap.class,
+                java.util.LinkedHashMap.class,
+                java.util.HashSet.class,
+                java.util.LinkedHashSet.class,
+                java.util.TreeSet.class,
+                java.util.concurrent.TimeUnit.class,
+                java.util.concurrent.ConcurrentHashMap.class,
+                loadClass("java.util.concurrent.ConcurrentSkipListMap"),
+                loadClass("java.util.concurrent.ConcurrentSkipListSet"),
+                java.util.concurrent.atomic.AtomicInteger.class,
+                java.util.concurrent.atomic.AtomicLong.class,
+                java.util.Collections.EMPTY_MAP.getClass(),
+                java.util.BitSet.class,
+                java.util.Calendar.class,
+                java.util.Date.class,
+                java.util.Locale.class,
+                java.util.UUID.class,
+                java.sql.Time.class,
+                java.sql.Date.class,
+                java.sql.Timestamp.class,
+                java.text.SimpleDateFormat.class,
+                com.alibaba.fastjson.JSONObject.class,
+        };
+
+        for (Class clazz : classes) {
+            if (clazz == null) {
+                continue;
+            }
+            mappings.put(clazz.getName(), clazz);
+        }
+
+        String[] awt = new String[] {
+                "java.awt.Rectangle",
+                "java.awt.Point",
+                "java.awt.Font",
+                "java.awt.Color"};
+        for (String className : awt) {
+            Class<?> clazz = loadClass(className);
+            if (clazz == null) {
+                break;
+            }
+            mappings.put(clazz.getName(), clazz);
+        }
+
+        String[] spring = new String[] {
+                "org.springframework.util.LinkedMultiValueMap",
+                "org.springframework.util.LinkedCaseInsensitiveMap",
+                "org.springframework.remoting.support.RemoteInvocation",
+                "org.springframework.remoting.support.RemoteInvocationResult"
+        };
+        for (String className : spring) {
+            Class<?> clazz = loadClass(className);
+            if (clazz == null) {
+                break;
+            }
+            mappings.put(clazz.getName(), clazz);
+        }
     }
 
     public static void clearClassMapping() {
@@ -990,6 +1233,10 @@ public class TypeUtils {
         }
         
         return false;
+    }
+
+    public static Class<?> getClassFromMapping(String className) {
+        return mappings.get(className);
     }
 
     public static Class<?> loadClass(String className, ClassLoader classLoader) {
@@ -1028,7 +1275,7 @@ public class TypeUtils {
         try {
             ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
 
-            if (contextClassLoader != null) {
+            if (contextClassLoader != null && contextClassLoader != classLoader) {
                 clazz = contextClassLoader.loadClass(className);
                 mappings.put(className, clazz);
 
@@ -1049,26 +1296,24 @@ public class TypeUtils {
 
         return clazz;
     }
-    
 
     public static SerializeBeanInfo buildBeanInfo(Class<?> beanType //
-                                                  , Map<String, String> aliasMap //
-                                                  , PropertyNamingStrategy propertyNamingStrategy) {
+            , Map<String, String> aliasMap //
+            , PropertyNamingStrategy propertyNamingStrategy) {
+        return buildBeanInfo(beanType, aliasMap, propertyNamingStrategy, false);
+    }
+
+    public static SerializeBeanInfo buildBeanInfo(Class<?> beanType //
+            , Map<String, String> aliasMap //
+            , PropertyNamingStrategy propertyNamingStrategy //
+            , boolean fieldBased //
+    ) {
         
         JSONType jsonType = beanType.getAnnotation(JSONType.class);
-
-        // fieldName,field ，先生成fieldName的快照，减少之后的findField的轮询
-        Map<String, Field> fieldCacheMap = new HashMap<String, Field>();
-        ParserConfig.parserAllFieldToCache(beanType, fieldCacheMap);
-
-        List<FieldInfo> fieldInfoList = computeGetters(beanType, jsonType, aliasMap, fieldCacheMap, false, propertyNamingStrategy);
-        FieldInfo[] fields = new FieldInfo[fieldInfoList.size()];
-        fieldInfoList.toArray(fields);
-        
         String[] orders = null;
 
         final int features;
-        String typeName = null;
+        String typeName = null, typeKey = null;
         if (jsonType != null) {
             orders = jsonType.orders();
             typeName = jsonType.typeName();
@@ -1076,14 +1321,52 @@ public class TypeUtils {
                 typeName = null;
             }
             features = SerializerFeature.of(jsonType.serialzeFeatures());
+            for (Class<?> supperClass = beanType.getSuperclass()
+                 ; supperClass != null && supperClass != Object.class
+                    ; supperClass = supperClass.getSuperclass()) {
+                JSONType superJsonType = supperClass.getAnnotation(JSONType.class);
+                if (superJsonType == null) {
+                    break;
+                }
+
+                typeKey = superJsonType.typeKey();
+                if (typeKey.length() != 0) {
+                    break;
+                }
+            }
+
+            for (Class<?> interfaceClass : beanType.getInterfaces()) {
+                JSONType superJsonType = interfaceClass.getAnnotation(JSONType.class);
+                if (superJsonType != null) {
+                    typeKey = superJsonType.typeKey();
+                    if (typeKey.length() != 0) {
+                        break;
+                    }
+                }
+            }
+            if (typeKey != null && typeKey.length() == 0) {
+                typeKey = null;
+            }
         } else {
             features = 0;
         }
+
+        // fieldName,field ，先生成fieldName的快照，减少之后的findField的轮询
+        Map<String, Field> fieldCacheMap = new HashMap<String, Field>();
+        ParserConfig.parserAllFieldToCache(beanType, fieldCacheMap);
+
+        List<FieldInfo> fieldInfoList = fieldBased
+                ? computeGettersWithFieldBase(beanType, aliasMap, false, propertyNamingStrategy) //
+                : computeGetters(beanType, jsonType, aliasMap, fieldCacheMap, false, propertyNamingStrategy);
+        FieldInfo[] fields = new FieldInfo[fieldInfoList.size()];
+        fieldInfoList.toArray(fields);
         
         FieldInfo[] sortedFields;
         List<FieldInfo> sortedFieldList;
         if (orders != null && orders.length != 0) {
-            sortedFieldList = TypeUtils.computeGetters(beanType, jsonType, aliasMap,fieldCacheMap, true, propertyNamingStrategy);
+            sortedFieldList = fieldBased
+                    ? computeGettersWithFieldBase(beanType, aliasMap, true, propertyNamingStrategy) //
+                    : computeGetters(beanType, jsonType, aliasMap,fieldCacheMap, true, propertyNamingStrategy);
         } else {
             sortedFieldList = new ArrayList<FieldInfo>(fieldInfoList);
             Collections.sort(sortedFieldList);
@@ -1095,7 +1378,35 @@ public class TypeUtils {
             sortedFields = fields;
         }
         
-        return new SerializeBeanInfo(beanType, jsonType, typeName, features, fields, sortedFields);
+        return new SerializeBeanInfo(beanType, jsonType, typeName, typeKey, features, fields, sortedFields);
+    }
+
+    public static List<FieldInfo> computeGettersWithFieldBase(
+            Class<?> clazz, //
+            Map<String, String> aliasMap, //
+            boolean sorted, //
+            PropertyNamingStrategy propertyNamingStrategy) {
+        Map<String, FieldInfo> fieldInfoMap = new LinkedHashMap<String, FieldInfo>();
+
+        for (Class<?> currentClass = clazz; currentClass != null; currentClass = currentClass.getSuperclass()) {
+            Field[] fields = currentClass.getDeclaredFields();
+
+            computeFields(currentClass, aliasMap, propertyNamingStrategy, fieldInfoMap, fields);
+        }
+
+        return getFieldInfos(clazz, sorted, fieldInfoMap);
+    }
+
+    public static List<FieldInfo> computeGetters(Class<?> clazz, Map<String, String> aliasMap) {
+        return computeGetters(clazz, aliasMap, true);
+    }
+
+    public static List<FieldInfo> computeGetters(Class<?> clazz, Map<String, String> aliasMap, boolean sorted) {
+        JSONType jsonType = clazz.getAnnotation(JSONType.class);
+        Map<String, Field> fieldCacheMap = new HashMap<String, Field>();
+        ParserConfig.parserAllFieldToCache(clazz, fieldCacheMap);
+
+        return computeGetters(clazz, jsonType, aliasMap, fieldCacheMap, sorted, PropertyNamingStrategy.CamelCase);
     }
 
     public static List<FieldInfo> computeGetters(Class<?> clazz, //
@@ -1193,7 +1504,7 @@ public class TypeUtils {
                     } else {
                         propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
                     }
-                    propertyName = getPropertyNameByCompatibleFieldName(fieldCacheMap, methodName,  propertyName,3); 
+                    propertyName = getPropertyNameByCompatibleFieldName(fieldCacheMap, methodName,  propertyName,3);
                 } else if (c3 == '_') {
                     propertyName = methodName.substring(4);
                 } else if (c3 == 'f') {
@@ -1211,7 +1522,7 @@ public class TypeUtils {
                 }
                 //假如bean的field很多的情况一下，轮询时将大大降低效率
                 Field field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
-                
+
                 if (field == null && propertyName.length() > 1) {
                     char ch = propertyName.charAt(1);
                     if (ch >= 'A' && ch <= 'Z') {
@@ -1219,7 +1530,7 @@ public class TypeUtils {
                         field = ParserConfig.getFieldFromCache(javaBeanCompatiblePropertyName, fieldCacheMap);
                     }
                 }
-                
+
                 JSONField fieldAnnotation = null;
                 if (field != null) {
                     fieldAnnotation = field.getAnnotation(JSONField.class);
@@ -1256,7 +1567,7 @@ public class TypeUtils {
                         continue;
                     }
                 }
-                
+
                 if (propertyNamingStrategy != null) {
                     propertyName = propertyNamingStrategy.translate(propertyName);
                 }
@@ -1285,7 +1596,7 @@ public class TypeUtils {
                     } else {
                         propertyName = Character.toLowerCase(methodName.charAt(2)) + methodName.substring(3);
                     }
-                    propertyName = getPropertyNameByCompatibleFieldName(fieldCacheMap, methodName,  propertyName,2); 
+                    propertyName = getPropertyNameByCompatibleFieldName(fieldCacheMap, methodName,  propertyName,2);
                 } else if (c2 == '_') {
                     propertyName = methodName.substring(3);
                 } else if (c2 == 'f') {
@@ -1294,10 +1605,16 @@ public class TypeUtils {
                     continue;
                 }
 
+                boolean ignore = isJSONTypeIgnore(clazz, propertyName);
+
+                if (ignore) {
+                    continue;
+                }
+
                 Field field = ParserConfig.getFieldFromCache(propertyName,fieldCacheMap);
 
                 if (field == null) {
-                    field = ParserConfig.getFieldFromCache(methodName,fieldCacheMap); 
+                    field = ParserConfig.getFieldFromCache(methodName,fieldCacheMap);
                 }
 
                 JSONField fieldAnnotation = null;
@@ -1312,7 +1629,7 @@ public class TypeUtils {
                         ordinal = fieldAnnotation.ordinal();
                         serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
                         parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
-                        
+
                         if (fieldAnnotation.name().length() != 0) {
                             propertyName = fieldAnnotation.name();
 
@@ -1336,7 +1653,7 @@ public class TypeUtils {
                         continue;
                     }
                 }
-                
+
                 if (propertyNamingStrategy != null) {
                     propertyName = propertyNamingStrategy.translate(propertyName);
                 }
@@ -1352,52 +1669,13 @@ public class TypeUtils {
             }
         }
 
-        for (Field field : clazz.getFields()) {
-            if (Modifier.isStatic(field.getModifiers())) {
-                continue;
-            }
+        Field[] fields = clazz.getFields();
+        computeFields(clazz, aliasMap, propertyNamingStrategy, fieldInfoMap, fields);
 
-            JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
+        return getFieldInfos(clazz, sorted, fieldInfoMap);
+    }
 
-            int ordinal = 0, serialzeFeatures = 0, parserFeatures = 0;
-            String propertyName = field.getName();
-            String label = null;
-            if (fieldAnnotation != null) {
-                if (!fieldAnnotation.serialize()) {
-                    continue;
-                }
-
-                ordinal = fieldAnnotation.ordinal();
-                serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
-                parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
-
-                if (fieldAnnotation.name().length() != 0) {
-                    propertyName = fieldAnnotation.name();
-                }
-
-                if (fieldAnnotation.label().length() != 0) {
-                    label = fieldAnnotation.label();
-                }
-            }
-
-            if (aliasMap != null) {
-                propertyName = aliasMap.get(propertyName);
-                if (propertyName == null) {
-                    continue;
-                }
-            }
-            
-            if (propertyNamingStrategy != null) {
-                propertyName = propertyNamingStrategy.translate(propertyName);
-            }
-
-            if (!fieldInfoMap.containsKey(propertyName)) {
-                FieldInfo fieldInfo = new FieldInfo(propertyName, null, field, clazz, null, ordinal, serialzeFeatures, parserFeatures,
-                                                    null, fieldAnnotation, label);
-                fieldInfoMap.put(propertyName, fieldInfo);
-            }
-        }
-
+    private static List<FieldInfo> getFieldInfos(Class<?> clazz, boolean sorted, Map<String, FieldInfo> fieldInfoMap) {
         List<FieldInfo> fieldInfoList = new ArrayList<FieldInfo>();
 
         boolean containsAll = false;
@@ -1436,6 +1714,60 @@ public class TypeUtils {
         }
 
         return fieldInfoList;
+    }
+
+    private static void computeFields(
+            Class<?> clazz, //
+            Map<String, String> aliasMap, //
+            PropertyNamingStrategy propertyNamingStrategy, //
+            Map<String, FieldInfo> fieldInfoMap, //
+            Field[] fields) {
+
+        for (Field field : fields) {
+            if (Modifier.isStatic(field.getModifiers())) {
+                continue;
+            }
+
+            JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
+
+            int ordinal = 0, serialzeFeatures = 0, parserFeatures = 0;
+            String propertyName = field.getName();
+            String label = null;
+            if (fieldAnnotation != null) {
+                if (!fieldAnnotation.serialize()) {
+                    continue;
+                }
+
+                ordinal = fieldAnnotation.ordinal();
+                serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
+
+                if (fieldAnnotation.name().length() != 0) {
+                    propertyName = fieldAnnotation.name();
+                }
+
+                if (fieldAnnotation.label().length() != 0) {
+                    label = fieldAnnotation.label();
+                }
+            }
+
+            if (aliasMap != null) {
+                propertyName = aliasMap.get(propertyName);
+                if (propertyName == null) {
+                    continue;
+                }
+            }
+
+            if (propertyNamingStrategy != null) {
+                propertyName = propertyNamingStrategy.translate(propertyName);
+            }
+
+            if (!fieldInfoMap.containsKey(propertyName)) {
+                FieldInfo fieldInfo = new FieldInfo(propertyName, null, field, clazz, null, ordinal, serialzeFeatures, parserFeatures,
+                                                    null, fieldAnnotation, label);
+                fieldInfoMap.put(propertyName, fieldInfo);
+            }
+        }
     }
 
     private static String getPropertyNameByCompatibleFieldName(Map<String, Field> fieldCacheMap, String methodName,
@@ -1820,5 +2152,72 @@ public class TypeUtils {
         }
 
         return false;
+    }
+
+    public static boolean isAnnotationPresentOneToMany(Method method) {
+        if (method == null) {
+            return false;
+        }
+
+        if (class_OneToMany == null && !class_OneToMany_error) {
+            try {
+                class_OneToMany = (Class<? extends Annotation>) Class.forName("javax.persistence.OneToMany");
+            } catch (Throwable e) {
+                // skip
+                class_OneToMany_error = true;
+            }
+        }
+
+        if (class_OneToMany == null) {
+            return false;
+        }
+
+        return method.isAnnotationPresent(class_OneToMany);
+    }
+
+    public static boolean isHibernateInitialized(Object object) {
+        if (object == null) {
+            return false;
+        }
+
+        if (method_HibernateIsInitialized == null && !method_HibernateIsInitialized_error) {
+            try {
+                Class<?> class_Hibernate = (Class<? extends Annotation>) Class.forName("org.hibernate.Hibernate");
+                method_HibernateIsInitialized = class_Hibernate.getMethod("isInitialized", Object.class);
+            } catch (Throwable e) {
+                // skip
+                method_HibernateIsInitialized_error = true;
+            }
+        }
+
+        if (method_HibernateIsInitialized != null) {
+            try {
+                Boolean initialized = (Boolean) method_HibernateIsInitialized.invoke(null, object);
+                return initialized.booleanValue();
+            } catch (Throwable e) {
+                // skip
+            }
+        }
+
+        return true;
+    }
+
+    public static long fnv_64_lower(String key) {
+        long hashCode = 0x811c9dc5;
+        for (int i = 0; i < key.length(); ++i) {
+            char ch = key.charAt(i);
+            if (ch == '_' || ch == '-') {
+                continue;
+            }
+
+            if (ch >= 'A' && ch <= 'Z') {
+                ch = (char) (ch + 32);
+            }
+
+            hashCode ^= ch;
+            hashCode *= 0x1000193;
+        }
+
+        return hashCode;
     }
 }

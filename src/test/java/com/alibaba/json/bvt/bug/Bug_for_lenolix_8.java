@@ -18,6 +18,8 @@ public class Bug_for_lenolix_8 extends TestCase {
     protected void setUp() throws Exception {
         JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
         JSON.defaultLocale = Locale.CHINA;
+
+        com.alibaba.fastjson.parser.ParserConfig.global.addAccept("com.alibaba.json.bvt.bug.Bug_for_lenolix_8.");
     }
     
     public void test_for_objectKey() throws Exception {

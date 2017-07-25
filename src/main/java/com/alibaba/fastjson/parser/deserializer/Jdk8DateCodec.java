@@ -55,6 +55,11 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName, String format, int feature) {
         JSONLexer lexer = parser.lexer;
+        if (lexer.token() == JSONToken.NULL){
+            lexer.nextToken();
+            return null;
+        }
+
         if (lexer.token() == JSONToken.LITERAL_STRING) {
             String text = lexer.stringVal();
             lexer.nextToken();
@@ -66,6 +71,10 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                 } else {
                     formatter = DateTimeFormatter.ofPattern(format);
                 }
+            }
+            
+            if ("".equals(text)) {
+                return null;
             }
 
             if (type == LocalDateTime.class) {

@@ -26,6 +26,7 @@ import com.alibaba.fastjson.serializer.JavaBeanSerializer;
 import com.alibaba.fastjson.serializer.ObjectSerializer;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.util.IOUtils;
+import com.alibaba.fastjson.util.TypeUtils;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -78,7 +79,8 @@ public class JSONPath implements JSONAware {
 
         Object currentObject = rootObject;
         for (int i = 0; i < segments.length; ++i) {
-            currentObject = segments[i].eval(this, rootObject, currentObject);
+            Segement segement = segments[i];
+            currentObject = segement.eval(this, rootObject, currentObject);
         }
         return currentObject;
     }
@@ -237,6 +239,23 @@ public class JSONPath implements JSONAware {
         Segement lastSegement = segments[segments.length - 1];
         if (lastSegement instanceof PropertySegement) {
             PropertySegement propertySegement = (PropertySegement) lastSegement;
+
+            if (parentObject instanceof Collection) {
+                if (segments.length > 1) {
+                    Segement parentSegement = segments[segments.length - 2];
+                    if (parentSegement instanceof RangeSegement || parentSegement instanceof MultiIndexSegement) {
+                        Collection collection = (Collection) parentObject;
+                        boolean removedOnce = false;
+                        for (Object item : collection) {
+                            boolean removed = propertySegement.remove(this, item);
+                            if (removed) {
+                                removedOnce = true;
+                            }
+                        }
+                        return removedOnce;
+                    }
+                }
+            }
             return propertySegement.remove(this, parentObject);
         }
 
@@ -248,6 +267,10 @@ public class JSONPath implements JSONAware {
     }
 
     public boolean set(Object rootObject, Object value) {
+        return set(rootObject, value, true);
+    }
+
+    public boolean set(Object rootObject, Object value, boolean p) {
         if (rootObject == null) {
             return false;
         }
@@ -273,13 +296,29 @@ public class JSONPath implements JSONAware {
 
                 Object newObj = null;
                 if (nextSegement instanceof PropertySegement) {
-                    Class<?> parentClass = parentObject.getClass();
-                    JavaBeanSerializer beanSerializer = getJavaBeanSerializer(parentClass);
-                    if (beanSerializer != null) {
-                        return false;
+                    JavaBeanDeserializer beanDeserializer = null;
+                    Class<?> fieldClass = null;
+                    if (segment instanceof PropertySegement) {
+                        String propertyName = ((PropertySegement) segment).propertyName;
+                        Class<?> parentClass = parentObject.getClass();
+                        JavaBeanDeserializer parentBeanDeserializer = getJavaBeanDeserializer(parentClass);
+                        if (parentBeanDeserializer != null) {
+                            FieldDeserializer fieldDeserializer = parentBeanDeserializer.getFieldDeserializer(propertyName);
+                            fieldClass = fieldDeserializer.fieldInfo.fieldClass;
+                            beanDeserializer = getJavaBeanDeserializer(fieldClass);
+                        }
                     }
 
-                    newObj = new JSONObject();   
+                    if (beanDeserializer != null) {
+
+                        if (beanDeserializer.beanInfo.defaultConstructor != null) {
+                            newObj = beanDeserializer.createInstance(null, fieldClass);
+                        } else {
+                            return false;
+                        }
+                    } else {
+                        newObj = new JSONObject();
+                    }
                 } else if (nextSegement instanceof ArrayAccessSegement) {
                     newObj = new JSONArray();
                 }
@@ -458,7 +497,7 @@ public class JSONPath implements JSONAware {
             return;
         }
 
-        if (ParserConfig.isPrimitive(clazz) || clazz.isEnum()) {
+        if (ParserConfig.isPrimitive2(clazz) || clazz.isEnum()) {
             return;
         }
 
@@ -1205,9 +1244,18 @@ public class JSONPath implements JSONAware {
             }
 
             int colonIndex = indexText.indexOf(':');
+
             if (commaIndex == -1 && colonIndex == -1) {
-                int index = Integer.parseInt(indexText);
-                return new ArrayAccessSegement(index);
+                if (TypeUtils.isNumber(indexText)) {
+                    try {
+                        int index = Integer.parseInt(indexText);
+                        return new ArrayAccessSegement(index);
+                    }catch (NumberFormatException ex){
+                        return new PropertySegement(indexText, false); // fix ISSUE-1208
+                    }
+                } else {
+                    return new PropertySegement(indexText, false);
+                }
             }
 
             if (commaIndex != -1) {
@@ -1300,7 +1348,11 @@ public class JSONPath implements JSONAware {
         }
 
         public void setValue(JSONPath path, Object parent, Object value) {
-            path.setPropertyValue(parent, propertyName, value);
+            if (deep) {
+                path.deepSet(parent, propertyName, value);
+            } else {
+                path.setPropertyValue(parent, propertyName, value);
+            }
         }
         
         public boolean remove(JSONPath path, Object parent) {
@@ -1914,6 +1966,15 @@ public class JSONPath implements JSONAware {
             }
         }
 
+        if (currentObject instanceof Map) {
+            Map map = (Map) currentObject;
+            Object value = map.get(index);
+            if (value == null) {
+                value = map.get(Integer.toString(index));
+            }
+            return value;
+        }
+
         throw new UnsupportedOperationException();
     }
 
@@ -2118,7 +2179,12 @@ public class JSONPath implements JSONAware {
             for (int i = 0; i < list.size(); ++i) {
                 Object obj = list.get(i);
                 Object itemValue = getPropertyValue(obj, propertyName, strictMode);
-                fieldValues.add(itemValue);
+                if (itemValue instanceof Collection) {
+                    Collection collection = (Collection) itemValue;
+                    fieldValues.addAll(collection);
+                } else {
+                    fieldValues.add(itemValue);
+                }
             }
 
             return fieldValues;
@@ -2225,6 +2291,59 @@ public class JSONPath implements JSONAware {
         }
     }
 
+    protected void deepSet(final Object currentObject, final String propertyName, Object value) {
+        if (currentObject == null) {
+            return;
+        }
+
+        if (currentObject instanceof Map) {
+            Map map = (Map) currentObject;
+
+            if (map.containsKey(propertyName)) {
+                Object val = map.get(propertyName);
+                map.put(propertyName, value);
+                return;
+            }
+
+            for (Object val : map.values()) {
+                deepSet(val, propertyName, value);
+            }
+            return;
+        }
+
+        final Class<?> currentClass = currentObject.getClass();
+
+        JavaBeanDeserializer beanDeserializer = getJavaBeanDeserializer(currentClass);
+        if (beanDeserializer != null) {
+            try {
+                FieldDeserializer fieldDeser = beanDeserializer.getFieldDeserializer(propertyName);
+                if (fieldDeser != null) {
+                    fieldDeser.setValue(currentObject, value);
+                    return;
+                }
+
+                JavaBeanSerializer beanSerializer = getJavaBeanSerializer(currentClass);
+                List<Object> fieldValues = beanSerializer.getObjectFieldValues(currentObject);
+                for (Object val : fieldValues) {
+                    deepSet(val, propertyName, value);
+                }
+                return;
+            } catch (Exception e) {
+                throw new JSONPathException("jsonpath error, path " + path + ", segement " + propertyName, e);
+            }
+        }
+
+        if (currentObject instanceof List) {
+            List list = (List) currentObject;
+
+            for (int i = 0; i < list.size(); ++i) {
+                Object val = list.get(i);
+                deepSet(val, propertyName, value);
+            }
+            return;
+        }
+    }
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
     protected boolean setPropertyValue(Object parent, String name, Object value) {
         if (parent instanceof Map) {
@@ -2298,6 +2417,17 @@ public class JSONPath implements JSONAware {
             }
         }
         return beanSerializer;
+    }
+
+    protected JavaBeanDeserializer getJavaBeanDeserializer(final Class<?> currentClass) {
+        JavaBeanDeserializer beanDeserializer = null;
+        {
+            ObjectDeserializer deserializer = parserConfig.getDeserializer(currentClass);
+            if (deserializer instanceof JavaBeanDeserializer) {
+                beanDeserializer = (JavaBeanDeserializer) deserializer;
+            }
+        }
+        return beanDeserializer;
     }
 
     @SuppressWarnings("rawtypes")

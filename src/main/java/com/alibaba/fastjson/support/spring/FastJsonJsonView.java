@@ -35,7 +35,7 @@ public class FastJsonJsonView extends AbstractView {
     public static final String DEFAULT_CONTENT_TYPE = "application/json;charset=UTF-8";
 
     @Deprecated
-    protected Charset charset = IOUtils.UTF8;
+    protected Charset charset = Charset.forName("UTF-8");
 
     @Deprecated
     protected SerializerFeature[] features = new SerializerFeature[0];

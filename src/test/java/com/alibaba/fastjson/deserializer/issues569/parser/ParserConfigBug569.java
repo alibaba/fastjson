@@ -52,7 +52,7 @@ public class ParserConfigBug569 extends ParserConfig {
     }
 
     public ObjectDeserializer getDeserializer(Class<?> clazz, Type type) {
-        com.alibaba.fastjson.util.IdentityHashMap<Type, ObjectDeserializer> derializers = super.getDerializers();
+        com.alibaba.fastjson.util.IdentityHashMap<Type, ObjectDeserializer> derializers = super.getDeserializers();
         ObjectDeserializer derializer = derializers.get(type);
         if (derializer != null) {
             return derializer;

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import static com.alibaba.fastjson.util.TypeUtils.castToTimestamp;
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
@@ -130,6 +131,19 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     public <T> T getObject(String key, Class<T> clazz) {
         Object obj = map.get(key);
         return TypeUtils.castToJavaBean(obj, clazz);
+    }
+
+    public <T> T getObject(String key, Type type) {
+        Object obj = map.get(key);
+        return TypeUtils.cast(obj, type, ParserConfig.getGlobalInstance());
+    }
+
+    public <T> T getObject(String key, TypeReference typeReference) {
+        Object obj = map.get(key);
+        if (typeReference == null) {
+            return (T) obj;
+        }
+        return TypeUtils.cast(obj, typeReference.getType(), ParserConfig.getGlobalInstance());
     }
 
     public Boolean getBoolean(String key) {

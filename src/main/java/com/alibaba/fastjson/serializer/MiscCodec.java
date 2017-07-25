@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -127,7 +127,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
 
                 if (objVal instanceof String) {
                     String value = (String) objVal;
-                    out.writeFieldValueStringWithDoubleQuote('{', key, value);
+                    out.writeFieldValueStringWithDoubleQuoteCheck('{', key, value);
                 } else {
                     out.write('{');
                     out.writeFieldName(key);
@@ -244,8 +244,21 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
             strVal = (String) objVal;
         } else {
             if (objVal instanceof JSONObject) {
+                JSONObject jsonObject = (JSONObject) objVal;
+
+                if (clazz == Currency.class) {
+                    String currency = jsonObject.getString("currency");
+                    if (currency != null) {
+                        return (T) Currency.getInstance(currency);
+                    }
+
+                    String symbol = jsonObject.getString("currencyCode");
+                    if (symbol != null) {
+                        return (T) Currency.getInstance(symbol);
+                    }
+                }
+
                 if (clazz == Map.Entry.class) {
-                   JSONObject jsonObject = (JSONObject) objVal;
                    return (T) jsonObject.entrySet().iterator().next();
                 }
             }
@@ -277,17 +290,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         if (clazz == Locale.class) {
-            String[] items = strVal.split("_");
-
-            if (items.length == 1) {
-                return (T) new Locale(items[0]);
-            }
-
-            if (items.length == 2) {
-                return (T) new Locale(items[0], items[1]);
-            }
-
-            return (T) new Locale(items[0], items[1], items[2]);
+            return (T) TypeUtils.toLocale(strVal);
         }
 
         if (clazz == SimpleDateFormat.class) {
@@ -333,29 +336,35 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
             return (T) new JSONPath(strVal);
         }
 
-        String className = clazz.getTypeName();
 
-        if (className.equals("java.nio.file.Path")) {
-            try {
-                if (method_paths_get == null && !method_paths_get_error) {
-                    Class<?> paths = TypeUtils.loadClass("java.nio.file.Paths");
-                    method_paths_get = paths.getMethod("get", String.class, String[].class);
+
+        if (clazz instanceof Class) {
+            String className = ((Class) clazz).getName();
+
+            if (className.equals("java.nio.file.Path")) {
+                try {
+                    if (method_paths_get == null && !method_paths_get_error) {
+                        Class<?> paths = TypeUtils.loadClass("java.nio.file.Paths");
+                        method_paths_get = paths.getMethod("get", String.class, String[].class);
+                    }
+                    if (method_paths_get != null) {
+                        return (T) method_paths_get.invoke(null, strVal, new String[0]);
+                    }
+
+                    throw new JSONException("Path deserialize erorr");
+                } catch (NoSuchMethodException ex) {
+                    method_paths_get_error = true;
+                } catch (IllegalAccessException ex) {
+                    throw new JSONException("Path deserialize erorr", ex);
+                } catch (InvocationTargetException ex) {
+                    throw new JSONException("Path deserialize erorr", ex);
                 }
-                if (method_paths_get != null) {
-                    return (T) method_paths_get.invoke(null, strVal, new String[0]);
-                }
-                
-                throw new JSONException("Path deserialize erorr");
-            } catch (NoSuchMethodException ex) {
-                method_paths_get_error = true;
-            } catch (IllegalAccessException ex) {
-                throw new JSONException("Path deserialize erorr", ex);
-            } catch (InvocationTargetException ex) {
-                throw new JSONException("Path deserialize erorr", ex);
             }
+
+            throw new JSONException("MiscCodec not support " + className);
         }
 
-        throw new JSONException("MiscCodec not support " + className);
+        throw new JSONException("MiscCodec not support " + clazz.toString());
     }
 
     public int getFastMatchToken() {

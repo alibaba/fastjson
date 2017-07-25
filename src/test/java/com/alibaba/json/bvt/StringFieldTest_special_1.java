@@ -31,7 +31,8 @@ public class StringFieldTest_special_1 extends TestCase {
         model.name = buf.toString();
         
         String text = JSON.toJSONString(model, SerializerFeature.BrowserSecure);
-
+        text = text.replaceAll("&lt;", "<");
+        text = text.replaceAll("&gt;", ">");
         Model model2 = JSON.parseObject(text, Model.class);
         Assert.assertEquals(model.name, model2.name);
     }

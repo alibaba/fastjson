@@ -12,6 +12,10 @@ import com.alibaba.json.bvt.bug.Bug_for_lenolix_9.Address.Country;
 
 public class Bug_for_lenolix_9 extends TestCase {
 
+    protected void setUp() throws Exception {
+        com.alibaba.fastjson.parser.ParserConfig.global.addAccept("com.alibaba.json.bvt.bug.Bug_for_lenolix_9.");
+    }
+
     public void test_for_objectKey() throws Exception {
         Map<String, Object> submap4 = new HashMap<String, Object>();
         Address address = new Address();

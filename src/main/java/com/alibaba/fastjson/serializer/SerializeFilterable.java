@@ -1,5 +1,7 @@
 package com.alibaba.fastjson.serializer;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -200,9 +202,20 @@ public abstract class SerializeFilterable {
                                Object propertyValue) {
 
         if (propertyValue != null) {
-            if (jsonBeanDeser.out.writeNonStringValueAsString //
+            if ((jsonBeanDeser.out.writeNonStringValueAsString //
+                    || (beanContext != null && (beanContext.getFeatures() & SerializerFeature.WriteNonStringValueAsString.mask) != 0))
                     && (propertyValue instanceof Number || propertyValue instanceof Boolean)) {
-                propertyValue = propertyValue.toString();
+                String format = null;
+                if (propertyValue instanceof Number
+                        && beanContext != null) {
+                    format = beanContext.getFormat();
+                }
+
+                if (format != null) {
+                    propertyValue = new DecimalFormat(format).format(propertyValue);
+                } else {
+                    propertyValue = propertyValue.toString();
+                }
             } else if (beanContext != null && beanContext.isJsonDirect()) {
                 String jsonStr = (String) propertyValue;
                 propertyValue = JSON.parse(jsonStr);

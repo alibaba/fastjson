@@ -46,6 +46,9 @@ public class BigListStringFieldTest_private extends TestCase {
             model.values.add(value);
         }
         String text = JSON.toJSONString(model, SerializerFeature.BrowserSecure);
+
+        text = text.replaceAll("&lt;", "<");
+        text = text.replaceAll("&gt;", ">");
         Model model2 = JSON.parseObject(text, Model.class);
         
         Assert.assertEquals(model.values, model2.values);

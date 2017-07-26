@@ -1,10 +1,10 @@
 package com.alibaba.fastjson.support.jaxrs;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
-import com.alibaba.fastjson.util.IOUtils;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
@@ -83,8 +83,6 @@ public class FastJsonProvider //
         this.fastJsonConfig = fastJsonConfig;
     }
 
-
-
     /**
      * Can serialize/deserialize all types.
      */
@@ -154,7 +152,6 @@ public class FastJsonProvider //
     public void setFilters(SerializeFilter... filters) {
         this.fastJsonConfig.setSerializeFilters(filters);
     }
-
 
 
     /**
@@ -247,6 +244,7 @@ public class FastJsonProvider //
                         OutputStream entityStream //
     ) throws IOException, WebApplicationException {
 
+
         SerializerFeature[] serializerFeatures = fastJsonConfig.getSerializerFeatures();
         if (pretty) {
             if (serializerFeatures == null)
@@ -260,23 +258,31 @@ public class FastJsonProvider //
             fastJsonConfig.setSerializerFeatures(serializerFeatures);
         }
 
-        int len = JSON.writeJSONString(entityStream, //
-                fastJsonConfig.getCharset(), //
-                obj, //
-                fastJsonConfig.getSerializeConfig(), //
-                fastJsonConfig.getSerializeFilters(), //
-                fastJsonConfig.getDateFormat(), //
-                JSON.DEFAULT_GENERATE_FEATURE, //
-                fastJsonConfig.getSerializerFeatures());
+        try {
+            int len = JSON.writeJSONString(entityStream, //
+                    fastJsonConfig.getCharset(), //
+                    obj, //
+                    fastJsonConfig.getSerializeConfig(), //
+                    fastJsonConfig.getSerializeFilters(), //
+                    fastJsonConfig.getDateFormat(), //
+                    JSON.DEFAULT_GENERATE_FEATURE, //
+                    fastJsonConfig.getSerializerFeatures());
 
-        // add Content-Length
-        httpHeaders.add("Content-Length", String.valueOf(len));
+            // add Content-Length
+            if (fastJsonConfig.isWriteContentLength()) {
+                httpHeaders.add("Content-Length", String.valueOf(len));
+            }
 
-        entityStream.flush();
+            entityStream.flush();
+
+        } catch (JSONException ex) {
+
+            throw new WebApplicationException("Could not write JSON: " + ex.getMessage(), ex);
+        }
     }
 
 	/*
-	 * /********************************************************** /*
+     * /********************************************************** /*
 	 * MessageBodyReader impl
 	 * /**********************************************************
 	 */
@@ -306,6 +312,13 @@ public class FastJsonProvider //
                            MediaType mediaType, //
                            MultivaluedMap<String, String> httpHeaders, //
                            InputStream entityStream) throws IOException, WebApplicationException {
-        return JSON.parseObject(entityStream, fastJsonConfig.getCharset(), genericType, fastJsonConfig.getFeatures());
+
+        try {
+            return JSON.parseObject(entityStream, fastJsonConfig.getCharset(), genericType, fastJsonConfig.getFeatures());
+
+        } catch (JSONException ex) {
+
+            throw new WebApplicationException("JSON parse error: " + ex.getMessage(), ex);
+        }
     }
 }

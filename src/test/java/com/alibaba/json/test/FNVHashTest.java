@@ -1,7 +1,6 @@
 package com.alibaba.json.test;
 
 import junit.framework.TestCase;
-import scala.collection.mutable.HashTable;
 
 import java.util.*;
 

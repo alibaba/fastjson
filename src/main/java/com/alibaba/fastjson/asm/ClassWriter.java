@@ -333,13 +333,6 @@ public class ClassWriter {
         return result;
     }
 
-    /**
-     * Adds a string to the constant pool of the class being build. Does nothing if the constant pool already contains a
-     * similar item.
-     * 
-     * @param value the String value.
-     * @return a new or already existing string item.
-     */
     private Item newString(final String value) {
         key2.set(8 /* STR */, value, null, null);
         Item result = get(key2);
@@ -351,14 +344,6 @@ public class ClassWriter {
         return result;
     }
 
-    /**
-     * Adds a name and type to the constant pool of the class being build. Does nothing if the constant pool already
-     * contains a similar item.
-     * 
-     * @param name a name.
-     * @param desc a type descriptor.
-     * @return a new or already existing name and type item.
-     */
     public Item newNameTypeItem(final String name, final String desc) {
         key2.set(12 /* NAME_TYPE */, name, desc, null);
         Item result = get(key2);
@@ -372,13 +357,7 @@ public class ClassWriter {
         return result;
     }
 
-    /**
-     * Returns the constant pool's hash table item which is equal to the given item.
-     * 
-     * @param key a constant pool item.
-     * @return the constant pool's hash table item which is equal to the given item, or <tt>null</tt> if there is no
-     * such item.
-     */
+
     private Item get(final Item key) {
         Item i = items[key.hashCode % items.length];
         while (i != null && (i.type != key.type || !key.isEqualTo(i))) {
@@ -387,11 +366,6 @@ public class ClassWriter {
         return i;
     }
 
-    /**
-     * Puts the given item in the constant pool's hash table. The hash table <i>must</i> not already contains this item.
-     * 
-     * @param i the item to be added to the constant pool's hash table.
-     */
     private void put(final Item i) {
         if (index > threshold) {
             int ll = items.length;
@@ -414,9 +388,4 @@ public class ClassWriter {
         i.next = items[index];
         items[index] = i;
     }
-
-   
-//    private void put122(final int b, final int s1, final int s2) {
-//        pool.put12(b, s1).putShort(s2);
-//    }
 }

@@ -1,6 +1,7 @@
 package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.*;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +34,9 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     private ConcurrentMap<String, Object> extraFieldDeserializers;
 
     private final Map<String, FieldDeserializer> alterNameFieldDeserializers;
+
+    private transient long[] smartMatchHashArray;
+    private transient int[] smartMatchHashArrayMapping;
     
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz) {
         this(config, clazz, clazz);
@@ -941,69 +945,54 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         FieldDeserializer fieldDeserializer = getFieldDeserializer(key, setFlags);
 
         if (fieldDeserializer == null) {
-            boolean startsWithIs = key.startsWith("is");
-
-            for (int i = 0; i < sortedFieldDeserializers.length; ++i) {
-                if (isSetFlag(i, setFlags)) {
-                    continue;
+            long smartKeyHash = TypeUtils.fnv_64_lower(key);
+            if (this.smartMatchHashArray == null) {
+                long[] hashArray = new long[sortedFieldDeserializers.length];
+                for (int i = 0; i < sortedFieldDeserializers.length; i++) {
+                    hashArray[i] = TypeUtils.fnv_64_lower(sortedFieldDeserializers[i].fieldInfo.name);
                 }
-
-                FieldDeserializer fieldDeser = sortedFieldDeserializers[i];
-
-                FieldInfo fieldInfo = fieldDeser.fieldInfo;
-                if ((fieldInfo.parserFeatures & Feature.DisableFieldSmartMatch.mask) != 0) {
-                    return null;
-                }
-
-                Class<?> fieldClass = fieldInfo.fieldClass;
-                String fieldName = fieldInfo.name;
-                
-                if (fieldName.equalsIgnoreCase(key)) {
-                    fieldDeserializer = fieldDeser;
-                    break;
-                }
-                
-                if (startsWithIs //
-                        && (fieldClass == boolean.class || fieldClass == Boolean.class) //
-                        && fieldName.equalsIgnoreCase(key.substring(2))) {
-                    fieldDeserializer = fieldDeser;
-                    break;
-                }
+                Arrays.sort(hashArray);
+                this.smartMatchHashArray = hashArray;
             }
-        }
-        
-        if (fieldDeserializer == null) {
-            boolean snakeOrkebab = false;
-            String key2 = null;
-            for (int i = 0; i < key.length(); ++i) {
-                char ch = key.charAt(i);
-                if (ch == '_') {
-                    snakeOrkebab = true;
-                    key2 = key.replaceAll("_", "");
-                    break;
-                } else if (ch == '-') {
-                    snakeOrkebab = true;
-                    key2 = key.replaceAll("-", "");
-                    break;
-                }
-            }
-            if (snakeOrkebab) {
-                fieldDeserializer = getFieldDeserializer(key2, setFlags);
-                if (fieldDeserializer == null) {
-                    for (int i = 0; i < sortedFieldDeserializers.length; ++i) {
-                        if (isSetFlag(i, setFlags)) {
-                            continue;
-                        }
 
-                        FieldDeserializer fieldDeser = sortedFieldDeserializers[i];
-                        if (fieldDeser.fieldInfo.name.equalsIgnoreCase(key2)) {
-                            fieldDeserializer = fieldDeser;
-                            break;
+            // smartMatchHashArrayMapping
+
+            int pos = Arrays.binarySearch(smartMatchHashArray, smartKeyHash);
+            if (pos < 0 && key.startsWith("is")) {
+                smartKeyHash = TypeUtils.fnv_64_lower(key.substring(2));
+                pos = Arrays.binarySearch(smartMatchHashArray, smartKeyHash);
+            }
+
+            if (pos >= 0) {
+                if (smartMatchHashArrayMapping == null) {
+                    int[] mapping = new int[smartMatchHashArray.length];
+                    Arrays.fill(mapping, -1);
+                    for (int i = 0; i < sortedFieldDeserializers.length; i++) {
+                        int p = Arrays.binarySearch(smartMatchHashArray
+                                , TypeUtils.fnv_64_lower(sortedFieldDeserializers[i].fieldInfo.name));
+                        if (p >= 0) {
+                            mapping[p] = i;
                         }
+                    }
+                    smartMatchHashArrayMapping = mapping;
+                }
+
+                int deserIndex = smartMatchHashArrayMapping[pos];
+                if (deserIndex != -1) {
+                    if (!isSetFlag(deserIndex, setFlags)) {
+                        fieldDeserializer = sortedFieldDeserializers[deserIndex];
                     }
                 }
             }
+
+            if (fieldDeserializer != null) {
+                FieldInfo fieldInfo = fieldDeserializer.fieldInfo;
+                if ((fieldInfo.parserFeatures & Feature.DisableFieldSmartMatch.mask) != 0) {
+                    return null;
+                }
+            }
         }
+
 
         return fieldDeserializer;
     }

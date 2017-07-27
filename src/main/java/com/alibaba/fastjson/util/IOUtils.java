@@ -275,8 +275,7 @@ public class IOUtils {
      * backwards from there. Will fail if i == Integer.MIN_VALUE
      */
     public static void getChars(int i, int index, char[] buf) {
-        int q, r;
-        int charPos = index;
+        int q, r, p = index;
         char sign = 0;
 
         if (i < 0) {
@@ -284,14 +283,13 @@ public class IOUtils {
             i = -i;
         }
 
-        // Generate two digits per iteration
         while (i >= 65536) {
             q = i / 100;
             // really: r = i - (q * 100);
             r = i - ((q << 6) + (q << 5) + (q << 2));
             i = q;
-            buf[--charPos] = DigitOnes[r];
-            buf[--charPos] = DigitTens[r];
+            buf[--p] = DigitOnes[r];
+            buf[--p] = DigitTens[r];
         }
 
         // Fall thru to fast mode for smaller numbers
@@ -299,12 +297,12 @@ public class IOUtils {
         for (;;) {
             q = (i * 52429) >>> (16 + 3);
             r = i - ((q << 3) + (q << 1)); // r = i-(q*10) ...
-            buf[--charPos] = digits[r];
+            buf[--p] = digits[r];
             i = q;
             if (i == 0) break;
         }
         if (sign != 0) {
-            buf[--charPos] = sign;
+            buf[--p] = sign;
         }
     }
 
@@ -588,33 +586,33 @@ public class IOUtils {
         return dArr;
     }
     
-    public static int encodeUTF8(char[] sa, int sp, int len, byte[] da) {
-        int sl = sp + len;
+    public static int encodeUTF8(char[] chars, int offset, int len, byte[] bytes) {
+        int sl = offset + len;
         int dp = 0;
-        int dlASCII = dp + Math.min(len, da.length);
+        int dlASCII = dp + Math.min(len, bytes.length);
 
         // ASCII only optimized loop
-        while (dp < dlASCII && sa[sp] < '\u0080') {
-            da[dp++] = (byte) sa[sp++];
+        while (dp < dlASCII && chars[offset] < '\u0080') {
+            bytes[dp++] = (byte) chars[offset++];
         }
 
-        while (sp < sl) {
-            char c = sa[sp++];
+        while (offset < sl) {
+            char c = chars[offset++];
             if (c < 0x80) {
                 // Have at most seven bits
-                da[dp++] = (byte) c;
+                bytes[dp++] = (byte) c;
             } else if (c < 0x800) {
                 // 2 bytes, 11 bits
-                da[dp++] = (byte) (0xc0 | (c >> 6));
-                da[dp++] = (byte) (0x80 | (c & 0x3f));
+                bytes[dp++] = (byte) (0xc0 | (c >> 6));
+                bytes[dp++] = (byte) (0x80 | (c & 0x3f));
             } else if (c >= '\uD800' && c < ('\uDFFF' + 1)) { //Character.isSurrogate(c) but 1.7
                 final int uc;
-                int ip = sp - 1;
+                int ip = offset - 1;
                 if (Character.isHighSurrogate(c)) {
                     if (sl - ip < 2) {
                         uc = -1;
                     } else {
-                        char d = sa[ip + 1];
+                        char d = chars[ip + 1];
                         if (Character.isLowSurrogate(d)) {
                             uc = Character.toCodePoint(c, d);
                         } else {
@@ -630,24 +628,27 @@ public class IOUtils {
                 }
                 
                 if (uc < 0) {
-                    da[dp++] = (byte) '?';
+                    bytes[dp++] = (byte) '?';
                 } else {
-                    da[dp++] = (byte) (0xf0 | ((uc >> 18)));
-                    da[dp++] = (byte) (0x80 | ((uc >> 12) & 0x3f));
-                    da[dp++] = (byte) (0x80 | ((uc >> 6) & 0x3f));
-                    da[dp++] = (byte) (0x80 | (uc & 0x3f));
-                    sp++; // 2 chars
+                    bytes[dp++] = (byte) (0xf0 | ((uc >> 18)));
+                    bytes[dp++] = (byte) (0x80 | ((uc >> 12) & 0x3f));
+                    bytes[dp++] = (byte) (0x80 | ((uc >> 6) & 0x3f));
+                    bytes[dp++] = (byte) (0x80 | (uc & 0x3f));
+                    offset++; // 2 chars
                 }
             } else {
                 // 3 bytes, 16 bits
-                da[dp++] = (byte) (0xe0 | ((c >> 12)));
-                da[dp++] = (byte) (0x80 | ((c >> 6) & 0x3f));
-                da[dp++] = (byte) (0x80 | (c & 0x3f));
+                bytes[dp++] = (byte) (0xe0 | ((c >> 12)));
+                bytes[dp++] = (byte) (0x80 | ((c >> 6) & 0x3f));
+                bytes[dp++] = (byte) (0x80 | (c & 0x3f));
             }
         }
         return dp;
     }
-    
+
+    /**
+     * @deprecated
+     */
     public static int decodeUTF8(byte[] sa, int sp, int len, char[] da) {
         final int sl = sp + len;
         int dp = 0;

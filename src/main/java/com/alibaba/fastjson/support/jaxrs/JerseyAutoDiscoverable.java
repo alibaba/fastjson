@@ -11,9 +11,8 @@ import javax.ws.rs.core.FeatureContext;
  * <p>Description: JerseyAutoDiscoverable</p>
  *
  * @author Victor.Zxy
- * @version 1.0
  * @see AutoDiscoverable
- * @since 2017/7/27
+ * @since 1.2.36
  */
 @Priority(AutoDiscoverable.DEFAULT_PRIORITY + 1)
 public class JerseyAutoDiscoverable implements AutoDiscoverable {

@@ -77,16 +77,11 @@ public class ASMDeserializerFactory implements Opcodes {
         _deserialzeArrayMapping(cw, new Context(classNameType, config, beanInfo, 4));
         byte[] code = cw.toByteArray();
 
-        Class<?> exampleClass = defineClassPublic(classNameFull, code, 0, code.length);
-
-        Constructor<?> constructor = exampleClass.getConstructor(ParserConfig.class, JavaBeanInfo.class);
+        Class<?> deserClass = classLoader.defineClassPublic(classNameFull, code, 0, code.length);
+        Constructor<?> constructor = deserClass.getConstructor(ParserConfig.class, JavaBeanInfo.class);
         Object instance = constructor.newInstance(config, beanInfo);
 
         return (ObjectDeserializer) instance;
-    }
-
-    private Class<?> defineClassPublic(String name, byte[] b, int off, int len) {
-        return classLoader.defineClassPublic(name, b, off, len);
     }
 
     private void _setFlag(MethodVisitor mw, Context context, int i) {

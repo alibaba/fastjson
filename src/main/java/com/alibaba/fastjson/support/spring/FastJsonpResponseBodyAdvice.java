@@ -1,10 +1,7 @@
 package com.alibaba.fastjson.support.spring;
 
-import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.core.MethodParameter;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
@@ -15,6 +12,9 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.regex.Pattern;
+
 /**
  * A convenient base class for {@code ResponseBodyAdvice} implementations
  * that customize the response before JSON serialization with {@link FastJsonpHttpMessageConverter4}'s concrete
@@ -24,7 +24,11 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  *
  * @author Jerry.Chen
  * @since 1.2.20
+ *
+ * @see JSONPResponseBodyAdvice
  */
+@Deprecated
+@Order(Integer.MIN_VALUE) //before FastJsonViewResponseBodyAdvice
 @ControllerAdvice
 public class FastJsonpResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     /**
@@ -47,7 +51,7 @@ public class FastJsonpResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     }
 
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-        return FastJsonpHttpMessageConverter4.class.isAssignableFrom(converterType);
+        return FastJsonHttpMessageConverter.class.isAssignableFrom(converterType);
     }
 
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,

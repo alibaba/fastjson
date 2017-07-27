@@ -1,7 +1,9 @@
 package com.alibaba.fastjson.support.spring;
 
+import com.alibaba.fastjson.JSONPObject;
+
 /**
- * A simple holder for the POJO to serialize via {@link FastJsonpHttpMessageConverter4} along with further
+ * A simple holder for the POJO to serialize via {@link FastJsonHttpMessageConverter} along with further
  * serialization instructions to be passed in to the converter.
  *
  * <p>
@@ -13,7 +15,10 @@ package com.alibaba.fastjson.support.spring;
  *
  * @author Jerry.Chen
  * @since 1.2.20
+ *
+ * @see JSONPObject
  */
+@Deprecated
 public class MappingFastJsonValue {
     private Object value;
     private String jsonpFunction;

@@ -2203,7 +2203,7 @@ public class TypeUtils {
     }
 
     public static long fnv_64_lower(String key) {
-        long hashCode = 0x811c9dc5;
+        long hashCode = 0xcbf29ce484222325L;
         for (int i = 0; i < key.length(); ++i) {
             char ch = key.charAt(i);
             if (ch == '_' || ch == '-') {
@@ -2215,7 +2215,7 @@ public class TypeUtils {
             }
 
             hashCode ^= ch;
-            hashCode *= 0x1000193;
+            hashCode *= 0x100000001b3L;
         }
 
         return hashCode;

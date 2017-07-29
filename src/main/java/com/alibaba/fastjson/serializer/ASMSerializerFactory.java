@@ -1254,6 +1254,13 @@ public class ASMSerializerFactory implements Opcodes {
 
         mw.visitLabel(else_); // else { out.writeFieldValue(seperator, fieldName, fieldValue)
 
+
+        if ("trim".equals(property.format)) {
+            mw.visitVarInsn(ALOAD, context.var("string"));
+            mw.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "trim", "()Ljava/lang/String;");
+            mw.visitVarInsn(ASTORE, context.var("string"));
+        }
+
         if (context.writeDirect) {
             mw.visitVarInsn(ALOAD, context.var("out"));
             mw.visitVarInsn(ILOAD, context.var("seperator"));

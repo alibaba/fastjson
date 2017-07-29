@@ -223,6 +223,12 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     continue;
                 }
 
+                if (fieldClass == String.class && "trim".equals(fieldInfo.format)) {
+                    if (propertyValue != null) {
+                        propertyValue = ((String) propertyValue).trim();
+                    }
+                }
+
                 String key = fieldInfoName;
                 key = this.processKey(serializer, object, key, propertyValue);
 

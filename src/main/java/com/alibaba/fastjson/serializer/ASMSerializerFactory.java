@@ -402,8 +402,8 @@ public class ASMSerializerFactory implements Opcodes {
 
         byte[] code = cw.toByteArray();
 
-        Class<?> exampleClass = classLoader.defineClassPublic(classNameFull, code, 0, code.length);
-        Constructor<?> constructor = exampleClass.getConstructor(SerializeBeanInfo.class);
+        Class<?> serializerClass = classLoader.defineClassPublic(classNameFull, code, 0, code.length);
+        Constructor<?> constructor = serializerClass.getConstructor(SerializeBeanInfo.class);
         Object instance = constructor.newInstance(beanInfo);
 
         return (JavaBeanSerializer) instance;

@@ -33,8 +33,6 @@ import static com.alibaba.fastjson.util.IOUtils.replaceChars;
  * @author wenshao[szujobs@hotmail.com]
  */
 public final class SerializeWriter extends Writer {
-    private final static Charset   UTF8                            = Charset.forName("UTF-8");
-
     private final static ThreadLocal<char[]>         bufLocal      = new ThreadLocal<char[]>();
     private final static ThreadLocal<byte[]>         bytesBufLocal = new ThreadLocal<byte[]>();
 
@@ -342,7 +340,7 @@ public final class SerializeWriter extends Writer {
             throw new UnsupportedOperationException("writer not null");
         }
         
-        if (charset == UTF8) {
+        if (charset == IOUtils.UTF8) {
             return encodeToUTF8(out);
         } else {
             byte[] bytes = new String(buf, 0, count).getBytes(charset);
@@ -382,7 +380,7 @@ public final class SerializeWriter extends Writer {
 
     public byte[] toBytes(String charsetName) {
         return toBytes(charsetName == null || "UTF-8".equals(charsetName) //
-            ? UTF8 //
+            ? IOUtils.UTF8 //
             : Charset.forName(charsetName));
     }
 
@@ -391,7 +389,7 @@ public final class SerializeWriter extends Writer {
             throw new UnsupportedOperationException("writer not null");
         }
         
-        if (charset == UTF8) {
+        if (charset == IOUtils.UTF8) {
             return encodeToUTF8Bytes();
         } else {
             return new String(buf, 0, count).getBytes(charset);

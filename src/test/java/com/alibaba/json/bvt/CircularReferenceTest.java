@@ -3,6 +3,7 @@ package com.alibaba.json.bvt;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 
+import com.alibaba.fastjson.JSON;
 import junit.framework.TestCase;
 
 import com.alibaba.json.test.entity.case2.Category;
@@ -23,6 +24,8 @@ public class CircularReferenceTest extends TestCase {
             p.getChildren().add(child);
             child.setParent(p);
         }
+
+        System.out.println(JSON.toJSONString(p));
         objectOut.writeObject(p);
     }
 

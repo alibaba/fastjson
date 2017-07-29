@@ -189,8 +189,17 @@ public class SerializeConfig {
     			    continue;
     			}
 
+    			String format = annotation.format();
+    			if (format.length() != 0) {
+    			    if (fieldInfo.fieldClass == String.class && "trim".equals(format)) {
+
+                    } else {
+                        asm = false;
+                        break;
+                    }
+                }
+
                 if ((!ASMUtils.checkName(annotation.name())) //
-                        || annotation.format().length() != 0
                         || annotation.jsonDirect()
                         || annotation.serializeUsing() != Void.class
                         || annotation.unwrapped()

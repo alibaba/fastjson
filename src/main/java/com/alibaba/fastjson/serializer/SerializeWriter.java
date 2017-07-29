@@ -33,34 +33,34 @@ import static com.alibaba.fastjson.util.IOUtils.replaceChars;
  * @author wenshao[szujobs@hotmail.com]
  */
 public final class SerializeWriter extends Writer {
-    private final static ThreadLocal<char[]>         bufLocal      = new ThreadLocal<char[]>();
-    private final static ThreadLocal<byte[]>         bytesBufLocal = new ThreadLocal<byte[]>();
+    private final static ThreadLocal<char[]> bufLocal      = new ThreadLocal<char[]>();
+    private final static ThreadLocal<byte[]> bytesBufLocal = new ThreadLocal<byte[]>();
 
-    protected char                                          buf[];
+    protected char                           buf[];
 
     /**
      * The number of chars in the buffer.
      */
-    protected int                                           count;
+    protected int                            count;
 
-    protected int                                           features;
+    protected int                            features;
 
-    private final Writer                                    writer;
+    private final Writer                     writer;
 
-    protected boolean                                       useSingleQuotes;
-    protected boolean                                       quoteFieldNames;
-    protected boolean                                       sortField;
-    protected boolean                                       disableCircularReferenceDetect;
-    protected boolean                                       beanToArray;
-    protected boolean                                       writeNonStringValueAsString;
-    protected boolean                                       notWriteDefaultValue;
-    protected boolean                                       writeEnumUsingName;
-    protected boolean                                       writeEnumUsingToString;
-    protected boolean                                       writeDirect;
+    protected boolean                        useSingleQuotes;
+    protected boolean                        quoteFieldNames;
+    protected boolean                        sortField;
+    protected boolean                        disableCircularReferenceDetect;
+    protected boolean                        beanToArray;
+    protected boolean                        writeNonStringValueAsString;
+    protected boolean                        notWriteDefaultValue;
+    protected boolean                        writeEnumUsingName;
+    protected boolean                        writeEnumUsingToString;
+    protected boolean                        writeDirect;
 
-    protected char                                          keySeperator;
+    protected char                           keySeperator;
 
-    protected int                                           maxBufSize = -1;
+    protected int                            maxBufSize = -1;
 
     public SerializeWriter(){
         this((Writer) null);

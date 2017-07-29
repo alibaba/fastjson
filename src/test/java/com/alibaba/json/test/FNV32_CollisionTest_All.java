@@ -60,14 +60,14 @@ public class FNV32_CollisionTest_All extends TestCase {
             long n = (long) Math.pow(digLetters.length, chars.length);
 
             for (; v < n; ++v) {
-                long hash = 0x811c9dc5;
+                long hash = 0xcbf29ce484222325L;
                 for (int i = 0; i < chars.length; ++i) {
                     int power = powers[chars.length - i - 1];
                     int d = (int) ((v / power) % digLetters.length);
                     char c = digLetters[d];
 
                     hash ^= c;
-                    hash *= 0x1000193;
+                    hash *= 0x100000001b3L;
                 }
                 b[7] = (byte) (hash       );
                 b[6] = (byte) (hash >>>  8);
@@ -103,11 +103,11 @@ public class FNV32_CollisionTest_All extends TestCase {
     }
 
     static long fnv_hash(char[] chars) {
-        long hash = 0x811c9dc5;
+        long hash = 0xcbf29ce484222325L;
         for (int i = 0; i < chars.length; ++i) {
             char c = chars[i];
             hash ^= c;
-            hash *= 0x1000193;
+            hash *= 0x100000001b3L;
         }
         return hash;
     }

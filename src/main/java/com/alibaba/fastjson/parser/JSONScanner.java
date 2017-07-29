@@ -917,7 +917,7 @@ public final class JSONScanner extends JSONLexerBase {
             return 0;
         }
 
-        long hash = 0x811c9dc5;
+        long hash = 0xcbf29ce484222325L;
         for (;;) {
             ch = charAt(index++);
             if (ch == '\"') {
@@ -930,7 +930,7 @@ public final class JSONScanner extends JSONLexerBase {
             }
 
             hash ^= ch;
-            hash *= 0x1000193;
+            hash *= 0x100000001b3L;
         }
 
         for (;;) {

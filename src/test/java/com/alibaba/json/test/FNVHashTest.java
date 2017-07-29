@@ -67,6 +67,16 @@ public class FNVHashTest extends TestCase {
         return (int) hash;
     }
 
+    static long fnv_hash64(char[] chars) {
+        long hash = 0xcbf29ce484222325L;
+        for (int i = 0; i < chars.length; ++i) {
+            char c = chars[i];
+            hash ^= c;
+            hash *= 0x100000001b3L;
+        }
+        return hash;
+    }
+
     static long fnv_hash(char[] chars) {
         long hash = 0x811c9dc5;
         for (int i = 0; i < chars.length; ++i) {

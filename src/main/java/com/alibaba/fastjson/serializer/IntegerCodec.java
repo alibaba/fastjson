@@ -76,30 +76,29 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
 
 
         Integer intObj;
-        if (token == JSONToken.LITERAL_INT) {
-            int val;
-            try {
-                 val = lexer.intValue();
-            } catch (NumberFormatException ex) {
-                throw new JSONException("int value overflow, field : " + fieldName, ex);
-            }
-            lexer.nextToken(JSONToken.COMMA);
-            intObj = Integer.valueOf(val);
-        } else if (token == JSONToken.LITERAL_FLOAT) {
-            BigDecimal decimalValue = lexer.decimalValue();
-            lexer.nextToken(JSONToken.COMMA);
-            intObj = Integer.valueOf(decimalValue.intValue());
-        } else {
-            if (token == JSONToken.LBRACE) {
-                JSONObject jsonObject = new JSONObject(true);
-                parser.parseObject(jsonObject);
-                intObj = TypeUtils.castToInt(jsonObject);
+        try {
+            if (token == JSONToken.LITERAL_INT) {
+                int val = lexer.intValue();
+                lexer.nextToken(JSONToken.COMMA);
+                intObj = Integer.valueOf(val);
+            } else if (token == JSONToken.LITERAL_FLOAT) {
+                BigDecimal decimalValue = lexer.decimalValue();
+                lexer.nextToken(JSONToken.COMMA);
+                intObj = Integer.valueOf(decimalValue.intValue());
             } else {
-                Object value = parser.parse();
-
-                intObj = TypeUtils.castToInt(value);
+                if (token == JSONToken.LBRACE) {
+                    JSONObject jsonObject = new JSONObject(true);
+                    parser.parseObject(jsonObject);
+                    intObj = TypeUtils.castToInt(jsonObject);
+                } else {
+                    Object value = parser.parse();
+                    intObj = TypeUtils.castToInt(value);
+                }
             }
+        } catch (Exception ex) {
+            throw new JSONException("parseInt error, field : " + fieldName, ex);
         }
+
         
         if (clazz == AtomicInteger.class) {
             return (T) new AtomicInteger(intObj.intValue());

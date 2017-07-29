@@ -670,4 +670,12 @@ public class SerializeConfig {
             put(enumClass, createJavaBeanSerializer(enumClass));
         }
     }
+
+    /**
+     * for spring config support
+     * @param propertyNamingStrategy
+     */
+    public void setPropertyNamingStrategy(PropertyNamingStrategy propertyNamingStrategy) {
+        this.propertyNamingStrategy = propertyNamingStrategy;
+    }
 }

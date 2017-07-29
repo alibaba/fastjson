@@ -1981,7 +1981,7 @@ public final class JSONLexer {
             }
         }
 
-        long hash = 0x811c9dc5;
+        long hash = 0xcbf29ce484222325L;
         for (int i = fieldStartIndex; i < len; ++i) {
             char ch = text.charAt(i);
             if (ch == fieldQuote) {
@@ -1991,7 +1991,7 @@ public final class JSONLexer {
             }
 
             hash ^= ch;
-            hash *= 0x1000193;
+            hash *= 0x100000001b3L;
         }
 
         if (hash != fieldHashCode) {
@@ -2080,7 +2080,7 @@ public final class JSONLexer {
             }
         }
 
-        long hash = 0x811c9dc5;
+        long hash = 0xcbf29ce484222325L;
         for (int i = fieldStartIndex; i < len; ++i) {
             char ch = text.charAt(i);
             if (ch == fieldQuote) {
@@ -2090,7 +2090,7 @@ public final class JSONLexer {
             }
 
             hash ^= ch;
-            hash *= 0x1000193;
+            hash *= 0x100000001b3L;
         }
 
         if (hash != fieldHashCode) {
@@ -3882,7 +3882,7 @@ public final class JSONLexer {
             return 0;
         }
 
-        long hash = 0x811c9dc5;
+        long hash = 0xcbf29ce484222325L;
         int start = bp + offset;
         for (;;) {
             charIndex = bp + (offset++);
@@ -3899,7 +3899,7 @@ public final class JSONLexer {
             }
 
             hash ^= chLocal;
-            hash *= 0x1000193;
+            hash *= 0x100000001b3L;
 
             if (chLocal == '\\') {
                 matchStat = NOT_MATCH;

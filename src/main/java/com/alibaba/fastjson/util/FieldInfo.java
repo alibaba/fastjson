@@ -71,11 +71,11 @@ public class FieldInfo implements Comparable<FieldInfo> {
         }
         getOnly = false;
 
-        long hashCode = 0x811c9dc5;
+        long hashCode = 0xcbf29ce484222325L;
         for (int i = 0; i < name.length(); ++i) {
             char c = name.charAt(i);
             hashCode ^= c;
-            hashCode *= 0x1000193;
+            hashCode *= 0x100000001b3L;
         }
         this.nameHashCode = hashCode;
         
@@ -124,11 +124,11 @@ public class FieldInfo implements Comparable<FieldInfo> {
             fieldTransient = false;
         }
 
-        long hashCode = 0x811c9dc5;
+        long hashCode = 0xcbf29ce484222325L;
         for (int i = 0; i < name.length(); ++i) {
             char c = name.charAt(i);
             hashCode ^= c;
-            hashCode *= 0x1000193;
+            hashCode *= 0x100000001b3L;
         }
         this.nameHashCode = hashCode;
         

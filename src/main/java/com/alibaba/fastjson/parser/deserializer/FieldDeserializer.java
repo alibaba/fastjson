@@ -36,11 +36,11 @@ public abstract class FieldDeserializer {
             this.enumNameHashCodes = new long[enums.length];
             for (int i = 0; i < enums.length; ++i) {
                 String name = enums[i].name();
-                long hash = 0x811c9dc5;
+                long hash = 0xcbf29ce484222325L;
                 for (int j = 0; j < name.length(); ++j) {
                     char ch = name.charAt(j);
                     hash ^= ch;
-                    hash *= 0x1000193;
+                    hash *= 0x100000001b3L;
                 }
                 enumNameHashCodes[i] = hash;
                 this.enumNameHashCodes[i] = hash;

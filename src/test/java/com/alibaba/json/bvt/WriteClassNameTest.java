@@ -13,16 +13,15 @@ public class WriteClassNameTest extends TestCase {
         String text = JSON.toJSONString(entity, SerializerFeature.WriteClassName);
         System.out.println(text);
 
-        Entity entity2 = (Entity) JSON.parseObject(text, Object.class);
+        Entity entity2 = (Entity) JSON.parse(text);
 
-        Assert.assertEquals(entity.getId(), entity2.getId());
-        Assert.assertEquals(entity.getName(), entity2.getName());
+        assertEquals(entity.id, entity2.id);
+        assertEquals(entity.name, entity2.name);
     }
 
     public static class Entity {
-
-        private int    id;
-        private String name;
+        public int    id;
+        public String name;
 
         public Entity(){
         }
@@ -31,22 +30,5 @@ public class WriteClassNameTest extends TestCase {
             this.id = id;
             this.name = name;
         }
-
-        public int getId() {
-            return id;
-        }
-
-        public void setId(int id) {
-            this.id = id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
     }
 }

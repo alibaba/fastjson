@@ -268,10 +268,10 @@ public class FastJsonProvider //
                     JSON.DEFAULT_GENERATE_FEATURE, //
                     fastJsonConfig.getSerializerFeatures());
 
-            // add Content-Length
-            if (fastJsonConfig.isWriteContentLength()) {
-                httpHeaders.add("Content-Length", String.valueOf(len));
-            }
+//            // add Content-Length
+//            if (fastJsonConfig.isWriteContentLength()) {
+//                httpHeaders.add("Content-Length", String.valueOf(len));
+//            }
 
             entityStream.flush();
 

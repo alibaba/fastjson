@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSONPObject;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
+import com.alibaba.fastjson.util.IOUtils;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
@@ -85,7 +87,7 @@ public class FastJsonJsonView extends AbstractView {
     /**
      * jsonp parameter name
      */
-    private Set<String> jsonpParameterNames = new LinkedHashSet<String>(Arrays.asList("jsonp", "callback"));
+    private String[] jsonpParameterNames = {"jsonp", "callback"};
 
     /**
      * Set default param.
@@ -194,27 +196,29 @@ public class FastJsonJsonView extends AbstractView {
      * @see <a href="http://en.wikipedia.org/wiki/JSONP">JSONP Wikipedia article</a>
      */
     public void setJsonpParameterNames(Set<String> jsonpParameterNames) {
-        this.jsonpParameterNames = jsonpParameterNames;
+        Assert.notEmpty(jsonpParameterNames, "jsonpParameterName cannot be empty");
+        this.jsonpParameterNames = jsonpParameterNames.toArray(new String[jsonpParameterNames.size()]);
     }
+
 
     private String getJsonpParameterValue(HttpServletRequest request) {
         if (this.jsonpParameterNames != null) {
             for (String name : this.jsonpParameterNames) {
                 String value = request.getParameter(name);
-                if (StringUtils.isEmpty(value)) {
-                    continue;
+
+                if (IOUtils.isValidJsonpQueryParam(value)) {
+                    return value;
                 }
-                if (!isValidJsonpQueryParam(value)) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Ignoring invalid jsonp parameter value: " + value);
-                    }
-                    continue;
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Ignoring invalid jsonp parameter value: " + value);
                 }
-                return value;
             }
         }
         return null;
     }
+
+
 
     @Override
     protected void renderMergedOutputModel(Map<String, Object> model, //
@@ -318,16 +322,6 @@ public class FastJsonJsonView extends AbstractView {
         return result;
     }
 
-    /**
-     * Validate the jsonp query parameter value. The default implementation
-     * returns true if it consists of digits, letters, or "_" and ".".
-     * Invalid parameter values are ignored.
-     * @param value the query param value, never {@code null}
-     */
-    protected boolean isValidJsonpQueryParam(String value) {
-        return CALLBACK_PARAM_PATTERN.matcher(value).matches();
-    }
-
     @Override
     protected void setResponseContentType(HttpServletRequest request, HttpServletResponse response) {
         if (getJsonpParameterValue(request) != null) {
@@ -337,4 +331,6 @@ public class FastJsonJsonView extends AbstractView {
             super.setResponseContentType(request, response);
         }
     }
+
+
 }

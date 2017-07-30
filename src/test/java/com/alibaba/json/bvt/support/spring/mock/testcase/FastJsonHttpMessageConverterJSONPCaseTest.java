@@ -196,4 +196,14 @@ public class FastJsonHttpMessageConverterJSONPCaseTest {
 
                 .andExpect(content().string("fnUpdateSome({})"));
     }
+
+    @Test
+    public void test8() throws Exception {
+        String invalidMethodName = "--methodName";
+        ResultActions actions = this.mockMvc.perform(post("/jsonp-fastjsonview/test7?customizedCallbackParamName=" + invalidMethodName));
+        actions.andDo(print());
+        actions.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JAVASCRIPT))
+
+                .andExpect(content().string("null({})"));
+    }
 }

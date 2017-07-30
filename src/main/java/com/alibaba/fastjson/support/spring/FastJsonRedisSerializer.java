@@ -34,7 +34,7 @@ public class FastJsonRedisSerializer<T> implements RedisSerializer<T> {
         try {
             return JSON.toJSONBytes(t, fastJsonConfig.getSerializeConfig(), fastJsonConfig.getSerializerFeatures());
         } catch (Exception ex) {
-            throw new SerializationException("Could not write JSON: " + ex.getMessage(), ex);
+            throw new SerializationException("Could not serialize: " + ex.getMessage(), ex);
         }
     }
 
@@ -46,7 +46,7 @@ public class FastJsonRedisSerializer<T> implements RedisSerializer<T> {
         try {
             return (T) JSON.parseObject(bytes, type, fastJsonConfig.getFeatures());
         } catch (Exception ex) {
-            throw new SerializationException("Could not write JSON: " + ex.getMessage(), ex);
+            throw new SerializationException("Could not deserialize: " + ex.getMessage(), ex);
         }
     }
 }

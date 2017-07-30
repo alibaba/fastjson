@@ -1,4 +1,5 @@
 package com.alibaba.json.bvt.support.spring;
+
 import com.alibaba.fastjson.support.spring.FastJsonRedisSerializer;
 import com.google.common.base.Objects;
 import org.hamcrest.core.Is;
@@ -6,6 +7,8 @@ import org.hamcrest.core.IsNull;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Arrays;
 
 
 public class FastJsonRedisSerializerTest {
@@ -19,9 +22,9 @@ public class FastJsonRedisSerializerTest {
     @Test
     public void test_1() {
         User user = serializer.deserialize(serializer.serialize(new User(1, "土豆", 25)));
-        Assert.assertTrue(Objects.equal(user.getId(),1));
-        Assert.assertTrue(Objects.equal(user.getName(),"土豆"));
-        Assert.assertTrue(Objects.equal(user.getAge(),25));
+        Assert.assertTrue(Objects.equal(user.getId(), 1));
+        Assert.assertTrue(Objects.equal(user.getName(), "土豆"));
+        Assert.assertTrue(Objects.equal(user.getAge(), 25));
     }
 
     @Test
@@ -32,6 +35,14 @@ public class FastJsonRedisSerializerTest {
     @Test
     public void test_3() {
         Assert.assertThat(serializer.deserialize(new byte[0]), IsNull.nullValue());
+    }
+
+    @Test
+    public void test_4() {
+        User user = new User(1, "土豆", 25);
+        byte[] serializedValue = serializer.serialize(user);
+        Arrays.sort(serializedValue); // corrupt serialization result
+        Assert.assertNull(serializer.deserialize(serializedValue));
     }
 
     static class User {

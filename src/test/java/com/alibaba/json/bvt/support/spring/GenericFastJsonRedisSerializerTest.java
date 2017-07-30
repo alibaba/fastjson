@@ -7,6 +7,9 @@ import org.hamcrest.core.IsNull;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.data.redis.serializer.SerializationException;
+
+import java.util.Arrays;
 
 
 public class GenericFastJsonRedisSerializerTest {
@@ -16,22 +19,34 @@ public class GenericFastJsonRedisSerializerTest {
     public void setUp() {
         this.serializer = new GenericFastJsonRedisSerializer();
     }
+
     @Test
-    public void test_1(){
+    public void test_1() {
         User user = (User) serializer.deserialize(serializer.serialize(new User(1, "土豆", 25)));
-        Assert.assertTrue(Objects.equal(user.getId(),1));
-        Assert.assertTrue(Objects.equal(user.getName(),"土豆"));
-        Assert.assertTrue(Objects.equal(user.getAge(),25));
+        Assert.assertTrue(Objects.equal(user.getId(), 1));
+        Assert.assertTrue(Objects.equal(user.getName(), "土豆"));
+        Assert.assertTrue(Objects.equal(user.getAge(), 25));
     }
+
     @Test
-    public void test_2(){
+    public void test_2() {
         Assert.assertThat(serializer.serialize(null), Is.is(new byte[0]));
     }
-    @Test
-    public void test_3(){
-        Assert.assertThat(serializer.deserialize(new byte[0]), IsNull.nullValue());    }
 
-    static  class User {
+    @Test
+    public void test_3() {
+        Assert.assertThat(serializer.deserialize(new byte[0]), IsNull.nullValue());
+    }
+
+    @Test(expected = SerializationException.class)
+    public void test_4() {
+        User user = new User(1, "土豆", 25);
+        byte[] serializedValue = serializer.serialize(user);
+        Arrays.sort(serializedValue); // corrupt serialization result
+        serializer.deserialize(serializedValue);
+    }
+
+    static class User {
         private Integer id;
         private String name;
         private Integer age;

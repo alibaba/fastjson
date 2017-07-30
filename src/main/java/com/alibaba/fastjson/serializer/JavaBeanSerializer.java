@@ -19,11 +19,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONField;
@@ -39,6 +35,9 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
     protected final FieldSerializer[] sortedGetters;
     
     protected SerializeBeanInfo       beanInfo;
+
+    private transient long[] hashArray;
+    private transient short[] hashArrayMapping;
     
     public JavaBeanSerializer(Class<?> beanType){
         this(beanType, (Map<String, String>) null);
@@ -432,6 +431,21 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         }
     }
 
+    public Object getFieldValue(Object object, String key, long keyHash) {
+        FieldSerializer fieldDeser = getFieldSerializer(keyHash);
+        if (fieldDeser == null) {
+            throw new JSONException("field not found. " + key);
+        }
+
+        try {
+            return fieldDeser.getPropertyValue(object);
+        } catch (InvocationTargetException ex) {
+            throw new JSONException("getFieldValue error." + key, ex);
+        } catch (IllegalAccessException ex) {
+            throw new JSONException("getFieldValue error." + key, ex);
+        }
+    }
+
     public FieldSerializer getFieldSerializer(String key) {
         if (key == null) {
             return null;
@@ -454,6 +468,42 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
             } else {
                 return sortedGetters[mid]; // key found
             }
+        }
+
+        return null; // key not found.
+    }
+
+    public FieldSerializer getFieldSerializer(long hash) {
+        if (this.hashArray == null) {
+            long[] hashArray = new long[sortedGetters.length];
+            for (int i = 0; i < sortedGetters.length; i++) {
+                hashArray[i] = TypeUtils.fnv1a_64(sortedGetters[i].fieldInfo.name);
+            }
+            Arrays.sort(hashArray);
+            this.hashArray = hashArray;
+        }
+
+        int pos = Arrays.binarySearch(hashArray, hash);
+        if (pos < 0) {
+            return null;
+        }
+
+        if (hashArrayMapping == null) {
+            short[] mapping = new short[hashArray.length];
+            Arrays.fill(mapping, (short) -1);
+            for (int i = 0; i < sortedGetters.length; i++) {
+                int p = Arrays.binarySearch(hashArray
+                        , TypeUtils.fnv1a_64(sortedGetters[i].fieldInfo.name));
+                if (p >= 0) {
+                    mapping[p] = (short) i;
+                }
+            }
+            hashArrayMapping = mapping;
+        }
+
+        int getterIndex = hashArrayMapping[pos];
+        if (getterIndex != -1) {
+            return sortedGetters[getterIndex];
         }
 
         return null; // key not found.

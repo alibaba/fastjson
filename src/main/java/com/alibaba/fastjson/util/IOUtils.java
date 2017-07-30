@@ -32,8 +32,6 @@ import java.util.Properties;
 
 import com.alibaba.fastjson.JSONException;
 
-import javax.servlet.http.HttpServletRequest;
-
 /**
  * @author wenshao[szujobs@hotmail.com]
  */

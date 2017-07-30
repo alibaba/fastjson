@@ -143,7 +143,7 @@ public class FastJsonJsonViewTest extends TestCase {
 
         view.render(Collections.singletonMap("doesn't matter", Collections.singletonMap("abc", "cde中文")), request, response);
         String contentAsString = response.getContentAsString();
-        Assert.assertTrue(contentAsString.startsWith("null("));
+        Assert.assertTrue(contentAsString.startsWith("{\"abc\":\"cde中文\"}"));
 
     }
     

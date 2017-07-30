@@ -72,6 +72,11 @@
    			<name>Neil Dong</name>
    			<email>email_dsl@163.com</email>
   		</developer>
+		<developer>
+			<name>李恒名</name>
+			<url>https://github.com/lihengming/</url>
+			<email>89921218@qq.com</email>
+		</developer>
 	</developers>
 
 	<licenses>

@@ -57,6 +57,21 @@
 			<name>axmanwang</name>
 			<email>iamaxman@hotmail.com</email>
 		</developer>
+		<developer>
+   			<id>kimmking</id>
+   			<name>kimmking</name>
+   			<email>kimmking@163.com</email>
+  		</developer>
+  		<developer>
+   			<id>Victor.Zxy</id>
+   			<name>Victor.Zxy</name>
+   			<email>Victor.Zxy@outlook.com</email>
+  		</developer>
+		<developer>
+			<id>Neil Dong</id>
+   			<name>Neil Dong</name>
+   			<email>email_dsl@163.com</email>
+  		</developer>
 	</developers>
 
 	<licenses>

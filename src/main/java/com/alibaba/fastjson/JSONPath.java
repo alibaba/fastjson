@@ -34,8 +34,6 @@ import com.alibaba.fastjson.util.TypeUtils;
  * @since 1.2.0
  */
 public class JSONPath implements JSONAware {
-
-    private static int                             CACHE_SIZE = 1024;
     private static ConcurrentMap<String, JSONPath> pathCache  = new ConcurrentHashMap<String, JSONPath>(128, 0.75f, 1);
 
     private final String                           path;
@@ -408,7 +406,7 @@ public class JSONPath implements JSONAware {
         JSONPath jsonpath = pathCache.get(path);
         if (jsonpath == null) {
             jsonpath = new JSONPath(path);
-            if (pathCache.size() < CACHE_SIZE) {
+            if (pathCache.size() < 1024) {
                 pathCache.putIfAbsent(path, jsonpath);
                 jsonpath = pathCache.get(path);
             }

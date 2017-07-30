@@ -38,8 +38,13 @@ public class GenericFastJsonRedisSerializerTest {
         Assert.assertThat(serializer.deserialize(new byte[0]), IsNull.nullValue());
     }
 
-    @Test(expected = SerializationException.class)
+    @Test
     public void test_4() {
+        Assert.assertThat(serializer.deserialize(null), IsNull.nullValue());
+    }
+
+    @Test(expected = SerializationException.class)
+    public void test_5() {
         User user = new User(1, "土豆", 25);
         byte[] serializedValue = serializer.serialize(user);
         Arrays.sort(serializedValue); // corrupt serialization result

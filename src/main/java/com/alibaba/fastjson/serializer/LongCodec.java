@@ -20,6 +20,7 @@ import java.lang.reflect.Type;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
@@ -57,24 +58,28 @@ public class LongCodec implements ObjectSerializer, ObjectDeserializer {
         final JSONLexer lexer = parser.lexer;
 
         Long longObject;
-        final int token = lexer.token();
-        if (token == JSONToken.LITERAL_INT) {
-            long longValue = lexer.longValue();
-            lexer.nextToken(JSONToken.COMMA);
-            longObject = Long.valueOf(longValue);
-        } else {
-            if (token == JSONToken.LBRACE) {
-                JSONObject jsonObject = new JSONObject(true);
-                parser.parseObject(jsonObject);
-                longObject = TypeUtils.castToLong(jsonObject);
+        try {
+            final int token = lexer.token();
+            if (token == JSONToken.LITERAL_INT) {
+                long longValue = lexer.longValue();
+                lexer.nextToken(JSONToken.COMMA);
+                longObject = Long.valueOf(longValue);
             } else {
-                Object value = parser.parse();
+                if (token == JSONToken.LBRACE) {
+                    JSONObject jsonObject = new JSONObject(true);
+                    parser.parseObject(jsonObject);
+                    longObject = TypeUtils.castToLong(jsonObject);
+                } else {
+                    Object value = parser.parse();
 
-                longObject = TypeUtils.castToLong(value);
+                    longObject = TypeUtils.castToLong(value);
+                }
+                if (longObject == null) {
+                    return null;
+                }
             }
-            if (longObject == null) {
-                return null;
-            }
+        } catch (Exception ex) {
+            throw new JSONException("parseLong error, field : " + fieldName, ex);
         }
         
         return clazz == AtomicLong.class //

@@ -78,15 +78,27 @@ public class NumberDeserializer implements ObjectDeserializer {
         }
 
         if (clazz == double.class || clazz == Double.class) {
-            return (T) TypeUtils.castToDouble(value);
+            try {
+                return (T) TypeUtils.castToDouble(value);
+            } catch (Exception ex) {
+                throw new JSONException("parseDouble error, field : " + fieldName, ex);
+            }
         }
 
         if (clazz == short.class || clazz == Short.class) {
-            return (T) TypeUtils.castToShort(value);
+            try {
+                return (T) TypeUtils.castToShort(value);
+            } catch (Exception ex) {
+                throw new JSONException("parseShort error, field : " + fieldName, ex);
+            }
         }
 
         if (clazz == byte.class || clazz == Byte.class) {
-            return (T) TypeUtils.castToByte(value);
+            try {
+                return (T) TypeUtils.castToByte(value);
+            } catch (Exception ex) {
+                throw new JSONException("parseByte error, field : " + fieldName, ex);
+            }
         }
 
         return (T) TypeUtils.castToBigDecimal(value);

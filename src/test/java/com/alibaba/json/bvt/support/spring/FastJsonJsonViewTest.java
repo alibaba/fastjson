@@ -1,23 +1,21 @@
 package com.alibaba.json.bvt.support.spring;
 
-import java.nio.charset.Charset;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-
-import junit.framework.TestCase;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.ValueFilter;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonJsonView;
+import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+
+import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 public class FastJsonJsonViewTest extends TestCase {
 
@@ -121,7 +119,7 @@ public class FastJsonJsonViewTest extends TestCase {
         String contentAsString = response.getContentAsString();
         int contentLength = response.getContentLength();
 
-        Assert.assertEquals(contentLength, contentAsString.getBytes().length);
+        Assert.assertEquals(contentLength, contentAsString.getBytes(view.getFastJsonConfig().getCharset().name()).length);
     }
 
     @Test
@@ -148,7 +146,7 @@ public class FastJsonJsonViewTest extends TestCase {
     }
     
     private SerializeFilter serializeFilter = new ValueFilter() {
-		@Override
+
 		public Object process(Object object, String name, Object value) {
 			if (value == null) {
 				return "";

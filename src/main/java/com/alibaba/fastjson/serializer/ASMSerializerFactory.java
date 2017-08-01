@@ -402,8 +402,8 @@ public class ASMSerializerFactory implements Opcodes {
 
         byte[] code = cw.toByteArray();
 
-        Class<?> exampleClass = classLoader.defineClassPublic(classNameFull, code, 0, code.length);
-        Constructor<?> constructor = exampleClass.getConstructor(SerializeBeanInfo.class);
+        Class<?> serializerClass = classLoader.defineClassPublic(classNameFull, code, 0, code.length);
+        Constructor<?> constructor = serializerClass.getConstructor(SerializeBeanInfo.class);
         Object instance = constructor.newInstance(beanInfo);
 
         return (JavaBeanSerializer) instance;
@@ -1253,6 +1253,13 @@ public class ASMSerializerFactory implements Opcodes {
         mw.visitJumpInsn(GOTO, endIf_);
 
         mw.visitLabel(else_); // else { out.writeFieldValue(seperator, fieldName, fieldValue)
+
+
+        if ("trim".equals(property.format)) {
+            mw.visitVarInsn(ALOAD, context.var("string"));
+            mw.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "trim", "()Ljava/lang/String;");
+            mw.visitVarInsn(ASTORE, context.var("string"));
+        }
 
         if (context.writeDirect) {
             mw.visitVarInsn(ALOAD, context.var("out"));

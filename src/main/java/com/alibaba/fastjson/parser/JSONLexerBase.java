@@ -1373,7 +1373,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             return 0;
         }
 
-        long hash = 0x811c9dc5;
+        long hash = 0xcbf29ce484222325L;
         for (;;) {
             chLocal = charAt(bp + (offset++));
             if (chLocal == '\"') {
@@ -1382,7 +1382,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             }
 
             hash ^= chLocal;
-            hash *= 0x1000193;
+            hash *= 0x100000001b3L;
 
             if (chLocal == '\\') {
                 matchStat = NOT_MATCH;

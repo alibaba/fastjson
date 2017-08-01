@@ -57,6 +57,26 @@
 			<name>axmanwang</name>
 			<email>iamaxman@hotmail.com</email>
 		</developer>
+		<developer>
+   			<id>kimmking</id>
+   			<name>kimmking</name>
+   			<email>kimmking@163.com</email>
+  		</developer>
+  		<developer>
+   			<id>Victor.Zxy</id>
+   			<name>Victor.Zxy</name>
+   			<email>Victor.Zxy@outlook.com</email>
+  		</developer>
+		<developer>
+			<id>Neil Dong</id>
+   			<name>Neil Dong</name>
+   			<email>email_dsl@163.com</email>
+  		</developer>
+		<developer>
+			<name>李恒名</name>
+			<url>https://github.com/lihengming/</url>
+			<email>89921218@qq.com</email>
+		</developer>
 	</developers>
 
 	<licenses>
@@ -209,6 +229,14 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-redis</artifactId>
+			<version>1.8.6.RELEASE</version>
+			<scope>provided</scope>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
 			<groupId>com.squareup.retrofit2</groupId>
 			<artifactId>retrofit</artifactId>
 			<version>2.1.0</version>
@@ -319,18 +347,6 @@
 			<version>2.2.1</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.owlike</groupId>
-			<artifactId>genson</artifactId>
-			<version>1.4</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.owlike</groupId>
-			<artifactId>genson-scala_2.11</artifactId>
-			<version>1.4</version>
-			<scope>test</scope>
-		</dependency>
 
 		<dependency>
 			<groupId>org.clojure</groupId>
@@ -391,6 +407,12 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.glassfish.jersey.core</groupId>
+			<artifactId>jersey-common</artifactId>
+			<version>2.23.2</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>com.jsoniter</groupId>
 			<artifactId>jsoniter</artifactId>
 			<version>0.9.8</version>
@@ -411,7 +433,12 @@
 			<scope>test</scope>
 		</dependency>
 
-
+		<dependency>
+			<groupId>com.jayway.jsonpath</groupId>
+			<artifactId>json-path</artifactId>
+			<version>2.3.0</version>
+			<scope>test</scope>
+		</dependency>
 
 	</dependencies>
 

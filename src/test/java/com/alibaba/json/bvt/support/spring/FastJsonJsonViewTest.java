@@ -121,7 +121,7 @@ public class FastJsonJsonViewTest extends TestCase {
         String contentAsString = response.getContentAsString();
         int contentLength = response.getContentLength();
 
-        Assert.assertEquals(contentLength, contentAsString.getBytes().length);
+        Assert.assertEquals(contentLength, contentAsString.getBytes("UTF-8").length);
     }
 
     @Test

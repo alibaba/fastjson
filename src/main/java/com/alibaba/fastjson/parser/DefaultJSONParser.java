@@ -1083,7 +1083,7 @@ public class DefaultJSONParser implements Closeable {
 
         if (lexer.token() != JSONToken.LBRACKET) {
             throw new JSONException("syntax error, expect [, actual " + JSONToken.name(lexer.token()) + ", pos "
-                                    + lexer.pos());
+                                    + lexer.pos() + ", fieldName " + fieldName);
         }
 
         lexer.nextToken(JSONToken.LITERAL_STRING);

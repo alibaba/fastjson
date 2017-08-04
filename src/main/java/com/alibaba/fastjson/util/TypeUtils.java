@@ -473,6 +473,10 @@ public class TypeUtils {
                 return null;
             }
 
+            if (strVal.endsWith(".000000000")) {
+                strVal = strVal.substring(0, strVal.length() - 10);
+            }
+
             if (isNumber(strVal)) {
                 longValue = Long.parseLong(strVal);
             } else {

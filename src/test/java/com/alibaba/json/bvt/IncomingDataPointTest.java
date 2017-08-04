@@ -30,6 +30,10 @@ public class IncomingDataPointTest extends TestCase {
         System.out.println(json);
 
         JSON.parseArray(json, IncomingDataPoint.class);
+
+        IncomingDataPoint p2 = JSON.parseObject("[\"mem.usage.GB\",1501833776283,\"58.41\",{\"site\":\"et2\",\"appname\":\"histore\",\"ip\":\"1.1.1.1\"}]", IncomingDataPoint.class);
+        IncomingDataPoint p3 = JSON.parseObject("[\"mem.usage.GB\",1501833776283,\"58.41\",{\"site\":\"et2\",\"appname\":\"histore\",\"ip\":\"1.1.1.1\"},null]", IncomingDataPoint.class);
+        System.out.println(JSON.toJSONString(p2));
 //        JSON.parseObject(json, IncomingDataPoint[].class);
     }
     public void test_for_IncomingDataPoint() throws Exception {

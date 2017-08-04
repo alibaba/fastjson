@@ -2295,23 +2295,41 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         int offset = fieldName.length;
         char chLocal = charAt(bp + (offset++));
 
+        final boolean quote = chLocal == '"';
+        if (quote) {
+            chLocal = charAt(bp + (offset++));
+        }
+
+        boolean negative = chLocal == '-';
+        if (negative) {
+            chLocal = charAt(bp + (offset++));
+        }
+
         float value;
         if (chLocal >= '0' && chLocal <= '9') {
+            int intVal = chLocal - '0';
             for (;;) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
+                    intVal = intVal * 10 + (chLocal - '0');
                     continue;
                 } else {
                     break;
                 }
             }
 
-            if (chLocal == '.') {
+            int power = 1;
+            boolean small = (chLocal == '.');
+            if (small) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
+                    intVal = intVal * 10 + (chLocal - '0');
+                    power *= 10;
                     for (;;) {
                         chLocal = charAt(bp + (offset++));
                         if (chLocal >= '0' && chLocal <= '9') {
+                            intVal = intVal * 10 + (chLocal - '0');
+                            power *= 10;
                             continue;
                         } else {
                             break;
@@ -2323,10 +2341,45 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 }
             }
 
-            int start = bp + fieldName.length;
-            int count = bp + offset - start - 1;
-            String text = this.subString(start, count);
-            value = Float.parseFloat(text);
+            boolean exp = chLocal == 'e' || chLocal == 'E';
+            if (exp) {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal == '+' || chLocal == '-') {
+                    chLocal = charAt(bp + (offset++));
+                }
+                for (;;) {
+                    if (chLocal >= '0' && chLocal <= '9') {
+                        chLocal = charAt(bp + (offset++));
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+            int start, count;
+            if (quote) {
+                if (chLocal != '"') {
+                    matchStat = NOT_MATCH;
+                    return 0;
+                } else {
+                    chLocal = charAt(bp + (offset++));
+                }
+                start = bp + fieldName.length + 1;
+                count = bp + offset - start - 2;
+            } else {
+                start = bp + fieldName.length;
+                count = bp + offset - start - 1;
+            }
+
+            if (!exp && count < 20) {
+                value = ((float) intVal) / power;
+                if (negative) {
+                    value = -value;
+                }
+            } else {
+                String text = this.subString(start, count);
+                value = Float.parseFloat(text);
+            }
         } else {
             matchStat = NOT_MATCH;
             return 0;
@@ -2381,23 +2434,37 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             chLocal = charAt(bp + (offset++));
         }
 
+        boolean negative = chLocal == '-';
+        if (negative) {
+            chLocal = charAt(bp + (offset++));
+        }
+
         float value;
         if (chLocal >= '0' && chLocal <= '9') {
+            int intVal = chLocal - '0';
+
             for (;;) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
+                    intVal = intVal * 10 + (chLocal - '0');
                     continue;
                 } else {
                     break;
                 }
             }
 
-            if (chLocal == '.') {
+            int power = 1;
+            boolean small = (chLocal == '.');
+            if (small) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
+                    intVal = intVal * 10 + (chLocal - '0');
+                    power *= 10;
                     for (;;) {
                         chLocal = charAt(bp + (offset++));
                         if (chLocal >= '0' && chLocal <= '9') {
+                            intVal = intVal * 10 + (chLocal - '0');
+                            power *= 10;
                             continue;
                         } else {
                             break;
@@ -2408,6 +2475,22 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                     return 0;
                 }
             }
+
+            boolean exp = chLocal == 'e' || chLocal == 'E';
+            if (exp) {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal == '+' || chLocal == '-') {
+                    chLocal = charAt(bp + (offset++));
+                }
+                for (;;) {
+                    if (chLocal >= '0' && chLocal <= '9') {
+                        chLocal = charAt(bp + (offset++));
+                    } else {
+                        break;
+                    }
+                }
+            }
+
 
             int start, count;
             if (quote) {
@@ -2423,8 +2506,16 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 start = bp;
                 count = bp + offset - start - 1;
             }
-            String text = this.subString(start, count);
-            value = Float.parseFloat(text);
+
+            if (!exp && count < 20) {
+                value = ((float) intVal) / power;
+                if (negative) {
+                    value = -value;
+                }
+            } else {
+                String text = this.subString(start, count);
+                value = Float.parseFloat(text);
+            }
         } else {
             matchStat = NOT_MATCH;
             return 0;
@@ -2452,23 +2543,36 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             chLocal = charAt(bp + (offset++));
         }
 
+        boolean negative = chLocal == '-';
+        if (negative) {
+            chLocal = charAt(bp + (offset++));
+        }
+
         double value;
         if (chLocal >= '0' && chLocal <= '9') {
+            long intVal = chLocal - '0';
             for (;;) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
+                    intVal = intVal * 10 + (chLocal - '0');
                     continue;
                 } else {
                     break;
                 }
             }
 
-            if (chLocal == '.') {
+            long power = 1;
+            boolean small = (chLocal == '.');
+            if (small) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
+                    intVal = intVal * 10 + (chLocal - '0');
+                    power *= 10;
                     for (;;) {
                         chLocal = charAt(bp + (offset++));
                         if (chLocal >= '0' && chLocal <= '9') {
+                            intVal = intVal * 10 + (chLocal - '0');
+                            power *= 10;
                             continue;
                         } else {
                             break;
@@ -2477,6 +2581,21 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 } else {
                     matchStat = NOT_MATCH;
                     return 0;
+                }
+            }
+
+            boolean exp = chLocal == 'e' || chLocal == 'E';
+            if (exp) {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal == '+' || chLocal == '-') {
+                    chLocal = charAt(bp + (offset++));
+                }
+                for (;;) {
+                    if (chLocal >= '0' && chLocal <= '9') {
+                        chLocal = charAt(bp + (offset++));
+                    } else {
+                        break;
+                    }
                 }
             }
 
@@ -2494,8 +2613,16 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 start = bp;
                 count = bp + offset - start - 1;
             }
-            String text = this.subString(start, count);
-            value = Double.parseDouble(text);
+
+            if (!exp && count < 20) {
+                value = ((double) intVal) / power;
+                if (negative) {
+                    value = -value;
+                }
+            } else {
+                String text = this.subString(start, count);
+                value = Double.parseDouble(text);
+            }
         } else {
             matchStat = NOT_MATCH;
             return 0;
@@ -2865,24 +2992,42 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         int offset = fieldName.length;
         char chLocal = charAt(bp + (offset++));
+        final boolean quote = chLocal == '"';
+        if (quote) {
+            chLocal = charAt(bp + (offset++));
+        }
+
+        boolean negative = chLocal == '-';
+        if (negative) {
+            chLocal = charAt(bp + (offset++));
+        }
 
         double value;
         if (chLocal >= '0' && chLocal <= '9') {
+            long intVal = chLocal - '0';
+
             for (;;) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
+                    intVal = intVal * 10 + (chLocal - '0');
                     continue;
                 } else {
                     break;
                 }
             }
 
-            if (chLocal == '.') {
+            long power = 1;
+            boolean small = (chLocal == '.');
+            if (small) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
+                    intVal = intVal * 10 + (chLocal - '0');
+                    power *= 10;
                     for (;;) {
                         chLocal = charAt(bp + (offset++));
                         if (chLocal >= '0' && chLocal <= '9') {
+                            intVal = intVal * 10 + (chLocal - '0');
+                            power *= 10;
                             continue;
                         } else {
                             break;
@@ -2894,7 +3039,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 }
             }
 
-            if (chLocal == 'e' || chLocal == 'E') {
+            boolean exp = chLocal == 'e' || chLocal == 'E';
+            if (exp) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal == '+' || chLocal == '-') {
                     chLocal = charAt(bp + (offset++));
@@ -2908,10 +3054,30 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 }
             }
 
-            int start = bp + fieldName.length;
-            int count = bp + offset - start - 1;
-            String text = this.subString(start, count);
-            value = Double.parseDouble(text);
+            int start, count;
+            if (quote) {
+                if (chLocal != '"') {
+                    matchStat = NOT_MATCH;
+                    return 0;
+                } else {
+                    chLocal = charAt(bp + (offset++));
+                }
+                start = bp + fieldName.length + 1;
+                count = bp + offset - start - 2;
+            } else {
+                start = bp + fieldName.length;
+                count = bp + offset - start - 1;
+            }
+
+            if (!exp && count < 20) {
+                value = ((double) intVal) / power;
+                if (negative) {
+                    value = -value;
+                }
+            } else {
+                String text = this.subString(start, count);
+                value = Double.parseDouble(text);
+            }
         } else {
             matchStat = NOT_MATCH;
             return 0;

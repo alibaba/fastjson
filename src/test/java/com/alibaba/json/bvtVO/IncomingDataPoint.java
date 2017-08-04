@@ -13,7 +13,9 @@ import java.util.Map;
  */
 @JSONType(serialzeFeatures= SerializerFeature.BeanToArray,
         parseFeatures= Feature.SupportArrayToBean,
-        orders = {"metric", "timestamp", "value", "tags", "tsuid", "granularity", "aggregator"})
+        orders = {"metric", "timestamp", "value", "tags", "tsuid", "granularity", "aggregator"},
+        asm = false
+        )
 public class IncomingDataPoint {
     /** The incoming metric name */
     private String metric;

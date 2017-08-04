@@ -1340,6 +1340,11 @@ public final class JSONScanner extends JSONLexerBase {
 
         int offset = bp;
         char chLocal = charAt(offset++);
+        final boolean quote = chLocal == '"';
+
+        if (quote) {
+            chLocal = charAt(offset++);
+        }
 
         final boolean negative = chLocal == '-';
         if (negative) {
@@ -1357,6 +1362,14 @@ public final class JSONScanner extends JSONLexerBase {
                     matchStat = NOT_MATCH;
                     return 0;
                 } else {
+                    if (quote) {
+                        if (chLocal != '"') {
+                            matchStat = NOT_MATCH;
+                            return 0;
+                        } else {
+                            chLocal = charAt(offset++);
+                        }
+                    }
                     break;
                 }
             }
@@ -1392,6 +1405,11 @@ public final class JSONScanner extends JSONLexerBase {
 
         int offset = bp;
         char chLocal = charAt(offset++);
+        final boolean quote = chLocal == '"';
+
+        if (quote) {
+            chLocal = charAt(offset++);
+        }
 
         final boolean negative = chLocal == '-';
         if (negative) {
@@ -1409,6 +1427,14 @@ public final class JSONScanner extends JSONLexerBase {
                     matchStat = NOT_MATCH;
                     return 0;
                 } else {
+                    if (quote) {
+                        if (chLocal != '"') {
+                            matchStat = NOT_MATCH;
+                            return 0;
+                        } else {
+                            chLocal = charAt(offset++);
+                        }
+                    }
                     break;
                 }
             }

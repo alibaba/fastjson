@@ -65,8 +65,8 @@ public final class JSONScanner extends JSONLexerBase {
     public final char next() {
         int index = ++bp;
         return ch = (index >= this.len ? //
-            EOI //
-            : text.charAt(index));
+                EOI //
+                : text.charAt(index));
     }
 
     public JSONScanner(char[] input, int inputLength){
@@ -216,7 +216,7 @@ public final class JSONScanner extends JSONLexerBase {
             char c_r0 = charAt(bp + rest - 1);
             char c_r1 = charAt(bp + rest - 2);
             if (c0 == '/' && c1 == 'D' && c2 == 'a' && c3 == 't' && c4 == 'e' && c5 == '(' && c_r0 == '/'
-                && c_r1 == ')') {
+                    && c_r1 == ')') {
                 int plusIndex = -1;
                 for (int i = 6; i < rest; ++i) {
                     char c = charAt(bp + i);
@@ -360,7 +360,7 @@ public final class JSONScanner extends JSONLexerBase {
             }
         } else if ((c2 == '.' && c5 == '.') // de dd.mm.yyyy
                 || (c2 == '-' && c5 == '-') // in dd-mm-yyyy
-                ) { 
+                ) {
             d0 = c0;
             d1 = c1;
             M0 = c3;
@@ -433,8 +433,8 @@ public final class JSONScanner extends JSONLexerBase {
         } else if (t == '+' || t == '-') {
             if (len == date_len + 6) {
                 if (charAt(bp + date_len + 3) != ':' //
-                    || charAt(bp + date_len + 4) != '0' //
-                    || charAt(bp + date_len + 5) != '0') {
+                        || charAt(bp + date_len + 4) != '0' //
+                        || charAt(bp + date_len + 5) != '0') {
                     return false;
                 }
 
@@ -970,18 +970,18 @@ public final class JSONScanner extends JSONLexerBase {
 
         return hash;
     }
-    
+
     public Collection<String> newCollectionByType(Class<?> type){
-    	if (type.isAssignableFrom(HashSet.class)) {
-    		HashSet<String> list = new HashSet<String>();
-    		return list;
+        if (type.isAssignableFrom(HashSet.class)) {
+            HashSet<String> list = new HashSet<String>();
+            return list;
         } else if (type.isAssignableFrom(ArrayList.class)) {
-        	ArrayList<String> list2 = new ArrayList<String>();
-        	return list2;
+            ArrayList<String> list2 = new ArrayList<String>();
+            return list2;
         } else {
             try {
-            	Collection<String> list = (Collection<String>) type.newInstance();
-            	return list;
+                Collection<String> list = (Collection<String>) type.newInstance();
+                return list;
             } catch (Exception e) {
                 throw new JSONException(e.getMessage(), e);
             }
@@ -1400,6 +1400,113 @@ public final class JSONScanner extends JSONLexerBase {
         }
     }
 
+    public  double scanDouble(char seperator) {
+        matchStat = UNKNOWN;
+
+        int offset = bp;
+        char chLocal = charAt(offset++);
+        final boolean quote = chLocal == '"';
+        if (quote) {
+            chLocal = charAt(offset++);
+        }
+
+        boolean negative = chLocal == '-';
+        if (negative) {
+            chLocal = charAt(offset++);
+        }
+
+        double value;
+        if (chLocal >= '0' && chLocal <= '9') {
+            long intVal = chLocal - '0';
+            for (;;) {
+                chLocal = charAt(offset++);
+                if (chLocal >= '0' && chLocal <= '9') {
+                    intVal = intVal * 10 + (chLocal - '0');
+                    continue;
+                } else {
+                    break;
+                }
+            }
+
+            long power = 1;
+            boolean small = (chLocal == '.');
+            if (small) {
+                chLocal = charAt(offset++);
+                if (chLocal >= '0' && chLocal <= '9') {
+                    intVal = intVal * 10 + (chLocal - '0');
+                    power = 10;
+                    for (;;) {
+                        chLocal = charAt(offset++);
+                        if (chLocal >= '0' && chLocal <= '9') {
+                            intVal = intVal * 10 + (chLocal - '0');
+                            power *= 10;
+                            continue;
+                        } else {
+                            break;
+                        }
+                    }
+                } else {
+                    matchStat = NOT_MATCH;
+                    return 0;
+                }
+            }
+
+            boolean exp = chLocal == 'e' || chLocal == 'E';
+            if (exp) {
+                chLocal = charAt(offset++);
+                if (chLocal == '+' || chLocal == '-') {
+                    chLocal = charAt(offset++);
+                }
+                for (;;) {
+                    if (chLocal >= '0' && chLocal <= '9') {
+                        chLocal = charAt(offset++);
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+            int start, count;
+            if (quote) {
+                if (chLocal != '"') {
+                    matchStat = NOT_MATCH;
+                    return 0;
+                } else {
+                    chLocal = charAt(offset++);
+                }
+                start = bp + 1;
+                count = offset - start - 2;
+            } else {
+                start = bp;
+                count = offset - start - 1;
+            }
+
+            if (!exp && count < 20) {
+                value = ((double) intVal) / power;
+                if (negative) {
+                    value = -value;
+                }
+            } else {
+                String text = this.subString(start, count);
+                value = Double.parseDouble(text);
+            }
+        } else {
+            matchStat = NOT_MATCH;
+            return 0;
+        }
+
+        if (chLocal == seperator) {
+            bp = offset;
+            this.ch = this.charAt(bp);
+            matchStat = VALUE;
+            token = JSONToken.COMMA;
+            return value;
+        } else {
+            matchStat = NOT_MATCH;
+            return value;
+        }
+    }
+
     public long scanLong(char expectNextChar) {
         matchStat = UNKNOWN;
 
@@ -1472,9 +1579,9 @@ public final class JSONScanner extends JSONLexerBase {
 
     public String info() {
         return "pos " + bp //
-               + ", json : " //
-               + (text.length() < 65536 //
-                   ? text //
-                   : text.substring(0, 65536));
+                + ", json : " //
+                + (text.length() < 65536 //
+                ? text //
+                : text.substring(0, 65536));
     }
 }

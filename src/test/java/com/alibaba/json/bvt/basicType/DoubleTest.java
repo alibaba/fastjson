@@ -8,7 +8,7 @@ import junit.framework.TestCase;
  * Created by wenshao on 04/08/2017.
  */
 public class DoubleTest extends TestCase {
-    public void test_0() throws Exception {
+    public void test_obj() throws Exception {
         String json = "{\"v1\":-0.012671709,\"v2\":0.22676692048907365,\"v3\":0.13231707,\"v4\":0.80090785,\"v5\":0.6192943}";
         String json2 = "{\"v1\":\"-0.012671709\",\"v2\":\"0.22676692048907365\",\"v3\":\"0.13231707\",\"v4\":\"0.80090785\",\"v5\":\"0.6192943\"}";
 

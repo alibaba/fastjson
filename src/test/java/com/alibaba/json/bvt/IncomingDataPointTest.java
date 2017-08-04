@@ -33,7 +33,9 @@ public class IncomingDataPointTest extends TestCase {
 //        JSON.parseObject(json, IncomingDataPoint[].class);
     }
     public void test_for_IncomingDataPoint() throws Exception {
-        String text = "[[\"mem.usage.GB\",1501760861298,\"58.41\",{\"site\":\"et2\",\"appname\":\"histore\",\"ip\":\"1.1.1.1\"},\"\",\"\",\"\"]]";
+        // "metric", "timestamp", "value", "tags", "tsuid", "granularity", "aggregator"
+        String text = "[[\"DataAdaptor.LbMultiGroupPersonalityDataAdaptor.stddev.aggregate_sum\",\"1501812639932\",\"95.52667633256902\",{\"appName\":\"aladdin\",\"hostIdc\":\"et2\",\"hostunit\":\"CENTER\",\"nodegroup\":\"aladdin_prehost\",\"idc\":\"ET2\",\"agg_version\":\"100\",\"group\":\"DEFAULT\"},\"\",\"\",\"\"]]";
+        System.out.println(text);
         JSON.parseArray(text, IncomingDataPoint.class);
     }
 }

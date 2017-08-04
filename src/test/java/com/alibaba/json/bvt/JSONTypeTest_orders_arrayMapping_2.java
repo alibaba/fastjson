@@ -12,18 +12,22 @@ public class JSONTypeTest_orders_arrayMapping_2 extends TestCase {
 		vo.setId(1001);
 		vo.setName("xx");
 		vo.setAge(33);
+		vo.setDvalue(0.1D);
 
 		String json = JSON.toJSONString(vo);
-		assertEquals("[1001,\"xx\",33]", json);
+		assertEquals("[1001,\"xx\",33,0.0,0.1]", json);
 
 		JSON.parseObject(json, Model.class);
 
 		Model[] array = new Model[] {vo};
 		String json2 = JSON.toJSONString(array);
 		JSON.parseObject(json2, Model[].class);
+
+		String json3 = "[\"1001\",\"xx\",33,\"0.0\",\"0.1\"]";
+		JSON.parseObject(json3, Model.class);
 	}
 
-	@JSONType(orders = {"id", "name", "age"}
+	@JSONType(orders = {"id", "name", "age", "value"}
 			, serialzeFeatures = SerializerFeature.BeanToArray
 			, parseFeatures = Feature.SupportArrayToBean
 	)
@@ -31,6 +35,8 @@ public class JSONTypeTest_orders_arrayMapping_2 extends TestCase {
 		private int id;
 		private String name;
 		private int age;
+		private float value;
+		private double dvalue;
 
 		public int getId() {
 			return id;
@@ -54,6 +60,22 @@ public class JSONTypeTest_orders_arrayMapping_2 extends TestCase {
 
 		public void setAge(int age) {
 			this.age = age;
+		}
+
+		public float getValue() {
+			return value;
+		}
+
+		public void setValue(float value) {
+			this.value = value;
+		}
+
+		public double getDvalue() {
+			return dvalue;
+		}
+
+		public void setDvalue(double dvalue) {
+			this.dvalue = dvalue;
 		}
 	}
 	

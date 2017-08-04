@@ -2376,6 +2376,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         int offset = 0;
         char chLocal = charAt(bp + (offset++));
+        final boolean quote = chLocal == '"';
+        if (quote) {
+            chLocal = charAt(bp + (offset++));
+        }
 
         float value;
         if (chLocal >= '0' && chLocal <= '9') {
@@ -2405,8 +2409,20 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 }
             }
 
-            int start = bp;
-            int count = bp + offset - start - 1;
+            int start, count;
+            if (quote) {
+                if (chLocal != '"') {
+                    matchStat = NOT_MATCH;
+                    return 0;
+                } else {
+                    chLocal = charAt(bp + (offset++));
+                }
+                start = bp + 1;
+                count = bp + offset - start - 2;
+            } else {
+                start = bp;
+                count = bp + offset - start - 1;
+            }
             String text = this.subString(start, count);
             value = Float.parseFloat(text);
         } else {
@@ -2431,6 +2447,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         int offset = 0;
         char chLocal = charAt(bp + (offset++));
+        final boolean quote = chLocal == '"';
+        if (quote) {
+            chLocal = charAt(bp + (offset++));
+        }
 
         double value;
         if (chLocal >= '0' && chLocal <= '9') {
@@ -2460,8 +2480,20 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 }
             }
 
-            int start = bp;
-            int count = bp + offset - start - 1;
+            int start, count;
+            if (quote) {
+                if (chLocal != '"') {
+                    matchStat = NOT_MATCH;
+                    return 0;
+                } else {
+                    chLocal = charAt(bp + (offset++));
+                }
+                start = bp + 1;
+                count = bp + offset - start - 2;
+            } else {
+                start = bp;
+                count = bp + offset - start - 1;
+            }
             String text = this.subString(start, count);
             value = Double.parseDouble(text);
         } else {

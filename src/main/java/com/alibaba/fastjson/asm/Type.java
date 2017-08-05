@@ -215,10 +215,79 @@ public class Type {
 
     /**
      * Returns the descriptor corresponding to this Java type.
-     * 
+     *
      * @return the descriptor corresponding to this Java type.
      */
     String getDescriptor() {
         return new String(this.buf, off, len);
+    }
+
+    private int getDimensions() {
+        int i = 1;
+        while (buf[off + i] == '[') {
+            ++i;
+        }
+        return i;
+    }
+
+    static Type[] getArgumentTypes(final String methodDescriptor) {
+        char[] buf = methodDescriptor.toCharArray();
+        int off = 1;
+        int size = 0;
+        for (;;) {
+            char car = buf[off++];
+            if (car == ')') {
+                break;
+            } else if (car == 'L') {
+                while (buf[off++] != ';') {
+                }
+                ++size;
+            } else if (car != '[') {
+                ++size;
+            }
+        }
+
+        Type[] args = new Type[size];
+        off = 1;
+        size = 0;
+        while (buf[off] != ')') {
+            args[size] = getType(buf, off);
+            off += args[size].len + (args[size].sort == 10 /*OBJECT*/ ? 2 : 0);
+            size += 1;
+        }
+        return args;
+    }
+
+    protected String getClassName() {
+        switch (sort) {
+            case 0: //VOID:
+                return "void";
+            case 1: //BOOLEAN:
+                return "boolean";
+            case 2: //CHAR:
+                return "char";
+            case 3: //BYTE:
+                return "byte";
+            case 4: //SHORT:
+                return "short";
+            case 5: //INT:
+                return "int";
+            case 6: //FLOAT:
+                return "float";
+            case 7: //LONG:
+                return "long";
+            case 8: //DOUBLE:
+                return "double";
+            case 9: //ARRAY:
+                Type elementType = getType(buf, off + getDimensions());
+                StringBuffer b = new StringBuffer(elementType.getClassName());
+                for (int i = getDimensions(); i > 0; --i) {
+                    b.append("[]");
+                }
+                return b.toString();
+            // case OBJECT:
+            default:
+                return new String(buf, off, len).replace('/', '.');
+        }
     }
 }

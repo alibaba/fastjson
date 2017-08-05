@@ -15,17 +15,7 @@
  */
 package com.alibaba.fastjson.util;
 
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
+import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.AccessControlException;
@@ -51,7 +41,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.PropertyNamingStrategy;
-import com.alibaba.fastjson.annotation.JSONCreator;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.JSONLexer;
@@ -67,6 +56,81 @@ public class TypeUtils {
 	
     public static boolean compatibleWithJavaBean = false;
     private static boolean setAccessibleEnable    = true;
+
+    private static volatile Class kotlin_metadata;
+    private static volatile boolean kotlin_metadata_error;
+
+    private static volatile boolean kotlin_class_klass_error;
+    private static volatile Constructor kotlin_kclass_constructor;
+    private static volatile Method kotlin_kclass_getConstructors;
+    private static volatile Method kotlin_kfunction_getParameters;
+    private static volatile Method kotlin_kparameter_getName;
+
+    private static volatile boolean kotlin_error;
+
+    public static boolean isKotlin(Class clazz) {
+        if (kotlin_metadata == null && !kotlin_metadata_error) {
+            try {
+                kotlin_metadata = Class.forName("kotlin.Metadata");
+            } catch (Throwable e) {
+                kotlin_metadata_error = true;
+            }
+        }
+
+        if (kotlin_metadata == null) {
+            return false;
+        }
+
+        return clazz.isAnnotationPresent(kotlin_metadata);
+    }
+
+    public static String[] getKoltinConstructorParameters(Class clazz) {
+        if (kotlin_kclass_constructor == null && !kotlin_class_klass_error) {
+            try {
+                Class class_kotlin_kclass = Class.forName("kotlin.reflect.jvm.internal.KClassImpl");
+                kotlin_kclass_constructor = class_kotlin_kclass.getConstructor(Class.class);
+                kotlin_kclass_getConstructors = class_kotlin_kclass.getMethod("getConstructors");
+
+                Class class_kotlin_kfunction = Class.forName("kotlin.reflect.KFunction");
+                kotlin_kfunction_getParameters = class_kotlin_kfunction.getMethod("getParameters");
+
+                Class class_kotlinn_kparameter = Class.forName("kotlin.reflect.KParameter");
+                kotlin_kparameter_getName = class_kotlinn_kparameter.getMethod("getName");
+            } catch (Throwable e) {
+                kotlin_class_klass_error = true;
+            }
+        }
+
+        if (kotlin_kclass_constructor == null) {
+            return null;
+        }
+
+        if (kotlin_error) {
+            return null;
+        }
+
+        try {
+            Object kclassImpl = kotlin_kclass_constructor.newInstance(clazz);
+            Iterable it = (Iterable) kotlin_kclass_getConstructors.invoke(kclassImpl);
+            Iterator iterator = it.iterator();
+            if (!iterator.hasNext()) {
+                return null;
+            }
+            Object constructor = iterator.next();
+
+            List parameters = (List) kotlin_kfunction_getParameters.invoke(constructor);
+            String[] names = new String[parameters.size()];
+            for (int i = 0; i < parameters.size(); i++) {
+                Object param = parameters.get(i);
+                names[i] = (String) kotlin_kparameter_getName.invoke(param);
+            }
+            return names;
+        } catch (Throwable e) {
+            kotlin_error = true;
+        }
+
+        return null;
+    }
     
     public static final String castToString(Object value) {
         if (value == null) {

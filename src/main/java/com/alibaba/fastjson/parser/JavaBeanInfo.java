@@ -261,11 +261,13 @@ class JavaBeanInfo {
         
         final Field[] declaredFields = clazz.getDeclaredFields();
 
+        Constructor<?>[] constructors = clazz.getDeclaredConstructors();
+
         boolean isInterfaceOrAbstract = clazz.isInterface() || (classModifiers & Modifier.ABSTRACT) != 0;
 
         if (defaultConstructor == null || isInterfaceOrAbstract) {
             creatorConstructor = null;
-            for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
+            for (Constructor<?> constructor : constructors) {
                 JSONCreator annotation = constructor.getAnnotation(JSONCreator.class);
                 if (annotation != null) {
                     if (creatorConstructor != null) {
@@ -383,6 +385,73 @@ class JavaBeanInfo {
                     return beanInfo;
                 }
             } else if (!isInterfaceOrAbstract){
+                boolean kotlin = TypeUtils.isKotlin(clazz);
+                if (kotlin && constructors.length == 1) {
+                    String[] parameters = TypeUtils.getKoltinConstructorParameters(clazz);
+                    if (parameters != null) {
+                        creatorConstructor = constructors[0];
+                        TypeUtils.setAccessible(clazz, creatorConstructor, classModifiers);
+
+                        Class<?>[] parameterTypes = creatorConstructor.getParameterTypes();
+                        Type[] getGenericParameterTypes = fieldGenericSupport //
+                                ? creatorConstructor.getGenericParameterTypes() //
+                                : parameterTypes;
+
+                        for (int i = 0; i < parameterTypes.length; ++i) {
+                            String paramName = parameters[i];
+
+                            Annotation[] paramAnnotations = creatorConstructor.getParameterAnnotations()[i];
+                            JSONField fieldAnnotation = null;
+                            for (Annotation paramAnnotation : paramAnnotations) {
+                                if (paramAnnotation instanceof JSONField) {
+                                    fieldAnnotation = (JSONField) paramAnnotation;
+                                    break;
+                                }
+                            }
+
+                            Class<?> fieldClass = parameterTypes[i];
+                            Type fieldType = getGenericParameterTypes[i];
+                            Field field = TypeUtils.getField(clazz, paramName, declaredFields, classFieldCache);
+
+                            if (field != null && fieldAnnotation == null) {
+                                fieldAnnotation = field.getAnnotation(JSONField.class);
+                            }
+
+                            final int ordinal, serialzeFeatures;
+                            if (fieldAnnotation != null) {
+                                ordinal = fieldAnnotation.ordinal();
+                                serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+
+                                String nameAnnotated = fieldAnnotation.name();
+                                if(nameAnnotated.length() != 0) {
+                                    paramName = nameAnnotated;
+                                }
+                            } else {
+                                ordinal = 0;
+                                serialzeFeatures = 0;
+                            }
+
+                            FieldInfo fieldInfo = new FieldInfo(paramName, //
+                                    clazz, //
+                                    fieldClass, //
+                                    fieldType, //
+                                    field, //
+                                    ordinal, //
+                                    serialzeFeatures);
+                            addField(fieldList, fieldInfo, fieldOnly);
+                        }
+
+                        FieldInfo[] fields = new FieldInfo[fieldList.size()];
+                        fieldList.toArray(fields);
+
+                        FieldInfo[] sortedFields = new FieldInfo[fields.length];
+                        System.arraycopy(fields, 0, sortedFields, 0, fields.length);
+                        Arrays.sort(sortedFields);
+
+                        JSONType jsonType = jsonTypeSupport ? clazz.getAnnotation(JSONType.class) : null;
+                        return new JavaBeanInfo(clazz, null, creatorConstructor, null, fields, sortedFields, jsonType);
+                    }
+                }
                 throw new JSONException("default constructor not found. " + clazz);
             }
         }

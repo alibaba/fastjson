@@ -605,10 +605,10 @@ public class JSONPath implements JSONAware {
                                 return SizeSegement.instance;
                             }
 
-                            throw new UnsupportedOperationException();
+                            throw new JSONPathException("not support jsonpath : " + path);
                         }
 
-                        throw new UnsupportedOperationException();
+                        throw new JSONPathException("not support jsonpath : " + path);
                     }
 
                     return new PropertySegement(propertyName, deep);
@@ -624,7 +624,7 @@ public class JSONPath implements JSONAware {
                     return new PropertySegement(propertyName, false);
                 }
 
-                throw new UnsupportedOperationException();
+                throw new JSONPathException("not support jsonpath : " + path);
             }
 
             return null;
@@ -2017,6 +2017,18 @@ public class JSONPath implements JSONAware {
             return value;
         }
 
+        if (currentObject instanceof Collection) {
+            Collection collection = (Collection) currentObject;
+            int i = 0;
+            for (Object item : collection) {
+                if (i == index) {
+                    return item;
+                }
+                i++;
+            }
+            return null;
+        }
+
         throw new UnsupportedOperationException();
     }
 
@@ -2204,7 +2216,7 @@ public class JSONPath implements JSONAware {
         JavaBeanSerializer beanSerializer = getJavaBeanSerializer(currentClass);
         if (beanSerializer != null) {
             try {
-                return beanSerializer.getFieldValue(currentObject, propertyName, propertyNameHash);
+                return beanSerializer.getFieldValue(currentObject, propertyName, propertyNameHash, false);
             } catch (Exception e) {
                 throw new JSONPathException("jsonpath error, path " + path + ", segement " + propertyName, e);
             }

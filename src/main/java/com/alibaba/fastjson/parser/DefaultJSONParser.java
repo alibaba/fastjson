@@ -1446,10 +1446,21 @@ public class DefaultJSONParser implements Closeable {
                 object = task.ownerContext.object;
             }
 
-            Object refValue = ref.startsWith("$")
-                    ? getObject(ref)
-                    : task.context.object;
-            
+            Object refValue;
+
+            if (ref.startsWith("$")) {
+                refValue = getObject(ref);
+                if (refValue == null) {
+                    try {
+                        refValue = JSONPath.eval(value, ref);
+                    } catch (JSONPathException ex) {
+                        // skip
+                    }
+                }
+            } else {
+                refValue = task.context.object;
+            }
+
             FieldDeserializer fieldDeser = task.fieldDeserializer;
 
             if (fieldDeser != null) {

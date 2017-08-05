@@ -182,7 +182,7 @@ public class FastJsonJsonView extends AbstractView {
      *
      * @param extractValueFromSingleKeyModel
      */
-    public void setExtractValueFromSingleKeyModel(
+    public void setExtractValueFromSingleKeyModel( 
             boolean extractValueFromSingleKeyModel) {
         this.extractValueFromSingleKeyModel = extractValueFromSingleKeyModel;
     }

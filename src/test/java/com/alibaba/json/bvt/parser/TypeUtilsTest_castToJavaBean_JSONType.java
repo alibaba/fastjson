@@ -32,7 +32,7 @@ public class TypeUtilsTest_castToJavaBean_JSONType extends TestCase {
         Assert.assertEquals(123, vo.getId());
         Assert.assertEquals("abc", vo.getName());
         
-        Assert.assertEquals("{\"id\":123,\"name\":\"abc\"}", JSON.toJSONString(vo));
+        Assert.assertEquals("{\"name\":\"abc\",\"id\":123}", JSON.toJSONString(vo));
     }
     
     public void test_castToJavaBean_v3() throws Exception {
@@ -43,7 +43,7 @@ public class TypeUtilsTest_castToJavaBean_JSONType extends TestCase {
         Assert.assertEquals(123, vo.getId());
         Assert.assertEquals("abc", vo.getName());
         
-        Assert.assertEquals("{\"id\":123,\"name\":\"abc\"}", JSON.toJSONString(vo));
+        Assert.assertEquals("{\"name\":\"abc\",\"id\":123}", JSON.toJSONString(vo));
     }
 
     @JSONType(orders={"name", "id"})

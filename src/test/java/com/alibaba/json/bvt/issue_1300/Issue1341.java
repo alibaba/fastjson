@@ -166,7 +166,6 @@ public class Issue1341 extends JerseyTest {
 
         Assert.assertTrue(reponse.indexOf("Python源码剖析") > 0);
         Assert.assertTrue(reponse.indexOf("电子工业出版社") > 0);
-        Assert.assertTrue(reponse.indexOf("\"hello\":null") > 0);
     }
 
 }

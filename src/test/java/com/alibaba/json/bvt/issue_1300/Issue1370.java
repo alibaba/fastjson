@@ -17,6 +17,39 @@ public class Issue1370 extends TestCase {
         assertNotNull(model.val);
     }
 
+    public void test_1() throws Exception {
+        JSONObject obj = new JSONObject();
+        obj.put("val", "2017-08-04 15:16:41.0");
+
+        Model model = obj.toJavaObject(Model.class);
+        assertNotNull(model.val);
+    }
+
+    public void test_2() throws Exception {
+        JSONObject obj = new JSONObject();
+        obj.put("val", "2017-08-04 15:16:41.00");
+
+        Model model = obj.toJavaObject(Model.class);
+        assertNotNull(model.val);
+    }
+
+    public void test_3() throws Exception {
+        JSONObject obj = new JSONObject();
+        obj.put("val", "2017-08-04 15:16:41.000");
+
+        Model model = obj.toJavaObject(Model.class);
+        assertNotNull(model.val);
+    }
+
+
+    public void test_4() throws Exception {
+        JSONObject obj = new JSONObject();
+        obj.put("val", "2017-08-04 15:16:41.000000");
+
+        Model model = obj.toJavaObject(Model.class);
+        assertNotNull(model.val);
+    }
+
     public static class Model {
         public Timestamp val;
     }

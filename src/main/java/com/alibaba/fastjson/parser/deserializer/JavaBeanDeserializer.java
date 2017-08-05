@@ -324,8 +324,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 fieldDeser.setValue(object, new java.util.Date(longValue));
             } else {
                 lexer.nextToken(JSONToken.LBRACKET);
-                Object value = parser.parseObject(fieldDeser.fieldInfo.fieldType);
+                Object value = parser.parseObject(fieldDeser.fieldInfo.fieldType, fieldDeser.fieldInfo.name);
                 fieldDeser.setValue(object, value);
+
+                if (lexer.token() == JSONToken.RBRACKET) {
+                    break;
+                }
 
                 check(lexer, seperator == ']' ? JSONToken.RBRACKET : JSONToken.COMMA);
                 // parser.accept(seperator == ']' ? JSONToken.RBRACKET : JSONToken.COMMA);

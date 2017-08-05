@@ -338,6 +338,13 @@ public class ASMDeserializerFactory implements Opcodes {
 
                 _deserObject(context, mw, fieldInfo, fieldClass, i);
 
+                mw.visitVarInsn(ALOAD, context.var("lexer"));
+                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "token", "()I");
+                mw.visitLdcInsn(JSONToken.RBRACKET);
+                mw.visitJumpInsn(IF_ICMPEQ, objEndIf_);
+//                mw.visitInsn(POP);
+//                mw.visitInsn(POP);
+
                 mw.visitVarInsn(ALOAD, 0);
                 mw.visitVarInsn(ALOAD, context.var("lexer"));
                 if (!last) {

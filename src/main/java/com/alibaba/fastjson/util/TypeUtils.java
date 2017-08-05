@@ -473,6 +473,10 @@ public class TypeUtils {
                 return null;
             }
 
+            if (strVal.endsWith(".000000000")) {
+                strVal = strVal.substring(0, strVal.length() - 10);
+            }
+
             if (isNumber(strVal)) {
                 longValue = Long.parseLong(strVal);
             } else {
@@ -1678,30 +1682,28 @@ public class TypeUtils {
     private static List<FieldInfo> getFieldInfos(Class<?> clazz, boolean sorted, Map<String, FieldInfo> fieldInfoMap) {
         List<FieldInfo> fieldInfoList = new ArrayList<FieldInfo>();
 
-        boolean containsAll = false;
         String[] orders = null;
 
         JSONType annotation = clazz.getAnnotation(JSONType.class);
         if (annotation != null) {
             orders = annotation.orders();
-
-            if (orders != null && orders.length == fieldInfoMap.size()) {
-                containsAll = true;
-                for (String item : orders) {
-                    if (!fieldInfoMap.containsKey(item)) {
-                        containsAll = false;
-                        break;
-                    }
-                }
-            } else {
-                containsAll = false;
-            }
         }
 
-        if (containsAll) {
+        if (orders != null && orders.length > 0) {
+            LinkedHashMap<String, FieldInfo> map = new LinkedHashMap<String, FieldInfo>(fieldInfoList.size());
+            for (FieldInfo field : fieldInfoMap.values()) {
+                map.put(field.name, field);
+            }
+            int i = 0;
             for (String item : orders) {
-                FieldInfo fieldInfo = fieldInfoMap.get(item);
-                fieldInfoList.add(fieldInfo);
+                FieldInfo field = map.get(item);
+                if (field != null) {
+                    fieldInfoList.add(field);
+                    map.remove(item);
+                }
+            }
+            for (FieldInfo field : map.values()) {
+                fieldInfoList.add(field);
             }
         } else {
             for (FieldInfo fieldInfo : fieldInfoMap.values()) {

@@ -2,7 +2,6 @@ package com.alibaba.fastjson;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -571,6 +570,16 @@ public class JSONPath implements JSONAware {
                     if (c0 == '.' && ch == '.') {
                         next();
                         deep = true;
+                        if (path.length() > pos + 3
+                                && ch == '['
+                                && path.charAt(pos) == '*'
+                                && path.charAt(pos + 1) == ']'
+                                && path.charAt(pos + 2) == '.') {
+                            next();
+                            next();
+                            next();
+                            next();
+                        }
                     }
                     if (ch == '*') {
                         if (!isEOF()) {
@@ -1345,7 +1354,7 @@ public class JSONPath implements JSONAware {
                 return results;
             } else {
                 // return path.getPropertyValue(currentObject, propertyName, true);
-                return path.getPropertyValue(currentObject, propertyName, propertyNameHash, true);
+                return path.getPropertyValue(currentObject, propertyName, propertyNameHash);
             }
         }
 
@@ -1379,7 +1388,7 @@ public class JSONPath implements JSONAware {
             List<Object> fieldValues = new ArrayList<Object>(propertyNames.length);
 
             for (int i = 0; i < propertyNames.length; i++) {
-                Object fieldValue = path.getPropertyValue(currentObject, propertyNames[i], propertyNamesHash[i],true);
+                Object fieldValue = path.getPropertyValue(currentObject, propertyNames[i], propertyNamesHash[i]);
                 fieldValues.add(fieldValue);
             }
 
@@ -1479,7 +1488,7 @@ public class JSONPath implements JSONAware {
         }
 
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
-            Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash, false);
+            Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash);
 
             return propertyValue != null;
         }
@@ -1496,7 +1505,7 @@ public class JSONPath implements JSONAware {
         }
 
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
-            Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash, false);
+            Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash);
 
             return propertyValue == null;
         }
@@ -1519,7 +1528,7 @@ public class JSONPath implements JSONAware {
         }
 
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
-            Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash, false);
+            Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash);
             boolean result = value.equals(propertyValue);
             if (!eq) {
                 result = !result;
@@ -1544,7 +1553,7 @@ public class JSONPath implements JSONAware {
         }
 
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
-            Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash, false);
+            Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash);
 
             if (propertyValue == null) {
                 return false;
@@ -1580,7 +1589,7 @@ public class JSONPath implements JSONAware {
         }
 
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
-            Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash, false);
+            Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash);
 
             if (propertyValue == null) {
                 return false;
@@ -1612,7 +1621,7 @@ public class JSONPath implements JSONAware {
         }
 
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
-            Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash, false);
+            Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash);
 
             if (propertyValue == null) {
                 for (Long value : values) {
@@ -1656,7 +1665,7 @@ public class JSONPath implements JSONAware {
         }
 
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
-            Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash, false);
+            Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash);
 
             for (String value : values) {
                 if (value == propertyValue) {
@@ -1685,7 +1694,7 @@ public class JSONPath implements JSONAware {
         }
 
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
-            Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash, false);
+            Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash);
 
             if (propertyValue == null) {
                 return false;
@@ -1731,7 +1740,7 @@ public class JSONPath implements JSONAware {
         }
 
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
-            Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash, false);
+            Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash);
 
             if (propertyValue == null) {
                 return false;
@@ -1799,7 +1808,7 @@ public class JSONPath implements JSONAware {
         }
 
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
-            Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash, false);
+            Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash);
 
             if (propertyValue == null) {
                 return false;
@@ -1854,7 +1863,7 @@ public class JSONPath implements JSONAware {
         }
 
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
-            Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash, false);
+            Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash);
 
             if (propertyValue == null) {
                 return false;
@@ -1887,7 +1896,7 @@ public class JSONPath implements JSONAware {
         }
 
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
-            Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash, false);
+            Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash);
 
             if (op == Operator.EQ) {
                 return value.equals(propertyValue);
@@ -2174,7 +2183,7 @@ public class JSONPath implements JSONAware {
 
     final static long SIZE = 0x4dea9618e618ae3cL; // TypeUtils.fnv1a_64("size");
 
-    protected Object getPropertyValue(Object currentObject, String propertyName, long propertyNameHash, boolean strictMode) {
+    protected Object getPropertyValue(Object currentObject, String propertyName, long propertyNameHash) {
         if (currentObject == null) {
             return null;
         }
@@ -2212,11 +2221,11 @@ public class JSONPath implements JSONAware {
 
             for (int i = 0; i < list.size(); ++i) {
                 Object obj = list.get(i);
-                Object itemValue = getPropertyValue(obj, propertyName, propertyNameHash, strictMode);
+                Object itemValue = getPropertyValue(obj, propertyName, propertyNameHash);
                 if (itemValue instanceof Collection) {
                     Collection collection = (Collection) itemValue;
                     fieldValues.addAll(collection);
-                } else {
+                } else if (itemValue != null) {
                     fieldValues.add(itemValue);
                 }
             }
@@ -2267,7 +2276,8 @@ public class JSONPath implements JSONAware {
             }
         }
 
-        throw new JSONPathException("jsonpath error, path " + path + ", segement " + propertyName);
+        return null;
+        //throw new JSONPathException("jsonpath error, path " + path + ", segement " + propertyName);
     }
     
     @SuppressWarnings("rawtypes")

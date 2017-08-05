@@ -69,7 +69,8 @@ public class MapDeserializer implements ObjectDeserializer {
     public static Map parseMap(DefaultJSONParser parser, Map<String, Object> map, Type valueType, Object fieldName) {
         JSONLexer lexer = parser.lexer;
 
-        if (lexer.token() != JSONToken.LBRACE) {
+        int token = lexer.token();
+        if (token != JSONToken.LBRACE) {
             String msg = "syntax error, expect {, actual " + lexer.tokenName();
             if (fieldName instanceof String) {
                 msg += ", fieldName ";
@@ -78,13 +79,15 @@ public class MapDeserializer implements ObjectDeserializer {
             msg += ", ";
             msg += lexer.info();
 
-            JSONArray array = new JSONArray();
-            parser.parseArray(array, fieldName);
+            if (token != JSONToken.LITERAL_STRING) {
+                JSONArray array = new JSONArray();
+                parser.parseArray(array, fieldName);
 
-            if (array.size() == 1) {
-                Object first = array.get(0);
-                if (first instanceof JSONObject) {
-                    return (JSONObject) first;
+                if (array.size() == 1) {
+                    Object first = array.get(0);
+                    if (first instanceof JSONObject) {
+                        return (JSONObject) first;
+                    }
                 }
             }
 

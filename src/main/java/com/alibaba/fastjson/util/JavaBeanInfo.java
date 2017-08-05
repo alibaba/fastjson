@@ -6,11 +6,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -45,6 +41,8 @@ public class JavaBeanInfo {
     public final String         typeName;
     public final String         typeKey;
 
+    public String[]             orders;
+
     public JavaBeanInfo(Class<?> clazz, //
                         Class<?> builderClass, //
                         Constructor<?> defaultConstructor, //
@@ -72,17 +70,38 @@ public class JavaBeanInfo {
             } else {
                 this.typeName = clazz.getName();
             }
+            String[] orders = jsonType.orders();
+            this.orders = orders.length == 0 ? null : orders;
         } else {
             this.typeName = clazz.getName();
             this.typeKey = null;
+            this.orders = null;
         }
 
         fields = new FieldInfo[fieldList.size()];
         fieldList.toArray(fields);
 
         FieldInfo[] sortedFields = new FieldInfo[fields.length];
-        System.arraycopy(fields, 0, sortedFields, 0, fields.length);
-        Arrays.sort(sortedFields);
+        if (orders != null) {
+            LinkedHashMap<String, FieldInfo> map = new LinkedHashMap<String, FieldInfo>(fieldList.size());
+            for (FieldInfo field : fields) {
+                map.put(field.name, field);
+            }
+            int i = 0;
+            for (String item : orders) {
+                FieldInfo field = map.get(item);
+                if (field != null) {
+                    sortedFields[i++] = field;
+                    map.remove(item);
+                }
+            }
+            for (FieldInfo field : map.values()) {
+                sortedFields[i++] = field;
+            }
+        } else {
+            System.arraycopy(fields, 0, sortedFields, 0, fields.length);
+            Arrays.sort(sortedFields);
+        }
 
         if (Arrays.equals(fields, sortedFields)) {
             sortedFields = fields;
@@ -111,6 +130,8 @@ public class JavaBeanInfo {
         }
         return null;
     }
+
+
 
     static boolean add(List<FieldInfo> fieldList, FieldInfo field) {
         for (int i = fieldList.size() - 1; i >= 0; --i) {

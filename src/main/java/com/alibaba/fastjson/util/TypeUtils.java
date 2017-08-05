@@ -475,6 +475,8 @@ public class TypeUtils {
 
             if (strVal.endsWith(".000000000")) {
                 strVal = strVal.substring(0, strVal.length() - 10);
+            } else  if (strVal.endsWith(".000000")) {
+                strVal = strVal.substring(0, strVal.length() - 7);
             }
 
             if (isNumber(strVal)) {

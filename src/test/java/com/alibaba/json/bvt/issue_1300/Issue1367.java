@@ -92,7 +92,7 @@ public class Issue1367 {
     public static class WebMvcConfig extends WebMvcConfigurerAdapter {
         @Override
         public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-            FastJsonpHttpMessageConverter4 converter = new FastJsonpHttpMessageConverter4();
+            FastJsonHttpMessageConverter converter = new FastJsonHttpMessageConverter();
             converters.add(converter);
         }
 

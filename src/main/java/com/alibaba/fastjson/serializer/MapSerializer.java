@@ -117,8 +117,9 @@ public final class MapSerializer implements ObjectSerializer {
                         out.write(',');
                     }
                     
-                    if ((out.features & SerializerFeature.BrowserCompatible.mask) != 0
-                        || (out.features & SerializerFeature.WriteNonStringKeyAsString.mask) != 0) {
+                    if (((out.features & SerializerFeature.BrowserCompatible.mask) != 0
+                        || (out.features & SerializerFeature.WriteNonStringKeyAsString.mask) != 0
+                            ) && !(entryKey instanceof Enum)) {
                         String strEntryKey = JSON.toJSONString(entryKey);
                         serializer.write(strEntryKey);
                     } else {

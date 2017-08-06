@@ -15,25 +15,14 @@
  */
 package com.alibaba.fastjson.util;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.AccessControlException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -926,6 +915,8 @@ public class TypeUtils {
         Map<String, FieldInfo> fieldInfoMap = new LinkedHashMap<String, FieldInfo>();
         Map<Class<?>, Field[]> classFieldCache = new HashMap<Class<?>, Field[]>();
 
+        boolean kotlin = TypeUtils.isKotlin(clazz);
+
         Field[] declaredFields = clazz.getDeclaredFields();
         if (!fieldOnly) {
             List<Method> methodList = new ArrayList<Method>();
@@ -954,6 +945,11 @@ public class TypeUtils {
                 }
             }
 
+            // for kotlin
+            Constructor[] constructors = null;
+            Annotation[][] paramAnnotationArrays = null;
+            String[] paramNames = null;
+            short[] paramNameMapping = null;
 
             for (Method method : methodList) {
                 String methodName = method.getName();
@@ -968,6 +964,46 @@ public class TypeUtils {
 
                 if (annotation == null && jsonFieldSupport) {
                     annotation = getSupperMethodAnnotation(clazz, method);
+                }
+
+                if (annotation == null && kotlin) {
+                    if (constructors == null) {
+                        constructors = clazz.getDeclaredConstructors();
+                        if (constructors.length == 1) {
+                            paramAnnotationArrays = constructors[0].getParameterAnnotations();
+                            paramNames = TypeUtils.getKoltinConstructorParameters(clazz);
+
+                            if (paramNames != null) {
+                                String[] paramNames_sorted = new String[paramNames.length];
+                                System.arraycopy(paramNames, 0,paramNames_sorted, 0, paramNames.length);
+                                Arrays.sort(paramNames_sorted);
+
+                                paramNameMapping = new short[paramNames.length];
+                                for (short p = 0; p < paramNames.length; p++) {
+                                    int index = Arrays.binarySearch(paramNames_sorted, paramNames[p]);
+                                    paramNameMapping[index] = p;
+                                }
+                                paramNames = paramNames_sorted;
+                            }
+
+                        }
+                    }
+                    if (paramNames != null && paramNameMapping != null && methodName.startsWith("get")) {
+                        String propertyName = decapitalize(methodName.substring(3));
+                        int p = Arrays.binarySearch(paramNames, propertyName);
+                        if (p >= 0) {
+                            short index = paramNameMapping[p];
+                            Annotation[] paramAnnotations = paramAnnotationArrays[index];
+                            if (paramAnnotations != null) {
+                                for (Annotation paramAnnotation : paramAnnotations) {
+                                    if (paramAnnotation instanceof JSONField) {
+                                        annotation = (JSONField) paramAnnotation;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
 
                 if (annotation != null) {

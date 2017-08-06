@@ -8,17 +8,16 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Created by wenshao on 05/08/2017.
+ * Created by wenshao on 06/08/2017.
  */
-public class DataClassTest extends TestCase {
-
+public class MyStateObjectTest extends TestCase {
     public void test_user() throws Exception {
         ExtClassLoader classLoader = new ExtClassLoader();
-        Class clazz = classLoader.loadClass("DataClass");
+        Class clazz = classLoader.loadClass("MyStateObject");
 
-        String json = "{\"aa\":1001,\"bb\":1002}";
+        String json = "{\"name\":\"wenshao\",\"age\":99}";
         Object obj = JSON.parseObject(json, clazz);
-        assertEquals("{\"aa\":1001,\"bb\":1002}", JSON.toJSONString(obj));
+        assertEquals("{\"age\":99,\"name\":\"wenshao\"}", JSON.toJSONString(obj));
     }
 
     public static class ExtClassLoader extends ClassLoader {
@@ -28,11 +27,11 @@ public class DataClassTest extends TestCase {
 
             {
                 byte[] bytes;
-                InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("kotlin/DataClass.clazz");
+                InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("kotlin/MyStateObject.clazz");
                 bytes = IOUtils.toByteArray(is);
                 is.close();
 
-                super.defineClass("DataClass", bytes, 0, bytes.length);
+                super.defineClass("MyStateObject", bytes, 0, bytes.length);
             }
         }
     }

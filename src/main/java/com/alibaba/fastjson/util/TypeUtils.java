@@ -57,6 +57,9 @@ public class TypeUtils {
 
     private static volatile boolean kotlin_error;
 
+    private static volatile Map<Class, String[]> kotlinIgnores;
+    private static volatile boolean kotlinIgnores_error;
+
     public static boolean isKotlin(Class clazz) {
         if (kotlin_metadata == null && !kotlin_metadata_error) {
             try {
@@ -71,6 +74,44 @@ public class TypeUtils {
         }
 
         return clazz.isAnnotationPresent(kotlin_metadata);
+    }
+
+    private static boolean isKotlinIgnore(Class clazz, String methodName) {
+        if (kotlinIgnores == null && !kotlinIgnores_error) {
+            try {
+                Map<Class, String[]> map = new HashMap<Class, String[]>();
+
+                Class charRangeClass = Class.forName("kotlin.ranges.CharRange");
+                map.put(charRangeClass, new String[]{"getEndInclusive","isEmpty"});
+
+                Class intRangeClass = Class.forName("kotlin.ranges.IntRange");
+                map.put(intRangeClass, new String[]{"getEndInclusive","isEmpty"});
+
+                Class longRangeClass = Class.forName("kotlin.ranges.LongRange");
+                map.put(longRangeClass, new String[]{"getEndInclusive", "isEmpty"});
+
+                Class floatRangeClass = Class.forName("kotlin.ranges.ClosedFloatRange");
+                map.put(floatRangeClass, new String[]{"getEndInclusive","isEmpty"});
+
+                Class doubleRangeClass = Class.forName("kotlin.ranges.ClosedDoubleRange");
+                map.put(doubleRangeClass, new String[]{"getEndInclusive","isEmpty"});
+
+                kotlinIgnores = map;
+            } catch (Throwable error) {
+                kotlinIgnores_error = true;
+            }
+        }
+
+        if (kotlinIgnores == null) {
+            return false;
+        }
+
+        String[] ignores = kotlinIgnores.get(clazz);
+        if (ignores == null) {
+            return false;
+        }
+
+        return Arrays.binarySearch(ignores, methodName) >= 0;
     }
 
     public static String[] getKoltinConstructorParameters(Class clazz) {
@@ -99,13 +140,12 @@ public class TypeUtils {
         }
 
         try {
+            Object constructor = null;
             Object kclassImpl = kotlin_kclass_constructor.newInstance(clazz);
             Iterable it = (Iterable) kotlin_kclass_getConstructors.invoke(kclassImpl);
-            Iterator iterator = it.iterator();
-            if (!iterator.hasNext()) {
-                return null;
+            for (Iterator iterator = it.iterator();iterator.hasNext();iterator.hasNext()) {
+                constructor = iterator.next();
             }
-            Object constructor = iterator.next();
 
             List parameters = (List) kotlin_kfunction_getParameters.invoke(constructor);
             String[] names = new String[parameters.size()];
@@ -915,10 +955,10 @@ public class TypeUtils {
         Map<String, FieldInfo> fieldInfoMap = new LinkedHashMap<String, FieldInfo>();
         Map<Class<?>, Field[]> classFieldCache = new HashMap<Class<?>, Field[]>();
 
-        boolean kotlin = TypeUtils.isKotlin(clazz);
-
         Field[] declaredFields = clazz.getDeclaredFields();
         if (!fieldOnly) {
+            boolean kotlin = TypeUtils.isKotlin(clazz);
+
             List<Method> methodList = new ArrayList<Method>();
 
             for (Class cls = clazz; cls != null && cls != Object.class; cls = cls.getSuperclass()) {
@@ -964,6 +1004,10 @@ public class TypeUtils {
 
                 if (annotation == null && jsonFieldSupport) {
                     annotation = getSupperMethodAnnotation(clazz, method);
+                }
+
+                if (kotlin && isKotlinIgnore(clazz, methodName)) {
+                    continue;
                 }
 
                 if (annotation == null && kotlin) {

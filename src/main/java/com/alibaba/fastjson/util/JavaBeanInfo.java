@@ -276,9 +276,9 @@ public class JavaBeanInfo {
             } else if (!isInterfaceOrAbstract) {
                 String[] paramNames = null;
                 boolean kotlin = TypeUtils.isKotlin(clazz);
-                if (kotlin && constructors.length == 1) {
+                if (kotlin && constructors.length > 0) {
                     paramNames = TypeUtils.getKoltinConstructorParameters(clazz);
-                    creatorConstructor = constructors[0];
+                    creatorConstructor = constructors[constructors.length - 1];
                     TypeUtils.setAccessible(creatorConstructor);
                 } else {
                     for (Constructor constructor : constructors) {

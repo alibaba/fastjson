@@ -31,17 +31,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.sql.Clob;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Currency;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TimeZone;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
@@ -334,6 +324,8 @@ public class SerializeConfig {
 		
 		put(WeakReference.class, ReferenceCodec.instance);
 		put(SoftReference.class, ReferenceCodec.instance);
+
+        put(LinkedList.class, CollectionCodec.instance);
 	}
 	
 	/**

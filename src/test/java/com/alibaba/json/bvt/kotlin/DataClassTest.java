@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt.koltin;
+package com.alibaba.json.bvt.kotlin;
 
 import com.alibaba.fastjson.JSON;
 import junit.framework.TestCase;
@@ -18,7 +18,7 @@ public class DataClassTest extends TestCase {
 
         String json = "{\"aa\":1001,\"bb\":1002}";
         Object obj = JSON.parseObject(json, clazz);
-        assertEquals("{\"a\":1001,\"b\":1002}", JSON.toJSONString(obj));
+        assertEquals("{\"aa\":1001,\"bb\":1002}", JSON.toJSONString(obj));
     }
 
     public static class ExtClassLoader extends ClassLoader {
@@ -28,7 +28,7 @@ public class DataClassTest extends TestCase {
 
             {
                 byte[] bytes;
-                InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("koltin/DataClass.clazz");
+                InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("kotlin/DataClass.clazz");
                 bytes = IOUtils.toByteArray(is);
                 is.close();
 

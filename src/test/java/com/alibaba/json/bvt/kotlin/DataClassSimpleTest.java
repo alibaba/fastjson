@@ -1,15 +1,16 @@
-package com.alibaba.json.bvt.koltin;
+package com.alibaba.json.bvt.kotlin;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.util.ASMUtils;
-import com.alibaba.fastjson.util.TypeUtils;
 import junit.framework.TestCase;
+import kotlin.reflect.KFunction;
+import kotlin.reflect.KParameter;
+import kotlin.reflect.jvm.internal.KClassImpl;
 import org.apache.commons.io.IOUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +29,7 @@ public class DataClassSimpleTest extends TestCase {
         String json = "{\"a\":1001,\"b\":1002}";
         Object obj = JSON.parseObject(json, clazz);
         assertEquals("{\"a\":1001,\"b\":1002}", JSON.toJSONString(obj));
+
     }
 
     public static class ExtClassLoader extends ClassLoader {
@@ -38,7 +40,7 @@ public class DataClassSimpleTest extends TestCase {
 
             {
                 byte[] bytes;
-                InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("koltin/DataClassSimple.clazz");
+                InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("kotlin/DataClassSimple.clazz");
                 bytes = IOUtils.toByteArray(is);
                 is.close();
 

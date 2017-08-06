@@ -1033,6 +1033,10 @@ public final class SerializeWriter extends Writer {
         int firstSpecialIndex = -1;
         char lastSpecial = '\0';
 
+        long S = (features & SerializerFeature.BrowserSecure.mask) != 0
+                ? S2
+                : (features & SerializerFeature.WriteSlashAsSpecial.mask) != 0 ? S1 : S0;
+
         for (int i = start; i < end; ++i) {
             char ch = buf[i];
 
@@ -1062,7 +1066,8 @@ public final class SerializeWriter extends Writer {
                 continue;
             }
 
-            if (isSpecial(ch, this.features)) {
+            boolean special = (ch < 64 && (S & (1L << ch)) != 0) || ch == '\\';
+            if (special) {
                 specialCount++;
                 lastSpecialIndex = i;
                 lastSpecial = ch;
@@ -1510,6 +1515,10 @@ public final class SerializeWriter extends Writer {
         int firstSpecialIndex = -1;
         char lastSpecial = '\0';
 
+        long S = (features & SerializerFeature.BrowserSecure.mask) != 0
+                ? S2
+                : (features & SerializerFeature.WriteSlashAsSpecial.mask) != 0 ? S1 : S0;
+
         for (int i = valueStart; i < valueEnd; ++i) {
             char ch = buf[i];
 
@@ -1530,7 +1539,8 @@ public final class SerializeWriter extends Writer {
                 continue;
             }
 
-            if (isSpecial(ch, this.features)) {
+            boolean special = (ch < 64 && (S & (1L << ch)) != 0) || ch == '\\';
+            if (special) {
                 specialCount++;
                 lastSpecialIndex = i;
                 lastSpecial = ch;
@@ -1684,37 +1694,24 @@ public final class SerializeWriter extends Writer {
         buf[count - 1] = '\"';
     }
 
-    static boolean isSpecial(char ch, int features) {
-        // if (ch > ']') {
-        // return false;
-        // }
-
-        if (ch == ' ') { // 32
-            return false;
-        }
-
-        if (ch == '/') { // 47
-            return (features & SerializerFeature.WriteSlashAsSpecial.mask) != 0;
-        }
-
-        if (ch > '#' // 35
-            && ch != '\\' // 92
-        ) {
-            return false;
-        }
-
-        if (ch <= 0x1F // 31
-            || ch == '\\' // 92
-            || ch == '"' // 34
-        ) {
-            return true;
-        }
-
-        return false;
-    }
-
-    // writeStringWithSingleQuote
-
+    final static long S0 = 0x4FFFFFFFFL, S1 = 0x8004FFFFFFFFL, S2 = 0x50008004FFFFFFFFL;
+    //    static {
+//        long s = 0;
+//        for (int i = 0; i <= 31; ++i) {
+//            s |= (1L << i);
+//        }
+//        s |= (1L << '"');
+//
+//        // S0 = s;
+//
+//        s |= (1L << '/');
+////        S1 = s;
+//
+//        s |= (1L << '<');
+//        s |= (1L << '>');
+//        //S2 = s;
+//    }
+    
     public void writeFieldValue(char seperator, String name, Enum<?> value) {
         if (value == null) {
             write(seperator);
@@ -1872,9 +1869,14 @@ public final class SerializeWriter extends Writer {
                 writeStringWithDoubleQuote(key, ':');
             } else {
                 boolean hashSpecial = key.length() == 0;
+                long S = (features & SerializerFeature.BrowserSecure.mask) != 0
+                        ? S2
+                        : (features & SerializerFeature.WriteSlashAsSpecial.mask) != 0 ? S1 : S0;
+
                 for (int i = 0; i < key.length(); ++i) {
                     char ch = key.charAt(i);
-                    if (SerializeWriter.isSpecial(ch, 0)) {
+                    boolean special = (ch < 64 && (S & (1L << ch)) != 0) || ch == '\\';
+                    if (special) {
                         hashSpecial = true;
                         break;
                     }

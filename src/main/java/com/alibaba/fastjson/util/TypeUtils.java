@@ -83,6 +83,9 @@ public class TypeUtils {
 
     private static volatile boolean kotlin_error;
 
+    private static volatile Map<Class, String[]> kotlinIgnores;
+    private static volatile boolean kotlinIgnores_error;
+
     static {
         try {
             TypeUtils.compatibleWithJavaBean = "true".equals(IOUtils.getStringProperty(IOUtils.FASTJSON_COMPATIBLEWITHJAVABEAN));
@@ -1460,6 +1463,10 @@ public class TypeUtils {
                 continue;
             }
 
+            if (kotlin && isKotlinIgnore(clazz, methodName)) {
+                continue;
+            }
+
             JSONField annotation = method.getAnnotation(JSONField.class);
 
             if (annotation == null) {
@@ -1469,8 +1476,8 @@ public class TypeUtils {
             if (annotation == null && kotlin) {
                 if (constructors == null) {
                     constructors = clazz.getDeclaredConstructors();
-                    if (constructors.length == 1) {
-                        paramAnnotationArrays = constructors[0].getParameterAnnotations();
+                    if (constructors.length > 0) {
+                        paramAnnotationArrays = constructors[constructors.length - 1].getParameterAnnotations();
                         paramNames = TypeUtils.getKoltinConstructorParameters(clazz);
 
                         if (paramNames != null) {
@@ -1485,7 +1492,6 @@ public class TypeUtils {
                             }
                             paramNames = paramNames_sorted;
                         }
-
                     }
                 }
                 if (paramNames != null && paramNameMapping != null && methodName.startsWith("get")) {
@@ -2328,13 +2334,12 @@ public class TypeUtils {
         }
 
         try {
+            Object constructor = null;
             Object kclassImpl = kotlin_kclass_constructor.newInstance(clazz);
             Iterable it = (Iterable) kotlin_kclass_getConstructors.invoke(kclassImpl);
-            Iterator iterator = it.iterator();
-            if (!iterator.hasNext()) {
-                return null;
+            for (Iterator iterator = it.iterator();iterator.hasNext();iterator.hasNext()) {
+                constructor = iterator.next();
             }
-            Object constructor = iterator.next();
 
             List parameters = (List) kotlin_kfunction_getParameters.invoke(constructor);
             String[] names = new String[parameters.size()];
@@ -2348,5 +2353,43 @@ public class TypeUtils {
         }
 
         return null;
+    }
+
+    private static boolean isKotlinIgnore(Class clazz, String methodName) {
+        if (kotlinIgnores == null && !kotlinIgnores_error) {
+            try {
+                Map<Class, String[]> map = new HashMap<Class, String[]>();
+
+                Class charRangeClass = Class.forName("kotlin.ranges.CharRange");
+                map.put(charRangeClass, new String[]{"getEndInclusive","isEmpty"});
+
+                Class intRangeClass = Class.forName("kotlin.ranges.IntRange");
+                map.put(intRangeClass, new String[]{"getEndInclusive","isEmpty"});
+
+                Class longRangeClass = Class.forName("kotlin.ranges.LongRange");
+                map.put(longRangeClass, new String[]{"getEndInclusive", "isEmpty"});
+
+                Class floatRangeClass = Class.forName("kotlin.ranges.ClosedFloatRange");
+                map.put(floatRangeClass, new String[]{"getEndInclusive","isEmpty"});
+
+                Class doubleRangeClass = Class.forName("kotlin.ranges.ClosedDoubleRange");
+                map.put(doubleRangeClass, new String[]{"getEndInclusive","isEmpty"});
+
+                kotlinIgnores = map;
+            } catch (Throwable error) {
+                kotlinIgnores_error = true;
+            }
+        }
+
+        if (kotlinIgnores == null) {
+            return false;
+        }
+
+        String[] ignores = kotlinIgnores.get(clazz);
+        if (ignores == null) {
+            return false;
+        }
+
+        return Arrays.binarySearch(ignores, methodName) >= 0;
     }
 }

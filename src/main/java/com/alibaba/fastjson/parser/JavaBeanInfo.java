@@ -388,10 +388,11 @@ class JavaBeanInfo {
                 }
             } else if (!isInterfaceOrAbstract){
                 boolean kotlin = TypeUtils.isKotlin(clazz);
-                if (kotlin && constructors.length == 1) {
+                if (kotlin && constructors.length > 0) {
                     String[] parameters = TypeUtils.getKoltinConstructorParameters(clazz);
                     if (parameters != null) {
-                        creatorConstructor = constructors[0];
+                        creatorConstructor = constructors[constructors.length - 1];
+                        creatorConstructor.setAccessible(true);
                         TypeUtils.setAccessible(clazz, creatorConstructor, classModifiers);
 
                         Class<?>[] parameterTypes = creatorConstructor.getParameterTypes();

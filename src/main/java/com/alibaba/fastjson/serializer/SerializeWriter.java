@@ -1040,19 +1040,19 @@ public final class SerializeWriter extends Writer {
         for (int i = start; i < end; ++i) {
             char ch = buf[i];
 
-            if (ch == '\u2028' || ch == '\u2029') {
-                specialCount++;
-                lastSpecialIndex = i;
-                lastSpecial = ch;
-                newcount += 4;
-
-                if (firstSpecialIndex == -1) {
-                    firstSpecialIndex = i;
-                }
-                continue;
-            }
-
             if (ch >= ']') {
+                if (ch == '\u2028' || ch == '\u2029') {
+                    specialCount++;
+                    lastSpecialIndex = i;
+                    lastSpecial = ch;
+                    newcount += 4;
+
+                    if (firstSpecialIndex == -1) {
+                        firstSpecialIndex = i;
+                    }
+                    continue;
+                }
+
                 if (ch >= 0x7F && ch < 0xA0) {
                     if (firstSpecialIndex == -1) {
                         firstSpecialIndex = i;

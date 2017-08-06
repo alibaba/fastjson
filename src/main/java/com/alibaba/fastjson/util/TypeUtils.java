@@ -16,16 +16,7 @@
 package com.alibaba.fastjson.util;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
+import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.AccessControlException;
@@ -80,6 +71,17 @@ public class TypeUtils {
 
     private static Method method_HibernateIsInitialized = null;
     private static boolean method_HibernateIsInitialized_error = false;
+
+    private static volatile Class kotlin_metadata;
+    private static volatile boolean kotlin_metadata_error;
+
+    private static volatile boolean kotlin_class_klass_error;
+    private static volatile Constructor kotlin_kclass_constructor;
+    private static volatile Method kotlin_kclass_getConstructors;
+    private static volatile Method kotlin_kfunction_getParameters;
+    private static volatile Method kotlin_kparameter_getName;
+
+    private static volatile boolean kotlin_error;
 
     static {
         try {
@@ -1424,6 +1426,14 @@ public class TypeUtils {
     ) {
         Map<String, FieldInfo> fieldInfoMap = new LinkedHashMap<String, FieldInfo>();
 
+        boolean kotlin = TypeUtils.isKotlin(clazz);
+
+        // for kotlin
+        Constructor[] constructors = null;
+        Annotation[][] paramAnnotationArrays = null;
+        String[] paramNames = null;
+        short[] paramNameMapping = null;
+
         for (Method method : clazz.getMethods()) {
             String methodName = method.getName();
             int ordinal = 0, serialzeFeatures = 0, parserFeatures = 0;
@@ -1454,6 +1464,46 @@ public class TypeUtils {
 
             if (annotation == null) {
                 annotation = getSuperMethodAnnotation(clazz, method);
+            }
+
+            if (annotation == null && kotlin) {
+                if (constructors == null) {
+                    constructors = clazz.getDeclaredConstructors();
+                    if (constructors.length == 1) {
+                        paramAnnotationArrays = constructors[0].getParameterAnnotations();
+                        paramNames = TypeUtils.getKoltinConstructorParameters(clazz);
+
+                        if (paramNames != null) {
+                            String[] paramNames_sorted = new String[paramNames.length];
+                            System.arraycopy(paramNames, 0,paramNames_sorted, 0, paramNames.length);
+                            Arrays.sort(paramNames_sorted);
+
+                            paramNameMapping = new short[paramNames.length];
+                            for (short p = 0; p < paramNames.length; p++) {
+                                int index = Arrays.binarySearch(paramNames_sorted, paramNames[p]);
+                                paramNameMapping[index] = p;
+                            }
+                            paramNames = paramNames_sorted;
+                        }
+
+                    }
+                }
+                if (paramNames != null && paramNameMapping != null && methodName.startsWith("get")) {
+                    String propertyName = decapitalize(methodName.substring(3));
+                    int p = Arrays.binarySearch(paramNames, propertyName);
+                    if (p >= 0) {
+                        short index = paramNameMapping[p];
+                        Annotation[] paramAnnotations = paramAnnotationArrays[index];
+                        if (paramAnnotations != null) {
+                            for (Annotation paramAnnotation : paramAnnotations) {
+                                if (paramAnnotation instanceof JSONField) {
+                                    annotation = (JSONField) paramAnnotation;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             if (annotation != null) {
@@ -2234,5 +2284,69 @@ public class TypeUtils {
         }
 
         return hashCode;
+    }
+
+    public static boolean isKotlin(Class clazz) {
+        if (kotlin_metadata == null && !kotlin_metadata_error) {
+            try {
+                kotlin_metadata = Class.forName("kotlin.Metadata");
+            } catch (Throwable e) {
+                kotlin_metadata_error = true;
+            }
+        }
+
+        if (kotlin_metadata == null) {
+            return false;
+        }
+
+        return clazz.isAnnotationPresent(kotlin_metadata);
+    }
+
+    public static String[] getKoltinConstructorParameters(Class clazz) {
+        if (kotlin_kclass_constructor == null && !kotlin_class_klass_error) {
+            try {
+                Class class_kotlin_kclass = Class.forName("kotlin.reflect.jvm.internal.KClassImpl");
+                kotlin_kclass_constructor = class_kotlin_kclass.getConstructor(Class.class);
+                kotlin_kclass_getConstructors = class_kotlin_kclass.getMethod("getConstructors");
+
+                Class class_kotlin_kfunction = Class.forName("kotlin.reflect.KFunction");
+                kotlin_kfunction_getParameters = class_kotlin_kfunction.getMethod("getParameters");
+
+                Class class_kotlinn_kparameter = Class.forName("kotlin.reflect.KParameter");
+                kotlin_kparameter_getName = class_kotlinn_kparameter.getMethod("getName");
+            } catch (Throwable e) {
+                kotlin_class_klass_error = true;
+            }
+        }
+
+        if (kotlin_kclass_constructor == null) {
+            return null;
+        }
+
+        if (kotlin_error) {
+            return null;
+        }
+
+        try {
+            Object kclassImpl = kotlin_kclass_constructor.newInstance(clazz);
+            Iterable it = (Iterable) kotlin_kclass_getConstructors.invoke(kclassImpl);
+            Iterator iterator = it.iterator();
+            if (!iterator.hasNext()) {
+                return null;
+            }
+            Object constructor = iterator.next();
+
+            List parameters = (List) kotlin_kfunction_getParameters.invoke(constructor);
+            String[] names = new String[parameters.size()];
+            for (int i = 0; i < parameters.size(); i++) {
+                Object param = parameters.get(i);
+                names[i] = (String) kotlin_kparameter_getName.invoke(param);
+            }
+            return names;
+        } catch (Throwable e) {
+            kotlin_error = true;
+        }
+
+        return null;
     }
 }

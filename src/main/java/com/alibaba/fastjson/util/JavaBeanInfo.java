@@ -275,17 +275,24 @@ public class JavaBeanInfo {
                 }
             } else if (!isInterfaceOrAbstract) {
                 String[] paramNames = null;
-                for (Constructor constructor : constructors) {
-                    boolean is_public = (constructor.getModifiers() & Modifier.PUBLIC) != 0;
-                    if (!is_public) {
-                        continue;
+                boolean kotlin = TypeUtils.isKotlin(clazz);
+                if (kotlin && constructors.length == 1) {
+                    paramNames = TypeUtils.getKoltinConstructorParameters(clazz);
+                    creatorConstructor = constructors[0];
+                    TypeUtils.setAccessible(creatorConstructor);
+                } else {
+                    for (Constructor constructor : constructors) {
+                        boolean is_public = (constructor.getModifiers() & Modifier.PUBLIC) != 0;
+                        if (!is_public) {
+                            continue;
+                        }
+                        paramNames = ASMUtils.lookupParameterNames(constructor);
+                        if (paramNames != null && paramNames.length != 0) {
+                            creatorConstructor = constructor;
+                            break;
+                        }
+                        paramNames = null;
                     }
-                    paramNames = ASMUtils.lookupParameterNames(constructor);
-                    if (paramNames != null && paramNames.length != 0) {
-                        creatorConstructor = constructor;
-                        break;
-                    }
-                    paramNames = null;
                 }
 
                 Class<?>[] types = null;

@@ -22,16 +22,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Currency;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TimeZone;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import com.alibaba.fastjson.JSON;
@@ -121,6 +112,8 @@ public class SerializeConfig {
             Class<?> superClass;
             if (Map.class.isAssignableFrom(clazz)) {
                 serializers.put(clazz, new MapSerializer());
+            } else if (AbstractSequentialList.class.isAssignableFrom(clazz)) {
+                serializers.put(clazz, CollectionCodec.instance);
             } else if (List.class.isAssignableFrom(clazz)) {
                 serializers.put(clazz, new ListSerializer());
             } else if (Collection.class.isAssignableFrom(clazz)) {

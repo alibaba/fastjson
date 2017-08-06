@@ -286,9 +286,10 @@ class JavaBeanInfo {
                 Type[] getGenericParameterTypes = fieldGenericSupport //
                     ? creatorConstructor.getGenericParameterTypes() //
                     : parameterTypes;
-                    
+
+                Annotation[][] paramAnnotationArrays = creatorConstructor.getParameterAnnotations();
                 for (int i = 0; i < parameterTypes.length; ++i) {
-                    Annotation[] paramAnnotations = creatorConstructor.getParameterAnnotations()[i];
+                    Annotation[] paramAnnotations = paramAnnotationArrays[i];
                     JSONField fieldAnnotation = null;
                     for (Annotation paramAnnotation : paramAnnotations) {
                         if (paramAnnotation instanceof JSONField) {
@@ -341,8 +342,9 @@ class JavaBeanInfo {
                             ? factoryMethod.getGenericParameterTypes() //
                             : parameterTypes;
 
+                    Annotation[][] paramAnnotationArrays = factoryMethod.getParameterAnnotations();
                     for (int i = 0; i < parameterTypes.length; ++i) {
-                        Annotation[] paramAnnotations = factoryMethod.getParameterAnnotations()[i];
+                        Annotation[] paramAnnotations = paramAnnotationArrays[i];
                         JSONField fieldAnnotation = null;
                         for (Annotation paramAnnotation : paramAnnotations) {
                             if (paramAnnotation instanceof JSONField) {
@@ -397,10 +399,11 @@ class JavaBeanInfo {
                                 ? creatorConstructor.getGenericParameterTypes() //
                                 : parameterTypes;
 
+                        Annotation[][] paramAnnotationArrays = creatorConstructor.getParameterAnnotations();
                         for (int i = 0; i < parameterTypes.length; ++i) {
                             String paramName = parameters[i];
 
-                            Annotation[] paramAnnotations = creatorConstructor.getParameterAnnotations()[i];
+                            Annotation[] paramAnnotations = paramAnnotationArrays[i];
                             JSONField fieldAnnotation = null;
                             for (Annotation paramAnnotation : paramAnnotations) {
                                 if (paramAnnotation instanceof JSONField) {

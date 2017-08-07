@@ -78,7 +78,9 @@ public class FastJsonConfig {
         this.serializeConfig = SerializeConfig.getGlobalInstance();
         this.parserConfig = new ParserConfig();
 
-        this.serializerFeatures = new SerializerFeature[0];
+        this.serializerFeatures = new SerializerFeature[] {
+        };
+
         this.serializeFilters = new SerializeFilter[0];
         this.features = new Feature[0];
     }

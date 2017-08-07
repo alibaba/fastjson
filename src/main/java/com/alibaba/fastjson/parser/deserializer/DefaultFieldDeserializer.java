@@ -57,8 +57,10 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
             if (objContext != null) {
                 objContext.type = objectType;
             }
-            fieldType = FieldInfo.getFieldType(this.clazz, objectType, fieldType);
-            fieldValueDeserilizer = parser.getConfig().getDeserializer(fieldType);
+            if (fieldType != objectType) {
+                fieldType = FieldInfo.getFieldType(this.clazz, objectType, fieldType);
+                fieldValueDeserilizer = parser.getConfig().getDeserializer(fieldType);
+            }
         }
 
         // ContextObjectDeserializer

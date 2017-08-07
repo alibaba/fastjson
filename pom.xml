@@ -57,6 +57,26 @@
 			<name>axmanwang</name>
 			<email>iamaxman@hotmail.com</email>
 		</developer>
+		<developer>
+   			<id>kimmking</id>
+   			<name>kimmking</name>
+   			<email>kimmking@163.com</email>
+  		</developer>
+  		<developer>
+   			<id>Victor.Zxy</id>
+   			<name>Victor.Zxy</name>
+   			<email>Victor.Zxy@outlook.com</email>
+  		</developer>
+		<developer>
+			<id>Neil Dong</id>
+   			<name>Neil Dong</name>
+   			<email>email_dsl@163.com</email>
+  		</developer>
+		<developer>
+			<name>李恒名</name>
+			<url>https://github.com/lihengming/</url>
+			<email>89921218@qq.com</email>
+		</developer>
 	</developers>
 
 	<licenses>
@@ -204,6 +224,14 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
 			<version>4.3.7.RELEASE</version>
+			<scope>provided</scope>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-redis</artifactId>
+			<version>1.8.6.RELEASE</version>
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
@@ -405,7 +433,12 @@
 			<scope>test</scope>
 		</dependency>
 
-
+		<dependency>
+			<groupId>com.jayway.jsonpath</groupId>
+			<artifactId>json-path</artifactId>
+			<version>2.3.0</version>
+			<scope>test</scope>
+		</dependency>
 
 	</dependencies>
 

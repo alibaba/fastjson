@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -53,29 +54,34 @@ public class BooleanCodec implements ObjectSerializer, ObjectDeserializer {
         final JSONLexer lexer = parser.lexer;
 
         Boolean boolObj;
-        if (lexer.token() == JSONToken.TRUE) {
-            lexer.nextToken(JSONToken.COMMA);
-            boolObj = Boolean.TRUE;
-        } else if (lexer.token() == JSONToken.FALSE) {
-            lexer.nextToken(JSONToken.COMMA);
-            boolObj = Boolean.FALSE;
-        } else if (lexer.token() == JSONToken.LITERAL_INT) {
-            int intValue = lexer.intValue();
-            lexer.nextToken(JSONToken.COMMA);
 
-            if (intValue == 1) {
+        try {
+            if (lexer.token() == JSONToken.TRUE) {
+                lexer.nextToken(JSONToken.COMMA);
                 boolObj = Boolean.TRUE;
-            } else {
+            } else if (lexer.token() == JSONToken.FALSE) {
+                lexer.nextToken(JSONToken.COMMA);
                 boolObj = Boolean.FALSE;
-            }
-        } else {
-            Object value = parser.parse();
+            } else if (lexer.token() == JSONToken.LITERAL_INT) {
+                int intValue = lexer.intValue();
+                lexer.nextToken(JSONToken.COMMA);
 
-            if (value == null) {
-                return null;
-            }
+                if (intValue == 1) {
+                    boolObj = Boolean.TRUE;
+                } else {
+                    boolObj = Boolean.FALSE;
+                }
+            } else {
+                Object value = parser.parse();
 
-            boolObj = TypeUtils.castToBoolean(value);
+                if (value == null) {
+                    return null;
+                }
+
+                boolObj = TypeUtils.castToBoolean(value);
+            }
+        } catch (Exception ex) {
+            throw new JSONException("parseBoolean error, field : " + fieldName, ex);
         }
 
         if (clazz == AtomicBoolean.class) {

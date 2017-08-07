@@ -1083,7 +1083,7 @@ public class DefaultJSONParser implements Closeable {
 
         if (lexer.token() != JSONToken.LBRACKET) {
             throw new JSONException("syntax error, expect [, actual " + JSONToken.name(lexer.token()) + ", pos "
-                                    + lexer.pos());
+                                    + lexer.pos() + ", fieldName " + fieldName);
         }
 
         lexer.nextToken(JSONToken.LITERAL_STRING);
@@ -1446,10 +1446,21 @@ public class DefaultJSONParser implements Closeable {
                 object = task.ownerContext.object;
             }
 
-            Object refValue = ref.startsWith("$")
-                    ? getObject(ref)
-                    : task.context.object;
-            
+            Object refValue;
+
+            if (ref.startsWith("$")) {
+                refValue = getObject(ref);
+                if (refValue == null) {
+                    try {
+                        refValue = JSONPath.eval(value, ref);
+                    } catch (JSONPathException ex) {
+                        // skip
+                    }
+                }
+            } else {
+                refValue = task.context.object;
+            }
+
             FieldDeserializer fieldDeser = task.fieldDeserializer;
 
             if (fieldDeser != null) {

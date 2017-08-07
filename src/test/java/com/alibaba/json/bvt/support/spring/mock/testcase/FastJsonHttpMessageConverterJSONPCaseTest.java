@@ -123,6 +123,19 @@ public class FastJsonHttpMessageConverterJSONPCaseTest {
     }
 
     @Test
+    public void test3_Jsonp_ContentLength() throws Exception{
+        ResultActions actions1 = this.mockMvc.perform(post("/jsonp-fastjsonview/test3?callback=func")).andDo(print());
+        Object obj1 = actions1.andReturn().getResponse().getHeaderValue("Content-Length");
+        Assert.assertNotNull(obj1);
+        Assert.assertEquals(81,obj1);
+
+        ResultActions actions2 = this.mockMvc.perform(post("/jsonp-fastjsonview/test3?callback=fnUpdateSome")).andDo(print());
+        Object obj2 = actions2.andReturn().getResponse().getHeaderValue("Content-Length");
+        Assert.assertNotNull(obj2);
+        Assert.assertEquals(89,obj2);
+    }
+
+    @Test
     public void test3_2() throws Exception {
         ResultActions actions = this.mockMvc.perform(post("/jsonp-fastjsonview/test3?callback=fnUpdateSome"));
         actions.andDo(print());
@@ -182,5 +195,15 @@ public class FastJsonHttpMessageConverterJSONPCaseTest {
         actions.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JAVASCRIPT))
 
                 .andExpect(content().string("fnUpdateSome({})"));
+    }
+
+    @Test
+    public void test8() throws Exception {
+        String invalidMethodName = "--methodName";
+        ResultActions actions = this.mockMvc.perform(post("/jsonp-fastjsonview/test7?customizedCallbackParamName=" + invalidMethodName));
+        actions.andDo(print());
+        actions.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JAVASCRIPT))
+
+                .andExpect(content().string("null({})"));
     }
 }

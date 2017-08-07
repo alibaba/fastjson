@@ -29,6 +29,12 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
 
     public static MapSerializer instance = new MapSerializer();
 
+    private static final int NON_STRINGKEY_AS_STRING = SerializerFeature.of(
+            new SerializerFeature[] {
+                    SerializerFeature.BrowserCompatible,
+                    SerializerFeature.WriteNonStringKeyAsString,
+                    SerializerFeature.BrowserSecure});
+
     public void write(JSONSerializer serializer
             , Object object
             , Object fieldName
@@ -215,9 +221,7 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                         out.write(',');
                     }
 
-                    if (out.isEnabled(SerializerFeature.BrowserCompatible)
-                        || out.isEnabled(SerializerFeature.WriteNonStringKeyAsString)
-                        || out.isEnabled(SerializerFeature.BrowserSecure)) {
+                    if (out.isEnabled(NON_STRINGKEY_AS_STRING) && !(entryKey instanceof Enum)) {
                         String strEntryKey = JSON.toJSONString(entryKey);
                         serializer.write(strEntryKey);
                     } else {

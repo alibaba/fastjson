@@ -16,16 +16,7 @@
 package com.alibaba.fastjson.util;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
+import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.AccessControlException;
@@ -80,6 +71,20 @@ public class TypeUtils {
 
     private static Method method_HibernateIsInitialized = null;
     private static boolean method_HibernateIsInitialized_error = false;
+
+    private static volatile Class kotlin_metadata;
+    private static volatile boolean kotlin_metadata_error;
+
+    private static volatile boolean kotlin_class_klass_error;
+    private static volatile Constructor kotlin_kclass_constructor;
+    private static volatile Method kotlin_kclass_getConstructors;
+    private static volatile Method kotlin_kfunction_getParameters;
+    private static volatile Method kotlin_kparameter_getName;
+
+    private static volatile boolean kotlin_error;
+
+    private static volatile Map<Class, String[]> kotlinIgnores;
+    private static volatile boolean kotlinIgnores_error;
 
     static {
         try {
@@ -471,6 +476,12 @@ public class TypeUtils {
                 || "null".equals(strVal) //
                 || "NULL".equals(strVal)) {
                 return null;
+            }
+
+            if (strVal.endsWith(".000000000")) {
+                strVal = strVal.substring(0, strVal.length() - 10);
+            } else  if (strVal.endsWith(".000000")) {
+                strVal = strVal.substring(0, strVal.length() - 7);
             }
 
             if (isNumber(strVal)) {
@@ -1418,6 +1429,14 @@ public class TypeUtils {
     ) {
         Map<String, FieldInfo> fieldInfoMap = new LinkedHashMap<String, FieldInfo>();
 
+        boolean kotlin = TypeUtils.isKotlin(clazz);
+
+        // for kotlin
+        Constructor[] constructors = null;
+        Annotation[][] paramAnnotationArrays = null;
+        String[] paramNames = null;
+        short[] paramNameMapping = null;
+
         for (Method method : clazz.getMethods()) {
             String methodName = method.getName();
             int ordinal = 0, serialzeFeatures = 0, parserFeatures = 0;
@@ -1444,10 +1463,53 @@ public class TypeUtils {
                 continue;
             }
 
+            if (kotlin && isKotlinIgnore(clazz, methodName)) {
+                continue;
+            }
+
             JSONField annotation = method.getAnnotation(JSONField.class);
 
             if (annotation == null) {
                 annotation = getSuperMethodAnnotation(clazz, method);
+            }
+
+            if (annotation == null && kotlin) {
+                if (constructors == null) {
+                    constructors = clazz.getDeclaredConstructors();
+                    if (constructors.length > 0) {
+                        paramAnnotationArrays = constructors[constructors.length - 1].getParameterAnnotations();
+                        paramNames = TypeUtils.getKoltinConstructorParameters(clazz);
+
+                        if (paramNames != null) {
+                            String[] paramNames_sorted = new String[paramNames.length];
+                            System.arraycopy(paramNames, 0,paramNames_sorted, 0, paramNames.length);
+                            Arrays.sort(paramNames_sorted);
+
+                            paramNameMapping = new short[paramNames.length];
+                            for (short p = 0; p < paramNames.length; p++) {
+                                int index = Arrays.binarySearch(paramNames_sorted, paramNames[p]);
+                                paramNameMapping[index] = p;
+                            }
+                            paramNames = paramNames_sorted;
+                        }
+                    }
+                }
+                if (paramNames != null && paramNameMapping != null && methodName.startsWith("get")) {
+                    String propertyName = decapitalize(methodName.substring(3));
+                    int p = Arrays.binarySearch(paramNames, propertyName);
+                    if (p >= 0) {
+                        short index = paramNameMapping[p];
+                        Annotation[] paramAnnotations = paramAnnotationArrays[index];
+                        if (paramAnnotations != null) {
+                            for (Annotation paramAnnotation : paramAnnotations) {
+                                if (paramAnnotation instanceof JSONField) {
+                                    annotation = (JSONField) paramAnnotation;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             if (annotation != null) {
@@ -1678,30 +1740,28 @@ public class TypeUtils {
     private static List<FieldInfo> getFieldInfos(Class<?> clazz, boolean sorted, Map<String, FieldInfo> fieldInfoMap) {
         List<FieldInfo> fieldInfoList = new ArrayList<FieldInfo>();
 
-        boolean containsAll = false;
         String[] orders = null;
 
         JSONType annotation = clazz.getAnnotation(JSONType.class);
         if (annotation != null) {
             orders = annotation.orders();
-
-            if (orders != null && orders.length == fieldInfoMap.size()) {
-                containsAll = true;
-                for (String item : orders) {
-                    if (!fieldInfoMap.containsKey(item)) {
-                        containsAll = false;
-                        break;
-                    }
-                }
-            } else {
-                containsAll = false;
-            }
         }
 
-        if (containsAll) {
+        if (orders != null && orders.length > 0) {
+            LinkedHashMap<String, FieldInfo> map = new LinkedHashMap<String, FieldInfo>(fieldInfoList.size());
+            for (FieldInfo field : fieldInfoMap.values()) {
+                map.put(field.name, field);
+            }
+            int i = 0;
             for (String item : orders) {
-                FieldInfo fieldInfo = fieldInfoMap.get(item);
-                fieldInfoList.add(fieldInfo);
+                FieldInfo field = map.get(item);
+                if (field != null) {
+                    fieldInfoList.add(field);
+                    map.remove(item);
+                }
+            }
+            for (FieldInfo field : map.values()) {
+                fieldInfoList.add(field);
             }
         } else {
             for (FieldInfo fieldInfo : fieldInfoMap.values()) {
@@ -2202,8 +2262,8 @@ public class TypeUtils {
         return true;
     }
 
-    public static long fnv_64_lower(String key) {
-        long hashCode = 0x811c9dc5;
+    public static long fnv1a_64_lower(String key) {
+        long hashCode = 0xcbf29ce484222325L;
         for (int i = 0; i < key.length(); ++i) {
             char ch = key.charAt(i);
             if (ch == '_' || ch == '-') {
@@ -2215,9 +2275,121 @@ public class TypeUtils {
             }
 
             hashCode ^= ch;
-            hashCode *= 0x1000193;
+            hashCode *= 0x100000001b3L;
         }
 
         return hashCode;
+    }
+
+    public static long fnv1a_64(String key) {
+        long hashCode = 0xcbf29ce484222325L;
+        for (int i = 0; i < key.length(); ++i) {
+            char ch = key.charAt(i);
+            hashCode ^= ch;
+            hashCode *= 0x100000001b3L;
+        }
+
+        return hashCode;
+    }
+
+    public static boolean isKotlin(Class clazz) {
+        if (kotlin_metadata == null && !kotlin_metadata_error) {
+            try {
+                kotlin_metadata = Class.forName("kotlin.Metadata");
+            } catch (Throwable e) {
+                kotlin_metadata_error = true;
+            }
+        }
+
+        if (kotlin_metadata == null) {
+            return false;
+        }
+
+        return clazz.isAnnotationPresent(kotlin_metadata);
+    }
+
+    public static String[] getKoltinConstructorParameters(Class clazz) {
+        if (kotlin_kclass_constructor == null && !kotlin_class_klass_error) {
+            try {
+                Class class_kotlin_kclass = Class.forName("kotlin.reflect.jvm.internal.KClassImpl");
+                kotlin_kclass_constructor = class_kotlin_kclass.getConstructor(Class.class);
+                kotlin_kclass_getConstructors = class_kotlin_kclass.getMethod("getConstructors");
+
+                Class class_kotlin_kfunction = Class.forName("kotlin.reflect.KFunction");
+                kotlin_kfunction_getParameters = class_kotlin_kfunction.getMethod("getParameters");
+
+                Class class_kotlinn_kparameter = Class.forName("kotlin.reflect.KParameter");
+                kotlin_kparameter_getName = class_kotlinn_kparameter.getMethod("getName");
+            } catch (Throwable e) {
+                kotlin_class_klass_error = true;
+            }
+        }
+
+        if (kotlin_kclass_constructor == null) {
+            return null;
+        }
+
+        if (kotlin_error) {
+            return null;
+        }
+
+        try {
+            Object constructor = null;
+            Object kclassImpl = kotlin_kclass_constructor.newInstance(clazz);
+            Iterable it = (Iterable) kotlin_kclass_getConstructors.invoke(kclassImpl);
+            for (Iterator iterator = it.iterator();iterator.hasNext();iterator.hasNext()) {
+                constructor = iterator.next();
+            }
+
+            List parameters = (List) kotlin_kfunction_getParameters.invoke(constructor);
+            String[] names = new String[parameters.size()];
+            for (int i = 0; i < parameters.size(); i++) {
+                Object param = parameters.get(i);
+                names[i] = (String) kotlin_kparameter_getName.invoke(param);
+            }
+            return names;
+        } catch (Throwable e) {
+            kotlin_error = true;
+        }
+
+        return null;
+    }
+
+    private static boolean isKotlinIgnore(Class clazz, String methodName) {
+        if (kotlinIgnores == null && !kotlinIgnores_error) {
+            try {
+                Map<Class, String[]> map = new HashMap<Class, String[]>();
+
+                Class charRangeClass = Class.forName("kotlin.ranges.CharRange");
+                map.put(charRangeClass, new String[]{"getEndInclusive","isEmpty"});
+
+                Class intRangeClass = Class.forName("kotlin.ranges.IntRange");
+                map.put(intRangeClass, new String[]{"getEndInclusive","isEmpty"});
+
+                Class longRangeClass = Class.forName("kotlin.ranges.LongRange");
+                map.put(longRangeClass, new String[]{"getEndInclusive", "isEmpty"});
+
+                Class floatRangeClass = Class.forName("kotlin.ranges.ClosedFloatRange");
+                map.put(floatRangeClass, new String[]{"getEndInclusive","isEmpty"});
+
+                Class doubleRangeClass = Class.forName("kotlin.ranges.ClosedDoubleRange");
+                map.put(doubleRangeClass, new String[]{"getEndInclusive","isEmpty"});
+
+                kotlinIgnores = map;
+            } catch (Throwable error) {
+                kotlinIgnores_error = true;
+            }
+        }
+
+        if (kotlinIgnores == null) {
+            return false;
+        }
+
+        String[] ignores = kotlinIgnores.get(clazz);
+        if (ignores == null) {
+            return false;
+        }
+
+        return Arrays.binarySearch(ignores, methodName) >= 0;
     }
 }

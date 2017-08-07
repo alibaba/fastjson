@@ -2,6 +2,9 @@ package com.alibaba.fastjson.support.spring;
 
 import com.alibaba.fastjson.JSONPObject;
 import com.alibaba.fastjson.support.spring.annotation.ResponseJSONP;
+import com.alibaba.fastjson.util.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
@@ -37,9 +40,10 @@ import javax.servlet.http.HttpServletRequest;
 @ControllerAdvice
 public class JSONPResponseBodyAdvice implements ResponseBodyAdvice<Object>{
 
+    public final Log logger = LogFactory.getLog(this.getClass());
+
     public JSONPResponseBodyAdvice() {
     }
-
 
 
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
@@ -55,6 +59,13 @@ public class JSONPResponseBodyAdvice implements ResponseBodyAdvice<Object>{
         ResponseJSONP responseJsonp = returnType.getMethodAnnotation(ResponseJSONP.class);
         String callbackMethodName = servletRequest.getParameter(responseJsonp.callback());
 
+        if (!IOUtils.isValidJsonpQueryParam(callbackMethodName)) {
+            if(logger.isDebugEnabled()){
+                logger.debug("Invalid jsonp parameter value:" + callbackMethodName);
+            }
+            callbackMethodName = null;
+        }
+
         JSONPObject jsonpObject = new JSONPObject(callbackMethodName);
         jsonpObject.addParameter(body);
         beforeBodyWriteInternal(jsonpObject, selectedContentType, returnType, request, response);
@@ -65,7 +76,7 @@ public class JSONPResponseBodyAdvice implements ResponseBodyAdvice<Object>{
 
     public void beforeBodyWriteInternal(JSONPObject jsonpObject, MediaType contentType,
                                         MethodParameter returnType, ServerHttpRequest request, ServerHttpResponse response) {
-        MediaType contentTypeToUse = getContentType(contentType, request, response);
+        //MediaType contentTypeToUse = getContentType(contentType, request, response);
         //response.getHeaders().setContentType(contentTypeToUse);
     }
 

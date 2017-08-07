@@ -31,17 +31,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.sql.Clob;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Currency;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TimeZone;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
@@ -189,8 +179,17 @@ public class SerializeConfig {
     			    continue;
     			}
 
+    			String format = annotation.format();
+    			if (format.length() != 0) {
+    			    if (fieldInfo.fieldClass == String.class && "trim".equals(format)) {
+
+                    } else {
+                        asm = false;
+                        break;
+                    }
+                }
+
                 if ((!ASMUtils.checkName(annotation.name())) //
-                        || annotation.format().length() != 0
                         || annotation.jsonDirect()
                         || annotation.serializeUsing() != Void.class
                         || annotation.unwrapped()
@@ -325,6 +324,8 @@ public class SerializeConfig {
 		
 		put(WeakReference.class, ReferenceCodec.instance);
 		put(SoftReference.class, ReferenceCodec.instance);
+
+        put(LinkedList.class, CollectionCodec.instance);
 	}
 	
 	/**
@@ -660,5 +661,13 @@ public class SerializeConfig {
         for (Class<? extends Enum> enumClass : enumClasses) {
             put(enumClass, createJavaBeanSerializer(enumClass));
         }
+    }
+
+    /**
+     * for spring config support
+     * @param propertyNamingStrategy
+     */
+    public void setPropertyNamingStrategy(PropertyNamingStrategy propertyNamingStrategy) {
+        this.propertyNamingStrategy = propertyNamingStrategy;
     }
 }

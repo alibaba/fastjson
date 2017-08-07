@@ -68,11 +68,11 @@ public class JSONScannerTest_scanSymbol extends TestCase {
     }
 
     static long fnv_hash(String text) {
-        long hash = 0x811c9dc5;
+        long hash = 0xcbf29ce484222325L;
         for (int i = 0; i < text.length(); ++i) {
             char c = text.charAt(i);
             hash ^= c;
-            hash *= 0x1000193;
+            hash *= 0x100000001b3L;
         }
         return hash;
     }

@@ -15,7 +15,6 @@ public class StreamWriterTest_writeValueString1 extends TestCase {
         StringWriter out = new StringWriter();
         
         SerializeWriter writer = new SerializeWriter(out, 10);
-        writer.config(SerializerFeature.BrowserCompatible, true);
         Assert.assertEquals(10, SerializeWriterTestUtils.getBufferLength(writer));
         
         writer.writeString("abcde12345678\t");

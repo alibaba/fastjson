@@ -85,11 +85,6 @@ public enum SerializerFeature {
     WriteSlashAsSpecial,
 
     /**
-     * @since 1.1.10
-     */
-    BrowserCompatible,
-
-    /**
      * @since 1.1.14
      */
     WriteDateUseDateFormat,

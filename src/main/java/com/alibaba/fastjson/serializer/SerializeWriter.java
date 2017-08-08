@@ -473,47 +473,12 @@ public final class SerializeWriter extends Writer {
                 for (int i = 0; i < text.length(); ++i) {
                     char ch = text.charAt(i);
                     
-                    if ((features & SerializerFeature.BrowserCompatible.mask) != 0) {
-                        if (ch == '\b' //
-                            || ch == '\f' //
-                            || ch == '\n' //
-                            || ch == '\r' //
-                            || ch == '\t' //
-                            || ch == '"' //
-                            || ch == '/' //
-                            || ch == '\\') {
-                            write('\\');
-                            write(replaceChars[(int) ch]);
-                            continue;
-                        }
-
-                        if (ch < 32) {
-                            write('\\');
-                            write('u');
-                            write('0');
-                            write('0');
-                            write(ascii_chars[ch * 2]);
-                            write(ascii_chars[ch * 2 + 1]);
-                            continue;
-                        }
-
-                        if (ch >= 127) {
-                            write('\\');
-                            write('u');
-                            write(DIGITS[(ch >>> 12) & 15]);
-                            write(DIGITS[(ch >>> 8) & 15]);
-                            write(DIGITS[(ch >>> 4) & 15]);
-                            write(DIGITS[ch & 15]);
-                            continue;
-                        }
-                    } else {
-                        if (ch < specicalFlags_doubleQuotes.length
-                            && specicalFlags_doubleQuotes[ch] != 0 //
-                            || (ch == '/' && (features & SerializerFeature.WriteSlashAsSpecial.mask) != 0)) {
-                            write('\\');
-                            write(replaceChars[(int) ch]);
-                            continue;
-                        }
+                    if (ch < specicalFlags_doubleQuotes.length
+                        && specicalFlags_doubleQuotes[ch] != 0 //
+                        || (ch == '/' && (features & SerializerFeature.WriteSlashAsSpecial.mask) != 0)) {
+                        write('\\');
+                        write(replaceChars[(int) ch]);
+                        continue;
                     }
 
                     write(ch);
@@ -535,107 +500,6 @@ public final class SerializeWriter extends Writer {
         text.getChars(0, len, buf, start);
 
         count = newcount;
-
-        if ((features & SerializerFeature.BrowserCompatible.mask) != 0) {
-            int lastSpecialIndex = -1;
-
-            for (int i = start; i < end; ++i) {
-                char ch = buf[i];
-
-                if (ch == '"' //
-                    || ch == '/' //
-                    || ch == '\\') {
-                    lastSpecialIndex = i;
-                    newcount += 1;
-                    continue;
-                }
-
-                if (ch == '\b' //
-                    || ch == '\f' //
-                    || ch == '\n' //
-                    || ch == '\r' //
-                    || ch == '\t') {
-                    lastSpecialIndex = i;
-                    newcount += 1;
-                    continue;
-                }
-
-                if (ch < 32) {
-                    lastSpecialIndex = i;
-                    newcount += 5;
-                    continue;
-                }
-
-                if (ch >= 127) {
-                    lastSpecialIndex = i;
-                    newcount += 5;
-                    continue;
-                }
-            }
-
-            if (newcount > buf.length) {
-                expandCapacity(newcount);
-            }
-            count = newcount;
-
-            for (int i = lastSpecialIndex; i >= start; --i) {
-                char ch = buf[i];
-
-                if (ch == '\b' //
-                    || ch == '\f'//
-                    || ch == '\n' //
-                    || ch == '\r' //
-                    || ch == '\t') {
-                    System.arraycopy(buf, i + 1, buf, i + 2, end - i - 1);
-                    buf[i] = '\\';
-                    buf[i + 1] = replaceChars[(int) ch];
-                    end += 1;
-                    continue;
-                }
-
-                if (ch == '"' //
-                    || ch == '/' //
-                    || ch == '\\') {
-                    System.arraycopy(buf, i + 1, buf, i + 2, end - i - 1);
-                    buf[i] = '\\';
-                    buf[i + 1] = ch;
-                    end += 1;
-                    continue;
-                }
-
-                if (ch < 32) {
-                    System.arraycopy(buf, i + 1, buf, i + 6, end - i - 1);
-                    buf[i] = '\\';
-                    buf[i + 1] = 'u';
-                    buf[i + 2] = '0';
-                    buf[i + 3] = '0';
-                    buf[i + 4] = ascii_chars[ch * 2];
-                    buf[i + 5] = ascii_chars[ch * 2 + 1];
-                    end += 5;
-                    continue;
-                }
-
-                if (ch >= 127) {
-                    System.arraycopy(buf, i + 1, buf, i + 6, end - i - 1);
-                    buf[i] = '\\';
-                    buf[i + 1] = 'u';
-                    buf[i + 2] = DIGITS[(ch >>> 12) & 15];
-                    buf[i + 3] = DIGITS[(ch >>> 8) & 15];
-                    buf[i + 4] = DIGITS[(ch >>> 4) & 15];
-                    buf[i + 5] = DIGITS[ch & 15];
-                    end += 5;
-                }
-            }
-
-            if (seperator != 0) {
-                buf[count - 2] = '\"';
-                buf[count - 1] = seperator;
-            } else {
-                buf[count - 1] = '\"';
-            }
-
-            return;
-        }
 
         int specialCount = 0;
         int lastSpecialIndex = -1;

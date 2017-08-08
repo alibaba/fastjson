@@ -92,7 +92,7 @@ public class FastJsonHttpMessageConverterJSONPCaseTest {
                 "UTF-8").contentType(MediaType.APPLICATION_JSON)));
         actions.andDo(print());
         actions.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JAVASCRIPT))
-                .andExpect(content().string("fnUpdateSome({\"id\":100,\"name\":\"测试\"})"));
+                .andExpect(content().string("/**/fnUpdateSome({\"id\":100,\"name\":\"测试\"})"));
     }
 
     @Test
@@ -112,7 +112,7 @@ public class FastJsonHttpMessageConverterJSONPCaseTest {
                 .contentType(MediaType.APPLICATION_JSON)));
         actions.andDo(print());
         actions.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JAVASCRIPT))
-                .andExpect(content().string("fnUpdateSome({\"description\":\"fastjsonview注解测试\",\"stock\":\"haha\"})"));
+                .andExpect(content().string("/**/fnUpdateSome({\"description\":\"fastjsonview注解测试\",\"stock\":\"haha\"})"));
     }
 
     @Test
@@ -127,12 +127,12 @@ public class FastJsonHttpMessageConverterJSONPCaseTest {
         ResultActions actions1 = this.mockMvc.perform(post("/jsonp-fastjsonview/test3?callback=func")).andDo(print());
         Object obj1 = actions1.andReturn().getResponse().getHeaderValue("Content-Length");
         Assert.assertNotNull(obj1);
-        Assert.assertEquals(81,obj1);
+        Assert.assertEquals(85,obj1);
 
         ResultActions actions2 = this.mockMvc.perform(post("/jsonp-fastjsonview/test3?callback=fnUpdateSome")).andDo(print());
         Object obj2 = actions2.andReturn().getResponse().getHeaderValue("Content-Length");
         Assert.assertNotNull(obj2);
-        Assert.assertEquals(89,obj2);
+        Assert.assertEquals(93,obj2);
     }
 
     @Test
@@ -141,7 +141,7 @@ public class FastJsonHttpMessageConverterJSONPCaseTest {
         actions.andDo(print());
         actions.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JAVASCRIPT))
 
-                .andExpect(content().string("fnUpdateSome({\"id\":100,\"name\":\"测试\",\"rootDepartment\":{\"description\":\"部门1描述\"}})"));
+                .andExpect(content().string("/**/fnUpdateSome({\"id\":100,\"name\":\"测试\",\"rootDepartment\":{\"description\":\"部门1描述\"}})"));
     }
 
     @Test
@@ -162,7 +162,7 @@ public class FastJsonHttpMessageConverterJSONPCaseTest {
         actions.andDo(print());
         actions.andExpect(status().isOk())
                 .andExpect(content().contentType(APPLICATION_JAVASCRIPT))
-                .andExpect(content().string("myUpdate({\"id\":100,\"name\":\"测试\",\"rootDepartment\":{\"id\":1,\"members\":[],\"name\":\"部门1\"}})"));
+                .andExpect(content().string("/**/myUpdate({\"id\":100,\"name\":\"测试\",\"rootDepartment\":{\"id\":1,\"members\":[],\"name\":\"部门1\"}})"));
     }
 
     @Test
@@ -185,7 +185,7 @@ public class FastJsonHttpMessageConverterJSONPCaseTest {
         actions.andDo(print());
         actions.andExpect(status().isOk())
                 .andExpect(content().contentType(APPLICATION_JAVASCRIPT))
-                .andExpect(content().string("myUpdate(\"{\\\"packet\\\":{\\\"smsType\\\":\\\"USER_LOGIN\\\"}}\")"));
+                .andExpect(content().string("/**/myUpdate(\"{\\\"packet\\\":{\\\"smsType\\\":\\\"USER_LOGIN\\\"}}\")"));
     }
 
     @Test
@@ -194,7 +194,7 @@ public class FastJsonHttpMessageConverterJSONPCaseTest {
         actions.andDo(print());
         actions.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JAVASCRIPT))
 
-                .andExpect(content().string("fnUpdateSome({})"));
+                .andExpect(content().string("/**/fnUpdateSome({})"));
     }
 
     @Test
@@ -204,6 +204,6 @@ public class FastJsonHttpMessageConverterJSONPCaseTest {
         actions.andDo(print());
         actions.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JAVASCRIPT))
 
-                .andExpect(content().string("null({})"));
+                .andExpect(content().string("/**/null({})"));
     }
 }

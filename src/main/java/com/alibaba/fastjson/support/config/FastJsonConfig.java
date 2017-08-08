@@ -79,6 +79,7 @@ public class FastJsonConfig {
         this.parserConfig = new ParserConfig();
 
         this.serializerFeatures = new SerializerFeature[] {
+                SerializerFeature.BrowserSecure
         };
 
         this.serializeFilters = new SerializeFilter[0];

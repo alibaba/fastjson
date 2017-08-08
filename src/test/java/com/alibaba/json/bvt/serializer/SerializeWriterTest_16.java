@@ -15,7 +15,6 @@ public class SerializeWriterTest_16 extends TestCase {
     public void test_writer_1() throws Exception {
         StringWriter strOut = new StringWriter();
         SerializeWriter out = new SerializeWriter(strOut, 14);
-        out.config(SerializerFeature.BrowserCompatible, true);
 
         try {
             JSONSerializer serializer = new JSONSerializer(out);

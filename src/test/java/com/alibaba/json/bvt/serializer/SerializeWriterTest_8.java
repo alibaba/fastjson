@@ -19,7 +19,7 @@ public class SerializeWriterTest_8 extends TestCase {
         }
         buf.append("中国");
         buf.append("\0");
-        JSON.toJSONString(buf.toString(), SerializerFeature.BrowserCompatible);
+        JSON.toJSONString(buf.toString());
     }
 
     public void test_writer() throws Exception {
@@ -31,7 +31,7 @@ public class SerializeWriterTest_8 extends TestCase {
         buf.append("\0");
 
         StringWriter out = new StringWriter();
-        JSON.writeJSONStringTo(buf.toString(), out, SerializerFeature.BrowserCompatible);
+        JSON.writeJSONStringTo(buf.toString(), out);
     }
 
     public void test_singleQuote() throws Exception {

@@ -14,7 +14,7 @@ public class Bug_for_ascii_0_31 extends TestCase {
             char ch = (char) i;
             buf.append(ch);
 
-            String text = JSON.toJSONString(buf.toString(), SerializerFeature.BrowserCompatible);
+            String text = JSON.toJSONString(buf.toString());
 
             switch (ch) {
                 case '"':
@@ -53,7 +53,7 @@ public class Bug_for_ascii_0_31 extends TestCase {
             VO vo = new VO();
             vo.setContent(buf.toString());
 
-            String voText = JSON.toJSONString(vo, SerializerFeature.BrowserCompatible);
+            String voText = JSON.toJSONString(vo);
 
             switch (ch) {
                 case '"':

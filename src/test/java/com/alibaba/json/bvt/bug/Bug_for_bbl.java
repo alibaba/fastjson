@@ -18,7 +18,7 @@ public class Bug_for_bbl extends TestCase {
                    "<img class=\"em\" src=\"http://ab.com/12/33.jpg\" />");
         params.put("uid", "22034343");
 
-        String s001 = JSON.toJSONString(params, SerializerFeature.BrowserCompatible);
+        String s001 = JSON.toJSONString(params);
 
         System.out.println(s001);
         

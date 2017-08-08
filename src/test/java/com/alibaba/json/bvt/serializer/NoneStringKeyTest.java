@@ -20,13 +20,6 @@ public class NoneStringKeyTest extends TestCase {
         Assert.assertEquals("{1:101}", JSON.toJSONString(map));
     }
 
-    public void test_1() throws Exception {
-        Map map = new HashMap();
-        map.put(1, 101);
-
-        Assert.assertEquals("{\"1\":101}", JSON.toJSONString(map, SerializerFeature.BrowserCompatible));
-    }
-
     public void test_2() throws Exception {
         Map map = new HashMap();
         map.put(1, 101);

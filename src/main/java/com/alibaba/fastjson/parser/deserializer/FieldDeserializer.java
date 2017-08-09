@@ -96,10 +96,10 @@ public abstract class FieldDeserializer {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void setValue(Object object, Object value) {
         if (value == null) {
-            Class<?> fieldClass = fieldInfo.fieldClass;
-            if (fieldClass.isPrimitive()) {
-                return;
-            }
+            //Class<?> fieldClass = fieldInfo.fieldClass;
+            //if (fieldClass.isPrimitive()) {
+            return;
+            //}
         }
         
         final Field field = fieldInfo.field;

@@ -11,7 +11,7 @@ public class SerializeWriterTest_BrowserSecure3 extends TestCase {
 
     public void test_0() throws Exception {
         String text = JSON.toJSONString("\n", SerializerFeature.BrowserSecure);
-        Assert.assertEquals("\"\\u000A\"", text);
+        Assert.assertEquals("\"\\n\"", text);
     }
 
 }

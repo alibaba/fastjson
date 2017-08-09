@@ -31,7 +31,7 @@ public class FastJsonJsonViewTest extends TestCase {
         view.setDateFormat("yyyyMMdd");
 		
         Assert.assertNotNull(view.getFeatures());
-        Assert.assertEquals(0, view.getFeatures().length);
+        Assert.assertEquals(1, view.getFeatures().length);
 
         view.setSerializerFeature(SerializerFeature.BrowserCompatible);
         Assert.assertEquals(1, view.getFeatures().length);

@@ -99,7 +99,7 @@ public class FastJsonHttpMessageConverterCase2Test {
         mockMvc.perform(asyncDispatch(mvcResult))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(FastJsonHttpMessageConverter.APPLICATION_JAVASCRIPT))
-                .andExpect(content().string("fnUpdateSome({})"));
+                .andExpect(content().string("/**/fnUpdateSome({})"));
     }
 
 

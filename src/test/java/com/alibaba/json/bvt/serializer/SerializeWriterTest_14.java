@@ -51,11 +51,11 @@ public class SerializeWriterTest_14 extends TestCase {
         try {
             JSONSerializer serializer = new JSONSerializer(out);
 
-            Map map = Collections.singletonMap("ab\t", "a");
+            Map map = Collections.singletonMap("ab\t<", "a");
             serializer.write(map);
         } finally {
             out.close();
         }
-        Assert.assertEquals("{\"ab\\t\":\"a\"}", strOut.toString());
+        Assert.assertEquals("{\"ab\\t<\":\"a\"}", strOut.toString());
     }
 }

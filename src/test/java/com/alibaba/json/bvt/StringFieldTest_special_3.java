@@ -21,7 +21,8 @@ public class StringFieldTest_special_3 extends TestCase {
         StringWriter writer = new StringWriter();
         JSON.writeJSONString(writer, model);
 
-        Model model2 = JSON.parseObject(writer.toString(), Model.class);
+        String json = writer.toString();
+        Model model2 = JSON.parseObject(json, Model.class);
         Assert.assertEquals(model.name, model2.name);
     }
     

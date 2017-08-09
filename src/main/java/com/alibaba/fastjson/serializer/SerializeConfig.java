@@ -158,6 +158,10 @@ public class SerializeConfig {
 		if (asm && !ASMUtils.checkName(clazz.getSimpleName())) {
 		    asm = false;
 		}
+
+		if (asm && beanInfo.beanType.isInterface()) {
+		    asm = false;
+        }
 		
 		if (asm) {
     		for(FieldInfo fieldInfo : beanInfo.fields){
@@ -629,6 +633,31 @@ public class SerializeConfig {
                     ObjectSerializer superWriter = getObjectWriter(superClazz);
                     put(clazz, superWriter);
                     return superWriter;
+                }
+
+                if (Proxy.isProxyClass(clazz)) {
+                    Class handlerClass = null;
+
+                    if (interfaces.length == 2) {
+                        handlerClass = interfaces[1];
+                    } else {
+                        for (Class proxiedInterface : interfaces) {
+                            if (proxiedInterface.getName().startsWith("org.springframework.aop.")) {
+                                continue;
+                            }
+                            if (handlerClass != null) {
+                                handlerClass = null; // multi-matched
+                                break;
+                            }
+                            handlerClass = proxiedInterface;
+                        }
+                    }
+
+                    if (handlerClass != null) {
+                        ObjectSerializer superWriter = getObjectWriter(handlerClass);
+                        put(clazz, superWriter);
+                        return superWriter;
+                    }
                 }
 
                 if (create) {

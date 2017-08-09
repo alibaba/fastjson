@@ -154,8 +154,14 @@ public class Issue1341 extends JerseyTest {
 
         ResourceConfig config = new ResourceConfig();
 
-        config.register(new FastJsonFeature()).register(FastJsonProvider.class);
-        config.packages("com.alibaba.json");
+        FastJsonProvider fastJsonProvider = new FastJsonProvider();
+        FastJsonConfig fastJsonConfig = new FastJsonConfig();
+        fastJsonConfig.setSerializerFeatures(SerializerFeature.DisableCircularReferenceDetect,SerializerFeature.BrowserSecure);
+        fastJsonProvider.setFastJsonConfig(fastJsonConfig);
+
+        config.register(fastJsonProvider);
+
+        config.packages("com.alibaba.json.bvt.issue_1300");
         return config;
     }
 

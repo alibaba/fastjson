@@ -1,8 +1,6 @@
 package com.alibaba.json.bvt.issue_1300;
 
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONPObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.jaxrs.FastJsonProvider;

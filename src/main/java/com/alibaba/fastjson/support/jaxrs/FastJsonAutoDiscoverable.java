@@ -20,6 +20,8 @@ import javax.ws.rs.core.FeatureContext;
 @Priority(AutoDiscoverable.DEFAULT_PRIORITY + 1)
 public class FastJsonAutoDiscoverable implements AutoDiscoverable {
 
+    public volatile static boolean autoDiscover = true;
+
     private final static String JSON_FEATURE = "FastJsonFeature";
 
     @Override
@@ -30,16 +32,16 @@ public class FastJsonAutoDiscoverable implements AutoDiscoverable {
         final String jsonFeature = CommonProperties.getValue(config.getProperties(), config.getRuntimeType(), InternalProperties.JSON_FEATURE, JSON_FEATURE,
                 String.class);
 
-        if (JSON_FEATURE.equalsIgnoreCase(jsonFeature)) {
+        if (JSON_FEATURE.equalsIgnoreCase(jsonFeature) && autoDiscover) {
 
             // Disable other JSON providers.
             context.property(PropertiesHelper.getPropertyNameForRuntime(InternalProperties.JSON_FEATURE, config.getRuntimeType()), JSON_FEATURE);
-        }
 
-        // Register FastJson.
-        if (!config.isRegistered(FastJsonProvider.class)) {
+            // Register FastJson.
+            if (!config.isRegistered(FastJsonProvider.class)) {
 
-            context.register(FastJsonProvider.class);
+                context.register(FastJsonProvider.class);
+            }
         }
     }
 }

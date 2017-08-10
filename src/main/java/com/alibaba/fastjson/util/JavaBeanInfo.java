@@ -178,13 +178,16 @@ public class JavaBeanInfo {
         Field[] declaredFields = clazz.getDeclaredFields();
         Method[] methods = clazz.getMethods();
 
+        boolean kotlin = TypeUtils.isKotlin(clazz);
         Constructor[] constructors = clazz.getDeclaredConstructors();
 
-        Constructor<?> defaultConstructor;
-        if (builderClass == null) {
-            defaultConstructor = getDefaultConstructor(clazz, constructors);
-        } else {
-            defaultConstructor = getDefaultConstructor(builderClass, builderClass.getDeclaredConstructors());
+        Constructor<?> defaultConstructor = null;
+        if (!kotlin) {
+            if (builderClass == null) {
+                defaultConstructor = getDefaultConstructor(clazz, constructors);
+            } else {
+                defaultConstructor = getDefaultConstructor(builderClass, builderClass.getDeclaredConstructors());
+            }
         }
 
         Constructor<?> creatorConstructor = null;
@@ -275,10 +278,9 @@ public class JavaBeanInfo {
                 }
             } else if (!isInterfaceOrAbstract) {
                 String[] paramNames = null;
-                boolean kotlin = TypeUtils.isKotlin(clazz);
                 if (kotlin && constructors.length > 0) {
                     paramNames = TypeUtils.getKoltinConstructorParameters(clazz);
-                    creatorConstructor = constructors[constructors.length - 1];
+                    creatorConstructor = TypeUtils.getKoltinConstructor(constructors);
                     TypeUtils.setAccessible(creatorConstructor);
                 } else {
                     for (Constructor constructor : constructors) {

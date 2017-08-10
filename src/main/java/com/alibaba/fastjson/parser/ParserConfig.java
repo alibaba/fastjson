@@ -867,11 +867,13 @@ public class ParserConfig {
             }
         }
 
-        if (autoTypeSupport || expectClass != null) {
-            clazz = TypeUtils.loadClass(typeName, defaultClassLoader);
-        }
+        clazz = TypeUtils.loadClass(typeName, defaultClassLoader);
 
         if (clazz != null) {
+            if (clazz.getAnnotation(JSONType.class) != null) {
+                return clazz;
+            }
+
             if (ClassLoader.class.isAssignableFrom(clazz) // classloader is danger
                     || DataSource.class.isAssignableFrom(clazz) // dataSource can load jdbc driver
                     ) {

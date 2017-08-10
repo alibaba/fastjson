@@ -9,11 +9,10 @@ import com.alibaba.fastjson.support.config.FastJsonConfig;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.ext.MessageBodyReader;
-import javax.ws.rs.ext.MessageBodyWriter;
-import javax.ws.rs.ext.Provider;
+import javax.ws.rs.ext.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -50,6 +49,14 @@ public class FastJsonProvider //
 
     @Deprecated
     protected String dateFormat;
+
+    /**
+     * Injectable context object used to locate configured
+     * instance of {@link FastJsonConfig} to use for actual
+     * serialization.
+     */
+    @Context
+    protected Providers providers;
 
     /**
      * with fastJson config
@@ -244,6 +251,7 @@ public class FastJsonProvider //
                         OutputStream entityStream //
     ) throws IOException, WebApplicationException {
 
+        FastJsonConfig fastJsonConfig = locateConfigProvider(type, mediaType);
 
         SerializerFeature[] serializerFeatures = fastJsonConfig.getSerializerFeatures();
         if (pretty) {
@@ -314,6 +322,8 @@ public class FastJsonProvider //
                            InputStream entityStream) throws IOException, WebApplicationException {
 
         try {
+            FastJsonConfig fastJsonConfig = locateConfigProvider(type, mediaType);
+
             return JSON.parseObject(entityStream, fastJsonConfig.getCharset(), genericType, fastJsonConfig.getFeatures());
 
         } catch (JSONException ex) {
@@ -321,4 +331,28 @@ public class FastJsonProvider //
             throw new WebApplicationException("JSON parse error: " + ex.getMessage(), ex);
         }
     }
+
+    /**
+     * Helper method that is called if no config has been explicitly configured.
+     */
+    protected FastJsonConfig locateConfigProvider(Class<?> type, MediaType mediaType) {
+
+        if (providers != null) {
+
+            ContextResolver<FastJsonConfig> resolver = providers.getContextResolver(FastJsonConfig.class, mediaType);
+
+            if (resolver == null) {
+
+                resolver = providers.getContextResolver(FastJsonConfig.class, null);
+            }
+
+            if (resolver != null) {
+
+                return resolver.getContext(type);
+            }
+        }
+
+        return fastJsonConfig;
+    }
+
 }

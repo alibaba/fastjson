@@ -2380,6 +2380,37 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 String text = this.subString(start, count);
                 value = Float.parseFloat(text);
             }
+        } else if (chLocal == 'n' && charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
+            matchStat = VALUE_NULL;
+            value = 0;
+            offset += 3;
+            chLocal = charAt(bp + offset++);
+
+            if (quote && chLocal == '"') {
+                chLocal = charAt(bp + offset++);
+            }
+
+            for (;;) {
+                if (chLocal == ',') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.COMMA;
+                    return value;
+                } else if (chLocal == '}') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.RBRACE;
+                    return value;
+                } else if (isWhitespace(chLocal)) {
+                    chLocal = charAt(bp + offset++);
+                    continue;
+                }
+                break;
+            }
+            matchStat = NOT_MATCH;
+            return 0;
         } else {
             matchStat = NOT_MATCH;
             return 0;
@@ -2441,9 +2472,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         float value;
         if (chLocal >= '0' && chLocal <= '9') {
-            int intVal = chLocal - '0';
-
-            for (;;) {
+            long intVal = chLocal - '0';
+            for (; ; ) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
                     intVal = intVal * 10 + (chLocal - '0');
@@ -2453,13 +2483,18 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 }
             }
 
-            if (chLocal == '.') {
+            long power = 1;
+            boolean small = (chLocal == '.');
+            if (small) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
-                    for (;;) {
+                    intVal = intVal * 10 + (chLocal - '0');
+                    power = 10;
+                    for (; ; ) {
                         chLocal = charAt(bp + (offset++));
                         if (chLocal >= '0' && chLocal <= '9') {
                             intVal = intVal * 10 + (chLocal - '0');
+                            power *= 10;
                             continue;
                         } else {
                             break;
@@ -2471,6 +2506,36 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 }
             }
 
+            boolean exp = chLocal == 'e' || chLocal == 'E';
+            if (exp) {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal == '+' || chLocal == '-') {
+                    chLocal = charAt(bp + (offset++));
+                }
+                for (; ; ) {
+                    if (chLocal >= '0' && chLocal <= '9') {
+                        chLocal = charAt(bp + (offset++));
+                    } else {
+                        break;
+                    }
+                }
+            }
+//            int start, count;
+//            if (quote) {
+//                if (chLocal != '"') {
+//                    matchStat = NOT_MATCH;
+//                    return 0;
+//                } else {
+//                    chLocal = charAt(bp + (offset++));
+//                }
+//                start = bp + 1;
+//                count = bp + offset - start - 2;
+//            } else {
+//                start = bp;
+//                count = bp + offset - start - 1;
+//            }
+//            String text = this.subString(start, count);
+//            value = Float.parseFloat(text);
             int start, count;
             if (quote) {
                 if (chLocal != '"') {
@@ -2485,8 +2550,47 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 start = bp;
                 count = bp + offset - start - 1;
             }
-            String text = this.subString(start, count);
-            value = Float.parseFloat(text);
+
+            if (!exp && count < 20) {
+                value = ((float) intVal) / power;
+                if (negative) {
+                    value = -value;
+                }
+            } else {
+                String text = this.subString(start, count);
+                value = Float.parseFloat(text);
+            }
+        } else if (chLocal == 'n' && charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
+            matchStat = VALUE_NULL;
+            value = 0;
+            offset += 3;
+            chLocal = charAt(bp + offset++);
+
+            if (quote && chLocal == '"') {
+                chLocal = charAt(bp + offset++);
+            }
+
+            for (;;) {
+                if (chLocal == ',') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.COMMA;
+                    return value;
+                } else if (chLocal == ']') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.RBRACKET;
+                    return value;
+                } else if (isWhitespace(chLocal)) {
+                    chLocal = charAt(bp + offset++);
+                    continue;
+                }
+                break;
+            }
+            matchStat = NOT_MATCH;
+            return 0;
         } else {
             matchStat = NOT_MATCH;
             return 0;
@@ -2522,7 +2626,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         double value;
         if (chLocal >= '0' && chLocal <= '9') {
             long intVal = chLocal - '0';
-            for (;;) {
+            for (; ; ) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
                     intVal = intVal * 10 + (chLocal - '0');
@@ -2539,7 +2643,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 if (chLocal >= '0' && chLocal <= '9') {
                     intVal = intVal * 10 + (chLocal - '0');
                     power = 10;
-                    for (;;) {
+                    for (; ; ) {
                         chLocal = charAt(bp + (offset++));
                         if (chLocal >= '0' && chLocal <= '9') {
                             intVal = intVal * 10 + (chLocal - '0');
@@ -2561,7 +2665,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 if (chLocal == '+' || chLocal == '-') {
                     chLocal = charAt(bp + (offset++));
                 }
-                for (;;) {
+                for (; ; ) {
                     if (chLocal >= '0' && chLocal <= '9') {
                         chLocal = charAt(bp + (offset++));
                     } else {
@@ -2594,6 +2698,37 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 String text = this.subString(start, count);
                 value = Double.parseDouble(text);
             }
+        } else if (chLocal == 'n' && charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
+            matchStat = VALUE_NULL;
+            value = 0;
+            offset += 3;
+            chLocal = charAt(bp + offset++);
+
+            if (quote && chLocal == '"') {
+                chLocal = charAt(bp + offset++);
+            }
+
+            for (;;) {
+                if (chLocal == ',') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.COMMA;
+                    return value;
+                } else if (chLocal == ']') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.RBRACKET;
+                    return value;
+                } else if (isWhitespace(chLocal)) {
+                    chLocal = charAt(bp + offset++);
+                    continue;
+                }
+                break;
+            }
+            matchStat = NOT_MATCH;
+            return 0;
         } else {
             matchStat = NOT_MATCH;
             return 0;
@@ -3049,6 +3184,37 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 String text = this.subString(start, count);
                 value = Double.parseDouble(text);
             }
+        } else if (chLocal == 'n' && charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
+            matchStat = VALUE_NULL;
+            value = 0;
+            offset += 3;
+            chLocal = charAt(bp + offset++);
+
+            if (quote && chLocal == '"') {
+                chLocal = charAt(bp + offset++);
+            }
+
+            for (;;) {
+                if (chLocal == ',') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.COMMA;
+                    return value;
+                } else if (chLocal == '}') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.RBRACE;
+                    return value;
+                } else if (isWhitespace(chLocal)) {
+                    chLocal = charAt(bp + offset++);
+                    continue;
+                }
+                break;
+            }
+            matchStat = NOT_MATCH;
+            return 0;
         } else {
             matchStat = NOT_MATCH;
             return 0;

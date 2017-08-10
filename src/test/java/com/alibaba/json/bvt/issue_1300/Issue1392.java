@@ -3,11 +3,8 @@ package com.alibaba.json.bvt.issue_1300;
 
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
-import com.alibaba.fastjson.support.jaxrs.FastJsonProvider;
-import org.glassfish.jersey.CommonProperties;
+import com.alibaba.fastjson.support.jaxrs.FastJsonFeature;
 import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.internal.InternalProperties;
-import org.glassfish.jersey.internal.util.PropertiesHelper;
 import org.glassfish.jersey.server.JSONP;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
@@ -17,14 +14,12 @@ import org.junit.Test;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Configuration;
-import javax.ws.rs.core.Feature;
-import javax.ws.rs.core.FeatureContext;
-import javax.ws.rs.ext.MessageBodyReader;
-import javax.ws.rs.ext.MessageBodyWriter;
+import javax.ws.rs.ext.ContextResolver;
+import javax.ws.rs.ext.Provider;
 import java.util.Date;
 
-public class Issue1341 extends JerseyTest {
+public class Issue1392 extends JerseyTest {
+
     static class Book {
 
         private int bookId;
@@ -83,39 +78,23 @@ public class Issue1341 extends JerseyTest {
         }
     }
 
-    static class FastJsonFeature implements Feature {
+    @Provider
+    static class FastJsonResolver implements ContextResolver<FastJsonConfig> {
 
-        private final static String JSON_FEATURE = FastJsonFeature.class.getSimpleName();
+        public FastJsonConfig getContext(Class<?> type) {
 
-        public boolean configure(final FeatureContext context) {
-            final Configuration config = context.getConfiguration();
-            final String jsonFeature = CommonProperties.getValue(config.getProperties(), config.getRuntimeType(), InternalProperties.JSON_FEATURE, JSON_FEATURE,
-                    String.class);
-            // Other JSON providers registered.
-            if (!JSON_FEATURE.equalsIgnoreCase(jsonFeature)) {
-                return false;
-            }
-            // Disable other JSON providers.
-            context.property(PropertiesHelper.getPropertyNameForRuntime(InternalProperties.JSON_FEATURE, config.getRuntimeType()), JSON_FEATURE);
-            // Register FastJson.
-            if (!config.isRegistered(FastJsonProvider.class)) {
-                //DisableCircularReferenceDetect
-                FastJsonProvider fastJsonProvider = new FastJsonProvider();
-                FastJsonConfig fastJsonConfig = new FastJsonConfig();
-                //fastJsonConfig.setSerializerFeatures(SerializerFeature.DisableCircularReferenceDetect,SerializerFeature.BrowserSecure);
+            FastJsonConfig fastJsonConfig = new FastJsonConfig();
 
-                fastJsonConfig.setSerializerFeatures(SerializerFeature.DisableCircularReferenceDetect);
+            fastJsonConfig.setSerializerFeatures(
+                    SerializerFeature.WriteMapNullValue,
+                    SerializerFeature.BrowserSecure);
 
-                fastJsonProvider.setFastJsonConfig(fastJsonConfig);
-
-                context.register(fastJsonProvider, MessageBodyReader.class, MessageBodyWriter.class);
-            }
-            return true;
+            return fastJsonConfig;
         }
     }
 
 
-    @Path("book1341")
+    @Path("book1392")
     public static class BookRestFul {
 
         @GET
@@ -138,7 +117,7 @@ public class Issue1341 extends JerseyTest {
 
     @Override
     protected void configureClient(ClientConfig config) {
-        config.register(new FastJsonFeature()).register(FastJsonProvider.class);
+        config.register(FastJsonFeature.class);
     }
 
     @Override
@@ -148,12 +127,9 @@ public class Issue1341 extends JerseyTest {
 
         ResourceConfig config = new ResourceConfig();
 
-        FastJsonProvider fastJsonProvider = new FastJsonProvider();
-        FastJsonConfig fastJsonConfig = new FastJsonConfig();
-        fastJsonConfig.setSerializerFeatures(SerializerFeature.DisableCircularReferenceDetect, SerializerFeature.BrowserSecure);
-        fastJsonProvider.setFastJsonConfig(fastJsonConfig);
+        config.register(FastJsonResolver.class);
 
-        config.register(fastJsonProvider);
+        config.register(FastJsonFeature.class);
 
         config.packages("com.alibaba.json.bvt.issue_1300");
         return config;
@@ -162,7 +138,7 @@ public class Issue1341 extends JerseyTest {
     @Test
     public void test() {
 
-        final String reponse = target("book1341").path("123").request().accept("application/javascript").get(String.class);
+        final String reponse = target("book1392").path("123").request().accept("application/javascript").get(String.class);
         System.out.println(reponse);
         Assert.assertTrue(reponse.indexOf("Python源码剖析") > 0);
         Assert.assertTrue(reponse.indexOf("电子工业出版社") > 0);

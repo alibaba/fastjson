@@ -6,23 +6,23 @@ import com.alibaba.fastjson.parser.Feature;
 /**
  * Created by wenshao on 04/08/2017.
  */
-public class DoubleBenchmark_arrayMapping {
-    static String json = "[0.4430165316544028,0.22676692048907365,0.9766986818812096,0.3423751102308744,0.4262177938610565]";
-    static String json2 = "[\"0.4430165316544028\",\"0.22676692048907365\",\"0.9766986818812096\",\"0.3423751102308744\",\"0.4262177938610565\"]";
+public class IntBenchmark_arrayMapping_obj {
+    static String json = "[-1224609302,379420556,-1098099527,-2018662,422842162]";
+    static String json2 = "[\"-1224609302\",\"379420556\",\"-1098099527\",\"-2018662\",\"422842162\"]";
 
     public static void main(String[] args) throws Exception {
 //        Model model = new Model();
-//        model.v1 = new Random().nextDouble();
-//        model.v2 = new Random().nextDouble();
-//        model.v3 = new Random().nextDouble();
-//        model.v4 = new Random().nextDouble();
-//        model.v5 = new Random().nextDouble();
+//        model.v1 = new Random().nextInt();
+//        model.v2 = new Random().nextInt();
+//        model.v3 = new Random().nextInt();
+//        model.v4 = new Random().nextInt();
+//        model.v5 = new Random().nextInt();
 //
 //        System.out.println(JSON.toJSONString(model));
 
         for (int i = 0; i < 10; ++i) {
-//             perf(); // 2528
-            perf2(); // 2484
+//             perf(); // 1593
+            perf2(); // 1965
         }
     }
 
@@ -45,10 +45,10 @@ public class DoubleBenchmark_arrayMapping {
     }
 
     public static class Model {
-        public double v1;
-        public double v2;
-        public double v3;
-        public double v4;
-        public double v5;
+        public Integer v1;
+        public Integer v2;
+        public Integer v3;
+        public Integer v4;
+        public Integer v5;
     }
 }

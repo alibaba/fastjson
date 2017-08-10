@@ -3,26 +3,28 @@ package com.alibaba.json.test.benchmark.basic;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.Feature;
 
+import java.util.Random;
+
 /**
  * Created by wenshao on 04/08/2017.
  */
-public class DoubleBenchmark_arrayMapping {
-    static String json = "[0.4430165316544028,0.22676692048907365,0.9766986818812096,0.3423751102308744,0.4262177938610565]";
-    static String json2 = "[\"0.4430165316544028\",\"0.22676692048907365\",\"0.9766986818812096\",\"0.3423751102308744\",\"0.4262177938610565\"]";
+public class ByteBenchmark_arrayMapping_obj {
+    static String json = "[-55,67,107,96,-119]";
+    static String json2 = "[\"-55\",\"67\",\"107\",\"96\",\"-119\"]";
 
     public static void main(String[] args) throws Exception {
-//        Model model = new Model();
-//        model.v1 = new Random().nextDouble();
-//        model.v2 = new Random().nextDouble();
-//        model.v3 = new Random().nextDouble();
-//        model.v4 = new Random().nextDouble();
-//        model.v5 = new Random().nextDouble();
-//
-//        System.out.println(JSON.toJSONString(model));
+        Model model = new Model();
+        model.v1 = (byte) new Random().nextInt();
+        model.v2 = (byte) new Random().nextInt();
+        model.v3 = (byte) new Random().nextInt();
+        model.v4 = (byte) new Random().nextInt();
+        model.v5 = (byte) new Random().nextInt();
+
+        System.out.println(JSON.toJSONString(model));
 
         for (int i = 0; i < 10; ++i) {
-//             perf(); // 2528
-            perf2(); // 2484
+//             perf(); // 818
+            perf2(); // 903
         }
     }
 
@@ -45,10 +47,10 @@ public class DoubleBenchmark_arrayMapping {
     }
 
     public static class Model {
-        public double v1;
-        public double v2;
-        public double v3;
-        public double v4;
-        public double v5;
+        public Byte v1;
+        public Byte v2;
+        public Byte v3;
+        public Byte v4;
+        public Byte v5;
     }
 }

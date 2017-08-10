@@ -54,6 +54,14 @@ public class IntegerNullTest extends TestCase {
         assertNull(model.v2);
     }
 
+    public void test_null_array_reader_1() throws Exception {
+        JSONReader reader = new JSONReader(new StringReader("[null ,null]"), Feature.SupportArrayToBean);
+        Model model = reader.readObject(Model.class);
+        assertNotNull(model);
+        assertNull(model.v1);
+        assertNull(model.v2);
+    }
+
     public static class Model {
         public Integer v1;
         public Integer v2;

@@ -176,6 +176,22 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitVarInsn(BIPUSH, seperator);
                 mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanLong", "(C)J");
                 mw.visitVarInsn(LSTORE, context.var(fieldInfo.name + "_asm", 2));
+
+            } else if (fieldClass == Long.class) {
+                mw.visitVarInsn(ALOAD, context.var("lexer"));
+                mw.visitVarInsn(BIPUSH, seperator);
+                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanLong", "(C)J");
+                mw.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;");
+
+                mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
+                Label valueNullEnd_ = new Label();
+                mw.visitVarInsn(ALOAD, context.var("lexer"));
+                mw.visitFieldInsn(GETFIELD, JSONLexerBase, "matchStat", "I");
+                mw.visitLdcInsn(com.alibaba.fastjson.parser.JSONLexerBase.VALUE_NULL);
+                mw.visitJumpInsn(IF_ICMPNE, valueNullEnd_);
+                mw.visitInsn(ACONST_NULL);
+                mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
+                mw.visitLabel(valueNullEnd_);
             } else if (fieldClass == boolean.class) {
                 mw.visitVarInsn(ALOAD, context.var("lexer"));
                 mw.visitVarInsn(BIPUSH, seperator);

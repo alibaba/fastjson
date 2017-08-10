@@ -2014,6 +2014,11 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         int offset = 0;
         char chLocal = charAt(bp + (offset++));
 
+        final boolean quote = chLocal == '"';
+        if (quote) {
+            chLocal = charAt(bp + (offset++));
+        }
+
         final boolean negative = chLocal == '-';
         if (negative) {
             chLocal = charAt(bp + (offset++));
@@ -2037,6 +2042,37 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 matchStat = NOT_MATCH;
                 return 0;
             }
+        } else if (chLocal == 'n' && charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
+            matchStat = VALUE_NULL;
+            value = 0;
+            offset += 3;
+            chLocal = charAt(bp + offset++);
+
+            if (quote && chLocal == '"') {
+                chLocal = charAt(bp + offset++);
+            }
+
+            for (;;) {
+                if (chLocal == ',') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.COMMA;
+                    return value;
+                } else if (chLocal == ']') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.RBRACKET;
+                    return value;
+                } else if (isWhitespace(chLocal)) {
+                    chLocal = charAt(bp + offset++);
+                    continue;
+                }
+                break;
+            }
+            matchStat = NOT_MATCH;
+            return 0;
         } else {
             matchStat = NOT_MATCH;
             return 0;
@@ -2236,6 +2272,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         int offset = 0;
         char chLocal = charAt(bp + (offset++));
+        final boolean quote = chLocal == '"';
+        if (quote) {
+            chLocal = charAt(bp + (offset++));
+        }
 
         final boolean negative = chLocal == '-';
         if (negative) {
@@ -2256,13 +2296,53 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                     break;
                 }
             }
-            if (value < 0) {
+            if (value < 0 && value != -9223372036854775808L) {
                 matchStat = NOT_MATCH;
                 return 0;
             }
+        } else if (chLocal == 'n' && charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
+            matchStat = VALUE_NULL;
+            value = 0;
+            offset += 3;
+            chLocal = charAt(bp + offset++);
+
+            if (quote && chLocal == '"') {
+                chLocal = charAt(bp + offset++);
+            }
+
+            for (;;) {
+                if (chLocal == ',') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.COMMA;
+                    return value;
+                } else if (chLocal == ']') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.RBRACKET;
+                    return value;
+                } else if (isWhitespace(chLocal)) {
+                    chLocal = charAt(bp + offset++);
+                    continue;
+                }
+                break;
+            }
+            matchStat = NOT_MATCH;
+            return 0;
         } else {
             matchStat = NOT_MATCH;
             return 0;
+        }
+
+        if (quote) {
+            if (chLocal != '"') {
+                matchStat = NOT_MATCH;
+                return 0;
+            } else {
+                chLocal = charAt(bp + (offset++));
+            }
         }
 
         for (;;) {

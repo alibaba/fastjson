@@ -200,9 +200,10 @@ class JavaBeanInfo {
         List<FieldInfo> fieldList = new ArrayList<FieldInfo>();
         Map<Class<?>, Field[]> classFieldCache = new HashMap<Class<?>, Field[]>();
 
+        boolean kotlin = TypeUtils.isKotlin(clazz);
         // DeserializeBeanInfo beanInfo = null;
         Constructor<?> defaultConstructor = null;
-        if ((classModifiers & Modifier.ABSTRACT) == 0) {
+        if ((classModifiers & Modifier.ABSTRACT) == 0 && !kotlin) {
             try {
                 defaultConstructor = clazz.getDeclaredConstructor();
             } catch (Exception e) {
@@ -387,11 +388,25 @@ class JavaBeanInfo {
                     return beanInfo;
                 }
             } else if (!isInterfaceOrAbstract){
-                boolean kotlin = TypeUtils.isKotlin(clazz);
                 if (kotlin && constructors.length > 0) {
                     String[] parameters = TypeUtils.getKoltinConstructorParameters(clazz);
+
                     if (parameters != null) {
-                        creatorConstructor = constructors[constructors.length - 1];
+                        for (Constructor<?> constructor : constructors) {
+                            Class<?>[] parameterTypes = constructor.getParameterTypes();
+                            if (parameterTypes.length > 0
+                                    && parameterTypes[parameterTypes.length - 1].getName().equals("kotlin.jvm.internal.DefaultConstructorMarker")) {
+                                continue;
+                            }
+
+                            if (creatorConstructor != null
+                                    && creatorConstructor.getParameterTypes().length >= parameterTypes.length) {
+                                continue;
+                            }
+
+                            creatorConstructor = constructor;
+                        }
+
                         creatorConstructor.setAccessible(true);
                         TypeUtils.setAccessible(clazz, creatorConstructor, classModifiers);
 

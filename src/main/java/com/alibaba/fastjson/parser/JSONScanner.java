@@ -1205,7 +1205,7 @@ public final class JSONScanner extends JSONLexerBase {
                 }
             }
 
-            if (value < 0) {
+            if (value < 0 && value != -9223372036854775808L) {
                 this.bp = startPos;
                 this.ch = startChar;
                 matchStat = NOT_MATCH;
@@ -1349,7 +1349,7 @@ public final class JSONScanner extends JSONLexerBase {
 
             bp = index;
             ch = charAt(bp);
-            value = true;
+            value = false;
         } else {
             matchStat = NOT_MATCH;
             return false;
@@ -1439,6 +1439,39 @@ public final class JSONScanner extends JSONLexerBase {
                 matchStat = NOT_MATCH;
                 return 0;
             }
+        } else if (chLocal == 'n'
+                && charAt(offset++) == 'u'
+                && charAt(offset++) == 'l'
+                && charAt(offset++) == 'l') {
+            matchStat = VALUE_NULL;
+            value = 0;
+            chLocal = charAt(offset++);
+
+            if (quote && chLocal == '"') {
+                chLocal = charAt(offset++);
+            }
+
+            for (;;) {
+                if (chLocal == ',') {
+                    bp = offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.COMMA;
+                    return value;
+                } else if (chLocal == ']') {
+                    bp = offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.RBRACKET;
+                    return value;
+                } else if (isWhitespace(chLocal)) {
+                    chLocal = charAt(offset++);
+                    continue;
+                }
+                break;
+            }
+            matchStat = NOT_MATCH;
+            return 0;
         } else {
             matchStat = NOT_MATCH;
             return 0;
@@ -1640,10 +1673,43 @@ public final class JSONScanner extends JSONLexerBase {
                     break;
                 }
             }
-            if (value < 0) {
+            if (value < 0 && value != -9223372036854775808L) {
                 matchStat = NOT_MATCH;
                 return 0;
             }
+        } else if (chLocal == 'n'
+                && charAt(offset++) == 'u'
+                && charAt(offset++) == 'l'
+                && charAt(offset++) == 'l') {
+            matchStat = VALUE_NULL;
+            value = 0;
+            chLocal = charAt(offset++);
+
+            if (quote && chLocal == '"') {
+                chLocal = charAt(offset++);
+            }
+
+            for (;;) {
+                if (chLocal == ',') {
+                    bp = offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.COMMA;
+                    return value;
+                } else if (chLocal == ']') {
+                    bp = offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.RBRACKET;
+                    return value;
+                } else if (isWhitespace(chLocal)) {
+                    chLocal = charAt(offset++);
+                    continue;
+                }
+                break;
+            }
+            matchStat = NOT_MATCH;
+            return 0;
         } else {
             matchStat = NOT_MATCH;
             return 0;

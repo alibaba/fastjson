@@ -173,7 +173,7 @@ public class JavaBeanInfo {
     ) {
         JSONType jsonType = clazz.getAnnotation(JSONType.class);
 
-        Class<?> builderClass = getBuilderClass(jsonType);
+        Class<?> builderClass = getBuilderClass(clazz, jsonType);
 
         Field[] declaredFields = clazz.getDeclaredFields();
         Method[] methods = clazz.getMethods();
@@ -206,7 +206,7 @@ public class JavaBeanInfo {
         }
 
         boolean isInterfaceOrAbstract = clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers());
-        if (defaultConstructor == null || isInterfaceOrAbstract) {
+        if ((defaultConstructor == null && builderClass == null) || isInterfaceOrAbstract) {
 
             creatorConstructor = getCreatorConstructor(constructors);
 
@@ -401,21 +401,26 @@ public class JavaBeanInfo {
                 }
 
                 String methodName = method.getName();
-                if (!methodName.startsWith(withPrefix)) {
-                    continue;
+                StringBuilder properNameBuilder;
+                if (methodName.startsWith("set") && methodName.length() > 3) {
+                    properNameBuilder = new StringBuilder(methodName.substring(3));
+                } else {
+                    if (!methodName.startsWith(withPrefix)) {
+                        continue;
+                    }
+
+                    if (methodName.length() <= withPrefix.length()) {
+                        continue;
+                    }
+
+                    properNameBuilder = new StringBuilder(methodName.substring(withPrefix.length()));
                 }
 
-                if (methodName.length() <= withPrefix.length()) {
-                    continue;
-                }
-
-                char c0 = methodName.charAt(withPrefix.length());
-
+                char c0 = properNameBuilder.charAt(0);
                 if (!Character.isUpperCase(c0)) {
                     continue;
                 }
 
-                StringBuilder properNameBuilder = new StringBuilder(methodName.substring(withPrefix.length()));
                 properNameBuilder.setCharAt(0, Character.toLowerCase(c0));
 
                 String propertyName = properNameBuilder.toString();
@@ -600,7 +605,7 @@ public class JavaBeanInfo {
                 continue;
             }
 
-            if (methodName.startsWith("get") && Character.isUpperCase(methodName.charAt(3))) {
+            if (builderClass == null && methodName.startsWith("get") && Character.isUpperCase(methodName.charAt(3))) {
                 if (method.getParameterTypes().length != 0) {
                     continue;
                 }
@@ -819,6 +824,14 @@ public class JavaBeanInfo {
     }
 
     public static Class<?> getBuilderClass(JSONType type) {
+        return getBuilderClass(null, type);
+    }
+
+    public static Class<?> getBuilderClass(Class<?> clazz, JSONType type) {
+        if (clazz != null && clazz.getName().equals("org.springframework.security.web.savedrequest.DefaultSavedRequest")) {
+            return TypeUtils.loadClass("org.springframework.security.web.savedrequest.DefaultSavedRequest$Builder");
+        }
+
         if (type == null) {
             return null;
         }

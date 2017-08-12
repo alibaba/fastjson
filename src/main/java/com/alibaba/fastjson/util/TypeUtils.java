@@ -1208,7 +1208,10 @@ public class TypeUtils {
                 "org.springframework.util.LinkedMultiValueMap",
                 "org.springframework.util.LinkedCaseInsensitiveMap",
                 "org.springframework.remoting.support.RemoteInvocation",
-                "org.springframework.remoting.support.RemoteInvocationResult"
+                "org.springframework.remoting.support.RemoteInvocationResult",
+
+                "org.springframework.security.web.savedrequest.DefaultSavedRequest",
+                "org.springframework.security.web.savedrequest.SavedCookie"
         };
         for (String className : spring) {
             Class<?> clazz = loadClass(className);

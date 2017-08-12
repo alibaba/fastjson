@@ -63,7 +63,7 @@ public class DefaultSavedRequestTest extends TestCase {
         Cookie cookie1 = JSON.parseObject(json, Cookie.class);
         assertEquals(cookie.getName(), cookie1.getName());
         assertEquals(cookie.getValue(), cookie1.getValue());
-        //assertEquals(cookie.getMaxAge(), cookie1.getMaxAge());
+        assertEquals(cookie.getMaxAge(), cookie1.getMaxAge());
         //System.out.println(json);
     }
 }

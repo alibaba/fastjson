@@ -43,6 +43,9 @@ public class JavaBeanInfo {
 
     public String[] orders;
 
+    public Type[] creatorConstructorParameterTypes;
+    public String[] creatorConstructorParameters;
+
     public JavaBeanInfo(Class<?> clazz, //
                         Class<?> builderClass, //
                         Constructor<?> defaultConstructor, //
@@ -114,6 +117,13 @@ public class JavaBeanInfo {
             defaultConstructorParameterSize = factoryMethod.getParameterTypes().length;
         } else {
             defaultConstructorParameterSize = 0;
+        }
+
+        if (creatorConstructor != null) {
+            this.creatorConstructorParameterTypes = creatorConstructor.getParameterTypes();
+            if (creatorConstructorParameterTypes.length != fields.length) {
+                this.creatorConstructorParameters = ASMUtils.lookupParameterNames(creatorConstructor);
+            }
         }
     }
 
@@ -343,10 +353,13 @@ public class JavaBeanInfo {
                                 ordinal, serialzeFeatures, parserFeatures);
                         add(fieldList, fieldInfo);
                     }
-                    return new JavaBeanInfo(clazz, builderClass, null, creatorConstructor, null, null, jsonType, fieldList);
-                }
 
-                throw new JSONException("default constructor not found. " + clazz);
+                    if (!clazz.getName().equals("javax.servlet.http.Cookie")) {
+                        return new JavaBeanInfo(clazz, builderClass, null, creatorConstructor, null, null, jsonType, fieldList);
+                    }
+                } else {
+                    throw new JSONException("default constructor not found. " + clazz);
+                }
             }
         }
 
@@ -651,7 +664,7 @@ public class JavaBeanInfo {
             }
         }
 
-        return new JavaBeanInfo(clazz, builderClass, defaultConstructor, null, factoryMethod, buildMethod, jsonType, fieldList);
+        return new JavaBeanInfo(clazz, builderClass, defaultConstructor, creatorConstructor, factoryMethod, buildMethod, jsonType, fieldList);
     }
 
     private static void computeFields(Class<?> clazz, Type type, PropertyNamingStrategy propertyNamingStrategy, List<FieldInfo> fieldList, Field[] fields) {

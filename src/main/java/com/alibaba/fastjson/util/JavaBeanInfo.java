@@ -286,13 +286,15 @@ public class JavaBeanInfo {
                     return new JavaBeanInfo(clazz, builderClass, null, null, factoryMethod, null, jsonType, fieldList);
                 }
             } else if (!isInterfaceOrAbstract) {
+                String className = clazz.getName();
+
                 String[] paramNames = null;
                 if (kotlin && constructors.length > 0) {
                     paramNames = TypeUtils.getKoltinConstructorParameters(clazz);
                     creatorConstructor = TypeUtils.getKoltinConstructor(constructors);
                     TypeUtils.setAccessible(creatorConstructor);
                 } else {
-                    String className = clazz.getName();
+
                     for (Constructor constructor : constructors) {
                         Class<?>[] parameterTypes = constructor.getParameterTypes();
 
@@ -317,7 +319,17 @@ public class JavaBeanInfo {
                             }
                         }
 
-                        //org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken.PreAuthenticatedAuthenticationToken(java.lang.Object, java.lang.Object, java.util.Collection<? extends org.springframework.security.core
+                        if (className.equals("org.springframework.security.core.authority.SimpleGrantedAuthority")) {
+                            if (parameterTypes.length == 1
+                                    && parameterTypes[0] == String.class) {
+                                creatorConstructor = constructor;
+                                paramNames = new String[] {"authority"};
+                                break;
+                            }
+                        }
+
+                        //
+
 
                         boolean is_public = (constructor.getModifiers() & Modifier.PUBLIC) != 0;
                         if (!is_public) {
@@ -369,7 +381,13 @@ public class JavaBeanInfo {
                         if (fieldAnnotation == null) {
                             ordinal = 0;
                             serialzeFeatures = 0;
-                            parserFeatures = 0;
+
+                            if ("org.springframework.security.core.userdetails.User".equals(className)
+                                    && "password".equals(paramName)) {
+                                parserFeatures = Feature.InitStringFieldAsEmpty.mask;
+                            } else {
+                                parserFeatures = 0;
+                            }
                         } else {
                             String nameAnnotated = fieldAnnotation.name();
                             if (nameAnnotated.length() != 0) {

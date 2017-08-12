@@ -1213,7 +1213,11 @@ public class TypeUtils {
                 "org.springframework.security.web.savedrequest.DefaultSavedRequest",
                 "org.springframework.security.web.savedrequest.SavedCookie",
                 "org.springframework.security.web.csrf.DefaultCsrfToken",
-                "org.springframework.security.web.authentication.WebAuthenticationDetails"
+                "org.springframework.security.web.authentication.WebAuthenticationDetails",
+                "org.springframework.security.core.context.SecurityContextImpl",
+                "org.springframework.security.authentication.UsernamePasswordAuthenticationToken",
+                "org.springframework.security.core.authority.SimpleGrantedAuthority",
+                "org.springframework.security.core.userdetails.User"
         };
         for (String className : spring) {
             Class<?> clazz = loadClass(className);

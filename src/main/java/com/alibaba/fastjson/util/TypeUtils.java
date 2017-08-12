@@ -1211,7 +1211,9 @@ public class TypeUtils {
                 "org.springframework.remoting.support.RemoteInvocationResult",
 
                 "org.springframework.security.web.savedrequest.DefaultSavedRequest",
-                "org.springframework.security.web.savedrequest.SavedCookie"
+                "org.springframework.security.web.savedrequest.SavedCookie",
+                "org.springframework.security.web.csrf.DefaultCsrfToken",
+                "org.springframework.security.web.authentication.WebAuthenticationDetails"
         };
         for (String className : spring) {
             Class<?> clazz = loadClass(className);

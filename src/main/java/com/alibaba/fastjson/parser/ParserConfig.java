@@ -547,7 +547,7 @@ public class ParserConfig {
             }
 
             if (asmEnable) {
-                Class<?> superClass = JavaBeanInfo.getBuilderClass(jsonType);
+                Class<?> superClass = JavaBeanInfo.getBuilderClass(clazz, jsonType);
                 if (superClass == null) {
                     superClass = clazz;
                 }

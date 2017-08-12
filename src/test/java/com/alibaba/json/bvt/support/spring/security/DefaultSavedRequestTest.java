@@ -8,6 +8,8 @@ import com.alibaba.fastjson.support.spring.GenericFastJsonRedisSerializer;
 import junit.framework.TestCase;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.web.PortResolver;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 import org.springframework.security.web.savedrequest.SavedCookie;
@@ -65,5 +67,21 @@ public class DefaultSavedRequestTest extends TestCase {
         assertEquals(cookie.getValue(), cookie1.getValue());
         assertEquals(cookie.getMaxAge(), cookie1.getMaxAge());
         //System.out.println(json);
+    }
+
+    public void test_PreAuthenticatedAuthenticationToken() throws Exception {
+        PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken("ppp", "cccc");
+        String json = JSON.toJSONString(token);
+        System.out.println(json);
+
+        PreAuthenticatedAuthenticationToken token1 = JSON.parseObject(json, PreAuthenticatedAuthenticationToken.class);
+        assertEquals("ppp", token1.getPrincipal());
+        assertEquals("cccc", token1.getCredentials());
+    }
+
+    public void test_WebAuthenticationDetails() throws Exception {
+        WebAuthenticationDetails details = JSON.parseObject("{\"remoteAddress\":\"rrr\",\"sessionId\":\"ssss\"}", WebAuthenticationDetails.class);
+        assertEquals("rrr", details.getRemoteAddress());
+        assertEquals("ssss", details.getSessionId());
     }
 }

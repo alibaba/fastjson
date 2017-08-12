@@ -887,6 +887,11 @@ public class ParserConfig {
                     throw new JSONException("type not match. " + typeName + " -> " + expectClass.getName());
                 }
             }
+
+            JavaBeanInfo beanInfo = JavaBeanInfo.build(clazz, clazz, propertyNamingStrategy);
+            if (beanInfo.creatorConstructor != null && autoTypeSupport) {
+                throw new JSONException("autoType is not support. " + typeName);
+            }
         }
 
         if (!autoTypeSupport) {

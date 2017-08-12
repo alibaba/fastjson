@@ -217,7 +217,6 @@ public class JavaBeanInfo {
 
         boolean isInterfaceOrAbstract = clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers());
         if ((defaultConstructor == null && builderClass == null) || isInterfaceOrAbstract) {
-
             creatorConstructor = getCreatorConstructor(constructors);
 
             if (creatorConstructor != null && !isInterfaceOrAbstract) { // 基于标记 JSONCreator 注解的构造方法
@@ -293,17 +292,48 @@ public class JavaBeanInfo {
                     creatorConstructor = TypeUtils.getKoltinConstructor(constructors);
                     TypeUtils.setAccessible(creatorConstructor);
                 } else {
+                    String className = clazz.getName();
                     for (Constructor constructor : constructors) {
+                        Class<?>[] parameterTypes = constructor.getParameterTypes();
+
+                        if (className.equals("org.springframework.security.web.authentication.WebAuthenticationDetails")) {
+                            if (parameterTypes.length == 2 && parameterTypes[0] == String.class && parameterTypes[1] == String.class) {
+                                creatorConstructor = constructor;
+                                creatorConstructor.setAccessible(true);
+                                paramNames = ASMUtils.lookupParameterNames(constructor);
+                                break;
+                            }
+                        }
+
+                        if (className.equals("org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken")) {
+                            if (parameterTypes.length == 3
+                                    && parameterTypes[0] == Object.class
+                                    && parameterTypes[1] == Object.class
+                                    && parameterTypes[2] == Collection.class) {
+                                creatorConstructor = constructor;
+                                creatorConstructor.setAccessible(true);
+                                paramNames = new String[] {"principal", "credentials", "authorities"};
+                                break;
+                            }
+                        }
+
+                        //org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken.PreAuthenticatedAuthenticationToken(java.lang.Object, java.lang.Object, java.util.Collection<? extends org.springframework.security.core
+
                         boolean is_public = (constructor.getModifiers() & Modifier.PUBLIC) != 0;
                         if (!is_public) {
                             continue;
                         }
-                        paramNames = ASMUtils.lookupParameterNames(constructor);
-                        if (paramNames != null && paramNames.length != 0) {
-                            creatorConstructor = constructor;
-                            break;
+                        String[] lookupParameterNames = ASMUtils.lookupParameterNames(constructor);
+                        if (lookupParameterNames == null || lookupParameterNames.length == 0) {
+                            continue;
                         }
-                        paramNames = null;
+
+                        if (creatorConstructor != null && lookupParameterNames.length <= paramNames.length) {
+                            continue;
+                        }
+
+                        paramNames = lookupParameterNames;
+                        creatorConstructor = constructor;
                     }
                 }
 
@@ -758,7 +788,6 @@ public class JavaBeanInfo {
 
     public static Constructor<?> getCreatorConstructor(Constructor[] constructors) {
         Constructor<?> creatorConstructor = null;
-
 
         for (Constructor<?> constructor : constructors) {
             JSONCreator annotation = constructor.getAnnotation(JSONCreator.class);

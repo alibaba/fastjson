@@ -885,18 +885,22 @@ public class ASMSerializerFactory implements Opcodes {
                                "(" + SerialContext_desc + "Ljava/lang/Object;Ljava/lang/Object;I)V");
         }
 
+        boolean writeClasName = (context.beanInfo.features & SerializerFeature.WriteClassName.mask) != 0;
+
         // SEPERATO
-        if (!context.writeDirect) {
+        if (writeClasName || !context.writeDirect) {
             Label end_ = new Label();
             Label else_ = new Label();
             Label writeClass_ = new Label();
 
-            mw.visitVarInsn(ALOAD, Context.serializer);
-            mw.visitVarInsn(ALOAD, Context.paramFieldType);
-            mw.visitVarInsn(ALOAD, Context.obj);
-            mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer, "isWriteClassName",
-                               "(Ljava/lang/reflect/Type;Ljava/lang/Object;)Z");
-            mw.visitJumpInsn(IFEQ, else_);
+            if (!writeClasName) {
+                mw.visitVarInsn(ALOAD, Context.serializer);
+                mw.visitVarInsn(ALOAD, Context.paramFieldType);
+                mw.visitVarInsn(ALOAD, Context.obj);
+                mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer, "isWriteClassName",
+                        "(Ljava/lang/reflect/Type;Ljava/lang/Object;)Z");
+                mw.visitJumpInsn(IFEQ, else_);
+            }
 
             // IFNULL
             mw.visitVarInsn(ALOAD, Context.paramFieldType);

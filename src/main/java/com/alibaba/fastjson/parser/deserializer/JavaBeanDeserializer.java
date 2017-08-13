@@ -616,8 +616,13 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                                     parser.resolveStatus = DefaultJSONParser.NeedToResolve;
                                 }
                             } else {
-                                parser.addResolveTask(new ResolveTask(context, ref));
-                                parser.resolveStatus = DefaultJSONParser.NeedToResolve;
+                                Object refObj = parser.resolveReference(ref);
+                                if (refObj != null) {
+                                    object = refObj;
+                                } else {
+                                    parser.addResolveTask(new ResolveTask(context, ref));
+                                    parser.resolveStatus = DefaultJSONParser.NeedToResolve;
+                                }
                             }
                         } else {
                             throw new JSONException("illegal ref, " + JSONToken.name(token));
@@ -751,31 +756,68 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     return (T) object;
                 }
 
-                FieldInfo[] fieldInfoList = beanInfo.fields;
-                int size = fieldInfoList.length;
-                Object[] params = new Object[size];
-                for (int i = 0; i < size; ++i) {
-                    FieldInfo fieldInfo = fieldInfoList[i];
-                    Object param = fieldValues.get(fieldInfo.name);
-                    if (param == null) {
-                        Type fieldType = fieldInfo.fieldType;
-                        if (fieldType == byte.class) {
-                            param = (byte) 0;
-                        } else if (fieldType == short.class) {
-                            param = (short) 0;
-                        } else if (fieldType == int.class) {
-                            param = 0;
-                        } else if (fieldType == long.class) {
-                            param = 0L;
-                        } else if (fieldType == float.class) {
-                            param = 0F;
-                        } else if (fieldType == double.class) {
-                            param = 0D;
-                        } else if (fieldType == boolean.class) {
-                            param = Boolean.FALSE;
+                String[] paramNames = beanInfo.creatorConstructorParameters;
+                final Object[] params;
+                if (paramNames != null) {
+                    params = new Object[paramNames.length];
+                    for (int i = 0; i < paramNames.length; i++) {
+                        String paramName = paramNames[i];
+
+                        Object param = fieldValues.remove(paramName);
+                        if (param == null) {
+                            Type fieldType = beanInfo.creatorConstructorParameterTypes[i];
+                            FieldInfo fieldInfo = beanInfo.fields[i];
+                            if (fieldType == byte.class) {
+                                param = (byte) 0;
+                            } else if (fieldType == short.class) {
+                                param = (short) 0;
+                            } else if (fieldType == int.class) {
+                                param = 0;
+                            } else if (fieldType == long.class) {
+                                param = 0L;
+                            } else if (fieldType == float.class) {
+                                param = 0F;
+                            } else if (fieldType == double.class) {
+                                param = 0D;
+                            } else if (fieldType == boolean.class) {
+                                param = Boolean.FALSE;
+                            } else if (fieldType == String.class
+                                    && (fieldInfo.parserFeatures & Feature.InitStringFieldAsEmpty.mask) != 0) {
+                                param = "";
+                            }
                         }
+                        params[i] = param;
                     }
-                    params[i] = param;
+                } else {
+                    FieldInfo[] fieldInfoList = beanInfo.fields;
+                    int size = fieldInfoList.length;
+                    params = new Object[size];
+                    for (int i = 0; i < size; ++i) {
+                        FieldInfo fieldInfo = fieldInfoList[i];
+                        Object param = fieldValues.get(fieldInfo.name);
+                        if (param == null) {
+                            Type fieldType = fieldInfo.fieldType;
+                            if (fieldType == byte.class) {
+                                param = (byte) 0;
+                            } else if (fieldType == short.class) {
+                                param = (short) 0;
+                            } else if (fieldType == int.class) {
+                                param = 0;
+                            } else if (fieldType == long.class) {
+                                param = 0L;
+                            } else if (fieldType == float.class) {
+                                param = 0F;
+                            } else if (fieldType == double.class) {
+                                param = 0D;
+                            } else if (fieldType == boolean.class) {
+                                param = Boolean.FALSE;
+                            } else if (fieldType == String.class
+                                    && (fieldInfo.parserFeatures & Feature.InitStringFieldAsEmpty.mask) != 0) {
+                                param = "";
+                            }
+                        }
+                        params[i] = param;
+                    }
                 }
 
                 if (beanInfo.creatorConstructor != null) {
@@ -785,6 +827,15 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         throw new JSONException("create instance error, "
                                                 + beanInfo.creatorConstructor.toGenericString(), e);
                     }
+
+                    if (paramNames != null) {
+                        for (Map.Entry<String, Object> entry : fieldValues.entrySet()) {
+                            FieldDeserializer fieldDeserializer = getFieldDeserializer(entry.getKey());
+                            if (fieldDeserializer != null) {
+                                fieldDeserializer.setValue(object, entry.getValue());
+                            }
+                        }
+                    }
                 } else if (beanInfo.factoryMethod != null) {
                     try {
                         object = beanInfo.factoryMethod.invoke(null, params);
@@ -792,6 +843,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         throw new JSONException("create factory method error, " + beanInfo.factoryMethod.toString(), e);
                     }
                 }
+
+                childContext.object = object;
             }
             
             Method buildMethod = beanInfo.buildMethod;

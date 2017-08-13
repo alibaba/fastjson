@@ -336,7 +336,10 @@ public class DefaultJSONParser implements Closeable {
                     
                     this.setResolveStatus(TypeNameRedirect);
 
-                    if (this.context != null && !(fieldName instanceof Integer) && !(this.context.fieldName instanceof Integer)) {
+                    if (this.context != null
+                            && fieldName != null
+                            && !(fieldName instanceof Integer)
+                            && !(this.context.fieldName instanceof Integer)) {
                         this.popContext();
                     }
                     
@@ -1430,6 +1433,19 @@ public class DefaultJSONParser implements Closeable {
         } finally {
             lexer.close();
         }
+    }
+
+    public Object resolveReference(String ref) {
+        if(contextArray == null) {
+            return null;
+        }
+        for (int i = 0; i < contextArray.length && i < contextArrayIndex; i++) {
+            ParseContext context = contextArray[i];
+            if (context.toString().equals(ref)) {
+                return context.object;
+            }
+        }
+        return null;
     }
 
     public void handleResovleTask(Object value) {

@@ -63,7 +63,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.field = field;
         this.ordinal = ordinal;
         this.serialzeFeatures = serialzeFeatures;
-        this.parserFeatures = 0;
+        this.parserFeatures = parserFeatures;
         
         isEnum = fieldClass.isEnum();
         

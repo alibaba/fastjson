@@ -1208,7 +1208,16 @@ public class TypeUtils {
                 "org.springframework.util.LinkedMultiValueMap",
                 "org.springframework.util.LinkedCaseInsensitiveMap",
                 "org.springframework.remoting.support.RemoteInvocation",
-                "org.springframework.remoting.support.RemoteInvocationResult"
+                "org.springframework.remoting.support.RemoteInvocationResult",
+
+                "org.springframework.security.web.savedrequest.DefaultSavedRequest",
+                "org.springframework.security.web.savedrequest.SavedCookie",
+                "org.springframework.security.web.csrf.DefaultCsrfToken",
+                "org.springframework.security.web.authentication.WebAuthenticationDetails",
+                "org.springframework.security.core.context.SecurityContextImpl",
+                "org.springframework.security.authentication.UsernamePasswordAuthenticationToken",
+                "org.springframework.security.core.authority.SimpleGrantedAuthority",
+                "org.springframework.security.core.userdetails.User"
         };
         for (String className : spring) {
             Class<?> clazz = loadClass(className);
@@ -1476,8 +1485,10 @@ public class TypeUtils {
             if (annotation == null && kotlin) {
                 if (constructors == null) {
                     constructors = clazz.getDeclaredConstructors();
-                    if (constructors.length > 0) {
-                        paramAnnotationArrays = constructors[constructors.length - 1].getParameterAnnotations();
+
+                    Constructor creatorConstructor = TypeUtils.getKoltinConstructor(constructors);
+                    if (creatorConstructor != null) {
+                        paramAnnotationArrays = creatorConstructor.getParameterAnnotations();
                         paramNames = TypeUtils.getKoltinConstructorParameters(clazz);
 
                         if (paramNames != null) {
@@ -1506,6 +1517,12 @@ public class TypeUtils {
                                     annotation = (JSONField) paramAnnotation;
                                     break;
                                 }
+                            }
+                        }
+                        if (annotation == null) {
+                            Field field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
+                            if (field != null) {
+                                annotation = field.getAnnotation(JSONField.class);
                             }
                         }
                     }
@@ -2306,6 +2323,21 @@ public class TypeUtils {
         }
 
         return clazz.isAnnotationPresent(kotlin_metadata);
+    }
+
+    public static Constructor getKoltinConstructor(Constructor[] constructors) {
+        Constructor creatorConstructor = null;
+        for (Constructor<?> constructor : constructors) {
+            Class<?>[] parameterTypes = constructor.getParameterTypes();
+            if (parameterTypes.length > 0 && parameterTypes[parameterTypes.length - 1].getName().equals("kotlin.jvm.internal.DefaultConstructorMarker")) {
+                continue;
+            }
+            if (creatorConstructor != null && creatorConstructor.getParameterTypes().length >= parameterTypes.length) {
+                continue;
+            }
+            creatorConstructor = constructor;
+        }
+        return creatorConstructor;
     }
 
     public static String[] getKoltinConstructorParameters(Class clazz) {

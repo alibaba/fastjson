@@ -43,6 +43,9 @@ public class JavaBeanInfo {
 
     public String[] orders;
 
+    public Type[] creatorConstructorParameterTypes;
+    public String[] creatorConstructorParameters;
+
     public JavaBeanInfo(Class<?> clazz, //
                         Class<?> builderClass, //
                         Constructor<?> defaultConstructor, //
@@ -115,6 +118,13 @@ public class JavaBeanInfo {
         } else {
             defaultConstructorParameterSize = 0;
         }
+
+        if (creatorConstructor != null) {
+            this.creatorConstructorParameterTypes = creatorConstructor.getParameterTypes();
+            if (creatorConstructorParameterTypes.length != fields.length) {
+                this.creatorConstructorParameters = ASMUtils.lookupParameterNames(creatorConstructor);
+            }
+        }
     }
 
     private static FieldInfo getField(List<FieldInfo> fieldList, String propertyName) {
@@ -173,18 +183,21 @@ public class JavaBeanInfo {
     ) {
         JSONType jsonType = clazz.getAnnotation(JSONType.class);
 
-        Class<?> builderClass = getBuilderClass(jsonType);
+        Class<?> builderClass = getBuilderClass(clazz, jsonType);
 
         Field[] declaredFields = clazz.getDeclaredFields();
         Method[] methods = clazz.getMethods();
 
+        boolean kotlin = TypeUtils.isKotlin(clazz);
         Constructor[] constructors = clazz.getDeclaredConstructors();
 
-        Constructor<?> defaultConstructor;
-        if (builderClass == null) {
-            defaultConstructor = getDefaultConstructor(clazz, constructors);
-        } else {
-            defaultConstructor = getDefaultConstructor(builderClass, builderClass.getDeclaredConstructors());
+        Constructor<?> defaultConstructor = null;
+        if (!kotlin) {
+            if (builderClass == null) {
+                defaultConstructor = getDefaultConstructor(clazz, constructors);
+            } else {
+                defaultConstructor = getDefaultConstructor(builderClass, builderClass.getDeclaredConstructors());
+            }
         }
 
         Constructor<?> creatorConstructor = null;
@@ -203,8 +216,7 @@ public class JavaBeanInfo {
         }
 
         boolean isInterfaceOrAbstract = clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers());
-        if (defaultConstructor == null || isInterfaceOrAbstract) {
-
+        if ((defaultConstructor == null && builderClass == null) || isInterfaceOrAbstract) {
             creatorConstructor = getCreatorConstructor(constructors);
 
             if (creatorConstructor != null && !isInterfaceOrAbstract) { // 基于标记 JSONCreator 注解的构造方法
@@ -274,24 +286,66 @@ public class JavaBeanInfo {
                     return new JavaBeanInfo(clazz, builderClass, null, null, factoryMethod, null, jsonType, fieldList);
                 }
             } else if (!isInterfaceOrAbstract) {
+                String className = clazz.getName();
+
                 String[] paramNames = null;
-                boolean kotlin = TypeUtils.isKotlin(clazz);
                 if (kotlin && constructors.length > 0) {
                     paramNames = TypeUtils.getKoltinConstructorParameters(clazz);
-                    creatorConstructor = constructors[constructors.length - 1];
+                    creatorConstructor = TypeUtils.getKoltinConstructor(constructors);
                     TypeUtils.setAccessible(creatorConstructor);
                 } else {
+
                     for (Constructor constructor : constructors) {
+                        Class<?>[] parameterTypes = constructor.getParameterTypes();
+
+                        if (className.equals("org.springframework.security.web.authentication.WebAuthenticationDetails")) {
+                            if (parameterTypes.length == 2 && parameterTypes[0] == String.class && parameterTypes[1] == String.class) {
+                                creatorConstructor = constructor;
+                                creatorConstructor.setAccessible(true);
+                                paramNames = ASMUtils.lookupParameterNames(constructor);
+                                break;
+                            }
+                        }
+
+                        if (className.equals("org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken")) {
+                            if (parameterTypes.length == 3
+                                    && parameterTypes[0] == Object.class
+                                    && parameterTypes[1] == Object.class
+                                    && parameterTypes[2] == Collection.class) {
+                                creatorConstructor = constructor;
+                                creatorConstructor.setAccessible(true);
+                                paramNames = new String[] {"principal", "credentials", "authorities"};
+                                break;
+                            }
+                        }
+
+                        if (className.equals("org.springframework.security.core.authority.SimpleGrantedAuthority")) {
+                            if (parameterTypes.length == 1
+                                    && parameterTypes[0] == String.class) {
+                                creatorConstructor = constructor;
+                                paramNames = new String[] {"authority"};
+                                break;
+                            }
+                        }
+
+                        //
+
+
                         boolean is_public = (constructor.getModifiers() & Modifier.PUBLIC) != 0;
                         if (!is_public) {
                             continue;
                         }
-                        paramNames = ASMUtils.lookupParameterNames(constructor);
-                        if (paramNames != null && paramNames.length != 0) {
-                            creatorConstructor = constructor;
-                            break;
+                        String[] lookupParameterNames = ASMUtils.lookupParameterNames(constructor);
+                        if (lookupParameterNames == null || lookupParameterNames.length == 0) {
+                            continue;
                         }
-                        paramNames = null;
+
+                        if (creatorConstructor != null && lookupParameterNames.length <= paramNames.length) {
+                            continue;
+                        }
+
+                        paramNames = lookupParameterNames;
+                        creatorConstructor = constructor;
                     }
                 }
 
@@ -327,7 +381,13 @@ public class JavaBeanInfo {
                         if (fieldAnnotation == null) {
                             ordinal = 0;
                             serialzeFeatures = 0;
-                            parserFeatures = 0;
+
+                            if ("org.springframework.security.core.userdetails.User".equals(className)
+                                    && "password".equals(paramName)) {
+                                parserFeatures = Feature.InitStringFieldAsEmpty.mask;
+                            } else {
+                                parserFeatures = 0;
+                            }
                         } else {
                             String nameAnnotated = fieldAnnotation.name();
                             if (nameAnnotated.length() != 0) {
@@ -341,10 +401,13 @@ public class JavaBeanInfo {
                                 ordinal, serialzeFeatures, parserFeatures);
                         add(fieldList, fieldInfo);
                     }
-                    return new JavaBeanInfo(clazz, builderClass, null, creatorConstructor, null, null, jsonType, fieldList);
-                }
 
-                throw new JSONException("default constructor not found. " + clazz);
+                    if (!clazz.getName().equals("javax.servlet.http.Cookie")) {
+                        return new JavaBeanInfo(clazz, builderClass, null, creatorConstructor, null, null, jsonType, fieldList);
+                    }
+                } else {
+                    throw new JSONException("default constructor not found. " + clazz);
+                }
             }
         }
 
@@ -399,21 +462,26 @@ public class JavaBeanInfo {
                 }
 
                 String methodName = method.getName();
-                if (!methodName.startsWith(withPrefix)) {
-                    continue;
+                StringBuilder properNameBuilder;
+                if (methodName.startsWith("set") && methodName.length() > 3) {
+                    properNameBuilder = new StringBuilder(methodName.substring(3));
+                } else {
+                    if (!methodName.startsWith(withPrefix)) {
+                        continue;
+                    }
+
+                    if (methodName.length() <= withPrefix.length()) {
+                        continue;
+                    }
+
+                    properNameBuilder = new StringBuilder(methodName.substring(withPrefix.length()));
                 }
 
-                if (methodName.length() <= withPrefix.length()) {
-                    continue;
-                }
-
-                char c0 = methodName.charAt(withPrefix.length());
-
+                char c0 = properNameBuilder.charAt(0);
                 if (!Character.isUpperCase(c0)) {
                     continue;
                 }
 
-                StringBuilder properNameBuilder = new StringBuilder(methodName.substring(withPrefix.length()));
                 properNameBuilder.setCharAt(0, Character.toLowerCase(c0));
 
                 String propertyName = properNameBuilder.toString();
@@ -598,7 +666,7 @@ public class JavaBeanInfo {
                 continue;
             }
 
-            if (methodName.startsWith("get") && Character.isUpperCase(methodName.charAt(3))) {
+            if (builderClass == null && methodName.startsWith("get") && Character.isUpperCase(methodName.charAt(3))) {
                 if (method.getParameterTypes().length != 0) {
                     continue;
                 }
@@ -644,7 +712,7 @@ public class JavaBeanInfo {
             }
         }
 
-        return new JavaBeanInfo(clazz, builderClass, defaultConstructor, null, factoryMethod, buildMethod, jsonType, fieldList);
+        return new JavaBeanInfo(clazz, builderClass, defaultConstructor, creatorConstructor, factoryMethod, buildMethod, jsonType, fieldList);
     }
 
     private static void computeFields(Class<?> clazz, Type type, PropertyNamingStrategy propertyNamingStrategy, List<FieldInfo> fieldList, Field[] fields) {
@@ -739,7 +807,6 @@ public class JavaBeanInfo {
     public static Constructor<?> getCreatorConstructor(Constructor[] constructors) {
         Constructor<?> creatorConstructor = null;
 
-
         for (Constructor<?> constructor : constructors) {
             JSONCreator annotation = constructor.getAnnotation(JSONCreator.class);
             if (annotation != null) {
@@ -817,6 +884,14 @@ public class JavaBeanInfo {
     }
 
     public static Class<?> getBuilderClass(JSONType type) {
+        return getBuilderClass(null, type);
+    }
+
+    public static Class<?> getBuilderClass(Class<?> clazz, JSONType type) {
+        if (clazz != null && clazz.getName().equals("org.springframework.security.web.savedrequest.DefaultSavedRequest")) {
+            return TypeUtils.loadClass("org.springframework.security.web.savedrequest.DefaultSavedRequest$Builder");
+        }
+
         if (type == null) {
             return null;
         }

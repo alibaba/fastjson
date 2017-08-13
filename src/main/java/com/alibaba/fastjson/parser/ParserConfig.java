@@ -547,7 +547,7 @@ public class ParserConfig {
             }
 
             if (asmEnable) {
-                Class<?> superClass = JavaBeanInfo.getBuilderClass(jsonType);
+                Class<?> superClass = JavaBeanInfo.getBuilderClass(clazz, jsonType);
                 if (superClass == null) {
                     superClass = clazz;
                 }
@@ -867,11 +867,13 @@ public class ParserConfig {
             }
         }
 
-        if (autoTypeSupport || expectClass != null) {
-            clazz = TypeUtils.loadClass(typeName, defaultClassLoader);
-        }
+        clazz = TypeUtils.loadClass(typeName, defaultClassLoader);
 
         if (clazz != null) {
+            if (clazz.getAnnotation(JSONType.class) != null) {
+                return clazz;
+            }
+
             if (ClassLoader.class.isAssignableFrom(clazz) // classloader is danger
                     || DataSource.class.isAssignableFrom(clazz) // dataSource can load jdbc driver
                     ) {
@@ -884,6 +886,11 @@ public class ParserConfig {
                 } else {
                     throw new JSONException("type not match. " + typeName + " -> " + expectClass.getName());
                 }
+            }
+
+            JavaBeanInfo beanInfo = JavaBeanInfo.build(clazz, clazz, propertyNamingStrategy);
+            if (beanInfo.creatorConstructor != null && autoTypeSupport) {
+                throw new JSONException("autoType is not support. " + typeName);
             }
         }
 

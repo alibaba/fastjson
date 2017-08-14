@@ -97,7 +97,13 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     }
 
     public Object get(Object key) {
-        return map.get(key);
+        Object val = map.get(key);
+
+        if (val == null && key instanceof Number) {
+            val = map.get(key.toString());
+        }
+
+        return val;
     }
 
     public JSONObject getJSONObject(String key) {
@@ -463,5 +469,9 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         }
 
         throw new UnsupportedOperationException(method.toGenericString());
+    }
+
+    public Map<String, Object> getInnerMap() {
+        return this.map;
     }
 }

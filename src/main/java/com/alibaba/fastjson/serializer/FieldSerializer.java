@@ -268,6 +268,13 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
             }
         }
 
+        if ((features & SerializerFeature.WriteClassName.mask) != 0
+                && valueClass != fieldInfo.fieldClass
+                && JavaBeanSerializer.class.isInstance(valueSerializer)) {
+            ((JavaBeanSerializer) valueSerializer).write(serializer, propertyValue, fieldInfo.name, fieldInfo.fieldType, fieldFeatures, false);
+            return;
+        }
+
         valueSerializer.write(serializer, propertyValue, fieldInfo.name, fieldInfo.fieldType, fieldFeatures);
     }
 

@@ -178,7 +178,7 @@ public class DefaultJSONParser implements Closeable {
             isJSONObject = true;
         } else {
             isJSONObject = false;
-            innerMap = null;
+            innerMap = object;
         }
         
         //getInnerMap
@@ -264,10 +264,6 @@ public class DefaultJSONParser implements Closeable {
                     lexer.nextToken();
                     key = parse();
                     isObjectKey = true;
-                    
-                    if (isJSONObject) {
-                        key = key.toString();
-                    }
                 } else {
                     key = lexer.scanSymbolUnQuoted(symbolTable);
                     lexer.skipWhitespace();
@@ -446,7 +442,7 @@ public class DefaultJSONParser implements Closeable {
                     }
                 } else if (ch >= '0' && ch <= '9' || ch == '-') {
                     value = lexer.scanNumberValue();
-                    object.put(key, value);
+                    innerMap.put(key, value);
                 } else if (ch == '[') { // 减少嵌套，兼容android
                     lexer.token = JSONToken.LBRACKET;
                     // lexer.next();

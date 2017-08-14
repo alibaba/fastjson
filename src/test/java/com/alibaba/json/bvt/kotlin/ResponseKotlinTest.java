@@ -21,7 +21,7 @@ public class ResponseKotlinTest extends TestCase {
 
         String json2 = "{\"text\":\"robohorse\"}";
         Object obj2 = JSON.parseObject(json2, clazz);
-        assertEquals("{\"t1ext\":\"robohorse\"}", JSON.toJSONString(obj2));
+        assertEquals("{\"text\":\"robohorse\"}", JSON.toJSONString(obj2));
     }
 
     public static class ExtClassLoader extends ClassLoader {

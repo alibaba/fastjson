@@ -205,7 +205,8 @@ public class SerializeConfig {
                 for (SerializerFeature feature : annotation.serialzeFeatures()) {
                     if (SerializerFeature.WriteNonStringValueAsString == feature //
                             || SerializerFeature.WriteEnumUsingToString == feature //
-                            || SerializerFeature.NotWriteDefaultValue == feature) {
+                            || SerializerFeature.NotWriteDefaultValue == feature
+                            || SerializerFeature.WriteClassName == feature) {
                         asm = false;
                         break;
                     }

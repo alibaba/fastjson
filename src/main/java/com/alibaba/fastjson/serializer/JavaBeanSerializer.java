@@ -157,6 +157,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
             boolean commaFlag = false;
 
             if ((this.beanInfo.features & SerializerFeature.WriteClassName.mask) != 0
+                ||(features & SerializerFeature.WriteClassName.mask) != 0
                 || serializer.isWriteClassName(fieldType, object)) {
                 Class<?> objClass = object.getClass();
                 if (objClass != fieldType) {

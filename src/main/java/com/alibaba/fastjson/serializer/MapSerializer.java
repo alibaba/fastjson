@@ -194,8 +194,11 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                     if (entryKey == null || entryKey instanceof String) {
                         value = this.processValue(serializer, null, object, (String) entryKey, value);
                     } else {
-                        String strKey = JSON.toJSONString(entryKey);
-                        value = this.processValue(serializer, null, object, strKey, value);
+                        boolean objectOrArray = entryKey instanceof Map || entryKey instanceof Collection;
+                        if (!objectOrArray) {
+                            String strKey = JSON.toJSONString(entryKey);
+                            value = this.processValue(serializer, null, object, strKey, value);
+                        }
                     }
                 }
 

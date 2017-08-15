@@ -111,40 +111,40 @@ public class SerializeConfig {
         if (writer == null) {
             Class<?> superClass;
             if (Map.class.isAssignableFrom(clazz)) {
-                serializers.put(clazz, new MapSerializer());
+                serializers.put(clazz, writer = new MapSerializer());
             } else if (AbstractSequentialList.class.isAssignableFrom(clazz)) {
-                serializers.put(clazz, CollectionCodec.instance);
+                serializers.put(clazz, writer = CollectionCodec.instance);
             } else if (List.class.isAssignableFrom(clazz)) {
-                serializers.put(clazz, new ListSerializer());
+                serializers.put(clazz, writer = new ListSerializer());
             } else if (Collection.class.isAssignableFrom(clazz)) {
-                serializers.put(clazz, CollectionCodec.instance);
+                serializers.put(clazz, writer = CollectionCodec.instance);
             } else if (Date.class.isAssignableFrom(clazz)) {
-                serializers.put(clazz, DateCodec.instance);
+                serializers.put(clazz, writer = DateCodec.instance);
             } else if (JSONAware.class.isAssignableFrom(clazz)) {
-                serializers.put(clazz, MiscCodec.instance);
+                serializers.put(clazz, writer = MiscCodec.instance);
             } else if (JSONSerializable.class.isAssignableFrom(clazz)) {
-                serializers.put(clazz, MiscCodec.instance);
+                serializers.put(clazz, writer = MiscCodec.instance);
             } else if (JSONStreamAware.class.isAssignableFrom(clazz)) {
-                serializers.put(clazz, MiscCodec.instance);
+                serializers.put(clazz, writer = MiscCodec.instance);
             } else if (clazz.isEnum() 
                     || ((superClass = clazz.getSuperclass()) != null && superClass != Object.class && superClass.isEnum())) {
-                serializers.put(clazz, new EnumSerializer());
+                serializers.put(clazz, writer = new EnumSerializer());
             } else if (clazz.isArray()) {
                 Class<?> componentType = clazz.getComponentType();
                 ObjectSerializer compObjectSerializer = get(componentType);
-                serializers.put(clazz, new ArraySerializer(componentType, compObjectSerializer));
+                serializers.put(clazz, writer = new ArraySerializer(componentType, compObjectSerializer));
             } else if (Throwable.class.isAssignableFrom(clazz)) {
                 JavaBeanSerializer serializer = new JavaBeanSerializer(clazz, propertyNamingStrategy);
                 serializer.features |= SerializerFeature.WriteClassName.mask;
-                serializers.put(clazz, serializer);
+                serializers.put(clazz, writer = serializer);
             } else if (TimeZone.class.isAssignableFrom(clazz)) {
-                serializers.put(clazz, MiscCodec.instance);
+                serializers.put(clazz, writer = MiscCodec.instance);
             } else if (Charset.class.isAssignableFrom(clazz)) {
-                serializers.put(clazz, MiscCodec.instance);
+                serializers.put(clazz, writer = MiscCodec.instance);
             } else if (Enumeration.class.isAssignableFrom(clazz)) {
-                serializers.put(clazz, MiscCodec.instance);
+                serializers.put(clazz, writer = MiscCodec.instance);
             } else if (Calendar.class.isAssignableFrom(clazz)) {
-                serializers.put(clazz, DateCodec.instance);
+                serializers.put(clazz, writer = DateCodec.instance);
             } else {
                 boolean isCglibProxy = false;
                 boolean isJavassistProxy = false;
@@ -170,13 +170,16 @@ public class SerializeConfig {
                 String className = clazz.getName();
 
                 if (className.startsWith("android.net.Uri$")) {
-                    serializers.put(clazz, MiscCodec.instance);
+                    writer = MiscCodec.instance;
                 } else {
-                    serializers.put(clazz, new JavaBeanSerializer(clazz, propertyNamingStrategy));
+                    writer = new JavaBeanSerializer(clazz, propertyNamingStrategy);
                 }
+                serializers.put(clazz, writer);
             }
 
-            writer = serializers.get(clazz);
+            if (writer == null) {
+                writer = serializers.get(clazz);
+            }
         }
         return writer;
     }

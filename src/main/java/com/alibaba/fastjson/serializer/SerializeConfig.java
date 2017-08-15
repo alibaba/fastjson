@@ -662,11 +662,14 @@ public class SerializeConfig {
                 }
 
                 if (create) {
-                    put(clazz, createJavaBeanSerializer(clazz));
+                    writer = createJavaBeanSerializer(clazz);
+                    put(clazz, writer);
                 }
             }
 
-            writer = serializers.get(clazz);
+            if (writer == null) {
+                writer = serializers.get(clazz);
+            }
         }
         return writer;
     }

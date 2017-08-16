@@ -138,7 +138,9 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         }
 
         SerialContext parent = serializer.context;
-        serializer.setContext(parent, object, fieldName, this.beanInfo.features, features);
+        if (!this.beanInfo.beanType.isEnum()) {
+            serializer.setContext(parent, object, fieldName, this.beanInfo.features, features);
+        }
 
         final boolean writeAsArray = isWriteAsArray(serializer, features);
 

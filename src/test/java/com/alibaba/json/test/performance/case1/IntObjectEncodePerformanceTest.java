@@ -44,9 +44,9 @@ public class IntObjectEncodePerformanceTest extends TestCase {
         // decoders.add(new JsonLibDecoderImpl());
 
         for (int i = 0; i < 10; ++i) {
-            for (Codec decoder : decoders) {
+            decoders.forEach(decoder -> {
                 encode(object, decoder);
-            }
+            });
             // System.out.println();
         }
         // System.out.println();

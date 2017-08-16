@@ -43,11 +43,11 @@ public class FastJsonRestfulServiceTestImpl implements FastJsonRestfulServiceTes
 
 		JSONObject jsonObj = new JSONObject();
 		
-		for (FastJsonParentTestVO fastJsonParentTestVO : vos) {
-			
+		vos.forEach(fastJsonParentTestVO -> {
 			jsonObj.put(fastJsonParentTestVO.getName(), fastJsonParentTestVO.getSonList().size());
-		}
+		});
 		
 		return jsonObj;
 	}
+
 }

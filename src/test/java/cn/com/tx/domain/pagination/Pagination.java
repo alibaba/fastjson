@@ -186,10 +186,10 @@ public class Pagination<T> implements Serializable {
 		sb.append("\ttotalPage\t" + this.totalPage + "\r\n");
 		sb.append("\tmaxLength\t" + this.maxLength + "\r\n");
 		sb.append("\ttotalResult\t" + this.totalResult + "\r\n");
-		for (T t : list) {
+		list.forEach(t -> {
 			sb.append(t + "\r\n");
-		}
+		});
 		return sb.toString();
 	}
-	
+
 }

@@ -49,15 +49,13 @@ public class FastJsonControllerTest {
 
     @RequestMapping("test2")
     public
-    @ResponseBody
-    JSONObject test1(@RequestBody List<FastJsonParentTestVO> vos) {
+    @ResponseBody JSONObject test1(@RequestBody List<FastJsonParentTestVO> vos) {
 
         JSONObject jsonObj = new JSONObject();
 
-        for (FastJsonParentTestVO fastJsonParentTestVO : vos) {
-
+        vos.forEach(fastJsonParentTestVO -> {
             jsonObj.put(fastJsonParentTestVO.getName(), fastJsonParentTestVO.getSonList().size());
-        }
+        });
 
         return jsonObj;
     }

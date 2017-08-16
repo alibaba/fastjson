@@ -45,10 +45,9 @@ public class DecoderPerformanceTest extends TestCase {
         decoders.add(new FastjsonCodec());
 
         for (int i = 0; i < 20; ++i) {
-            for (Codec decoder : decoders) {
+            decoders.forEach(decoder -> {
                 decode(text, decoder);
-                // decodeToJavaBean(text, decoder);
-            }
+            });
             System.out.println();
         }
         System.out.println();

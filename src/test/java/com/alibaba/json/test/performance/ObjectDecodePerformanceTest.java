@@ -39,9 +39,9 @@ public class ObjectDecodePerformanceTest extends TestCase {
         decoders.add(new JsonLibCodec());
 
         for (int i = 0; i < 20; ++i) {
-            for (Codec decoder : decoders) {
+            decoders.forEach(decoder -> {
                 decodeToJavaBean(text, decoder);
-            }
+            });
             System.out.println();
         }
         System.out.println();

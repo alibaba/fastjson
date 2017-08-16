@@ -3958,9 +3958,17 @@ public final class JSONLexer {
         int rest = len - bp;
 
         if ((!strict) && rest > 13) {
-            if (text.startsWith("/Date(", bp) && charAt(bp + rest - 1) == '/' //
-                && charAt(bp + rest - 2) == ')' //
-            ) {
+            char c0 = charAt(bp);
+            char c1 = charAt(bp + 1);
+            char c2 = charAt(bp + 2);
+            char c3 = charAt(bp + 3);
+            char c4 = charAt(bp + 4);
+            char c5 = charAt(bp + 5);
+
+            char c_r0 = charAt(bp + rest - 1);
+            char c_r1 = charAt(bp + rest - 2);
+            if (c0 == '/' && c1 == 'D' && c2 == 'a' && c3 == 't' && c4 == 'e' && c5 == '(' && c_r0 == '/'
+                    && c_r1 == ')') {
                 int plusIndex = -1;
                 for (int i = 6; i < rest; ++i) {
                     char c = charAt(bp + i);
@@ -3975,7 +3983,7 @@ public final class JSONLexer {
                 }
                 int offset = bp + 6;
                 String numberText = this.subString(offset, plusIndex - offset);
-                long millis = Long.parseLong(numberText, 10);
+                long millis = Long.parseLong(numberText);
 
                 calendar = Calendar.getInstance(timeZone, locale);
                 calendar.setTimeInMillis(millis);
@@ -3985,21 +3993,50 @@ public final class JSONLexer {
             }
         }
 
-        if (rest == 8 //
-            || rest == 14 //
-            || rest == 17) {
+        char c10;
+        if (rest == 8
+                || rest == 14
+                || (rest == 16 && ((c10 = charAt(bp + 10)) == 'T' || c10 == ' '))
+                || (rest == 17 && charAt(bp + 6) != '-')) {
             if (strict) {
                 return false;
             }
 
-            char y0 = charAt(bp);
-            char y1 = charAt(bp + 1);
-            char y2 = charAt(bp + 2);
-            char y3 = charAt(bp + 3);
-            char M0 = charAt(bp + 4);
-            char M1 = charAt(bp + 5);
-            char d0 = charAt(bp + 6);
-            char d1 = charAt(bp + 7);
+            char y0, y1, y2, y3, M0, M1, d0, d1;
+
+            char c0 = charAt(bp);
+            char c1 = charAt(bp + 1);
+            char c2 = charAt(bp + 2);
+            char c3 = charAt(bp + 3);
+            char c4 = charAt(bp + 4);
+            char c5 = charAt(bp + 5);
+            char c6 = charAt(bp + 6);
+            char c7 = charAt(bp + 7);
+            char c8 = charAt(bp + 8);
+
+            final boolean c_47 = c4 == '-' && c7 == '-';
+            final boolean sperate16 = c_47 && rest == 16;
+            final boolean sperate17 = c_47 && rest == 17;
+            if (sperate17 || sperate16) {
+                y0 = c0;
+                y1 = c1;
+                y2 = c2;
+                y3 = c3;
+                M0 = c5;
+                M1 = c6;
+                d0 = c8;
+                d1 = charAt(bp + 9);
+            } else {
+                y0 = c0;
+                y1 = c1;
+                y2 = c2;
+                y3 = c3;
+                M0 = c4;
+                M1 = c5;
+                d0 = c6;
+                d1 = c7;
+            }
+
 
             if (!checkDate(y0, y1, y2, y3, M0, M1, d0, d1)) {
                 return false;
@@ -4009,18 +4046,36 @@ public final class JSONLexer {
 
             int hour, minute, seconds, millis;
             if (rest != 8) {
-                char h0 = charAt(bp + 8);
-                char h1 = charAt(bp + 9);
-                char m0 = charAt(bp + 10);
-                char m1 = charAt(bp + 11);
-                char s0 = charAt(bp + 12);
-                char s1 = charAt(bp + 13);
+                char c9 = charAt(bp + 9);
+                c10 = charAt(bp + 10);
+                char c11 = charAt(bp + 11);
+                char c12 = charAt(bp + 12);
+                char c13 = charAt(bp + 13);
+
+                char h0, h1, m0, m1, s0, s1;
+
+                if ((sperate17 && c10 == 'T' && c13 == ':' && charAt(bp + 16) == 'Z')
+                        || (sperate16 && (c10 == ' ' || c10 == 'T') && c13 == ':')) {
+                    h0 = c11;
+                    h1 = c12;
+                    m0 = charAt(bp + 14);
+                    m1 = charAt(bp + 15);
+                    s0 = '0';
+                    s1 = '0';
+                } else {
+                    h0 = c8;
+                    h1 = c9;
+                    m0 = c10;
+                    m1 = c11;
+                    s0 = c12;
+                    s1 = c13;
+                }
 
                 if (!checkTime(h0, h1, m0, m1, s0, s1)) {
                     return false;
                 }
 
-                if (rest == 17) {
+                if (rest == 17 && !sperate17) {
                     char S0 = charAt(bp + 14);
                     char S1 = charAt(bp + 15);
                     char S2 = charAt(bp + 16);
@@ -4034,7 +4089,7 @@ public final class JSONLexer {
                         return false;
                     }
 
-                    millis = (S0  - '0') * 100 + (S1 - '0') * 10 + (S2 - '0');
+                    millis = (S0 - '0') * 100 + (S1 - '0') * 10 + (S2 - '0');
                 } else {
                     millis = 0;
                 }
@@ -4043,7 +4098,10 @@ public final class JSONLexer {
                 minute = (m0 - '0') * 10 + (m1 - '0');
                 seconds = (s0 - '0') * 10 + (s1 - '0');
             } else {
-                hour = minute = seconds = millis = 0;
+                hour = 0;
+                minute = 0;
+                seconds = 0;
+                millis = 0;
             }
 
             calendar.set(Calendar.HOUR_OF_DAY, hour);
@@ -4055,84 +4113,171 @@ public final class JSONLexer {
             return true;
         }
 
-        if (rest < 10) { // 0000-00-00
+        if (rest < 9) {
             return false;
         }
 
-        if (charAt(bp + 4) != '-') {
-            return false;
-        }
-        if (charAt(bp + 7) != '-') {
-            return false;
+        char c0 = charAt(bp);
+        char c1 = charAt(bp + 1);
+        char c2 = charAt(bp + 2);
+        char c3 = charAt(bp + 3);
+        char c4 = charAt(bp + 4);
+        char c5 = charAt(bp + 5);
+        char c6 = charAt(bp + 6);
+        char c7 = charAt(bp + 7);
+        char c8 = charAt(bp + 8);
+        char c9 = charAt(bp + 9);
+
+        int date_len = 10;
+        char y0, y1, y2, y3, M0, M1, d0, d1;
+        if ((c4 == '-' && c7 == '-') // cn
+                ||  (c4 == '/' && c7 == '/') // tw yyyy/mm/dd
+                ) {
+            y0 = c0;
+            y1 = c1;
+            y2 = c2;
+            y3 = c3;
+            M0 = c5;
+            M1 = c6;
+            d0 = c8;
+            d1 = c9;
+        } else if ((c4 == '-' && c6 == '-') // cn yyyy-m-dd
+                ) {
+            y0 = c0;
+            y1 = c1;
+            y2 = c2;
+            y3 = c3;
+            M0 = '0';
+            M1 = c5;
+
+            if (c8 == ' ') {
+                d0 = '0';
+                d1 = c7;
+                date_len = 8;
+            } else {
+                d0 = c7;
+                d1 = c8;
+                date_len = 9;
+            }
+        } else if ((c2 == '.' && c5 == '.') // de dd.mm.yyyy
+                || (c2 == '-' && c5 == '-') // in dd-mm-yyyy
+                ) {
+            d0 = c0;
+            d1 = c1;
+            M0 = c3;
+            M1 = c4;
+            y0 = c6;
+            y1 = c7;
+            y2 = c8;
+            y3 = c9;
+        } else {
+            if (c4 == '年' || c4 == '년') {
+                y0 = c0;
+                y1 = c1;
+                y2 = c2;
+                y3 = c3;
+
+                if (c7 == '月' || c7 == '월') {
+                    M0 = c5;
+                    M1 = c6;
+                    if (c9 == '日' || c9 == '일') {
+                        d0 = '0';
+                        d1 = c8;
+                    } else if (charAt(bp + 10) == '日' || charAt(bp + 10) == '일'){
+                        d0 = c8;
+                        d1 = c9;
+                        date_len = 11;
+                    } else {
+                        return false;
+                    }
+                } else if (c6 == '月' || c6 == '월') {
+                    M0 = '0';
+                    M1 = c5;
+                    if (c8 == '日' || c8 == '일') {
+                        d0 = '0';
+                        d1 = c7;
+                    } else if (c9 == '日' || c9 == '일'){
+                        d0 = c7;
+                        d1 = c8;
+                    } else {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
         }
 
-        char y0 = charAt(bp);
-        char y1 = charAt(bp + 1);
-        char y2 = charAt(bp + 2);
-        char y3 = charAt(bp + 3);
-        char M0 = charAt(bp + 5);
-        char M1 = charAt(bp + 6);
-        char d0 = charAt(bp + 8);
-        char d1 = charAt(bp + 9);
         if (!checkDate(y0, y1, y2, y3, M0, M1, d0, d1)) {
             return false;
         }
 
         setCalendar(y0, y1, y2, y3, M0, M1, d0, d1);
 
-        char t = charAt(bp + 10);
+        char t = charAt(bp + date_len);
         if (t == 'T' || (t == ' ' && !strict)) {
-            if (rest < 19) { // 0000-00-00T00:00:00
+            if (rest < date_len + 9) { // "0000-00-00T00:00:00".length()
                 return false;
             }
-        } else if (t == '"' || t == EOI) {
+        } else if (t == '"' || t == EOI || t == '日' || t == '일') {
             calendar.set(Calendar.HOUR_OF_DAY, 0);
             calendar.set(Calendar.MINUTE, 0);
             calendar.set(Calendar.SECOND, 0);
             calendar.set(Calendar.MILLISECOND, 0);
 
-            ch = charAt(bp += 10);
+            ch = charAt(bp += date_len);
 
             token = JSONToken.LITERAL_ISO8601_DATE;
             return true;
+        } else if (t == '+' || t == '-') {
+            if (len == date_len + 6) {
+                if (charAt(bp + date_len + 3) != ':' //
+                        || charAt(bp + date_len + 4) != '0' //
+                        || charAt(bp + date_len + 5) != '0') {
+                    return false;
+                }
+
+                setTime('0', '0', '0', '0', '0', '0');
+                calendar.set(Calendar.MILLISECOND, 0);
+                setTimeZone(t, charAt(bp + date_len + 1), charAt(bp + date_len + 2));
+                return true;
+            }
+            return false;
         } else {
             return false;
         }
 
-        if (charAt(bp + 13) != ':') {
+        if (charAt(bp + date_len + 3) != ':') {
             return false;
         }
-        if (charAt(bp + 16) != ':') {
+        if (charAt(bp + date_len + 6) != ':') {
             return false;
         }
 
-        char h0 = charAt(bp + 11);
-        char h1 = charAt(bp + 12);
-        char m0 = charAt(bp + 14);
-        char m1 = charAt(bp + 15);
-        char s0 = charAt(bp + 17);
-        char s1 = charAt(bp + 18);
+        char h0 = charAt(bp + date_len + 1);
+        char h1 = charAt(bp + date_len + 2);
+        char m0 = charAt(bp + date_len + 4);
+        char m1 = charAt(bp + date_len + 5);
+        char s0 = charAt(bp + date_len + 7);
+        char s1 = charAt(bp + date_len + 8);
 
         if (!checkTime(h0, h1, m0, m1, s0, s1)) {
             return false;
         }
 
-        int hour = (h0 - '0') * 10 + (h1 - '0');
-        int minute = (m0 - '0') * 10 + (m1 - '0');
-        int seconds = (s0 - '0') * 10 + (s1 - '0');
-        calendar.set(Calendar.HOUR_OF_DAY, hour);
-        calendar.set(Calendar.MINUTE, minute);
-        calendar.set(Calendar.SECOND, seconds);
+        setTime(h0, h1, m0, m1, s0, s1);
 
-        char dot = charAt(bp + 19);
+        char dot = charAt(bp + date_len + 9);
         if (dot == '.') {
-            if (rest < 21) { // 0000-00-00T00:00:00.000
+            if (rest < date_len + 11) { //  // 0000-00-00T00:00:00.000
                 return false;
             }
         } else {
             calendar.set(Calendar.MILLISECOND, 0);
 
-            ch = charAt(bp += 19);
+            ch = charAt(bp += (date_len + 9));
 
             token = JSONToken.LITERAL_ISO8601_DATE;
 
@@ -4149,25 +4294,25 @@ public final class JSONLexer {
             return true;
         }
 
-        char S0 = charAt(bp + 20);
+        char S0 = charAt(bp + date_len + 10);
         if (S0 < '0' || S0 > '9') {
             return false;
         }
-        int millis = digits[S0];
+        int millis = S0 - '0';
         int millisLen = 1;
 
-        if (rest > 21) {
-            char S1 = charAt(bp + 21);
+        if (rest > date_len + 11) {
+            char S1 = charAt(bp + date_len + 11);
             if (S1 >= '0' && S1 <= '9') {
-                millis = millis * 10 + digits[S1];
+                millis = millis * 10 + (S1 - '0');
                 millisLen = 2;
             }
         }
 
         if (millisLen == 2) {
-            char S2 = charAt(bp + 22);
+            char S2 = charAt(bp + date_len + 12);
             if (S2 >= '0' && S2 <= '9') {
-                millis = millis * 10 + digits[S2];
+                millis = millis * 10 + (S2 - '0');
                 millisLen = 3;
             }
         }
@@ -4175,32 +4320,32 @@ public final class JSONLexer {
         calendar.set(Calendar.MILLISECOND, millis);
 
         int timzeZoneLength = 0;
-        char timeZoneFlag = charAt(bp + 20 + millisLen);
+        char timeZoneFlag = charAt(bp + date_len + 10 + millisLen);
         if (timeZoneFlag == '+' || timeZoneFlag == '-') {
-            char t0 = charAt(bp + 20 + millisLen + 1);
+            char t0 = charAt(bp + date_len + 10 + millisLen + 1);
             if (t0 < '0' || t0 > '1') {
                 return false;
             }
 
-            char t1 = charAt(bp + 20 + millisLen + 2);
+            char t1 = charAt(bp + date_len + 10 + millisLen + 2);
             if (t1 < '0' || t1 > '9') {
                 return false;
             }
 
-            char t2 = charAt(bp + 20 + millisLen + 3);
+            char t2 = charAt(bp + date_len + 10 + millisLen + 3);
             if (t2 == ':') { // ThreeLetterISO8601TimeZone
-                char t3 = charAt(bp + 20 + millisLen + 4);
+                char t3 = charAt(bp + date_len + 10 + millisLen + 4);
                 if (t3 != '0') {
                     return false;
                 }
 
-                char t4 = charAt(bp + 20 + millisLen + 5);
+                char t4 = charAt(bp + date_len + 10 + millisLen + 5);
                 if (t4 != '0') {
                     return false;
                 }
                 timzeZoneLength = 6;
             } else if (t2 == '0') { // TwoLetterISO8601TimeZone
-                char t3 = charAt(bp + 20 + millisLen + 4);
+                char t3 = charAt(bp + date_len + 10 + millisLen + 4);
                 if (t3 != '0') {
                     return false;
                 }
@@ -4209,18 +4354,7 @@ public final class JSONLexer {
                 timzeZoneLength = 3;
             }
 
-            int timeZoneOffset = (digits[t0] * 10 + digits[t1]) * 3600 * 1000;
-            if (timeZoneFlag == '-') {
-                timeZoneOffset = -timeZoneOffset;
-            }
-
-            if (calendar.getTimeZone().getRawOffset() != timeZoneOffset) {
-                String[] timeZoneIDs = TimeZone.getAvailableIDs(timeZoneOffset);
-                if (timeZoneIDs.length > 0) {
-                    TimeZone timeZone = TimeZone.getTimeZone(timeZoneIDs[0]);
-                    calendar.setTimeZone(timeZone);
-                }
-            }
+            setTimeZone(timeZoneFlag, t0, t1);
 
         } else if (timeZoneFlag == 'Z') {// UTC
             timzeZoneLength = 1;
@@ -4233,14 +4367,38 @@ public final class JSONLexer {
             }
         }
 
-        char end = charAt(bp + (20 + millisLen + timzeZoneLength));
+        char end = charAt(bp + (date_len + 10 + millisLen + timzeZoneLength));
         if (end != EOI && end != '"') {
             return false;
         }
-        ch = charAt(bp += (20 + millisLen + timzeZoneLength));
+        ch = charAt(bp += (date_len + 10 + millisLen + timzeZoneLength));
 
         token = JSONToken.LITERAL_ISO8601_DATE;
         return true;
+    }
+
+    protected void setTime(char h0, char h1, char m0, char m1, char s0, char s1) {
+        int hour = (h0 - '0') * 10 + (h1 - '0');
+        int minute = (m0 - '0') * 10 + (m1 - '0');
+        int seconds = (s0 - '0') * 10 + (s1 - '0');
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.SECOND, seconds);
+    }
+
+    protected void setTimeZone(char timeZoneFlag, char t0, char t1) {
+        int timeZoneOffset = ((t0 - '0') * 10 + (t1 - '0')) * 3600 * 1000;
+        if (timeZoneFlag == '-') {
+            timeZoneOffset = -timeZoneOffset;
+        }
+
+        if (calendar.getTimeZone().getRawOffset() != timeZoneOffset) {
+            String[] timeZoneIDs = TimeZone.getAvailableIDs(timeZoneOffset);
+            if (timeZoneIDs.length > 0) {
+                TimeZone timeZone = TimeZone.getTimeZone(timeZoneIDs[0]);
+                calendar.setTimeZone(timeZone);
+            }
+        }
     }
 
     static boolean checkTime(char h0, char h1, char m0, char m1, char s0, char s1) {

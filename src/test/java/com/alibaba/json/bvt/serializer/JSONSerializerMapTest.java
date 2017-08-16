@@ -1,14 +1,12 @@
 package com.alibaba.json.bvt.serializer;
 
-import java.lang.reflect.Field;
-
-import org.junit.Assert;
-
 import com.alibaba.fastjson.serializer.IntegerCodec;
 import com.alibaba.fastjson.serializer.SerializeConfig;
-import com.alibaba.fastjson.util.IdentityHashMap;
-
+import com.alibaba.fastjson.util.IdentityWeakHashMap;
 import junit.framework.TestCase;
+import org.junit.Assert;
+
+import java.lang.reflect.Field;
 
 @SuppressWarnings("deprecation")
 public class JSONSerializerMapTest extends TestCase {
@@ -33,11 +31,11 @@ public class JSONSerializerMapTest extends TestCase {
         serializersField.setAccessible(true);
         Object map = serializersField.get(config);
         
-        Field bucketsField = IdentityHashMap.class.getDeclaredField("buckets");
+        Field bucketsField = IdentityWeakHashMap.class.getDeclaredField("buckets");
         bucketsField.setAccessible(true);
         Object[] buckets = (Object[]) bucketsField.get(map);
         
-        Field nextField = Class.forName("com.alibaba.fastjson.util.IdentityHashMap$Entry").getDeclaredField("next");
+        Field nextField = Class.forName("com.alibaba.fastjson.util.IdentityWeakHashMap$Entry").getDeclaredField("next");
         
         int size = 0;
         for (int i = 0; i < buckets.length; ++i) {

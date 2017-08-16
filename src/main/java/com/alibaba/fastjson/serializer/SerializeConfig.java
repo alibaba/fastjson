@@ -15,45 +15,32 @@
  */
 package com.alibaba.fastjson.serializer;
 
-import java.io.File;
-import java.io.Serializable;
-import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
-import java.lang.reflect.*;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.net.Inet4Address;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.sql.Clob;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicIntegerArray;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicLongArray;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Pattern;
-
 import com.alibaba.fastjson.*;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.deserializer.Jdk8DateCodec;
 import com.alibaba.fastjson.parser.deserializer.OptionalCodec;
 import com.alibaba.fastjson.support.springfox.SwaggerJsonSerializer;
-import com.alibaba.fastjson.util.ASMUtils;
-import com.alibaba.fastjson.util.FieldInfo;
+import com.alibaba.fastjson.util.*;
 import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.ServiceLoader;
-import com.alibaba.fastjson.util.TypeUtils;
-import sun.reflect.annotation.AnnotationType;
 
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.io.File;
+import java.io.Serializable;
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.*;
+import java.lang.reflect.Proxy;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.net.*;
+import java.nio.charset.Charset;
+import java.sql.Clob;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.atomic.*;
+import java.util.regex.Pattern;
 
 /**
  * circular references detect
@@ -62,23 +49,23 @@ import javax.xml.datatype.XMLGregorianCalendar;
  */
 public class SerializeConfig {
 
-    public final static SerializeConfig                   globalInstance  = new SerializeConfig();
+    public final static SerializeConfig                       globalInstance  = new SerializeConfig();
 
-    private static boolean                                awtError        = false;
-    private static boolean                                jdk8Error       = false;
-    private static boolean                                oracleJdbcError = false;
-    private static boolean                                springfoxError  = false;
-    private static boolean                                guavaError      = false;
-    private static boolean                                jsonnullError   = false;
+    private static boolean                                    awtError        = false;
+    private static boolean                                    jdk8Error       = false;
+    private static boolean                                    oracleJdbcError = false;
+    private static boolean                                    springfoxError  = false;
+    private static boolean                                    guavaError      = false;
+    private static boolean                                    jsonnullError   = false;
 
-    private boolean                                       asm             = !ASMUtils.IS_ANDROID;
-    private ASMSerializerFactory                          asmFactory;
-    protected String                                      typeKey         = JSON.DEFAULT_TYPE_KEY;
-    public PropertyNamingStrategy                         propertyNamingStrategy;
+    private boolean                                           asm             = !ASMUtils.IS_ANDROID;
+    private ASMSerializerFactory                              asmFactory;
+    protected String                                          typeKey         = JSON.DEFAULT_TYPE_KEY;
+    public PropertyNamingStrategy                             propertyNamingStrategy;
 
-    private final IdentityHashMap<Type, ObjectSerializer> serializers;
+    private final IdentityWeakHashMap<Type, ObjectSerializer> serializers;
 
-    private final boolean                                 fieldBased;
+    private final boolean                                     fieldBased;
     
 	public String getTypeKey() {
 		return typeKey;
@@ -270,7 +257,7 @@ public class SerializeConfig {
 
 	public SerializeConfig(int tableSize, boolean fieldBase) {
 	    this.fieldBased = fieldBase;
-	    serializers = new IdentityHashMap<Type, ObjectSerializer>(tableSize);
+	    serializers = new IdentityWeakHashMap<Type, ObjectSerializer>(tableSize);
 		
 		try {
 		    if (asm) {
@@ -280,58 +267,58 @@ public class SerializeConfig {
 		    asm = false;
 		}
 
-		put(Boolean.class, BooleanCodec.instance);
-		put(Character.class, CharacterCodec.instance);
-		put(Byte.class, IntegerCodec.instance);
-		put(Short.class, IntegerCodec.instance);
-		put(Integer.class, IntegerCodec.instance);
-		put(Long.class, LongCodec.instance);
-		put(Float.class, FloatCodec.instance);
-		put(Double.class, DoubleSerializer.instance);
-		put(BigDecimal.class, BigDecimalCodec.instance);
-		put(BigInteger.class, BigIntegerCodec.instance);
-		put(String.class, StringCodec.instance);
-		put(byte[].class, PrimitiveArraySerializer.instance);
-		put(short[].class, PrimitiveArraySerializer.instance);
-		put(int[].class, PrimitiveArraySerializer.instance);
-		put(long[].class, PrimitiveArraySerializer.instance);
-		put(float[].class, PrimitiveArraySerializer.instance);
-		put(double[].class, PrimitiveArraySerializer.instance);
-		put(boolean[].class, PrimitiveArraySerializer.instance);
-		put(char[].class, PrimitiveArraySerializer.instance);
-		put(Object[].class, ObjectArrayCodec.instance);
-		put(Class.class, MiscCodec.instance);
+		put(Boolean.class, BooleanCodec.instance, true);
+		put(Character.class, CharacterCodec.instance, true);
+		put(Byte.class, IntegerCodec.instance, true);
+		put(Short.class, IntegerCodec.instance, true);
+		put(Integer.class, IntegerCodec.instance, true);
+		put(Long.class, LongCodec.instance, true);
+		put(Float.class, FloatCodec.instance, true);
+		put(Double.class, DoubleSerializer.instance, true);
+		put(BigDecimal.class, BigDecimalCodec.instance, true);
+		put(BigInteger.class, BigIntegerCodec.instance, true);
+		put(String.class, StringCodec.instance, true);
+		put(byte[].class, PrimitiveArraySerializer.instance, true);
+		put(short[].class, PrimitiveArraySerializer.instance, true);
+		put(int[].class, PrimitiveArraySerializer.instance, true);
+		put(long[].class, PrimitiveArraySerializer.instance, true);
+		put(float[].class, PrimitiveArraySerializer.instance, true);
+		put(double[].class, PrimitiveArraySerializer.instance, true);
+		put(boolean[].class, PrimitiveArraySerializer.instance, true);
+		put(char[].class, PrimitiveArraySerializer.instance, true);
+		put(Object[].class, ObjectArrayCodec.instance, true);
+		put(Class.class, MiscCodec.instance, true);
 
-		put(SimpleDateFormat.class, MiscCodec.instance);
-		put(Currency.class, new MiscCodec());
-		put(TimeZone.class, MiscCodec.instance);
-		put(InetAddress.class, MiscCodec.instance);
-		put(Inet4Address.class, MiscCodec.instance);
-		put(Inet6Address.class, MiscCodec.instance);
-		put(InetSocketAddress.class, MiscCodec.instance);
-		put(File.class, MiscCodec.instance);
-		put(Appendable.class, AppendableSerializer.instance);
-		put(StringBuffer.class, AppendableSerializer.instance);
-		put(StringBuilder.class, AppendableSerializer.instance);
-		put(Charset.class, ToStringSerializer.instance);
-		put(Pattern.class, ToStringSerializer.instance);
-		put(Locale.class, ToStringSerializer.instance);
-		put(URI.class, ToStringSerializer.instance);
-		put(URL.class, ToStringSerializer.instance);
-		put(UUID.class, ToStringSerializer.instance);
+		put(SimpleDateFormat.class, MiscCodec.instance, true);
+		put(Currency.class, new MiscCodec(), true);
+		put(TimeZone.class, MiscCodec.instance, true);
+		put(InetAddress.class, MiscCodec.instance, true);
+		put(Inet4Address.class, MiscCodec.instance, true);
+		put(Inet6Address.class, MiscCodec.instance, true);
+		put(InetSocketAddress.class, MiscCodec.instance, true);
+		put(File.class, MiscCodec.instance, true);
+		put(Appendable.class, AppendableSerializer.instance, true);
+		put(StringBuffer.class, AppendableSerializer.instance, true);
+		put(StringBuilder.class, AppendableSerializer.instance, true);
+		put(Charset.class, ToStringSerializer.instance, true);
+		put(Pattern.class, ToStringSerializer.instance, true);
+		put(Locale.class, ToStringSerializer.instance, true);
+		put(URI.class, ToStringSerializer.instance, true);
+		put(URL.class, ToStringSerializer.instance, true);
+		put(UUID.class, ToStringSerializer.instance, true);
 
 		// atomic
-		put(AtomicBoolean.class, AtomicCodec.instance);
-		put(AtomicInteger.class, AtomicCodec.instance);
-		put(AtomicLong.class, AtomicCodec.instance);
-		put(AtomicReference.class, ReferenceCodec.instance);
-		put(AtomicIntegerArray.class, AtomicCodec.instance);
-		put(AtomicLongArray.class, AtomicCodec.instance);
+		put(AtomicBoolean.class, AtomicCodec.instance, true);
+		put(AtomicInteger.class, AtomicCodec.instance, true);
+		put(AtomicLong.class, AtomicCodec.instance, true);
+		put(AtomicReference.class, ReferenceCodec.instance, true);
+		put(AtomicIntegerArray.class, AtomicCodec.instance, true);
+		put(AtomicLongArray.class, AtomicCodec.instance, true);
 		
-		put(WeakReference.class, ReferenceCodec.instance);
-		put(SoftReference.class, ReferenceCodec.instance);
+		put(WeakReference.class, ReferenceCodec.instance, true);
+		put(SoftReference.class, ReferenceCodec.instance, true);
 
-        put(LinkedList.class, CollectionCodec.instance);
+        put(LinkedList.class, CollectionCodec.instance, true);
 	}
 	
 	/**
@@ -707,11 +694,19 @@ public class SerializeConfig {
 	}
 
     public boolean put(Object type, Object value) {
-        return put((Type)type, (ObjectSerializer)value);
+        return put(type, value, false);
     }
 
-	public boolean put(Type type, ObjectSerializer value) {
-        return this.serializers.put(type, value);
+    public boolean put(Object type, Object value, boolean keepRef) {
+        return put((Type)type, (ObjectSerializer)value, keepRef);
+    }
+
+    public boolean put(Type type, ObjectSerializer value) {
+        return put(type, value, false);
+    }
+
+	public boolean put(Type type, ObjectSerializer value, boolean keepRef) {
+        return this.serializers.put(type, value, keepRef);
 	}
 
     /**

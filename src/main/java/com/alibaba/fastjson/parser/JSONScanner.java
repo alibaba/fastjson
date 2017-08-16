@@ -241,7 +241,11 @@ public final class JSONScanner extends JSONLexerBase {
             }
         }
 
-        if (rest == 8 || rest == 14 || (rest == 17 && charAt(bp + 6) != '-')) {
+        char c10;
+        if (rest == 8
+                || rest == 14
+                || (rest == 16 && ((c10 = charAt(bp + 10)) == 'T' || c10 == ' '))
+                || (rest == 17 && charAt(bp + 6) != '-')) {
             if (strict) {
                 return false;
             }
@@ -258,8 +262,10 @@ public final class JSONScanner extends JSONLexerBase {
             char c7 = charAt(bp + 7);
             char c8 = charAt(bp + 8);
 
-            final boolean sperate17 = c4 == '-' && c7 == '-' && rest == 17;
-            if (sperate17) {
+            final boolean c_47 = c4 == '-' && c7 == '-';
+            final boolean sperate16 = c_47 && rest == 16;
+            final boolean sperate17 = c_47 && rest == 17;
+            if (sperate17 || sperate16) {
                 y0 = c0;
                 y1 = c1;
                 y2 = c2;
@@ -289,14 +295,15 @@ public final class JSONScanner extends JSONLexerBase {
             int hour, minute, seconds, millis;
             if (rest != 8) {
                 char c9 = charAt(bp + 9);
-                char c10 = charAt(bp + 10);
+                c10 = charAt(bp + 10);
                 char c11 = charAt(bp + 11);
                 char c12 = charAt(bp + 12);
                 char c13 = charAt(bp + 13);
 
                 char h0, h1, m0, m1, s0, s1;
 
-                if (sperate17 && c10 == 'T' && c13 == ':' && charAt(bp + 16) == 'Z') {
+                if ((sperate17 && c10 == 'T' && c13 == ':' && charAt(bp + 16) == 'Z')
+                        || (sperate16 && (c10 == ' ' || c10 == 'T') && c13 == ':')) {
                     h0 = c11;
                     h1 = c12;
                     m0 = charAt(bp + 14);

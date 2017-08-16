@@ -1525,9 +1525,9 @@ public class DefaultJSONParser implements Closeable {
         }
 
         if (extraProcessors != null) {
-            for (ExtraProcessor process : extraProcessors) {
+            extraProcessors.forEach(process -> {
                 process.processExtra(object, key, value);
-            }
+            });
         }
 
         if (resolveStatus == NeedToResolve) {

@@ -2331,9 +2331,9 @@ public class JSONPath implements JSONAware {
                     return;
                 }
                 List<Object> fieldValues = beanSerializer.getFieldValues(currentObject);
-                for (Object val : fieldValues) {
+                fieldValues.forEach(val -> {
                     deepScan(val, propertyName, results);
-                }
+                });
                 return;
             } catch (Exception e) {
                 throw new JSONPathException("jsonpath error, path " + path + ", segement " + propertyName, e);
@@ -2384,9 +2384,9 @@ public class JSONPath implements JSONAware {
 
                 JavaBeanSerializer beanSerializer = getJavaBeanSerializer(currentClass);
                 List<Object> fieldValues = beanSerializer.getObjectFieldValues(currentObject);
-                for (Object val : fieldValues) {
+                fieldValues.forEach(val -> {
                     deepSet(val, propertyName, propertyNameHash, value);
-                }
+                });
                 return;
             } catch (Exception e) {
                 throw new JSONPathException("jsonpath error, path " + path + ", segement " + propertyName, e);

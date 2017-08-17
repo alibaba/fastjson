@@ -241,7 +241,7 @@ public class JavaBeanInfo {
                         Type fieldType = creatorConstructor.getGenericParameterTypes()[i];
                         Field field = TypeUtils.getField(clazz, fieldAnnotation.name(), declaredFields);
                         final int ordinal = fieldAnnotation.ordinal();
-                        final int serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                        final int serialzeFeatures = SerializerFeature.of(fieldAnnotation.serializeFeatures());
                         final int parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
                         FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, field,
                                 ordinal, serialzeFeatures, parserFeatures);
@@ -276,7 +276,7 @@ public class JavaBeanInfo {
                         Type fieldType = factoryMethod.getGenericParameterTypes()[i];
                         Field field = TypeUtils.getField(clazz, fieldAnnotation.name(), declaredFields);
                         final int ordinal = fieldAnnotation.ordinal();
-                        final int serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                        final int serialzeFeatures = SerializerFeature.of(fieldAnnotation.serializeFeatures());
                         final int parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
                         FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, field,
                                 ordinal, serialzeFeatures, parserFeatures);
@@ -394,7 +394,7 @@ public class JavaBeanInfo {
                                 paramName = nameAnnotated;
                             }
                             ordinal = fieldAnnotation.ordinal();
-                            serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                            serialzeFeatures = SerializerFeature.of(fieldAnnotation.serializeFeatures());
                             parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
                         }
                         FieldInfo fieldInfo = new FieldInfo(paramName, clazz, fieldClass, fieldType, field,
@@ -450,7 +450,7 @@ public class JavaBeanInfo {
                     }
 
                     ordinal = annotation.ordinal();
-                    serialzeFeatures = SerializerFeature.of(annotation.serialzeFeatures());
+                    serialzeFeatures = SerializerFeature.of(annotation.serializeFeatures());
                     parserFeatures = Feature.of(annotation.parseFeatures());
 
                     if (annotation.name().length() != 0) {
@@ -580,7 +580,7 @@ public class JavaBeanInfo {
                 }
 
                 ordinal = annotation.ordinal();
-                serialzeFeatures = SerializerFeature.of(annotation.serialzeFeatures());
+                serialzeFeatures = SerializerFeature.of(annotation.serializeFeatures());
                 parserFeatures = Feature.of(annotation.parseFeatures());
 
                 if (annotation.name().length() != 0) {
@@ -632,7 +632,7 @@ public class JavaBeanInfo {
                     }
 
                     ordinal = fieldAnnotation.ordinal();
-                    serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                    serialzeFeatures = SerializerFeature.of(fieldAnnotation.serializeFeatures());
                     parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
 
                     if (fieldAnnotation.name().length() != 0) {
@@ -757,7 +757,7 @@ public class JavaBeanInfo {
                 }
 
                 ordinal = fieldAnnotation.ordinal();
-                serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                serialzeFeatures = SerializerFeature.of(fieldAnnotation.serializeFeatures());
                 parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
 
                 if (fieldAnnotation.name().length() != 0) {

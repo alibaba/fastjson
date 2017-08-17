@@ -39,7 +39,7 @@ public class WriteClassNameTest5 extends TestCase {
     }
 
     public static class Model {
-        @JSONField(serialzeFeatures = SerializerFeature.WriteClassName)
+        @JSONField(serializeFeatures = SerializerFeature.WriteClassName)
         public A a;
     }
 

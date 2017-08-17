@@ -2,7 +2,6 @@ package com.alibaba.json.bvt.serializer.features;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
-import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import junit.framework.TestCase;
 
@@ -17,7 +16,7 @@ public class NotWriteDefaultValueFieldTest extends TestCase {
 
     public static class Model {
 
-        @JSONField(serialzeFeatures = SerializerFeature.NotWriteDefaultValue)
+        @JSONField(serializeFeatures = SerializerFeature.NotWriteDefaultValue)
         public int id;
 
         public Model(int id) {

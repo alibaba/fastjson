@@ -19,7 +19,7 @@ public class Bug_for_issue_572_field2 extends TestCase {
 
     public static class Model {
 
-        @JSONField(serialzeFeatures = SerializerFeature.WriteNonStringValueAsString)
+        @JSONField(serializeFeatures = SerializerFeature.WriteNonStringValueAsString)
         public int    id;
         public String name;
 

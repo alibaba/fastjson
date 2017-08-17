@@ -17,12 +17,9 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
@@ -82,7 +79,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
         boolean writeNull = false;
         JSONField annotation = fieldInfo.getAnnotation();
         if (annotation != null) {
-            for (SerializerFeature feature : annotation.serialzeFeatures()) {
+            for (SerializerFeature feature : annotation.serializeFeatures()) {
                 if ((feature.getMask() & SerializerFeature.WRITE_MAP_NULL_FEATURES) != 0) {
                     writeNull = true;
                     break;
@@ -95,7 +92,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
                 format = null;
             }
 
-            for (SerializerFeature feature : annotation.serialzeFeatures()) {
+            for (SerializerFeature feature : annotation.serializeFeatures()) {
                 if (feature == SerializerFeature.WriteEnumUsingToString) {
                     writeEnumUsingToString = true;
                 }else if(feature == SerializerFeature.WriteEnumUsingName){
@@ -105,7 +102,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
                 }
             }
             
-            features = SerializerFeature.of(annotation.serialzeFeatures());
+            features = SerializerFeature.of(annotation.serializeFeatures());
         }
         
         this.writeNull = writeNull;

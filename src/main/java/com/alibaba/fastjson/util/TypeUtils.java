@@ -38,7 +38,6 @@ import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.serializer.CalendarCodec;
-import com.alibaba.fastjson.serializer.DateCodec;
 import com.alibaba.fastjson.serializer.SerializeBeanInfo;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
@@ -1535,7 +1534,7 @@ public class TypeUtils {
                 }
 
                 ordinal = annotation.ordinal();
-                serialzeFeatures = SerializerFeature.of(annotation.serialzeFeatures());
+                serialzeFeatures = SerializerFeature.of(annotation.serializeFeatures());
                 parserFeatures = Feature.of(annotation.parseFeatures());
 
                 if (annotation.name().length() != 0) {
@@ -1620,7 +1619,7 @@ public class TypeUtils {
                         }
 
                         ordinal = fieldAnnotation.ordinal();
-                        serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                        serialzeFeatures = SerializerFeature.of(fieldAnnotation.serializeFeatures());
                         parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
 
                         if (fieldAnnotation.name().length() != 0) {
@@ -1706,7 +1705,7 @@ public class TypeUtils {
                         }
 
                         ordinal = fieldAnnotation.ordinal();
-                        serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                        serialzeFeatures = SerializerFeature.of(fieldAnnotation.serializeFeatures());
                         parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
 
                         if (fieldAnnotation.name().length() != 0) {
@@ -1816,7 +1815,7 @@ public class TypeUtils {
                 }
 
                 ordinal = fieldAnnotation.ordinal();
-                serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                serialzeFeatures = SerializerFeature.of(fieldAnnotation.serializeFeatures());
                 parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
 
                 if (fieldAnnotation.name().length() != 0) {

@@ -30,7 +30,7 @@ public class FeaturesTest7 extends TestCase {
 
         private TimeUnit value = TimeUnit.SECONDS;
 
-        @JSONField(serialzeFeatures = { SerializerFeature.WriteEnumUsingToString })
+        @JSONField(serializeFeatures = { SerializerFeature.WriteEnumUsingToString })
         public TimeUnit getValue() {
             return value;
         }

@@ -2,7 +2,6 @@ package com.alibaba.json.bvt.feature;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
-import com.alibaba.fastjson.serializer.PropertyFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import junit.framework.TestCase;
 
@@ -18,7 +17,7 @@ public class WriteNullStringAsEmptyTest2 extends TestCase {
 
 
     public static class Model {
-        @JSONField(serialzeFeatures = SerializerFeature.WriteNullStringAsEmpty)
+        @JSONField(serializeFeatures = SerializerFeature.WriteNullStringAsEmpty)
         public String id;
     }
 }

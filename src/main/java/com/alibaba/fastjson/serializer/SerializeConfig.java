@@ -51,7 +51,6 @@ import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.ServiceLoader;
 import com.alibaba.fastjson.util.TypeUtils;
-import sun.reflect.annotation.AnnotationType;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
@@ -203,7 +202,7 @@ public class SerializeConfig {
     				break;
     			}
 
-                for (SerializerFeature feature : annotation.serialzeFeatures()) {
+                for (SerializerFeature feature : annotation.serializeFeatures()) {
                     if (SerializerFeature.WriteNonStringValueAsString == feature //
                             || SerializerFeature.WriteEnumUsingToString == feature //
                             || SerializerFeature.NotWriteDefaultValue == feature

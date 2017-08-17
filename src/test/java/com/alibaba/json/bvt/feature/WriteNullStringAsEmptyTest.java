@@ -28,7 +28,7 @@ public class WriteNullStringAsEmptyTest extends TestCase {
 
 
     private static class Model {
-        @JSONField(serialzeFeatures = SerializerFeature.WriteNullStringAsEmpty)
+        @JSONField(serializeFeatures = SerializerFeature.WriteNullStringAsEmpty)
         public String id;
     }
 }

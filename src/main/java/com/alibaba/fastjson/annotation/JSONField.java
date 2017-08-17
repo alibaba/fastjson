@@ -15,13 +15,13 @@
  */
 package com.alibaba.fastjson.annotation;
 
+import com.alibaba.fastjson.parser.Feature;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import com.alibaba.fastjson.parser.Feature;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -44,7 +44,7 @@ public @interface JSONField {
 
     boolean deserialize() default true;
 
-    SerializerFeature[] serialzeFeatures() default {};
+    SerializerFeature[] serializeFeatures() default {};
 
     Feature[] parseFeatures() default {};
     

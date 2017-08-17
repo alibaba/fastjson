@@ -25,7 +25,7 @@ public class BeanToArrayTest3_private extends TestCase {
     }
    
     private static class Model {
-        @JSONField(serialzeFeatures=SerializerFeature.BeanToArray, parseFeatures=Feature.SupportArrayToBean)
+        @JSONField(serializeFeatures =SerializerFeature.BeanToArray, parseFeatures=Feature.SupportArrayToBean)
         public Item item;
     }
     

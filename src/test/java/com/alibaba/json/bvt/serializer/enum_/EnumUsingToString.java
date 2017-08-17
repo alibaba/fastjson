@@ -18,7 +18,7 @@ public class EnumUsingToString extends TestCase {
     }
 
     public static class Model {
-        @JSONField(serialzeFeatures = SerializerFeature.WriteEnumUsingToString)
+        @JSONField(serializeFeatures = SerializerFeature.WriteEnumUsingToString)
         public Gender gender;
     }
 

@@ -200,10 +200,11 @@ class JavaBeanInfo {
         List<FieldInfo> fieldList = new ArrayList<FieldInfo>();
         Map<Class<?>, Field[]> classFieldCache = new HashMap<Class<?>, Field[]>();
 
+        Constructor<?>[] constructors = clazz.getDeclaredConstructors();
+
         boolean kotlin = TypeUtils.isKotlin(clazz);
-        // DeserializeBeanInfo beanInfo = null;
         Constructor<?> defaultConstructor = null;
-        if ((classModifiers & Modifier.ABSTRACT) == 0 && !kotlin) {
+        if ((classModifiers & Modifier.ABSTRACT) == 0 && (constructors.length == 1 || !kotlin)) {
             try {
                 defaultConstructor = clazz.getDeclaredConstructor();
             } catch (Exception e) {
@@ -212,7 +213,7 @@ class JavaBeanInfo {
 
             if (defaultConstructor == null) {
                 if (clazz.isMemberClass() && (classModifiers & Modifier.STATIC) == 0) { // for inner none static class
-                    for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
+                    for (Constructor<?> constructor : constructors) {
                         Class<?>[] parameterTypes = constructor.getParameterTypes();
                         if (parameterTypes.length == 1 && parameterTypes[0].equals(clazz.getDeclaringClass())) {
                             defaultConstructor = constructor;
@@ -262,7 +263,7 @@ class JavaBeanInfo {
         
         final Field[] declaredFields = clazz.getDeclaredFields();
 
-        Constructor<?>[] constructors = clazz.getDeclaredConstructors();
+
 
         boolean isInterfaceOrAbstract = clazz.isInterface() || (classModifiers & Modifier.ABSTRACT) != 0;
 

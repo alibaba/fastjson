@@ -192,7 +192,7 @@ public class JavaBeanInfo {
         Constructor[] constructors = clazz.getDeclaredConstructors();
 
         Constructor<?> defaultConstructor = null;
-        if (!kotlin) {
+        if ((!kotlin) || constructors.length == 1) {
             if (builderClass == null) {
                 defaultConstructor = getDefaultConstructor(clazz, constructors);
             } else {

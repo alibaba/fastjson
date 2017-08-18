@@ -241,19 +241,50 @@ public final class JSONScanner extends JSONLexerBase {
             }
         }
 
-        if (rest == 8 || rest == 14 || (rest == 17 && charAt(bp + 6) != '-')) {
+        char c10;
+        if (rest == 8
+                || rest == 14
+                || (rest == 16 && ((c10 = charAt(bp + 10)) == 'T' || c10 == ' '))
+                || (rest == 17 && charAt(bp + 6) != '-')) {
             if (strict) {
                 return false;
             }
 
-            char y0 = charAt(bp);
-            char y1 = charAt(bp + 1);
-            char y2 = charAt(bp + 2);
-            char y3 = charAt(bp + 3);
-            char M0 = charAt(bp + 4);
-            char M1 = charAt(bp + 5);
-            char d0 = charAt(bp + 6);
-            char d1 = charAt(bp + 7);
+            char y0, y1, y2, y3, M0, M1, d0, d1;
+
+            char c0 = charAt(bp);
+            char c1 = charAt(bp + 1);
+            char c2 = charAt(bp + 2);
+            char c3 = charAt(bp + 3);
+            char c4 = charAt(bp + 4);
+            char c5 = charAt(bp + 5);
+            char c6 = charAt(bp + 6);
+            char c7 = charAt(bp + 7);
+            char c8 = charAt(bp + 8);
+
+            final boolean c_47 = c4 == '-' && c7 == '-';
+            final boolean sperate16 = c_47 && rest == 16;
+            final boolean sperate17 = c_47 && rest == 17;
+            if (sperate17 || sperate16) {
+                y0 = c0;
+                y1 = c1;
+                y2 = c2;
+                y3 = c3;
+                M0 = c5;
+                M1 = c6;
+                d0 = c8;
+                d1 = charAt(bp + 9);
+            } else {
+                y0 = c0;
+                y1 = c1;
+                y2 = c2;
+                y3 = c3;
+                M0 = c4;
+                M1 = c5;
+                d0 = c6;
+                d1 = c7;
+            }
+
 
             if (!checkDate(y0, y1, y2, y3, M0, M1, d0, d1)) {
                 return false;
@@ -263,18 +294,36 @@ public final class JSONScanner extends JSONLexerBase {
 
             int hour, minute, seconds, millis;
             if (rest != 8) {
-                char h0 = charAt(bp + 8);
-                char h1 = charAt(bp + 9);
-                char m0 = charAt(bp + 10);
-                char m1 = charAt(bp + 11);
-                char s0 = charAt(bp + 12);
-                char s1 = charAt(bp + 13);
+                char c9 = charAt(bp + 9);
+                c10 = charAt(bp + 10);
+                char c11 = charAt(bp + 11);
+                char c12 = charAt(bp + 12);
+                char c13 = charAt(bp + 13);
+
+                char h0, h1, m0, m1, s0, s1;
+
+                if ((sperate17 && c10 == 'T' && c13 == ':' && charAt(bp + 16) == 'Z')
+                        || (sperate16 && (c10 == ' ' || c10 == 'T') && c13 == ':')) {
+                    h0 = c11;
+                    h1 = c12;
+                    m0 = charAt(bp + 14);
+                    m1 = charAt(bp + 15);
+                    s0 = '0';
+                    s1 = '0';
+                } else {
+                    h0 = c8;
+                    h1 = c9;
+                    m0 = c10;
+                    m1 = c11;
+                    s0 = c12;
+                    s1 = c13;
+                }
 
                 if (!checkTime(h0, h1, m0, m1, s0, s1)) {
                     return false;
                 }
 
-                if (rest == 17) {
+                if (rest == 17 && !sperate17) {
                     char S0 = charAt(bp + 14);
                     char S1 = charAt(bp + 15);
                     char S2 = charAt(bp + 16);

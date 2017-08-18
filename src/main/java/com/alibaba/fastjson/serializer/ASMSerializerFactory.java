@@ -61,7 +61,7 @@ public class ASMSerializerFactory implements Opcodes {
 
         private Map<String, Integer>    variants       = new HashMap<String, Integer>();
         private int                     variantIndex   = 9;
-        private boolean                 nonContext;
+        private final boolean           nonContext;
 
         public Context(FieldInfo[] getters, //
                        SerializeBeanInfo beanInfo, //
@@ -72,7 +72,7 @@ public class ASMSerializerFactory implements Opcodes {
             this.className = className;
             this.beanInfo = beanInfo;
             this.writeDirect = writeDirect;
-            this.nonContext = nonContext;
+            this.nonContext = nonContext || beanInfo.beanType.isEnum();
         }
 
         public int var(String name) {

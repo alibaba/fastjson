@@ -498,6 +498,15 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
                             continue;  
                         }
+                    } else if (fieldClass == java.util.Date.class && fieldInfo.format == null) {
+                        fieldValue = lexer.scanFieldDate(name_chars);
+
+                        if (lexer.matchStat > 0) {
+                            matchField = true;
+                            valueParsed = true;
+                        } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
+                            continue;
+                        }
                     } else if (fieldClass == BigDecimal.class) {
                         fieldValue = lexer.scanFieldDecimal(name_chars);
 

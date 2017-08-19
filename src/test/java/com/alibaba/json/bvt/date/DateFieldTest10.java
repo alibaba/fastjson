@@ -5,12 +5,18 @@ import junit.framework.TestCase;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 /**
  * Created by wenshao on 07/04/2017.
  */
 public class DateFieldTest10 extends TestCase {
+    protected void setUp() throws Exception {
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        JSON.defaultLocale = Locale.CHINA;
+    }
+
     public void test_for_zero() throws Exception {
         String text = "{\"date\":\"0000-00-00\"}";
 

@@ -324,6 +324,9 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             } else if (fieldClass == java.util.Date.class && lexer.getCurrent() == '1') {
                 long longValue = lexer.scanLong(seperator);
                 fieldDeser.setValue(object, new java.util.Date(longValue));
+            } else if (fieldClass == BigDecimal.class) {
+                BigDecimal value = lexer.scanDecimal(seperator);
+                fieldDeser.setValue(object, value);
             } else {
                 lexer.nextToken(JSONToken.LBRACKET);
                 Object value = parser.parseObject(fieldDeser.fieldInfo.fieldType, fieldDeser.fieldInfo.name);

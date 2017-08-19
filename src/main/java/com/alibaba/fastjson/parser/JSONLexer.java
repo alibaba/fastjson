@@ -84,6 +84,7 @@ public interface JSONLexer {
     float scanFloat(char seperator);
     double scanDouble(char seperator);
     boolean scanBoolean(char expectNext);
+    BigDecimal scanDecimal(char seperator);
 
     String scanString(char expectNextChar);
 

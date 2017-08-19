@@ -1,6 +1,7 @@
 package com.alibaba.json.test.benchmark.basic;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.parser.Feature;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -11,6 +12,7 @@ import java.util.Date;
 public class DateBenchmark {
     static String json = "{\"v1\":\"2017-08-16 04:29:00\",\"v2\":\"2017-08-16 04:29:00\",\"v3\":\"2017-08-16 04:29:00\",\"v4\":\"2017-08-16 04:29:00\",\"v5\":\"2017-08-16 04:29:00\"}";
     static String json2 = "{\"v1\":1502828940000,\"v2\":1502828940000,\"v3\":1502828940000,\"v4\":1502828940000,\"v5\":1502828940000}";
+    static String json3 = "[\"2017-08-16 04:29:00\",\"2017-08-16 04:29:00\",\"2017-08-16 04:29:00\",\"2017-08-16 04:29:00\",\"2017-08-16 04:29:00\"]";
 
     public static void main(String[] args) throws Exception {
 //        Model model = new Model();
@@ -23,8 +25,9 @@ public class DateBenchmark {
 //        System.out.println(JSON.toJSONString(model));
 
         for (int i = 0; i < 10; ++i) {
-             perf(); // 18540
+//             perf(); // 18540
 //            perf2(); // 2205
+            perf3(); // 22660 20963 18566
         }
     }
 
@@ -41,6 +44,15 @@ public class DateBenchmark {
         long start = System.currentTimeMillis();
         for (int i = 0; i < 1000 * 1000 * 10; ++i) {
             JSON.parseObject(json2, Model.class);
+        }
+        long millis = System.currentTimeMillis() - start;
+        System.out.println("millis : " + millis);
+    }
+
+    public static void perf3() {
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < 1000 * 1000 * 10; ++i) {
+            JSON.parseObject(json3, Model.class, Feature.SupportArrayToBean);
         }
         long millis = System.currentTimeMillis() - start;
         System.out.println("millis : " + millis);

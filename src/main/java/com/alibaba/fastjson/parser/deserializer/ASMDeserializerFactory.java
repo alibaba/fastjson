@@ -255,6 +255,19 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitVarInsn(BIPUSH, seperator);
                 mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanString", "(C)Ljava/lang/String;");
                 mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
+
+            } else if (fieldClass == BigDecimal.class) {
+                mw.visitVarInsn(ALOAD, context.var("lexer"));
+                mw.visitVarInsn(BIPUSH, seperator);
+                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanDecimal", "(C)Ljava/math/BigDecimal;");
+                mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
+
+            } else if (fieldClass == java.util.Date.class) {
+                mw.visitVarInsn(ALOAD, context.var("lexer"));
+                mw.visitVarInsn(BIPUSH, seperator);
+                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanDate", "(C)Ljava/util/Date;");
+                mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
+
             } else if (fieldClass.isEnum()) {
                 Label enumNumIf_ = new Label();
                 Label enumNumErr_ = new Label();

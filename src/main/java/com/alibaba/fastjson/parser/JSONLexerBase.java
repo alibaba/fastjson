@@ -30,6 +30,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.util.IOUtils;
+import com.alibaba.fastjson.util.TypeUtils;
 
 import static com.alibaba.fastjson.parser.JSONToken.*;
 
@@ -3626,6 +3627,140 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
 
         return value;
+    }
+
+    public java.util.Date scanFieldDate(char[] fieldName) {
+        matchStat = UNKNOWN;
+
+        if (!charArrayCompare(fieldName)) {
+            matchStat = NOT_MATCH_NAME;
+            return null;
+        }
+
+        // int index = bp + fieldName.length;
+
+        int offset = fieldName.length;
+        char chLocal = charAt(bp + (offset++));
+
+        final java.util.Date strVal;
+        if (chLocal == '"'){
+            int startIndex = bp + fieldName.length + 1;
+            int endIndex = indexOf('"', startIndex);
+            if (endIndex == -1) {
+                throw new JSONException("unclosed str");
+            }
+
+            int startIndex2 = bp + fieldName.length + 1; // must re compute
+            String stringVal = subString(startIndex2, endIndex - startIndex2);
+            if (stringVal.indexOf('\\') != -1) {
+                for (;;) {
+                    int slashCount = 0;
+                    for (int i = endIndex - 1; i >= 0; --i) {
+                        if (charAt(i) == '\\') {
+                            slashCount++;
+                        } else {
+                            break;
+                        }
+                    }
+                    if (slashCount % 2 == 0) {
+                        break;
+                    }
+                    endIndex = indexOf('"', endIndex + 1);
+                }
+
+                int chars_len = endIndex - (bp + fieldName.length + 1);
+                char[] chars = sub_chars( bp + fieldName.length + 1, chars_len);
+
+                stringVal = readString(chars, chars_len);
+            }
+
+            offset += (endIndex - (bp + fieldName.length + 1) + 1);
+            chLocal = charAt(bp + (offset++));
+
+            JSONScanner dateLexer = new JSONScanner(stringVal);
+            try {
+                if (dateLexer.scanISO8601DateIfMatch(false)) {
+                    Calendar calendar = dateLexer.getCalendar();
+                    strVal = calendar.getTime();
+                } else {
+                    matchStat = NOT_MATCH;
+                    return null;
+                }
+            } finally {
+                dateLexer.close();
+            }
+        } else if (chLocal == '-' || (chLocal >= '0' && chLocal <= '9')) {
+            long millis = 0;
+
+            boolean negative = false;
+            if (chLocal == '-') {
+                chLocal = charAt(bp + (offset++));
+                negative = true;
+            }
+
+            if (chLocal >= '0' && chLocal <= '9') {
+                millis = chLocal - '0';
+                for (; ; ) {
+                    chLocal = charAt(bp + (offset++));
+                    if (chLocal >= '0' && chLocal <= '9') {
+                        millis = millis * 10 + (chLocal - '0');
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+            if (millis < 0) {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+
+            if (negative) {
+                millis = -millis;
+            }
+
+            strVal = new java.util.Date(millis);
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        if (chLocal == ',') {
+            bp += offset;
+            this.ch = this.charAt(bp);
+            matchStat = VALUE;
+            return strVal;
+        }
+
+        if (chLocal == '}') {
+            chLocal = charAt(bp + (offset++));
+            if (chLocal == ',') {
+                token = JSONToken.COMMA;
+                bp += offset;
+                this.ch = this.charAt(bp);
+            } else if (chLocal == ']') {
+                token = JSONToken.RBRACKET;
+                bp += offset;
+                this.ch = this.charAt(bp);
+            } else if (chLocal == '}') {
+                token = JSONToken.RBRACE;
+                bp += offset;
+                this.ch = this.charAt(bp);
+            } else if (chLocal == EOI) {
+                token = JSONToken.EOF;
+                bp += (offset - 1);
+                ch = EOI;
+            } else {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+            matchStat = END;
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        return strVal;
     }
 
     public final void scanTrue() {

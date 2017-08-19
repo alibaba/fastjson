@@ -149,7 +149,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
     }
     
     @SuppressWarnings("unchecked")
-    protected <T> T cast(DefaultJSONParser parser, Type clazz, Object fieldName, Object val) {
+    public <T> T cast(DefaultJSONParser parser, Type clazz, Object fieldName, Object val) {
 
         if (val == null) {
             return null;

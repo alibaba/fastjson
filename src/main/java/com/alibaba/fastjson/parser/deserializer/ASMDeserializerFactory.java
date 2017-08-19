@@ -268,6 +268,12 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanDate", "(C)Ljava/util/Date;");
                 mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
 
+            } else if (fieldClass == java.util.UUID.class) {
+                mw.visitVarInsn(ALOAD, context.var("lexer"));
+                mw.visitVarInsn(BIPUSH, seperator);
+                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanUUID", "(C)Ljava/util/UUID;");
+                mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
+
             } else if (fieldClass.isEnum()) {
                 Label enumNumIf_ = new Label();
                 Label enumNumErr_ = new Label();
@@ -872,6 +878,13 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitVarInsn(ALOAD, 0);
                 mw.visitFieldInsn(GETFIELD, context.className, fieldInfo.name + "_asm_prefix__", "[C");
                 mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldDate", "([C)Ljava/util/Date;");
+                mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
+
+            } else if (fieldClass == java.util.UUID.class) {
+                mw.visitVarInsn(ALOAD, context.var("lexer"));
+                mw.visitVarInsn(ALOAD, 0);
+                mw.visitFieldInsn(GETFIELD, context.className, fieldInfo.name + "_asm_prefix__", "[C");
+                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldUUID", "([C)Ljava/util/UUID;");
                 mw.visitVarInsn(ASTORE, context.var(fieldInfo.name + "_asm"));
 
             } else if (fieldClass == BigDecimal.class) {

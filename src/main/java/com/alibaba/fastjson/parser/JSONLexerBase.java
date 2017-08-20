@@ -2216,7 +2216,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                     break;
                 }
             }
-            if (value < 0 || offset > 21) {
+
+            boolean valid = offset - fieldName.length < 21
+                    && (value >= 0 || (value == -9223372036854775808L && negative));
+            if (!valid) {
                 matchStat = NOT_MATCH;
                 return 0;
             }
@@ -2293,9 +2296,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                     break;
                 }
             }
-            if (value < 0 && value != -9223372036854775808L) {
-                matchStat = NOT_MATCH;
-                return 0;
+            boolean valid = value >= 0 || (value == -9223372036854775808L && negative);
+            if (!valid) {
+                String val = subString(bp, offset - 1);
+                throw new NumberFormatException(val);
             }
         } else if (chLocal == 'n' && charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
             matchStat = VALUE_NULL;

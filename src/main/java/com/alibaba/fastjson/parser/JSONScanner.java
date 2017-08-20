@@ -1368,7 +1368,8 @@ public final class JSONScanner extends JSONLexerBase {
                 }
             }
 
-            if (value < 0 && value != -9223372036854775808L) {
+            boolean valid = value >= 0 || (value == -9223372036854775808L && negative);
+            if (!valid) {
                 this.bp = startPos;
                 this.ch = startChar;
                 matchStat = NOT_MATCH;
@@ -1836,7 +1837,9 @@ public final class JSONScanner extends JSONLexerBase {
                     break;
                 }
             }
-            if (value < 0 && value != -9223372036854775808L) {
+
+            boolean valid = value >= 0 || (value == -9223372036854775808L && negative);
+            if (!valid) {
                 matchStat = NOT_MATCH;
                 return 0;
             }

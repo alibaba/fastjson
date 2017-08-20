@@ -1438,6 +1438,7 @@ public final class JSONScanner extends JSONLexerBase {
             return false;
         }
 
+        int startPos = bp;
         int index = bp + fieldName.length;
 
         char ch = charAt(index++);
@@ -1553,6 +1554,8 @@ public final class JSONScanner extends JSONLexerBase {
             } else if (isWhitespace(ch)) {
                 ch = charAt(++bp);
             } else {
+                bp = startPos;
+                ch = charAt(bp);
                 matchStat = NOT_MATCH;
                 return false;
             }

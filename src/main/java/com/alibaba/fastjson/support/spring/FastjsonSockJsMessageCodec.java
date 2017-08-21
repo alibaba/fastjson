@@ -11,12 +11,10 @@ import com.alibaba.fastjson.serializer.SerializeWriter;
 
 public class FastjsonSockJsMessageCodec extends AbstractSockJsMessageCodec {
 
-    @Override
     public String[] decode(String content) throws IOException {
         return JSON.parseObject(content, String[].class);
     }
 
-    @Override
     public String[] decodeInputStream(InputStream content) throws IOException {
         return JSON.parseObject(content, String[].class);
     }

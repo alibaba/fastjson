@@ -3,6 +3,7 @@ package com.alibaba.json.bvt;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.alibaba.fastjson.parser.ParserConfig;
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
@@ -12,6 +13,9 @@ import com.alibaba.fastjson.annotation.JSONField;
 import junit.framework.TestCase;
 
 public class JSONObjectTest_get_2 extends TestCase {
+    protected void setUp() throws Exception {
+        ParserConfig.global.addAccept("com.alibaba.json.bvt.JSONObjectTest_get_2.");
+    }
 
     public void test_get() throws Exception {
         JSONObject obj = JSON.parseObject("{\"value\":{}}");

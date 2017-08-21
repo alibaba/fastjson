@@ -1,6 +1,7 @@
 package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
@@ -72,7 +73,7 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
             if (JSON.DEFAULT_TYPE_KEY.equals(key)) {
                 if (lexer.token() == JSONToken.LITERAL_STRING) {
                     String exClassName = lexer.stringVal();
-                    exClass = TypeUtils.loadClass(exClassName, parser.getConfig().getDefaultClassLoader());
+                    exClass = parser.getConfig().checkAutoType(exClassName, Throwable.class);
                 } else {
                     throw new JSONException("syntax error");
                 }
@@ -91,7 +92,6 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
             } else if ("stackTrace".equals(key)) {
                 stackTrace = parser.parseObject(StackTraceElement[].class);
             } else {
-                // TODO
                 otherValues.put(key, parser.parse());
             }
 
@@ -105,6 +105,10 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
         if (exClass == null) {
             ex = new Exception(message, cause);
         } else {
+            if (!Throwable.class.isAssignableFrom(exClass)) {
+                throw new JSONException("type not match, not Throwable. " + exClass.getName());
+            }
+
             try {
                 ex = createException(message, cause, exClass);
                 if (ex == null) {
@@ -117,6 +121,16 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
 
         if (stackTrace != null) {
             ex.setStackTrace(stackTrace);
+        }
+
+        for (Map.Entry<String, Object> entry : otherValues.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+
+            FieldDeserializer fieldDeserializer = this.getFieldDeserializer(key);
+            if (fieldDeserializer != null) {
+                fieldDeserializer.setValue(ex, value);
+            }
         }
 
         return (T) ex;

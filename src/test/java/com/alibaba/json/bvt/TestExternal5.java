@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
+import com.alibaba.fastjson.parser.ParserConfig;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -16,6 +17,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class TestExternal5 extends TestCase {
+    protected void setUp() throws Exception {
+        ParserConfig.global.addAccept("com.alibaba.dubbo.demo");
+    }
 
     public void test_0() throws Exception {
         ExtClassLoader classLoader = new ExtClassLoader();
@@ -33,8 +37,8 @@ public class TestExternal5 extends TestCase {
         String text = JSON.toJSONString(obj, SerializerFeature.WriteClassName, SerializerFeature.WriteMapNullValue);
         System.out.println(text);
         JSON.parseObject(text, clazz);
-        JSONObject jsonObj = JSON.parseObject(text);
-        Assert.assertEquals(jsonObj.getString("@type"), "com.alibaba.dubbo.demo.MyEsbResultModel2");
+        String clazzName = JSON.parse(text).getClass().getName();
+        Assert.assertEquals(clazz.getName(), clazzName);
     }
 
     public static class ExtClassLoader extends ClassLoader {

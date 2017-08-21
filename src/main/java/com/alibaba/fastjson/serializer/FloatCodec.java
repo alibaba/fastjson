@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.lang.reflect.Type;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -65,12 +66,17 @@ public class FloatCodec implements ObjectSerializer, ObjectDeserializer {
     
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        return (T) deserialze(parser);
+        try {
+            return (T) deserialze(parser);
+        } catch (Exception ex) {
+            throw new JSONException("parseLong error, field : " + fieldName, ex);
+        }
     }
 
     @SuppressWarnings("unchecked")
     public static <T> T deserialze(DefaultJSONParser parser) {
         final JSONLexer lexer = parser.lexer;
+
         if (lexer.token() == JSONToken.LITERAL_INT) {
             String val = lexer.numberString();
             lexer.nextToken(JSONToken.COMMA);

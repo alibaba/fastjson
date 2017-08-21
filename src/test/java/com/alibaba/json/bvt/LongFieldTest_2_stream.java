@@ -58,7 +58,7 @@ public class LongFieldTest_2_stream extends TestCase {
         JSONReader reader = new JSONReader(new StringReader(text), Feature.SupportArrayToBean);
         V0 v1 = reader.readObject(V0.class);
 
-        Assert.assertEquals(v1.getValue(), v.getValue());
+        Assert.assertEquals(v.getValue(), v1.getValue());
     }
 
     public static class V0 {

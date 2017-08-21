@@ -39,6 +39,7 @@ package com.alibaba.fastjson.asm;
  * @author Eugene Kuleshov
  */
 public interface Opcodes {
+    int T_INT = 10;
 
     // versions
 
@@ -80,6 +81,7 @@ public interface Opcodes {
     int    FSTORE              = 56;                     // -
     int    DSTORE              = 57;                     // -
     int    ASTORE              = 58;                     // -
+    int    IASTORE             = 79; // visitInsn
     
     int    POP                 = 87;                     // -
 //    int    POP2                = 88;                     // -
@@ -123,7 +125,7 @@ public interface Opcodes {
     int    INVOKEINTERFACE     = 185;                    // -
     // int INVOKEDYNAMIC = 186; // -
     int    NEW                 = 187;                    // visitTypeInsn
-                                                          // int NEWARRAY = 188; // visitIntInsn
+    int    NEWARRAY            = 188;                    // visitIntInsn
                                                           // int ANEWARRAY = 189; // visitTypeInsn
                                                           // int ARRAYLENGTH = 190; // visitInsn
                                                           // int ATHROW = 191; // -

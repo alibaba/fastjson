@@ -354,7 +354,13 @@ public class TypeUtilsTest extends TestCase {
 
         Method method = TypeUtilsTest.class.getMethod("f", List.class);
 
-        TypeUtils.cast(json, method.getGenericParameterTypes()[0], ParserConfig.getGlobalInstance());
+        Throwable error = null;
+        try {
+            TypeUtils.cast(json, method.getGenericParameterTypes()[0], ParserConfig.getGlobalInstance());
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        assertNotNull(error);
     }
 
     public void test_3() throws Exception {

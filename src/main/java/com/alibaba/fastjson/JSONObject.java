@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import static com.alibaba.fastjson.util.TypeUtils.castToTimestamp;
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
@@ -96,7 +97,13 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     }
 
     public Object get(Object key) {
-        return map.get(key);
+        Object val = map.get(key);
+
+        if (val == null && key instanceof Number) {
+            val = map.get(key.toString());
+        }
+
+        return val;
     }
 
     public JSONObject getJSONObject(String key) {
@@ -132,6 +139,19 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         return TypeUtils.castToJavaBean(obj, clazz);
     }
 
+    public <T> T getObject(String key, Type type) {
+        Object obj = map.get(key);
+        return TypeUtils.cast(obj, type, ParserConfig.getGlobalInstance());
+    }
+
+    public <T> T getObject(String key, TypeReference typeReference) {
+        Object obj = map.get(key);
+        if (typeReference == null) {
+            return (T) obj;
+        }
+        return TypeUtils.cast(obj, typeReference.getType(), ParserConfig.getGlobalInstance());
+    }
+
     public Boolean getBoolean(String key) {
         Object value = get(key);
 
@@ -155,11 +175,12 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     public boolean getBooleanValue(String key) {
         Object value = get(key);
 
-        if (value == null) {
+        Boolean booleanVal = castToBoolean(value);
+        if (booleanVal == null) {
             return false;
         }
 
-        return castToBoolean(value).booleanValue();
+        return booleanVal.booleanValue();
     }
 
     public Byte getByte(String key) {
@@ -171,11 +192,12 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     public byte getByteValue(String key) {
         Object value = get(key);
 
-        if (value == null) {
+        Byte byteVal = castToByte(value);
+        if (byteVal == null) {
             return 0;
         }
 
-        return castToByte(value).byteValue(); // TODO 如果 value 是""、"null"或"NULL"，可能会存在报空指针的情况，是否需要加以处理？ 其他转换也存在类似情况
+        return byteVal.byteValue();
     }
 
     public Short getShort(String key) {
@@ -187,11 +209,12 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     public short getShortValue(String key) {
         Object value = get(key);
 
-        if (value == null) {
+        Short shortVal = castToShort(value);
+        if (shortVal == null) {
             return 0;
         }
 
-        return castToShort(value).shortValue();
+        return shortVal.shortValue();
     }
 
     public Integer getInteger(String key) {
@@ -203,11 +226,12 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     public int getIntValue(String key) {
         Object value = get(key);
 
-        if (value == null) {
+        Integer intVal = castToInt(value);
+        if (intVal == null) {
             return 0;
         }
 
-        return castToInt(value).intValue();
+        return intVal.intValue();
     }
 
     public Long getLong(String key) {
@@ -219,11 +243,12 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     public long getLongValue(String key) {
         Object value = get(key);
 
-        if (value == null) {
+        Long longVal = castToLong(value);
+        if (longVal == null) {
             return 0L;
         }
 
-        return castToLong(value).longValue();
+        return longVal.longValue();
     }
 
     public Float getFloat(String key) {
@@ -235,11 +260,12 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     public float getFloatValue(String key) {
         Object value = get(key);
 
-        if (value == null) {
+        Float floatValue = castToFloat(value);
+        if (floatValue == null) {
             return 0F;
         }
 
-        return castToFloat(value).floatValue();
+        return floatValue.floatValue();
     }
 
     public Double getDouble(String key) {
@@ -251,11 +277,12 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     public double getDoubleValue(String key) {
         Object value = get(key);
 
-        if (value == null) {
+        Double doubleValue = castToDouble(value);
+        if (doubleValue == null) {
             return 0D;
         }
 
-        return castToDouble(value);
+        return doubleValue.doubleValue();
     }
 
     public BigDecimal getBigDecimal(String key) {
@@ -442,5 +469,9 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         }
 
         throw new UnsupportedOperationException(method.toGenericString());
+    }
+
+    public Map<String, Object> getInnerMap() {
+        return this.map;
     }
 }

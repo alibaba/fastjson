@@ -26,4 +26,32 @@ public class SerialContext {
 
         }
     }
+
+    /**
+     * @deprecated
+     */
+    public SerialContext getParent() {
+        return parent;
+    }
+
+    /**
+     * @deprecated
+     */
+    public Object getObject() {
+        return object;
+    }
+
+    /**
+     * @deprecated
+     */
+    public Object getFieldName() {
+        return fieldName;
+    }
+
+    /**
+     * @deprecated
+     */
+    public String getPath() {
+        return toString();
+    }
 }

@@ -16,7 +16,7 @@ public class GenericTypeTest2 extends TestCase {
     public static class MyResultResult extends BaseResult<String> {
     }
     
-    public static class BaseResult<T> implements Serializable {
+    public static class BaseResult<T>  {
         private T data;
         public T getData() {
             return data;

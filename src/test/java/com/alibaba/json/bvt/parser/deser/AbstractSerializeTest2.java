@@ -11,6 +11,8 @@ import com.alibaba.fastjson.parser.ParserConfig;
 public class AbstractSerializeTest2 extends TestCase {
 
     protected void setUp() throws Exception {
+        ParserConfig.global.addAccept("com.alibaba.json.bvt.bug.AbstractSerializeTest2");
+        ParserConfig.global.addAccept("com.alibaba.json.bvt.parser.deser.AbstractSerializeTest2");
     }
 
     protected void tearDown() throws Exception {

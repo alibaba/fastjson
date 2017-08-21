@@ -12,6 +12,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.Arrays;
 
 import com.alibaba.fastjson.annotation.JSONField;
 
@@ -32,7 +33,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
     private final JSONField fieldAnnotation;
     private final JSONField methodAnnotation;
-    
+
     public final boolean    fieldAccess;
     public final boolean    fieldTransient;
 
@@ -40,10 +41,11 @@ public class FieldInfo implements Comparable<FieldInfo> {
     
     public final boolean    isEnum;
     public final boolean    jsonDirect;
+    public final boolean    unwrapped;
     
     public final String     format;
 
-    private final String[]  alternateNames;
+    public final String[]  alternateNames;
     
     public FieldInfo(String name, // 
                      Class<?> declaringClass, // 
@@ -61,7 +63,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.field = field;
         this.ordinal = ordinal;
         this.serialzeFeatures = serialzeFeatures;
-        this.parserFeatures = 0;
+        this.parserFeatures = parserFeatures;
         
         isEnum = fieldClass.isEnum();
         
@@ -85,6 +87,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         methodAnnotation = null;
         this.getOnly = false;
         this.jsonDirect = false;
+        this.unwrapped = false;
         this.format = null;
         this.alternateNames = new String[0];
     }
@@ -143,9 +146,11 @@ public class FieldInfo implements Comparable<FieldInfo> {
                 format = null;
             }
             jsonDirect = annotation.jsonDirect();
+            unwrapped = annotation.unwrapped();
             alternateNames = annotation.alternateNames();
         } else {
             jsonDirect = false;
+            unwrapped = false;
             alternateNames = new String[0];
         }
         this.format = format;
@@ -168,6 +173,8 @@ public class FieldInfo implements Comparable<FieldInfo> {
             if ((types = method.getParameterTypes()).length == 1) {
                 fieldClass = types[0];
                 fieldType = method.getGenericParameterTypes()[0];
+            } else if (types.length == 2 && types[0] == String.class && types[1] == Object.class) {
+                fieldType = fieldClass = types[0];
             } else {
                 fieldClass = method.getReturnType();
                 fieldType = method.getGenericReturnType();
@@ -185,7 +192,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
         if (clazz != null && fieldClass == Object.class && fieldType instanceof TypeVariable) {
             TypeVariable<?> tv = (TypeVariable<?>) fieldType;
-            Type genericFieldType = getInheritGenericType(clazz, tv);
+            Type genericFieldType = getInheritGenericType(clazz, type, tv);
             if (genericFieldType != null) {
                 this.fieldClass = TypeUtils.getClass(genericFieldType);
                 this.fieldType = genericFieldType;
@@ -282,35 +289,20 @@ public class FieldInfo implements Comparable<FieldInfo> {
             ParameterizedType parameterizedFieldType = (ParameterizedType) fieldType;
 
             Type[] arguments = parameterizedFieldType.getActualTypeArguments();
-            boolean changed = false;
-            TypeVariable<?>[] typeVariables = null;
-            Type[] actualTypes = null;
-            
-            ParameterizedType paramType = null;
+            TypeVariable<?>[] typeVariables;
+            ParameterizedType paramType;
             if (type instanceof ParameterizedType) {
                 paramType = (ParameterizedType) type;
                 typeVariables = clazz.getTypeParameters();
             } else if(clazz.getGenericSuperclass() instanceof ParameterizedType) {
                 paramType = (ParameterizedType) clazz.getGenericSuperclass();
                 typeVariables = clazz.getSuperclass().getTypeParameters();
+            } else {
+                paramType = parameterizedFieldType;
+                typeVariables = type.getClass().getTypeParameters();
             }
-            
-            for (int i = 0; i < arguments.length && paramType != null; ++i) {
-                Type feildTypeArguement = arguments[i];
-                if (feildTypeArguement instanceof TypeVariable) {
-                    TypeVariable<?> typeVar = (TypeVariable<?>) feildTypeArguement;
 
-                    for (int j = 0; j < typeVariables.length; ++j) {
-                        if (typeVariables[j].getName().equals(typeVar.getName())) {
-                            if (actualTypes == null) {
-                                actualTypes = paramType.getActualTypeArguments();
-                            }
-                            arguments[i] = actualTypes[j];
-                            changed = true;
-                        }
-                    }
-                }
-            }
+            boolean changed = getArgument(arguments, typeVariables, paramType.getActualTypeArguments());
             if (changed) {
                 fieldType = new ParameterizedTypeImpl(arguments, parameterizedFieldType.getOwnerType(),
                                                       parameterizedFieldType.getRawType());
@@ -321,35 +313,76 @@ public class FieldInfo implements Comparable<FieldInfo> {
         return fieldType;
     }
 
-    public static Type getInheritGenericType(Class<?> clazz, TypeVariable<?> tv) {
-        Type type = null;
-        GenericDeclaration gd = tv.getGenericDeclaration();
-        Type superGenericType = clazz.getGenericSuperclass();
+    private static boolean getArgument(Type[] typeArgs, TypeVariable[] typeVariables, Type[] arguments) {
+        if (arguments == null || typeVariables.length == 0) {
+            return false;
+        }
 
-        do {
-            type = clazz.getGenericSuperclass();
-            if (type == null) {
-                return null;
-            }
-            if (type instanceof ParameterizedType) {
-                ParameterizedType ptype = (ParameterizedType) type;
-
-                Type rawType = ptype.getRawType();
-                boolean eq = gd.equals(rawType) || (gd instanceof Class && rawType instanceof Class && ((Class) gd).isAssignableFrom((Class) rawType));
-                if (eq) {
-                    TypeVariable<?>[] tvs = gd.getTypeParameters();
-                    Type[] types = ptype.getActualTypeArguments();
-                    for (int i = 0; i < tvs.length; i++) {
-                        if (tv.equals(tvs[i])) {
-                            return types[i];
-                        }
+        boolean changed = false;
+        for (int i = 0; i < typeArgs.length; ++i) {
+            Type typeArg = typeArgs[i];
+            if (typeArg instanceof ParameterizedType) {
+                ParameterizedType p_typeArg = (ParameterizedType) typeArg;
+                Type[] p_typeArg_args = p_typeArg.getActualTypeArguments();
+                boolean p_changed = getArgument(p_typeArg_args, typeVariables, arguments);
+                if (p_changed) {
+                    typeArgs[i] = new ParameterizedTypeImpl(p_typeArg_args, p_typeArg.getOwnerType(), p_typeArg.getRawType());
+                    changed = true;
+                }
+            } else if (typeArg instanceof TypeVariable) {
+                for (int j = 0; j < typeVariables.length; ++j) {
+                    if (typeArg.equals(typeVariables[j])) {
+                        typeArgs[i] = arguments[j];
+                        changed = true;
                     }
-                    return null;
                 }
             }
-            clazz = TypeUtils.getClass(type);
-        } while (type != null);
-        return null;
+        }
+
+        return changed;
+    }
+
+    private static Type getInheritGenericType(Class<?> clazz, Type type, TypeVariable<?> tv) {
+        GenericDeclaration gd = tv.getGenericDeclaration();
+
+        Class<?> class_gd = null;
+        if (gd instanceof Class) {
+            class_gd = (Class<?>) tv.getGenericDeclaration();
+        }
+
+        Type[] arguments = null;
+        if (class_gd == clazz) {
+            if (type instanceof ParameterizedType) {
+                ParameterizedType ptype = (ParameterizedType) type;
+                arguments = ptype.getActualTypeArguments();
+            }
+        } else {
+            for (Class<?> c = clazz; c != null && c != Object.class && c != class_gd; c = c.getSuperclass()) {
+                Type superType = c.getGenericSuperclass();
+
+                if (superType instanceof ParameterizedType) {
+                    ParameterizedType p_superType = (ParameterizedType) superType;
+                    Type[] p_superType_args = p_superType.getActualTypeArguments();
+                    getArgument(p_superType_args, c.getTypeParameters(), arguments);
+                    arguments = p_superType_args;
+                }
+            }
+        }
+
+        if (arguments == null) {
+            return null;
+        }
+
+        Type actualType = null;
+        TypeVariable<?>[] typeVariables = class_gd.getTypeParameters();
+        for (int j = 0; j < typeVariables.length; ++j) {
+            if (tv.equals(typeVariables[j])) {
+                actualType = arguments[j];
+                break;
+            }
+        }
+
+        return actualType;
     }
 
     public String toString() {
@@ -447,12 +480,9 @@ public class FieldInfo implements Comparable<FieldInfo> {
     }
 
     public Object get(Object javaObject) throws IllegalAccessException, InvocationTargetException {
-        if (method != null) {
-            Object value = method.invoke(javaObject, new Object[0]);
-            return value;
-        }
-
-        return field.get(javaObject);
+        return method != null
+                ? method.invoke(javaObject)
+                : field.get(javaObject);
     }
 
     public void set(Object javaObject, Object value) throws IllegalAccessException, InvocationTargetException {
@@ -471,14 +501,5 @@ public class FieldInfo implements Comparable<FieldInfo> {
         }
 
         TypeUtils.setAccessible(field);
-    }
-
-    public boolean alternateName(String name) {
-        for (String item : this.alternateNames) {
-            if (item.equals(name)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

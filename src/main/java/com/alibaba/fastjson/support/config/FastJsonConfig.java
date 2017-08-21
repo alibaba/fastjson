@@ -66,17 +66,22 @@ public class FastJsonConfig {
      */
     private String dateFormat;
 
+    protected boolean writeContentLength = true;
+
     /**
      * init param.
      */
     public FastJsonConfig() {
 
-        this.charset = IOUtils.UTF8;
+        this.charset = Charset.forName("UTF-8");
 
         this.serializeConfig = SerializeConfig.getGlobalInstance();
-        this.parserConfig = ParserConfig.getGlobalInstance();
+        this.parserConfig = new ParserConfig();
 
-        this.serializerFeatures = new SerializerFeature[0];
+        this.serializerFeatures = new SerializerFeature[] {
+                SerializerFeature.BrowserSecure
+        };
+
         this.serializeFilters = new SerializeFilter[0];
         this.features = new Feature[0];
     }
@@ -200,5 +205,13 @@ public class FastJsonConfig {
      */
     public void setCharset(Charset charset) {
         this.charset = charset;
+    }
+
+    public boolean isWriteContentLength() {
+        return writeContentLength;
+    }
+
+    public void setWriteContentLength(boolean writeContentLength) {
+        this.writeContentLength = writeContentLength;
     }
 }

@@ -17,6 +17,10 @@ import java.util.zip.GZIPInputStream;
  * Created by wenshao on 2016/10/19.
  */
 public class Issue859 extends TestCase {
+    protected void setUp() throws Exception {
+        com.alibaba.fastjson.parser.ParserConfig.global.addAccept("com.alibaba.json.bvt.bug.Bug_for_zhaoyao.");
+    }
+
     public void test_for_issue() throws Exception {
         InputStream is = Issue72.class.getClassLoader().getResourceAsStream("issue859.zip");
         GZIPInputStream gzipInputStream = new GZIPInputStream(is);

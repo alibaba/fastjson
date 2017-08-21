@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,10 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.TypeUtils;
@@ -39,6 +36,9 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
     protected final FieldSerializer[] sortedGetters;
     
     protected SerializeBeanInfo       beanInfo;
+
+    private transient volatile long[] hashArray;
+    private transient volatile short[] hashArrayMapping;
     
     public JavaBeanSerializer(Class<?> beanType){
         this(beanType, (Map<String, String>) null);
@@ -108,6 +108,16 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                       Object fieldName, //
                       Type fieldType, //
                       int features) throws IOException {
+        write(serializer, object, fieldName, fieldType, features, false);
+    }
+
+    protected void write(JSONSerializer serializer, //
+                      Object object, //
+                      Object fieldName, //
+                      Type fieldType, //
+                      int features,
+                      boolean unwrapped
+    ) throws IOException {
         SerializeWriter out = serializer.out;
 
         if (object == null) {
@@ -128,14 +138,18 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         }
 
         SerialContext parent = serializer.context;
-        serializer.setContext(parent, object, fieldName, this.beanInfo.features, features);
+        if (!this.beanInfo.beanType.isEnum()) {
+            serializer.setContext(parent, object, fieldName, this.beanInfo.features, features);
+        }
 
         final boolean writeAsArray = isWriteAsArray(serializer, features);
 
         try {
             final char startSeperator = writeAsArray ? '[' : '{';
             final char endSeperator = writeAsArray ? ']' : '}';
-            out.append(startSeperator);
+            if (!unwrapped) {
+                out.append(startSeperator);
+            }
 
             if (getters.length > 0 && out.isEnabled(SerializerFeature.PrettyFormat)) {
                 serializer.incrementIndent();
@@ -145,10 +159,11 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
             boolean commaFlag = false;
 
             if ((this.beanInfo.features & SerializerFeature.WriteClassName.mask) != 0
+                ||(features & SerializerFeature.WriteClassName.mask) != 0
                 || serializer.isWriteClassName(fieldType, object)) {
                 Class<?> objClass = object.getClass();
                 if (objClass != fieldType) {
-                    writeClassName(serializer, object);
+                    writeClassName(serializer, beanInfo.typeKey, object);
                     commaFlag = true;
                 }
             }
@@ -184,11 +199,16 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     }
                 }
 
-                if ((!this.applyName(serializer, object, fieldInfo.name)) //
+                if ((!this.applyName(serializer, object, fieldInfoName)) //
                     || !this.applyLabel(serializer, fieldInfo.label)) {
                     continue;
                 }
 
+                if (beanInfo.typeKey != null
+                        && fieldInfoName.equals(beanInfo.typeKey)
+                        && serializer.isWriteClassName(fieldType, object)) {
+                    continue;
+                }
 
                 Object propertyValue;
                 
@@ -206,6 +226,12 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     continue;
                 }
 
+                if (fieldClass == String.class && "trim".equals(fieldInfo.format)) {
+                    if (propertyValue != null) {
+                        propertyValue = ((String) propertyValue).trim();
+                    }
+                }
+
                 String key = fieldInfoName;
                 key = this.processKey(serializer, object, key, propertyValue);
 
@@ -219,7 +245,11 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     }
                 }
 
-                if (propertyValue != null && out.notWriteDefaultValue) {
+                if (propertyValue != null  //
+                        && (out.notWriteDefaultValue //
+                        || (fieldInfo.serialzeFeatures & SerializerFeature.NotWriteDefaultValue.mask) != 0 //
+                        || (beanInfo.features & SerializerFeature.NotWriteDefaultValue.mask) != 0 //
+                        )) {
                     Class<?> fieldCLass = fieldInfo.fieldClass;
                     if (fieldCLass == byte.class && propertyValue instanceof Byte
                         && ((Byte) propertyValue).byteValue() == 0) {
@@ -246,6 +276,12 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 }
 
                 if (commaFlag) {
+                    if (fieldInfo.unwrapped
+                            && propertyValue instanceof Map
+                            && ((Map) propertyValue).size() == 0) {
+                        continue;
+                    }
+
                     out.write(',');
                     if (out.isEnabled(SerializerFeature.PrettyFormat)) {
                         serializer.println();
@@ -265,10 +301,12 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     serializer.write(propertyValue);
                 } else {
                     if (!writeAsArray) {
-                        if (directWritePrefix) {
-                            out.write(fieldInfo.name_chars, 0, fieldInfo.name_chars.length);
-                        } else {
-                            fieldSerializer.writePrefix(serializer);
+                        if (!fieldInfo.unwrapped) {
+                            if (directWritePrefix) {
+                                out.write(fieldInfo.name_chars, 0, fieldInfo.name_chars.length);
+                            } else {
+                                fieldSerializer.writePrefix(serializer);
+                            }
                         }
                     }
 
@@ -293,6 +331,13 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                                 }
                             }
                         } else {
+                            if (fieldInfo.unwrapped
+                                    && propertyValue instanceof Map
+                                    && ((Map) propertyValue).size() == 0) {
+                                commaFlag = false;
+                                continue;
+                            }
+
                             fieldSerializer.writeValue(serializer, propertyValue);
                         }
                     } else {
@@ -310,7 +355,9 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 serializer.println();
             }
 
-            out.append(endSeperator);
+            if (!unwrapped) {
+                out.append(endSeperator);
+            }
         } catch (Exception e) {
             String errorMessage = "write javaBean error";
             if (object != null) {
@@ -329,8 +376,11 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         }
     }
 
-    protected void writeClassName(JSONSerializer serializer, Object object) {
-        serializer.out.writeFieldName(serializer.config.typeKey, false);
+    protected void writeClassName(JSONSerializer serializer, String typeKey, Object object) {
+        if (typeKey == null) {
+            typeKey = serializer.config.typeKey;
+        }
+        serializer.out.writeFieldName(typeKey, false);
         String typeName = this.beanInfo.typeName;
         if (typeName == null) {
             Class<?> clazz = object.getClass();
@@ -385,6 +435,24 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         }
     }
 
+    public Object getFieldValue(Object object, String key, long keyHash, boolean throwFieldNotFoundException) {
+        FieldSerializer fieldDeser = getFieldSerializer(keyHash);
+        if (fieldDeser == null) {
+            if (throwFieldNotFoundException) {
+                throw new JSONException("field not found. " + key);
+            }
+            return null;
+        }
+
+        try {
+            return fieldDeser.getPropertyValue(object);
+        } catch (InvocationTargetException ex) {
+            throw new JSONException("getFieldValue error." + key, ex);
+        } catch (IllegalAccessException ex) {
+            throw new JSONException("getFieldValue error." + key, ex);
+        }
+    }
+
     public FieldSerializer getFieldSerializer(String key) {
         if (key == null) {
             return null;
@@ -412,9 +480,96 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         return null; // key not found.
     }
 
+    public FieldSerializer getFieldSerializer(long hash) {
+        PropertyNamingStrategy[] namingStrategies = null;
+        if (this.hashArray == null) {
+            namingStrategies = PropertyNamingStrategy.values();
+
+            long[] hashArray = new long[sortedGetters.length * namingStrategies.length];
+            int index = 0;
+            for (int i = 0; i < sortedGetters.length; i++) {
+                String name = sortedGetters[i].fieldInfo.name;
+                hashArray[index++] = TypeUtils.fnv1a_64(name);
+
+                for (int j = 0; j < namingStrategies.length; j++) {
+                    String name_t = namingStrategies[j].translate(name);
+                    if (name.equals(name_t)) {
+                        continue;
+                    }
+                    hashArray[index++] = TypeUtils.fnv1a_64(name_t);
+                }
+            }
+            Arrays.sort(hashArray, 0, index);
+
+            this.hashArray = new long[index];
+            System.arraycopy(hashArray, 0, this.hashArray, 0, index);
+        }
+
+        int pos = Arrays.binarySearch(hashArray, hash);
+        if (pos < 0) {
+            return null;
+        }
+
+        if (hashArrayMapping == null) {
+            if (namingStrategies == null) {
+                namingStrategies = PropertyNamingStrategy.values();
+            }
+
+            short[] mapping = new short[hashArray.length];
+            Arrays.fill(mapping, (short) -1);
+            for (int i = 0; i < sortedGetters.length; i++) {
+                String name = sortedGetters[i].fieldInfo.name;
+
+                int p = Arrays.binarySearch(hashArray
+                        , TypeUtils.fnv1a_64(name));
+                if (p >= 0) {
+                    mapping[p] = (short) i;
+                }
+
+                for (int j = 0; j < namingStrategies.length; j++) {
+                    String name_t = namingStrategies[j].translate(name);
+                    if (name.equals(name_t)) {
+                        continue;
+                    }
+
+                    int p_t = Arrays.binarySearch(hashArray
+                            , TypeUtils.fnv1a_64(name_t));
+                    if (p_t >= 0) {
+                        mapping[p_t] = (short) i;
+                    }
+                }
+            }
+            hashArrayMapping = mapping;
+        }
+
+        int getterIndex = hashArrayMapping[pos];
+        if (getterIndex != -1) {
+            return sortedGetters[getterIndex];
+        }
+
+        return null; // key not found.
+    }
+
     public List<Object> getFieldValues(Object object) throws Exception {
         List<Object> fieldValues = new ArrayList<Object>(sortedGetters.length);
         for (FieldSerializer getter : sortedGetters) {
+            fieldValues.add(getter.getPropertyValue(object));
+        }
+
+        return fieldValues;
+    }
+
+    // for jsonpath deepSet
+    public List<Object> getObjectFieldValues(Object object) throws Exception {
+        List<Object> fieldValues = new ArrayList<Object>(sortedGetters.length);
+        for (FieldSerializer getter : sortedGetters) {
+            Class fieldClass = getter.fieldInfo.fieldClass;
+            if (fieldClass.isPrimitive()) {
+                continue;
+            }
+            if (fieldClass.getName().startsWith("java.lang.")) {
+                continue;
+            }
             fieldValues.add(getter.getPropertyValue(object));
         }
 

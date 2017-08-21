@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import com.alibaba.fastjson.parser.ParserConfig;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -11,6 +12,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class WriteClassNameTest_Set2 extends TestCase {
+    protected void setUp() throws Exception {
+        ParserConfig.global.addAccept("com.alibaba.json.bvt.writeClassName.WriteClassNameTest_Set2");
+    }
 
     public void test_list() throws Exception {
         A a = new A();
@@ -23,7 +27,9 @@ public class WriteClassNameTest_Set2 extends TestCase {
 //        Assert.assertEquals("{\"@type\":\"com.alibaba.json.bvt.writeClassName.WriteClassNameTest_Set2$A\",\"list\":[{},{\"@type\":\"com.alibaba.json.bvt.writeClassName.WriteClassNameTest_Set2$B1\"}]}",
 //                            text);
 
-        A a1 = (A) JSON.parse(text);
+        ParserConfig parserConfig = new ParserConfig();
+        parserConfig.addAccept("com.alibaba.json.bvt");
+        A a1 = (A) JSON.parseObject(text, Object.class, parserConfig);
 
         Assert.assertEquals(2, a1.getList().size());
         Assert.assertTrue("B", new ArrayList<B>(a1.getList()).get(0) instanceof B || new ArrayList<B>(a1.getList()).get(0) instanceof B1);

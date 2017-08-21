@@ -181,7 +181,7 @@ public class JavaBeanInfo {
             , boolean fieldBased //
             , boolean compatibleWithJavaBean
     ) {
-        JSONType jsonType = clazz.getAnnotation(JSONType.class);
+        JSONType jsonType = TypeUtils.getAnnotation(clazz,JSONType.class);
 
         Class<?> builderClass = getBuilderClass(clazz, jsonType);
 

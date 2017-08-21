@@ -61,7 +61,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
         this.fieldContext = new BeanContext(beanType, fieldInfo);
 
         if (beanType != null && fieldInfo.isEnum) {
-            JSONType jsonType = beanType.getAnnotation(JSONType.class);
+            JSONType jsonType = TypeUtils.getAnnotation(beanType,JSONType.class);
             if (jsonType != null) {
                 for (SerializerFeature feature : jsonType.serialzeFeatures()) {
                     if (feature == SerializerFeature.WriteEnumUsingToString) {

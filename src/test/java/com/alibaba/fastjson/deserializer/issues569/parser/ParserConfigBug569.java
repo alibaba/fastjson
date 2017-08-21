@@ -12,6 +12,7 @@ import com.alibaba.fastjson.serializer.ObjectArrayCodec;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.JavaBeanInfo;
 import com.alibaba.fastjson.util.ServiceLoader;
+import com.alibaba.fastjson.util.TypeUtils;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -68,7 +69,7 @@ public class ParserConfigBug569 extends ParserConfig {
         }
 
         {
-            JSONType annotation = clazz.getAnnotation(JSONType.class);
+            JSONType annotation = TypeUtils.getAnnotation(clazz,JSONType.class);
             if (annotation != null) {
                 Class<?> mappingTo = annotation.mappingTo();
                 if (mappingTo != Void.class) {

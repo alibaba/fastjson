@@ -113,7 +113,7 @@ public class ASMSerializerFactory implements Opcodes {
             throw new JSONException("unsupportd class " + clazz.getName());
         }
 
-        JSONType jsonType = clazz.getAnnotation(JSONType.class);
+        JSONType jsonType = TypeUtils.getAnnotation(clazz,JSONType.class);
 
         FieldInfo[] unsortedGetters = beanInfo.fields;;
 

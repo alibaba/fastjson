@@ -26,6 +26,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.IOUtils;
+import com.alibaba.fastjson.util.TypeUtils;
 
 //这个类，为了性能优化做了很多特别处理，一切都是为了性能！！！
 
@@ -204,15 +205,24 @@ public final class JSONScanner extends JSONLexerBase {
 
     public boolean scanISO8601DateIfMatch(boolean strict) {
         int rest = len - bp;
+        return scanISO8601DateIfMatch(strict, rest);
+    }
+
+    private boolean scanISO8601DateIfMatch(boolean strict, int rest) {
+        if (rest < 8) {
+            return false;
+        }
+
+        char c0 = charAt(bp);
+        char c1 = charAt(bp + 1);
+        char c2 = charAt(bp + 2);
+        char c3 = charAt(bp + 3);
+        char c4 = charAt(bp + 4);
+        char c5 = charAt(bp + 5);
+        char c6 = charAt(bp + 6);
+        char c7 = charAt(bp + 7);
 
         if ((!strict) && rest > 13) {
-            char c0 = charAt(bp);
-            char c1 = charAt(bp + 1);
-            char c2 = charAt(bp + 2);
-            char c3 = charAt(bp + 3);
-            char c4 = charAt(bp + 4);
-            char c5 = charAt(bp + 5);
-
             char c_r0 = charAt(bp + rest - 1);
             char c_r1 = charAt(bp + rest - 2);
             if (c0 == '/' && c1 == 'D' && c2 == 'a' && c3 == 't' && c4 == 'e' && c5 == '(' && c_r0 == '/'
@@ -230,7 +240,7 @@ public final class JSONScanner extends JSONLexerBase {
                     return false;
                 }
                 int offset = bp + 6;
-                String numberText = this.subString(offset, plusIndex - offset);
+                String numberText = this.subString(offset, bp + plusIndex - offset);
                 long millis = Long.parseLong(numberText);
 
                 calendar = Calendar.getInstance(timeZone, locale);
@@ -252,14 +262,8 @@ public final class JSONScanner extends JSONLexerBase {
 
             char y0, y1, y2, y3, M0, M1, d0, d1;
 
-            char c0 = charAt(bp);
-            char c1 = charAt(bp + 1);
-            char c2 = charAt(bp + 2);
-            char c3 = charAt(bp + 3);
-            char c4 = charAt(bp + 4);
-            char c5 = charAt(bp + 5);
-            char c6 = charAt(bp + 6);
-            char c7 = charAt(bp + 7);
+
+
             char c8 = charAt(bp + 8);
 
             final boolean c_47 = c4 == '-' && c7 == '-';
@@ -365,14 +369,6 @@ public final class JSONScanner extends JSONLexerBase {
             return false;
         }
 
-        char c0 = charAt(bp);
-        char c1 = charAt(bp + 1);
-        char c2 = charAt(bp + 2);
-        char c3 = charAt(bp + 3);
-        char c4 = charAt(bp + 4);
-        char c5 = charAt(bp + 5);
-        char c6 = charAt(bp + 6);
-        char c7 = charAt(bp + 7);
         char c8 = charAt(bp + 8);
         char c9 = charAt(bp + 9);
 
@@ -698,6 +694,7 @@ public final class JSONScanner extends JSONLexerBase {
         int year = (y0 - '0') * 1000 + (y1 - '0') * 100 + (y2 - '0') * 10 + (y3 - '0');
         int month = (M0 - '0') * 10 + (M1 - '0') - 1;
         int day = (d0 - '0') * 10 + (d1 - '0');
+//        calendar.set(year, month, day);
         calendar.set(Calendar.YEAR, year);
         calendar.set(Calendar.MONTH, month);
         calendar.set(Calendar.DAY_OF_MONTH, day);
@@ -962,6 +959,123 @@ public final class JSONScanner extends JSONLexerBase {
             matchStat = END;
         }
         return strVal;
+    }
+
+    public java.util.Date scanFieldDate(char[] fieldName) {
+        matchStat = UNKNOWN;
+        int startPos = this.bp;
+        char startChar = this.ch;
+
+        if (!charArrayCompare(text, bp, fieldName)) {
+            matchStat = NOT_MATCH_NAME;
+            return null;
+        }
+
+        int index = bp + fieldName.length;
+
+        char ch = charAt(index++);
+
+        final java.util.Date dateVal;
+        if (ch == '"') {
+            int startIndex = index;
+            int endIndex = indexOf('"', startIndex);
+            if (endIndex == -1) {
+                throw new JSONException("unclosed str");
+            }
+
+            int rest = endIndex - startIndex;
+            bp = index;
+            if (scanISO8601DateIfMatch(false, rest)) {
+                dateVal = calendar.getTime();
+            } else {
+                bp = startPos;
+                matchStat = NOT_MATCH;
+                return null;
+            }
+            ch = charAt(endIndex + 1);
+            bp = startPos;
+
+            for (; ; ) {
+                if (ch == ',' || ch == '}') {
+                    bp = endIndex + 1;
+                    this.ch = ch;
+                    break;
+                } else if (isWhitespace(ch)) {
+                    endIndex++;
+                    ch = charAt(endIndex + 1);
+                } else {
+                    matchStat = NOT_MATCH;
+
+                    return null;
+                }
+            }
+        } else if (ch == '-' || (ch >= '0' && ch <= '9')) {
+            long millis = 0;
+
+            boolean negative = false;
+            if (ch == '-') {
+                ch = charAt(index++);
+                negative = true;
+            }
+
+            if (ch >= '0' && ch <= '9') {
+                millis = ch - '0';
+                for (; ; ) {
+                    ch = charAt(index++);
+                    if (ch >= '0' && ch <= '9') {
+                        millis = millis * 10 + (ch - '0');
+                    } else {
+                        if (ch == ',' || ch == '}') {
+                            bp = index - 1;
+                        }
+                        break;
+                    }
+                }
+            }
+
+            if (millis < 0) {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+
+            if (negative) {
+                millis = -millis;
+            }
+
+            dateVal = new java.util.Date(millis);
+        } else {
+            matchStat = NOT_MATCH;
+
+            return null;
+        }
+
+        if (ch == ',') {
+            this.ch = charAt(++bp);
+            matchStat = VALUE;
+            return dateVal;
+        } else {
+            //condition ch == '}' is always 'true'
+            ch = charAt(++bp);
+            if (ch == ',') {
+                token = JSONToken.COMMA;
+                this.ch = charAt(++bp);
+            } else if (ch == ']') {
+                token = JSONToken.RBRACKET;
+                this.ch = charAt(++bp);
+            } else if (ch == '}') {
+                token = JSONToken.RBRACE;
+                this.ch = charAt(++bp);
+            } else if (ch == EOI) {
+                token = JSONToken.EOF;
+            } else {
+                this.bp = startPos;
+                this.ch = startChar;
+                matchStat = NOT_MATCH;
+                return null;
+            }
+            matchStat = END;
+        }
+        return dateVal;
     }
 
     public long scanFieldSymbol(char[] fieldName) {
@@ -1254,7 +1368,8 @@ public final class JSONScanner extends JSONLexerBase {
                 }
             }
 
-            if (value < 0 && value != -9223372036854775808L) {
+            boolean valid = value >= 0 || (value == -9223372036854775808L && negative);
+            if (!valid) {
                 this.bp = startPos;
                 this.ch = startChar;
                 matchStat = NOT_MATCH;
@@ -1323,6 +1438,7 @@ public final class JSONScanner extends JSONLexerBase {
             return false;
         }
 
+        int startPos = bp;
         int index = bp + fieldName.length;
 
         char ch = charAt(index++);
@@ -1438,6 +1554,8 @@ public final class JSONScanner extends JSONLexerBase {
             } else if (isWhitespace(ch)) {
                 ch = charAt(++bp);
             } else {
+                bp = startPos;
+                ch = charAt(bp);
                 matchStat = NOT_MATCH;
                 return false;
             }
@@ -1684,7 +1802,7 @@ public final class JSONScanner extends JSONLexerBase {
         }
     }
 
-    public long scanLong(char expectNextChar) {
+    public long scanLong(char seperator) {
         matchStat = UNKNOWN;
 
         int offset = bp;
@@ -1722,7 +1840,9 @@ public final class JSONScanner extends JSONLexerBase {
                     break;
                 }
             }
-            if (value < 0 && value != -9223372036854775808L) {
+
+            boolean valid = value >= 0 || (value == -9223372036854775808L && negative);
+            if (!valid) {
                 matchStat = NOT_MATCH;
                 return 0;
             }
@@ -1765,7 +1885,7 @@ public final class JSONScanner extends JSONLexerBase {
         }
 
         for (;;) {
-            if (chLocal == expectNextChar) {
+            if (chLocal == seperator) {
                 bp = offset;
                 this.ch = charAt(bp);
                 matchStat = VALUE;
@@ -1781,6 +1901,133 @@ public final class JSONScanner extends JSONLexerBase {
                 return value;
             }
         }
+    }
+
+    public java.util.Date scanDate(char seperator) {
+        matchStat = UNKNOWN;
+        int startPos = this.bp;
+        char startChar = this.ch;
+
+        int index = bp;
+
+        char ch = charAt(index++);
+
+        final java.util.Date dateVal;
+        if (ch == '"') {
+            int startIndex = index;
+            int endIndex = indexOf('"', startIndex);
+            if (endIndex == -1) {
+                throw new JSONException("unclosed str");
+            }
+
+            int rest = endIndex - startIndex;
+            bp = index;
+            if (scanISO8601DateIfMatch(false, rest)) {
+                dateVal = calendar.getTime();
+            } else {
+                bp = startPos;
+                this.ch = startChar;
+                matchStat = NOT_MATCH;
+                return null;
+            }
+            ch = charAt(endIndex + 1);
+            bp = startPos;
+
+            for (; ; ) {
+                if (ch == ',' || ch == ']') {
+                    bp = endIndex + 1;
+                    this.ch = ch;
+                    break;
+                } else if (isWhitespace(ch)) {
+                    endIndex++;
+                    ch = charAt(endIndex + 1);
+                } else {
+                    this.bp = startPos;
+                    this.ch = startChar;
+                    matchStat = NOT_MATCH;
+
+                    return null;
+                }
+            }
+        } else if (ch == '-' || (ch >= '0' && ch <= '9')) {
+            long millis = 0;
+
+            boolean negative = false;
+            if (ch == '-') {
+                ch = charAt(index++);
+                negative = true;
+            }
+
+            if (ch >= '0' && ch <= '9') {
+                millis = ch - '0';
+                for (; ; ) {
+                    ch = charAt(index++);
+                    if (ch >= '0' && ch <= '9') {
+                        millis = millis * 10 + (ch - '0');
+                    } else {
+                        if (ch == ',' || ch == ']') {
+                            bp = index - 1;
+                        }
+                        break;
+                    }
+                }
+            }
+
+            if (millis < 0) {
+                this.bp = startPos;
+                this.ch = startChar;
+                matchStat = NOT_MATCH;
+                return null;
+            }
+
+            if (negative) {
+                millis = -millis;
+            }
+
+            dateVal = new java.util.Date(millis);
+        } else if (ch == 'n'
+                && charAt(index++) == 'u'
+                && charAt(index++) == 'l'
+                && charAt(index++) == 'l') {
+            dateVal = null;
+            ch = charAt(index);
+            bp = index;
+        } else {
+            this.bp = startPos;
+            this.ch = startChar;
+            matchStat = NOT_MATCH;
+
+            return null;
+        }
+
+        if (ch == ',') {
+            this.ch = charAt(++bp);
+            matchStat = VALUE;
+            return dateVal;
+        } else {
+            //condition ch == '}' is always 'true'
+            ch = charAt(++bp);
+            if (ch == ',') {
+                token = JSONToken.COMMA;
+                this.ch = charAt(++bp);
+            } else if (ch == ']') {
+                token = JSONToken.RBRACKET;
+                this.ch = charAt(++bp);
+            } else if (ch == '}') {
+                token = JSONToken.RBRACE;
+                this.ch = charAt(++bp);
+            } else if (ch == EOI) {
+                this.ch = EOI;
+                token = JSONToken.EOF;
+            } else {
+                this.bp = startPos;
+                this.ch = startChar;
+                matchStat = NOT_MATCH;
+                return null;
+            }
+            matchStat = END;
+        }
+        return dateVal;
     }
 
     protected final void arrayCopy(int srcPos, char[] dest, int destPos, int length) {

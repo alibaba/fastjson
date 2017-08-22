@@ -258,7 +258,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
             isWriteClassName = (features & SerializerFeature.WriteClassName.mask) != 0 //
                     || ((out.features & SerializerFeature.WriteClassName.mask) != 0 // 
                             && (fieldType != null || (out.features & SerializerFeature.NotWriteRootClassName.mask) == 0
-                            || serializer.context.parent != null))
+                            || (serializer.context != null && serializer.context.parent != null)))
                     ;
 
             if (isWriteClassName) {

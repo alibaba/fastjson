@@ -1,5 +1,6 @@
 package com.alibaba.fastjson;
 
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -8,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.alibaba.fastjson.util.ParameterizedTypeImpl;
+import com.alibaba.fastjson.util.TypeUtils;
 
 /** 
  * Represents a generic type {@code T}. Java doesn't yet provide a way to
@@ -66,11 +68,14 @@ public class TypeReference<T> {
 
         int actualIndex = 0;
         for (int i = 0; i < argTypes.length; ++i) {
-            if (argTypes[i] instanceof TypeVariable) {
+            if (argTypes[i] instanceof TypeVariable &&
+                    actualIndex < actualTypeArguments.length) {
                 argTypes[i] = actualTypeArguments[actualIndex++];
-                if (actualIndex >= actualTypeArguments.length) {
-                    break;
-                }
+            }
+            // fix for openjdk and android env
+            if (argTypes[i] instanceof GenericArrayType) {
+                argTypes[i] = TypeUtils.checkPrimitiveArray(
+                        (GenericArrayType) argTypes[i]);
             }
         }
 

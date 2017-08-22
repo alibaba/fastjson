@@ -308,7 +308,19 @@ public class DefaultJSONParser implements Closeable {
                             Object instance = null;
                             ObjectDeserializer deserializer = this.config.getDeserializer(clazz);
                             if (deserializer instanceof JavaBeanDeserializer) {
-                                instance = ((JavaBeanDeserializer) deserializer).createInstance(this, clazz);
+                                JavaBeanDeserializer javaBeanDeserializer = (JavaBeanDeserializer) deserializer;
+                                instance = javaBeanDeserializer.createInstance(this, clazz);
+                                
+                                for (Object o : map.entrySet()) {
+                                    Map.Entry entry = (Map.Entry) o;
+                                    Object entryKey = entry.getKey();
+                                    if (entryKey instanceof String) {
+                                        FieldDeserializer fieldDeserializer = javaBeanDeserializer.getFieldDeserializer((String) entryKey);
+                                        if (fieldDeserializer != null) {
+                                            fieldDeserializer.setValue(instance, entry.getValue());
+                                        }
+                                    }
+                                }
                             }
 
                             if (instance == null) {

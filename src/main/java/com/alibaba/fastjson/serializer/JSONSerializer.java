@@ -138,7 +138,7 @@ public class JSONSerializer extends SerializeFilterable {
         return out.isEnabled(SerializerFeature.WriteClassName) //
                && (fieldType != null //
                    || (!out.isEnabled(SerializerFeature.NotWriteRootClassName)) //
-                   || context.parent != null);
+                   || (context != null && (context.parent != null)));
     }
 
     public boolean containsReference(Object value) {

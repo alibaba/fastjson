@@ -15,6 +15,7 @@
  */
 package com.alibaba.fastjson.parser;
 
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -1569,6 +1570,11 @@ public final class JSONScanner extends JSONLexerBase {
 
         int offset = bp;
         char chLocal = charAt(offset++);
+
+        while (isWhitespace(chLocal)) {
+            chLocal = charAt(offset++);
+        }
+
         final boolean quote = chLocal == '"';
 
         if (quote) {
@@ -2040,5 +2046,120 @@ public final class JSONScanner extends JSONLexerBase {
                 + (text.length() < 65536 //
                 ? text //
                 : text.substring(0, 65536));
+    }
+
+
+
+    public String[] scanArgTypes(char[] fieldName, int argTypesCount, SymbolTable typeSymbolTable) {
+        int startPos = bp;
+        char starChar = ch;
+
+        while (isWhitespace(ch)) {
+            next();
+        }
+
+        matchStat = UNKNOWN;
+        if (!charArrayCompare(fieldName)) {
+            matchStat = NOT_MATCH_NAME;
+            return null;
+        }
+
+        int offset = bp + fieldName.length;
+        char ch = text.charAt(offset++);
+        while (isWhitespace(ch)) {
+            ch = text.charAt(offset++);
+        }
+
+        if (ch == ':') {
+            ch = text.charAt(offset++);
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        while (isWhitespace(ch)) {
+            ch = text.charAt(offset++);
+        }
+
+        if (ch == '[') {
+            bp = offset;
+            this.ch = text.charAt(bp);
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        String[] types = argTypesCount >= 0 ? new String[argTypesCount] : new String[4];
+        int typeIndex = 0;
+        for (;;) {
+            while (isWhitespace(this.ch)) {
+                next();
+            }
+
+            String type = scanSymbol(typeSymbolTable, '"');
+            if (typeIndex == types.length) {
+                int newCapacity = types.length + (types.length >> 1) + 1;
+                String[] array = new String[newCapacity];
+                System.arraycopy(types, 0, array, 0, types.length);
+                types = array;
+            }
+            types[typeIndex++] = type;
+            while (isWhitespace(this.ch)) {
+                next();
+            }
+            if (this.ch == ',') {
+                next();
+                continue;
+            }
+            break;
+        }
+        if (types.length != typeIndex) {
+            String[] array = new String[typeIndex];
+            System.arraycopy(types, 0, array, 0, typeIndex);
+            types = array;
+        }
+
+        while (isWhitespace(this.ch)) {
+            next();
+        }
+
+        if (this.ch == ']') {
+            next();
+        } else {
+            this.bp = startPos;
+            this.ch = starChar;
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        return types;
+    }
+
+    public boolean marchArgObjs(char[] fieldName) {
+        while (isWhitespace(ch)) {
+            next();
+        }
+
+        if (!charArrayCompare(fieldName)) {
+            matchStat = NOT_MATCH_NAME;
+            return false;
+        }
+
+        int offset = bp + fieldName.length;
+        char ch = text.charAt(offset++);
+        while (isWhitespace(ch)) {
+            ch = text.charAt(offset++);
+        }
+
+        if (ch == ':') {
+            ch = text.charAt(offset++);
+        } else {
+            matchStat = NOT_MATCH_NAME;
+            return false;
+        }
+
+        this.bp = offset;
+        next();
+        return true;
     }
 }

@@ -27,14 +27,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
@@ -872,7 +865,18 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         if (javaObject instanceof Map) {
             Map<Object, Object> map = (Map<Object, Object>) javaObject;
 
-            JSONObject json = new JSONObject(map.size());
+            int size = map.size();
+
+            Map innerMap;
+            if (map instanceof LinkedHashMap) {
+                innerMap = new LinkedHashMap(size);
+            } else if (map instanceof TreeMap) {
+                innerMap = new TreeMap();
+            } else {
+                innerMap = new HashMap(size);
+            }
+
+            JSONObject json = new JSONObject(innerMap);
 
             for (Map.Entry<Object, Object> entry : map.entrySet()) {
                 Object key = entry.getKey();

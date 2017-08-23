@@ -2058,27 +2058,34 @@ public final class JSONScanner extends JSONLexerBase {
             next();
         }
 
-        matchStat = UNKNOWN;
-        if (!charArrayCompare(fieldName)) {
-            matchStat = NOT_MATCH_NAME;
-            return null;
-        }
+        int offset;
+        char ch;
+        if (fieldName != null) {
+            matchStat = UNKNOWN;
+            if (!charArrayCompare(fieldName)) {
+                matchStat = NOT_MATCH_NAME;
+                return null;
+            }
 
-        int offset = bp + fieldName.length;
-        char ch = text.charAt(offset++);
-        while (isWhitespace(ch)) {
+            offset = bp + fieldName.length;
             ch = text.charAt(offset++);
-        }
+            while (isWhitespace(ch)) {
+                ch = text.charAt(offset++);
+            }
 
-        if (ch == ':') {
-            ch = text.charAt(offset++);
+            if (ch == ':') {
+                ch = text.charAt(offset++);
+            } else {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+
+            while (isWhitespace(ch)) {
+                ch = text.charAt(offset++);
+            }
         } else {
-            matchStat = NOT_MATCH;
-            return null;
-        }
-
-        while (isWhitespace(ch)) {
-            ch = text.charAt(offset++);
+            offset = bp + 1;
+            ch = this.ch;
         }
 
         if (ch == '[') {
@@ -2152,14 +2159,14 @@ public final class JSONScanner extends JSONLexerBase {
         }
 
         if (ch == ':') {
-            ch = text.charAt(offset++);
+            this.bp = offset + 1;
+            this.ch = charAt(bp);
+            return true;
         } else {
             matchStat = NOT_MATCH_NAME;
             return false;
         }
 
-        this.bp = offset;
-        next();
-        return true;
+
     }
 }

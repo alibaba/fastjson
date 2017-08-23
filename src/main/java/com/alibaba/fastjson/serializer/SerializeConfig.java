@@ -469,7 +469,7 @@ public class SerializeConfig {
             } else if (JSONStreamAware.class.isAssignableFrom(clazz)) {
                 put(clazz, writer = MiscCodec.instance);
             } else if (clazz.isEnum() || (clazz.getSuperclass() != null && clazz.getSuperclass().isEnum())) {
-                JSONType jsonType = clazz.getAnnotation(JSONType.class);
+                JSONType jsonType = TypeUtils.getAnnotation(clazz,JSONType.class);
                 if (jsonType != null && jsonType.serializeEnumAsJavaBean()) {
                     put(clazz, writer = createJavaBeanSerializer(clazz));
                 } else {

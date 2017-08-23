@@ -1,6 +1,9 @@
 package com.alibaba.fastjson.support.hsf;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexerBase;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -19,33 +22,66 @@ public class HSFJSONUtils {
 
         JSONLexerBase lexer = (JSONLexerBase) parser.getLexer();
 
+        Object[] values;
         int token = lexer.token();
         if (token == JSONToken.LBRACE) {
             String[] typeNames = lexer.scanArgTypes(fieldName_argsTypes, -1, typeSymbolTable);
             Method method = methodLocator.findMethod(typeNames);
-            Type[] argTypes = method.getGenericParameterTypes();
+
+            if (method == null) {
+                lexer.close();
+
+                JSONObject jsonObject = JSON.parseObject(json);
+                typeNames = jsonObject.getObject("argsTypes", String[].class);
+                method = methodLocator.findMethod(typeNames);
+
+                JSONArray argsObjs = jsonObject.getJSONArray("argsObjs");
+                if (argsObjs == null) {
+                    values = null;
+                } else {
+                    Type[] argTypes = method.getGenericParameterTypes();
+                    values = new Object[argTypes.length];
+                    for (int i = 0; i < argTypes.length; i++) {
+                        Type type = argTypes[i];
+                        values[i] = argsObjs.getObject(i, type);
+                    }
+                }
+            } else {
+                Type[] argTypes = method.getGenericParameterTypes();
+
+                lexer.skipWhitespace();
+                if (lexer.getCurrent() == ',') {
+                    lexer.next();
+                }
+
+                if (lexer.marchArgObjs(fieldName_argsObjs)) {
+                    lexer.nextToken();
+                    values = parser.parseArray(argTypes);
+                    parser.accept(JSONToken.RBRACE);
+                } else {
+                    values = null;
+                }
+
+                parser.close();
+            }
+        } else if (token == JSONToken.LBRACKET) {
+            String[] typeNames = lexer.scanArgTypes(null, -1, typeSymbolTable);
+            Method method = methodLocator.findMethod(typeNames);
 
             lexer.skipWhitespace();
             if (lexer.getCurrent() == ',') {
                 lexer.next();
-            }
-
-            if (lexer.marchArgObjs(fieldName_argsObjs)) {
                 lexer.skipWhitespace();
-                lexer.nextToken();
-                Object[] values = parser.parseArray(argTypes);
-                parser.accept(JSONToken.RBRACE);
-
-                parser.close();
-                return values;
-            } else {
-                parser.close();
-                return null;
             }
+            lexer.nextToken(JSONToken.LBRACKET);
+
+            Type[] argTypes = method.getGenericParameterTypes();
+            values = parser.parseArray(argTypes);
+            lexer.close();
+        } else {
+            values = null;
         }
 
-        parser.close();
-
-        return null;
+        return values;
     }
 }

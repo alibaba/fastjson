@@ -267,58 +267,58 @@ public class SerializeConfig {
 		    asm = false;
 		}
 
-		put(Boolean.class, BooleanCodec.instance, true);
-		put(Character.class, CharacterCodec.instance, true);
-		put(Byte.class, IntegerCodec.instance, true);
-		put(Short.class, IntegerCodec.instance, true);
-		put(Integer.class, IntegerCodec.instance, true);
-		put(Long.class, LongCodec.instance, true);
-		put(Float.class, FloatCodec.instance, true);
-		put(Double.class, DoubleSerializer.instance, true);
-		put(BigDecimal.class, BigDecimalCodec.instance, true);
-		put(BigInteger.class, BigIntegerCodec.instance, true);
-		put(String.class, StringCodec.instance, true);
-		put(byte[].class, PrimitiveArraySerializer.instance, true);
-		put(short[].class, PrimitiveArraySerializer.instance, true);
-		put(int[].class, PrimitiveArraySerializer.instance, true);
-		put(long[].class, PrimitiveArraySerializer.instance, true);
-		put(float[].class, PrimitiveArraySerializer.instance, true);
-		put(double[].class, PrimitiveArraySerializer.instance, true);
-		put(boolean[].class, PrimitiveArraySerializer.instance, true);
-		put(char[].class, PrimitiveArraySerializer.instance, true);
-		put(Object[].class, ObjectArrayCodec.instance, true);
-		put(Class.class, MiscCodec.instance, true);
+		put(Boolean.class, BooleanCodec.instance);
+		put(Character.class, CharacterCodec.instance);
+		put(Byte.class, IntegerCodec.instance);
+		put(Short.class, IntegerCodec.instance);
+		put(Integer.class, IntegerCodec.instance);
+		put(Long.class, LongCodec.instance);
+		put(Float.class, FloatCodec.instance);
+		put(Double.class, DoubleSerializer.instance);
+		put(BigDecimal.class, BigDecimalCodec.instance);
+		put(BigInteger.class, BigIntegerCodec.instance);
+		put(String.class, StringCodec.instance);
+		put(byte[].class, PrimitiveArraySerializer.instance);
+		put(short[].class, PrimitiveArraySerializer.instance);
+		put(int[].class, PrimitiveArraySerializer.instance);
+		put(long[].class, PrimitiveArraySerializer.instance);
+		put(float[].class, PrimitiveArraySerializer.instance);
+		put(double[].class, PrimitiveArraySerializer.instance);
+		put(boolean[].class, PrimitiveArraySerializer.instance);
+		put(char[].class, PrimitiveArraySerializer.instance);
+		put(Object[].class, ObjectArrayCodec.instance);
+		put(Class.class, MiscCodec.instance);
 
-		put(SimpleDateFormat.class, MiscCodec.instance, true);
+		put(SimpleDateFormat.class, MiscCodec.instance);
 		put(Currency.class, new MiscCodec(), true);
-		put(TimeZone.class, MiscCodec.instance, true);
-		put(InetAddress.class, MiscCodec.instance, true);
-		put(Inet4Address.class, MiscCodec.instance, true);
-		put(Inet6Address.class, MiscCodec.instance, true);
-		put(InetSocketAddress.class, MiscCodec.instance, true);
-		put(File.class, MiscCodec.instance, true);
-		put(Appendable.class, AppendableSerializer.instance, true);
-		put(StringBuffer.class, AppendableSerializer.instance, true);
-		put(StringBuilder.class, AppendableSerializer.instance, true);
-		put(Charset.class, ToStringSerializer.instance, true);
-		put(Pattern.class, ToStringSerializer.instance, true);
-		put(Locale.class, ToStringSerializer.instance, true);
-		put(URI.class, ToStringSerializer.instance, true);
-		put(URL.class, ToStringSerializer.instance, true);
-		put(UUID.class, ToStringSerializer.instance, true);
+		put(TimeZone.class, MiscCodec.instance);
+		put(InetAddress.class, MiscCodec.instance);
+		put(Inet4Address.class, MiscCodec.instance);
+		put(Inet6Address.class, MiscCodec.instance);
+		put(InetSocketAddress.class, MiscCodec.instance);
+		put(File.class, MiscCodec.instance);
+		put(Appendable.class, AppendableSerializer.instance);
+		put(StringBuffer.class, AppendableSerializer.instance);
+		put(StringBuilder.class, AppendableSerializer.instance);
+		put(Charset.class, ToStringSerializer.instance);
+		put(Pattern.class, ToStringSerializer.instance);
+		put(Locale.class, ToStringSerializer.instance);
+		put(URI.class, ToStringSerializer.instance);
+		put(URL.class, ToStringSerializer.instance);
+		put(UUID.class, ToStringSerializer.instance);
 
 		// atomic
-		put(AtomicBoolean.class, AtomicCodec.instance, true);
-		put(AtomicInteger.class, AtomicCodec.instance, true);
-		put(AtomicLong.class, AtomicCodec.instance, true);
-		put(AtomicReference.class, ReferenceCodec.instance, true);
-		put(AtomicIntegerArray.class, AtomicCodec.instance, true);
-		put(AtomicLongArray.class, AtomicCodec.instance, true);
+		put(AtomicBoolean.class, AtomicCodec.instance);
+		put(AtomicInteger.class, AtomicCodec.instance);
+		put(AtomicLong.class, AtomicCodec.instance);
+		put(AtomicReference.class, ReferenceCodec.instance);
+		put(AtomicIntegerArray.class, AtomicCodec.instance);
+		put(AtomicLongArray.class, AtomicCodec.instance);
 		
-		put(WeakReference.class, ReferenceCodec.instance, true);
-		put(SoftReference.class, ReferenceCodec.instance, true);
+		put(WeakReference.class, ReferenceCodec.instance);
+		put(SoftReference.class, ReferenceCodec.instance);
 
-        put(LinkedList.class, CollectionCodec.instance, true);
+        put(LinkedList.class, CollectionCodec.instance);
 	}
 	
 	/**
@@ -405,7 +405,7 @@ public class SerializeConfig {
 
                     AutowiredObjectSerializer autowired = (AutowiredObjectSerializer) o;
                     for (Type forType : autowired.getAutowiredFor()) {
-                        put(forType, autowired);
+                        put(forType, autowired, false);
                     }
                 }
             } catch (ClassCastException ex) {
@@ -427,7 +427,7 @@ public class SerializeConfig {
 
                         AutowiredObjectSerializer autowired = (AutowiredObjectSerializer) o;
                         for (Type forType : autowired.getAutowiredFor()) {
-                            put(forType, autowired);
+                            put(forType, autowired, false);
                         }
                     }
                 } catch (ClassCastException ex) {
@@ -442,51 +442,51 @@ public class SerializeConfig {
             String className = clazz.getName();
 
             if (Map.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = MapSerializer.instance);
+                put(clazz, writer = MapSerializer.instance, false);
             } else if (List.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = ListSerializer.instance);
+                put(clazz, writer = ListSerializer.instance, false);
             } else if (Collection.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = CollectionCodec.instance);
+                put(clazz, writer = CollectionCodec.instance, false);
             } else if (Date.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = DateCodec.instance);
+                put(clazz, writer = DateCodec.instance, false);
             } else if (JSONAware.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = JSONAwareSerializer.instance);
+                put(clazz, writer = JSONAwareSerializer.instance, false);
             } else if (JSONSerializable.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = JSONSerializableSerializer.instance);
+                put(clazz, writer = JSONSerializableSerializer.instance, false);
             } else if (JSONStreamAware.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = MiscCodec.instance);
+                put(clazz, writer = MiscCodec.instance, false);
             } else if (clazz.isEnum() || (clazz.getSuperclass() != null && clazz.getSuperclass().isEnum())) {
                 JSONType jsonType = TypeUtils.getAnnotation(clazz,JSONType.class);
                 if (jsonType != null && jsonType.serializeEnumAsJavaBean()) {
-                    put(clazz, writer = createJavaBeanSerializer(clazz));
+                    put(clazz, writer = createJavaBeanSerializer(clazz), false);
                 } else {
-                    put(clazz, writer = EnumSerializer.instance);
+                    put(clazz, writer = EnumSerializer.instance, false);
                 }
             } else if (clazz.isArray()) {
                 Class<?> componentType = clazz.getComponentType();
                 ObjectSerializer compObjectSerializer = getObjectWriter(componentType);
-                put(clazz, writer = new ArraySerializer(componentType, compObjectSerializer));
+                put(clazz, writer = new ArraySerializer(componentType, compObjectSerializer), false);
             } else if (Throwable.class.isAssignableFrom(clazz)) {
                 SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null, propertyNamingStrategy);
                 beanInfo.features |= SerializerFeature.WriteClassName.mask;
-                put(clazz, writer = new JavaBeanSerializer(beanInfo));
+                put(clazz, writer = new JavaBeanSerializer(beanInfo), false);
             } else if (TimeZone.class.isAssignableFrom(clazz) || Map.Entry.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = MiscCodec.instance);
+                put(clazz, writer = MiscCodec.instance, false);
             } else if (Appendable.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = AppendableSerializer.instance);
+                put(clazz, writer = AppendableSerializer.instance, false);
             } else if (Charset.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = ToStringSerializer.instance);
+                put(clazz, writer = ToStringSerializer.instance, false);
             } else if (Enumeration.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = EnumerationSerializer.instance);
+                put(clazz, writer = EnumerationSerializer.instance, false);
             } else if (Calendar.class.isAssignableFrom(clazz) //
                     || XMLGregorianCalendar.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = CalendarCodec.instance);
+                put(clazz, writer = CalendarCodec.instance, false);
             } else if (Clob.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = ClobSeriliazer.instance);
+                put(clazz, writer = ClobSeriliazer.instance, false);
             } else if (TypeUtils.isPath(clazz)) {
-                put(clazz, writer = ToStringSerializer.instance);
+                put(clazz, writer = ToStringSerializer.instance, false);
             } else if (Iterator.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = MiscCodec.instance);
+                put(clazz, writer = MiscCodec.instance, false);
             } else {
                 if (className.startsWith("java.awt.") //
                     && AwtCodec.support(clazz) //
@@ -647,7 +647,7 @@ public class SerializeConfig {
                     Class<?> superClazz = clazz.getSuperclass();
 
                     ObjectSerializer superWriter = getObjectWriter(superClazz);
-                    put(clazz, superWriter);
+                    put(clazz, superWriter, false);
                     return superWriter;
                 }
 
@@ -671,14 +671,14 @@ public class SerializeConfig {
 
                     if (handlerClass != null) {
                         ObjectSerializer superWriter = getObjectWriter(handlerClass);
-                        put(clazz, superWriter);
+                        put(clazz, superWriter, false);
                         return superWriter;
                     }
                 }
 
                 if (create) {
                     writer = createJavaBeanSerializer(clazz);
-                    put(clazz, writer);
+                    put(clazz, writer, false);
                 }
             }
 
@@ -694,7 +694,7 @@ public class SerializeConfig {
 	}
 
     public boolean put(Object type, Object value) {
-        return put(type, value, false);
+        return put(type, value, true);
     }
 
     public boolean put(Object type, Object value, boolean keepRef) {
@@ -702,7 +702,7 @@ public class SerializeConfig {
     }
 
     public boolean put(Type type, ObjectSerializer value) {
-        return put(type, value, false);
+        return put(type, value, true);
     }
 
 	public boolean put(Type type, ObjectSerializer value, boolean keepRef) {

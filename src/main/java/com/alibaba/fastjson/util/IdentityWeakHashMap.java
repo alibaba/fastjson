@@ -93,7 +93,7 @@ public class IdentityWeakHashMap<K, V> {
     }
 
     public boolean put(K key, V value) {
-        return put(key, value, false);
+        return put(key, value, true);
     }
 
     public boolean put(K key, V value, boolean keepRef) {

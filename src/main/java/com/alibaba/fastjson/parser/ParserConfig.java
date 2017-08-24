@@ -145,84 +145,84 @@ public class ParserConfig {
             asmEnable = false;
         }
 
-        deserializers.put(SimpleDateFormat.class, MiscCodec.instance, true);
+        deserializers.put(SimpleDateFormat.class, MiscCodec.instance);
         deserializers.put(java.sql.Timestamp.class, SqlDateDeserializer.instance_timestamp, true);
-        deserializers.put(java.sql.Date.class, SqlDateDeserializer.instance, true);
-        deserializers.put(java.sql.Time.class, TimeDeserializer.instance, true);
-        deserializers.put(java.util.Date.class, DateCodec.instance, true);
-        deserializers.put(Calendar.class, CalendarCodec.instance, true);
-        deserializers.put(XMLGregorianCalendar.class, CalendarCodec.instance, true);
+        deserializers.put(java.sql.Date.class, SqlDateDeserializer.instance);
+        deserializers.put(java.sql.Time.class, TimeDeserializer.instance);
+        deserializers.put(java.util.Date.class, DateCodec.instance);
+        deserializers.put(Calendar.class, CalendarCodec.instance);
+        deserializers.put(XMLGregorianCalendar.class, CalendarCodec.instance);
 
-        deserializers.put(JSONObject.class, MapDeserializer.instance, true);
-        deserializers.put(JSONArray.class, CollectionCodec.instance, true);
+        deserializers.put(JSONObject.class, MapDeserializer.instance);
+        deserializers.put(JSONArray.class, CollectionCodec.instance);
 
-        deserializers.put(Map.class, MapDeserializer.instance, true);
-        deserializers.put(HashMap.class, MapDeserializer.instance, true);
-        deserializers.put(LinkedHashMap.class, MapDeserializer.instance, true);
-        deserializers.put(TreeMap.class, MapDeserializer.instance, true);
-        deserializers.put(ConcurrentMap.class, MapDeserializer.instance, true);
-        deserializers.put(ConcurrentHashMap.class, MapDeserializer.instance, true);
+        deserializers.put(Map.class, MapDeserializer.instance);
+        deserializers.put(HashMap.class, MapDeserializer.instance);
+        deserializers.put(LinkedHashMap.class, MapDeserializer.instance);
+        deserializers.put(TreeMap.class, MapDeserializer.instance);
+        deserializers.put(ConcurrentMap.class, MapDeserializer.instance);
+        deserializers.put(ConcurrentHashMap.class, MapDeserializer.instance);
 
-        deserializers.put(Collection.class, CollectionCodec.instance, true);
-        deserializers.put(List.class, CollectionCodec.instance, true);
-        deserializers.put(ArrayList.class, CollectionCodec.instance, true);
+        deserializers.put(Collection.class, CollectionCodec.instance);
+        deserializers.put(List.class, CollectionCodec.instance);
+        deserializers.put(ArrayList.class, CollectionCodec.instance);
 
-        deserializers.put(Object.class, JavaObjectDeserializer.instance, true);
-        deserializers.put(String.class, StringCodec.instance, true);
-        deserializers.put(StringBuffer.class, StringCodec.instance, true);
-        deserializers.put(StringBuilder.class, StringCodec.instance, true);
-        deserializers.put(char.class, CharacterCodec.instance, true);
-        deserializers.put(Character.class, CharacterCodec.instance, true);
-        deserializers.put(byte.class, NumberDeserializer.instance, true);
-        deserializers.put(Byte.class, NumberDeserializer.instance, true);
-        deserializers.put(short.class, NumberDeserializer.instance, true);
-        deserializers.put(Short.class, NumberDeserializer.instance, true);
-        deserializers.put(int.class, IntegerCodec.instance, true);
-        deserializers.put(Integer.class, IntegerCodec.instance, true);
-        deserializers.put(long.class, LongCodec.instance, true);
-        deserializers.put(Long.class, LongCodec.instance, true);
-        deserializers.put(BigInteger.class, BigIntegerCodec.instance, true);
-        deserializers.put(BigDecimal.class, BigDecimalCodec.instance, true);
-        deserializers.put(float.class, FloatCodec.instance, true);
-        deserializers.put(Float.class, FloatCodec.instance, true);
-        deserializers.put(double.class, NumberDeserializer.instance, true);
-        deserializers.put(Double.class, NumberDeserializer.instance, true);
-        deserializers.put(boolean.class, BooleanCodec.instance, true);
-        deserializers.put(Boolean.class, BooleanCodec.instance, true);
-        deserializers.put(Class.class, MiscCodec.instance, true);
-        deserializers.put(char[].class, new CharArrayCodec(), true);
+        deserializers.put(Object.class, JavaObjectDeserializer.instance);
+        deserializers.put(String.class, StringCodec.instance);
+        deserializers.put(StringBuffer.class, StringCodec.instance);
+        deserializers.put(StringBuilder.class, StringCodec.instance);
+        deserializers.put(char.class, CharacterCodec.instance);
+        deserializers.put(Character.class, CharacterCodec.instance);
+        deserializers.put(byte.class, NumberDeserializer.instance);
+        deserializers.put(Byte.class, NumberDeserializer.instance);
+        deserializers.put(short.class, NumberDeserializer.instance);
+        deserializers.put(Short.class, NumberDeserializer.instance);
+        deserializers.put(int.class, IntegerCodec.instance);
+        deserializers.put(Integer.class, IntegerCodec.instance);
+        deserializers.put(long.class, LongCodec.instance);
+        deserializers.put(Long.class, LongCodec.instance);
+        deserializers.put(BigInteger.class, BigIntegerCodec.instance);
+        deserializers.put(BigDecimal.class, BigDecimalCodec.instance);
+        deserializers.put(float.class, FloatCodec.instance);
+        deserializers.put(Float.class, FloatCodec.instance);
+        deserializers.put(double.class, NumberDeserializer.instance);
+        deserializers.put(Double.class, NumberDeserializer.instance);
+        deserializers.put(boolean.class, BooleanCodec.instance);
+        deserializers.put(Boolean.class, BooleanCodec.instance);
+        deserializers.put(Class.class, MiscCodec.instance);
+        deserializers.put(char[].class, new CharArrayCodec());
 
-        deserializers.put(AtomicBoolean.class, BooleanCodec.instance, true);
-        deserializers.put(AtomicInteger.class, IntegerCodec.instance, true);
-        deserializers.put(AtomicLong.class, LongCodec.instance, true);
-        deserializers.put(AtomicReference.class, ReferenceCodec.instance, true);
+        deserializers.put(AtomicBoolean.class, BooleanCodec.instance);
+        deserializers.put(AtomicInteger.class, IntegerCodec.instance);
+        deserializers.put(AtomicLong.class, LongCodec.instance);
+        deserializers.put(AtomicReference.class, ReferenceCodec.instance);
 
-        deserializers.put(WeakReference.class, ReferenceCodec.instance, true);
-        deserializers.put(SoftReference.class, ReferenceCodec.instance, true);
+        deserializers.put(WeakReference.class, ReferenceCodec.instance);
+        deserializers.put(SoftReference.class, ReferenceCodec.instance);
 
-        deserializers.put(UUID.class, MiscCodec.instance, true);
-        deserializers.put(TimeZone.class, MiscCodec.instance, true);
-        deserializers.put(Locale.class, MiscCodec.instance, true);
-        deserializers.put(Currency.class, MiscCodec.instance, true);
-        deserializers.put(InetAddress.class, MiscCodec.instance, true);
-        deserializers.put(Inet4Address.class, MiscCodec.instance, true);
-        deserializers.put(Inet6Address.class, MiscCodec.instance, true);
-        deserializers.put(InetSocketAddress.class, MiscCodec.instance, true);
-        deserializers.put(File.class, MiscCodec.instance, true);
-        deserializers.put(URI.class, MiscCodec.instance, true);
-        deserializers.put(URL.class, MiscCodec.instance, true);
-        deserializers.put(Pattern.class, MiscCodec.instance, true);
-        deserializers.put(Charset.class, MiscCodec.instance, true);
-        deserializers.put(JSONPath.class, MiscCodec.instance, true);
-        deserializers.put(Number.class, NumberDeserializer.instance, true);
-        deserializers.put(AtomicIntegerArray.class, AtomicCodec.instance, true);
-        deserializers.put(AtomicLongArray.class, AtomicCodec.instance, true);
-        deserializers.put(StackTraceElement.class, StackTraceElementDeserializer.instance, true);
+        deserializers.put(UUID.class, MiscCodec.instance);
+        deserializers.put(TimeZone.class, MiscCodec.instance);
+        deserializers.put(Locale.class, MiscCodec.instance);
+        deserializers.put(Currency.class, MiscCodec.instance);
+        deserializers.put(InetAddress.class, MiscCodec.instance);
+        deserializers.put(Inet4Address.class, MiscCodec.instance);
+        deserializers.put(Inet6Address.class, MiscCodec.instance);
+        deserializers.put(InetSocketAddress.class, MiscCodec.instance);
+        deserializers.put(File.class, MiscCodec.instance);
+        deserializers.put(URI.class, MiscCodec.instance);
+        deserializers.put(URL.class, MiscCodec.instance);
+        deserializers.put(Pattern.class, MiscCodec.instance);
+        deserializers.put(Charset.class, MiscCodec.instance);
+        deserializers.put(JSONPath.class, MiscCodec.instance);
+        deserializers.put(Number.class, NumberDeserializer.instance);
+        deserializers.put(AtomicIntegerArray.class, AtomicCodec.instance);
+        deserializers.put(AtomicLongArray.class, AtomicCodec.instance);
+        deserializers.put(StackTraceElement.class, StackTraceElementDeserializer.instance);
 
-        deserializers.put(Serializable.class, JavaObjectDeserializer.instance, true);
-        deserializers.put(Cloneable.class, JavaObjectDeserializer.instance, true);
-        deserializers.put(Comparable.class, JavaObjectDeserializer.instance, true);
-        deserializers.put(Closeable.class, JavaObjectDeserializer.instance, true);
+        deserializers.put(Serializable.class, JavaObjectDeserializer.instance);
+        deserializers.put(Cloneable.class, JavaObjectDeserializer.instance);
+        deserializers.put(Comparable.class, JavaObjectDeserializer.instance);
+        deserializers.put(Closeable.class, JavaObjectDeserializer.instance);
 
         deserializers.put(JSONPObject.class, new JSONPDeserializer(), true);
 
@@ -442,7 +442,7 @@ public class ParserConfig {
             for (AutowiredObjectDeserializer autowired : ServiceLoader.load(AutowiredObjectDeserializer.class,
                                                                             classLoader)) {
                 for (Type forType : autowired.getAutowiredFor()) {
-                    deserializers.put(forType, autowired);
+                    deserializers.put(forType, autowired, false);
                 }
             }
         } catch (Exception ex) {
@@ -476,7 +476,7 @@ public class ParserConfig {
             derializer = createJavaBeanDeserializer(clazz, type);
         }
 
-        putDeserializer(type, derializer);
+        putDeserializer(type, derializer, false);
 
         return derializer;
     }
@@ -657,8 +657,12 @@ public class ParserConfig {
         return new DefaultFieldDeserializer(mapping, clazz, fieldInfo);
     }
 
+    public void putDeserializer(Type type, ObjectDeserializer deserializer, boolean keepRef) {
+        deserializers.put(type, deserializer, keepRef);
+    }
+
     public void putDeserializer(Type type, ObjectDeserializer deserializer) {
-        deserializers.put(type, deserializer);
+        putDeserializer(type, deserializer, true);
     }
 
     public ObjectDeserializer getDeserializer(FieldInfo fieldInfo) {

@@ -16,6 +16,7 @@
 package com.alibaba.fastjson.parser;
 
 import java.io.Closeable;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
@@ -1301,56 +1302,67 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             }
         }
 
-        if (chLocal != '"') {
-            matchStat = NOT_MATCH;
 
-            return stringDefaultValue();
-        }
 
         final String strVal;
-        {
-            int startIndex = bp + 1;
-            int endIndex = indexOf('"', startIndex);
-            if (endIndex == -1) {
-                throw new JSONException("unclosed str");
-            }
-
-            String stringVal = subString(bp + 1, endIndex - startIndex);
-            if (stringVal.indexOf('\\') != -1) {
-                for (;;) {
-                    int slashCount = 0;
-                    for (int i = endIndex - 1; i >= 0; --i) {
-                        if (charAt(i) == '\\') {
-                            slashCount++;
-                        } else {
-                            break;
-                        }
-                    }
-                    if (slashCount % 2 == 0) {
-                        break;
-                    }
-                    endIndex = indexOf('"', endIndex + 1);
+        for (;;) {
+            if (chLocal == '"') {
+                int startIndex = bp + offset;
+                int endIndex = indexOf('"', startIndex);
+                if (endIndex == -1) {
+                    throw new JSONException("unclosed str");
                 }
 
-                int chars_len = endIndex - startIndex;
-                char[] chars = sub_chars(bp + 1, chars_len);
+                String stringVal = subString(bp + offset, endIndex - startIndex);
+                if (stringVal.indexOf('\\') != -1) {
+                    for (; ; ) {
+                        int slashCount = 0;
+                        for (int i = endIndex - 1; i >= 0; --i) {
+                            if (charAt(i) == '\\') {
+                                slashCount++;
+                            } else {
+                                break;
+                            }
+                        }
+                        if (slashCount % 2 == 0) {
+                            break;
+                        }
+                        endIndex = indexOf('"', endIndex + 1);
+                    }
 
-                stringVal = readString(chars, chars_len);
+                    int chars_len = endIndex - startIndex;
+                    char[] chars = sub_chars(bp + 1, chars_len);
+
+                    stringVal = readString(chars, chars_len);
+                }
+
+                offset += (endIndex - startIndex + 1);
+                chLocal = charAt(bp + (offset++));
+                strVal = stringVal;
+                break;
+            } else if (isWhitespace(chLocal)) {
+                chLocal = charAt(bp + (offset++));
+                continue;
+            } else {
+                matchStat = NOT_MATCH;
+
+                return stringDefaultValue();
             }
-
-            offset += (endIndex - (bp + 1) + 1);
-            chLocal = charAt(bp + (offset++));
-            strVal = stringVal;
         }
 
-        if (chLocal == expectNextChar) {
-            bp += offset;
-            this.ch = charAt(bp);
-            matchStat = VALUE;
-            return strVal;
-        } else {
-            matchStat = NOT_MATCH;
-            return strVal;
+        for (;;) {
+            if (chLocal == expectNextChar) {
+                bp += offset;
+                this.ch = charAt(bp);
+                matchStat = VALUE;
+                return strVal;
+            } else if (isWhitespace(chLocal)) {
+                chLocal = charAt(bp + (offset++));
+                continue;
+            } else {
+                matchStat = NOT_MATCH;
+                return strVal;
+            }
         }
     }
 
@@ -5070,5 +5082,14 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         for (int i = 'A'; i <= 'F'; ++i) {
             digits[i] = (i - 'A') + 10;
         }
+    }
+
+    // for hsf
+    public String[] scanArgTypes(char[] fieldName, int argTypesCount, SymbolTable typeSymbolTable) {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean marchArgObjs(char[] fieldName) {
+        throw new UnsupportedOperationException();
     }
 }

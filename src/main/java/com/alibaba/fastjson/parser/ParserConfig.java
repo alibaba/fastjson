@@ -339,7 +339,7 @@ public class ParserConfig {
         }
 
         {
-            JSONType annotation = clazz.getAnnotation(JSONType.class);
+            JSONType annotation = TypeUtils.getAnnotation(clazz,JSONType.class);
             if (annotation != null) {
                 Class<?> mappingTo = annotation.mappingTo();
                 if (mappingTo != Void.class) {
@@ -502,7 +502,7 @@ public class ParserConfig {
     public ObjectDeserializer createJavaBeanDeserializer(Class<?> clazz, Type type) {
         boolean asmEnable = this.asmEnable & !this.fieldBased;
         if (asmEnable) {
-            JSONType jsonType = clazz.getAnnotation(JSONType.class);
+            JSONType jsonType = TypeUtils.getAnnotation(clazz,JSONType.class);
 
             if (jsonType != null) {
                 Class<?> deserializerClass = jsonType.deserializer();
@@ -844,7 +844,7 @@ public class ParserConfig {
         clazz = TypeUtils.loadClass(typeName, defaultClassLoader);
 
         if (clazz != null) {
-            if (clazz.getAnnotation(JSONType.class) != null) {
+            if (TypeUtils.getAnnotation(clazz,JSONType.class) != null) {
                 return clazz;
             }
 

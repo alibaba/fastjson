@@ -488,6 +488,19 @@ public class ParserConfig {
         }
 
         if (clazz.isEnum()) {
+            Class<?> deserClass = null;
+            JSONType jsonType = clazz.getAnnotation(JSONType.class);
+            if (jsonType != null) {
+                deserClass = jsonType.deserializer();
+                try {
+                    derializer = (ObjectDeserializer) deserClass.newInstance();
+                    deserializers.put(clazz, derializer);
+                    return derializer;
+                } catch (Throwable error) {
+                    // skip
+                }
+            }
+
             derializer = new EnumDeserializer(clazz);
         } else if (clazz.isArray()) {
             derializer = ObjectArrayCodec.instance;

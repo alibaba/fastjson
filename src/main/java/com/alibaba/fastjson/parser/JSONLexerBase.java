@@ -5084,12 +5084,18 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
     }
 
-    // for hsf
-    public String[] scanArgTypes(char[] fieldName, int argTypesCount, SymbolTable typeSymbolTable) {
+    /**
+     * hsf support
+     * @param fieldName
+     * @param argTypesCount
+     * @param typeSymbolTable
+     * @return
+     */
+    public String[] scanFieldStringArray(char[] fieldName, int argTypesCount, SymbolTable typeSymbolTable) {
         throw new UnsupportedOperationException();
     }
 
-    public boolean marchArgObjs(char[] fieldName) {
+    public boolean matchField2(char[] fieldName) {
         throw new UnsupportedOperationException();
     }
 }

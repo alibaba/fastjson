@@ -2048,9 +2048,8 @@ public final class JSONScanner extends JSONLexerBase {
                 : text.substring(0, 65536));
     }
 
-
-
-    public String[] scanArgTypes(char[] fieldName, int argTypesCount, SymbolTable typeSymbolTable) {
+    // for hsf support
+    public String[] scanFieldStringArray(char[] fieldName, int argTypesCount, SymbolTable typeSymbolTable) {
         int startPos = bp;
         char starChar = ch;
 
@@ -2091,6 +2090,10 @@ public final class JSONScanner extends JSONLexerBase {
         if (ch == '[') {
             bp = offset;
             this.ch = text.charAt(bp);
+        } else if (ch == 'n' && text.startsWith("ull", bp + 1)) {
+            bp += 4;
+            this.ch = text.charAt(bp);
+            return null;
         } else {
             matchStat = NOT_MATCH;
             return null;
@@ -2142,7 +2145,7 @@ public final class JSONScanner extends JSONLexerBase {
         return types;
     }
 
-    public boolean marchArgObjs(char[] fieldName) {
+    public boolean matchField2(char[] fieldName) {
         while (isWhitespace(ch)) {
             next();
         }
@@ -2159,7 +2162,7 @@ public final class JSONScanner extends JSONLexerBase {
         }
 
         if (ch == ':') {
-            this.bp = offset + 1;
+            this.bp = offset;
             this.ch = charAt(bp);
             return true;
         } else {

@@ -2,7 +2,6 @@ package com.alibaba.fastjson.support.hsf;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexerBase;
@@ -25,7 +24,7 @@ public class HSFJSONUtils {
         Object[] values;
         int token = lexer.token();
         if (token == JSONToken.LBRACE) {
-            String[] typeNames = lexer.scanArgTypes(fieldName_argsTypes, -1, typeSymbolTable);
+            String[] typeNames = lexer.scanFieldStringArray(fieldName_argsTypes, -1, typeSymbolTable);
             Method method = methodLocator.findMethod(typeNames);
 
             if (method == null) {
@@ -54,7 +53,7 @@ public class HSFJSONUtils {
                     lexer.next();
                 }
 
-                if (lexer.marchArgObjs(fieldName_argsObjs)) {
+                if (lexer.matchField2(fieldName_argsObjs)) {
                     lexer.nextToken();
                     values = parser.parseArray(argTypes);
                     parser.accept(JSONToken.RBRACE);
@@ -65,7 +64,7 @@ public class HSFJSONUtils {
                 parser.close();
             }
         } else if (token == JSONToken.LBRACKET) {
-            String[] typeNames = lexer.scanArgTypes(null, -1, typeSymbolTable);
+            String[] typeNames = lexer.scanFieldStringArray(null, -1, typeSymbolTable);
             Method method = methodLocator.findMethod(typeNames);
 
             lexer.skipWhitespace();

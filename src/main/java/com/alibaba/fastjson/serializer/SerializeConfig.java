@@ -15,45 +15,32 @@
  */
 package com.alibaba.fastjson.serializer;
 
-import java.io.File;
-import java.io.Serializable;
-import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
-import java.lang.reflect.*;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.net.Inet4Address;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.sql.Clob;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicIntegerArray;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicLongArray;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Pattern;
-
 import com.alibaba.fastjson.*;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.deserializer.Jdk8DateCodec;
 import com.alibaba.fastjson.parser.deserializer.OptionalCodec;
 import com.alibaba.fastjson.support.springfox.SwaggerJsonSerializer;
-import com.alibaba.fastjson.util.ASMUtils;
-import com.alibaba.fastjson.util.FieldInfo;
+import com.alibaba.fastjson.util.*;
 import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.ServiceLoader;
-import com.alibaba.fastjson.util.TypeUtils;
-import sun.reflect.annotation.AnnotationType;
 
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.io.File;
+import java.io.Serializable;
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.*;
+import java.lang.reflect.Proxy;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.net.*;
+import java.nio.charset.Charset;
+import java.sql.Clob;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.atomic.*;
+import java.util.regex.Pattern;
 
 /**
  * circular references detect
@@ -62,23 +49,23 @@ import javax.xml.datatype.XMLGregorianCalendar;
  */
 public class SerializeConfig {
 
-    public final static SerializeConfig                   globalInstance  = new SerializeConfig();
+    public final static SerializeConfig                       globalInstance  = new SerializeConfig();
 
-    private static boolean                                awtError        = false;
-    private static boolean                                jdk8Error       = false;
-    private static boolean                                oracleJdbcError = false;
-    private static boolean                                springfoxError  = false;
-    private static boolean                                guavaError      = false;
-    private static boolean                                jsonnullError   = false;
+    private static boolean                                    awtError        = false;
+    private static boolean                                    jdk8Error       = false;
+    private static boolean                                    oracleJdbcError = false;
+    private static boolean                                    springfoxError  = false;
+    private static boolean                                    guavaError      = false;
+    private static boolean                                    jsonnullError   = false;
 
-    private boolean                                       asm             = !ASMUtils.IS_ANDROID;
-    private ASMSerializerFactory                          asmFactory;
-    protected String                                      typeKey         = JSON.DEFAULT_TYPE_KEY;
-    public PropertyNamingStrategy                         propertyNamingStrategy;
+    private boolean                                           asm             = !ASMUtils.IS_ANDROID;
+    private ASMSerializerFactory                              asmFactory;
+    protected String                                          typeKey         = JSON.DEFAULT_TYPE_KEY;
+    public PropertyNamingStrategy                             propertyNamingStrategy;
 
-    private final IdentityHashMap<Type, ObjectSerializer> serializers;
+    private final IdentityWeakHashMap<Type, ObjectSerializer> serializers;
 
-    private final boolean                                 fieldBased;
+    private final boolean                                     fieldBased;
     
 	public String getTypeKey() {
 		return typeKey;
@@ -270,7 +257,7 @@ public class SerializeConfig {
 
 	public SerializeConfig(int tableSize, boolean fieldBase) {
 	    this.fieldBased = fieldBase;
-	    serializers = new IdentityHashMap<Type, ObjectSerializer>(tableSize);
+	    serializers = new IdentityWeakHashMap<Type, ObjectSerializer>(tableSize);
 		
 		try {
 		    if (asm) {
@@ -303,7 +290,7 @@ public class SerializeConfig {
 		put(Class.class, MiscCodec.instance);
 
 		put(SimpleDateFormat.class, MiscCodec.instance);
-		put(Currency.class, new MiscCodec());
+		put(Currency.class, new MiscCodec(), true);
 		put(TimeZone.class, MiscCodec.instance);
 		put(InetAddress.class, MiscCodec.instance);
 		put(Inet4Address.class, MiscCodec.instance);
@@ -418,7 +405,7 @@ public class SerializeConfig {
 
                     AutowiredObjectSerializer autowired = (AutowiredObjectSerializer) o;
                     for (Type forType : autowired.getAutowiredFor()) {
-                        put(forType, autowired);
+                        put(forType, autowired, false);
                     }
                 }
             } catch (ClassCastException ex) {
@@ -440,7 +427,7 @@ public class SerializeConfig {
 
                         AutowiredObjectSerializer autowired = (AutowiredObjectSerializer) o;
                         for (Type forType : autowired.getAutowiredFor()) {
-                            put(forType, autowired);
+                            put(forType, autowired, false);
                         }
                     }
                 } catch (ClassCastException ex) {
@@ -455,51 +442,51 @@ public class SerializeConfig {
             String className = clazz.getName();
 
             if (Map.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = MapSerializer.instance);
+                put(clazz, writer = MapSerializer.instance, false);
             } else if (List.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = ListSerializer.instance);
+                put(clazz, writer = ListSerializer.instance, false);
             } else if (Collection.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = CollectionCodec.instance);
+                put(clazz, writer = CollectionCodec.instance, false);
             } else if (Date.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = DateCodec.instance);
+                put(clazz, writer = DateCodec.instance, false);
             } else if (JSONAware.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = JSONAwareSerializer.instance);
+                put(clazz, writer = JSONAwareSerializer.instance, false);
             } else if (JSONSerializable.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = JSONSerializableSerializer.instance);
+                put(clazz, writer = JSONSerializableSerializer.instance, false);
             } else if (JSONStreamAware.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = MiscCodec.instance);
+                put(clazz, writer = MiscCodec.instance, false);
             } else if (clazz.isEnum() || (clazz.getSuperclass() != null && clazz.getSuperclass().isEnum())) {
                 JSONType jsonType = TypeUtils.getAnnotation(clazz,JSONType.class);
                 if (jsonType != null && jsonType.serializeEnumAsJavaBean()) {
-                    put(clazz, writer = createJavaBeanSerializer(clazz));
+                    put(clazz, writer = createJavaBeanSerializer(clazz), false);
                 } else {
-                    put(clazz, writer = EnumSerializer.instance);
+                    put(clazz, writer = EnumSerializer.instance, false);
                 }
             } else if (clazz.isArray()) {
                 Class<?> componentType = clazz.getComponentType();
                 ObjectSerializer compObjectSerializer = getObjectWriter(componentType);
-                put(clazz, writer = new ArraySerializer(componentType, compObjectSerializer));
+                put(clazz, writer = new ArraySerializer(componentType, compObjectSerializer), false);
             } else if (Throwable.class.isAssignableFrom(clazz)) {
                 SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null, propertyNamingStrategy);
                 beanInfo.features |= SerializerFeature.WriteClassName.mask;
-                put(clazz, writer = new JavaBeanSerializer(beanInfo));
+                put(clazz, writer = new JavaBeanSerializer(beanInfo), false);
             } else if (TimeZone.class.isAssignableFrom(clazz) || Map.Entry.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = MiscCodec.instance);
+                put(clazz, writer = MiscCodec.instance, false);
             } else if (Appendable.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = AppendableSerializer.instance);
+                put(clazz, writer = AppendableSerializer.instance, false);
             } else if (Charset.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = ToStringSerializer.instance);
+                put(clazz, writer = ToStringSerializer.instance, false);
             } else if (Enumeration.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = EnumerationSerializer.instance);
+                put(clazz, writer = EnumerationSerializer.instance, false);
             } else if (Calendar.class.isAssignableFrom(clazz) //
                     || XMLGregorianCalendar.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = CalendarCodec.instance);
+                put(clazz, writer = CalendarCodec.instance, false);
             } else if (Clob.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = ClobSeriliazer.instance);
+                put(clazz, writer = ClobSeriliazer.instance, false);
             } else if (TypeUtils.isPath(clazz)) {
-                put(clazz, writer = ToStringSerializer.instance);
+                put(clazz, writer = ToStringSerializer.instance, false);
             } else if (Iterator.class.isAssignableFrom(clazz)) {
-                put(clazz, writer = MiscCodec.instance);
+                put(clazz, writer = MiscCodec.instance, false);
             } else {
                 if (className.startsWith("java.awt.") //
                     && AwtCodec.support(clazz) //
@@ -660,7 +647,7 @@ public class SerializeConfig {
                     Class<?> superClazz = clazz.getSuperclass();
 
                     ObjectSerializer superWriter = getObjectWriter(superClazz);
-                    put(clazz, superWriter);
+                    put(clazz, superWriter, false);
                     return superWriter;
                 }
 
@@ -684,14 +671,14 @@ public class SerializeConfig {
 
                     if (handlerClass != null) {
                         ObjectSerializer superWriter = getObjectWriter(handlerClass);
-                        put(clazz, superWriter);
+                        put(clazz, superWriter, false);
                         return superWriter;
                     }
                 }
 
                 if (create) {
                     writer = createJavaBeanSerializer(clazz);
-                    put(clazz, writer);
+                    put(clazz, writer, false);
                 }
             }
 
@@ -707,11 +694,19 @@ public class SerializeConfig {
 	}
 
     public boolean put(Object type, Object value) {
-        return put((Type)type, (ObjectSerializer)value);
+        return put(type, value, true);
     }
 
-	public boolean put(Type type, ObjectSerializer value) {
-        return this.serializers.put(type, value);
+    public boolean put(Object type, Object value, boolean keepRef) {
+        return put((Type)type, (ObjectSerializer)value, keepRef);
+    }
+
+    public boolean put(Type type, ObjectSerializer value) {
+        return put(type, value, true);
+    }
+
+	public boolean put(Type type, ObjectSerializer value, boolean keepRef) {
+        return this.serializers.put(type, value, keepRef);
 	}
 
     /**

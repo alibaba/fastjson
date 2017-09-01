@@ -250,6 +250,10 @@ public class ParserConfig {
         return deserializer;
     }
 
+    public boolean containsKey(Class clazz) {
+        return derializers.get(clazz) != null;
+    }
+
     public FieldDeserializer createFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo) {
         Class<?> fieldClass = fieldInfo.fieldClass;
 

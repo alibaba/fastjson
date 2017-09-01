@@ -38,13 +38,7 @@ import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
 import com.alibaba.fastjson.parser.deserializer.FieldTypeResolver;
 import com.alibaba.fastjson.parser.deserializer.ParseProcess;
-import com.alibaba.fastjson.serializer.JSONSerializer;
-import com.alibaba.fastjson.serializer.JavaBeanSerializer;
-import com.alibaba.fastjson.serializer.ObjectSerializer;
-import com.alibaba.fastjson.serializer.SerializeConfig;
-import com.alibaba.fastjson.serializer.SerializeFilter;
-import com.alibaba.fastjson.serializer.SerializeWriter;
-import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.serializer.*;
 import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.TypeUtils;
 import sun.reflect.annotation.AnnotationType;
@@ -899,6 +893,11 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             }
 
             return array;
+        }
+
+        if (javaObject instanceof JSONSerializable) {
+            String json = JSON.toJSONString(javaObject);
+            return JSON.parse(json);
         }
 
         Class<?> clazz = javaObject.getClass();

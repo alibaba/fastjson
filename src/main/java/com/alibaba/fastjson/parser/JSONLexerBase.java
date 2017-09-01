@@ -1154,8 +1154,16 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     }
 
     public final boolean matchField(char[] fieldName) {
-        if (!charArrayCompare(fieldName)) {
-            return false;
+        for (;;) {
+            if (!charArrayCompare(fieldName)) {
+                if (isWhitespace(ch)) {
+                    next();
+                    continue;
+                }
+                return false;
+            } else {
+                break;
+            }
         }
 
         bp = bp + fieldName.length;

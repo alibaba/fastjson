@@ -702,7 +702,7 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     static boolean checkDate(char y0, char y1, char y2, char y3, char M0, char M1, int d0, int d1) {
-        if (y0 != '1' && y0 != '2') {
+        if (y0 < '1' || y0 > '3') {
             return false;
         }
         if (y1 < '0' || y1 > '9') {
@@ -869,9 +869,17 @@ public final class JSONScanner extends JSONLexerBase {
         int startPos = this.bp;
         char startChar = this.ch;
 
-        if (!charArrayCompare(text, bp, fieldName)) {
-            matchStat = NOT_MATCH_NAME;
-            return stringDefaultValue();
+        for (;;) {
+            if (!charArrayCompare(text, bp, fieldName)) {
+                if (isWhitespace(ch)) {
+                    next();
+                    continue;
+                }
+                matchStat = NOT_MATCH_NAME;
+                return stringDefaultValue();
+            } else {
+                break;
+            }
         }
 
         int index = bp + fieldName.length;
@@ -2104,6 +2112,13 @@ public final class JSONScanner extends JSONLexerBase {
         for (;;) {
             while (isWhitespace(this.ch)) {
                 next();
+            }
+
+            if (this.ch != '\"') {
+                this.bp = startPos;
+                this.ch = starChar;
+                matchStat = NOT_MATCH;
+                return null;
             }
 
             String type = scanSymbol(typeSymbolTable, '"');

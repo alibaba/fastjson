@@ -55,6 +55,18 @@ public class HSFJSONUtilsTest_1 extends TestCase {
         assertEquals("xxx", ((Model) values[1]).value);
     }
 
+    public void test_invoke_type() throws Exception {
+        String json = "{\"@type\":\"com.alibaba.fastjson.JSONObject\", \n" +
+                "    \"argsTypes\"  :  [ \"java.lang.String\", \"com.alibaba.json.bvt.support.hsf.HSFJSONUtilsTest_0$Model\"],\n" +
+                "    \"argsObjs\"   :   [ \"abc\", {\"value\":\"xxx\"} ]\n" +
+                "}";
+        Object[] values = HSFJSONUtils.parseInvocationArguments(json, methodLocator);
+        assertNotNull(values);
+        assertEquals(2, values.length);
+        assertEquals("abc", values[0]);
+        assertEquals("xxx", ((Model) values[1]).value);
+    }
+
     public void test_invoke_reverse() throws Exception {
         String json = "{ \n" +
                 "    \"argsObjs\"   :   [ \"abc\", {\"value\":\"xxx\"} ],\n" +

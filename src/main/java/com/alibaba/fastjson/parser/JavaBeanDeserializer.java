@@ -1,10 +1,7 @@
 package com.alibaba.fastjson.parser;
 
 import java.lang.reflect.*;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -474,6 +471,16 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     } else if (fieldClass == String.class) {
                         fieldValue = lexer.scanFieldString(fieldHashCode);
                         
+                        if (lexer.matchStat > 0) {
+                            matchField = true;
+                            valueParsed = true;
+                        } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
+                            matchFieldHash = lexer.fieldHash;
+                            continue;
+                        }
+                    } else if (fieldClass == Date.class) {
+                        fieldValue = lexer.scanFieldDate(fieldHashCode);
+
                         if (lexer.matchStat > 0) {
                             matchField = true;
                             valueParsed = true;

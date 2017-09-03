@@ -2062,13 +2062,12 @@ public final class JSONLexer {
                 break;
             } else if (fieldQuote == '\'') {
                 break;
-            } else if (fieldQuote <= ' ' //
-                    && (fieldQuote == ' ' //
+            } else if (fieldQuote == ' ' //
                     || fieldQuote == '\n' //
                     || fieldQuote == '\r' //
                     || fieldQuote == '\t' //
                     || fieldQuote == '\f' //
-                    || fieldQuote == '\b')) {
+                    || fieldQuote == '\b') {
                 charIndex = bp + (offset++);
                 fieldQuote = charIndex >= this.len ? //
                         EOI //
@@ -2081,11 +2080,11 @@ public final class JSONLexer {
         }
 
         long hash = 0xcbf29ce484222325L;
-        for (int i = fieldStartIndex; i < len; ++i) {
+        for (int i = bp + offset; i < len; ++i) {
             char ch = text.charAt(i);
             if (ch == fieldQuote) {
                 //this.fieldHashCode = hash;
-                offset += (i - fieldStartIndex);
+                offset += (i - bp - offset);
                 break;
             }
 
@@ -2143,10 +2142,18 @@ public final class JSONLexer {
                 EOI //
                 : text.charAt(charIndex);
 
-        boolean quote = false;
-        if (chLocal == '"') {
+        boolean quote = chLocal == '"';
+        if (quote) {
             quote = true;
 
+            charIndex = bp + (offset++);
+            chLocal = charIndex >= this.len ? //
+                    EOI //
+                    : text.charAt(charIndex);
+        }
+
+        final boolean negative = chLocal == '-';
+        if (negative) {
             charIndex = bp + (offset++);
             chLocal = charIndex >= this.len ? //
                     EOI //
@@ -2190,18 +2197,33 @@ public final class JSONLexer {
             return 0;
         }
 
-        if (chLocal == ',') {
-            bp += (offset - 1);
-            // this.next();
-            {
-                int index = ++bp;
-                this.ch = index >= this.len ? //
+        for (;;) {
+            if (chLocal == ',') {
+                bp += (offset - 1);
+                // this.next();
+                {
+                    int index = ++bp;
+                    this.ch = index >= this.len ? //
+                            EOI //
+                            : text.charAt(index);
+                }
+                matchStat = VALUE;
+                token = JSONToken.COMMA;
+                return negative ? -value : value;
+            } else  if (chLocal <= ' ' //
+                    && (chLocal == ' ' //
+                    || chLocal == '\n' //
+                    || chLocal == '\r' //
+                    || chLocal == '\t' //
+                    || chLocal == '\f' //
+                    || chLocal == '\b')) {
+                charIndex = bp + (offset++);
+                chLocal = charIndex >= this.len ? //
                         EOI //
-                        : text.charAt(index);
+                        : text.charAt(charIndex);
+                continue;
             }
-            matchStat = VALUE;
-            token = JSONToken.COMMA;
-            return value;
+            break;
         }
 
         if (chLocal == '}') {
@@ -2250,7 +2272,7 @@ public final class JSONLexer {
             return 0;
         }
 
-        return value;
+        return negative ? -value : value;
     }
 
     public final int[] scanFieldIntArray(long fieldHashCode) {
@@ -2405,16 +2427,20 @@ public final class JSONLexer {
 
         long value;
 
-        boolean quote = false;
-        if (chLocal == '"') {
-            quote = true;
+        boolean quote = chLocal == '"';
+        if (quote) {
+            int index = bp + (offset++);
+            chLocal = index >= this.len ? //
+                    EOI //
+                    : text.charAt(index);
+        }
 
-            {
-                int index = bp + (offset++);
-                chLocal = index >= this.len ? //
-                        EOI //
-                        : text.charAt(index);
-            }
+        final boolean negative = chLocal == '-';
+        if (negative) {
+            int index = bp + (offset++);
+            chLocal = index >= this.len ? //
+                    EOI //
+                    : text.charAt(index);
         }
 
         if (chLocal >= '0' //
@@ -2467,7 +2493,7 @@ public final class JSONLexer {
             }
             matchStat = VALUE;
             token = JSONToken.COMMA;
-            return value;
+            return negative ? -value : value;
         }
 
         if (chLocal == '}') {
@@ -2516,7 +2542,7 @@ public final class JSONLexer {
             return 0;
         }
 
-        return value;
+        return negative ? -value : value;
     }
 
     public String scanFieldString(long fieldHashCode) {
@@ -2648,6 +2674,158 @@ public final class JSONLexer {
         return strVal;
     }
 
+    public java.util.Date scanFieldDate(long fieldHashCode) {
+        matchStat = UNKNOWN;
+
+        int offset = matchFieldHash(fieldHashCode);
+        if (offset == 0) {
+            return null;
+        }
+
+        int startPos = this.bp;
+        char startChar = this.ch;
+
+        // char chLocal = charAt(bp + (offset++));
+        char chLocal;
+        {
+            int index = bp + (offset++);
+            chLocal = index >= this.len ? //
+                    EOI //
+                    : text.charAt(index);
+        }
+
+        final java.util.Date dateVal;
+
+        long millis;
+        if (chLocal == '"') {
+            boolean quote = true;
+
+            int startIndex = bp + offset;
+            {
+                int index = bp + (offset++);
+                chLocal = index >= this.len ? //
+                        EOI //
+                        : text.charAt(index);
+            }
+
+
+            int endIndex = text.indexOf('"', bp + offset);
+            if (endIndex == -1) {
+                throw new JSONException("unclosed str");
+            }
+            int rest = endIndex - startIndex;
+            bp = startIndex;
+            if (scanISO8601DateIfMatch(false, rest)) {
+                dateVal = calendar.getTime();
+            } else {
+                bp = startPos;
+                matchStat = NOT_MATCH;
+                return null;
+            }
+
+            offset += rest;
+            chLocal = charAt(startPos + offset++);
+            bp = startPos;
+        } else if (chLocal >= '0' //
+                && chLocal <= '9') {
+            millis = chLocal - '0';
+            for (;;) {
+                // chLocal = charAt(bp + (offset++));
+                {
+                    int index = bp + (offset++);
+                    chLocal = index >= this.len ? //
+                            EOI //
+                            : text.charAt(index);
+                }
+                if (chLocal >= '0' && chLocal <= '9') {
+                    millis = millis * 10 + (chLocal - '0');
+                } else if (chLocal == '.') {
+                    matchStat = NOT_MATCH;
+                    return null;
+                } else if (chLocal == '\"') {
+                    int index = bp + (offset++);
+                    chLocal = index >= this.len ? //
+                            EOI //
+                            : text.charAt(index);
+                    break;
+                } else {
+                    break;
+                }
+            }
+            if (millis < 0) {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+
+            dateVal = new java.util.Date(millis);
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        if (chLocal == ',') {
+            bp += (offset - 1);
+            // this.next();
+            {
+                int index = ++bp;
+                this.ch = index >= this.len ? //
+                        EOI //
+                        : text.charAt(index);
+            }
+            matchStat = VALUE;
+            token = JSONToken.COMMA;
+            return dateVal;
+        }
+
+        if (chLocal == '}') {
+            chLocal = charAt(bp + (offset++));
+            if (chLocal == ',') {
+                token = JSONToken.COMMA;
+                bp += (offset - 1);
+                // this.next();
+                {
+                    int index = ++bp;
+                    this.ch = index >= this.len ? //
+                            EOI //
+                            : text.charAt(index);
+                }
+            } else if (chLocal == ']') {
+                token = JSONToken.RBRACKET;
+                bp += (offset - 1);
+                // this.next();
+                {
+                    int index = ++bp;
+                    this.ch = index >= this.len ? //
+                            EOI //
+                            : text.charAt(index);
+                }
+            } else if (chLocal == '}') {
+                token = JSONToken.RBRACE;
+                bp += (offset - 1);
+                // this.next();
+                {
+                    int index = ++bp;
+                    this.ch = index >= this.len ? //
+                            EOI //
+                            : text.charAt(index);
+                }
+            } else if (chLocal == EOI) {
+                token = JSONToken.EOF;
+                bp += (offset - 1);
+                ch = EOI;
+            } else {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+            matchStat = END;
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        return dateVal;
+    }
+
     public boolean scanFieldBoolean(long fieldHashCode) {
         matchStat = UNKNOWN;
 
@@ -2669,6 +2847,18 @@ public final class JSONLexer {
         } else if (text.startsWith("\"true\"", bp + offset)) {
             offset += 6;
             value = true;
+        } else if (text.charAt(bp + offset) == '1') {
+            offset++;
+            value = true;
+        } else if (text.charAt(bp + offset) == '0') {
+            offset++;
+            value = false;
+        } else if (text.startsWith("\"1\"", bp + offset)) {
+            offset += 3;
+            value = true;
+        } else if (text.startsWith("\"0\"", bp + offset)) {
+            offset += 3;
+            value = false;
         } else {
             matchStat = NOT_MATCH;
             return false;
@@ -2680,19 +2870,34 @@ public final class JSONLexer {
                 EOI //
                 : text.charAt(charIndex);
 
-        if (chLocal == ',') {
-            bp += (offset - 1);
-            // this.next();
-            {
-                int index = ++bp;
-                this.ch = index >= this.len ? //
-                        EOI //
-                        : text.charAt(index);
-            }
-            matchStat = VALUE;
-            token = JSONToken.COMMA;
+        for (;;) {
+            if (chLocal == ',') {
+                bp += (offset - 1);
+                // this.next();
+                {
+                    int index = ++bp;
+                    this.ch = index >= this.len ? //
+                            EOI //
+                            : text.charAt(index);
+                }
+                matchStat = VALUE;
+                token = JSONToken.COMMA;
 
-            return value;
+                return value;
+            } else if (chLocal != '}'
+                    && (chLocal == ' ' //
+                    || chLocal == '\n' //
+                    || chLocal == '\r' //
+                    || chLocal == '\t' //
+                    || chLocal == '\f' //
+                    || chLocal == '\b')) {
+                charIndex = bp + (offset++);
+                chLocal = charIndex >= this.len ? //
+                        EOI //
+                        : text.charAt(charIndex);
+                continue;
+            }
+            break;
         }
 
         if (chLocal == '}') {
@@ -3955,8 +4160,10 @@ public final class JSONLexer {
     }
 
     public boolean scanISO8601DateIfMatch(boolean strict) {
-        int rest = len - bp;
+        return scanISO8601DateIfMatch(strict, len - bp);
+    }
 
+    public boolean scanISO8601DateIfMatch(boolean strict, int rest) {
         if ((!strict) && rest > 13) {
             char c0 = charAt(bp);
             char c1 = charAt(bp + 1);

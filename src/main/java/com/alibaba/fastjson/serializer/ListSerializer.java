@@ -77,7 +77,7 @@ public final class ListSerializer implements ObjectSerializer {
                             itemSerializer = serializer.getObjectWriter(item.getClass());
                             SerialContext itemContext = new SerialContext(context, object, fieldName, 0, 0);
                             serializer.context = itemContext;
-                            itemSerializer.write(serializer, item, i, elementType, 0);
+                            itemSerializer.write(serializer, item, i, elementType, features);
                         }
                     } else {
                         serializer.out.writeNull();
@@ -114,7 +114,7 @@ public final class ListSerializer implements ObjectSerializer {
                             out.writeLong(val);
                         }
                     } else {
-                        if( (SerializerFeature.DisableCircularReferenceDetect.mask&features) != 0){
+                        if ((SerializerFeature.DisableCircularReferenceDetect.mask & features) != 0){
                             itemSerializer = serializer.getObjectWriter(item.getClass());
                             itemSerializer.write(serializer, item, i, elementType, features);
                         }else {
@@ -127,7 +127,14 @@ public final class ListSerializer implements ObjectSerializer {
                                 serializer.writeReference(item);
                             } else {
                                 itemSerializer = serializer.getObjectWriter(item.getClass());
-                                itemSerializer.write(serializer, item, i, elementType, 0);
+                                if ((SerializerFeature.WriteClassName.mask & features) != 0
+                                        && itemSerializer instanceof JavaBeanSerializer)
+                                {
+                                    JavaBeanSerializer javaBeanSerializer = (JavaBeanSerializer) itemSerializer;
+                                    javaBeanSerializer.writeNoneASM(serializer, item, i, elementType, features);
+                                } else {
+                                    itemSerializer.write(serializer, item, i, elementType, features);
+                                }
                             }
                         }
                     }

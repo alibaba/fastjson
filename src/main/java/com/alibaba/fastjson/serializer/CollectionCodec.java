@@ -93,7 +93,13 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
                 }
 
                 ObjectSerializer itemSerializer = serializer.getObjectWriter(clazz);
-                itemSerializer.write(serializer, item, i - 1, elementType, 0);
+                if (SerializerFeature.isEnabled(features, SerializerFeature.WriteClassName)
+                        && itemSerializer instanceof JavaBeanSerializer) {
+                    JavaBeanSerializer javaBeanSerializer = (JavaBeanSerializer) itemSerializer;
+                    javaBeanSerializer.writeNoneASM(serializer, item, i - 1, elementType, features);
+                } else {
+                    itemSerializer.write(serializer, item, i - 1, elementType, features);
+                }
             }
             out.append(']');
         } finally {

@@ -243,13 +243,17 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
 
                 Class<?> clazz = value.getClass();
 
-                if (clazz == preClazz) {
-                    preWriter.write(serializer, value, entryKey, null, 0);
-                } else {
+                if (clazz != preClazz) {
                     preClazz = clazz;
                     preWriter = serializer.getObjectWriter(clazz);
+                }
 
-                    preWriter.write(serializer, value, entryKey, null, 0);
+                if (SerializerFeature.isEnabled(features, SerializerFeature.WriteClassName)
+                        && preWriter instanceof JavaBeanSerializer) {
+                    JavaBeanSerializer javaBeanSerializer = (JavaBeanSerializer) preWriter;
+                    javaBeanSerializer.writeNoneASM(serializer, value, entryKey, null, features);
+                } else {
+                    preWriter.write(serializer, value, entryKey, null, features);
                 }
             }
         } finally {

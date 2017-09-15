@@ -415,13 +415,15 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         return null;
                     }
 
-                    for (Class<?> seeAlsoClass : beanInfo.jsonType.seeAlso()) {
-                        if (Enum.class.isAssignableFrom(seeAlsoClass)) {
-                            try {
-                                Enum<?> e = Enum.valueOf((Class<Enum>) seeAlsoClass, strVal);
-                                return (T) e;
-                            } catch (IllegalArgumentException e) {
-                                // skip
+                    if (beanInfo.jsonType != null) {
+                        for (Class<?> seeAlsoClass : beanInfo.jsonType.seeAlso()) {
+                            if (Enum.class.isAssignableFrom(seeAlsoClass)) {
+                                try {
+                                    Enum<?> e = Enum.valueOf((Class<Enum>) seeAlsoClass, strVal);
+                                    return (T) e;
+                                } catch (IllegalArgumentException e) {
+                                    // skip
+                                }
                             }
                         }
                     }

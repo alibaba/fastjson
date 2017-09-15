@@ -111,6 +111,14 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         write(serializer, object, fieldName, fieldType, features, false);
     }
 
+    public void writeNoneASM(JSONSerializer serializer, //
+                      Object object, //
+                      Object fieldName, //
+                      Type fieldType, //
+                      int features) throws IOException {
+        write(serializer, object, fieldName, fieldType, features, false);
+    }
+
     protected void write(JSONSerializer serializer, //
                       Object object, //
                       Object fieldName, //

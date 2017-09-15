@@ -350,6 +350,15 @@ public class ParserConfig {
             }
         }
 
+        if (type instanceof WildcardType) {
+            WildcardType wildcardType = (WildcardType) type;
+            Type[] upperBounds = wildcardType.getUpperBounds();
+            if (upperBounds.length == 1) {
+                Type upperBoundType = upperBounds[0];
+                return getDeserializer(upperBoundType);
+            }
+        }
+
         return JavaObjectDeserializer.instance;
     }
 

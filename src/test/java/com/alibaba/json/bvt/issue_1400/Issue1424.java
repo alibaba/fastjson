@@ -39,14 +39,14 @@ public class Issue1424 extends TestCase {
         long intOverflow = Integer.MAX_VALUE;
         intOverflowMap.put("v", intOverflow + 1);
         String sIntOverflow = JSON.toJSONString(intOverflowMap);
-        System.out.println("prepare to parse overflow int val: " + sIntOverflow);
 
-
+        Exception error = null;
         try {
             JSON.parseObject(sIntOverflow, IntegerVal.class);
         } catch (Exception e) {
-            System.out.println("We captured the Exception: " + e.getMessage());
+            error = e;
         }
+        assertNotNull(error);
     }
 
     public void test_for_issue_float() {
@@ -55,11 +55,22 @@ public class Issue1424 extends TestCase {
         floatOverflowMap.put("v", floatOverflow + 1);
         String sFloatOverflow = JSON.toJSONString(floatOverflowMap);
 
-        System.out.println(sFloatOverflow);
         assertEquals("{\"v\":3.4028234663852886E38}", sFloatOverflow);
         FloatVal floatVal = JSON.parseObject(sFloatOverflow, FloatVal.class);
         assertEquals(3.4028235E38F, floatVal.v);
 
         assertEquals(floatVal.v, Float.parseFloat("3.4028234663852886E38"));
+    }
+
+    public void test_for_issue_float_infinity() {
+        Map<String, Double> floatOverflowMap = new HashMap<String, Double>();
+        double floatOverflow = Float.MAX_VALUE;
+        floatOverflowMap.put("v", floatOverflow + floatOverflow);
+        String sFloatOverflow = JSON.toJSONString(floatOverflowMap);
+
+        System.out.println(sFloatOverflow);
+        assertEquals("{\"v\":6.805646932770577E38}", sFloatOverflow);
+        FloatVal floatVal = JSON.parseObject(sFloatOverflow, FloatVal.class);
+        assertEquals(Float.parseFloat("6.805646932770577E38"), floatVal.v);
     }
 }

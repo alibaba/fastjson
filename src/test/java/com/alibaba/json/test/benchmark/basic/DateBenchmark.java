@@ -26,12 +26,12 @@ public class DateBenchmark {
 //
 //        System.out.println(JSON.toJSONString(model));
 
-        for (int i = 0; i < 10; ++i) {
-//             perf(); // 18540
+        for (int i = 0; i < 5; ++i) {
+             perf(); // 18540
 //            perf2(); // 2205
 //            perf3(); // 22660 20963 18566
 //            perf4(); // 2020
-            perf_null_array(); // 841
+//            perf_null_array(); // 841
         }
     }
 

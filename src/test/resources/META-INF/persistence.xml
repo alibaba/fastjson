@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<persistence version="1.0" 
+	xmlns="http://java.sun.com/xml/ns/persistence" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd">
+
+    <persistence-unit name="persistenceUnit" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        <class>com.alibaba.json.demo.hibernate.data.Contrato</class>
+        <class>com.alibaba.json.demo.hibernate.data.Customer</class>
+        <class>com.alibaba.json.demo.hibernate.data.Employee</class>
+        <class>com.alibaba.json.demo.hibernate.data.Liquidacao</class>
+        <class>com.alibaba.json.demo.hibernate.data.Office</class>
+        <class>com.alibaba.json.demo.hibernate.data.Order</class>
+        <class>com.alibaba.json.demo.hibernate.data.OrderDetail</class>
+        <class>com.alibaba.json.demo.hibernate.data.OrderDetailId</class>
+        <class>com.alibaba.json.demo.hibernate.data.Parcela</class>
+        <class>com.alibaba.json.demo.hibernate.data.Payment</class>
+        <class>com.alibaba.json.demo.hibernate.data.PaymentId</class>
+        <class>com.alibaba.json.demo.hibernate.data.Product</class>
+        <properties>
+			<property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+			<property name="javax.persistence.jdbc.user" value=""/>
+			<property name="javax.persistence.jdbc.password" value=""/>
+			<property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM 'classpath:/classicmodels.sql'"/>
+			<property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+        </properties>
+    </persistence-unit>
+    
+</persistence>

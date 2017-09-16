@@ -45,7 +45,9 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         Type elementType = null;
-        if (out.isEnabled(SerializerFeature.WriteClassName)) {
+        if (out.isEnabled(SerializerFeature.WriteClassName)
+                || SerializerFeature.isEnabled(features, SerializerFeature.WriteClassName))
+        {
             elementType = TypeUtils.getCollectionItemType(fieldType);
         }
 

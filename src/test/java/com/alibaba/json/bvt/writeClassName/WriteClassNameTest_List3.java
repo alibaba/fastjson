@@ -16,10 +16,11 @@ public class WriteClassNameTest_List3 extends TestCase {
         Model model = new Model();
         List tables = new ArrayList();
         tables.add(new ExtTable(1001));
+        tables.add(new Table());
         model.setTables(tables);
 
         String json = JSON.toJSONString(model);
-        assertEquals("{\"tables\":[{\"@type\":\"com.alibaba.json.bvt.writeClassName.WriteClassNameTest_List3$ExtTable\",\"id\":1001}]}", json);
+        assertEquals("{\"tables\":[{\"@type\":\"com.alibaba.json.bvt.writeClassName.WriteClassNameTest_List3$ExtTable\",\"id\":1001},{}]}", json);
 
         Model model2 = JSON.parseObject(json, Model.class);
         assertEquals(ExtTable.class, model2.getTables().iterator().next().getClass());

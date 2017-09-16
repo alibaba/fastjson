@@ -10,7 +10,7 @@ public class Issue1478 extends TestCase {
         model.md5 = "xxx";
 
         String json = JSON.toJSONString(model);
-        System.out.println(json);
+        assertEquals("{\"MD5\":\"xxx\"}", json);
     }
 
     public static class Model {

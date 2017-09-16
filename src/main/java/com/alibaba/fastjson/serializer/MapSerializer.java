@@ -16,6 +16,7 @@
 package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 
@@ -250,8 +251,17 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
 
                 if (SerializerFeature.isEnabled(features, SerializerFeature.WriteClassName)
                         && preWriter instanceof JavaBeanSerializer) {
+                    Type valueType = null;
+                    if (fieldType instanceof ParameterizedType) {
+                        ParameterizedType parameterizedType = (ParameterizedType) fieldType;
+                        Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+                        if (actualTypeArguments.length == 2) {
+                            valueType = actualTypeArguments[1];
+                        }
+                    }
+
                     JavaBeanSerializer javaBeanSerializer = (JavaBeanSerializer) preWriter;
-                    javaBeanSerializer.writeNoneASM(serializer, value, entryKey, null, features);
+                    javaBeanSerializer.writeNoneASM(serializer, value, entryKey, valueType, features);
                 } else {
                     preWriter.write(serializer, value, entryKey, null, features);
                 }

@@ -292,10 +292,17 @@ public class DefaultJSONParser implements Closeable {
 
                 lexer.resetStringPosition();
 
-                if (key == JSON.DEFAULT_TYPE_KEY && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
+                if (key == JSON.DEFAULT_TYPE_KEY
+                        && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
                     String typeName = lexer.scanSymbol(symbolTable, '"');
+
+                    if (lexer.isEnabled(Feature.IgnoreAutoType)) {
+                        continue;
+                    }
+
                     Class<?> clazz = null;
-                    if (object != null && object.getClass().getName().equals(typeName)) {
+                    if (object != null
+                            && object.getClass().getName().equals(typeName)) {
                         clazz = object.getClass();
                     } else {
                         clazz = config.checkAutoType(typeName, null);

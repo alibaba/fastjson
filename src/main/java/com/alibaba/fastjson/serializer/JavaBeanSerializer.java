@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 import java.util.*;
 
 import com.alibaba.fastjson.JSONException;
@@ -170,7 +171,15 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 ||(features & SerializerFeature.WriteClassName.mask) != 0
                 || serializer.isWriteClassName(fieldType, object)) {
                 Class<?> objClass = object.getClass();
-                if (objClass != fieldType) {
+
+                final Type type;
+                if (objClass != fieldType && fieldType instanceof WildcardType) {
+                    type = TypeUtils.getClass(fieldType);
+                } else {
+                    type = fieldType;
+                }
+
+                if (objClass != type) {
                     writeClassName(serializer, beanInfo.typeKey, object);
                     commaFlag = true;
                 }

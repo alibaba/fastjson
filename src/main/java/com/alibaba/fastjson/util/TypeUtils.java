@@ -1758,7 +1758,16 @@ public class TypeUtils{
 
     public static Field getField(Class<?> clazz, String fieldName, Field[] declaredFields){
         for(Field field : declaredFields){
-            if(fieldName.equals(field.getName())){
+            String itemName = field.getName();
+            if(fieldName.equals(itemName)){
+                return field;
+            }
+
+            char c0, c1;
+            if (fieldName.length() > 2
+                    && (c0 = fieldName.charAt(0)) >= 'a' && c0 <= 'z'
+                    && (c1 = fieldName.charAt(1)) >= 'A' && c1 <= 'Z'
+                    && fieldName.equalsIgnoreCase(itemName)) {
                 return field;
             }
         }

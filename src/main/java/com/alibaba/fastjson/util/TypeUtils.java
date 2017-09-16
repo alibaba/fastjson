@@ -1459,6 +1459,13 @@ public class TypeUtils {
             return (Class<?>) ((TypeVariable<?>) type).getBounds()[0];
         }
 
+        if(type instanceof WildcardType){
+            Type[] upperBounds = ((WildcardType) type).getUpperBounds();
+            if (upperBounds.length == 1) {
+                return getClass(upperBounds[0]);
+            }
+        }
+
         return Object.class;
     }
     
@@ -1527,7 +1534,16 @@ public class TypeUtils {
 
     private static Field getField0(Class<?> clazz, String fieldName, Field[] declaredFields, Map<Class<?>, Field[]> classFieldCache) {
         for (Field item : declaredFields) {
-            if (fieldName.equals(item.getName())) {
+            String itemName = item.getName();
+            if (fieldName.equals(itemName)) {
+                return item;
+            }
+
+            char c0, c1;
+            if (fieldName.length() > 2
+                    && (c0 = fieldName.charAt(0)) >= 'a' && c0 <= 'z'
+                    && (c1 = fieldName.charAt(1)) >= 'A' && c1 <= 'Z'
+                    && fieldName.equalsIgnoreCase(itemName)) {
                 return item;
             }
         }

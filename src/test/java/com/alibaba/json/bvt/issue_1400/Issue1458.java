@@ -14,10 +14,10 @@ public class Issue1458 extends TestCase {
         hostPoint.setFingerprint(new Fingerprint("abc"));
 
         String json = JSON.toJSONString(hostPoint);
-        System.out.println(json);
 
         HostPoint hostPoint1 = JSON.parseObject(json, HostPoint.class);
-        System.out.println(JSON.toJSONString(hostPoint1));
+        String json1 = JSON.toJSONString(hostPoint1);
+        assertEquals(json, json1);
     }
 
     public static class HostPoint implements Serializable {

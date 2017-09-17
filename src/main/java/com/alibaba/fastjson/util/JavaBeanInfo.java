@@ -249,11 +249,8 @@ public class JavaBeanInfo {
                     }
                 }
 
-                return new JavaBeanInfo(clazz, builderClass, null, creatorConstructor, null, null, jsonType, fieldList);
-            }
-
-            factoryMethod = getFactoryMethod(clazz, methods); // 基于标记 JSONCreator 注解的工厂方法
-            if (factoryMethod != null) {
+                //return new JavaBeanInfo(clazz, builderClass, null, creatorConstructor, null, null, jsonType, fieldList);
+            } else if ((factoryMethod = getFactoryMethod(clazz, methods)) != null) {
                 TypeUtils.setAccessible(factoryMethod);
 
                 Class<?>[] types = factoryMethod.getParameterTypes();
@@ -340,7 +337,8 @@ public class JavaBeanInfo {
                             continue;
                         }
 
-                        if (creatorConstructor != null && lookupParameterNames.length <= paramNames.length) {
+                        if (creatorConstructor != null
+                                && paramNames != null && lookupParameterNames.length <= paramNames.length) {
                             continue;
                         }
 

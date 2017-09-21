@@ -54,6 +54,14 @@ public class JSONPObject implements JSONSerializable {
             writer.write(SECURITY_PREFIX);
         }
 
+        //解决  null(..)   问题
+        if (function == null || "".equals(function)) {
+            //仅做json处理  不该多个参数
+            if (parameters.size() > 1) {
+                serializer.write(parameters.get(0));
+            }
+            return;
+        }
         writer.write(function);
         writer.write('(');
         for (int i = 0; i < parameters.size(); ++i) {

@@ -64,6 +64,7 @@ compile 'com.alibaba:fastjson:1.1.63.android'
 ```
 
 Please see this [Wiki Download Page][Wiki] for more repository infos.
+
 [Wiki]: https://github.com/alibaba/fastjson/wiki#download
 
 ### *License*

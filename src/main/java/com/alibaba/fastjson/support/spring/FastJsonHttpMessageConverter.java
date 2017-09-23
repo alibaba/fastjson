@@ -237,7 +237,10 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
                 isJsonp = true;
                 value = ((MappingFastJsonValue) value).getValue();
             } else if (value instanceof JSONPObject) {
-                isJsonp = true;
+                if(!(((JSONPObject) value).getFunction() == null) && !("".equals(((JSONPObject) value).getFunction()))){
+                    isJsonp = true;
+                }
+              
             }
 
 

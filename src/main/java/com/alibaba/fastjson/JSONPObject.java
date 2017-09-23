@@ -57,7 +57,7 @@ public class JSONPObject implements JSONSerializable {
         //解决  null(..)   问题
         if (function == null || "".equals(function)) {
             //仅做json处理  不该多个参数
-            if (parameters.size() > 1) {
+            if (parameters.size() > 0) {
                 serializer.write(parameters.get(0));
             }
             return;

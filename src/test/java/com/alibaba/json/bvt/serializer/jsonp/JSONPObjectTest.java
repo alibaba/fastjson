@@ -35,4 +35,22 @@ public class JSONPObjectTest extends TestCase {
         Assert.assertEquals("checkValid({},[])", text);
         Assert.assertEquals("checkValid({},[])", jsonp.toJSONString());
     }
+    
+    
+    public void test_jsonp_2() throws Exception {
+        JSONPObject jsonp = new JSONPObject();
+        jsonp.addParameter(new HashMap<Object, Object>());
+        jsonp.addParameter(new ArrayList<Object>());
+
+        Assert.assertEquals(null, jsonp.getFunction());
+        Assert.assertEquals(2, jsonp.getParameters().size());
+
+
+        Assert.assertEquals("{}", jsonp.toString());
+        Assert.assertEquals("{}", jsonp.toJSONString());
+
+        jsonp.setFunction("checkValid");
+        Assert.assertEquals("checkValid({},[])", jsonp.toString());
+        Assert.assertEquals("checkValid({},[])", jsonp.toJSONString());
+    }
 }

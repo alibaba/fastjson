@@ -25,6 +25,7 @@ import java.util.TimeZone;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.TypeUtils;
@@ -578,20 +579,21 @@ public final class JSONScanner extends JSONLexerBase {
             }
 
             char t2 = charAt(bp + date_len + 10 + millisLen + 3);
+            char t3 = '0', t4 = '0';
             if (t2 == ':') { // ThreeLetterISO8601TimeZone
-                char t3 = charAt(bp + date_len + 10 + millisLen + 4);
-                if (t3 != '0') {
+                t3 = charAt(bp + date_len + 10 + millisLen + 4);
+                if (t3 != '0' && t3 != '3') {
                     return false;
                 }
 
-                char t4 = charAt(bp + date_len + 10 + millisLen + 5);
+                t4 = charAt(bp + date_len + 10 + millisLen + 5);
                 if (t4 != '0') {
                     return false;
                 }
                 timzeZoneLength = 6;
             } else if (t2 == '0') { // TwoLetterISO8601TimeZone
-                char t3 = charAt(bp + date_len + 10 + millisLen + 4);
-                if (t3 != '0') {
+                t3 = charAt(bp + date_len + 10 + millisLen + 4);
+                if (t3 != '0' && t3 != '3') {
                     return false;
                 }
                 timzeZoneLength = 5;
@@ -599,7 +601,7 @@ public final class JSONScanner extends JSONLexerBase {
                 timzeZoneLength = 3;
             }
 
-            setTimeZone(timeZoneFlag, t0, t1);
+            setTimeZone(timeZoneFlag, t0, t1, t3, t4);
 
         } else if (timeZoneFlag == 'Z') {// UTC
             timzeZoneLength = 1;
@@ -632,7 +634,14 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     protected void setTimeZone(char timeZoneFlag, char t0, char t1) {
+        setTimeZone(timeZoneFlag, t0, t1, '0', '0');
+    }
+
+    protected void setTimeZone(char timeZoneFlag, char t0, char t1, char t3, char t4) {
         int timeZoneOffset = ((t0 - '0') * 10 + (t1 - '0')) * 3600 * 1000;
+
+        timeZoneOffset += ((t3 - '0') * 10 + (t4 - '0')) * 60 * 1000;
+
         if (timeZoneFlag == '-') {
             timeZoneOffset = -timeZoneOffset;
         }
@@ -1061,6 +1070,7 @@ public final class JSONScanner extends JSONLexerBase {
         if (ch == ',') {
             this.ch = charAt(++bp);
             matchStat = VALUE;
+            token = JSONToken.COMMA;
             return dateVal;
         } else {
             //condition ch == '}' is always 'true'

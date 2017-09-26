@@ -218,6 +218,7 @@ public final class SerializeWriter extends Writer {
     }
     
     public boolean isEnabled(int feature) {
+        boolean isEnabled = (this.features & feature) != 0;
         return (this.features & feature) != 0;
     }
 

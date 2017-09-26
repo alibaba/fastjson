@@ -194,27 +194,31 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
                 (fieldInfo.serialzeFeatures | SerializerFeature.DisableCircularReferenceDetect.getMask()) : fieldInfo.serialzeFeatures;
 
         if (propertyValue == null) {
+
             ObjectSerializer fieldSerializer;
-            Class<?> lastRuntimeFieldClass;
+
+            Class<?> runtimeFieldClass;
+
             Class<?> thisRuntimeFieldClass = this.fieldInfo.fieldClass;
+            //如果是Object类型
             if ("java.lang.Object".equals(thisRuntimeFieldClass.getName())) {
-                lastRuntimeFieldClass = thisRuntimeFieldClass;
+                runtimeFieldClass = thisRuntimeFieldClass;
                 fieldSerializer = serializer.getObjectWriter(thisRuntimeFieldClass);
             } else {
-                lastRuntimeFieldClass = runtimeInfo.runtimeFieldClass;
+                runtimeFieldClass = runtimeInfo.runtimeFieldClass;
                 fieldSerializer = runtimeInfo.fieldSerializer;
             }
             SerializeWriter out = serializer.out;
-            if (Number.class.isAssignableFrom(lastRuntimeFieldClass)) {
+            if (Number.class.isAssignableFrom(runtimeFieldClass)) {
                 out.writeNull(features, SerializerFeature.WriteNullNumberAsZero.mask);
                 return;
-            } else if (String.class == lastRuntimeFieldClass) {
+            } else if (String.class == runtimeFieldClass) {
                 out.writeNull(features, SerializerFeature.WriteNullStringAsEmpty.mask);
                 return;
-            } else if (Boolean.class == lastRuntimeFieldClass) {
+            } else if (Boolean.class == runtimeFieldClass) {
                 out.writeNull(features, SerializerFeature.WriteNullBooleanAsFalse.mask);
                 return;
-            } else if (Collection.class.isAssignableFrom(lastRuntimeFieldClass)) {
+            } else if (Collection.class.isAssignableFrom(runtimeFieldClass)) {
                 out.writeNull(features, SerializerFeature.WriteNullListAsEmpty.mask);
                 return;
             }

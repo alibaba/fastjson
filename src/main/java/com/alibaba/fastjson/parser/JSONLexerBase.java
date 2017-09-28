@@ -364,7 +364,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         while (isWhitespace(ch)) {
             next();
         }
-        if (ch == '_' || Character.isLetter(ch)) {
+        if (ch == '_' || ch == '$' || Character.isLetter(ch)) {
             scanIdent();
         } else {
             nextToken();

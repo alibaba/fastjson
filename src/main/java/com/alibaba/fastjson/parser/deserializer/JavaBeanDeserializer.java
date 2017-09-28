@@ -3,10 +3,7 @@ package com.alibaba.fastjson.parser.deserializer;
 import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -427,6 +424,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             }
                         }
                     }
+                } else if (token == JSONToken.LITERAL_ISO8601_DATE) {
+                    Calendar calendar = lexer.getCalendar();
                 }
 
                 if (token == JSONToken.LBRACKET && lexer.getCurrent() == ']') {

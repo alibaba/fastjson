@@ -297,7 +297,9 @@ public class TypeUtils{
             }
             if(strVal.indexOf('-') != -1){
                 String format;
-                if(strVal.length() == JSON.DEFFAULT_DATE_FORMAT.length()){
+
+                if(strVal.length() == JSON.DEFFAULT_DATE_FORMAT.length()
+                        || (strVal.length() == 22 && JSON.DEFFAULT_DATE_FORMAT.equals("yyyyMMddHHmmssSSSZ"))){
                     format = JSON.DEFFAULT_DATE_FORMAT;
                 } else if(strVal.length() == 10){
                     format = "yyyy-MM-dd";
@@ -1252,7 +1254,8 @@ public class TypeUtils{
         Annotation[][] paramAnnotationArrays = null;
         String[] paramNames = null;
         short[] paramNameMapping = null;
-        for(Method method : clazz.getMethods()){
+        Method[] methods = clazz.getMethods();
+        for(Method method : methods){
             String methodName = method.getName();
             int ordinal = 0, serialzeFeatures = 0, parserFeatures = 0;
             String label = null;

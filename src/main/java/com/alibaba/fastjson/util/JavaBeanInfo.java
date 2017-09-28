@@ -122,7 +122,12 @@ public class JavaBeanInfo {
         if (creatorConstructor != null) {
             this.creatorConstructorParameterTypes = creatorConstructor.getParameterTypes();
             if (creatorConstructorParameterTypes.length != fields.length) {
-                this.creatorConstructorParameters = ASMUtils.lookupParameterNames(creatorConstructor);
+                boolean kotlin = TypeUtils.isKotlin(clazz);
+                if (kotlin) {
+                    this.creatorConstructorParameters = TypeUtils.getKoltinConstructorParameters(clazz);
+                } else {
+                    this.creatorConstructorParameters = ASMUtils.lookupParameterNames(creatorConstructor);
+                }
             }
         }
     }
@@ -400,7 +405,8 @@ public class JavaBeanInfo {
                         add(fieldList, fieldInfo);
                     }
 
-                    if (!clazz.getName().equals("javax.servlet.http.Cookie")) {
+                    if ((!kotlin)
+                            && !clazz.getName().equals("javax.servlet.http.Cookie")) {
                         return new JavaBeanInfo(clazz, builderClass, null, creatorConstructor, null, null, jsonType, fieldList);
                     }
                 } else {

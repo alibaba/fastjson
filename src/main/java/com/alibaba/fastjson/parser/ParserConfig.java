@@ -880,7 +880,9 @@ public class ParserConfig {
         }
 
         if (clazz != null) {
-            if (expectClass != null && !expectClass.isAssignableFrom(clazz)) {
+            if (expectClass != null
+                    && clazz != java.util.HashMap.class
+                    && !expectClass.isAssignableFrom(clazz)) {
                 throw new JSONException("type not match. " + typeName + " -> " + expectClass.getName());
             }
 

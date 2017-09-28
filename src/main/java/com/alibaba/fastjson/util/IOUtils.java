@@ -57,7 +57,7 @@ public class IOUtils {
                 firstIdentifierFlags[c] = true;
             } else if (c >= 'a' && c <= 'z') {
                 firstIdentifierFlags[c] = true;
-            } else if (c == '_') {
+            } else if (c == '_' || c == '$') {
                 firstIdentifierFlags[c] = true;
             }
         }

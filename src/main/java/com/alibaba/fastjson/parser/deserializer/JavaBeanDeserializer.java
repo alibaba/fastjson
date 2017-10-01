@@ -944,17 +944,19 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     || (this.beanInfo.parserFeatures & mask) != 0)) {
             if (this.extraFieldDeserializers == null) {
                 ConcurrentHashMap extraFieldDeserializers = new ConcurrentHashMap<String, Object>(1, 0.75f, 1);
-                Field[] fields = this.clazz.getDeclaredFields();
-                for (Field field : fields) {
-                    String fieldName = field.getName();
-                    if (this.getFieldDeserializer(fieldName) != null) {
-                        continue;
+                for (Class c = this.clazz; c != null && c != Object.class; c = c.getSuperclass()) {
+                    Field[] fields = c.getDeclaredFields();
+                    for (Field field : fields) {
+                        String fieldName = field.getName();
+                        if (this.getFieldDeserializer(fieldName) != null) {
+                            continue;
+                        }
+                        int fieldModifiers = field.getModifiers();
+                        if ((fieldModifiers & Modifier.FINAL) != 0 || (fieldModifiers & Modifier.STATIC) != 0) {
+                            continue;
+                        }
+                        extraFieldDeserializers.put(fieldName, field);
                     }
-                    int fieldModifiers = field.getModifiers();
-                    if ((fieldModifiers & Modifier.FINAL) != 0 || (fieldModifiers & Modifier.STATIC) != 0) {
-                        continue;
-                    }
-                    extraFieldDeserializers.put(fieldName, field);
                 }
                 this.extraFieldDeserializers = extraFieldDeserializers;
             }

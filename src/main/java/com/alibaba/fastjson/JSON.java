@@ -130,12 +130,24 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return parse(text, DEFAULT_PARSER_FEATURE);
     }
 
-    public static Object parse(String text, int features) {
+    /**
+     *
+     * @since 1.2.38
+     */
+    public static Object parse(String text, ParserConfig config) {
+        return parse(text, config, DEFAULT_PARSER_FEATURE);
+    }
+
+    /**
+     *
+     * @since 1.2.38
+     */
+    public static Object parse(String text, ParserConfig config, int features) {
         if (text == null) {
             return null;
         }
 
-        DefaultJSONParser parser = new DefaultJSONParser(text, ParserConfig.getGlobalInstance(), features);
+        DefaultJSONParser parser = new DefaultJSONParser(text, config, features);
         Object value = parser.parse();
 
         parser.handleResovleTask(value);
@@ -143,6 +155,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         parser.close();
 
         return value;
+    }
+
+    public static Object parse(String text, int features) {
+        return parse(text, ParserConfig.getGlobalInstance(), features);
     }
 
     public static Object parse(byte[] input, Feature... features) {

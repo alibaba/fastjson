@@ -453,6 +453,7 @@ public class SerializeConfig {
         
         if (writer == null) {
             String className = clazz.getName();
+            Class<?> superClass;
 
             if (Map.class.isAssignableFrom(clazz)) {
                 put(clazz, writer = MapSerializer.instance);
@@ -468,8 +469,15 @@ public class SerializeConfig {
                 put(clazz, writer = JSONSerializableSerializer.instance);
             } else if (JSONStreamAware.class.isAssignableFrom(clazz)) {
                 put(clazz, writer = MiscCodec.instance);
-            } else if (clazz.isEnum() || (clazz.getSuperclass() != null && clazz.getSuperclass().isEnum())) {
-                JSONType jsonType = TypeUtils.getAnnotation(clazz,JSONType.class);
+            } else if (clazz.isEnum()) {
+                JSONType jsonType = TypeUtils.getAnnotation(clazz, JSONType.class);
+                if (jsonType != null && jsonType.serializeEnumAsJavaBean()) {
+                    put(clazz, writer = createJavaBeanSerializer(clazz));
+                } else {
+                    put(clazz, writer = EnumSerializer.instance);
+                }
+            } else if ((superClass = clazz.getSuperclass()) != null && superClass.isEnum()) {
+                JSONType jsonType = TypeUtils.getAnnotation(superClass, JSONType.class);
                 if (jsonType != null && jsonType.serializeEnumAsJavaBean()) {
                     put(clazz, writer = createJavaBeanSerializer(clazz));
                 } else {

@@ -2158,9 +2158,10 @@ public class TypeUtils{
 
     public static <A extends Annotation> A getAnnotation(Class<?> clazz, Class<A> annotationClass){
         A a = clazz.getAnnotation(annotationClass);
-        if(a != null){
+        if (a != null){
             return a;
         }
+
         if(clazz.getAnnotations().length > 0){
             for(Annotation annotation : clazz.getAnnotations()){
                 a = annotation.annotationType().getAnnotation(annotationClass);

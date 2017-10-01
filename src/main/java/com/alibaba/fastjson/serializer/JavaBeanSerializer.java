@@ -362,7 +362,29 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     }
                 }
 
-                commaFlag = true;
+                boolean fieldUnwrappedNull = false;
+                if (fieldInfo.unwrapped
+                        && propertyValue instanceof Map) {
+                    Map map = ((Map) propertyValue);
+                    if (map.size() == 0) {
+                        fieldUnwrappedNull = true;
+                    } else if (!serializer.isEnabled(SerializerFeature.WriteMapNullValue)){
+                        boolean hasNotNull = false;
+                        for (Object value : map.values()) {
+                            if (value != null) {
+                                hasNotNull = true;
+                                break;
+                            }
+                        }
+                        if (!hasNotNull) {
+                            fieldUnwrappedNull = true;
+                        }
+                    }
+                }
+
+                if (!fieldUnwrappedNull) {
+                    commaFlag = true;
+                }
             }
 
             this.writeAfter(serializer, object, commaFlag ? ',' : '\0');

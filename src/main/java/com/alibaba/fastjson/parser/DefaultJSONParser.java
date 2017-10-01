@@ -527,8 +527,10 @@ public class DefaultJSONParser implements Closeable {
                         ctxLocal.object = object;
                     }
 
-                    checkMapResolve(object, key.toString());
-
+                    if (key != null) {
+                        checkMapResolve(object, key.toString());
+                    }
+                    
                     map.put(key, obj);
 
                     if (parentIsArray) {

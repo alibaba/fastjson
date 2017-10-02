@@ -14,7 +14,6 @@ import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.TypeUtils;
-import sun.reflect.misc.FieldUtil;
 
 public class ThrowableDeserializer extends JavaBeanDeserializer {
 

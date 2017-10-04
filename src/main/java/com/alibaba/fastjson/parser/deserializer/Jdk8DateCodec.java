@@ -373,8 +373,10 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                     }
                     write(out, dateTime, format);
                 } else {
-                    out.writeString(object.toString());
+                    format = JSON.DEFFAULT_LOCAL_DATE_TIME_FORMAT;
+                    write(out, dateTime, format);
                 }
+
             } else {
                 out.writeString(object.toString());
             }

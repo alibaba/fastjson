@@ -130,7 +130,20 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
             FieldDeserializer fieldDeserializer = this.getFieldDeserializer(key);
             if (fieldDeserializer != null) {
                 fieldDeserializer.setValue(ex, value);
+            }else{ // 嵌套execption对象时，拿不到fieldDeserializer
+                try {
+                    Field field = ex.getClass().getDeclaredField(key);
+                    field.setAccessible(true);
+                    field.set(ex, TypeUtils.cast(value,field.getType(),null));
+                } catch (NoSuchFieldException e) {
+                    // e.printStackTrace();
+                    // ignore
+                } catch (IllegalAccessException e) {
+                    // e.printStackTrace();
+                    // ignore
+                }
             }
+
         }
 
         return (T) ex;

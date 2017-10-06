@@ -483,14 +483,21 @@ class JavaBeanInfo {
                         System.arraycopy(fields, 0, sortedFields, 0, fields.length);
                         Arrays.sort(sortedFields);
 
-                        if (jsonType == null) {
-                            jsonType = jsonTypeSupport ? clazz.getAnnotation(JSONType.class) : null;
+                        creatorConstructorParameters = new String[fields.length];
+                        for (int i = 0; i < fields.length; i++) {
+                            creatorConstructorParameters[i] = fields[i].name;
                         }
-                        return new JavaBeanInfo(clazz, null, creatorConstructor, null, fields
-                                , sortedFields, jsonType, creatorConstructorParameters);
+//                            if (jsonType == null) {
+//                                jsonType = jsonTypeSupport ? clazz.getAnnotation(JSONType.class) : null;
+//                            }
+//                            return new JavaBeanInfo(clazz, null, creatorConstructor, null, fields
+//                                    , sortedFields, jsonType, creatorConstructorParameters);
+                    } else {
+                        throw new JSONException("default constructor not found. " + clazz);
                     }
+                } else {
+                    throw new JSONException("default constructor not found. " + clazz);
                 }
-                throw new JSONException("default constructor not found. " + clazz);
             }
         }
 

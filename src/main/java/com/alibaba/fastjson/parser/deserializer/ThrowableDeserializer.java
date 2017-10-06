@@ -13,6 +13,7 @@ import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.serializer.JavaBeanSerializer;
 import com.alibaba.fastjson.util.TypeUtils;
 
 public class ThrowableDeserializer extends JavaBeanDeserializer {
@@ -50,7 +51,8 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
         
         String message = null;
         StackTraceElement[] stackTrace = null;
-        Map<String, Object> otherValues = new HashMap<String, Object>();
+        Map<String, Object> otherValues = null;
+
 
         for (;;) {
             // lexer.scanSymbol
@@ -92,6 +94,9 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
             } else if ("stackTrace".equals(key)) {
                 stackTrace = parser.parseObject(StackTraceElement[].class);
             } else {
+                if (otherValues == null) {
+                    otherValues = new HashMap<String, Object>();
+                }
                 otherValues.put(key, parser.parse());
             }
 
@@ -123,27 +128,29 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
             ex.setStackTrace(stackTrace);
         }
 
-        for (Map.Entry<String, Object> entry : otherValues.entrySet()) {
-            String key = entry.getKey();
-            Object value = entry.getValue();
+        if (otherValues != null) {
+            JavaBeanDeserializer exBeanDeser = null;
 
-            FieldDeserializer fieldDeserializer = this.getFieldDeserializer(key);
-            if (fieldDeserializer != null) {
-                fieldDeserializer.setValue(ex, value);
-            }else{ // 嵌套execption对象时，拿不到fieldDeserializer
-                try {
-                    Field field = ex.getClass().getDeclaredField(key);
-                    field.setAccessible(true);
-                    field.set(ex, TypeUtils.cast(value,field.getType(),null));
-                } catch (NoSuchFieldException e) {
-                    // e.printStackTrace();
-                    // ignore
-                } catch (IllegalAccessException e) {
-                    // e.printStackTrace();
-                    // ignore
+            if (exClass != null) {
+                if (exClass == clazz) {
+                    exBeanDeser = this;
+                } else {
+                    ObjectDeserializer exDeser = parser.getConfig().getDeserializer(exClass);
+                    if (exDeser instanceof JavaBeanDeserializer) {
+                        exBeanDeser = (JavaBeanDeserializer) exDeser;
+                    }
                 }
             }
 
+            for (Map.Entry<String, Object> entry : otherValues.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+
+                FieldDeserializer fieldDeserializer = exBeanDeser.getFieldDeserializer(key);
+                if (fieldDeserializer != null) {
+                    fieldDeserializer.setValue(ex, value);
+                }
+            }
         }
 
         return (T) ex;

@@ -1271,10 +1271,16 @@ public class TypeUtils{
             if(method.getReturnType() == ClassLoader.class){
                 continue;
             }
-            if(method.getName().equals("getMetaClass")
+
+            if(methodName.equals("getMetaClass")
                     && method.getReturnType().getName().equals("groovy.lang.MetaClass")){
                 continue;
             }
+            if(methodName.equals("getSuppressed")
+                    && method.getDeclaringClass() == Throwable.class){
+                continue;
+            }
+
             if(kotlin && isKotlinIgnore(clazz, methodName)){
                 continue;
             }

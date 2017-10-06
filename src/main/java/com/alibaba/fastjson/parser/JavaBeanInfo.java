@@ -33,6 +33,7 @@ class JavaBeanInfo {
     public final String  typeKey;
 
     public final int     parserFeatures;
+    public final String[] creatorConstructorParameters;
 
     JavaBeanInfo(Class<?> clazz, //
                  Constructor<?> defaultConstructor, //
@@ -40,7 +41,8 @@ class JavaBeanInfo {
                  Method factoryMethod, //
                  FieldInfo[] fields, //
                  FieldInfo[] sortedFields, //
-                 JSONType jsonType
+                 JSONType jsonType,
+                 String[] creatorConstructorParameters
                  ){
 
         this.defaultConstructor = defaultConstructor;
@@ -48,6 +50,13 @@ class JavaBeanInfo {
         this.factoryMethod = factoryMethod;
         this.fields = fields;
         this.jsonType = jsonType;
+
+        if (creatorConstructorParameters != null
+                && creatorConstructorParameters.length == fields.length) {
+            this.creatorConstructorParameters = null;
+        } else {
+            this.creatorConstructorParameters = creatorConstructorParameters;
+        }
 
         int parserFeatures = 0;
         if (jsonType != null) {
@@ -197,6 +206,7 @@ class JavaBeanInfo {
                                      boolean fieldGenericSupport, //
                                      PropertyNamingStrategy propertyNamingStrategy
     ) {
+        JSONType jsonType = null;
         List<FieldInfo> fieldList = new ArrayList<FieldInfo>();
         Map<Class<?>, Field[]> classFieldCache = new HashMap<Class<?>, Field[]>();
 
@@ -225,6 +235,7 @@ class JavaBeanInfo {
         }
         
         Constructor<?> creatorConstructor = null;
+        String[] creatorConstructorParameters = null;
         Method factoryMethod = null;
 
         Method[] methods;
@@ -262,8 +273,6 @@ class JavaBeanInfo {
         }
         
         final Field[] declaredFields = clazz.getDeclaredFields();
-
-
 
         boolean isInterfaceOrAbstract = clazz.isInterface() || (classModifiers & Modifier.ABSTRACT) != 0;
 
@@ -330,11 +339,14 @@ class JavaBeanInfo {
                 System.arraycopy(fields, 0, sortedFields, 0, fields.length);
                 Arrays.sort(sortedFields);
 
-                JSONType jsonType = jsonTypeSupport ? clazz.getAnnotation(JSONType.class) : null;
-                return new JavaBeanInfo(clazz, null, creatorConstructor, null, fields, sortedFields, jsonType);
-            }
-            
-            if (factoryMethod != null) {
+                jsonType = jsonTypeSupport ? clazz.getAnnotation(JSONType.class) : null;
+
+                creatorConstructorParameters = new String[fields.length];
+                for (int i = 0; i < fields.length; i++) {
+                    creatorConstructorParameters[i] = fields[i].name;
+                }
+                //return new JavaBeanInfo(clazz, null, creatorConstructor, null, fields, sortedFields, jsonType);
+            } else if (factoryMethod != null) {
                 TypeUtils.setAccessible(clazz, factoryMethod, classModifiers);
 
                 Class<?>[] parameterTypes = factoryMethod.getParameterTypes();
@@ -384,8 +396,11 @@ class JavaBeanInfo {
                         sortedFields = fields;
                     }
 
-                    JSONType jsonType = jsonTypeSupport ? clazz.getAnnotation(JSONType.class) : null;
-                    JavaBeanInfo beanInfo = new JavaBeanInfo(clazz, null, null, factoryMethod, fields, sortedFields, jsonType);
+                    if (jsonType == null) {
+                        jsonType = jsonTypeSupport ? clazz.getAnnotation(JSONType.class) : null;
+                    }
+                    JavaBeanInfo beanInfo = new JavaBeanInfo(clazz, null, null, factoryMethod, fields
+                            , sortedFields, jsonType, creatorConstructorParameters);
                     return beanInfo;
                 }
             } else if (!isInterfaceOrAbstract){
@@ -468,8 +483,11 @@ class JavaBeanInfo {
                         System.arraycopy(fields, 0, sortedFields, 0, fields.length);
                         Arrays.sort(sortedFields);
 
-                        JSONType jsonType = jsonTypeSupport ? clazz.getAnnotation(JSONType.class) : null;
-                        return new JavaBeanInfo(clazz, null, creatorConstructor, null, fields, sortedFields, jsonType);
+                        if (jsonType == null) {
+                            jsonType = jsonTypeSupport ? clazz.getAnnotation(JSONType.class) : null;
+                        }
+                        return new JavaBeanInfo(clazz, null, creatorConstructor, null, fields
+                                , sortedFields, jsonType, creatorConstructorParameters);
                     }
                 }
                 throw new JSONException("default constructor not found. " + clazz);
@@ -729,7 +747,8 @@ class JavaBeanInfo {
         System.arraycopy(fields, 0, sortedFields, 0, fields.length);
         Arrays.sort(sortedFields);
 
-        JSONType jsonType = jsonTypeSupport ? clazz.getAnnotation(JSONType.class) : null;
-        return new JavaBeanInfo(clazz, defaultConstructor, null, factoryMethod, fields, sortedFields, jsonType);
+        jsonType = jsonTypeSupport ? clazz.getAnnotation(JSONType.class) : null;
+        return new JavaBeanInfo(clazz, defaultConstructor, creatorConstructor, factoryMethod, fields
+                , sortedFields, jsonType, creatorConstructorParameters);
     }
 }

@@ -803,11 +803,17 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     return (T) object;
                 }
 
-                int size = fieldDeserializers.length;
+                String[] paramNames = beanInfo.creatorConstructorParameters;
+                int size = paramNames != null ? paramNames.length : fieldDeserializers.length;
                 Object[] params = new Object[size];
                 for (int i = 0; i < size; ++i) {
                     FieldInfo fieldInfo = fieldDeserializers[i].fieldInfo;
-                    Object param = fieldValues.get(fieldInfo.name);
+                    Object param;
+                    if (paramNames != null) {
+                        param = fieldValues.remove(fieldInfo.name);
+                    } else {
+                        param = fieldValues.get(fieldInfo.name);
+                    }
                     if (param == null) {
                         param = TypeUtils.defaultValue(fieldInfo.fieldClass);
                     }
@@ -820,6 +826,15 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     } catch (Exception e) {
                         throw new JSONException("create instance error, "
                                                 + beanInfo.creatorConstructor.toGenericString(), e);
+                    }
+
+                    if (paramNames != null) {
+                        for (Map.Entry<String, Object> entry : fieldValues.entrySet()) {
+                            FieldDeserializer fieldDeserializer = getFieldDeserializer(entry.getKey());
+                            if (fieldDeserializer != null) {
+                                fieldDeserializer.setValue(object, entry.getValue());
+                            }
+                        }
                     }
                 } else if (beanInfo.factoryMethod != null) {
                     try {

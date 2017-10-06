@@ -26,6 +26,7 @@ public class Issue1493 extends TestCase {
         Assert.assertEquals("{\"time1\":\""+t1+"\",\"time2\":\""+stime2+"\"}",json);
 
 
+        String default_format = JSON.DEFFAULT_LOCAL_DATE_TIME_FORMAT;
         JSON.DEFFAULT_LOCAL_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
         String stime1 = DateTimeFormatter.ofPattern(JSON.DEFFAULT_LOCAL_DATE_TIME_FORMAT).format(time1);
 
@@ -36,6 +37,7 @@ public class Issue1493 extends TestCase {
         json = JSON.toJSONStringWithDateFormat(test, "yyyy-MM-dd HH:mm:ss", SerializerFeature.WriteDateUseDateFormat);
         Assert.assertEquals("{\"time1\":\""+stime1+"\",\"time2\":\""+stime2+"\"}",json);
 
+        JSON.DEFFAULT_LOCAL_DATE_TIME_FORMAT = default_format;
     }
 
     public static class TestBean {

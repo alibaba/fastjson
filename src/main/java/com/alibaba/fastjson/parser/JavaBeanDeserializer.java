@@ -19,14 +19,14 @@ import com.alibaba.fastjson.util.TypeUtils;
 
 public class JavaBeanDeserializer implements ObjectDeserializer {
 
-    private final FieldDeserializer[] fieldDeserializers;
-    private final FieldDeserializer[] sortedFieldDeserializers;
+    private final FieldDeserializer[]           fieldDeserializers;
+    private final FieldDeserializer[]           sortedFieldDeserializers;
 
     private final Map<String, FieldDeserializer> alterNameFieldDeserializers;
 
-    private final Class<?>            clazz;
-    public final JavaBeanInfo         beanInfo;
-    private ConcurrentMap<String, Object> extraFieldDeserializers;
+    protected final Class<?>                     clazz;
+    public final JavaBeanInfo                    beanInfo;
+    private ConcurrentMap<String, Object>        extraFieldDeserializers;
 
     private transient long[] smartMatchHashArray;
     private transient int[] smartMatchHashArrayMapping;

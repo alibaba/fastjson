@@ -7,6 +7,8 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
+import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.util.TypeUtils;
 
 public class ThrowableDeserializer extends JavaBeanDeserializer {
@@ -44,7 +46,7 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
         
         String message = null;
         StackTraceElement[] stackTrace = null;
-        Map<String, Object> otherValues = new HashMap<String, Object>();
+        Map<String, Object> otherValues = null;
 
         for (;;) {
             // lexer.scanSymbol
@@ -84,7 +86,9 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
             } else if ("stackTrace".equals(key)) {
                 stackTrace = parser.parseObject(StackTraceElement[].class);
             } else {
-                // TODO
+                if (otherValues == null) {
+                    otherValues = new HashMap<String, Object>();
+                }
                 otherValues.put(key, parser.parse());
             }
 
@@ -138,6 +142,31 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
 
         if (stackTrace != null) {
             ex.setStackTrace(stackTrace);
+        }
+
+        if (otherValues != null) {
+            JavaBeanDeserializer exBeanDeser = null;
+
+            if (exClass != null) {
+                if (exClass == clazz) {
+                    exBeanDeser = this;
+                } else {
+                    ObjectDeserializer exDeser = parser.config.getDeserializer(exClass);
+                    if (exDeser instanceof JavaBeanDeserializer) {
+                        exBeanDeser = (JavaBeanDeserializer) exDeser;
+                    }
+                }
+            }
+
+            for (Map.Entry<String, Object> entry : otherValues.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+
+                FieldDeserializer fieldDeserializer = exBeanDeser.getFieldDeserializer(key);
+                if (fieldDeserializer != null) {
+                    fieldDeserializer.setValue(ex, value);
+                }
+            }
         }
 
         return (T) ex;

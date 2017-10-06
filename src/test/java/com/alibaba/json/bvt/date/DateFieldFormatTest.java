@@ -2,6 +2,8 @@ package com.alibaba.json.bvt.date;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
@@ -10,6 +12,11 @@ import junit.framework.TestCase;
 import org.junit.Assert;
 
 public class DateFieldFormatTest extends TestCase {
+
+    protected void setUp() throws Exception {
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        JSON.defaultLocale = Locale.CHINA;
+    }
     
     public void test_format_() throws Exception {
         Date now = new Date();

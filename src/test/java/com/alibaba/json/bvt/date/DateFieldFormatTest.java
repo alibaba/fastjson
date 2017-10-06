@@ -14,8 +14,8 @@ import org.junit.Assert;
 public class DateFieldFormatTest extends TestCase {
 
     protected void setUp() throws Exception {
-        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
-        JSON.defaultLocale = Locale.CHINA;
+        //JSON.defaultTimeZone = TimeZone.getTimeZone("GMT-00:00");
+        //JSON.defaultLocale = Locale.UK;
     }
     
     public void test_format_() throws Exception {

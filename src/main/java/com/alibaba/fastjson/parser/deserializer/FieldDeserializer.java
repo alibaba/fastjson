@@ -67,7 +67,7 @@ public abstract class FieldDeserializer {
 
         int enumIndex = Arrays.binarySearch(this.enumNameHashCodes, hashCode);
 
-        if (enumIndex == -1) {
+        if (enumIndex < 0) {
             return null;
         }
 

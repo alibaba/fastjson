@@ -330,6 +330,33 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     // ======================
+    /**
+     *
+     * @since 1.2.38 and 1.1.63.android
+     */
+    public static Object parse(String text, ParserConfig config) {
+        return parse(text, config, DEFAULT_PARSER_FEATURE);
+    }
+
+    /**
+     *
+     * @since 1.2.38 and 1.1.63.android
+     */
+    public static Object parse(String text, ParserConfig config, int features) {
+        if (text == null) {
+            return null;
+        }
+
+        DefaultJSONParser parser = new DefaultJSONParser(text, config, features);
+        Object value = parser.parse();
+
+        parser.handleResovleTask(value);
+
+        parser.close();
+
+        return value;
+    }
+
     public static final String toJSONString(Object object) {
         return toJSONString(object, SerializeConfig.globalInstance, null, null, DEFAULT_GENERATE_FEATURE);
     }

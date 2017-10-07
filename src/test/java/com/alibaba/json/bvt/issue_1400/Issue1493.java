@@ -8,8 +8,14 @@ import org.junit.Assert;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class Issue1493 extends TestCase {
+    protected void setUp() throws Exception {
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        JSON.defaultLocale = Locale.CHINA;
+    }
 
     public void test_for_issue() throws Exception {
 
@@ -17,7 +23,7 @@ public class Issue1493 extends TestCase {
         String stime2 = "2017-09-22 15:08:56";
 
         LocalDateTime time1 = LocalDateTime.now();
-        LocalDateTime time2 = LocalDateTime.parse(stime2, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime time2 = LocalDateTime.parse(stime2, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.CHINA));
         test.setTime1(time1);
         test.setTime2(time2);
         String t1 = time1.toString();
@@ -28,7 +34,7 @@ public class Issue1493 extends TestCase {
 
         String default_format = JSON.DEFFAULT_LOCAL_DATE_TIME_FORMAT;
         JSON.DEFFAULT_LOCAL_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
-        String stime1 = DateTimeFormatter.ofPattern(JSON.DEFFAULT_LOCAL_DATE_TIME_FORMAT).format(time1);
+        String stime1 = DateTimeFormatter.ofPattern(JSON.DEFFAULT_LOCAL_DATE_TIME_FORMAT, Locale.CHINA).format(time1);
 
         json = JSON.toJSONString(test, SerializerFeature.WriteDateUseDateFormat);
         Assert.assertEquals("{\"time1\":\""+stime1+"\",\"time2\":\""+stime2+"\"}",json);

@@ -14,8 +14,8 @@ import org.junit.Assert;
 public class DateFieldFormatTest extends TestCase {
 
     protected void setUp() throws Exception {
-        //JSON.defaultTimeZone = TimeZone.getTimeZone("GMT-00:00");
-        //JSON.defaultLocale = Locale.UK;
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        JSON.defaultLocale = Locale.CHINA;
     }
     
     public void test_format_() throws Exception {
@@ -28,16 +28,16 @@ public class DateFieldFormatTest extends TestCase {
         String text = JSON.toJSONString(model);
         System.out.println(text);
 
-        String t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(now);
-        String t2 = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(now);
-        String t3 = new SimpleDateFormat("yyyy-MM-dd").format(now);
+        String t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA).format(now);
+        String t2 = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.CHINA).format(now);
+        String t3 = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA).format(now);
 
         Assert.assertEquals("{\"publishTime\":\""+t2+"\",\"serverTime\":\""+t1+"\",\"startDate\":\""+t3+"\"}",text);
         
         Model model2 = JSON.parseObject(text, Model.class);
-        Assert.assertEquals(t2,new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(model2.publishTime));
-        Assert.assertEquals(t1,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(model2.serverTime));
-        Assert.assertEquals(t3,new SimpleDateFormat("yyyy-MM-dd").format(model2.getStartDate()));
+        Assert.assertEquals(t2,new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.CHINA).format(model2.publishTime));
+        Assert.assertEquals(t1,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA).format(model2.serverTime));
+        Assert.assertEquals(t3,new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA).format(model2.getStartDate()));
         
     }
 

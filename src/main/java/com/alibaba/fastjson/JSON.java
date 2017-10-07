@@ -78,7 +78,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     static final SerializeFilter[] emptyFilters         = new SerializeFilter[0];
 
     public static String           DEFFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
-    public static String           DEFFAULT_LOCAL_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+    public static String           DEFFAULT_LOCAL_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS";
 
     public static int              DEFAULT_PARSER_FEATURE;
     static {

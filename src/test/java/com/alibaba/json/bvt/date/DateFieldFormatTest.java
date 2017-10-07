@@ -28,9 +28,17 @@ public class DateFieldFormatTest extends TestCase {
         String text = JSON.toJSONString(model);
         System.out.println(text);
 
-        String t1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA).format(now);
-        String t2 = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.CHINA).format(now);
-        String t3 = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA).format(now);
+        SimpleDateFormat df1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA);
+        SimpleDateFormat df2 = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.CHINA);
+        SimpleDateFormat df3 = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
+
+        df1.setTimeZone(JSON.defaultTimeZone);
+        df2.setTimeZone(JSON.defaultTimeZone);
+        df3.setTimeZone(JSON.defaultTimeZone);
+
+        String t1 = df1.format(now);
+        String t2 = df2.format(now);
+        String t3 = df3.format(now);
 
         Assert.assertEquals("{\"publishTime\":\""+t2+"\",\"serverTime\":\""+t1+"\",\"startDate\":\""+t3+"\"}",text);
         

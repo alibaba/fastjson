@@ -23,6 +23,8 @@ public class Issue1493 extends TestCase {
         String stime2 = "2017-09-22 15:08:56";
 
         LocalDateTime time1 = LocalDateTime.now();
+        time1 = time1.minusNanos(10L);
+        System.out.println(time1.getNano());
         LocalDateTime time2 = LocalDateTime.parse(stime2, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.CHINA));
         test.setTime1(time1);
         test.setTime2(time2);
@@ -32,18 +34,21 @@ public class Issue1493 extends TestCase {
         Assert.assertEquals("{\"time1\":\""+t1+"\",\"time2\":\""+stime2+"\"}",json);
 
 
-        String default_format = JSON.DEFFAULT_LOCAL_DATE_TIME_FORMAT;
-        JSON.DEFFAULT_LOCAL_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
-        String stime1 = DateTimeFormatter.ofPattern(JSON.DEFFAULT_LOCAL_DATE_TIME_FORMAT, Locale.CHINA).format(time1);
+        //String default_format = JSON.DEFFAULT_LOCAL_DATE_TIME_FORMAT;
+        //JSON.DEFFAULT_LOCAL_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+        //String stime1 = DateTimeFormatter.ofPattern(JSON.DEFFAULT_LOCAL_DATE_TIME_FORMAT, Locale.CHINA).format(time1);
 
         json = JSON.toJSONString(test, SerializerFeature.WriteDateUseDateFormat);
-        Assert.assertEquals("{\"time1\":\""+stime1+"\",\"time2\":\""+stime2+"\"}",json);
+        Assert.assertEquals("{\"time1\":\""+time1+"\",\"time2\":\""+stime2+"\"}",json);
 
+
+        String pattern = "yyyy-MM-dd HH:mm:ss";
+        String stime1 = DateTimeFormatter.ofPattern(pattern, Locale.CHINA).format(time1);
 
         json = JSON.toJSONStringWithDateFormat(test, "yyyy-MM-dd HH:mm:ss", SerializerFeature.WriteDateUseDateFormat);
         Assert.assertEquals("{\"time1\":\""+stime1+"\",\"time2\":\""+stime2+"\"}",json);
 
-        JSON.DEFFAULT_LOCAL_DATE_TIME_FORMAT = default_format;
+        //JSON.DEFFAULT_LOCAL_DATE_TIME_FORMAT = default_format;
     }
 
     public static class TestBean {

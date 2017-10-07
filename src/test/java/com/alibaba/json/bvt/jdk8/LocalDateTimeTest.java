@@ -12,7 +12,7 @@ public class LocalDateTimeTest extends TestCase {
 
     public void test_for_issue() throws Exception {
         VO vo = new VO();
-        vo.setDate(LocalDateTime.now());
+        vo.setDate(LocalDateTime.now().minusNanos(10L));
         
         String text = JSON.toJSONString(vo);
         

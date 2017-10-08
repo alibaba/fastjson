@@ -15,20 +15,17 @@
  */
 package com.alibaba.fastjson.serializer;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Map;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.TypeUtils;
+
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.Date;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -197,7 +194,17 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
                 (fieldInfo.serialzeFeatures|SerializerFeature.DisableCircularReferenceDetect.getMask()):fieldInfo.serialzeFeatures;
 
         if (propertyValue == null) {
-            Class<?> runtimeFieldClass = runtimeInfo.runtimeFieldClass;
+            Class<?> runtimeFieldClass;
+            ObjectSerializer fieldSerializer;
+
+            Class<?> thisRuntimeFieldClass = this.fieldInfo.fieldClass;
+            if (Object.class == thisRuntimeFieldClass) {
+                runtimeFieldClass = thisRuntimeFieldClass;
+                fieldSerializer = serializer.getObjectWriter(thisRuntimeFieldClass);
+            } else {
+                runtimeFieldClass = runtimeInfo.runtimeFieldClass;
+                fieldSerializer = runtimeInfo.fieldSerializer;
+            }
             SerializeWriter out  = serializer.out;
             if (Number.class.isAssignableFrom(runtimeFieldClass)) {
                 out.writeNull(features, SerializerFeature.WriteNullNumberAsZero.mask);
@@ -213,8 +220,6 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
                 return;
             }
 
-            ObjectSerializer fieldSerializer = runtimeInfo.fieldSerializer;
-            
             if ((out.isEnabled(SerializerFeature.WRITE_MAP_NULL_FEATURES))
                     && fieldSerializer instanceof JavaBeanSerializer) {
                 out.writeNull();

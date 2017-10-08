@@ -198,7 +198,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
             ObjectSerializer fieldSerializer ;
 
             Class<?> thisRuntimeFieldClass = this.fieldInfo.fieldClass;
-            if("java.lang.Object".equals(thisRuntimeFieldClass.getName())){
+            if(Object.class == thisRuntimeFieldClass){
                 runtimeFieldClass = thisRuntimeFieldClass;
                 fieldSerializer = serializer.getObjectWriter(thisRuntimeFieldClass);
             }else{

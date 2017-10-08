@@ -197,7 +197,17 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
                 (fieldInfo.serialzeFeatures|SerializerFeature.DisableCircularReferenceDetect.getMask()):fieldInfo.serialzeFeatures;
 
         if (propertyValue == null) {
-            Class<?> runtimeFieldClass = runtimeInfo.runtimeFieldClass;
+            Class<?> runtimeFieldClass ;
+            ObjectSerializer fieldSerializer ;
+
+            Class<?> thisRuntimeFieldClass = this.fieldInfo.fieldClass;
+            if(Object.class == thisRuntimeFieldClass){
+                runtimeFieldClass = thisRuntimeFieldClass;
+                fieldSerializer = serializer.getObjectWriter(thisRuntimeFieldClass);
+            }else{
+                runtimeFieldClass = runtimeInfo.runtimeFieldClass;
+                fieldSerializer = runtimeInfo.fieldSerializer;
+            }
             SerializeWriter out  = serializer.out;
             if (Number.class.isAssignableFrom(runtimeFieldClass)) {
                 out.writeNull(features, SerializerFeature.WriteNullNumberAsZero.mask);
@@ -213,8 +223,6 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
                 return;
             }
 
-            ObjectSerializer fieldSerializer = runtimeInfo.fieldSerializer;
-            
             if ((out.isEnabled(SerializerFeature.WRITE_MAP_NULL_FEATURES))
                     && fieldSerializer instanceof JavaBeanSerializer) {
                 out.writeNull();

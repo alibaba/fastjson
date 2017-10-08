@@ -11,7 +11,7 @@ public class Issue1494 extends TestCase {
     public void test_for_issue() throws Exception {
         String json = "{\"id\":1001,\"name\":\"wenshao\"}";
         B b = JSON.parseObject(json, B.class);
-        System.out.println(JSON.toJSONString(b));
+        assertEquals("{\"id\":1001,\"name\":\"wenshao\"}", JSON.toJSONString(b));
     }
 
     public static class A {

@@ -154,7 +154,7 @@ public final class SerializeWriter extends Writer {
         computeFeatures();
     }
 
-    final static int nonDirectFeautres = 0 // 
+    final static int nonDirectFeatures = 0 //
             | SerializerFeature.UseSingleQuotes.mask //
             | SerializerFeature.BrowserCompatible.mask //
             | SerializerFeature.PrettyFormat.mask //
@@ -177,7 +177,7 @@ public final class SerializeWriter extends Writer {
         writeEnumUsingToString = (this.features & SerializerFeature.WriteEnumUsingToString.mask) != 0;
 
         writeDirect = quoteFieldNames //
-                      && (this.features & nonDirectFeautres) == 0 //
+                      && (this.features & nonDirectFeatures) == 0 //
                       && (beanToArray || writeEnumUsingName)
                       ;
 

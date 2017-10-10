@@ -213,7 +213,7 @@ public class SerializeConfig {
                     }
                 }
 
-                if (TypeUtils.isAnnotationPresentOneToMany(method)) {
+                if (TypeUtils.isAnnotationPresentOneToMany(method) || TypeUtils.isAnnotationPresentManyToMany(method)) {
     			    asm = true;
     			    break;
                 }

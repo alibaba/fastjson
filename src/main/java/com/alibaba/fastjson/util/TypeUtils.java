@@ -86,8 +86,12 @@ public class TypeUtils{
     private static Class<?> optionalClass;
     private static boolean transientClassInited = false;
     private static Class<? extends Annotation> transientClass;
+
     private static Class<? extends Annotation> class_OneToMany = null;
     private static boolean class_OneToMany_error = false;
+    private static Class<? extends Annotation> class_ManyToMany = null;
+    private static boolean class_ManyToMany_error = false;
+
     private static Method method_HibernateIsInitialized = null;
     private static boolean method_HibernateIsInitialized_error = false;
     private static volatile Class kotlin_metadata;
@@ -2000,6 +2004,7 @@ public class TypeUtils{
         if(method == null){
             return false;
         }
+
         if(class_OneToMany == null && !class_OneToMany_error){
             try{
                 class_OneToMany = (Class<? extends Annotation>) Class.forName("javax.persistence.OneToMany");
@@ -2011,7 +2016,28 @@ public class TypeUtils{
         if(class_OneToMany == null){
             return false;
         }
+
         return method.isAnnotationPresent(class_OneToMany);
+    }
+
+    public static boolean isAnnotationPresentManyToMany(Method method){
+        if(method == null){
+            return false;
+        }
+
+        if(class_ManyToMany == null && !class_ManyToMany_error){
+            try{
+                class_ManyToMany = (Class<? extends Annotation>) Class.forName("javax.persistence.ManyToMany");
+            } catch(Throwable e){
+                // skip
+                class_ManyToMany_error = true;
+            }
+        }
+        if(class_ManyToMany == null){
+            return false;
+        }
+
+        return method.isAnnotationPresent(class_OneToMany) || method.isAnnotationPresent(class_ManyToMany);
     }
 
     public static boolean isHibernateInitialized(Object object){

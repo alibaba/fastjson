@@ -2124,21 +2124,45 @@ public class TypeUtils{
             try{
                 Class class_kotlin_kclass = Class.forName("kotlin.reflect.jvm.internal.KClassImpl");
                 kotlin_kclass_constructor = class_kotlin_kclass.getConstructor(Class.class);
+            } catch(Throwable e){
+                kotlin_class_klass_error = true;
+            }
+        }
+        if (kotlin_kclass_constructor == null){
+            return null;
+        }
+
+        if (kotlin_kclass_getConstructors == null && !kotlin_class_klass_error) {
+            try{
+                Class class_kotlin_kclass = Class.forName("kotlin.reflect.jvm.internal.KClassImpl");
                 kotlin_kclass_getConstructors = class_kotlin_kclass.getMethod("getConstructors");
+            } catch(Throwable e){
+                kotlin_class_klass_error = true;
+            }
+        }
+
+        if (kotlin_kfunction_getParameters == null && !kotlin_class_klass_error) {
+            try{
                 Class class_kotlin_kfunction = Class.forName("kotlin.reflect.KFunction");
                 kotlin_kfunction_getParameters = class_kotlin_kfunction.getMethod("getParameters");
+            } catch(Throwable e){
+                kotlin_class_klass_error = true;
+            }
+        }
+
+        if (kotlin_kparameter_getName == null && !kotlin_class_klass_error) {
+            try{
                 Class class_kotlinn_kparameter = Class.forName("kotlin.reflect.KParameter");
                 kotlin_kparameter_getName = class_kotlinn_kparameter.getMethod("getName");
             } catch(Throwable e){
                 kotlin_class_klass_error = true;
             }
         }
-        if(kotlin_kclass_constructor == null){
+
+        if (kotlin_error){
             return null;
         }
-        if(kotlin_error){
-            return null;
-        }
+
         try{
             Object constructor = null;
             Object kclassImpl = kotlin_kclass_constructor.newInstance(clazz);
@@ -2154,6 +2178,7 @@ public class TypeUtils{
             }
             return names;
         } catch(Throwable e){
+            e.printStackTrace();
             kotlin_error = true;
         }
         return null;

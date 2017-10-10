@@ -1403,6 +1403,13 @@ public class DefaultJSONParser implements Closeable {
                 byte[] bytes = lexer.bytesValue();
                 lexer.nextToken();
                 return bytes;
+            case IDENTIFIER:
+                String identifier = lexer.stringVal();
+                if ("NaN".equals(identifier)) {
+                    lexer.nextToken();
+                    return null;
+                }
+                throw new JSONException("syntax error, " + lexer.info());
             case ERROR:
             default:
                 throw new JSONException("syntax error, " + lexer.info());

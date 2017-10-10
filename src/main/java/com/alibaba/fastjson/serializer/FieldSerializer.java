@@ -49,7 +49,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
 
     protected boolean             serializeUsing          = false;
 
-    protected boolean             persistenceOneToMany    = false;
+    protected boolean             persistenceXToMany      = false; // OneToMany or ManyToMany
 
     private RuntimeSerializerInfo runtimeInfo;
     
@@ -107,7 +107,8 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
         
         this.writeNull = writeNull;
 
-        persistenceOneToMany = TypeUtils.isAnnotationPresentOneToMany(fieldInfo.method);
+        persistenceXToMany = TypeUtils.isAnnotationPresentOneToMany(fieldInfo.method)
+                || TypeUtils.isAnnotationPresentManyToMany(fieldInfo.method);
     }
 
     public void writePrefix(JSONSerializer serializer) throws IOException {
@@ -132,7 +133,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
 
     public Object getPropertyValueDirect(Object object) throws InvocationTargetException, IllegalAccessException {
         Object fieldValue =  fieldInfo.get(object);
-        if (persistenceOneToMany && TypeUtils.isHibernateInitialized(fieldValue)) {
+        if (persistenceXToMany && !TypeUtils.isHibernateInitialized(fieldValue)) {
             return null;
         }
         return fieldValue;

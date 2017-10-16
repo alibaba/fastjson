@@ -117,7 +117,7 @@ public class FastJsonpHttpMessageConverter4Test extends TestCase {
         converter.write(mappingFastJsonValue, VO.class, MediaType.TEXT_PLAIN, out);
 
         byte[] bytes = byteOut.toByteArray();
-        Assert.assertEquals("/**/callback({\"id\":123});", new String(bytes, "UTF-8"));
+        Assert.assertEquals("callback({\"id\":123})", new String(bytes, "UTF-8"));
 
         Method method2 = FastJsonpHttpMessageConverter4.class.getDeclaredMethod("readInternal", Class.class,
                 HttpInputMessage.class);

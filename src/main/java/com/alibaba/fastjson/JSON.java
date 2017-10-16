@@ -27,14 +27,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
@@ -45,13 +38,7 @@ import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
 import com.alibaba.fastjson.parser.deserializer.FieldTypeResolver;
 import com.alibaba.fastjson.parser.deserializer.ParseProcess;
-import com.alibaba.fastjson.serializer.JSONSerializer;
-import com.alibaba.fastjson.serializer.JavaBeanSerializer;
-import com.alibaba.fastjson.serializer.ObjectSerializer;
-import com.alibaba.fastjson.serializer.SerializeConfig;
-import com.alibaba.fastjson.serializer.SerializeFilter;
-import com.alibaba.fastjson.serializer.SerializeWriter;
-import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.serializer.*;
 import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.TypeUtils;
 import sun.reflect.annotation.AnnotationType;
@@ -91,6 +78,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     static final SerializeFilter[] emptyFilters         = new SerializeFilter[0];
 
     public static String           DEFFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    //public static String           DEFFAULT_LOCAL_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS";
 
     public static int              DEFAULT_PARSER_FEATURE;
     static {
@@ -143,12 +131,24 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return parse(text, DEFAULT_PARSER_FEATURE);
     }
 
-    public static Object parse(String text, int features) {
+    /**
+     *
+     * @since 1.2.38
+     */
+    public static Object parse(String text, ParserConfig config) {
+        return parse(text, config, DEFAULT_PARSER_FEATURE);
+    }
+
+    /**
+     *
+     * @since 1.2.38
+     */
+    public static Object parse(String text, ParserConfig config, int features) {
         if (text == null) {
             return null;
         }
 
-        DefaultJSONParser parser = new DefaultJSONParser(text, ParserConfig.getGlobalInstance(), features);
+        DefaultJSONParser parser = new DefaultJSONParser(text, config, features);
         Object value = parser.parse();
 
         parser.handleResovleTask(value);
@@ -156,6 +156,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         parser.close();
 
         return value;
+    }
+
+    public static Object parse(String text, int features) {
+        return parse(text, ParserConfig.getGlobalInstance(), features);
     }
 
     public static Object parse(byte[] input, Feature... features) {
@@ -872,7 +876,18 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         if (javaObject instanceof Map) {
             Map<Object, Object> map = (Map<Object, Object>) javaObject;
 
-            JSONObject json = new JSONObject(map.size());
+            int size = map.size();
+
+            Map innerMap;
+            if (map instanceof LinkedHashMap) {
+                innerMap = new LinkedHashMap(size);
+            } else if (map instanceof TreeMap) {
+                innerMap = new TreeMap();
+            } else {
+                innerMap = new HashMap(size);
+            }
+
+            JSONObject json = new JSONObject(innerMap);
 
             for (Map.Entry<Object, Object> entry : map.entrySet()) {
                 Object key = entry.getKey();
@@ -895,6 +910,11 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             }
 
             return array;
+        }
+
+        if (javaObject instanceof JSONSerializable) {
+            String json = JSON.toJSONString(javaObject);
+            return JSON.parse(json);
         }
 
         Class<?> clazz = javaObject.getClass();
@@ -1007,5 +1027,5 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         parser.handleResovleTask(value);
     }
 
-    public final static String VERSION = "1.2.36";
+    public final static String VERSION = "1.2.40";
 }

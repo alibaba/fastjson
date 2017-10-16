@@ -27,7 +27,7 @@ public class Bug_for_primitive_double extends TestCase {
         }
 
         public void setValue(double value) {
-            throw new UnsupportedOperationException();
+            this.value = value;
         }
 
     }

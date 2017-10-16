@@ -31,6 +31,7 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
         int lineNumber = 0;
         String moduleName = null;
         String moduleVersion = null;
+        String classLoaderName = null;
 
         for (;;) {
             // lexer.scanSymbol
@@ -115,6 +116,14 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
                     moduleVersion = null;
                 } else if (lexer.token() == JSONToken.LITERAL_STRING) {
                     moduleVersion = lexer.stringVal();
+                } else {
+                    throw new JSONException("syntax error");
+                }
+            } else if ("classLoaderName".equals(key)) {
+                if (lexer.token() == JSONToken.NULL) {
+                    classLoaderName = null;
+                } else if (lexer.token() == JSONToken.LITERAL_STRING) {
+                    classLoaderName = lexer.stringVal();
                 } else {
                     throw new JSONException("syntax error");
                 }

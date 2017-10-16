@@ -16,19 +16,17 @@
 package com.alibaba.fastjson.parser;
 
 import java.io.Closeable;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.math.MathContext;
+import java.util.*;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.util.IOUtils;
+import com.alibaba.fastjson.util.TypeUtils;
 
 import static com.alibaba.fastjson.parser.JSONToken.*;
 
@@ -366,7 +364,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         while (isWhitespace(ch)) {
             next();
         }
-        if (ch == '_' || Character.isLetter(ch)) {
+        if (ch == '_' || ch == '$' || Character.isLetter(ch)) {
             scanIdent();
         } else {
             nextToken();
@@ -1156,8 +1154,16 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     }
 
     public final boolean matchField(char[] fieldName) {
-        if (!charArrayCompare(fieldName)) {
-            return false;
+        for (;;) {
+            if (!charArrayCompare(fieldName)) {
+                if (isWhitespace(ch)) {
+                    next();
+                    continue;
+                }
+                return false;
+            } else {
+                break;
+            }
         }
 
         bp = bp + fieldName.length;
@@ -1304,56 +1310,67 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             }
         }
 
-        if (chLocal != '"') {
-            matchStat = NOT_MATCH;
 
-            return stringDefaultValue();
-        }
 
         final String strVal;
-        {
-            int startIndex = bp + 1;
-            int endIndex = indexOf('"', startIndex);
-            if (endIndex == -1) {
-                throw new JSONException("unclosed str");
-            }
-
-            String stringVal = subString(bp + 1, endIndex - startIndex);
-            if (stringVal.indexOf('\\') != -1) {
-                for (;;) {
-                    int slashCount = 0;
-                    for (int i = endIndex - 1; i >= 0; --i) {
-                        if (charAt(i) == '\\') {
-                            slashCount++;
-                        } else {
-                            break;
-                        }
-                    }
-                    if (slashCount % 2 == 0) {
-                        break;
-                    }
-                    endIndex = indexOf('"', endIndex + 1);
+        for (;;) {
+            if (chLocal == '"') {
+                int startIndex = bp + offset;
+                int endIndex = indexOf('"', startIndex);
+                if (endIndex == -1) {
+                    throw new JSONException("unclosed str");
                 }
 
-                int chars_len = endIndex - startIndex;
-                char[] chars = sub_chars(bp + 1, chars_len);
+                String stringVal = subString(bp + offset, endIndex - startIndex);
+                if (stringVal.indexOf('\\') != -1) {
+                    for (; ; ) {
+                        int slashCount = 0;
+                        for (int i = endIndex - 1; i >= 0; --i) {
+                            if (charAt(i) == '\\') {
+                                slashCount++;
+                            } else {
+                                break;
+                            }
+                        }
+                        if (slashCount % 2 == 0) {
+                            break;
+                        }
+                        endIndex = indexOf('"', endIndex + 1);
+                    }
 
-                stringVal = readString(chars, chars_len);
+                    int chars_len = endIndex - startIndex;
+                    char[] chars = sub_chars(bp + 1, chars_len);
+
+                    stringVal = readString(chars, chars_len);
+                }
+
+                offset += (endIndex - startIndex + 1);
+                chLocal = charAt(bp + (offset++));
+                strVal = stringVal;
+                break;
+            } else if (isWhitespace(chLocal)) {
+                chLocal = charAt(bp + (offset++));
+                continue;
+            } else {
+                matchStat = NOT_MATCH;
+
+                return stringDefaultValue();
             }
-
-            offset += (endIndex - (bp + 1) + 1);
-            chLocal = charAt(bp + (offset++));
-            strVal = stringVal;
         }
 
-        if (chLocal == expectNextChar) {
-            bp += offset;
-            this.ch = charAt(bp);
-            matchStat = VALUE;
-            return strVal;
-        } else {
-            matchStat = NOT_MATCH;
-            return strVal;
+        for (;;) {
+            if (chLocal == expectNextChar) {
+                bp += offset;
+                this.ch = charAt(bp);
+                matchStat = VALUE;
+                return strVal;
+            } else if (isWhitespace(chLocal)) {
+                chLocal = charAt(bp + (offset++));
+                continue;
+            } else {
+                matchStat = NOT_MATCH;
+                return strVal;
+            }
         }
     }
 
@@ -2014,6 +2031,11 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         int offset = 0;
         char chLocal = charAt(bp + (offset++));
 
+        final boolean quote = chLocal == '"';
+        if (quote) {
+            chLocal = charAt(bp + (offset++));
+        }
+
         final boolean negative = chLocal == '-';
         if (negative) {
             chLocal = charAt(bp + (offset++));
@@ -2037,6 +2059,37 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 matchStat = NOT_MATCH;
                 return 0;
             }
+        } else if (chLocal == 'n' && charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
+            matchStat = VALUE_NULL;
+            value = 0;
+            offset += 3;
+            chLocal = charAt(bp + offset++);
+
+            if (quote && chLocal == '"') {
+                chLocal = charAt(bp + offset++);
+            }
+
+            for (;;) {
+                if (chLocal == ',') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.COMMA;
+                    return value;
+                } else if (chLocal == ']') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.RBRACKET;
+                    return value;
+                } else if (isWhitespace(chLocal)) {
+                    chLocal = charAt(bp + offset++);
+                    continue;
+                }
+                break;
+            }
+            matchStat = NOT_MATCH;
+            return 0;
         } else {
             matchStat = NOT_MATCH;
             return 0;
@@ -2183,7 +2236,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                     break;
                 }
             }
-            if (value < 0 || offset > 21) {
+
+            boolean valid = offset - fieldName.length < 21
+                    && (value >= 0 || (value == -9223372036854775808L && negative));
+            if (!valid) {
                 matchStat = NOT_MATCH;
                 return 0;
             }
@@ -2236,6 +2292,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         int offset = 0;
         char chLocal = charAt(bp + (offset++));
+        final boolean quote = chLocal == '"';
+        if (quote) {
+            chLocal = charAt(bp + (offset++));
+        }
 
         final boolean negative = chLocal == '-';
         if (negative) {
@@ -2256,13 +2316,54 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                     break;
                 }
             }
-            if (value < 0) {
-                matchStat = NOT_MATCH;
-                return 0;
+            boolean valid = value >= 0 || (value == -9223372036854775808L && negative);
+            if (!valid) {
+                String val = subString(bp, offset - 1);
+                throw new NumberFormatException(val);
             }
+        } else if (chLocal == 'n' && charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
+            matchStat = VALUE_NULL;
+            value = 0;
+            offset += 3;
+            chLocal = charAt(bp + offset++);
+
+            if (quote && chLocal == '"') {
+                chLocal = charAt(bp + offset++);
+            }
+
+            for (;;) {
+                if (chLocal == ',') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.COMMA;
+                    return value;
+                } else if (chLocal == ']') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.RBRACKET;
+                    return value;
+                } else if (isWhitespace(chLocal)) {
+                    chLocal = charAt(bp + offset++);
+                    continue;
+                }
+                break;
+            }
+            matchStat = NOT_MATCH;
+            return 0;
         } else {
             matchStat = NOT_MATCH;
             return 0;
+        }
+
+        if (quote) {
+            if (chLocal != '"') {
+                matchStat = NOT_MATCH;
+                return 0;
+            } else {
+                chLocal = charAt(bp + (offset++));
+            }
         }
 
         for (;;) {
@@ -2380,6 +2481,37 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 String text = this.subString(start, count);
                 value = Float.parseFloat(text);
             }
+        } else if (chLocal == 'n' && charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
+            matchStat = VALUE_NULL;
+            value = 0;
+            offset += 3;
+            chLocal = charAt(bp + offset++);
+
+            if (quote && chLocal == '"') {
+                chLocal = charAt(bp + offset++);
+            }
+
+            for (;;) {
+                if (chLocal == ',') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.COMMA;
+                    return value;
+                } else if (chLocal == '}') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.RBRACE;
+                    return value;
+                } else if (isWhitespace(chLocal)) {
+                    chLocal = charAt(bp + offset++);
+                    continue;
+                }
+                break;
+            }
+            matchStat = NOT_MATCH;
+            return 0;
         } else {
             matchStat = NOT_MATCH;
             return 0;
@@ -2441,9 +2573,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         float value;
         if (chLocal >= '0' && chLocal <= '9') {
-            int intVal = chLocal - '0';
-
-            for (;;) {
+            long intVal = chLocal - '0';
+            for (; ; ) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
                     intVal = intVal * 10 + (chLocal - '0');
@@ -2453,13 +2584,18 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 }
             }
 
-            if (chLocal == '.') {
+            long power = 1;
+            boolean small = (chLocal == '.');
+            if (small) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
-                    for (;;) {
+                    intVal = intVal * 10 + (chLocal - '0');
+                    power = 10;
+                    for (; ; ) {
                         chLocal = charAt(bp + (offset++));
                         if (chLocal >= '0' && chLocal <= '9') {
                             intVal = intVal * 10 + (chLocal - '0');
+                            power *= 10;
                             continue;
                         } else {
                             break;
@@ -2471,6 +2607,36 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 }
             }
 
+            boolean exp = chLocal == 'e' || chLocal == 'E';
+            if (exp) {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal == '+' || chLocal == '-') {
+                    chLocal = charAt(bp + (offset++));
+                }
+                for (; ; ) {
+                    if (chLocal >= '0' && chLocal <= '9') {
+                        chLocal = charAt(bp + (offset++));
+                    } else {
+                        break;
+                    }
+                }
+            }
+//            int start, count;
+//            if (quote) {
+//                if (chLocal != '"') {
+//                    matchStat = NOT_MATCH;
+//                    return 0;
+//                } else {
+//                    chLocal = charAt(bp + (offset++));
+//                }
+//                start = bp + 1;
+//                count = bp + offset - start - 2;
+//            } else {
+//                start = bp;
+//                count = bp + offset - start - 1;
+//            }
+//            String text = this.subString(start, count);
+//            value = Float.parseFloat(text);
             int start, count;
             if (quote) {
                 if (chLocal != '"') {
@@ -2485,8 +2651,47 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 start = bp;
                 count = bp + offset - start - 1;
             }
-            String text = this.subString(start, count);
-            value = Float.parseFloat(text);
+
+            if (!exp && count < 20) {
+                value = ((float) intVal) / power;
+                if (negative) {
+                    value = -value;
+                }
+            } else {
+                String text = this.subString(start, count);
+                value = Float.parseFloat(text);
+            }
+        } else if (chLocal == 'n' && charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
+            matchStat = VALUE_NULL;
+            value = 0;
+            offset += 3;
+            chLocal = charAt(bp + offset++);
+
+            if (quote && chLocal == '"') {
+                chLocal = charAt(bp + offset++);
+            }
+
+            for (;;) {
+                if (chLocal == ',') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.COMMA;
+                    return value;
+                } else if (chLocal == ']') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.RBRACKET;
+                    return value;
+                } else if (isWhitespace(chLocal)) {
+                    chLocal = charAt(bp + offset++);
+                    continue;
+                }
+                break;
+            }
+            matchStat = NOT_MATCH;
+            return 0;
         } else {
             matchStat = NOT_MATCH;
             return 0;
@@ -2522,7 +2727,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         double value;
         if (chLocal >= '0' && chLocal <= '9') {
             long intVal = chLocal - '0';
-            for (;;) {
+            for (; ; ) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
                     intVal = intVal * 10 + (chLocal - '0');
@@ -2539,7 +2744,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 if (chLocal >= '0' && chLocal <= '9') {
                     intVal = intVal * 10 + (chLocal - '0');
                     power = 10;
-                    for (;;) {
+                    for (; ; ) {
                         chLocal = charAt(bp + (offset++));
                         if (chLocal >= '0' && chLocal <= '9') {
                             intVal = intVal * 10 + (chLocal - '0');
@@ -2561,7 +2766,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 if (chLocal == '+' || chLocal == '-') {
                     chLocal = charAt(bp + (offset++));
                 }
-                for (;;) {
+                for (; ; ) {
                     if (chLocal >= '0' && chLocal <= '9') {
                         chLocal = charAt(bp + (offset++));
                     } else {
@@ -2594,6 +2799,37 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 String text = this.subString(start, count);
                 value = Double.parseDouble(text);
             }
+        } else if (chLocal == 'n' && charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
+            matchStat = VALUE_NULL;
+            value = 0;
+            offset += 3;
+            chLocal = charAt(bp + offset++);
+
+            if (quote && chLocal == '"') {
+                chLocal = charAt(bp + offset++);
+            }
+
+            for (;;) {
+                if (chLocal == ',') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.COMMA;
+                    return value;
+                } else if (chLocal == ']') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.RBRACKET;
+                    return value;
+                } else if (isWhitespace(chLocal)) {
+                    chLocal = charAt(bp + offset++);
+                    continue;
+                }
+                break;
+            }
+            matchStat = NOT_MATCH;
+            return 0;
         } else {
             matchStat = NOT_MATCH;
             return 0;
@@ -2609,6 +2845,157 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             matchStat = NOT_MATCH;
             return value;
         }
+    }
+
+    public BigDecimal scanDecimal(char seperator) {
+        matchStat = UNKNOWN;
+
+        int offset = 0;
+        char chLocal = charAt(bp + (offset++));
+        final boolean quote = chLocal == '"';
+        if (quote) {
+            chLocal = charAt(bp + (offset++));
+        }
+
+        boolean negative = chLocal == '-';
+        if (negative) {
+            chLocal = charAt(bp + (offset++));
+        }
+
+        BigDecimal value;
+        if (chLocal >= '0' && chLocal <= '9') {
+            for (;;) {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal >= '0' && chLocal <= '9') {
+                    continue;
+                } else {
+                    break;
+                }
+            }
+
+            boolean small = (chLocal == '.');
+            if (small) {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal >= '0' && chLocal <= '9') {
+                    for (;;) {
+                        chLocal = charAt(bp + (offset++));
+                        if (chLocal >= '0' && chLocal <= '9') {
+                            continue;
+                        } else {
+                            break;
+                        }
+                    }
+                } else {
+                    matchStat = NOT_MATCH;
+                    return null;
+                }
+            }
+
+            boolean exp = chLocal == 'e' || chLocal == 'E';
+            if (exp) {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal == '+' || chLocal == '-') {
+                    chLocal = charAt(bp + (offset++));
+                }
+                for (;;) {
+                    if (chLocal >= '0' && chLocal <= '9') {
+                        chLocal = charAt(bp + (offset++));
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+            int start, count;
+            if (quote) {
+                if (chLocal != '"') {
+                    matchStat = NOT_MATCH;
+                    return null;
+                } else {
+                    chLocal = charAt(bp + (offset++));
+                }
+                start = bp + 1;
+                count = bp + offset - start - 2;
+            } else {
+                start = bp;
+                count = bp + offset - start - 1;
+            }
+
+            char[] chars = this.sub_chars(start, count);
+            value = new BigDecimal(chars);
+        } else if (chLocal == 'n' && charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
+            matchStat = VALUE_NULL;
+            value = null;
+            offset += 3;
+            chLocal = charAt(bp + offset++);
+
+            if (quote && chLocal == '"') {
+                chLocal = charAt(bp + offset++);
+            }
+
+            for (;;) {
+                if (chLocal == ',') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.COMMA;
+                    return value;
+                } else if (chLocal == '}') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.RBRACE;
+                    return value;
+                } else if (isWhitespace(chLocal)) {
+                    chLocal = charAt(bp + offset++);
+                    continue;
+                }
+                break;
+            }
+            matchStat = NOT_MATCH;
+            return null;
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        if (chLocal == ',') {
+            bp += offset;
+            this.ch = this.charAt(bp);
+            matchStat = VALUE;
+            token = JSONToken.COMMA;
+            return value;
+        }
+
+        if (chLocal == ']') {
+            chLocal = charAt(bp + (offset++));
+            if (chLocal == ',') {
+                token = JSONToken.COMMA;
+                bp += offset;
+                this.ch = this.charAt(bp);
+            } else if (chLocal == ']') {
+                token = JSONToken.RBRACKET;
+                bp += offset;
+                this.ch = this.charAt(bp);
+            } else if (chLocal == '}') {
+                token = JSONToken.RBRACE;
+                bp += offset;
+                this.ch = this.charAt(bp);
+            } else if (chLocal == EOI) {
+                token = JSONToken.EOF;
+                bp += (offset - 1);
+                ch = EOI;
+            } else {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+            matchStat = END;
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        return value;
     }
 
     public final float[] scanFieldFloatArray(char[] fieldName) {
@@ -3049,6 +3436,37 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 String text = this.subString(start, count);
                 value = Double.parseDouble(text);
             }
+        } else if (chLocal == 'n' && charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
+            matchStat = VALUE_NULL;
+            value = 0;
+            offset += 3;
+            chLocal = charAt(bp + offset++);
+
+            if (quote && chLocal == '"') {
+                chLocal = charAt(bp + offset++);
+            }
+
+            for (;;) {
+                if (chLocal == ',') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.COMMA;
+                    return value;
+                } else if (chLocal == '}') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.RBRACE;
+                    return value;
+                } else if (isWhitespace(chLocal)) {
+                    chLocal = charAt(bp + offset++);
+                    continue;
+                }
+                break;
+            }
+            matchStat = NOT_MATCH;
+            return 0;
         } else {
             matchStat = NOT_MATCH;
             return 0;
@@ -3091,6 +3509,972 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
 
         return value;
+    }
+
+    public BigDecimal scanFieldDecimal(char[] fieldName) {
+        matchStat = UNKNOWN;
+
+        if (!charArrayCompare(fieldName)) {
+            matchStat = NOT_MATCH_NAME;
+            return null;
+        }
+
+        int offset = fieldName.length;
+        char chLocal = charAt(bp + (offset++));
+        final boolean quote = chLocal == '"';
+        if (quote) {
+            chLocal = charAt(bp + (offset++));
+        }
+
+        boolean negative = chLocal == '-';
+        if (negative) {
+            chLocal = charAt(bp + (offset++));
+        }
+
+        BigDecimal value;
+        if (chLocal >= '0' && chLocal <= '9') {
+            for (;;) {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal >= '0' && chLocal <= '9') {
+                    continue;
+                } else {
+                    break;
+                }
+            }
+
+            boolean small = (chLocal == '.');
+            if (small) {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal >= '0' && chLocal <= '9') {
+                    for (;;) {
+                        chLocal = charAt(bp + (offset++));
+                        if (chLocal >= '0' && chLocal <= '9') {
+                            continue;
+                        } else {
+                            break;
+                        }
+                    }
+                } else {
+                    matchStat = NOT_MATCH;
+                    return null;
+                }
+            }
+
+            boolean exp = chLocal == 'e' || chLocal == 'E';
+            if (exp) {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal == '+' || chLocal == '-') {
+                    chLocal = charAt(bp + (offset++));
+                }
+                for (;;) {
+                    if (chLocal >= '0' && chLocal <= '9') {
+                        chLocal = charAt(bp + (offset++));
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+            int start, count;
+            if (quote) {
+                if (chLocal != '"') {
+                    matchStat = NOT_MATCH;
+                    return null;
+                } else {
+                    chLocal = charAt(bp + (offset++));
+                }
+                start = bp + fieldName.length + 1;
+                count = bp + offset - start - 2;
+            } else {
+                start = bp + fieldName.length;
+                count = bp + offset - start - 1;
+            }
+
+            char[] chars = this.sub_chars(start, count);
+            value = new BigDecimal(chars);
+        } else if (chLocal == 'n' && charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
+            matchStat = VALUE_NULL;
+            value = null;
+            offset += 3;
+            chLocal = charAt(bp + offset++);
+
+            if (quote && chLocal == '"') {
+                chLocal = charAt(bp + offset++);
+            }
+
+            for (;;) {
+                if (chLocal == ',') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.COMMA;
+                    return value;
+                } else if (chLocal == '}') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.RBRACE;
+                    return value;
+                } else if (isWhitespace(chLocal)) {
+                    chLocal = charAt(bp + offset++);
+                    continue;
+                }
+                break;
+            }
+            matchStat = NOT_MATCH;
+            return null;
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        if (chLocal == ',') {
+            bp += offset;
+            this.ch = this.charAt(bp);
+            matchStat = VALUE;
+            token = JSONToken.COMMA;
+            return value;
+        }
+
+        if (chLocal == '}') {
+            chLocal = charAt(bp + (offset++));
+            if (chLocal == ',') {
+                token = JSONToken.COMMA;
+                bp += offset;
+                this.ch = this.charAt(bp);
+            } else if (chLocal == ']') {
+                token = JSONToken.RBRACKET;
+                bp += offset;
+                this.ch = this.charAt(bp);
+            } else if (chLocal == '}') {
+                token = JSONToken.RBRACE;
+                bp += offset;
+                this.ch = this.charAt(bp);
+            } else if (chLocal == EOI) {
+                token = JSONToken.EOF;
+                bp += (offset - 1);
+                ch = EOI;
+            } else {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+            matchStat = END;
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        return value;
+    }
+
+    public BigInteger scanFieldBigInteger(char[] fieldName) {
+        matchStat = UNKNOWN;
+
+        if (!charArrayCompare(fieldName)) {
+            matchStat = NOT_MATCH_NAME;
+            return null;
+        }
+
+        int offset = fieldName.length;
+        char chLocal = charAt(bp + (offset++));
+        final boolean quote = chLocal == '"';
+        if (quote) {
+            chLocal = charAt(bp + (offset++));
+        }
+
+        boolean negative = chLocal == '-';
+        if (negative) {
+            chLocal = charAt(bp + (offset++));
+        }
+
+        BigInteger value;
+        if (chLocal >= '0' && chLocal <= '9') {
+            long intVal = chLocal - '0';
+            for (;;) {
+                chLocal = charAt(bp + (offset++));
+                if (chLocal >= '0' && chLocal <= '9') {
+                    intVal = intVal * 10 + (chLocal - '0');
+                    continue;
+                } else {
+                    break;
+                }
+            }
+
+            int start, count;
+            if (quote) {
+                if (chLocal != '"') {
+                    matchStat = NOT_MATCH;
+                    return null;
+                } else {
+                    chLocal = charAt(bp + (offset++));
+                }
+                start = bp + fieldName.length + 1;
+                count = bp + offset - start - 2;
+            } else {
+                start = bp + fieldName.length;
+                count = bp + offset - start - 1;
+            }
+
+            if (count < 20 || (negative && count < 21)) {
+                value = BigInteger.valueOf(negative ? -intVal : intVal);
+            } else {
+
+//            char[] chars = this.sub_chars(negative ? start + 1 : start, count);
+//            value = new BigInteger(chars, )
+                String strVal = this.subString(start, count);
+                value = new BigInteger(strVal);
+            }
+        } else if (chLocal == 'n' && charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
+            matchStat = VALUE_NULL;
+            value = null;
+            offset += 3;
+            chLocal = charAt(bp + offset++);
+
+            if (quote && chLocal == '"') {
+                chLocal = charAt(bp + offset++);
+            }
+
+            for (;;) {
+                if (chLocal == ',') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.COMMA;
+                    return value;
+                } else if (chLocal == '}') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = VALUE_NULL;
+                    token = JSONToken.RBRACE;
+                    return value;
+                } else if (isWhitespace(chLocal)) {
+                    chLocal = charAt(bp + offset++);
+                    continue;
+                }
+                break;
+            }
+            matchStat = NOT_MATCH;
+            return null;
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        if (chLocal == ',') {
+            bp += offset;
+            this.ch = this.charAt(bp);
+            matchStat = VALUE;
+            token = JSONToken.COMMA;
+            return value;
+        }
+
+        if (chLocal == '}') {
+            chLocal = charAt(bp + (offset++));
+            if (chLocal == ',') {
+                token = JSONToken.COMMA;
+                bp += offset;
+                this.ch = this.charAt(bp);
+            } else if (chLocal == ']') {
+                token = JSONToken.RBRACKET;
+                bp += offset;
+                this.ch = this.charAt(bp);
+            } else if (chLocal == '}') {
+                token = JSONToken.RBRACE;
+                bp += offset;
+                this.ch = this.charAt(bp);
+            } else if (chLocal == EOI) {
+                token = JSONToken.EOF;
+                bp += (offset - 1);
+                ch = EOI;
+            } else {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+            matchStat = END;
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        return value;
+    }
+
+    public java.util.Date scanFieldDate(char[] fieldName) {
+        matchStat = UNKNOWN;
+
+        if (!charArrayCompare(fieldName)) {
+            matchStat = NOT_MATCH_NAME;
+            return null;
+        }
+
+        // int index = bp + fieldName.length;
+
+        int offset = fieldName.length;
+        char chLocal = charAt(bp + (offset++));
+
+        final java.util.Date dateVal;
+        if (chLocal == '"'){
+            int startIndex = bp + fieldName.length + 1;
+            int endIndex = indexOf('"', startIndex);
+            if (endIndex == -1) {
+                throw new JSONException("unclosed str");
+            }
+
+            int startIndex2 = bp + fieldName.length + 1; // must re compute
+            String stringVal = subString(startIndex2, endIndex - startIndex2);
+            if (stringVal.indexOf('\\') != -1) {
+                for (;;) {
+                    int slashCount = 0;
+                    for (int i = endIndex - 1; i >= 0; --i) {
+                        if (charAt(i) == '\\') {
+                            slashCount++;
+                        } else {
+                            break;
+                        }
+                    }
+                    if (slashCount % 2 == 0) {
+                        break;
+                    }
+                    endIndex = indexOf('"', endIndex + 1);
+                }
+
+                int chars_len = endIndex - (bp + fieldName.length + 1);
+                char[] chars = sub_chars( bp + fieldName.length + 1, chars_len);
+
+                stringVal = readString(chars, chars_len);
+            }
+
+            offset += (endIndex - (bp + fieldName.length + 1) + 1);
+            chLocal = charAt(bp + (offset++));
+
+            JSONScanner dateLexer = new JSONScanner(stringVal);
+            try {
+                if (dateLexer.scanISO8601DateIfMatch(false)) {
+                    Calendar calendar = dateLexer.getCalendar();
+                    dateVal = calendar.getTime();
+                } else {
+                    matchStat = NOT_MATCH;
+                    return null;
+                }
+            } finally {
+                dateLexer.close();
+            }
+        } else if (chLocal == '-' || (chLocal >= '0' && chLocal <= '9')) {
+            long millis = 0;
+
+            boolean negative = false;
+            if (chLocal == '-') {
+                chLocal = charAt(bp + (offset++));
+                negative = true;
+            }
+
+            if (chLocal >= '0' && chLocal <= '9') {
+                millis = chLocal - '0';
+                for (; ; ) {
+                    chLocal = charAt(bp + (offset++));
+                    if (chLocal >= '0' && chLocal <= '9') {
+                        millis = millis * 10 + (chLocal - '0');
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+            if (millis < 0) {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+
+            if (negative) {
+                millis = -millis;
+            }
+
+            dateVal = new java.util.Date(millis);
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        if (chLocal == ',') {
+            bp += offset;
+            this.ch = this.charAt(bp);
+            matchStat = VALUE;
+            return dateVal;
+        }
+
+        if (chLocal == '}') {
+            chLocal = charAt(bp + (offset++));
+            if (chLocal == ',') {
+                token = JSONToken.COMMA;
+                bp += offset;
+                this.ch = this.charAt(bp);
+            } else if (chLocal == ']') {
+                token = JSONToken.RBRACKET;
+                bp += offset;
+                this.ch = this.charAt(bp);
+            } else if (chLocal == '}') {
+                token = JSONToken.RBRACE;
+                bp += offset;
+                this.ch = this.charAt(bp);
+            } else if (chLocal == EOI) {
+                token = JSONToken.EOF;
+                bp += (offset - 1);
+                ch = EOI;
+            } else {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+            matchStat = END;
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        return dateVal;
+    }
+
+    public java.util.Date scanDate(char seperator) {
+        matchStat = UNKNOWN;
+
+        int offset = 0;
+        char chLocal = charAt(bp + (offset++));
+
+        final java.util.Date dateVal;
+        if (chLocal == '"'){
+            int startIndex = bp + 1;
+            int endIndex = indexOf('"', startIndex);
+            if (endIndex == -1) {
+                throw new JSONException("unclosed str");
+            }
+
+            int startIndex2 = bp + 1; // must re compute
+            String stringVal = subString(startIndex2, endIndex - startIndex2);
+            if (stringVal.indexOf('\\') != -1) {
+                for (;;) {
+                    int slashCount = 0;
+                    for (int i = endIndex - 1; i >= 0; --i) {
+                        if (charAt(i) == '\\') {
+                            slashCount++;
+                        } else {
+                            break;
+                        }
+                    }
+                    if (slashCount % 2 == 0) {
+                        break;
+                    }
+                    endIndex = indexOf('"', endIndex + 1);
+                }
+
+                int chars_len = endIndex - (bp + 1);
+                char[] chars = sub_chars( bp + 1, chars_len);
+
+                stringVal = readString(chars, chars_len);
+            }
+
+            offset += (endIndex - (bp + 1) + 1);
+            chLocal = charAt(bp + (offset++));
+
+            JSONScanner dateLexer = new JSONScanner(stringVal);
+            try {
+                if (dateLexer.scanISO8601DateIfMatch(false)) {
+                    Calendar calendar = dateLexer.getCalendar();
+                    dateVal = calendar.getTime();
+                } else {
+                    matchStat = NOT_MATCH;
+                    return null;
+                }
+            } finally {
+                dateLexer.close();
+            }
+        } else if (chLocal == '-' || (chLocal >= '0' && chLocal <= '9')) {
+            long millis = 0;
+
+            boolean negative = false;
+            if (chLocal == '-') {
+                chLocal = charAt(bp + (offset++));
+                negative = true;
+            }
+
+            if (chLocal >= '0' && chLocal <= '9') {
+                millis = chLocal - '0';
+                for (; ; ) {
+                    chLocal = charAt(bp + (offset++));
+                    if (chLocal >= '0' && chLocal <= '9') {
+                        millis = millis * 10 + (chLocal - '0');
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+            if (millis < 0) {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+
+            if (negative) {
+                millis = -millis;
+            }
+
+            dateVal = new java.util.Date(millis);
+        } else if (chLocal == 'n' && charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
+            matchStat = VALUE_NULL;
+            dateVal = null;
+            offset += 3;
+            chLocal = charAt(bp + offset++);
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        if (chLocal == ',') {
+            bp += offset;
+            this.ch = this.charAt(bp);
+            matchStat = VALUE;
+            token = JSONToken.COMMA;
+            return dateVal;
+        }
+
+        if (chLocal == ']') {
+            chLocal = charAt(bp + (offset++));
+            if (chLocal == ',') {
+                token = JSONToken.COMMA;
+                bp += offset;
+                this.ch = this.charAt(bp);
+            } else if (chLocal == ']') {
+                token = JSONToken.RBRACKET;
+                bp += offset;
+                this.ch = this.charAt(bp);
+            } else if (chLocal == '}') {
+                token = JSONToken.RBRACE;
+                bp += offset;
+                this.ch = this.charAt(bp);
+            } else if (chLocal == EOI) {
+                token = JSONToken.EOF;
+                bp += (offset - 1);
+                ch = EOI;
+            } else {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+            matchStat = END;
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        return dateVal;
+    }
+
+    public java.util.UUID scanFieldUUID(char[] fieldName) {
+        matchStat = UNKNOWN;
+
+        if (!charArrayCompare(fieldName)) {
+            matchStat = NOT_MATCH_NAME;
+            return null;
+        }
+
+        // int index = bp + fieldName.length;
+
+        int offset = fieldName.length;
+        char chLocal = charAt(bp + (offset++));
+
+        final java.util.UUID uuid;
+        if (chLocal == '"') {
+            int startIndex = bp + fieldName.length + 1;
+            int endIndex = indexOf('"', startIndex);
+            if (endIndex == -1) {
+                throw new JSONException("unclosed str");
+            }
+
+            int startIndex2 = bp + fieldName.length + 1; // must re compute
+            int len = endIndex - startIndex2;
+            if (len == 36) {
+                long mostSigBits = 0, leastSigBits = 0;
+                for (int i = 0; i < 8; ++i) {
+                    char ch = charAt(startIndex2 + i);
+                    int num;
+                    if (ch >= '0' && ch <= '9') {
+                        num = ch - '0';
+                    } else if (ch >= 'a' && ch <= 'f') {
+                        num = 10 + (ch - 'a');
+                    } else if (ch >= 'A' && ch <= 'F') {
+                        num = 10 + (ch - 'A');
+                    } else {
+                        matchStat = NOT_MATCH_NAME;
+                        return null;
+                    }
+
+                    mostSigBits <<= 4;
+                    mostSigBits |= num;
+                }
+                for (int i = 9; i < 13; ++i) {
+                    char ch = charAt(startIndex2 + i);
+                    int num;
+                    if (ch >= '0' && ch <= '9') {
+                        num = ch - '0';
+                    } else if (ch >= 'a' && ch <= 'f') {
+                        num = 10 + (ch - 'a');
+                    } else if (ch >= 'A' && ch <= 'F') {
+                        num = 10 + (ch - 'A');
+                    } else {
+                        matchStat = NOT_MATCH_NAME;
+                        return null;
+                    }
+
+                    mostSigBits <<= 4;
+                    mostSigBits |= num;
+                }
+                for (int i = 14; i < 18; ++i) {
+                    char ch = charAt(startIndex2 + i);
+                    int num;
+                    if (ch >= '0' && ch <= '9') {
+                        num = ch - '0';
+                    } else if (ch >= 'a' && ch <= 'f') {
+                        num = 10 + (ch - 'a');
+                    } else if (ch >= 'A' && ch <= 'F') {
+                        num = 10 + (ch - 'A');
+                    } else {
+                        matchStat = NOT_MATCH_NAME;
+                        return null;
+                    }
+
+                    mostSigBits <<= 4;
+                    mostSigBits |= num;
+                }
+                for (int i = 19; i < 23; ++i) {
+                    char ch = charAt(startIndex2 + i);
+                    int num;
+                    if (ch >= '0' && ch <= '9') {
+                        num = ch - '0';
+                    } else if (ch >= 'a' && ch <= 'f') {
+                        num = 10 + (ch - 'a');
+                    } else if (ch >= 'A' && ch <= 'F') {
+                        num = 10 + (ch - 'A');
+                    } else {
+                        matchStat = NOT_MATCH_NAME;
+                        return null;
+                    }
+
+                    leastSigBits <<= 4;
+                    leastSigBits |= num;
+                }
+                for (int i = 24; i < 36; ++i) {
+                    char ch = charAt(startIndex2 + i);
+                    int num;
+                    if (ch >= '0' && ch <= '9') {
+                        num = ch - '0';
+                    } else if (ch >= 'a' && ch <= 'f') {
+                        num = 10 + (ch - 'a');
+                    } else if (ch >= 'A' && ch <= 'F') {
+                        num = 10 + (ch - 'A');
+                    } else {
+                        matchStat = NOT_MATCH_NAME;
+                        return null;
+                    }
+
+                    leastSigBits <<= 4;
+                    leastSigBits |= num;
+                }
+                uuid = new UUID(mostSigBits, leastSigBits);
+
+                offset += (endIndex - (bp + fieldName.length + 1) + 1);
+                chLocal = charAt(bp + (offset++));
+            } else if (len == 32) {
+                long mostSigBits = 0, leastSigBits = 0;
+                for (int i = 0; i < 16; ++i) {
+                    char ch = charAt(startIndex2 + i);
+                    int num;
+                    if (ch >= '0' && ch <= '9') {
+                        num = ch - '0';
+                    } else if (ch >= 'a' && ch <= 'f') {
+                        num = 10 + (ch - 'a');
+                    } else if (ch >= 'A' && ch <= 'F') {
+                        num = 10 + (ch - 'A');
+                    } else {
+                        matchStat = NOT_MATCH_NAME;
+                        return null;
+                    }
+
+                    mostSigBits <<= 4;
+                    mostSigBits |= num;
+                }
+                for (int i = 16; i < 32; ++i) {
+                    char ch = charAt(startIndex2 + i);
+                    int num;
+                    if (ch >= '0' && ch <= '9') {
+                        num = ch - '0';
+                    } else if (ch >= 'a' && ch <= 'f') {
+                        num = 10 + (ch - 'a');
+                    } else if (ch >= 'A' && ch <= 'F') {
+                        num = 10 + (ch - 'A');
+                    } else {
+                        matchStat = NOT_MATCH_NAME;
+                        return null;
+                    }
+
+                    leastSigBits <<= 4;
+                    leastSigBits |= num;
+                }
+
+                uuid = new UUID(mostSigBits, leastSigBits);
+
+                offset += (endIndex - (bp + fieldName.length + 1) + 1);
+                chLocal = charAt(bp + (offset++));
+            } else {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+        } else if (chLocal == 'n'
+                && charAt(bp + (offset++)) == 'u'
+                && charAt(bp + (offset++)) == 'l'
+                && charAt(bp + (offset++)) == 'l') {
+            uuid = null;
+            chLocal = charAt(bp + (offset++));
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        if (chLocal == ',') {
+            bp += offset;
+            this.ch = this.charAt(bp);
+            matchStat = VALUE;
+            return uuid;
+        }
+
+        if (chLocal == '}') {
+            chLocal = charAt(bp + (offset++));
+            if (chLocal == ',') {
+                token = JSONToken.COMMA;
+                bp += offset;
+                this.ch = this.charAt(bp);
+            } else if (chLocal == ']') {
+                token = JSONToken.RBRACKET;
+                bp += offset;
+                this.ch = this.charAt(bp);
+            } else if (chLocal == '}') {
+                token = JSONToken.RBRACE;
+                bp += offset;
+                this.ch = this.charAt(bp);
+            } else if (chLocal == EOI) {
+                token = JSONToken.EOF;
+                bp += (offset - 1);
+                ch = EOI;
+            } else {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+            matchStat = END;
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        return uuid;
+    }
+
+    public java.util.UUID scanUUID(char seperator) {
+        matchStat = UNKNOWN;
+
+        // int index = bp + fieldName.length;
+
+        int offset = 0;
+        char chLocal = charAt(bp + (offset++));
+
+        final java.util.UUID uuid;
+        if (chLocal == '"') {
+            int startIndex = bp + 1;
+            int endIndex = indexOf('"', startIndex);
+            if (endIndex == -1) {
+                throw new JSONException("unclosed str");
+            }
+
+            int startIndex2 = bp + 1; // must re compute
+            int len = endIndex - startIndex2;
+            if (len == 36) {
+                long mostSigBits = 0, leastSigBits = 0;
+                for (int i = 0; i < 8; ++i) {
+                    char ch = charAt(startIndex2 + i);
+                    int num;
+                    if (ch >= '0' && ch <= '9') {
+                        num = ch - '0';
+                    } else if (ch >= 'a' && ch <= 'f') {
+                        num = 10 + (ch - 'a');
+                    } else if (ch >= 'A' && ch <= 'F') {
+                        num = 10 + (ch - 'A');
+                    } else {
+                        matchStat = NOT_MATCH_NAME;
+                        return null;
+                    }
+
+                    mostSigBits <<= 4;
+                    mostSigBits |= num;
+                }
+                for (int i = 9; i < 13; ++i) {
+                    char ch = charAt(startIndex2 + i);
+                    int num;
+                    if (ch >= '0' && ch <= '9') {
+                        num = ch - '0';
+                    } else if (ch >= 'a' && ch <= 'f') {
+                        num = 10 + (ch - 'a');
+                    } else if (ch >= 'A' && ch <= 'F') {
+                        num = 10 + (ch - 'A');
+                    } else {
+                        matchStat = NOT_MATCH_NAME;
+                        return null;
+                    }
+
+                    mostSigBits <<= 4;
+                    mostSigBits |= num;
+                }
+                for (int i = 14; i < 18; ++i) {
+                    char ch = charAt(startIndex2 + i);
+                    int num;
+                    if (ch >= '0' && ch <= '9') {
+                        num = ch - '0';
+                    } else if (ch >= 'a' && ch <= 'f') {
+                        num = 10 + (ch - 'a');
+                    } else if (ch >= 'A' && ch <= 'F') {
+                        num = 10 + (ch - 'A');
+                    } else {
+                        matchStat = NOT_MATCH_NAME;
+                        return null;
+                    }
+
+                    mostSigBits <<= 4;
+                    mostSigBits |= num;
+                }
+                for (int i = 19; i < 23; ++i) {
+                    char ch = charAt(startIndex2 + i);
+                    int num;
+                    if (ch >= '0' && ch <= '9') {
+                        num = ch - '0';
+                    } else if (ch >= 'a' && ch <= 'f') {
+                        num = 10 + (ch - 'a');
+                    } else if (ch >= 'A' && ch <= 'F') {
+                        num = 10 + (ch - 'A');
+                    } else {
+                        matchStat = NOT_MATCH_NAME;
+                        return null;
+                    }
+
+                    leastSigBits <<= 4;
+                    leastSigBits |= num;
+                }
+                for (int i = 24; i < 36; ++i) {
+                    char ch = charAt(startIndex2 + i);
+                    int num;
+                    if (ch >= '0' && ch <= '9') {
+                        num = ch - '0';
+                    } else if (ch >= 'a' && ch <= 'f') {
+                        num = 10 + (ch - 'a');
+                    } else if (ch >= 'A' && ch <= 'F') {
+                        num = 10 + (ch - 'A');
+                    } else {
+                        matchStat = NOT_MATCH_NAME;
+                        return null;
+                    }
+
+                    leastSigBits <<= 4;
+                    leastSigBits |= num;
+                }
+                uuid = new UUID(mostSigBits, leastSigBits);
+
+                offset += (endIndex - (bp + 1) + 1);
+                chLocal = charAt(bp + (offset++));
+            } else if (len == 32) {
+                long mostSigBits = 0, leastSigBits = 0;
+                for (int i = 0; i < 16; ++i) {
+                    char ch = charAt(startIndex2 + i);
+                    int num;
+                    if (ch >= '0' && ch <= '9') {
+                        num = ch - '0';
+                    } else if (ch >= 'a' && ch <= 'f') {
+                        num = 10 + (ch - 'a');
+                    } else if (ch >= 'A' && ch <= 'F') {
+                        num = 10 + (ch - 'A');
+                    } else {
+                        matchStat = NOT_MATCH_NAME;
+                        return null;
+                    }
+
+                    mostSigBits <<= 4;
+                    mostSigBits |= num;
+                }
+                for (int i = 16; i < 32; ++i) {
+                    char ch = charAt(startIndex2 + i);
+                    int num;
+                    if (ch >= '0' && ch <= '9') {
+                        num = ch - '0';
+                    } else if (ch >= 'a' && ch <= 'f') {
+                        num = 10 + (ch - 'a');
+                    } else if (ch >= 'A' && ch <= 'F') {
+                        num = 10 + (ch - 'A');
+                    } else {
+                        matchStat = NOT_MATCH_NAME;
+                        return null;
+                    }
+
+                    leastSigBits <<= 4;
+                    leastSigBits |= num;
+                }
+
+                uuid = new UUID(mostSigBits, leastSigBits);
+
+                offset += (endIndex - (bp + 1) + 1);
+                chLocal = charAt(bp + (offset++));
+            } else {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+        } else if (chLocal == 'n'
+                && charAt(bp + (offset++)) == 'u'
+                && charAt(bp + (offset++)) == 'l'
+                && charAt(bp + (offset++)) == 'l') {
+            uuid = null;
+            chLocal = charAt(bp + (offset++));
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        if (chLocal == ',') {
+            bp += offset;
+            this.ch = this.charAt(bp);
+            matchStat = VALUE;
+            return uuid;
+        }
+
+        if (chLocal == ']') {
+            chLocal = charAt(bp + (offset++));
+            if (chLocal == ',') {
+                token = JSONToken.COMMA;
+                bp += offset;
+                this.ch = this.charAt(bp);
+            } else if (chLocal == ']') {
+                token = JSONToken.RBRACKET;
+                bp += offset;
+                this.ch = this.charAt(bp);
+            } else if (chLocal == '}') {
+                token = JSONToken.RBRACE;
+                bp += offset;
+                this.ch = this.charAt(bp);
+            } else if (chLocal == EOI) {
+                token = JSONToken.EOF;
+                bp += (offset - 1);
+                ch = EOI;
+            } else {
+                matchStat = NOT_MATCH;
+                return null;
+            }
+            matchStat = END;
+        } else {
+            matchStat = NOT_MATCH;
+            return null;
+        }
+
+        return uuid;
     }
 
     public final void scanTrue() {
@@ -3706,5 +5090,20 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         for (int i = 'A'; i <= 'F'; ++i) {
             digits[i] = (i - 'A') + 10;
         }
+    }
+
+    /**
+     * hsf support
+     * @param fieldName
+     * @param argTypesCount
+     * @param typeSymbolTable
+     * @return
+     */
+    public String[] scanFieldStringArray(char[] fieldName, int argTypesCount, SymbolTable typeSymbolTable) {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean matchField2(char[] fieldName) {
+        throw new UnsupportedOperationException();
     }
 }

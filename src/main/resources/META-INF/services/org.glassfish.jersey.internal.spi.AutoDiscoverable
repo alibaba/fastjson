@@ -1,1 +1,1 @@
-com.alibaba.fastjson.support.jaxrs.JerseyAutoDiscoverable
+com.alibaba.fastjson.support.jaxrs.FastJsonAutoDiscoverable

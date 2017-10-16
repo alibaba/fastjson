@@ -61,7 +61,7 @@ public class ASMSerializerFactory implements Opcodes {
 
         private Map<String, Integer>    variants       = new HashMap<String, Integer>();
         private int                     variantIndex   = 9;
-        private boolean                 nonContext;
+        private final boolean           nonContext;
 
         public Context(FieldInfo[] getters, //
                        SerializeBeanInfo beanInfo, //
@@ -72,7 +72,7 @@ public class ASMSerializerFactory implements Opcodes {
             this.className = className;
             this.beanInfo = beanInfo;
             this.writeDirect = writeDirect;
-            this.nonContext = nonContext;
+            this.nonContext = nonContext || beanInfo.beanType.isEnum();
         }
 
         public int var(String name) {
@@ -113,7 +113,7 @@ public class ASMSerializerFactory implements Opcodes {
             throw new JSONException("unsupportd class " + clazz.getName());
         }
 
-        JSONType jsonType = clazz.getAnnotation(JSONType.class);
+        JSONType jsonType = TypeUtils.getAnnotation(clazz,JSONType.class);
 
         FieldInfo[] unsortedGetters = beanInfo.fields;;
 
@@ -885,18 +885,22 @@ public class ASMSerializerFactory implements Opcodes {
                                "(" + SerialContext_desc + "Ljava/lang/Object;Ljava/lang/Object;I)V");
         }
 
+        boolean writeClasName = (context.beanInfo.features & SerializerFeature.WriteClassName.mask) != 0;
+
         // SEPERATO
-        if (!context.writeDirect) {
+        if (writeClasName || !context.writeDirect) {
             Label end_ = new Label();
             Label else_ = new Label();
             Label writeClass_ = new Label();
 
-            mw.visitVarInsn(ALOAD, Context.serializer);
-            mw.visitVarInsn(ALOAD, Context.paramFieldType);
-            mw.visitVarInsn(ALOAD, Context.obj);
-            mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer, "isWriteClassName",
-                               "(Ljava/lang/reflect/Type;Ljava/lang/Object;)Z");
-            mw.visitJumpInsn(IFEQ, else_);
+            if (!writeClasName) {
+                mw.visitVarInsn(ALOAD, Context.serializer);
+                mw.visitVarInsn(ALOAD, Context.paramFieldType);
+                mw.visitVarInsn(ALOAD, Context.obj);
+                mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer, "isWriteClassName",
+                        "(Ljava/lang/reflect/Type;Ljava/lang/Object;)Z");
+                mw.visitJumpInsn(IFEQ, else_);
+            }
 
             // IFNULL
             mw.visitVarInsn(ALOAD, Context.paramFieldType);

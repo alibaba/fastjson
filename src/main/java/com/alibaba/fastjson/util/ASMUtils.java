@@ -1,5 +1,12 @@
 package com.alibaba.fastjson.util;
 
+import com.alibaba.fastjson.asm.ClassReader;
+import com.alibaba.fastjson.asm.TypeCollector;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
@@ -100,5 +107,56 @@ public class ASMUtils {
         }
         
         return true;
+    }
+
+
+    public static String[] lookupParameterNames(AccessibleObject methodOrCtor) {
+        if (IS_ANDROID) {
+            return new String[0];
+        }
+
+        final Class<?>[] types;
+        final Class<?> declaringClass;
+        final String name;
+
+        if (methodOrCtor instanceof Method) {
+            Method method = (Method) methodOrCtor;
+            types = method.getParameterTypes();
+            name = method.getName();
+            declaringClass = method.getDeclaringClass();
+        } else {
+            Constructor<?> constructor = (Constructor<?>) methodOrCtor;
+            types = constructor.getParameterTypes();
+            declaringClass = constructor.getDeclaringClass();
+            name = "<init>";
+        }
+
+        if (types.length == 0) {
+            return new String[0];
+        }
+
+        ClassLoader classLoader = declaringClass.getClassLoader();
+        if (classLoader == null) {
+            classLoader = ClassLoader.getSystemClassLoader();
+        }
+
+        String className = declaringClass.getName();
+        String resourceName = className.replace('.', '/') + ".class";
+        InputStream is = classLoader.getResourceAsStream(resourceName);
+
+        if (is == null) {
+            return new String[0];
+        }
+
+        try {
+            ClassReader reader = new ClassReader(is);
+            TypeCollector visitor = new TypeCollector(name, types);
+            reader.accept(visitor);
+            return visitor.getParameterNamesForMethod();
+        } catch (IOException e) {
+            return new String[0];
+        } finally {
+            IOUtils.close(is);
+        }
     }
 }

@@ -19,9 +19,11 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 import java.util.*;
 
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.TypeUtils;
@@ -36,8 +38,8 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
     
     protected SerializeBeanInfo       beanInfo;
 
-    private transient long[] hashArray;
-    private transient short[] hashArrayMapping;
+    private transient volatile long[] hashArray;
+    private transient volatile short[] hashArrayMapping;
     
     public JavaBeanSerializer(Class<?> beanType){
         this(beanType, (Map<String, String>) null);
@@ -110,6 +112,14 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         write(serializer, object, fieldName, fieldType, features, false);
     }
 
+    public void writeNoneASM(JSONSerializer serializer, //
+                      Object object, //
+                      Object fieldName, //
+                      Type fieldType, //
+                      int features) throws IOException {
+        write(serializer, object, fieldName, fieldType, features, false);
+    }
+
     protected void write(JSONSerializer serializer, //
                       Object object, //
                       Object fieldName, //
@@ -137,7 +147,9 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         }
 
         SerialContext parent = serializer.context;
-        serializer.setContext(parent, object, fieldName, this.beanInfo.features, features);
+        if (!this.beanInfo.beanType.isEnum()) {
+            serializer.setContext(parent, object, fieldName, this.beanInfo.features, features);
+        }
 
         final boolean writeAsArray = isWriteAsArray(serializer, features);
 
@@ -156,9 +168,18 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
             boolean commaFlag = false;
 
             if ((this.beanInfo.features & SerializerFeature.WriteClassName.mask) != 0
+                ||(features & SerializerFeature.WriteClassName.mask) != 0
                 || serializer.isWriteClassName(fieldType, object)) {
                 Class<?> objClass = object.getClass();
-                if (objClass != fieldType) {
+
+                final Type type;
+                if (objClass != fieldType && fieldType instanceof WildcardType) {
+                    type = TypeUtils.getClass(fieldType);
+                } else {
+                    type = fieldType;
+                }
+
+                if (objClass != type) {
                     writeClassName(serializer, beanInfo.typeKey, object);
                     commaFlag = true;
                 }
@@ -341,7 +362,29 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     }
                 }
 
-                commaFlag = true;
+                boolean fieldUnwrappedNull = false;
+                if (fieldInfo.unwrapped
+                        && propertyValue instanceof Map) {
+                    Map map = ((Map) propertyValue);
+                    if (map.size() == 0) {
+                        fieldUnwrappedNull = true;
+                    } else if (!serializer.isEnabled(SerializerFeature.WriteMapNullValue)){
+                        boolean hasNotNull = false;
+                        for (Object value : map.values()) {
+                            if (value != null) {
+                                hasNotNull = true;
+                                break;
+                            }
+                        }
+                        if (!hasNotNull) {
+                            fieldUnwrappedNull = true;
+                        }
+                    }
+                }
+
+                if (!fieldUnwrappedNull) {
+                    commaFlag = true;
+                }
             }
 
             this.writeAfter(serializer, object, commaFlag ? ',' : '\0');
@@ -431,10 +474,13 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         }
     }
 
-    public Object getFieldValue(Object object, String key, long keyHash) {
+    public Object getFieldValue(Object object, String key, long keyHash, boolean throwFieldNotFoundException) {
         FieldSerializer fieldDeser = getFieldSerializer(keyHash);
         if (fieldDeser == null) {
-            throw new JSONException("field not found. " + key);
+            if (throwFieldNotFoundException) {
+                throw new JSONException("field not found. " + key);
+            }
+            return null;
         }
 
         try {
@@ -474,13 +520,28 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
     }
 
     public FieldSerializer getFieldSerializer(long hash) {
+        PropertyNamingStrategy[] namingStrategies = null;
         if (this.hashArray == null) {
-            long[] hashArray = new long[sortedGetters.length];
+            namingStrategies = PropertyNamingStrategy.values();
+
+            long[] hashArray = new long[sortedGetters.length * namingStrategies.length];
+            int index = 0;
             for (int i = 0; i < sortedGetters.length; i++) {
-                hashArray[i] = TypeUtils.fnv1a_64(sortedGetters[i].fieldInfo.name);
+                String name = sortedGetters[i].fieldInfo.name;
+                hashArray[index++] = TypeUtils.fnv1a_64(name);
+
+                for (int j = 0; j < namingStrategies.length; j++) {
+                    String name_t = namingStrategies[j].translate(name);
+                    if (name.equals(name_t)) {
+                        continue;
+                    }
+                    hashArray[index++] = TypeUtils.fnv1a_64(name_t);
+                }
             }
-            Arrays.sort(hashArray);
-            this.hashArray = hashArray;
+            Arrays.sort(hashArray, 0, index);
+
+            this.hashArray = new long[index];
+            System.arraycopy(hashArray, 0, this.hashArray, 0, index);
         }
 
         int pos = Arrays.binarySearch(hashArray, hash);
@@ -489,13 +550,32 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         }
 
         if (hashArrayMapping == null) {
+            if (namingStrategies == null) {
+                namingStrategies = PropertyNamingStrategy.values();
+            }
+
             short[] mapping = new short[hashArray.length];
             Arrays.fill(mapping, (short) -1);
             for (int i = 0; i < sortedGetters.length; i++) {
+                String name = sortedGetters[i].fieldInfo.name;
+
                 int p = Arrays.binarySearch(hashArray
-                        , TypeUtils.fnv1a_64(sortedGetters[i].fieldInfo.name));
+                        , TypeUtils.fnv1a_64(name));
                 if (p >= 0) {
                     mapping[p] = (short) i;
+                }
+
+                for (int j = 0; j < namingStrategies.length; j++) {
+                    String name_t = namingStrategies[j].translate(name);
+                    if (name.equals(name_t)) {
+                        continue;
+                    }
+
+                    int p_t = Arrays.binarySearch(hashArray
+                            , TypeUtils.fnv1a_64(name_t));
+                    if (p_t >= 0) {
+                        mapping[p_t] = (short) i;
+                    }
                 }
             }
             hashArrayMapping = mapping;

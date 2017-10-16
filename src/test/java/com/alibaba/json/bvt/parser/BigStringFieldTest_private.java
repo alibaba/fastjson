@@ -66,9 +66,6 @@ public class BigStringFieldTest_private extends TestCase {
         }
         String text = JSON.toJSONString(list, SerializerFeature.BrowserSecure);
 
-        text = text.replaceAll("&lt;", "<");
-        text = text.replaceAll("&gt;", ">");
-
         List<Model> list2 = JSON.parseObject(text, new TypeReference<List<Model>>() {});
         assertEquals(list.size(), list2.size());
         for (int i = 0; i < 1000; ++i) {

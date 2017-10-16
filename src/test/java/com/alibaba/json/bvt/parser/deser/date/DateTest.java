@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import com.alibaba.fastjson.parser.JSONReaderScanner;
 import junit.framework.TestCase;
 
 import org.junit.Assert;
@@ -29,6 +30,19 @@ public class DateTest extends TestCase {
         dateFormat.setTimeZone(JSON.defaultTimeZone);
         Assert.assertEquals(dateFormat.parse("2012/04-01"), vo.getDate());
         
+        parser.close();
+    }
+
+    public void test_reader() throws Exception {
+
+        DefaultJSONParser parser = new DefaultJSONParser(new JSONReaderScanner("{\"date\":\"2012/04-01\"}", 0));
+        parser.setDateFormat("yyyy/MM-dd");
+        VO vo = parser.parseObject(VO.class);
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM-dd", JSON.defaultLocale);
+        dateFormat.setTimeZone(JSON.defaultTimeZone);
+        Assert.assertEquals(dateFormat.parse("2012/04-01"), vo.getDate());
+
         parser.close();
     }
 

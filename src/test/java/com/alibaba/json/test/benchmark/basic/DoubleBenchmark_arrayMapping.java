@@ -21,8 +21,8 @@ public class DoubleBenchmark_arrayMapping {
 //        System.out.println(JSON.toJSONString(model));
 
         for (int i = 0; i < 10; ++i) {
-             perf(); // 320
-//            perf2(); // 330
+             perf(); // 2528
+//            perf2(); // 2484
         }
     }
 

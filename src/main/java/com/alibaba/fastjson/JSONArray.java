@@ -266,6 +266,16 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
         return TypeUtils.castToJavaBean(obj, clazz);
     }
 
+    public <T> T getObject(int index, Type type) {
+        Object obj = list.get(index);
+        if (type instanceof Class) {
+            return (T) TypeUtils.castToJavaBean(obj, (Class) type);
+        } else {
+            String json = JSON.toJSONString(obj);
+            return (T) JSON.parseObject(json, type);
+        }
+    }
+
     public Boolean getBoolean(int index) {
         Object value = get(index);
 

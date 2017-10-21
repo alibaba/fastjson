@@ -1035,6 +1035,14 @@ public class TypeUtils {
                     if (paramNames != null && paramNameMapping != null && methodName.startsWith("get")) {
                         String propertyName = decapitalize(methodName.substring(3));
                         int p = Arrays.binarySearch(paramNames, propertyName);
+                        if (p < 0) {
+                            for (int i = 0; i < paramNames.length; i++) {
+                                if (propertyName.equalsIgnoreCase(paramNames[i])) {
+                                    p = i;
+                                    break;
+                                }
+                            }
+                        }
                         if (p >= 0) {
                             short index = paramNameMapping[p];
                             Annotation[] paramAnnotations = paramAnnotationArrays[index];

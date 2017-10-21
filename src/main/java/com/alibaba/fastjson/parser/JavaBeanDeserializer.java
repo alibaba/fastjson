@@ -929,7 +929,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             // smartMatchHashArrayMapping
 
             int pos = Arrays.binarySearch(smartMatchHashArray, smartKeyHash);
-            if (pos < 0 && key.startsWith("is")) {
+            boolean is = false;
+            if (pos < 0 && (is = key.startsWith("is"))) {
                 smartKeyHash = TypeUtils.fnv_64_lower(key.substring(2));
                 pos = Arrays.binarySearch(smartMatchHashArray, smartKeyHash);
             }
@@ -951,6 +952,10 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 int deserIndex = smartMatchHashArrayMapping[pos];
                 if (deserIndex != -1) {
                     fieldDeserializer = sortedFieldDeserializers[deserIndex];
+                    Class fieldClass = fieldDeserializer.fieldInfo.fieldClass;
+                    if (is && (fieldClass != boolean.class && fieldClass != Boolean.class)) {
+                        fieldDeserializer = null;
+                    }
                 }
             }
         }

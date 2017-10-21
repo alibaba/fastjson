@@ -857,7 +857,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     try {
                         object = beanInfo.creatorConstructor.newInstance(params);
                     } catch (Exception e) {
-                        throw new JSONException("create instance error, "
+                        throw new JSONException("create instance error, " + paramNames + ", "
                                                 + beanInfo.creatorConstructor.toGenericString(), e);
                     }
 

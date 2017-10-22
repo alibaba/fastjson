@@ -22,6 +22,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
@@ -148,7 +149,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
     }
     
     @SuppressWarnings("unchecked")
-    protected <T> T cast(DefaultJSONParser parser, Type clazz, Object fieldName, Object val) {
+    public <T> T cast(DefaultJSONParser parser, Type clazz, Object fieldName, Object val) {
 
         if (val == null) {
             return null;
@@ -164,22 +165,25 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
                 return null;
             }
 
-            JSONScanner dateLexer = new JSONScanner(strVal);
-            try {
-                if (dateLexer.scanISO8601DateIfMatch(false)) {
-                    Calendar calendar = dateLexer.getCalendar();
-                    
-                    if (clazz == Calendar.class) {
-                        return (T) calendar;
+            {
+                JSONScanner dateLexer = new JSONScanner(strVal);
+                try {
+                    if (dateLexer.scanISO8601DateIfMatch(false)) {
+                        Calendar calendar = dateLexer.getCalendar();
+
+                        if (clazz == Calendar.class) {
+                            return (T) calendar;
+                        }
+
+                        return (T) calendar.getTime();
                     }
-                    
-                    return (T) calendar.getTime();
+                } finally {
+                    dateLexer.close();
                 }
-            } finally {
-                dateLexer.close();
             }
             
-            if (strVal.length() == parser.getDateFomartPattern().length()) {
+            if (strVal.length() == parser.getDateFomartPattern().length()
+                    || (strVal.length() == 22 && parser.getDateFomartPattern().equals("yyyyMMddHHmmssSSSZ"))) {
                 DateFormat dateFormat = parser.getDateFormat();
                 try {
                     return (T) dateFormat.parse(strVal);
@@ -192,18 +196,39 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
                 String dotnetDateStr = strVal.substring(6, strVal.length() - 2);
                 strVal = dotnetDateStr;
             }
-            
-//            JSONScanner iso8601Lexer = new JSONScanner(strVal);
-//            if (iso8601Lexer.scanISO8601DateIfMatch()) {
-//                val = iso8601Lexer.getCalendar().getTime();
-//            }
-//            iso8601Lexer.close();
 
             if ("0000-00-00".equals(strVal)
                     || "0000-00-00T00:00:00".equalsIgnoreCase(strVal)
                     || "0001-01-01T00:00:00+08:00".equalsIgnoreCase(strVal)) {
                 return null;
             }
+
+            int index = strVal.lastIndexOf('|');
+            if (index > 20) {
+                String tzStr = strVal.substring(index + 1);
+                TimeZone timeZone = TimeZone.getTimeZone(tzStr);
+                if (!"GMT".equals(timeZone.getID())) {
+                    String subStr = strVal.substring(0, index);
+                    JSONScanner dateLexer = new JSONScanner(subStr);
+                    try {
+                        if (dateLexer.scanISO8601DateIfMatch(false)) {
+                            Calendar calendar = dateLexer.getCalendar();
+
+                            calendar.setTimeZone(timeZone);
+
+                            if (clazz == Calendar.class) {
+                                return (T) calendar;
+                            }
+
+                            return (T) calendar.getTime();
+                        }
+                    } finally {
+                        dateLexer.close();
+                    }
+                }
+            }
+
+            // 2017-08-14 19:05:30.000|America/Los_Angeles
 //            
             long longVal = Long.parseLong(strVal);
             return (T) new java.util.Date(longVal);

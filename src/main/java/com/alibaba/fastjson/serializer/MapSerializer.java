@@ -16,6 +16,7 @@
 package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 
@@ -194,8 +195,11 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                     if (entryKey == null || entryKey instanceof String) {
                         value = this.processValue(serializer, null, object, (String) entryKey, value);
                     } else {
-                        String strKey = JSON.toJSONString(entryKey);
-                        value = this.processValue(serializer, null, object, strKey, value);
+                        boolean objectOrArray = entryKey instanceof Map || entryKey instanceof Collection;
+                        if (!objectOrArray) {
+                            String strKey = JSON.toJSONString(entryKey);
+                            value = this.processValue(serializer, null, object, strKey, value);
+                        }
                     }
                 }
 
@@ -240,13 +244,26 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
 
                 Class<?> clazz = value.getClass();
 
-                if (clazz == preClazz) {
-                    preWriter.write(serializer, value, entryKey, null, 0);
-                } else {
+                if (clazz != preClazz) {
                     preClazz = clazz;
                     preWriter = serializer.getObjectWriter(clazz);
+                }
 
-                    preWriter.write(serializer, value, entryKey, null, 0);
+                if (SerializerFeature.isEnabled(features, SerializerFeature.WriteClassName)
+                        && preWriter instanceof JavaBeanSerializer) {
+                    Type valueType = null;
+                    if (fieldType instanceof ParameterizedType) {
+                        ParameterizedType parameterizedType = (ParameterizedType) fieldType;
+                        Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+                        if (actualTypeArguments.length == 2) {
+                            valueType = actualTypeArguments[1];
+                        }
+                    }
+
+                    JavaBeanSerializer javaBeanSerializer = (JavaBeanSerializer) preWriter;
+                    javaBeanSerializer.writeNoneASM(serializer, value, entryKey, valueType, features);
+                } else {
+                    preWriter.write(serializer, value, entryKey, null, features);
                 }
             }
         } finally {

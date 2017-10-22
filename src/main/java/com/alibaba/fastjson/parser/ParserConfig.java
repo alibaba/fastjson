@@ -67,23 +67,7 @@ import com.alibaba.fastjson.*;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.deserializer.*;
-import com.alibaba.fastjson.serializer.AtomicCodec;
-import com.alibaba.fastjson.serializer.AwtCodec;
-import com.alibaba.fastjson.serializer.BigDecimalCodec;
-import com.alibaba.fastjson.serializer.BigIntegerCodec;
-import com.alibaba.fastjson.serializer.BooleanCodec;
-import com.alibaba.fastjson.serializer.CalendarCodec;
-import com.alibaba.fastjson.serializer.CharArrayCodec;
-import com.alibaba.fastjson.serializer.CharacterCodec;
-import com.alibaba.fastjson.serializer.CollectionCodec;
-import com.alibaba.fastjson.serializer.DateCodec;
-import com.alibaba.fastjson.serializer.FloatCodec;
-import com.alibaba.fastjson.serializer.IntegerCodec;
-import com.alibaba.fastjson.serializer.LongCodec;
-import com.alibaba.fastjson.serializer.MiscCodec;
-import com.alibaba.fastjson.serializer.ObjectArrayCodec;
-import com.alibaba.fastjson.serializer.ReferenceCodec;
-import com.alibaba.fastjson.serializer.StringCodec;
+import com.alibaba.fastjson.serializer.*;
 import com.alibaba.fastjson.util.*;
 
 import javax.sql.DataSource;
@@ -366,6 +350,15 @@ public class ParserConfig {
             }
         }
 
+        if (type instanceof WildcardType) {
+            WildcardType wildcardType = (WildcardType) type;
+            Type[] upperBounds = wildcardType.getUpperBounds();
+            if (upperBounds.length == 1) {
+                Type upperBoundType = upperBounds[0];
+                return getDeserializer(upperBoundType);
+            }
+        }
+
         return JavaObjectDeserializer.instance;
     }
 
@@ -385,7 +378,7 @@ public class ParserConfig {
         }
 
         {
-            JSONType annotation = clazz.getAnnotation(JSONType.class);
+            JSONType annotation = TypeUtils.getAnnotation(clazz,JSONType.class);
             if (annotation != null) {
                 Class<?> mappingTo = annotation.mappingTo();
                 if (mappingTo != Void.class) {
@@ -408,11 +401,20 @@ public class ParserConfig {
         if (className.startsWith("java.awt.") //
             && AwtCodec.support(clazz)) {
             if (!awtError) {
+                String[] names = new String[] {
+                        "java.awt.Point",
+                        "java.awt.Font",
+                        "java.awt.Rectangle",
+                        "java.awt.Color"
+                };
+
                 try {
-                    deserializers.put(Class.forName("java.awt.Point"), AwtCodec.instance);
-                    deserializers.put(Class.forName("java.awt.Font"), AwtCodec.instance);
-                    deserializers.put(Class.forName("java.awt.Rectangle"), AwtCodec.instance);
-                    deserializers.put(Class.forName("java.awt.Color"), AwtCodec.instance);
+                    for (String name : names) {
+                        if (name.equals(className)) {
+                            deserializers.put(Class.forName(name), derializer = AwtCodec.instance);
+                            return derializer;
+                        }
+                    }
                 } catch (Throwable e) {
                     // skip
                     awtError = true;
@@ -425,29 +427,40 @@ public class ParserConfig {
         if (!jdk8Error) {
             try {
                 if (className.startsWith("java.time.")) {
-                    
-                    deserializers.put(Class.forName("java.time.LocalDateTime"), Jdk8DateCodec.instance);
-                    deserializers.put(Class.forName("java.time.LocalDate"), Jdk8DateCodec.instance);
-                    deserializers.put(Class.forName("java.time.LocalTime"), Jdk8DateCodec.instance);
-                    deserializers.put(Class.forName("java.time.ZonedDateTime"), Jdk8DateCodec.instance);
-                    deserializers.put(Class.forName("java.time.OffsetDateTime"), Jdk8DateCodec.instance);
-                    deserializers.put(Class.forName("java.time.OffsetTime"), Jdk8DateCodec.instance);
-                    deserializers.put(Class.forName("java.time.ZoneOffset"), Jdk8DateCodec.instance);
-                    deserializers.put(Class.forName("java.time.ZoneRegion"), Jdk8DateCodec.instance);
-                    deserializers.put(Class.forName("java.time.ZoneId"), Jdk8DateCodec.instance);
-                    deserializers.put(Class.forName("java.time.Period"), Jdk8DateCodec.instance);
-                    deserializers.put(Class.forName("java.time.Duration"), Jdk8DateCodec.instance);
-                    deserializers.put(Class.forName("java.time.Instant"), Jdk8DateCodec.instance);
-                    
-                    derializer = deserializers.get(clazz);
+                    String[] names = new String[] {
+                            "java.time.LocalDateTime",
+                            "java.time.LocalDate",
+                            "java.time.LocalTime",
+                            "java.time.ZonedDateTime",
+                            "java.time.OffsetDateTime",
+                            "java.time.OffsetTime",
+                            "java.time.ZoneOffset",
+                            "java.time.ZoneRegion",
+                            "java.time.ZoneId",
+                            "java.time.Period",
+                            "java.time.Duration",
+                            "java.time.Instant"
+                    };
+
+                    for (String name : names) {
+                        if (name.equals(className)) {
+                            deserializers.put(Class.forName(name), derializer = Jdk8DateCodec.instance);
+                            return derializer;
+                        }
+                    }
                 } else if (className.startsWith("java.util.Optional")) {
-                    
-                    deserializers.put(Class.forName("java.util.Optional"), OptionalCodec.instance);
-                    deserializers.put(Class.forName("java.util.OptionalDouble"), OptionalCodec.instance);
-                    deserializers.put(Class.forName("java.util.OptionalInt"), OptionalCodec.instance);
-                    deserializers.put(Class.forName("java.util.OptionalLong"), OptionalCodec.instance);
-                    
-                    derializer = deserializers.get(clazz);
+                    String[] names = new String[] {
+                            "java.util.Optional",
+                            "java.util.OptionalDouble",
+                            "java.util.OptionalInt",
+                            "java.util.OptionalLong"
+                    };
+                    for (String name : names) {
+                        if (name.equals(className)) {
+                            deserializers.put(Class.forName(name), derializer = OptionalCodec.instance);
+                            return derializer;
+                        }
+                    }
                 }
             } catch (Throwable e) {
                 // skip
@@ -456,11 +469,11 @@ public class ParserConfig {
         }
 
         if (className.equals("java.nio.file.Path")) {
-            deserializers.put(clazz, MiscCodec.instance);
+            deserializers.put(clazz, derializer = MiscCodec.instance);
         }
 
         if (clazz == Map.Entry.class) {
-            deserializers.put(clazz, MiscCodec.instance);
+            deserializers.put(clazz, derializer = MiscCodec.instance);
         }
 
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -484,6 +497,19 @@ public class ParserConfig {
         }
 
         if (clazz.isEnum()) {
+            Class<?> deserClass = null;
+            JSONType jsonType = clazz.getAnnotation(JSONType.class);
+            if (jsonType != null) {
+                deserClass = jsonType.deserializer();
+                try {
+                    derializer = (ObjectDeserializer) deserClass.newInstance();
+                    deserializers.put(clazz, derializer);
+                    return derializer;
+                } catch (Throwable error) {
+                    // skip
+                }
+            }
+
             derializer = new EnumDeserializer(clazz);
         } else if (clazz.isArray()) {
             derializer = ObjectArrayCodec.instance;
@@ -528,7 +554,7 @@ public class ParserConfig {
     public ObjectDeserializer createJavaBeanDeserializer(Class<?> clazz, Type type) {
         boolean asmEnable = this.asmEnable & !this.fieldBased;
         if (asmEnable) {
-            JSONType jsonType = clazz.getAnnotation(JSONType.class);
+            JSONType jsonType = TypeUtils.getAnnotation(clazz,JSONType.class);
 
             if (jsonType != null) {
                 Class<?> deserializerClass = jsonType.deserializer();
@@ -760,6 +786,20 @@ public class ParserConfig {
                 String fieldNameX = new String(chars);
                 field = fieldCacheMap.get(fieldNameX);
             }
+
+            if (fieldName.length() > 2) {
+                char c1 = fieldName.charAt(1);
+                if (fieldName.length() > 2
+                        && c0 >= 'a' && c0 <= 'z'
+                        && c1 >= 'A' && c1 <= 'Z') {
+                    for (Map.Entry<String, Field> entry : fieldCacheMap.entrySet()) {
+                        if (fieldName.equalsIgnoreCase(entry.getKey())) {
+                            field = entry.getValue();
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
         return field;
@@ -840,7 +880,9 @@ public class ParserConfig {
         }
 
         if (clazz != null) {
-            if (expectClass != null && !expectClass.isAssignableFrom(clazz)) {
+            if (expectClass != null
+                    && clazz != java.util.HashMap.class
+                    && !expectClass.isAssignableFrom(clazz)) {
                 throw new JSONException("type not match. " + typeName + " -> " + expectClass.getName());
             }
 
@@ -870,7 +912,7 @@ public class ParserConfig {
         clazz = TypeUtils.loadClass(typeName, defaultClassLoader);
 
         if (clazz != null) {
-            if (clazz.getAnnotation(JSONType.class) != null) {
+            if (TypeUtils.getAnnotation(clazz,JSONType.class) != null) {
                 return clazz;
             }
 

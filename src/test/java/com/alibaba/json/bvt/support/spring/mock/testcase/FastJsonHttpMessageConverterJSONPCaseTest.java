@@ -202,8 +202,7 @@ public class FastJsonHttpMessageConverterJSONPCaseTest {
         String invalidMethodName = "--methodName";
         ResultActions actions = this.mockMvc.perform(post("/jsonp-fastjsonview/test7?customizedCallbackParamName=" + invalidMethodName));
         actions.andDo(print());
-        actions.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JAVASCRIPT))
-
-                .andExpect(content().string("/**/null({})"));
+        actions.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().string("/**/{}"));
     }
 }

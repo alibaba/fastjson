@@ -121,8 +121,26 @@ public class JavaBeanInfo {
 
         if (creatorConstructor != null) {
             this.creatorConstructorParameterTypes = creatorConstructor.getParameterTypes();
-            if (creatorConstructorParameterTypes.length != fields.length) {
-                this.creatorConstructorParameters = ASMUtils.lookupParameterNames(creatorConstructor);
+            boolean match;
+            if (creatorConstructorParameterTypes.length != sortedFields.length) {
+                match = false;
+            } else {
+                match = true;
+                for (int i = 0; i < creatorConstructorParameterTypes.length; i++) {
+                    if (creatorConstructorParameterTypes[i] != sortedFields[i].fieldClass) {
+                        match = false;
+                        break;
+                    }
+                }
+            }
+
+            if (!match) {
+                boolean kotlin = TypeUtils.isKotlin(clazz);
+                if (kotlin) {
+                    this.creatorConstructorParameters = TypeUtils.getKoltinConstructorParameters(clazz);
+                } else {
+                    this.creatorConstructorParameters = ASMUtils.lookupParameterNames(creatorConstructor);
+                }
             }
         }
     }
@@ -181,7 +199,7 @@ public class JavaBeanInfo {
             , boolean fieldBased //
             , boolean compatibleWithJavaBean
     ) {
-        JSONType jsonType = clazz.getAnnotation(JSONType.class);
+        JSONType jsonType = TypeUtils.getAnnotation(clazz,JSONType.class);
 
         Class<?> builderClass = getBuilderClass(clazz, jsonType);
 
@@ -192,7 +210,7 @@ public class JavaBeanInfo {
         Constructor[] constructors = clazz.getDeclaredConstructors();
 
         Constructor<?> defaultConstructor = null;
-        if (!kotlin) {
+        if ((!kotlin) || constructors.length == 1) {
             if (builderClass == null) {
                 defaultConstructor = getDefaultConstructor(clazz, constructors);
             } else {
@@ -249,11 +267,8 @@ public class JavaBeanInfo {
                     }
                 }
 
-                return new JavaBeanInfo(clazz, builderClass, null, creatorConstructor, null, null, jsonType, fieldList);
-            }
-
-            factoryMethod = getFactoryMethod(clazz, methods); // 基于标记 JSONCreator 注解的工厂方法
-            if (factoryMethod != null) {
+                //return new JavaBeanInfo(clazz, builderClass, null, creatorConstructor, null, null, jsonType, fieldList);
+            } else if ((factoryMethod = getFactoryMethod(clazz, methods)) != null) {
                 TypeUtils.setAccessible(factoryMethod);
 
                 Class<?>[] types = factoryMethod.getParameterTypes();
@@ -340,7 +355,8 @@ public class JavaBeanInfo {
                             continue;
                         }
 
-                        if (creatorConstructor != null && lookupParameterNames.length <= paramNames.length) {
+                        if (creatorConstructor != null
+                                && paramNames != null && lookupParameterNames.length <= paramNames.length) {
                             continue;
                         }
 
@@ -402,7 +418,8 @@ public class JavaBeanInfo {
                         add(fieldList, fieldInfo);
                     }
 
-                    if (!clazz.getName().equals("javax.servlet.http.Cookie")) {
+                    if ((!kotlin)
+                            && !clazz.getName().equals("javax.servlet.http.Cookie")) {
                         return new JavaBeanInfo(clazz, builderClass, null, creatorConstructor, null, null, jsonType, fieldList);
                     }
                 } else {

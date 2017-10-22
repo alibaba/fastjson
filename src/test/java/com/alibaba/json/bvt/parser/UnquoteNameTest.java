@@ -24,6 +24,13 @@ public class UnquoteNameTest extends TestCase {
         JSONObject model = JSON.parseObject(text);
         Assert.assertEquals(1001, model.get("_id"));
     }
+
+    public void test_unquote_parse_1() throws Exception {
+        String text = "{ $id:1001}";
+
+        JSONObject model = JSON.parseObject(text);
+        Assert.assertEquals(1001, model.get("$id"));
+    }
     
     public void test_unquote_reader() throws Exception {
         String text = "{_id:1001}";
@@ -48,6 +55,17 @@ public class UnquoteNameTest extends TestCase {
 
         reader.startObject();
         Assert.assertEquals("_id", reader.readString());
+        Assert.assertEquals(Integer.valueOf(123), reader.readInteger());
+        reader.endObject();
+
+        reader.close();
+    }
+
+    public void test_obj_1() throws Exception {
+        JSONReader reader = new JSONReader(new StringReader("{$id:123}"));
+
+        reader.startObject();
+        Assert.assertEquals("$id", reader.readString());
         Assert.assertEquals(Integer.valueOf(123), reader.readInteger());
         reader.endObject();
 

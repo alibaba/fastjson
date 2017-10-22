@@ -15,20 +15,17 @@
  */
 package com.alibaba.fastjson.serializer;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Map;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.TypeUtils;
+
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.Date;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -52,7 +49,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
 
     protected boolean             serializeUsing          = false;
 
-    protected boolean             persistenceOneToMany    = false;
+    protected boolean             persistenceXToMany      = false; // OneToMany or ManyToMany
 
     private RuntimeSerializerInfo runtimeInfo;
     
@@ -61,7 +58,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
         this.fieldContext = new BeanContext(beanType, fieldInfo);
 
         if (beanType != null && fieldInfo.isEnum) {
-            JSONType jsonType = beanType.getAnnotation(JSONType.class);
+            JSONType jsonType = TypeUtils.getAnnotation(beanType,JSONType.class);
             if (jsonType != null) {
                 for (SerializerFeature feature : jsonType.serialzeFeatures()) {
                     if (feature == SerializerFeature.WriteEnumUsingToString) {
@@ -110,7 +107,8 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
         
         this.writeNull = writeNull;
 
-        persistenceOneToMany = TypeUtils.isAnnotationPresentOneToMany(fieldInfo.method);
+        persistenceXToMany = TypeUtils.isAnnotationPresentOneToMany(fieldInfo.method)
+                || TypeUtils.isAnnotationPresentManyToMany(fieldInfo.method);
     }
 
     public void writePrefix(JSONSerializer serializer) throws IOException {
@@ -135,7 +133,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
 
     public Object getPropertyValueDirect(Object object) throws InvocationTargetException, IllegalAccessException {
         Object fieldValue =  fieldInfo.get(object);
-        if (persistenceOneToMany && TypeUtils.isHibernateInitialized(fieldValue)) {
+        if (persistenceXToMany && !TypeUtils.isHibernateInitialized(fieldValue)) {
             return null;
         }
         return fieldValue;
@@ -197,8 +195,16 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
                 (fieldInfo.serialzeFeatures|SerializerFeature.DisableCircularReferenceDetect.getMask()):fieldInfo.serialzeFeatures;
 
         if (propertyValue == null) {
-            Class<?> runtimeFieldClass = runtimeInfo.runtimeFieldClass;
             SerializeWriter out  = serializer.out;
+
+            if (fieldInfo.fieldClass == Object.class
+                    && out.isEnabled(SerializerFeature.WRITE_MAP_NULL_FEATURES)) {
+                out.writeNull();
+                return;
+            }
+
+            Class<?> runtimeFieldClass = runtimeInfo.runtimeFieldClass;
+
             if (Number.class.isAssignableFrom(runtimeFieldClass)) {
                 out.writeNull(features, SerializerFeature.WriteNullNumberAsZero.mask);
                 return;
@@ -214,13 +220,13 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
             }
 
             ObjectSerializer fieldSerializer = runtimeInfo.fieldSerializer;
-            
+
             if ((out.isEnabled(SerializerFeature.WRITE_MAP_NULL_FEATURES))
                     && fieldSerializer instanceof JavaBeanSerializer) {
                 out.writeNull();
                 return;
             }
-            
+
             fieldSerializer.write(serializer, null, fieldInfo.name, fieldInfo.fieldType, fieldFeatures);
             return;
         }
@@ -266,6 +272,13 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
                 mapSerializer.write(serializer, propertyValue, fieldInfo.name, fieldInfo.fieldType, fieldFeatures, true);
                 return;
             }
+        }
+
+        if ((features & SerializerFeature.WriteClassName.mask) != 0
+                && valueClass != fieldInfo.fieldClass
+                && JavaBeanSerializer.class.isInstance(valueSerializer)) {
+            ((JavaBeanSerializer) valueSerializer).write(serializer, propertyValue, fieldInfo.name, fieldInfo.fieldType, fieldFeatures, false);
+            return;
         }
 
         valueSerializer.write(serializer, propertyValue, fieldInfo.name, fieldInfo.fieldType, fieldFeatures);

@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 import java.util.*;
 
 import com.alibaba.fastjson.JSONException;
@@ -111,6 +112,14 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         write(serializer, object, fieldName, fieldType, features, false);
     }
 
+    public void writeNoneASM(JSONSerializer serializer, //
+                      Object object, //
+                      Object fieldName, //
+                      Type fieldType, //
+                      int features) throws IOException {
+        write(serializer, object, fieldName, fieldType, features, false);
+    }
+
     protected void write(JSONSerializer serializer, //
                       Object object, //
                       Object fieldName, //
@@ -138,7 +147,9 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         }
 
         SerialContext parent = serializer.context;
-        serializer.setContext(parent, object, fieldName, this.beanInfo.features, features);
+        if (!this.beanInfo.beanType.isEnum()) {
+            serializer.setContext(parent, object, fieldName, this.beanInfo.features, features);
+        }
 
         final boolean writeAsArray = isWriteAsArray(serializer, features);
 
@@ -157,9 +168,18 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
             boolean commaFlag = false;
 
             if ((this.beanInfo.features & SerializerFeature.WriteClassName.mask) != 0
+                ||(features & SerializerFeature.WriteClassName.mask) != 0
                 || serializer.isWriteClassName(fieldType, object)) {
                 Class<?> objClass = object.getClass();
-                if (objClass != fieldType) {
+
+                final Type type;
+                if (objClass != fieldType && fieldType instanceof WildcardType) {
+                    type = TypeUtils.getClass(fieldType);
+                } else {
+                    type = fieldType;
+                }
+
+                if (objClass != type) {
                     writeClassName(serializer, beanInfo.typeKey, object);
                     commaFlag = true;
                 }
@@ -342,7 +362,29 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     }
                 }
 
-                commaFlag = true;
+                boolean fieldUnwrappedNull = false;
+                if (fieldInfo.unwrapped
+                        && propertyValue instanceof Map) {
+                    Map map = ((Map) propertyValue);
+                    if (map.size() == 0) {
+                        fieldUnwrappedNull = true;
+                    } else if (!serializer.isEnabled(SerializerFeature.WriteMapNullValue)){
+                        boolean hasNotNull = false;
+                        for (Object value : map.values()) {
+                            if (value != null) {
+                                hasNotNull = true;
+                                break;
+                            }
+                        }
+                        if (!hasNotNull) {
+                            fieldUnwrappedNull = true;
+                        }
+                    }
+                }
+
+                if (!fieldUnwrappedNull) {
+                    commaFlag = true;
+                }
             }
 
             this.writeAfter(serializer, object, commaFlag ? ',' : '\0');

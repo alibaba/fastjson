@@ -21,7 +21,7 @@ public class Bug_for_issue_320 extends TestCase {
         Assert.assertEquals("{1001:\"aaa\"}", text);
         
         JSONObject obj = JSON.parseObject(text);
-        Assert.assertEquals("aaa", obj.get("1001"));
+        Assert.assertEquals("aaa", obj.get(1001));
     }
 
 }

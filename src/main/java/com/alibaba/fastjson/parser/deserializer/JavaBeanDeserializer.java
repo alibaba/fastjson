@@ -1,10 +1,9 @@
 package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.*;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -322,6 +321,9 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             } else if (fieldClass == java.util.Date.class && lexer.getCurrent() == '1') {
                 long longValue = lexer.scanLong(seperator);
                 fieldDeser.setValue(object, new java.util.Date(longValue));
+            } else if (fieldClass == BigDecimal.class) {
+                BigDecimal value = lexer.scanDecimal(seperator);
+                fieldDeser.setValue(object, value);
             } else {
                 lexer.nextToken(JSONToken.LBRACKET);
                 Object value = parser.parseObject(fieldDeser.fieldInfo.fieldType, fieldDeser.fieldInfo.name);
@@ -410,16 +412,20 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         return null;
                     }
 
-                    for (Class<?> seeAlsoClass : beanInfo.jsonType.seeAlso()) {
-                        if (Enum.class.isAssignableFrom(seeAlsoClass)) {
-                            try {
-                                Enum<?> e = Enum.valueOf((Class<Enum>) seeAlsoClass, strVal);
-                                return (T) e;
-                            } catch (IllegalArgumentException e) {
-                                // skip
+                    if (beanInfo.jsonType != null) {
+                        for (Class<?> seeAlsoClass : beanInfo.jsonType.seeAlso()) {
+                            if (Enum.class.isAssignableFrom(seeAlsoClass)) {
+                                try {
+                                    Enum<?> e = Enum.valueOf((Class<Enum>) seeAlsoClass, strVal);
+                                    return (T) e;
+                                } catch (IllegalArgumentException e) {
+                                    // skip
+                                }
                             }
                         }
                     }
+                } else if (token == JSONToken.LITERAL_ISO8601_DATE) {
+                    Calendar calendar = lexer.getCalendar();
                 }
 
                 if (token == JSONToken.LBRACKET && lexer.getCurrent() == ']') {
@@ -495,6 +501,33 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             valueParsed = true;
                         } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
                             continue;  
+                        }
+                    } else if (fieldClass == java.util.Date.class && fieldInfo.format == null) {
+                        fieldValue = lexer.scanFieldDate(name_chars);
+
+                        if (lexer.matchStat > 0) {
+                            matchField = true;
+                            valueParsed = true;
+                        } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
+                            continue;
+                        }
+                    } else if (fieldClass == BigDecimal.class) {
+                        fieldValue = lexer.scanFieldDecimal(name_chars);
+
+                        if (lexer.matchStat > 0) {
+                            matchField = true;
+                            valueParsed = true;
+                        } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
+                            continue;
+                        }
+                    } else if (fieldClass == BigInteger.class) {
+                        fieldValue = lexer.scanFieldBigInteger(name_chars);
+
+                        if (lexer.matchStat > 0) {
+                            matchField = true;
+                            valueParsed = true;
+                        } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
+                            continue;
                         }
                     } else if (fieldClass == boolean.class || fieldClass == Boolean.class) {
                         fieldValue = lexer.scanFieldBoolean(name_chars);
@@ -824,7 +857,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     try {
                         object = beanInfo.creatorConstructor.newInstance(params);
                     } catch (Exception e) {
-                        throw new JSONException("create instance error, "
+                        throw new JSONException("create instance error, " + paramNames + ", "
                                                 + beanInfo.creatorConstructor.toGenericString(), e);
                     }
 
@@ -911,17 +944,19 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     || (this.beanInfo.parserFeatures & mask) != 0)) {
             if (this.extraFieldDeserializers == null) {
                 ConcurrentHashMap extraFieldDeserializers = new ConcurrentHashMap<String, Object>(1, 0.75f, 1);
-                Field[] fields = this.clazz.getDeclaredFields();
-                for (Field field : fields) {
-                    String fieldName = field.getName();
-                    if (this.getFieldDeserializer(fieldName) != null) {
-                        continue;
+                for (Class c = this.clazz; c != null && c != Object.class; c = c.getSuperclass()) {
+                    Field[] fields = c.getDeclaredFields();
+                    for (Field field : fields) {
+                        String fieldName = field.getName();
+                        if (this.getFieldDeserializer(fieldName) != null) {
+                            continue;
+                        }
+                        int fieldModifiers = field.getModifiers();
+                        if ((fieldModifiers & Modifier.FINAL) != 0 || (fieldModifiers & Modifier.STATIC) != 0) {
+                            continue;
+                        }
+                        extraFieldDeserializers.put(fieldName, field);
                     }
-                    int fieldModifiers = field.getModifiers();
-                    if ((fieldModifiers & Modifier.FINAL) != 0 || (fieldModifiers & Modifier.STATIC) != 0) {
-                        continue;
-                    }
-                    extraFieldDeserializers.put(fieldName, field);
                 }
                 this.extraFieldDeserializers = extraFieldDeserializers;
             }
@@ -1052,7 +1087,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
             // smartMatchHashArrayMapping
             int pos = Arrays.binarySearch(smartMatchHashArray, smartKeyHash);
-            if (pos < 0 && key.startsWith("is")) {
+            boolean is = false;
+            if (pos < 0 && (is = key.startsWith("is"))) {
                 smartKeyHash = TypeUtils.fnv1a_64_lower(key.substring(2));
                 pos = Arrays.binarySearch(smartMatchHashArray, smartKeyHash);
             }
@@ -1083,6 +1119,11 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 FieldInfo fieldInfo = fieldDeserializer.fieldInfo;
                 if ((fieldInfo.parserFeatures & Feature.DisableFieldSmartMatch.mask) != 0) {
                     return null;
+                }
+
+                Class fieldClass = fieldInfo.fieldClass;
+                if (is && (fieldClass != boolean.class && fieldClass != Boolean.class)) {
+                    fieldDeserializer = null;
                 }
             }
         }

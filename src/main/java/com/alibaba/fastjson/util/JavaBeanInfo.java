@@ -121,7 +121,20 @@ public class JavaBeanInfo {
 
         if (creatorConstructor != null) {
             this.creatorConstructorParameterTypes = creatorConstructor.getParameterTypes();
-            if (creatorConstructorParameterTypes.length != fields.length) {
+            boolean match;
+            if (creatorConstructorParameterTypes.length != sortedFields.length) {
+                match = false;
+            } else {
+                match = true;
+                for (int i = 0; i < creatorConstructorParameterTypes.length; i++) {
+                    if (creatorConstructorParameterTypes[i] != sortedFields[i].fieldClass) {
+                        match = false;
+                        break;
+                    }
+                }
+            }
+
+            if (!match) {
                 boolean kotlin = TypeUtils.isKotlin(clazz);
                 if (kotlin) {
                     this.creatorConstructorParameters = TypeUtils.getKoltinConstructorParameters(clazz);

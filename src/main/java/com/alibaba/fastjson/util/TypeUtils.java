@@ -1302,6 +1302,7 @@ public class TypeUtils{
                         if(paramNames != null){
                             String[] paramNames_sorted = new String[paramNames.length];
                             System.arraycopy(paramNames, 0, paramNames_sorted, 0, paramNames.length);
+
                             Arrays.sort(paramNames_sorted);
                             paramNameMapping = new short[paramNames.length];
                             for(short p = 0; p < paramNames.length; p++){
@@ -1315,6 +1316,14 @@ public class TypeUtils{
                 if(paramNames != null && paramNameMapping != null && methodName.startsWith("get")){
                     String propertyName = decapitalize(methodName.substring(3));
                     int p = Arrays.binarySearch(paramNames, propertyName);
+                    if (p < 0) {
+                        for (int i = 0; i < paramNames.length; i++) {
+                            if (propertyName.equalsIgnoreCase(paramNames[i])) {
+                                p = i;
+                                break;
+                            }
+                        }
+                    }
                     if(p >= 0){
                         short index = paramNameMapping[p];
                         Annotation[] paramAnnotations = paramAnnotationArrays[index];

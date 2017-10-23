@@ -857,7 +857,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     try {
                         object = beanInfo.creatorConstructor.newInstance(params);
                     } catch (Exception e) {
-                        throw new JSONException("create instance error, "
+                        throw new JSONException("create instance error, " + paramNames + ", "
                                                 + beanInfo.creatorConstructor.toGenericString(), e);
                     }
 
@@ -1087,7 +1087,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
             // smartMatchHashArrayMapping
             int pos = Arrays.binarySearch(smartMatchHashArray, smartKeyHash);
-            if (pos < 0 && key.startsWith("is")) {
+            boolean is = false;
+            if (pos < 0 && (is = key.startsWith("is"))) {
                 smartKeyHash = TypeUtils.fnv1a_64_lower(key.substring(2));
                 pos = Arrays.binarySearch(smartMatchHashArray, smartKeyHash);
             }
@@ -1118,6 +1119,11 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 FieldInfo fieldInfo = fieldDeserializer.fieldInfo;
                 if ((fieldInfo.parserFeatures & Feature.DisableFieldSmartMatch.mask) != 0) {
                     return null;
+                }
+
+                Class fieldClass = fieldInfo.fieldClass;
+                if (is && (fieldClass != boolean.class && fieldClass != Boolean.class)) {
+                    fieldDeserializer = null;
                 }
             }
         }

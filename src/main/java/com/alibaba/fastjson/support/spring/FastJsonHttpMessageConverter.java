@@ -16,6 +16,7 @@ import org.springframework.http.converter.AbstractHttpMessageConverter;
 import org.springframework.http.converter.GenericHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.util.StringUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -231,16 +232,15 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
                 value = fastJsonContainer.getValue();
             }
 
-            //jsonp，保留对原本直接返回MappingFastJsonValue方法的支持
-            //更好的方式是直接返回com.alibaba.fastjson.JSONPObject
-
+            //revise 2017-10-23 ,
+            // 保持原有的MappingFastJsonValue对象的contentType不做修改 保持旧版兼容。
+            // 但是新的JSONPObject将返回标准的contentType：application/javascript ，不对是否有function进行判断
             if (value instanceof MappingFastJsonValue) {
-                isJsonp = true;
-            } else if (value instanceof JSONPObject) {
-                if(!(((JSONPObject) value).getFunction() == null) && !("".equals(((JSONPObject) value).getFunction()))){
+                if(!StringUtils.isEmpty(((MappingFastJsonValue) value).getJsonpFunction())){
                     isJsonp = true;
                 }
-              
+            } else if (value instanceof JSONPObject) {
+                isJsonp = true;
             }
 
 
@@ -257,6 +257,7 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
             if (isJsonp) {
                 headers.setContentType(APPLICATION_JAVASCRIPT);
             }
+
             if (fastJsonConfig.isWriteContentLength()) {
                 headers.setContentLength(len);
             }

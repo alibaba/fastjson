@@ -18,6 +18,7 @@ import java.util.concurrent.Callable;
  * FastJsonView注解测试controller
  * Created by yanquanyu on 17-5-31.
  */
+@ResponseJSONP
 @Controller
 @RequestMapping("jsonp-fastjsonview")
 public class FastJsonViewAndJSONPControllerTest {
@@ -110,5 +111,14 @@ public class FastJsonViewAndJSONPControllerTest {
                 return new Company();
             }
         };
+    }
+
+
+    //使用类上面注解的 @ResponseJSONP
+    @RequestMapping("test9")
+    public Company test9() {
+        Company company = new Company();
+        company.setId(100L);
+        return company;
     }
 }

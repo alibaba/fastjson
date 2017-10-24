@@ -23,9 +23,8 @@ import java.util.regex.Pattern;
  * Compatible Spring MVC version 4.2+
  *
  * @author Jerry.Chen
- * @since 1.2.20
- *
  * @see JSONPResponseBodyAdvice
+ * @since 1.2.20
  */
 @Deprecated
 @Order(Integer.MIN_VALUE) //before FastJsonViewResponseBodyAdvice
@@ -39,7 +38,7 @@ public class FastJsonpResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     /**
      * Default JSONP query param names: callback/jsonp
      */
-    public static final String[] DEFAULT_JSONP_QUERY_PARAM_NAMES = { "callback", "jsonp" };
+    public static final String[] DEFAULT_JSONP_QUERY_PARAM_NAMES = {"callback", "jsonp"};
 
     public FastJsonpResponseBodyAdvice() {
         this.jsonpQueryParamNames = DEFAULT_JSONP_QUERY_PARAM_NAMES;
@@ -55,8 +54,8 @@ public class FastJsonpResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     }
 
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
-            Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request,
-            ServerHttpResponse response) {
+                                  Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request,
+                                  ServerHttpResponse response) {
         MappingFastJsonValue container = getOrCreateContainer(body);
         beforeBodyWriteInternal(container, selectedContentType, returnType, request, response);
         return container;
@@ -74,7 +73,7 @@ public class FastJsonpResponseBodyAdvice implements ResponseBodyAdvice<Object> {
      * Invoked only if the converter type is {@code FastJsonpHttpMessageConverter4}.
      */
     public void beforeBodyWriteInternal(MappingFastJsonValue bodyContainer, MediaType contentType,
-            MethodParameter returnType, ServerHttpRequest request, ServerHttpResponse response) {
+                                        MethodParameter returnType, ServerHttpRequest request, ServerHttpResponse response) {
         HttpServletRequest servletRequest = ((ServletServerHttpRequest) request).getServletRequest();
         for (String name : this.jsonpQueryParamNames) {
             String value = servletRequest.getParameter(name);
@@ -82,8 +81,8 @@ public class FastJsonpResponseBodyAdvice implements ResponseBodyAdvice<Object> {
                 if (!isValidJsonpQueryParam(value)) {
                     continue;
                 }
-                MediaType contentTypeToUse = getContentType(contentType, request, response);
-                response.getHeaders().setContentType(contentTypeToUse);
+                // MediaType contentTypeToUse = getContentType(contentType, request, response);
+                // response.getHeaders().setContentType(contentTypeToUse);
                 bodyContainer.setJsonpFunction(value);
                 break;
             }
@@ -106,8 +105,8 @@ public class FastJsonpResponseBodyAdvice implements ResponseBodyAdvice<Object> {
      * This implementation always returns "application/javascript".
      *
      * @param contentType the content type selected through content negotiation
-     * @param request the current request
-     * @param response the current response
+     * @param request     the current request
+     * @param response    the current response
      * @return the content type to set the response to
      */
     protected MediaType getContentType(MediaType contentType, ServerHttpRequest request, ServerHttpResponse response) {

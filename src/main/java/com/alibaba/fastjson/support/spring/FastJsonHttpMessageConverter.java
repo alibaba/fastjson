@@ -16,6 +16,7 @@ import org.springframework.http.converter.AbstractHttpMessageConverter;
 import org.springframework.http.converter.GenericHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.util.StringUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -231,21 +232,19 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
                 value = fastJsonContainer.getValue();
             }
 
-            //jsonp，保留对原本直接返回MappingFastJsonValue方法的支持
-            //更好的方式是直接返回com.alibaba.fastjson.JSONPObject
+            //revise 2017-10-23 ,
+            // 保持原有的MappingFastJsonValue对象的contentType不做修改 保持旧版兼容。
+            // 但是新的JSONPObject将返回标准的contentType：application/javascript ，不对是否有function进行判断
             if (value instanceof MappingFastJsonValue) {
-                isJsonp = true;
-                value = ((MappingFastJsonValue) value).getValue();
-            } else if (value instanceof JSONPObject) {
-                if(!(((JSONPObject) value).getFunction() == null) && !("".equals(((JSONPObject) value).getFunction()))){
+                if(!StringUtils.isEmpty(((MappingFastJsonValue) value).getJsonpFunction())){
                     isJsonp = true;
                 }
-              
+            } else if (value instanceof JSONPObject) {
+                isJsonp = true;
             }
 
 
-            int len = writePrefix(outnew, object);
-            len += JSON.writeJSONString(outnew, //
+            int len = JSON.writeJSONString(outnew, //
                     fastJsonConfig.getCharset(), //
                     value, //
                     fastJsonConfig.getSerializeConfig(), //
@@ -254,11 +253,11 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
                     fastJsonConfig.getDateFormat(), //
                     JSON.DEFAULT_GENERATE_FEATURE, //
                     fastJsonConfig.getSerializerFeatures());
-            len += writeSuffix(outnew, object);
 
             if (isJsonp) {
                 headers.setContentType(APPLICATION_JAVASCRIPT);
             }
+
             if (fastJsonConfig.isWriteContentLength()) {
                 headers.setContentLength(len);
             }
@@ -281,41 +280,6 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
         }
         return obj;
     }
-
-
-    private static final byte[] JSONP_FUNCTION_PREFIX_BYTES = "/**/".getBytes(IOUtils.UTF8);
-    private static final byte[] JSONP_FUNCTION_SUFFIX_BYTES = ");".getBytes(IOUtils.UTF8);
-
-    /**
-     * Write a prefix before the main content.
-     */
-    protected int writePrefix(ByteArrayOutputStream out, Object object) throws IOException {
-        String jsonpFunction = (object instanceof MappingFastJsonValue ? ((MappingFastJsonValue) object)
-                .getJsonpFunction() : null);
-        int length = 0;
-        if (jsonpFunction != null) {
-            out.write(JSONP_FUNCTION_PREFIX_BYTES);
-            byte[] bytes = (jsonpFunction + "(").getBytes(IOUtils.UTF8);
-            out.write(bytes);
-            length += JSONP_FUNCTION_PREFIX_BYTES.length + bytes.length;
-        }
-        return length;
-    }
-
-    /**
-     * Write a suffix after the main content.
-     */
-    protected int writeSuffix(ByteArrayOutputStream out, Object object) throws IOException {
-        String jsonpFunction = (object instanceof MappingFastJsonValue ? ((MappingFastJsonValue) object)
-                .getJsonpFunction() : null);
-        int length = 0;
-        if (jsonpFunction != null) {
-            out.write(JSONP_FUNCTION_SUFFIX_BYTES);
-            length += JSONP_FUNCTION_SUFFIX_BYTES.length;
-        }
-        return length;
-    }
-
 
     protected Type getType(Type type, Class<?> contextClass) {
         if (Spring4TypeResolvableHelper.isSupport()) {

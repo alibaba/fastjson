@@ -122,12 +122,12 @@ public class JavaBeanInfo {
         if (creatorConstructor != null) {
             this.creatorConstructorParameterTypes = creatorConstructor.getParameterTypes();
             boolean match;
-            if (creatorConstructorParameterTypes.length != sortedFields.length) {
+            if (creatorConstructorParameterTypes.length != fields.length) {
                 match = false;
             } else {
                 match = true;
                 for (int i = 0; i < creatorConstructorParameterTypes.length; i++) {
-                    if (creatorConstructorParameterTypes[i] != sortedFields[i].fieldClass) {
+                    if (creatorConstructorParameterTypes[i] != fields[i].fieldClass) {
                         match = false;
                         break;
                     }

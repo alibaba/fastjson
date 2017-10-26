@@ -1,6 +1,13 @@
 package com.alibaba.fastjson.support.spring;
 
 import com.alibaba.fastjson.JSONPObject;
+import com.alibaba.fastjson.serializer.JSONSerializable;
+import com.alibaba.fastjson.serializer.JSONSerializer;
+import com.alibaba.fastjson.serializer.SerializeWriter;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+
+import java.io.IOException;
+import java.lang.reflect.Type;
 
 /**
  * A simple holder for the POJO to serialize via {@link FastJsonHttpMessageConverter} along with further
@@ -19,7 +26,10 @@ import com.alibaba.fastjson.JSONPObject;
  * @see JSONPObject
  */
 @Deprecated
-public class MappingFastJsonValue {
+public class MappingFastJsonValue implements JSONSerializable {
+    private static final String SECURITY_PREFIX = "/**/";
+    private static final int BrowserSecureMask = SerializerFeature.BrowserSecure.mask;
+
     private Object value;
     private String jsonpFunction;
 
@@ -58,5 +68,24 @@ public class MappingFastJsonValue {
      */
     public String getJsonpFunction() {
         return this.jsonpFunction;
+    }
+
+    public void write(JSONSerializer serializer, Object fieldName, Type fieldType, int features) throws IOException {
+        SerializeWriter writer = serializer.out;
+
+        if(jsonpFunction == null){
+            serializer.write(value);
+            return;
+        }
+
+
+        if ((features & BrowserSecureMask) != 0 || (writer.isEnabled(BrowserSecureMask))) {
+            writer.write(SECURITY_PREFIX);
+        }
+
+        writer.write(jsonpFunction);
+        writer.write('(');
+        serializer.write(value);
+        writer.write(')');
     }
 }

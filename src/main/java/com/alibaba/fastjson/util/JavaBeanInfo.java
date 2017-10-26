@@ -138,6 +138,24 @@ public class JavaBeanInfo {
                 boolean kotlin = TypeUtils.isKotlin(clazz);
                 if (kotlin) {
                     this.creatorConstructorParameters = TypeUtils.getKoltinConstructorParameters(clazz);
+
+                    Annotation[][] paramAnnotationArrays = creatorConstructor.getParameterAnnotations();
+                    for (int i = 0; i < creatorConstructorParameters.length && i < paramAnnotationArrays.length; ++i) {
+                        Annotation[] paramAnnotations = paramAnnotationArrays[i];
+                        JSONField fieldAnnotation = null;
+                        for (Annotation paramAnnotation : paramAnnotations) {
+                            if (paramAnnotation instanceof JSONField) {
+                                fieldAnnotation = (JSONField) paramAnnotation;
+                                break;
+                            }
+                        }
+                        if (fieldAnnotation != null) {
+                            String fieldAnnotationName = fieldAnnotation.name();
+                            if (fieldAnnotationName.length() > 0) {
+                                creatorConstructorParameters[i] = fieldAnnotationName;
+                            }
+                        }
+                    }
                 } else {
                     this.creatorConstructorParameters = ASMUtils.lookupParameterNames(creatorConstructor);
                 }

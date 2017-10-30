@@ -39,16 +39,21 @@ import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
+import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.TypeUtils;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
 public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
+    private static      boolean   FILE_RELATIVE_PATH_SUPPORT = false;
+    public final static MiscCodec instance                   = new MiscCodec();
+    private static      Method    method_paths_get;
+    private static      boolean   method_paths_get_error     = false;
 
-    public final static MiscCodec instance               = new MiscCodec();
-    private static Method         method_paths_get;
-    private static boolean        method_paths_get_error = false;
+    static {
+        FILE_RELATIVE_PATH_SUPPORT = "true".equals(IOUtils.getStringProperty("fastjson.deserializer.fileRelativePathSupport"));
+    }
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType,
                       int features) throws IOException {
@@ -308,6 +313,10 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         if (clazz == File.class) {
+            if (strVal.indexOf("..") >= 0 && !FILE_RELATIVE_PATH_SUPPORT) {
+                throw new JSONException("file relative path not support.");
+            }
+
             return (T) new File(strVal);
         }
 

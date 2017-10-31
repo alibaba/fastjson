@@ -473,7 +473,7 @@ public final class SerializeWriter extends Writer {
         if (writer != null && count > 0) {
             flush();
         }
-        if (buf.length <= 1024 * 64) {
+        if (buf.length <= 1024 * 128) {
             bufLocal.set(buf);
         }
 

@@ -26,7 +26,7 @@ import java.util.Collections;
 public class IdentityHashMap<K, V> {
     private final Entry<K, V>[] buckets;
     private final int           indexMask;
-    public final static int DEFAULT_SIZE = 1024;
+    public final static int DEFAULT_SIZE = 4096;
 
     public IdentityHashMap(){
         this(DEFAULT_SIZE);

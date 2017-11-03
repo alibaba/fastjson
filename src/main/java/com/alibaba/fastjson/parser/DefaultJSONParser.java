@@ -396,7 +396,7 @@ public class DefaultJSONParser implements Closeable {
                                 addResolveTask(new ResolveTask(context, ref));
                                 setResolveStatus(DefaultJSONParser.NeedToResolve);
                             }
-                        } else if ("$".equals(ref)) {
+                        } else if (ref.startsWith("$")) {
                             ParseContext rootContext = context;
                             while (rootContext.parent != null) {
                                 rootContext = rootContext.parent;

@@ -462,7 +462,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     public String toJSONString() {
         SerializeWriter out = new SerializeWriter((Writer) null, JSON.DEFAULT_GENERATE_FEATURE, SerializerFeature.EMPTY);
         try {
-            new JSONSerializer(out, SerializeConfig.globalInstance).write(this);
+            new JSONSerializer(out, SerializeConfig.globalInstance)
+                    .write(this);
             return out.toString();
         } finally {
             out.close();

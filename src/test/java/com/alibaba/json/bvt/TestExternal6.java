@@ -17,8 +17,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class TestExternal6 extends TestCase {
+    ParserConfig confg = new ParserConfig();
+
     protected void setUp() throws Exception {
-        ParserConfig.global.addAccept("org.mule.esb.model");
+        confg.addAccept("org.mule.esb.model");
     }
 
     public void test_0() throws Exception {
@@ -37,8 +39,8 @@ public class TestExternal6 extends TestCase {
 
         String text = JSON.toJSONString(obj, SerializerFeature.WriteClassName, SerializerFeature.WriteMapNullValue);
         System.out.println(text);
-        JSON.parseObject(text, clazz);
-        String clazzName = JSON.parse(text).getClass().getName();
+        JSON.parseObject(text, clazz, confg);
+        String clazzName = JSON.parse(text, confg).getClass().getName();
         Assert.assertEquals(clazz.getName(), clazzName);
     }
 

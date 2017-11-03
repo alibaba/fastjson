@@ -1180,10 +1180,17 @@ public class TypeUtils{
         String typeName = null, typeKey = null;
         if(jsonType != null){
             orders = jsonType.orders();
+
             typeName = jsonType.typeName();
             if(typeName.length() == 0){
                 typeName = null;
             }
+
+            PropertyNamingStrategy jsonTypeNaming = jsonType.naming();
+            if (jsonTypeNaming != null && jsonTypeNaming != PropertyNamingStrategy.CamelCase) {
+                propertyNamingStrategy = jsonTypeNaming;
+            }
+
             features = SerializerFeature.of(jsonType.serialzeFeatures());
             for(Class<?> supperClass = beanType.getSuperclass()
                 ; supperClass != null && supperClass != Object.class
@@ -1197,6 +1204,7 @@ public class TypeUtils{
                     break;
                 }
             }
+
             for(Class<?> interfaceClass : beanType.getInterfaces()){
                 JSONType superJsonType = TypeUtils.getAnnotation(interfaceClass,JSONType.class);
                 if(superJsonType != null){
@@ -1206,6 +1214,7 @@ public class TypeUtils{
                     }
                 }
             }
+
             if(typeKey != null && typeKey.length() == 0){
                 typeKey = null;
             }

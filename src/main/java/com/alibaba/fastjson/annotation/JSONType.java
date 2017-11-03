@@ -5,6 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
@@ -61,4 +62,6 @@ public @interface JSONType {
     Class<?> deserializer() default Void.class;
 
     boolean serializeEnumAsJavaBean() default false;
+
+    PropertyNamingStrategy naming() default PropertyNamingStrategy.CamelCase;
 }

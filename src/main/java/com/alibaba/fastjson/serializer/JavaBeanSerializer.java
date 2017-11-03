@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.annotation.JSONType;
@@ -648,7 +649,8 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 out.count = newcount;
             }
         } catch (Exception e) {
-            String errorMessage = "write javaBean error";
+            String errorMessage = "write javaBean error" +
+                    ", fastjson version " + JSON.VERSION;
             if (fieldName != null) {
                 errorMessage += ", fieldName : " + fieldName;
             }

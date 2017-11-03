@@ -22,6 +22,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
 import java.util.*;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.annotation.JSONField;
@@ -398,7 +399,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 out.append(endSeperator);
             }
         } catch (Exception e) {
-            String errorMessage = "write javaBean error";
+            String errorMessage = "write javaBean error, fastjson version " + JSON.VERSION;
             if (object != null) {
                 errorMessage += ", class " + object.getClass().getName();
             }

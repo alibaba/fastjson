@@ -218,6 +218,12 @@ public class JavaBeanInfo {
             , boolean compatibleWithJavaBean
     ) {
         JSONType jsonType = TypeUtils.getAnnotation(clazz,JSONType.class);
+        if (jsonType != null) {
+            PropertyNamingStrategy jsonTypeNaming = jsonType.naming();
+            if (jsonTypeNaming != null && jsonTypeNaming != PropertyNamingStrategy.CamelCase) {
+                propertyNamingStrategy = jsonTypeNaming;
+            }
+        }
 
         Class<?> builderClass = getBuilderClass(clazz, jsonType);
 

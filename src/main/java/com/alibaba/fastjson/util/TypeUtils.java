@@ -878,6 +878,7 @@ public class TypeUtils{
                 }
                 return (T) new StackTraceElement(declaringClass, methodName, fileName, lineNumber);
             }
+
             {
                 Object iClassObject = map.get(JSON.DEFAULT_TYPE_KEY);
                 if(iClassObject instanceof String){
@@ -895,6 +896,7 @@ public class TypeUtils{
                     }
                 }
             }
+
             if(clazz.isInterface()){
                 JSONObject object;
                 if(map instanceof JSONObject){
@@ -913,6 +915,7 @@ public class TypeUtils{
                 return (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
                         new Class<?>[]{clazz}, object);
             }
+
             if(clazz == Locale.class){
                 Object arg0 = map.get("language");
                 Object arg1 = map.get("country");
@@ -926,17 +929,32 @@ public class TypeUtils{
                     }
                 }
             }
-            if(clazz == String.class && map instanceof JSONObject){
+
+            if (clazz == String.class && map instanceof JSONObject) {
                 return (T) map.toString();
             }
-            if(config == null){
+
+            if (clazz == LinkedHashMap.class && map instanceof JSONObject) {
+                JSONObject jsonObject = (JSONObject) map;
+                Map innerMap = jsonObject.getInnerMap();
+                if (innerMap instanceof LinkedHashMap) {
+                    return (T) innerMap;
+                } else {
+                    LinkedHashMap linkedHashMap = new LinkedHashMap();
+                    linkedHashMap.putAll(innerMap);
+                }
+            }
+
+            if (config == null) {
                 config = ParserConfig.getGlobalInstance();
             }
+
             JavaBeanDeserializer javaBeanDeser = null;
             ObjectDeserializer deserizer = config.getDeserializer(clazz);
-            if(deserizer instanceof JavaBeanDeserializer){
+            if (deserizer instanceof JavaBeanDeserializer) {
                 javaBeanDeser = (JavaBeanDeserializer) deserizer;
             }
+
             if(javaBeanDeser == null){
                 throw new JSONException("can not get javaBeanDeserializer. " + clazz.getName());
             }

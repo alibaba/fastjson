@@ -45,6 +45,9 @@ public final class MapSerializer implements ObjectSerializer {
                 && map.containsKey(JSON.DEFAULT_TYPE_KEY);
 
         if ((out.features & SerializerFeature.SortField.mask) != 0) {
+            if (map instanceof JSONObject) {
+                map = ((JSONObject) map).getInnerMap();
+            }
             if ((!(map instanceof SortedMap)) && !(map instanceof LinkedHashMap)) {
                 try {
                     map = new TreeMap(map);

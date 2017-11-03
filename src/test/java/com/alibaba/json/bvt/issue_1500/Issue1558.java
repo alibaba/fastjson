@@ -2,15 +2,18 @@ package com.alibaba.json.bvt.issue_1500;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONType;
+import com.alibaba.fastjson.parser.ParserConfig;
 import junit.framework.TestCase;
 
 import java.io.Serializable;
 
 public class Issue1558 extends TestCase {
     public void test_for_issue() throws Exception {
+        ParserConfig config = new ParserConfig();
+        config.setAutoTypeSupport(true);
         String text = "{\"id\": \"439a3213-e734-4bf3-9870-2c471f43d651\", \"instance\": \"v1\", \"interface\": \"com.xxx.aplan.UICommands\", \"method\": \"start\", \"params\": [\"tony\"], \"@type\": \"com.alibaba.json.bvt.issue_1500.Issue1558$Request\"}";
 
-        JSON.parseObject(text, Request.class);
+        JSON.parseObject(text, Request.class, config);
     }
 
     @JSONType

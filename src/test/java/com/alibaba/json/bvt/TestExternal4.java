@@ -17,7 +17,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class TestExternal4 extends TestCase {
-    ParserConfig confg = new ParserConfig();
+    ParserConfig confg = ParserConfig.global;
     protected void setUp() throws Exception {
         confg.addAccept("external.VO2");
     }

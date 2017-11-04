@@ -858,12 +858,16 @@ public class ParserConfig {
         }
 
         final String className = typeName.replace('$', '.');
+        Class<?> clazz = null;
 
         if (autoTypeSupport || expectClass != null) {
             for (int i = 0; i < acceptList.length; ++i) {
                 String accept = acceptList[i];
                 if (className.startsWith(accept)) {
-                    return TypeUtils.loadClass(typeName, defaultClassLoader);
+                    clazz = TypeUtils.loadClass(typeName, defaultClassLoader);
+                    if (clazz != null) {
+                        return clazz;
+                    }
                 }
             }
 
@@ -875,7 +879,10 @@ public class ParserConfig {
             }
         }
 
-        Class<?> clazz = TypeUtils.getClassFromMapping(typeName);
+        if (clazz == null) {
+            clazz = TypeUtils.getClassFromMapping(typeName);
+        }
+
         if (clazz == null) {
             clazz = deserializers.findClass(typeName);
         }
@@ -900,7 +907,9 @@ public class ParserConfig {
             for (int i = 0; i < acceptList.length; ++i) {
                 String accept = acceptList[i];
                 if (className.startsWith(accept)) {
-                    clazz = TypeUtils.loadClass(typeName, defaultClassLoader);
+                    if (clazz == null) {
+                        clazz = TypeUtils.loadClass(typeName, defaultClassLoader);
+                    }
 
                     if (expectClass != null && expectClass.isAssignableFrom(clazz)) {
                         throw new JSONException("type not match. " + typeName + " -> " + expectClass.getName());
@@ -910,7 +919,9 @@ public class ParserConfig {
             }
         }
 
-        clazz = TypeUtils.loadClass(typeName, defaultClassLoader);
+        if (clazz == null) {
+            clazz = TypeUtils.loadClass(typeName, defaultClassLoader);
+        }
 
         if (clazz != null) {
             if (TypeUtils.getAnnotation(clazz,JSONType.class) != null) {

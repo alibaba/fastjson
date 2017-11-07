@@ -1,6 +1,5 @@
 package com.derbysoft.spitfire.fastjson.dto;
 
-import com.sun.org.apache.xalan.internal.xsltc.compiler.util.MultiHashtable;
 
 import java.util.HashMap;
 import java.util.Map;

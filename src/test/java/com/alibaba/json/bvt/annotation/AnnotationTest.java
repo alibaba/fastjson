@@ -3,16 +3,11 @@ package com.alibaba.json.bvt.annotation;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import junit.framework.TestCase;
-import sun.reflect.annotation.AnnotationType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * Created by Helly on 2017/04/10.

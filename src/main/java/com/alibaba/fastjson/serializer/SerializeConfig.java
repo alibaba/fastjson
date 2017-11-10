@@ -15,45 +15,32 @@
  */
 package com.alibaba.fastjson.serializer;
 
-import java.io.File;
-import java.io.Serializable;
-import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
-import java.lang.reflect.*;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.net.Inet4Address;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.sql.Clob;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicIntegerArray;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicLongArray;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Pattern;
-
 import com.alibaba.fastjson.*;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.deserializer.Jdk8DateCodec;
 import com.alibaba.fastjson.parser.deserializer.OptionalCodec;
 import com.alibaba.fastjson.support.springfox.SwaggerJsonSerializer;
-import com.alibaba.fastjson.util.ASMUtils;
-import com.alibaba.fastjson.util.FieldInfo;
+import com.alibaba.fastjson.util.*;
 import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.ServiceLoader;
-import com.alibaba.fastjson.util.TypeUtils;
-import sun.reflect.annotation.AnnotationType;
 
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.io.File;
+import java.io.Serializable;
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.*;
+import java.lang.reflect.Proxy;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.net.*;
+import java.nio.charset.Charset;
+import java.sql.Clob;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.atomic.*;
+import java.util.regex.Pattern;
 
 /**
  * circular references detect
@@ -116,6 +103,8 @@ public class SerializeConfig {
 	
 	public ObjectSerializer createJavaBeanSerializer(SerializeBeanInfo beanInfo) {
 	    JSONType jsonType = beanInfo.jsonType;
+
+        boolean asm = this.asm && !fieldBased;
 	    
 	    if (jsonType != null) {
 	        Class<?> serializerClass = jsonType.serializer();
@@ -149,7 +138,7 @@ public class SerializeConfig {
 			return new JavaBeanSerializer(beanInfo);
 		}
 
-		boolean asm = this.asm && !fieldBased;
+
 
 		if (asm && asmFactory.classLoader.isExternalClass(clazz)
 				|| clazz == Serializable.class || clazz == Object.class) {

@@ -1315,6 +1315,10 @@ public class TypeUtils{
             if(kotlin && isKotlinIgnore(clazz, methodName)){
                 continue;
             }
+            /**
+             *  如果在属性或者方法上存在JSONField注解，不以类上的propertyNamingStrategy设置为准，此字段的JSONField为准。
+             */
+            Boolean fieldAnnotationExists = false;
             JSONField annotation = method.getAnnotation(JSONField.class);
             if(annotation == null){
                 annotation = getSuperMethodAnnotation(clazz, method);
@@ -1372,6 +1376,7 @@ public class TypeUtils{
                 }
             }
             if(annotation != null){
+                fieldAnnotationExists = true;
                 if(!annotation.serialize()){
                     continue;
                 }
@@ -1442,6 +1447,7 @@ public class TypeUtils{
                 if(field != null){
                     fieldAnnotation = field.getAnnotation(JSONField.class);
                     if(fieldAnnotation != null){
+                        fieldAnnotationExists = true;
                         if(!fieldAnnotation.serialize()){
                             continue;
                         }
@@ -1468,7 +1474,7 @@ public class TypeUtils{
                         continue;
                     }
                 }
-                if(propertyNamingStrategy != null){
+                if(propertyNamingStrategy != null && !fieldAnnotationExists){
                     propertyName = propertyNamingStrategy.translate(propertyName);
                 }
                 FieldInfo fieldInfo = new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures, parserFeatures,

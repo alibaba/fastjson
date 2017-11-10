@@ -2204,7 +2204,12 @@ public class TypeUtils{
             Object kclassImpl = kotlin_kclass_constructor.newInstance(clazz);
             Iterable it = (Iterable) kotlin_kclass_getConstructors.invoke(kclassImpl);
             for(Iterator iterator = it.iterator(); iterator.hasNext(); iterator.hasNext()){
-                constructor = iterator.next();
+                Object item = iterator.next();
+                List parameters = (List) kotlin_kfunction_getParameters.invoke(item);
+                if (constructor != null && parameters.size() == 0) {
+                    continue;
+                }
+                constructor = item;
             }
             List parameters = (List) kotlin_kfunction_getParameters.invoke(constructor);
             String[] names = new String[parameters.size()];

@@ -129,7 +129,6 @@ public class ParserConfig {
     private boolean                                         autoTypeSupport       = AUTO_SUPPORT;
     private String[]                                        denyList              = "bsh,com.mchange,com.sun.,java.lang.Thread,java.net.Socket,java.rmi,javax.xml,org.apache.bcel,org.apache.commons.beanutils,org.apache.commons.collections.Transformer,org.apache.commons.collections.functors,org.apache.commons.collections4.comparators,org.apache.commons.fileupload,org.apache.myfaces.context.servlet,org.apache.tomcat,org.apache.wicket.util,org.apache.xalan,org.codehaus.groovy.runtime,org.hibernate,org.jboss,org.mozilla.javascript,org.python.core,org.springframework".split(",");
     private String[]                                        acceptList            = AUTO_TYPE_ACCEPT_LIST;
-    private int                                             maxTypeNameLength     = 256;
 
     public final boolean                                    fieldBased;
 
@@ -849,11 +848,15 @@ public class ParserConfig {
     }
 
     public Class<?> checkAutoType(String typeName, Class<?> expectClass) {
+        return checkAutoType(typeName, expectClass, JSON.DEFAULT_PARSER_FEATURE);
+    }
+
+    public Class<?> checkAutoType(String typeName, Class<?> expectClass, int features) {
         if (typeName == null) {
             return null;
         }
 
-        if (typeName.length() >= maxTypeNameLength) {
+        if (typeName.length() >= 128) {
             throw new JSONException("autoType is not support. " + typeName);
         }
 
@@ -864,7 +867,7 @@ public class ParserConfig {
             for (int i = 0; i < acceptList.length; ++i) {
                 String accept = acceptList[i];
                 if (className.startsWith(accept)) {
-                    clazz = TypeUtils.loadClass(typeName, defaultClassLoader);
+                    clazz = TypeUtils.loadClass(typeName, defaultClassLoader, false);
                     if (clazz != null) {
                         return clazz;
                     }
@@ -908,7 +911,7 @@ public class ParserConfig {
                 String accept = acceptList[i];
                 if (className.startsWith(accept)) {
                     if (clazz == null) {
-                        clazz = TypeUtils.loadClass(typeName, defaultClassLoader);
+                        clazz = TypeUtils.loadClass(typeName, defaultClassLoader, false);
                     }
 
                     if (expectClass != null && expectClass.isAssignableFrom(clazz)) {
@@ -920,7 +923,7 @@ public class ParserConfig {
         }
 
         if (clazz == null) {
-            clazz = TypeUtils.loadClass(typeName, defaultClassLoader);
+            clazz = TypeUtils.loadClass(typeName, defaultClassLoader, false);
         }
 
         if (clazz != null) {
@@ -947,6 +950,11 @@ public class ParserConfig {
                 throw new JSONException("autoType is not support. " + typeName);
             }
         }
+
+        final int mask = Feature.SupportAutoType.mask;
+        boolean autoTypeSupport = this.autoTypeSupport
+                || (features & mask) != 0
+                || (JSON.DEFAULT_PARSER_FEATURE & mask) != 0;
 
         if (!autoTypeSupport) {
             throw new JSONException("autoType is not support. " + typeName);

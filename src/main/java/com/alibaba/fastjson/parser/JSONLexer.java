@@ -103,4 +103,6 @@ public interface JSONLexer {
     void setLocale(Locale locale);
     
     String info();
+
+    int getFeatures();
 }

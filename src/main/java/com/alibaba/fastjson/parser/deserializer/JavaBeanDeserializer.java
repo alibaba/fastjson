@@ -693,7 +693,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
                             if (deserializer == null) {
                                 Class<?> expectClass = TypeUtils.getClass(type);
-                                userType = config.checkAutoType(typeName, expectClass);
+                                userType = config.checkAutoType(typeName, expectClass, lexer.getFeatures());
                                 deserializer = parser.getConfig().getDeserializer(userType);
                             }
 

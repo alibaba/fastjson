@@ -5106,4 +5106,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     public boolean matchField2(char[] fieldName) {
         throw new UnsupportedOperationException();
     }
+
+    public int getFeatures() {
+        return this.features;
+    }
 }

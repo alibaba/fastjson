@@ -154,7 +154,7 @@ public class MapDeserializer implements ObjectDeserializer {
                     String typeName = lexer.scanSymbol(parser.getSymbolTable(), '"');
                     final ParserConfig config = parser.getConfig();
 
-                    Class<?> clazz = config.checkAutoType(typeName, null);
+                    Class<?> clazz = config.checkAutoType(typeName, null, lexer.getFeatures());
 
                     if (Map.class.isAssignableFrom(clazz) ) {
                         lexer.nextToken(JSONToken.COMMA);

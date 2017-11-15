@@ -1117,7 +1117,11 @@ public class TypeUtils{
         return mappings.get(className);
     }
 
-    public static Class<?> loadClass(String className, ClassLoader classLoader){
+    public static Class<?> loadClass(String className, ClassLoader classLoader) {
+        return loadClass(className, classLoader, true);
+    }
+
+    public static Class<?> loadClass(String className, ClassLoader classLoader, boolean cache) {
         if(className == null || className.length() == 0){
             return null;
         }
@@ -1136,7 +1140,9 @@ public class TypeUtils{
         try{
             if(classLoader != null){
                 clazz = classLoader.loadClass(className);
-                mappings.put(className, clazz);
+                if (cache) {
+                    mappings.put(className, clazz);
+                }
                 return clazz;
             }
         } catch(Throwable e){
@@ -1147,7 +1153,9 @@ public class TypeUtils{
             ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
             if(contextClassLoader != null && contextClassLoader != classLoader){
                 clazz = contextClassLoader.loadClass(className);
-                mappings.put(className, clazz);
+                if (cache) {
+                    mappings.put(className, clazz);
+                }
                 return clazz;
             }
         } catch(Throwable e){

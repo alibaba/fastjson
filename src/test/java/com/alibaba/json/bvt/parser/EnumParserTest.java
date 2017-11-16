@@ -25,16 +25,10 @@ public class EnumParserTest extends TestCase {
     }
 
     public void test_error() throws Exception {
-        Exception error = null;
-        try {
-            String text = "\"C\"";
-            DefaultJSONParser parser = new DefaultJSONParser(text);
+        String text = "\"C\"";
+        DefaultJSONParser parser = new DefaultJSONParser(text);
 
-            parser.parseObject(Type.class);
-        } catch (Exception ex) {
-            error = ex;
-        }
-        Assert.assertNotNull(error);
+        assertNull(parser.parseObject(Type.class));
     }
 
     public void test_error_1() throws Exception {

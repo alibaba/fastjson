@@ -248,7 +248,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         int ordinal = (int) lexer.scanLongValue();
                         
                         EnumDeserializer enumDeser = (EnumDeserializer) ((DefaultFieldDeserializer) fieldDeser).getFieldValueDeserilizer(parser.config);
-                        value = enumDeser.values[ordinal];
+                        value = enumDeser.ordinalEnums[ordinal];
                     } else {
                         throw new JSONException("illegal enum." + lexer.info());
                     }

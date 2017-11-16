@@ -2,6 +2,7 @@ package com.alibaba.json.bvt.bug;
 
 import java.util.HashMap;
 
+import com.alibaba.fastjson.parser.Feature;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
@@ -12,7 +13,7 @@ public class Bug_for_dubbo2 extends TestCase {
 		VO vo = new VO();
 		vo.setValue(new HashMap());
 		String text = JSON.toJSONString(vo, SerializerFeature.WriteClassName);
-		JSON.parse(text);
+		JSON.parse(text, Feature.SupportAutoType);
 	}
 	
 	public static class VO {

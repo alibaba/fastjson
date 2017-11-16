@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.alibaba.fastjson.parser.Feature;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
@@ -69,7 +70,7 @@ public class Bug_for_dragoon26 extends TestCase {
         String text = JSON.toJSONString(message, SerializerFeature.WriteClassName);
         System.out.println(JSON.toJSONString(message, SerializerFeature.WriteClassName, SerializerFeature.PrettyFormat));
 
-        MonitorConfigMessage message2 = (MonitorConfigMessage) JSON.parse(text);
+        MonitorConfigMessage message2 = (MonitorConfigMessage) JSON.parse(text, Feature.SupportAutoType);
         System.out.println(JSON.toJSONString(message2, SerializerFeature.WriteClassName, SerializerFeature.PrettyFormat));
     }
 

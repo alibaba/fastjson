@@ -1,5 +1,6 @@
 package com.alibaba.json.bvt.bug;
 
+import com.alibaba.fastjson.parser.Feature;
 import junit.framework.TestCase;
 
 import org.junit.Assert;
@@ -15,7 +16,7 @@ public class Bug_for_SpitFire_5 extends TestCase {
         q.setPayload(new Payload());
         String text = JSON.toJSONString(q, SerializerFeature.WriteClassName);
         System.out.println(text);
-        Generic<Payload> o = (Generic<Payload>) JSON.parseObject(text, q.getClass());
+        Generic<Payload> o = (Generic<Payload>) JSON.parseObject(text, q.getClass(), Feature.SupportAutoType);
         Assert.assertNotNull(o.getPayload());
     }
 

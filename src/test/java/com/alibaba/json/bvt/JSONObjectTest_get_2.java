@@ -3,6 +3,7 @@ package com.alibaba.json.bvt;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.alibaba.fastjson.parser.Feature;
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
@@ -27,7 +28,7 @@ public class JSONObjectTest_get_2 extends TestCase {
             value.put("id", 1001);
             obj.put("value", value);
         }
-        VO value = (VO) obj.getObject("value", Object.class);
+        VO value = (VO) obj.getObject("value", Object.class, Feature.SupportAutoType);
         Assert.assertEquals(1001, value.getId());
     }
 

@@ -1,5 +1,6 @@
 package com.alibaba.json.bvt.bug;
 
+import com.alibaba.fastjson.parser.Feature;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
@@ -13,7 +14,7 @@ public class Bug_for_SpitFire_3 extends TestCase {
         q.setPayload(new Payload());
         String text = JSON.toJSONString(q, SerializerFeature.WriteClassName);
         System.out.println(text);
-        JSON.parseObject(text, Generic.class);
+        JSON.parseObject(text, Generic.class, Feature.SupportAutoType);
     }
 
     public static abstract class AbstractDTO {

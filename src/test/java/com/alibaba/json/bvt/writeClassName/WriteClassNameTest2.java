@@ -1,5 +1,6 @@
 package com.alibaba.json.bvt.writeClassName;
 
+import com.alibaba.fastjson.parser.Feature;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -16,7 +17,7 @@ public class WriteClassNameTest2 extends TestCase {
         Assert.assertEquals("{\"@type\":\"com.alibaba.json.bvt.writeClassName.WriteClassNameTest2$A\",\"b\":{\"id\":0}}",
                             text);
 
-        A a1 = (A) JSON.parse(text);
+        A a1 = (A) JSON.parse(text, Feature.SupportAutoType);
 
         Assert.assertNotNull(a1.getB());
     }

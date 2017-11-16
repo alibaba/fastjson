@@ -7,17 +7,18 @@ import com.alibaba.json.test.codec.*;
 public class BenchmarkMain {
 	public static void main(String[] args) throws Exception {
 	     // 注意，byte[]在jackson中是使用base64编码的，不正确的。
+        System.out.println(System.getProperty("java.runtime.version"));
 
         BenchmarkExecutor executor = new BenchmarkExecutor();
-        executor.setExecuteCount(10);
+        executor.setExecuteCount(5);
 //        executor.getCodecList().add(new FastjsonSCodec());
-        executor.getCodecList().add(new FastjsonCodec());
+//        executor.getCodecList().add(new FastjsonCodec());
 //        executor.getCodecList().add(new FastjsonBeanToArrayCodec());
 //        executor.getCodecList().add(new GsonCodec());
 //        executor.getCodecList().add(new Jackson2Codec());
         //
         // executor.getCodecList().add(new SimpleJsonCodec());
-        // executor.getCodecList().add(new JsonLibCodec());
+         executor.getCodecList().add(new JsonLibCodec());
         // executor.getCodecList().add(new JsonSmartCodec());
 
         executor.setLoopCount(1000 * 1000);
@@ -26,6 +27,8 @@ public class BenchmarkMain {
 //        executor.getCaseList().add(new TradeParse());
 //        executor.getCaseList().add(new XueluDecode());
 //         executor.getCaseList().add(new EishayEncode());
+        // gson : 3282 2960 3381
+        // jackson
          executor.getCaseList().add(new EishayDecode());
 //         executor.getCaseList().add(new GetHomePageResponseDecode());
 //         executor.getCaseList().add(new EishayTreeDecode());

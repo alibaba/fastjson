@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.TypeUtils;
 
@@ -126,6 +127,15 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     public <T> T getObject(String key, Class<T> clazz) {
         Object obj = map.get(key);
         return TypeUtils.castToJavaBean(obj, clazz);
+    }
+
+    public <T> T getObject(String key, Class<T> clazz, Feature... features) {
+        Object obj = map.get(key);
+        int featruesValue = JSON.DEFAULT_PARSER_FEATURE;
+        for (int i = 0; i < features.length; i++) {
+            featruesValue |= features[i].mask;
+        }
+        return TypeUtils.cast(obj, clazz, ParserConfig.global, featruesValue);
     }
 
     public Boolean getBoolean(String key) {

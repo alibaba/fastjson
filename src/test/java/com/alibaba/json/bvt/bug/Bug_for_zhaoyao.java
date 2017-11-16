@@ -2,6 +2,7 @@ package com.alibaba.json.bvt.bug;
 
 import java.util.HashMap;
 
+import com.alibaba.fastjson.parser.Feature;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -16,7 +17,7 @@ public class Bug_for_zhaoyao extends TestCase {
         String text = JSON.toJSONString(map, SerializerFeature.WriteClassName);
         System.out.println(text);
         
-        FieldMap map2 = (FieldMap) JSON.parse(text);
+        FieldMap map2 = (FieldMap) JSON.parse(text, Feature.SupportAutoType);
         
         Assert.assertTrue(map.equals(map2));
     }

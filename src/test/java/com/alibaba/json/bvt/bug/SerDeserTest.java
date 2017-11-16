@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.alibaba.fastjson.parser.Feature;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
@@ -67,7 +68,7 @@ public class SerDeserTest extends TestCase {
         jsonString = JSON.toJSONString(options, SerializerFeature.WriteClassName);
         System.out.println(jsonString);
         // 反序列化parse()
-        HashMap<OptionKey, OptionValue<?>> deserOptions = (HashMap<OptionKey, OptionValue<?>>) JSON.parse(jsonString);
+        HashMap<OptionKey, OptionValue<?>> deserOptions = (HashMap<OptionKey, OptionValue<?>>) JSON.parse(jsonString, Feature.SupportAutoType);
         System.out.println(deserOptions.get(OptionKey.TEMPALTE_ATTACH_META));
     }
 }

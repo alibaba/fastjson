@@ -3,6 +3,7 @@ package com.alibaba.json.bvt.bug;
 import java.util.Collections;
 import java.util.Map;
 
+import com.alibaba.fastjson.parser.Feature;
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
@@ -18,6 +19,6 @@ public class CollectionEmptyMapTest extends TestCase {
         
         Assert.assertEquals("{\"@type\":\"java.util.Collections$EmptyMap\"}", text);
         
-        Assert.assertSame(map, JSON.parse(text));
+        Assert.assertSame(map, JSON.parse(text, Feature.SupportAutoType));
     }
 }

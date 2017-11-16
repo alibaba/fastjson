@@ -3,6 +3,7 @@ package com.alibaba.json.bvt.bug;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.alibaba.fastjson.parser.Feature;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -26,7 +27,7 @@ public class Bug_for_cduym extends TestCase {
 
         String text = JSON.toJSONString(as, SerializerFeature.WriteClassName);
         System.out.println(text);
-        List<?> target = (List) JSON.parseObject(text, Object.class);
+        List<?> target = (List) JSON.parseObject(text, Object.class, Feature.SupportAutoType);
         
         Assert.assertSame(target.get(0), target.get(1));
     }
@@ -48,7 +49,7 @@ public class Bug_for_cduym extends TestCase {
         
         String text = JSON.toJSONString(o, SerializerFeature.WriteClassName);
         System.out.println(text);
-        Demo target = (Demo) JSON.parseObject(text, Object.class);
+        Demo target = (Demo) JSON.parseObject(text, Object.class, Feature.SupportAutoType);
         
         Assert.assertSame(((List)target.getAs()).get(0), ((List)target.getAs()).get(1));
     }

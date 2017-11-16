@@ -3,6 +3,7 @@ package com.alibaba.json.bvt.bug;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.alibaba.fastjson.parser.Feature;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
@@ -24,7 +25,7 @@ public class Bug_for_lenolix_7 extends TestCase {
 
         System.out.println(userJSON);
 
-        User returnUser = (User) JSON.parse(userJSON);
+        User returnUser = (User) JSON.parse(userJSON, Feature.SupportAutoType);
 
     }
 

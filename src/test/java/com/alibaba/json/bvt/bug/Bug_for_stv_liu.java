@@ -2,6 +2,7 @@ package com.alibaba.json.bvt.bug;
 
 import java.io.Serializable;
 
+import com.alibaba.fastjson.parser.Feature;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -15,7 +16,7 @@ public class Bug_for_stv_liu extends TestCase {
         user.setId("1");
         user.setUsername("test");
         String json = JSON.toJSONString(user, SerializerFeature.WriteClassName);
-        user = (User) JSON.parse(json);// 此处抛异常
+        user = (User) JSON.parse(json, Feature.SupportAutoType);// 此处抛异常
         Assert.assertNotNull(user);
     }
 

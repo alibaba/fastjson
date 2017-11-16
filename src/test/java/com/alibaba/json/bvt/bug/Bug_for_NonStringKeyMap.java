@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 import junit.framework.TestCase;
@@ -15,9 +16,7 @@ public class Bug_for_NonStringKeyMap extends TestCase {
         vo.getMap().put(1L, new VAL());
         
         String text = JSON.toJSONString(vo, SerializerFeature.WriteClassName);
-        System.out.println(text);
-        
-        JSON.parse(text);
+        JSON.parse(text, Feature.SupportAutoType);
     }
     
     public void test_1() throws Exception {

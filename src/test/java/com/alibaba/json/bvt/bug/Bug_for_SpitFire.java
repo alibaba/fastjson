@@ -1,5 +1,6 @@
 package com.alibaba.json.bvt.bug;
 
+import com.alibaba.fastjson.parser.Feature;
 import junit.framework.TestCase;
 
 import org.junit.Assert;
@@ -15,7 +16,7 @@ public class Bug_for_SpitFire extends TestCase {
 
         String text = JSON.toJSONString(object, SerializerFeature.WriteClassName);
 
-        GenericDTO<MyDTO> object2 = (GenericDTO<MyDTO>) JSON.parseObject(text, GenericDTO.class);
+        GenericDTO<MyDTO> object2 = (GenericDTO<MyDTO>) JSON.parseObject(text, GenericDTO.class, Feature.SupportAutoType);
         
         Assert.assertEquals(object.getName(), object2.getName());
         Assert.assertEquals(object.getFiled().getId(), object2.getFiled().getId());

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.alibaba.fastjson.parser.Feature;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -41,7 +42,7 @@ public class Bug_for_Johnny extends TestCase {
         
         String text = JSON.toJSONString(myObject, SerializerFeature.WriteClassName);
         System.out.println(text);
-        MyObject myObject2 = (MyObject) JSON.parse(text);
+        MyObject myObject2 = (MyObject) JSON.parse(text, Feature.SupportAutoType);
         Assert.assertEquals(myObject2.getMapType(), myObject.getMapType());
 	}
 	

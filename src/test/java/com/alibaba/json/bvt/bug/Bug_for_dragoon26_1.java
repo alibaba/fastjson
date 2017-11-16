@@ -3,6 +3,7 @@ package com.alibaba.json.bvt.bug;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.alibaba.fastjson.parser.Feature;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
@@ -32,7 +33,7 @@ public class Bug_for_dragoon26_1 extends TestCase {
         String text = JSON.toJSONString(rules, SerializerFeature.WriteClassName);
         System.out.println(JSON.toJSONString(rules, SerializerFeature.WriteClassName, SerializerFeature.PrettyFormat));
 
-        List<MonitorItemAlarmRule> message2 = (List<MonitorItemAlarmRule>) JSON.parse(text);
+        List<MonitorItemAlarmRule> message2 = (List<MonitorItemAlarmRule>) JSON.parse(text, Feature.SupportAutoType);
         System.out.println(JSON.toJSONString(message2, SerializerFeature.WriteClassName, SerializerFeature.PrettyFormat));
     }
 

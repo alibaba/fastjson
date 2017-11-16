@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 
+import com.alibaba.fastjson.parser.Feature;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -23,9 +24,8 @@ public class TestExternal3 extends TestCase {
         method.invoke(obj, "jobs");
         
         String text = JSON.toJSONString(obj, SerializerFeature.WriteClassName);
-        System.out.println(text);
         JSON.parseObject(text, clazz);
-        JSONObject jsonObj = JSON.parseObject(text);
+        JSONObject jsonObj = JSON.parseObject(text, Feature.SupportAutoType);
         Assert.assertEquals(jsonObj.getString("@type"), "external.VO");
     }
     

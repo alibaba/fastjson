@@ -109,7 +109,7 @@ class MapDeserializer implements ObjectDeserializer {
 
                 if (key == JSON.DEFAULT_TYPE_KEY && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
                     String typeName = lexer.scanSymbol(parser.symbolTable, '"');
-                    Class<?> clazz = TypeUtils.loadClass(typeName, parser.config.defaultClassLoader);
+                    Class<?> clazz = parser.config.checkAutoType(typeName, null, lexer.features);
 
                     if (clazz == map.getClass()) {
                         lexer.nextToken(JSONToken.COMMA);

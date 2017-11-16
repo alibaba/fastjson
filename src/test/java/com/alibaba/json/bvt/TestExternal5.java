@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
+import com.alibaba.fastjson.parser.Feature;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -33,7 +34,7 @@ public class TestExternal5 extends TestCase {
         String text = JSON.toJSONString(obj, SerializerFeature.WriteClassName, SerializerFeature.WriteMapNullValue);
         System.out.println(text);
         JSON.parseObject(text, clazz);
-        JSONObject jsonObj = JSON.parseObject(text);
+        JSONObject jsonObj = JSON.parseObject(text, Feature.SupportAutoType);
         Assert.assertEquals(jsonObj.getString("@type"), "com.alibaba.dubbo.demo.MyEsbResultModel2");
     }
 

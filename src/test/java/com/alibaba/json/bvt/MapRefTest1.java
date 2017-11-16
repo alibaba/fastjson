@@ -3,6 +3,7 @@ package com.alibaba.json.bvt;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.alibaba.fastjson.parser.Feature;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -27,7 +28,7 @@ public class MapRefTest1 extends TestCase {
         }
         
         System.out.println(text);
-        Map<String, Object> map = JSON.parseObject(text);
+        Map<String, Object> map = JSON.parseObject(text, Feature.SupportAutoType);
         //Assert.assertEquals(map, map.get("this"));
         Assert.assertEquals(map.get("u1"), map.get("u2"));
     }

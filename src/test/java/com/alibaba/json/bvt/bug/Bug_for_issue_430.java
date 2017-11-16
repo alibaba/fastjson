@@ -2,6 +2,7 @@ package com.alibaba.json.bvt.bug;
 
 import java.util.ArrayList;
 
+import com.alibaba.fastjson.parser.Feature;
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
@@ -13,7 +14,7 @@ public class Bug_for_issue_430 extends TestCase {
 
     public void test_for_issue() throws Exception {
         String text = "[{\"@type\": \"com.alibaba.json.bvt.bug.Bug_for_issue_430$FooModel\", \"fooCollection\": null}, {\"@type\": \"com.alibaba.json.bvt.bug.Bug_for_issue_430$FooModel\", \"fooCollection\": null}]";
-        JSONArray array = JSON.parseArray(text);
+        JSONArray array = JSON.parseArray(text, Feature.SupportAutoType);
         Assert.assertEquals(FooModel.class, array.get(0).getClass());
         Assert.assertEquals(FooModel.class, array.get(1).getClass());
         
@@ -23,7 +24,7 @@ public class Bug_for_issue_430 extends TestCase {
     
     public void test_for_issue_1() throws Exception {
         String text = "[{\"@type\": \"com.alibaba.json.bvt.bug.Bug_for_issue_430$FooModel\", \"fooCollection\": null}, {\"@type\": \"com.alibaba.json.bvt.bug.Bug_for_issue_430$FooModel\", \"fooCollection\": null}]";
-        JSONArray array = (JSONArray) JSON.parse(text);
+        JSONArray array = (JSONArray) JSON.parse(text, Feature.SupportAutoType);
         Assert.assertEquals(FooModel.class, array.get(0).getClass());
         Assert.assertEquals(FooModel.class, array.get(1).getClass());
         

@@ -311,7 +311,7 @@ public class DefaultJSONParser implements Closeable {
                 if (key == JSON.DEFAULT_TYPE_KEY //
                     && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
                     String typeName = lexer.scanSymbol(symbolTable, '"');
-                    Class<?> clazz = TypeUtils.loadClass(typeName, this.config.defaultClassLoader);
+                    Class<?> clazz = config.checkAutoType(typeName, null, lexer.features);
 
                     if (clazz == null) {
                         object.put(JSON.DEFAULT_TYPE_KEY, typeName);

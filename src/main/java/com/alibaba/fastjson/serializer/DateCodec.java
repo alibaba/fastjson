@@ -194,7 +194,7 @@ public final class DateCodec implements ObjectSerializer, ObjectDeserializer {
                     parser.accept(JSONToken.COLON);
                     
                     String typeName = lexer.stringVal();
-                    Class<?> type = TypeUtils.loadClass(typeName, parser.config.defaultClassLoader);
+                    Class<?> type = parser.config.checkAutoType(typeName, null, lexer.features);
                     if (type != null) {
                         clazz = type;
                     }

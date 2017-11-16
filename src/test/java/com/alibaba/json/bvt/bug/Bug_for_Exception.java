@@ -1,5 +1,6 @@
 package com.alibaba.json.bvt.bug;
 
+import com.alibaba.fastjson.parser.Feature;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
@@ -10,6 +11,6 @@ public class Bug_for_Exception extends TestCase {
 		String text = JSON.toJSONString(ex);
 		System.out.println(text);
 		
-		RuntimeException ex2 = (RuntimeException) JSON.parse(text);
+		RuntimeException ex2 = (RuntimeException) JSON.parse(text, Feature.SupportAutoType);
 	}
 }

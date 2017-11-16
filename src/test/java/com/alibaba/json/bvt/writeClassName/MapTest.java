@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.alibaba.fastjson.parser.Feature;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -20,7 +21,7 @@ public class MapTest extends TestCase {
         
         System.out.println(text);
         
-        VO vo2 = (VO) JSON.parse(text);
+        VO vo2 = (VO) JSON.parse(text, Feature.SupportAutoType);
         
         Assert.assertEquals(vo.getValue(), vo2.getValue());
     }
@@ -34,7 +35,7 @@ public class MapTest extends TestCase {
         
         System.out.println(text);
         
-        VO vo2 = (VO) JSON.parse(text);
+        VO vo2 = (VO) JSON.parse(text, Feature.SupportAutoType);
         
         Assert.assertEquals(vo.getValue(), vo2.getValue());
     }

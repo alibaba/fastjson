@@ -4,6 +4,7 @@ import java.util.IdentityHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.alibaba.fastjson.parser.Feature;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -24,19 +25,19 @@ public class ConcurrentHashMapDeserializerTest extends TestCase {
     
     @SuppressWarnings("rawtypes")
     public void test_className() throws Exception {
-        ConcurrentHashMap map = (ConcurrentHashMap) JSON.parse("{\"@type\":\"java.util.concurrent.ConcurrentHashMap\"}");
+        ConcurrentHashMap map = (ConcurrentHashMap) JSON.parse("{\"@type\":\"java.util.concurrent.ConcurrentHashMap\"}", Feature.SupportAutoType);
         Assert.assertEquals(0, map.size());
     }
     
     @SuppressWarnings("rawtypes")
     public void test_className1() throws Exception {
-        IdentityHashMap map = (IdentityHashMap) JSON.parse("{\"@type\":\"java.util.IdentityHashMap\"}");
+        IdentityHashMap map = (IdentityHashMap) JSON.parse("{\"@type\":\"java.util.IdentityHashMap\"}", Feature.SupportAutoType);
         Assert.assertEquals(0, map.size());
     }
     
     @SuppressWarnings("rawtypes")
     public void test_className2() throws Exception {
-        IdentityHashMap map = (IdentityHashMap) JSON.parse("{\"@type\":\"java.util.IdentityHashMap\", \"id\":123}");
+        IdentityHashMap map = (IdentityHashMap) JSON.parse("{\"@type\":\"java.util.IdentityHashMap\", \"id\":123}", Feature.SupportAutoType);
         Assert.assertEquals(1, map.size());
     }
     

@@ -3,6 +3,7 @@ package com.alibaba.json.bvt.bug;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.alibaba.fastjson.parser.Feature;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -30,7 +31,7 @@ public class Bug_for_lenolix_9 extends TestCase {
                                               SerializerFeature.WriteMapNullValue);
 
         System.out.println(mapString4);
-        Object object4 = JSON.parse(mapString4);
+        Object object4 = JSON.parse(mapString4, Feature.SupportAutoType);
         Assert.assertNotNull(object4);
 
         Map<String, Object> map = (Map<String, Object>) object4;

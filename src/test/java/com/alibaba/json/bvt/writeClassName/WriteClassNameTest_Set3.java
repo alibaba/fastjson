@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import com.alibaba.fastjson.parser.Feature;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -23,7 +24,7 @@ public class WriteClassNameTest_Set3 extends TestCase {
         Assert.assertEquals("{\"@type\":\"com.alibaba.json.bvt.writeClassName.WriteClassNameTest_Set3$A\",\"list\":[{},{\"@type\":\"com.alibaba.json.bvt.writeClassName.WriteClassNameTest_Set3$B1\"}]}",
                             text);
 
-        A a1 = (A) JSON.parse(text);
+        A a1 = (A) JSON.parse(text, Feature.SupportAutoType);
 
         Assert.assertEquals(2, a1.getList().size());
         Assert.assertTrue(new ArrayList<B>(a1.getList()).get(0) instanceof B);

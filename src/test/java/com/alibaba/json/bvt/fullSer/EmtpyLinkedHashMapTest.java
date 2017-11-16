@@ -4,10 +4,11 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
 
+import com.alibaba.fastjson.parser.Feature;
 import junit.framework.TestCase;
 
 public class EmtpyLinkedHashMapTest extends TestCase {
     public void test_0() throws Exception {
-        Map map = (Map) JSON.parseObject("{\"@type\":\"java.util.LinkedHashMap\"}", Object.class);
+        Map map = (Map) JSON.parseObject("{\"@type\":\"java.util.LinkedHashMap\"}", Object.class, Feature.SupportAutoType);
     }
 }

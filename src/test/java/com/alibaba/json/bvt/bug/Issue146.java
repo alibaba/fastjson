@@ -1,5 +1,6 @@
 package com.alibaba.json.bvt.bug;
 
+import com.alibaba.fastjson.parser.Feature;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
@@ -13,7 +14,7 @@ public class Issue146 extends TestCase {
         vo.setName(json);
         String s = JSON.toJSONString(vo, SerializerFeature.WriteClassName);
         System.out.println(s);
-        JSON.parseObject(s);
+        JSON.parseObject(s, Feature.SupportAutoType);
     }
 
     public static class VO {

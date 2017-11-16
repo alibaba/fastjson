@@ -2,6 +2,7 @@ package com.alibaba.json.bvt.issue_1400;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONType;
+import com.alibaba.fastjson.parser.Feature;
 import junit.framework.TestCase;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public class Issue1429 extends TestCase {
                 "            \"@type\": \"com.alibaba.json.bvt.issue_1400.Issue1429$Student\"\n" +
                 "        }]";
 
-        List list = JSON.parseArray(json);
+        List list = JSON.parseArray(json, Feature.SupportAutoType);
         Student s0 = (Student) list.get(0);
         assertEquals(1, s0.id);
         assertEquals(22, s0.age);

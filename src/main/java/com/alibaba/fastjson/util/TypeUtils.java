@@ -506,8 +506,12 @@ public class TypeUtils {
         return cast(obj, clazz, ParserConfig.global);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public static final <T> T cast(Object obj, Class<T> clazz, ParserConfig mapping) {
+        return cast(obj, clazz, mapping, 0);
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static final <T> T cast(Object obj, Class<T> clazz, ParserConfig mapping, int features) {
         if (obj == null) {
             return null;
         }
@@ -530,7 +534,7 @@ public class TypeUtils {
                 return (T) obj;
             }
 
-            return castToJavaBean((Map<String, Object>) obj, clazz, mapping);
+            return castToJavaBean((Map<String, Object>) obj, clazz, mapping, features);
         }
 
         if (clazz.isArray()) {
@@ -765,8 +769,12 @@ public class TypeUtils {
         throw new JSONException("can not cast to : " + type);
     }
 
-    @SuppressWarnings({ "unchecked" })
     public static final <T> T castToJavaBean(Map<String, Object> map, Class<T> clazz, ParserConfig config) {
+        return castToJavaBean(map, clazz, config, 0);
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    public static final <T> T castToJavaBean(Map<String, Object> map, Class<T> clazz, ParserConfig config, int features) {
         try {
             if (clazz == StackTraceElement.class) {
                 String declaringClass = (String) map.get("className");
@@ -790,14 +798,18 @@ public class TypeUtils {
                 if (iClassObject instanceof String) {
                     String className = (String) iClassObject;
 
-                    Class<?> loadClazz = (Class<T>) loadClass(className, null);
+                    if (config == null) {
+                        config = ParserConfig.global;
+                    }
+
+                    Class<?> loadClazz = (Class<T>) config.checkAutoType(className, null, features);
 
                     if (loadClazz == null) {
                         throw new ClassNotFoundException(className + " not found");
                     }
 
                     if (!loadClazz.equals(clazz)) {
-                        return (T) castToJavaBean(map, loadClazz, config);
+                        return (T) castToJavaBean(map, loadClazz, config, features);
                     }
                 }
             }
@@ -849,7 +861,8 @@ public class TypeUtils {
         }
     }
 
-    private static ConcurrentMap<String, Class<?>> mappings = new ConcurrentHashMap<String, Class<?>>();
+    private final static ConcurrentMap<String, Class<?>> mappings = new ConcurrentHashMap<String, Class<?>>(36, 0.75f, 1);
+
     static {
         mappings.put("byte", byte.class);
         mappings.put("short", short.class);
@@ -878,10 +891,25 @@ public class TypeUtils {
         mappings.put("[C", char[].class);
         mappings.put("[Z", boolean[].class);
 
-        mappings.put(HashMap.class.getName(), HashMap.class);
+        mappings.put("java.util.HashMap", HashMap.class);
+        mappings.put("java.util.TreeMap", TreeMap.class);
+        mappings.put("java.util.Date", java.util.Date.class);
+        mappings.put("com.alibaba.fastjson.JSONObject", JSONObject.class);
+        mappings.put("java.util.concurrent.ConcurrentHashMap", ConcurrentHashMap.class);
+        mappings.put("java.text.SimpleDateFormat", SimpleDateFormat.class);
+        mappings.put("java.lang.StackTraceElement", java.lang.StackTraceElement.class);
+        mappings.put("java.lang.RuntimeException", RuntimeException.class);
+    }
+
+    public static Class<?> getClassFromMapping(String className){
+        return mappings.get(className);
     }
 
     public static Class<?> loadClass(String className, ClassLoader classLoader) {
+        return loadClass(className, classLoader, true);
+    }
+
+    public static Class<?> loadClass(String className, ClassLoader classLoader, boolean cache) {
         if (className == null || className.length() == 0) {
             return null;
         }
@@ -910,7 +938,9 @@ public class TypeUtils {
             if (classLoader != null) {
                 clazz = classLoader.loadClass(className);
 
-                mappings.put(className, clazz);
+                if (cache) {
+                    mappings.put(className, clazz);
+                }
 
                 return clazz;
             }
@@ -925,7 +955,9 @@ public class TypeUtils {
             if (contextClassLoader != null && contextClassLoader != classLoader) {
                 clazz = contextClassLoader.loadClass(className);
 
-                mappings.put(className, clazz);
+                if (cache) {
+                    mappings.put(className, clazz);
+                }
 
                 return clazz;
             }

@@ -1,5 +1,6 @@
 package com.alibaba.json.bvt.bug;
 
+import com.alibaba.fastjson.parser.Feature;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -25,7 +26,7 @@ public class Bug_for_dubbo extends TestCase {
         String text = JSON.toJSONString(tigers, SerializerFeature.WriteClassName);
         
         System.out.println(text);
-        Tigers tigers1 = (Tigers) JSON.parse(text);
+        Tigers tigers1 = (Tigers) JSON.parse(text, Feature.SupportAutoType);
         Assert.assertNotNull(tigers1.getTiger());
     }
 }

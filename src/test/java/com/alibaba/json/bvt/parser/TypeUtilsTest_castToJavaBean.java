@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
+import com.alibaba.fastjson.parser.Feature;
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
@@ -48,7 +49,8 @@ public class TypeUtilsTest_castToJavaBean extends TestCase {
         map.put("className", "java.lang.Object");
         map.put("methodName", "hashCode");
         map.put("lineNumber", 12);
-        StackTraceElement element = (StackTraceElement) TypeUtils.castToJavaBean(map, Object.class, null);
+        int feautures = JSON.DEFAULT_PARSER_FEATURE |= Feature.SupportAutoType.mask;
+        StackTraceElement element = (StackTraceElement) TypeUtils.castToJavaBean(map, Object.class, null, feautures);
         Assert.assertEquals("java.lang.Object", element.getClassName());
         Assert.assertEquals("hashCode", element.getMethodName());
         Assert.assertEquals(null, element.getFileName());

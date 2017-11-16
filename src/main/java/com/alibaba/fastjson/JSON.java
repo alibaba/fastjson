@@ -121,16 +121,42 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static final JSONObject parseObject(String text, Feature... features) {
-        return (JSONObject) parse(text, features);
-    }
-
-    public static final JSONObject parseObject(String text) {
-        Object obj = parse(text);
+        Object obj = parse(text, features);
         if (obj instanceof JSONObject) {
             return (JSONObject) obj;
         }
 
-        return (JSONObject) JSON.toJSON(obj);
+        JSONObject jsonObject =  (JSONObject) JSON.toJSON(obj);
+        boolean autoTypeSupport = (JSON.DEFAULT_PARSER_FEATURE & Feature.SupportAutoType.mask) != 0;
+        if (!autoTypeSupport) {
+            for (Feature feature : features) {
+                if (feature == Feature.SupportAutoType) {
+                    autoTypeSupport = true;
+                }
+            }
+        }
+
+        if (autoTypeSupport) {
+            jsonObject.put(JSON.DEFAULT_TYPE_KEY, obj.getClass().getName());
+        }
+
+        return jsonObject;
+    }
+
+    public static final JSONObject parseObject(String text) {
+        Object obj = parse(text);
+        if (obj instanceof JSONObject || obj == null) {
+            return (JSONObject) obj;
+        }
+
+        JSONObject jsonObject =  (JSONObject) JSON.toJSON(obj);
+        boolean autoTypeSupport = (JSON.DEFAULT_PARSER_FEATURE & Feature.SupportAutoType.mask) != 0;
+
+        if (autoTypeSupport) {
+            jsonObject.put(JSON.DEFAULT_TYPE_KEY, obj.getClass().getName());
+        }
+
+        return jsonObject;
     }
 
     @SuppressWarnings("unchecked")
@@ -253,11 +279,20 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static final JSONArray parseArray(String text) {
+        return parseArray(text, new Feature[0]);
+    }
+
+    public static final JSONArray parseArray(String text, Feature... features) {
         if (text == null) {
             return null;
         }
 
-        DefaultJSONParser parser = new DefaultJSONParser(text, ParserConfig.global);
+        int featuresValue = JSON.DEFAULT_PARSER_FEATURE;
+        for (int i = 0; i < features.length; i++) {
+            featuresValue |= features[i].mask;
+        }
+
+        DefaultJSONParser parser = new DefaultJSONParser(text, ParserConfig.global, featuresValue);
 
         JSONArray array;
 
@@ -336,6 +371,14 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
      */
     public static Object parse(String text, ParserConfig config) {
         return parse(text, config, DEFAULT_PARSER_FEATURE);
+    }
+
+    public static Object parse(String text, ParserConfig config, Feature... features) {
+        int featuresValue = DEFAULT_PARSER_FEATURE;
+        for (int i = 0; i < features.length; i++) {
+            featuresValue |= features[i].mask;
+        }
+        return parse(text, config, featuresValue);
     }
 
     /**

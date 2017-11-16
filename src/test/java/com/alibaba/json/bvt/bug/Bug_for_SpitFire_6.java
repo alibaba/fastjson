@@ -3,6 +3,7 @@ package com.alibaba.json.bvt.bug;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.alibaba.fastjson.parser.Feature;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
@@ -23,7 +24,7 @@ public class Bug_for_SpitFire_6 extends TestCase {
         String text = JSON.toJSONString(rs, SerializerFeature.WriteClassName, SerializerFeature.PrettyFormat);
         System.out.println(text);
         
-        JSON.parseObject(text, GenericRS.class);
+        JSON.parseObject(text, GenericRS.class, Feature.SupportAutoType);
     }
 
     public static class GenericRS<T> {

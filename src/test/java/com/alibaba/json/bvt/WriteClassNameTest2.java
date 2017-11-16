@@ -1,5 +1,6 @@
 package com.alibaba.json.bvt;
 
+import com.alibaba.fastjson.parser.Feature;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -13,7 +14,7 @@ public class WriteClassNameTest2 extends TestCase {
         String text = JSON.toJSONString(entity, SerializerFeature.WriteClassName, SerializerFeature.PrettyFormat);
         System.out.println(text);
         
-        Entity entity2 = (Entity) JSON.parseObject(text, Object.class);
+        Entity entity2 = (Entity) JSON.parseObject(text, Object.class, Feature.SupportAutoType);
         
         Assert.assertEquals(entity.getId(), entity2.getId());
         Assert.assertEquals(entity.getName(), entity2.getName());

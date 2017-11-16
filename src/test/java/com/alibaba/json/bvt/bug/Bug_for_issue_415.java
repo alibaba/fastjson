@@ -3,6 +3,7 @@ package com.alibaba.json.bvt.bug;
 import java.util.Arrays;
 import java.util.List;
 
+import com.alibaba.fastjson.parser.Feature;
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
@@ -31,7 +32,7 @@ public class Bug_for_issue_415 extends TestCase {
         String json = JSON.toJSONString(t,SerializerFeature.WriteClassName);
         //@1 打印序列化的时候json串
 
-        Teacher t2 = (Teacher) JSON.parse(json);
+        Teacher t2 = (Teacher) JSON.parse(json, Feature.SupportAutoType);
         for (Student s : t2.getStudentList()) {
             Assert.assertNotNull(s);
             Assert.assertNotNull(s.getAddr());

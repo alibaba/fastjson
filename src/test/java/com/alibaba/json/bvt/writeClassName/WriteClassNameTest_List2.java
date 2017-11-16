@@ -3,6 +3,7 @@ package com.alibaba.json.bvt.writeClassName;
 import java.util.Collections;
 import java.util.List;
 
+import com.alibaba.fastjson.parser.Feature;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -19,7 +20,7 @@ public class WriteClassNameTest_List2 extends TestCase {
         Assert.assertEquals("{\"@type\":\"com.alibaba.json.bvt.writeClassName.WriteClassNameTest_List2$A\",\"list\":[{\"id\":0}]}",
                             text);
 
-        A a1 = (A) JSON.parse(text);
+        A a1 = (A) JSON.parse(text, Feature.SupportAutoType);
 
         Assert.assertEquals(1, a1.getList().size());
         Assert.assertTrue(a1.getList().get(0) instanceof B);

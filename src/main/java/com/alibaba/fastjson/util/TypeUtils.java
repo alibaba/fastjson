@@ -857,6 +857,12 @@ public class TypeUtils{
                 return (T) cast(obj, rawTye, mapping);
             }
         }
+
+        if (rawTye == Map.Entry.class && obj instanceof Map && ((Map) obj).size() == 1) {
+            Map.Entry entry = (Map.Entry) ((Map) obj).entrySet().iterator().next();
+            return (T) entry;
+        }
+
         throw new JSONException("can not cast to : " + type);
     }
 

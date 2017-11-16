@@ -1,9 +1,11 @@
 package com.alibaba.fastjson.parser.deserializer;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.util.Arrays;
+import java.util.*;
 
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -21,30 +23,71 @@ public class EnumDeserializer implements ObjectDeserializer {
 
         ordinalEnums = (Enum[]) enumClass.getEnumConstants();
 
-        long[] enumNameHashCodes = new long[ordinalEnums.length];
-        this.enumNameHashCodes = new long[ordinalEnums.length];
+        Map<Long, Enum> enumMap = new HashMap<Long, Enum>();
         for (int i = 0; i < ordinalEnums.length; ++i) {
-            String name = ordinalEnums[i].name();
+            Enum e = ordinalEnums[i];
+            String name = e.name();
+
+            JSONField jsonField = null;
+            try {
+                Field field = enumClass.getField(name);
+                jsonField = field.getAnnotation(JSONField.class);
+                if (jsonField != null) {
+                    String jsonFieldName = jsonField.name();
+                    if (jsonFieldName != null && jsonFieldName.length() > 0) {
+                        name = jsonFieldName;
+                    }
+                }
+            } catch (Exception ex) {
+                // skip
+            }
+
             long hash = 0xcbf29ce484222325L;
+            long hash_lower = 0xcbf29ce484222325L;
             for (int j = 0; j < name.length(); ++j) {
                 char ch = name.charAt(j);
+
                 hash ^= ch;
+                hash_lower ^= ((ch >= 'A' && ch <= 'Z') ? (ch + 32) : ch);
+
                 hash *= 0x100000001b3L;
+                hash_lower *= 0x100000001b3L;
             }
-            enumNameHashCodes[i] = hash;
-            this.enumNameHashCodes[i] = hash;
-        }
 
-        Arrays.sort(this.enumNameHashCodes);
+            enumMap.put(hash, e);
+            if (hash != hash_lower) {
+                enumMap.put(hash_lower, e);
+            }
 
-        this.enums = new Enum[ordinalEnums.length];
-        for (int i = 0; i < this.enumNameHashCodes.length; ++i) {
-            for (int j = 0; j < enumNameHashCodes.length; ++j) {
-                if (this.enumNameHashCodes[i] == enumNameHashCodes[j]) {
-                    this.enums[i] = ordinalEnums[j];
-                    break;
+            if (jsonField != null) {
+                for (String alterName : jsonField.alternateNames()) {
+                    long alterNameHash = 0xcbf29ce484222325L;
+                    for (int j = 0; j < alterName.length(); ++j) {
+                        char ch = alterName.charAt(j);
+                        alterNameHash ^= ch;
+                        alterNameHash *= 0x100000001b3L;
+                    }
+                    if (alterNameHash != hash && alterNameHash != hash_lower) {
+                        enumMap.put(alterNameHash, e);
+                    }
                 }
             }
+        }
+
+        this.enumNameHashCodes = new long[enumMap.size()];
+        {
+            int i = 0;
+            for (Long h : enumMap.keySet()) {
+                enumNameHashCodes[i++] = h;
+            }
+            Arrays.sort(this.enumNameHashCodes);
+        }
+
+        this.enums = new Enum[enumNameHashCodes.length];
+        for (int i = 0; i < this.enumNameHashCodes.length; ++i) {
+            long hash = enumNameHashCodes[i];
+            Enum e = enumMap.get(hash);
+            this.enums[i] = e;
         }
     }
 

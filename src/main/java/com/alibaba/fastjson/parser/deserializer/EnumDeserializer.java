@@ -11,12 +11,10 @@ import com.alibaba.fastjson.parser.JSONToken;
 @SuppressWarnings("rawtypes")
 public class EnumDeserializer implements ObjectDeserializer {
 
-    private final Class<?> enumClass;
-    protected final Enum[] enums;
-
-    protected final Enum[] ordinalEnums;
-
-    protected long[] enumNameHashCodes;
+    protected final Class<?> enumClass;
+    protected final Enum[]   enums;
+    protected final Enum[]   ordinalEnums;
+    protected       long[]   enumNameHashCodes;
 
     public EnumDeserializer(Class<?> enumClass){
         this.enumClass = enumClass;
@@ -84,14 +82,21 @@ public class EnumDeserializer implements ObjectDeserializer {
 
                 return (T) ordinalEnums[intValue];
             } else if (token == JSONToken.LITERAL_STRING) {
-                String strVal = lexer.stringVal();
+                String name = lexer.stringVal();
                 lexer.nextToken(JSONToken.COMMA);
 
-                if (strVal.length() == 0) {
+                if (name.length() == 0) {
                     return (T) null;
                 }
 
-                return (T) Enum.valueOf((Class<Enum>) enumClass, strVal);
+                long hash = 0xcbf29ce484222325L;
+                for (int j = 0; j < name.length(); ++j) {
+                    char ch = name.charAt(j);
+                    hash ^= ch;
+                    hash *= 0x100000001b3L;
+                }
+
+                return (T) getEnumByHashCode(hash);
             } else if (token == JSONToken.NULL) {
                 value = null;
                 lexer.nextToken(JSONToken.COMMA);

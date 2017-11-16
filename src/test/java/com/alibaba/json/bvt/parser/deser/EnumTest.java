@@ -27,13 +27,7 @@ public class EnumTest extends TestCase {
     }
 
     public void test_enum_error() throws Exception {
-        Exception error = null;
-        try {
-            JSON.parseObject("'123'", TimeUnit.class);
-        } catch (JSONException ex) {
-            error = ex;
-        }
-        Assert.assertNotNull(error);
+        assertNull(JSON.parseObject("'123'", TimeUnit.class));
     }
 
     public void test_enum_error_2() throws Exception {

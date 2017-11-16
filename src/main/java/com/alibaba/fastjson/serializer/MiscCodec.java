@@ -266,6 +266,8 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
                 if (clazz == Map.Entry.class) {
                    return (T) jsonObject.entrySet().iterator().next();
                 }
+
+                return jsonObject.toJavaObject(clazz);
             }
             throw new JSONException("expect string");
         }

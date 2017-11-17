@@ -17,9 +17,10 @@ public class Issue1572 extends TestCase {
         Map<String, Object> pathValues = JSONPath.paths(person);
         Set<String> paths = pathValues.keySet();
 
-        for (String path : paths) {
-            System.out.println(path);
-        }
+        assertEquals(3, paths.size());
+        assertEquals("1001", pathValues.get("/id"));
+        assertEquals("1001", pathValues.get("/name"));
+        assertSame(person, pathValues.get("/"));
     }
 
     public static class Person {

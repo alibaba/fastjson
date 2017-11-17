@@ -258,7 +258,27 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                                                         propertyValue);
 
                 if (propertyValue == null && !writeAsArray) {
-                    if ((!fieldSerializer.writeNull) && (!out.isEnabled(SerializerFeature.WRITE_MAP_NULL_FEATURES))) {
+                    if (fieldClass == Boolean.class) {
+                        final int mask = SerializerFeature.WriteNullBooleanAsFalse.mask | SerializerFeature.WriteMapNullValue.mask;
+                        if ((fieldInfo.serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
+                            continue;
+                        }
+                    } else if (fieldClass == String.class) {
+                        final int mask = SerializerFeature.WriteNullStringAsEmpty.mask | SerializerFeature.WriteMapNullValue.mask;
+                        if ((fieldInfo.serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
+                            continue;
+                        }
+                    } else if (Number.class.isAssignableFrom(fieldClass)) {
+                        final int mask = SerializerFeature.WriteNullNumberAsZero.mask | SerializerFeature.WriteMapNullValue.mask;
+                        if ((fieldInfo.serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
+                            continue;
+                        }
+                    } else if (Collection.class.isAssignableFrom(fieldClass)) {
+                        final int mask = SerializerFeature.WriteNullListAsEmpty.mask | SerializerFeature.WriteMapNullValue.mask;
+                        if ((fieldInfo.serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
+                            continue;
+                        }
+                    } else if ((!fieldSerializer.writeNull) && !out.isEnabled(SerializerFeature.WriteMapNullValue.mask)){
                         continue;
                     }
                 }
@@ -333,8 +353,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                         if (fieldClass == String.class && (fieldAnnotation == null || fieldAnnotation.serializeUsing() == Void.class)) {
                             if (propertyValue == null) {
                                 if ((out.features & SerializerFeature.WriteNullStringAsEmpty.mask) != 0
-                                    || (fieldSerializer.features
-                                        & SerializerFeature.WriteNullStringAsEmpty.mask) != 0) {
+                                    || (fieldSerializer.features & SerializerFeature.WriteNullStringAsEmpty.mask) != 0) {
                                     out.writeString("");
                                 } else {
                                     out.writeNull();

@@ -30,7 +30,7 @@ public class FieldSerializerTest4 {
                 SerializerFeature.WriteNullListAsEmpty
         );
         Assert.assertEquals("{\n\t\"data\":[]\n}", listJson);
-        Assert.assertEquals("{\n\t\"data\":null\n}", booleanJson);
+        Assert.assertEquals("{\n\t\n}", booleanJson);
     }
 
     private static class Result<T>{

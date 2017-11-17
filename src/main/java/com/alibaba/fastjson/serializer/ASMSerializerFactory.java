@@ -1964,9 +1964,26 @@ public class ASMSerializerFactory implements Opcodes {
             ;
         }
 
-        if ((features & SerializerFeature.WRITE_MAP_NULL_FEATURES) == 0) {
+        int writeNullFeatures;
+        if (propertyClass == String.class) {
+            writeNullFeatures = SerializerFeature.WriteMapNullValue.getMask()
+                    | SerializerFeature.WriteNullStringAsEmpty.getMask();
+        } else if (Number.class.isAssignableFrom(propertyClass)) {
+            writeNullFeatures = SerializerFeature.WriteMapNullValue.getMask()
+                    | SerializerFeature.WriteNullNumberAsZero.getMask();
+        } else if (Collection.class.isAssignableFrom(propertyClass)) {
+            writeNullFeatures = SerializerFeature.WriteMapNullValue.getMask()
+                    | SerializerFeature.WriteNullListAsEmpty.getMask();
+        } else if (Boolean.class == propertyClass) {
+            writeNullFeatures = SerializerFeature.WriteMapNullValue.getMask()
+                    | SerializerFeature.WriteNullBooleanAsFalse.getMask();
+        } else {
+            writeNullFeatures = SerializerFeature.WRITE_MAP_NULL_FEATURES;
+        }
+
+        if ((features & writeNullFeatures) == 0) {
             mw.visitVarInsn(ALOAD, context.var("out"));
-            mw.visitLdcInsn(SerializerFeature.WRITE_MAP_NULL_FEATURES);
+            mw.visitLdcInsn(writeNullFeatures);
             mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "isEnabled", "(I)Z");
             mw.visitJumpInsn(IFEQ, _else);
         }

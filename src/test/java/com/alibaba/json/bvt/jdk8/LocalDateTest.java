@@ -22,7 +22,7 @@ public class LocalDateTest extends TestCase {
     }
 
     /**
-     * 方法描述: 测试时间戳转换为 时间
+     * 方法描述: 测试时间戳转换为 日期
      * @author wuqiong  2017/11/21 16:48
      */
     public void test_for_long() throws Exception {

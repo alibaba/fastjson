@@ -145,13 +145,13 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
             lexer.nextToken();
 
             if (type == LocalDateTime.class) {
-                return (T) LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.systemDefault());
+                return (T) LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), JSON.defaultTimeZone.toZoneId());
             }
             if (type == LocalDate.class) {
-                return (T) LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.systemDefault()).toLocalDate();
+                return (T) LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), JSON.defaultTimeZone.toZoneId()).toLocalDate();
             }
             if (type == LocalTime.class) {
-                return (T) LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.systemDefault()).toLocalTime();
+                return (T) LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), JSON.defaultTimeZone.toZoneId()).toLocalTime();
             }
 
             throw new UnsupportedOperationException();

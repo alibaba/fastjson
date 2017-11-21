@@ -1,6 +1,8 @@
 package com.alibaba.json.bvt.jdk8;
 
 import java.time.LocalDate;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
@@ -9,6 +11,10 @@ import org.junit.Assert;
 import com.alibaba.fastjson.JSON;
 
 public class LocalDateTest extends TestCase {
+    protected void setUp() throws Exception {
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        JSON.defaultLocale = Locale.CHINA;
+    }
 
     public void test_for_issue() throws Exception {
         VO vo = new VO();

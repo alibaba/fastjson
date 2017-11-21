@@ -147,6 +147,12 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
             if (type == LocalDateTime.class) {
                 return (T) LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.systemDefault());
             }
+            if (type == LocalDate.class) {
+                return (T) LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.systemDefault()).toLocalDate();
+            }
+            if (type == LocalTime.class) {
+                return (T) LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.systemDefault()).toLocalTime();
+            }
 
             throw new UnsupportedOperationException();
         } else {

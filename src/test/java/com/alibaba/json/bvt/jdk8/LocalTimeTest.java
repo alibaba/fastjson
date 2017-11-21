@@ -22,6 +22,18 @@ public class LocalTimeTest extends TestCase {
         Assert.assertEquals(vo.getDate(), vo1.getDate());
     }
 
+    /**
+     * 方法描述: 测试时间戳转换为 时间
+     * @author wuqiong  2017/11/21 16:48
+     */
+    public void test_for_long() throws Exception {
+        String text= "{\"date\":1511248447740}";
+        VO vo =JSON.parseObject(text,VO.class);
+        Assert.assertEquals(15, vo.date.getHour());
+        Assert.assertEquals(14, vo.date.getMinute());
+        Assert.assertEquals(07, vo.date.getSecond());
+    }
+
     public static class VO {
 
         private LocalTime date;

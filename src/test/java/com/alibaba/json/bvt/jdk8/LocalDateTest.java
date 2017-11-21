@@ -21,6 +21,18 @@ public class LocalDateTest extends TestCase {
         Assert.assertEquals(vo.getDate(), vo1.getDate());
     }
 
+    /**
+     * 方法描述: 测试时间戳转换为 日期
+     * @author wuqiong  2017/11/21 16:48
+     */
+    public void test_for_long() throws Exception {
+        String text= "{\"date\":1511248447740}";
+        VO vo =JSON.parseObject(text,VO.class);
+        Assert.assertEquals(2017, vo.date.getYear());
+        Assert.assertEquals(11, vo.date.getMonthValue());
+        Assert.assertEquals(21, vo.date.getDayOfMonth());
+    }
+
     public static class VO {
 
         private LocalDate date;

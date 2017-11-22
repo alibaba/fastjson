@@ -1316,9 +1316,9 @@ public class TypeUtils{
                 continue;
             }
             /**
-             *  如果在属性或者方法上存在JSONField注解，不以类上的propertyNamingStrategy设置为准，此字段的JSONField为准。
+             *  如果在属性或者方法上存在JSONField注解，并且定制了name属性，不以类上的propertyNamingStrategy设置为准，以此字段的JSONField的name定制为准。
              */
-            Boolean fieldAnnotationExists = false;
+            Boolean fieldAnnotationAndNameExists = false;
             JSONField annotation = method.getAnnotation(JSONField.class);
             if(annotation == null){
                 annotation = getSuperMethodAnnotation(clazz, method);
@@ -1376,7 +1376,6 @@ public class TypeUtils{
                 }
             }
             if(annotation != null){
-                fieldAnnotationExists = true;
                 if(!annotation.serialize()){
                     continue;
                 }
@@ -1384,6 +1383,7 @@ public class TypeUtils{
                 serialzeFeatures = SerializerFeature.of(annotation.serialzeFeatures());
                 parserFeatures = Feature.of(annotation.parseFeatures());
                 if(annotation.name().length() != 0){
+                    fieldAnnotationAndNameExists = true;
                     String propertyName = annotation.name();
                     if(aliasMap != null){
                         propertyName = aliasMap.get(propertyName);
@@ -1447,7 +1447,6 @@ public class TypeUtils{
                 if(field != null){
                     fieldAnnotation = field.getAnnotation(JSONField.class);
                     if(fieldAnnotation != null){
-                        fieldAnnotationExists = true;
                         if(!fieldAnnotation.serialize()){
                             continue;
                         }
@@ -1455,6 +1454,7 @@ public class TypeUtils{
                         serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
                         parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
                         if(fieldAnnotation.name().length() != 0){
+                            fieldAnnotationAndNameExists = true;
                             propertyName = fieldAnnotation.name();
                             if(aliasMap != null){
                                 propertyName = aliasMap.get(propertyName);
@@ -1474,7 +1474,7 @@ public class TypeUtils{
                         continue;
                     }
                 }
-                if(propertyNamingStrategy != null && !fieldAnnotationExists){
+                if(propertyNamingStrategy != null && !fieldAnnotationAndNameExists){
                     propertyName = propertyNamingStrategy.translate(propertyName);
                 }
                 FieldInfo fieldInfo = new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures, parserFeatures,

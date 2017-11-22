@@ -11,6 +11,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.annotation.JSONString;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.Feature;
@@ -58,7 +59,10 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         for (int i = 0, size = beanInfo.sortedFields.length; i < size; ++i) {
             FieldInfo fieldInfo = beanInfo.sortedFields[i];
             FieldDeserializer fieldDeserializer = config.createFieldDeserializer(config, beanInfo, fieldInfo);
-
+            JSONString stringTag = fieldInfo.getAnnation(JSONString.class);
+            if(stringTag!=null){
+                fieldDeserializer =new JsonStringFieldDeserializer(config,beanInfo.clazz,fieldInfo);
+            }
             sortedFieldDeserializers[i] = fieldDeserializer;
 
             for (String name : fieldInfo.alternateNames) {
@@ -73,7 +77,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         fieldDeserializers = new FieldDeserializer[beanInfo.fields.length];
         for (int i = 0, size = beanInfo.fields.length; i < size; ++i) {
             FieldInfo fieldInfo = beanInfo.fields[i];
+            JSONString stringTag = fieldInfo.getAnnation(JSONString.class);
+
             FieldDeserializer fieldDeserializer = getFieldDeserializer(fieldInfo.name);
+            if(stringTag!=null){
+                fieldDeserializer =new JsonStringFieldDeserializer(config,beanInfo.clazz,fieldInfo);
+            }
             fieldDeserializers[i] = fieldDeserializer;
         }
     }

@@ -15,7 +15,7 @@ public class LocalTimeTest extends TestCase {
         JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
         JSON.defaultLocale = Locale.CHINA;
     }
-    
+
     public void test_for_issue() throws Exception {
         VO vo = new VO();
         vo.setDate(LocalTime.now());

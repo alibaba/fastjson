@@ -27,20 +27,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Currency;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.TreeMap;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
@@ -68,6 +55,9 @@ import com.alibaba.fastjson.util.TypeUtils;
  * @author wenshao[szujobs@hotmail.com]
  */
 public class ParserConfig {
+    private static long[] denyList = new long[] {
+            -7600952144447537354L
+    };
 
     public static ParserConfig getGlobalInstance() {
         return global;
@@ -311,6 +301,17 @@ public class ParserConfig {
         }
 
         if (typeName.length() >= 128) {
+            throw new JSONException("autoType is not support. " + typeName);
+        }
+
+        long hashCode = 0xcbf29ce484222325L;
+        for (int i = 0; i < typeName.length(); ++i) {
+            char c = typeName.charAt(i);
+            hashCode ^= c;
+            hashCode *= 0x100000001b3L;
+        }
+
+        if (Arrays.binarySearch(denyList, hashCode) >= 0) {
             throw new JSONException("autoType is not support. " + typeName);
         }
 

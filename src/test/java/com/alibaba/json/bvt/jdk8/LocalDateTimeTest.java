@@ -18,7 +18,7 @@ public class LocalDateTimeTest extends TestCase {
         
         VO vo1 = JSON.parseObject(text, VO.class);
         
-        Assert.assertEquals(vo.getDate(), vo1.getDate());
+        Assert.assertEquals(JSON.toJSONString(vo.getDate()), JSON.toJSONString(vo1.getDate()));
     }
 
     public static class VO {

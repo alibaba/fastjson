@@ -9,11 +9,11 @@ public class Bug_for_primitive_short extends TestCase {
     public void test_emptyStr() throws Exception {
         JSON.parseObject("{\"value\":\"\"}", VO.class);
     }
-
+    
     public void test_null() throws Exception {
         JSON.parseObject("{\"value\":null}", VO.class);
     }
-
+    
     public void test_strNull() throws Exception {
         JSON.parseObject("{\"value\":\"null\"}", VO.class);
     }

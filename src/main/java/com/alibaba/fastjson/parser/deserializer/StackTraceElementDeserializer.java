@@ -13,9 +13,9 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
 
     public final static StackTraceElementDeserializer instance = new StackTraceElementDeserializer();
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "unused" })
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-        JSONLexer lexer = parser.getLexer();
+        JSONLexer lexer = parser.lexer;
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken();
             return null;
@@ -29,6 +29,9 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
         String methodName = null;
         String fileName = null;
         int lineNumber = 0;
+        String moduleName = null;
+        String moduleVersion = null;
+        String classLoaderName = null;
 
         for (;;) {
             // lexer.scanSymbol
@@ -99,6 +102,30 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
                     if (lexer.token() != JSONToken.NULL) {
                         throw new JSONException("syntax error");
                     }
+                }
+            } else if ("moduleName".equals(key)) {
+                if (lexer.token() == JSONToken.NULL) {
+                    moduleName = null;
+                } else if (lexer.token() == JSONToken.LITERAL_STRING) {
+                    moduleName = lexer.stringVal();
+                } else {
+                    throw new JSONException("syntax error");
+                }
+            } else if ("moduleVersion".equals(key)) {
+                if (lexer.token() == JSONToken.NULL) {
+                    moduleVersion = null;
+                } else if (lexer.token() == JSONToken.LITERAL_STRING) {
+                    moduleVersion = lexer.stringVal();
+                } else {
+                    throw new JSONException("syntax error");
+                }
+            } else if ("classLoaderName".equals(key)) {
+                if (lexer.token() == JSONToken.NULL) {
+                    classLoaderName = null;
+                } else if (lexer.token() == JSONToken.LITERAL_STRING) {
+                    classLoaderName = lexer.stringVal();
+                } else {
+                    throw new JSONException("syntax error");
                 }
             } else {
                 throw new JSONException("syntax error : " + key);

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ public interface PropertyFilter extends SerializeFilter {
      * @param object the owner of the property
      * @param name the name of the property
      * @param value the value of the property
-     * @return true if the property will be filtered out, false otherwise
+     * @return true if the property will be included, false if to be filtered out
      */
     boolean apply(Object object, String name, Object value);
 }

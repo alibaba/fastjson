@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ public class JSONSerializableSerializer implements ObjectSerializer {
 
     public static JSONSerializableSerializer instance = new JSONSerializableSerializer();
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         JSONSerializable jsonSerializable = ((JSONSerializable) object);
-        jsonSerializable.write(serializer, fieldName, fieldType);
+        jsonSerializable.write(serializer, fieldName, fieldType, features);
     }
 }

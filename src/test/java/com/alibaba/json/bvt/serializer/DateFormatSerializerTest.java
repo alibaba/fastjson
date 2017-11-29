@@ -1,21 +1,25 @@
 package com.alibaba.json.bvt.serializer;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import junit.framework.TestCase;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.DateFormatSerializer;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
-public class DateFormatSerializerTest extends TestCase {
+import junit.framework.TestCase;
 
+public class DateFormatSerializerTest extends TestCase {
+    protected void setUp() throws Exception {
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        JSON.defaultLocale = Locale.CHINA;
+    }
+    
     public void test_date() throws Exception {
         Assert.assertEquals("{\"format\":null}", JSON.toJSONString(new VO(), SerializerFeature.WriteMapNullValue));
     }
@@ -23,7 +27,6 @@ public class DateFormatSerializerTest extends TestCase {
     public void test_date_2() throws Exception {
         SerializeWriter out = new SerializeWriter();
         SerializeConfig config = new SerializeConfig();
-        config.put(Date.class, DateFormatSerializer.instance);
         JSONSerializer serializer = new JSONSerializer(out, config);
 
         serializer.config(SerializerFeature.WriteMapNullValue, true);
@@ -35,7 +38,6 @@ public class DateFormatSerializerTest extends TestCase {
     public void test_date_3() throws Exception {
         SerializeWriter out = new SerializeWriter();
         SerializeConfig config = new SerializeConfig();
-        config.put(Date.class, DateFormatSerializer.instance);
         JSONSerializer serializer = new JSONSerializer(out, config);
 
         serializer.config(SerializerFeature.WriteClassName, true);
@@ -48,10 +50,11 @@ public class DateFormatSerializerTest extends TestCase {
     public void test_date_4() throws Exception {
         SerializeWriter out = new SerializeWriter();
         SerializeConfig config = new SerializeConfig();
-        config.put(Date.class, DateFormatSerializer.instance);
         JSONSerializer serializer = new JSONSerializer(out, config);
 
-        serializer.write(new VO(new SimpleDateFormat("yyyy")));
+        SimpleDateFormat format = new SimpleDateFormat("yyyy");
+        format.setTimeZone(JSON.defaultTimeZone);
+        serializer.write(new VO(format));
 
         Assert.assertEquals("{\"format\":\"yyyy\"}", out.toString());
         

@@ -3,11 +3,11 @@ package com.alibaba.fastjson.util;
 import java.util.Arrays;
 
 /**
- * 
+ *
  * @version 2.2
  * @author Mikael Grev Date: 2004-aug-02 Time: 11:31:11
+ * @deprecated internal api, don't use.
  */
-
 public class Base64 {
 
     public static final char[] CA = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".toCharArray();
@@ -26,11 +26,11 @@ public class Base64 {
      * + Line separator must be "\r\n", as specified in RFC 2045 + The array must not contain illegal characters within
      * the encoded string<br>
      * + The array CAN have illegal characters at the beginning and end, those will be dealt with appropriately.<br>
-     * 
+     *
      * @param chars The source array. Length 0 will return an empty array. <code>null</code> will throw an exception.
      * @return The decoded array of bytes. May be of length 0.
      */
-    public final static byte[] decodeFast(char[] chars, int offset, int charsLen) {
+    public static byte[] decodeFast(char[] chars, int offset, int charsLen) {
         // Check special case
         if (charsLen == 0) {
             return new byte[0];
@@ -84,8 +84,8 @@ public class Base64 {
 
         return bytes;
     }
-    
-    public final static byte[] decodeFast(String chars, int offset, int charsLen) {
+
+    public static byte[] decodeFast(String chars, int offset, int charsLen) {
         // Check special case
         if (charsLen == 0) {
             return new byte[0];
@@ -147,11 +147,11 @@ public class Base64 {
      * + Line separator must be "\r\n", as specified in RFC 2045 + The array must not contain illegal characters within
      * the encoded string<br>
      * + The array CAN have illegal characters at the beginning and end, those will be dealt with appropriately.<br>
-     * 
+     *
      * @param s The source string. Length 0 will return an empty array. <code>null</code> will throw an exception.
      * @return The decoded array of bytes. May be of length 0.
      */
-    public final static byte[] decodeFast(String s) {
+    public static byte[] decodeFast(String s) {
         // Check special case
         int sLen = s.length();
         if (sLen == 0) {

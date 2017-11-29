@@ -27,7 +27,7 @@ public class SerializeWriterTest_1 extends TestCase {
     public void test_2 () throws Exception {
         SerializeWriter out = new SerializeWriter(SerializerFeature.UseSingleQuotes);
         out.writeString("abc");
-        Assert.assertEquals("'abc'", new String(out.toBytes(null), "ISO-8859-1"));
+        Assert.assertEquals("'abc'", new String(out.toBytes((String) null), "ISO-8859-1"));
     }
     
     public void test_3 () throws Exception {
@@ -50,7 +50,7 @@ public class SerializeWriterTest_1 extends TestCase {
     
     public void test_null () throws Exception {
         SerializeWriter out = new SerializeWriter(1);
-        out.writeString(null);
+        out.writeString((String) null);
         Assert.assertEquals("null", new String(out.toBytes("UTF-16"), "UTF-16"));
     }
 }

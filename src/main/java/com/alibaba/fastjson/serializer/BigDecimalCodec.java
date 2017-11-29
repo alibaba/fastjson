@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -32,38 +33,44 @@ public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
 
     public final static BigDecimalCodec instance = new BigDecimalCodec();
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
+        SerializeWriter out = serializer.out;
 
         if (object == null) {
-            if (out.isEnabled(SerializerFeature.WriteNullNumberAsZero)) {
-                out.write('0');
+            out.writeNull(SerializerFeature.WriteNullNumberAsZero);
+        } else {
+            BigDecimal val = (BigDecimal) object;
+
+            String outText;
+            if (out.isEnabled(SerializerFeature.WriteBigDecimalAsPlain)) {
+                outText = val.toPlainString();
             } else {
-                out.writeNull();
+                outText = val.toString();
             }
-            return;
-        }
+            out.write(outText);
 
-        BigDecimal val = (BigDecimal) object;
-        out.write(val.toString());
-
-        if (out.isEnabled(SerializerFeature.WriteClassName) && fieldType != BigDecimal.class && val.scale() == 0) {
-            out.write('.');
+            if (out.isEnabled(SerializerFeature.WriteClassName) && fieldType != BigDecimal.class && val.scale() == 0) {
+                out.write('.');
+            }
         }
     }
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        return (T) deserialze(parser);
+        try {
+            return (T) deserialze(parser);
+        } catch (Exception ex) {
+            throw new JSONException("parseDecimal error, field : " + fieldName, ex);
+        }
     }
 
     @SuppressWarnings("unchecked")
     public static <T> T deserialze(DefaultJSONParser parser) {
-        final JSONLexer lexer = parser.getLexer();
+        final JSONLexer lexer = parser.lexer;
         if (lexer.token() == JSONToken.LITERAL_INT) {
-            long val = lexer.longValue();
+            BigDecimal decimalValue = lexer.decimalValue();
             lexer.nextToken(JSONToken.COMMA);
-            return (T) new BigDecimal(val);
+            return (T) decimalValue;
         }
 
         if (lexer.token() == JSONToken.LITERAL_FLOAT) {
@@ -73,12 +80,9 @@ public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         Object value = parser.parse();
-
-        if (value == null) {
-            return null;
-        }
-
-        return (T) TypeUtils.castToBigDecimal(value);
+        return value == null //
+            ? null //
+            : (T) TypeUtils.castToBigDecimal(value);
     }
 
     public int getFastMatchToken() {

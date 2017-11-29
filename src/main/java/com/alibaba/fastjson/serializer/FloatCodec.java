@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,10 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -28,48 +31,52 @@ import com.alibaba.fastjson.util.TypeUtils;
  * @author wenshao[szujobs@hotmail.com]
  */
 public class FloatCodec implements ObjectSerializer, ObjectDeserializer {
+    private NumberFormat decimalFormat;
 
     public static FloatCodec instance = new FloatCodec();
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
-        SerializeWriter out = serializer.getWriter();
+    public FloatCodec(){
+
+    }
+
+    public FloatCodec(DecimalFormat decimalFormat){
+        this.decimalFormat = decimalFormat;
+    }
+
+    public FloatCodec(String decimalFormat){
+        this(new DecimalFormat(decimalFormat));
+    }
+
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
+        SerializeWriter out = serializer.out;
         
         if (object == null) {
-            if (serializer.isEnabled(SerializerFeature.WriteNullNumberAsZero)) {
-                out.write('0');
-            } else {
-                out.writeNull();                
-            }
+            out.writeNull(SerializerFeature.WriteNullNumberAsZero);
             return;
         }
 
-        float floatValue = ((Float) object).floatValue(); 
-        
-        if (Float.isNaN(floatValue)) {
-            out.writeNull();
-        } else if (Float.isInfinite(floatValue)) {
-            out.writeNull();
-        } else {
-            String floatText= Float.toString(floatValue);
-            if (floatText.endsWith(".0")) {
-                floatText = floatText.substring(0, floatText.length() - 2);
-            }
+        float floatValue = ((Float) object).floatValue();
+        if (decimalFormat != null) {
+            String floatText = decimalFormat.format(floatValue);
             out.write(floatText);
-            
-            if (serializer.isEnabled(SerializerFeature.WriteClassName)) {
-                out.write('F');
-            }
+        } else {
+            out.writeFloat(floatValue, true);
         }
     }
     
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        return (T) deserialze(parser);
+        try {
+            return (T) deserialze(parser);
+        } catch (Exception ex) {
+            throw new JSONException("parseLong error, field : " + fieldName, ex);
+        }
     }
 
     @SuppressWarnings("unchecked")
     public static <T> T deserialze(DefaultJSONParser parser) {
-        final JSONLexer lexer = parser.getLexer();
+        final JSONLexer lexer = parser.lexer;
+
         if (lexer.token() == JSONToken.LITERAL_INT) {
             String val = lexer.numberString();
             lexer.nextToken(JSONToken.COMMA);

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,5 +22,18 @@ import java.lang.reflect.Type;
  * @author wenshao[szujobs@hotmail.com]
  */
 public interface JSONSerializable {
-    void write(JSONSerializer serializer, Object fieldName, Type fieldType) throws IOException;
+
+    /**
+     * write to json
+     * @param serializer json seriliazer
+     * @param fieldName field name
+     * @param fieldType field type
+     * @param features field features
+     * @throws IOException
+     */
+    void write(JSONSerializer serializer, //
+               Object fieldName, //
+               Type fieldType, //
+               int features //
+    ) throws IOException;
 }

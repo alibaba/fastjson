@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,8 @@ package com.alibaba.fastjson;
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
+@SuppressWarnings("serial")
 public class JSONException extends RuntimeException {
-
-    private static final long serialVersionUID = 1L;
 
     public JSONException(){
         super();

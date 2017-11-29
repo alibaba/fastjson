@@ -14,7 +14,7 @@ public class WriteAsArray_float_public extends TestCase {
         vo.setName("wenshao");
         
         String text = JSON.toJSONString(vo, SerializerFeature.BeanToArray);
-        Assert.assertEquals("[123,\"wenshao\"]", text);
+        Assert.assertEquals("[123.0,\"wenshao\"]", text);
     }
     
     public static class VO {

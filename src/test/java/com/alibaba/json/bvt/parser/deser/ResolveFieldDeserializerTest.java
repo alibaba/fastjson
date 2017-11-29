@@ -1,14 +1,13 @@
 package com.alibaba.json.bvt.parser.deser;
 
-import junit.framework.TestCase;
+import com.alibaba.fastjson.parser.deserializer.ResolveFieldDeserializer;
 
-import com.alibaba.fastjson.parser.deserializer.ListResolveFieldDeserializer;
-import com.alibaba.fastjson.parser.deserializer.MapResolveFieldDeserializer;
+import junit.framework.TestCase;
 
 
 public class ResolveFieldDeserializerTest extends TestCase {
     public void test_0 () throws Exception {
-        new MapResolveFieldDeserializer(null, null).parseField(null, null, null, null);
-        new ListResolveFieldDeserializer(null, null, 0).parseField(null, null, null, null);
+        new ResolveFieldDeserializer(null, null).parseField(null, null, null, null);
+        new ResolveFieldDeserializer(null, null, 0).parseField(null, null, null, null);
     }
 }

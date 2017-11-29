@@ -7,7 +7,7 @@ import org.junit.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 
 public class DefaultExtJSONParserTest_0 extends TestCase {
@@ -16,31 +16,31 @@ public class DefaultExtJSONParserTest_0 extends TestCase {
 	}
 
 	public void test_0() throws Exception {
-		DefaultExtJSONParser parser = new DefaultExtJSONParser("123");
+		DefaultJSONParser parser = new DefaultJSONParser("123");
 		Assert.assertEquals(new Integer(123), (Integer) parser.parse());
 
 		parser.config(Feature.IgnoreNotMatch, false);
 	}
 
 	public void test_1() throws Exception {
-		DefaultExtJSONParser parser = new DefaultExtJSONParser("[]");
+		DefaultJSONParser parser = new DefaultJSONParser("[]");
 		parser.parseArray(Class.class);
 	}
 
 	public void test_2() throws Exception {
-		DefaultExtJSONParser parser = new DefaultExtJSONParser("{}");
+		DefaultJSONParser parser = new DefaultJSONParser("{}");
 		parser.parseObject(Object.class);
 	}
 
 	public void test_3() throws Exception {
-		DefaultExtJSONParser parser = new DefaultExtJSONParser("{}");
+		DefaultJSONParser parser = new DefaultJSONParser("{}");
 		parser.parseObject(User.class);
 	}
 
 	public void test_error_0() throws Exception {
 		JSONException error = null;
 		try {
-			DefaultExtJSONParser parser = new DefaultExtJSONParser("123");
+			DefaultJSONParser parser = new DefaultJSONParser("123");
 			parser.parseObject(Class.class);
 		} catch (JSONException e) {
 			error = e;
@@ -51,7 +51,7 @@ public class DefaultExtJSONParserTest_0 extends TestCase {
 	public void test_error_1() throws Exception {
 		JSONException error = null;
 		try {
-			DefaultExtJSONParser parser = new DefaultExtJSONParser("[{}]");
+			DefaultJSONParser parser = new DefaultJSONParser("[{}]");
 			parser.parseArray(Class.class);
 		} catch (JSONException e) {
 			error = e;
@@ -62,7 +62,7 @@ public class DefaultExtJSONParserTest_0 extends TestCase {
 	public void test_error_2() throws Exception {
 		JSONException error = null;
 		try {
-			DefaultExtJSONParser parser = new DefaultExtJSONParser(
+			DefaultJSONParser parser = new DefaultJSONParser(
 					"{\"errorValue\":33}");
 			parser.parseArray(User.class);
 		} catch (JSONException e) {
@@ -74,7 +74,7 @@ public class DefaultExtJSONParserTest_0 extends TestCase {
 	public void test_error_3() throws Exception {
 		JSONException error = null;
 		try {
-			DefaultExtJSONParser parser = new DefaultExtJSONParser(
+			DefaultJSONParser parser = new DefaultJSONParser(
 					"{\"age\"33}");
 			parser.parseArray(User.class);
 		} catch (JSONException e) {
@@ -86,7 +86,7 @@ public class DefaultExtJSONParserTest_0 extends TestCase {
 	public void test_error_4() throws Exception {
 		JSONException error = null;
 		try {
-			DefaultExtJSONParser parser = new DefaultExtJSONParser(
+			DefaultJSONParser parser = new DefaultJSONParser(
 					"[\"age\":33}");
 			parser.parseObject(new User());
 		} catch (JSONException e) {

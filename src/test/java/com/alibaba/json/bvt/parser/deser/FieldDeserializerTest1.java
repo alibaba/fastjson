@@ -12,7 +12,7 @@ public class FieldDeserializerTest1 extends TestCase {
     public void test_error() throws Exception {
         Exception error = null;
         try {
-            JSON.parseObject("{\"value\":[]}", Entity.class, 0);
+            JSON.parseObject("{\"value\":[-}", Entity.class, 0);
         } catch (JSONException ex) {
             error = ex;
         }

@@ -1,29 +1,29 @@
 package com.alibaba.json.bvt.parser.deser;
 
-import junit.framework.TestCase;
-
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.parser.DefaultExtJSONParser;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.serializer.InetAddressCodec;
+import com.alibaba.fastjson.serializer.MiscCodec;
 import com.alibaba.fastjson.serializer.StringCodec;
+
+import junit.framework.TestCase;
 
 public class InetAddressDeserializerTest extends TestCase {
 
     public void test_null() throws Exception {
         String input = "null";
-        DefaultExtJSONParser parser = new DefaultExtJSONParser(input, ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
+        DefaultJSONParser parser = new DefaultJSONParser(input, ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
 
-        InetAddressCodec deser = new InetAddressCodec();
+        MiscCodec deser = new MiscCodec();
 
         Assert.assertNull(deser.deserialze(parser, null, null));
     }
     
     public void test_string_null() throws Exception {
         String input = "null";
-        DefaultExtJSONParser parser = new DefaultExtJSONParser(input, ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
+        DefaultJSONParser parser = new DefaultJSONParser(input, ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
         
         StringCodec deser = new StringCodec();
         
@@ -32,9 +32,9 @@ public class InetAddressDeserializerTest extends TestCase {
 
     public void test_error_0() throws Exception {
         String input = "'[&中国-^]'";
-        DefaultExtJSONParser parser = new DefaultExtJSONParser(input, ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
+        DefaultJSONParser parser = new DefaultJSONParser(input, ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
 
-        InetAddressCodec deser = new InetAddressCodec();
+        MiscCodec deser = new MiscCodec();
 
         Throwable error = null;
 

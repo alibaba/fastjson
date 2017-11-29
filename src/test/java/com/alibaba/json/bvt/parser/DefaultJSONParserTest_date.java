@@ -2,17 +2,25 @@ package com.alibaba.json.bvt.parser;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
 import org.junit.Assert;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 
 public class DefaultJSONParserTest_date extends TestCase {
+    protected void setUp() throws Exception {
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        JSON.defaultLocale = Locale.CHINA;
+    }
+    
     public void test_date() {
         String text = "{\"date\":\"2011-01-09T13:49:53.254\"}";
         char[] chars = text.toCharArray();
@@ -53,7 +61,11 @@ public class DefaultJSONParserTest_date extends TestCase {
     public void test_dateFormat() throws Exception {
         DefaultJSONParser parser = new DefaultJSONParser("{}");
         parser.setDateFormat("yyyy-DD-mm");
-        parser.setDateFomrat(new SimpleDateFormat("yyyy-DD-mm"));
+        
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-DD-mm", JSON.defaultLocale);
+        format.setTimeZone(JSON.defaultTimeZone);
+        
+        parser.setDateFomrat(format);
         parser.getDateFomartPattern();
         parser.getDateFormat();
         parser.parse();

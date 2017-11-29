@@ -1,0 +1,26 @@
+{
+	"hello":"asafsadf", //single line comment
+	"test":1 , 
+	/**
+	多行注释
+	*/
+	
+		/**
+	多行注释
+	*/
+	
+	"array":[
+	"10000sfsaf" /*test*/,
+	100, //hello
+	{
+		"nihao":{"test":"sdfasdf"/*hehe*/}
+	}
+	],
+	
+	"object":{/*en*/
+	
+		"teset" /*ceshi*/ : 1000/*测试*/
+	}
+	//单行注释
+
+}

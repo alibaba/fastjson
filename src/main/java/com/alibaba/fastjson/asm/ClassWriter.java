@@ -34,195 +34,6 @@ package com.alibaba.fastjson.asm;
  * @author Eric Bruneton
  */
 public class ClassWriter {
-
-    /**
-     * Flag to automatically compute the maximum stack size and the maximum number of local variables of methods. If
-     * this flag is set, then the arguments of the {@link MethodVisitor#visitMaxs visitMaxs} method of the
-     * {@link MethodVisitor} returned by the {@link #visitMethod visitMethod} method will be ignored, and computed
-     * automatically from the signature and the bytecode of each method.
-     * 
-     * @see #ClassWriter(int)
-     */
-    public static final int COMPUTE_MAXS            = 1;
-
-    /**
-     * Flag to automatically compute the stack map frames of methods from scratch. If this flag is set, then the calls
-     * to the MethodVisitor#visitFrame method are ignored, and the stack map frames are recomputed from the
-     * methods bytecode. The arguments of the MethodVisitor#visitMaxs method are also ignored and
-     * recomputed from the bytecode. In other words, computeFrames implies computeMaxs.
-     * 
-     * @see #ClassWriter(int)
-     */
-    public static final int COMPUTE_FRAMES          = 2;
-
-    /**
-     * Pseudo access flag to distinguish between the synthetic attribute and the synthetic access flag.
-     */
-    static final int        ACC_SYNTHETIC_ATTRIBUTE = 0x40000;
-
-    /**
-     * The type of instructions without any argument.
-     */
-    static final int        NOARG_INSN              = 0;
-
-    /**
-     * The type of instructions with an signed byte argument.
-     */
-    static final int        SBYTE_INSN              = 1;
-
-    /**
-     * The type of instructions with an signed short argument.
-     */
-    static final int        SHORT_INSN              = 2;
-
-    /**
-     * The type of instructions with a local variable index argument.
-     */
-    static final int        VAR_INSN                = 3;
-
-    /**
-     * The type of instructions with an implicit local variable index argument.
-     */
-    static final int        IMPLVAR_INSN            = 4;
-
-    /**
-     * The type of instructions with a type descriptor argument.
-     */
-    static final int        TYPE_INSN               = 5;
-
-    /**
-     * The type of field and method invocations instructions.
-     */
-    static final int        FIELDORMETH_INSN        = 6;
-
-    /**
-     * The type of the INVOKEINTERFACE/INVOKEDYNAMIC instruction.
-     */
-    static final int        ITFDYNMETH_INSN         = 7;
-
-    /**
-     * The type of instructions with a 2 bytes bytecode offset label.
-     */
-    static final int        LABEL_INSN              = 8;
-
-    /**
-     * The type of instructions with a 4 bytes bytecode offset label.
-     */
-    static final int        LABELW_INSN             = 9;
-
-    /**
-     * The type of the LDC instruction.
-     */
-    static final int        LDC_INSN                = 10;
-
-    /**
-     * The type of the LDC_W and LDC2_W instructions.
-     */
-    static final int        LDCW_INSN               = 11;
-
-    /**
-     * The type of the IINC instruction.
-     */
-    static final int        IINC_INSN               = 12;
-
-    /**
-     * The type of the TABLESWITCH instruction.
-     */
-    static final int        TABL_INSN               = 13;
-
-    /**
-     * The type of the LOOKUPSWITCH instruction.
-     */
-    static final int        LOOK_INSN               = 14;
-
-    /**
-     * The type of the MULTIANEWARRAY instruction.
-     */
-    static final int        MANA_INSN               = 15;
-
-    /**
-     * The type of the WIDE instruction.
-     */
-    static final int        WIDE_INSN               = 16;
-
-    /**
-     * The instruction types of all JVM opcodes.
-     */
-    static final byte[]     TYPE;
-
-    /**
-     * The type of CONSTANT_Class constant pool items.
-     */
-    static final int        CLASS                   = 7;
-
-    /**
-     * The type of CONSTANT_Fieldref constant pool items.
-     */
-    static final int        FIELD                   = 9;
-
-    /**
-     * The type of CONSTANT_Methodref constant pool items.
-     */
-    static final int        METH                    = 10;
-
-    /**
-     * The type of CONSTANT_InterfaceMethodref constant pool items.
-     */
-    static final int        IMETH                   = 11;
-
-    /**
-     * The type of CONSTANT_String constant pool items.
-     */
-    static final int        STR                     = 8;
-
-    /**
-     * The type of CONSTANT_Integer constant pool items.
-     */
-    static final int        INT                     = 3;
-
-    /**
-     * The type of CONSTANT_Float constant pool items.
-     */
-    static final int        FLOAT                   = 4;
-
-    /**
-     * The type of CONSTANT_Long constant pool items.
-     */
-    static final int        LONG                    = 5;
-
-    /**
-     * The type of CONSTANT_Double constant pool items.
-     */
-    static final int        DOUBLE                  = 6;
-
-    /**
-     * The type of CONSTANT_NameAndType constant pool items.
-     */
-    static final int        NAME_TYPE               = 12;
-
-    /**
-     * The type of CONSTANT_Utf8 constant pool items.
-     */
-    static final int        UTF8                    = 1;
-
-    /**
-     * Normal type Item stored in the ClassWriter {@link ClassWriter#typeTable}, instead of the constant pool, in order
-     * to avoid clashes with normal constant pool items in the ClassWriter constant pool's hash table.
-     */
-    static final int        TYPE_NORMAL             = 13;
-
-    /**
-     * Uninitialized type Item stored in the ClassWriter {@link ClassWriter#typeTable}, instead of the constant pool, in
-     * order to avoid clashes with normal constant pool items in the ClassWriter constant pool's hash table.
-     */
-    static final int        TYPE_UNINIT             = 14;
-
-    /**
-     * Merged type Item stored in the ClassWriter {@link ClassWriter#typeTable}, instead of the constant pool, in order
-     * to avoid clashes with normal constant pool items in the ClassWriter constant pool's hash table.
-     */
-    static final int        TYPE_MERGED             = 15;
-
     /**
      * Minor and major version numbers of the class to be generated.
      */
@@ -329,91 +140,6 @@ public class ClassWriter {
     MethodWriter            lastMethod;
 
     // ------------------------------------------------------------------------
-    // Static initializer
-    // ------------------------------------------------------------------------
-
-    /**
-     * Computes the instruction types of JVM opcodes.
-     */
-    static {
-        int i;
-        byte[] b = new byte[220];
-        String s = "AAAAAAAAAAAAAAAABCKLLDDDDDEEEEEEEEEEEEEEEEEEEEAAAAAAAADD" + "DDDEEEEEEEEEEEEEEEEEEEEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" + "AAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAIIIIIIIIIIIIIIIIDNOAA" + "AAAAGGGGGGGHHFBFAAFFAAQPIIJJIIIIIIIIIIIIIIIIII";
-        for (i = 0; i < b.length; ++i) {
-            b[i] = (byte) (s.charAt(i) - 'A');
-        }
-        TYPE = b;
-
-        // code to generate the above string
-        //
-        // // SBYTE_INSN instructions
-        // b[Constants.NEWARRAY] = SBYTE_INSN;
-        // b[Constants.BIPUSH] = SBYTE_INSN;
-        //
-        // // SHORT_INSN instructions
-        // b[Constants.SIPUSH] = SHORT_INSN;
-        //
-        // // (IMPL)VAR_INSN instructions
-        // b[Constants.RET] = VAR_INSN;
-        // for (i = Constants.ILOAD; i <= Constants.ALOAD; ++i) {
-        // b[i] = VAR_INSN;
-        // }
-        // for (i = Constants.ISTORE; i <= Constants.ASTORE; ++i) {
-        // b[i] = VAR_INSN;
-        // }
-        // for (i = 26; i <= 45; ++i) { // ILOAD_0 to ALOAD_3
-        // b[i] = IMPLVAR_INSN;
-        // }
-        // for (i = 59; i <= 78; ++i) { // ISTORE_0 to ASTORE_3
-        // b[i] = IMPLVAR_INSN;
-        // }
-        //
-        // // TYPE_INSN instructions
-        // b[Constants.NEW] = TYPE_INSN;
-        // b[Constants.ANEWARRAY] = TYPE_INSN;
-        // b[Constants.CHECKCAST] = TYPE_INSN;
-        // b[Constants.INSTANCEOF] = TYPE_INSN;
-        //
-        // // (Set)FIELDORMETH_INSN instructions
-        // for (i = Constants.GETSTATIC; i <= Constants.INVOKESTATIC; ++i) {
-        // b[i] = FIELDORMETH_INSN;
-        // }
-        // b[Constants.INVOKEINTERFACE] = ITFDYNMETH_INSN;
-        // b[Constants.INVOKEDYNAMIC] = ITFDYNMETH_INSN;
-        //
-        // // LABEL(W)_INSN instructions
-        // for (i = Constants.IFEQ; i <= Constants.JSR; ++i) {
-        // b[i] = LABEL_INSN;
-        // }
-        // b[Constants.IFNULL] = LABEL_INSN;
-        // b[Constants.IFNONNULL] = LABEL_INSN;
-        // b[200] = LABELW_INSN; // GOTO_W
-        // b[201] = LABELW_INSN; // JSR_W
-        // // temporary opcodes used internally by ASM - see Label and
-        // MethodWriter
-        // for (i = 202; i < 220; ++i) {
-        // b[i] = LABEL_INSN;
-        // }
-        //
-        // // LDC(_W) instructions
-        // b[Constants.LDC] = LDC_INSN;
-        // b[19] = LDCW_INSN; // LDC_W
-        // b[20] = LDCW_INSN; // LDC2_W
-        //
-        // // special instructions
-        // b[Constants.IINC] = IINC_INSN;
-        // b[Constants.TABLESWITCH] = TABL_INSN;
-        // b[Constants.LOOKUPSWITCH] = LOOK_INSN;
-        // b[Constants.MULTIANEWARRAY] = MANA_INSN;
-        // b[196] = WIDE_INSN; // WIDE
-        //
-        // for (i = 0; i < b.length; ++i) {
-        // System.err.print((char)('A' + b[i]));
-        // }
-        // System.err.println();
-    }
-
-    // ------------------------------------------------------------------------
     // Constructor
     // ------------------------------------------------------------------------
 
@@ -421,12 +147,6 @@ public class ClassWriter {
         this(0);
     }
 
-    /**
-     * Constructs a new {@link ClassWriter} object.
-     * 
-     * @param flags option flags that can be used to modify the default behavior of this class. See
-     * {@link #COMPUTE_MAXS}, {@link #COMPUTE_FRAMES}.
-     */
     private ClassWriter(final int flags){
         index = 1;
         pool = new ByteVector();
@@ -444,24 +164,16 @@ public class ClassWriter {
     public void visit(final int version, final int access, final String name, final String superName, final String[] interfaces) {
         this.version = version;
         this.access = access;
-        this.name = newClass(name);
+        this.name = newClassItem(name).index;
         thisName = name;
-        this.superName = superName == null ? 0 : newClass(superName);
+        this.superName = superName == null ? 0 : newClassItem(superName).index;
         if (interfaces != null && interfaces.length > 0) {
             interfaceCount = interfaces.length;
             this.interfaces = new int[interfaceCount];
             for (int i = 0; i < interfaceCount; ++i) {
-                this.interfaces[i] = newClass(interfaces[i]);
+                this.interfaces[i] = newClassItem(interfaces[i]).index;
             }
         }
-    }
-
-    public FieldVisitor visitField(final int access, final String name, final String desc) {
-        return new FieldWriter(this, access, name, desc);
-    }
-
-    public MethodVisitor visitMethod(final int access, final String name, final String desc, final String signature, final String[] exceptions) {
-        return new MethodWriter(this, access, name, desc, signature, exceptions);
     }
 
     // ------------------------------------------------------------------------
@@ -497,7 +209,7 @@ public class ClassWriter {
         ByteVector out = new ByteVector(size);
         out.putInt(0xCAFEBABE).putInt(version);
         out.putShort(index).putByteArray(pool.data, 0, pool.length);
-        int mask = Opcodes.ACC_DEPRECATED | ClassWriter.ACC_SYNTHETIC_ATTRIBUTE | ((access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) / (ClassWriter.ACC_SYNTHETIC_ATTRIBUTE / Opcodes.ACC_SYNTHETIC));
+        int mask = 393216; // Opcodes.ACC_DEPRECATED | ClassWriter.ACC_SYNTHETIC_ATTRIBUTE | ((access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) / (ClassWriter.ACC_SYNTHETIC_ATTRIBUTE / Opcodes.ACC_SYNTHETIC));
         out.putShort(access & ~mask).putShort(name).putShort(superName);
         out.putShort(interfaceCount);
         for (int i = 0; i < interfaceCount; ++i) {
@@ -534,52 +246,45 @@ public class ClassWriter {
     Item newConstItem(final Object cst) {
         if (cst instanceof Integer) {
             int val = ((Integer) cst).intValue();
-            return newInteger(val);
+            // return newInteger(val);
+            key.set(val);
+            Item result = get(key);
+            if (result == null) {
+                pool.putByte(3 /* INT */ ).putInt(val);
+                result = new Item(index++, key);
+                put(result);
+            }
+            return result;
         } else if (cst instanceof String) {
             return newString((String) cst);
         } else if (cst instanceof Type) {
             Type t = (Type) cst;
-            return newClassItem(t.getSort() == Type.OBJECT ? t.getInternalName() : t.getDescriptor());
+            return newClassItem(t.sort == 10 /*Type.OBJECT*/ ? t.getInternalName() : t.getDescriptor());
         } else {
             throw new IllegalArgumentException("value " + cst);
         }
     }
-    
-    Item newInteger(final int value) {
-        key.set(value);
-        Item result = get(key);
-        if (result == null) {
-            pool.putByte(INT).putInt(value);
-            result = new Item(index++, key);
-            put(result);
-        }
-        return result;
-    }
 
     public int newUTF8(final String value) {
-        key.set(UTF8, value, null, null);
+        key.set(1 /* UTF8 */, value, null, null);
         Item result = get(key);
         if (result == null) {
-            pool.putByte(UTF8).putUTF8(value);
+            pool.putByte(1 /* UTF8 */).putUTF8(value);
             result = new Item(index++, key);
             put(result);
         }
         return result.index;
     }
 
-    Item newClassItem(final String value) {
-        key2.set(CLASS, value, null, null);
+    public Item newClassItem(final String value) {
+        key2.set(7 /* CLASS */, value, null, null);
         Item result = get(key2);
         if (result == null) {
-            pool.put12(CLASS, newUTF8(value));
+            pool.put12(7 /* CLASS */, newUTF8(value));
             result = new Item(index++, key2);
             put(result);
         }
         return result;
-    }
-
-    public int newClass(final String value) {
-        return newClassItem(value).index;
     }
 
     /**
@@ -592,10 +297,12 @@ public class ClassWriter {
      * @return a new or already existing field reference item.
      */
     Item newFieldItem(final String owner, final String name, final String desc) {
-        key3.set(FIELD, owner, name, desc);
+        key3.set(9 /* FIELD */, owner, name, desc);
         Item result = get(key3);
         if (result == null) {
-            put122(FIELD, newClass(owner), newNameType(name, desc));
+            // put122(9 /* FIELD */, newClassItem(owner).index, newNameTypeItem(name, desc).index);
+            int s1 = newClassItem(owner).index, s2 = newNameTypeItem(name, desc).index;
+            pool.put12(9 /* FIELD */, s1).putShort(s2);
             result = new Item(index++, key3);
             put(result);
         }
@@ -613,65 +320,44 @@ public class ClassWriter {
      * @return a new or already existing method reference item.
      */
     Item newMethodItem(final String owner, final String name, final String desc, final boolean itf) {
-        int type = itf ? IMETH : METH;
+        int type = itf ? 11 /* IMETH */ : 10 /* METH */;
         key3.set(type, owner, name, desc);
         Item result = get(key3);
         if (result == null) {
-            put122(type, newClass(owner), newNameType(name, desc));
+            // put122(type, newClassItem(owner).index, newNameTypeItem(name, desc).index);
+            int s1 = newClassItem(owner).index, s2 = newNameTypeItem(name, desc).index;
+            pool.put12(type, s1).putShort(s2);
             result = new Item(index++, key3);
             put(result);
         }
         return result;
     }
 
-    /**
-     * Adds a string to the constant pool of the class being build. Does nothing if the constant pool already contains a
-     * similar item.
-     * 
-     * @param value the String value.
-     * @return a new or already existing string item.
-     */
     private Item newString(final String value) {
-        key2.set(STR, value, null, null);
+        key2.set(8 /* STR */, value, null, null);
         Item result = get(key2);
         if (result == null) {
-            pool.put12(STR, newUTF8(value));
+            pool.put12(8 /*STR*/, newUTF8(value));
             result = new Item(index++, key2);
             put(result);
         }
         return result;
     }
 
-    public int newNameType(final String name, final String desc) {
-        return newNameTypeItem(name, desc).index;
-    }
-
-    /**
-     * Adds a name and type to the constant pool of the class being build. Does nothing if the constant pool already
-     * contains a similar item.
-     * 
-     * @param name a name.
-     * @param desc a type descriptor.
-     * @return a new or already existing name and type item.
-     */
-    Item newNameTypeItem(final String name, final String desc) {
-        key2.set(NAME_TYPE, name, desc, null);
+    public Item newNameTypeItem(final String name, final String desc) {
+        key2.set(12 /* NAME_TYPE */, name, desc, null);
         Item result = get(key2);
         if (result == null) {
-            put122(NAME_TYPE, newUTF8(name), newUTF8(desc));
+            //put122(12 /* NAME_TYPE */, newUTF8(name), newUTF8(desc));
+            int s1 = newUTF8(name), s2 = newUTF8(desc);
+            pool.put12(12 /* NAME_TYPE */, s1).putShort(s2);
             result = new Item(index++, key2);
             put(result);
         }
         return result;
     }
 
-    /**
-     * Returns the constant pool's hash table item which is equal to the given item.
-     * 
-     * @param key a constant pool item.
-     * @return the constant pool's hash table item which is equal to the given item, or <tt>null</tt> if there is no
-     * such item.
-     */
+
     private Item get(final Item key) {
         Item i = items[key.hashCode % items.length];
         while (i != null && (i.type != key.type || !key.isEqualTo(i))) {
@@ -680,11 +366,6 @@ public class ClassWriter {
         return i;
     }
 
-    /**
-     * Puts the given item in the constant pool's hash table. The hash table <i>must</i> not already contains this item.
-     * 
-     * @param i the item to be added to the constant pool's hash table.
-     */
     private void put(final Item i) {
         if (index > threshold) {
             int ll = items.length;
@@ -706,16 +387,5 @@ public class ClassWriter {
         int index = i.hashCode % items.length;
         i.next = items[index];
         items[index] = i;
-    }
-
-    /**
-     * Puts one byte and two shorts into the constant pool.
-     * 
-     * @param b a byte.
-     * @param s1 a short.
-     * @param s2 another short.
-     */
-    private void put122(final int b, final int s1, final int s2) {
-        pool.put12(b, s1).putShort(s2);
     }
 }

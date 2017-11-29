@@ -21,7 +21,6 @@ public class JSONReader_error extends TestCase {
         }
         Assert.assertNotNull(error);
         
-        reader.close();
     }
 
     public void test_1() throws Exception {
@@ -37,6 +36,5 @@ public class JSONReader_error extends TestCase {
             error = e;
         }
         Assert.assertNotNull(error);
-        reader.close();
     }
 }

@@ -20,7 +20,7 @@ public class MapSerializerTest extends TestCase {
         SerializeWriter out = new SerializeWriter();
 
         MapSerializer mapSerializer = new MapSerializer();
-        mapSerializer.write(new JSONSerializer(out), Collections.EMPTY_MAP, null, null);
+        mapSerializer.write(new JSONSerializer(out), Collections.EMPTY_MAP, null, null, 0);
 
         Assert.assertEquals("{}", out.toString());
     }
@@ -29,7 +29,7 @@ public class MapSerializerTest extends TestCase {
         SerializeWriter out = new SerializeWriter();
 
         MapSerializer mapSerializer = new MapSerializer();
-        mapSerializer.write(new JSONSerializer(out), Collections.singletonMap("A", 1), null, null);
+        mapSerializer.write(new JSONSerializer(out), Collections.singletonMap("A", 1), null, null, 0);
 
         Assert.assertEquals("{\"A\":1}", out.toString());
     }
@@ -41,7 +41,7 @@ public class MapSerializerTest extends TestCase {
         Map<String, Integer> map = new LinkedHashMap<String, Integer>();
         map.put("A", 1);
         map.put("B", 2);
-        mapSerializer.write(new JSONSerializer(out), map, null, null);
+        mapSerializer.write(new JSONSerializer(out), map, null, null, 0);
 
         Assert.assertEquals("{\"A\":1,\"B\":2}", out.toString());
     }
@@ -53,7 +53,7 @@ public class MapSerializerTest extends TestCase {
         Map<String, Long> map = new LinkedHashMap<String, Long>();
         map.put("A", 1L);
         map.put("B", 2L);
-        mapSerializer.write(new JSONSerializer(out), map, null, null);
+        mapSerializer.write(new JSONSerializer(out), map, null, null, 0);
 
         Assert.assertEquals("{\"A\":1,\"B\":2}", out.toString());
     }
@@ -65,7 +65,7 @@ public class MapSerializerTest extends TestCase {
         Map<String, String> map = new LinkedHashMap<String, String>();
         map.put("A", "1");
         map.put("B", "2");
-        mapSerializer.write(new JSONSerializer(out), map, null, null);
+        mapSerializer.write(new JSONSerializer(out), map, null, null, 0);
 
         Assert.assertEquals("{\"A\":\"1\",\"B\":\"2\"}", out.toString());
     }
@@ -80,7 +80,7 @@ public class MapSerializerTest extends TestCase {
         Map<String, String> map = new LinkedHashMap<String, String>();
         map.put("A", "1");
         map.put("B", "2");
-        mapSerializer.write(serializer, map, null, null);
+        mapSerializer.write(serializer, map, null, null, 0);
 
         Assert.assertEquals("{'A':'1','B':'2'}", out.toString());
     }
@@ -89,7 +89,7 @@ public class MapSerializerTest extends TestCase {
         SerializeWriter out = new SerializeWriter();
 
         MapSerializer mapSerializer = new MapSerializer();
-        mapSerializer.write(new JSONSerializer(out), Collections.singletonMap("A\nB", 1), null, null);
+        mapSerializer.write(new JSONSerializer(out), Collections.singletonMap("A\nB", 1), null, null, 0);
 
         Assert.assertEquals("{\"A\\nB\":1}", out.toString());
     }
@@ -98,7 +98,7 @@ public class MapSerializerTest extends TestCase {
         SerializeWriter out = new SerializeWriter();
 
         MapSerializer mapSerializer = new MapSerializer();
-        mapSerializer.write(new JSONSerializer(out), Collections.singletonMap("A\nB", 1), null, null);
+        mapSerializer.write(new JSONSerializer(out), Collections.singletonMap("A\nB", 1), null, null, 0);
 
         Assert.assertEquals("{\"A\\nB\":1}", out.toString());
     }
@@ -107,7 +107,7 @@ public class MapSerializerTest extends TestCase {
         SerializeWriter out = new SerializeWriter();
 
         MapSerializer mapSerializer = new MapSerializer();
-        mapSerializer.write(new JSONSerializer(out), Collections.singletonMap("A\nB", Collections.EMPTY_MAP), null, null);
+        mapSerializer.write(new JSONSerializer(out), Collections.singletonMap("A\nB", Collections.EMPTY_MAP), null, null, 0);
 
         Assert.assertEquals("{\"A\\nB\":{}}", out.toString());
     }
@@ -119,7 +119,7 @@ public class MapSerializerTest extends TestCase {
         map.put("bytes", new byte[] { 1, 2 });
 
         MapSerializer mapSerializer = new MapSerializer();
-        mapSerializer.write(new JSONSerializer(out), map, null, null);
+        mapSerializer.write(new JSONSerializer(out), map, null, null, 0);
 
         String text = out.toString();
         Assert.assertEquals("{\"TOP\":\"value\",\"bytes\":\"AQI=\"}", text);

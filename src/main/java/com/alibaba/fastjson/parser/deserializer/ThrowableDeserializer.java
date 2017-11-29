@@ -1,6 +1,7 @@
 package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,17 +13,18 @@ import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.serializer.JavaBeanSerializer;
 import com.alibaba.fastjson.util.TypeUtils;
 
 public class ThrowableDeserializer extends JavaBeanDeserializer {
 
     public ThrowableDeserializer(ParserConfig mapping, Class<?> clazz){
-        super(mapping, clazz);
+        super(mapping, clazz, clazz);
     }
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-        JSONLexer lexer = parser.getLexer();
+        JSONLexer lexer = parser.lexer;
         
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken();
@@ -49,7 +51,8 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
         
         String message = null;
         StackTraceElement[] stackTrace = null;
-        Map<String, Object> otherValues = new HashMap<String, Object>();
+        Map<String, Object> otherValues = null;
+
 
         for (;;) {
             // lexer.scanSymbol
@@ -72,7 +75,7 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
             if (JSON.DEFAULT_TYPE_KEY.equals(key)) {
                 if (lexer.token() == JSONToken.LITERAL_STRING) {
                     String exClassName = lexer.stringVal();
-                    exClass = TypeUtils.loadClass(exClassName);
+                    exClass = parser.getConfig().checkAutoType(exClassName, Throwable.class, lexer.getFeatures());
                 } else {
                     throw new JSONException("syntax error");
                 }
@@ -91,7 +94,9 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
             } else if ("stackTrace".equals(key)) {
                 stackTrace = parser.parseObject(StackTraceElement[].class);
             } else {
-                // TODO
+                if (otherValues == null) {
+                    otherValues = new HashMap<String, Object>();
+                }
                 otherValues.put(key, parser.parse());
             }
 
@@ -105,6 +110,10 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
         if (exClass == null) {
             ex = new Exception(message, cause);
         } else {
+            if (!Throwable.class.isAssignableFrom(exClass)) {
+                throw new JSONException("type not match, not Throwable. " + exClass.getName());
+            }
+
             try {
                 ex = createException(message, cause, exClass);
                 if (ex == null) {
@@ -119,6 +128,31 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
             ex.setStackTrace(stackTrace);
         }
 
+        if (otherValues != null) {
+            JavaBeanDeserializer exBeanDeser = null;
+
+            if (exClass != null) {
+                if (exClass == clazz) {
+                    exBeanDeser = this;
+                } else {
+                    ObjectDeserializer exDeser = parser.getConfig().getDeserializer(exClass);
+                    if (exDeser instanceof JavaBeanDeserializer) {
+                        exBeanDeser = (JavaBeanDeserializer) exDeser;
+                    }
+                }
+            }
+
+            for (Map.Entry<String, Object> entry : otherValues.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+
+                FieldDeserializer fieldDeserializer = exBeanDeser.getFieldDeserializer(key);
+                if (fieldDeserializer != null) {
+                    fieldDeserializer.setValue(ex, value);
+                }
+            }
+        }
+
         return (T) ex;
     }
 
@@ -127,18 +161,18 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
         Constructor<?> messageConstructor = null;
         Constructor<?> causeConstructor = null;
         for (Constructor<?> constructor : exClass.getConstructors()) {
-            if (constructor.getParameterTypes().length == 0) {
+        	Class<?>[] types = constructor.getParameterTypes();
+            if (types.length == 0) {
                 defaultConstructor = constructor;
                 continue;
             }
 
-            if (constructor.getParameterTypes().length == 1 && constructor.getParameterTypes()[0] == String.class) {
+            if (types.length == 1 && types[0] == String.class) {
                 messageConstructor = constructor;
                 continue;
             }
 
-            if (constructor.getParameterTypes().length == 2 && constructor.getParameterTypes()[0] == String.class
-                && constructor.getParameterTypes()[1] == Throwable.class) {
+            if (types.length == 2 && types[0] == String.class && types[1] == Throwable.class) {
                 causeConstructor = constructor;
                 continue;
             }

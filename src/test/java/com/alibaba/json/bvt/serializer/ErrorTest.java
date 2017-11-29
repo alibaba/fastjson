@@ -18,7 +18,7 @@ public class ErrorTest extends TestCase {
         SerializeConfig config = new SerializeConfig();
         config.put(A.class, new ObjectSerializer() {
 
-            public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType)
+            public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
                                                                                                          throws IOException {
                 throw new IOException();
             }

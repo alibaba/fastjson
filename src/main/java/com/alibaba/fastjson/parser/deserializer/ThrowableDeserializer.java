@@ -142,13 +142,15 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
                 }
             }
 
-            for (Map.Entry<String, Object> entry : otherValues.entrySet()) {
-                String key = entry.getKey();
-                Object value = entry.getValue();
+            if (exBeanDeser != null) {
+                for (Map.Entry<String, Object> entry : otherValues.entrySet()) {
+                    String key = entry.getKey();
+                    Object value = entry.getValue();
 
-                FieldDeserializer fieldDeserializer = exBeanDeser.getFieldDeserializer(key);
-                if (fieldDeserializer != null) {
-                    fieldDeserializer.setValue(ex, value);
+                    FieldDeserializer fieldDeserializer = exBeanDeser.getFieldDeserializer(key);
+                    if (fieldDeserializer != null) {
+                        fieldDeserializer.setValue(ex, value);
+                    }
                 }
             }
         }

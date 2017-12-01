@@ -369,7 +369,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
             }
         }
 
-        if (arguments == null) {
+        if (arguments == null || class_gd == null) {
             return null;
         }
 

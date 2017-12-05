@@ -1080,6 +1080,9 @@ public class JSONPath implements JSONAware {
             
             if (text.indexOf("\\.") != -1) {
                 String propName = text.replaceAll("\\\\\\.","\\.");
+                if (propName.indexOf("\\-") != -1) {
+                    propName = propName.replaceAll("\\\\-","-");
+                }
                 return new PropertySegement(propName, false);
             }
 

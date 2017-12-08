@@ -703,7 +703,11 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
      * @since 1.2.42
      */
     public static byte[] toJSONBytes(Object object, SerializeFilter[] filters, SerializerFeature... features) {
-        return toJSONBytes(object, SerializeConfig.globalInstance, emptyFilters, DEFAULT_GENERATE_FEATURE, features);
+        return toJSONBytes(object, SerializeConfig.globalInstance, filters, DEFAULT_GENERATE_FEATURE, features);
+    }
+
+    public static byte[] toJSONBytes(Object object, SerializeConfig config, SerializeFilter filter, SerializerFeature... features) {
+        return toJSONBytes(object, config, new SerializeFilter[] {filter}, DEFAULT_GENERATE_FEATURE, features);
     }
     
     /**

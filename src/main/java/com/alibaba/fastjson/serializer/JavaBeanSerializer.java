@@ -59,6 +59,13 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         return aliasMap;
     }
 
+    /**
+     * @since 1.2.42
+     */
+    public Class<?> getType() {
+        return beanInfo.beanType;
+    }
+
     public JavaBeanSerializer(Class<?> beanType, Map<String, String> aliasMap){
         this(TypeUtils.buildBeanInfo(beanType, aliasMap, null));
     }
@@ -257,28 +264,40 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 propertyValue = this.processValue(serializer, fieldSerializer.fieldContext, object, fieldInfoName,
                                                         propertyValue);
 
-                if (propertyValue == null && !writeAsArray) {
+                if (propertyValue == null) {
                     if (fieldClass == Boolean.class) {
-                        final int mask = SerializerFeature.WriteNullBooleanAsFalse.mask | SerializerFeature.WriteMapNullValue.mask;
-                        if ((fieldInfo.serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
+                        int defaultMask = SerializerFeature.WriteNullBooleanAsFalse.mask;
+                        final int mask = defaultMask | SerializerFeature.WriteMapNullValue.mask;
+                        if ((!writeAsArray) && (fieldInfo.serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
                             continue;
+                        } else if ((fieldInfo.serialzeFeatures & defaultMask) != 0 || (out.features & defaultMask) != 0) {
+                            propertyValue = false;
                         }
                     } else if (fieldClass == String.class) {
-                        final int mask = SerializerFeature.WriteNullStringAsEmpty.mask | SerializerFeature.WriteMapNullValue.mask;
-                        if ((fieldInfo.serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
+                        int defaultMask = SerializerFeature.WriteNullStringAsEmpty.mask;
+                        final int mask = defaultMask | SerializerFeature.WriteMapNullValue.mask;
+                        if ((!writeAsArray) && (fieldInfo.serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
                             continue;
+                        } else if ((fieldInfo.serialzeFeatures & defaultMask) != 0 || (out.features & defaultMask) != 0) {
+                            propertyValue = "";
                         }
                     } else if (Number.class.isAssignableFrom(fieldClass)) {
-                        final int mask = SerializerFeature.WriteNullNumberAsZero.mask | SerializerFeature.WriteMapNullValue.mask;
-                        if ((fieldInfo.serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
+                        int defaultMask = SerializerFeature.WriteNullNumberAsZero.mask;
+                        final int mask = defaultMask | SerializerFeature.WriteMapNullValue.mask;
+                        if ((!writeAsArray) && (fieldInfo.serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
                             continue;
+                        } else if ((fieldInfo.serialzeFeatures & defaultMask) != 0 || (out.features & defaultMask) != 0) {
+                            propertyValue = 0;
                         }
                     } else if (Collection.class.isAssignableFrom(fieldClass)) {
-                        final int mask = SerializerFeature.WriteNullListAsEmpty.mask | SerializerFeature.WriteMapNullValue.mask;
-                        if ((fieldInfo.serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
+                        int defaultMask = SerializerFeature.WriteNullListAsEmpty.mask;
+                        final int mask = defaultMask | SerializerFeature.WriteMapNullValue.mask;
+                        if ((!writeAsArray) && (fieldInfo.serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
                             continue;
+                        } else if ((fieldInfo.serialzeFeatures & defaultMask) != 0 || (out.features & defaultMask) != 0) {
+                            propertyValue = Collections.emptyList();
                         }
-                    } else if ((!fieldSerializer.writeNull) && !out.isEnabled(SerializerFeature.WriteMapNullValue.mask)){
+                    } else if ((!writeAsArray) && (!fieldSerializer.writeNull) && !out.isEnabled(SerializerFeature.WriteMapNullValue.mask)){
                         continue;
                     }
                 }

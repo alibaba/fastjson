@@ -125,7 +125,12 @@ public enum Feature {
     /**
      * @since 1.2.41, backport to 1.1.66.android
      */
-    SupportAutoType
+    SupportAutoType,
+
+    /**
+     * @since 1.2.42
+     */
+    NonStringKeyAsString
     ;
 
     Feature(){

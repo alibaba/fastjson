@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -83,11 +84,24 @@ public abstract class FieldDeserializer {
                     } else if (Map.class.isAssignableFrom(method.getReturnType())) {
                         Map map = (Map) method.invoke(object);
                         if (map != null) {
+                            if (map == Collections.emptyMap()
+                                    || map.getClass().getName().startsWith("java.util.Collections$Unmodifiable")) {
+                                // skip
+                                return;
+                            }
+                            
                             map.putAll((Map) value);
                         }
                     } else {
                         Collection collection = (Collection) method.invoke(object);
                         if (collection != null && value != null) {
+                            if (collection == Collections.emptySet()
+                                    || collection == Collections.emptyList()
+                                    || collection.getClass().getName().startsWith("java.util.Collections$Unmodifiable")) {
+                                // skip
+                                return;
+                            }
+
                             collection.clear();
                             collection.addAll((Collection) value);
                         }
@@ -117,11 +131,23 @@ public abstract class FieldDeserializer {
                     } else if (Map.class.isAssignableFrom(fieldInfo.fieldClass)) {
                         Map map = (Map) field.get(object);
                         if (map != null) {
+                            if (map == Collections.emptyMap()
+                                    || map.getClass().getName().startsWith("java.util.Collections$Unmodifiable")) {
+                                // skip
+                                return;
+                            }
                             map.putAll((Map) value);
                         }
                     } else {
                         Collection collection = (Collection) field.get(object);
                         if (collection != null && value != null) {
+                            if (collection == Collections.emptySet()
+                                    || collection == Collections.emptyList()
+                                    || collection.getClass().getName().startsWith("java.util.Collections$Unmodifiable")) {
+                                // skip
+                                return;
+                            }
+
                             collection.clear();
                             collection.addAll((Collection) value);
                         }

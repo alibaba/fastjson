@@ -254,11 +254,14 @@ public class DefaultJSONParser implements Closeable {
                     lexer.resetStringPosition();
                     lexer.scanNumber();
                     try {
-                    if (lexer.token() == JSONToken.LITERAL_INT) {
-                        key = lexer.integerValue();
-                    } else {
-                        key = lexer.decimalValue(true);
-                    }
+                        if (lexer.token() == JSONToken.LITERAL_INT) {
+                            key = lexer.integerValue();
+                        } else {
+                            key = lexer.decimalValue(true);
+                        }
+                        if (lexer.isEnabled(Feature.NonStringKeyAsString)) {
+                            key = key.toString();
+                        }
                     } catch (NumberFormatException e) {
                         throw new JSONException("parse number key error" + lexer.info());
                     }

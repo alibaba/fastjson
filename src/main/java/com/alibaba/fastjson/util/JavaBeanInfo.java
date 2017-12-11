@@ -265,6 +265,8 @@ public class JavaBeanInfo {
                 TypeUtils.setAccessible(creatorConstructor);
 
                 Class<?>[] types = creatorConstructor.getParameterTypes();
+
+                String[] lookupParameterNames = null;
                 if (types.length > 0) {
                     Annotation[][] paramAnnotationArrays = creatorConstructor.getParameterAnnotations();
                     for (int i = 0; i < types.length; ++i) {
@@ -276,16 +278,29 @@ public class JavaBeanInfo {
                                 break;
                             }
                         }
-                        if (fieldAnnotation == null) {
-                            throw new JSONException("illegal json creator");
-                        }
+
                         Class<?> fieldClass = types[i];
                         Type fieldType = creatorConstructor.getGenericParameterTypes()[i];
-                        Field field = TypeUtils.getField(clazz, fieldAnnotation.name(), declaredFields);
-                        final int ordinal = fieldAnnotation.ordinal();
-                        final int serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
-                        final int parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
-                        FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, field,
+
+                        String fieldName = null;
+                        Field field = null;
+                        int ordinal = 0, serialzeFeatures = 0, parserFeatures = 0;
+                        if (fieldAnnotation != null) {
+                            field = TypeUtils.getField(clazz, fieldAnnotation.name(), declaredFields);
+                            ordinal = fieldAnnotation.ordinal();
+                            serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                            parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
+                            fieldName = fieldAnnotation.name();
+                        }
+
+                        if (fieldName == null || fieldName.length() == 0) {
+                            if (lookupParameterNames == null) {
+                                lookupParameterNames = ASMUtils.lookupParameterNames(creatorConstructor);
+                            }
+                            fieldName = lookupParameterNames[i];
+                        }
+
+                        FieldInfo fieldInfo = new FieldInfo(fieldName, clazz, fieldClass, fieldType, field,
                                 ordinal, serialzeFeatures, parserFeatures);
                         add(fieldList, fieldInfo);
                     }

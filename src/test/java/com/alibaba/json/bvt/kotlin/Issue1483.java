@@ -10,10 +10,7 @@ import java.io.InputStream;
 /**
  * Created by wenshao on 05/08/2017.
  */
-public class
-
-
-Issue1483 extends TestCase {
+public class Issue1483 extends TestCase {
 
     public void test_user() throws Exception {
         ExtClassLoader classLoader = new ExtClassLoader();
@@ -23,11 +20,12 @@ Issue1483 extends TestCase {
         Object obj = JSON.parseObject(json, clazz);
         assertSame(clazz, obj.getClass());
 
-        if ("{\"age\":99,\"desc\":\"[robohorse\",\"name\":\"xx]\"}".equals(JSON.toJSONString(obj))) {
+        String text = JSON.toJSONString(obj);
+        if ("{\"age\":99,\"desc\":\"[robohorse\",\"name\":\"xx]\"}".equals(text)) {
             return;
         }
 
-        assertEquals("{\"age\":99,\"desc\":\"xx\",\"name\":\"robohorse\"}", JSON.toJSONString(obj));
+        assertEquals("{\"age\":99,\"desc\":\"xx\",\"name\":\"robohorse\"}", text);
     }
 
     public static class ExtClassLoader extends ClassLoader {

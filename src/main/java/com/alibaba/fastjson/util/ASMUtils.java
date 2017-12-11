@@ -1,10 +1,12 @@
 package com.alibaba.fastjson.util;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.asm.ClassReader;
 import com.alibaba.fastjson.asm.TypeCollector;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -119,16 +121,19 @@ public class ASMUtils {
         final Class<?> declaringClass;
         final String name;
 
+        Annotation[][] parameterAnnotations;
         if (methodOrCtor instanceof Method) {
             Method method = (Method) methodOrCtor;
             types = method.getParameterTypes();
             name = method.getName();
             declaringClass = method.getDeclaringClass();
+            parameterAnnotations = method.getParameterAnnotations();
         } else {
             Constructor<?> constructor = (Constructor<?>) methodOrCtor;
             types = constructor.getParameterTypes();
             declaringClass = constructor.getDeclaringClass();
             name = "<init>";
+            parameterAnnotations = constructor.getParameterAnnotations();
         }
 
         if (types.length == 0) {
@@ -152,7 +157,24 @@ public class ASMUtils {
             ClassReader reader = new ClassReader(is);
             TypeCollector visitor = new TypeCollector(name, types);
             reader.accept(visitor);
-            return visitor.getParameterNamesForMethod();
+            String[] parameterNames = visitor.getParameterNamesForMethod();
+
+            for (int i = 0; i < parameterNames.length; i++) {
+                Annotation[] annotations = parameterAnnotations[i];
+                if (annotations != null) {
+                    for (int j = 0; j < annotations.length; j++) {
+                        if (annotations[j] instanceof JSONField) {
+                            JSONField jsonField = (JSONField) annotations[j];
+                            String fieldName = jsonField.name();
+                            if (fieldName != null && fieldName.length() > 0) {
+                                parameterNames[i] = fieldName;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return parameterNames;
         } catch (IOException e) {
             return new String[0];
         } finally {

@@ -25,6 +25,7 @@ public class Issue1483 extends TestCase {
             return;
         }
 
+
         assertEquals("{\"age\":99,\"desc\":\"xx\",\"name\":\"robohorse\"}", text);
     }
 

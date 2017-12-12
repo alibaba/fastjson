@@ -892,12 +892,12 @@ public class ParserConfig {
         final long BASIC = 0xcbf29ce484222325L;
         final long PRIME = 0x100000001b3L;
 
-        long h = BASIC;
-        h ^= className.charAt(0);
-        h *= PRIME;
-        h ^= className.charAt(className.length() - 1);
-        h *= PRIME;
-        if (h == 0x9198507b5af98f0L) {
+        if ((((BASIC
+                ^ className.charAt(0))
+                * PRIME)
+                ^ className.charAt(className.length() - 1))
+                * PRIME == 0x9198507b5af98f0L)
+        {
             className = className.substring(1, className.length() - 1);
         }
         

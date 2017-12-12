@@ -6,16 +6,6 @@ import com.alibaba.fastjson.parser.Feature;
 import junit.framework.TestCase;
 
 public class StrictAutoTypeTest_0 extends TestCase {
-    private int features;
-
-    protected void setUp() throws Exception {
-        this.features = JSON.DEFAULT_PARSER_FEATURE;
-    }
-
-    protected void tearDown() throws Exception {
-        JSON.DEFAULT_PARSER_FEATURE = features;
-    }
-
     public void test_0() throws Exception {
         JSON.parseObject("{\"@type\":\"com.alibaba.fastjson.JSONObject\"}", Object.class);
         JSON.parseObject("{\"@type\":\"com.alibaba.fastjson.JSONObject\"}", Object.class, Feature.SupportAutoType);
@@ -26,6 +16,7 @@ public class StrictAutoTypeTest_0 extends TestCase {
     }
 
     public void test_2() throws Exception {
+        assertEquals(989, JSON.DEFAULT_PARSER_FEATURE);
         {
             Exception error = null;
             try {

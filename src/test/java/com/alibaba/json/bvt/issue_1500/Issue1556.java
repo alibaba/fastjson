@@ -26,11 +26,12 @@ public class Issue1556 extends TestCase {
         classForData.setSecond(secondSubClass);
 
         ApiResult<ClassForData> apiResult = ApiResult.valueOfSuccess(classForData);
-        ParserConfig.getGlobalInstance().setAutoTypeSupport(true);
+        ParserConfig config = new ParserConfig();
+        config.setAutoTypeSupport(true);
 
         String jsonString = JSON.toJSONString(apiResult, SerializerFeature.WriteClassName);//这里加上SerializerFeature.DisableCircularReferenceDetect
         System.out.println(jsonString);
-        Object obj = JSON.parse(jsonString);//这里加上Feature.DisableCircularReferenceDetect  这样的话 是可以避免空值的  ，但是$ref 还有啥意思呢
+        Object obj = JSON.parse(jsonString, config);//这里加上Feature.DisableCircularReferenceDetect  这样的话 是可以避免空值的  ，但是$ref 还有啥意思呢
         System.out.println(JSON.toJSONString(obj));
     }
 

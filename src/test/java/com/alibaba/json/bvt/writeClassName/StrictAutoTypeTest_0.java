@@ -3,6 +3,7 @@ package com.alibaba.json.bvt.writeClassName;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.Feature;
+import com.alibaba.fastjson.parser.ParserConfig;
 import junit.framework.TestCase;
 
 public class StrictAutoTypeTest_0 extends TestCase {
@@ -16,7 +17,6 @@ public class StrictAutoTypeTest_0 extends TestCase {
     }
 
     public void test_2() throws Exception {
-        assertEquals(989, JSON.DEFAULT_PARSER_FEATURE);
         {
             Exception error = null;
             try {

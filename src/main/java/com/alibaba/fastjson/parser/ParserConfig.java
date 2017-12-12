@@ -137,11 +137,12 @@ public class ParserConfig {
                 -254670111376247151L,
                 33238344207745342L,
                 313864100207897507L,
-                551472537503600906L,
                 1203232727967308606L,
+                1502845958873959152L,
                 3547627781654598988L,
                 3730752432285826863L,
                 4147696707147271408L,
+                5347909877633654828L,
                 5450448828334921485L,
                 5751393439502795295L,
                 5944107969236155580L,
@@ -888,13 +889,18 @@ public class ParserConfig {
         String className = typeName.replace('$', '.');
         Class<?> clazz = null;
 
-        if (className.charAt(0) == 'L' && className.charAt(className.length() - 1) == ';') {
-            className = className.substring(1, className.length() - 1);
-        }
-
         final long BASIC = 0xcbf29ce484222325L;
         final long PRIME = 0x100000001b3L;
 
+        long h = BASIC;
+        h ^= className.charAt(0);
+        h *= PRIME;
+        h ^= className.charAt(className.length() - 1);
+        h *= PRIME;
+        if (h == 0x9198507b5af98f0L) {
+            className = className.substring(1, className.length() - 1);
+        }
+        
         long hash3 = BASIC;
         {
             char c = className.charAt(0);

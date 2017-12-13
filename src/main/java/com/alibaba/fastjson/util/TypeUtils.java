@@ -60,12 +60,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.serializer.CalendarCodec;
+import com.alibaba.fastjson.serializer.JavaBeanSerializer;
 import com.alibaba.fastjson.serializer.SerializeBeanInfo;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
@@ -855,6 +857,14 @@ public class TypeUtils{
             Type argType = type.getActualTypeArguments()[0];
             if(argType instanceof WildcardType){
                 return (T) cast(obj, rawTye, mapping);
+            }
+            if (rawTye instanceof Class) {
+                ObjectDeserializer deserializer = mapping.getDeserializer(rawTye);
+                if (deserializer != null) {
+                    String str = JSON.toJSONString(obj);
+                    DefaultJSONParser parser = new DefaultJSONParser(str, mapping);
+                    return (T) deserializer.deserialze(parser, type, null);
+                }
             }
         }
 

@@ -1012,4 +1012,8 @@ public class ParserConfig {
 
         return clazz;
     }
+
+    public void clearDeserializers() {
+        this.deserializers.clear();;
+    }
 }

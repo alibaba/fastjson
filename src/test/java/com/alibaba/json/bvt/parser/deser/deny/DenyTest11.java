@@ -20,6 +20,8 @@ public class DenyTest11 extends TestCase {
         config.configFromPropety(properties);
 
         assertFalse(config.isAutoTypeSupport());
+
+        config.clearDeserializers();
     }
 
     public void test_autoTypeDeny() throws Exception {

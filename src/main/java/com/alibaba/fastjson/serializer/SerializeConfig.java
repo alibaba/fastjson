@@ -728,4 +728,8 @@ public class SerializeConfig {
     public void setPropertyNamingStrategy(PropertyNamingStrategy propertyNamingStrategy) {
         this.propertyNamingStrategy = propertyNamingStrategy;
     }
+
+    public void clearSerializers() {
+        this.serializers.clear();
+    }
 }

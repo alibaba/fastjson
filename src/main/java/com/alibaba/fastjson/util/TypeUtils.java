@@ -859,6 +859,9 @@ public class TypeUtils{
                 return (T) cast(obj, rawTye, mapping);
             }
             if (rawTye instanceof Class) {
+                if (mapping == null) {
+                    mapping = ParserConfig.global;
+                }
                 ObjectDeserializer deserializer = mapping.getDeserializer(rawTye);
                 if (deserializer != null) {
                     String str = JSON.toJSONString(obj);

@@ -12,6 +12,10 @@ public class GenericTest5 extends TestCase {
         p1.label = "p1";
         p1.value = 3L;
         String p1Json = JSON.toJSONString(p1);
+
+        JSON.parseObject(p1Json, LongPair.class);
+        JSON.parseObject(p1Json, StringPair.class);
+
         JSONObject p1Jobj = JSON.parseObject(p1Json);
 
         TypeReference<Pair<Long>> tr = new TypeReference<Pair<Long>>() {};
@@ -22,10 +26,28 @@ public class GenericTest5 extends TestCase {
         p2 = p1Jobj.toJavaObject(tr);
         assertNotNull(p2);
         assertEquals(Long.valueOf(3), p2.value);
+
+
     }
 
     public static class Pair<T> {
-        public T value;
+        private T value;
         public String label;
+
+        public T getValue() {
+            return value;
+        }
+
+        public void setValue(T value) {
+            this.value = value;
+        }
+    }
+
+    public static class LongPair extends Pair<String> {
+
+    }
+
+    public static class StringPair extends Pair<String> {
+
     }
 }

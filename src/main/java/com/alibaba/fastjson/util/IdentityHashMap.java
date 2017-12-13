@@ -15,6 +15,7 @@
  */
 package com.alibaba.fastjson.util;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 /**
@@ -106,4 +107,7 @@ public class IdentityHashMap<K, V> {
         }
     }
 
+    public void clear() {
+        Arrays.fill(this.buckets, null);
+    }
 }

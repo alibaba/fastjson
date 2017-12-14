@@ -17,7 +17,7 @@ public class Issue978 extends TestCase {
         JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
         JSON.defaultLocale = Locale.CHINA;
     }
-    
+
     public void test_for_issue() throws Exception {
         Model model = new Model();
         model.date = new Date(1483413683714L);

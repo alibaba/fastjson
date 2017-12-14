@@ -203,6 +203,14 @@ public class ParserConfig {
             asmEnable = false;
         }
 
+        initDeserializers();
+
+        addItemsToDeny(DENYS);
+        addItemsToAccept(AUTO_TYPE_ACCEPT_LIST);
+
+    }
+
+    private void initDeserializers() {
         deserializers.put(SimpleDateFormat.class, MiscCodec.instance);
         deserializers.put(java.sql.Timestamp.class, SqlDateDeserializer.instance_timestamp);
         deserializers.put(java.sql.Date.class, SqlDateDeserializer.instance);
@@ -283,10 +291,6 @@ public class ParserConfig {
         deserializers.put(Closeable.class, JavaObjectDeserializer.instance);
 
         deserializers.put(JSONPObject.class, new JSONPDeserializer());
-
-        addItemsToDeny(DENYS);
-        addItemsToAccept(AUTO_TYPE_ACCEPT_LIST);
-
     }
     
     private static String[] splitItemsFormProperty(final String property ){
@@ -1014,6 +1018,7 @@ public class ParserConfig {
     }
 
     public void clearDeserializers() {
-        this.deserializers.clear();;
+        this.deserializers.clear();
+        this.initDeserializers();
     }
 }

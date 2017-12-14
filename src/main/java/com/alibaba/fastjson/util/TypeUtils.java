@@ -858,22 +858,23 @@ public class TypeUtils{
             if(argType instanceof WildcardType){
                 return (T) cast(obj, rawTye, mapping);
             }
-            if (rawTye instanceof Class) {
-                if (mapping == null) {
-                    mapping = ParserConfig.global;
-                }
-                ObjectDeserializer deserializer = mapping.getDeserializer(rawTye);
-                if (deserializer != null) {
-                    String str = JSON.toJSONString(obj);
-                    DefaultJSONParser parser = new DefaultJSONParser(str, mapping);
-                    return (T) deserializer.deserialze(parser, type, null);
-                }
-            }
         }
 
         if (rawTye == Map.Entry.class && obj instanceof Map && ((Map) obj).size() == 1) {
             Map.Entry entry = (Map.Entry) ((Map) obj).entrySet().iterator().next();
             return (T) entry;
+        }
+
+        if (rawTye instanceof Class) {
+            if (mapping == null) {
+                mapping = ParserConfig.global;
+            }
+            ObjectDeserializer deserializer = mapping.getDeserializer(rawTye);
+            if (deserializer != null) {
+                String str = JSON.toJSONString(obj);
+                DefaultJSONParser parser = new DefaultJSONParser(str, mapping);
+                return (T) deserializer.deserialze(parser, type, null);
+            }
         }
 
         throw new JSONException("can not cast to : " + type);

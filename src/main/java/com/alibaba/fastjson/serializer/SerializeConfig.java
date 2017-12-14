@@ -269,61 +269,65 @@ public class SerializeConfig {
 		    asm = false;
 		}
 
-		put(Boolean.class, BooleanCodec.instance);
-		put(Character.class, CharacterCodec.instance);
-		put(Byte.class, IntegerCodec.instance);
-		put(Short.class, IntegerCodec.instance);
-		put(Integer.class, IntegerCodec.instance);
-		put(Long.class, LongCodec.instance);
-		put(Float.class, FloatCodec.instance);
-		put(Double.class, DoubleSerializer.instance);
-		put(BigDecimal.class, BigDecimalCodec.instance);
-		put(BigInteger.class, BigIntegerCodec.instance);
-		put(String.class, StringCodec.instance);
-		put(byte[].class, PrimitiveArraySerializer.instance);
-		put(short[].class, PrimitiveArraySerializer.instance);
-		put(int[].class, PrimitiveArraySerializer.instance);
-		put(long[].class, PrimitiveArraySerializer.instance);
-		put(float[].class, PrimitiveArraySerializer.instance);
-		put(double[].class, PrimitiveArraySerializer.instance);
-		put(boolean[].class, PrimitiveArraySerializer.instance);
-		put(char[].class, PrimitiveArraySerializer.instance);
-		put(Object[].class, ObjectArrayCodec.instance);
-		put(Class.class, MiscCodec.instance);
+        initSerializers();
+	}
 
-		put(SimpleDateFormat.class, MiscCodec.instance);
-		put(Currency.class, new MiscCodec());
-		put(TimeZone.class, MiscCodec.instance);
-		put(InetAddress.class, MiscCodec.instance);
-		put(Inet4Address.class, MiscCodec.instance);
-		put(Inet6Address.class, MiscCodec.instance);
-		put(InetSocketAddress.class, MiscCodec.instance);
-		put(File.class, MiscCodec.instance);
-		put(Appendable.class, AppendableSerializer.instance);
-		put(StringBuffer.class, AppendableSerializer.instance);
-		put(StringBuilder.class, AppendableSerializer.instance);
-		put(Charset.class, ToStringSerializer.instance);
-		put(Pattern.class, ToStringSerializer.instance);
-		put(Locale.class, ToStringSerializer.instance);
-		put(URI.class, ToStringSerializer.instance);
-		put(URL.class, ToStringSerializer.instance);
-		put(UUID.class, ToStringSerializer.instance);
+    private void initSerializers() {
+        put(Boolean.class, BooleanCodec.instance);
+        put(Character.class, CharacterCodec.instance);
+        put(Byte.class, IntegerCodec.instance);
+        put(Short.class, IntegerCodec.instance);
+        put(Integer.class, IntegerCodec.instance);
+        put(Long.class, LongCodec.instance);
+        put(Float.class, FloatCodec.instance);
+        put(Double.class, DoubleSerializer.instance);
+        put(BigDecimal.class, BigDecimalCodec.instance);
+        put(BigInteger.class, BigIntegerCodec.instance);
+        put(String.class, StringCodec.instance);
+        put(byte[].class, PrimitiveArraySerializer.instance);
+        put(short[].class, PrimitiveArraySerializer.instance);
+        put(int[].class, PrimitiveArraySerializer.instance);
+        put(long[].class, PrimitiveArraySerializer.instance);
+        put(float[].class, PrimitiveArraySerializer.instance);
+        put(double[].class, PrimitiveArraySerializer.instance);
+        put(boolean[].class, PrimitiveArraySerializer.instance);
+        put(char[].class, PrimitiveArraySerializer.instance);
+        put(Object[].class, ObjectArrayCodec.instance);
+        put(Class.class, MiscCodec.instance);
 
-		// atomic
-		put(AtomicBoolean.class, AtomicCodec.instance);
-		put(AtomicInteger.class, AtomicCodec.instance);
-		put(AtomicLong.class, AtomicCodec.instance);
-		put(AtomicReference.class, ReferenceCodec.instance);
-		put(AtomicIntegerArray.class, AtomicCodec.instance);
-		put(AtomicLongArray.class, AtomicCodec.instance);
-		
-		put(WeakReference.class, ReferenceCodec.instance);
-		put(SoftReference.class, ReferenceCodec.instance);
+        put(SimpleDateFormat.class, MiscCodec.instance);
+        put(Currency.class, new MiscCodec());
+        put(TimeZone.class, MiscCodec.instance);
+        put(InetAddress.class, MiscCodec.instance);
+        put(Inet4Address.class, MiscCodec.instance);
+        put(Inet6Address.class, MiscCodec.instance);
+        put(InetSocketAddress.class, MiscCodec.instance);
+        put(File.class, MiscCodec.instance);
+        put(Appendable.class, AppendableSerializer.instance);
+        put(StringBuffer.class, AppendableSerializer.instance);
+        put(StringBuilder.class, AppendableSerializer.instance);
+        put(Charset.class, ToStringSerializer.instance);
+        put(Pattern.class, ToStringSerializer.instance);
+        put(Locale.class, ToStringSerializer.instance);
+        put(URI.class, ToStringSerializer.instance);
+        put(URL.class, ToStringSerializer.instance);
+        put(UUID.class, ToStringSerializer.instance);
+
+        // atomic
+        put(AtomicBoolean.class, AtomicCodec.instance);
+        put(AtomicInteger.class, AtomicCodec.instance);
+        put(AtomicLong.class, AtomicCodec.instance);
+        put(AtomicReference.class, ReferenceCodec.instance);
+        put(AtomicIntegerArray.class, AtomicCodec.instance);
+        put(AtomicLongArray.class, AtomicCodec.instance);
+
+        put(WeakReference.class, ReferenceCodec.instance);
+        put(SoftReference.class, ReferenceCodec.instance);
 
         put(LinkedList.class, CollectionCodec.instance);
-	}
-	
-	/**
+    }
+
+    /**
 	 * add class level serialize filter
 	 * @since 1.2.10
 	 */
@@ -731,5 +735,6 @@ public class SerializeConfig {
 
     public void clearSerializers() {
         this.serializers.clear();
+        this.initSerializers();
     }
 }

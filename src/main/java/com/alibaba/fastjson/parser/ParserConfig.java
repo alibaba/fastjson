@@ -905,6 +905,15 @@ public class ParserConfig {
                 ^ className.charAt(className.length() - 1))
                 * PRIME == 0x9198507b5af98f0L)
         {
+            if ((((BASIC
+                    ^ className.charAt(0))
+                    * PRIME)
+                    ^ className.charAt(1))
+                    * PRIME == 0x9195c07b5af5345L)
+            {
+                throw new JSONException("autoType is not support. " + typeName);
+            }
+            // 9195c07b5af5345
             className = className.substring(1, className.length() - 1);
         }
 

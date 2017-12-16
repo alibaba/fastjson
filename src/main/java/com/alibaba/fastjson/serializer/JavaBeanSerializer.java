@@ -48,7 +48,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
     
     protected final String          typeName;
     protected final String          typeKey;
-    
+
     public JavaBeanSerializer(Class<?> clazz) {
         this(clazz, (PropertyNamingStrategy) null);
     }
@@ -432,7 +432,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
                 if (propertyValueGot && propertyValue == null && !writeAsArray) {
                     if ((!fieldSerializer.writeNull)
-                        && (out.features & SerializerFeature.WriteMapNullValue.mask) == 0) {
+                        && ((features | out.features) & SerializerFeature.WriteMapNullValue.mask) == 0) {
                         continue;
                     }
                 }
@@ -570,9 +570,11 @@ public class JavaBeanSerializer implements ObjectSerializer {
                     } else {
                         if (!writeAsArray) {
                             if (fieldClass == String.class) {
+                                int serialzeFeatures = fieldSerializer.features | features;
                                 if (propertyValue == null) {
+
                                     if ((out.features & SerializerFeature.WriteNullStringAsEmpty.mask) != 0
-                                            || (fieldSerializer.features & SerializerFeature.WriteNullStringAsEmpty.mask) != 0
+                                            || (serialzeFeatures & SerializerFeature.WriteNullStringAsEmpty.mask) != 0
                                             ) {
                                         out.writeString("");
                                     } else {
@@ -580,7 +582,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                                     }
                                 } else {
                                     String propertyValueString = (String) propertyValue;
-                                    
+
                                     if (useSingleQuote) {
                                         out.writeStringWithSingleQuote(propertyValueString);
                                     } else {

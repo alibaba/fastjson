@@ -136,9 +136,20 @@ public class ASMSerializerFactory implements Opcodes {
         }
 
         String className = "ASMSerializer_" + seed.incrementAndGet() + "_" + clazz.getSimpleName();
+        String classNameType;
+        String classNameFull;
+        Package pkg = ASMSerializerFactory.class.getPackage();
+        if (pkg != null) {
+            String packageName = pkg.getName();
+            classNameType = packageName.replace('.', '/') + "/" + className;
+            classNameFull = packageName + "." + className;
+        } else {
+            classNameType = className;
+            classNameFull = className;
+        }
+
         String packageName = ASMSerializerFactory.class.getPackage().getName();
-        String classNameType = packageName.replace('.', '/') + "/" + className;
-        String classNameFull = packageName + "." + className;
+
 
         ClassWriter cw = new ClassWriter();
         cw.visit(V1_5 //

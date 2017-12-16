@@ -109,7 +109,7 @@ public class ASMSerializerFactory implements Opcodes {
             throw new JSONException("unsupportd class " + clazz.getName());
         }
 
-        JSONType jsonType = TypeUtils.getAnnotation(clazz,JSONType.class);
+        JSONType jsonType = TypeUtils.getAnnotation(clazz, JSONType.class);
 
         FieldInfo[] unsortedGetters = beanInfo.fields;
 
@@ -1972,7 +1972,10 @@ public class ASMSerializerFactory implements Opcodes {
         int features = 0;
         if (annotation != null) {
             features = SerializerFeature.of(annotation.serialzeFeatures());
-            ;
+        }
+        JSONType jsonType = context.beanInfo.jsonType;
+        if (jsonType != null) {
+            features |= SerializerFeature.of(jsonType.serialzeFeatures());
         }
 
         int writeNullFeatures;

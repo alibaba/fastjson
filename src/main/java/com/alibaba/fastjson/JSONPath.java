@@ -680,7 +680,7 @@ public class JSONPath implements JSONAware {
                                 next();
                             }
 
-                            if ("size".equals(propertyName)) {
+                            if ("size".equals(propertyName) || "length".equals(propertyName)) {
                                 return SizeSegement.instance;
                             }
 

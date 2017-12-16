@@ -2276,6 +2276,7 @@ public class JSONPath implements JSONAware {
     }
 
     final static long SIZE = 0x4dea9618e618ae3cL; // TypeUtils.fnv1a_64("size");
+    final static long LENGTH = 0xea11573f1af59eb5L; // TypeUtils.fnv1a_64("length");
 
     protected Object getPropertyValue(Object currentObject, String propertyName, long propertyNameHash) {
         if (currentObject == null) {
@@ -2286,7 +2287,7 @@ public class JSONPath implements JSONAware {
             Map map = (Map) currentObject;
             Object val = map.get(propertyName);
 
-            if (val == null && SIZE == propertyNameHash) {
+            if (val == null && (SIZE == propertyNameHash || LENGTH == propertyNameHash)) {
                 val = map.size();
             }
 
@@ -2307,7 +2308,7 @@ public class JSONPath implements JSONAware {
         if (currentObject instanceof List) {
             List list = (List) currentObject;
 
-            if (SIZE == propertyNameHash) {
+            if (SIZE == propertyNameHash || LENGTH == propertyNameHash) {
                 return list.size();
             }
 

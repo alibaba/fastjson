@@ -754,13 +754,13 @@ public class JavaBeanInfo {
                         }
                     }
 
+                    if (propertyNamingStrategy != null) {
+                        propertyName = propertyNamingStrategy.translate(propertyName);
+                    }
+
                     FieldInfo fieldInfo = getField(fieldList, propertyName);
                     if (fieldInfo != null) {
                         continue;
-                    }
-
-                    if (propertyNamingStrategy != null) {
-                        propertyName = propertyNamingStrategy.translate(propertyName);
                     }
 
                     add(fieldList, new FieldInfo(propertyName, method, null, clazz, type, 0, 0, 0, annotation, null, null));

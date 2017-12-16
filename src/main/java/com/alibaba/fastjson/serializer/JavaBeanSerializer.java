@@ -265,36 +265,41 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                                                         propertyValue);
 
                 if (propertyValue == null) {
+                    int serialzeFeatures = fieldInfo.serialzeFeatures;
+                    if (beanInfo.jsonType != null) {
+                        serialzeFeatures |= SerializerFeature.of(beanInfo.jsonType.serialzeFeatures());
+                    }
+                    // beanInfo.jsonType
                     if (fieldClass == Boolean.class) {
                         int defaultMask = SerializerFeature.WriteNullBooleanAsFalse.mask;
                         final int mask = defaultMask | SerializerFeature.WriteMapNullValue.mask;
-                        if ((!writeAsArray) && (fieldInfo.serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
+                        if ((!writeAsArray) && (serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
                             continue;
-                        } else if ((fieldInfo.serialzeFeatures & defaultMask) != 0 || (out.features & defaultMask) != 0) {
+                        } else if ((serialzeFeatures & defaultMask) != 0 || (out.features & defaultMask) != 0) {
                             propertyValue = false;
                         }
                     } else if (fieldClass == String.class) {
                         int defaultMask = SerializerFeature.WriteNullStringAsEmpty.mask;
                         final int mask = defaultMask | SerializerFeature.WriteMapNullValue.mask;
-                        if ((!writeAsArray) && (fieldInfo.serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
+                        if ((!writeAsArray) && (serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
                             continue;
-                        } else if ((fieldInfo.serialzeFeatures & defaultMask) != 0 || (out.features & defaultMask) != 0) {
+                        } else if ((serialzeFeatures & defaultMask) != 0 || (out.features & defaultMask) != 0) {
                             propertyValue = "";
                         }
                     } else if (Number.class.isAssignableFrom(fieldClass)) {
                         int defaultMask = SerializerFeature.WriteNullNumberAsZero.mask;
                         final int mask = defaultMask | SerializerFeature.WriteMapNullValue.mask;
-                        if ((!writeAsArray) && (fieldInfo.serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
+                        if ((!writeAsArray) && (serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
                             continue;
-                        } else if ((fieldInfo.serialzeFeatures & defaultMask) != 0 || (out.features & defaultMask) != 0) {
+                        } else if ((serialzeFeatures & defaultMask) != 0 || (out.features & defaultMask) != 0) {
                             propertyValue = 0;
                         }
                     } else if (Collection.class.isAssignableFrom(fieldClass)) {
                         int defaultMask = SerializerFeature.WriteNullListAsEmpty.mask;
                         final int mask = defaultMask | SerializerFeature.WriteMapNullValue.mask;
-                        if ((!writeAsArray) && (fieldInfo.serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
+                        if ((!writeAsArray) && (serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
                             continue;
-                        } else if ((fieldInfo.serialzeFeatures & defaultMask) != 0 || (out.features & defaultMask) != 0) {
+                        } else if ((serialzeFeatures & defaultMask) != 0 || (out.features & defaultMask) != 0) {
                             propertyValue = Collections.emptyList();
                         }
                     } else if ((!writeAsArray) && (!fieldSerializer.writeNull) && !out.isEnabled(SerializerFeature.WriteMapNullValue.mask)){

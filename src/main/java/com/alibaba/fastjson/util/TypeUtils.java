@@ -772,12 +772,15 @@ public class TypeUtils{
             calendar.setTime(date);
             return (T) calendar;
         }
-        if(clazz.getName().equals("javax.xml.datatype.XMLGregorianCalendar")){
+
+        String className = clazz.getName();
+        if(className.equals("javax.xml.datatype.XMLGregorianCalendar")){
             Date date = castToDate(obj);
             Calendar calendar = Calendar.getInstance(JSON.defaultTimeZone, JSON.defaultLocale);
             calendar.setTime(date);
             return (T) CalendarCodec.instance.createXMLGregorianCalendar(calendar);
         }
+
         if(obj instanceof String){
             String strVal = (String) obj;
             if(strVal.length() == 0 //
@@ -790,6 +793,11 @@ public class TypeUtils{
             }
             if(clazz == java.util.Locale.class){
                 return (T) toLocale(strVal);
+            }
+
+            if (className.startsWith("java.time.")) {
+                String json = JSON.toJSONString(strVal);
+                return JSON.parseObject(json, clazz);
             }
         }
         throw new JSONException("can not cast to : " + clazz.getName());

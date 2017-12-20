@@ -130,7 +130,12 @@ public enum Feature {
     /**
      * @since 1.2.42
      */
-    NonStringKeyAsString
+    NonStringKeyAsString,
+
+    /**
+     * @since 1.2.45
+     */
+    CustomMapDeserializer
     ;
 
     Feature(){

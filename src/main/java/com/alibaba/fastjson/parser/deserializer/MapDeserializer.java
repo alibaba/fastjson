@@ -311,7 +311,7 @@ public class MapDeserializer implements ObjectDeserializer {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    protected Map<Object, Object> createMap(Type type) {
+    public Map<Object, Object> createMap(Type type) {
         if (type == Properties.class) {
             return new Properties();
         }

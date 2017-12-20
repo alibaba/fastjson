@@ -224,9 +224,14 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     }
                 }
 
+                boolean notApply = false;
                 if ((!this.applyName(serializer, object, fieldInfoName)) //
                     || !this.applyLabel(serializer, fieldInfo.label)) {
-                    continue;
+                    if (writeAsArray) {
+                        notApply = true;
+                    } else {
+                        continue;
+                    }
                 }
 
                 if (beanInfo.typeKey != null
@@ -236,14 +241,18 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 }
 
                 Object propertyValue;
-                
-                try {
-                    propertyValue = fieldSerializer.getPropertyValueDirect(object);
-                } catch (InvocationTargetException ex) {
-                    if (out.isEnabled(SerializerFeature.IgnoreErrorGetter)) {
-                        propertyValue = null;
-                    } else {
-                        throw ex;
+
+                if (notApply) {
+                    propertyValue = null;
+                } else {
+                    try {
+                        propertyValue = fieldSerializer.getPropertyValueDirect(object);
+                    } catch (InvocationTargetException ex) {
+                        if (out.isEnabled(SerializerFeature.IgnoreErrorGetter)) {
+                            propertyValue = null;
+                        } else {
+                            throw ex;
+                        }
                     }
                 }
 

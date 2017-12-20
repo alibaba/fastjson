@@ -900,20 +900,12 @@ public class ParserConfig {
         final long PRIME = 0x100000001b3L;
 
         final long h1 = (BASIC ^ className.charAt(0)) * PRIME;
-        if (h1 == 0xaf64164c86024f1aL) {
+        if (h1 == 0xaf64164c86024f1aL) { // [
             throw new JSONException("autoType is not support. " + typeName);
         }
 
         if ((h1 ^ className.charAt(className.length() - 1)) * PRIME == 0x9198507b5af98f0L) {
-            if ((((BASIC
-                    ^ className.charAt(0))
-                    * PRIME)
-                    ^ className.charAt(1))
-                    * PRIME == 0x9195c07b5af5345L)
-            {
-                throw new JSONException("autoType is not support. " + typeName);
-            }
-            className = className.substring(1, className.length() - 1);
+            throw new JSONException("autoType is not support. " + typeName);
         }
 
         final long h3 = (((((BASIC ^ className.charAt(0))
@@ -981,7 +973,6 @@ public class ParserConfig {
                     return clazz;
                 }
             }
-
         }
 
         if (clazz == null) {

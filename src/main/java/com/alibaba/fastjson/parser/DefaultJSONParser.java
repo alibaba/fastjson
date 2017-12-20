@@ -188,6 +188,11 @@ public class DefaultJSONParser implements Closeable {
             return object;
         }
 
+        if (lexer.token() == JSONToken.LITERAL_STRING && lexer.stringVal().length() == 0) {
+            lexer.nextToken();
+            return object;
+        }
+
         if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {
             throw new JSONException("syntax error, expect {, actual " + lexer.tokenName() + ", " + lexer.info());
         }

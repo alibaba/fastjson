@@ -21,10 +21,7 @@ import java.io.Writer;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.IdentityHashMap;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.zip.GZIPOutputStream;
 
 import com.alibaba.fastjson.JSON;
@@ -346,6 +343,21 @@ public class JSONSerializer extends SerializeFilterable {
             } else {
                 out.writeByteArray(bytes);
             }
+            return;
+        }
+
+        if (object instanceof Collection) {
+            Collection collection = (Collection) object;
+            Iterator iterator = collection.iterator();
+            out.write('[');
+            for (int i = 0; i < collection.size(); i++) {
+                Object item = iterator.next();
+                if (i != 0) {
+                    out.write(',');
+                }
+                writeWithFormat(item, format);
+            }
+            out.write(']');
             return;
         }
         write(object);

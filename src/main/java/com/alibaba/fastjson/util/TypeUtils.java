@@ -867,6 +867,7 @@ public class TypeUtils{
         Type rawTye = type.getRawType();
         if(rawTye == Set.class || rawTye == HashSet.class //
                 || rawTye == TreeSet.class //
+                || rawTye == Collection.class //
                 || rawTye == List.class //
                 || rawTye == ArrayList.class){
             Type itemType = type.getActualTypeArguments()[0];

@@ -5,6 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
@@ -39,4 +40,10 @@ public @interface JSONType {
      * @since 1.2.11 backport to 1.1.52.android
      */
     Class<?>[] seeAlso() default{};
+
+    /**
+     * 
+     * @return
+     */
+    PropertyNamingStrategy naming() default PropertyNamingStrategy.CamelCase;
 }

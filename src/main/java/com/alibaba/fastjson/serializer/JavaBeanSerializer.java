@@ -18,13 +18,7 @@ package com.alibaba.fastjson.serializer;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
@@ -126,6 +120,13 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 }
                 if (typeKey != null && typeKey.length() == 0) {
                     typeKey = null;
+                }
+            }
+
+            if (propertyNamingStrategy == null) {
+                PropertyNamingStrategy typeNaming = jsonType.naming();
+                if (typeNaming != PropertyNamingStrategy.CamelCase) {
+                    propertyNamingStrategy = typeNaming;
                 }
             }
         }
@@ -430,9 +431,42 @@ public class JavaBeanSerializer implements ObjectSerializer {
                     }
                 }
 
-                if (propertyValueGot && propertyValue == null && !writeAsArray) {
-                    if ((!fieldSerializer.writeNull)
-                        && ((features | out.features) & SerializerFeature.WriteMapNullValue.mask) == 0) {
+                if (propertyValueGot && propertyValue == null) {
+                    int serialzeFeatures = fieldInfo.serialzeFeatures | features | out.features;
+                    // beanInfo.jsonType
+                    if (fieldClass == Boolean.class) {
+                        int defaultMask = SerializerFeature.WriteNullBooleanAsFalse.mask;
+                        final int mask = defaultMask | SerializerFeature.WriteMapNullValue.mask;
+                        if ((!writeAsArray) && (serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
+                            continue;
+                        } else if ((serialzeFeatures & defaultMask) != 0 || (out.features & defaultMask) != 0) {
+                            propertyValue = false;
+                        }
+                    } else if (fieldClass == String.class) {
+                        int defaultMask = SerializerFeature.WriteNullStringAsEmpty.mask;
+                        final int mask = defaultMask | SerializerFeature.WriteMapNullValue.mask;
+                        if ((!writeAsArray) && (serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
+                            continue;
+                        } else if ((serialzeFeatures & defaultMask) != 0 || (out.features & defaultMask) != 0) {
+                            propertyValue = "";
+                        }
+                    } else if (Number.class.isAssignableFrom(fieldClass)) {
+                        int defaultMask = SerializerFeature.WriteNullNumberAsZero.mask;
+                        final int mask = defaultMask | SerializerFeature.WriteMapNullValue.mask;
+                        if ((!writeAsArray) && (serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
+                            continue;
+                        } else if ((serialzeFeatures & defaultMask) != 0 || (out.features & defaultMask) != 0) {
+                            propertyValue = 0;
+                        }
+                    } else if (Collection.class.isAssignableFrom(fieldClass)) {
+                        int defaultMask = SerializerFeature.WriteNullListAsEmpty.mask;
+                        final int mask = defaultMask | SerializerFeature.WriteMapNullValue.mask;
+                        if ((!writeAsArray) && (serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
+                            continue;
+                        } else if ((serialzeFeatures & defaultMask) != 0 || (out.features & defaultMask) != 0) {
+                            propertyValue = Collections.emptyList();
+                        }
+                    } else if ((!writeAsArray) && (!fieldSerializer.writeNull) && !out.isEnabled(SerializerFeature.WriteMapNullValue)){
                         continue;
                     }
                 }

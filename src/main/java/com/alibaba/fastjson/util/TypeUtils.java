@@ -1095,6 +1095,7 @@ public class TypeUtils {
                     }
                 }
 
+                boolean fieldAnnotationExists = false;
                 if (annotation != null) {
                     if (!annotation.serialize()) {
                         continue;
@@ -1105,6 +1106,7 @@ public class TypeUtils {
 
                     if (annotation.name().length() != 0) {
                         String propertyName = annotation.name();
+                        fieldAnnotationExists = true;
 
                         if (aliasMap != null) {
                             propertyName = aliasMap.get(propertyName);
@@ -1165,6 +1167,7 @@ public class TypeUtils {
 
                             if (fieldAnnotation.name().length() != 0) {
                                 propertyName = fieldAnnotation.name();
+                                fieldAnnotationExists = true;
 
                                 if (aliasMap != null) {
                                     propertyName = aliasMap.get(propertyName);
@@ -1176,7 +1179,7 @@ public class TypeUtils {
                         }
                     }
                     
-                    if (propertyNamingStrategy != null) {
+                    if (propertyNamingStrategy != null && !fieldAnnotationExists) {
                         propertyName = propertyNamingStrategy.translate(propertyName);
                     }
 

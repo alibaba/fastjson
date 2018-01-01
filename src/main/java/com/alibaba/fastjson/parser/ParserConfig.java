@@ -300,11 +300,19 @@ public class ParserConfig {
             return null;
         }
 
-        if (typeName.length() >= 128) {
+        if (typeName.length() >= 128 || typeName.length() < 3) {
             throw new JSONException("autoType is not support. " + typeName);
         }
 
-        long hashCode = 0xcbf29ce484222325L;
+        final long BASIC = 0xcbf29ce484222325L;
+        final long PRIME = 0x100000001b3L;
+
+        final long h1 = (BASIC ^ typeName.charAt(0)) * PRIME;
+        if (h1 == 0xaf64164c86024f1aL) { // [
+            throw new JSONException("autoType is not support. " + typeName);
+        }
+
+        long hashCode = BASIC;
         for (int i = 0; i < typeName.length(); ++i) {
             char c = typeName.charAt(i);
             hashCode ^= c;

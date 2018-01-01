@@ -463,6 +463,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return toJSONString(object, SerializeConfig.globalInstance, null, null, 0, features);
     }
 
+    /**
+     * @since 1.2.42 and 1.1.68.android
+     */
     public static final byte[] toJSONBytes(Object object, SerializeConfig config, SerializerFeature... features) {
         SerializeWriter out = new SerializeWriter((Writer)null, JSON.DEFAULT_GENERATE_FEATURE, features);
 
@@ -470,6 +473,68 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             JSONSerializer serializer = new JSONSerializer(out, config);
             serializer.write(object);
 
+            return out.toBytes("UTF-8");
+        } finally {
+            out.close();
+        }
+    }
+
+    /**
+     * @since 1.2.11 and 1.1.68.android
+     */
+    public static byte[] toJSONBytes(Object object, SerializeConfig config, int defaultFeatures, SerializerFeature... features) {
+        return toJSONBytes(object, config, new SerializeFilter[0], defaultFeatures, features);
+    }
+
+    /**
+     * @since 1.2.42 and 1.1.68.android
+     */
+    public static byte[] toJSONBytes(Object object, SerializeFilter[] filters, SerializerFeature... features) {
+        return toJSONBytes(object, SerializeConfig.globalInstance, filters, DEFAULT_GENERATE_FEATURE, features);
+    }
+
+    /**
+     * @since 1.2.42 and 1.1.68.android
+     */
+    public static byte[] toJSONBytes(Object object, SerializeConfig config, SerializeFilter[] filters, int defaultFeatures, SerializerFeature... features) {
+        SerializeWriter out = new SerializeWriter(null, defaultFeatures, features);
+
+        try {
+            JSONSerializer serializer = new JSONSerializer(out, config);
+
+            if (filters != null) {
+                for (SerializeFilter filter : filters) {
+                    if (filter == null) {
+                        continue;
+                    }
+
+                    if (filter instanceof PropertyPreFilter) {
+                        serializer.getPropertyPreFilters().add((PropertyPreFilter) filter);
+                    }
+
+                    if (filter instanceof NameFilter) {
+                        serializer.getNameFilters().add((NameFilter) filter);
+                    }
+
+                    if (filter instanceof ValueFilter) {
+                        serializer.getValueFilters().add((ValueFilter) filter);
+                    }
+
+                    if (filter instanceof PropertyFilter) {
+                        serializer.getPropertyFilters().add((PropertyFilter) filter);
+                    }
+
+                    if (filter instanceof BeforeFilter) {
+                        serializer.getBeforeFilters().add((BeforeFilter) filter);
+                    }
+
+                    if (filter instanceof AfterFilter) {
+                        serializer.getAfterFilters().add((AfterFilter) filter);
+                    }
+                }
+            }
+
+            serializer.write(object);
             return out.toBytes("UTF-8");
         } finally {
             out.close();

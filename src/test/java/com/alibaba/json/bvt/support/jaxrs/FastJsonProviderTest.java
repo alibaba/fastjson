@@ -13,6 +13,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 
 public class FastJsonProviderTest extends TestCase {
@@ -60,6 +62,8 @@ public class FastJsonProviderTest extends TestCase {
         Assert.assertEquals(false, provider.isWriteable(String.class, String.class, null, MediaType.valueOf("applications/x-json")));
         Assert.assertEquals(false, provider.isReadable(null, null, null, MediaType.valueOf("application/x-javascript")));
         Assert.assertEquals(false, provider.isWriteable(null, null, null, null));
+        Assert.assertEquals(false, provider.isReadable(InputStream.class, null, null, MediaType.valueOf("application/x-javascript")));
+        Assert.assertEquals(false, provider.isWriteable(OutputStream.class, null, null, null));
 
 
         VO vo = (VO) provider.readFrom(null, VO.class, null, MediaType.APPLICATION_JSON_TYPE, null, new ByteArrayInputStream("{\"id\":123}".getBytes(Charset
@@ -80,7 +84,6 @@ public class FastJsonProviderTest extends TestCase {
         } catch (WebApplicationException ex) {
             Assert.assertNotNull(ex);
         }
-
     }
 
     private SerializeFilter serializeFilter = new ValueFilter() {

@@ -122,12 +122,12 @@ public class JavaBeanInfo {
         if (creatorConstructor != null) {
             this.creatorConstructorParameterTypes = creatorConstructor.getParameterTypes();
             boolean match;
-            if (creatorConstructorParameterTypes.length != sortedFields.length) {
+            if (creatorConstructorParameterTypes.length != fields.length) {
                 match = false;
             } else {
                 match = true;
                 for (int i = 0; i < creatorConstructorParameterTypes.length; i++) {
-                    if (creatorConstructorParameterTypes[i] != sortedFields[i].fieldClass) {
+                    if (creatorConstructorParameterTypes[i] != fields[i].fieldClass) {
                         match = false;
                         break;
                     }
@@ -138,6 +138,24 @@ public class JavaBeanInfo {
                 boolean kotlin = TypeUtils.isKotlin(clazz);
                 if (kotlin) {
                     this.creatorConstructorParameters = TypeUtils.getKoltinConstructorParameters(clazz);
+
+                    Annotation[][] paramAnnotationArrays = creatorConstructor.getParameterAnnotations();
+                    for (int i = 0; i < creatorConstructorParameters.length && i < paramAnnotationArrays.length; ++i) {
+                        Annotation[] paramAnnotations = paramAnnotationArrays[i];
+                        JSONField fieldAnnotation = null;
+                        for (Annotation paramAnnotation : paramAnnotations) {
+                            if (paramAnnotation instanceof JSONField) {
+                                fieldAnnotation = (JSONField) paramAnnotation;
+                                break;
+                            }
+                        }
+                        if (fieldAnnotation != null) {
+                            String fieldAnnotationName = fieldAnnotation.name();
+                            if (fieldAnnotationName.length() > 0) {
+                                creatorConstructorParameters[i] = fieldAnnotationName;
+                            }
+                        }
+                    }
                 } else {
                     this.creatorConstructorParameters = ASMUtils.lookupParameterNames(creatorConstructor);
                 }
@@ -200,6 +218,12 @@ public class JavaBeanInfo {
             , boolean compatibleWithJavaBean
     ) {
         JSONType jsonType = TypeUtils.getAnnotation(clazz,JSONType.class);
+        if (jsonType != null) {
+            PropertyNamingStrategy jsonTypeNaming = jsonType.naming();
+            if (jsonTypeNaming != null && jsonTypeNaming != PropertyNamingStrategy.CamelCase) {
+                propertyNamingStrategy = jsonTypeNaming;
+            }
+        }
 
         Class<?> builderClass = getBuilderClass(clazz, jsonType);
 
@@ -241,6 +265,8 @@ public class JavaBeanInfo {
                 TypeUtils.setAccessible(creatorConstructor);
 
                 Class<?>[] types = creatorConstructor.getParameterTypes();
+
+                String[] lookupParameterNames = null;
                 if (types.length > 0) {
                     Annotation[][] paramAnnotationArrays = creatorConstructor.getParameterAnnotations();
                     for (int i = 0; i < types.length; ++i) {
@@ -252,16 +278,29 @@ public class JavaBeanInfo {
                                 break;
                             }
                         }
-                        if (fieldAnnotation == null) {
-                            throw new JSONException("illegal json creator");
-                        }
+
                         Class<?> fieldClass = types[i];
                         Type fieldType = creatorConstructor.getGenericParameterTypes()[i];
-                        Field field = TypeUtils.getField(clazz, fieldAnnotation.name(), declaredFields);
-                        final int ordinal = fieldAnnotation.ordinal();
-                        final int serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
-                        final int parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
-                        FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, field,
+
+                        String fieldName = null;
+                        Field field = null;
+                        int ordinal = 0, serialzeFeatures = 0, parserFeatures = 0;
+                        if (fieldAnnotation != null) {
+                            field = TypeUtils.getField(clazz, fieldAnnotation.name(), declaredFields);
+                            ordinal = fieldAnnotation.ordinal();
+                            serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                            parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
+                            fieldName = fieldAnnotation.name();
+                        }
+
+                        if (fieldName == null || fieldName.length() == 0) {
+                            if (lookupParameterNames == null) {
+                                lookupParameterNames = ASMUtils.lookupParameterNames(creatorConstructor);
+                            }
+                            fieldName = lookupParameterNames[i];
+                        }
+
+                        FieldInfo fieldInfo = new FieldInfo(fieldName, clazz, fieldClass, fieldType, field,
                                 ordinal, serialzeFeatures, parserFeatures);
                         add(fieldList, fieldInfo);
                     }
@@ -715,13 +754,13 @@ public class JavaBeanInfo {
                         }
                     }
 
+                    if (propertyNamingStrategy != null) {
+                        propertyName = propertyNamingStrategy.translate(propertyName);
+                    }
+
                     FieldInfo fieldInfo = getField(fieldList, propertyName);
                     if (fieldInfo != null) {
                         continue;
-                    }
-
-                    if (propertyNamingStrategy != null) {
-                        propertyName = propertyNamingStrategy.translate(propertyName);
                     }
 
                     add(fieldList, new FieldInfo(propertyName, method, null, clazz, type, 0, 0, 0, annotation, null, null));

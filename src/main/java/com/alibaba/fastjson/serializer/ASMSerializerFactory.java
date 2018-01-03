@@ -1,10 +1,18 @@
 package com.alibaba.fastjson.serializer;
 
-import static com.alibaba.fastjson.util.ASMUtils.desc;
-import static com.alibaba.fastjson.util.ASMUtils.type;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.annotation.JSONType;
+import com.alibaba.fastjson.asm.*;
+import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.util.ASMClassLoader;
+import com.alibaba.fastjson.util.ASMUtils;
+import com.alibaba.fastjson.util.FieldInfo;
+import com.alibaba.fastjson.util.TypeUtils;
 
 import java.io.Serializable;
 import java.lang.reflect.*;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashMap;
@@ -12,20 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.annotation.JSONField;
-import com.alibaba.fastjson.annotation.JSONType;
-import com.alibaba.fastjson.asm.ClassWriter;
-import com.alibaba.fastjson.asm.FieldWriter;
-import com.alibaba.fastjson.asm.Label;
-import com.alibaba.fastjson.asm.MethodVisitor;
-import com.alibaba.fastjson.asm.MethodWriter;
-import com.alibaba.fastjson.asm.Opcodes;
-import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.util.ASMClassLoader;
-import com.alibaba.fastjson.util.ASMUtils;
-import com.alibaba.fastjson.util.FieldInfo;
-import com.alibaba.fastjson.util.TypeUtils;
+import static com.alibaba.fastjson.util.ASMUtils.desc;
+import static com.alibaba.fastjson.util.ASMUtils.type;
 
 public class ASMSerializerFactory implements Opcodes {
 
@@ -113,15 +109,15 @@ public class ASMSerializerFactory implements Opcodes {
             throw new JSONException("unsupportd class " + clazz.getName());
         }
 
-        JSONType jsonType = TypeUtils.getAnnotation(clazz,JSONType.class);
+        JSONType jsonType = TypeUtils.getAnnotation(clazz, JSONType.class);
 
-        FieldInfo[] unsortedGetters = beanInfo.fields;;
+        FieldInfo[] unsortedGetters = beanInfo.fields;
 
         for (FieldInfo fieldInfo : unsortedGetters) {
             if (fieldInfo.field == null //
                 && fieldInfo.method != null //
                 && fieldInfo.method.getDeclaringClass().isInterface()) {
-                return new JavaBeanSerializer(clazz);
+                return new JavaBeanSerializer(beanInfo);
             }
         }
 
@@ -130,19 +126,30 @@ public class ASMSerializerFactory implements Opcodes {
         boolean nativeSorted = beanInfo.sortedFields == beanInfo.fields;
 
         if (getters.length > 256) {
-            return new JavaBeanSerializer(clazz);
+            return new JavaBeanSerializer(beanInfo);
         }
 
         for (FieldInfo getter : getters) {
             if (!ASMUtils.checkName(getter.getMember().getName())) {
-                return new JavaBeanSerializer(clazz);
+                return new JavaBeanSerializer(beanInfo);
             }
         }
 
         String className = "ASMSerializer_" + seed.incrementAndGet() + "_" + clazz.getSimpleName();
+        String classNameType;
+        String classNameFull;
+        Package pkg = ASMSerializerFactory.class.getPackage();
+        if (pkg != null) {
+            String packageName = pkg.getName();
+            classNameType = packageName.replace('.', '/') + "/" + className;
+            classNameFull = packageName + "." + className;
+        } else {
+            classNameType = className;
+            classNameFull = className;
+        }
+
         String packageName = ASMSerializerFactory.class.getPackage().getName();
-        String classNameType = packageName.replace('.', '/') + "/" + className;
-        String classNameFull = packageName + "." + className;
+
 
         ClassWriter cw = new ClassWriter();
         cw.visit(V1_5 //
@@ -1965,12 +1972,32 @@ public class ASMSerializerFactory implements Opcodes {
         int features = 0;
         if (annotation != null) {
             features = SerializerFeature.of(annotation.serialzeFeatures());
-            ;
+        }
+        JSONType jsonType = context.beanInfo.jsonType;
+        if (jsonType != null) {
+            features |= SerializerFeature.of(jsonType.serialzeFeatures());
         }
 
-        if ((features & SerializerFeature.WRITE_MAP_NULL_FEATURES) == 0) {
+        int writeNullFeatures;
+        if (propertyClass == String.class) {
+            writeNullFeatures = SerializerFeature.WriteMapNullValue.getMask()
+                    | SerializerFeature.WriteNullStringAsEmpty.getMask();
+        } else if (Number.class.isAssignableFrom(propertyClass)) {
+            writeNullFeatures = SerializerFeature.WriteMapNullValue.getMask()
+                    | SerializerFeature.WriteNullNumberAsZero.getMask();
+        } else if (Collection.class.isAssignableFrom(propertyClass)) {
+            writeNullFeatures = SerializerFeature.WriteMapNullValue.getMask()
+                    | SerializerFeature.WriteNullListAsEmpty.getMask();
+        } else if (Boolean.class == propertyClass) {
+            writeNullFeatures = SerializerFeature.WriteMapNullValue.getMask()
+                    | SerializerFeature.WriteNullBooleanAsFalse.getMask();
+        } else {
+            writeNullFeatures = SerializerFeature.WRITE_MAP_NULL_FEATURES;
+        }
+
+        if ((features & writeNullFeatures) == 0) {
             mw.visitVarInsn(ALOAD, context.var("out"));
-            mw.visitLdcInsn(SerializerFeature.WRITE_MAP_NULL_FEATURES);
+            mw.visitLdcInsn(writeNullFeatures);
             mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "isEnabled", "(I)Z");
             mw.visitJumpInsn(IFEQ, _else);
         }

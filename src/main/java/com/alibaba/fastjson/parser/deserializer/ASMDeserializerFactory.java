@@ -63,14 +63,21 @@ public class ASMDeserializerFactory implements Opcodes {
         }
 
         String className = "FastjsonASMDeserializer_" + seed.incrementAndGet() + "_" + clazz.getSimpleName();
-        String packageName = ASMDeserializerFactory.class.getPackage().getName();
-        String classNameType = packageName.replace('.', '/') + "/" + className;
-        String classNameFull = packageName + "." + className;
+        String classNameType;
+        String classNameFull;
+
+        Package pkg = ASMDeserializerFactory.class.getPackage();
+        if (pkg != null) {
+            String packageName = pkg.getName();
+            classNameType = packageName.replace('.', '/') + "/" + className;
+            classNameFull = packageName + "." + className;
+        } else {
+            classNameType = className;
+            classNameFull = className;
+        }
 
         ClassWriter cw = new ClassWriter();
         cw.visit(V1_5, ACC_PUBLIC + ACC_SUPER, classNameType, type(JavaBeanDeserializer.class), null);
-
-        
 
         _init(cw, new Context(classNameType, config, beanInfo, 3));
         _createInstance(cw, new Context(classNameType, config, beanInfo, 3));

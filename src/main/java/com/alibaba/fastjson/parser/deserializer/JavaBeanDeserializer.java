@@ -693,7 +693,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
                             if (deserializer == null) {
                                 Class<?> expectClass = TypeUtils.getClass(type);
-                                userType = config.checkAutoType(typeName, expectClass);
+                                userType = config.checkAutoType(typeName, expectClass, lexer.getFeatures());
                                 deserializer = parser.getConfig().getDeserializer(userType);
                             }
 
@@ -1179,9 +1179,11 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         FieldInfo[] fieldInfoList = beanInfo.fields;
         int size = fieldInfoList.length;
         Object[] params = new Object[size];
+        Map<String, Integer> missFields = null;
         for (int i = 0; i < size; ++i) {
             FieldInfo fieldInfo = fieldInfoList[i];
             Object param = map.get(fieldInfo.name);
+
             if (param == null) {
                 Class<?> fieldClass = fieldInfo.fieldClass;
                 if (fieldClass == int.class) {
@@ -1201,10 +1203,29 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 } else if (fieldClass == boolean.class) {
                     param = false;
                 }
+                if (missFields == null) {
+                    missFields = new HashMap<String, Integer>();
+                }
+                missFields.put(fieldInfo.name, i);
             }
             params[i] = param;
         }
-        
+
+        if (missFields != null) {
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+
+                FieldDeserializer fieldDeser = smartMatch(key);
+                if (fieldDeser != null) {
+                    Integer index = missFields.get(fieldDeser.fieldInfo.name);
+                    if (index != null) {
+                        params[index] = value;
+                    }
+                }
+            }
+        }
+
         if (beanInfo.creatorConstructor != null) {
             try {
                 object = beanInfo.creatorConstructor.newInstance(params);

@@ -1,15 +1,14 @@
 package com.alibaba.fastjson;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.JSONSerializable;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JSONPObject implements JSONSerializable {
     public static String SECURITY_PREFIX = "/**/";
@@ -18,11 +17,11 @@ public class JSONPObject implements JSONSerializable {
     private static final int BrowserSecureMask = SerializerFeature.BrowserSecure.mask;
 
     private final List<Object> parameters = new ArrayList<Object>();
-    
+
     public JSONPObject() {
-        
+
     }
-    
+
     public JSONPObject(String function) {
         this.function = function;
     }
@@ -38,7 +37,7 @@ public class JSONPObject implements JSONSerializable {
     public List<Object> getParameters() {
         return parameters;
     }
-    
+
     public void addParameter(Object parameter) {
         this.parameters.add(parameter);
     }
@@ -54,14 +53,6 @@ public class JSONPObject implements JSONSerializable {
             writer.write(SECURITY_PREFIX);
         }
 
-        //解决  null(..)   问题
-        if (function == null || "".equals(function)) {
-            //仅做json处理  不该多个参数
-            if (parameters.size() > 0) {
-                serializer.write(parameters.get(0));
-            }
-            return;
-        }
         writer.write(function);
         writer.write('(');
         for (int i = 0; i < parameters.size(); ++i) {

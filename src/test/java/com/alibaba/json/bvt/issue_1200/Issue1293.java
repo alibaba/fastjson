@@ -11,26 +11,16 @@ public class Issue1293 extends TestCase {
 
     public void test_for_issue() {
         String data = "{\"idType\":\"123123\",\"userType\":\"134\",\"count\":\"123123\"}";
-        Exception ex = null;
-        try {
+        {
             Test test = JSON.parseObject(data, Test.class);
-            fail("exception for parsing wrong enum");
-        } catch (Exception e) {
-            ex = e;
-        }
-        assertNotNull(ex);
-        assertEquals("JSONException",ex.getClass().getSimpleName());
 
-        data = "{\"count\":\"123123\",\"idType\":\"123123\",\"userType\":\"134\"}";
-        ex = null;
-        try {
-            Test test = JSON.parseObject(data, Test.class);
-            fail("exception for parsing wrong enum");
-        } catch (Exception e) {
-            ex = e;
+            assertNull(test.idType);
+            assertNull(test.userType);
         }
-        assertNotNull(ex);
-        assertEquals("JSONException",ex.getClass().getSimpleName());
+
+        Test test = JSON.parseObject(data, Test.class);
+        assertNull(test.idType);
+        assertNull(test.userType);
 
     }
 

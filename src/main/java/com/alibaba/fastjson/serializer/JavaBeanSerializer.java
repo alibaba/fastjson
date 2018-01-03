@@ -22,6 +22,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
 import java.util.*;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.annotation.JSONField;
@@ -56,6 +57,13 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         }
 
         return aliasMap;
+    }
+
+    /**
+     * @since 1.2.42
+     */
+    public Class<?> getType() {
+        return beanInfo.beanType;
     }
 
     public JavaBeanSerializer(Class<?> beanType, Map<String, String> aliasMap){
@@ -216,9 +224,14 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     }
                 }
 
+                boolean notApply = false;
                 if ((!this.applyName(serializer, object, fieldInfoName)) //
                     || !this.applyLabel(serializer, fieldInfo.label)) {
-                    continue;
+                    if (writeAsArray) {
+                        notApply = true;
+                    } else {
+                        continue;
+                    }
                 }
 
                 if (beanInfo.typeKey != null
@@ -228,14 +241,18 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 }
 
                 Object propertyValue;
-                
-                try {
-                    propertyValue = fieldSerializer.getPropertyValueDirect(object);
-                } catch (InvocationTargetException ex) {
-                    if (out.isEnabled(SerializerFeature.IgnoreErrorGetter)) {
-                        propertyValue = null;
-                    } else {
-                        throw ex;
+
+                if (notApply) {
+                    propertyValue = null;
+                } else {
+                    try {
+                        propertyValue = fieldSerializer.getPropertyValueDirect(object);
+                    } catch (InvocationTargetException ex) {
+                        if (out.isEnabled(SerializerFeature.IgnoreErrorGetter)) {
+                            propertyValue = null;
+                        } else {
+                            throw ex;
+                        }
                     }
                 }
 
@@ -256,8 +273,45 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 propertyValue = this.processValue(serializer, fieldSerializer.fieldContext, object, fieldInfoName,
                                                         propertyValue);
 
-                if (propertyValue == null && !writeAsArray) {
-                    if ((!fieldSerializer.writeNull) && (!out.isEnabled(SerializerFeature.WRITE_MAP_NULL_FEATURES))) {
+                if (propertyValue == null) {
+                    int serialzeFeatures = fieldInfo.serialzeFeatures;
+                    if (beanInfo.jsonType != null) {
+                        serialzeFeatures |= SerializerFeature.of(beanInfo.jsonType.serialzeFeatures());
+                    }
+                    // beanInfo.jsonType
+                    if (fieldClass == Boolean.class) {
+                        int defaultMask = SerializerFeature.WriteNullBooleanAsFalse.mask;
+                        final int mask = defaultMask | SerializerFeature.WriteMapNullValue.mask;
+                        if ((!writeAsArray) && (serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
+                            continue;
+                        } else if ((serialzeFeatures & defaultMask) != 0 || (out.features & defaultMask) != 0) {
+                            propertyValue = false;
+                        }
+                    } else if (fieldClass == String.class) {
+                        int defaultMask = SerializerFeature.WriteNullStringAsEmpty.mask;
+                        final int mask = defaultMask | SerializerFeature.WriteMapNullValue.mask;
+                        if ((!writeAsArray) && (serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
+                            continue;
+                        } else if ((serialzeFeatures & defaultMask) != 0 || (out.features & defaultMask) != 0) {
+                            propertyValue = "";
+                        }
+                    } else if (Number.class.isAssignableFrom(fieldClass)) {
+                        int defaultMask = SerializerFeature.WriteNullNumberAsZero.mask;
+                        final int mask = defaultMask | SerializerFeature.WriteMapNullValue.mask;
+                        if ((!writeAsArray) && (serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
+                            continue;
+                        } else if ((serialzeFeatures & defaultMask) != 0 || (out.features & defaultMask) != 0) {
+                            propertyValue = 0;
+                        }
+                    } else if (Collection.class.isAssignableFrom(fieldClass)) {
+                        int defaultMask = SerializerFeature.WriteNullListAsEmpty.mask;
+                        final int mask = defaultMask | SerializerFeature.WriteMapNullValue.mask;
+                        if ((!writeAsArray) && (serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
+                            continue;
+                        } else if ((serialzeFeatures & defaultMask) != 0 || (out.features & defaultMask) != 0) {
+                            propertyValue = Collections.emptyList();
+                        }
+                    } else if ((!writeAsArray) && (!fieldSerializer.writeNull) && !out.isEnabled(SerializerFeature.WriteMapNullValue.mask)){
                         continue;
                     }
                 }
@@ -332,8 +386,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                         if (fieldClass == String.class && (fieldAnnotation == null || fieldAnnotation.serializeUsing() == Void.class)) {
                             if (propertyValue == null) {
                                 if ((out.features & SerializerFeature.WriteNullStringAsEmpty.mask) != 0
-                                    || (fieldSerializer.features
-                                        & SerializerFeature.WriteNullStringAsEmpty.mask) != 0) {
+                                    || (fieldSerializer.features & SerializerFeature.WriteNullStringAsEmpty.mask) != 0) {
                                     out.writeString("");
                                 } else {
                                     out.writeNull();
@@ -398,7 +451,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 out.append(endSeperator);
             }
         } catch (Exception e) {
-            String errorMessage = "write javaBean error";
+            String errorMessage = "write javaBean error, fastjson version " + JSON.VERSION;
             if (object != null) {
                 errorMessage += ", class " + object.getClass().getName();
             }

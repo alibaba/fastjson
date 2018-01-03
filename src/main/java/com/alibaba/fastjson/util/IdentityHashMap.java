@@ -15,6 +15,7 @@
  */
 package com.alibaba.fastjson.util;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 /**
@@ -26,7 +27,7 @@ import java.util.Collections;
 public class IdentityHashMap<K, V> {
     private final Entry<K, V>[] buckets;
     private final int           indexMask;
-    public final static int DEFAULT_SIZE = 1024;
+    public final static int DEFAULT_SIZE = 8192;
 
     public IdentityHashMap(){
         this(DEFAULT_SIZE);
@@ -51,7 +52,9 @@ public class IdentityHashMap<K, V> {
     }
 
     public Class findClass(String keyString) {
-        for (Entry bucket : buckets) {
+        for (int i = 0; i < buckets.length; i++) {
+            Entry bucket = buckets[i];
+
             if (bucket == null) {
                 continue;
             }
@@ -104,4 +107,7 @@ public class IdentityHashMap<K, V> {
         }
     }
 
+    public void clear() {
+        Arrays.fill(this.buckets, null);
+    }
 }

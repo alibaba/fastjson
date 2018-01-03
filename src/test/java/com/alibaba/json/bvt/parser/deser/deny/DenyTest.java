@@ -30,6 +30,25 @@ public class DenyTest extends TestCase {
         JSON.parseObject(text, B.class, config, JSON.DEFAULT_PARSER_FEATURE);
     }
 
+    public void test_1() throws Exception {
+        String text = "{}";
+
+        ParserConfig config = new ParserConfig();
+
+        config.addDeny(null);
+        config.addDeny("com.alibaba.json.bvt.parser.deser.deny.DenyTest.B");
+
+        Exception error = null;
+        try {
+            JSON.parseObject("{\"@type\":\"Lcom.alibaba.json.bvt.parser.deser.deny.DenyTest$B;\"}", Object.class, config, JSON.DEFAULT_PARSER_FEATURE);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        Assert.assertNotNull(error);
+
+        JSON.parseObject(text, B.class, config, JSON.DEFAULT_PARSER_FEATURE);
+    }
+
     
   public static class B {
         

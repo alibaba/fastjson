@@ -17,8 +17,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class TestExternal5 extends TestCase {
+    ParserConfig confg = ParserConfig.global;
     protected void setUp() throws Exception {
-        ParserConfig.global.addAccept("com.alibaba.dubbo.demo");
+        confg.addAccept("com.alibaba.dubbo.demo");
     }
 
     public void test_0() throws Exception {
@@ -36,9 +37,11 @@ public class TestExternal5 extends TestCase {
 
         String text = JSON.toJSONString(obj, SerializerFeature.WriteClassName, SerializerFeature.WriteMapNullValue);
         System.out.println(text);
-        JSON.parseObject(text, clazz);
-        String clazzName = JSON.parse(text).getClass().getName();
-        Assert.assertEquals(clazz.getName(), clazzName);
+        Object object = JSON.parseObject(text, clazz, confg);
+        assertEquals("a1", clazz.getName(), object.getClass().getName());
+
+        Object object2 = JSON.parse(text, confg);
+        assertEquals("a2 " + text, clazz.getName(), object2.getClass().getName());
     }
 
     public static class ExtClassLoader extends ClassLoader {

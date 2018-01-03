@@ -61,6 +61,10 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
         Map<?, ?> map = (Map<?, ?>) object;
         final int mapSortFieldMask = SerializerFeature.MapSortField.mask;
         if ((out.features & mapSortFieldMask) != 0 || (features & mapSortFieldMask) != 0) {
+            if (map instanceof JSONObject) {
+                map = ((JSONObject) map).getInnerMap();
+            }
+
             if ((!(map instanceof SortedMap)) && !(map instanceof LinkedHashMap)) {
                 try {
                     map = new TreeMap(map);

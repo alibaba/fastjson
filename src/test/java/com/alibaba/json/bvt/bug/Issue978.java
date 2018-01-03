@@ -6,11 +6,18 @@ import com.alibaba.fastjson.annotation.JSONField;
 import junit.framework.TestCase;
 
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * Created by wenshao on 10/01/2017.
  */
 public class Issue978 extends TestCase {
+    protected void setUp() throws Exception {
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        JSON.defaultLocale = Locale.CHINA;
+    }
+
     public void test_for_issue() throws Exception {
         Model model = new Model();
         model.date = new Date(1483413683714L);

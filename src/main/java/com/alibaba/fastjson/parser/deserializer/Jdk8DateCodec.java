@@ -72,7 +72,7 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                     formatter = DateTimeFormatter.ofPattern(format);
                 }
             }
-            
+
             if ("".equals(text)) {
                 return null;
             }
@@ -91,7 +91,7 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                 if (text.length() == 23) {
                     LocalDateTime localDateTime = LocalDateTime.parse(text);
                     localDate = LocalDate.of(localDateTime.getYear(), localDateTime.getMonthValue(),
-                                             localDateTime.getDayOfMonth());
+                            localDateTime.getDayOfMonth());
                 } else {
                     localDate = parseLocalDate(text, format, formatter);
                 }
@@ -102,7 +102,7 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                 if (text.length() == 23) {
                     LocalDateTime localDateTime = LocalDateTime.parse(text);
                     localDate = LocalTime.of(localDateTime.getHour(), localDateTime.getMinute(),
-                                             localDateTime.getSecond(), localDateTime.getNano());
+                            localDateTime.getSecond(), localDateTime.getNano());
                 } else {
                     localDate = LocalTime.parse(text);
                 }
@@ -140,6 +140,21 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
 
                 return (T) instant;
             }
+        } else if (lexer.token() == JSONToken.LITERAL_INT) {
+            long millis = lexer.longValue();
+            lexer.nextToken();
+
+            if (type == LocalDateTime.class) {
+                return (T) LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), JSON.defaultTimeZone.toZoneId());
+            }
+            if (type == LocalDate.class) {
+                return (T) LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), JSON.defaultTimeZone.toZoneId()).toLocalDate();
+            }
+            if (type == LocalTime.class) {
+                return (T) LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), JSON.defaultTimeZone.toZoneId()).toLocalTime();
+            }
+
+            throw new UnsupportedOperationException();
         } else {
             throw new UnsupportedOperationException();
         }
@@ -372,10 +387,11 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                         format = JSON.DEFFAULT_DATE_FORMAT;
                     }
                     write(out, dateTime, format);
+                } else if (out.isEnabled(SerializerFeature.WriteDateUseDateFormat)) {
+                    //使用固定格式转化时间
+                    write(out, dateTime, JSON.DEFFAULT_DATE_FORMAT);
                 } else {
-                    out.writeString(object.toString());
-//                    format = JSON.DEFFAULT_LOCAL_DATE_TIME_FORMAT;
-//                    write(out, dateTime, format);
+                    out.writeLong(dateTime.atZone(JSON.defaultTimeZone.toZoneId()).toInstant().toEpochMilli());
                 }
             } else {
                 out.writeString(object.toString());

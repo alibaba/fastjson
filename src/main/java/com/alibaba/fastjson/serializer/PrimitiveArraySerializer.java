@@ -131,6 +131,6 @@ public class PrimitiveArraySerializer implements ObjectSerializer {
         }
         
         char[] chars = (char[]) object;
-        out.writeString(new String(chars));
+        out.writeString(chars);
     }
 }

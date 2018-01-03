@@ -6,11 +6,7 @@ import java.text.SimpleDateFormat;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.Feature;
-import com.alibaba.fastjson.parser.JSONLexer;
-import com.alibaba.fastjson.parser.JSONScanner;
-import com.alibaba.fastjson.parser.JSONToken;
+import com.alibaba.fastjson.parser.*;
 import com.alibaba.fastjson.util.TypeUtils;
 
 public abstract class AbstractDateDeserializer extends ContextObjectDeserializer implements ObjectDeserializer {
@@ -92,7 +88,7 @@ public abstract class AbstractDateDeserializer extends ContextObjectDeserializer
                     parser.accept(JSONToken.COLON);
                     
                     String typeName = lexer.stringVal();
-                    Class<?> type = parser.getConfig().checkAutoType(typeName, null);
+                    Class<?> type = parser.getConfig().checkAutoType(typeName, null, lexer.getFeatures());
                     if (type != null) {
                         clazz = type;
                     }

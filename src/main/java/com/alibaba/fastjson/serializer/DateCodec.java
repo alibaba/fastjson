@@ -134,11 +134,22 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
             if (timeZone == 0) {
                 out.write('Z');
             } else {
-                if (timeZone > 0) {
-                    out.append('+').append(String.format("%02d", timeZone));
-                } else {
-                    out.append('-').append(String.format("%02d", -timeZone));
+                if (timeZone > 9) {
+                    out.write('+');
+                    out.writeInt(timeZone);
+                } else if (timeZone > 0) {
+                    out.write('+');
+                    out.write('0');
+                    out.writeInt(timeZone);
+                } else if (timeZone < -9) {
+                    out.write('-');
+                    out.writeInt(timeZone);
+                } else if (timeZone < 0) {
+                    out.write('-');
+                    out.write('0');
+                    out.writeInt(timeZone);
                 }
+
                 out.append(":00");
             }
 

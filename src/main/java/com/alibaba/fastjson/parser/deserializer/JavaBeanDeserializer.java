@@ -462,11 +462,15 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 FieldInfo fieldInfo = null;
                 Class<?> fieldClass = null;
                 JSONField feildAnnotation = null;
+                boolean customDeserilizer = false;
                 if (fieldIndex < sortedFieldDeserializers.length) {
                     fieldDeser = sortedFieldDeserializers[fieldIndex];
                     fieldInfo = fieldDeser.fieldInfo;
                     fieldClass = fieldInfo.fieldClass;
                     feildAnnotation = fieldInfo.getAnnotation();
+                    if (feildAnnotation != null && fieldDeser instanceof DefaultFieldDeserializer) {
+                        customDeserilizer = ((DefaultFieldDeserializer) fieldDeser).customDeserilizer;
+                    }
                 }
 
                 boolean matchField = false;
@@ -475,7 +479,9 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 Object fieldValue = null;
                 if (fieldDeser != null) {
                     char[] name_chars = fieldInfo.name_chars;
-                    if (fieldClass == int.class || fieldClass == Integer.class) {
+                    if (customDeserilizer && lexer.matchField(name_chars)) {
+                        matchField = true;
+                    } else if (fieldClass == int.class || fieldClass == Integer.class) {
                         fieldValue = lexer.scanFieldInt(name_chars);
                         
                         if (lexer.matchStat > 0) {

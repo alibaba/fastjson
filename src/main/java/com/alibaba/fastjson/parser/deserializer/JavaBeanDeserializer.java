@@ -1162,7 +1162,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
                 final FieldInfo fieldInfo = fieldDeser.fieldInfo;
                 Type paramType = fieldInfo.fieldType;
-                value = TypeUtils.cast(value, paramType, config);
+                String format = fieldInfo.format;
+                if (format != null && paramType == java.util.Date.class) {
+                    value = TypeUtils.castToDate(value, format);
+                } else {
+                    value = TypeUtils.cast(value, paramType, config);
+                }
 
                 fieldDeser.setValue(object, value);
             }

@@ -271,6 +271,10 @@ public class TypeUtils{
     }
 
     public static Date castToDate(Object value){
+        return castToDate(value, null);
+    }
+
+    public static Date castToDate(Object value, String format){
         if(value == null){
             return null;
         }
@@ -300,22 +304,23 @@ public class TypeUtils{
                 strVal = strVal.substring(6, strVal.length() - 2);
             }
             if(strVal.indexOf('-') != -1){
-                String format;
-
-                if(strVal.length() == JSON.DEFFAULT_DATE_FORMAT.length()
-                        || (strVal.length() == 22 && JSON.DEFFAULT_DATE_FORMAT.equals("yyyyMMddHHmmssSSSZ"))){
-                    format = JSON.DEFFAULT_DATE_FORMAT;
-                } else if(strVal.length() == 10){
-                    format = "yyyy-MM-dd";
-                } else if(strVal.length() == "yyyy-MM-dd HH:mm:ss".length()){
-                    format = "yyyy-MM-dd HH:mm:ss";
-                } else if(strVal.length() == 29
-                        && strVal.charAt(26) == ':'
-                        && strVal.charAt(28) == '0'){
-                    format = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
-                } else{
-                    format = "yyyy-MM-dd HH:mm:ss.SSS";
+                if (format == null) {
+                    if (strVal.length() == JSON.DEFFAULT_DATE_FORMAT.length()
+                            || (strVal.length() == 22 && JSON.DEFFAULT_DATE_FORMAT.equals("yyyyMMddHHmmssSSSZ"))) {
+                        format = JSON.DEFFAULT_DATE_FORMAT;
+                    } else if (strVal.length() == 10) {
+                        format = "yyyy-MM-dd";
+                    } else if (strVal.length() == "yyyy-MM-dd HH:mm:ss".length()) {
+                        format = "yyyy-MM-dd HH:mm:ss";
+                    } else if (strVal.length() == 29
+                            && strVal.charAt(26) == ':'
+                            && strVal.charAt(28) == '0') {
+                        format = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
+                    } else {
+                        format = "yyyy-MM-dd HH:mm:ss.SSS";
+                    }
                 }
+
                 SimpleDateFormat dateFormat = new SimpleDateFormat(format, JSON.defaultLocale);
                 dateFormat.setTimeZone(JSON.defaultTimeZone);
                 try{

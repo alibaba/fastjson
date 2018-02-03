@@ -158,7 +158,6 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
     }
 
 
-    @Override
     public boolean canRead(Type type, Class<?> contextClass, MediaType mediaType) {
         return super.canRead(contextClass, mediaType);
     }

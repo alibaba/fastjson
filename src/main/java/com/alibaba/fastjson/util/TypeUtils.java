@@ -25,6 +25,7 @@ import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.parser.deserializer.EnumDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.serializer.CalendarCodec;
@@ -822,6 +823,17 @@ public class TypeUtils{
                 if(name.length() == 0){
                     return null;
                 }
+
+                if (mapping == null) {
+                    mapping = ParserConfig.getGlobalInstance();
+                }
+
+                ObjectDeserializer derializer = mapping.getDeserializer(clazz);
+                if (derializer instanceof EnumDeserializer) {
+                    EnumDeserializer enumDeserializer = (EnumDeserializer) derializer;
+                    return (T) enumDeserializer.getEnumByHashCode(TypeUtils.fnv1a_64(name));
+                }
+
                 return (T) Enum.valueOf((Class<? extends Enum>) clazz, name);
             }
             if(obj instanceof Number){

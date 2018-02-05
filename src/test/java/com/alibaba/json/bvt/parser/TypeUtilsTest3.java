@@ -27,13 +27,7 @@ public class TypeUtilsTest3 extends TestCase {
     }
 
     public void test_error() throws Exception {
-        Exception error = null;
-        try {
-            TypeUtils.castToEnum("\"A1\"", Type.class, null);
-        } catch (Exception ex) {
-            error = ex;
-        }
-        Assert.assertNotNull(error);
+        assertNull(TypeUtils.castToEnum("\"A1\"", Type.class, null));
     }
 
     public void test_error_1() throws Exception {

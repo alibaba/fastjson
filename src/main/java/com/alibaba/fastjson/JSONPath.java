@@ -2316,6 +2316,13 @@ public class JSONPath implements JSONAware {
 
             for (int i = 0; i < list.size(); ++i) {
                 Object obj = list.get(i);
+
+                //
+                if (obj == list) {
+                    fieldValues.add(obj);
+                    continue;
+                }
+
                 Object itemValue = getPropertyValue(obj, propertyName, propertyNameHash);
                 if (itemValue instanceof Collection) {
                     Collection collection = (Collection) itemValue;

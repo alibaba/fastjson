@@ -183,7 +183,8 @@ public class JSONSerializer extends SerializeFilterable {
             out.write("{\"$ref\":\"$\"}");
         } else {
             out.write("{\"$ref\":\"");
-            out.write(references.get(object).toString());
+            String path = references.get(object).toString();
+            out.write(path);
             out.write("\"}");
         }
     }

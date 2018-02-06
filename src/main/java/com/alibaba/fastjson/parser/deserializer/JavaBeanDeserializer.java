@@ -655,6 +655,17 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                                     parser.resolveStatus = DefaultJSONParser.NeedToResolve;
                                 }
                             } else {
+                                if (ref.indexOf('\\') > 0) {
+                                    StringBuilder buf = new StringBuilder();
+                                    for (int i = 0; i < ref.length(); ++i) {
+                                        char ch = ref.charAt(i);
+                                        if (ch == '\\') {
+                                            ch = ref.charAt(++i);
+                                        }
+                                        buf.append(ch);
+                                    }
+                                    ref = buf.toString();
+                                }
                                 Object refObj = parser.resolveReference(ref);
                                 if (refObj != null) {
                                     object = refObj;

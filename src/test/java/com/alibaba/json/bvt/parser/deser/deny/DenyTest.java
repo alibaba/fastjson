@@ -40,7 +40,7 @@ public class DenyTest extends TestCase {
 
         Exception error = null;
         try {
-            JSON.parseObject("{\"@type\":\"Lcom.alibaba.json.bvt.parser.deser.deny.DenyTest$B;\"}", Object.class, config, JSON.DEFAULT_PARSER_FEATURE);
+            JSON.parseObject("{\"@type\":\"LLLcom.alibaba.json.bvt.parser.deser.deny.DenyTest$B;;;\"}", Object.class, config, JSON.DEFAULT_PARSER_FEATURE);
         } catch (JSONException ex) {
             error = ex;
         }

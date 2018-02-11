@@ -18,12 +18,52 @@ public class SerialContext {
         if (parent == null) {
             return "$";
         } else {
-            if (fieldName instanceof Integer) {
-                return parent.toString() + "[" + fieldName + "]";
-            } else {
-                return parent.toString() + "." + fieldName;
-            }
+            StringBuilder buf = new StringBuilder();
+            toString(buf);
+            return buf.toString();
+        }
+    }
 
+    protected void toString(StringBuilder buf) {
+        if (parent == null) {
+            buf.append('$');
+        } else {
+            parent.toString(buf);
+            if (fieldName == null) {
+                buf.append(".null");
+            } else if (fieldName instanceof Integer) {
+                buf.append('[');
+                buf.append(((Integer)fieldName).intValue());
+                buf.append(']');
+            } else {
+                buf.append('.');
+
+                String fieldName = this.fieldName.toString();
+                boolean special = false;
+                for (int i = 0; i < fieldName.length(); ++i) {
+                    char ch = fieldName.charAt(i);
+                    if (ch == '.' || ch == '@' || ch == '(' || ch == '\\') {
+                        special = true;
+                    }
+                }
+
+                if (special) {
+                    for (int i = 0; i < fieldName.length(); ++i) {
+                        char ch = fieldName.charAt(i);
+                        if (ch == '.' || ch == '@' || ch == '(') {
+                            buf.append('\\');
+                            buf.append('\\');
+                        } else if (ch == '\\') {
+                            buf.append('\\');
+                            buf.append('\\');
+                            buf.append('\\');
+                        }
+                        buf.append(ch);
+                    }
+                } else {
+                    buf.append(fieldName);
+                }
+            }
         }
     }
 

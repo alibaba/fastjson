@@ -9,13 +9,9 @@ import com.alibaba.fastjson.support.config.FastJsonConfig;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.*;
 import javax.ws.rs.ext.*;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
@@ -38,6 +34,25 @@ import java.util.List;
 @Produces({MediaType.WILDCARD})
 public class FastJsonProvider //
         implements MessageBodyReader<Object>, MessageBodyWriter<Object> {
+
+    /**
+     * These are classes that we never use for reading
+     * (never try to deserialize instances of these types).
+     */
+    public final static Class<?>[] DEFAULT_UNREADABLES = new Class<?>[]{
+            InputStream.class, Reader.class
+    };
+
+    /**
+     * These are classes that we never use for writing
+     * (never try to serialize instances of these types).
+     */
+    public final static Class<?>[] DEFAULT_UNWRITABLES = new Class<?>[]{
+            InputStream.class,
+            OutputStream.class, Writer.class,
+            StreamingOutput.class, Response.class
+    };
+
     @Deprecated
     protected Charset charset = Charset.forName("UTF-8");
 
@@ -160,6 +175,27 @@ public class FastJsonProvider //
         this.fastJsonConfig.setSerializeFilters(filters);
     }
 
+    /**
+     * Check some are interface/abstract classes to exclude.
+     *
+     * @param type    the type
+     * @param classes the classes
+     * @return the boolean
+     */
+    protected boolean isAssignableFrom(Class<?> type, Class<?>[] classes) {
+
+        if (type == null)
+            return false;
+
+        //  there are some other abstract/interface types to exclude too:
+        for (Class<?> cls : classes) {
+            if (cls.isAssignableFrom(type)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     /**
      * Check whether a class can be serialized or deserialized. It can check
@@ -223,6 +259,9 @@ public class FastJsonProvider //
         if (!hasMatchingMediaType(mediaType)) {
             return false;
         }
+
+        if (!isAssignableFrom(type, DEFAULT_UNWRITABLES))
+            return false;
 
         return isValidType(type, annotations);
     }
@@ -307,6 +346,9 @@ public class FastJsonProvider //
         if (!hasMatchingMediaType(mediaType)) {
             return false;
         }
+
+        if (!isAssignableFrom(type, DEFAULT_UNREADABLES))
+            return false;
 
         return isValidType(type, annotations);
     }

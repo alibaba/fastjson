@@ -419,6 +419,23 @@ public class ASMSerializerFactory implements Opcodes {
     private void generateWriteAsArray(Class<?> clazz, MethodVisitor mw, FieldInfo[] getters,
                                       Context context) throws Exception {
 
+        Label nonPropertyFilters_ = new Label();
+        mw.visitVarInsn(ALOAD, Context.serializer);
+        mw.visitVarInsn(ALOAD, 0);
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONSerializer, "hasPropertyFilters", "(" + SerializeFilterable_desc + ")Z");
+        mw.visitJumpInsn(IFNE, nonPropertyFilters_);
+        mw.visitVarInsn(ALOAD, 0);
+        mw.visitVarInsn(ALOAD, 1);
+        mw.visitVarInsn(ALOAD, 2);
+        mw.visitVarInsn(ALOAD, 3);
+        mw.visitVarInsn(ALOAD, 4);
+        mw.visitVarInsn(ILOAD, 5);
+        mw.visitMethodInsn(INVOKESPECIAL, JavaBeanSerializer,
+                "writeNoneASM", "(L" + JSONSerializer
+                        + ";Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/reflect/Type;I)V");
+        mw.visitInsn(RETURN);
+
+        mw.visitLabel(nonPropertyFilters_);
         mw.visitVarInsn(ALOAD, context.var("out"));
         mw.visitVarInsn(BIPUSH, '[');
         mw.visitMethodInsn(INVOKEVIRTUAL, SerializeWriter, "write", "(I)V");

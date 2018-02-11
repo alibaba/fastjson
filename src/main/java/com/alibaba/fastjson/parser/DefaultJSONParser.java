@@ -375,7 +375,14 @@ public class DefaultJSONParser implements Closeable {
                     }
 
                     ObjectDeserializer deserializer = config.getDeserializer(clazz);
-                    return deserializer.deserialze(this, clazz, fieldName);
+                    Class deserClass = deserializer.getClass();
+                    if (JavaBeanDeserializer.class.isAssignableFrom(deserClass)
+                            && deserClass != JavaBeanDeserializer.class
+                            && deserClass != ThrowableDeserializer.class) {
+                        this.setResolveStatus(NONE);
+                    }
+                    Object obj = deserializer.deserialze(this, clazz, fieldName);
+                    return obj;
                 }
 
                 if (key == "$ref"

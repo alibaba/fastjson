@@ -222,6 +222,15 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-messaging</artifactId>
+			<version>4.3.7.RELEASE</version>
+			<scope>provided</scope>
+			<optional>true</optional>
+		</dependency>
+
+
+		<dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-redis</artifactId>
 			<version>1.8.6.RELEASE</version>

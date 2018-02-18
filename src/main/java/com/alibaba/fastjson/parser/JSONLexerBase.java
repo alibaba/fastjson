@@ -2472,7 +2472,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 count = bp + offset - start - 1;
             }
 
-            if (!exp && count < 18) {
+            if ((!exp) && count < 17) {
                 value = ((float) intVal) / power;
                 if (negative) {
                     value = -value;
@@ -2652,7 +2652,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 count = bp + offset - start - 1;
             }
 
-            if (!exp && count < 20) {
+            if ((!exp) && count < 17) {
                 value = ((float) intVal) / power;
                 if (negative) {
                     value = -value;

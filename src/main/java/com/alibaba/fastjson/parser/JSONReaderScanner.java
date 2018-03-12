@@ -109,7 +109,7 @@ public final class JSONReaderScanner extends JSONLexer {
             }
 
             if (bufLength == 0) {
-                throw new JSONException("illegal stat, textLength is zero");
+                throw new JSONException("illegal state, textLength is zero");
             }
 
             if (bufLength == -1) {
@@ -169,7 +169,7 @@ public final class JSONReaderScanner extends JSONLexer {
             }
 
             if (bufLength == 0) {
-                throw new JSONException("illegal stat, textLength is zero");
+                throw new JSONException("illegal state, textLength is zero");
             }
 
             if (bufLength == -1) {

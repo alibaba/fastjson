@@ -281,6 +281,16 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
             return;
         }
 
+        if ((features & SerializerFeature.BrowserCompatible.mask) != 0
+                && propertyValue != null
+                && (fieldInfo.fieldClass == long.class || fieldInfo.fieldClass == Long.class)) {
+            long value = (Long) propertyValue;
+            if (value > 9007199254740991L || value < -9007199254740991L) {
+                serializer.getWriter().writeString(Long.toString(value));
+                return;
+            }
+        }
+
         valueSerializer.write(serializer, propertyValue, fieldInfo.name, fieldInfo.fieldType, fieldFeatures);
     }
 

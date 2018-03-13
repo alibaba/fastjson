@@ -196,6 +196,7 @@ public class SerializeConfig {
                     if (SerializerFeature.WriteNonStringValueAsString == feature //
                             || SerializerFeature.WriteEnumUsingToString == feature //
                             || SerializerFeature.NotWriteDefaultValue == feature
+                            || SerializerFeature.BrowserCompatible == feature
                             || SerializerFeature.WriteClassName == feature) {
                         asm = false;
                         break;

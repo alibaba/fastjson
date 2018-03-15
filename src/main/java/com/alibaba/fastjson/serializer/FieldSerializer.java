@@ -50,6 +50,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
     protected boolean             serializeUsing          = false;
 
     protected boolean             persistenceXToMany      = false; // OneToMany or ManyToMany
+    protected boolean             browserCompatible;
 
     private RuntimeSerializerInfo runtimeInfo;
     
@@ -57,16 +58,18 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
         this.fieldInfo = fieldInfo;
         this.fieldContext = new BeanContext(beanType, fieldInfo);
 
-        if (beanType != null && fieldInfo.isEnum) {
+        if (beanType != null && (fieldInfo.isEnum || fieldInfo.fieldClass == long.class || fieldInfo.fieldClass == Long.class)) {
             JSONType jsonType = TypeUtils.getAnnotation(beanType,JSONType.class);
             if (jsonType != null) {
                 for (SerializerFeature feature : jsonType.serialzeFeatures()) {
                     if (feature == SerializerFeature.WriteEnumUsingToString) {
                         writeEnumUsingToString = true;
-                    }else if(feature == SerializerFeature.WriteEnumUsingName){
+                    } else if(feature == SerializerFeature.WriteEnumUsingName){
                         writeEnumUsingName = true;
-                    }else if(feature == SerializerFeature.DisableCircularReferenceDetect){
+                    } else if(feature == SerializerFeature.DisableCircularReferenceDetect){
                         disableCircularReferenceDetect = true;
+                    } else if(feature == SerializerFeature.BrowserCompatible){
+                        browserCompatible = true;
                     }
                 }
             }
@@ -95,10 +98,12 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
             for (SerializerFeature feature : annotation.serialzeFeatures()) {
                 if (feature == SerializerFeature.WriteEnumUsingToString) {
                     writeEnumUsingToString = true;
-                }else if(feature == SerializerFeature.WriteEnumUsingName){
+                } else if(feature == SerializerFeature.WriteEnumUsingName){
                     writeEnumUsingName = true;
-                }else if(feature == SerializerFeature.DisableCircularReferenceDetect){
+                } else if(feature == SerializerFeature.DisableCircularReferenceDetect){
                     disableCircularReferenceDetect = true;
+                } else if(feature == SerializerFeature.BrowserCompatible){
+                    browserCompatible = true;
                 }
             }
             
@@ -281,8 +286,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
             return;
         }
 
-        if ((features & SerializerFeature.BrowserCompatible.mask) != 0
-                && propertyValue != null
+        if (browserCompatible && propertyValue != null
                 && (fieldInfo.fieldClass == long.class || fieldInfo.fieldClass == Long.class)) {
             long value = (Long) propertyValue;
             if (value > 9007199254740991L || value < -9007199254740991L) {

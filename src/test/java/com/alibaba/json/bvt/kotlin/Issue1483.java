@@ -21,12 +21,10 @@ public class Issue1483 extends TestCase {
         Object obj = JSON.parseObject(json, clazz);
         assertSame(clazz, obj.getClass());
 //
-//        String text = JSON.parseObject(JSON.toJSONString(obj), Feature.OrderedField).toJSONString();
-//        if ("{\"age\":99,\"desc\":\"[robohorse\",\"name\":\"xx]\"}".equals(text)) {
-//            return;
-//        }
-//
-//        assertEquals("{\"age\":99,\"desc\":\"xx\",\"name\":\"robohorse\"}", text);
+        for (int i = 0; i < 10; ++i) {
+            String text = JSON.parseObject(JSON.toJSONString(obj), Feature.OrderedField).toJSONString();
+            assertEquals("{\"age\":99,\"desc\":\"xx\",\"name\":\"robohorse\"}", text);
+        }
     }
 
     public static class ExtClassLoader extends ClassLoader {

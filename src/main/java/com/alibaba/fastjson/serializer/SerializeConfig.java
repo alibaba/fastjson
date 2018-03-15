@@ -126,7 +126,8 @@ public class SerializeConfig {
             for (SerializerFeature feature : jsonType.serialzeFeatures()) {
                 if (SerializerFeature.WriteNonStringValueAsString == feature //
                         || SerializerFeature.WriteEnumUsingToString == feature //
-                        || SerializerFeature.NotWriteDefaultValue == feature) {
+                        || SerializerFeature.NotWriteDefaultValue == feature
+                        || SerializerFeature.BrowserCompatible == feature) {
                     asm = false;
                     break;
                 }

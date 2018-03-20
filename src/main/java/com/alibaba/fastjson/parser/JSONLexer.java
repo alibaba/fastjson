@@ -2814,11 +2814,15 @@ public final class JSONLexer {
                 bp += (offset - 1);
                 ch = EOI;
             } else {
+                bp = startPos;
+                this.ch = startChar;
                 matchStat = NOT_MATCH;
                 return null;
             }
             matchStat = END;
         } else {
+            bp = startPos;
+            this.ch = startChar;
             matchStat = NOT_MATCH;
             return null;
         }

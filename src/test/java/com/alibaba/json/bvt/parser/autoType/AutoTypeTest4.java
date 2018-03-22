@@ -9,6 +9,7 @@ import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.TypeUtils;
 import junit.framework.TestCase;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -25,8 +26,6 @@ public class AutoTypeTest4 extends TestCase {
         field.setAccessible(true);
 
         mappings = (ConcurrentMap<String,Class<?>>) field.get(null);
-
-
     }
 
     public void test_0() throws Exception {
@@ -87,14 +86,14 @@ public class AutoTypeTest4 extends TestCase {
 
     public void test_4() throws Exception {
         int size = mappings.size();
-        JSON.parse("{\"@type\":\"com.alibaba.json.bvt.parser.autoType.AutoTypeTest4$Model\"}", config);
+        JSON.parse("{\"@type\":\"com.alibaba.json.bvt.parser.autoType.AutoTypeTest4$Model\"}", new ParserConfig());
 
         assertEquals(size + 1, mappings.size());
     }
 
     public void test_5() throws Exception {
         int size = mappings.size();
-        JSON.parse("{\"@type\":\"com.alibaba.json.bvt.parser.autoType.AutoTypeTest4$Model1\"}", config);
+        JSON.parse("{\"@type\":\"com.alibaba.json.bvt.parser.autoType.AutoTypeTest4$Model1\"}", new ParserConfig());
 
         assertEquals(size + 1, mappings.size());
     }
@@ -158,6 +157,50 @@ public class AutoTypeTest4 extends TestCase {
     }
 
     public static class Model5 {
+
+    }
+
+    public void test_10_ser() throws Exception {
+        String f2 = "{\"value\":{\"@type\":\"com.alibaba.json.bvt.parser.autoType.AutoTypeTest4$Model3\"}}";
+
+        Throwable error = null;
+        try {
+            JSON.parseObject(f2, Model6.class, config);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        assertNotNull(error);
+    }
+
+    public static class Model6 {
+        public AutoCloseable value;
+    }
+
+    public void test_3_obj() throws Exception {
+        String f2 = "{\"@type\":\"com.alibaba.json.bvt.parser.autoType.AutoTypeTest4$Model7\"}";
+
+        Throwable error = null;
+        try {
+            JSON.parseObject(f2, Object.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        assertNotNull(error);
+    }
+
+    public void test_3_ser() throws Exception {
+        String f2 = "{\"@type\":\"com.alibaba.json.bvt.parser.autoType.AutoTypeTest4$Model7\"}";
+
+        Throwable error = null;
+        try {
+            JSON.parseObject(f2, Serializable.class);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        assertNotNull(error);
+    }
+
+    public static class Model7 {
 
     }
 }

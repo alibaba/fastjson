@@ -24,6 +24,8 @@ public class TypeCollector {
 
     protected MethodCollector collector;
 
+    protected boolean jsonType;
+
     public TypeCollector(String methodName, Class<?>[] parameterTypes) {
         this.methodName = methodName;
         this.parameterTypes = parameterTypes;
@@ -62,6 +64,12 @@ public class TypeCollector {
                 argTypes.length + longOrDoubleQuantity);
     }
 
+    public void visitAnnotation(String desc) {
+        if ("Lcom/alibaba/fastjson/annotation/JSONType;".equals(desc)) {
+            jsonType = true;
+        }
+    }
+
     private boolean correctTypeName(Type type, String paramTypeName) {
         String s = type.getClassName();
         // array notation needs cleanup.
@@ -85,5 +93,13 @@ public class TypeCollector {
             return new String[0];
         }
         return collector.getResult().split(",");
+    }
+
+    public boolean matched() {
+        return collector != null;
+    }
+
+    public boolean hasJsonType() {
+        return jsonType;
     }
 }

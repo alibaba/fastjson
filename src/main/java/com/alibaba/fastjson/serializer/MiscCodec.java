@@ -332,7 +332,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         if (clazz == Class.class) {
-            return (T) TypeUtils.loadClass(strVal, parser.getConfig().getDefaultClassLoader());
+            return (T) TypeUtils.loadClass(strVal, parser.getConfig().getDefaultClassLoader(), false);
         }
 
         if (clazz == Charset.class) {

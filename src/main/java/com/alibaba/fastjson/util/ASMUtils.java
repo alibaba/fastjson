@@ -3,6 +3,7 @@ package com.alibaba.fastjson.util;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.asm.ClassReader;
 import com.alibaba.fastjson.asm.TypeCollector;
+import com.alibaba.fastjson.parser.ParserConfig;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -154,7 +155,7 @@ public class ASMUtils {
         }
 
         try {
-            ClassReader reader = new ClassReader(is);
+            ClassReader reader = new ClassReader(is, false);
             TypeCollector visitor = new TypeCollector(name, types);
             reader.accept(visitor);
             String[] parameterNames = visitor.getParameterNamesForMethod();

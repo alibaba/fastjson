@@ -1180,6 +1180,10 @@ public class TypeUtils{
         addBaseClassMappings();
     }
 
+    public static void addMapping(String className, Class<?> clazz) {
+        mappings.put(className, clazz);
+    }
+
     public static Class<?> loadClass(String className){
         return loadClass(className, null);
     }
@@ -1203,25 +1207,29 @@ public class TypeUtils{
     }
 
     public static Class<?> loadClass(String className, ClassLoader classLoader) {
-        return loadClass(className, classLoader, true);
+        return loadClass(className, classLoader, false);
     }
 
     public static Class<?> loadClass(String className, ClassLoader classLoader, boolean cache) {
-        if(className == null || className.length() == 0){
+        if(className == null || className.length() == 0 || className.length() > 128){
             return null;
         }
+
         Class<?> clazz = mappings.get(className);
         if(clazz != null){
             return clazz;
         }
+
         if(className.charAt(0) == '['){
             Class<?> componentType = loadClass(className.substring(1), classLoader);
             return Array.newInstance(componentType, 0).getClass();
         }
+
         if(className.startsWith("L") && className.endsWith(";")){
             String newClassName = className.substring(1, className.length() - 1);
             return loadClass(newClassName, classLoader);
         }
+
         try{
             if(classLoader != null){
                 clazz = classLoader.loadClass(className);

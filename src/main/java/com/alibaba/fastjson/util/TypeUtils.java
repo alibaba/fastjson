@@ -1256,7 +1256,9 @@ public class TypeUtils{
         }
         try{
             clazz = Class.forName(className);
-            mappings.put(className, clazz);
+            if (cache) {
+                mappings.put(className, clazz);
+            }
             return clazz;
         } catch(Throwable e){
             // skip

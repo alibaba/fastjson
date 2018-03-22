@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class AutoTypeTest4 extends TestCase {
     ConcurrentMap<String,Class<?>> mappings;
-    private ParserConfig config = new ParserConfig();
+    ParserConfig                   config = new ParserConfig();
 
     protected void setUp() throws Exception {
         Field field = TypeUtils.class.getDeclaredField("mappings");
@@ -87,14 +87,14 @@ public class AutoTypeTest4 extends TestCase {
 
     public void test_4() throws Exception {
         int size = mappings.size();
-        JSON.parse("{\"@type\":\"com.alibaba.json.bvt.parser.autoType.AutoTypeTest4$Model\"}");
+        JSON.parse("{\"@type\":\"com.alibaba.json.bvt.parser.autoType.AutoTypeTest4$Model\"}", config);
 
         assertEquals(size + 1, mappings.size());
     }
 
     public void test_5() throws Exception {
         int size = mappings.size();
-        JSON.parse("{\"@type\":\"com.alibaba.json.bvt.parser.autoType.AutoTypeTest4$Model1\"}");
+        JSON.parse("{\"@type\":\"com.alibaba.json.bvt.parser.autoType.AutoTypeTest4$Model1\"}", config);
 
         assertEquals(size + 1, mappings.size());
     }

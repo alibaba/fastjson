@@ -910,6 +910,24 @@ public class ParserConfig {
             throw new JSONException("autoType is not support. " + typeName);
         }
 
+        final boolean expectClassFlag;
+        if (expectClass == null) {
+            expectClassFlag = false;
+        } else {
+            if (expectClass == Object.class
+                    || expectClass == Serializable.class
+                    || expectClass == Cloneable.class
+                    || expectClass == Closeable.class
+                    || expectClass == EventListener.class
+                    || expectClass == Iterable.class
+                    || expectClass == Collection.class
+                    ) {
+                expectClassFlag = false;
+            } else {
+                expectClassFlag = true;
+            }
+        }
+
         String className = typeName.replace('$', '.');
         Class<?> clazz = null;
 
@@ -932,7 +950,7 @@ public class ParserConfig {
                 ^ className.charAt(2))
                 * PRIME;
 
-        if (autoTypeSupport || expectClass != null) {
+        if (autoTypeSupport || expectClassFlag) {
             long hash = h3;
             for (int i = 3; i < className.length(); ++i) {
                 hash ^= className.charAt(i);
@@ -1019,7 +1037,7 @@ public class ParserConfig {
                 || (features & mask) != 0
                 || (JSON.DEFAULT_PARSER_FEATURE & mask) != 0;
 
-        if (clazz == null && (autoTypeSupport || jsonType || expectClass != null)) {
+        if (clazz == null && (autoTypeSupport || jsonType || expectClassFlag)) {
             boolean cacheClass = autoTypeSupport || jsonType;
             clazz = TypeUtils.loadClass(typeName, defaultClassLoader, cacheClass);
         }

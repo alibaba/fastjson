@@ -57,10 +57,14 @@ import com.alibaba.fastjson.util.TypeUtils;
 public class ParserConfig {
     private static long[] denyList = new long[] {
             -7600952144447537354L,
+            -4082057040235125754L,
+            -2364987994247679115L,
             -676156662527871184L,
+            -254670111376247151L,
             1502845958873959152L,
             4147696707147271408L,
             5347909877633654828L,
+            5751393439502795295L,
             7702607466162283393L
     };
 
@@ -314,6 +318,10 @@ public class ParserConfig {
 
         final long h1 = (BASIC ^ typeName.charAt(0)) * PRIME;
         if (h1 == 0xaf64164c86024f1aL) { // [
+            throw new JSONException("autoType is not support. " + typeName);
+        }
+
+        if ((h1 ^ typeName.charAt(typeName.length() - 1)) * PRIME == 0x9198507b5af98f0L) {
             throw new JSONException("autoType is not support. " + typeName);
         }
 

@@ -47,13 +47,16 @@ public class StrictAutoTypeTest_0 extends TestCase {
     }
 
     public void test_3() throws Exception {
+        Exception error = null;
         try {
             JSON.DEFAULT_PARSER_FEATURE |= Feature.SupportAutoType.mask;
             JSON.parseObject("{\"val\":{\"@type\":\"com.alibaba.json.bvt.writeClassName.StrictAutoTypeTest_0$V3\"}}");
         } catch (JSONException ex) {
+            error = ex;
         } finally {
             JSON.DEFAULT_PARSER_FEATURE &= ~Feature.SupportAutoType.mask;
         }
+        assertNull(error);
     }
 
     public static class VO {

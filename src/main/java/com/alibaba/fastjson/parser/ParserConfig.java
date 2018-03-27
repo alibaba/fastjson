@@ -56,7 +56,12 @@ import com.alibaba.fastjson.util.TypeUtils;
  */
 public class ParserConfig {
     private static long[] denyList = new long[] {
-            -7600952144447537354L
+            -7600952144447537354L,
+            -676156662527871184L,
+            1502845958873959152L,
+            4147696707147271408L,
+            5347909877633654828L,
+            7702607466162283393L
     };
 
     public static ParserConfig getGlobalInstance() {
@@ -312,15 +317,20 @@ public class ParserConfig {
             throw new JSONException("autoType is not support. " + typeName);
         }
 
-        long hashCode = BASIC;
-        for (int i = 0; i < typeName.length(); ++i) {
-            char c = typeName.charAt(i);
-            hashCode ^= c;
-            hashCode *= 0x100000001b3L;
-        }
+        final long h3 = (((((BASIC ^ typeName.charAt(0))
+                * PRIME)
+                ^ typeName.charAt(1))
+                * PRIME)
+                ^ typeName.charAt(2))
+                * PRIME;
 
-        if (Arrays.binarySearch(denyList, hashCode) >= 0) {
-            throw new JSONException("autoType is not support. " + typeName);
+        long hash = h3;
+        for (int i = 3; i < typeName.length(); ++i) {
+            hash ^= typeName.charAt(i);
+            hash *= PRIME;
+            if (Arrays.binarySearch(denyList, hash) >= 0 && TypeUtils.getClassFromMapping(typeName) == null) {
+                throw new JSONException("autoType is not support. " + typeName);
+            }
         }
 
         Class<?> clazz = TypeUtils.getClassFromMapping(typeName);
@@ -337,16 +347,29 @@ public class ParserConfig {
 
         if (clazz != null
             && expectClass != null
-            && clazz != java.util.HashMap.class
-            && !expectClass.isAssignableFrom(clazz))
+            && clazz != java.util.HashMap.class)
         {
-            throw new JSONException("type not match. " + typeName + " -> " + expectClass.getName());
+            if (expectClass.isAssignableFrom(clazz)) {
+                TypeUtils.addMapping(typeName, clazz);
+                return clazz;
+            } else {
+                throw new JSONException("type not match. " + typeName + " -> " + expectClass.getName());
+            }
+        }
+
+        if (clazz.isAnnotationPresent(JSONType.class)) {
+            TypeUtils.addMapping(typeName, clazz);
+            return clazz;
         }
 
         final int mask = Feature.SupportAutoType.mask;
-        if ((features & mask) == 0 && (JSON.DEFAULT_PARSER_FEATURE & mask) == 0) {
-            throw new JSONException("SupportAutoType : " + typeName);
+        if ((features & mask) == 0
+                && (JSON.DEFAULT_PARSER_FEATURE & mask) == 0
+                && !autoTypeSupport) {
+            throw new JSONException("autoType is not support : " + typeName);
         }
+
+        TypeUtils.addMapping(typeName, clazz);
 
         return clazz;
     }

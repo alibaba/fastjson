@@ -67,7 +67,7 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
             if (JSON.DEFAULT_TYPE_KEY.equals(key)) {
                 if (lexer.token == JSONToken.LITERAL_STRING) {
                     String exClassName = lexer.stringVal();
-                    exClass = TypeUtils.loadClass(exClassName, parser.config.defaultClassLoader);
+                    exClass = TypeUtils.loadClass(exClassName, parser.config.defaultClassLoader, false);
                 } else {
                     throw new JSONException("syntax error");
                 }

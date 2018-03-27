@@ -1,6 +1,8 @@
 package com.alibaba.fastjson.parser;
 
 import java.lang.reflect.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -1067,7 +1069,18 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 } else {
                     Field field = fieldDeser.fieldInfo.field;
                     Type paramType = fieldDeser.fieldInfo.fieldType;
-                    value = TypeUtils.cast(value, paramType, config);
+                    String format = fieldDeser.fieldInfo.format;
+
+                    if (format != null && paramType == Date.class && value instanceof String) {
+                        try {
+                            value = new SimpleDateFormat(format).parse((String) value);
+                        } catch (ParseException e) {
+                            // skip
+                            value = null;
+                        }
+                    } else {
+                        value = TypeUtils.cast(value, paramType, config);
+                    }
                     field.set(object, value);
                 }
             }

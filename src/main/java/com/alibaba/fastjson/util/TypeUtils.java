@@ -321,8 +321,9 @@ public class TypeUtils {
 
         if (value instanceof String) {
             String strVal = value.toString();
-            if (strVal.length() == 0 //
-                || "null".equals(strVal)) {
+            if(strVal.length() == 0 //
+                    || "null".equals(strVal) //
+                    || "NULL".equals(strVal)){
                 return null;
             }
             
@@ -906,7 +907,7 @@ public class TypeUtils {
     }
 
     public static Class<?> loadClass(String className, ClassLoader classLoader) {
-        return loadClass(className, classLoader, true);
+        return loadClass(className, classLoader, false);
     }
 
     public static Class<?> loadClass(String className, ClassLoader classLoader, boolean cache) {
@@ -925,13 +926,16 @@ public class TypeUtils {
         }
 
         if (className.charAt(0) == '[') {
-            Class<?> componentType = loadClass(className.substring(1), classLoader);
+            Class<?> componentType = loadClass(className.substring(1), classLoader, false);
+            if (componentType == null) {
+                return null;
+            }
             return Array.newInstance(componentType, 0).getClass();
         }
 
         if (className.startsWith("L") && className.endsWith(";")) {
             String newClassName = className.substring(1, className.length() - 1);
-            return loadClass(newClassName, classLoader);
+            return loadClass(newClassName, classLoader, false);
         }
         
         try {
@@ -945,7 +949,7 @@ public class TypeUtils {
                 return clazz;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             // skip
         }
 
@@ -962,7 +966,7 @@ public class TypeUtils {
                 return clazz;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             // skip
         }
 
@@ -973,7 +977,7 @@ public class TypeUtils {
 
             return clazz;
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             // skip
         }
 
@@ -1708,6 +1712,50 @@ public class TypeUtils {
         }
 
         return hashCode;
+    }
+
+    public static void addMapping(String className, Class<?> clazz) {
+        mappings.put(className, clazz);
+    }
+
+    public static Type checkPrimitiveArray(GenericArrayType genericArrayType) {
+        Type clz = genericArrayType;
+        Type genericComponentType  = genericArrayType.getGenericComponentType();
+
+        String prefix = "[";
+        while (genericComponentType instanceof GenericArrayType) {
+            genericComponentType = ((GenericArrayType) genericComponentType)
+                    .getGenericComponentType();
+            prefix += prefix;
+        }
+
+        if (genericComponentType instanceof Class<?>) {
+            Class<?> ck = (Class<?>) genericComponentType;
+            if (ck.isPrimitive()) {
+                try {
+                    if (ck == boolean.class) {
+                        clz = Class.forName(prefix + "Z");
+                    } else if (ck == char.class) {
+                        clz = Class.forName(prefix + "C");
+                    } else if (ck == byte.class) {
+                        clz = Class.forName(prefix + "B");
+                    } else if (ck == short.class) {
+                        clz = Class.forName(prefix + "S");
+                    } else if (ck == int.class) {
+                        clz = Class.forName(prefix + "I");
+                    } else if (ck == long.class) {
+                        clz = Class.forName(prefix + "J");
+                    } else if (ck == float.class) {
+                        clz = Class.forName(prefix + "F");
+                    } else if (ck == double.class) {
+                        clz = Class.forName(prefix + "D");
+                    }
+                } catch (ClassNotFoundException e) {
+                }
+            }
+        }
+
+        return clz;
     }
 
 //    public static long fnv_hash(char[] chars) {

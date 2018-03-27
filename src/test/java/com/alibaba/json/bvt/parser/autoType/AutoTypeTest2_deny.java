@@ -24,6 +24,7 @@ public class AutoTypeTest2_deny extends TestCase {
         error.printStackTrace();
         assertTrue(error.getMessage().startsWith("autoType is not support"));
     }
+<<<<<<< HEAD
 
     public void test_1() throws Exception {
 
@@ -60,4 +61,6 @@ public class AutoTypeTest2_deny extends TestCase {
         error.printStackTrace();
         assertTrue(error.getMessage().startsWith("autoType is not support"));
     }
+=======
+>>>>>>> add testcase.
 }

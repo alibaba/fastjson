@@ -161,6 +161,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
 
         final boolean writeAsArray = isWriteAsArray(serializer, features);
 
+        FieldSerializer errorFieldSerializer = null;
         try {
             final char startSeperator = writeAsArray ? '[' : '{';
             final char endSeperator = writeAsArray ? ']' : '}';
@@ -248,6 +249,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     try {
                         propertyValue = fieldSerializer.getPropertyValueDirect(object);
                     } catch (InvocationTargetException ex) {
+                        errorFieldSerializer = fieldSerializer;
                         if (out.isEnabled(SerializerFeature.IgnoreErrorGetter)) {
                             propertyValue = null;
                         } else {
@@ -457,12 +459,27 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
             }
             if (fieldName != null) {
                 errorMessage += ", fieldName : " + fieldName;
+            } else if (errorFieldSerializer != null && errorFieldSerializer.fieldInfo != null) {
+                FieldInfo fieldInfo = errorFieldSerializer.fieldInfo;
+                if (fieldInfo.method != null) {
+                    errorMessage += ", method : " + fieldInfo.method.getName();
+                } else {
+                    errorMessage += ", fieldName : " + errorFieldSerializer.fieldInfo.name;
+                }
             }
             if (e.getMessage() != null) {
                 errorMessage += (", " + e.getMessage());
             }
 
-            throw new JSONException(errorMessage, e);
+            Throwable cause = null;
+            if (e instanceof InvocationTargetException) {
+                cause = e.getCause();
+            }
+            if (cause == null) {
+                cause = e;
+            }
+
+            throw new JSONException(errorMessage, cause);
         } finally {
             serializer.context = parent;
         }

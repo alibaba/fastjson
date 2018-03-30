@@ -32,18 +32,13 @@ public class AutoTypeTest4 extends TestCase {
         String payload="{\"@type\":\"java.lang.Class\",\"val\":\"com.sun.rowset.JdbcRowSetImpl\"}";
         String payload_2 = "{\"@type\":\"com.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"rmi://127.0.0.1:8889/xxx\",\"autoCommit\":true}";
 
+        assertNotNull("class deser is not null", config.getDeserializer(Class.class));
+
         int size = mappings.size();
 
         final int COUNT = 10;
         for (int i = 0; i < COUNT; ++i){
-            Throwable error = null;
-            try {
-                JSON.parseObject(payload);
-            } catch (Exception e) {
-                error = e;
-            }
-            assertNotNull(error);
-            assertEquals(JSONException.class, error.getClass());
+            JSON.parse(payload, config);
         }
 
         for (int i = 0; i < COUNT; ++i){

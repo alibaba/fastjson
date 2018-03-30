@@ -230,6 +230,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         if (parentName.equals(parentClassName)) {
                             param = parentContext.object;
                         }
+                    } else {
+                        param = ctxObj;
                     }
                 } else {
                     param = ctxObj;

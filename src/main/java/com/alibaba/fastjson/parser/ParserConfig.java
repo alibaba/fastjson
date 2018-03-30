@@ -170,10 +170,12 @@ public class ParserConfig {
                 8838294710098435315L
         };
 
-        long[] hashCodes = new long[AUTO_TYPE_ACCEPT_LIST.length];
+        long[] hashCodes = new long[AUTO_TYPE_ACCEPT_LIST.length + 1];
         for (int i = 0; i < AUTO_TYPE_ACCEPT_LIST.length; i++) {
             hashCodes[i] = TypeUtils.fnv1a_64(AUTO_TYPE_ACCEPT_LIST[i]);
         }
+        hashCodes[hashCodes.length - 1] = -6293031534589903644L;
+
         Arrays.sort(hashCodes);
         acceptHashCodes = hashCodes;
     }

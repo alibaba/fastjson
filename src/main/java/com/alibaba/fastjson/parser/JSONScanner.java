@@ -1188,6 +1188,13 @@ public final class JSONScanner extends JSONLexerBase {
     public Collection<String> scanFieldStringArray(char[] fieldName, Class<?> type) {
         matchStat = UNKNOWN;
 
+        while (ch == '\n' || ch == ' ') {
+            int index = ++bp;
+            ch = (index >= this.len ? //
+                    EOI //
+                    : text.charAt(index));
+        }
+
         if (!charArrayCompare(text, bp, fieldName)) {
             matchStat = NOT_MATCH_NAME;
             return null;
@@ -1206,6 +1213,9 @@ public final class JSONScanner extends JSONLexerBase {
 //                throw new JSONException(e.getMessage(), e);
 //            }
 //        }
+
+        int startPos = this.bp;
+        char startChar = this.ch;
 
         int index = bp + fieldName.length;
 
@@ -1328,6 +1338,8 @@ public final class JSONScanner extends JSONLexerBase {
 
             matchStat = END;
         } else {
+            this.ch = startChar;
+            bp = startPos;
             matchStat = NOT_MATCH;
             return null;
         }

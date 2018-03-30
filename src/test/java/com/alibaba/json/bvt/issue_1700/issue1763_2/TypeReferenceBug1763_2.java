@@ -1,4 +1,4 @@
-package com.alibaba.fastjson.deserializer.issue1763_2;
+package com.alibaba.json.bvt.issue_1700.issue1763_2;
 
 import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.util.ParameterizedTypeImpl;

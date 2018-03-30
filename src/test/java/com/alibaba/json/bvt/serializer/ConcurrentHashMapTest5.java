@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.alibaba.fastjson.serializer.SerializeConfig;
 import junit.framework.TestCase;
 
 import org.junit.Assert;
@@ -18,7 +19,7 @@ public class ConcurrentHashMapTest5 extends TestCase {
     public void test_concurrentHashmap() throws Exception {
         OffsetSerializeWrapper wrapper = new OffsetSerializeWrapper();
         wrapper.offsetTable.put(new MessageQueue(), new WeakReference<A>(new A(true)));
-        String text = JSON.toJSONString(wrapper);
+        String text = JSON.toJSONString(wrapper, new SerializeConfig());
         Assert.assertEquals("{\"offsetTable\":{{\"items\":[]}:{\"value\":true}}}", text);
 
         OffsetSerializeWrapper wrapper2 = JSON.parseObject(text, OffsetSerializeWrapper.class);

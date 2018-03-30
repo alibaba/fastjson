@@ -29,6 +29,8 @@ public class DenyTest2 extends TestCase {
             error = ex;
         }
         Assert.assertNotNull(error);
+
+        error.printStackTrace();
         
         JSON.parseObject(text, B.class, config, JSON.DEFAULT_PARSER_FEATURE);
     }

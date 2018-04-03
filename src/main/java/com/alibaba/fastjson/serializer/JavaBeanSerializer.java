@@ -81,9 +81,18 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         if (beanInfo.fields == beanInfo.sortedFields) {
             getters = sortedGetters;
         } else {
-            getters = new FieldSerializer[beanInfo.fields.length]; 
+            getters = new FieldSerializer[beanInfo.fields.length];
+            boolean hashNotMatch = false;
             for (int i = 0; i < getters.length; ++i) {
-                getters[i] = getFieldSerializer(beanInfo.fields[i].name);
+                FieldSerializer fieldSerializer = getFieldSerializer(beanInfo.fields[i].name);
+                if (fieldSerializer == null) {
+                    hashNotMatch = true;
+                    break;
+                }
+                getters[i] = fieldSerializer;
+            }
+            if (hashNotMatch) {
+                System.arraycopy(sortedGetters, 0, getters, 0, sortedGetters.length);
             }
         }
     }

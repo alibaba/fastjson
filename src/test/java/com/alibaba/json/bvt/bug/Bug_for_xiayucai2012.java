@@ -23,7 +23,7 @@ public class Bug_for_xiayucai2012 extends TestCase {
         JSONObject json = JSON.parseObject(text);
         Date date = json.getObject("date", Date.class);
         
-        SimpleDateFormat dateFormat = new SimpleDateFormat(JSON.DEFFAULT_DATE_FORMAT, JSON.defaultLocale);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(JSON.DEFAULT_DATE_FORMAT, JSON.defaultLocale);
         dateFormat.setTimeZone(JSON.defaultTimeZone);
         
         Assert.assertEquals(dateFormat.parse(json.getString("date")), date);

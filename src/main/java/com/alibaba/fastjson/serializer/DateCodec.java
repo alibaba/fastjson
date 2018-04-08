@@ -59,7 +59,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
         if (out.isEnabled(SerializerFeature.WriteDateUseDateFormat)) {
             DateFormat format = serializer.getDateFormat();
             if (format == null) {
-                format = new SimpleDateFormat(JSON.DEFFAULT_DATE_FORMAT, serializer.locale);
+                format = new SimpleDateFormat(JSON.DEFAULT_DATE_FORMAT, serializer.locale);
                 format.setTimeZone(serializer.timeZone);
             }
             String text = format.format(date);

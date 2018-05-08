@@ -1,5 +1,9 @@
 package com.alibaba.fastjson.parser.deserializer;
 
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.parser.*;
+import com.alibaba.fastjson.util.FieldInfo;
+import com.alibaba.fastjson.util.ParameterizedTypeImpl;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -7,15 +11,6 @@ import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
-
-import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.Feature;
-import com.alibaba.fastjson.parser.JSONLexer;
-import com.alibaba.fastjson.parser.JSONToken;
-import com.alibaba.fastjson.parser.ParseContext;
-import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.util.FieldInfo;
-import com.alibaba.fastjson.util.ParameterizedTypeImpl;
 
 public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
@@ -187,12 +182,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
             lexer.nextToken(JSONToken.COMMA);
         } else {
-            if (itemTypeDeser == null) {
-                itemTypeDeser = deserializer = parser.getConfig().getDeserializer(itemType);
-            }
-            Object val = itemTypeDeser.deserialze(parser, itemType, 0);
-            array.add(val);
-            parser.checkListResolve(array);
+            throw new JSONException("expect '[', but " + JSONToken.name(token) + ", " + lexer.info());
         }
     }
 }

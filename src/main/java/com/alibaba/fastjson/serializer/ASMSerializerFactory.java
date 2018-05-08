@@ -2009,7 +2009,7 @@ public class ASMSerializerFactory implements Opcodes {
             writeNullFeatures = SerializerFeature.WriteMapNullValue.getMask()
                     | SerializerFeature.WriteNullBooleanAsFalse.getMask();
         } else {
-            writeNullFeatures = SerializerFeature.WRITE_MAP_NULL_FEATURES;
+            writeNullFeatures = SerializerFeature.WriteMapNullValue.getMask();
         }
 
         if ((features & writeNullFeatures) == 0) {

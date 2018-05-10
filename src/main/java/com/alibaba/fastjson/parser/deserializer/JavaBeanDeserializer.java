@@ -484,8 +484,13 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     if (customDeserilizer && lexer.matchField(name_chars)) {
                         matchField = true;
                     } else if (fieldClass == int.class || fieldClass == Integer.class) {
-                        fieldValue = lexer.scanFieldInt(name_chars);
-                        
+                        int intVal = lexer.scanFieldInt(name_chars);
+                        if (intVal == 0 && lexer.matchStat == JSONLexer.VALUE_NULL) {
+                            fieldValue = null;
+                        } else {
+                            fieldValue = intVal;
+                        }
+
                         if (lexer.matchStat > 0) {
                             matchField = true;
                             valueParsed = true;
@@ -493,8 +498,13 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             continue;  
                         }
                     } else if (fieldClass == long.class || fieldClass == Long.class) {
-                        fieldValue = lexer.scanFieldLong(name_chars);
-                        
+                        long longVal = lexer.scanFieldLong(name_chars);
+                        if (longVal == 0 && lexer.matchStat == JSONLexer.VALUE_NULL) {
+                            fieldValue = null;
+                        } else {
+                            fieldValue = longVal;
+                        }
+
                         if (lexer.matchStat > 0) {
                             matchField = true;
                             valueParsed = true;
@@ -538,7 +548,13 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             continue;
                         }
                     } else if (fieldClass == boolean.class || fieldClass == Boolean.class) {
-                        fieldValue = lexer.scanFieldBoolean(name_chars);
+                        boolean booleanVal = lexer.scanFieldBoolean(name_chars);
+
+                        if (lexer.matchStat == JSONLexer.VALUE_NULL) {
+                            fieldValue = null;
+                        } else {
+                            fieldValue = booleanVal;
+                        }
                         
                         if (lexer.matchStat > 0) {
                             matchField = true;
@@ -547,8 +563,13 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             continue;  
                         }
                     } else if (fieldClass == float.class || fieldClass == Float.class) {
-                        fieldValue = lexer.scanFieldFloat(name_chars);
-                        
+                        float floatVal = lexer.scanFieldFloat(name_chars);
+                        if (floatVal == 0 && lexer.matchStat == JSONLexer.VALUE_NULL) {
+                            fieldValue = null;
+                        } else {
+                            fieldValue = floatVal;
+                        }
+
                         if (lexer.matchStat > 0) {
                             matchField = true;
                             valueParsed = true;
@@ -556,8 +577,13 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             continue;  
                         }
                     } else if (fieldClass == double.class || fieldClass == Double.class) {
-                        fieldValue = lexer.scanFieldDouble(name_chars);
-                        
+                        double doubleVal = lexer.scanFieldDouble(name_chars);
+                        if (doubleVal == 0 && lexer.matchStat == JSONLexer.VALUE_NULL) {
+                            fieldValue = null;
+                        } else {
+                            fieldValue = doubleVal;
+                        }
+
                         if (lexer.matchStat > 0) {
                             matchField = true;
                             valueParsed = true;
@@ -873,8 +899,25 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 }
 
                 if (beanInfo.creatorConstructor != null) {
+                    boolean hasNull = false;
+                    if (beanInfo.kotlin) {
+                        for (int i = 0; i < params.length; i++) {
+                            if (params[i] == null && beanInfo.fields != null && i < beanInfo.fields.length) {
+                                FieldInfo fieldInfo = beanInfo.fields[i];
+                                if (fieldInfo.fieldClass == String.class) {
+                                    hasNull = true;
+                                }
+                                break;
+                            }
+                        }
+                    }
+
                     try {
-                        object = beanInfo.creatorConstructor.newInstance(params);
+                        if (hasNull && beanInfo.kotlinDefaultConstructor != null) {
+                            object = beanInfo.kotlinDefaultConstructor.newInstance(new Object[0]);
+                        } else {
+                            object = beanInfo.creatorConstructor.newInstance(params);
+                        }
                     } catch (Exception e) {
                         throw new JSONException("create instance error, " + paramNames + ", "
                                                 + beanInfo.creatorConstructor.toGenericString(), e);

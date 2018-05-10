@@ -1,10 +1,16 @@
 package com.alibaba.fastjson.asm;
 
+import com.alibaba.fastjson.annotation.JSONType;
+import com.alibaba.fastjson.util.ASMUtils;
+import com.alibaba.fastjson.util.TypeUtils;
+
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
 public class TypeCollector {
+    private static String JSONType = ASMUtils.desc(com.alibaba.fastjson.annotation.JSONType.class);
+
     private static final Map<String, String> primitives = new HashMap<String, String>() {
         {
             put("int","I");
@@ -65,7 +71,7 @@ public class TypeCollector {
     }
 
     public void visitAnnotation(String desc) {
-        if ("Lcom/alibaba/fastjson/annotation/JSONType;".equals(desc)) {
+        if (JSONType.equals(desc)) {
             jsonType = true;
         }
     }

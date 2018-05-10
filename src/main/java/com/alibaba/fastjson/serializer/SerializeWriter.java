@@ -702,6 +702,14 @@ public final class SerializeWriter extends Writer {
         }
     }
 
+    /**
+     * @deprecated
+     */
+    public void writeLongAndChar(long i, char c) throws IOException {
+        writeLong(i);
+        write(c);
+    }
+
     public void writeLong(long i) {
         boolean needQuotationMark = isEnabled(SerializerFeature.BrowserCompatible) //
                                     && (!isEnabled(SerializerFeature.WriteClassName)) //

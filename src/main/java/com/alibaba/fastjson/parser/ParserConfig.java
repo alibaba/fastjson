@@ -376,6 +376,13 @@ public class ParserConfig {
         this.asmEnable = asmEnable;
     }
 
+    /**
+     * @deprecated
+     */
+    public IdentityHashMap<Type, ObjectDeserializer> getDerializers() {
+        return deserializers;
+    }
+
     public IdentityHashMap<Type, ObjectDeserializer> getDeserializers() {
         return deserializers;
     }

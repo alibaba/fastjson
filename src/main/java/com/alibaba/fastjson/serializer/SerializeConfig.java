@@ -656,6 +656,7 @@ public class SerializeConfig {
 
                 Class[] interfaces = clazz.getInterfaces();
                 if (interfaces.length == 1 && interfaces[0].isAnnotation()) {
+                    put(clazz, AnnotationSerializer.instance);
                     return AnnotationSerializer.instance;
                 }
 

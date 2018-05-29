@@ -750,7 +750,7 @@ public class JSONPath implements JSONAware {
                 predicateFlag = true;
             }
 
-            if (predicateFlag || IOUtils.firstIdentifier(ch)) {
+            if (predicateFlag || IOUtils.firstIdentifier(ch) || ch == '\\') {
                 String propertyName = readName();
 
                 skipWhitespace();

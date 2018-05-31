@@ -61,6 +61,9 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     }
 
     public JSONObject(Map<String, Object> map){
+        if (map == null) {
+            throw new IllegalArgumentException("map is null.");
+        }
         this.map = map;
     }
 

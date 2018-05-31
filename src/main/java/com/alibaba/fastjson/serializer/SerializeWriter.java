@@ -650,9 +650,6 @@ public final class SerializeWriter extends Writer {
             writeNull();
         } else {
             String floatText= Float.toString(value);
-            if (isEnabled(SerializerFeature.WriteNullNumberAsZero) && floatText.endsWith(".0")) {
-                floatText = floatText.substring(0, floatText.length() - 2);
-            }
             write(floatText);
             
             if (checkWriteClassName && isEnabled(SerializerFeature.WriteClassName)) {
@@ -667,9 +664,6 @@ public final class SerializeWriter extends Writer {
             writeNull();
         } else {
             String doubleText = Double.toString(doubleValue);
-            if (isEnabled(SerializerFeature.WriteNullNumberAsZero) && doubleText.endsWith(".0")) {
-                doubleText = doubleText.substring(0, doubleText.length() - 2);
-            }
             
             write(doubleText);
 

@@ -129,8 +129,8 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
             }
             
             out.write(buf);
-            
-            int timeZone = calendar.getTimeZone().getRawOffset()/(3600*1000);
+
+            int timeZone = calendar.getTimeZone().getOffset(calendar.getTimeInMillis()) / (3600 * 1000);
             if (timeZone == 0) {
                 out.write('Z');
             } else {

@@ -14,6 +14,8 @@ public class ItemUpdateDOTest extends TestCase {
         JSON.toJSONString(item, config, SerializerFeature.IgnoreErrorGetter,
                 SerializerFeature.IgnoreNonFieldGetter, SerializerFeature.WriteClassName,
                 SerializerFeature.WriteMapNullValue);
+
+        System.out.println(JSON.toJSONString("\u000B"));
     }
 
     public static class Model {

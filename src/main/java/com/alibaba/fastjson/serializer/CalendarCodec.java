@@ -82,7 +82,7 @@ public class CalendarCodec implements ObjectSerializer, ObjectDeserializer {
 
             out.write(buf);
 
-            int timeZone = calendar.getTimeZone().getRawOffset() / (3600 * 1000);
+            int timeZone = calendar.getTimeZone().getOffset(calendar.getTimeInMillis()) / (3600 * 1000);
             if (timeZone == 0) {
                 out.append("Z");
             } else if (timeZone > 0) {

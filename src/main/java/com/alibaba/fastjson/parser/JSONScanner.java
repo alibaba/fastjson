@@ -15,20 +15,13 @@
  */
 package com.alibaba.fastjson.parser;
 
-import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.TimeZone;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.IOUtils;
-import com.alibaba.fastjson.util.TypeUtils;
+
+import java.math.BigDecimal;
+import java.util.*;
 
 //这个类，为了性能优化做了很多特别处理，一切都是为了性能！！！
 
@@ -516,54 +509,37 @@ public final class JSONScanner extends JSONLexerBase {
         setTime(h0, h1, m0, m1, s0, s1);
 
         char dot = charAt(bp + date_len + 9);
-        if (dot == '.') {
-            if (rest < date_len + 11) { //  // 0000-00-00T00:00:00.000
+        int millisLen = -1; // 有可能没有毫秒区域，没有毫秒区域的时候下一个字符位置有可能是'Z'、'+'、'-'
+        if (dot == '.') { // 0000-00-00T00:00:00.000
+            if (rest < date_len + 11) {
                 return false;
             }
-        } else {
-            calendar.set(Calendar.MILLISECOND, 0);
 
-            ch = charAt(bp += (date_len + 9));
+            char S0 = charAt(bp + date_len + 10);
+            if (S0 < '0' || S0 > '9') {
+                return false;
+            }
+            int millis = S0 - '0';
+            millisLen = 1;
 
-            token = JSONToken.LITERAL_ISO8601_DATE;
-
-            if (dot == 'Z') {// UTC
-                // bugfix https://github.com/alibaba/fastjson/issues/376
-                if (calendar.getTimeZone().getRawOffset() != 0) {
-                    String[] timeZoneIDs = TimeZone.getAvailableIDs(0);// 没有+ 和 - 默认相对0
-                    if (timeZoneIDs.length > 0) {
-                        TimeZone timeZone = TimeZone.getTimeZone(timeZoneIDs[0]);
-                        calendar.setTimeZone(timeZone);
-                    }
+            if (rest > date_len + 11) {
+                char S1 = charAt(bp + date_len + 11);
+                if (S1 >= '0' && S1 <= '9') {
+                    millis = millis * 10 + (S1 - '0');
+                    millisLen = 2;
                 }
             }
-            return true;
-        }
 
-        char S0 = charAt(bp + date_len + 10);
-        if (S0 < '0' || S0 > '9') {
-            return false;
-        }
-        int millis = S0 - '0';
-        int millisLen = 1;
-
-        if (rest > date_len + 11) {
-            char S1 = charAt(bp + date_len + 11);
-            if (S1 >= '0' && S1 <= '9') {
-                millis = millis * 10 + (S1 - '0');
-                millisLen = 2;
+            if (millisLen == 2) {
+                char S2 = charAt(bp + date_len + 12);
+                if (S2 >= '0' && S2 <= '9') {
+                    millis = millis * 10 + (S2 - '0');
+                    millisLen = 3;
+                }
             }
-        }
 
-        if (millisLen == 2) {
-            char S2 = charAt(bp + date_len + 12);
-            if (S2 >= '0' && S2 <= '9') {
-                millis = millis * 10 + (S2 - '0');
-                millisLen = 3;
-            }
+            calendar.set(Calendar.MILLISECOND, millis);
         }
-
-        calendar.set(Calendar.MILLISECOND, millis);
 
         int timzeZoneLength = 0;
         char timeZoneFlag = charAt(bp + date_len + 10 + millisLen);

@@ -231,10 +231,14 @@ public class SerializeConfig {
 			} catch (ClassFormatError e) {
 			    // skip
 			} catch (ClassCastException e) {
-				// skip
+			    // skip
+            } catch (OutOfMemoryError e) {
+			    if (e.getMessage().indexOf("Metaspace") != -1) {
+			        throw e;
+                }
+                // skip
 			} catch (Throwable e) {
-				throw new JSONException("create asm serializer error, class "
-						+ clazz, e);
+				throw new JSONException("create asm serializer error, verson " + JSON.VERSION + ", class " + clazz, e);
 			}
 		}
 

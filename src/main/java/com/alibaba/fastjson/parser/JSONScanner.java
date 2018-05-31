@@ -510,6 +510,7 @@ public final class JSONScanner extends JSONLexerBase {
 
         char dot = charAt(bp + date_len + 9);
         int millisLen = -1; // 有可能没有毫秒区域，没有毫秒区域的时候下一个字符位置有可能是'Z'、'+'、'-'
+        int millis = 0;
         if (dot == '.') { // 0000-00-00T00:00:00.000
             if (rest < date_len + 11) {
                 return false;
@@ -519,7 +520,7 @@ public final class JSONScanner extends JSONLexerBase {
             if (S0 < '0' || S0 > '9') {
                 return false;
             }
-            int millis = S0 - '0';
+            millis = S0 - '0';
             millisLen = 1;
 
             if (rest > date_len + 11) {
@@ -537,9 +538,8 @@ public final class JSONScanner extends JSONLexerBase {
                     millisLen = 3;
                 }
             }
-
-            calendar.set(Calendar.MILLISECOND, millis);
         }
+        calendar.set(Calendar.MILLISECOND, millis);
 
         int timzeZoneLength = 0;
         char timeZoneFlag = charAt(bp + date_len + 10 + millisLen);

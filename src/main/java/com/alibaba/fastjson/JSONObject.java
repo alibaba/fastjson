@@ -29,6 +29,7 @@ import static com.alibaba.fastjson.util.TypeUtils.castToShort;
 import static com.alibaba.fastjson.util.TypeUtils.castToSqlDate;
 import static com.alibaba.fastjson.util.TypeUtils.castToTimestamp;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -476,5 +477,20 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
 
     public Map<String, Object> getInnerMap() {
         return this.map;
+    }
+
+    private void readObject(java.io.ObjectInputStream s) throws IOException, ClassNotFoundException {
+        s.defaultReadObject();
+        for (Entry<String, Object> entry : map.entrySet()) {
+            final String key = entry.getKey();
+            if (key != null) {
+                ParserConfig.global.checkAutoType(key.getClass().getName(), null);
+            }
+
+            final Object value = entry.getValue();
+            if (value != null) {
+                ParserConfig.global.checkAutoType(value.getClass().getName(), null);
+            }
+        }
     }
 }

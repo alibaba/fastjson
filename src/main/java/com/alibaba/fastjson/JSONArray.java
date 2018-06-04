@@ -29,16 +29,12 @@ import static com.alibaba.fastjson.util.TypeUtils.castToSqlDate;
 import static com.alibaba.fastjson.util.TypeUtils.castToString;
 import static com.alibaba.fastjson.util.TypeUtils.castToTimestamp;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.RandomAccess;
+import java.util.*;
 
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
@@ -455,5 +451,14 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
 
     public int hashCode() {
         return this.list.hashCode();
+    }
+
+    private void readObject(java.io.ObjectInputStream s) throws IOException, ClassNotFoundException {
+        s.defaultReadObject();
+        for (Object item : list) {
+            if (item != null) {
+                ParserConfig.global.checkAutoType(item.getClass().getName(), null);
+            }
+        }
     }
 }

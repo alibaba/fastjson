@@ -121,42 +121,44 @@ public class JavaBeanInfo {
 
         if (creatorConstructor != null) {
             this.creatorConstructorParameterTypes = creatorConstructor.getParameterTypes();
-            boolean match;
-            if (creatorConstructorParameterTypes.length != fields.length) {
-                match = false;
-            } else {
-                match = true;
-                for (int i = 0; i < creatorConstructorParameterTypes.length; i++) {
-                    if (creatorConstructorParameterTypes[i] != fields[i].fieldClass) {
-                        match = false;
-                        break;
+
+
+            boolean kotlin = TypeUtils.isKotlin(clazz);
+            if (kotlin) {
+                this.creatorConstructorParameters = TypeUtils.getKoltinConstructorParameters(clazz);
+
+                Annotation[][] paramAnnotationArrays = creatorConstructor.getParameterAnnotations();
+                for (int i = 0; i < creatorConstructorParameters.length && i < paramAnnotationArrays.length; ++i) {
+                    Annotation[] paramAnnotations = paramAnnotationArrays[i];
+                    JSONField fieldAnnotation = null;
+                    for (Annotation paramAnnotation : paramAnnotations) {
+                        if (paramAnnotation instanceof JSONField) {
+                            fieldAnnotation = (JSONField) paramAnnotation;
+                            break;
+                        }
+                    }
+                    if (fieldAnnotation != null) {
+                        String fieldAnnotationName = fieldAnnotation.name();
+                        if (fieldAnnotationName.length() > 0) {
+                            creatorConstructorParameters[i] = fieldAnnotationName;
+                        }
                     }
                 }
-            }
-
-            if (!match) {
-                boolean kotlin = TypeUtils.isKotlin(clazz);
-                if (kotlin) {
-                    this.creatorConstructorParameters = TypeUtils.getKoltinConstructorParameters(clazz);
-
-                    Annotation[][] paramAnnotationArrays = creatorConstructor.getParameterAnnotations();
-                    for (int i = 0; i < creatorConstructorParameters.length && i < paramAnnotationArrays.length; ++i) {
-                        Annotation[] paramAnnotations = paramAnnotationArrays[i];
-                        JSONField fieldAnnotation = null;
-                        for (Annotation paramAnnotation : paramAnnotations) {
-                            if (paramAnnotation instanceof JSONField) {
-                                fieldAnnotation = (JSONField) paramAnnotation;
-                                break;
-                            }
-                        }
-                        if (fieldAnnotation != null) {
-                            String fieldAnnotationName = fieldAnnotation.name();
-                            if (fieldAnnotationName.length() > 0) {
-                                creatorConstructorParameters[i] = fieldAnnotationName;
-                            }
+            } else {
+                boolean match;
+                if (creatorConstructorParameterTypes.length != fields.length) {
+                    match = false;
+                } else {
+                    match = true;
+                    for (int i = 0; i < creatorConstructorParameterTypes.length; i++) {
+                        if (creatorConstructorParameterTypes[i] != fields[i].fieldClass) {
+                            match = false;
+                            break;
                         }
                     }
-                } else {
+                }
+
+                if (!match) {
                     this.creatorConstructorParameters = ASMUtils.lookupParameterNames(creatorConstructor);
                 }
             }

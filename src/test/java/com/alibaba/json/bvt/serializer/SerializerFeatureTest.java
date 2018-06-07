@@ -22,4 +22,9 @@ public class SerializerFeatureTest extends TestCase {
         feature = SerializerFeature.config(feature, SerializerFeature.BrowserSecure, false);
         Assert.assertEquals(false, SerializerFeature.isEnabled(feature, SerializerFeature.BrowserSecure));
     }
+
+    public void test_assert_cnt() throws Exception {
+        int len = SerializerFeature.values().length;
+        assertTrue(len <= 32);
+    }
 }

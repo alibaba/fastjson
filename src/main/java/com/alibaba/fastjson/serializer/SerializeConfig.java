@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2017 Alibaba Group.
+ * Copyright 1999-2018 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -126,7 +126,8 @@ public class SerializeConfig {
             for (SerializerFeature feature : jsonType.serialzeFeatures()) {
                 if (SerializerFeature.WriteNonStringValueAsString == feature //
                         || SerializerFeature.WriteEnumUsingToString == feature //
-                        || SerializerFeature.NotWriteDefaultValue == feature) {
+                        || SerializerFeature.NotWriteDefaultValue == feature
+                        || SerializerFeature.BrowserCompatible == feature) {
                     asm = false;
                     break;
                 }
@@ -196,6 +197,7 @@ public class SerializeConfig {
                     if (SerializerFeature.WriteNonStringValueAsString == feature //
                             || SerializerFeature.WriteEnumUsingToString == feature //
                             || SerializerFeature.NotWriteDefaultValue == feature
+                            || SerializerFeature.BrowserCompatible == feature
                             || SerializerFeature.WriteClassName == feature) {
                         asm = false;
                         break;

@@ -15,6 +15,23 @@
  */
 package com.alibaba.fastjson.util;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.PropertyNamingStrategy;
+import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.annotation.JSONType;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.parser.Feature;
+import com.alibaba.fastjson.parser.JSONScanner;
+import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.parser.deserializer.EnumDeserializer;
+import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
+import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
+import com.alibaba.fastjson.serializer.CalendarCodec;
+import com.alibaba.fastjson.serializer.SerializeBeanInfo;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
@@ -53,23 +70,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.PropertyNamingStrategy;
-import com.alibaba.fastjson.annotation.JSONField;
-import com.alibaba.fastjson.annotation.JSONType;
-import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.Feature;
-import com.alibaba.fastjson.parser.JSONScanner;
-import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
-import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
-import com.alibaba.fastjson.serializer.CalendarCodec;
-import com.alibaba.fastjson.serializer.JavaBeanSerializer;
-import com.alibaba.fastjson.serializer.SerializeBeanInfo;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -272,6 +272,10 @@ public class TypeUtils{
     }
 
     public static Date castToDate(Object value){
+        return castToDate(value, null);
+    }
+
+    public static Date castToDate(Object value, String format){
         if(value == null){
             return null;
         }
@@ -298,30 +302,30 @@ public class TypeUtils{
                 dateLexer.close();
             }
             if(strVal.startsWith("/Date(") && strVal.endsWith(")/")){
-                String dotnetDateStr = strVal.substring(6, strVal.length() - 2);
-                strVal = dotnetDateStr;
+                strVal = strVal.substring(6, strVal.length() - 2);
             }
             if(strVal.indexOf('-') != -1){
-                String format;
-
-                if(strVal.length() == JSON.DEFFAULT_DATE_FORMAT.length()
-                        || (strVal.length() == 22 && JSON.DEFFAULT_DATE_FORMAT.equals("yyyyMMddHHmmssSSSZ"))){
-                    format = JSON.DEFFAULT_DATE_FORMAT;
-                } else if(strVal.length() == 10){
-                    format = "yyyy-MM-dd";
-                } else if(strVal.length() == "yyyy-MM-dd HH:mm:ss".length()){
-                    format = "yyyy-MM-dd HH:mm:ss";
-                } else if(strVal.length() == 29
-                        && strVal.charAt(26) == ':'
-                        && strVal.charAt(28) == '0'){
-                    format = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
-                } else{
-                    format = "yyyy-MM-dd HH:mm:ss.SSS";
+                if (format == null) {
+                    if (strVal.length() == JSON.DEFFAULT_DATE_FORMAT.length()
+                            || (strVal.length() == 22 && JSON.DEFFAULT_DATE_FORMAT.equals("yyyyMMddHHmmssSSSZ"))) {
+                        format = JSON.DEFFAULT_DATE_FORMAT;
+                    } else if (strVal.length() == 10) {
+                        format = "yyyy-MM-dd";
+                    } else if (strVal.length() == "yyyy-MM-dd HH:mm:ss".length()) {
+                        format = "yyyy-MM-dd HH:mm:ss";
+                    } else if (strVal.length() == 29
+                            && strVal.charAt(26) == ':'
+                            && strVal.charAt(28) == '0') {
+                        format = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
+                    } else {
+                        format = "yyyy-MM-dd HH:mm:ss.SSS";
+                    }
                 }
+
                 SimpleDateFormat dateFormat = new SimpleDateFormat(format, JSON.defaultLocale);
                 dateFormat.setTimeZone(JSON.defaultTimeZone);
                 try{
-                    return (Date) dateFormat.parse(strVal);
+                    return dateFormat.parse(strVal);
                 } catch(ParseException e){
                     throw new JSONException("can not cast to Date, value : " + strVal);
                 }
@@ -435,8 +439,7 @@ public class TypeUtils{
         if(value instanceof String){
             String strVal = (String) value;
             if(strVal.length() == 0 //
-                    || "null".equals(strVal) //
-                    || "NULL".equals(strVal)){
+                    || "null".equalsIgnoreCase(strVal)){
                 return null;
             }
             if(isNumber(strVal)){
@@ -508,9 +511,7 @@ public class TypeUtils{
             if(ch == '+' || ch == '-'){
                 if(i != 0){
                     return false;
-                } else{
-                    continue;
-                }
+                } 
             } else if(ch < '0' || ch > '9'){
                 return false;
             }
@@ -822,6 +823,17 @@ public class TypeUtils{
                 if(name.length() == 0){
                     return null;
                 }
+
+                if (mapping == null) {
+                    mapping = ParserConfig.getGlobalInstance();
+                }
+
+                ObjectDeserializer derializer = mapping.getDeserializer(clazz);
+                if (derializer instanceof EnumDeserializer) {
+                    EnumDeserializer enumDeserializer = (EnumDeserializer) derializer;
+                    return (T) enumDeserializer.getEnumByHashCode(TypeUtils.fnv1a_64(name));
+                }
+
                 return (T) Enum.valueOf((Class<? extends Enum>) clazz, name);
             }
             if(obj instanceof Number){
@@ -1268,7 +1280,7 @@ public class TypeUtils{
             }
 
             PropertyNamingStrategy jsonTypeNaming = jsonType.naming();
-            if (jsonTypeNaming != null && jsonTypeNaming != PropertyNamingStrategy.CamelCase) {
+            if (jsonTypeNaming != PropertyNamingStrategy.CamelCase) {
                 propertyNamingStrategy = jsonTypeNaming;
             }
 
@@ -1464,7 +1476,6 @@ public class TypeUtils{
                 serialzeFeatures = SerializerFeature.of(annotation.serialzeFeatures());
                 parserFeatures = Feature.of(annotation.parseFeatures());
                 if(annotation.name().length() != 0){
-                    fieldAnnotationAndNameExists = true;
                     String propertyName = annotation.name();
                     if(aliasMap != null){
                         propertyName = aliasMap.get(propertyName);
@@ -1829,12 +1840,9 @@ public class TypeUtils{
         if(type instanceof ParameterizedType){
             return true;
         }
-        if(type instanceof Class){
+        if(type instanceof Class) {
             Type superType = ((Class<?>) type).getGenericSuperclass();
-            if(superType == Object.class){
-                return false;
-            }
-            return isGenericParamType(superType);
+            return superType != Object.class && isGenericParamType(superType);
         }
         return false;
     }
@@ -1958,7 +1966,7 @@ public class TypeUtils{
 
     public static Type getCollectionItemType(Type fieldType){
         Type itemType = null;
-        Class<?> clazz = null;
+        Class<?> clazz;
         if(fieldType instanceof ParameterizedType){
             Type actualTypeArgument = ((ParameterizedType) fieldType).getActualTypeArguments()[0];
             if(actualTypeArgument instanceof WildcardType){
@@ -2123,44 +2131,38 @@ public class TypeUtils{
         return false;
     }
 
-    public static boolean isAnnotationPresentOneToMany(Method method){
-        if(method == null){
+    public static boolean isAnnotationPresentOneToMany(Method method) {
+        if (method == null) {
             return false;
         }
 
-        if(class_OneToMany == null && !class_OneToMany_error){
-            try{
+        if (class_OneToMany == null && !class_OneToMany_error) {
+            try {
                 class_OneToMany = (Class<? extends Annotation>) Class.forName("javax.persistence.OneToMany");
-            } catch(Throwable e){
+            } catch (Throwable e) {
                 // skip
                 class_OneToMany_error = true;
             }
         }
-        if(class_OneToMany == null){
-            return false;
-        }
+        return class_OneToMany != null && method.isAnnotationPresent(class_OneToMany);
 
-        return method.isAnnotationPresent(class_OneToMany);
     }
 
-    public static boolean isAnnotationPresentManyToMany(Method method){
-        if(method == null){
+    public static boolean isAnnotationPresentManyToMany(Method method) {
+        if (method == null) {
             return false;
         }
 
-        if(class_ManyToMany == null && !class_ManyToMany_error){
-            try{
+        if (class_ManyToMany == null && !class_ManyToMany_error) {
+            try {
                 class_ManyToMany = (Class<? extends Annotation>) Class.forName("javax.persistence.ManyToMany");
-            } catch(Throwable e){
+            } catch (Throwable e) {
                 // skip
                 class_ManyToMany_error = true;
             }
         }
-        if(class_ManyToMany == null){
-            return false;
-        }
+        return class_ManyToMany != null && (method.isAnnotationPresent(class_OneToMany) || method.isAnnotationPresent(class_ManyToMany));
 
-        return method.isAnnotationPresent(class_OneToMany) || method.isAnnotationPresent(class_ManyToMany);
     }
 
     public static boolean isHibernateInitialized(Object object){
@@ -2169,7 +2171,7 @@ public class TypeUtils{
         }
         if(method_HibernateIsInitialized == null && !method_HibernateIsInitialized_error){
             try{
-                Class<?> class_Hibernate = (Class<? extends Annotation>) Class.forName("org.hibernate.Hibernate");
+                Class<?> class_Hibernate = Class.forName("org.hibernate.Hibernate");
                 method_HibernateIsInitialized = class_Hibernate.getMethod("isInitialized", Object.class);
             } catch(Throwable e){
                 // skip
@@ -2213,18 +2215,15 @@ public class TypeUtils{
         return hashCode;
     }
 
-    public static boolean isKotlin(Class clazz){
-        if(kotlin_metadata == null && !kotlin_metadata_error){
-            try{
+    public static boolean isKotlin(Class clazz) {
+        if (kotlin_metadata == null && !kotlin_metadata_error) {
+            try {
                 kotlin_metadata = Class.forName("kotlin.Metadata");
-            } catch(Throwable e){
+            } catch (Throwable e) {
                 kotlin_metadata_error = true;
             }
         }
-        if(kotlin_metadata == null){
-            return false;
-        }
-        return clazz.isAnnotationPresent(kotlin_metadata);
+        return kotlin_metadata != null && clazz.isAnnotationPresent(kotlin_metadata);
     }
 
     public static Constructor getKoltinConstructor(Constructor[] constructors){
@@ -2312,10 +2311,10 @@ public class TypeUtils{
         return null;
     }
 
-    private static boolean isKotlinIgnore(Class clazz, String methodName){
-        if(kotlinIgnores == null && !kotlinIgnores_error){
-            try{
-                Map<Class,String[]> map = new HashMap<Class,String[]>();
+    private static boolean isKotlinIgnore(Class clazz, String methodName) {
+        if (kotlinIgnores == null && !kotlinIgnores_error) {
+            try {
+                Map<Class, String[]> map = new HashMap<Class, String[]>();
                 Class charRangeClass = Class.forName("kotlin.ranges.CharRange");
                 map.put(charRangeClass, new String[]{"getEndInclusive", "isEmpty"});
                 Class intRangeClass = Class.forName("kotlin.ranges.IntRange");
@@ -2327,18 +2326,15 @@ public class TypeUtils{
                 Class doubleRangeClass = Class.forName("kotlin.ranges.ClosedDoubleRange");
                 map.put(doubleRangeClass, new String[]{"getEndInclusive", "isEmpty"});
                 kotlinIgnores = map;
-            } catch(Throwable error){
+            } catch (Throwable error) {
                 kotlinIgnores_error = true;
             }
         }
-        if(kotlinIgnores == null){
+        if (kotlinIgnores == null) {
             return false;
         }
         String[] ignores = kotlinIgnores.get(clazz);
-        if(ignores == null){
-            return false;
-        }
-        return Arrays.binarySearch(ignores, methodName) >= 0;
+        return ignores != null && Arrays.binarySearch(ignores, methodName) >= 0;
     }
 
     public static <A extends Annotation> A getAnnotation(Class<?> clazz, Class<A> annotationClass){

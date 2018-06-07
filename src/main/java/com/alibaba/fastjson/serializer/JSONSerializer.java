@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2017 Alibaba Group.
+ * Copyright 1999-2018 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -183,7 +183,8 @@ public class JSONSerializer extends SerializeFilterable {
             out.write("{\"$ref\":\"$\"}");
         } else {
             out.write("{\"$ref\":\"");
-            out.write(references.get(object).toString());
+            String path = references.get(object).toString();
+            out.write(path);
             out.write("\"}");
         }
     }
@@ -199,6 +200,11 @@ public class JSONSerializer extends SerializeFilterable {
     public boolean hasNameFilters(SerializeFilterable filterable) {
         return (nameFilters != null && nameFilters.size() > 0) //
                || (filterable.nameFilters != null && filterable.nameFilters.size() > 0);
+    }
+
+    public boolean hasPropertyFilters(SerializeFilterable filterable) {
+        return (propertyFilters != null && propertyFilters.size() > 0) //
+                || (filterable.propertyFilters != null && filterable.propertyFilters.size() > 0);
     }
 
     public int getIndentCount() {

@@ -123,13 +123,22 @@ public class SerializeConfig {
 	            asm = false;
 	        }
 
-            for (SerializerFeature feature : jsonType.serialzeFeatures()) {
-                if (SerializerFeature.WriteNonStringValueAsString == feature //
-                        || SerializerFeature.WriteEnumUsingToString == feature //
-                        || SerializerFeature.NotWriteDefaultValue == feature
-                        || SerializerFeature.BrowserCompatible == feature) {
+	        if (asm) {
+                for (SerializerFeature feature : jsonType.serialzeFeatures()) {
+                    if (SerializerFeature.WriteNonStringValueAsString == feature //
+                            || SerializerFeature.WriteEnumUsingToString == feature //
+                            || SerializerFeature.NotWriteDefaultValue == feature
+                            || SerializerFeature.BrowserCompatible == feature) {
+                        asm = false;
+                        break;
+                    }
+                }
+            }
+
+            if (asm) {
+                final Class<? extends SerializeFilter>[] filterClasses = jsonType.serialzeFilters();
+                if (filterClasses.length != 0) {
                     asm = false;
-                    break;
                 }
             }
         }
@@ -205,7 +214,7 @@ public class SerializeConfig {
                 }
 
                 if (TypeUtils.isAnnotationPresentOneToMany(method) || TypeUtils.isAnnotationPresentManyToMany(method)) {
-    			    asm = true;
+    			    asm = false;
     			    break;
                 }
     		}

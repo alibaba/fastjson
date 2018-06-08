@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 
 import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.parser.Feature;
+import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 /**
@@ -64,4 +65,9 @@ public @interface JSONType {
     boolean serializeEnumAsJavaBean() default false;
 
     PropertyNamingStrategy naming() default PropertyNamingStrategy.CamelCase;
+
+    /**
+     * @since 1.2.49
+     */
+    Class<? extends SerializeFilter>[] serialzeFilters() default {};
 }

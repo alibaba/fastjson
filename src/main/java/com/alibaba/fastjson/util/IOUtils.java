@@ -608,19 +608,21 @@ public class IOUtils {
             } else if (c >= '\uD800' && c < ('\uDFFF' + 1)) { //Character.isSurrogate(c) but 1.7
                 final int uc;
                 int ip = offset - 1;
-                if (Character.isHighSurrogate(c)) {
+                if (c >= '\uD800' && c < ('\uDBFF' + 1)) { // Character.isHighSurrogate(c)
                     if (sl - ip < 2) {
                         uc = -1;
                     } else {
                         char d = chars[ip + 1];
-                        if (Character.isLowSurrogate(d)) {
-                            uc = Character.toCodePoint(c, d);
+                        // d >= '\uDC00' && d < ('\uDFFF' + 1)
+                        if (d >= '\uDC00' && d < ('\uDFFF' + 1)) { // Character.isLowSurrogate(d)
+                            uc = ((c << 10) + d) + (0x010000 - ('\uD800' << 10) - '\uDC00'); // Character.toCodePoint(c, d)
                         } else {
                             throw new JSONException("encodeUTF8 error", new MalformedInputException(1));
                         }
                     }
                 } else {
-                    if (Character.isLowSurrogate(c)) {
+                    //
+                    if (c >= '\uDC00' && c < ('\uDFFF' + 1)) { // Character.isLowSurrogate(c)
                         throw new JSONException("encodeUTF8 error", new MalformedInputException(1));
                     } else {
                         uc = c;

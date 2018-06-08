@@ -95,6 +95,17 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 System.arraycopy(sortedGetters, 0, getters, 0, sortedGetters.length);
             }
         }
+
+        if (beanInfo.jsonType != null) {
+            for (Class<? extends SerializeFilter> filterClass : beanInfo.jsonType.serialzeFilters()) {
+                try {
+                    SerializeFilter filter = filterClass.getConstructor().newInstance();
+                    this.addFilter(filter);
+                } catch (Exception e) {
+                    // skip
+                }
+            }
+        }
     }
 
     public void writeDirectNonContext(JSONSerializer serializer, //

@@ -393,6 +393,11 @@ public class DefaultJSONParser implements Closeable {
                         String ref = lexer.stringVal();
                         lexer.nextToken(JSONToken.RBRACE);
 
+                        if (lexer.token() == JSONToken.COMMA) {
+                            map.put(key, ref);
+                            continue;
+                        }
+
                         Object refValue = null;
                         if ("@".equals(ref)) {
                             if (this.context != null) {
@@ -429,7 +434,7 @@ public class DefaultJSONParser implements Closeable {
                         }
 
                         if (lexer.token() != JSONToken.RBRACE) {
-                            throw new JSONException("syntax error");
+                            throw new JSONException("syntax error, " + lexer.info());
                         }
                         lexer.nextToken(JSONToken.COMMA);
 

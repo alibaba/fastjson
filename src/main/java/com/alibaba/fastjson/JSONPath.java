@@ -413,9 +413,10 @@ public class JSONPath implements JSONAware {
      * @return
      */
     public static Object read(String json, String path) {
-        Object object = JSON.parse(json);
-        JSONPath jsonpath = compile(path);
-        return jsonpath.eval(object);
+        return compile(path)
+                .eval(
+                        JSON.parse(json)
+                );
     }
     
     public static Map<String, Object> paths(Object javaObject) {
@@ -1076,7 +1077,11 @@ public class JSONPath implements JSONAware {
                                     }
                                 }
                             } else if (strValue.charAt(strValue.length() - 1) == '%') {
-                                containsValues = items;
+                                if (items.length == 1) {
+                                    startsWithValue = items[0];
+                                } else {
+                                    containsValues = items;
+                                }
                             } else {
                                 if (items.length == 1) {
                                     startsWithValue = items[0];
@@ -2112,8 +2117,13 @@ public class JSONPath implements JSONAware {
         private final int      minLength;
         private final boolean  not;
 
-        public MatchSegement(String propertyName, String startsWithValue, String endsWithValue, String[] containsValues,
-                             boolean not){
+        public MatchSegement(
+                String propertyName,
+                String startsWithValue,
+                String endsWithValue,
+                String[] containsValues,
+                boolean not)
+        {
             this.propertyName = propertyName;
             this.propertyNameHash = TypeUtils.fnv1a_64(propertyName);
             this.startsWithValue = startsWithValue;

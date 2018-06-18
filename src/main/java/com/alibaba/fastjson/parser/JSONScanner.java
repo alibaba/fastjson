@@ -2047,11 +2047,36 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     public String info() {
-        return "pos " + bp //
-                + ", json : " //
-                + (text.length() < 65536 //
-                ? text //
-                : text.substring(0, 65536));
+        StringBuilder buf = new StringBuilder();
+
+//        buf.append("pos ").append(bp);
+//        return "pos " + bp //
+//                + ", json : " //
+//                + (text.length() < 65536 //
+//                ? text //
+//                : text.substring(0, 65536));
+
+        int line = 1;
+        int column = 1;
+        for (int i = 0; i < bp; ++i, column++) {
+            char ch = text.charAt(i);
+            if (ch == '\n') {
+                column = 1;
+                line++;
+            }
+        }
+
+        buf.append("pos ").append(bp)
+            .append(", line ").append(line)
+            .append(", column ").append(column);
+
+        if (text.length() < 65535) {
+            buf.append(text);
+        } else {
+            buf.append(text.substring(0, 65535));
+        }
+
+        return buf.toString();
     }
 
     // for hsf support

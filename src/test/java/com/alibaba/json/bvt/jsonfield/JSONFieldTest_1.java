@@ -1,18 +1,17 @@
 package com.alibaba.json.bvt.jsonfield;
 
-import java.util.List;
-
-import junit.framework.TestCase;
+import java.lang.reflect.Field;
 
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.parser.deserializer.ASMJavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
+
+import junit.framework.TestCase;
 
 public class JSONFieldTest_1 extends TestCase {
 
@@ -36,17 +35,16 @@ public class JSONFieldTest_1 extends TestCase {
         JavaBeanDeserializer javaBeanDeser = null;
 
         ObjectDeserializer deser = ParserConfig.getGlobalInstance().getDeserializer(VO.class);
-        if (deser instanceof ASMJavaBeanDeserializer) {
-            javaBeanDeser = ((ASMJavaBeanDeserializer) deser).getInnterSerializer();
-        } else {
-            javaBeanDeser = (JavaBeanDeserializer) deser;
-        }
+        javaBeanDeser = (JavaBeanDeserializer) deser;
 
-        List<FieldDeserializer> fieldDeserList = javaBeanDeser.getSortedFieldDeserializers();
-        Assert.assertEquals(3, fieldDeserList.size());
-        Assert.assertEquals("f2", fieldDeserList.get(0).getFieldInfo().getName());
-        Assert.assertEquals("f1", fieldDeserList.get(1).getFieldInfo().getName());
-        Assert.assertEquals("f0", fieldDeserList.get(2).getFieldInfo().getName());
+        Field field = JavaBeanDeserializer.class.getDeclaredField("sortedFieldDeserializers");
+        field.setAccessible(true);
+        FieldDeserializer[] fieldDeserList = (FieldDeserializer[]) field.get(javaBeanDeser);
+        
+        Assert.assertEquals(3, fieldDeserList.length);
+        Assert.assertEquals("f2", fieldDeserList[0].fieldInfo.name);
+        Assert.assertEquals("f1", fieldDeserList[1].fieldInfo.name);
+        Assert.assertEquals("f0", fieldDeserList[2].fieldInfo.name);
     }
 
     public static class VO {

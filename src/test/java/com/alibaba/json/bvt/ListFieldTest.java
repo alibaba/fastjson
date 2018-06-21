@@ -21,6 +21,7 @@ public class ListFieldTest extends TestCase {
         Assert.assertEquals("{\"value\":null}", text);
 
         ParserConfig config = new ParserConfig();
+        config.setAutoTypeSupport(true);
         config.setAsmEnable(false);
         
         V0 v1 = JSON.parseObject(text, V0.class, config, JSON.DEFAULT_PARSER_FEATURE);

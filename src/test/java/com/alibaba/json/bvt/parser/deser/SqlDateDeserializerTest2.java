@@ -2,6 +2,8 @@ package com.alibaba.json.bvt.parser.deser;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import org.junit.Assert;
 import junit.framework.TestCase;
@@ -9,14 +11,25 @@ import junit.framework.TestCase;
 import com.alibaba.fastjson.JSON;
 
 public class SqlDateDeserializerTest2 extends TestCase {
+    protected void setUp() throws Exception {
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        JSON.defaultLocale = Locale.CHINA;
+    }
+    
+    
     public void test_sqlDate() throws Exception {
         java.util.Date date = new java.util.Date();
         long millis = date.getTime();
         long millis2 = (millis / 1000)  * 1000;
-        String text = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(millis);
+        
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", JSON.defaultLocale);
+        dateFormat.setTimeZone(JSON.defaultTimeZone);
+        String text = dateFormat.format(millis);
         text = text.replace(' ', 'T');
         
-        String text2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(millis2);
+        SimpleDateFormat dateFormat2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", JSON.defaultLocale);
+        dateFormat2.setTimeZone(JSON.defaultTimeZone);
+        String text2 = dateFormat2.format(millis2);
         
         Assert.assertNull(JSON.parseObject("null", Date.class));
         Assert.assertNull(JSON.parseObject("\"\"", Date.class));

@@ -57,17 +57,6 @@ public interface MethodVisitor {
      */
     void visitInsn(int opcode);
 
-    /**
-     * Visits an instruction with a single int operand.
-     * 
-     * @param opcode the opcode of the instruction to be visited. This opcode is either BIPUSH, SIPUSH or NEWARRAY.
-     * @param operand the operand of the instruction to be visited.<br>
-     * When opcode is BIPUSH, operand value should be between Byte.MIN_VALUE and Byte.MAX_VALUE.<br>
-     * When opcode is SIPUSH, operand value should be between Short.MIN_VALUE and Short.MAX_VALUE.<br>
-     * When opcode is NEWARRAY, operand value should be one of {@link Opcodes#T_BOOLEAN}, {@link Opcodes#T_CHAR},
-     * {@link Opcodes#T_FLOAT}, {@link Opcodes#T_DOUBLE}, {@link Opcodes#T_BYTE}, {@link Opcodes#T_SHORT},
-     * {@link Opcodes#T_INT} or {@link Opcodes#T_LONG}.
-     */
     void visitIntInsn(int opcode, int operand);
 
     /**
@@ -103,16 +92,6 @@ public interface MethodVisitor {
      */
     void visitFieldInsn(int opcode, String owner, String name, String desc);
 
-    /**
-     * Visits a method instruction. A method instruction is an instruction that invokes a method.
-     * 
-     * @param opcode the opcode of the type instruction to be visited. This opcode is either INVOKEVIRTUAL,
-     * INVOKESPECIAL, INVOKESTATIC, INVOKEINTERFACE or INVOKEDYNAMIC.
-     * @param owner the internal name of the method's owner class (see {@link Type#getInternalName() getInternalName})
-     * or {@link com.alibaba.fastjson.asm.Opcodes#INVOKEDYNAMIC_OWNER}.
-     * @param name the method's name.
-     * @param desc the method's descriptor (see {@link Type Type}).
-     */
     void visitMethodInsn(int opcode, String owner, String name, String desc);
 
     /**

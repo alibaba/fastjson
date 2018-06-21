@@ -3,6 +3,9 @@ package com.alibaba.fastjson.util;
 import java.lang.ref.SoftReference;
 import java.nio.charset.CharsetDecoder;
 
+/**
+ * @deprecated
+ */
 public class ThreadLocalCache {
 
     public final static int                                 CHARS_CACH_INIT_SIZE = 1024;                                    // 1k, 2^10;
@@ -47,27 +50,27 @@ public class ThreadLocalCache {
     }
 
     private static char[] allocate(int length) {
-    	if(length> CHARS_CACH_MAX_SIZE) {
-    		return new char[length];
-    	}
+        if(length> CHARS_CACH_MAX_SIZE) {
+            return new char[length];
+        }
 
-    	int allocateLength = getAllocateLengthExp(CHARS_CACH_INIT_SIZE_EXP, CHARS_CACH_MAX_SIZE_EXP, length);
+        int allocateLength = getAllocateLengthExp(CHARS_CACH_INIT_SIZE_EXP, CHARS_CACH_MAX_SIZE_EXP, length);
         char[] chars = new char[allocateLength];
         charsBufLocal.set(new SoftReference<char[]>(chars));
         return chars;
     }
 
     private static int getAllocateLengthExp(int minExp, int maxExp, int length) {
-    	assert (1<<maxExp) >= length;
+        assert (1<<maxExp) >= length;
 //		int max = 1 << maxExp;
 //		if(length>= max) {
 //			return length;
 //		}
-		int part = length >>> minExp;
-		if(part <= 0) {
-			return 1<< minExp;
-		}
-		return 1 << 32 - Integer.numberOfLeadingZeros(length-1);
+        int part = length >>> minExp;
+        if(part <= 0) {
+            return 1<< minExp;
+        }
+        return 1 << 32 - Integer.numberOfLeadingZeros(length-1);
     }
 
     // /////////
@@ -102,9 +105,9 @@ public class ThreadLocalCache {
     }
 
     private static byte[] allocateBytes(int length) {
-    	if(length > BYTES_CACH_MAX_SIZE) {
-    		return new byte[length];
-    	}
+        if(length > BYTES_CACH_MAX_SIZE) {
+            return new byte[length];
+        }
 
         int allocateLength = getAllocateLengthExp(BYTES_CACH_INIT_SIZE_EXP, BYTES_CACH_MAX_SIZE_EXP, length);
         byte[] chars = new byte[allocateLength];

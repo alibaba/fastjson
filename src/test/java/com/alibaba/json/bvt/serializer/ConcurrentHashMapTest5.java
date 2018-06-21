@@ -17,7 +17,7 @@ public class ConcurrentHashMapTest5 extends TestCase {
 
     public void test_concurrentHashmap() throws Exception {
         OffsetSerializeWrapper wrapper = new OffsetSerializeWrapper();
-        wrapper.getOffsetTable().put(new MessageQueue(), new WeakReference<A>(new A(true)));
+        wrapper.offsetTable.put(new MessageQueue(), new WeakReference<A>(new A(true)));
         String text = JSON.toJSONString(wrapper);
         Assert.assertEquals("{\"offsetTable\":{{\"items\":[]}:{\"value\":true}}}", text);
 

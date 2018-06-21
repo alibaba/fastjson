@@ -5,7 +5,7 @@ import java.lang.management.ManagementFactory;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import com.alibaba.fastjson.util.Base64;
+import com.alibaba.fastjson.util.IOUtils;
 
 public class TestUtils {
 
@@ -22,7 +22,7 @@ public class TestUtils {
      * @return A BASE64 encoded array. Never <code>null</code>.
      */
     private final static char[] encodeToChar(byte[] sArr, boolean lineSep) {
-        char[] CA = Base64.CA;
+        char[] CA = IOUtils.CA;
 
         // Check special case
         int sLen = sArr != null ? sArr.length : 0;

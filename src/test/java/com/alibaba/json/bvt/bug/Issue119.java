@@ -16,4 +16,12 @@ public class Issue119 extends TestCase {
         Assert.assertEquals(-100, lexer.integerValue().shortValue());
         lexer.close();
     }
+    
+    public void test_for_issue_b() throws Exception {
+        JSONScanner lexer = new JSONScanner("-10B");
+        lexer.scanNumber();
+        Assert.assertEquals(Byte.class, lexer.integerValue().getClass());
+        Assert.assertEquals(-10, lexer.integerValue().byteValue());
+        lexer.close();
+    }
 }

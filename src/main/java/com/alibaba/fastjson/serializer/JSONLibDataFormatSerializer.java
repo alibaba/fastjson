@@ -12,9 +12,9 @@ public class JSONLibDataFormatSerializer implements ObjectSerializer {
     }
 
     @SuppressWarnings("deprecation")
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
+    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
     	if (object == null) {
-    		serializer.getWriter().writeNull();
+    		serializer.out.writeNull();
     		return;
     	}
     	

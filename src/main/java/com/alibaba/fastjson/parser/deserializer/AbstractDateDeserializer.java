@@ -1,6 +1,8 @@
 package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.Type;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
@@ -11,11 +13,16 @@ import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.util.TypeUtils;
 
-public abstract class AbstractDateDeserializer implements ObjectDeserializer {
+public abstract class AbstractDateDeserializer extends ContextObjectDeserializer implements ObjectDeserializer {
 
-    @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        JSONLexer lexer = parser.getLexer();
+        return deserialze(parser, clazz, fieldName, null, 0);
+    }
+    
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName, String format, int features) {
+        JSONLexer lexer = parser.lexer;
 
         Object val;
         if (lexer.token() == JSONToken.LITERAL_INT) {
@@ -23,15 +30,52 @@ public abstract class AbstractDateDeserializer implements ObjectDeserializer {
             lexer.nextToken(JSONToken.COMMA);
         } else if (lexer.token() == JSONToken.LITERAL_STRING) {
             String strVal = lexer.stringVal();
-            val = strVal;
-            lexer.nextToken(JSONToken.COMMA);
             
-            if (lexer.isEnabled(Feature.AllowISO8601DateFormat)) {
-                JSONScanner iso8601Lexer = new JSONScanner(strVal);
-                if (iso8601Lexer.scanISO8601DateIfMatch()) {
-                    val = iso8601Lexer.getCalendar().getTime();
+            if (format != null) {
+                SimpleDateFormat simpleDateFormat = null;
+                try {
+                    simpleDateFormat = new SimpleDateFormat(format,JSON.defaultLocale);
+                } catch (IllegalArgumentException ex) {
+                    if (format.equals("yyyy-MM-ddTHH:mm:ss.SSS")) {
+                        format = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+                        simpleDateFormat = new SimpleDateFormat(format);
+                    } else  if (format.equals("yyyy-MM-ddTHH:mm:ss")) {
+                        format = "yyyy-MM-dd'T'HH:mm:ss";
+                        simpleDateFormat = new SimpleDateFormat(format);
+                    }
                 }
-                iso8601Lexer.close();
+
+                try {
+                    val = simpleDateFormat.parse(strVal);
+                } catch (ParseException ex) {
+                    if (format.equals("yyyy-MM-dd'T'HH:mm:ss.SSS") //
+                            && strVal.length() == 19) {
+                        try {
+                            val = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(strVal);
+                        } catch (ParseException ex2) {
+                            // skip
+                            val = null;
+                        }
+                    } else {
+                        // skip
+                        val = null;
+                    }
+                }
+            } else {
+                val = null;
+            }
+            
+            if (val == null) {
+                val = strVal;
+                lexer.nextToken(JSONToken.COMMA);
+                
+                if (lexer.isEnabled(Feature.AllowISO8601DateFormat)) {
+                    JSONScanner iso8601Lexer = new JSONScanner(strVal);
+                    if (iso8601Lexer.scanISO8601DateIfMatch()) {
+                        val = iso8601Lexer.getCalendar().getTime();
+                    }
+                    iso8601Lexer.close();
+                }
             }
         } else if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken();
@@ -48,7 +92,7 @@ public abstract class AbstractDateDeserializer implements ObjectDeserializer {
                     parser.accept(JSONToken.COLON);
                     
                     String typeName = lexer.stringVal();
-                    Class<?> type = TypeUtils.loadClass(typeName);
+                    Class<?> type = parser.getConfig().checkAutoType(typeName, null);
                     if (type != null) {
                         clazz = type;
                     }

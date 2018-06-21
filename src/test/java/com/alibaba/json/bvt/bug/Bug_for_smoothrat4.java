@@ -75,7 +75,7 @@ public class Bug_for_smoothrat4 extends TestCase {
 
         String text = JSON.toJSONString(entity, SerializerFeature.WriteClassName);
         System.out.println(text);
-        Assert.assertEquals("{\"@type\":\"com.alibaba.json.bvt.bug.Bug_for_smoothrat4$Entity\",\"value\":3F}",
+        Assert.assertEquals("{\"@type\":\"com.alibaba.json.bvt.bug.Bug_for_smoothrat4$Entity\",\"value\":3.0F}",
                             text);
 
         Entity entity2 = JSON.parseObject(text, Entity.class);
@@ -90,7 +90,7 @@ public class Bug_for_smoothrat4 extends TestCase {
 
         String text = JSON.toJSONString(entity, SerializerFeature.WriteClassName);
         System.out.println(text);
-        Assert.assertEquals("{\"@type\":\"com.alibaba.json.bvt.bug.Bug_for_smoothrat4$Entity\",\"value\":3D}",
+        Assert.assertEquals("{\"@type\":\"com.alibaba.json.bvt.bug.Bug_for_smoothrat4$Entity\",\"value\":3.0D}",
                             text);
 
         Entity entity2 = JSON.parseObject(text, Entity.class);

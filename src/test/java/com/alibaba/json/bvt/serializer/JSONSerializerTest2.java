@@ -4,22 +4,24 @@ import java.io.IOException;
 import java.io.Writer;
 
 import org.junit.Assert;
-import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+
+import junit.framework.TestCase;
 
 public class JSONSerializerTest2 extends TestCase {
 
     public void test_0() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
 
-        int size = serializer.getMapping().size();
+        int size = JSONSerializerMapTest.size(serializer.getMapping());
         serializer.config(SerializerFeature.WriteEnumUsingToString, false);
+        serializer.config(SerializerFeature.WriteEnumUsingName, false);
         serializer.write(Type.A);
 
-        Assert.assertTrue(size < serializer.getMapping().size());
+        Assert.assertTrue(size < JSONSerializerMapTest.size(serializer.getMapping()));
 
         Assert.assertEquals(Integer.toString(Type.A.ordinal()), serializer.getWriter().toString());
     }
@@ -27,6 +29,7 @@ public class JSONSerializerTest2 extends TestCase {
     public void test_1() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
         serializer.config(SerializerFeature.WriteEnumUsingToString, false);
+        serializer.config(SerializerFeature.WriteEnumUsingName, false);
         serializer.write(new A(Type.B));
 
         Assert.assertEquals("{\"type\":" + Integer.toString(Type.B.ordinal()) + "}", serializer.getWriter().toString());

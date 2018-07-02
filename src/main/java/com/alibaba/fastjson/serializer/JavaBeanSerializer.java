@@ -20,7 +20,14 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
@@ -35,7 +42,8 @@ import com.alibaba.fastjson.util.TypeUtils;
 public class JavaBeanSerializer extends SerializeFilterable implements ObjectSerializer {
     // serializers
     protected final FieldSerializer[] getters;
-    protected final FieldSerializer[] sortedGetters;
+    // 是否直接放开，或者是提供getter方法
+    public final FieldSerializer[] sortedGetters;
     
     protected SerializeBeanInfo       beanInfo;
 

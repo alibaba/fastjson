@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONPath;
 
 import junit.framework.TestCase;
@@ -34,7 +33,6 @@ public class JSONPath_keySet extends TestCase {
         Entity e = new Entity();
         e.id = 3L;
         e.setName("hello");
-        System.out.println(JSON.toJSONString(e));
         Collection<?> result = (Collection<?>)JSONPath.eval(e, "$.keySet()");
         Assert.assertEquals(KEY_SET, result);
     }

@@ -35,7 +35,8 @@ import com.alibaba.fastjson.util.TypeUtils;
 public class JavaBeanSerializer extends SerializeFilterable implements ObjectSerializer {
     // serializers
     protected final FieldSerializer[] getters;
-    protected final FieldSerializer[] sortedGetters;
+    // 是否直接放开，或者是提供getter方法
+    public final FieldSerializer[] sortedGetters;
     
     protected SerializeBeanInfo       beanInfo;
 

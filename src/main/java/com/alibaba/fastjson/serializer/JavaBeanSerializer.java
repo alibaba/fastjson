@@ -35,7 +35,8 @@ import com.alibaba.fastjson.util.TypeUtils;
 public class JavaBeanSerializer extends SerializeFilterable implements ObjectSerializer {
     // serializers
     protected final FieldSerializer[] getters;
-    protected final FieldSerializer[] sortedGetters;
+    // 是否直接放开，或者是提供getter方法
+    public final FieldSerializer[] sortedGetters;
     
     protected SerializeBeanInfo       beanInfo;
 
@@ -93,6 +94,17 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
             }
             if (hashNotMatch) {
                 System.arraycopy(sortedGetters, 0, getters, 0, sortedGetters.length);
+            }
+        }
+
+        if (beanInfo.jsonType != null) {
+            for (Class<? extends SerializeFilter> filterClass : beanInfo.jsonType.serialzeFilters()) {
+                try {
+                    SerializeFilter filter = filterClass.getConstructor().newInstance();
+                    this.addFilter(filter);
+                } catch (Exception e) {
+                    // skip
+                }
             }
         }
 

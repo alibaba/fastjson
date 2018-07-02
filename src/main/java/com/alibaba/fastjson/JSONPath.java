@@ -687,6 +687,8 @@ public class JSONPath implements JSONAware {
 
                             if ("size".equals(propertyName) || "length".equals(propertyName)) {
                                 return SizeSegement.instance;
+                            } else if ("keySet".equals(propertyName)) {
+                                return KeySetSegement.instance;
                             }
 
                             throw new JSONPathException("not support jsonpath : " + path);
@@ -1648,6 +1650,15 @@ public class JSONPath implements JSONAware {
 
         public Integer eval(JSONPath path, Object rootObject, Object currentObject) {
             return path.evalSize(currentObject);
+        }
+    }
+
+    static class KeySetSegement implements Segement {
+
+        public final static KeySetSegement instance = new KeySetSegement();
+
+        public Object eval(JSONPath path, Object rootObject, Object currentObject) {
+            return path.evalKeySet(currentObject);
         }
     }
 
@@ -2915,6 +2926,34 @@ public class JSONPath implements JSONAware {
         } catch (Exception e) {
             throw new JSONPathException("evalSize error : " + path, e);
         }
+    }
+
+    @SuppressWarnings("rawtypes")
+    Set evalKeySet(Object currentObject) {
+        if (currentObject == null) {
+            // 是否返回空Set
+            return null;
+        }
+
+        if (currentObject instanceof Map) {
+            return ((Map)currentObject).keySet();
+        }
+
+        if (currentObject instanceof Collection || currentObject instanceof Object[]
+            || currentObject.getClass().isArray()) {
+            return null;
+        }
+
+        JavaBeanSerializer beanSerializer = getJavaBeanSerializer(currentObject.getClass());
+        if (beanSerializer == null) {
+            return null;
+        }
+
+        Set<String> keySet = new HashSet<String>();
+        for (FieldSerializer getter : beanSerializer.sortedGetters) {
+            keySet.add(getter.fieldInfo.name);
+        }
+        return keySet;
     }
 
     public String toJSONString() {

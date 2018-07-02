@@ -39,12 +39,6 @@ public class JSONPath_keySet extends TestCase {
         Assert.assertEquals(KEY_SET, result);
     }
 
-    public void test_jsonStr() {
-        String str = "{\"id\":3,\"name\":\"hello\"}";
-        Collection<?> result = (Collection<?>)JSONPath.eval(str, "$.keySet()");
-        Assert.assertEquals(KEY_SET, result);
-    }
-
     public void test_unsupported() {
         Entity e = new Entity();
         e.id = 3L;

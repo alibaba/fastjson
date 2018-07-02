@@ -27,8 +27,7 @@ import com.alibaba.fastjson.util.TypeUtils;
  * parameters, such as {@code Class<?>} or {@code List<? extends CharSequence>}.
  */
 public class TypeReference<T> {
-    static ConcurrentMap<Type, Type> classTypeCache
-            = new ConcurrentHashMap<Type, Type>(16, 0.75f, 1);
+    
 
     protected final Type type;
 
@@ -45,13 +44,7 @@ public class TypeReference<T> {
 
         Type type = ((ParameterizedType) superClass).getActualTypeArguments()[0];
 
-        Type cachedType = classTypeCache.get(type);
-        if (cachedType == null) {
-            classTypeCache.putIfAbsent(type, type);
-            cachedType = classTypeCache.get(type);
-        }
-
-        this.type = cachedType;
+        this.type = type;
     }
 
     /**
@@ -61,42 +54,15 @@ public class TypeReference<T> {
     protected TypeReference(Type... actualTypeArguments){
         Class<?> thisClass = this.getClass();
         Type superClass = thisClass.getGenericSuperclass();
-
+        
         ParameterizedType argType = (ParameterizedType) ((ParameterizedType) superClass).getActualTypeArguments()[0];
-        Type rawType = argType.getRawType();
-        Type[] argTypes = argType.getActualTypeArguments();
-
-        int actualIndex = 0;
-        for (int i = 0; i < argTypes.length; ++i) {
-            if (argTypes[i] instanceof TypeVariable &&
-                    actualIndex < actualTypeArguments.length) {
-                argTypes[i] = actualTypeArguments[actualIndex++];
-            }
-            // fix for openjdk and android env
-            if (argTypes[i] instanceof GenericArrayType) {
-                argTypes[i] = TypeUtils.checkPrimitiveArray(
-                        (GenericArrayType) argTypes[i]);
-            }
-
-            // 如果有多层泛型且该泛型已经注明实现的情况下，判断该泛型下一层是否还有泛型
-            if(argTypes[i] instanceof ParameterizedType) {
-                argTypes[i] = handlerParameterizedType((ParameterizedType) argTypes[i], actualTypeArguments, actualIndex);
-            }
-        }
-
-        Type key = new ParameterizedTypeImpl(argTypes, thisClass, rawType);
-        Type cachedType = classTypeCache.get(key);
-        if (cachedType == null) {
-            classTypeCache.putIfAbsent(key, key);
-            cachedType = classTypeCache.get(key);
-        }
-
-        type = cachedType;
+        
+        this.type = handlerParameterizedType(thisClass, argType, actualTypeArguments, 0);
 
     }
 
-    private Type handlerParameterizedType(ParameterizedType type, Type[] actualTypeArguments, int actualIndex) {
-        Class<?> thisClass = this.getClass();
+    private Type handlerParameterizedType(Class<?> thisClass,ParameterizedType type, Type[] actualTypeArguments, int actualIndex) {
+       
         Type rawType = type.getRawType();
         Type[] argTypes = type.getActualTypeArguments();
 
@@ -111,14 +77,13 @@ public class TypeReference<T> {
                         (GenericArrayType) argTypes[i]);
             }
 
-            // 如果有多层泛型且该泛型已经注明实现的情况下，判断该泛型下一层是否还有泛型
+            // fix Multilevel generics
             if(argTypes[i] instanceof ParameterizedType) {
-                return handlerParameterizedType((ParameterizedType) argTypes[i], actualTypeArguments, actualIndex);
+                return handlerParameterizedType(thisClass,(ParameterizedType) argTypes[i], actualTypeArguments, actualIndex);
             }
         }
 
-        Type key = new ParameterizedTypeImpl(argTypes, thisClass, rawType);
-        return key;
+        return  new ParameterizedTypeImpl(argTypes, thisClass, rawType);
     }
     
     /**

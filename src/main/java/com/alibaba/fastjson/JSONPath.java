@@ -4,7 +4,17 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
@@ -2931,7 +2941,6 @@ public class JSONPath implements JSONAware {
     @SuppressWarnings("rawtypes")
     Set evalKeySet(Object currentObject) {
         if (currentObject == null) {
-            // 是否返回空Set
             return null;
         }
 
@@ -2949,11 +2958,11 @@ public class JSONPath implements JSONAware {
             return null;
         }
 
-        Set<String> keySet = new HashSet<String>();
-        for (FieldSerializer getter : beanSerializer.sortedGetters) {
-            keySet.add(getter.fieldInfo.name);
+        try {
+            return beanSerializer.getFieldNames(currentObject);
+        } catch (Exception e) {
+            throw new JSONPathException("evalKeySet error : " + path, e);
         }
-        return keySet;
     }
 
     public String toJSONString() {

@@ -863,6 +863,24 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                                     && (fieldInfo.parserFeatures & Feature.InitStringFieldAsEmpty.mask) != 0) {
                                 param = "";
                             }
+                        } else {
+                            if (beanInfo.creatorConstructorParameterTypes != null && i < beanInfo.creatorConstructorParameterTypes.length) {
+                                Type paramType = beanInfo.creatorConstructorParameterTypes[i];
+                                if (paramType instanceof Class) {
+                                    Class paramClass = (Class) paramType;
+                                    if (!paramClass.isInstance(param)) {
+                                        if (param instanceof List) {
+                                            List list = (List) param;
+                                            if (list.size() == 1) {
+                                                Object first = list.get(0);
+                                                if (paramClass.isInstance(first)) {
+                                                    param = list.get(0);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                         params[i] = param;
                     }
@@ -915,6 +933,14 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     try {
                         if (hasNull && beanInfo.kotlinDefaultConstructor != null) {
                             object = beanInfo.kotlinDefaultConstructor.newInstance(new Object[0]);
+
+                            for (int i = 0; i < params.length; i++) {
+                                final Object param = params[i];
+                                if (param != null && beanInfo.fields != null && i < beanInfo.fields.length) {
+                                    FieldInfo fieldInfo = beanInfo.fields[i];
+                                    fieldInfo.set(object, param);
+                                }
+                            }
                         } else {
                             object = beanInfo.creatorConstructor.newInstance(params);
                         }

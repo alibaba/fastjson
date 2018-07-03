@@ -9,12 +9,10 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -2981,14 +2979,8 @@ public class JSONPath implements JSONAware {
         }
 
         if (currentObject instanceof Map) {
-            Set keySet = new HashSet();
-            Set<Entry> entrySet = ((Map)currentObject).entrySet();
-            for (Entry entry : entrySet) {
-                if (null != entry.getValue()) {
-                    keySet.add(entry.getKey());
-                }
-            }
-            return keySet;
+            // For performance reasons return keySet directly, without filtering null-value key.
+            return ((Map)currentObject).keySet();
         }
 
         if (currentObject instanceof Collection || currentObject instanceof Object[]

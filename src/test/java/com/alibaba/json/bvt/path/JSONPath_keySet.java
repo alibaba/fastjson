@@ -25,9 +25,7 @@ public class JSONPath_keySet extends TestCase {
     public void test_map() {
         Map<String, Integer> map1 = new HashMap<String, Integer>();
         map1.put("id", 1);
-        map1.put("name", 2);
-        map1.put("age", null);
-        Assert.assertTrue(map1.keySet().contains("age"));
+        map1.put("name", null); // null will be included
         Assert.assertEquals(KEY_SET, JSONPath.eval(map1, "$.keySet()"));
         Assert.assertEquals(KEY_SET, JSONPath.keySet(map1, "$"));
 

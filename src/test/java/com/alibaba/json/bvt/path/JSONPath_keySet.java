@@ -77,23 +77,27 @@ public class JSONPath_keySet extends TestCase {
      * Demo for wiki
      */
     @SuppressWarnings("unchecked")
-    public void demo() {
+    public void test_demo() {
         Entity e = new Entity();
         e.setId(null);
         e.setName("hello");
+        Map<String, Entity> map = Collections.singletonMap("e", e);
         Collection<String> result;
 
         // id is null, excluded by keySet
-        result = (Collection<String>)JSONPath.eval(e, "$.keySet()");
+        result = (Collection<String>)JSONPath.eval(map, "$.e.keySet()");
         assertEquals(1, result.size());
         Assert.assertTrue(result.contains("name"));
-        Assert.assertEquals(KEY_SET, result);
 
         e.setId(1L);
-        result = (Collection<String>)JSONPath.eval(e, "$.keySet()");
-        assertEquals(2, result.size());
+        result = (Collection<String>)JSONPath.eval(map, "$.e.keySet()");
+        Assert.assertEquals(2, result.size());
         Assert.assertTrue(result.contains("id")); // included
         Assert.assertTrue(result.contains("name"));
+
+        // Same result
+        Assert.assertEquals(result, JSONPath.keySet(map, "$.e"));
+        Assert.assertEquals(result, new JSONPath("$.e").keySet(map));
     }
 
     public static class Entity {

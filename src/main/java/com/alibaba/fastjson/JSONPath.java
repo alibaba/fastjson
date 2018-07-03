@@ -146,6 +146,21 @@ public class JSONPath implements JSONAware {
         return evalSize(currentObject);
     }
 
+    public Set<?> keySet(Object rootObject) {
+        if (rootObject == null) {
+            return null;
+        }
+
+        init();
+
+        Object currentObject = rootObject;
+        for (int i = 0; i < segments.length; ++i) {
+            currentObject = segments[i].eval(this, rootObject, currentObject);
+        }
+
+        return evalKeySet(currentObject);
+    }
+
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void arrayAdd(Object rootObject, Object... values) {
         if (values == null || values.length == 0) {
@@ -369,6 +384,12 @@ public class JSONPath implements JSONAware {
         JSONPath jsonpath = compile(path);
         Object result = jsonpath.eval(rootObject);
         return jsonpath.evalSize(result);
+    }
+
+    public static Set<?> keySet(Object rootObject, String path) {
+        JSONPath jsonpath = compile(path);
+        Object result = jsonpath.eval(rootObject);
+        return jsonpath.evalKeySet(result);
     }
 
     public static boolean contains(Object rootObject, String path) {
@@ -2939,7 +2960,7 @@ public class JSONPath implements JSONAware {
     }
 
     @SuppressWarnings("rawtypes")
-    Set evalKeySet(Object currentObject) {
+    Set<?> evalKeySet(Object currentObject) {
         if (currentObject == null) {
             return null;
         }

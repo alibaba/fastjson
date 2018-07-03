@@ -687,7 +687,7 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     static boolean checkDate(char y0, char y1, char y2, char y3, char M0, char M1, int d0, int d1) {
-        if (y0 < '1' || y0 > '3') {
+        if (y0 < '1' || y0 > '9') {
             return false;
         }
         if (y1 < '0' || y1 > '9') {

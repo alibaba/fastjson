@@ -21,12 +21,23 @@ public class JSONPath_keySet extends TestCase {
         KEY_SET.add("name");
     }
 
+    @SuppressWarnings("unchecked")
     public void test_map() {
-        Map<String, Integer> map = new HashMap<String, Integer>();
-        map.put("id", 1);
-        map.put("name", 2);
-        Assert.assertEquals(KEY_SET, JSONPath.eval(map, "$.keySet()"));
-        Assert.assertEquals(KEY_SET, JSONPath.keySet(map, "$"));
+        Map<String, Integer> map1 = new HashMap<String, Integer>();
+        map1.put("id", 1);
+        map1.put("name", 2);
+        map1.put("age", null);
+        Assert.assertTrue(map1.keySet().contains("age"));
+        Assert.assertEquals(KEY_SET, JSONPath.eval(map1, "$.keySet()"));
+        Assert.assertEquals(KEY_SET, JSONPath.keySet(map1, "$"));
+
+        Map<Long, String> map2 = new HashMap<Long, String>();
+        map2.put(1L, "a");
+        map2.put(2L, "b");
+        Set<Long> keys2 = (Set<Long>)JSONPath.eval(map2, "$.keySet()");
+        Assert.assertEquals(2, keys2.size());
+        Assert.assertTrue(keys2.contains(1L));
+        Assert.assertTrue(keys2.contains(2L));
     }
 
     @SuppressWarnings("unchecked")

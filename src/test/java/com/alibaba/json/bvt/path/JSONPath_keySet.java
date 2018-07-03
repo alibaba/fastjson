@@ -25,8 +25,8 @@ public class JSONPath_keySet extends TestCase {
         Map<String, Integer> map = new HashMap<String, Integer>();
         map.put("id", 1);
         map.put("name", 2);
-        Collection<?> result = (Collection<?>)JSONPath.eval(map, "$.keySet()");
-        Assert.assertEquals(KEY_SET, result);
+        Assert.assertEquals(KEY_SET, JSONPath.eval(map, "$.keySet()"));
+        Assert.assertEquals(KEY_SET, JSONPath.keySet(map, "$"));
     }
 
     @SuppressWarnings("unchecked")
@@ -39,10 +39,6 @@ public class JSONPath_keySet extends TestCase {
         result = (Collection<String>)JSONPath.eval(e, "$.keySet()");
         Assert.assertEquals(KEY_SET, result);
 
-        // Nested case
-        result = (Collection<String>)JSONPath.eval(Collections.singletonMap("obj", e), "$.obj.keySet()");
-        Assert.assertEquals(KEY_SET, result);
-
         // age not null
         e.age = 4L;
         result = (Collection<String>)JSONPath.eval(e, "$.keySet()");
@@ -51,12 +47,30 @@ public class JSONPath_keySet extends TestCase {
         Assert.assertTrue(result.contains("age"));
     }
 
+    public void test_nested() {
+        Entity e = new Entity();
+        e.id = 3L;
+        e.name = "hello";
+        Object obj = Collections.singletonMap("obj", e);
+        Assert.assertEquals(KEY_SET, JSONPath.eval(obj, "$.obj.keySet()"));
+        Assert.assertEquals(KEY_SET, new JSONPath("$.obj").keySet(obj));
+    }
+
     public void test_unsupported() {
         Entity e = new Entity();
         e.id = 3L;
         Entity[] array = {e};
-        Assert.assertNull(JSONPath.eval(array, "$.keySet()"));
-        Assert.assertNull(JSONPath.eval(Collections.singletonList(e), "$.keySet()"));
+        Map<String, Entity[]> map = Collections.singletonMap("array", array);
+        Assert.assertEquals(array, JSONPath.eval(map, "$.array"));
+        Assert.assertNull(JSONPath.eval(map, "$.array.keySet()"));
+        Assert.assertNull(JSONPath.keySet(map, "$.array"));
+        Assert.assertNull(new JSONPath("$.array").keySet(map));
+    }
+
+    public void test_null() {
+        Assert.assertNull(JSONPath.eval(null, "$.keySet()"));
+        Set<?> keySet = (Set<?>)JSONPath.eval(new HashMap<String, Object>(), "$.keySet()");
+        Assert.assertEquals(0, keySet.size());
     }
 
     /**

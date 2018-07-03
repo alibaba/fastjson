@@ -146,6 +146,12 @@ public class JSONPath implements JSONAware {
         return evalSize(currentObject);
     }
 
+    /**
+     * Extract keySet or field names from rootObject on this JSONPath.
+     * 
+     * @param rootObject Can be a map or custom object. Array and Collection are not supported.
+     * @return Set of keys, or <code>null</code> if not supported.
+     */
     public Set<?> keySet(Object rootObject) {
         if (rootObject == null) {
             return null;
@@ -386,6 +392,13 @@ public class JSONPath implements JSONAware {
         return jsonpath.evalSize(result);
     }
 
+    /**
+     * Compile jsonPath and use it to extract keySet or field names from rootObject.
+     * 
+     * @param rootObject Can be a map or custom object. Array and Collection are not supported.
+     * @param path JSONPath string to be compiled.
+     * @return Set of keys, or <code>null</code> if not supported.
+     */
     public static Set<?> keySet(Object rootObject, String path) {
         JSONPath jsonpath = compile(path);
         Object result = jsonpath.eval(rootObject);

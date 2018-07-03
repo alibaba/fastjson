@@ -2237,9 +2237,17 @@ public class TypeUtils{
     }
 
     public static Constructor getKoltinConstructor(Constructor[] constructors){
+        return getKoltinConstructor(constructors, null);
+    }
+
+    public static Constructor getKoltinConstructor(Constructor[] constructors, String[] paramNames){
         Constructor creatorConstructor = null;
         for(Constructor<?> constructor : constructors){
             Class<?>[] parameterTypes = constructor.getParameterTypes();
+            if (paramNames != null && parameterTypes.length != paramNames.length) {
+                continue;
+            }
+
             if(parameterTypes.length > 0 && parameterTypes[parameterTypes.length - 1].getName().equals("kotlin.jvm.internal.DefaultConstructorMarker")){
                 continue;
             }

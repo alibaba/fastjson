@@ -4,7 +4,17 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
@@ -134,6 +144,27 @@ public class JSONPath implements JSONAware {
         }
 
         return evalSize(currentObject);
+    }
+
+    /**
+     * Extract keySet or field names from rootObject on this JSONPath.
+     * 
+     * @param rootObject Can be a map or custom object. Array and Collection are not supported.
+     * @return Set of keys, or <code>null</code> if not supported.
+     */
+    public Set<?> keySet(Object rootObject) {
+        if (rootObject == null) {
+            return null;
+        }
+
+        init();
+
+        Object currentObject = rootObject;
+        for (int i = 0; i < segments.length; ++i) {
+            currentObject = segments[i].eval(this, rootObject, currentObject);
+        }
+
+        return evalKeySet(currentObject);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -359,6 +390,19 @@ public class JSONPath implements JSONAware {
         JSONPath jsonpath = compile(path);
         Object result = jsonpath.eval(rootObject);
         return jsonpath.evalSize(result);
+    }
+
+    /**
+     * Compile jsonPath and use it to extract keySet or field names from rootObject.
+     * 
+     * @param rootObject Can be a map or custom object. Array and Collection are not supported.
+     * @param path JSONPath string to be compiled.
+     * @return Set of keys, or <code>null</code> if not supported.
+     */
+    public static Set<?> keySet(Object rootObject, String path) {
+        JSONPath jsonpath = compile(path);
+        Object result = jsonpath.eval(rootObject);
+        return jsonpath.evalKeySet(result);
     }
 
     public static boolean contains(Object rootObject, String path) {
@@ -2928,14 +2972,14 @@ public class JSONPath implements JSONAware {
         }
     }
 
-    @SuppressWarnings("rawtypes")
-    Set evalKeySet(Object currentObject) {
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    Set<?> evalKeySet(Object currentObject) {
         if (currentObject == null) {
-            // 是否返回空Set
             return null;
         }
 
         if (currentObject instanceof Map) {
+            // For performance reasons return keySet directly, without filtering null-value key.
             return ((Map)currentObject).keySet();
         }
 
@@ -2949,11 +2993,11 @@ public class JSONPath implements JSONAware {
             return null;
         }
 
-        Set<String> keySet = new HashSet<String>();
-        for (FieldSerializer getter : beanSerializer.sortedGetters) {
-            keySet.add(getter.fieldInfo.name);
+        try {
+            return beanSerializer.getFieldNames(currentObject);
+        } catch (Exception e) {
+            throw new JSONPathException("evalKeySet error : " + path, e);
         }
-        return keySet;
     }
 
     public String toJSONString() {

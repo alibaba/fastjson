@@ -69,6 +69,15 @@ public class DateFieldTest10 extends TestCase {
 //        assertEquals(object.getTime(), model.date.getTime());
     }
 
+    public void test_6() throws Exception {
+        String text = "{\"date\":\"4567-08-16T04:29\"}";
+        Model model = JSON.parseObject(text, Model.class);
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        Object object = format.parse("2017-08-16 04:29");
+//        assertEquals(object, model.date);
+    }
+
     public static class Model {
         public Date date;
     }

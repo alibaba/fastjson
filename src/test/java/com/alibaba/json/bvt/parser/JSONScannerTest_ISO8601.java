@@ -14,7 +14,13 @@ public class JSONScannerTest_ISO8601 extends TestCase {
         Assert.assertEquals(false, new JSONScanner("2").scanISO8601DateIfMatch());
         Assert.assertEquals(false, new JSONScanner("3").scanISO8601DateIfMatch());
         Assert.assertEquals(true, new JSONScanner("3000-10-02").scanISO8601DateIfMatch());
-        Assert.assertEquals(false, new JSONScanner("4000-10-02").scanISO8601DateIfMatch());
+        Assert.assertEquals(true, new JSONScanner("4000-10-02").scanISO8601DateIfMatch());
+        Assert.assertEquals(true, new JSONScanner("5000-10-02").scanISO8601DateIfMatch());
+        Assert.assertEquals(true, new JSONScanner("6000-10-02").scanISO8601DateIfMatch());
+        Assert.assertEquals(true, new JSONScanner("7000-10-02").scanISO8601DateIfMatch());
+        Assert.assertEquals(true, new JSONScanner("8000-10-02").scanISO8601DateIfMatch());
+        Assert.assertEquals(false, new JSONScanner("A000-10-02").scanISO8601DateIfMatch());
+        Assert.assertEquals(false, new JSONScanner("a000-10-02").scanISO8601DateIfMatch());
         Assert.assertEquals(false, new JSONScanner("1997").scanISO8601DateIfMatch());
         Assert.assertEquals(false, new JSONScanner("1997-2-2").scanISO8601DateIfMatch());
         Assert.assertEquals(true, new JSONScanner("1997-02-02").scanISO8601DateIfMatch());

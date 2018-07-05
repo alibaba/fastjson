@@ -22,7 +22,7 @@ public class JSONPath_object_filter extends TestCase {
         Entity entity = new Entity(123, "ljw2083");
         Assert.assertNull(path.eval(entity));
     }
-    
+
     public static class Entity {
 
         private Integer id;

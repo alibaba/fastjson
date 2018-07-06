@@ -55,6 +55,10 @@ public class FieldInfo implements Comparable<FieldInfo> {
                      int ordinal, // 
                      int serialzeFeatures, // 
                      int parserFeatures){
+        if (ordinal < 0) {
+            ordinal = 0;
+        }
+
         this.name = name;
         this.declaringClass = declaringClass;
         this.fieldClass = fieldClass;
@@ -108,6 +112,10 @@ public class FieldInfo implements Comparable<FieldInfo> {
             if (fieldName.equals(name)) {
                 name = fieldName;
             }
+        }
+
+        if (ordinal < 0) {
+            ordinal = 0;
         }
         
         this.name = name;

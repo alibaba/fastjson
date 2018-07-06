@@ -27,6 +27,10 @@ public class JSONSerializableSerializer implements ObjectSerializer {
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         JSONSerializable jsonSerializable = ((JSONSerializable) object);
+        if (jsonSerializable == null) {
+            serializer.writeNull();
+            return;
+        }
         jsonSerializable.write(serializer, fieldName, fieldType, features);
     }
 }

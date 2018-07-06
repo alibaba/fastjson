@@ -1320,11 +1320,41 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         }
 
         if (beanInfo.creatorConstructor != null) {
-            try {
-                object = beanInfo.creatorConstructor.newInstance(params);
-            } catch (Exception e) {
-                throw new JSONException("create instance error, "
-                                        + beanInfo.creatorConstructor.toGenericString(), e);
+            boolean hasNull = false;
+            if (beanInfo.kotlin) {
+                for (int i = 0; i < params.length; i++) {
+                    if (params[i] == null && beanInfo.fields != null && i < beanInfo.fields.length) {
+                        FieldInfo fieldInfo = beanInfo.fields[i];
+                        if (fieldInfo.fieldClass == String.class) {
+                            hasNull = true;
+                        }
+                        break;
+                    }
+                }
+            }
+
+            if (hasNull && beanInfo.kotlinDefaultConstructor != null) {
+                try {
+                    object = beanInfo.kotlinDefaultConstructor.newInstance();
+
+                    for (int i = 0; i < params.length; i++) {
+                        final Object param = params[i];
+                        if (param != null && beanInfo.fields != null && i < beanInfo.fields.length) {
+                            FieldInfo fieldInfo = beanInfo.fields[i];
+                            fieldInfo.set(object, param);
+                        }
+                    }
+                } catch (Exception e) {
+                    throw new JSONException("create instance error, "
+                            + beanInfo.creatorConstructor.toGenericString(), e);
+                }
+            } else {
+                try {
+                    object = beanInfo.creatorConstructor.newInstance(params);
+                } catch (Exception e) {
+                    throw new JSONException("create instance error, "
+                            + beanInfo.creatorConstructor.toGenericString(), e);
+                }
             }
         } else if (beanInfo.factoryMethod != null) {
             try {

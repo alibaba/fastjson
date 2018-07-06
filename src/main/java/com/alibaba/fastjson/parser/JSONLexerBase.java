@@ -2408,7 +2408,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         float value;
         if (chLocal >= '0' && chLocal <= '9') {
-            int intVal = chLocal - '0';
+            long intVal = chLocal - '0';
             for (;;) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
@@ -2473,7 +2473,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             }
 
             if ((!exp) && count < 17) {
-                value = ((float) intVal) / power;
+                value = (float) (((double) intVal) / power);
                 if (negative) {
                     value = -value;
                 }
@@ -2653,7 +2653,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             }
 
             if ((!exp) && count < 17) {
-                value = ((float) intVal) / power;
+                value = (float) (((double) intVal) / power);
                 if (negative) {
                     value = -value;
                 }
@@ -2790,7 +2790,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 count = bp + offset - start - 1;
             }
 
-            if (!exp && count < 20) {
+            if (!exp && count < 17) {
                 value = ((double) intVal) / power;
                 if (negative) {
                     value = -value;
@@ -3427,7 +3427,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 count = bp + offset - start - 1;
             }
 
-            if (!exp && count < 20) {
+            if (!exp && count < 17) {
                 value = ((double) intVal) / power;
                 if (negative) {
                     value = -value;

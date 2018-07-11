@@ -29,8 +29,8 @@ import static com.alibaba.fastjson.util.TypeUtils.castToShort;
 import static com.alibaba.fastjson.util.TypeUtils.castToSqlDate;
 import static com.alibaba.fastjson.util.TypeUtils.castToTimestamp;
 
-import java.io.IOException;
-import java.io.Serializable;
+import java.io.*;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -479,8 +479,69 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         return this.map;
     }
 
-    private void readObject(java.io.ObjectInputStream s) throws IOException, ClassNotFoundException {
-        s.defaultReadObject();
+    static Field[] fields;
+    static volatile boolean fields_error;
+
+    static void ensureFields() {
+        if (fields == null && !fields_error) {
+            try {
+                final Field[] declaredFields = ObjectInputStream.class.getDeclaredFields();
+                String[] fieldnames = new String[]{"bin", "passHandle", "handles", "curContext"};
+                Field[] array = new Field[fieldnames.length];
+                for (int i = 0; i < fieldnames.length; i++) {
+                    Field field = TypeUtils
+                            .getField(ObjectInputStream.class
+                                    , fieldnames[i]
+                                    , declaredFields
+                            );
+                    field.setAccessible(true);
+                    array[i] = field;
+                }
+                fields = array;
+            } catch (Throwable error) {
+                fields_error = true;
+            }
+        }
+    }
+
+    private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+        ensureFields();
+        if (fields != null && !fields_error) {
+            ObjectInputStream secIn = new ObjectInputStream(in) {
+                protected Class<?> resolveClass(ObjectStreamClass desc)
+                throws IOException, ClassNotFoundException {
+                    String name = desc.getName();
+                    ParserConfig.global.checkAutoType(name, null);
+                    return super.resolveClass(desc);
+                }
+
+                protected Class<?> resolveProxyClass(String[] interfaces)
+                throws IOException, ClassNotFoundException {
+                    for (String interfacename : interfaces) {
+                        //检查是否处于黑名单
+                        ParserConfig.global.checkAutoType(interfacename, null);
+                    }
+                    return super.resolveProxyClass(interfaces);
+                }
+
+                //Hack:默认构造方法会调用这个方法，重写此方法使用反射还原部分关键属性
+                protected void readStreamHeader() throws IOException, StreamCorruptedException {
+                    try {
+                        for (int i = 0; i < fields.length; i++) {
+                            final Field field = fields[i];
+                            final Object value = field.get(in);
+                            field.set(this, value);
+                        }
+                    } catch (IllegalAccessException e) {
+                        fields_error = true;
+                    }
+                }
+            };
+            secIn.defaultReadObject();
+            return;
+        }
+
+        in.defaultReadObject();
         for (Entry<String, Object> entry : map.entrySet()) {
             final String key = entry.getKey();
             if (key != null) {

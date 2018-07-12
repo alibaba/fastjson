@@ -30,6 +30,7 @@ import static com.alibaba.fastjson.util.TypeUtils.castToString;
 import static com.alibaba.fastjson.util.TypeUtils.castToTimestamp;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -453,8 +454,15 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
         return this.list.hashCode();
     }
 
-    private void readObject(java.io.ObjectInputStream s) throws IOException, ClassNotFoundException {
-        s.defaultReadObject();
+    private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+        JSONObject.SecureObjectInputStream.ensureFields();
+        if (JSONObject.SecureObjectInputStream.fields != null && !JSONObject.SecureObjectInputStream.fields_error) {
+            ObjectInputStream secIn = new JSONObject.SecureObjectInputStream(in);
+            secIn.defaultReadObject();
+            return;
+        }
+
+        in.defaultReadObject();
         for (Object item : list) {
             if (item != null) {
                 ParserConfig.global.checkAutoType(item.getClass().getName(), null);

@@ -42,7 +42,7 @@ public class Labels {
 
         public boolean apply(String label) {
             if (excludes != null) {
-                return Arrays.binarySearch(excludes, label) == -1;
+                return Arrays.binarySearch(excludes, label) < 0;
             }
 
             return includes != null // 

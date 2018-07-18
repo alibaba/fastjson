@@ -564,6 +564,24 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return list;
     }
 
+    public static boolean isJSON(String text) {
+        try {
+            JSONObject json = parseObject(text);
+            return json != null;
+        } catch (JSONException e) {
+            return false;
+        }
+    }
+
+    public static boolean isJSONArray(String text) {
+        try {
+            JSONArray array = parseArray(text);
+            return array != null;
+        } catch (JSONException e) {
+            return false;
+        }
+    }
+
     /**
      * This method serializes the specified object into its equivalent Json representation. Note that this method works fine if the any of the object fields are of generic type,
      * just the object itself should not be of a generic type. If you want to write out the object to a

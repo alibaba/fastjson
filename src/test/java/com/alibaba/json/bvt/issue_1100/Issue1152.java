@@ -18,7 +18,7 @@ public class Issue1152 extends TestCase {
 
     public void test_for_issue_2() throws Exception {
         TestBean tb = JSONObject.parseObject("{shijian:\"0001-01-01T00:00:00+08:00\"}",TestBean.class);
-        assertNull(tb.getShijian());
+        assertNotNull(tb.getShijian());
     }
 
     public static class TestBean {

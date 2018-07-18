@@ -147,7 +147,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
                 } else if (timeZone < 0) {
                     out.write('-');
                     out.write('0');
-                    out.writeInt(timeZone);
+                    out.writeInt(-timeZone);
                 }
 
                 out.append(":00");

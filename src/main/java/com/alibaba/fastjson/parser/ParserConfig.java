@@ -916,7 +916,7 @@ public class ParserConfig {
             return null;
         }
 
-        if (typeName.length() >= 128 || typeName.length() < 3) {
+        if (typeName.length() >= 192 || typeName.length() < 3) {
             throw new JSONException("autoType is not support. " + typeName);
         }
 

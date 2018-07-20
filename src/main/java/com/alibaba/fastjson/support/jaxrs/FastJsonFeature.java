@@ -24,24 +24,33 @@ public class FastJsonFeature implements Feature {
 
     @Override
     public boolean configure(final FeatureContext context) {
+        try {
+            final Configuration config = context.getConfiguration();
 
-        final Configuration config = context.getConfiguration();
+            final String jsonFeature = CommonProperties.getValue(
+                    config.getProperties()
+                    , config.getRuntimeType()
+                    , InternalProperties.JSON_FEATURE, JSON_FEATURE,
+                    String.class
+            );
 
-        final String jsonFeature = CommonProperties.getValue(config.getProperties(), config.getRuntimeType(), InternalProperties.JSON_FEATURE, JSON_FEATURE,
-                String.class);
+            // Other JSON providers registered.
+            if (!JSON_FEATURE.equalsIgnoreCase(jsonFeature)) {
+                return false;
+            }
 
-        // Other JSON providers registered.
-        if (!JSON_FEATURE.equalsIgnoreCase(jsonFeature))
+            // Disable other JSON providers.
+            context.property(
+                    PropertiesHelper.getPropertyNameForRuntime(InternalProperties.JSON_FEATURE, config.getRuntimeType())
+                    , JSON_FEATURE);
 
-            return false;
-
-        // Disable other JSON providers.
-        context.property(PropertiesHelper.getPropertyNameForRuntime(InternalProperties.JSON_FEATURE, config.getRuntimeType()), JSON_FEATURE);
-
-        // Register FastJson.
-        if (!config.isRegistered(FastJsonProvider.class))
-
-            context.register(FastJsonProvider.class, MessageBodyReader.class, MessageBodyWriter.class);
+            // Register FastJson.
+            if (!config.isRegistered(FastJsonProvider.class)) {
+                context.register(FastJsonProvider.class, MessageBodyReader.class, MessageBodyWriter.class);
+            }
+        } catch (NoSuchMethodError e) {
+            // skip
+        }
 
         return true;
     }

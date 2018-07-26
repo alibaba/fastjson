@@ -4,7 +4,17 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
@@ -134,6 +144,27 @@ public class JSONPath implements JSONAware {
         }
 
         return evalSize(currentObject);
+    }
+
+    /**
+     * Extract keySet or field names from rootObject on this JSONPath.
+     * 
+     * @param rootObject Can be a map or custom object. Array and Collection are not supported.
+     * @return Set of keys, or <code>null</code> if not supported.
+     */
+    public Set<?> keySet(Object rootObject) {
+        if (rootObject == null) {
+            return null;
+        }
+
+        init();
+
+        Object currentObject = rootObject;
+        for (int i = 0; i < segments.length; ++i) {
+            currentObject = segments[i].eval(this, rootObject, currentObject);
+        }
+
+        return evalKeySet(currentObject);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -361,6 +392,19 @@ public class JSONPath implements JSONAware {
         return jsonpath.evalSize(result);
     }
 
+    /**
+     * Compile jsonPath and use it to extract keySet or field names from rootObject.
+     * 
+     * @param rootObject Can be a map or custom object. Array and Collection are not supported.
+     * @param path JSONPath string to be compiled.
+     * @return Set of keys, or <code>null</code> if not supported.
+     */
+    public static Set<?> keySet(Object rootObject, String path) {
+        JSONPath jsonpath = compile(path);
+        Object result = jsonpath.eval(rootObject);
+        return jsonpath.evalKeySet(result);
+    }
+
     public static boolean contains(Object rootObject, String path) {
         if (rootObject == null) {
             return false;
@@ -413,9 +457,10 @@ public class JSONPath implements JSONAware {
      * @return
      */
     public static Object read(String json, String path) {
-        Object object = JSON.parse(json);
-        JSONPath jsonpath = compile(path);
-        return jsonpath.eval(object);
+        return compile(path)
+                .eval(
+                        JSON.parse(json)
+                );
     }
     
     public static Map<String, Object> paths(Object javaObject) {
@@ -686,6 +731,8 @@ public class JSONPath implements JSONAware {
 
                             if ("size".equals(propertyName) || "length".equals(propertyName)) {
                                 return SizeSegement.instance;
+                            } else if ("keySet".equals(propertyName)) {
+                                return KeySetSegement.instance;
                             }
 
                             throw new JSONPathException("not support jsonpath : " + path);
@@ -1076,7 +1123,11 @@ public class JSONPath implements JSONAware {
                                     }
                                 }
                             } else if (strValue.charAt(strValue.length() - 1) == '%') {
-                                containsValues = items;
+                                if (items.length == 1) {
+                                    startsWithValue = items[0];
+                                } else {
+                                    containsValues = items;
+                                }
                             } else {
                                 if (items.length == 1) {
                                     startsWithValue = items[0];
@@ -1646,6 +1697,15 @@ public class JSONPath implements JSONAware {
         }
     }
 
+    static class KeySetSegement implements Segement {
+
+        public final static KeySetSegement instance = new KeySetSegement();
+
+        public Object eval(JSONPath path, Object rootObject, Object currentObject) {
+            return path.evalKeySet(currentObject);
+        }
+    }
+
     static class PropertySegement implements Segement {
 
         private final String  propertyName;
@@ -2112,8 +2172,13 @@ public class JSONPath implements JSONAware {
         private final int      minLength;
         private final boolean  not;
 
-        public MatchSegement(String propertyName, String startsWithValue, String endsWithValue, String[] containsValues,
-                             boolean not){
+        public MatchSegement(
+                String propertyName,
+                String startsWithValue,
+                String endsWithValue,
+                String[] containsValues,
+                boolean not)
+        {
             this.propertyName = propertyName;
             this.propertyNameHash = TypeUtils.fnv1a_64(propertyName);
             this.startsWithValue = startsWithValue;
@@ -2904,6 +2969,34 @@ public class JSONPath implements JSONAware {
             return beanSerializer.getSize(currentObject);
         } catch (Exception e) {
             throw new JSONPathException("evalSize error : " + path, e);
+        }
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    Set<?> evalKeySet(Object currentObject) {
+        if (currentObject == null) {
+            return null;
+        }
+
+        if (currentObject instanceof Map) {
+            // For performance reasons return keySet directly, without filtering null-value key.
+            return ((Map)currentObject).keySet();
+        }
+
+        if (currentObject instanceof Collection || currentObject instanceof Object[]
+            || currentObject.getClass().isArray()) {
+            return null;
+        }
+
+        JavaBeanSerializer beanSerializer = getJavaBeanSerializer(currentObject.getClass());
+        if (beanSerializer == null) {
+            return null;
+        }
+
+        try {
+            return beanSerializer.getFieldNames(currentObject);
+        } catch (Exception e) {
+            throw new JSONPathException("evalKeySet error : " + path, e);
         }
     }
 

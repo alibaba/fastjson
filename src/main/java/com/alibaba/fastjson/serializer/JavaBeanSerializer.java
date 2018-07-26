@@ -20,7 +20,16 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
@@ -84,6 +93,17 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
             getters = new FieldSerializer[beanInfo.fields.length]; 
             for (int i = 0; i < getters.length; ++i) {
                 getters[i] = getFieldSerializer(beanInfo.fields[i].name);
+            }
+        }
+
+        if (beanInfo.jsonType != null) {
+            for (Class<? extends SerializeFilter> filterClass : beanInfo.jsonType.serialzeFilters()) {
+                try {
+                    SerializeFilter filter = filterClass.getConstructor().newInstance();
+                    this.addFilter(filter);
+                } catch (Exception e) {
+                    // skip
+                }
             }
         }
     }
@@ -679,6 +699,25 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         return size;
     }
     
+    /**
+     * Get field names of not null fields. Keep the same logic as getSize.
+     * 
+     * @param object the object to be checked
+     * @return field name set
+     * @throws Exception
+     * @see #getSize(Object)
+     */
+    public Set<String> getFieldNames(Object object) throws Exception {
+        Set<String> fieldNames = new HashSet<String>();
+        for (FieldSerializer getter : sortedGetters) {
+            Object value = getter.getPropertyValueDirect(object);
+            if (value != null) {
+                fieldNames.add(getter.fieldInfo.name);
+            }
+        }
+        return fieldNames;
+    }
+
     public Map<String, Object> getFieldValuesMap(Object object) throws Exception {
         Map<String, Object> map = new LinkedHashMap<String, Object>(sortedGetters.length);
         

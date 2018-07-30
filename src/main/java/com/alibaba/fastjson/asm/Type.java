@@ -280,7 +280,7 @@ public class Type {
                 return "double";
             case 9: //ARRAY:
                 Type elementType = getType(buf, off + getDimensions());
-                StringBuffer b = new StringBuffer(elementType.getClassName());
+                StringBuilder b = new StringBuilder(elementType.getClassName());
                 for (int i = getDimensions(); i > 0; --i) {
                     b.append("[]");
                 }

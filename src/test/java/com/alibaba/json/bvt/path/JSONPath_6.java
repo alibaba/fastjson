@@ -20,11 +20,11 @@ public class JSONPath_6 extends TestCase {
         assertTrue(JSONPath.contains(object, "hello"));
     }
 
-    public void test_path_2() throws Exception {
-//        File file = new File("/Users/wenshao/Downloads/test");
-//        String json = FileUtils.readFileToString(file);
-        String json = "{\"returnObj\":[{\"$ref\":\"$.subInvokes.com\\\\.alipay\\\\.cif\\\\.user\\\\.UserInfoQueryService\\\\@findUserInfosByCardNo\\\\(String[])[0].response[0]\"}]}";
-        JSON.parseObject(json);
-    }
+//    public void test_path_2() throws Exception {
+////        File file = new File("/Users/wenshao/Downloads/test");
+////        String json = FileUtils.readFileToString(file);
+//        String json = "{\"returnObj\":[{\"$ref\":\"$.subInvokes.com\\\\.alipay\\\\.cif\\\\.user\\\\.UserInfoQueryService\\\\@findUserInfosByCardNo\\\\(String[])[0].response[0]\"}]}";
+//        JSON.parseObject(json);
+//    }
 
 }

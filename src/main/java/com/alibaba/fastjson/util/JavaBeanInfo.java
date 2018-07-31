@@ -198,15 +198,15 @@ public class JavaBeanInfo {
                 }
 
                 if (item.fieldClass.isAssignableFrom(field.fieldClass)) {
-                    fieldList.remove(i);
-                    break;
+                    fieldList.set(i, field);
+                    return true;
                 }
 
                 int result = item.compareTo(field);
 
                 if (result < 0) {
-                    fieldList.remove(i);
-                    break;
+                    fieldList.set(i, field);
+                    return true;
                 } else {
                     return false;
                 }

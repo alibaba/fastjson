@@ -1500,7 +1500,7 @@ public class JSONPath implements JSONAware {
         String readName() {
             skipWhitespace();
 
-            if (ch != '\\' && !IOUtils.firstIdentifier(ch)) {
+            if (ch != '\\' && !Character.isJavaIdentifierStart(ch)) {
                 throw new JSONPathException("illeal jsonpath syntax. " + path);
             }
 
@@ -1510,13 +1510,13 @@ public class JSONPath implements JSONAware {
                     next();
                     buf.append(ch);
                     if (isEOF()) {
-                        break;
+                        return buf.toString();
                     }
                     next();
                     continue;
                 }
 
-                boolean identifierFlag = IOUtils.isIdent(ch);
+                boolean identifierFlag = Character.isJavaIdentifierPart(ch);
                 if (!identifierFlag) {
                     break;
                 }
@@ -1524,13 +1524,11 @@ public class JSONPath implements JSONAware {
                 next();
             }
 
-            if (isEOF() && IOUtils.isIdent(ch)) {
+            if (isEOF() && Character.isJavaIdentifierPart(ch)) {
                 buf.append(ch);
             }
 
-            String propertyName = buf.toString();
-
-            return propertyName;
+            return buf.toString();
         }
 
         String readString() {

@@ -17,4 +17,24 @@ public class WriteBigDecimalAsPlainTest extends TestCase {
         Assert.assertEquals("1E-8", JSON.toJSONString(value));
         Assert.assertEquals("0.00000001", JSON.toJSONString(value, SerializerFeature.WriteBigDecimalAsPlain));
     }
+
+    public void test_1() throws Exception {
+        Model m = new Model();
+        m.value = new BigDecimal("0.00000001");
+
+        Assert.assertEquals("{\"value\":1E-8}", JSON.toJSONString(m));
+        Assert.assertEquals("{\"value\":0.00000001}", JSON.toJSONString(m, SerializerFeature.WriteBigDecimalAsPlain));
+    }
+
+    public static class Model {
+        private BigDecimal value;
+
+        public BigDecimal getValue() {
+            return value;
+        }
+
+        public void setValue(BigDecimal value) {
+            this.value = value;
+        }
+    }
 }

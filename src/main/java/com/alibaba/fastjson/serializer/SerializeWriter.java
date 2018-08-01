@@ -2111,7 +2111,10 @@ public final class SerializeWriter extends Writer {
         if (value == null) {
             writeNull();
         } else {
-            write(value.toString());
+            write(isEnabled(SerializerFeature.WriteBigDecimalAsPlain)
+                    ? value.toPlainString()
+                    : value.toString()
+            );
         }
     }
 

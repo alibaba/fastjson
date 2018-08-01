@@ -18,6 +18,7 @@ package com.alibaba.fastjson.serializer;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.util.IOUtils;
+import com.alibaba.fastjson.util.RyuDouble;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -645,31 +646,46 @@ public final class SerializeWriter extends Writer {
     }
 
     public void writeFloat(float value, boolean checkWriteClassName) {
-        if (Float.isNaN(value) // 
+        if (Float.isNaN(value) //
                 || Float.isInfinite(value)) {
             writeNull();
         } else {
             String floatText= Float.toString(value);
             write(floatText);
-            
+
             if (checkWriteClassName && isEnabled(SerializerFeature.WriteClassName)) {
                 write('F');
             }
         }
     }
 
-    public void writeDouble(double doubleValue, boolean checkWriteClassName) {
-        if (Double.isNaN(doubleValue) //
-                || Double.isInfinite(doubleValue)) {
+    public void writeDouble(double value, boolean checkWriteClassName) {
+        if (Double.isNaN(value)
+                || Double.isInfinite(value)) {
             writeNull();
-        } else {
-            String doubleText = Double.toString(doubleValue);
-            
-            write(doubleText);
+            return;
+        }
 
-            if (checkWriteClassName && isEnabled(SerializerFeature.WriteClassName)) {
-                write('D');
+        int newcount = count + 24;
+        if (newcount > buf.length) {
+            if (writer == null) {
+                expandCapacity(newcount);
+            } else {
+                String str = RyuDouble.doubleToString(value);
+                write(str, 0, str.length());
+
+                if (checkWriteClassName && isEnabled(SerializerFeature.WriteClassName)) {
+                    write('D');
+                }
+                return;
             }
+        }
+
+        int len = RyuDouble.doubleToString(value, buf, count);
+        count += len;
+
+        if (checkWriteClassName && isEnabled(SerializerFeature.WriteClassName)) {
+            write('D');
         }
     }
 

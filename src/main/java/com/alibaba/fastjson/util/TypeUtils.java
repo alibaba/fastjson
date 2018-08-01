@@ -675,22 +675,27 @@ public class TypeUtils{
             }
             return null;
         }
+
         if(clazz == null){
             throw new IllegalArgumentException("clazz is null");
         }
+
         if(clazz == obj.getClass()){
             return (T) obj;
         }
+
         if(obj instanceof Map){
             if(clazz == Map.class){
                 return (T) obj;
             }
+
             Map map = (Map) obj;
             if(clazz == Object.class && !map.containsKey(JSON.DEFAULT_TYPE_KEY)){
                 return (T) obj;
             }
             return castToJavaBean((Map<String,Object>) obj, clazz, config);
         }
+
         if(clazz.isArray()){
             if(obj instanceof Collection){
                 Collection collection = (Collection) obj;
@@ -707,57 +712,75 @@ public class TypeUtils{
                 return (T) castToBytes(obj);
             }
         }
+
         if(clazz.isAssignableFrom(obj.getClass())){
             return (T) obj;
         }
+
         if(clazz == boolean.class || clazz == Boolean.class){
             return (T) castToBoolean(obj);
         }
+
         if(clazz == byte.class || clazz == Byte.class){
             return (T) castToByte(obj);
         }
+
         if(clazz == char.class || clazz == Character.class){
             return (T) castToChar(obj);
         }
+
         if(clazz == short.class || clazz == Short.class){
             return (T) castToShort(obj);
         }
+
         if(clazz == int.class || clazz == Integer.class){
             return (T) castToInt(obj);
         }
+
         if(clazz == long.class || clazz == Long.class){
             return (T) castToLong(obj);
         }
+
         if(clazz == float.class || clazz == Float.class){
             return (T) castToFloat(obj);
         }
+
         if(clazz == double.class || clazz == Double.class){
             return (T) castToDouble(obj);
         }
+
         if(clazz == String.class){
             return (T) castToString(obj);
         }
+
         if(clazz == BigDecimal.class){
             return (T) castToBigDecimal(obj);
         }
+
         if(clazz == BigInteger.class){
             return (T) castToBigInteger(obj);
         }
+
         if(clazz == Date.class){
             return (T) castToDate(obj);
         }
+
         if(clazz == java.sql.Date.class){
             return (T) castToSqlDate(obj);
         }
+
         if(clazz == java.sql.Time.class){
             return (T) castToSqlTime(obj);
         }
+
         if(clazz == java.sql.Timestamp.class){
             return (T) castToTimestamp(obj);
         }
+
         if(clazz.isEnum()){
             return (T) castToEnum(obj, clazz, config);
         }
+
         if(Calendar.class.isAssignableFrom(clazz)){
             Date date = castToDate(obj);
             Calendar calendar;
@@ -789,9 +812,11 @@ public class TypeUtils{
                     || "NULL".equals(strVal)){
                 return null;
             }
+
             if(clazz == java.util.Currency.class){
                 return (T) java.util.Currency.getInstance(strVal);
             }
+
             if(clazz == java.util.Locale.class){
                 return (T) toLocale(strVal);
             }
@@ -800,6 +825,12 @@ public class TypeUtils{
                 String json = JSON.toJSONString(strVal);
                 return JSON.parseObject(json, clazz);
             }
+        }
+
+        final ObjectDeserializer objectDeserializer = config.getDeserializers().get(clazz);
+        if (objectDeserializer != null) {
+            String str = JSON.toJSONString(obj);
+            return JSON.parseObject(str, clazz);
         }
         throw new JSONException("can not cast to : " + clazz.getName());
     }

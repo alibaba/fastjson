@@ -24,6 +24,7 @@ import com.alibaba.fastjson.support.springfox.SwaggerJsonSerializer;
 import com.alibaba.fastjson.util.*;
 import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.ServiceLoader;
+import org.w3c.dom.Node;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.File;
@@ -515,6 +516,8 @@ public class SerializeConfig {
             } else if (TypeUtils.isPath(clazz)) {
                 put(clazz, writer = ToStringSerializer.instance);
             } else if (Iterator.class.isAssignableFrom(clazz)) {
+                put(clazz, writer = MiscCodec.instance);
+            } else if (org.w3c.dom.Node.class.isAssignableFrom(clazz)) {
                 put(clazz, writer = MiscCodec.instance);
             } else {
                 if (className.startsWith("java.awt.") //

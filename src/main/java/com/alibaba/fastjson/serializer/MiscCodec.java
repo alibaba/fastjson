@@ -15,8 +15,10 @@
  */
 package com.alibaba.fastjson.serializer;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -41,6 +43,14 @@ import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.TypeUtils;
+import org.w3c.dom.Node;
+
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -149,11 +159,27 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         } else if (object.getClass().getName().equals("net.sf.json.JSONNull")) {
             out.writeNull();
             return;
+        } else if (object instanceof org.w3c.dom.Node) {
+            strVal = toString((Node) object);
         } else {
             throw new JSONException("not support class : " + objClass);
         }
 
         out.writeString(strVal);
+    }
+
+    private static String toString(org.w3c.dom.Node node) {
+        try {
+            TransformerFactory transFactory = TransformerFactory.newInstance();
+            Transformer transformer = transFactory.newTransformer();
+            DOMSource domSource = new DOMSource(node);
+
+            StringWriter out = new StringWriter();
+            transformer.transform(domSource, new StreamResult(out));
+            return out.toString();
+        } catch (TransformerException e) {
+            throw new JSONException("xml node to string error", e);
+        }
     }
 
     protected void writeIterator(JSONSerializer serializer, SerializeWriter out, Iterator<?> it) {

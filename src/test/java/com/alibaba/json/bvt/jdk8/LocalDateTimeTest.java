@@ -38,9 +38,7 @@ public class LocalDateTimeTest extends TestCase {
         VO vo = new VO();
         vo.setDate(LocalDateTime.now());
 
-        String text1 = JSON.toJSONString(vo);
-        System.out.println(text1);//{"date":1511334591189}
-        VO vo1 = JSON.parseObject(text1, VO.class);
+        VO vo1 = JSON.parseObject("{\"date\":1511334591189}", VO.class);
 
         String text2 = JSON.toJSONString(vo, SerializerFeature.WriteDateUseDateFormat);
         System.out.println(text2);//{"date":"2017-11-22 15:09:51"}
@@ -53,8 +51,12 @@ public class LocalDateTimeTest extends TestCase {
         String text4 = JSON.toJSONString(vo, SerializerFeature.UseISO8601DateFormat, SerializerFeature.WriteDateUseDateFormat);
         System.out.println(text4);//{"date":"2017-11-22T15:09:51"}
         VO vo4 = JSON.parseObject(text4, VO.class);
+    }
 
-
+    public  void test_for_issue_1() throws Exception {
+        String text = "{\"date\":\"2018-08-03 22:38:33.145\"}";
+        VO vo1 = JSON.parseObject(text, VO.class);
+        assertNotNull(vo1.date);
     }
 
     public static class VO {

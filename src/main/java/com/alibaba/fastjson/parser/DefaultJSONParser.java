@@ -380,6 +380,8 @@ public class DefaultJSONParser implements Closeable {
                             && deserClass != JavaBeanDeserializer.class
                             && deserClass != ThrowableDeserializer.class) {
                         this.setResolveStatus(NONE);
+                    } else if (deserializer instanceof MapDeserializer) {
+                        this.setResolveStatus(NONE);
                     }
                     Object obj = deserializer.deserialze(this, clazz, fieldName);
                     return obj;
@@ -663,7 +665,11 @@ public class DefaultJSONParser implements Closeable {
         ObjectDeserializer derializer = config.getDeserializer(type);
 
         try {
-            return (T) derializer.deserialze(this, type, fieldName);
+            if (derializer.getClass() == JavaBeanDeserializer.class) {
+                return (T) ((JavaBeanDeserializer) derializer).deserialze(this, type, fieldName, 0);
+            } else {
+                return (T) derializer.deserialze(this, type, fieldName);
+            }
         } catch (JSONException e) {
             throw e;
         } catch (Throwable e) {

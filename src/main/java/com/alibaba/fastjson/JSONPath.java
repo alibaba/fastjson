@@ -2055,6 +2055,10 @@ public class JSONPath implements JSONAware {
         private final long     value;
         private final Operator op;
 
+        private BigDecimal     valueDecimal;
+        private Float          valueFloat;
+        private Double         valueDouble;
+
         public IntOpSegement(String propertyName, long value, Operator op){
             this.propertyName = propertyName;
             this.propertyNameHash = TypeUtils.fnv1a_64(propertyName);
@@ -2070,6 +2074,75 @@ public class JSONPath implements JSONAware {
             }
 
             if (!(propertyValue instanceof Number)) {
+                return false;
+            }
+
+            if (propertyValue instanceof BigDecimal) {
+                if (valueDecimal == null) {
+                    valueDecimal = BigDecimal.valueOf(value);
+                }
+
+                int result = valueDecimal.compareTo((BigDecimal) propertyValue);
+                if (op == Operator.EQ) {
+                    return result == 0;
+                } else if (op == Operator.NE) {
+                    return result != 0;
+                } else if (op == Operator.GE) {
+                    return 0 >= result;
+                } else if (op == Operator.GT) {
+                    return 0 > result;
+                } else if (op == Operator.LE) {
+                    return 0 <= result;
+                } else if (op == Operator.LT) {
+                    return 0 < result;
+                }
+
+                return false;
+            }
+
+            if (propertyValue instanceof Float) {
+                if (valueFloat == null) {
+                    valueFloat = Float.valueOf(value);
+                }
+
+                int result = valueFloat.compareTo((Float) propertyValue);
+                if (op == Operator.EQ) {
+                    return result == 0;
+                } else if (op == Operator.NE) {
+                    return result != 0;
+                } else if (op == Operator.GE) {
+                    return 0 >= result;
+                } else if (op == Operator.GT) {
+                    return 0 > result;
+                } else if (op == Operator.LE) {
+                    return 0 <= result;
+                } else if (op == Operator.LT) {
+                    return 0 < result;
+                }
+
+                return false;
+            }
+
+            if (propertyValue instanceof Double) {
+                if (valueDouble == null) {
+                    valueDouble = Double.valueOf(value);
+                }
+
+                int result = valueDouble.compareTo((Double) propertyValue);
+                if (op == Operator.EQ) {
+                    return result == 0;
+                } else if (op == Operator.NE) {
+                    return result != 0;
+                } else if (op == Operator.GE) {
+                    return 0 >= result;
+                } else if (op == Operator.GT) {
+                    return 0 > result;
+                } else if (op == Operator.LE) {
+                    return 0 <= result;
+                } else if (op == Operator.LT) {
+                    return 0 < result;
+                }
+
                 return false;
             }
 

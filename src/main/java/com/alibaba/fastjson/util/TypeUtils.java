@@ -301,10 +301,12 @@ public class TypeUtils{
             } finally{
                 dateLexer.close();
             }
-            if(strVal.startsWith("/Date(") && strVal.endsWith(")/")){
+
+            if (strVal.startsWith("/Date(") && strVal.endsWith(")/")) {
                 strVal = strVal.substring(6, strVal.length() - 2);
             }
-            if(strVal.indexOf('-') != -1){
+
+            if (strVal.indexOf('-') > 0) {
                 if (format == null) {
                     if (strVal.length() == JSON.DEFFAULT_DATE_FORMAT.length()
                             || (strVal.length() == 22 && JSON.DEFFAULT_DATE_FORMAT.equals("yyyyMMddHHmmssSSSZ"))) {
@@ -335,7 +337,8 @@ public class TypeUtils{
             }
             longValue = Long.parseLong(strVal);
         }
-        if(longValue < 0){
+
+        if (longValue == -1) {
             Class<?> clazz = value.getClass();
             if("oracle.sql.TIMESTAMP".equals(clazz.getName())){
                 if(oracleTimestampMethod == null && !oracleTimestampMethodInited){
@@ -373,8 +376,10 @@ public class TypeUtils{
                 }
                 return (Date) result;
             }
+
             throw new JSONException("can not cast to Date, value : " + value);
         }
+
         return new Date(longValue);
     }
 

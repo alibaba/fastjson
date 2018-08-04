@@ -236,6 +236,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
 
             char seperator = commaFlag ? ',' : '\0';
 
+            final boolean writeClassName = out.isEnabled(SerializerFeature.WriteClassName);
             final boolean directWritePrefix = out.quoteFieldNames && !out.useSingleQuotes;
             char newSeperator = this.writeBefore(serializer, object, seperator);
             commaFlag = newSeperator == ',';
@@ -414,7 +415,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     serializer.write(propertyValue);
                 } else {
                     if (!writeAsArray) {
-                        if (!fieldInfo.unwrapped) {
+                        if (writeClassName || !fieldInfo.unwrapped) {
                             if (directWritePrefix) {
                                 out.write(fieldInfo.name_chars, 0, fieldInfo.name_chars.length);
                             } else {

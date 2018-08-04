@@ -273,6 +273,15 @@ public final class JSONScanner extends JSONLexerBase {
                 M1 = c6;
                 d0 = c8;
                 d1 = charAt(bp + 9);
+            } else if (c4 == '-' && c6 == '-') {
+                y0 = c0;
+                y1 = c1;
+                y2 = c2;
+                y3 = c3;
+                M0 = '0';
+                M1 = c5;
+                d0 = '0';
+                d1 = c7;
             } else {
                 y0 = c0;
                 y1 = c1;

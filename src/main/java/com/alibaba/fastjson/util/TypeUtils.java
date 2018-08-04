@@ -1147,6 +1147,7 @@ public class TypeUtils{
                 java.util.HashSet.class,
                 java.util.LinkedHashSet.class,
                 java.util.TreeSet.class,
+                java.util.ArrayList.class,
                 java.util.concurrent.TimeUnit.class,
                 java.util.concurrent.ConcurrentHashMap.class,
                 loadClass("java.util.concurrent.ConcurrentSkipListMap"),
@@ -1205,12 +1206,15 @@ public class TypeUtils{
                 "org.springframework.security.core.context.SecurityContextImpl",
                 "org.springframework.security.authentication.UsernamePasswordAuthenticationToken",
                 "org.springframework.security.core.authority.SimpleGrantedAuthority",
-                "org.springframework.security.core.userdetails.User"
+                "org.springframework.security.core.userdetails.User",
+                "org.springframework.security.oauth2.common.DefaultExpiringOAuth2RefreshToken",
+                "org.springframework.security.oauth2.common.DefaultOAuth2AccessToken",
+                "org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken",
         };
         for(String className : spring){
             Class<?> clazz = loadClass(className);
             if(clazz == null){
-                break;
+                continue;
             }
             mappings.put(clazz.getName(), clazz);
         }

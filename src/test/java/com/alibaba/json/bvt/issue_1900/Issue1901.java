@@ -6,16 +6,21 @@ import junit.framework.TestCase;
 
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 public class Issue1901 extends TestCase {
     protected Locale locale;
+    protected TimeZone timeZone;
     protected void setUp() throws Exception {
         locale = JSON.defaultLocale;
+        timeZone = JSON.defaultTimeZone;
         JSON.defaultLocale = Locale.CHINA;
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
     }
 
     protected void tearDown() throws Exception {
         JSON.defaultLocale = locale;
+        JSON.defaultTimeZone = timeZone;
     }
 
     public void test_for_issue() throws Exception {

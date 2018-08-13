@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.alibaba</groupId>
 	<artifactId>fastjson</artifactId>
-	<version>1.2.48-SNAPSHOT</version>
+	<version>1.2.50-SNAPSHOT</version>
 
 	<packaging>jar</packaging>
 	<name>fastjson</name>
@@ -527,12 +527,6 @@
 			<scope>test</scope>
 		</dependency>
 
-		<dependency>
-			<groupId>com.youku.haibao</groupId>
-			<artifactId>haibao-client</artifactId>
-			<version>1.0.109</version>
-			<scope>test</scope>
-		</dependency>
 
 	</dependencies>
 

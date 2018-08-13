@@ -1180,6 +1180,8 @@ public class TypeUtils{
                 java.sql.Timestamp.class,
                 java.text.SimpleDateFormat.class,
                 com.alibaba.fastjson.JSONObject.class,
+                com.alibaba.fastjson.JSONPObject.class,
+                com.alibaba.fastjson.JSONArray.class,
         };
         for(Class clazz : classes){
             if(clazz == null){

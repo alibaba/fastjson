@@ -24,7 +24,6 @@ import com.alibaba.fastjson.support.springfox.SwaggerJsonSerializer;
 import com.alibaba.fastjson.util.*;
 import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.ServiceLoader;
-import org.w3c.dom.Node;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.File;

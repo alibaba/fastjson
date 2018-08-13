@@ -436,7 +436,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     return null;
                 }
                 
-                StringBuffer buf = (new StringBuffer()) //
+                StringBuilder buf = (new StringBuilder()) //
                                                         .append("syntax error, expect {, actual ") //
                                                         .append(lexer.tokenName()) //
                                                         .append(", pos ") //

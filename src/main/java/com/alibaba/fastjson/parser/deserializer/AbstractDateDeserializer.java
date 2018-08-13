@@ -42,6 +42,10 @@ public abstract class AbstractDateDeserializer extends ContextObjectDeserializer
                     }
                 }
 
+                if (JSON.defaultTimeZone != null) {
+                    simpleDateFormat.setTimeZone(JSON.defaultTimeZone);
+                }
+
                 try {
                     val = simpleDateFormat.parse(strVal);
                 } catch (ParseException ex) {

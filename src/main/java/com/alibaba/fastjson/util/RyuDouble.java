@@ -40,6 +40,10 @@ public final class RyuDouble {
     private static final int POS_TABLE_SIZE = 326;
     private static final int NEG_TABLE_SIZE = 291;
 
+    // Only for debugging.
+//    private static final BigInteger[] POW5 = new BigInteger[POS_TABLE_SIZE];
+//    private static final BigInteger[] POW5_INV = new BigInteger[NEG_TABLE_SIZE];
+
     private static final int POW5_BITCOUNT = 121; // max 3*31 = 124
     private static final int POW5_QUARTER_BITCOUNT = 31;
     private static final int[][] POW5_SPLIT = new int[POS_TABLE_SIZE][4];
@@ -51,20 +55,19 @@ public final class RyuDouble {
     static {
         BigInteger mask = BigInteger.valueOf(1).shiftLeft(POW5_QUARTER_BITCOUNT).subtract(BigInteger.ONE);
         BigInteger invMask = BigInteger.valueOf(1).shiftLeft(POW5_INV_QUARTER_BITCOUNT).subtract(BigInteger.ONE);
-        for (int i = 0; i < POS_TABLE_SIZE; i++) {
+        for (int i = 0; i < Math.max(POS_TABLE_SIZE, NEG_TABLE_SIZE); i++) {
             BigInteger pow = BigInteger.valueOf(5).pow(i);
             int pow5len = pow.bitLength();
             int expectedPow5Bits = pow5bits(i);
             if (expectedPow5Bits != pow5len) {
                 throw new IllegalStateException(pow5len + " != " + expectedPow5Bits);
             }
-
             if (i < POW5_SPLIT.length) {
                 for (int j = 0; j < 4; j++) {
                     POW5_SPLIT[i][j] = pow
                             .shiftRight(pow5len - POW5_BITCOUNT + (3 - j) * POW5_QUARTER_BITCOUNT)
                             .and(mask)
-                            .intValueExact();
+                            .intValue();
                 }
             }
 
@@ -74,14 +77,19 @@ public final class RyuDouble {
                 BigInteger inv = BigInteger.ONE.shiftLeft(j).divide(pow).add(BigInteger.ONE);
                 for (int k = 0; k < 4; k++) {
                     if (k == 0) {
-                        POW5_INV_SPLIT[i][k] = inv.shiftRight((3 - k) * POW5_INV_QUARTER_BITCOUNT).intValueExact();
+                        POW5_INV_SPLIT[i][k] = inv
+                                .shiftRight((3 - k) * POW5_INV_QUARTER_BITCOUNT)
+                                .intValue();
                     } else {
-                        POW5_INV_SPLIT[i][k] = inv.shiftRight((3 - k) * POW5_INV_QUARTER_BITCOUNT).and(invMask).intValueExact();
+                        POW5_INV_SPLIT[i][k] = inv.shiftRight((3 - k) * POW5_INV_QUARTER_BITCOUNT)
+                                .and(invMask)
+                                .intValue();
                     }
                 }
             }
         }
     }
+
 
     public static String doubleToString(double value) {
         char[] result = new char[24];
@@ -161,14 +169,15 @@ public final class RyuDouble {
         boolean even = (m2 & 1) == 0;
         final long mv = 4 * m2;
         final long mp = 4 * m2 + 2;
-        final long mm = 4 * m2 - (((m2 != (1L << DOUBLE_MANTISSA_BITS)) || (ieeeExponent <= 1)) ? 2 : 1);
+        final int mmShift = ((m2 != (1L << DOUBLE_MANTISSA_BITS)) || (ieeeExponent <= 1)) ? 1 : 0;
+        final long mm = 4 * m2 - 1 - mmShift;
         e2 -= 2;
 
         // Step 3: Convert to a decimal power base using 128-bit arithmetic.
         // -1077 = 1 - 1023 - 53 - 2 <= e_2 - 2 <= 2046 - 1023 - 53 - 2 = 968
         long dv, dp, dm;
         final int e10;
-        boolean dmIsTrailingZeros = false;
+        boolean dmIsTrailingZeros = false, dvIsTrailingZeros = false;
         if (e2 >= 0) {
             final int q = Math.max(0, (int) (e2 * LOG10_2_NUMERATOR / LOG10_2_DENOMINATOR) - 1);
             // k = constant + floor(log_2(5^q))
@@ -180,12 +189,12 @@ public final class RyuDouble {
             e10 = q;
 
             if (q <= 21) {
-                if (mm % 5 == 0) {
+                if (mv % 5 == 0) {
+                    dvIsTrailingZeros = multipleOfPowerOf5(mv, q);
+                } else if (even) {
                     dmIsTrailingZeros = multipleOfPowerOf5(mm, q);
-                } else {
-                    if (multipleOfPowerOf5(mp, q) && !even) {
-                        dp--;
-                    }
+                } else if (multipleOfPowerOf5(mp, q)) {
+                    dp--;
                 }
             }
         } else {
@@ -198,10 +207,14 @@ public final class RyuDouble {
             dm = mulPow5divPow2(mm, i, j);
             e10 = q + e2;
             if (q <= 1) {
-                dmIsTrailingZeros = (~mm & 1) >= q;
-                if (!even) {
+                dvIsTrailingZeros = true;
+                if (even) {
+                    dmIsTrailingZeros = mmShift == 1;
+                } else {
                     dp--;
                 }
+            } else if (q < 63) {
+                dvIsTrailingZeros = (mv & ((1L << (q - 1)) - 1)) == 0;
             }
         }
 
@@ -223,15 +236,16 @@ public final class RyuDouble {
 
         int lastRemovedDigit = 0;
         long output;
-        if (dmIsTrailingZeros && even) {
+        if (dmIsTrailingZeros || dvIsTrailingZeros) {
             while (dp / 10 > dm / 10) {
                 if ((dp < 100) && scientificNotation) {
                     // Double.toString semantics requires printing at least two digits.
                     break;
                 }
                 dmIsTrailingZeros &= dm % 10 == 0;
-                dp /= 10;
+                dvIsTrailingZeros &= lastRemovedDigit == 0;
                 lastRemovedDigit = (int) (dv % 10);
+                dp /= 10;
                 dv /= 10;
                 dm /= 10;
                 removed++;
@@ -242,12 +256,17 @@ public final class RyuDouble {
                         // Double.toString semantics requires printing at least two digits.
                         break;
                     }
-                    dp /= 10;
+                    dvIsTrailingZeros &= lastRemovedDigit == 0;
                     lastRemovedDigit = (int) (dv % 10);
+                    dp /= 10;
                     dv /= 10;
                     dm /= 10;
                     removed++;
                 }
+            }
+            if (dvIsTrailingZeros && (lastRemovedDigit == 5) && (dv % 2 == 0)) {
+                // Round even if the exact numbers is .....50..0.
+                lastRemovedDigit = 4;
             }
             output = dv +
                     ((dv == dm && !(dmIsTrailingZeros && even)) || (lastRemovedDigit >= 5) ? 1 : 0);
@@ -257,8 +276,8 @@ public final class RyuDouble {
                     // Double.toString semantics requires printing at least two digits.
                     break;
                 }
-                dp /= 10;
                 lastRemovedDigit = (int) (dv % 10);
+                dp /= 10;
                 dv /= 10;
                 dm /= 10;
                 removed++;
@@ -269,7 +288,6 @@ public final class RyuDouble {
 
         // Step 5: Print the decimal representation.
         // We follow Double.toString semantics here.
-
         if (sign) {
             result[index++] = '-';
         }

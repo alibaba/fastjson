@@ -650,8 +650,6 @@ public final class SerializeWriter extends Writer {
                 || Float.isInfinite(value)) {
             writeNull();
         } else {
-//            String floatText= RyuFloat.toString(value);
-//            write(floatText);
             int newcount = count + 15;
             if (newcount > buf.length) {
                 if (writer == null) {

@@ -13,7 +13,7 @@ public class RyuDoubleTest extends TestCase {
             double value = random.nextDouble();
 
             String str1 = Double.toString(value);
-            String str2 = RyuDouble.doubleToString(value);
+            String str2 = RyuDouble.toString(value);
 
             if (!str1.equals(str2)) {
                 System.out.println(str1 + " -> " + str2);
@@ -29,7 +29,7 @@ public class RyuDoubleTest extends TestCase {
 
         for (double value : values) {
             String str1 = Double.toString(value);
-            String str2 = RyuDouble.doubleToString(value);
+            String str2 = RyuDouble.toString(value);
 
             assertEquals(str1, str2);
         }

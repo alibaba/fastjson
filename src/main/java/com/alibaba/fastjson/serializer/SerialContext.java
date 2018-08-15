@@ -42,19 +42,24 @@ public class SerialContext {
                 boolean special = false;
                 for (int i = 0; i < fieldName.length(); ++i) {
                     char ch = fieldName.charAt(i);
-                    if (ch == '.' || ch == '@' || ch == '(' || ch == '\\') {
-                        special = true;
+                    if ((ch >= '0' && ch <='9') || (ch >= 'A' && ch <='Z') || (ch >= 'a' && ch <='z') || ch > 128) {
+                        continue;
                     }
+                    special = true;
+                    break;
                 }
 
                 if (special) {
                     for (int i = 0; i < fieldName.length(); ++i) {
                         char ch = fieldName.charAt(i);
-                        if (ch == '.' || ch == '@' || ch == '(') {
+                        if (ch == '\\') {
                             buf.append('\\');
                             buf.append('\\');
-                        } else if (ch == '\\') {
                             buf.append('\\');
+                        } else if ((ch >= '0' && ch <='9') || (ch >= 'A' && ch <='Z') || (ch >= 'a' && ch <='z') || ch > 128) {
+                            buf.append(ch);
+                            continue;
+                        } else {
                             buf.append('\\');
                             buf.append('\\');
                         }

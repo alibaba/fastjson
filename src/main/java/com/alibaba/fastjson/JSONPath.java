@@ -797,7 +797,7 @@ public class JSONPath implements JSONAware {
                 predicateFlag = true;
             }
 
-            if (predicateFlag || IOUtils.firstIdentifier(ch)) {
+            if (predicateFlag || IOUtils.firstIdentifier(ch) || ch == '\\') {
                 String propertyName = readName();
 
                 skipWhitespace();
@@ -1500,7 +1500,7 @@ public class JSONPath implements JSONAware {
         String readName() {
             skipWhitespace();
 
-            if (ch != '\\' && !IOUtils.firstIdentifier(ch)) {
+            if (ch != '\\' && !Character.isJavaIdentifierStart(ch)) {
                 throw new JSONPathException("illeal jsonpath syntax. " + path);
             }
 
@@ -1510,13 +1510,13 @@ public class JSONPath implements JSONAware {
                     next();
                     buf.append(ch);
                     if (isEOF()) {
-                        break;
+                        return buf.toString();
                     }
                     next();
                     continue;
                 }
 
-                boolean identifierFlag = IOUtils.isIdent(ch);
+                boolean identifierFlag = Character.isJavaIdentifierPart(ch);
                 if (!identifierFlag) {
                     break;
                 }
@@ -1524,13 +1524,11 @@ public class JSONPath implements JSONAware {
                 next();
             }
 
-            if (isEOF() && IOUtils.isIdent(ch)) {
+            if (isEOF() && Character.isJavaIdentifierPart(ch)) {
                 buf.append(ch);
             }
 
-            String propertyName = buf.toString();
-
-            return propertyName;
+            return buf.toString();
         }
 
         String readString() {
@@ -2057,6 +2055,10 @@ public class JSONPath implements JSONAware {
         private final long     value;
         private final Operator op;
 
+        private BigDecimal     valueDecimal;
+        private Float          valueFloat;
+        private Double         valueDouble;
+
         public IntOpSegement(String propertyName, long value, Operator op){
             this.propertyName = propertyName;
             this.propertyNameHash = TypeUtils.fnv1a_64(propertyName);
@@ -2072,6 +2074,75 @@ public class JSONPath implements JSONAware {
             }
 
             if (!(propertyValue instanceof Number)) {
+                return false;
+            }
+
+            if (propertyValue instanceof BigDecimal) {
+                if (valueDecimal == null) {
+                    valueDecimal = BigDecimal.valueOf(value);
+                }
+
+                int result = valueDecimal.compareTo((BigDecimal) propertyValue);
+                if (op == Operator.EQ) {
+                    return result == 0;
+                } else if (op == Operator.NE) {
+                    return result != 0;
+                } else if (op == Operator.GE) {
+                    return 0 >= result;
+                } else if (op == Operator.GT) {
+                    return 0 > result;
+                } else if (op == Operator.LE) {
+                    return 0 <= result;
+                } else if (op == Operator.LT) {
+                    return 0 < result;
+                }
+
+                return false;
+            }
+
+            if (propertyValue instanceof Float) {
+                if (valueFloat == null) {
+                    valueFloat = Float.valueOf(value);
+                }
+
+                int result = valueFloat.compareTo((Float) propertyValue);
+                if (op == Operator.EQ) {
+                    return result == 0;
+                } else if (op == Operator.NE) {
+                    return result != 0;
+                } else if (op == Operator.GE) {
+                    return 0 >= result;
+                } else if (op == Operator.GT) {
+                    return 0 > result;
+                } else if (op == Operator.LE) {
+                    return 0 <= result;
+                } else if (op == Operator.LT) {
+                    return 0 < result;
+                }
+
+                return false;
+            }
+
+            if (propertyValue instanceof Double) {
+                if (valueDouble == null) {
+                    valueDouble = Double.valueOf(value);
+                }
+
+                int result = valueDouble.compareTo((Double) propertyValue);
+                if (op == Operator.EQ) {
+                    return result == 0;
+                } else if (op == Operator.NE) {
+                    return result != 0;
+                } else if (op == Operator.GE) {
+                    return 0 >= result;
+                } else if (op == Operator.GT) {
+                    return 0 > result;
+                } else if (op == Operator.LE) {
+                    return 0 <= result;
+                } else if (op == Operator.LT) {
+                    return 0 < result;
+                }
+
                 return false;
             }
 

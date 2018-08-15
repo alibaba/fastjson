@@ -1,10 +1,16 @@
 package com.alibaba.fastjson.asm;
 
+import com.alibaba.fastjson.annotation.JSONType;
+import com.alibaba.fastjson.util.ASMUtils;
+import com.alibaba.fastjson.util.TypeUtils;
+
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
 public class TypeCollector {
+    private static String JSONType = ASMUtils.desc(com.alibaba.fastjson.annotation.JSONType.class);
+
     private static final Map<String, String> primitives = new HashMap<String, String>() {
         {
             put("int","I");
@@ -23,6 +29,8 @@ public class TypeCollector {
     private final Class<?>[] parameterTypes;
 
     protected MethodCollector collector;
+
+    protected boolean jsonType;
 
     public TypeCollector(String methodName, Class<?>[] parameterTypes) {
         this.methodName = methodName;
@@ -62,6 +70,12 @@ public class TypeCollector {
                 argTypes.length + longOrDoubleQuantity);
     }
 
+    public void visitAnnotation(String desc) {
+        if (JSONType.equals(desc)) {
+            jsonType = true;
+        }
+    }
+
     private boolean correctTypeName(Type type, String paramTypeName) {
         String s = type.getClassName();
         // array notation needs cleanup.
@@ -85,5 +99,13 @@ public class TypeCollector {
             return new String[0];
         }
         return collector.getResult().split(",");
+    }
+
+    public boolean matched() {
+        return collector != null;
+    }
+
+    public boolean hasJsonType() {
+        return jsonType;
     }
 }

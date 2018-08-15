@@ -301,10 +301,12 @@ public class TypeUtils{
             } finally{
                 dateLexer.close();
             }
-            if(strVal.startsWith("/Date(") && strVal.endsWith(")/")){
+
+            if (strVal.startsWith("/Date(") && strVal.endsWith(")/")) {
                 strVal = strVal.substring(6, strVal.length() - 2);
             }
-            if(strVal.indexOf('-') != -1){
+
+            if (strVal.indexOf('-') > 0) {
                 if (format == null) {
                     if (strVal.length() == JSON.DEFFAULT_DATE_FORMAT.length()
                             || (strVal.length() == 22 && JSON.DEFFAULT_DATE_FORMAT.equals("yyyyMMddHHmmssSSSZ"))) {
@@ -335,7 +337,8 @@ public class TypeUtils{
             }
             longValue = Long.parseLong(strVal);
         }
-        if(longValue < 0){
+
+        if (longValue == -1) {
             Class<?> clazz = value.getClass();
             if("oracle.sql.TIMESTAMP".equals(clazz.getName())){
                 if(oracleTimestampMethod == null && !oracleTimestampMethodInited){
@@ -373,8 +376,10 @@ public class TypeUtils{
                 }
                 return (Date) result;
             }
+
             throw new JSONException("can not cast to Date, value : " + value);
         }
+
         return new Date(longValue);
     }
 
@@ -675,22 +680,27 @@ public class TypeUtils{
             }
             return null;
         }
+
         if(clazz == null){
             throw new IllegalArgumentException("clazz is null");
         }
+
         if(clazz == obj.getClass()){
             return (T) obj;
         }
+
         if(obj instanceof Map){
             if(clazz == Map.class){
                 return (T) obj;
             }
+
             Map map = (Map) obj;
             if(clazz == Object.class && !map.containsKey(JSON.DEFAULT_TYPE_KEY)){
                 return (T) obj;
             }
             return castToJavaBean((Map<String,Object>) obj, clazz, config);
         }
+
         if(clazz.isArray()){
             if(obj instanceof Collection){
                 Collection collection = (Collection) obj;
@@ -707,57 +717,75 @@ public class TypeUtils{
                 return (T) castToBytes(obj);
             }
         }
+
         if(clazz.isAssignableFrom(obj.getClass())){
             return (T) obj;
         }
+
         if(clazz == boolean.class || clazz == Boolean.class){
             return (T) castToBoolean(obj);
         }
+
         if(clazz == byte.class || clazz == Byte.class){
             return (T) castToByte(obj);
         }
+
         if(clazz == char.class || clazz == Character.class){
             return (T) castToChar(obj);
         }
+
         if(clazz == short.class || clazz == Short.class){
             return (T) castToShort(obj);
         }
+
         if(clazz == int.class || clazz == Integer.class){
             return (T) castToInt(obj);
         }
+
         if(clazz == long.class || clazz == Long.class){
             return (T) castToLong(obj);
         }
+
         if(clazz == float.class || clazz == Float.class){
             return (T) castToFloat(obj);
         }
+
         if(clazz == double.class || clazz == Double.class){
             return (T) castToDouble(obj);
         }
+
         if(clazz == String.class){
             return (T) castToString(obj);
         }
+
         if(clazz == BigDecimal.class){
             return (T) castToBigDecimal(obj);
         }
+
         if(clazz == BigInteger.class){
             return (T) castToBigInteger(obj);
         }
+
         if(clazz == Date.class){
             return (T) castToDate(obj);
         }
+
         if(clazz == java.sql.Date.class){
             return (T) castToSqlDate(obj);
         }
+
         if(clazz == java.sql.Time.class){
             return (T) castToSqlTime(obj);
         }
+
         if(clazz == java.sql.Timestamp.class){
             return (T) castToTimestamp(obj);
         }
+
         if(clazz.isEnum()){
             return (T) castToEnum(obj, clazz, config);
         }
+
         if(Calendar.class.isAssignableFrom(clazz)){
             Date date = castToDate(obj);
             Calendar calendar;
@@ -789,9 +817,11 @@ public class TypeUtils{
                     || "NULL".equals(strVal)){
                 return null;
             }
+
             if(clazz == java.util.Currency.class){
                 return (T) java.util.Currency.getInstance(strVal);
             }
+
             if(clazz == java.util.Locale.class){
                 return (T) toLocale(strVal);
             }
@@ -800,6 +830,12 @@ public class TypeUtils{
                 String json = JSON.toJSONString(strVal);
                 return JSON.parseObject(json, clazz);
             }
+        }
+
+        final ObjectDeserializer objectDeserializer = config.getDeserializers().get(clazz);
+        if (objectDeserializer != null) {
+            String str = JSON.toJSONString(obj);
+            return JSON.parseObject(str, clazz);
         }
         throw new JSONException("can not cast to : " + clazz.getName());
     }
@@ -1116,6 +1152,7 @@ public class TypeUtils{
                 java.util.HashSet.class,
                 java.util.LinkedHashSet.class,
                 java.util.TreeSet.class,
+                java.util.ArrayList.class,
                 java.util.concurrent.TimeUnit.class,
                 java.util.concurrent.ConcurrentHashMap.class,
                 loadClass("java.util.concurrent.ConcurrentSkipListMap"),
@@ -1123,6 +1160,16 @@ public class TypeUtils{
                 java.util.concurrent.atomic.AtomicInteger.class,
                 java.util.concurrent.atomic.AtomicLong.class,
                 java.util.Collections.EMPTY_MAP.getClass(),
+                java.lang.Boolean.class,
+                java.lang.Byte.class,
+                java.lang.Short.class,
+                java.lang.Integer.class,
+                java.lang.Long.class,
+                java.lang.Float.class,
+                java.lang.Double.class,
+                java.lang.String.class,
+                java.math.BigDecimal.class,
+                java.math.BigInteger.class,
                 java.util.BitSet.class,
                 java.util.Calendar.class,
                 java.util.Date.class,
@@ -1133,6 +1180,8 @@ public class TypeUtils{
                 java.sql.Timestamp.class,
                 java.text.SimpleDateFormat.class,
                 com.alibaba.fastjson.JSONObject.class,
+                com.alibaba.fastjson.JSONPObject.class,
+                com.alibaba.fastjson.JSONArray.class,
         };
         for(Class clazz : classes){
             if(clazz == null){
@@ -1164,12 +1213,15 @@ public class TypeUtils{
                 "org.springframework.security.core.context.SecurityContextImpl",
                 "org.springframework.security.authentication.UsernamePasswordAuthenticationToken",
                 "org.springframework.security.core.authority.SimpleGrantedAuthority",
-                "org.springframework.security.core.userdetails.User"
+                "org.springframework.security.core.userdetails.User",
+                "org.springframework.security.oauth2.common.DefaultExpiringOAuth2RefreshToken",
+                "org.springframework.security.oauth2.common.DefaultOAuth2AccessToken",
+                "org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken",
         };
         for(String className : spring){
             Class<?> clazz = loadClass(className);
             if(clazz == null){
-                break;
+                continue;
             }
             mappings.put(clazz.getName(), clazz);
         }
@@ -1178,6 +1230,10 @@ public class TypeUtils{
     public static void clearClassMapping(){
         mappings.clear();
         addBaseClassMappings();
+    }
+
+    public static void addMapping(String className, Class<?> clazz) {
+        mappings.put(className, clazz);
     }
 
     public static Class<?> loadClass(String className){
@@ -1203,25 +1259,29 @@ public class TypeUtils{
     }
 
     public static Class<?> loadClass(String className, ClassLoader classLoader) {
-        return loadClass(className, classLoader, true);
+        return loadClass(className, classLoader, false);
     }
 
     public static Class<?> loadClass(String className, ClassLoader classLoader, boolean cache) {
-        if(className == null || className.length() == 0){
+        if(className == null || className.length() == 0 || className.length() > 128){
             return null;
         }
+
         Class<?> clazz = mappings.get(className);
         if(clazz != null){
             return clazz;
         }
+
         if(className.charAt(0) == '['){
             Class<?> componentType = loadClass(className.substring(1), classLoader);
             return Array.newInstance(componentType, 0).getClass();
         }
+
         if(className.startsWith("L") && className.endsWith(";")){
             String newClassName = className.substring(1, className.length() - 1);
             return loadClass(newClassName, classLoader);
         }
+
         try{
             if(classLoader != null){
                 clazz = classLoader.loadClass(className);
@@ -1248,7 +1308,9 @@ public class TypeUtils{
         }
         try{
             clazz = Class.forName(className);
-            mappings.put(className, clazz);
+            if (cache) {
+                mappings.put(className, clazz);
+            }
             return clazz;
         } catch(Throwable e){
             // skip
@@ -2227,9 +2289,17 @@ public class TypeUtils{
     }
 
     public static Constructor getKoltinConstructor(Constructor[] constructors){
+        return getKoltinConstructor(constructors, null);
+    }
+
+    public static Constructor getKoltinConstructor(Constructor[] constructors, String[] paramNames){
         Constructor creatorConstructor = null;
         for(Constructor<?> constructor : constructors){
             Class<?>[] parameterTypes = constructor.getParameterTypes();
+            if (paramNames != null && parameterTypes.length != paramNames.length) {
+                continue;
+            }
+
             if(parameterTypes.length > 0 && parameterTypes[parameterTypes.length - 1].getName().equals("kotlin.jvm.internal.DefaultConstructorMarker")){
                 continue;
             }

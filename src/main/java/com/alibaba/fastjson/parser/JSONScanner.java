@@ -273,6 +273,15 @@ public final class JSONScanner extends JSONLexerBase {
                 M1 = c6;
                 d0 = c8;
                 d1 = charAt(bp + 9);
+            } else if (c4 == '-' && c6 == '-') {
+                y0 = c0;
+                y1 = c1;
+                y2 = c2;
+                y3 = c3;
+                M0 = '0';
+                M1 = c5;
+                d0 = '0';
+                d1 = c7;
             } else {
                 y0 = c0;
                 y1 = c1;
@@ -687,7 +696,7 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     static boolean checkDate(char y0, char y1, char y2, char y3, char M0, char M1, int d0, int d1) {
-        if (y0 < '1' || y0 > '3') {
+        if (y0 < '0' || y0 > '9') {
             return false;
         }
         if (y1 < '0' || y1 > '9') {
@@ -1164,6 +1173,13 @@ public final class JSONScanner extends JSONLexerBase {
     public Collection<String> scanFieldStringArray(char[] fieldName, Class<?> type) {
         matchStat = UNKNOWN;
 
+        while (ch == '\n' || ch == ' ') {
+            int index = ++bp;
+            ch = (index >= this.len ? //
+                    EOI //
+                    : text.charAt(index));
+        }
+
         if (!charArrayCompare(text, bp, fieldName)) {
             matchStat = NOT_MATCH_NAME;
             return null;
@@ -1182,6 +1198,9 @@ public final class JSONScanner extends JSONLexerBase {
 //                throw new JSONException(e.getMessage(), e);
 //            }
 //        }
+
+        int startPos = this.bp;
+        char startChar = this.ch;
 
         int index = bp + fieldName.length;
 
@@ -1304,6 +1323,8 @@ public final class JSONScanner extends JSONLexerBase {
 
             matchStat = END;
         } else {
+            this.ch = startChar;
+            bp = startPos;
             matchStat = NOT_MATCH;
             return null;
         }
@@ -2035,11 +2056,36 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     public String info() {
-        return "pos " + bp //
-                + ", json : " //
-                + (text.length() < 65536 //
-                ? text //
-                : text.substring(0, 65536));
+        StringBuilder buf = new StringBuilder();
+
+//        buf.append("pos ").append(bp);
+//        return "pos " + bp //
+//                + ", json : " //
+//                + (text.length() < 65536 //
+//                ? text //
+//                : text.substring(0, 65536));
+
+        int line = 1;
+        int column = 1;
+        for (int i = 0; i < bp; ++i, column++) {
+            char ch = text.charAt(i);
+            if (ch == '\n') {
+                column = 1;
+                line++;
+            }
+        }
+
+        buf.append("pos ").append(bp)
+            .append(", line ").append(line)
+            .append(", column ").append(column);
+
+        if (text.length() < 65535) {
+            buf.append(text);
+        } else {
+            buf.append(text.substring(0, 65535));
+        }
+
+        return buf.toString();
     }
 
     // for hsf support

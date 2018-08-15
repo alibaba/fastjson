@@ -99,7 +99,7 @@ public class SqlDateDeserializer extends AbstractDateDeserializer implements Obj
             long longVal;
             JSONScanner dateLexer = new JSONScanner(strVal);
             try {
-                if (dateLexer.scanISO8601DateIfMatch()) {
+                if (dateLexer.scanISO8601DateIfMatch(false)) {
                     longVal = dateLexer.getCalendar().getTimeInMillis();
                 } else {
 

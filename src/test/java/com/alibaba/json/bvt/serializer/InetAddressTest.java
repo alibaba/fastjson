@@ -2,6 +2,7 @@ package com.alibaba.json.bvt.serializer;
 
 import java.net.InetAddress;
 
+import com.alibaba.fastjson.parser.ParserConfig;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -18,6 +19,7 @@ public class InetAddressTest extends TestCase {
 
         InetAddress address2 = JSON.parseObject(text, InetAddress.class);
         Assert.assertEquals(address, address2);
+        ParserConfig.getGlobalInstance().getDeserializer(InetAddress.class);
     }
 
     public void test_null() throws Exception {

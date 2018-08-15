@@ -516,6 +516,8 @@ public class SerializeConfig {
                 put(clazz, writer = ToStringSerializer.instance);
             } else if (Iterator.class.isAssignableFrom(clazz)) {
                 put(clazz, writer = MiscCodec.instance);
+            } else if (org.w3c.dom.Node.class.isAssignableFrom(clazz)) {
+                put(clazz, writer = MiscCodec.instance);
             } else {
                 if (className.startsWith("java.awt.") //
                     && AwtCodec.support(clazz) //
@@ -669,6 +671,7 @@ public class SerializeConfig {
 
                 Class[] interfaces = clazz.getInterfaces();
                 if (interfaces.length == 1 && interfaces[0].isAnnotation()) {
+                    put(clazz, AnnotationSerializer.instance);
                     return AnnotationSerializer.instance;
                 }
 

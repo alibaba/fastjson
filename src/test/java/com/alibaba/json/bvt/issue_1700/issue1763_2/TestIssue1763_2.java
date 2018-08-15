@@ -1,10 +1,10 @@
-package com.alibaba.fastjson.deserializer.issue1763_2;
+package com.alibaba.json.bvt.issue_1700.issue1763_2;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.alibaba.fastjson.deserializer.issue1763_2.bean.BaseResult;
-import com.alibaba.fastjson.deserializer.issue1763_2.bean.CouponResult;
-import com.alibaba.fastjson.deserializer.issue1763_2.bean.PageResult;
+import com.alibaba.json.bvt.issue_1700.issue1763_2.bean.BaseResult;
+import com.alibaba.json.bvt.issue_1700.issue1763_2.bean.CouponResult;
+import com.alibaba.json.bvt.issue_1700.issue1763_2.bean.PageResult;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

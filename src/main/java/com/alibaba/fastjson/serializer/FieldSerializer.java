@@ -167,6 +167,21 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
             Class<?> runtimeFieldClass;
             if (propertyValue == null) {
                 runtimeFieldClass = this.fieldInfo.fieldClass;
+                if (runtimeFieldClass == byte.class) {
+                    runtimeFieldClass = Byte.class;
+                } else if (runtimeFieldClass == short.class) {
+                    runtimeFieldClass = Short.class;
+                } else if (runtimeFieldClass == int.class) {
+                    runtimeFieldClass = Integer.class;
+                } else if (runtimeFieldClass == long.class) {
+                    runtimeFieldClass = Long.class;
+                } else if (runtimeFieldClass == float.class) {
+                    runtimeFieldClass = Float.class;
+                } else if (runtimeFieldClass == double.class) {
+                    runtimeFieldClass = Double.class;
+                } else if (runtimeFieldClass == boolean.class) {
+                    runtimeFieldClass = Boolean.class;
+                }
             } else {
                 runtimeFieldClass = propertyValue.getClass();
             }

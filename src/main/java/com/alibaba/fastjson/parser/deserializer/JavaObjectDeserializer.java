@@ -1,5 +1,6 @@
 package com.alibaba.fastjson.parser.deserializer;
 
+import java.io.Closeable;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
@@ -38,7 +39,12 @@ public class JavaObjectDeserializer implements ObjectDeserializer {
 
         }
         
-        if (type instanceof Class && type != Object.class && type != Serializable.class) {
+        if (type instanceof Class
+                && type != Object.class
+                && type != Serializable.class
+                && type != Cloneable.class
+                && type != Closeable.class
+                && type != Comparable.class) {
             return (T) parser.parseObject(type);    
         }
 

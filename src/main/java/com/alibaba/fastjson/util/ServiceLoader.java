@@ -39,6 +39,8 @@ public class ServiceLoader {
                 load(url, serviceNames);
                 loadedUrls.add(url.toString());
             }
+        } catch (IllegalStateException ex) {
+            // skip
         } catch (IOException ex) {
             // skip
         }

@@ -46,6 +46,9 @@ public class JavaBeanInfo {
     public Type[] creatorConstructorParameterTypes;
     public String[] creatorConstructorParameters;
 
+    public boolean kotlin;
+    public Constructor<?> kotlinDefaultConstructor;
+
     public JavaBeanInfo(Class<?> clazz, //
                         Class<?> builderClass, //
                         Constructor<?> defaultConstructor, //
@@ -123,9 +126,14 @@ public class JavaBeanInfo {
             this.creatorConstructorParameterTypes = creatorConstructor.getParameterTypes();
 
 
-            boolean kotlin = TypeUtils.isKotlin(clazz);
+            kotlin = TypeUtils.isKotlin(clazz);
             if (kotlin) {
                 this.creatorConstructorParameters = TypeUtils.getKoltinConstructorParameters(clazz);
+                try {
+                    this.kotlinDefaultConstructor = clazz.getConstructor();
+                } catch (Throwable ex) {
+                    // skip
+                }
 
                 Annotation[][] paramAnnotationArrays = creatorConstructor.getParameterAnnotations();
                 for (int i = 0; i < creatorConstructorParameters.length && i < paramAnnotationArrays.length; ++i) {
@@ -190,15 +198,15 @@ public class JavaBeanInfo {
                 }
 
                 if (item.fieldClass.isAssignableFrom(field.fieldClass)) {
-                    fieldList.remove(i);
-                    break;
+                    fieldList.set(i, field);
+                    return true;
                 }
 
                 int result = item.compareTo(field);
 
                 if (result < 0) {
-                    fieldList.remove(i);
-                    break;
+                    fieldList.set(i, field);
+                    return true;
                 } else {
                     return false;
                 }
@@ -347,7 +355,7 @@ public class JavaBeanInfo {
                 String[] paramNames = null;
                 if (kotlin && constructors.length > 0) {
                     paramNames = TypeUtils.getKoltinConstructorParameters(clazz);
-                    creatorConstructor = TypeUtils.getKoltinConstructor(constructors);
+                    creatorConstructor = TypeUtils.getKoltinConstructor(constructors, paramNames);
                     TypeUtils.setAccessible(creatorConstructor);
                 } else {
 

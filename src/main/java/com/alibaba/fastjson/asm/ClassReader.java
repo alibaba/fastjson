@@ -8,14 +8,16 @@ import java.io.InputStream;
  * Created by wenshao on 05/08/2017.
  */
 public class ClassReader {
-    public final byte[] b;
+    public  final byte[] b;
     private final int[] items;
     private final String[] strings;
     private final int maxStringLength;
-    public final int header;
+    public  final int header;
+    private boolean readAnnotations;
 
+    public ClassReader(InputStream is, boolean readAnnotations) throws IOException {
+        this.readAnnotations = readAnnotations;
 
-    public ClassReader(final InputStream is) throws IOException {
         {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             byte[] buf = new byte[1024];
@@ -81,18 +83,27 @@ public class ClassReader {
 
     public void accept(final TypeCollector classVisitor) {
         char[] c = new char[maxStringLength]; // buffer used to read strings
-        int i, j, k; // loop variables
-        int u, v, w; // indexes in b
-
-        String attrName;
+        int i, j; // loop variables
+        int u, v; // indexes in b
         int anns = 0;
-        int ianns = 0;
+
+        //read annotations
+        if (readAnnotations) {
+            u = getAttributes();
+            for (i = readUnsignedShort(u); i > 0; --i) {
+                String attrName = readUTF8(u + 2, c);
+                if ("RuntimeVisibleAnnotations".equals(attrName)) {
+                    anns = u + 8;
+                    break;
+                }
+                u += 6 + readInt(u + 4);
+            }
+        }
 
         // visits the header
         u = header;
         v = items[readUnsignedShort(u + 4)];
         int len = readUnsignedShort(u + 6);
-        w = 0;
         u += 8;
         for (i = 0; i < len; ++i) {
             u += 2;
@@ -123,7 +134,12 @@ public class ClassReader {
             v += 6 + readInt(v + 2);
         }
 
-        //annotations not needed.
+        if (anns != 0) {
+            for (i = readUnsignedShort(anns), v = anns + 2; i > 0; --i) {
+                String name = readUTF8(v, c);
+                classVisitor.visitAnnotation(name);
+            }
+        }
 
         // visits the fields
         i = readUnsignedShort(u);
@@ -143,6 +159,27 @@ public class ClassReader {
             // inlined in original ASM source, now a method call
             u = readMethod(classVisitor, c, u);
         }
+    }
+
+    private int getAttributes() {
+        // skips the header
+        int u = header + 8 + readUnsignedShort(header + 6) * 2;
+        // skips fields and methods
+        for (int i = readUnsignedShort(u); i > 0; --i) {
+            for (int j = readUnsignedShort(u + 8); j > 0; --j) {
+                u += 6 + readInt(u + 12);
+            }
+            u += 8;
+        }
+        u += 2;
+        for (int i = readUnsignedShort(u); i > 0; --i) {
+            for (int j = readUnsignedShort(u + 8); j > 0; --j) {
+                u += 6 + readInt(u + 12);
+            }
+            u += 8;
+        }
+        // the attribute_info structure starts just after the methods
+        return u + 2;
     }
 
     private int readMethod(TypeCollector classVisitor, char[] c, int u) {
@@ -295,5 +332,4 @@ public class ClassReader {
         }
         return new String(buf, 0, strLen);
     }
-
 }

@@ -90,9 +90,29 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         if (beanInfo.fields == beanInfo.sortedFields) {
             getters = sortedGetters;
         } else {
-            getters = new FieldSerializer[beanInfo.fields.length]; 
+            getters = new FieldSerializer[beanInfo.fields.length];
+            boolean hashNotMatch = false;
             for (int i = 0; i < getters.length; ++i) {
-                getters[i] = getFieldSerializer(beanInfo.fields[i].name);
+                FieldSerializer fieldSerializer = getFieldSerializer(beanInfo.fields[i].name);
+                if (fieldSerializer == null) {
+                    hashNotMatch = true;
+                    break;
+                }
+                getters[i] = fieldSerializer;
+            }
+            if (hashNotMatch) {
+                System.arraycopy(sortedGetters, 0, getters, 0, sortedGetters.length);
+            }
+        }
+
+        if (beanInfo.jsonType != null) {
+            for (Class<? extends SerializeFilter> filterClass : beanInfo.jsonType.serialzeFilters()) {
+                try {
+                    SerializeFilter filter = filterClass.getConstructor().newInstance();
+                    this.addFilter(filter);
+                } catch (Exception e) {
+                    // skip
+                }
             }
         }
 
@@ -181,6 +201,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
 
         final boolean writeAsArray = isWriteAsArray(serializer, features);
 
+        FieldSerializer errorFieldSerializer = null;
         try {
             final char startSeperator = writeAsArray ? '[' : '{';
             final char endSeperator = writeAsArray ? ']' : '}';
@@ -215,6 +236,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
 
             char seperator = commaFlag ? ',' : '\0';
 
+            final boolean writeClassName = out.isEnabled(SerializerFeature.WriteClassName);
             final boolean directWritePrefix = out.quoteFieldNames && !out.useSingleQuotes;
             char newSeperator = this.writeBefore(serializer, object, seperator);
             commaFlag = newSeperator == ',';
@@ -268,6 +290,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     try {
                         propertyValue = fieldSerializer.getPropertyValueDirect(object);
                     } catch (InvocationTargetException ex) {
+                        errorFieldSerializer = fieldSerializer;
                         if (out.isEnabled(SerializerFeature.IgnoreErrorGetter)) {
                             propertyValue = null;
                         } else {
@@ -392,7 +415,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     serializer.write(propertyValue);
                 } else {
                     if (!writeAsArray) {
-                        if (!fieldInfo.unwrapped) {
+                        if (writeClassName || !fieldInfo.unwrapped) {
                             if (directWritePrefix) {
                                 out.write(fieldInfo.name_chars, 0, fieldInfo.name_chars.length);
                             } else {
@@ -477,12 +500,27 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
             }
             if (fieldName != null) {
                 errorMessage += ", fieldName : " + fieldName;
+            } else if (errorFieldSerializer != null && errorFieldSerializer.fieldInfo != null) {
+                FieldInfo fieldInfo = errorFieldSerializer.fieldInfo;
+                if (fieldInfo.method != null) {
+                    errorMessage += ", method : " + fieldInfo.method.getName();
+                } else {
+                    errorMessage += ", fieldName : " + errorFieldSerializer.fieldInfo.name;
+                }
             }
             if (e.getMessage() != null) {
                 errorMessage += (", " + e.getMessage());
             }
 
-            throw new JSONException(errorMessage, e);
+            Throwable cause = null;
+            if (e instanceof InvocationTargetException) {
+                cause = e.getCause();
+            }
+            if (cause == null) {
+                cause = e;
+            }
+
+            throw new JSONException(errorMessage, cause);
         } finally {
             serializer.context = parent;
         }

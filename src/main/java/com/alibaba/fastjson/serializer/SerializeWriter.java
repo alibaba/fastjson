@@ -19,13 +19,13 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.RyuDouble;
+import com.alibaba.fastjson.util.RyuFloat;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.alibaba.fastjson.util.IOUtils.replaceChars;
@@ -650,8 +650,25 @@ public final class SerializeWriter extends Writer {
                 || Float.isInfinite(value)) {
             writeNull();
         } else {
-            String floatText= Float.toString(value);
-            write(floatText);
+//            String floatText= RyuFloat.toString(value);
+//            write(floatText);
+            int newcount = count + 15;
+            if (newcount > buf.length) {
+                if (writer == null) {
+                    expandCapacity(newcount);
+                } else {
+                    String str = RyuFloat.toString(value);
+                    write(str, 0, str.length());
+
+                    if (checkWriteClassName && isEnabled(SerializerFeature.WriteClassName)) {
+                        write('D');
+                    }
+                    return;
+                }
+            }
+
+            int len = RyuFloat.toString(value, buf, count);
+            count += len;
 
             if (checkWriteClassName && isEnabled(SerializerFeature.WriteClassName)) {
                 write('F');
@@ -671,7 +688,7 @@ public final class SerializeWriter extends Writer {
             if (writer == null) {
                 expandCapacity(newcount);
             } else {
-                String str = RyuDouble.doubleToString(value);
+                String str = RyuDouble.toString(value);
                 write(str, 0, str.length());
 
                 if (checkWriteClassName && isEnabled(SerializerFeature.WriteClassName)) {
@@ -681,7 +698,7 @@ public final class SerializeWriter extends Writer {
             }
         }
 
-        int len = RyuDouble.doubleToString(value, buf, count);
+        int len = RyuDouble.toString(value, buf, count);
         count += len;
 
         if (checkWriteClassName && isEnabled(SerializerFeature.WriteClassName)) {

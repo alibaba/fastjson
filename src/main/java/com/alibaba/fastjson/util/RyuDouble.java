@@ -165,9 +165,69 @@ public final class RyuDouble {
             // q == 0 ? 1 : (int) ((q * 23219280L + 10000000L - 1) / 10000000L)
             final int k = 122 + (q == 0 ? 1 : (int) ((q * 23219280L + 10000000L - 1) / 10000000L)) - 1;
             final int i = -e2 + q + k;
-            dv = mulPow5InvDivPow2(mv, q, i);
-            dp = mulPow5InvDivPow2(mp, q, i);
-            dm = mulPow5InvDivPow2(mm, q, i);
+
+            int actualShift = i - 3 * 31 - 21;
+            if (actualShift < 0) {
+                throw new IllegalArgumentException("" + actualShift);
+            }
+
+            final int[] ints = POW5_INV_SPLIT[q];
+            {
+                long mHigh = mv >>> 31;
+                long mLow = mv & 0x7fffffff;
+                long bits13 = mHigh * ints[0];
+                long bits03 = mLow * ints[0];
+                long bits12 = mHigh * ints[1];
+                long bits02 = mLow * ints[1];
+                long bits11 = mHigh * ints[2];
+                long bits01 = mLow * ints[2];
+                long bits10 = mHigh * ints[3];
+                long bits00 = mLow * ints[3];
+
+
+                dv = ((((((
+                        ((bits00 >>> 31) + bits01 + bits10) >>> 31)
+                        + bits02 + bits11) >>> 31)
+                        + bits03 + bits12) >>> 21)
+                        + (bits13 << 10)) >>> actualShift;
+            }
+            {
+                long mHigh = mp >>> 31;
+                long mLow = mp & 0x7fffffff;
+                long bits13 = mHigh * ints[0];
+                long bits03 = mLow * ints[0];
+                long bits12 = mHigh * ints[1];
+                long bits02 = mLow * ints[1];
+                long bits11 = mHigh * ints[2];
+                long bits01 = mLow * ints[2];
+                long bits10 = mHigh * ints[3];
+                long bits00 = mLow * ints[3];
+
+                dp = ((((((
+                        ((bits00 >>> 31) + bits01 + bits10) >>> 31)
+                        + bits02 + bits11) >>> 31)
+                        + bits03 + bits12) >>> 21)
+                        + (bits13 << 10)) >>> actualShift;
+            }
+            {
+                long mHigh = mm >>> 31;
+                long mLow = mm & 0x7fffffff;
+                long bits13 = mHigh * ints[0];
+                long bits03 = mLow * ints[0];
+                long bits12 = mHigh * ints[1];
+                long bits02 = mLow * ints[1];
+                long bits11 = mHigh * ints[2];
+                long bits01 = mLow * ints[2];
+                long bits10 = mHigh * ints[3];
+                long bits00 = mLow * ints[3];
+
+                dm = ((((((
+                        ((bits00 >>> 31) + bits01 + bits10) >>> 31)
+                        + bits02 + bits11) >>> 31)
+                        + bits03 + bits12) >>> 21)
+                        + (bits13 << 10)) >>> actualShift;
+            }
+
             e10 = q;
 
             if (q <= 21) {
@@ -254,9 +314,68 @@ public final class RyuDouble {
             final int i = -e2 - q;
             final int k = (i == 0 ? 1 : (int) ((i * 23219280L + 10000000L - 1) / 10000000L)) - 121;
             final int j = q - k;
-            dv = mulPow5divPow2(mv, i, j);
-            dp = mulPow5divPow2(mp, i, j);
-            dm = mulPow5divPow2(mm, i, j);
+
+            int actualShift = j - 3 * 31 - 21;
+            if (actualShift < 0) {
+                throw new IllegalArgumentException("" + actualShift);
+            }
+            int[] ints = POW5_SPLIT[i];
+            {
+                long m = mv;
+                long mHigh = m >>> 31;
+                long mLow = m & 0x7fffffff;
+                long bits13 = mHigh * ints[0]; // 124
+                long bits03 = mLow * ints[0];  // 93
+                long bits12 = mHigh * ints[1]; // 93
+                long bits02 = mLow * ints[1];  // 62
+                long bits11 = mHigh * ints[2]; // 62
+                long bits01 = mLow * ints[2];  // 31
+                long bits10 = mHigh * ints[3]; // 31
+                long bits00 = mLow * ints[3];  // 0
+
+                dv = ((((((
+                        ((bits00 >>> 31) + bits01 + bits10) >>> 31)
+                        + bits02 + bits11) >>> 31)
+                        + bits03 + bits12) >>> 21)
+                        + (bits13 << 10)) >>> actualShift;
+            }
+            {
+                long m = mp;
+                long mHigh = m >>> 31;
+                long mLow = m & 0x7fffffff;
+                long bits13 = mHigh * ints[0]; // 124
+                long bits03 = mLow * ints[0];  // 93
+                long bits12 = mHigh * ints[1]; // 93
+                long bits02 = mLow * ints[1];  // 62
+                long bits11 = mHigh * ints[2]; // 62
+                long bits01 = mLow * ints[2];  // 31
+                long bits10 = mHigh * ints[3]; // 31
+                long bits00 = mLow * ints[3];  // 0
+                dp = ((((((
+                        ((bits00 >>> 31) + bits01 + bits10) >>> 31)
+                        + bits02 + bits11) >>> 31)
+                        + bits03 + bits12) >>> 21)
+                        + (bits13 << 10)) >>> actualShift;
+            }
+            {
+                long m = mm;
+                long mHigh = m >>> 31;
+                long mLow = m & 0x7fffffff;
+                long bits13 = mHigh * ints[0]; // 124
+                long bits03 = mLow * ints[0];  // 93
+                long bits12 = mHigh * ints[1]; // 93
+                long bits02 = mLow * ints[1];  // 62
+                long bits11 = mHigh * ints[2]; // 62
+                long bits01 = mLow * ints[2];  // 31
+                long bits10 = mHigh * ints[3]; // 31
+                long bits00 = mLow * ints[3];  // 0
+                dm = ((((((
+                        ((bits00 >>> 31) + bits01 + bits10) >>> 31)
+                        + bits02 + bits11) >>> 31)
+                        + bits03 + bits12) >>> 21)
+                        + (bits13 << 10)) >>> actualShift;
+            }
+
             e10 = q + e2;
             if (q <= 1) {
                 dvIsTrailingZeros = true;
@@ -458,59 +577,4 @@ public final class RyuDouble {
         }
     }
 
-    /**
-     * Compute the high digits of m * 5^p / 10^q = m * 5^(p - q) / 2^q = m * 5^i / 2^j, with q chosen
-     * such that m * 5^i / 2^j has sufficiently many decimal digits to represent the original floating
-     * point number.
-     */
-    private static long mulPow5divPow2(long m, int i, int j) {
-        // m has at most 55 bits.
-        long mHigh = m >>> 31;
-        long mLow = m & 0x7fffffff;
-        long bits13 = mHigh * POW5_SPLIT[i][0]; // 124
-        long bits03 = mLow * POW5_SPLIT[i][0];  // 93
-        long bits12 = mHigh * POW5_SPLIT[i][1]; // 93
-        long bits02 = mLow * POW5_SPLIT[i][1];  // 62
-        long bits11 = mHigh * POW5_SPLIT[i][2]; // 62
-        long bits01 = mLow * POW5_SPLIT[i][2];  // 31
-        long bits10 = mHigh * POW5_SPLIT[i][3]; // 31
-        long bits00 = mLow * POW5_SPLIT[i][3];  // 0
-        int actualShift = j - 3 * 31 - 21;
-        if (actualShift < 0) {
-            throw new IllegalArgumentException("" + actualShift);
-        }
-        return ((((((
-                ((bits00 >>> 31) + bits01 + bits10) >>> 31)
-                + bits02 + bits11) >>> 31)
-                + bits03 + bits12) >>> 21)
-                + (bits13 << 10)) >>> actualShift;
-    }
-
-    /**
-     * Compute the high digits of m / 5^i / 2^j such that the result is accurate to at least 9
-     * decimal digits. i and j are already chosen appropriately.
-     */
-    private static long mulPow5InvDivPow2(long m, int i, int j) {
-        // m has at most 55 bits.
-        long mHigh = m >>> 31;
-        long mLow = m & 0x7fffffff;
-        long bits13 = mHigh * POW5_INV_SPLIT[i][0];
-        long bits03 = mLow * POW5_INV_SPLIT[i][0];
-        long bits12 = mHigh * POW5_INV_SPLIT[i][1];
-        long bits02 = mLow * POW5_INV_SPLIT[i][1];
-        long bits11 = mHigh * POW5_INV_SPLIT[i][2];
-        long bits01 = mLow * POW5_INV_SPLIT[i][2];
-        long bits10 = mHigh * POW5_INV_SPLIT[i][3];
-        long bits00 = mLow * POW5_INV_SPLIT[i][3];
-
-        int actualShift = j - 3 * 31 - 21;
-        if (actualShift < 0) {
-            throw new IllegalArgumentException("" + actualShift);
-        }
-        return ((((((
-                ((bits00 >>> 31) + bits01 + bits10) >>> 31)
-                + bits02 + bits11) >>> 31)
-                + bits03 + bits12) >>> 21)
-                + (bits13 << 10)) >>> actualShift;
-    }
 }

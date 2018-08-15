@@ -661,7 +661,7 @@ public final class SerializeWriter extends Writer {
                     write(str, 0, str.length());
 
                     if (checkWriteClassName && isEnabled(SerializerFeature.WriteClassName)) {
-                        write('D');
+                        write('F');
                     }
                     return;
                 }

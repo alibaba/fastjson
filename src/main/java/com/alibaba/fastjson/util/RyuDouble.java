@@ -243,15 +243,16 @@ public final class RyuDouble {
                             pow5Factor_mv = 2;
                         } else if ((v % 625) != 0) {
                             pow5Factor_mv = 3;
-                        }
-                        pow5Factor_mv = 4;
-                        v /= 625;
-                        while (v > 0) {
-                            if (v % 5 != 0) {
-                                break;
+                        } else {
+                            pow5Factor_mv = 4;
+                            v /= 625;
+                            while (v > 0) {
+                                if (v % 5 != 0) {
+                                    break;
+                                }
+                                v /= 5;
+                                pow5Factor_mv++;
                             }
-                            v /= 5;
-                            pow5Factor_mv++;
                         }
                     }
                     dvIsTrailingZeros = pow5Factor_mv >= q;
@@ -267,15 +268,16 @@ public final class RyuDouble {
                             pow5Factor_mm = 2;
                         } else if ((v % 625) != 0) {
                             pow5Factor_mm = 3;
-                        }
-                        pow5Factor_mm = 4;
-                        v /= 625;
-                        while (v > 0) {
-                            if (v % 5 != 0) {
-                                break;
+                        } else {
+                            pow5Factor_mm = 4;
+                            v /= 625;
+                            while (v > 0) {
+                                if (v % 5 != 0) {
+                                    break;
+                                }
+                                v /= 5;
+                                pow5Factor_mm++;
                             }
-                            v /= 5;
-                            pow5Factor_mm++;
                         }
                     }
 
@@ -292,15 +294,16 @@ public final class RyuDouble {
                             pow5Factor_mp = 2;
                         } else if ((v % 625) != 0) {
                             pow5Factor_mp = 3;
-                        }
-                        pow5Factor_mp = 4;
-                        v /= 625;
-                        while (v > 0) {
-                            if (v % 5 != 0) {
-                                break;
+                        } else {
+                            pow5Factor_mp = 4;
+                            v /= 625;
+                            while (v > 0) {
+                                if (v % 5 != 0) {
+                                    break;
+                                }
+                                v /= 5;
+                                pow5Factor_mp++;
                             }
-                            v /= 5;
-                            pow5Factor_mp++;
                         }
                     }
 
@@ -321,9 +324,8 @@ public final class RyuDouble {
             }
             int[] ints = POW5_SPLIT[i];
             {
-                long m = mv;
-                long mHigh = m >>> 31;
-                long mLow = m & 0x7fffffff;
+                long mHigh = mv >>> 31;
+                long mLow = mv & 0x7fffffff;
                 long bits13 = mHigh * ints[0]; // 124
                 long bits03 = mLow * ints[0];  // 93
                 long bits12 = mHigh * ints[1]; // 93
@@ -340,9 +342,8 @@ public final class RyuDouble {
                         + (bits13 << 10)) >>> actualShift;
             }
             {
-                long m = mp;
-                long mHigh = m >>> 31;
-                long mLow = m & 0x7fffffff;
+                long mHigh = mp >>> 31;
+                long mLow = mp & 0x7fffffff;
                 long bits13 = mHigh * ints[0]; // 124
                 long bits03 = mLow * ints[0];  // 93
                 long bits12 = mHigh * ints[1]; // 93
@@ -358,9 +359,8 @@ public final class RyuDouble {
                         + (bits13 << 10)) >>> actualShift;
             }
             {
-                long m = mm;
-                long mHigh = m >>> 31;
-                long mLow = m & 0x7fffffff;
+                long mHigh = mm >>> 31;
+                long mLow = mm & 0x7fffffff;
                 long bits13 = mHigh * ints[0]; // 124
                 long bits03 = mLow * ints[0];  // 93
                 long bits12 = mHigh * ints[1]; // 93

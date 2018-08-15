@@ -35,10 +35,10 @@ public abstract class AbstractDateDeserializer extends ContextObjectDeserializer
                 } catch (IllegalArgumentException ex) {
                     if (format.equals("yyyy-MM-ddTHH:mm:ss.SSS")) {
                         format = "yyyy-MM-dd'T'HH:mm:ss.SSS";
-                        simpleDateFormat = new SimpleDateFormat(format);
+                        simpleDateFormat = new SimpleDateFormat(format, JSON.defaultLocale);
                     } else  if (format.equals("yyyy-MM-ddTHH:mm:ss")) {
                         format = "yyyy-MM-dd'T'HH:mm:ss";
-                        simpleDateFormat = new SimpleDateFormat(format);
+                        simpleDateFormat = new SimpleDateFormat(format, JSON.defaultLocale);
                     }
                 }
 
@@ -67,7 +67,9 @@ public abstract class AbstractDateDeserializer extends ContextObjectDeserializer
                     if (format.equals("yyyy-MM-dd'T'HH:mm:ss.SSS") //
                             && strVal.length() == 19) {
                         try {
-                            val = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(strVal);
+                            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", JSON.defaultLocale);
+                            df.setTimeZone(JSON.defaultTimeZone);
+                            val = df.parse(strVal);
                         } catch (ParseException ex2) {
                             // skip
                             val = null;

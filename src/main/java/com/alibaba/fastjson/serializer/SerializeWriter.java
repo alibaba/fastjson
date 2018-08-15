@@ -646,8 +646,7 @@ public final class SerializeWriter extends Writer {
     }
 
     public void writeFloat(float value, boolean checkWriteClassName) {
-        if (Float.isNaN(value) //
-                || Float.isInfinite(value)) {
+        if (value != value || value == Float.POSITIVE_INFINITY || value == Float.NEGATIVE_INFINITY) {
             writeNull();
         } else {
             int newcount = count + 15;

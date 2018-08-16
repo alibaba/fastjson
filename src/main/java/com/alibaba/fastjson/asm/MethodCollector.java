@@ -11,14 +11,14 @@ public class MethodCollector {
 
     private int currentParameter;
 
-    private final StringBuffer result;
+    private final StringBuilder result;
 
     protected boolean debugInfoPresent;
 
     protected MethodCollector(int ignoreCount, int paramCount) {
         this.ignoreCount = ignoreCount;
         this.paramCount = paramCount;
-        this.result = new StringBuffer();
+        this.result = new StringBuilder();
         this.currentParameter = 0;
         // if there are 0 parameters, there is no need for debug info
         this.debugInfoPresent = paramCount == 0;

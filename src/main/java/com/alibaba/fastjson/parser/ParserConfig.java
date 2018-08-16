@@ -15,7 +15,10 @@
  */
 package com.alibaba.fastjson.parser;
 
-import java.io.*;
+import java.io.Closeable;
+import java.io.File;
+import java.io.InputStream;
+import java.io.Serializable;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;

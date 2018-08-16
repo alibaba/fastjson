@@ -7,8 +7,11 @@ import java.util.Locale;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.parser.*;
-import com.alibaba.fastjson.util.TypeUtils;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.parser.Feature;
+import com.alibaba.fastjson.parser.JSONLexer;
+import com.alibaba.fastjson.parser.JSONScanner;
+import com.alibaba.fastjson.parser.JSONToken;
 
 public abstract class AbstractDateDeserializer extends ContextObjectDeserializer implements ObjectDeserializer {
 

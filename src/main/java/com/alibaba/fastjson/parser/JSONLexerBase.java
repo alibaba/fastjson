@@ -4892,6 +4892,12 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         np = bp;
         next();
 
+        if (ch == '\'') {
+            next();
+            token = JSONToken.HEX;
+            return;
+        }
+
         for (int i = 0;;++i) {
             char ch = next();
             if ((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F')) {

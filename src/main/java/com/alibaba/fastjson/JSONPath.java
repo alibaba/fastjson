@@ -2756,6 +2756,36 @@ public class JSONPath implements JSONAware {
             return fieldValues;
         }
 
+        if (currentObject instanceof Object[]) {
+            Object[] array = (Object[]) currentObject;
+
+            if (SIZE == propertyNameHash || LENGTH == propertyNameHash) {
+                return array.length;
+            }
+
+            List<Object> fieldValues = new JSONArray(array.length);
+
+            for (int i = 0; i < array.length; ++i) {
+                Object obj = array[i];
+
+                //
+                if (obj == array) {
+                    fieldValues.add(obj);
+                    continue;
+                }
+
+                Object itemValue = getPropertyValue(obj, propertyName, propertyNameHash);
+                if (itemValue instanceof Collection) {
+                    Collection collection = (Collection) itemValue;
+                    fieldValues.addAll(collection);
+                } else if (itemValue != null) {
+                    fieldValues.add(itemValue);
+                }
+            }
+
+            return fieldValues;
+        }
+
         if (currentObject instanceof Enum) {
             final long NAME = 0xc4bcadba8e631b86L; // TypeUtils.fnv1a_64("name");
             final long ORDINAL = 0xf1ebc7c20322fc22L; //TypeUtils.fnv1a_64("ordinal");

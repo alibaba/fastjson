@@ -17,6 +17,7 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -65,8 +66,8 @@ public class LongCodec implements ObjectSerializer, ObjectDeserializer {
                 lexer.nextToken(JSONToken.COMMA);
                 longObject = Long.valueOf(longValue);
             } else if (token == JSONToken.LITERAL_FLOAT) {
-                Number number = lexer.decimalValue(false);
-                longObject = number.longValue();
+                BigDecimal number = lexer.decimalValue();
+                longObject = number.longValueExact();
                 lexer.nextToken(JSONToken.COMMA);
             } else {
                 if (token == JSONToken.LBRACE) {

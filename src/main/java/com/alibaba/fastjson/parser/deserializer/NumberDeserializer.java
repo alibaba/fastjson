@@ -56,23 +56,17 @@ public class NumberDeserializer implements ObjectDeserializer {
             }
 
             if (clazz == short.class || clazz == Short.class) {
-                Number val = lexer.decimalValue(false);
+                BigDecimal val = lexer.decimalValue();
                 lexer.nextToken(JSONToken.COMMA);
-                int intValue = val.intValue();
-                if (intValue > Short.MAX_VALUE || intValue < Short.MIN_VALUE) {
-                    throw new JSONException("short overflow : " + val);
-                }
-                return (T) Short.valueOf((short) intValue);
+                short shortValue = val.shortValueExact();
+                return (T) Short.valueOf(shortValue);
             }
 
             if (clazz == byte.class || clazz == Byte.class) {
-                Number val = lexer.decimalValue(false);
+                BigDecimal val = lexer.decimalValue();
                 lexer.nextToken(JSONToken.COMMA);
-                int intValue = val.intValue();
-                if (intValue > Byte.MAX_VALUE || intValue < Byte.MIN_VALUE) {
-                    throw new JSONException("byte overflow : " + val);
-                }
-                return (T) Byte.valueOf((byte) intValue);
+                byte byteValue = val.byteValueExact();
+                return (T) Byte.valueOf(byteValue);
             }
 
             BigDecimal val = lexer.decimalValue();

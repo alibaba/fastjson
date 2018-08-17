@@ -134,9 +134,15 @@ public class TypeUtils{
         if(value == null){
             return null;
         }
+
+        if(value instanceof BigDecimal){
+            return ((BigDecimal) value).byteValueExact();
+        }
+
         if(value instanceof Number){
             return ((Number) value).byteValue();
         }
+
         if(value instanceof String){
             String strVal = (String) value;
             if(strVal.length() == 0 //
@@ -173,9 +179,15 @@ public class TypeUtils{
         if(value == null){
             return null;
         }
+
+        if(value instanceof BigDecimal){
+            return ((BigDecimal) value).shortValueExact();
+        }
+
         if(value instanceof Number){
             return ((Number) value).shortValue();
         }
+
         if(value instanceof String){
             String strVal = (String) value;
             if(strVal.length() == 0 //
@@ -185,6 +197,7 @@ public class TypeUtils{
             }
             return Short.parseShort(strVal);
         }
+
         throw new JSONException("can not cast to short, value : " + value);
     }
 
@@ -217,6 +230,13 @@ public class TypeUtils{
         }
         if(value instanceof Float || value instanceof Double){
             return BigInteger.valueOf(((Number) value).longValue());
+        }
+        if(value instanceof BigDecimal){
+            BigDecimal decimal = (BigDecimal) value;
+            int scale = decimal.scale();
+            if (scale > -1000 && scale < 1000) {
+                return ((BigDecimal) value).toBigInteger();
+            }
         }
         String strVal = value.toString();
         if(strVal.length() == 0 //
@@ -528,9 +548,15 @@ public class TypeUtils{
         if(value == null){
             return null;
         }
+
+        if(value instanceof BigDecimal){
+            return ((BigDecimal) value).longValueExact();
+        }
+
         if(value instanceof Number){
             return ((Number) value).longValue();
         }
+
         if(value instanceof String){
             String strVal = (String) value;
             if(strVal.length() == 0 //
@@ -556,6 +582,7 @@ public class TypeUtils{
                 return calendar.getTimeInMillis();
             }
         }
+
         if(value instanceof Map){
             Map map = (Map) value;
             if(map.size() == 2
@@ -567,6 +594,7 @@ public class TypeUtils{
                 return castToLong(value2);
             }
         }
+        
         throw new JSONException("can not cast to long, value : " + value);
     }
 
@@ -574,12 +602,19 @@ public class TypeUtils{
         if(value == null){
             return null;
         }
+
         if(value instanceof Integer){
             return (Integer) value;
         }
+
+        if(value instanceof BigDecimal){
+            return ((BigDecimal) value).intValueExact();
+        }
+
         if(value instanceof Number){
             return ((Number) value).intValue();
         }
+
         if(value instanceof String){
             String strVal = (String) value;
             if(strVal.length() == 0 //
@@ -592,6 +627,7 @@ public class TypeUtils{
             }
             return Integer.parseInt(strVal);
         }
+
         if(value instanceof Boolean){
             return ((Boolean) value).booleanValue() ? 1 : 0;
         }

@@ -82,8 +82,8 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
                 lexer.nextToken(JSONToken.COMMA);
                 intObj = Integer.valueOf(val);
             } else if (token == JSONToken.LITERAL_FLOAT) {
-                Number number = lexer.decimalValue(false);
-                intObj = number.intValue();
+                BigDecimal number = lexer.decimalValue();
+                intObj = number.intValueExact();
                 lexer.nextToken(JSONToken.COMMA);
             } else {
                 if (token == JSONToken.LBRACE) {

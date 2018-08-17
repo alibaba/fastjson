@@ -91,7 +91,15 @@ public class RyuFloatTest extends TestCase {
                 0.0001f,
                 0.00001f,
                 0.000001f,
-                0.000001f,
+                0.0000001f,
+
+                1.1f,
+                1.01f,
+                1.001f,
+                1.0001f,
+                1.00001f,
+                1.000001f,
+                1.0000001f,
         };
 
         for (float value : values) {

@@ -2126,7 +2126,7 @@ public final class SerializeWriter extends Writer {
             writeNull();
         } else {
             int scale = value.scale();
-            write(isEnabled(SerializerFeature.WriteBigDecimalAsPlain) && scale >= 100 && scale < 100
+            write(isEnabled(SerializerFeature.WriteBigDecimalAsPlain) && scale >= -100 && scale < 100
                     ? value.toPlainString()
                     : value.toString()
             );

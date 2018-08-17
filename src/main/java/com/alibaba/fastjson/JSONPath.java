@@ -2083,18 +2083,19 @@ public class JSONPath implements JSONAware {
                 }
 
                 int result = valueDecimal.compareTo((BigDecimal) propertyValue);
-                if (op == Operator.EQ) {
-                    return result == 0;
-                } else if (op == Operator.NE) {
-                    return result != 0;
-                } else if (op == Operator.GE) {
-                    return 0 >= result;
-                } else if (op == Operator.GT) {
-                    return 0 > result;
-                } else if (op == Operator.LE) {
-                    return 0 <= result;
-                } else if (op == Operator.LT) {
-                    return 0 < result;
+                switch (op) {
+                    case EQ:
+                        return result == 0;
+                    case NE:
+                        return result != 0;
+                    case GE:
+                        return 0 >= result;
+                    case GT:
+                        return 0 > result;
+                    case LE:
+                        return 0 <= result;
+                    case LT:
+                        return 0 < result;
                 }
 
                 return false;
@@ -2106,18 +2107,19 @@ public class JSONPath implements JSONAware {
                 }
 
                 int result = valueFloat.compareTo((Float) propertyValue);
-                if (op == Operator.EQ) {
-                    return result == 0;
-                } else if (op == Operator.NE) {
-                    return result != 0;
-                } else if (op == Operator.GE) {
-                    return 0 >= result;
-                } else if (op == Operator.GT) {
-                    return 0 > result;
-                } else if (op == Operator.LE) {
-                    return 0 <= result;
-                } else if (op == Operator.LT) {
-                    return 0 < result;
+                switch (op) {
+                    case EQ:
+                        return result == 0;
+                    case NE:
+                        return result != 0;
+                    case GE:
+                        return 0 >= result;
+                    case GT:
+                        return 0 > result;
+                    case LE:
+                        return 0 <= result;
+                    case LT:
+                        return 0 < result;
                 }
 
                 return false;
@@ -2129,18 +2131,19 @@ public class JSONPath implements JSONAware {
                 }
 
                 int result = valueDouble.compareTo((Double) propertyValue);
-                if (op == Operator.EQ) {
-                    return result == 0;
-                } else if (op == Operator.NE) {
-                    return result != 0;
-                } else if (op == Operator.GE) {
-                    return 0 >= result;
-                } else if (op == Operator.GT) {
-                    return 0 > result;
-                } else if (op == Operator.LE) {
-                    return 0 <= result;
-                } else if (op == Operator.LT) {
-                    return 0 < result;
+                switch (op) {
+                    case EQ:
+                        return result == 0;
+                    case NE:
+                        return result != 0;
+                    case GE:
+                        return 0 >= result;
+                    case GT:
+                        return 0 > result;
+                    case LE:
+                        return 0 <= result;
+                    case LT:
+                        return 0 < result;
                 }
 
                 return false;
@@ -2148,18 +2151,19 @@ public class JSONPath implements JSONAware {
 
             long longValue = ((Number) propertyValue).longValue();
 
-            if (op == Operator.EQ) {
-                return longValue == value;
-            } else if (op == Operator.NE) {
-                return longValue != value;
-            } else if (op == Operator.GE) {
-                return longValue >= value;
-            } else if (op == Operator.GT) {
-                return longValue > value;
-            } else if (op == Operator.LE) {
-                return longValue <= value;
-            } else if (op == Operator.LT) {
-                return longValue < value;
+            switch (op) {
+                case EQ:
+                    return longValue == value;
+                case NE:
+                    return longValue != value;
+                case GE:
+                    return longValue >= value;
+                case GT:
+                    return longValue > value;
+                case LE:
+                    return longValue <= value;
+                case LT:
+                    return longValue < value;
             }
 
             return false;
@@ -2194,18 +2198,19 @@ public class JSONPath implements JSONAware {
 
             double doubleValue = ((Number) propertyValue).doubleValue();
 
-            if (op == Operator.EQ) {
-                return doubleValue == value;
-            } else if (op == Operator.NE) {
-                return doubleValue != value;
-            } else if (op == Operator.GE) {
-                return doubleValue >= value;
-            } else if (op == Operator.GT) {
-                return doubleValue > value;
-            } else if (op == Operator.LE) {
-                return doubleValue <= value;
-            } else if (op == Operator.LT) {
-                return doubleValue < value;
+            switch (op) {
+                case EQ:
+                    return doubleValue == value;
+                case NE:
+                    return doubleValue != value;
+                case GE:
+                    return doubleValue >= value;
+                case GT:
+                    return doubleValue > value;
+                case LE:
+                    return doubleValue <= value;
+                case LT:
+                    return doubleValue < value;
             }
 
             return false;

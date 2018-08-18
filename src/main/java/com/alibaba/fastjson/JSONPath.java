@@ -2135,27 +2135,6 @@ public class JSONPath implements JSONAware {
         }
     }
 
-    static class CombineSegement implements Segement {
-        public final Segement left;
-        public final Segement right;
-        public final Operator operator;
-
-        public CombineSegement(Segement left, Segement right, Operator operator) {
-            this.left = left;
-            this.right = right;
-            this.operator = operator;
-        }
-
-        public Object eval(JSONPath path, Object rootObject, Object currentObject) {
-            return null;
-        }
-
-
-        static enum Operator {
-            And, Or
-        }
-    }
-
     static class MatchSegement implements Filter {
 
         private final String   propertyName;
@@ -2370,11 +2349,6 @@ public class JSONPath implements JSONAware {
             fitlers.add(left);
             fitlers.add(right);
             this.and = and;
-        }
-
-        public FilterGroup(List<Filter> fitlers, boolean and) {
-            this.and = and;
-            this.fitlers = fitlers;
         }
 
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {

@@ -13,6 +13,7 @@ public class JSONObjectTest_readObject extends TestCase {
     public void test_0() throws Exception {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("id", 123);
+        jsonObject.put("obj", new JSONObject());
 
         ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
         ObjectOutputStream objOut = new ObjectOutputStream(bytesOut);

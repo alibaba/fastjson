@@ -8,6 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Iterator;
 
 public class AntiCollisionHashMapTest extends TestCase {
     public void test_0() throws Exception {
@@ -25,9 +26,29 @@ public class AntiCollisionHashMapTest extends TestCase {
         assertEquals(m.size(), m2.size());
 
         for (int i = 0; i < 100; ++i) {
+            assertEquals(i, m.get(i));
+            assertTrue(m.containsKey(i));
+        }
+
+        for (int i = 0; i < 100; ++i) {
             m3.remove(i);
             m2.remove(i, i);
         }
+        m2.put(null, null);
+        m2.put(1, 1);
+        assertTrue(m2.containsKey(null));
+        assertTrue(m2.containsKey(1));
+        Iterator iterator = m2.entrySet().iterator();
+        while (iterator.hasNext()) {
+            iterator.next();
+            iterator.remove();
+        }
+        m2.clear();
+
+        m.entrySet().remove(1);
+        m.entrySet().remove(m.entrySet().iterator().next());
+
+
 
         {
             ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();

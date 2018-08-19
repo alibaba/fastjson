@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class JSONPath_9 extends TestCase {
 
@@ -36,6 +37,15 @@ public class JSONPath_9 extends TestCase {
         JSONPath path = new JSONPath("$.f0");
         assertEquals("$.f0", path.getPath());
         assertEquals(1001, path.eval(map));
+
+        path.remove(null);
+    }
+
+    public void test_paths_3() throws Exception {
+        JSONPath.paths(null);
+        JSONPath.paths(1);
+        JSONPath.paths("1");
+        JSONPath.paths(TimeUnit.DAYS);
     }
 
     public static class Model {

@@ -949,6 +949,9 @@ public class JavaBeanInfo {
         return factoryMethod;
     }
 
+    /**
+     * @deprecated
+     */
     public static Class<?> getBuilderClass(JSONType type) {
         return getBuilderClass(null, type);
     }

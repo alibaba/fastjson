@@ -2020,6 +2020,9 @@ public class TypeUtils{
         return null;
     }
 
+    /**
+     * @deprecated
+     */
     public static int getSerializeFeatures(Class<?> clazz){
         JSONType annotation = TypeUtils.getAnnotation(clazz,JSONType.class);
         if(annotation == null){

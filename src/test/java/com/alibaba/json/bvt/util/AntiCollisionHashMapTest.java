@@ -45,6 +45,7 @@ public class AntiCollisionHashMapTest extends TestCase {
         m5.get(null);
         Map.Entry entry = (Map.Entry) m5.entrySet().iterator().next();
         entry.setValue(1002);
+        entry.toString();
         m5.keySet().size();
         m5.keySet().iterator().next();
         m5.keySet().remove(1);

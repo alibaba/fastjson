@@ -31,6 +31,13 @@ public class AntiCollisionHashMapTest extends TestCase {
         m4.isEmpty();
         m4.values().iterator();
         m4.keySet().iterator();
+        m4.values().contains(1);
+        m4.values().contains(null);
+        m4.values().clear();
+
+        AntiCollisionHashMap m5 = (AntiCollisionHashMap) m.clone();
+        m5.keySet().contains(1);
+        m5.keySet().clear();
 
         for (int i = 0; i < 100; ++i) {
             assertEquals(i, m.get(i));
@@ -54,9 +61,12 @@ public class AntiCollisionHashMapTest extends TestCase {
         }
         m2.clear();
 
+        assertFalse(m.entrySet().contains(1));
+        assertTrue(m.entrySet().contains(m.entrySet().iterator().next()));
+        m.entrySet().size();
         m.entrySet().remove(1);
         m.entrySet().remove(m.entrySet().iterator().next());
-
+        m.entrySet().clear();
 
 
         {

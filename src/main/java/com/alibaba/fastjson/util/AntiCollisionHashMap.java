@@ -980,13 +980,4 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
         }
     }
 
-    // These methods are used when serializing HashSets
-    int capacity() {
-        return table.length;
-    }
-
-    float loadFactor() {
-        return loadFactor;
-    }
-
 }

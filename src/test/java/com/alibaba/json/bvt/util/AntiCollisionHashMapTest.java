@@ -42,12 +42,19 @@ public class AntiCollisionHashMapTest extends TestCase {
         AntiCollisionHashMap m5 = (AntiCollisionHashMap) m.clone();
         m5.keySet().contains(1);
         m5.put(1, 1001);
+        m5.get(null);
         Map.Entry entry = (Map.Entry) m5.entrySet().iterator().next();
         entry.setValue(1002);
         m5.keySet().size();
         m5.keySet().iterator().next();
         m5.keySet().remove(1);
         m5.keySet().clear();
+
+        AntiCollisionHashMap m6 = new AntiCollisionHashMap(3);
+        m6.putAll(m);
+        assertEquals(m.size(), m6.size());
+        m6.put("a", "a");
+        m6.put("b", "b");
 
         for (int i = 0; i < 100; ++i) {
             assertEquals(i, m.get(i));
@@ -78,7 +85,6 @@ public class AntiCollisionHashMapTest extends TestCase {
         m.entrySet().remove(m.entrySet().iterator().next());
         m.entrySet().clear();
 
-
         {
             ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
             ObjectOutputStream objOut = new ObjectOutputStream(bytesOut);
@@ -94,6 +100,22 @@ public class AntiCollisionHashMapTest extends TestCase {
 
             assertEquals(AntiCollisionHashMap.class, obj.getClass());
             assertEquals(m, obj);
+        }
+        {
+            ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+            ObjectOutputStream objOut = new ObjectOutputStream(bytesOut);
+            objOut.writeObject(m6);
+            objOut.flush();
+
+            byte[] bytes = bytesOut.toByteArray();
+
+            ByteArrayInputStream bytesIn = new ByteArrayInputStream(bytes);
+            ObjectInputStream objIn = new ObjectInputStream(bytesIn);
+
+            Object obj = objIn.readObject();
+
+            assertEquals(AntiCollisionHashMap.class, obj.getClass());
+            assertEquals(m6, obj);
         }
     }
 }

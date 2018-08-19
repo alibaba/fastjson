@@ -299,17 +299,27 @@ public class TypeUtils{
         if(value == null){
             return null;
         }
+
         if(value instanceof Date){ // 使用频率最高的，应优先处理
             return (Date) value;
         }
+
         if(value instanceof Calendar){
             return ((Calendar) value).getTime();
         }
+
         long longValue = -1;
+
+        if(value instanceof BigDecimal){
+            longValue = ((BigDecimal) value).longValueExact();
+            return new Date(longValue);
+        }
+
         if(value instanceof Number){
             longValue = ((Number) value).longValue();
             return new Date(longValue);
         }
+
         if(value instanceof String){
             String strVal = (String) value;
             JSONScanner dateLexer = new JSONScanner(strVal);
@@ -416,10 +426,14 @@ public class TypeUtils{
         if(value instanceof Calendar){
             return new java.sql.Date(((Calendar) value).getTimeInMillis());
         }
+
         long longValue = 0;
-        if(value instanceof Number){
+        if(value instanceof BigDecimal){
+            longValue = ((BigDecimal) value).longValueExact();
+        } else if(value instanceof Number){
             longValue = ((Number) value).longValue();
         }
+
         if(value instanceof String){
             String strVal = (String) value;
             if(strVal.length() == 0 //
@@ -498,7 +512,9 @@ public class TypeUtils{
             return new java.sql.Timestamp(((java.util.Date) value).getTime());
         }
         long longValue = 0;
-        if(value instanceof Number){
+        if(value instanceof BigDecimal){
+            longValue = ((BigDecimal) value).longValueExact();
+        } else if(value instanceof Number){
             longValue = ((Number) value).longValue();
         }
         if(value instanceof String){

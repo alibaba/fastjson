@@ -1,6 +1,7 @@
 package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
@@ -37,6 +38,8 @@ public class SqlDateDeserializer extends AbstractDateDeserializer implements Obj
 
         if (val instanceof java.util.Date) {
             val = new java.sql.Date(((Date) val).getTime());
+        } else if (val instanceof BigDecimal) {
+            val = (T) new java.sql.Date(((BigDecimal) val).longValueExact());
         } else if (val instanceof Number) {
             val = (T) new java.sql.Date(((Number) val).longValue());
         } else if (val instanceof String) {
@@ -84,6 +87,10 @@ public class SqlDateDeserializer extends AbstractDateDeserializer implements Obj
 
         if (val instanceof java.util.Date) {
             return (T) new java.sql.Timestamp(((Date) val).getTime());
+        }
+
+        if (val instanceof BigDecimal) {
+            return (T) new java.sql.Timestamp(((BigDecimal) val).longValueExact());
         }
 
         if (val instanceof Number) {

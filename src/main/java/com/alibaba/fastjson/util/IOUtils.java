@@ -521,64 +521,6 @@ public class IOUtils {
         return bytes;
     }
 
-    private int decode0(String src, int sp, int sl, byte[] bytes) {
-
-        int[] base64 = IA;
-        int dp = 0;
-        int bits = 0;
-        int shiftto = 18;       // pos of first byte of 4-byte atom
-        while (sp < sl) {
-            int b = src.charAt(sp++) & 0xff;
-            if ((b = base64[b]) < 0) {
-                if (b == -2) {         // padding byte '='
-                    // =     shiftto==18 unnecessary padding
-                    // x=    shiftto==12 a dangling single x
-                    // x     to be handled together with non-padding case
-                    // xx=   shiftto==6&&sp==sl missing last =
-                    // xx=y  shiftto==6 last is not =
-                    if (shiftto == 6 && (sp == sl || src.charAt(sp++) != '=') ||
-                            shiftto == 18) {
-                        throw new IllegalArgumentException(
-                                "Input byte array has wrong 4-byte ending unit");
-                    }
-                    break;
-                }
-                throw new IllegalArgumentException(
-                            "Illegal base64 character " +
-                                    Integer.toString(src.charAt(sp - 1), 16));
-            }
-            bits |= (b << shiftto);
-            shiftto -= 6;
-            if (shiftto < 0) {
-                bytes[dp++] = (byte)(bits >> 16);
-                bytes[dp++] = (byte)(bits >>  8);
-                bytes[dp++] = (byte)(bits);
-                shiftto = 18;
-                bits = 0;
-            }
-        }
-        // reached end of byte array or hit padding '=' characters.
-        if (shiftto == 6) {
-            bytes[dp++] = (byte)(bits >> 16);
-        } else if (shiftto == 0) {
-            bytes[dp++] = (byte)(bits >> 16);
-            bytes[dp++] = (byte)(bits >>  8);
-        } else if (shiftto == 12) {
-            // dangling single "x", incorrectly encoded.
-            throw new IllegalArgumentException(
-                    "Last unit does not have enough valid bits");
-        }
-        // anything left is invalid, if is not MIME.
-        // if MIME, ignore all non-base64 character
-        while (sp < sl) {
-            if (base64[src.charAt(sp++) & 0xff] < 0)
-                continue;
-            throw new IllegalArgumentException(
-                    "Input byte array has incorrect ending byte at " + sp);
-        }
-        return dp;
-    }
-
     /**
      * Decodes a BASE64 encoded string that is known to be resonably well formatted. The method is about twice as fast
      * as decode(String). The preconditions are:<br>

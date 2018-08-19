@@ -9,6 +9,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Iterator;
+import java.util.Map;
 
 public class AntiCollisionHashMapTest extends TestCase {
     public void test_0() throws Exception {
@@ -33,10 +34,19 @@ public class AntiCollisionHashMapTest extends TestCase {
         m4.keySet().iterator();
         m4.values().contains(1);
         m4.values().contains(null);
+        m4.values().iterator().next();
+        m4.values().remove(1);
+        m4.values().size();
         m4.values().clear();
 
         AntiCollisionHashMap m5 = (AntiCollisionHashMap) m.clone();
         m5.keySet().contains(1);
+        m5.put(1, 1001);
+        Map.Entry entry = (Map.Entry) m5.entrySet().iterator().next();
+        entry.setValue(1002);
+        m5.keySet().size();
+        m5.keySet().iterator().next();
+        m5.keySet().remove(1);
         m5.keySet().clear();
 
         for (int i = 0; i < 100; ++i) {

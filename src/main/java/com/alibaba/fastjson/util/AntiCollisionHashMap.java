@@ -310,7 +310,6 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
             if (e.hash == hash && ((k = e.key) == key || key.equals(k))) {
                 V oldValue = e.value;
                 e.value = value;
-                e.recordAccess(this);
                 return oldValue;
             }
         }
@@ -328,7 +327,6 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
             if (e.key == null) {
                 V oldValue = e.value;
                 e.value = value;
-                e.recordAccess(this);
                 return oldValue;
             }
         }
@@ -503,7 +501,6 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
                     table[i] = next;
                 else
                     prev.next = next;
-                e.recordRemoval(this);
                 return e;
             }
             prev = e;
@@ -538,7 +535,6 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
                     table[i] = next;
                 else
                     prev.next = next;
-                e.recordRemoval(this);
                 return e;
             }
             prev = e;
@@ -670,19 +666,6 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
             return getKey() + "=" + getValue();
         }
 
-        /**
-         * This method is invoked whenever the value in an entry is overwritten
-         * by an invocation of put(k,v) for a key k that's already in the
-         * SafelyHashMap.
-         */
-        void recordAccess(AntiCollisionHashMap<K, V> m) {
-        }
-
-        /**
-         * This method is invoked whenever the entry is removed from the table.
-         */
-        void recordRemoval(AntiCollisionHashMap<K, V> m) {
-        }
     }
 
     /**

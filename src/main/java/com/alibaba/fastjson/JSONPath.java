@@ -782,8 +782,10 @@ public class JSONPath implements JSONAware {
                     }
 
                     if (isInt(startValue.getClass()) && isInt(endValue.getClass())) {
-                        Filter filter = new IntBetweenSegement(propertyName, ((Number) startValue).longValue(),
-                                                               ((Number) endValue).longValue(), not);
+                        Filter filter = new IntBetweenSegement(propertyName
+                                , TypeUtils.longExtractValue((Number) startValue)
+                                , TypeUtils.longExtractValue((Number) endValue)
+                                , not);
                         return filter;
                     }
 
@@ -864,7 +866,7 @@ public class JSONPath implements JSONAware {
 
                     if (isInt) {
                         if (valueList.size() == 1) {
-                            long value = ((Number) valueList.get(0)).longValue();
+                            long value = TypeUtils.longExtractValue((Number) valueList.get(0));
                             Operator intOp = not ? Operator.NE : Operator.EQ;
                             Filter filter = new IntOpSegement(propertyName, value, intOp);
                             while (ch == ' ') {
@@ -889,7 +891,7 @@ public class JSONPath implements JSONAware {
 
                         long[] values = new long[valueList.size()];
                         for (int i = 0; i < values.length; ++i) {
-                            values[i] = ((Number) valueList.get(i)).longValue();
+                            values[i] = TypeUtils.longExtractValue((Number) valueList.get(i));
                         }
 
                         Filter filter = new IntInSegement(propertyName, values, not);
@@ -971,7 +973,7 @@ public class JSONPath implements JSONAware {
                         for (int i = 0; i < values.length; ++i) {
                             Number item = (Number) valueList.get(i);
                             if (item != null) {
-                                values[i] = item.longValue();
+                                values[i] = TypeUtils.longExtractValue(item);
                             }
                         }
 
@@ -1847,7 +1849,7 @@ public class JSONPath implements JSONAware {
             }
 
             if (propertyValue instanceof Number) {
-                long longPropertyValue = ((Number) propertyValue).longValue();
+                long longPropertyValue = TypeUtils.longExtractValue((Number) propertyValue);
                 for (long value : values) {
                     if (value == longPropertyValue) {
                         return !not;
@@ -1883,7 +1885,7 @@ public class JSONPath implements JSONAware {
             }
 
             if (propertyValue instanceof Number) {
-                long longPropertyValue = ((Number) propertyValue).longValue();
+                long longPropertyValue = TypeUtils.longExtractValue((Number) propertyValue);
                 if (longPropertyValue >= startValue && longPropertyValue <= endValue) {
                     return !not;
                 }
@@ -1921,7 +1923,7 @@ public class JSONPath implements JSONAware {
             }
 
             if (propertyValue instanceof Number) {
-                long longPropertyValue = ((Number) propertyValue).longValue();
+                long longPropertyValue = TypeUtils.longExtractValue((Number) propertyValue);
                 for (Long value : values) {
                     if (value == null) {
                         continue;
@@ -2067,7 +2069,7 @@ public class JSONPath implements JSONAware {
                 return false;
             }
 
-            long longValue = ((Number) propertyValue).longValue();
+            long longValue = TypeUtils.longExtractValue((Number) propertyValue);
 
             switch (op) {
                 case EQ:
@@ -2547,7 +2549,7 @@ public class JSONPath implements JSONAware {
             BigDecimal decimalA = (BigDecimal) a;
             
             if (isIntB) {
-                return decimalA.equals(BigDecimal.valueOf(b.longValue()));
+                return decimalA.equals(BigDecimal.valueOf(TypeUtils.longExtractValue(b)));
             }
         }
 
@@ -2567,7 +2569,7 @@ public class JSONPath implements JSONAware {
         if (isIntB) {
             if (a instanceof BigInteger) {
                 BigInteger bigIntA = (BigInteger) a;
-                BigInteger bigIntB = BigInteger.valueOf(b.longValue());
+                BigInteger bigIntB = BigInteger.valueOf(TypeUtils.longExtractValue(b));
                 
                 return bigIntA.equals(bigIntB);
             }

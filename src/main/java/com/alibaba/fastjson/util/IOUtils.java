@@ -727,7 +727,8 @@ public class IOUtils {
                     if (((b2 & 0xc0) != 0x80 || (b3 & 0xc0) != 0x80 || (b4 & 0xc0) != 0x80) // isMalformed4
                         ||
                         // shortest form check
-                        !Character.isSupplementaryCodePoint(uc)) {
+                        !(uc >= 0x010000 && uc <  0X10FFFF + 1) // !Character.isSupplementaryCodePoint(uc)
+                    ) {
                         return -1;
                     } else {
                         da[dp++] =  (char) ((uc >>> 10) + ('\uD800' - (0x010000 >>> 10))); // Character.highSurrogate(uc);

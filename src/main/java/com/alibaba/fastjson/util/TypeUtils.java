@@ -458,6 +458,14 @@ public class TypeUtils{
         return new java.sql.Date(longValue);
     }
 
+    public static long longExtractValue(Number number) {
+        if (number instanceof BigDecimal) {
+            return ((BigDecimal) number).longValueExact();
+        }
+
+        return number.longValue();
+    }
+
     public static java.sql.Time castToSqlTime(Object value){
         if(value == null){
             return null;
@@ -471,10 +479,14 @@ public class TypeUtils{
         if(value instanceof Calendar){
             return new java.sql.Time(((Calendar) value).getTimeInMillis());
         }
+
         long longValue = 0;
-        if(value instanceof Number){
+        if(value instanceof BigDecimal){
+            longValue = ((BigDecimal) value).longValueExact();
+        } else if(value instanceof Number){
             longValue = ((Number) value).longValue();
         }
+
         if(value instanceof String){
             String strVal = (String) value;
             if(strVal.length() == 0 //

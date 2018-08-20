@@ -700,7 +700,7 @@ public class IOUtils {
                                           (((byte) 0xE0 << 12) ^
                                           ((byte) 0x80 <<  6) ^
                                           ((byte) 0x80 <<  0))));
-                        boolean isSurrogate =  c >= Character.MIN_SURROGATE && c < (Character.MAX_SURROGATE + 1);
+                        boolean isSurrogate = c >= '\uD800' && c < ('\uDFFF' + 1);
                         if (isSurrogate) {
                             return -1;
                         } else {
@@ -730,8 +730,8 @@ public class IOUtils {
                         !Character.isSupplementaryCodePoint(uc)) {
                         return -1;
                     } else {
-                        da[dp++] =  (char) ((uc >>> 10) + (Character.MIN_HIGH_SURROGATE - (Character.MIN_SUPPLEMENTARY_CODE_POINT >>> 10))); // Character.highSurrogate(uc);
-                        da[dp++] = (char) ((uc & 0x3ff) + Character.MIN_LOW_SURROGATE); // Character.lowSurrogate(uc);
+                        da[dp++] =  (char) ((uc >>> 10) + ('\uD800' - (0x010000 >>> 10))); // Character.highSurrogate(uc);
+                        da[dp++] = (char) ((uc & 0x3ff) + '\uDC00'); // Character.lowSurrogate(uc);
                     }
                     continue;
                 }

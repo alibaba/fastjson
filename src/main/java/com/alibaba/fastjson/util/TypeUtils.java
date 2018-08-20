@@ -678,9 +678,15 @@ public class TypeUtils{
         if(value instanceof Boolean){
             return (Boolean) value;
         }
+
+        if(value instanceof BigDecimal){
+            return ((BigDecimal) value).intValueExact() == 1;
+        }
+
         if(value instanceof Number){
             return ((Number) value).intValue() == 1;
         }
+
         if(value instanceof String){
             String strVal = (String) value;
             if(strVal.length() == 0 //
@@ -924,6 +930,15 @@ public class TypeUtils{
 
                 return (T) Enum.valueOf((Class<? extends Enum>) clazz, name);
             }
+
+            if(obj instanceof BigDecimal){
+                int ordinal = ((BigDecimal) obj).intValueExact();
+                Object[] values = clazz.getEnumConstants();
+                if(ordinal < values.length){
+                    return (T) values[ordinal];
+                }
+            }
+
             if(obj instanceof Number){
                 int ordinal = ((Number) obj).intValue();
                 Object[] values = clazz.getEnumConstants();
@@ -1043,8 +1058,10 @@ public class TypeUtils{
                 int lineNumber;
                 {
                     Number value = (Number) map.get("lineNumber");
-                    if(value == null){
+                    if(value == null) {
                         lineNumber = 0;
+                    } else if (value instanceof BigDecimal) {
+                        lineNumber = ((BigDecimal) value).intValueExact();
                     } else{
                         lineNumber = value.intValue();
                     }

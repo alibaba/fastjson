@@ -1,6 +1,7 @@
 package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
@@ -47,6 +48,8 @@ public class TimeDeserializer implements ObjectDeserializer {
 
         if (val instanceof java.sql.Time) {
             return (T) val;
+        } else if (val instanceof BigDecimal) {
+            return (T) new java.sql.Time(((BigDecimal) val).longValueExact());
         } else if (val instanceof Number) {
             return (T) new java.sql.Time(((Number) val).longValue());
         } else if (val instanceof String) {

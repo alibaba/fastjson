@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.alibaba</groupId>
 	<artifactId>fastjson</artifactId>
-	<version>1.2.50-SNAPSHOT</version>
+	<version>1.2.51_preview_01</version>
 
 	<packaging>jar</packaging>
 	<name>fastjson</name>
@@ -540,6 +540,13 @@
 					<groupId>jackson-core-asl</groupId>
 				</exclusion>
 			</exclusions>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.gitlab4j</groupId>
+			<artifactId>gitlab4j-api</artifactId>
+			<version>4.8.42</version>
 			<scope>test</scope>
 		</dependency>
 

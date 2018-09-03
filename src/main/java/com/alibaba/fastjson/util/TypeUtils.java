@@ -110,6 +110,9 @@ public class TypeUtils{
     private static Class<?> pathClass;
     private static boolean pathClass_error = false;
 
+    private static Class<? extends Annotation> class_JacksonCreator = null;
+    private static boolean class_JacksonCreator_error = false;
+
     static{
         try{
             TypeUtils.compatibleWithJavaBean = "true".equals(IOUtils.getStringProperty(IOUtils.FASTJSON_COMPATIBLEWITHJAVABEAN));
@@ -2506,5 +2509,21 @@ public class TypeUtils{
             }
         }
         return null;
+    }
+
+    public static boolean isJacksonCreator(Method method) {
+        if (method == null) {
+            return false;
+        }
+
+        if (class_JacksonCreator == null && !class_JacksonCreator_error) {
+            try {
+                class_JacksonCreator = (Class<? extends Annotation>) Class.forName("com.fasterxml.jackson.annotation.JsonCreator");
+            } catch (Throwable e) {
+                // skip
+                class_JacksonCreator_error = true;
+            }
+        }
+        return class_JacksonCreator != null && method.isAnnotationPresent(class_JacksonCreator);
     }
 }

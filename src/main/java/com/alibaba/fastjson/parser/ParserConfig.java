@@ -18,13 +18,7 @@ package com.alibaba.fastjson.parser;
 import java.io.*;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
+import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.Inet4Address;
@@ -120,6 +114,7 @@ public class ParserConfig {
 
 
     public final boolean                                    fieldBased;
+    private boolean                                         jacksonCompatible     = false;
 
     public boolean                                          compatibleWithJavaBean = TypeUtils.compatibleWithJavaBean;
 
@@ -554,6 +549,17 @@ public class ParserConfig {
         }
 
         if (clazz.isEnum()) {
+            if (jacksonCompatible) {
+                Method[] methods = clazz.getMethods();
+                for (Method method : methods) {
+                    if (TypeUtils.isJacksonCreator(method)) {
+                        derializer = createJavaBeanDeserializer(clazz, type);
+                        putDeserializer(type, derializer);
+                        return derializer;
+                    }
+                }
+            }
+
             Class<?> deserClass = null;
             JSONType jsonType = clazz.getAnnotation(JSONType.class);
             if (jsonType != null) {
@@ -667,7 +673,13 @@ public class ParserConfig {
             if (clazz.isInterface()) {
                 asmEnable = false;
             }
-            JavaBeanInfo beanInfo = JavaBeanInfo.build(clazz, type, propertyNamingStrategy);
+            JavaBeanInfo beanInfo = JavaBeanInfo.build(clazz
+                    , type
+                    , propertyNamingStrategy
+                    ,false
+                    , TypeUtils.compatibleWithJavaBean
+                    , jacksonCompatible
+            );
 
             if (asmEnable && beanInfo.fields.length > 200) {
                 asmEnable = false;
@@ -1093,5 +1105,13 @@ public class ParserConfig {
     public void clearDeserializers() {
         this.deserializers.clear();
         this.initDeserializers();
+    }
+
+    public boolean isJacksonCompatible() {
+        return jacksonCompatible;
+    }
+
+    public void setJacksonCompatible(boolean jacksonCompatible) {
+        this.jacksonCompatible = jacksonCompatible;
     }
 }

@@ -45,7 +45,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz, Type type){
         this(config //
-                , JavaBeanInfo.build(clazz, type, config.propertyNamingStrategy, config.fieldBased, config.compatibleWithJavaBean)
+                , JavaBeanInfo.build(clazz, type, config.propertyNamingStrategy, config.fieldBased, config.compatibleWithJavaBean, config.isJacksonCompatible())
         );
     }
     
@@ -434,6 +434,21 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     lexer.next();
                     lexer.nextToken();
                     return null;
+                }
+
+                if (beanInfo.factoryMethod != null && beanInfo.fields.length == 1) {
+                    try {
+                        FieldInfo field = beanInfo.fields[0];
+                        if (field.fieldClass == Integer.class) {
+                            if (token == JSONToken.LITERAL_INT) {
+                                int intValue = lexer.intValue();
+                                lexer.nextToken();
+                                return (T) createFactoryInstance(config, intValue);
+                            }
+                        }
+                    } catch (Exception ex) {
+                        throw new JSONException(ex.getMessage(), ex);
+                    }
                 }
                 
                 StringBuilder buf = (new StringBuilder()) //
@@ -1222,6 +1237,13 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
     public int getFastMatchToken() {
         return JSONToken.LBRACE;
+    }
+
+    private Object createFactoryInstance(ParserConfig config, Object value) //
+            throws IllegalArgumentException,
+            IllegalAccessException,
+            InvocationTargetException {
+        return beanInfo.factoryMethod.invoke(null, value);
     }
     
     public Object createInstance(Map<String, Object> map, ParserConfig config) //

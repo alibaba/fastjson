@@ -369,7 +369,11 @@ public class DefaultJSONParser implements Closeable {
                     }
 
                     ObjectDeserializer deserializer = config.getDeserializer(clazz);
-                    return deserializer.deserialze(this, clazz, fieldName);
+                    Object deserialzeObject = deserializer.deserialze(this, clazz, fieldName);
+                    if (deserializer instanceof MapDeserializer) {
+                        this.resolveStatus = NONE;
+                    }
+                    return deserialzeObject;
                 }
 
                 if (key == "$ref" //

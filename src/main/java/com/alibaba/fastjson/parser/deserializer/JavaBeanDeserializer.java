@@ -445,6 +445,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                                 lexer.nextToken();
                                 return (T) createFactoryInstance(config, intValue);
                             }
+                        } else if (field.fieldClass == String.class) {
+                            if (token == JSONToken.LITERAL_STRING) {
+                                String stringVal = lexer.stringVal();
+                                lexer.nextToken();
+                                return (T) createFactoryInstance(config, stringVal);
+                            }
                         }
                     } catch (Exception ex) {
                         throw new JSONException(ex.getMessage(), ex);

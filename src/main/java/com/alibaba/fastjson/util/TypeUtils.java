@@ -139,7 +139,7 @@ public class TypeUtils{
         }
 
         if(value instanceof BigDecimal){
-            return ((BigDecimal) value).byteValueExact();
+            return byteValue((BigDecimal) value);
         }
 
         if(value instanceof Number){
@@ -184,7 +184,7 @@ public class TypeUtils{
         }
 
         if(value instanceof BigDecimal){
-            return ((BigDecimal) value).shortValueExact();
+            return shortValue((BigDecimal) value);
         }
 
         if(value instanceof Number){
@@ -314,7 +314,7 @@ public class TypeUtils{
         long longValue = -1;
 
         if(value instanceof BigDecimal){
-            longValue = ((BigDecimal) value).longValueExact();
+            longValue = longValue((BigDecimal) value);
             return new Date(longValue);
         }
 
@@ -432,7 +432,7 @@ public class TypeUtils{
 
         long longValue = 0;
         if(value instanceof BigDecimal){
-            longValue = ((BigDecimal) value).longValueExact();
+            longValue = longValue((BigDecimal) value);
         } else if(value instanceof Number){
             longValue = ((Number) value).longValue();
         }
@@ -485,7 +485,7 @@ public class TypeUtils{
 
         long longValue = 0;
         if(value instanceof BigDecimal){
-            longValue = ((BigDecimal) value).longValueExact();
+            longValue = longValue((BigDecimal) value);
         } else if(value instanceof Number){
             longValue = ((Number) value).longValue();
         }
@@ -528,7 +528,7 @@ public class TypeUtils{
         }
         long longValue = 0;
         if(value instanceof BigDecimal){
-            longValue = ((BigDecimal) value).longValueExact();
+            longValue = longValue((BigDecimal) value);
         } else if(value instanceof Number){
             longValue = ((Number) value).longValue();
         }
@@ -581,7 +581,7 @@ public class TypeUtils{
         }
 
         if(value instanceof BigDecimal){
-            return ((BigDecimal) value).longValueExact();
+            return longValue((BigDecimal) value);
         }
 
         if(value instanceof Number){
@@ -629,6 +629,58 @@ public class TypeUtils{
         throw new JSONException("can not cast to long, value : " + value);
     }
 
+    public static byte byteValue(BigDecimal decimal) {
+        if (decimal == null) {
+            return 0;
+        }
+
+        int scale = decimal.scale();
+        if (scale >= -100 && scale <= 100) {
+            return decimal.byteValue();
+        }
+
+        return decimal.byteValueExact();
+    }
+
+    public static short shortValue(BigDecimal decimal) {
+        if (decimal == null) {
+            return 0;
+        }
+
+        int scale = decimal.scale();
+        if (scale >= -100 && scale <= 100) {
+            return decimal.shortValue();
+        }
+
+        return decimal.shortValueExact();
+    }
+
+    public static int intValue(BigDecimal decimal) {
+        if (decimal == null) {
+            return 0;
+        }
+
+        int scale = decimal.scale();
+        if (scale >= -100 && scale <= 100) {
+            return decimal.intValue();
+        }
+
+        return decimal.intValueExact();
+    }
+
+    public static long longValue(BigDecimal decimal) {
+        if (decimal == null) {
+            return 0;
+        }
+
+        int scale = decimal.scale();
+        if (scale >= -100 && scale <= 100) {
+            return decimal.longValue();
+        }
+
+        return decimal.longValueExact();
+    }
+
     public static Integer castToInt(Object value){
         if(value == null){
             return null;
@@ -639,7 +691,7 @@ public class TypeUtils{
         }
 
         if(value instanceof BigDecimal){
-            return ((BigDecimal) value).intValueExact();
+            return intValue((BigDecimal) value);
         }
 
         if(value instanceof Number){
@@ -695,7 +747,7 @@ public class TypeUtils{
         }
 
         if(value instanceof BigDecimal){
-            return ((BigDecimal) value).intValueExact() == 1;
+            return intValue((BigDecimal) value) == 1;
         }
 
         if(value instanceof Number){
@@ -947,7 +999,7 @@ public class TypeUtils{
             }
 
             if(obj instanceof BigDecimal){
-                int ordinal = ((BigDecimal) obj).intValueExact();
+                int ordinal = intValue((BigDecimal) obj);
                 Object[] values = clazz.getEnumConstants();
                 if(ordinal < values.length){
                     return (T) values[ordinal];

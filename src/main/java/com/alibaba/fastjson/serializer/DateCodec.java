@@ -170,7 +170,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
         if (val instanceof java.util.Date) {
             return (T) val;
         } else if (val instanceof BigDecimal) {
-            return (T) new java.util.Date(((BigDecimal) val).longValueExact());
+            return (T) new java.util.Date(TypeUtils.longValue((BigDecimal) val));
         } else if (val instanceof Number) {
             return (T) new java.util.Date(((Number) val).longValue());
         } else if (val instanceof String) {

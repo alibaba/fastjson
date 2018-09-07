@@ -10,6 +10,7 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
+import com.alibaba.fastjson.util.TypeUtils;
 
 public class SqlDateDeserializer extends AbstractDateDeserializer implements ObjectDeserializer {
 
@@ -39,7 +40,7 @@ public class SqlDateDeserializer extends AbstractDateDeserializer implements Obj
         if (val instanceof java.util.Date) {
             val = new java.sql.Date(((Date) val).getTime());
         } else if (val instanceof BigDecimal) {
-            val = (T) new java.sql.Date(((BigDecimal) val).longValueExact());
+            val = (T) new java.sql.Date(TypeUtils.longValue((BigDecimal) val));
         } else if (val instanceof Number) {
             val = (T) new java.sql.Date(((Number) val).longValue());
         } else if (val instanceof String) {
@@ -90,7 +91,7 @@ public class SqlDateDeserializer extends AbstractDateDeserializer implements Obj
         }
 
         if (val instanceof BigDecimal) {
-            return (T) new java.sql.Timestamp(((BigDecimal) val).longValueExact());
+            return (T) new java.sql.Timestamp(TypeUtils.longValue((BigDecimal) val));
         }
 
         if (val instanceof Number) {

@@ -58,14 +58,14 @@ public class NumberDeserializer implements ObjectDeserializer {
             if (clazz == short.class || clazz == Short.class) {
                 BigDecimal val = lexer.decimalValue();
                 lexer.nextToken(JSONToken.COMMA);
-                short shortValue = val.shortValueExact();
+                short shortValue = TypeUtils.shortValue(val);
                 return (T) Short.valueOf(shortValue);
             }
 
             if (clazz == byte.class || clazz == Byte.class) {
                 BigDecimal val = lexer.decimalValue();
                 lexer.nextToken(JSONToken.COMMA);
-                byte byteValue = val.byteValueExact();
+                byte byteValue = TypeUtils.byteValue(val);
                 return (T) Byte.valueOf(byteValue);
             }
 

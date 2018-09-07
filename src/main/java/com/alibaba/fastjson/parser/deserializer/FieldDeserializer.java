@@ -159,7 +159,7 @@ public abstract class FieldDeserializer {
                 }
             }
         } catch (Exception e) {
-            throw new JSONException("set property error, " + fieldInfo.name, e);
+            throw new JSONException("set property error, " + clazz.getName() + "#" + fieldInfo.name, e);
         }
     }
 

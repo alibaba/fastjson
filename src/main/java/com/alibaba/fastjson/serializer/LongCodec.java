@@ -67,7 +67,7 @@ public class LongCodec implements ObjectSerializer, ObjectDeserializer {
                 longObject = Long.valueOf(longValue);
             } else if (token == JSONToken.LITERAL_FLOAT) {
                 BigDecimal number = lexer.decimalValue();
-                longObject = number.longValueExact();
+                longObject = TypeUtils.longValue(number);
                 lexer.nextToken(JSONToken.COMMA);
             } else {
                 if (token == JSONToken.LBRACE) {

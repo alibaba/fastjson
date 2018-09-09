@@ -72,15 +72,11 @@ import sun.reflect.annotation.AnnotationType;
 public abstract class JSON implements JSONStreamAware, JSONAware {
     public static TimeZone         defaultTimeZone      = TimeZone.getDefault();
     public static Locale           defaultLocale        = Locale.getDefault();
-
     public static String           DEFAULT_TYPE_KEY     = "@type";
-
     static final SerializeFilter[] emptyFilters         = new SerializeFilter[0];
-
     public static String           DEFFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
-    //public static String           DEFFAULT_LOCAL_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS";
-
     public static int              DEFAULT_PARSER_FEATURE;
+    public static int              DEFAULT_GENERATE_FEATURE;
     static {
         int features = 0;
         features |= Feature.AutoCloseSource.getMask();
@@ -94,7 +90,6 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         DEFAULT_PARSER_FEATURE = features;
     }
 
-    public static int DEFAULT_GENERATE_FEATURE;
     static {
         int features = 0;
         features |= SerializerFeature.QuoteFieldNames.getMask();
@@ -113,6 +108,14 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
 
         DEFAULT_GENERATE_FEATURE = features;
+    }
+
+    static {
+        {
+            if ("true".equals(IOUtils.DEFAULT_PROPERTIES.getProperty("parser.features.NonStringKeyAsString"))) {
+                DEFAULT_PARSER_FEATURE |= Feature.NonStringKeyAsString.getMask();
+            }
+        }
     }
 
     /**

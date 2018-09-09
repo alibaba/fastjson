@@ -37,20 +37,14 @@ import com.alibaba.fastjson.JSONException;
  */
 public class IOUtils {
     
-    public  final  static String FASTJSON_PROPERTIES  ="fastjson.properties";
-    
-    public final static String FASTJSON_COMPATIBLEWITHJAVABEAN="fastjson.compatibleWithJavaBean";
-    
-    public final static String FASTJSON_COMPATIBLEWITHFIELDNAME="fastjson.compatibleWithFieldName";
-    
-    public final static Properties DEFAULT_PROPERTIES =new Properties();    
-
-    public final static Charset   UTF8                 = Charset.forName("UTF-8");
-    
-    public final static char[]    DIGITS                     = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A',
-            'B', 'C', 'D', 'E', 'F'                         };
-
-    public final static boolean[] firstIdentifierFlags       = new boolean[256];
+    public final static String     FASTJSON_PROPERTIES              = "fastjson.properties";
+    public final static String     FASTJSON_COMPATIBLEWITHJAVABEAN  = "fastjson.compatibleWithJavaBean";
+    public final static String     FASTJSON_COMPATIBLEWITHFIELDNAME = "fastjson.compatibleWithFieldName";
+    public final static Properties DEFAULT_PROPERTIES               = new Properties();
+    public final static Charset    UTF8                             = Charset.forName("UTF-8");
+    public final static char[]     DIGITS                           = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+    public final static boolean[]  firstIdentifierFlags             = new boolean[256];
+    public final static boolean[]  identifierFlags                  = new boolean[256];
     static {
         for (char c = 0; c < firstIdentifierFlags.length; ++c) {
             if (c >= 'A' && c <= 'Z') {
@@ -61,11 +55,7 @@ public class IOUtils {
                 firstIdentifierFlags[c] = true;
             }
         }
-    }
 
-    public final static boolean[] identifierFlags            = new boolean[256];
-
-    static {
         for (char c = 0; c < identifierFlags.length; ++c) {
             if (c >= 'A' && c <= 'Z') {
                 identifierFlags[c] = true;
@@ -77,9 +67,7 @@ public class IOUtils {
                 identifierFlags[c] = true;
             }
         }
-    }
-    
-    static {
+
         try {
             loadPropertiesFromFile();
         } catch (Throwable e) {

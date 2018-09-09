@@ -4,23 +4,13 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.parser.*;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
@@ -84,6 +74,61 @@ public class JSONPath implements JSONAware {
             currentObject = segement.eval(this, rootObject, currentObject);
         }
         return currentObject;
+    }
+
+    public Object extract(DefaultJSONParser parser) {
+        if (parser == null) {
+            return null;
+        }
+        
+        init();
+
+        Context context = null;
+        for (int i = 0; i < segments.length; ++i) {
+            Segement segment = segments[i];
+            boolean last = i == segments.length - 1;
+
+            if (context != null && context.object != null) {
+                return segment.eval(this, null, context.object);
+            }
+
+            boolean eval;
+
+            if (!last) {
+                Segement nextSegment = segments[i + 1];
+                if (segment instanceof PropertySegement
+                        && ((PropertySegement) segment).deep
+                        && (nextSegment instanceof ArrayAccessSegement
+                            || nextSegment instanceof MultiIndexSegement))
+                {
+                    eval = true;
+                } else if (nextSegment instanceof ArrayAccessSegement
+                        && ((ArrayAccessSegement) nextSegment).index < 0) {
+                    eval = true;
+                } else if (nextSegment instanceof FilterSegement) {
+                    eval = true;
+                } else {
+                    eval = false;
+                }
+            } else {
+                eval = true;
+            }
+            segment.extract(this, parser
+                            , context = new Context(context, eval));
+        }
+
+        return context.object;
+    }
+
+    private static class Context {
+        final Context parent;
+        final boolean eval;
+        Object object;
+
+        public Context(Context parent, boolean eval) {
+            this.parent = parent;
+            this.eval = eval;
+        }
     }
 
     public boolean contains(Object rootObject) {
@@ -449,7 +494,7 @@ public class JSONPath implements JSONAware {
         }
         return jsonpath;
     }
-    
+
     /**
      * @since 1.2.9
      * @param json
@@ -461,6 +506,25 @@ public class JSONPath implements JSONAware {
                 .eval(
                         JSON.parse(json)
                 );
+    }
+
+    public static Object extract(String json, String path) {
+        return extract(json, path, ParserConfig.global, JSON.DEFAULT_PARSER_FEATURE);
+    }
+    
+    /**
+     * @since 1.2.51
+     * @param json
+     * @param path
+     * @return
+     */
+    public static Object extract(String json, String path, ParserConfig config, int features, Feature... optionFeatures) {
+        DefaultJSONParser parser = new DefaultJSONParser(json, config, features);
+        parser.config(Feature.OrderedField, true);
+        Object result = compile(path)
+                .extract(parser);
+        parser.lexer.close();
+        return result;
     }
     
     public static Map<String, Object> paths(Object javaObject) {
@@ -1603,6 +1667,7 @@ public class JSONPath implements JSONAware {
     interface Segement {
 
         Object eval(JSONPath path, Object rootObject, Object currentObject);
+        void extract(JSONPath path, DefaultJSONParser parser, Context context);
     }
 
 
@@ -1613,6 +1678,10 @@ public class JSONPath implements JSONAware {
         public Integer eval(JSONPath path, Object rootObject, Object currentObject) {
             return path.evalSize(currentObject);
         }
+
+        public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
+            throw new UnsupportedOperationException();
+        }
     }
 
     static class KeySetSegement implements Segement {
@@ -1621,6 +1690,10 @@ public class JSONPath implements JSONAware {
 
         public Object eval(JSONPath path, Object rootObject, Object currentObject) {
             return path.evalKeySet(currentObject);
+        }
+
+        public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
+            throw new UnsupportedOperationException();
         }
     }
 
@@ -1644,6 +1717,80 @@ public class JSONPath implements JSONAware {
             } else {
                 // return path.getPropertyValue(currentObject, propertyName, true);
                 return path.getPropertyValue(currentObject, propertyName, propertyNameHash);
+            }
+        }
+
+        public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
+            JSONLexerBase lexer = (JSONLexerBase) parser.lexer;
+
+            if (deep && context.object == null) {
+                context.object = new JSONArray();
+            }
+
+            if (lexer.token() == JSONToken.LBRACKET) {
+                if ("*".equals(propertyName)) {
+                    return;
+                }
+
+                lexer.nextToken();
+                JSONArray array;
+
+                if (deep) {
+                    array =(JSONArray) context.object;
+                } else {
+                    array = new JSONArray();
+                }
+                for (;;) {
+                    if (lexer.token() == JSONToken.LBRACE) {
+                        int matchStat = lexer.seekObjectToField(propertyNameHash, deep);
+                        if (matchStat == JSONLexer.VALUE) {
+                            array.add(
+                                    parser.parse());
+                            if (lexer.token() == JSONToken.RBRACE) {
+                                lexer.nextToken();
+                                continue;
+                            } else {
+                                lexer.skipObject();
+                            }
+                        } else {
+                            if (deep) {
+                                throw new UnsupportedOperationException();
+                            } else {
+                                lexer.skipObject();
+                            }
+                        }
+                    }
+
+                    if (lexer.token() == JSONToken.RBRACKET) {
+                        break;
+                    } else if (lexer.token() == JSONToken.COMMA) {
+                        lexer.nextToken();
+                        continue;
+                    } else {
+                        throw new JSONException("illegal json.");
+                    }
+                }
+
+                if (!deep) {
+                    context.object = array;
+                }
+                return;
+            }
+
+            int matchStat = lexer.seekObjectToField(propertyNameHash, deep);
+            if (matchStat == JSONLexer.VALUE) {
+                if (context.eval) {
+                    Object value = parser.parse();
+                    if (context.eval) {
+                        context.object = value;
+                    }
+                }
+            } else {
+                if (deep) {
+                    if (matchStat == JSONLexer.OBJECT || matchStat == JSONLexer.ARRAY) {
+                        extract(path, parser, context);
+                    }
+                }
             }
         }
 
@@ -1683,6 +1830,10 @@ public class JSONPath implements JSONAware {
 
             return fieldValues;
         }
+
+        public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
+            throw new UnsupportedOperationException();
+        }
     }
 
     static class WildCardSegement implements Segement {
@@ -1693,6 +1844,25 @@ public class JSONPath implements JSONAware {
             return path.getPropertyValues(currentObject);
         }
 
+        public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
+            if (context.eval) {
+                Object object = parser.parse();
+                if (object instanceof JSONObject) {
+                    Collection<Object> values = ((JSONObject) object).values();
+                    JSONArray array = new JSONArray(values.size());
+                    for (Object value : values) {
+                        array.add(value);
+                    }
+                    context.object = array;
+                    return;
+                } else if (object instanceof JSONArray) {
+                    context.object = object;
+                    return;
+                }
+            }
+
+            throw new JSONException("TODO");
+        }
     }
 
     static class ArrayAccessSegement implements Segement {
@@ -1714,6 +1884,15 @@ public class JSONPath implements JSONAware {
         public boolean remove(JSONPath path, Object currentObject) {
             return path.removeArrayItem(path, currentObject, index);
         }
+
+        public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
+            JSONLexerBase lexer = (JSONLexerBase) parser.lexer;
+            if (lexer.seekArrayToItem(index)
+                    && context.eval)
+            {
+                context.object = parser.parse();
+            }
+        }
     }
 
     static class MultiIndexSegement implements Segement {
@@ -1725,12 +1904,35 @@ public class JSONPath implements JSONAware {
         }
 
         public Object eval(JSONPath path, Object rootObject, Object currentObject) {
-            List<Object> items = new ArrayList<Object>(indexes.length);
+            List<Object> items = new JSONArray(indexes.length);
             for (int i = 0; i < indexes.length; ++i) {
                 Object item = path.getArrayItem(currentObject, indexes[i]);
                 items.add(item);
             }
             return items;
+        }
+
+        public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
+            if (context.eval) {
+                Object object = parser.parse();
+                if (object instanceof List) {
+                    int[] indexes = new int[this.indexes.length];
+                    System.arraycopy(this.indexes, 0, indexes, 0, indexes.length);
+                    boolean noneNegative = indexes[0] >= 0;
+
+                    List list = (List) object;
+                    if (noneNegative) {
+                        for (int i = list.size() - 1; i >= 0; i--) {
+                            if (Arrays.binarySearch(indexes, i) < 0) {
+                                list.remove(i);
+                            }
+                        }
+                        context.object = list;
+                        return;
+                    }
+                }
+            }
+            throw new UnsupportedOperationException();
         }
     }
 
@@ -1762,6 +1964,10 @@ public class JSONPath implements JSONAware {
                 items.add(item);
             }
             return items;
+        }
+
+        public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
+            throw new UnsupportedOperationException();
         }
     }
 
@@ -2334,6 +2540,10 @@ public class JSONPath implements JSONAware {
             }
 
             return null;
+        }
+
+        public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
+            throw new UnsupportedOperationException();
         }
     }
 

@@ -1186,6 +1186,64 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         return true;
     }
 
+    public int matchField(long fieldNameHash) {
+        throw new UnsupportedOperationException();
+    }
+
+    public long scanFieldHash() {
+        if (ch != '"') {
+            while (isWhitespace(ch)) {
+                next();
+            }
+        }
+
+        if (ch == '"') {
+            next();
+
+            long hash = 0xcbf29ce484222325L;
+            for (;;) {
+                hash ^= ch;
+                hash *= 0x100000001b3L;
+
+                next();
+
+                if (ch == '"') {
+                    next();
+                    return hash;
+                }
+
+                if (isEOF()) {
+                    break;
+                }
+            }
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean seekArrayToItem(int index) {
+        throw new UnsupportedOperationException();
+    }
+
+    public int seekObjectToField(long fieldNameHash, boolean deepScan) {
+        throw new UnsupportedOperationException();
+    }
+
+    public int seekObjectToFieldDeepScan(long fieldNameHash) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void skipObject() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void skipArray() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void skipString() {
+        throw new UnsupportedOperationException();
+    }
+
     public abstract int indexOf(char ch, int startIndex);
 
     public abstract String addSymbol(int offset, int len, int hash, final SymbolTable symbolTable);

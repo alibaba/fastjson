@@ -1303,6 +1303,7 @@ public class TypeUtils{
                 java.lang.Long.class,
                 java.lang.Float.class,
                 java.lang.Double.class,
+                java.lang.Number.class,
                 java.lang.String.class,
                 java.math.BigDecimal.class,
                 java.math.BigInteger.class,

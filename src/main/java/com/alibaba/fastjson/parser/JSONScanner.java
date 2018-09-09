@@ -2234,7 +2234,24 @@ public final class JSONScanner extends JSONLexerBase {
                 throw new JSONException("illegal json.");
             }
 
-            skipWhitespace();
+            if (ch != '"'
+                    && ch != '\''
+                    && ch != '{'
+                    && ch != '['
+                    && ch != '0'
+                    && ch != '1'
+                    && ch != '2'
+                    && ch != '3'
+                    && ch != '4'
+                    && ch != '5'
+                    && ch != '6'
+                    && ch != '7'
+                    && ch != '8'
+                    && ch != '9'
+                    && ch != '+'
+                    && ch != '-') {
+                skipWhitespace();
+            }
 
             if (ch == '"' || ch == '\'') {
                 skipString();
@@ -2257,10 +2274,19 @@ public final class JSONScanner extends JSONLexerBase {
                 next();
                 token = JSONToken.LBRACE;
                 skipObject();
+
+                if (token == JSONToken.RBRACE) {
+                    nextToken();
+                    return;
+                }
             } else if (ch == '[') {
                 next();
                 token = JSONToken.LBRACKET;
                 skipArray();
+                if (token == JSONToken.RBRACE) {
+                    nextToken();
+                    return;
+                }
             } else {
                 int p = -1;
                 char sep = 0;
@@ -2302,7 +2328,25 @@ public final class JSONScanner extends JSONLexerBase {
 
     public final void skipArray() {
         for (;;) {
-            skipWhitespace();
+            if (ch != '"'
+                    && ch != '\''
+                    && ch != '{'
+                    && ch != '['
+                    && ch != '0'
+                    && ch != '1'
+                    && ch != '2'
+                    && ch != '3'
+                    && ch != '4'
+                    && ch != '5'
+                    && ch != '6'
+                    && ch != '7'
+                    && ch != '8'
+                    && ch != '9'
+                    && ch != '+'
+                    && ch != '-') {
+                skipWhitespace();
+            }
+
             if (ch == '"' || ch == '\'') {
                 skipString();
             } else if (ch == '{') {
@@ -2347,35 +2391,21 @@ public final class JSONScanner extends JSONLexerBase {
     public void skipString() {
         if (ch == '"') {
             int startIndex = bp + 1;
-            int endIndex = text.indexOf('"', startIndex);
-            if (endIndex == -1) {
-                throw new JSONException("unclosed str");
-            }
-
-            boolean slash = false;
-            for (int i = startIndex; i < endIndex; ++i) {
+            int endIndex = -1;
+            for (int i = startIndex, len = text.length(); i < len; ++i) {
                 char ch = text.charAt(i);
                 if (ch == '\\') {
-                    slash = true;
+                    if (i < len - 1) {
+                        ++i;
+                        continue;
+                    }
+                } else if (ch == '"') {
+                    endIndex = i;
                     break;
                 }
             }
-
-            if (slash) {
-                for (; ; ) {
-                    int slashCount = 0;
-                    for (int i = endIndex - 1; i >= 0; --i) {
-                        if (charAt(i) == '\\') {
-                            slashCount++;
-                        } else {
-                            break;
-                        }
-                    }
-                    if (slashCount % 2 == 0) {
-                        break;
-                    }
-                    endIndex = indexOf('"', endIndex + 1);
-                }
+            if (endIndex == -1) {
+                throw new JSONException("unclosed str");
             }
 
             ch = text.charAt(bp = endIndex + 1);
@@ -2471,7 +2501,9 @@ public final class JSONScanner extends JSONLexerBase {
 
             long hash = scanFieldHash();
             if (hash == fieldNameHash) {
-                skipWhitespace();
+                if (ch != ':') {
+                    skipWhitespace();
+                }
                 if (ch == ':') {
                     next();
                     nextToken();
@@ -2489,8 +2521,23 @@ public final class JSONScanner extends JSONLexerBase {
                 throw new JSONException("illegal json, " + info());
             }
 
-            while (isWhitespace(ch)) {
-                next();
+            if (ch != '"'
+                    && ch != '\''
+                    && ch != '{'
+                    && ch != '['
+                    && ch != '0'
+                    && ch != '1'
+                    && ch != '2'
+                    && ch != '3'
+                    && ch != '4'
+                    && ch != '5'
+                    && ch != '6'
+                    && ch != '7'
+                    && ch != '8'
+                    && ch != '9'
+                    && ch != '+'
+                    && ch != '-') {
+                skipWhitespace();
             }
 
             // skip fieldValues
@@ -2519,8 +2566,8 @@ public final class JSONScanner extends JSONLexerBase {
                     }
                 }
 
-                while (isWhitespace(ch)) {
-                    next();
+                if (ch != ',') {
+                    skipWhitespace();
                 }
                 if (ch == ',') {
                     next();
@@ -2529,9 +2576,7 @@ public final class JSONScanner extends JSONLexerBase {
                 skipString();
 
                 if (ch != ',' && ch != '}') {
-                    while (isWhitespace(ch)) {
-                        next();
-                    }
+                    skipWhitespace();
                 }
 
                 if (ch == ',') {

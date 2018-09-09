@@ -80,7 +80,7 @@ public class JSONPath implements JSONAware {
         if (parser == null) {
             return null;
         }
-        
+
         init();
 
         Context context = null;
@@ -113,8 +113,9 @@ public class JSONPath implements JSONAware {
             } else {
                 eval = true;
             }
-            segment.extract(this, parser
-                            , context = new Context(context, eval));
+
+            context = new Context(context, eval);
+            segment.extract(this, parser, context);
         }
 
         return context.object;
@@ -1744,8 +1745,22 @@ public class JSONPath implements JSONAware {
                     if (lexer.token() == JSONToken.LBRACE) {
                         int matchStat = lexer.seekObjectToField(propertyNameHash, deep);
                         if (matchStat == JSONLexer.VALUE) {
-                            array.add(
-                                    parser.parse());
+                            Object value;
+                            switch (lexer.token()) {
+                                case JSONToken.LITERAL_INT:
+                                    value = lexer.integerValue();
+                                    lexer.nextToken();
+                                    break;
+                                case JSONToken.LITERAL_STRING:
+                                    value = lexer.stringDefaultValue();
+                                    lexer.nextToken();
+                                    break;
+                                default:
+                                    value = parser.parse();
+                                    break;
+                            }
+
+                            array.add(value);
                             if (lexer.token() == JSONToken.RBRACE) {
                                 lexer.nextToken();
                                 continue;
@@ -1780,7 +1795,21 @@ public class JSONPath implements JSONAware {
             int matchStat = lexer.seekObjectToField(propertyNameHash, deep);
             if (matchStat == JSONLexer.VALUE) {
                 if (context.eval) {
-                    Object value = parser.parse();
+                    Object value;
+                    switch (lexer.token()) {
+                        case JSONToken.LITERAL_INT:
+                            value = lexer.integerValue();
+                            lexer.nextToken();
+                            break;
+                        case JSONToken.LITERAL_STRING:
+                            value = lexer.stringDefaultValue();
+                            lexer.nextToken();
+                            break;
+                        default:
+                            value = parser.parse();
+                            break;
+                    }
+
                     if (context.eval) {
                         context.object = value;
                     }

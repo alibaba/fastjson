@@ -81,6 +81,12 @@ public class JSONPath_extract_2_book extends TestCase {
                         .toString());
     }
 
+    public void test_11() throws Exception {
+        assertEquals("10"
+                , JSONPath.extract(json, "$.expensive")
+                        .toString());
+    }
+
     private static final String json = "{\n" +
             "    \"store\": {\n" +
             "        \"book\": [\n" +

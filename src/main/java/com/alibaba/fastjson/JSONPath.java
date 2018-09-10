@@ -1752,7 +1752,7 @@ public class JSONPath implements JSONAware {
                                     lexer.nextToken();
                                     break;
                                 case JSONToken.LITERAL_STRING:
-                                    value = lexer.stringDefaultValue();
+                                    value = lexer.stringVal();
                                     lexer.nextToken();
                                     break;
                                 default:
@@ -1799,11 +1799,11 @@ public class JSONPath implements JSONAware {
                     switch (lexer.token()) {
                         case JSONToken.LITERAL_INT:
                             value = lexer.integerValue();
-                            lexer.nextToken();
+                            lexer.nextToken(JSONToken.COMMA);
                             break;
                         case JSONToken.LITERAL_STRING:
-                            value = lexer.stringDefaultValue();
-                            lexer.nextToken();
+                            value = lexer.stringVal();
+                            lexer.nextToken(JSONToken.COMMA);
                             break;
                         default:
                             value = parser.parse();

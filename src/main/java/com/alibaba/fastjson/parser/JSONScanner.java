@@ -2219,200 +2219,99 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     public final void skipObject() {
-        for (;;) {
-            if (ch != '"' && ch != '\'') {
-                skipWhitespace();
-            }
-            skipString();
-
-            if (ch != ':') {
-                skipWhitespace();
-            }
-            if (ch == ':') {
-                next();
-            } else {
-                throw new JSONException("illegal json.");
-            }
-
-            if (ch != '"'
-                    && ch != '\''
-                    && ch != '{'
-                    && ch != '['
-                    && ch != '0'
-                    && ch != '1'
-                    && ch != '2'
-                    && ch != '3'
-                    && ch != '4'
-                    && ch != '5'
-                    && ch != '6'
-                    && ch != '7'
-                    && ch != '8'
-                    && ch != '9'
-                    && ch != '+'
-                    && ch != '-') {
-                skipWhitespace();
-            }
-
-            if (ch == '"' || ch == '\'') {
-                skipString();
-
-                if (ch != ',' && ch != '}') {
-                    skipWhitespace();
-                }
-
-                if (ch == ',') {
-                    next();
+        boolean quote = false;
+        int braceCnt = 0;
+        for (int i = bp; i < text.length(); ++i) {
+            final char ch = text.charAt(i);
+            if (ch == '\\') {
+                if (i < len - 1) {
+                    ++i;
                     continue;
-                } else if (ch == '}') {
-                    next();
-                    nextToken();
-                    return;
                 } else {
-                    throw new JSONException("illegal json.");
+                    this.ch = ch;
+                    this.bp = i;
+                    throw new JSONException("illegal str, " + info());
                 }
+            } else if (ch == '"') {
+                quote = !quote;
             } else if (ch == '{') {
-                next();
-                token = JSONToken.LBRACE;
-                skipObject();
-
-                if (token == JSONToken.RBRACE) {
-                    if (ch == ',') {
-                        next();
+                if (quote) {
+                    continue;
+                }
+                braceCnt++;
+            } else if (ch == '}') {
+                if (quote) {
+                    continue;
+                } else {
+                    braceCnt--;
+                }
+                if (braceCnt == -1) {
+                    this.bp = i + 1;
+                    this.ch = text.charAt(i + 1);
+                    if (this.ch == ',') {
                         token = JSONToken.COMMA;
-                    } else if (ch == ']') {
-                        next();
-                        token = JSONToken.RBRACKET;
-                    } else if (ch == '}') {
-                        next();
-                        token = JSONToken.RBRACE;
-                    } else {
-                        nextToken();
-                    }
-                    return;
-                }
-            } else if (ch == '[') {
-                next();
-                token = JSONToken.LBRACKET;
-                skipArray();
-                if (token == JSONToken.RBRACE) {
-                    nextToken();
-                    return;
-                }
-            } else {
-                int p = -1;
-                char sep = 0;
-                for (int i = bp + 1; i < text.length(); ++i) {
-                    char c = text.charAt(i);
-                    if (c == ',') {
-                        p = i;
-                        break;
-                    } else if (c == '}') {
-                        bp = i + 1;
-                        ch = charAt(bp);
-                        if (ch == ',') {
-                            next();
-                            token = JSONToken.COMMA;
-                        } else if (ch == ']') {
-                            next();
-                            token = JSONToken.RBRACKET;
-                        } else if (ch == '}') {
-                            next();
-                            token = JSONToken.RBRACE;
-                        } else {
-                            nextToken();
-                        }
+                        int index = ++bp;
+                        this.ch = (index >= text.length() //
+                                ? EOI //
+                                : text.charAt(index));
                         return;
+                    } else if (this.ch == '}') {
+                        token = JSONToken.RBRACE;
+                        next();
+                        return;
+                    } else if (this.ch == ']') {
+                        token = JSONToken.RBRACKET;
+                        next();
+                        return;
+                    } else {
+                        nextToken(JSONToken.COMMA);
                     }
+                    return;
                 }
-
-                if (p == -1) {
-                    throw new JSONException("illegal json.");
-                }
-
-
-                throw new UnsupportedOperationException();
-            }
-
-            if (ch != ',' && ch != '}') {
-                skipWhitespace();
-            }
-
-            if (ch == ',') {
-                next();
-                continue;
-            }
-
-            if (ch == EOI) {
-                throw new JSONException("illegal json.");
             }
         }
     }
 
     public final void skipArray() {
-        for (;;) {
-            if (ch != '"'
-                    && ch != '\''
-                    && ch != '{'
-                    && ch != '['
-                    && ch != '0'
-                    && ch != '1'
-                    && ch != '2'
-                    && ch != '3'
-                    && ch != '4'
-                    && ch != '5'
-                    && ch != '6'
-                    && ch != '7'
-                    && ch != '8'
-                    && ch != '9'
-                    && ch != '+'
-                    && ch != '-') {
-                skipWhitespace();
-            }
-
-            if (ch == '"' || ch == '\'') {
-                skipString();
-            } else if (ch == '{') {
-                next();
-                token = JSONToken.LBRACE;
-                skipObject();
+        boolean quote = false;
+        int bracketCnt = 0;
+        for (int i = bp; i < text.length(); ++i) {
+            char ch = text.charAt(i);
+            if (ch == '\\') {
+                if (i < len - 1) {
+                    ++i;
+                    continue;
+                } else {
+                    this.ch = ch;
+                    this.bp = i;
+                    throw new JSONException("illegal str, " + info());
+                }
+            } else if (ch == '"') {
+                quote = !quote;
             } else if (ch == '[') {
-                next();
-                token = JSONToken.LBRACKET;
-                skipArray();
-            } else {
-                int p = -1;
-                for (int i = bp + 1; i < text.length(); ++i) {
-                    char c = text.charAt(i);
-                    if (c == ',') {
-                        p = i;
-                        break;
-                    } else if (c == ']') {
-                        bp = i + 1;
-                        ch = charAt(bp);
-                        nextToken();
-                        return;
-                    }
+                if (quote) {
+                    continue;
                 }
-
-                if (p == -1) {
-                    throw new JSONException("illegal json.");
+                bracketCnt++;
+            } else if (ch == ']') {
+                if (quote) {
+                    continue;
+                } else {
+                    bracketCnt--;
                 }
-                throw new UnsupportedOperationException();
-            }
-
-            if (token == JSONToken.COMMA) {
-                continue;
-            } else if (token == JSONToken.RBRACKET) {
-                return;
-            } else {
-                throw new UnsupportedOperationException();
+                if (bracketCnt == -1) {
+                    this.bp = i + 1;
+                    this.ch = text.charAt(i + 1);
+                    nextToken(JSONToken.COMMA);
+                    return;
+                }
             }
         }
     }
 
     public final void skipString() {
         if (ch == '"') {
-            for (int i = bp + 1, len = text.length(); i < len; ++i) {
+            for (int i = bp + 1; i < text.length(); ++i) {
                 char c = text.charAt(i);
                 if (c == '\\') {
                     if (i < len - 1) {
@@ -2449,7 +2348,7 @@ public final class JSONScanner extends JSONLexerBase {
                     continue;
                 } else if (ch == ']') {
                     next();
-                    nextToken();
+                    nextToken(JSONToken.COMMA);
                     return false;
                 } else {
                     throw new JSONException("illegal json.");
@@ -2521,23 +2420,20 @@ public final class JSONScanner extends JSONLexerBase {
 
             long hash;
             if (ch == '"') {
-                next();
-
                 hash = 0xcbf29ce484222325L;
-                for (;;) {
-                    hash ^= ch;
-                    hash *= 0x100000001b3L;
 
-                    next();
-
-                    if (ch == '"') {
-                        next();
+                for (int i = bp + 1; i < text.length(); ++i) {
+                    char c = text.charAt(i);
+                    if (c == '"') {
+                        bp = i + 1;
+                        ch = (bp >= text.length() //
+                                ? EOI //
+                                : text.charAt(bp));
                         break;
                     }
 
-                    if (isEOF()) {
-                        return JSONLexer.NOT_MATCH;
-                    }
+                    hash ^= c;
+                    hash *= 0x100000001b3L;
                 }
             } else {
                 throw new UnsupportedOperationException();
@@ -2548,16 +2444,40 @@ public final class JSONScanner extends JSONLexerBase {
                     skipWhitespace();
                 }
                 if (ch == ':') {
-                    next();
+                    {
+                        int index = ++bp;
+                        ch = (index >= text.length() //
+                                ? EOI //
+                                : text.charAt(index));
+                    }
                     if (ch == ',') {
-                        next();
+                        {
+                            int index = ++bp;
+                            ch = (index >= text.length() //
+                                    ? EOI //
+                                    : text.charAt(index));
+                        }
                         token = JSONToken.COMMA;
                     } else if (ch == ']') {
-                        next();
+                        {
+                            int index = ++bp;
+                            ch = (index >= text.length() //
+                                    ? EOI //
+                                    : text.charAt(index));
+                        }
                         token = JSONToken.RBRACKET;
                     } else if (ch == '}') {
-                        next();
+                        {
+                            int index = ++bp;
+                            ch = (index >= text.length() //
+                                    ? EOI //
+                                    : text.charAt(index));
+                        }
                         token = JSONToken.RBRACE;
+                    } else if (ch >= '0' && ch <= '9') {
+                        sp = 0;
+                        pos = bp;
+                        scanNumber();
                     } else {
                         nextToken(JSONToken.LITERAL_INT);
                     }
@@ -2570,7 +2490,10 @@ public final class JSONScanner extends JSONLexerBase {
             }
 
             if (ch == ':') {
-                next();
+                int index = ++bp;
+                ch = (index >= text.length() //
+                        ? EOI //
+                        : text.charAt(index));
             } else {
                 throw new JSONException("illegal json, " + info());
             }
@@ -2637,7 +2560,12 @@ public final class JSONScanner extends JSONLexerBase {
                     next();
                 }
             } else if (ch == '{') {
-                next();
+                {
+                    int index = ++bp;
+                    ch = (index >= text.length() //
+                            ? EOI //
+                            : text.charAt(index));
+                }
                 if (deepScan) {
                     token = JSONToken.LBRACE;
                     return OBJECT;

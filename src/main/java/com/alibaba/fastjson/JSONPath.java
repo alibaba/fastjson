@@ -520,10 +520,10 @@ public class JSONPath implements JSONAware {
      * @return
      */
     public static Object extract(String json, String path, ParserConfig config, int features, Feature... optionFeatures) {
+        features |= Feature.OrderedField.mask;
         DefaultJSONParser parser = new DefaultJSONParser(json, config, features);
-        parser.config(Feature.OrderedField, true);
-        Object result = compile(path)
-                .extract(parser);
+        JSONPath jsonPath = compile(path);
+        Object result = jsonPath.extract(parser);
         parser.lexer.close();
         return result;
     }
@@ -1799,6 +1799,10 @@ public class JSONPath implements JSONAware {
                     switch (lexer.token()) {
                         case JSONToken.LITERAL_INT:
                             value = lexer.integerValue();
+                            lexer.nextToken(JSONToken.COMMA);
+                            break;
+                        case JSONToken.LITERAL_FLOAT:
+                            value = lexer.decimalValue();
                             lexer.nextToken(JSONToken.COMMA);
                             break;
                         case JSONToken.LITERAL_STRING:

@@ -2424,6 +2424,14 @@ public final class JSONScanner extends JSONLexerBase {
 
                 for (int i = bp + 1; i < text.length(); ++i) {
                     char c = text.charAt(i);
+                    if (c == '\\') {
+                        ++i;
+                        if (i == text.length()) {
+                            throw new JSONException("unclosed str, " + info());
+                        }
+                        c = text.charAt(i);
+                    }
+
                     if (c == '"') {
                         bp = i + 1;
                         ch = (bp >= text.length() //

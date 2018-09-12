@@ -582,6 +582,8 @@ public final class JSONScanner extends JSONLexerBase {
                     return false;
                 }
                 timzeZoneLength = 5;
+            } else if (t2 == '3' && t3 == '0') {
+                timzeZoneLength = 5;
             } else {
                 timzeZoneLength = 3;
             }

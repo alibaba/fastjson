@@ -14,6 +14,7 @@ public class DateTest5_iso8601 extends TestCase {
         Date date3 = JSON.parseObject("{\"gmtCreate\":\"2018-09-12T15:10:19Z\"}", VO.class).getGmtCreate();
         Date date4 = JSON.parseObject("{\"gmtCreate\":\"20180912T151019Z\"}", VO.class).getGmtCreate();
         Date date5 = JSON.parseObject("{\"gmtCreate\":\"2018-09-12T15:10:19Z\"}", VO.class).getGmtCreate();
+        Date date6 = JSON.parseObject("{\"gmtCreate\":\"20180912\"}", VO.class).getGmtCreate();
 
         long delta_2_1 = date2.getTime() - date1.getTime();
         assertEquals(83419000, delta_2_1);
@@ -26,6 +27,10 @@ public class DateTest5_iso8601 extends TestCase {
 
         long delta_5_4 = date5.getTime() - date4.getTime();
         assertEquals(0, delta_5_4);
+
+        long delta_6_1 = date6.getTime() - date1.getTime();
+        assertEquals(0, delta_6_1);
+
 
     }
 

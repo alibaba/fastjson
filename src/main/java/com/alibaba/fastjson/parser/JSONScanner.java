@@ -418,6 +418,16 @@ public final class JSONScanner extends JSONLexerBase {
             y1 = c7;
             y2 = c8;
             y3 = c9;
+        } else if (c8 == 'T') {
+            y0 = c0;
+            y1 = c1;
+            y2 = c2;
+            y3 = c3;
+            M0 = c4;
+            M1 = c5;
+            d0 = c6;
+            d1 = c7;
+            date_len = 8;
         } else {
             if (c4 == '年' || c4 == '년') {
                 y0 = c0;
@@ -465,7 +475,32 @@ public final class JSONScanner extends JSONLexerBase {
         setCalendar(y0, y1, y2, y3, M0, M1, d0, d1);
 
         char t = charAt(bp + date_len);
-        if (t == 'T' || (t == ' ' && !strict)) {
+        if (t == 'T' && rest == 16 && date_len == 8 && charAt(bp + 15) == 'Z') {
+            char h0 = charAt(bp + date_len + 1);
+            char h1 = charAt(bp + date_len + 2);
+            char m0 = charAt(bp + date_len + 3);
+            char m1 = charAt(bp + date_len + 4);
+            char s0 = charAt(bp + date_len + 5);
+            char s1 = charAt(bp + date_len + 6);
+
+            if (!checkTime(h0, h1, m0, m1, s0, s1)) {
+                return false;
+            }
+
+            setTime(h0, h1, m0, m1, s0, s1);
+            calendar.set(Calendar.MILLISECOND, 0);
+
+            if (calendar.getTimeZone().getRawOffset() != 0) {
+                String[] timeZoneIDs = TimeZone.getAvailableIDs(0);
+                if (timeZoneIDs.length > 0) {
+                    TimeZone timeZone = TimeZone.getTimeZone(timeZoneIDs[0]);
+                    calendar.setTimeZone(timeZone);
+                }
+            }
+
+            token = JSONToken.LITERAL_ISO8601_DATE;
+            return true;
+        } else if (t == 'T' || (t == ' ' && !strict)) {
             if (rest < date_len + 9) { // "0000-00-00T00:00:00".length()
                 return false;
             }
@@ -582,7 +617,13 @@ public final class JSONScanner extends JSONLexerBase {
                     return false;
                 }
                 timzeZoneLength = 5;
-            } else if (t2 == '3' && t3 == '0') {
+            } else if (t2 == '3' && charAt(bp + date_len + 10 + millisLen + 4) == '0') {
+                t3 = '3';
+                t4 = '0';
+                timzeZoneLength = 5;
+            } else if (t2 == '4' && charAt(bp + date_len + 10 + millisLen + 4) == '5') {
+                t3 = '4';
+                t4 = '5';
                 timzeZoneLength = 5;
             } else {
                 timzeZoneLength = 3;

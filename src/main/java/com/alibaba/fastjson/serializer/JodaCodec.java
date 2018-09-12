@@ -144,6 +144,12 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
                 return (T) localDateTime.toLocalTime();
             }
 
+            if (type == Instant.class) {
+                Instant instant = new Instant(millis);
+
+                return (T) instant;
+            }
+
             throw new UnsupportedOperationException();
         } else {
             throw new UnsupportedOperationException();

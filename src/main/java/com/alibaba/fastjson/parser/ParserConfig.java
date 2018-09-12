@@ -107,6 +107,7 @@ public class ParserConfig {
 
     private static boolean                                  awtError              = false;
     private static boolean                                  jdk8Error             = false;
+    private static boolean                                  jodaError             = false;
 
     private boolean                                         autoTypeSupport       = AUTO_SUPPORT;
     private long[]                                          denyHashCodes;
@@ -517,6 +518,29 @@ public class ParserConfig {
             } catch (Throwable e) {
                 // skip
                 jdk8Error = true;
+            }
+        }
+
+        if (!jodaError) {
+            try {
+                if (className.startsWith("org.joda.time.")) {
+                    String[] names = new String[] {
+                            "org.joda.time.DateTime",
+                            "org.joda.time.LocalDate",
+                            "org.joda.time.LocalDateTime",
+                            "org.joda.time.LocalTime"
+                    };
+
+                    for (String name : names) {
+                        if (name.equals(className)) {
+                            deserializers.put(Class.forName(name), derializer = JodaCodec.instance);
+                            return derializer;
+                        }
+                    }
+                }
+            } catch (Throwable e) {
+                // skip
+                jodaError = true;
             }
         }
 

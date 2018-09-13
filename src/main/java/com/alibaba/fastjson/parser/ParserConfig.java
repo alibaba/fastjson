@@ -529,7 +529,11 @@ public class ParserConfig {
                             "org.joda.time.LocalDate",
                             "org.joda.time.LocalDateTime",
                             "org.joda.time.LocalTime",
-                            "org.joda.time.Instant"
+                            "org.joda.time.Instant",
+                            "org.joda.time.Period",
+                            "org.joda.time.Duration",
+                            "org.joda.time.DateTimeZone",
+                            "org.joda.time.format.DateTimeFormatter"
                     };
 
                     for (String name : names) {

@@ -126,11 +126,18 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
                 Instant instant = Instant.parse(text);
 
                 return (T) instant;
+            } else if (type == DateTimeFormatter.class) {
+                return (T) DateTimeFormat.forPattern(text);
             }
         } else if (lexer.token() == JSONToken.LITERAL_INT) {
             long millis = lexer.longValue();
             lexer.nextToken();
-//
+
+
+            if (type == DateTime.class) {
+                return (T) new DateTime(millis);
+            }
+
             LocalDateTime localDateTime =  new LocalDateTime(millis);
             if (type == LocalDateTime.class) {
                 return (T) localDateTime;

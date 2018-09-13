@@ -678,7 +678,13 @@ public class SerializeConfig {
                                 "org.joda.time.LocalDateTime",
                                 "org.joda.time.LocalTime",
                                 "org.joda.time.Instant",
-                                "org.joda.time.DateTime"
+                                "org.joda.time.DateTime",
+                                "org.joda.time.Period",
+                                "org.joda.time.Duration",
+                                "org.joda.time.DateTimeZone",
+                                "org.joda.time.UTCDateTimeZone",
+                                "org.joda.time.tz.CachedDateTimeZone",
+                                "org.joda.time.tz.FixedDateTimeZone",
                         };
 
                         for (String name : names) {

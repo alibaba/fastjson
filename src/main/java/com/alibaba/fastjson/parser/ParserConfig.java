@@ -52,7 +52,6 @@ import com.alibaba.fastjson.util.*;
 import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.ServiceLoader;
 
-import javax.sql.DataSource;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 /**
@@ -1100,7 +1099,8 @@ public class ParserConfig {
             }
 
             if (ClassLoader.class.isAssignableFrom(clazz) // classloader is danger
-                    || DataSource.class.isAssignableFrom(clazz) // dataSource can load jdbc driver
+                    || javax.sql.DataSource.class.isAssignableFrom(clazz) // dataSource can load jdbc driver
+                    || javax.sql.RowSet.class.isAssignableFrom(clazz) //
                     ) {
                 throw new JSONException("autoType is not support. " + typeName);
             }

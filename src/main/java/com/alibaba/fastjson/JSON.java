@@ -101,6 +101,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         features |= SerializerFeature.SkipTransientField.getMask();
         features |= SerializerFeature.WriteEnumUsingName.getMask();
         features |= SerializerFeature.SortField.getMask();
+        features |= SerializerFeature.WriteNonStringKeyAsString.getMask();
 
         {
             String featuresProperty = IOUtils.getStringProperty("fastjson.serializerFeatures.MapSortField");

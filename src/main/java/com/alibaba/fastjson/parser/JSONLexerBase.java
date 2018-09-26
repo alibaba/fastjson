@@ -1198,6 +1198,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         throw new UnsupportedOperationException();
     }
 
+    public int seekObjectToField(long[] fieldNameHash) {
+        throw new UnsupportedOperationException();
+    }
+
     public int seekObjectToFieldDeepScan(long fieldNameHash) {
         throw new UnsupportedOperationException();
     }

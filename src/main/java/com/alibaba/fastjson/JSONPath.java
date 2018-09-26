@@ -99,7 +99,8 @@ public class JSONPath implements JSONAware {
                 if (segment instanceof PropertySegement
                         && ((PropertySegement) segment).deep
                         && (nextSegment instanceof ArrayAccessSegement
-                            || nextSegment instanceof MultiIndexSegement))
+                            || nextSegment instanceof MultiIndexSegement
+                            || nextSegment instanceof MultiPropertySegement))
                 {
                     eval = true;
                 } else if (nextSegment instanceof ArrayAccessSegement
@@ -1865,7 +1866,102 @@ public class JSONPath implements JSONAware {
         }
 
         public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
-            throw new UnsupportedOperationException();
+            JSONLexerBase lexer = (JSONLexerBase) parser.lexer;
+
+            JSONArray array;
+            if (context.object == null) {
+                context.object = array = new JSONArray();
+            } else {
+                array = (JSONArray) context.object;
+            }
+            for (int i = array.size(); i < propertyNamesHash.length; ++i) {
+                array.add(null);
+            }
+
+//            if (lexer.token() == JSONToken.LBRACKET) {
+//                lexer.nextToken();
+//                JSONArray array;
+//
+//                array = new JSONArray();
+//                for (;;) {
+//                    if (lexer.token() == JSONToken.LBRACE) {
+//                        int index = lexer.seekObjectToField(propertyNamesHash);
+//                        int matchStat = lexer.matchStat;
+//                        if (matchStat == JSONLexer.VALUE) {
+//                            Object value;
+//                            switch (lexer.token()) {
+//                                case JSONToken.LITERAL_INT:
+//                                    value = lexer.integerValue();
+//                                    lexer.nextToken();
+//                                    break;
+//                                case JSONToken.LITERAL_STRING:
+//                                    value = lexer.stringVal();
+//                                    lexer.nextToken();
+//                                    break;
+//                                default:
+//                                    value = parser.parse();
+//                                    break;
+//                            }
+//
+//                            array.add(index, value);
+//                            if (lexer.token() == JSONToken.RBRACE) {
+//                                lexer.nextToken();
+//                                continue;
+//                            } else {
+//                                lexer.skipObject();
+//                            }
+//                        } else {
+//                            lexer.skipObject();
+//                        }
+//                    }
+//
+//                    if (lexer.token() == JSONToken.RBRACKET) {
+//                        break;
+//                    } else if (lexer.token() == JSONToken.COMMA) {
+//                        lexer.nextToken();
+//                        continue;
+//                    } else {
+//                        throw new JSONException("illegal json.");
+//                    }
+//                }
+//
+//                context.object = array;
+//                return;
+//            }
+
+            for_:
+            for (;;) {
+                int index = lexer.seekObjectToField(propertyNamesHash);
+                int matchStat = lexer.matchStat;
+                if (matchStat == JSONLexer.VALUE) {
+                    Object value;
+                    switch (lexer.token()) {
+                        case JSONToken.LITERAL_INT:
+                            value = lexer.integerValue();
+                            lexer.nextToken(JSONToken.COMMA);
+                            break;
+                        case JSONToken.LITERAL_FLOAT:
+                            value = lexer.decimalValue();
+                            lexer.nextToken(JSONToken.COMMA);
+                            break;
+                        case JSONToken.LITERAL_STRING:
+                            value = lexer.stringVal();
+                            lexer.nextToken(JSONToken.COMMA);
+                            break;
+                        default:
+                            value = parser.parse();
+                            break;
+                    }
+
+                    array.set(index, value);
+
+                    if (lexer.token() == JSONToken.COMMA) {
+                        continue for_;
+                    }
+                }
+
+                break;
+            }
         }
     }
 

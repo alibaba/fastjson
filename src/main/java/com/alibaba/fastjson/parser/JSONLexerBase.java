@@ -805,6 +805,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         sp = 0;
         this.next();
 
+        if (value.equals("null"))
+        	return null;
         return value;
     }
 

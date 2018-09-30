@@ -2,6 +2,7 @@ package com.alibaba.json.bvt.bug;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.junit.Assert;
 import junit.framework.TestCase;
@@ -28,9 +29,13 @@ public class Bug_for_smoothrat8 extends TestCase {
 				text);
 
 		Entity entity2 = JSON.parseObject(text, Entity.class);
-		Assert.assertEquals(map, entity2.getValue());
 		Assert.assertEquals(map.getClass(), entity2.getValue().getClass());
 		Assert.assertEquals(String.class, ((Map) entity2.getValue()).keySet().iterator().next().getClass());
+		Map<Integer, Object> map2 = new LinkedHashMap<Integer, Object>();
+		for (Object e : ((Map) entity2.getValue()).entrySet()) {
+			map2.put(Integer.parseInt(((Entry)e).getKey().toString()), ((Entry)e).getValue());
+		}
+		Assert.assertEquals(map, map2);
 	}
 
 	public static class Entity {

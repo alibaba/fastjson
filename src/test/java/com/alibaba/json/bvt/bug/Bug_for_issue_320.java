@@ -18,10 +18,10 @@ public class Bug_for_issue_320 extends TestCase {
         map.put(1001L, "aaa");
         
         String text = JSON.toJSONString(map);
-        Assert.assertEquals("{1001:\"aaa\"}", text);
+        Assert.assertEquals("{\"1001\":\"aaa\"}", text);
         
         JSONObject obj = JSON.parseObject(text);
-        Assert.assertEquals("aaa", obj.get(1001));
+        Assert.assertEquals("aaa", obj.get("1001"));
     }
 
 }

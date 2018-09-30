@@ -15,7 +15,7 @@ public class TestNullKeyMap extends TestCase {
         
         String text = JSON.toJSONString(map);
         
-        Assert.assertEquals("{null:123}", text);
+        Assert.assertEquals("{\"null\":123}", text);
         
         HashMap map2 = JSON.parseObject(text, HashMap.class);
         Assert.assertEquals(map.get(null), map2.get(null));

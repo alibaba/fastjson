@@ -21,7 +21,7 @@ public class Bug_for_shortArray extends TestCase {
         
         Map map2 = JSON.parseObject(text, HashMap.class);
         Map.Entry entry = (Map.Entry) map2.entrySet().iterator().next();
-        Assert.assertEquals(entry.getKey().getClass(), Short.class);
+        Assert.assertEquals(entry.getKey().getClass(), String.class);
         Assert.assertTrue(entry.getValue() instanceof Short);
     }
 }

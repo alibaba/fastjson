@@ -690,6 +690,10 @@ public class JavaBeanInfo {
                 continue;
             }
 
+            if (methodName.equals("set")) {
+                continue;
+            }
+
             char c3 = methodName.charAt(3);
 
             String propertyName;

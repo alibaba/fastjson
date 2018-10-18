@@ -142,9 +142,14 @@ public class JSONPath implements JSONAware {
 
         Object currentObject = rootObject;
         for (int i = 0; i < segments.length; ++i) {
+            Object parentObject = currentObject;
             currentObject = segments[i].eval(this, rootObject, currentObject);
             if (currentObject == null) {
                 return false;
+            }
+
+            if (currentObject == Collections.EMPTY_LIST && parentObject instanceof List) {
+                return ((List) parentObject).contains(currentObject);
             }
         }
 
@@ -510,10 +515,6 @@ public class JSONPath implements JSONAware {
                 );
     }
 
-    public static Object extract(String json, String path) {
-        return extract(json, path, ParserConfig.global, JSON.DEFAULT_PARSER_FEATURE);
-    }
-    
     /**
      * @since 1.2.51
      * @param json
@@ -528,7 +529,11 @@ public class JSONPath implements JSONAware {
         parser.lexer.close();
         return result;
     }
-    
+
+    public static Object extract(String json, String path) {
+        return extract(json, path, ParserConfig.global, JSON.DEFAULT_PARSER_FEATURE);
+    }
+
     public static Map<String, Object> paths(Object javaObject) {
         return paths(javaObject, SerializeConfig.globalInstance);
     }
@@ -2971,13 +2976,16 @@ public class JSONPath implements JSONAware {
                 return list.size();
             }
 
-            List<Object> fieldValues = new JSONArray(list.size());
+            List<Object> fieldValues = null;
 
             for (int i = 0; i < list.size(); ++i) {
                 Object obj = list.get(i);
 
                 //
                 if (obj == list) {
+                    if (fieldValues == null) {
+                        fieldValues = new JSONArray(list.size());
+                    }
                     fieldValues.add(obj);
                     continue;
                 }
@@ -2985,10 +2993,20 @@ public class JSONPath implements JSONAware {
                 Object itemValue = getPropertyValue(obj, propertyName, propertyNameHash);
                 if (itemValue instanceof Collection) {
                     Collection collection = (Collection) itemValue;
+                    if (fieldValues == null) {
+                        fieldValues = new JSONArray(list.size());
+                    }
                     fieldValues.addAll(collection);
                 } else if (itemValue != null) {
+                    if (fieldValues == null) {
+                        fieldValues = new JSONArray(list.size());
+                    }
                     fieldValues.add(itemValue);
                 }
+            }
+
+            if (fieldValues == null) {
+                fieldValues = Collections.emptyList();
             }
 
             return fieldValues;

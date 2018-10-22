@@ -99,7 +99,8 @@ public class JSONPath implements JSONAware {
                 if (segment instanceof PropertySegement
                         && ((PropertySegement) segment).deep
                         && (nextSegment instanceof ArrayAccessSegement
-                            || nextSegment instanceof MultiIndexSegement))
+                            || nextSegment instanceof MultiIndexSegement
+                            || nextSegment instanceof MultiPropertySegement))
                 {
                     eval = true;
                 } else if (nextSegment instanceof ArrayAccessSegement
@@ -141,9 +142,14 @@ public class JSONPath implements JSONAware {
 
         Object currentObject = rootObject;
         for (int i = 0; i < segments.length; ++i) {
+            Object parentObject = currentObject;
             currentObject = segments[i].eval(this, rootObject, currentObject);
             if (currentObject == null) {
                 return false;
+            }
+
+            if (currentObject == Collections.EMPTY_LIST && parentObject instanceof List) {
+                return ((List) parentObject).contains(currentObject);
             }
         }
 
@@ -509,10 +515,6 @@ public class JSONPath implements JSONAware {
                 );
     }
 
-    public static Object extract(String json, String path) {
-        return extract(json, path, ParserConfig.global, JSON.DEFAULT_PARSER_FEATURE);
-    }
-    
     /**
      * @since 1.2.51
      * @param json
@@ -520,14 +522,18 @@ public class JSONPath implements JSONAware {
      * @return
      */
     public static Object extract(String json, String path, ParserConfig config, int features, Feature... optionFeatures) {
+        features |= Feature.OrderedField.mask;
         DefaultJSONParser parser = new DefaultJSONParser(json, config, features);
-        parser.config(Feature.OrderedField, true);
-        Object result = compile(path)
-                .extract(parser);
+        JSONPath jsonPath = compile(path);
+        Object result = jsonPath.extract(parser);
         parser.lexer.close();
         return result;
     }
-    
+
+    public static Object extract(String json, String path) {
+        return extract(json, path, ParserConfig.global, JSON.DEFAULT_PARSER_FEATURE);
+    }
+
     public static Map<String, Object> paths(Object javaObject) {
         return paths(javaObject, SerializeConfig.globalInstance);
     }
@@ -1752,7 +1758,7 @@ public class JSONPath implements JSONAware {
                                     lexer.nextToken();
                                     break;
                                 case JSONToken.LITERAL_STRING:
-                                    value = lexer.stringDefaultValue();
+                                    value = lexer.stringVal();
                                     lexer.nextToken();
                                     break;
                                 default:
@@ -1799,11 +1805,15 @@ public class JSONPath implements JSONAware {
                     switch (lexer.token()) {
                         case JSONToken.LITERAL_INT:
                             value = lexer.integerValue();
-                            lexer.nextToken();
+                            lexer.nextToken(JSONToken.COMMA);
+                            break;
+                        case JSONToken.LITERAL_FLOAT:
+                            value = lexer.decimalValue();
+                            lexer.nextToken(JSONToken.COMMA);
                             break;
                         case JSONToken.LITERAL_STRING:
-                            value = lexer.stringDefaultValue();
-                            lexer.nextToken();
+                            value = lexer.stringVal();
+                            lexer.nextToken(JSONToken.COMMA);
                             break;
                         default:
                             value = parser.parse();
@@ -1861,7 +1871,102 @@ public class JSONPath implements JSONAware {
         }
 
         public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
-            throw new UnsupportedOperationException();
+            JSONLexerBase lexer = (JSONLexerBase) parser.lexer;
+
+            JSONArray array;
+            if (context.object == null) {
+                context.object = array = new JSONArray();
+            } else {
+                array = (JSONArray) context.object;
+            }
+            for (int i = array.size(); i < propertyNamesHash.length; ++i) {
+                array.add(null);
+            }
+
+//            if (lexer.token() == JSONToken.LBRACKET) {
+//                lexer.nextToken();
+//                JSONArray array;
+//
+//                array = new JSONArray();
+//                for (;;) {
+//                    if (lexer.token() == JSONToken.LBRACE) {
+//                        int index = lexer.seekObjectToField(propertyNamesHash);
+//                        int matchStat = lexer.matchStat;
+//                        if (matchStat == JSONLexer.VALUE) {
+//                            Object value;
+//                            switch (lexer.token()) {
+//                                case JSONToken.LITERAL_INT:
+//                                    value = lexer.integerValue();
+//                                    lexer.nextToken();
+//                                    break;
+//                                case JSONToken.LITERAL_STRING:
+//                                    value = lexer.stringVal();
+//                                    lexer.nextToken();
+//                                    break;
+//                                default:
+//                                    value = parser.parse();
+//                                    break;
+//                            }
+//
+//                            array.add(index, value);
+//                            if (lexer.token() == JSONToken.RBRACE) {
+//                                lexer.nextToken();
+//                                continue;
+//                            } else {
+//                                lexer.skipObject();
+//                            }
+//                        } else {
+//                            lexer.skipObject();
+//                        }
+//                    }
+//
+//                    if (lexer.token() == JSONToken.RBRACKET) {
+//                        break;
+//                    } else if (lexer.token() == JSONToken.COMMA) {
+//                        lexer.nextToken();
+//                        continue;
+//                    } else {
+//                        throw new JSONException("illegal json.");
+//                    }
+//                }
+//
+//                context.object = array;
+//                return;
+//            }
+
+            for_:
+            for (;;) {
+                int index = lexer.seekObjectToField(propertyNamesHash);
+                int matchStat = lexer.matchStat;
+                if (matchStat == JSONLexer.VALUE) {
+                    Object value;
+                    switch (lexer.token()) {
+                        case JSONToken.LITERAL_INT:
+                            value = lexer.integerValue();
+                            lexer.nextToken(JSONToken.COMMA);
+                            break;
+                        case JSONToken.LITERAL_FLOAT:
+                            value = lexer.decimalValue();
+                            lexer.nextToken(JSONToken.COMMA);
+                            break;
+                        case JSONToken.LITERAL_STRING:
+                            value = lexer.stringVal();
+                            lexer.nextToken(JSONToken.COMMA);
+                            break;
+                        default:
+                            value = parser.parse();
+                            break;
+                    }
+
+                    array.set(index, value);
+
+                    if (lexer.token() == JSONToken.COMMA) {
+                        continue for_;
+                    }
+                }
+
+                break;
+            }
         }
     }
 
@@ -2871,13 +2976,16 @@ public class JSONPath implements JSONAware {
                 return list.size();
             }
 
-            List<Object> fieldValues = new JSONArray(list.size());
+            List<Object> fieldValues = null;
 
             for (int i = 0; i < list.size(); ++i) {
                 Object obj = list.get(i);
 
                 //
                 if (obj == list) {
+                    if (fieldValues == null) {
+                        fieldValues = new JSONArray(list.size());
+                    }
                     fieldValues.add(obj);
                     continue;
                 }
@@ -2885,10 +2993,20 @@ public class JSONPath implements JSONAware {
                 Object itemValue = getPropertyValue(obj, propertyName, propertyNameHash);
                 if (itemValue instanceof Collection) {
                     Collection collection = (Collection) itemValue;
+                    if (fieldValues == null) {
+                        fieldValues = new JSONArray(list.size());
+                    }
                     fieldValues.addAll(collection);
                 } else if (itemValue != null) {
+                    if (fieldValues == null) {
+                        fieldValues = new JSONArray(list.size());
+                    }
                     fieldValues.add(itemValue);
                 }
+            }
+
+            if (fieldValues == null) {
+                fieldValues = Collections.emptyList();
             }
 
             return fieldValues;

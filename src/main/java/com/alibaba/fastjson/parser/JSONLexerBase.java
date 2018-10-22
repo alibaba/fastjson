@@ -1190,41 +1190,15 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         throw new UnsupportedOperationException();
     }
 
-    public long scanFieldHash() {
-        if (ch != '"') {
-            while (isWhitespace(ch)) {
-                next();
-            }
-        }
-
-        if (ch == '"') {
-            next();
-
-            long hash = 0xcbf29ce484222325L;
-            for (;;) {
-                hash ^= ch;
-                hash *= 0x100000001b3L;
-
-                next();
-
-                if (ch == '"') {
-                    next();
-                    return hash;
-                }
-
-                if (isEOF()) {
-                    break;
-                }
-            }
-        }
-        throw new UnsupportedOperationException();
-    }
-
     public boolean seekArrayToItem(int index) {
         throw new UnsupportedOperationException();
     }
 
     public int seekObjectToField(long fieldNameHash, boolean deepScan) {
+        throw new UnsupportedOperationException();
+    }
+
+    public int seekObjectToField(long[] fieldNameHash) {
         throw new UnsupportedOperationException();
     }
 
@@ -1237,10 +1211,6 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     }
 
     public void skipArray() {
-        throw new UnsupportedOperationException();
-    }
-
-    public void skipString() {
         throw new UnsupportedOperationException();
     }
 
@@ -1750,7 +1720,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 && charAt(bp + offset + 1) == 'l'
                 && charAt(bp + offset + 2) == 'l'
                 && charAt(bp + offset + 3) == seperator
-                ) {
+        ) {
             bp += 5;
             ch = charAt(bp);
             matchStat = VALUE_NULL;

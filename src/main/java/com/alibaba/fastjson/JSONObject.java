@@ -485,8 +485,12 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         SecureObjectInputStream.ensureFields();
         if (SecureObjectInputStream.fields != null && !SecureObjectInputStream.fields_error) {
             ObjectInputStream secIn = new SecureObjectInputStream(in);
-            secIn.defaultReadObject();
-            return;
+            try {
+                secIn.defaultReadObject();
+                return;
+            } catch (java.io.NotActiveException e) {
+                // skip
+            }
         }
 
         in.defaultReadObject();

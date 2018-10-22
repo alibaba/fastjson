@@ -464,8 +464,12 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
         JSONObject.SecureObjectInputStream.ensureFields();
         if (JSONObject.SecureObjectInputStream.fields != null && !JSONObject.SecureObjectInputStream.fields_error) {
             ObjectInputStream secIn = new JSONObject.SecureObjectInputStream(in);
-            secIn.defaultReadObject();
-            return;
+            try {
+                secIn.defaultReadObject();
+                return;
+            } catch (java.io.NotActiveException e) {
+                // skip
+            }
         }
 
         in.defaultReadObject();

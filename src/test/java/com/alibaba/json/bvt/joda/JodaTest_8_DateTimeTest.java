@@ -39,7 +39,14 @@ public class JodaTest_8_DateTimeTest extends TestCase {
     }
 
     public static class VO {
-        public DateTime date;
+        private DateTime date;
 
+        public DateTime getDate() {
+            return date;
+        }
+
+        public void setDate(DateTime date) {
+            this.date = date;
+        }
     }
 }

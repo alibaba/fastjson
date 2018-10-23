@@ -134,15 +134,15 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
             long millis = lexer.longValue();
             lexer.nextToken();
 
-
-            if (type == DateTime.class) {
-                return (T) new DateTime(millis);
-            }
-
             TimeZone timeZone = JSON.defaultTimeZone;
             if (timeZone == null) {
                 timeZone = TimeZone.getDefault();
             }
+
+            if (type == DateTime.class) {
+                return (T) new DateTime(millis, DateTimeZone.forTimeZone(timeZone));
+            }
+
             LocalDateTime localDateTime =  new LocalDateTime(millis, DateTimeZone.forTimeZone(timeZone));
             if (type == LocalDateTime.class) {
                 return (T) localDateTime;

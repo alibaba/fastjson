@@ -33,7 +33,7 @@ public class JodaTest_8_DateTimeTest extends TestCase {
     public void test_for_long() throws Exception {
         String text= "{\"date\":1511248447740}";
         VO vo =JSON.parseObject(text,VO.class);
-        Assert.assertEquals(15, vo.date.getHourOfDay());
+        Assert.assertEquals("timeZone " + TimeZone.getDefault(), 15, vo.date.getHourOfDay());
         Assert.assertEquals(14, vo.date.getMinuteOfHour());
         Assert.assertEquals(07, vo.date.getSecondOfMinute());
     }

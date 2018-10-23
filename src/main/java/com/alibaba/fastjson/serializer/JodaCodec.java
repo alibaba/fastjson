@@ -8,6 +8,7 @@ import com.alibaba.fastjson.parser.JSONToken;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import org.joda.time.*;
@@ -138,7 +139,11 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
                 return (T) new DateTime(millis);
             }
 
-            LocalDateTime localDateTime =  new LocalDateTime(millis);
+            TimeZone timeZone = JSON.defaultTimeZone;
+            if (timeZone == null) {
+                timeZone = TimeZone.getDefault();
+            }
+            LocalDateTime localDateTime =  new LocalDateTime(millis, DateTimeZone.forTimeZone(timeZone));
             if (type == LocalDateTime.class) {
                 return (T) localDateTime;
             }

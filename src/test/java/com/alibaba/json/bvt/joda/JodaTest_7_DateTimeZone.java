@@ -8,7 +8,7 @@ public class JodaTest_7_DateTimeZone extends TestCase {
     public void test_for_joda_0() throws Exception {
 
        Model m = new Model();
-       m.zone = DateTimeZone.getDefault();
+       m.zone = DateTimeZone.forID("Asia/Shanghai");
 
        String json = JSON.toJSONString(m);
 

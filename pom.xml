@@ -283,14 +283,14 @@
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-server</artifactId>
-			<version>9.4.9.v20180320</version>
+			<version>9.3.25.v20180904</version>
 			<scope>test</scope>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-webapp</artifactId>
-			<version>9.4.9.v20180320</version>
+			<version>9.3.25.v20180904</version>
 			<scope>test</scope>
 			<optional>true</optional>
 		</dependency>

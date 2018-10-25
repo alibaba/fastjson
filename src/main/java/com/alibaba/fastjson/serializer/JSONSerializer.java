@@ -317,7 +317,12 @@ public class JSONSerializer extends SerializeFilterable {
         if (object instanceof Date) {
             DateFormat dateFormat = this.getDateFormat();
             if (dateFormat == null) {
-                dateFormat = new SimpleDateFormat(format, locale);
+                try {
+                    dateFormat = new SimpleDateFormat(format, locale);
+                } catch (IllegalArgumentException e) {
+                    String format2 = format.replaceAll("T", "'T'");
+                    dateFormat = new SimpleDateFormat(format2, locale);
+                }
                 dateFormat.setTimeZone(timeZone);
             }
             String text = dateFormat.format((Date) object);

@@ -986,7 +986,9 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     }
                 }
 
-                childContext.object = object;
+                if (childContext != null) {
+                    childContext.object = object;
+                }
             }
             
             Method buildMethod = beanInfo.buildMethod;

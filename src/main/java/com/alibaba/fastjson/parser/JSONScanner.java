@@ -2377,6 +2377,10 @@ public final class JSONScanner extends JSONLexerBase {
             throw new IllegalArgumentException("index must > 0, but " + index);
         }
 
+        if (token == JSONToken.EOF) {
+            return false;
+        }
+
         if (token != JSONToken.LBRACKET) {
             throw new UnsupportedOperationException();
         }
@@ -2443,8 +2447,17 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     public int seekObjectToField(long fieldNameHash, boolean deepScan) {
-        if (token != JSONToken.LBRACE) {
-            throw new UnsupportedOperationException();
+        if (token == JSONToken.EOF) {
+            return JSONLexer.NOT_MATCH;
+        }
+
+        if (token == JSONToken.RBRACE || token == JSONToken.RBRACKET) {
+            nextToken();
+            return JSONLexer.NOT_MATCH;
+        }
+
+        if (token != JSONToken.LBRACE && token != JSONToken.COMMA) {
+            throw new UnsupportedOperationException(JSONToken.name(token));
         }
 
         for (;;) {
@@ -2610,6 +2623,66 @@ public final class JSONScanner extends JSONLexerBase {
                 if (ch == ',') {
                     next();
                 }
+            } else if (ch == 't') {
+                next();
+                if (ch == 'r') {
+                    next();
+                    if (ch == 'u') {
+                        next();
+                        if (ch == 'e') {
+                            next();
+                        }
+                    }
+                }
+
+                if (ch != ',' && ch != '}') {
+                    skipWhitespace();
+                }
+
+                if (ch == ',') {
+                    next();
+                }
+            } else if (ch == 'n') {
+                next();
+                if (ch == 'u') {
+                    next();
+                    if (ch == 'l') {
+                        next();
+                        if (ch == 'l') {
+                            next();
+                        }
+                    }
+                }
+
+                if (ch != ',' && ch != '}') {
+                    skipWhitespace();
+                }
+
+                if (ch == ',') {
+                    next();
+                }
+            } else if (ch == 'f') {
+                next();
+                if (ch == 'a') {
+                    next();
+                    if (ch == 'l') {
+                        next();
+                        if (ch == 's') {
+                            next();
+                            if (ch == 'e') {
+                                next();
+                            }
+                        }
+                    }
+                }
+
+                if (ch != ',' && ch != '}') {
+                    skipWhitespace();
+                }
+
+                if (ch == ',') {
+                    next();
+                }
             } else if (ch == '{') {
                 {
                     int index = ++bp;
@@ -2623,6 +2696,9 @@ public final class JSONScanner extends JSONLexerBase {
                 }
 
                 skipObject();
+                if (token == JSONToken.RBRACE) {
+                    return JSONLexer.NOT_MATCH;
+                }
             } else if (ch == '[') {
                 next();
                 if (deepScan) {
@@ -2630,6 +2706,9 @@ public final class JSONScanner extends JSONLexerBase {
                     return ARRAY;
                 }
                 skipArray();
+                if (token == JSONToken.RBRACE) {
+                    return JSONLexer.NOT_MATCH;
+                }
             } else {
                 throw new UnsupportedOperationException();
             }

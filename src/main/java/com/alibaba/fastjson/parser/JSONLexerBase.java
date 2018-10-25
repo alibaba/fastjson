@@ -209,7 +209,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                         }
 
                         token = EOF;
-                        pos = bp = eofPos;
+                        eofPos = pos = bp;
                     } else {
                         if (ch <= 31 || ch == 127) {
                             next();

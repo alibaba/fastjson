@@ -1,7 +1,11 @@
 package com.alibaba.json.bvt.path.extract;
 
 import com.alibaba.fastjson.JSONPath;
+import com.alibaba.fastjson.util.IOUtils;
 import junit.framework.TestCase;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class JSONPath_extract_2_book extends TestCase {
 
@@ -34,7 +38,7 @@ public class JSONPath_extract_2_book extends TestCase {
     }
 
     public void test_5() throws Exception {
-        assertEquals("[8.95,12.99,8.99,22.99]"
+        assertEquals("$.store..price", "[8.95,12.99,8.99,22.99,19.95]"
                 , JSONPath.extract(json, "$.store..price")
                         .toString());
     }
@@ -87,41 +91,38 @@ public class JSONPath_extract_2_book extends TestCase {
                         .toString());
     }
 
-    private static final String json = "{\n" +
-            "    \"store\": {\n" +
-            "        \"book\": [\n" +
-            "            {\n" +
-            "                \"category\": \"reference\",\n" +
-            "                \"author\": \"Nigel Rees\",\n" +
-            "                \"title\": \"Sayings of the Century\",\n" +
-            "                \"price\": 8.95\n" +
-            "            },\n" +
-            "            {\n" +
-            "                \"category\": \"fiction\",\n" +
-            "                \"author\": \"Evelyn Waugh\",\n" +
-            "                \"title\": \"Sword of Honour\",\n" +
-            "                \"price\": 12.99\n" +
-            "            },\n" +
-            "            {\n" +
-            "                \"category\": \"fiction\",\n" +
-            "                \"author\": \"Herman Melville\",\n" +
-            "                \"title\": \"Moby Dick\",\n" +
-            "                \"isbn\": \"0-553-21311-3\",\n" +
-            "                \"price\": 8.99\n" +
-            "            },\n" +
-            "            {\n" +
-            "                \"category\": \"fiction\",\n" +
-            "                \"author\": \"J. R. R. Tolkien\",\n" +
-            "                \"title\": \"The Lord of the Rings\",\n" +
-            "                \"isbn\": \"0-395-19395-8\",\n" +
-            "                \"price\": 22.99\n" +
-            "            }\n" +
-            "        ],\n" +
-            "        \"bicycle\": {\n" +
-            "            \"color\": \"red\",\n" +
-            "            \"price\": 19.95\n" +
-            "        }\n" +
-            "    },\n" +
-            "    \"expensive\": 10\n" +
-            "}";
+    public void test_12() throws Exception {
+        assertNull(JSONPath.extract(json, "$.store.book.doesnt_exist"));
+    }
+
+    public void test_13() throws Exception {
+        assertEquals("J. R. R. Tolkien", JSONPath.extract(json, "$.store.book[3].author"));
+    }
+
+    public void test_14() throws Exception {
+        assertEquals("[{\"category\":\"reference\",\"author\":\"Nigel Rees\",\"title\":\"Sayings of the Century\",\"price\":8.95},{\"category\":\"fiction\",\"author\":\"Evelyn Waugh\",\"title\":\"Sword of Honour\",\"price\":12.99},{\"category\":\"fiction\",\"author\":\"Herman Melville\",\"title\":\"Moby Dick\",\"isbn\":\"0-553-21311-3\",\"price\":8.99},{\"category\":\"fiction\",\"author\":\"J. R. R. Tolkien\",\"title\":\"The Lord of the Rings\",\"isbn\":\"0-395-19395-8\",\"price\":22.99}]"
+                , JSONPath.extract(json, "$.store.book").toString());
+    }
+
+    public void test_15() throws Exception {
+        assertEquals("{\"category\":\"reference\",\"author\":\"Nigel Rees\",\"title\":\"Sayings of the Century\",\"price\":8.95}"
+                , JSONPath.extract(json, "$[\"store\"][\"book\"][0]").toString());
+    }
+
+    public void test_16() throws Exception {
+        assertNull(JSONPath.extract(json, "$.store.object.inner_object.array[0].inner_array[0].x"));
+    }
+
+    public void test_17() throws Exception {
+        assertEquals(4, JSONPath.extract(json, "$..book.length()"));
+    }
+
+
+    private static String json;
+    static {
+        InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("json/book.json");
+        InputStreamReader reader = new InputStreamReader(is);
+        json = IOUtils.readAll(reader);
+        IOUtils.close(reader);
+    }
 }

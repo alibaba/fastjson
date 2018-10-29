@@ -34,8 +34,23 @@ import static com.alibaba.fastjson.util.IOUtils.replaceChars;
  * @author wenshao[szujobs@hotmail.com]
  */
 public final class SerializeWriter extends Writer {
-    private final static ThreadLocal<char[]> bufLocal      = new ThreadLocal<char[]>();
-    private final static ThreadLocal<byte[]> bytesBufLocal = new ThreadLocal<byte[]>();
+    private final static ThreadLocal<char[]> bufLocal         = new ThreadLocal<char[]>();
+    private final static ThreadLocal<byte[]> bytesBufLocal    = new ThreadLocal<byte[]>();
+    private static       int                 BUFFER_THRESHOLD = 1024 * 128;
+
+    static {
+        try {
+            String prop = IOUtils.getStringProperty("fastjson.serializer_buffer_threshold");
+            if (prop != null && prop.length() > 0) {
+                int serializer_buffer_threshold = Integer.parseInt(prop);
+                if (serializer_buffer_threshold >= 64 && serializer_buffer_threshold <= 1024 * 64) {
+                    BUFFER_THRESHOLD = serializer_buffer_threshold * 1024;
+                }
+            }
+        } catch (Throwable error) {
+            // skip
+        }
+    }
 
     protected char                           buf[];
 
@@ -474,7 +489,7 @@ public final class SerializeWriter extends Writer {
         if (writer != null && count > 0) {
             flush();
         }
-        if (buf.length <= 1024 * 128) {
+        if (buf.length <= BUFFER_THRESHOLD) {
             bufLocal.set(buf);
         }
 

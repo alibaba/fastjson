@@ -20,6 +20,9 @@ import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+
 public class JavaBeanInfo {
 
     public final Class<?> clazz;
@@ -218,7 +221,7 @@ public class JavaBeanInfo {
     }
 
     public static JavaBeanInfo build(Class<?> clazz, Type type, PropertyNamingStrategy propertyNamingStrategy) {
-        return build(clazz, type, propertyNamingStrategy, false, TypeUtils.compatibleWithJavaBean);
+        return build(clazz, type, propertyNamingStrategy, false, TypeUtils.compatibleWithJavaBean, false);
     }
 
     public static JavaBeanInfo build(Class<?> clazz //
@@ -226,6 +229,16 @@ public class JavaBeanInfo {
             , PropertyNamingStrategy propertyNamingStrategy //
             , boolean fieldBased //
             , boolean compatibleWithJavaBean
+    ) {
+        return build(clazz, type, propertyNamingStrategy, fieldBased, compatibleWithJavaBean, false);
+    }
+
+    public static JavaBeanInfo build(Class<?> clazz //
+            , Type type //
+            , PropertyNamingStrategy propertyNamingStrategy //
+            , boolean fieldBased //
+            , boolean compatibleWithJavaBean
+            , boolean jacksonCompatible
     ) {
         JSONType jsonType = TypeUtils.getAnnotation(clazz,JSONType.class);
         if (jsonType != null) {
@@ -317,9 +330,10 @@ public class JavaBeanInfo {
                 }
 
                 //return new JavaBeanInfo(clazz, builderClass, null, creatorConstructor, null, null, jsonType, fieldList);
-            } else if ((factoryMethod = getFactoryMethod(clazz, methods)) != null) {
+            } else if ((factoryMethod = getFactoryMethod(clazz, methods, jacksonCompatible)) != null) {
                 TypeUtils.setAccessible(factoryMethod);
 
+                String[] lookupParameterNames = null;
                 Class<?>[] types = factoryMethod.getParameterTypes();
                 if (types.length > 0) {
                     Annotation[][] paramAnnotationArrays = factoryMethod.getParameterAnnotations();
@@ -332,17 +346,32 @@ public class JavaBeanInfo {
                                 break;
                             }
                         }
-                        if (fieldAnnotation == null) {
+                        if (fieldAnnotation == null && !(jacksonCompatible && TypeUtils.isJacksonCreator(factoryMethod))) {
                             throw new JSONException("illegal json creator");
+                        }
+
+                        String fieldName = null;
+                        int ordinal = 0, serialzeFeatures = 0, parserFeatures = 0;
+
+                        if (fieldAnnotation != null) {
+                            fieldName = fieldAnnotation.name();
+                            ordinal = fieldAnnotation.ordinal();
+                            serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                            parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
+                        }
+
+                        if (fieldName == null || fieldName.length() == 0) {
+                            if (lookupParameterNames == null) {
+                                lookupParameterNames = ASMUtils.lookupParameterNames(factoryMethod);
+                            }
+                            fieldName = lookupParameterNames[i];
                         }
 
                         Class<?> fieldClass = types[i];
                         Type fieldType = factoryMethod.getGenericParameterTypes()[i];
-                        Field field = TypeUtils.getField(clazz, fieldAnnotation.name(), declaredFields);
-                        final int ordinal = fieldAnnotation.ordinal();
-                        final int serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
-                        final int parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
-                        FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, field,
+
+                        Field field = TypeUtils.getField(clazz, fieldName, declaredFields);
+                        FieldInfo fieldInfo = new FieldInfo(fieldName, clazz, fieldClass, fieldType, field,
                                 ordinal, serialzeFeatures, parserFeatures);
                         add(fieldList, fieldInfo);
                     }
@@ -778,6 +807,19 @@ public class JavaBeanInfo {
             }
         }
 
+        if (fieldList.size() == 0) {
+            XmlAccessorType accessorType = clazz.getAnnotation(XmlAccessorType.class);
+            if (accessorType != null && accessorType.value() == XmlAccessType.FIELD) {
+                fieldBased = true;
+            }
+
+            if (fieldBased) {
+                for (Class<?> currentClass = clazz; currentClass != null; currentClass = currentClass.getSuperclass()) {
+                    computeFields(clazz, type, propertyNamingStrategy, fieldList, declaredFields);
+                }
+            }
+        }
+
         return new JavaBeanInfo(clazz, builderClass, defaultConstructor, creatorConstructor, factoryMethod, buildMethod, jsonType, fieldList);
     }
 
@@ -924,7 +966,7 @@ public class JavaBeanInfo {
         return creatorConstructor;
     }
 
-    private static Method getFactoryMethod(Class<?> clazz, Method[] methods) {
+    private static Method getFactoryMethod(Class<?> clazz, Method[] methods, boolean jacksonCompatible) {
         Method factoryMethod = null;
 
         for (Method method : methods) {
@@ -946,9 +988,21 @@ public class JavaBeanInfo {
                 // 不应该break，否则多个静态工厂方法上存在 JSONCreator 注解时，并不会触发上述异常抛出
             }
         }
+
+        if (factoryMethod == null && jacksonCompatible) {
+            for (Method method : methods) {
+                if (TypeUtils.isJacksonCreator(method)) {
+                    factoryMethod = method;
+                    break;
+                }
+            }
+        }
         return factoryMethod;
     }
 
+    /**
+     * @deprecated
+     */
     public static Class<?> getBuilderClass(JSONType type) {
         return getBuilderClass(null, type);
     }

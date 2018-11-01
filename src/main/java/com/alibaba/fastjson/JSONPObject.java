@@ -14,8 +14,6 @@ public class JSONPObject implements JSONSerializable {
     public static String SECURITY_PREFIX = "/**/";
     private String             function;
 
-    private static final int BrowserSecureMask = SerializerFeature.BrowserSecure.mask;
-
     private final List<Object> parameters = new ArrayList<Object>();
 
     public JSONPObject() {
@@ -49,7 +47,9 @@ public class JSONPObject implements JSONSerializable {
     public void write(JSONSerializer serializer, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter writer = serializer.out;
 
-        if ((features & BrowserSecureMask) != 0 || (writer.isEnabled(BrowserSecureMask))) {
+        if ((features & SerializerFeature.BrowserSecure.mask) != 0
+                || (writer.isEnabled(SerializerFeature.BrowserSecure.mask)))
+        {
             writer.write(SECURITY_PREFIX);
         }
 

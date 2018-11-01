@@ -18,13 +18,7 @@ package com.alibaba.fastjson.parser;
 import java.io.*;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
+import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.Inet4Address;
@@ -58,7 +52,6 @@ import com.alibaba.fastjson.util.*;
 import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.ServiceLoader;
 
-import javax.sql.DataSource;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 /**
@@ -113,6 +106,7 @@ public class ParserConfig {
 
     private static boolean                                  awtError              = false;
     private static boolean                                  jdk8Error             = false;
+    private static boolean                                  jodaError             = false;
 
     private boolean                                         autoTypeSupport       = AUTO_SUPPORT;
     private long[]                                          denyHashCodes;
@@ -120,6 +114,7 @@ public class ParserConfig {
 
 
     public final boolean                                    fieldBased;
+    private boolean                                         jacksonCompatible     = false;
 
     public boolean                                          compatibleWithJavaBean = TypeUtils.compatibleWithJavaBean;
 
@@ -525,6 +520,34 @@ public class ParserConfig {
             }
         }
 
+        if (!jodaError) {
+            try {
+                if (className.startsWith("org.joda.time.")) {
+                    String[] names = new String[] {
+                            "org.joda.time.DateTime",
+                            "org.joda.time.LocalDate",
+                            "org.joda.time.LocalDateTime",
+                            "org.joda.time.LocalTime",
+                            "org.joda.time.Instant",
+                            "org.joda.time.Period",
+                            "org.joda.time.Duration",
+                            "org.joda.time.DateTimeZone",
+                            "org.joda.time.format.DateTimeFormatter"
+                    };
+
+                    for (String name : names) {
+                        if (name.equals(className)) {
+                            deserializers.put(Class.forName(name), derializer = JodaCodec.instance);
+                            return derializer;
+                        }
+                    }
+                }
+            } catch (Throwable e) {
+                // skip
+                jodaError = true;
+            }
+        }
+
         if (className.equals("java.nio.file.Path")) {
             deserializers.put(clazz, derializer = MiscCodec.instance);
         }
@@ -554,6 +577,17 @@ public class ParserConfig {
         }
 
         if (clazz.isEnum()) {
+            if (jacksonCompatible) {
+                Method[] methods = clazz.getMethods();
+                for (Method method : methods) {
+                    if (TypeUtils.isJacksonCreator(method)) {
+                        derializer = createJavaBeanDeserializer(clazz, type);
+                        putDeserializer(type, derializer);
+                        return derializer;
+                    }
+                }
+            }
+
             Class<?> deserClass = null;
             JSONType jsonType = clazz.getAnnotation(JSONType.class);
             if (jsonType != null) {
@@ -667,7 +701,13 @@ public class ParserConfig {
             if (clazz.isInterface()) {
                 asmEnable = false;
             }
-            JavaBeanInfo beanInfo = JavaBeanInfo.build(clazz, type, propertyNamingStrategy);
+            JavaBeanInfo beanInfo = JavaBeanInfo.build(clazz
+                    , type
+                    , propertyNamingStrategy
+                    ,false
+                    , TypeUtils.compatibleWithJavaBean
+                    , jacksonCompatible
+            );
 
             if (asmEnable && beanInfo.fields.length > 200) {
                 asmEnable = false;
@@ -1059,7 +1099,8 @@ public class ParserConfig {
             }
 
             if (ClassLoader.class.isAssignableFrom(clazz) // classloader is danger
-                    || DataSource.class.isAssignableFrom(clazz) // dataSource can load jdbc driver
+                    || javax.sql.DataSource.class.isAssignableFrom(clazz) // dataSource can load jdbc driver
+                    || javax.sql.RowSet.class.isAssignableFrom(clazz) //
                     ) {
                 throw new JSONException("autoType is not support. " + typeName);
             }
@@ -1093,5 +1134,13 @@ public class ParserConfig {
     public void clearDeserializers() {
         this.deserializers.clear();
         this.initDeserializers();
+    }
+
+    public boolean isJacksonCompatible() {
+        return jacksonCompatible;
+    }
+
+    public void setJacksonCompatible(boolean jacksonCompatible) {
+        this.jacksonCompatible = jacksonCompatible;
     }
 }

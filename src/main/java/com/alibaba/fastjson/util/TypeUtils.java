@@ -110,6 +110,9 @@ public class TypeUtils{
     private static Class<?> pathClass;
     private static boolean pathClass_error = false;
 
+    private static Class<? extends Annotation> class_JacksonCreator = null;
+    private static boolean class_JacksonCreator_error = false;
+
     static{
         try{
             TypeUtils.compatibleWithJavaBean = "true".equals(IOUtils.getStringProperty(IOUtils.FASTJSON_COMPATIBLEWITHJAVABEAN));
@@ -134,9 +137,15 @@ public class TypeUtils{
         if(value == null){
             return null;
         }
+
+        if(value instanceof BigDecimal){
+            return byteValue((BigDecimal) value);
+        }
+
         if(value instanceof Number){
             return ((Number) value).byteValue();
         }
+
         if(value instanceof String){
             String strVal = (String) value;
             if(strVal.length() == 0 //
@@ -173,9 +182,15 @@ public class TypeUtils{
         if(value == null){
             return null;
         }
+
+        if(value instanceof BigDecimal){
+            return shortValue((BigDecimal) value);
+        }
+
         if(value instanceof Number){
             return ((Number) value).shortValue();
         }
+
         if(value instanceof String){
             String strVal = (String) value;
             if(strVal.length() == 0 //
@@ -185,6 +200,7 @@ public class TypeUtils{
             }
             return Short.parseShort(strVal);
         }
+
         throw new JSONException("can not cast to short, value : " + value);
     }
 
@@ -217,6 +233,13 @@ public class TypeUtils{
         }
         if(value instanceof Float || value instanceof Double){
             return BigInteger.valueOf(((Number) value).longValue());
+        }
+        if(value instanceof BigDecimal){
+            BigDecimal decimal = (BigDecimal) value;
+            int scale = decimal.scale();
+            if (scale > -1000 && scale < 1000) {
+                return ((BigDecimal) value).toBigInteger();
+            }
         }
         String strVal = value.toString();
         if(strVal.length() == 0 //
@@ -279,17 +302,27 @@ public class TypeUtils{
         if(value == null){
             return null;
         }
+
         if(value instanceof Date){ // 使用频率最高的，应优先处理
             return (Date) value;
         }
+
         if(value instanceof Calendar){
             return ((Calendar) value).getTime();
         }
+
         long longValue = -1;
+
+        if(value instanceof BigDecimal){
+            longValue = longValue((BigDecimal) value);
+            return new Date(longValue);
+        }
+
         if(value instanceof Number){
             longValue = ((Number) value).longValue();
             return new Date(longValue);
         }
+
         if(value instanceof String){
             String strVal = (String) value;
             JSONScanner dateLexer = new JSONScanner(strVal);
@@ -396,10 +429,14 @@ public class TypeUtils{
         if(value instanceof Calendar){
             return new java.sql.Date(((Calendar) value).getTimeInMillis());
         }
+
         long longValue = 0;
-        if(value instanceof Number){
+        if(value instanceof BigDecimal){
+            longValue = longValue((BigDecimal) value);
+        } else if(value instanceof Number){
             longValue = ((Number) value).longValue();
         }
+
         if(value instanceof String){
             String strVal = (String) value;
             if(strVal.length() == 0 //
@@ -424,6 +461,14 @@ public class TypeUtils{
         return new java.sql.Date(longValue);
     }
 
+    public static long longExtractValue(Number number) {
+        if (number instanceof BigDecimal) {
+            return ((BigDecimal) number).longValueExact();
+        }
+
+        return number.longValue();
+    }
+
     public static java.sql.Time castToSqlTime(Object value){
         if(value == null){
             return null;
@@ -437,10 +482,14 @@ public class TypeUtils{
         if(value instanceof Calendar){
             return new java.sql.Time(((Calendar) value).getTimeInMillis());
         }
+
         long longValue = 0;
-        if(value instanceof Number){
+        if(value instanceof BigDecimal){
+            longValue = longValue((BigDecimal) value);
+        } else if(value instanceof Number){
             longValue = ((Number) value).longValue();
         }
+
         if(value instanceof String){
             String strVal = (String) value;
             if(strVal.length() == 0 //
@@ -478,7 +527,9 @@ public class TypeUtils{
             return new java.sql.Timestamp(((java.util.Date) value).getTime());
         }
         long longValue = 0;
-        if(value instanceof Number){
+        if(value instanceof BigDecimal){
+            longValue = longValue((BigDecimal) value);
+        } else if(value instanceof Number){
             longValue = ((Number) value).longValue();
         }
         if(value instanceof String){
@@ -528,9 +579,15 @@ public class TypeUtils{
         if(value == null){
             return null;
         }
+
+        if(value instanceof BigDecimal){
+            return longValue((BigDecimal) value);
+        }
+
         if(value instanceof Number){
             return ((Number) value).longValue();
         }
+
         if(value instanceof String){
             String strVal = (String) value;
             if(strVal.length() == 0 //
@@ -556,6 +613,7 @@ public class TypeUtils{
                 return calendar.getTimeInMillis();
             }
         }
+
         if(value instanceof Map){
             Map map = (Map) value;
             if(map.size() == 2
@@ -567,19 +625,79 @@ public class TypeUtils{
                 return castToLong(value2);
             }
         }
+        
         throw new JSONException("can not cast to long, value : " + value);
+    }
+
+    public static byte byteValue(BigDecimal decimal) {
+        if (decimal == null) {
+            return 0;
+        }
+
+        int scale = decimal.scale();
+        if (scale >= -100 && scale <= 100) {
+            return decimal.byteValue();
+        }
+
+        return decimal.byteValueExact();
+    }
+
+    public static short shortValue(BigDecimal decimal) {
+        if (decimal == null) {
+            return 0;
+        }
+
+        int scale = decimal.scale();
+        if (scale >= -100 && scale <= 100) {
+            return decimal.shortValue();
+        }
+
+        return decimal.shortValueExact();
+    }
+
+    public static int intValue(BigDecimal decimal) {
+        if (decimal == null) {
+            return 0;
+        }
+
+        int scale = decimal.scale();
+        if (scale >= -100 && scale <= 100) {
+            return decimal.intValue();
+        }
+
+        return decimal.intValueExact();
+    }
+
+    public static long longValue(BigDecimal decimal) {
+        if (decimal == null) {
+            return 0;
+        }
+
+        int scale = decimal.scale();
+        if (scale >= -100 && scale <= 100) {
+            return decimal.longValue();
+        }
+
+        return decimal.longValueExact();
     }
 
     public static Integer castToInt(Object value){
         if(value == null){
             return null;
         }
+
         if(value instanceof Integer){
             return (Integer) value;
         }
+
+        if(value instanceof BigDecimal){
+            return intValue((BigDecimal) value);
+        }
+
         if(value instanceof Number){
             return ((Number) value).intValue();
         }
+
         if(value instanceof String){
             String strVal = (String) value;
             if(strVal.length() == 0 //
@@ -592,6 +710,7 @@ public class TypeUtils{
             }
             return Integer.parseInt(strVal);
         }
+
         if(value instanceof Boolean){
             return ((Boolean) value).booleanValue() ? 1 : 0;
         }
@@ -626,9 +745,15 @@ public class TypeUtils{
         if(value instanceof Boolean){
             return (Boolean) value;
         }
+
+        if(value instanceof BigDecimal){
+            return intValue((BigDecimal) value) == 1;
+        }
+
         if(value instanceof Number){
             return ((Number) value).intValue() == 1;
         }
+
         if(value instanceof String){
             String strVal = (String) value;
             if(strVal.length() == 0 //
@@ -872,6 +997,15 @@ public class TypeUtils{
 
                 return (T) Enum.valueOf((Class<? extends Enum>) clazz, name);
             }
+
+            if(obj instanceof BigDecimal){
+                int ordinal = intValue((BigDecimal) obj);
+                Object[] values = clazz.getEnumConstants();
+                if(ordinal < values.length){
+                    return (T) values[ordinal];
+                }
+            }
+
             if(obj instanceof Number){
                 int ordinal = ((Number) obj).intValue();
                 Object[] values = clazz.getEnumConstants();
@@ -991,8 +1125,10 @@ public class TypeUtils{
                 int lineNumber;
                 {
                     Number value = (Number) map.get("lineNumber");
-                    if(value == null){
+                    if(value == null) {
                         lineNumber = 0;
+                    } else if (value instanceof BigDecimal) {
+                        lineNumber = ((BigDecimal) value).intValueExact();
                     } else{
                         lineNumber = value.intValue();
                     }
@@ -1167,6 +1303,7 @@ public class TypeUtils{
                 java.lang.Long.class,
                 java.lang.Float.class,
                 java.lang.Double.class,
+                java.lang.Number.class,
                 java.lang.String.class,
                 java.math.BigDecimal.class,
                 java.math.BigInteger.class,
@@ -1984,6 +2121,9 @@ public class TypeUtils{
         return null;
     }
 
+    /**
+     * @deprecated
+     */
     public static int getSerializeFeatures(Class<?> clazz){
         JSONType annotation = TypeUtils.getAnnotation(clazz,JSONType.class);
         if(annotation == null){
@@ -2422,5 +2562,21 @@ public class TypeUtils{
             }
         }
         return null;
+    }
+
+    public static boolean isJacksonCreator(Method method) {
+        if (method == null) {
+            return false;
+        }
+
+        if (class_JacksonCreator == null && !class_JacksonCreator_error) {
+            try {
+                class_JacksonCreator = (Class<? extends Annotation>) Class.forName("com.fasterxml.jackson.annotation.JsonCreator");
+            } catch (Throwable e) {
+                // skip
+                class_JacksonCreator_error = true;
+            }
+        }
+        return class_JacksonCreator != null && method.isAnnotationPresent(class_JacksonCreator);
     }
 }

@@ -37,20 +37,14 @@ import com.alibaba.fastjson.JSONException;
  */
 public class IOUtils {
     
-    public  final  static String FASTJSON_PROPERTIES  ="fastjson.properties";
-    
-    public final static String FASTJSON_COMPATIBLEWITHJAVABEAN="fastjson.compatibleWithJavaBean";
-    
-    public final static String FASTJSON_COMPATIBLEWITHFIELDNAME="fastjson.compatibleWithFieldName";
-    
-    public final static Properties DEFAULT_PROPERTIES =new Properties();    
-
-    public final static Charset   UTF8                 = Charset.forName("UTF-8");
-    
-    public final static char[]    DIGITS                     = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A',
-            'B', 'C', 'D', 'E', 'F'                         };
-
-    public final static boolean[] firstIdentifierFlags       = new boolean[256];
+    public final static String     FASTJSON_PROPERTIES              = "fastjson.properties";
+    public final static String     FASTJSON_COMPATIBLEWITHJAVABEAN  = "fastjson.compatibleWithJavaBean";
+    public final static String     FASTJSON_COMPATIBLEWITHFIELDNAME = "fastjson.compatibleWithFieldName";
+    public final static Properties DEFAULT_PROPERTIES               = new Properties();
+    public final static Charset    UTF8                             = Charset.forName("UTF-8");
+    public final static char[]     DIGITS                           = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+    public final static boolean[]  firstIdentifierFlags             = new boolean[256];
+    public final static boolean[]  identifierFlags                  = new boolean[256];
     static {
         for (char c = 0; c < firstIdentifierFlags.length; ++c) {
             if (c >= 'A' && c <= 'Z') {
@@ -61,11 +55,7 @@ public class IOUtils {
                 firstIdentifierFlags[c] = true;
             }
         }
-    }
 
-    public final static boolean[] identifierFlags            = new boolean[256];
-
-    static {
         for (char c = 0; c < identifierFlags.length; ++c) {
             if (c >= 'A' && c <= 'Z') {
                 identifierFlags[c] = true;
@@ -77,9 +67,7 @@ public class IOUtils {
                 identifierFlags[c] = true;
             }
         }
-    }
-    
-    static {
+
         try {
             loadPropertiesFromFile();
         } catch (Throwable e) {
@@ -521,64 +509,6 @@ public class IOUtils {
         return bytes;
     }
 
-    private int decode0(String src, int sp, int sl, byte[] bytes) {
-
-        int[] base64 = IA;
-        int dp = 0;
-        int bits = 0;
-        int shiftto = 18;       // pos of first byte of 4-byte atom
-        while (sp < sl) {
-            int b = src.charAt(sp++) & 0xff;
-            if ((b = base64[b]) < 0) {
-                if (b == -2) {         // padding byte '='
-                    // =     shiftto==18 unnecessary padding
-                    // x=    shiftto==12 a dangling single x
-                    // x     to be handled together with non-padding case
-                    // xx=   shiftto==6&&sp==sl missing last =
-                    // xx=y  shiftto==6 last is not =
-                    if (shiftto == 6 && (sp == sl || src.charAt(sp++) != '=') ||
-                            shiftto == 18) {
-                        throw new IllegalArgumentException(
-                                "Input byte array has wrong 4-byte ending unit");
-                    }
-                    break;
-                }
-                throw new IllegalArgumentException(
-                            "Illegal base64 character " +
-                                    Integer.toString(src.charAt(sp - 1), 16));
-            }
-            bits |= (b << shiftto);
-            shiftto -= 6;
-            if (shiftto < 0) {
-                bytes[dp++] = (byte)(bits >> 16);
-                bytes[dp++] = (byte)(bits >>  8);
-                bytes[dp++] = (byte)(bits);
-                shiftto = 18;
-                bits = 0;
-            }
-        }
-        // reached end of byte array or hit padding '=' characters.
-        if (shiftto == 6) {
-            bytes[dp++] = (byte)(bits >> 16);
-        } else if (shiftto == 0) {
-            bytes[dp++] = (byte)(bits >> 16);
-            bytes[dp++] = (byte)(bits >>  8);
-        } else if (shiftto == 12) {
-            // dangling single "x", incorrectly encoded.
-            throw new IllegalArgumentException(
-                    "Last unit does not have enough valid bits");
-        }
-        // anything left is invalid, if is not MIME.
-        // if MIME, ignore all non-base64 character
-        while (sp < sl) {
-            if (base64[src.charAt(sp++) & 0xff] < 0)
-                continue;
-            throw new IllegalArgumentException(
-                    "Input byte array has incorrect ending byte at " + sp);
-        }
-        return dp;
-    }
-
     /**
      * Decodes a BASE64 encoded string that is known to be resonably well formatted. The method is about twice as fast
      * as decode(String). The preconditions are:<br>
@@ -684,7 +614,9 @@ public class IOUtils {
                 } else {
                     //
                     if (c >= '\uDC00' && c < ('\uDFFF' + 1)) { // Character.isLowSurrogate(c)
-                        throw new JSONException("encodeUTF8 error", new MalformedInputException(1));
+                        bytes[dp++] = (byte) '?';
+                        continue;
+//                        throw new JSONException("encodeUTF8 error", new MalformedInputException(1));
                     } else {
                         uc = c;
                     }
@@ -756,7 +688,7 @@ public class IOUtils {
                                           (((byte) 0xE0 << 12) ^
                                           ((byte) 0x80 <<  6) ^
                                           ((byte) 0x80 <<  0))));
-                        boolean isSurrogate =  c >= Character.MIN_SURROGATE && c < (Character.MAX_SURROGATE + 1);
+                        boolean isSurrogate = c >= '\uD800' && c < ('\uDFFF' + 1);
                         if (isSurrogate) {
                             return -1;
                         } else {
@@ -783,11 +715,12 @@ public class IOUtils {
                     if (((b2 & 0xc0) != 0x80 || (b3 & 0xc0) != 0x80 || (b4 & 0xc0) != 0x80) // isMalformed4
                         ||
                         // shortest form check
-                        !Character.isSupplementaryCodePoint(uc)) {
+                        !(uc >= 0x010000 && uc <  0X10FFFF + 1) // !Character.isSupplementaryCodePoint(uc)
+                    ) {
                         return -1;
                     } else {
-                        da[dp++] =  (char) ((uc >>> 10) + (Character.MIN_HIGH_SURROGATE - (Character.MIN_SUPPLEMENTARY_CODE_POINT >>> 10))); // Character.highSurrogate(uc);
-                        da[dp++] = (char) ((uc & 0x3ff) + Character.MIN_LOW_SURROGATE); // Character.lowSurrogate(uc);
+                        da[dp++] =  (char) ((uc >>> 10) + ('\uD800' - (0x010000 >>> 10))); // Character.highSurrogate(uc);
+                        da[dp++] = (char) ((uc & 0x3ff) + '\uDC00'); // Character.lowSurrogate(uc);
                     }
                     continue;
                 }

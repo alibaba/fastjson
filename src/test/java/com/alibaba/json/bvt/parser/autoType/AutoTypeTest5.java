@@ -22,6 +22,7 @@ public class AutoTypeTest5 extends TestCase {
     }
 
     public void test_0() throws Exception {
+        assertFalse(ParserConfig.getGlobalInstance().isAutoTypeSupport());
         JSON.parseObject("{\"value\":{\"@type\":\"com.alibaba.json.bvt.parser.autoType.AutoTypeTest5$V1\"}}", Model.class);
 
         int size = mappings.size();

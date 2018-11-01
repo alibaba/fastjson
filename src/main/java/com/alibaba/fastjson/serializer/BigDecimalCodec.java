@@ -40,9 +40,10 @@ public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
             out.writeNull(SerializerFeature.WriteNullNumberAsZero);
         } else {
             BigDecimal val = (BigDecimal) object;
+            int scale = val.scale();
 
             String outText;
-            if (out.isEnabled(SerializerFeature.WriteBigDecimalAsPlain)) {
+            if (out.isEnabled(SerializerFeature.WriteBigDecimalAsPlain) && scale >= -100 && scale < 100) {
                 outText = val.toPlainString();
             } else {
                 outText = val.toString();

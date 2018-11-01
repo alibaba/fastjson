@@ -40,12 +40,20 @@ public class DateFieldFormatTest extends TestCase {
         String t2 = df2.format(now);
         String t3 = df3.format(now);
 
-        Assert.assertEquals("{\"publishTime\":\""+t2+"\",\"serverTime\":\""+t1+"\",\"startDate\":\""+t3+"\"}",text);
+        assertEquals("{\"publishTime\":\""+t2+"\",\"serverTime\":\""+t1+"\",\"startDate\":\""+t3+"\"}",text);
         
         Model model2 = JSON.parseObject(text, Model.class);
-        Assert.assertEquals(t2,new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.CHINA).format(model2.publishTime));
-        Assert.assertEquals(t1,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA).format(model2.serverTime));
-        Assert.assertEquals(t3,new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA).format(model2.getStartDate()));
+        SimpleDateFormat df4 = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.CHINA);
+        SimpleDateFormat df5 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA);
+        SimpleDateFormat df6 = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
+
+        df4.setTimeZone(JSON.defaultTimeZone);
+        df5.setTimeZone(JSON.defaultTimeZone);
+        df6.setTimeZone(JSON.defaultTimeZone);
+
+        assertEquals(t2, df4.format(model2.publishTime));
+        assertEquals(t1, df5.format(model2.serverTime));
+        assertEquals(t3, df6.format(model2.getStartDate()));
         
     }
 

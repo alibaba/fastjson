@@ -82,9 +82,9 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
                 lexer.nextToken(JSONToken.COMMA);
                 intObj = Integer.valueOf(val);
             } else if (token == JSONToken.LITERAL_FLOAT) {
-                BigDecimal decimalValue = lexer.decimalValue();
+                BigDecimal number = lexer.decimalValue();
+                intObj = TypeUtils.intValue(number);
                 lexer.nextToken(JSONToken.COMMA);
-                intObj = Integer.valueOf(decimalValue.intValue());
             } else {
                 if (token == JSONToken.LBRACE) {
                     JSONObject jsonObject = new JSONObject(true);

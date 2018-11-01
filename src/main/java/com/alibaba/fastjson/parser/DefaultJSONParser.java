@@ -1420,7 +1420,7 @@ public class DefaultJSONParser implements Closeable {
                 lexer.nextToken(JSONToken.LPAREN);
 
                 accept(JSONToken.LPAREN);
-                long time = ((Number) lexer.integerValue()).longValue();
+                long time = lexer.integerValue().longValue();
                 accept(JSONToken.LITERAL_INT);
 
                 accept(JSONToken.RPAREN);
@@ -1741,4 +1741,5 @@ public class DefaultJSONParser implements Closeable {
             setContext(context);
         }
     }
+
 }

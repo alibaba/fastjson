@@ -30,7 +30,8 @@ public class JSONPath_array_multi extends TestCase {
     }
 
     public void test_list_multi_negative() throws Exception {
-        List<Object> result = (List<Object>) new JSONPath("$[-1,-2,-100]").eval(list);
+        List<Object> result = (List<Object>) new JSONPath("$[-1,-2,-100]")
+                .eval(list);
         Assert.assertEquals(3, result.size());
         Assert.assertSame(list[9], result.get(0));
         Assert.assertSame(list[8], result.get(1));

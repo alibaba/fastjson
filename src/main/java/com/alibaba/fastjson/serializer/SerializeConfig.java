@@ -58,6 +58,8 @@ public class SerializeConfig {
     private static boolean                                guavaError      = false;
     private static boolean                                jsonnullError   = false;
 
+    private static boolean                                jodaError       = false;
+
     private boolean                                       asm             = !ASMUtils.IS_ANDROID;
     private ASMSerializerFactory                          asmFactory;
     protected String                                      typeKey         = JSON.DEFAULT_TYPE_KEY;
@@ -666,6 +668,34 @@ public class SerializeConfig {
                     } catch (ClassNotFoundException e) {
                         // skip
                         jsonnullError = true;
+                    }
+                }
+
+                if ((!jodaError) && className.startsWith("org.joda.")) {
+                    try {
+                        String[] names = new String[] {
+                                "org.joda.time.LocalDate",
+                                "org.joda.time.LocalDateTime",
+                                "org.joda.time.LocalTime",
+                                "org.joda.time.Instant",
+                                "org.joda.time.DateTime",
+                                "org.joda.time.Period",
+                                "org.joda.time.Duration",
+                                "org.joda.time.DateTimeZone",
+                                "org.joda.time.UTCDateTimeZone",
+                                "org.joda.time.tz.CachedDateTimeZone",
+                                "org.joda.time.tz.FixedDateTimeZone",
+                        };
+
+                        for (String name : names) {
+                            if (name.equals(className)) {
+                                put(Class.forName(name), writer = JodaCodec.instance);
+                                return writer;
+                            }
+                        }
+                    } catch (ClassNotFoundException e) {
+                        // skip
+                        jodaError = true;
                     }
                 }
 

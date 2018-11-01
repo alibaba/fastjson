@@ -209,7 +209,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                         }
 
                         token = EOF;
-                        pos = bp = eofPos;
+                        eofPos = pos = bp;
                     } else {
                         if (ch <= 31 || ch == 127) {
                             next();
@@ -1186,6 +1186,34 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         return true;
     }
 
+    public int matchField(long fieldNameHash) {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean seekArrayToItem(int index) {
+        throw new UnsupportedOperationException();
+    }
+
+    public int seekObjectToField(long fieldNameHash, boolean deepScan) {
+        throw new UnsupportedOperationException();
+    }
+
+    public int seekObjectToField(long[] fieldNameHash) {
+        throw new UnsupportedOperationException();
+    }
+
+    public int seekObjectToFieldDeepScan(long fieldNameHash) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void skipObject() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void skipArray() {
+        throw new UnsupportedOperationException();
+    }
+
     public abstract int indexOf(char ch, int startIndex);
 
     public abstract String addSymbol(int offset, int len, int hash, final SymbolTable symbolTable);
@@ -1692,7 +1720,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 && charAt(bp + offset + 1) == 'l'
                 && charAt(bp + offset + 2) == 'l'
                 && charAt(bp + offset + 3) == seperator
-                ) {
+        ) {
             bp += 5;
             ch = charAt(bp);
             matchStat = VALUE_NULL;
@@ -4891,6 +4919,12 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         np = bp;
         next();
+
+        if (ch == '\'') {
+            next();
+            token = JSONToken.HEX;
+            return;
+        }
 
         for (int i = 0;;++i) {
             char ch = next();

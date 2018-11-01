@@ -380,7 +380,7 @@ public final class JSONScanner extends JSONLexerBase {
         char y0, y1, y2, y3, M0, M1, d0, d1;
         if ((c4 == '-' && c7 == '-') // cn
                 ||  (c4 == '/' && c7 == '/') // tw yyyy/mm/dd
-                ) {
+        ) {
             y0 = c0;
             y1 = c1;
             y2 = c2;
@@ -390,7 +390,7 @@ public final class JSONScanner extends JSONLexerBase {
             d0 = c8;
             d1 = c9;
         } else if ((c4 == '-' && c6 == '-') // cn yyyy-m-dd
-                ) {
+        ) {
             y0 = c0;
             y1 = c1;
             y2 = c2;
@@ -409,7 +409,7 @@ public final class JSONScanner extends JSONLexerBase {
             }
         } else if ((c2 == '.' && c5 == '.') // de dd.mm.yyyy
                 || (c2 == '-' && c5 == '-') // in dd-mm-yyyy
-                ) {
+        ) {
             d0 = c0;
             d1 = c1;
             M0 = c3;
@@ -418,6 +418,16 @@ public final class JSONScanner extends JSONLexerBase {
             y1 = c7;
             y2 = c8;
             y3 = c9;
+        } else if (c8 == 'T') {
+            y0 = c0;
+            y1 = c1;
+            y2 = c2;
+            y3 = c3;
+            M0 = c4;
+            M1 = c5;
+            d0 = c6;
+            d1 = c7;
+            date_len = 8;
         } else {
             if (c4 == '年' || c4 == '년') {
                 y0 = c0;
@@ -465,7 +475,32 @@ public final class JSONScanner extends JSONLexerBase {
         setCalendar(y0, y1, y2, y3, M0, M1, d0, d1);
 
         char t = charAt(bp + date_len);
-        if (t == 'T' || (t == ' ' && !strict)) {
+        if (t == 'T' && rest == 16 && date_len == 8 && charAt(bp + 15) == 'Z') {
+            char h0 = charAt(bp + date_len + 1);
+            char h1 = charAt(bp + date_len + 2);
+            char m0 = charAt(bp + date_len + 3);
+            char m1 = charAt(bp + date_len + 4);
+            char s0 = charAt(bp + date_len + 5);
+            char s1 = charAt(bp + date_len + 6);
+
+            if (!checkTime(h0, h1, m0, m1, s0, s1)) {
+                return false;
+            }
+
+            setTime(h0, h1, m0, m1, s0, s1);
+            calendar.set(Calendar.MILLISECOND, 0);
+
+            if (calendar.getTimeZone().getRawOffset() != 0) {
+                String[] timeZoneIDs = TimeZone.getAvailableIDs(0);
+                if (timeZoneIDs.length > 0) {
+                    TimeZone timeZone = TimeZone.getTimeZone(timeZoneIDs[0]);
+                    calendar.setTimeZone(timeZone);
+                }
+            }
+
+            token = JSONToken.LITERAL_ISO8601_DATE;
+            return true;
+        } else if (t == 'T' || (t == ' ' && !strict)) {
             if (rest < date_len + 9) { // "0000-00-00T00:00:00".length()
                 return false;
             }
@@ -581,6 +616,14 @@ public final class JSONScanner extends JSONLexerBase {
                 if (t3 != '0' && t3 != '3') {
                     return false;
                 }
+                timzeZoneLength = 5;
+            } else if (t2 == '3' && charAt(bp + date_len + 10 + millisLen + 4) == '0') {
+                t3 = '3';
+                t4 = '0';
+                timzeZoneLength = 5;
+            } else if (t2 == '4' && charAt(bp + date_len + 10 + millisLen + 4) == '5') {
+                t3 = '4';
+                t4 = '5';
                 timzeZoneLength = 5;
             } else {
                 timzeZoneLength = 3;
@@ -1514,14 +1557,14 @@ public final class JSONScanner extends JSONLexerBase {
             ch = charAt(bp);
             value = false;
         } else if (ch == '1') {
-                if (quote && charAt(index++) != '"') {
-                    matchStat = NOT_MATCH;
-                    return false;
-                }
+            if (quote && charAt(index++) != '"') {
+                matchStat = NOT_MATCH;
+                return false;
+            }
 
-                bp = index;
-                ch = charAt(bp);
-                value = true;
+            bp = index;
+            ch = charAt(bp);
+            value = true;
         } else if (ch == '0') {
             if (quote && charAt(index++) != '"') {
                 matchStat = NOT_MATCH;
@@ -2076,8 +2119,8 @@ public final class JSONScanner extends JSONLexerBase {
         }
 
         buf.append("pos ").append(bp)
-            .append(", line ").append(line)
-            .append(", column ").append(column);
+                .append(", line ").append(line)
+                .append(", column ").append(column);
 
         if (text.length() < 65535) {
             buf.append(text);
@@ -2216,7 +2259,658 @@ public final class JSONScanner extends JSONLexerBase {
             matchStat = NOT_MATCH_NAME;
             return false;
         }
+    }
 
+    public final void skipObject() {
+        boolean quote = false;
+        int braceCnt = 0;
+        for (int i = bp; i < text.length(); ++i) {
+            final char ch = text.charAt(i);
+            if (ch == '\\') {
+                if (i < len - 1) {
+                    ++i;
+                    continue;
+                } else {
+                    this.ch = ch;
+                    this.bp = i;
+                    throw new JSONException("illegal str, " + info());
+                }
+            } else if (ch == '"') {
+                quote = !quote;
+            } else if (ch == '{') {
+                if (quote) {
+                    continue;
+                }
+                braceCnt++;
+            } else if (ch == '}') {
+                if (quote) {
+                    continue;
+                } else {
+                    braceCnt--;
+                }
+                if (braceCnt == -1) {
+                    this.bp = i + 1;
+                    this.ch = text.charAt(i + 1);
+                    if (this.ch == ',') {
+                        token = JSONToken.COMMA;
+                        int index = ++bp;
+                        this.ch = (index >= text.length() //
+                                ? EOI //
+                                : text.charAt(index));
+                        return;
+                    } else if (this.ch == '}') {
+                        token = JSONToken.RBRACE;
+                        next();
+                        return;
+                    } else if (this.ch == ']') {
+                        token = JSONToken.RBRACKET;
+                        next();
+                        return;
+                    } else {
+                        nextToken(JSONToken.COMMA);
+                    }
+                    return;
+                }
+            }
+        }
+    }
 
+    public final void skipArray() {
+        boolean quote = false;
+        int bracketCnt = 0;
+        for (int i = bp; i < text.length(); ++i) {
+            char ch = text.charAt(i);
+            if (ch == '\\') {
+                if (i < len - 1) {
+                    ++i;
+                    continue;
+                } else {
+                    this.ch = ch;
+                    this.bp = i;
+                    throw new JSONException("illegal str, " + info());
+                }
+            } else if (ch == '"') {
+                quote = !quote;
+            } else if (ch == '[') {
+                if (quote) {
+                    continue;
+                }
+                bracketCnt++;
+            } else if (ch == ']') {
+                if (quote) {
+                    continue;
+                } else {
+                    bracketCnt--;
+                }
+                if (bracketCnt == -1) {
+                    this.bp = i + 1;
+                    this.ch = text.charAt(i + 1);
+                    nextToken(JSONToken.COMMA);
+                    return;
+                }
+            }
+        }
+    }
+
+    public final void skipString() {
+        if (ch == '"') {
+            for (int i = bp + 1; i < text.length(); ++i) {
+                char c = text.charAt(i);
+                if (c == '\\') {
+                    if (i < len - 1) {
+                        ++i;
+                        continue;
+                    }
+                } else if (c == '"') {
+                    this.ch = text.charAt(bp = i + 1);
+                    return;
+                }
+            }
+            throw new JSONException("unclosed str");
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    public boolean seekArrayToItem(int index) {
+        if (index < 0) {
+            throw new IllegalArgumentException("index must > 0, but " + index);
+        }
+
+        if (token == JSONToken.EOF) {
+            return false;
+        }
+
+        if (token != JSONToken.LBRACKET) {
+            throw new UnsupportedOperationException();
+        }
+//        nextToken();
+
+        for (int i = 0; i < index; ++i) {
+            skipWhitespace();
+            if (ch == '"' || ch == '\'') {
+                skipString();
+                if (ch == ',') {
+                    next();
+                    continue;
+                } else if (ch == ']') {
+                    next();
+                    nextToken(JSONToken.COMMA);
+                    return false;
+                } else {
+                    throw new JSONException("illegal json.");
+                }
+            } else if (ch == '{') {
+                next();
+                token = JSONToken.LBRACE;
+                skipObject();
+            } else if (ch == '[') {
+                next();
+                token = JSONToken.LBRACKET;
+                skipArray();
+            } else {
+                boolean match = false;
+                for (int j = bp + 1; j < text.length(); ++j) {
+                    char c = text.charAt(j);
+                    if (c == ',') {
+                        match = true;
+                        bp = j + 1;
+                        ch = charAt(bp);
+                        break;
+                    } else if (c == ']') {
+                        bp = j + 1;
+                        ch = charAt(bp);
+                        nextToken();
+                        return false;
+                    }
+                }
+
+                if (!match) {
+                    throw new JSONException("illegal json.");
+                }
+
+                continue;
+            }
+
+            if (token == JSONToken.COMMA) {
+                continue;
+            } else if (token == JSONToken.RBRACKET) {
+                return false;
+            } else {
+                throw new UnsupportedOperationException();
+            }
+
+        }
+
+        nextToken();
+        return true;
+    }
+
+    public int seekObjectToField(long fieldNameHash, boolean deepScan) {
+        if (token == JSONToken.EOF) {
+            return JSONLexer.NOT_MATCH;
+        }
+
+        if (token == JSONToken.RBRACE || token == JSONToken.RBRACKET) {
+            nextToken();
+            return JSONLexer.NOT_MATCH;
+        }
+
+        if (token != JSONToken.LBRACE && token != JSONToken.COMMA) {
+            throw new UnsupportedOperationException(JSONToken.name(token));
+        }
+
+        for (;;) {
+            if (ch == '}') {
+                next();
+                nextToken();
+                return JSONLexer.NOT_MATCH;
+            }
+            if (ch == EOI) {
+                return JSONLexer.NOT_MATCH;
+            }
+
+            if (ch != '"') {
+                skipWhitespace();
+            }
+
+            long hash;
+            if (ch == '"') {
+                hash = 0xcbf29ce484222325L;
+
+                for (int i = bp + 1; i < text.length(); ++i) {
+                    char c = text.charAt(i);
+                    if (c == '\\') {
+                        ++i;
+                        if (i == text.length()) {
+                            throw new JSONException("unclosed str, " + info());
+                        }
+                        c = text.charAt(i);
+                    }
+
+                    if (c == '"') {
+                        bp = i + 1;
+                        ch = (bp >= text.length() //
+                                ? EOI //
+                                : text.charAt(bp));
+                        break;
+                    }
+
+                    hash ^= c;
+                    hash *= 0x100000001b3L;
+                }
+            } else {
+                throw new UnsupportedOperationException();
+            }
+
+            if (hash == fieldNameHash) {
+                if (ch != ':') {
+                    skipWhitespace();
+                }
+                if (ch == ':') {
+                    {
+                        int index = ++bp;
+                        ch = (index >= text.length() //
+                                ? EOI //
+                                : text.charAt(index));
+                    }
+                    if (ch == ',') {
+                        {
+                            int index = ++bp;
+                            ch = (index >= text.length() //
+                                    ? EOI //
+                                    : text.charAt(index));
+                        }
+                        token = JSONToken.COMMA;
+                    } else if (ch == ']') {
+                        {
+                            int index = ++bp;
+                            ch = (index >= text.length() //
+                                    ? EOI //
+                                    : text.charAt(index));
+                        }
+                        token = JSONToken.RBRACKET;
+                    } else if (ch == '}') {
+                        {
+                            int index = ++bp;
+                            ch = (index >= text.length() //
+                                    ? EOI //
+                                    : text.charAt(index));
+                        }
+                        token = JSONToken.RBRACE;
+                    } else if (ch >= '0' && ch <= '9') {
+                        sp = 0;
+                        pos = bp;
+                        scanNumber();
+                    } else {
+                        nextToken(JSONToken.LITERAL_INT);
+                    }
+                }
+                return VALUE;
+            }
+
+            if (ch != ':') {
+                skipWhitespace();
+            }
+
+            if (ch == ':') {
+                int index = ++bp;
+                ch = (index >= text.length() //
+                        ? EOI //
+                        : text.charAt(index));
+            } else {
+                throw new JSONException("illegal json, " + info());
+            }
+
+            if (ch != '"'
+                    && ch != '\''
+                    && ch != '{'
+                    && ch != '['
+                    && ch != '0'
+                    && ch != '1'
+                    && ch != '2'
+                    && ch != '3'
+                    && ch != '4'
+                    && ch != '5'
+                    && ch != '6'
+                    && ch != '7'
+                    && ch != '8'
+                    && ch != '9'
+                    && ch != '+'
+                    && ch != '-') {
+                skipWhitespace();
+            }
+
+            // skip fieldValues
+            if (ch == '-' || ch == '+' || (ch >= '0' && ch <= '9')) {
+                next();
+                while (ch >= '0' && ch <= '9') {
+                    next();
+                }
+
+                // scale
+                if (ch == '.') {
+                    next();
+                    while (ch >= '0' && ch <= '9') {
+                        next();
+                    }
+                }
+
+                // exp
+                if (ch == 'E' || ch == 'e') {
+                    next();
+                    if (ch == '-' || ch == '+') {
+                        next();
+                    }
+                    while (ch >= '0' && ch <= '9') {
+                        next();
+                    }
+                }
+
+                if (ch != ',') {
+                    skipWhitespace();
+                }
+                if (ch == ',') {
+                    next();
+                }
+            } else if (ch == '"') {
+                skipString();
+
+                if (ch != ',' && ch != '}') {
+                    skipWhitespace();
+                }
+
+                if (ch == ',') {
+                    next();
+                }
+            } else if (ch == 't') {
+                next();
+                if (ch == 'r') {
+                    next();
+                    if (ch == 'u') {
+                        next();
+                        if (ch == 'e') {
+                            next();
+                        }
+                    }
+                }
+
+                if (ch != ',' && ch != '}') {
+                    skipWhitespace();
+                }
+
+                if (ch == ',') {
+                    next();
+                }
+            } else if (ch == 'n') {
+                next();
+                if (ch == 'u') {
+                    next();
+                    if (ch == 'l') {
+                        next();
+                        if (ch == 'l') {
+                            next();
+                        }
+                    }
+                }
+
+                if (ch != ',' && ch != '}') {
+                    skipWhitespace();
+                }
+
+                if (ch == ',') {
+                    next();
+                }
+            } else if (ch == 'f') {
+                next();
+                if (ch == 'a') {
+                    next();
+                    if (ch == 'l') {
+                        next();
+                        if (ch == 's') {
+                            next();
+                            if (ch == 'e') {
+                                next();
+                            }
+                        }
+                    }
+                }
+
+                if (ch != ',' && ch != '}') {
+                    skipWhitespace();
+                }
+
+                if (ch == ',') {
+                    next();
+                }
+            } else if (ch == '{') {
+                {
+                    int index = ++bp;
+                    ch = (index >= text.length() //
+                            ? EOI //
+                            : text.charAt(index));
+                }
+                if (deepScan) {
+                    token = JSONToken.LBRACE;
+                    return OBJECT;
+                }
+
+                skipObject();
+                if (token == JSONToken.RBRACE) {
+                    return JSONLexer.NOT_MATCH;
+                }
+            } else if (ch == '[') {
+                next();
+                if (deepScan) {
+                    token = JSONToken.LBRACKET;
+                    return ARRAY;
+                }
+                skipArray();
+                if (token == JSONToken.RBRACE) {
+                    return JSONLexer.NOT_MATCH;
+                }
+            } else {
+                throw new UnsupportedOperationException();
+            }
+        }
+    }
+
+    public int seekObjectToField(long[] fieldNameHash) {
+        if (token != JSONToken.LBRACE && token != JSONToken.COMMA) {
+            throw new UnsupportedOperationException();
+        }
+
+        for (;;) {
+            if (ch == '}') {
+                next();
+                nextToken();
+                this.matchStat = JSONLexer.NOT_MATCH;
+                return -1;
+            }
+            if (ch == EOI) {
+                this.matchStat = JSONLexer.NOT_MATCH;
+                return -1;
+            }
+
+            if (ch != '"') {
+                skipWhitespace();
+            }
+
+            long hash;
+            if (ch == '"') {
+                hash = 0xcbf29ce484222325L;
+
+                for (int i = bp + 1; i < text.length(); ++i) {
+                    char c = text.charAt(i);
+                    if (c == '\\') {
+                        ++i;
+                        if (i == text.length()) {
+                            throw new JSONException("unclosed str, " + info());
+                        }
+                        c = text.charAt(i);
+                    }
+
+                    if (c == '"') {
+                        bp = i + 1;
+                        ch = (bp >= text.length() //
+                                ? EOI //
+                                : text.charAt(bp));
+                        break;
+                    }
+
+                    hash ^= c;
+                    hash *= 0x100000001b3L;
+                }
+            } else {
+                throw new UnsupportedOperationException();
+            }
+
+            int matchIndex = -1;
+            for (int i = 0; i < fieldNameHash.length; i++) {
+                if (hash == fieldNameHash[i]) {
+                    matchIndex = i;
+                    break;
+                }
+            }
+
+            if (matchIndex != -1) {
+                if (ch != ':') {
+                    skipWhitespace();
+                }
+                if (ch == ':') {
+                    {
+                        int index = ++bp;
+                        ch = (index >= text.length() //
+                                ? EOI //
+                                : text.charAt(index));
+                    }
+                    if (ch == ',') {
+                        {
+                            int index = ++bp;
+                            ch = (index >= text.length() //
+                                    ? EOI //
+                                    : text.charAt(index));
+                        }
+                        token = JSONToken.COMMA;
+                    } else if (ch == ']') {
+                        {
+                            int index = ++bp;
+                            ch = (index >= text.length() //
+                                    ? EOI //
+                                    : text.charAt(index));
+                        }
+                        token = JSONToken.RBRACKET;
+                    } else if (ch == '}') {
+                        {
+                            int index = ++bp;
+                            ch = (index >= text.length() //
+                                    ? EOI //
+                                    : text.charAt(index));
+                        }
+                        token = JSONToken.RBRACE;
+                    } else if (ch >= '0' && ch <= '9') {
+                        sp = 0;
+                        pos = bp;
+                        scanNumber();
+                    } else {
+                        nextToken(JSONToken.LITERAL_INT);
+                    }
+                }
+
+                matchStat = VALUE;
+                return matchIndex;
+            }
+
+            if (ch != ':') {
+                skipWhitespace();
+            }
+
+            if (ch == ':') {
+                int index = ++bp;
+                ch = (index >= text.length() //
+                        ? EOI //
+                        : text.charAt(index));
+            } else {
+                throw new JSONException("illegal json, " + info());
+            }
+
+            if (ch != '"'
+                    && ch != '\''
+                    && ch != '{'
+                    && ch != '['
+                    && ch != '0'
+                    && ch != '1'
+                    && ch != '2'
+                    && ch != '3'
+                    && ch != '4'
+                    && ch != '5'
+                    && ch != '6'
+                    && ch != '7'
+                    && ch != '8'
+                    && ch != '9'
+                    && ch != '+'
+                    && ch != '-') {
+                skipWhitespace();
+            }
+
+            // skip fieldValues
+            if (ch == '-' || ch == '+' || (ch >= '0' && ch <= '9')) {
+                next();
+                while (ch >= '0' && ch <= '9') {
+                    next();
+                }
+
+                // scale
+                if (ch == '.') {
+                    next();
+                    while (ch >= '0' && ch <= '9') {
+                        next();
+                    }
+                }
+
+                // exp
+                if (ch == 'E' || ch == 'e') {
+                    next();
+                    if (ch == '-' || ch == '+') {
+                        next();
+                    }
+                    while (ch >= '0' && ch <= '9') {
+                        next();
+                    }
+                }
+
+                if (ch != ',') {
+                    skipWhitespace();
+                }
+                if (ch == ',') {
+                    next();
+                }
+            } else if (ch == '"') {
+                skipString();
+
+                if (ch != ',' && ch != '}') {
+                    skipWhitespace();
+                }
+
+                if (ch == ',') {
+                    next();
+                }
+            } else if (ch == '{') {
+                {
+                    int index = ++bp;
+                    ch = (index >= text.length() //
+                            ? EOI //
+                            : text.charAt(index));
+                }
+
+                skipObject();
+            } else if (ch == '[') {
+                next();
+
+                skipArray();
+            } else {
+                throw new UnsupportedOperationException();
+            }
+        }
     }
 }

@@ -17,6 +17,7 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -168,6 +169,8 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
 
         if (val instanceof java.util.Date) {
             return (T) val;
+        } else if (val instanceof BigDecimal) {
+            return (T) new java.util.Date(TypeUtils.longValue((BigDecimal) val));
         } else if (val instanceof Number) {
             return (T) new java.util.Date(((Number) val).longValue());
         } else if (val instanceof String) {

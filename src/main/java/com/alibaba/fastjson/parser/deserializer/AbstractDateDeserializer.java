@@ -33,12 +33,13 @@ public abstract class AbstractDateDeserializer extends ContextObjectDeserializer
                 try {
                     simpleDateFormat = new SimpleDateFormat(format, JSON.defaultLocale);
                 } catch (IllegalArgumentException ex) {
-                    if (format.equals("yyyy-MM-ddTHH:mm:ss.SSS")) {
-                        format = "yyyy-MM-dd'T'HH:mm:ss.SSS";
-                        simpleDateFormat = new SimpleDateFormat(format);
-                    } else  if (format.equals("yyyy-MM-ddTHH:mm:ss")) {
-                        format = "yyyy-MM-dd'T'HH:mm:ss";
-                        simpleDateFormat = new SimpleDateFormat(format);
+                    if (format.contains("T")) {
+                        String fromat2 = format.replaceAll("T", "'T'");
+                        try {
+                        simpleDateFormat = new SimpleDateFormat(fromat2, JSON.defaultLocale);
+                        } catch (IllegalArgumentException e2) {
+                            throw ex;
+                        }
                     }
                 }
 
@@ -54,7 +55,19 @@ public abstract class AbstractDateDeserializer extends ContextObjectDeserializer
                 }
 
                 if (val == null && JSON.defaultLocale == Locale.CHINA) {
-                    simpleDateFormat = new SimpleDateFormat(format, Locale.US);
+                    try {
+                        simpleDateFormat = new SimpleDateFormat(format, Locale.US);
+                    } catch (IllegalArgumentException ex) {
+                        if (format.contains("T")) {
+                            String fromat2 = format.replaceAll("T", "'T'");
+                            try {
+                                simpleDateFormat = new SimpleDateFormat(fromat2, JSON.defaultLocale);
+                            } catch (IllegalArgumentException e2) {
+                                throw ex;
+                            }
+                        }
+                    }
+
                     try {
                         val = simpleDateFormat.parse(strVal);
                     } catch (ParseException ex) {
@@ -67,7 +80,9 @@ public abstract class AbstractDateDeserializer extends ContextObjectDeserializer
                     if (format.equals("yyyy-MM-dd'T'HH:mm:ss.SSS") //
                             && strVal.length() == 19) {
                         try {
-                            val = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(strVal);
+                            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", JSON.defaultLocale);
+                            df.setTimeZone(JSON.defaultTimeZone);
+                            val = df.parse(strVal);
                         } catch (ParseException ex2) {
                             // skip
                             val = null;

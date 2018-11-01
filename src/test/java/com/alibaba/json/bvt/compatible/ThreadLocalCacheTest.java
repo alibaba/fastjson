@@ -9,5 +9,6 @@ import junit.framework.TestCase;
 public class ThreadLocalCacheTest extends TestCase{
     public void test_threadCache() throws Exception {
         ThreadLocalCache.getBytes(10);
+        ThreadLocalCache.clearBytes();
     }
 }

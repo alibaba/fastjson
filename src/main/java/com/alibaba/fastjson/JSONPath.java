@@ -731,6 +731,10 @@ public class JSONPath implements JSONAware {
 
                             if ("size".equals(propertyName) || "length".equals(propertyName)) {
                                 return SizeSegment.instance;
+                            } else if ("max".equals(propertyName)) {
+                                return MaxSegment.instance;
+                            } else if ("min".equals(propertyName)) {
+                                return MinSegment.instance;
                             } else if ("keySet".equals(propertyName)) {
                                 return KeySetSegment.instance;
                             }
@@ -1538,6 +1542,8 @@ public class JSONPath implements JSONAware {
                     } else {
                         throw new UnsupportedOperationException();
                     }
+                } else if ("nin".equalsIgnoreCase(name)) {
+                    op = Operator.NOT_IN;
                 } else {
                     if ("like".equalsIgnoreCase(name)) {
                         op = Operator.LIKE;
@@ -1766,6 +1772,128 @@ public class JSONPath implements JSONAware {
         public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
             throw new UnsupportedOperationException();
         }
+    }
+
+    static class MaxSegment implements Segment {
+
+        public final static MaxSegment instance = new MaxSegment();
+
+        public Object eval(JSONPath path, Object rootObject, Object currentObject) {
+            Object max = null;
+            if (rootObject instanceof Collection) {
+                Iterator iterator = ((Collection) rootObject).iterator();
+                while (iterator.hasNext()) {
+                    Object next = iterator.next();
+                    if (next == null) {
+                        continue;
+                    }
+
+                    if (max == null) {
+                        max = next;
+                    } else if (compare(max, next) < 0) {
+                        max = next;
+                    }
+                }
+            } else {
+                throw new UnsupportedOperationException();
+            }
+
+            return max;
+        }
+
+        public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    static class MinSegment implements Segment {
+        public final static MinSegment instance = new MinSegment();
+
+        public Object eval(JSONPath path, Object rootObject, Object currentObject) {
+            Object min = null;
+            if (rootObject instanceof Collection) {
+                Iterator iterator = ((Collection) rootObject).iterator();
+                while (iterator.hasNext()) {
+                    Object next = iterator.next();
+                    if (next == null) {
+                        continue;
+                    }
+
+                    if (min == null) {
+                        min = next;
+                    } else if (compare(min, next) > 0) {
+                        min = next;
+                    }
+                }
+            } else {
+                throw new UnsupportedOperationException();
+            }
+
+            return min;
+        }
+
+        public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    static int compare(Object a, Object b) {
+        if (a.getClass() == b.getClass()) {
+            return ((Comparable) a).compareTo(b);
+        }
+
+        Class typeA = a.getClass();
+        Class typeB = b.getClass();
+
+        if (typeA == BigDecimal.class) {
+            if (typeB == Integer.class) {
+                b = new BigDecimal((Integer) b);
+            } else if (typeB == Long.class) {
+                b = new BigDecimal((Long) b);
+            } else if (typeB == Float.class) {
+                b = new BigDecimal((Float) b);
+            } else if (typeB == Double.class) {
+                b = new BigDecimal((Double) b);
+            }
+        } else if (typeA == Long.class) {
+            if (typeB == Integer.class) {
+                b = new Long((Integer) b);
+            } else if (typeB == BigDecimal.class) {
+                a = new BigDecimal((Long) a);
+            } else if (typeB == Float.class) {
+                a = new Float((Long) a);
+            } else if (typeB == Double.class) {
+                a = new Double((Long) a);
+            }
+        } else if (typeA == Integer.class) {
+            if (typeB == Long.class) {
+                a = new Long((Integer) a);
+            } else if (typeB == BigDecimal.class) {
+                a = new BigDecimal((Integer) a);
+            } else if (typeB == Float.class) {
+                a = new Float((Integer) a);
+            } else if (typeB == Double.class) {
+                a = new Double((Integer) a);
+            }
+        } else if (typeA == Double.class) {
+            if (typeB == Integer.class) {
+                b = new Double((Integer) b);
+            } else if (typeB == Long.class) {
+                b = new Double((Long) b);
+            } else if (typeB == Float.class) {
+                b = new Double((Float) b);
+            }
+        } else if (typeA == Float.class) {
+            if (typeB == Integer.class) {
+                b = new Float((Integer) b);
+            } else if (typeB == Long.class) {
+                b = new Float((Long) b);
+            } else if (typeB == Double.class) {
+                a = new Double((Float) a);
+            }
+        }
+
+        return ((Comparable) a).compareTo(b);
     }
 
     static class KeySetSegment implements Segment {

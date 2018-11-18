@@ -18,7 +18,7 @@ public class JSONPath_max extends TestCase {
     }
 
     public void test_max_2() throws Exception {
-        Object root = JSON.parse("[1,6,7L,3,3.1D,8,9.1F, 5, 2L, 4]");
+        Object root = JSON.parse("[1,6,7L,3,3.1D,8,9.1D, 5, 2L, 4]");
         assertEquals(9.1D, JSONPath.eval(root, "$.max()"));
     }
 

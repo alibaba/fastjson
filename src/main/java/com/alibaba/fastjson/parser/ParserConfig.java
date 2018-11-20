@@ -947,6 +947,14 @@ public class ParserConfig {
         this.acceptHashCodes = hashCodes;
     }
 
+    public Class<?> checkAutoType(Class type) {
+        if (deserializers.get(type) != null) {
+            return type;
+        }
+
+        return checkAutoType(type.getName(), null, JSON.DEFAULT_PARSER_FEATURE);
+    }
+
     public Class<?> checkAutoType(String typeName, Class<?> expectClass) {
         return checkAutoType(typeName, expectClass, JSON.DEFAULT_PARSER_FEATURE);
     }

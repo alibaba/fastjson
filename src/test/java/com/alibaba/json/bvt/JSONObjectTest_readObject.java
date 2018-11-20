@@ -68,4 +68,64 @@ public class JSONObjectTest_readObject extends TestCase {
         assertEquals(JSONObject.class, obj.getClass());
         assertEquals(jsonObject, obj);
     }
+
+    public void test_4() throws Exception {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("val", new Byte[]{});
+
+        ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+        ObjectOutputStream objOut = new ObjectOutputStream(bytesOut);
+        objOut.writeObject(jsonObject);
+        objOut.flush();
+
+        byte[] bytes = bytesOut.toByteArray();
+
+        ByteArrayInputStream bytesIn = new ByteArrayInputStream(bytes);
+        ObjectInputStream objIn = new ObjectInputStream(bytesIn);
+
+        Object obj = objIn.readObject();
+
+        assertEquals(JSONObject.class, obj.getClass());
+        assertEquals(jsonObject.toJSONString(), JSON.toJSONString(obj));
+    }
+
+    public void test_5() throws Exception {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("val", new byte[]{});
+
+        ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+        ObjectOutputStream objOut = new ObjectOutputStream(bytesOut);
+        objOut.writeObject(jsonObject);
+        objOut.flush();
+
+        byte[] bytes = bytesOut.toByteArray();
+
+        ByteArrayInputStream bytesIn = new ByteArrayInputStream(bytes);
+        ObjectInputStream objIn = new ObjectInputStream(bytesIn);
+
+        Object obj = objIn.readObject();
+
+        assertEquals(JSONObject.class, obj.getClass());
+        assertEquals(jsonObject.toJSONString(), JSON.toJSONString(obj));
+    }
+
+    public void test_6() throws Exception {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("val", new Character[]{});
+
+        ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+        ObjectOutputStream objOut = new ObjectOutputStream(bytesOut);
+        objOut.writeObject(jsonObject);
+        objOut.flush();
+
+        byte[] bytes = bytesOut.toByteArray();
+
+        ByteArrayInputStream bytesIn = new ByteArrayInputStream(bytes);
+        ObjectInputStream objIn = new ObjectInputStream(bytesIn);
+
+        Object obj = objIn.readObject();
+
+        assertEquals(JSONObject.class, obj.getClass());
+        assertEquals(jsonObject.toJSONString(), JSON.toJSONString(obj));
+    }
 }

@@ -497,12 +497,12 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         for (Entry entry : map.entrySet()) {
             final Object key = entry.getKey();
             if (key != null) {
-                ParserConfig.global.checkAutoType(key.getClass().getName(), null);
+                ParserConfig.global.checkAutoType(key.getClass());
             }
 
             final Object value = entry.getValue();
             if (value != null) {
-                ParserConfig.global.checkAutoType(value.getClass().getName(), null);
+                ParserConfig.global.checkAutoType(value.getClass());
             }
         }
     }
@@ -549,7 +549,16 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         protected Class<?> resolveClass(ObjectStreamClass desc)
         throws IOException, ClassNotFoundException {
             String name = desc.getName();
-            ParserConfig.global.checkAutoType(name, null);
+            if (name.length() > 2) {
+                int index = name.lastIndexOf('[');
+                if (index != -1) {
+                    name = name.substring(index + 1);
+                }
+                if (name.length() > 2 && name.charAt(0) == 'L' && name.charAt(name.length() - 1) == ';') {
+                    name = name.substring(1, name.length() - 1);
+                }
+                ParserConfig.global.checkAutoType(name, null);
+            }
             return super.resolveClass(desc);
         }
 

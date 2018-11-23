@@ -5,8 +5,14 @@ import junit.framework.TestCase;
 import org.junit.Assert;
 
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class DateTest4_indian extends TestCase {
+    protected void setUp() throws Exception {
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        JSON.defaultLocale = Locale.CHINA;
+    }
 
     public void test_date() throws Exception {
         Date date1 = JSON.parseObject("{\"gmtCreate\":\"2018-09-11T21:29:34+0530\"}", VO.class).getGmtCreate();

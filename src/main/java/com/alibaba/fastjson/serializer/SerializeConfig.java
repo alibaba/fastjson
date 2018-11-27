@@ -645,6 +645,7 @@ public class SerializeConfig {
                         String[] names = new String[] {
                                 "com.google.common.collect.HashMultimap",
                                 "com.google.common.collect.LinkedListMultimap",
+                                "com.google.common.collect.LinkedHashMultimap",
                                 "com.google.common.collect.ArrayListMultimap",
                                 "com.google.common.collect.TreeMultimap"
                         };

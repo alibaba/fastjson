@@ -15,6 +15,7 @@ public class JSONSerializerTest2 extends TestCase {
 
     public void test_0() throws Exception {
         JSONSerializer serializer = new JSONSerializer();
+        serializer.getMapping().clearSerializers();
 
         int size = JSONSerializerMapTest.size(serializer.getMapping());
         serializer.config(SerializerFeature.WriteEnumUsingToString, false);

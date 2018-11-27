@@ -10,6 +10,7 @@ import org.hamcrest.core.IsNull;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.data.redis.serializer.SerializationException;
 
 import java.util.Arrays;
 
@@ -45,20 +46,16 @@ public class FastJsonRedisSerializerTest {
         Assert.assertThat(serializer.deserialize(null), IsNull.nullValue());
     }
 
-    @Test
+    @Test(expected = SerializationException.class)
     public void test_5() {
         User user = new User(1, "土豆", 25);
         byte[] serializedValue = serializer.serialize(user);
         Arrays.sort(serializedValue); // corrupt serialization result
-        try {
-            serializer.deserialize(serializedValue);
-        } catch (Exception e) {
-            Assert.assertNotNull(e);
-        }
+        serializer.deserialize(serializedValue);
     }
 
     /**
-     * issue #2147
+     * for issue #2147
      */
     @Test
     public void test_6() {

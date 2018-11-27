@@ -47,7 +47,11 @@ public class FastJsonRedisSerializerTest {
         User user = new User(1, "土豆", 25);
         byte[] serializedValue = serializer.serialize(user);
         Arrays.sort(serializedValue); // corrupt serialization result
-        Assert.assertNull(serializer.deserialize(serializedValue));
+        try {
+            serializer.deserialize(serializedValue);
+        } catch (Exception e) {
+            Assert.assertNotNull(e);
+        }
     }
 
     static class User {

@@ -1,5 +1,8 @@
 package com.alibaba.json.bvt.support.spring;
 
+import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonRedisSerializer;
 import com.google.common.base.Objects;
 import org.hamcrest.core.Is;
@@ -52,6 +55,35 @@ public class FastJsonRedisSerializerTest {
         } catch (Exception e) {
             Assert.assertNotNull(e);
         }
+    }
+
+    /**
+     * issue #2147
+     */
+    @Test
+    public void test_6() {
+
+        FastJsonConfig fastJsonConfig = new FastJsonConfig();
+
+        SerializerFeature[] serializerFeatures = new SerializerFeature[]{
+                SerializerFeature.WriteClassName
+        };
+        fastJsonConfig.setSerializerFeatures(serializerFeatures);
+
+        ParserConfig parserConfig = ParserConfig.getGlobalInstance();
+        parserConfig.setAutoTypeSupport(true);
+        fastJsonConfig.setParserConfig(parserConfig);
+
+        FastJsonRedisSerializer fastJsonRedisSerializer = new FastJsonRedisSerializer(Object.class);
+        Assert.assertNotNull(fastJsonRedisSerializer.getFastJsonConfig());
+        fastJsonRedisSerializer.setFastJsonConfig(fastJsonConfig);
+
+        User userSer = new User(1, "土豆", 25);
+
+        byte[] serializedValue = fastJsonRedisSerializer.serialize(userSer);
+        User userDes = (User) fastJsonRedisSerializer.deserialize(serializedValue);
+
+        Assert.assertEquals(userDes.getName(), "土豆");
     }
 
     static class User {

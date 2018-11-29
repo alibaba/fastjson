@@ -44,6 +44,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.TypeUtils;
 
@@ -557,7 +558,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
                 if (name.length() > 2 && name.charAt(0) == 'L' && name.charAt(name.length() - 1) == ';') {
                     name = name.substring(1, name.length() - 1);
                 }
-                ParserConfig.global.checkAutoType(name, null);
+                ParserConfig.global.checkAutoType(name, null, Feature.SupportAutoType.mask);
             }
             return super.resolveClass(desc);
         }

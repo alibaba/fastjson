@@ -19,4 +19,10 @@ public class JSONPath_extract_0 extends TestCase {
                 , JSONPath.extract(json, "$.f2")
                         .toString());
     }
+
+    public void test_2() throws Exception {
+        assertEquals("{}"
+                , JSONPath.extract("{}", "$")
+                        .toString());
+    }
 }

@@ -29,6 +29,8 @@ import com.alibaba.fastjson.util.TypeUtils;
  * @author wenshao[szujobs@hotmail.com]
  */
 public class BigIntegerCodec implements ObjectSerializer, ObjectDeserializer {
+    private final static BigInteger LOW = BigInteger.valueOf(-9007199254740991L);
+    private final static BigInteger HIGH = BigInteger.valueOf(-9007199254740991L);
 
     public final static BigIntegerCodec instance = new BigIntegerCodec();
 
@@ -41,6 +43,14 @@ public class BigIntegerCodec implements ObjectSerializer, ObjectDeserializer {
         }
         
         BigInteger val = (BigInteger) object;
+        String str = val.toString();
+        if (val.toString().length() >= 17
+                && out.isEnabled(SerializerFeature.BrowserCompatible)
+                && (val.compareTo(LOW) < 0 || val.compareTo(HIGH) > 0))
+        {
+            out.writeString(str);
+            return;
+        }
         out.write(val.toString());
     }
 

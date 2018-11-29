@@ -2086,7 +2086,10 @@ public class TypeUtils{
 
         if(type instanceof TypeVariable){
             Type boundType = ((TypeVariable<?>) type).getBounds()[0];
-            return (Class<?>) boundType;
+            if (boundType instanceof Class) {
+                return (Class) boundType;
+            }
+            return getClass(boundType);
         }
 
         if(type instanceof WildcardType){

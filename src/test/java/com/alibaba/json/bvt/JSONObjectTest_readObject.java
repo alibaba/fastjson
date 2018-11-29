@@ -112,6 +112,8 @@ public class JSONObjectTest_readObject extends TestCase {
     public void test_6() throws Exception {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("val", new Character[]{});
+        jsonObject.put("cls", java.lang.Number.class);
+        jsonObject.put("nums", new java.lang.Number[] {});
 
         ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
         ObjectOutputStream objOut = new ObjectOutputStream(bytesOut);

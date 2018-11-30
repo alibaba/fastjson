@@ -90,6 +90,10 @@ public class JSONPath implements JSONAware {
             return this.eval(root);
         }
 
+        if (segments.length == 0) {
+            return parser.parse();
+        }
+
         Context context = null;
         for (int i = 0; i < segments.length; ++i) {
             Segment segment = segments[i];

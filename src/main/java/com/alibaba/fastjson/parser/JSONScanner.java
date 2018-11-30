@@ -1807,7 +1807,7 @@ public final class JSONScanner extends JSONLexerBase {
                 count = offset - start - 1;
             }
 
-            if (!exp && count < 20) {
+            if (!exp && count < 18) {
                 value = ((double) intVal) / power;
                 if (negative) {
                     value = -value;

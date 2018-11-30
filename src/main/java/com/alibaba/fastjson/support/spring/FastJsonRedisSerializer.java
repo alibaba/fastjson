@@ -34,13 +34,15 @@ public class FastJsonRedisSerializer<T> implements RedisSerializer<T> {
             return new byte[0];
         }
         try {
-            return JSON.toJSONString(t,
+            return JSON.toJSONBytes(
+                    fastJsonConfig.getCharset(),
+                    t,
                     fastJsonConfig.getSerializeConfig(),
                     fastJsonConfig.getSerializeFilters(),
                     fastJsonConfig.getDateFormat(),
                     JSON.DEFAULT_GENERATE_FEATURE,
                     fastJsonConfig.getSerializerFeatures()
-            ).getBytes(fastJsonConfig.getCharset());
+            );
         } catch (Exception ex) {
             throw new SerializationException("Could not serialize: " + ex.getMessage(), ex);
         }
@@ -53,11 +55,14 @@ public class FastJsonRedisSerializer<T> implements RedisSerializer<T> {
         }
         try {
             return (T) JSON.parseObject(
-                    new String(bytes, fastJsonConfig.getCharset()),
+                    bytes,
+                    fastJsonConfig.getCharset(),
                     type,
                     fastJsonConfig.getParserConfig(),
+                    fastJsonConfig.getParseProcess(),
                     JSON.DEFAULT_PARSER_FEATURE,
-                    fastJsonConfig.getFeatures());
+                    fastJsonConfig.getFeatures()
+            );
         } catch (Exception ex) {
             throw new SerializationException("Could not deserialize: " + ex.getMessage(), ex);
         }

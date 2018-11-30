@@ -388,7 +388,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     /**
-     * @since 1.2.54
+     * @since 1.2.55
      */
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(byte[] bytes,
@@ -402,7 +402,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     /**
-     * @since 1.2.54
+     * @since 1.2.55
      */
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(byte[] bytes, int offset, int len,
@@ -749,14 +749,14 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     /**
-     * @since 1.2.54
+     * @since 1.2.55
      */
     public static byte[] toJSONBytes(Object object, SerializeConfig config, SerializeFilter[] filters, String dateFormat, int defaultFeatures, SerializerFeature... features) {
         return toJSONBytes(IOUtils.UTF8, object, config, filters, dateFormat, defaultFeatures, features);
     }
 
     /**
-     * @since 1.2.54
+     * @since 1.2.55
      */
     public static byte[] toJSONBytes(Charset charset, //
                                      Object object, //

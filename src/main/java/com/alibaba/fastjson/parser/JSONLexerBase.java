@@ -2447,7 +2447,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 }
             }
 
-            int power = 1;
+            long power = 1;
             boolean small = (chLocal == '.');
             if (small) {
                 chLocal = charAt(bp + (offset++));
@@ -2500,7 +2500,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 count = bp + offset - start - 1;
             }
 
-            if ((!exp) && count < 12) {
+            if ((!exp) && count < 17) {
                 value = (float) (((double) intVal) / power);
                 if (negative) {
                     value = -value;

@@ -26,7 +26,7 @@ public class FloatTest3_random extends TestCase {
     public void test_ran_2() throws Exception {
         Random rand = new Random();
 
-        for (int i = 0; i < 1000 * 1000 * 10; ++i) {
+        for (int i = 0; i < 1000 * 1000 * 1; ++i) {
             float val = rand.nextFloat();
 
             String str = JSON.toJSONString(new Model(val), SerializerFeature.BeanToArray);

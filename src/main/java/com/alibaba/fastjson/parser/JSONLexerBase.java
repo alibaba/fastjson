@@ -2447,7 +2447,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 }
             }
 
-            int power = 1;
+            long power = 1;
             boolean small = (chLocal == '.');
             if (small) {
                 chLocal = charAt(bp + (offset++));

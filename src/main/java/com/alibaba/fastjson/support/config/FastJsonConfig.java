@@ -3,6 +3,7 @@ package com.alibaba.fastjson.support.config;
 
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.parser.deserializer.ParseProcess;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -18,6 +19,7 @@ import java.util.Map.Entry;
  * @author VictorZeng
  * @see SerializeConfig
  * @see ParserConfig
+ * @see ParseProcess
  * @see SerializerFeature
  * @see SerializeFilter
  * @see Feature
@@ -40,6 +42,11 @@ public class FastJsonConfig {
      * parserConfig
      */
     private ParserConfig parserConfig;
+
+    /**
+     * parseProcess
+     */
+    private ParseProcess parseProcess;
 
     /**
      * serializerFeatures
@@ -228,5 +235,23 @@ public class FastJsonConfig {
      */
     public void setWriteContentLength(boolean writeContentLength) {
         this.writeContentLength = writeContentLength;
+    }
+
+    /**
+     * Gets parse process.
+     *
+     * @return the parse process
+     */
+    public ParseProcess getParseProcess() {
+        return parseProcess;
+    }
+
+    /**
+     * Sets parse process.
+     *
+     * @param parseProcess the parse process
+     */
+    public void setParseProcess(ParseProcess parseProcess) {
+        this.parseProcess = parseProcess;
     }
 }

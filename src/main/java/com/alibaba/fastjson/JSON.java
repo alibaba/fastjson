@@ -384,10 +384,38 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
      */
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(byte[] bytes, int offset, int len, Charset charset, Type clazz, Feature... features) {
+        return (T) parseObject(bytes, offset, len, charset, clazz, ParserConfig.global, null, DEFAULT_PARSER_FEATURE, features);
+    }
+
+    /**
+     * @since 1.2.54
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T parseObject(byte[] bytes,
+                                    Charset charset,
+                                    Type clazz,
+                                    ParserConfig config,
+                                    ParseProcess processor,
+                                    int featureValues,
+                                    Feature... features) {
+        return (T) parseObject(bytes, 0, bytes.length, charset, clazz, config, processor, featureValues, features);
+    }
+
+    /**
+     * @since 1.2.54
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T parseObject(byte[] bytes, int offset, int len,
+                                    Charset charset,
+                                    Type clazz,
+                                    ParserConfig config,
+                                    ParseProcess processor,
+                                    int featureValues,
+                                    Feature... features) {
         if (charset == null) {
             charset = IOUtils.UTF8;
         }
-        
+
         String strVal;
         if (charset == IOUtils.UTF8) {
             char[] chars = allocateChars(bytes.length);
@@ -402,7 +430,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             }
             strVal = new String(bytes, offset, len, charset);
         }
-        return (T) parseObject(strVal, clazz, features);
+        return (T) parseObject(strVal, clazz, config, processor, featureValues, features);
     }
 
     @SuppressWarnings("unchecked")
@@ -717,10 +745,35 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
      * @since 1.2.42
      */
     public static byte[] toJSONBytes(Object object, SerializeConfig config, SerializeFilter[] filters, int defaultFeatures, SerializerFeature... features) {
+        return toJSONBytes(object, config, filters, null, defaultFeatures, features);
+    }
+
+    /**
+     * @since 1.2.54
+     */
+    public static byte[] toJSONBytes(Object object, SerializeConfig config, SerializeFilter[] filters, String dateFormat, int defaultFeatures, SerializerFeature... features) {
+        return toJSONBytes(IOUtils.UTF8, object, config, filters, dateFormat, defaultFeatures, features);
+    }
+
+    /**
+     * @since 1.2.54
+     */
+    public static byte[] toJSONBytes(Charset charset, //
+                                     Object object, //
+                                     SerializeConfig config, //
+                                     SerializeFilter[] filters, //
+                                     String dateFormat, //
+                                     int defaultFeatures, //
+                                     SerializerFeature... features) {
         SerializeWriter out = new SerializeWriter(null, defaultFeatures, features);
 
         try {
             JSONSerializer serializer = new JSONSerializer(out, config);
+
+            if (dateFormat != null && dateFormat.length() != 0) {
+                serializer.setDateFormat(dateFormat);
+                serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
+            }
 
             if (filters != null) {
                 for (SerializeFilter filter : filters) {
@@ -729,7 +782,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             }
 
             serializer.write(object);
-            return out.toBytes(IOUtils.UTF8);
+            return out.toBytes(charset);
         } finally {
             out.close();
         }

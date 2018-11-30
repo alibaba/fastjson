@@ -2500,7 +2500,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 count = bp + offset - start - 1;
             }
 
-            if ((!exp) && count < 17) {
+            if ((!exp) && count < 12) {
                 value = (float) (((double) intVal) / power);
                 if (negative) {
                     value = -value;

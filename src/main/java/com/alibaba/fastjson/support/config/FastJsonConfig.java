@@ -3,6 +3,7 @@ package com.alibaba.fastjson.support.config;
 
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.parser.deserializer.ParseProcess;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -18,6 +19,7 @@ import java.util.Map.Entry;
  * @author VictorZeng
  * @see SerializeConfig
  * @see ParserConfig
+ * @see ParseProcess
  * @see SerializerFeature
  * @see SerializeFilter
  * @see Feature
@@ -40,6 +42,11 @@ public class FastJsonConfig {
      * parserConfig
      */
     private ParserConfig parserConfig;
+
+    /**
+     * parseProcess
+     */
+    private ParseProcess parseProcess;
 
     /**
      * serializerFeatures
@@ -66,17 +73,20 @@ public class FastJsonConfig {
      */
     private String dateFormat;
 
-    protected boolean writeContentLength = true;
+    /**
+     * The Write content length.
+     */
+    private boolean writeContentLength;
 
     /**
      * init param.
      */
     public FastJsonConfig() {
 
-        this.charset = Charset.forName("UTF-8");
+        this.charset = IOUtils.UTF8;
 
         this.serializeConfig = SerializeConfig.getGlobalInstance();
-        this.parserConfig = new ParserConfig();
+        this.parserConfig = ParserConfig.getGlobalInstance();
 
         this.serializerFeatures = new SerializerFeature[] {
                 SerializerFeature.BrowserSecure
@@ -84,6 +94,8 @@ public class FastJsonConfig {
 
         this.serializeFilters = new SerializeFilter[0];
         this.features = new Feature[0];
+
+        this.writeContentLength = true;
     }
 
     /**
@@ -207,11 +219,39 @@ public class FastJsonConfig {
         this.charset = charset;
     }
 
+    /**
+     * Is write content length boolean.
+     *
+     * @return the boolean
+     */
     public boolean isWriteContentLength() {
         return writeContentLength;
     }
 
+    /**
+     * Sets write content length.
+     *
+     * @param writeContentLength the write content length
+     */
     public void setWriteContentLength(boolean writeContentLength) {
         this.writeContentLength = writeContentLength;
+    }
+
+    /**
+     * Gets parse process.
+     *
+     * @return the parse process
+     */
+    public ParseProcess getParseProcess() {
+        return parseProcess;
+    }
+
+    /**
+     * Sets parse process.
+     *
+     * @param parseProcess the parse process
+     */
+    public void setParseProcess(ParseProcess parseProcess) {
+        this.parseProcess = parseProcess;
     }
 }

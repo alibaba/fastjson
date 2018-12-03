@@ -1297,6 +1297,7 @@ public class TypeUtils{
                 java.util.concurrent.atomic.AtomicLong.class,
                 java.util.Collections.EMPTY_MAP.getClass(),
                 java.lang.Boolean.class,
+                java.lang.Character.class,
                 java.lang.Byte.class,
                 java.lang.Short.class,
                 java.lang.Integer.class,

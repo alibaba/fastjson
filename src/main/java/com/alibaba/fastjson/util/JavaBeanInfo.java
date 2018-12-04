@@ -323,6 +323,21 @@ public class JavaBeanInfo {
                             fieldName = lookupParameterNames[i];
                         }
 
+                        if (field == null) {
+                            if (lookupParameterNames == null) {
+                                if (kotlin) {
+                                    lookupParameterNames = TypeUtils.getKoltinConstructorParameters(clazz);
+                                } else {
+                                    lookupParameterNames = ASMUtils.lookupParameterNames(creatorConstructor);
+                                }
+                            }
+
+                            if (lookupParameterNames.length > i) {
+                                String parameterName = lookupParameterNames[i];
+                                field = TypeUtils.getField(clazz, parameterName, declaredFields);
+                            }
+                        }
+
                         FieldInfo fieldInfo = new FieldInfo(fieldName, clazz, fieldClass, fieldType, field,
                                 ordinal, serialzeFeatures, parserFeatures);
                         add(fieldList, fieldInfo);

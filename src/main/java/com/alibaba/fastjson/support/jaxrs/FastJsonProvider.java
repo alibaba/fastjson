@@ -242,12 +242,6 @@ public class FastJsonProvider //
         return true;
     }
 
-	/*
-     * /********************************************************** /* Partial
-	 * MessageBodyWriter impl
-	 * /**********************************************************
-	 */
-
     /**
      * Method that JAX-RS container calls to try to check whether given value
      * (of specified type) can be serialized by this provider.
@@ -293,12 +287,12 @@ public class FastJsonProvider //
         FastJsonConfig fastJsonConfig = locateConfigProvider(type, mediaType);
 
         SerializerFeature[] serializerFeatures = fastJsonConfig.getSerializerFeatures();
+
         if (pretty) {
             if (serializerFeatures == null)
                 serializerFeatures = new SerializerFeature[]{SerializerFeature.PrettyFormat};
             else {
-                List<SerializerFeature> featureList = new ArrayList<SerializerFeature>(Arrays
-                        .asList(serializerFeatures));
+                List<SerializerFeature> featureList = new ArrayList<SerializerFeature>(Arrays.asList(serializerFeatures));
                 featureList.add(SerializerFeature.PrettyFormat);
                 serializerFeatures = featureList.toArray(serializerFeatures);
             }
@@ -306,7 +300,7 @@ public class FastJsonProvider //
         }
 
         try {
-            int len = JSON.writeJSONString(entityStream, //
+            JSON.writeJSONString(entityStream, //
                     fastJsonConfig.getCharset(), //
                     obj, //
                     fastJsonConfig.getSerializeConfig(), //
@@ -315,11 +309,6 @@ public class FastJsonProvider //
                     JSON.DEFAULT_GENERATE_FEATURE, //
                     fastJsonConfig.getSerializerFeatures());
 
-//            // add Content-Length
-//            if (fastJsonConfig.isWriteContentLength()) {
-//                httpHeaders.add("Content-Length", String.valueOf(len));
-//            }
-
             entityStream.flush();
 
         } catch (JSONException ex) {
@@ -327,12 +316,6 @@ public class FastJsonProvider //
             throw new WebApplicationException("Could not write JSON: " + ex.getMessage(), ex);
         }
     }
-
-	/*
-     * /********************************************************** /*
-	 * MessageBodyReader impl
-	 * /**********************************************************
-	 */
 
     /**
      * Method that JAX-RS container calls to try to check whether values of
@@ -366,7 +349,13 @@ public class FastJsonProvider //
         try {
             FastJsonConfig fastJsonConfig = locateConfigProvider(type, mediaType);
 
-            return JSON.parseObject(entityStream, fastJsonConfig.getCharset(), genericType, fastJsonConfig.getFeatures());
+            return JSON.parseObject(entityStream,
+                    fastJsonConfig.getCharset(),
+                    genericType,
+                    fastJsonConfig.getParserConfig(),
+                    fastJsonConfig.getParseProcess(),
+                    JSON.DEFAULT_PARSER_FEATURE,
+                    fastJsonConfig.getFeatures());
 
         } catch (JSONException ex) {
 

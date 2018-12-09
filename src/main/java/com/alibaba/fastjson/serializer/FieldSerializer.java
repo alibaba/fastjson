@@ -23,6 +23,7 @@ import com.alibaba.fastjson.util.TypeUtils;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -63,7 +64,8 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
                 && (fieldInfo.isEnum
                     || fieldInfo.fieldClass == long.class
                     || fieldInfo.fieldClass == Long.class
-                    || fieldInfo.fieldClass == BigInteger.class)
+                    || fieldInfo.fieldClass == BigInteger.class
+                    || fieldInfo.fieldClass == BigDecimal.class)
         ) {
             JSONType jsonType = TypeUtils.getAnnotation(beanType,JSONType.class);
             if (jsonType != null) {

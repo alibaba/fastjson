@@ -97,22 +97,24 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         features |= SerializerFeature.WriteEnumUsingName.getMask();
         features |= SerializerFeature.SortField.getMask();
 
+        DEFAULT_GENERATE_FEATURE = features;
+
+        config(IOUtils.DEFAULT_PROPERTIES);
+    }
+
+    private static void config(Properties properties) {
         {
-            String featuresProperty = IOUtils.getStringProperty("fastjson.serializerFeatures.MapSortField");
+            String featuresProperty = properties.getProperty("fastjson.serializerFeatures.MapSortField");
             int mask = SerializerFeature.MapSortField.getMask();
             if ("true".equals(featuresProperty)) {
-                features |= mask;
+                DEFAULT_GENERATE_FEATURE |= mask;
             } else if ("false".equals(featuresProperty)) {
-                features &= ~mask;
+                DEFAULT_GENERATE_FEATURE &= ~mask;
             }
         }
 
-        DEFAULT_GENERATE_FEATURE = features;
-    }
-
-    static {
         {
-            if ("true".equals(IOUtils.DEFAULT_PROPERTIES.getProperty("parser.features.NonStringKeyAsString"))) {
+            if ("true".equals(properties.getProperty("parser.features.NonStringKeyAsString"))) {
                 DEFAULT_PARSER_FEATURE |= Feature.NonStringKeyAsString.getMask();
             }
         }

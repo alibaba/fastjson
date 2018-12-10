@@ -4,8 +4,14 @@ import com.alibaba.fastjson.JSON;
 import junit.framework.TestCase;
 
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class DateTest5_iso8601 extends TestCase {
+    protected void setUp() throws Exception {
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        JSON.defaultLocale = Locale.CHINA;
+    }
 
     public void test_date() throws Exception {
         Date date1 = JSON.parseObject("{\"gmtCreate\":\"2018-09-12\"}", VO.class).getGmtCreate();

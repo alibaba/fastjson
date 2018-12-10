@@ -1985,7 +1985,7 @@ public class JSONPath implements JSONAware {
                                     lexer.nextToken();
                                     continue;
                                 } else {
-                                    lexer.skipObject();
+                                    lexer.skipObject(false);
                                 }
                             } else if (matchStat == JSONLexer.NOT_MATCH) {
                                 continue;
@@ -1993,7 +1993,7 @@ public class JSONPath implements JSONAware {
                                 if (deep) {
                                     throw new UnsupportedOperationException(lexer.info());
                                 } else {
-                                    lexer.skipObject();
+                                    lexer.skipObject(false);
                                 }
                             }
                             break;
@@ -2002,7 +2002,7 @@ public class JSONPath implements JSONAware {
                             if (deep) {
                                 extract(path, parser, context);
                             } else {
-                                lexer.skipObject();
+                                lexer.skipObject(false);
                             }
                             break;
                         case JSONToken.LITERAL_STRING:

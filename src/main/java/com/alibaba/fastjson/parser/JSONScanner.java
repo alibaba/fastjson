@@ -819,7 +819,13 @@ public final class JSONScanner extends JSONLexerBase {
             for (;;) {
                 ch = charAt(index++);
                 if (ch >= '0' && ch <= '9') {
-                    value = value * 10 + (ch - '0');
+                    int value_10 = value * 10;
+                    if (value_10 < value) {
+                        matchStat = NOT_MATCH;
+                        return 0;
+                    }
+
+                    value = value_10 + (ch - '0');
                 } else if (ch == '.') {
                     matchStat = NOT_MATCH;
                     return 0;
@@ -1626,6 +1632,7 @@ public final class JSONScanner extends JSONLexerBase {
     public final int scanInt(char expectNext) {
         matchStat = UNKNOWN;
 
+        final int mark = bp;
         int offset = bp;
         char chLocal = charAt(offset++);
 
@@ -1650,7 +1657,12 @@ public final class JSONScanner extends JSONLexerBase {
             for (;;) {
                 chLocal = charAt(offset++);
                 if (chLocal >= '0' && chLocal <= '9') {
-                    value = value * 10 + (chLocal - '0');
+                    int value_10 = value * 10;
+                    if (value_10 < value) {
+                        throw new JSONException("parseInt error : "
+                                + subString(mark, offset - 1));
+                    }
+                    value = value_10 + (chLocal - '0');
                 } else if (chLocal == '.') {
                     matchStat = NOT_MATCH;
                     return 0;

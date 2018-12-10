@@ -96,7 +96,11 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
                 }
             }
         } catch (Exception ex) {
-            throw new JSONException("parseInt error, field : " + fieldName, ex);
+            String message = "parseInt error";
+            if (fieldName != null) {
+                message += (", field : " + fieldName);
+            }
+            throw new JSONException(message, ex);
         }
 
         

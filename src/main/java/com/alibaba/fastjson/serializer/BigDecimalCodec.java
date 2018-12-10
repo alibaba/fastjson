@@ -18,6 +18,7 @@ package com.alibaba.fastjson.serializer;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
@@ -30,6 +31,8 @@ import com.alibaba.fastjson.util.TypeUtils;
  * @author wenshao[szujobs@hotmail.com]
  */
 public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
+    final static BigDecimal LOW = BigDecimal.valueOf(-9007199254740991L);
+    final static BigDecimal HIGH = BigDecimal.valueOf(9007199254740991L);
 
     public final static BigDecimalCodec instance = new BigDecimalCodec();
 
@@ -48,6 +51,18 @@ public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
             } else {
                 outText = val.toString();
             }
+
+            if (scale == 0) {
+                if (outText.length() >= 16
+                        && SerializerFeature.isEnabled(features, out.features, SerializerFeature.BrowserCompatible)
+                        && (val.compareTo(LOW) < 0
+                        || val.compareTo(HIGH) > 0))
+                {
+                    out.writeString(outText);
+                    return;
+                }
+            }
+
             out.write(outText);
 
             if (out.isEnabled(SerializerFeature.WriteClassName) && fieldType != BigDecimal.class && val.scale() == 0) {

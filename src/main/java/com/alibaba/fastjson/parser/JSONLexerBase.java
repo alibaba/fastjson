@@ -1210,6 +1210,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         throw new UnsupportedOperationException();
     }
 
+    public void skipObject(boolean valid) {
+        throw new UnsupportedOperationException();
+    }
+
     public void skipArray() {
         throw new UnsupportedOperationException();
     }

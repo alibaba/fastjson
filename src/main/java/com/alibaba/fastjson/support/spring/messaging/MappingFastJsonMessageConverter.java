@@ -66,9 +66,11 @@ public class MappingFastJsonMessageConverter extends AbstractMessageConverter {
         Object obj = null;
         if (payload instanceof byte[]) {
             obj = JSON.parseObject((byte[]) payload, 0, ((byte[]) payload).length,
-                    fastJsonConfig.getCharset(), targetClass, fastJsonConfig.getFeatures());
-        }else if(payload instanceof String) {
-            obj = JSON.parseObject((String) payload,targetClass,fastJsonConfig.getFeatures());
+                    fastJsonConfig.getCharset(), targetClass, fastJsonConfig.getParserConfig(),
+                    fastJsonConfig.getParseProcess(), JSON.DEFAULT_PARSER_FEATURE, fastJsonConfig.getFeatures());
+        } else if (payload instanceof String) {
+            obj = JSON.parseObject((String) payload, targetClass, fastJsonConfig.getParserConfig(),
+                    fastJsonConfig.getParseProcess(), JSON.DEFAULT_PARSER_FEATURE, fastJsonConfig.getFeatures());
         }
 
         return obj;
@@ -77,8 +79,7 @@ public class MappingFastJsonMessageConverter extends AbstractMessageConverter {
     @Override
     protected Object convertToInternal(Object payload, MessageHeaders headers, Object conversionHint) {
         // encode payload to json string
-        return JSON.toJSONString(payload,fastJsonConfig.getSerializeConfig(),
-                fastJsonConfig.getSerializeFilters(),fastJsonConfig.getSerializerFeatures());
-
+        return JSON.toJSONString(payload, fastJsonConfig.getSerializeConfig(), fastJsonConfig.getSerializeFilters(),
+                fastJsonConfig.getDateFormat(), JSON.DEFAULT_GENERATE_FEATURE, fastJsonConfig.getSerializerFeatures());
     }
 }

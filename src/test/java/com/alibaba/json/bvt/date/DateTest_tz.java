@@ -8,15 +8,16 @@ import java.util.TimeZone;
 
 import org.junit.Assert;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONReader;
 
 import junit.framework.TestCase;
 
 public class DateTest_tz extends TestCase {
-//    protected void setUp() throws Exception {
-//        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
-//        JSON.defaultLocale = Locale.CHINA;
-//    }
+    protected void setUp() throws Exception {
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        JSON.defaultLocale = Locale.CHINA;
+    }
     
     public void test_codec() throws Exception {
         JSONReader reader = new JSONReader(new StringReader("{\"value\":\"2016-04-29\"}"));

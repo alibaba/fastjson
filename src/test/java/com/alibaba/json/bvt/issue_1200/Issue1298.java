@@ -6,11 +6,18 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import junit.framework.TestCase;
 
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * Created by wenshao on 30/06/2017.
  */
 public class Issue1298 extends TestCase {
+    protected void setUp() throws Exception {
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        JSON.defaultLocale = Locale.US;
+    }
+
     public void test_for_issue() throws Exception {
         JSONObject object = new JSONObject();
 

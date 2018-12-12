@@ -2274,9 +2274,14 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     public final void skipObject() {
+        skipObject(false);
+    }
+
+    public final void skipObject(boolean valid) {
         boolean quote = false;
         int braceCnt = 0;
-        for (int i = bp; i < text.length(); ++i) {
+        int i = bp;
+        for (; i < text.length(); ++i) {
             final char ch = text.charAt(i);
             if (ch == '\\') {
                 if (i < len - 1) {
@@ -2302,7 +2307,12 @@ public final class JSONScanner extends JSONLexerBase {
                 }
                 if (braceCnt == -1) {
                     this.bp = i + 1;
-                    this.ch = text.charAt(i + 1);
+                    if (this.bp == text.length()) {
+                        this.ch = EOI;
+                        this.token = JSONToken.EOF;
+                        return;
+                    }
+                    this.ch = text.charAt(this.bp);
                     if (this.ch == ',') {
                         token = JSONToken.COMMA;
                         int index = ++bp;
@@ -2325,12 +2335,21 @@ public final class JSONScanner extends JSONLexerBase {
                 }
             }
         }
+
+        if (i == text.length()) {
+            throw new JSONException("illegal str, " + info());
+        }
     }
 
     public final void skipArray() {
+        skipArray(false);
+    }
+
+    public final void skipArray(boolean valid) {
         boolean quote = false;
         int bracketCnt = 0;
-        for (int i = bp; i < text.length(); ++i) {
+        int i = bp;
+        for (; i < text.length(); ++i) {
             char ch = text.charAt(i);
             if (ch == '\\') {
                 if (i < len - 1) {
@@ -2348,6 +2367,15 @@ public final class JSONScanner extends JSONLexerBase {
                     continue;
                 }
                 bracketCnt++;
+            } else if (ch == '{' && valid) {
+                {
+                    int index = ++bp;
+                    this.ch = (index >= text.length() //
+                            ? EOI //
+                            : text.charAt(index));
+                }
+
+                skipObject(valid);
             } else if (ch == ']') {
                 if (quote) {
                     continue;
@@ -2356,11 +2384,20 @@ public final class JSONScanner extends JSONLexerBase {
                 }
                 if (bracketCnt == -1) {
                     this.bp = i + 1;
-                    this.ch = text.charAt(i + 1);
+                    if (this.bp == text.length()) {
+                        this.ch = EOI;
+                        token = JSONToken.EOF;
+                        return;
+                    }
+                    this.ch = text.charAt(this.bp);
                     nextToken(JSONToken.COMMA);
                     return;
                 }
             }
+        }
+
+        if (i == text.length()) {
+            throw new JSONException("illegal str, " + info());
         }
     }
 
@@ -2415,11 +2452,11 @@ public final class JSONScanner extends JSONLexerBase {
             } else if (ch == '{') {
                 next();
                 token = JSONToken.LBRACE;
-                skipObject();
+                skipObject(false);
             } else if (ch == '[') {
                 next();
                 token = JSONToken.LBRACKET;
-                skipArray();
+                skipArray(false);
             } else {
                 boolean match = false;
                 for (int j = bp + 1; j < text.length(); ++j) {
@@ -2707,7 +2744,7 @@ public final class JSONScanner extends JSONLexerBase {
                     return OBJECT;
                 }
 
-                skipObject();
+                skipObject(false);
                 if (token == JSONToken.RBRACE) {
                     return JSONLexer.NOT_MATCH;
                 }
@@ -2717,7 +2754,7 @@ public final class JSONScanner extends JSONLexerBase {
                     token = JSONToken.LBRACKET;
                     return ARRAY;
                 }
-                skipArray();
+                skipArray(false);
                 if (token == JSONToken.RBRACE) {
                     return JSONLexer.NOT_MATCH;
                 }
@@ -2915,11 +2952,11 @@ public final class JSONScanner extends JSONLexerBase {
                             : text.charAt(index));
                 }
 
-                skipObject();
+                skipObject(false);
             } else if (ch == '[') {
                 next();
 
-                skipArray();
+                skipArray(false);
             } else {
                 throw new UnsupportedOperationException();
             }

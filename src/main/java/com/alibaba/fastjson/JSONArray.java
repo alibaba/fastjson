@@ -15,19 +15,8 @@
  */
 package com.alibaba.fastjson;
 
-import static com.alibaba.fastjson.util.TypeUtils.castToBigDecimal;
-import static com.alibaba.fastjson.util.TypeUtils.castToBigInteger;
-import static com.alibaba.fastjson.util.TypeUtils.castToBoolean;
-import static com.alibaba.fastjson.util.TypeUtils.castToByte;
-import static com.alibaba.fastjson.util.TypeUtils.castToDate;
-import static com.alibaba.fastjson.util.TypeUtils.castToDouble;
-import static com.alibaba.fastjson.util.TypeUtils.castToFloat;
-import static com.alibaba.fastjson.util.TypeUtils.castToInt;
-import static com.alibaba.fastjson.util.TypeUtils.castToLong;
-import static com.alibaba.fastjson.util.TypeUtils.castToShort;
-import static com.alibaba.fastjson.util.TypeUtils.castToSqlDate;
-import static com.alibaba.fastjson.util.TypeUtils.castToString;
-import static com.alibaba.fastjson.util.TypeUtils.castToTimestamp;
+import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.util.TypeUtils;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -37,9 +26,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 
-import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
-import com.alibaba.fastjson.util.TypeUtils;
+import static com.alibaba.fastjson.util.TypeUtils.*;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -245,6 +232,14 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
             return (JSONObject) value;
         }
 
+        if (value instanceof HashMap) {
+            return new JSONObject((HashMap) value);
+        }
+
+        if (value instanceof String) {
+            return JSON.parseObject((String) value);
+        }
+
         return (JSONObject) toJSON(value);
     }
 
@@ -253,6 +248,14 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
 
         if (value instanceof JSONArray) {
             return (JSONArray) value;
+        }
+
+        if (value instanceof List) {
+            return new JSONArray((List) value);
+        }
+
+        if (value instanceof String) {
+            return (JSONArray) JSON.parse((String) value);
         }
 
         return (JSONArray) toJSON(value);

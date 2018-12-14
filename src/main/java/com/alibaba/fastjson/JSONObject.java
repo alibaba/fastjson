@@ -36,12 +36,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.parser.Feature;
@@ -118,6 +113,10 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
             return (JSONObject) value;
         }
 
+        if (value instanceof HashMap) {
+            return new JSONObject((HashMap) value);
+        }
+
         if (value instanceof String) {
             return JSON.parseObject((String) value);
         }
@@ -130,6 +129,10 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
 
         if (value instanceof JSONArray) {
             return (JSONArray) value;
+        }
+
+        if (value instanceof List) {
+            return new JSONArray((List) value);
         }
 
         if (value instanceof String) {

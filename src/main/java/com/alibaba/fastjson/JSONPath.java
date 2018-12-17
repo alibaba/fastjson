@@ -3253,6 +3253,10 @@ public class JSONPath implements JSONAware {
             return map.values();
         }
 
+        if (currentObject instanceof Collection) {
+            return (Collection) currentObject;
+        }
+
         throw new UnsupportedOperationException();
     }
 

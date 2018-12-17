@@ -3,6 +3,8 @@ package com.alibaba.json.bvt.path;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import junit.framework.TestCase;
 
 import org.junit.Assert;
@@ -126,7 +128,15 @@ public class JSONPath_field_access_filter_compare_string extends TestCase {
         Assert.assertSame(entities.get(0), result.get(0));
         Assert.assertSame(entities.get(1), result.get(1));
     }
-    
+
+    public void test_eq() throws Exception {
+        JSONPath path = new JSONPath("$.*[?(@.name=='b')].id");
+
+        JSONArray array = JSON.parseArray("[{\"id\":\"1\",\"name\":\"a\"},{\"id\":\"2\",\"name\":\"b\"}]");
+        Object result = path.eval(array);
+        System.out.println(result);
+    }
+
     public static class Entity {
 
         private Integer id;

@@ -1114,17 +1114,17 @@ public class DefaultJSONParser implements Closeable {
 
     public JSONObject parseObject() {
         JSONObject object = new JSONObject(lexer.isEnabled(Feature.OrderedField));
-        Object paredObject = parseObject(object);
+        Object parsedObject = parseObject(object);
 
-        if (paredObject instanceof JSONObject) {
-            return (JSONObject) paredObject;
+        if (parsedObject instanceof JSONObject) {
+            return (JSONObject) parsedObject;
         }
 
-        if (paredObject == null) {
+        if (parsedObject == null) {
             return null;
         }
 
-        return new JSONObject((Map) paredObject);
+        return new JSONObject((Map) parsedObject);
     }
 
     @SuppressWarnings("rawtypes")

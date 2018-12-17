@@ -491,10 +491,36 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                                     Charset charset, //
                                     Type type, //
                                     Feature... features) throws IOException {
+        return (T) parseObject(is, charset, type, ParserConfig.global, features);
+    }
+
+    /**
+     * @since 1.2.55
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T parseObject(InputStream is, //
+                                    Charset charset, //
+                                    Type type, //
+                                    ParserConfig config, //
+                                    Feature... features) throws IOException {
+        return (T) parseObject(is, charset, type, config, null, DEFAULT_PARSER_FEATURE, features);
+    }
+
+    /**
+     * @since 1.2.55
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T parseObject(InputStream is, //
+                                    Charset charset, //
+                                    Type type, //
+                                    ParserConfig config, //
+                                    ParseProcess processor, //
+                                    int featureValues, //
+                                    Feature... features) throws IOException {
         if (charset == null) {
             charset = IOUtils.UTF8;
         }
-        
+
         byte[] bytes = allocateBytes(1024 * 64);
         int offset = 0;
         for (;;) {
@@ -509,8 +535,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                 bytes = newBytes;
             }
         }
-        
-        return (T) parseObject(bytes, 0, offset, charset, type, features);
+
+        return (T) parseObject(bytes, 0, offset, charset, type, config, processor, featureValues, features);
     }
 
     public static <T> T parseObject(String text, Class<T> clazz) {

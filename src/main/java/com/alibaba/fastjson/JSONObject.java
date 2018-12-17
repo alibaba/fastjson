@@ -15,19 +15,10 @@
  */
 package com.alibaba.fastjson;
 
-import static com.alibaba.fastjson.util.TypeUtils.castToBigDecimal;
-import static com.alibaba.fastjson.util.TypeUtils.castToBigInteger;
-import static com.alibaba.fastjson.util.TypeUtils.castToBoolean;
-import static com.alibaba.fastjson.util.TypeUtils.castToByte;
-import static com.alibaba.fastjson.util.TypeUtils.castToBytes;
-import static com.alibaba.fastjson.util.TypeUtils.castToDate;
-import static com.alibaba.fastjson.util.TypeUtils.castToDouble;
-import static com.alibaba.fastjson.util.TypeUtils.castToFloat;
-import static com.alibaba.fastjson.util.TypeUtils.castToInt;
-import static com.alibaba.fastjson.util.TypeUtils.castToLong;
-import static com.alibaba.fastjson.util.TypeUtils.castToShort;
-import static com.alibaba.fastjson.util.TypeUtils.castToSqlDate;
-import static com.alibaba.fastjson.util.TypeUtils.castToTimestamp;
+import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.parser.Feature;
+import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.util.TypeUtils;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -36,48 +27,40 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import com.alibaba.fastjson.annotation.JSONField;
-import com.alibaba.fastjson.parser.Feature;
-import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.util.TypeUtils;
+import static com.alibaba.fastjson.util.TypeUtils.*;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
 public class JSONObject extends JSON implements Map<String, Object>, Cloneable, Serializable, InvocationHandler {
 
-    private static final long         serialVersionUID         = 1L;
-    private static final int          DEFAULT_INITIAL_CAPACITY = 16;
+    private static final long serialVersionUID = 1L;
+    private static final int DEFAULT_INITIAL_CAPACITY = 16;
 
     private final Map<String, Object> map;
 
-    public JSONObject(){
+    public JSONObject() {
         this(DEFAULT_INITIAL_CAPACITY, false);
     }
 
-    public JSONObject(Map<String, Object> map){
+    public JSONObject(Map<String, Object> map) {
         if (map == null) {
             throw new IllegalArgumentException("map is null.");
         }
         this.map = map;
     }
 
-    public JSONObject(boolean ordered){
+    public JSONObject(boolean ordered) {
         this(DEFAULT_INITIAL_CAPACITY, ordered);
     }
 
-    public JSONObject(int initialCapacity){
+    public JSONObject(int initialCapacity) {
         this(initialCapacity, false);
     }
 
-    public JSONObject(int initialCapacity, boolean ordered){
+    public JSONObject(int initialCapacity, boolean ordered) {
         if (ordered) {
             map = new LinkedHashMap<String, Object>(initialCapacity);
         } else {
@@ -118,6 +101,10 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
             return (JSONObject) value;
         }
 
+        if (value instanceof Map) {
+            return new JSONObject((Map) value);
+        }
+
         if (value instanceof String) {
             return JSON.parseObject((String) value);
         }
@@ -130,6 +117,10 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
 
         if (value instanceof JSONArray) {
             return (JSONArray) value;
+        }
+
+        if (value instanceof List) {
+            return new JSONArray((List) value);
         }
 
         if (value instanceof String) {
@@ -329,11 +320,11 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
 
         return castToTimestamp(value);
     }
-    
+
     public Object put(String key, Object value) {
         return map.put(key, value);
     }
-    
+
     public JSONObject fluentPut(String key, Object value) {
         map.put(key, value);
         return this;
@@ -381,15 +372,17 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     @Override
     public Object clone() {
         return new JSONObject(map instanceof LinkedHashMap //
-                              ? new LinkedHashMap<String, Object>(map) //
-                                  : new HashMap<String, Object>(map)
-                                  );
+                ? new LinkedHashMap<String, Object>(map) //
+                : new HashMap<String, Object>(map)
+        );
     }
 
+    @Override
     public boolean equals(Object obj) {
         return this.map.equals(obj);
     }
 
+    @Override
     public int hashCode() {
         return this.map.hashCode();
     }
@@ -400,7 +393,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
             if (method.getName().equals("equals")) {
                 return this.equals(args[0]);
             }
-            
+
             Class<?> returnType = method.getReturnType();
             if (returnType != void.class) {
                 throw new JSONException("illegal setter");
@@ -416,7 +409,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
 
             if (name == null) {
                 name = method.getName();
-                
+
                 if (!name.startsWith("set")) {
                     throw new JSONException("illegal setter");
                 }
@@ -468,7 +461,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
                     throw new JSONException("illegal getter");
                 }
             }
-            
+
             Object value = map.get(name);
             return TypeUtils.cast(value, method.getGenericReturnType(), ParserConfig.getGlobalInstance());
         }
@@ -479,7 +472,6 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     public Map<String, Object> getInnerMap() {
         return this.map;
     }
-
 
 
     private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -547,8 +539,9 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
             }
         }
 
+        @Override
         protected Class<?> resolveClass(ObjectStreamClass desc)
-        throws IOException, ClassNotFoundException {
+                throws IOException, ClassNotFoundException {
             String name = desc.getName();
             if (name.length() > 2) {
                 int index = name.lastIndexOf('[');
@@ -563,8 +556,9 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
             return super.resolveClass(desc);
         }
 
+        @Override
         protected Class<?> resolveProxyClass(String[] interfaces)
-        throws IOException, ClassNotFoundException {
+                throws IOException, ClassNotFoundException {
             for (String interfacename : interfaces) {
                 //检查是否处于黑名单
                 ParserConfig.global.checkAutoType(interfacename, null);
@@ -573,6 +567,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         }
 
         //Hack:默认构造方法会调用这个方法，重写此方法使用反射还原部分关键属性
+        @Override
         protected void readStreamHeader() throws IOException, StreamCorruptedException {
 
         }

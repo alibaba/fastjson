@@ -32,6 +32,7 @@ import java.util.*;
 import com.alibaba.fastjson.*;
 import com.alibaba.fastjson.parser.deserializer.*;
 import com.alibaba.fastjson.serializer.*;
+import com.alibaba.fastjson.util.AntiCollisionHashMap;
 import com.alibaba.fastjson.util.TypeUtils;
 
 /**
@@ -1113,8 +1114,17 @@ public class DefaultJSONParser implements Closeable {
 
     public JSONObject parseObject() {
         JSONObject object = new JSONObject(lexer.isEnabled(Feature.OrderedField));
-        object = (JSONObject) parseObject(object);
-        return object;
+        Object paredObject = parseObject(object);
+
+        if (paredObject instanceof JSONObject) {
+            return (JSONObject) paredObject;
+        }
+
+        if (paredObject == null) {
+            return null;
+        }
+
+        return new JSONObject((Map) paredObject);
     }
 
     @SuppressWarnings("rawtypes")

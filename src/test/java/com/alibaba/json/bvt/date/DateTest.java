@@ -32,4 +32,9 @@ public class DateTest extends TestCase {
                             JSON.toJSONStringWithDateFormat(date, "yyyy-MM-dd HH:mm:ss.SSS",
                                                             SerializerFeature.UseSingleQuotes));
     }
+
+    public void test_parse() throws Exception {
+        Date date = JSON.parseObject("\"2018-10-12 09:48:22 +0800\"", Date.class);
+        assertEquals(1539308902000L, date.getTime());
+    }
 }

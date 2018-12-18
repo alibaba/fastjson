@@ -14,8 +14,6 @@
 
 package com.alibaba.fastjson.util;
 
-import java.math.BigInteger;
-
 /**
  * An implementation of Ryu for float.
  */

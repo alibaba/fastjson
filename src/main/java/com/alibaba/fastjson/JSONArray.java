@@ -179,7 +179,7 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
             list.add(element);
             return null;
         }
-        
+
         if (list.size() <= index) {
             for (int i = list.size(); i < index; ++i) {
                 list.add(null);
@@ -187,7 +187,7 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
             list.add(element);
             return null;
         }
-        
+
         return list.set(index, element);
     }
 
@@ -245,6 +245,10 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
             return (JSONObject) value;
         }
 
+        if (value instanceof Map) {
+            return new JSONObject((Map) value);
+        }
+
         return (JSONObject) toJSON(value);
     }
 
@@ -253,6 +257,10 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
 
         if (value instanceof JSONArray) {
             return (JSONArray) value;
+        }
+
+        if (value instanceof List) {
+            return new JSONArray((List) value);
         }
 
         return (JSONArray) toJSON(value);

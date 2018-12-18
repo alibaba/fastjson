@@ -16,17 +16,13 @@
 package com.alibaba.fastjson.parser;
 
 import java.io.Closeable;
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.MathContext;
 import java.util.*;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.util.IOUtils;
-import com.alibaba.fastjson.util.TypeUtils;
 
 import static com.alibaba.fastjson.parser.JSONToken.*;
 

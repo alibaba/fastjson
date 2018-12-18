@@ -1,8 +1,6 @@
 package com.alibaba.fastjson.asm;
 
-import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.util.ASMUtils;
-import com.alibaba.fastjson.util.TypeUtils;
 
 import java.lang.reflect.Modifier;
 import java.util.HashMap;

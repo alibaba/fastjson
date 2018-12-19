@@ -32,7 +32,6 @@ import java.util.*;
 import com.alibaba.fastjson.*;
 import com.alibaba.fastjson.parser.deserializer.*;
 import com.alibaba.fastjson.serializer.*;
-import com.alibaba.fastjson.util.AntiCollisionHashMap;
 import com.alibaba.fastjson.util.TypeUtils;
 
 /**

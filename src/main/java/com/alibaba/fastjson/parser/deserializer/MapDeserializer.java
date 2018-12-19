@@ -1,6 +1,5 @@
 package com.alibaba.fastjson.parser.deserializer;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -13,8 +12,6 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.*;
 import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
-import com.alibaba.fastjson.serializer.CollectionCodec;
-import com.alibaba.fastjson.util.TypeUtils;
 
 public class MapDeserializer implements ObjectDeserializer {
     public static MapDeserializer instance = new MapDeserializer();

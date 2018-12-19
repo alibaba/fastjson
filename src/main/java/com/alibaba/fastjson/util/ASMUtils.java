@@ -3,7 +3,6 @@ package com.alibaba.fastjson.util;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.asm.ClassReader;
 import com.alibaba.fastjson.asm.TypeCollector;
-import com.alibaba.fastjson.parser.ParserConfig;
 
 import java.io.IOException;
 import java.io.InputStream;

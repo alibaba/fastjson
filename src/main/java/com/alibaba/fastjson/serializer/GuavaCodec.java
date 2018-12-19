@@ -4,8 +4,6 @@ import com.google.common.collect.Multimap;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.Map;
 
 /**
  * Created by wenshao on 15/01/2017.

@@ -587,6 +587,12 @@ public final class JSONScanner extends JSONLexerBase {
 
         int timzeZoneLength = 0;
         char timeZoneFlag = charAt(bp + date_len + 10 + millisLen);
+
+        if (timeZoneFlag == ' ') {
+            millisLen++;
+            timeZoneFlag = charAt(bp + date_len + 10 + millisLen);
+        }
+
         if (timeZoneFlag == '+' || timeZoneFlag == '-') {
             char t0 = charAt(bp + date_len + 10 + millisLen + 1);
             if (t0 < '0' || t0 > '1') {

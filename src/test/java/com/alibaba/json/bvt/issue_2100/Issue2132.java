@@ -24,7 +24,7 @@ public class Issue2132 extends TestCase {
         list1.add(computer);
         String s = JSON.toJSONString(list1);
 
-        assertEquals("[[{\"name\":\"intell\",\"speed\":3.3},{\"height\":9,\"name\":\"samsung\",\"width\":16},\"2\",\"3\"],{}]", s);
+        assertEquals("[[{\"name\":\"intell\",\"speed\":3.3},{\"height\":9,\"name\":\"samsung\",\"width\":16},\"2\",\"3\"],{\"cpu\":{\"$ref\":\"$[0][0]\"},\"screen\":{\"$ref\":\"$[0][1]\"}}]", s);
     }
 
     public static class Cpu {
@@ -95,6 +95,22 @@ public class Issue2132 extends TestCase {
 
         public Computer(Cpu cpu, Screen screen) {
             this.cpu = cpu;
+            this.screen = screen;
+        }
+
+        public Cpu getCpu() {
+            return cpu;
+        }
+
+        public void setCpu(Cpu cpu) {
+            this.cpu = cpu;
+        }
+
+        public Screen getScreen() {
+            return screen;
+        }
+
+        public void setScreen(Screen screen) {
             this.screen = screen;
         }
     }

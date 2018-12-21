@@ -16,12 +16,9 @@
 package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.lang.reflect.WildcardType;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.TreeSet;
 
 import com.alibaba.fastjson.JSONArray;

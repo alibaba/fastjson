@@ -5,6 +5,7 @@ import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.support.config.FastJsonConfig;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -17,78 +18,119 @@ import java.lang.reflect.Type;
 
 /**
  * @author ligboy, wenshao
+ * @author Victor.Zxy
  */
 public class Retrofit2ConverterFactory extends Converter.Factory {
+
     private static final MediaType MEDIA_TYPE = MediaType.parse("application/json; charset=UTF-8");
+
+    private FastJsonConfig fastJsonConfig;
+
+    @Deprecated
     private static final Feature[] EMPTY_SERIALIZER_FEATURES = new Feature[0];
-
+    @Deprecated
     private ParserConfig parserConfig = ParserConfig.getGlobalInstance();
+    @Deprecated
     private int featureValues = JSON.DEFAULT_PARSER_FEATURE;
+    @Deprecated
     private Feature[] features;
-
+    @Deprecated
     private SerializeConfig serializeConfig;
+    @Deprecated
     private SerializerFeature[] serializerFeatures;
 
     public Retrofit2ConverterFactory() {
+        this.fastJsonConfig = new FastJsonConfig();
+    }
+
+    public Retrofit2ConverterFactory(FastJsonConfig fastJsonConfig) {
+        this.fastJsonConfig = fastJsonConfig;
+    }
+
+    public static Retrofit2ConverterFactory create() {
+        return create(new FastJsonConfig());
+    }
+
+    public static Retrofit2ConverterFactory create(FastJsonConfig fastJsonConfig) {
+        if (fastJsonConfig == null) throw new NullPointerException("fastJsonConfig == null");
+        return new Retrofit2ConverterFactory(fastJsonConfig);
     }
 
     @Override
-    public Converter<ResponseBody, ?> responseBodyConverter(Type type, //
+    public Converter<ResponseBody, Object> responseBodyConverter(Type type, //
                                                             Annotation[] annotations, //
                                                             Retrofit retrofit) {
-        return new ResponseBodyConverter<ResponseBody>(type);
+        return new ResponseBodyConverter<Object>(type);
     }
 
     @Override
-    public Converter<?, RequestBody> requestBodyConverter(Type type, //
+    public Converter<Object, RequestBody> requestBodyConverter(Type type, //
                                                           Annotation[] parameterAnnotations, //
                                                           Annotation[] methodAnnotations, //
                                                           Retrofit retrofit) {
-        return new RequestBodyConverter<RequestBody>();
+        return new RequestBodyConverter<Object>();
     }
 
+    public FastJsonConfig getFastJsonConfig() {
+        return fastJsonConfig;
+    }
+
+    public Retrofit2ConverterFactory setFastJsonConfig(FastJsonConfig fastJsonConfig) {
+        this.fastJsonConfig = fastJsonConfig;
+        return this;
+    }
+
+    @Deprecated
     public ParserConfig getParserConfig() {
-        return parserConfig;
+        return fastJsonConfig.getParserConfig();
     }
 
+    @Deprecated
     public Retrofit2ConverterFactory setParserConfig(ParserConfig config) {
-        this.parserConfig = config;
+        fastJsonConfig.setParserConfig(config);
         return this;
     }
 
+    @Deprecated
     public int getParserFeatureValues() {
-        return featureValues;
+        return JSON.DEFAULT_PARSER_FEATURE;
     }
 
+    @Deprecated
     public Retrofit2ConverterFactory setParserFeatureValues(int featureValues) {
-        this.featureValues = featureValues;
         return this;
     }
 
+    @Deprecated
     public Feature[] getParserFeatures() {
-        return features;
+        return fastJsonConfig.getFeatures();
     }
 
+    @Deprecated
     public Retrofit2ConverterFactory setParserFeatures(Feature[] features) {
-        this.features = features;
+        fastJsonConfig.setFeatures(features);
         return this;
     }
 
+    @Deprecated
     public SerializeConfig getSerializeConfig() {
-        return serializeConfig;
+        return fastJsonConfig.getSerializeConfig();
     }
 
+    @Deprecated
     public Retrofit2ConverterFactory setSerializeConfig(SerializeConfig serializeConfig) {
-        this.serializeConfig = serializeConfig;
+        fastJsonConfig.setSerializeConfig(serializeConfig);
         return this;
     }
 
+    @Deprecated
     public SerializerFeature[] getSerializerFeatures() {
-        return serializerFeatures;
+        return fastJsonConfig.getSerializerFeatures();
     }
 
+    @Deprecated
     public Retrofit2ConverterFactory setSerializerFeatures(SerializerFeature[] features) {
-        this.serializerFeatures = features;
+        fastJsonConfig.setSerializerFeatures(features);
         return this;
     }
 
@@ -101,14 +143,16 @@ public class Retrofit2ConverterFactory extends Converter.Factory {
 
         public T convert(ResponseBody value) throws IOException {
             try {
-                return JSON.parseObject(value.string()
-                            , type
-                            , parserConfig
-                            , featureValues
-                            , features != null
-                                ? features
-                                : EMPTY_SERIALIZER_FEATURES
+                return JSON.parseObject(value.bytes()
+                        , fastJsonConfig.getCharset()
+                        , type
+                        , fastJsonConfig.getParserConfig()
+                        , fastJsonConfig.getParseProcess()
+                        , JSON.DEFAULT_PARSER_FEATURE
+                        , fastJsonConfig.getFeatures()
                 );
+            } catch (Exception e) {
+                throw new IOException("JSON parse error: " + e.getMessage(), e);
             } finally {
                 value.close();
             }
@@ -120,16 +164,19 @@ public class Retrofit2ConverterFactory extends Converter.Factory {
         }
 
         public RequestBody convert(T value) throws IOException {
-            byte[] content = JSON.toJSONBytes(value
-                        , serializeConfig == null
-                            ? SerializeConfig.globalInstance
-                            : serializeConfig
-                        , serializerFeatures == null
-                            ? SerializerFeature.EMPTY
-                            : serializerFeatures
-            );
-
-            return RequestBody.create(MEDIA_TYPE, content);
+            try {
+                byte[] content = JSON.toJSONBytes(fastJsonConfig.getCharset()
+                        , value
+                        , fastJsonConfig.getSerializeConfig()
+                        , fastJsonConfig.getSerializeFilters()
+                        , fastJsonConfig.getDateFormat()
+                        , JSON.DEFAULT_GENERATE_FEATURE
+                        , fastJsonConfig.getSerializerFeatures()
+                );
+                return RequestBody.create(MEDIA_TYPE, content);
+            } catch (Exception e) {
+                throw new IOException("Could not write JSON: " + e.getMessage(), e);
+            }
         }
     }
 }

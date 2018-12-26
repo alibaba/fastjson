@@ -68,6 +68,8 @@ public class SerializeConfig {
     private final IdentityHashMap<Type, ObjectSerializer> serializers;
 
     private final boolean                                 fieldBased;
+
+    private long[]                                        denyClasses = {4165360493669296979L};
     
 	public String getTypeKey() {
 		return typeKey;
@@ -95,6 +97,12 @@ public class SerializeConfig {
     }
 
     public final ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
+        String className = clazz.getName();
+        long hashCode64 = TypeUtils.fnv1a_64(className);
+	    if (Arrays.binarySearch(denyClasses, hashCode64) >= 0) {
+	        throw new JSONException("not support class : " + className);
+        }
+
 	    SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null, propertyNamingStrategy, fieldBased);
 	    if (beanInfo.fields.length == 0 && Iterable.class.isAssignableFrom(clazz)) {
 	        return MiscCodec.instance;

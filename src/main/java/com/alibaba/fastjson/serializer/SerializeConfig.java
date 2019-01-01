@@ -69,7 +69,11 @@ public class SerializeConfig {
 
     private final boolean                                 fieldBased;
 
-    private long[]                                        denyClasses = {4165360493669296979L};
+    private long[]                                        denyClasses =
+            {
+                    4165360493669296979L,
+                    4446674157046724083L
+            };
     
 	public String getTypeKey() {
 		return typeKey;

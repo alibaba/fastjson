@@ -89,10 +89,10 @@ public class ParserConfig {
     public static ParserConfig getGlobalInstance() {
         return global;
     }
-
     public static ParserConfig                              global                = new ParserConfig();
 
     private final IdentityHashMap<Type, ObjectDeserializer> deserializers         = new IdentityHashMap<Type, ObjectDeserializer>();
+    private final ConcurrentMap<String,Class<?>>            typeMapping           = new ConcurrentHashMap<String,Class<?>>(16, 0.75f, 1);
 
     private boolean                                         asmEnable             = !ASMUtils.IS_ANDROID;
 
@@ -107,6 +107,7 @@ public class ParserConfig {
     private static boolean                                  awtError              = false;
     private static boolean                                  jdk8Error             = false;
     private static boolean                                  jodaError             = false;
+    private static boolean                                  guavaError            = false;
 
     private boolean                                         autoTypeSupport       = AUTO_SUPPORT;
     private long[]                                          denyHashCodes;
@@ -545,6 +546,29 @@ public class ParserConfig {
             } catch (Throwable e) {
                 // skip
                 jodaError = true;
+            }
+        }
+
+        if ((!guavaError) //
+                && className.startsWith("com.google.common.collect.")) {
+            try {
+                String[] names = new String[] {
+                        "com.google.common.collect.HashMultimap",
+                        "com.google.common.collect.LinkedListMultimap",
+                        "com.google.common.collect.LinkedHashMultimap",
+                        "com.google.common.collect.ArrayListMultimap",
+                        "com.google.common.collect.TreeMultimap"
+                };
+
+                for (String name : names) {
+                    if (name.equals(className)) {
+                        deserializers.put(Class.forName(name), derializer = GuavaCodec.instance);
+                        return derializer;
+                    }
+                }
+            } catch (ClassNotFoundException e) {
+                // skip
+                guavaError = true;
             }
         }
 

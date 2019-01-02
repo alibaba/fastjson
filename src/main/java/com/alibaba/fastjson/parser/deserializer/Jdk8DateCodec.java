@@ -231,12 +231,6 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                 ) {
                     formatter = defaultFormatter_23;
                 }
-            } else if (text.length() == 14) {
-                JSONScanner dateScanner = new JSONScanner(text);
-                if (dateScanner.scanISO8601DateIfMatch(false)) {
-                    Instant instant = dateScanner.getCalendar().toInstant();
-                    return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
-                }
             }
 
             if (text.length() >= 17) {
@@ -250,6 +244,14 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                 } else if (c4 == '년') {
                     formatter = formatter_dt19_kr;
                 }
+            }
+        }
+
+        if (formatter == null) {
+            JSONScanner dateScanner = new JSONScanner(text);
+            if (dateScanner.scanISO8601DateIfMatch(false)) {
+                Instant instant = dateScanner.getCalendar().toInstant();
+                return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
             }
         }
 

@@ -19,6 +19,7 @@ import java.util.Locale;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
+import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.serializer.*;
 
@@ -229,6 +230,12 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                         && c19 == '.'
                 ) {
                     formatter = defaultFormatter_23;
+                }
+            } else if (text.length() == 14) {
+                JSONScanner dateScanner = new JSONScanner(text);
+                if (dateScanner.scanISO8601DateIfMatch(false)) {
+                    Instant instant = dateScanner.getCalendar().toInstant();
+                    return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
                 }
             }
 

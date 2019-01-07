@@ -316,7 +316,7 @@ public class JSONSerializer extends SerializeFilterable {
     public final void writeWithFormat(Object object, String format) {
         if (object instanceof Date) {
             DateFormat dateFormat = this.getDateFormat();
-            if (dateFormat == null) {
+            if (format != null) {// 优先使用注解配置的时间格式#1868
                 try {
                     dateFormat = new SimpleDateFormat(format, locale);
                 } catch (IllegalArgumentException e) {

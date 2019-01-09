@@ -106,7 +106,7 @@ public class TypeUtils{
     private static volatile boolean kotlin_error;
     private static volatile Map<Class,String[]> kotlinIgnores;
     private static volatile boolean kotlinIgnores_error;
-    private static ConcurrentMap<String,Class<?>> mappings = new ConcurrentHashMap<String,Class<?>>(16, 0.75f, 1);
+    private static ConcurrentMap<String,Class<?>> mappings = new ConcurrentHashMap<String,Class<?>>(256, 0.75f, 1);
     private static Class<?> pathClass;
     private static boolean pathClass_error = false;
 
@@ -339,7 +339,7 @@ public class TypeUtils{
                 strVal = strVal.substring(6, strVal.length() - 2);
             }
 
-            if (strVal.indexOf('-') > 0) {
+            if (strVal.indexOf('-') > 0 || strVal.indexOf('+') > 0) {
                 if (format == null) {
                     if (strVal.length() == JSON.DEFFAULT_DATE_FORMAT.length()
                             || (strVal.length() == 22 && JSON.DEFFAULT_DATE_FORMAT.equals("yyyyMMddHHmmssSSSZ"))) {
@@ -2311,6 +2311,9 @@ public class TypeUtils{
             if(interfaceName.equals("javassist.util.proxy.ProxyObject") //
                     || interfaceName.equals("org.apache.ibatis.javassist.util.proxy.ProxyObject")
                     ){
+                return true;
+            }
+            if (interfaceName.equals("org.hibernate.proxy.HibernateProxy")) {
                 return true;
             }
         }

@@ -2170,28 +2170,84 @@ public class TypeUtils{
         }
     }
 
-    public static Type getCollectionItemType(Type fieldType){
-        Type itemType = null;
-        Class<?> clazz;
-        if(fieldType instanceof ParameterizedType){
-            Type actualTypeArgument = ((ParameterizedType) fieldType).getActualTypeArguments()[0];
-            if(actualTypeArgument instanceof WildcardType){
-                WildcardType wildcardType = (WildcardType) actualTypeArgument;
-                Type[] upperBounds = wildcardType.getUpperBounds();
-                if(upperBounds.length == 1){
-                    actualTypeArgument = upperBounds[0];
-                }
+    public static Type getCollectionItemType(Type fieldType) {
+        if (fieldType instanceof ParameterizedType) {
+            return getCollectionItemType((ParameterizedType) fieldType);
+        }
+        if (fieldType instanceof Class<?>) {
+            return getCollectionItemType((Class<?>) fieldType);
+        }
+        return Object.class;
+    }
+
+    private static Type getCollectionItemType(Class<?> clazz) {
+        return clazz.getName().startsWith("java.")
+                ? Object.class
+                : getCollectionItemType(getCollectionSuperType(clazz));
+    }
+
+    private static Type getCollectionItemType(ParameterizedType parameterizedType) {
+        Type rawType = parameterizedType.getRawType();
+        Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+        if (rawType == Collection.class) {
+            return getWildcardTypeUpperBounds(actualTypeArguments[0]);
+        }
+        Class<?> rawClass = (Class<?>) rawType;
+        Map<TypeVariable, Type> typeParameterMap = createTypeParameterMap(rawClass.getTypeParameters(), actualTypeArguments);
+        Type superType = getCollectionSuperType(rawClass);
+        if (superType instanceof ParameterizedType) {
+            Class<?> superClass = getRawClass(superType);
+            Type[] superClassTypeParameters = ((ParameterizedType) superType).getActualTypeArguments();
+            return superClassTypeParameters.length > 0
+                    ? getCollectionItemType(makeParameterizedType(superClass, superClassTypeParameters, typeParameterMap))
+                    : getCollectionItemType(superClass);
+        }
+        return getCollectionItemType((Class<?>) superType);
+    }
+
+    private static Type getCollectionSuperType(Class<?> clazz) {
+        Type assignable = null;
+        for (Type type : clazz.getGenericInterfaces()) {
+            Class<?> rawClass = getRawClass(type);
+            if (rawClass == Collection.class) {
+                return type;
             }
-            itemType = actualTypeArgument;
-        } else if(fieldType instanceof Class<?> //
-                && !(clazz = (Class<?>) fieldType).getName().startsWith("java.")){
-            Type superClass = clazz.getGenericSuperclass();
-            itemType = TypeUtils.getCollectionItemType(superClass);
+            if (Collection.class.isAssignableFrom(rawClass)) {
+                assignable = type;
+            }
         }
-        if(itemType == null){
-            itemType = Object.class;
+        return assignable == null ? clazz.getGenericSuperclass() : assignable;
+    }
+
+    private static Map<TypeVariable, Type> createTypeParameterMap(TypeVariable[] typeParameters, Type[] actualTypeArguments) {
+        int length = typeParameters.length;
+        Map<TypeVariable, Type> typeParameterMap = new HashMap<TypeVariable, Type>(length);
+        for (int i = 0; i < length; i++) {
+            typeParameterMap.put(typeParameters[i], actualTypeArguments[i]);
         }
-        return itemType;
+        return typeParameterMap;
+    }
+
+    private static ParameterizedType makeParameterizedType(Class<?> rawClass, Type[] typeParameters, Map<TypeVariable, Type> typeParameterMap) {
+        int length = typeParameters.length;
+        Type[] actualTypeArguments = new Type[length];
+        System.arraycopy(typeParameters, 0, actualTypeArguments, 0, length);
+        for (int i = 0; i < actualTypeArguments.length; i++) {
+            Type actualTypeArgument = actualTypeArguments[i];
+            if (actualTypeArgument instanceof TypeVariable) {
+                actualTypeArguments[i] = typeParameterMap.get(actualTypeArgument);
+            }
+        }
+        return new ParameterizedTypeImpl(actualTypeArguments, null, rawClass);
+    }
+
+    private static Type getWildcardTypeUpperBounds(Type type) {
+        if (type instanceof WildcardType) {
+            WildcardType wildcardType = (WildcardType) type;
+            Type[] upperBounds = wildcardType.getUpperBounds();
+            return upperBounds.length > 0 ? upperBounds[0] : Object.class;
+        }
+        return type;
     }
 
     public static Class<?> getCollectionItemClass(Type fieldType){

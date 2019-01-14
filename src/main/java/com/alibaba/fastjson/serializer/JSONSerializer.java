@@ -148,6 +148,10 @@ public class JSONSerializer extends SerializeFilterable {
             return false;
         }
 
+        if (value == Collections.emptyMap()) {
+            return false;
+        }
+
         Object fieldName = refContext.fieldName;
 
         return fieldName == null || fieldName instanceof Integer || fieldName instanceof String;

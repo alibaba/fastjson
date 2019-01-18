@@ -29,7 +29,9 @@ public class MapDeserializer implements ObjectDeserializer {
             return null;
         }
 
-        Map<Object, Object> map = createMap(type, lexer.getFeatures());
+        Map<Object, Object> map = (lexer.getFeatures() & Feature.OrderedField.mask) != 0
+                ? createMap(type, lexer.getFeatures())
+                : createMap(type);
 
         ParseContext context = parser.getContext();
 

@@ -135,7 +135,12 @@ public enum Feature {
     /**
      * @since 1.2.45
      */
-    CustomMapDeserializer
+    CustomMapDeserializer,
+
+    /**
+     * @since 1.2.55
+     */
+    ErrorOnEnumNotMatch
     ;
 
     Feature(){

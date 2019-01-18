@@ -7,6 +7,7 @@ import java.util.*;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 
@@ -133,13 +134,26 @@ public class EnumDeserializer implements ObjectDeserializer {
                 }
 
                 long hash = 0xcbf29ce484222325L;
+                long hash_lower = 0xcbf29ce484222325L;
                 for (int j = 0; j < name.length(); ++j) {
                     char ch = name.charAt(j);
+
                     hash ^= ch;
+                    hash_lower ^= ((ch >= 'A' && ch <= 'Z') ? (ch + 32) : ch);
+
                     hash *= 0x100000001b3L;
+                    hash_lower *= 0x100000001b3L;
                 }
 
-                return (T) getEnumByHashCode(hash);
+                Enum e = getEnumByHashCode(hash);
+                if (e == null && hash_lower != hash) {
+                    e = getEnumByHashCode(hash_lower);
+                }
+
+                if (e == null && lexer.isEnabled(Feature.ErrorOnEnumNotMatch)) {
+                    throw new JSONException("not match enum value, " + enumClass.getName() + " : " + name);
+                }
+                return (T) e;
             } else if (token == JSONToken.NULL) {
                 value = null;
                 lexer.nextToken(JSONToken.COMMA);

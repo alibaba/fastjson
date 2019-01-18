@@ -1024,9 +1024,13 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             return null;
         }
 
-        long enumNameHashCode = lexer.scanFieldSymbol(name_chars);
+        long enumNameHashCode = lexer.scanEnumSymbol(name_chars);
         if (lexer.matchStat > 0) {
-            return enumDeserializer.getEnumByHashCode(enumNameHashCode);
+            Enum e = enumDeserializer.getEnumByHashCode(enumNameHashCode);
+            if (e == null && lexer.isEnabled(Feature.ErrorOnEnumNotMatch)) {
+                throw new JSONException("not match enum value, " + enumDeserializer.enumClass);
+            }
+            return e;
         } else {
             return null;
         }

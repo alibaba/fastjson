@@ -29,7 +29,7 @@ public class MapDeserializer implements ObjectDeserializer {
             return null;
         }
 
-        Map<Object, Object> map = createMap(type);
+        Map<Object, Object> map = createMap(type, lexer.getFeatures());
 
         ParseContext context = parser.getContext();
 
@@ -307,8 +307,12 @@ public class MapDeserializer implements ObjectDeserializer {
         return map;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Map<Object, Object> createMap(Type type) {
+        return createMap(type, JSON.DEFAULT_GENERATE_FEATURE);
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public Map<Object, Object> createMap(Type type, int featrues) {
         if (type == Properties.class) {
             return new Properties();
         }
@@ -329,10 +333,16 @@ public class MapDeserializer implements ObjectDeserializer {
             return new ConcurrentHashMap();
         }
         
-        if (type == Map.class || type == HashMap.class) {
+        if (type == Map.class) {
+            return (featrues & Feature.OrderedField.mask) != 0
+                    ? new LinkedHashMap()
+                    : new HashMap();
+        }
+
+        if (type == HashMap.class) {
             return new HashMap();
         }
-        
+
         if (type == LinkedHashMap.class) {
             return new LinkedHashMap();
         }
@@ -346,7 +356,7 @@ public class MapDeserializer implements ObjectDeserializer {
                 return new EnumMap((Class) actualArgs[0]);
             }
 
-            return createMap(rawType);
+            return createMap(rawType, featrues);
         }
 
         Class<?> clazz = (Class<?>) type;

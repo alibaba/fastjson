@@ -17,6 +17,7 @@ public class Issue2249 extends TestCase {
         assertSame(Type.Medium, JSON.parseObject("\"MEDIUM\"", Type.class));
         assertSame(Type.Medium, JSON.parseObject("\"Medium\"", Type.class));
         assertSame(Type.Medium, JSON.parseObject("\"MediuM\"", Type.class));
+        assertNull(JSON.parseObject("\"\"", Type.class));
     }
 
     public void test_for_issue_1() throws Exception {
@@ -34,6 +35,7 @@ public class Issue2249 extends TestCase {
         assertSame(Type.Medium, JSON.parseObject("{\"type\":\"MediuM\"}", Model.class).type);
         assertSame(Type.Medium, JSON.parseObject("{\"type\":\"medium\"}", Model.class).type);
         assertSame(Type.Medium, JSON.parseObject("{\"type\":\"MEDIUM\"}", Model.class).type);
+        assertNull(JSON.parseObject("{\"type\":\"\"}", Model.class).type);
     }
 
 

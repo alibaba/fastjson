@@ -1001,7 +1001,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             for (Map.Entry<Object, Object> entry : map.entrySet()) {
                 Object key = entry.getKey();
                 String jsonKey = TypeUtils.castToString(key);
-                Object jsonValue = toJSON(entry.getValue());
+                Object jsonValue = toJSON(entry.getValue(), config);
                 json.put(jsonKey, jsonValue);
             }
 
@@ -1014,7 +1014,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             JSONArray array = new JSONArray(collection.size());
 
             for (Object item : collection) {
-                Object jsonValue = toJSON(item);
+                Object jsonValue = toJSON(item, config);
                 array.add(jsonValue);
             }
 

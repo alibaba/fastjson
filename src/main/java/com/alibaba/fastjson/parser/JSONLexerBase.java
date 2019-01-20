@@ -3390,6 +3390,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                     chLocal = charAt(bp + (offset++));
                     break;
                 }
+            } else {
+                break;
             }
         }
 

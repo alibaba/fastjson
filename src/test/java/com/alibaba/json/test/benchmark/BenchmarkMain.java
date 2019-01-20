@@ -29,10 +29,14 @@ public class BenchmarkMain {
 //        executor.getCaseList().add(new EishayDecodeBytes());
 //        executor.getCaseList().add(new EishayEncodeOutputStream());
 //        executor.getCaseList().add(new EishayEncodeToBytes());
-//         executor.getCaseList().add(new EishayDecode());
+         executor.getCaseList().add(new EishayDecode()); // 1069
+                                                         //JDK8_162 1094
+                                                         //JDK9_01  1214
+                                                         //JDK9_04  1252
+                                                         //JDK10    1088
 //         executor.getCaseList().add(new EishayDecodeByClassName());
 //         executor.getCaseList().add(new EishayTreeDecode());
-         executor.getCaseList().add(new EishayEncode());
+//         executor.getCaseList().add(new EishayEncode());
 //         executor.getCaseList().add(new EishayEncodeManual());
         // executor.getCaseList().add(new IntArray1000Decode());
         // executor.getCaseList().add(new StringArray1000Decode());

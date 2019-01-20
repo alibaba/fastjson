@@ -32,20 +32,22 @@ public class UTF8Test extends TestCase {
     public void test_encode() throws Exception {
 
 
-        for (int i = 0; i < 5; ++i) {
-            f0();
-        }
+//        for (int i = 0; i < 5; ++i) {
+//            f0();
+//        }
         for (int i = 0; i < 5; ++i) {
             f1();
         }
-        for (int i = 0; i < 5; ++i) {
-            f2();
-        }
+//        for (int i = 0; i < 5; ++i) {
+//            f2();
+//        }
     }
+
+    final static int COUNT = 1000 * 1000 * 5;
 
     private void f0() throws Exception {
         long start = System.currentTimeMillis();
-        for (int i = 0; i < 1000 * 1000; ++i) {
+        for (int i = 0; i < COUNT; ++i) {
             text.getBytes(charset);
         }
         long millis = System.currentTimeMillis() - start;
@@ -54,7 +56,7 @@ public class UTF8Test extends TestCase {
 
     private void f1() throws Exception {
         long start = System.currentTimeMillis();
-        for (int i = 0; i < 1000 * 1000; ++i) {
+        for (int i = 0; i < COUNT; ++i) {
             IOUtils.encodeUTF8(chars, 0, chars.length, bytes);
         }
         long millis = System.currentTimeMillis() - start;
@@ -63,7 +65,7 @@ public class UTF8Test extends TestCase {
 
     private void f2() throws Exception {
         long start = System.currentTimeMillis();
-        for (int i = 0; i < 1000 * 1000; ++i) {
+        for (int i = 0; i < COUNT; ++i) {
             charset.newEncoder().encode(CharBuffer.wrap(chars));
         }
         long millis = System.currentTimeMillis() - start;

@@ -50,24 +50,7 @@ import java.math.BigInteger;
 import java.security.AccessControlException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.AbstractCollection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -2337,6 +2320,8 @@ public class TypeUtils{
                 itemType = Object.class;
             }
             list = EnumSet.noneOf((Class<Enum>) itemType);
+        } else if(rawClass.isAssignableFrom(Queue.class)){
+            list = new LinkedList();
         } else{
             try{
                 list = (Collection) rawClass.newInstance();

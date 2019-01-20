@@ -19,7 +19,6 @@ public class ContextValueClassLevelTest extends TestCase {
         config.addFilter(ModelA.class, //
                          new ContextValueFilter() {
 
-                             @Override
                              public Object process(BeanContext context, Object object, String name, Object value) {
                                  return 30001;
                              }
@@ -27,7 +26,6 @@ public class ContextValueClassLevelTest extends TestCase {
         config.addFilter(ModelB.class, //
                          new ContextValueFilter() {
 
-                             @Override
                              public Object process(BeanContext context, Object object, String name, Object value) {
                                  return 20001;
                              }

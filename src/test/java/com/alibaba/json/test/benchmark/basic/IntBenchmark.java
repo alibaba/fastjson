@@ -19,6 +19,7 @@ public class IntBenchmark {
             "}";
 
     public static void main(String[] args) throws Exception {
+        System.out.println(System.getProperty("java.vm.name") + " " + System.getProperty("java.runtime.version"));
 //        Model model = new Model();
 //        model.v1 = new Random().nextInt();
 //        model.v2 = new Random().nextInt();
@@ -30,9 +31,9 @@ public class IntBenchmark {
 
 
         for (int i = 0; i < 10; ++i) {
-//             perf(); // 1798
+             perf(); // 1798
            // perf2(); // 1877
-            perf3(); // 20624 2334
+//            perf3(); // 20624 2334
         }
     }
 

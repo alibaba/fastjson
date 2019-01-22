@@ -35,7 +35,15 @@ public class Issue2249 extends TestCase {
         assertSame(Type.Medium, JSON.parseObject("{\"type\":\"MediuM\"}", Model.class).type);
         assertSame(Type.Medium, JSON.parseObject("{\"type\":\"medium\"}", Model.class).type);
         assertSame(Type.Medium, JSON.parseObject("{\"type\":\"MEDIUM\"}", Model.class).type);
+
+    }
+
+    public void test_for_issue_null() throws Exception {
         assertNull(JSON.parseObject("{\"type\":\"\"}", Model.class).type);
+    }
+
+    public void test_for_issue_null_2() throws Exception {
+        assertNull(JSON.parseObject("{\"type\":\"\"}", Model.class, Feature.ErrorOnEnumNotMatch).type);
     }
 
 

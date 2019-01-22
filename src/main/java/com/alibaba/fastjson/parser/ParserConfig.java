@@ -59,13 +59,13 @@ import javax.xml.datatype.XMLGregorianCalendar;
  */
 public class ParserConfig {
 
-    public final static String DENY_PROPERTY             = "fastjson.parser.deny";
-    public final static String AUTOTYPE_ACCEPT           = "fastjson.parser.autoTypeAccept";
-    public final static String AUTOTYPE_SUPPORT_PROPERTY = "fastjson.parser.autoTypeSupport";
-    
-    public static final String[] DENYS;
+    public static final String    DENY_PROPERTY             = "fastjson.parser.deny";
+    public static final String    AUTOTYPE_ACCEPT           = "fastjson.parser.autoTypeAccept";
+    public static final String    AUTOTYPE_SUPPORT_PROPERTY = "fastjson.parser.autoTypeSupport";
+
+    public static  final String[] DENYS;
     private static final String[] AUTO_TYPE_ACCEPT_LIST;
-    public static final boolean AUTO_SUPPORT;
+    public static  final boolean  AUTO_SUPPORT;
 
     static  {
         {
@@ -1057,6 +1057,10 @@ public class ParserConfig {
             clazz = deserializers.findClass(typeName);
         }
 
+        if (clazz == null) {
+            clazz = typeMapping.get(typeName);
+        }
+
         if (clazz != null) {
             if (expectClass != null
                     && clazz != java.util.HashMap.class
@@ -1174,5 +1178,9 @@ public class ParserConfig {
 
     public void setJacksonCompatible(boolean jacksonCompatible) {
         this.jacksonCompatible = jacksonCompatible;
+    }
+
+    public void register(String typeName, Class type) {
+        typeMapping.putIfAbsent(typeName, type);
     }
 }

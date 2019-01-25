@@ -14,7 +14,9 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
+import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
@@ -113,6 +115,21 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                 return (T) localDate;
             } else if (type == ZonedDateTime.class) {
                 if (formatter == defaultFormatter) {
+                    formatter = ISO_FIXED_FORMAT;
+                }
+
+                if (formatter == null) {
+                    if (text.length() <= 10 || text.charAt(10) == 'T') {
+                        JSONScanner s = new JSONScanner(text);
+                        TimeZone timeZone = parser.lexer.getTimeZone();
+                        s.setTimeZone(timeZone);
+                        boolean match = s.scanISO8601DateIfMatch(false);
+                        if (match) {
+                            Date date = s.getCalendar().getTime();
+                            return (T) ZonedDateTime.ofInstant(date.toInstant(), timeZone.toZoneId());
+                        }
+                    }
+
                     formatter = ISO_FIXED_FORMAT;
                 }
 

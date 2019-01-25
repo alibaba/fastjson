@@ -119,7 +119,7 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                 }
 
                 if (formatter == null) {
-                    if (text.length() <= 10 || text.charAt(10) == 'T') {
+                    if (text.length() <= 19) {
                         JSONScanner s = new JSONScanner(text);
                         TimeZone timeZone = parser.lexer.getTimeZone();
                         s.setTimeZone(timeZone);
@@ -130,7 +130,6 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                         }
                     }
 
-                    formatter = ISO_FIXED_FORMAT;
                 }
 
                 ZonedDateTime zonedDateTime = parseZonedDateTime(text, formatter);

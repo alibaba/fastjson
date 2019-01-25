@@ -96,6 +96,9 @@ public class TypeUtils{
     private static Class<? extends Annotation> class_JacksonCreator = null;
     private static boolean class_JacksonCreator_error = false;
 
+    private static volatile Class class_Clob = null;
+    private static volatile boolean class_Clob_error = false;
+
     static{
         try{
             TypeUtils.compatibleWithJavaBean = "true".equals(IOUtils.getStringProperty(IOUtils.FASTJSON_COMPATIBLEWITHJAVABEAN));
@@ -107,6 +110,23 @@ public class TypeUtils{
 
     static{
         addBaseClassMappings();
+    }
+
+    public static boolean isClob(Class clazz) {
+        if (class_Clob == null && !class_Clob_error) {
+
+            try{
+                class_Clob = Class.forName("java.sql.Clob");
+            } catch(Throwable ex){
+                class_Clob_error = true;
+            }
+        }
+
+        if (class_Clob == null) {
+            return false;
+        }
+
+        return  class_Clob.isAssignableFrom(clazz);
     }
 
     public static String castToString(Object value){

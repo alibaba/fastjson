@@ -36,7 +36,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.*;
 import java.nio.charset.Charset;
-import java.sql.Clob;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.*;
@@ -524,7 +523,7 @@ public class SerializeConfig {
             } else if (Calendar.class.isAssignableFrom(clazz) //
                     || XMLGregorianCalendar.class.isAssignableFrom(clazz)) {
                 put(clazz, writer = CalendarCodec.instance);
-            } else if (Clob.class.isAssignableFrom(clazz)) {
+            } else if (TypeUtils.isClob(clazz)) {
                 put(clazz, writer = ClobSeriliazer.instance);
             } else if (TypeUtils.isPath(clazz)) {
                 put(clazz, writer = ToStringSerializer.instance);

@@ -319,6 +319,11 @@ public class JSONSerializer extends SerializeFilterable {
 
     public final void writeWithFormat(Object object, String format) {
         if (object instanceof Date) {
+            if ("unixtime".equals(format)) {
+                long seconds = ((Date) object).getTime() / 1000L;
+                out.writeInt((int) seconds);
+                return;
+            }
             DateFormat dateFormat = this.getDateFormat();
             if (dateFormat == null) {
                 try {

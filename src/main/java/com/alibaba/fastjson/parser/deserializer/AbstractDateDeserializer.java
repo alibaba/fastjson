@@ -22,8 +22,12 @@ public abstract class AbstractDateDeserializer extends ContextObjectDeserializer
 
         Object val;
         if (lexer.token() == JSONToken.LITERAL_INT) {
-            val = lexer.longValue();
+            long millis = lexer.longValue();
             lexer.nextToken(JSONToken.COMMA);
+            if ("unixtime".equals(format)) {
+                millis *= 1000;
+            }
+            val = millis;
         } else if (lexer.token() == JSONToken.LITERAL_STRING) {
             String strVal = lexer.stringVal();
             

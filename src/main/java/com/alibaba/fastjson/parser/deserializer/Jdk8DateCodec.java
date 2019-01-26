@@ -12,6 +12,7 @@ import java.time.OffsetTime;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.chrono.ChronoZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.Date;
@@ -164,14 +165,23 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
             long millis = lexer.longValue();
             lexer.nextToken();
 
+            if ("unixtime".equals(format)) {
+                millis *= 1000;
+            }
+
             if (type == LocalDateTime.class) {
                 return (T) LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), JSON.defaultTimeZone.toZoneId());
             }
+
             if (type == LocalDate.class) {
                 return (T) LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), JSON.defaultTimeZone.toZoneId()).toLocalDate();
             }
             if (type == LocalTime.class) {
                 return (T) LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), JSON.defaultTimeZone.toZoneId()).toLocalTime();
+            }
+
+            if (type == ZonedDateTime.class) {
+                return (T) ZonedDateTime.ofInstant(Instant.ofEpochMilli(millis), JSON.defaultTimeZone.toZoneId());
             }
 
             throw new UnsupportedOperationException();
@@ -459,6 +469,12 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
 
     private void write(SerializeWriter out, TemporalAccessor object, String format) {
         DateTimeFormatter formatter;
+        if ("unixtime".equals(format) && object instanceof ChronoZonedDateTime) {
+            long seconds = ((ChronoZonedDateTime) object).toEpochSecond();
+            out.writeInt((int) seconds);
+            return;
+        }
+
         if (format == formatter_iso8601_pattern) {
             formatter = formatter_iso8601;
         } else {

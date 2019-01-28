@@ -196,7 +196,7 @@ public class FastJsonJsonView extends AbstractView {
      */
     public void setJsonpParameterNames(Set<String> jsonpParameterNames) {
         Assert.notEmpty(jsonpParameterNames, "jsonpParameterName cannot be empty");
-        this.jsonpParameterNames = jsonpParameterNames.toArray(new String[jsonpParameterNames.size()]);
+        this.jsonpParameterNames = jsonpParameterNames.toArray(new String[0]);
     }
 
 

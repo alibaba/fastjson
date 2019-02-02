@@ -9,9 +9,9 @@ import com.alibaba.fastjson.serializer.SerializeConfig;
 
 import junit.framework.TestCase;
 
-public class NamingSerTest extends TestCase {
+public class PropertyNamingStrategyTest extends TestCase {
 
-    public void test_snake() throws Exception {
+    public void testSnakeCase() {
         SerializeConfig config = new SerializeConfig();
         config.propertyNamingStrategy = PropertyNamingStrategy.SnakeCase;
 
@@ -29,7 +29,7 @@ public class NamingSerTest extends TestCase {
         Assert.assertEquals(model.personId, model3.personId);
     }
 
-    public void test_kebab() throws Exception {
+    public void testKebabCase() {
         SerializeConfig config = new SerializeConfig();
         config.propertyNamingStrategy = PropertyNamingStrategy.KebabCase;
 
@@ -47,7 +47,25 @@ public class NamingSerTest extends TestCase {
         Assert.assertEquals(model.personId, model3.personId);
     }
 
-    public void test_pascal() throws Exception {
+    public void testLowerCaseWithDots() {
+        SerializeConfig config = new SerializeConfig();
+        config.propertyNamingStrategy = PropertyNamingStrategy.LowerCaseWithDots;
+
+        Model model = new Model();
+        model.personId = 1001;
+        String text = JSON.toJSONString(model, config);
+        Assert.assertEquals("{\"person.id\":1001}", text);
+
+        ParserConfig parserConfig = new ParserConfig();
+        parserConfig.propertyNamingStrategy = PropertyNamingStrategy.LowerCaseWithDots;
+        Model model2 = JSON.parseObject(text, Model.class, parserConfig);
+        Assert.assertEquals(model.personId, model2.personId);
+
+        Model model3 = JSON.parseObject(text, Model.class);
+        Assert.assertEquals(model.personId, model3.personId);
+    }
+
+    public void testPascalCase() {
         SerializeConfig config = new SerializeConfig();
         config.propertyNamingStrategy = PropertyNamingStrategy.PascalCase;
 
@@ -65,7 +83,7 @@ public class NamingSerTest extends TestCase {
         Assert.assertEquals(model.personId, model3.personId);
     }
 
-    public void test_camel() throws Exception {
+    public void testCamelCase() {
         SerializeConfig config = new SerializeConfig();
         config.propertyNamingStrategy = PropertyNamingStrategy.CamelCase;
 

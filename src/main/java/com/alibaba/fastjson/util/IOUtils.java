@@ -608,7 +608,9 @@ public class IOUtils {
                         if (d >= '\uDC00' && d < ('\uDFFF' + 1)) { // Character.isLowSurrogate(d)
                             uc = ((c << 10) + d) + (0x010000 - ('\uD800' << 10) - '\uDC00'); // Character.toCodePoint(c, d)
                         } else {
-                            throw new JSONException("encodeUTF8 error", new MalformedInputException(1));
+//                            throw new JSONException("encodeUTF8 error", new MalformedInputException(1));
+                            bytes[dp++] = (byte) '?';
+                            continue;
                         }
                     }
                 } else {

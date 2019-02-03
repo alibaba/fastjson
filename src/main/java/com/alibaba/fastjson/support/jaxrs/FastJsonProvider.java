@@ -313,7 +313,7 @@ public class FastJsonProvider //
 
         } catch (JSONException ex) {
 
-            throw new WebApplicationException("Could not write JSON: " + ex.getMessage(), ex);
+            throw new WebApplicationException(ex);
         }
     }
 
@@ -359,7 +359,7 @@ public class FastJsonProvider //
 
         } catch (JSONException ex) {
 
-            throw new WebApplicationException("JSON parse error: " + ex.getMessage(), ex);
+            throw new WebApplicationException(ex);
         }
     }
 

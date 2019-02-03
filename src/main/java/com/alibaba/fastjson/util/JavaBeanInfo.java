@@ -20,9 +20,6 @@ import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-
 public class JavaBeanInfo {
 
     public final Class<?> clazz;
@@ -823,8 +820,7 @@ public class JavaBeanInfo {
         }
 
         if (fieldList.size() == 0) {
-            XmlAccessorType accessorType = clazz.getAnnotation(XmlAccessorType.class);
-            if (accessorType != null && accessorType.value() == XmlAccessType.FIELD) {
+            if (TypeUtils.isXmlField(clazz)) {
                 fieldBased = true;
             }
 

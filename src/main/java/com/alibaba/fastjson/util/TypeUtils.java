@@ -99,6 +99,13 @@ public class TypeUtils{
     private static volatile Class class_Clob = null;
     private static volatile boolean class_Clob_error = false;
 
+    private static volatile Class class_XmlAccessType = null;
+    private static volatile Class class_XmlAccessorType = null;
+    private static volatile boolean classXmlAccessorType_error = false;
+    private static volatile Method method_XmlAccessorType_value = null;
+    private static volatile Field field_XmlAccessType_FIELD = null;
+    private static volatile Object field_XmlAccessType_FIELD_VALUE = null;
+
     static{
         try{
             TypeUtils.compatibleWithJavaBean = "true".equals(IOUtils.getStringProperty(IOUtils.FASTJSON_COMPATIBLEWITHJAVABEAN));
@@ -111,6 +118,97 @@ public class TypeUtils{
     static{
         addBaseClassMappings();
     }
+
+
+    public static boolean isXmlField(Class clazz) {
+        if (class_XmlAccessorType == null && !classXmlAccessorType_error) {
+            try {
+                class_XmlAccessorType = Class.forName("javax.xml.bind.annotation.XmlAccessorType");
+            } catch(Throwable ex){
+                classXmlAccessorType_error = true;
+            }
+        }
+
+        if (class_XmlAccessorType == null) {
+            return false;
+        }
+
+        Annotation annotation = clazz.getAnnotation(class_XmlAccessorType);
+        if (annotation == null) {
+            return false;
+        }
+
+        if (method_XmlAccessorType_value == null && !classXmlAccessorType_error) {
+            try {
+                method_XmlAccessorType_value = class_XmlAccessorType.getMethod("value");
+            } catch(Throwable ex){
+                classXmlAccessorType_error = true;
+            }
+        }
+
+        if (method_XmlAccessorType_value == null) {
+            return false;
+        }
+
+        Object value = null;
+        if (!classXmlAccessorType_error) {
+            try {
+                value = method_XmlAccessorType_value.invoke(annotation);
+            } catch (Throwable ex) {
+                classXmlAccessorType_error = true;
+            }
+        }
+        if (value == null) {
+            return false;
+        }
+
+        if (class_XmlAccessType == null && !classXmlAccessorType_error) {
+            try {
+                class_XmlAccessType = Class.forName("javax.xml.bind.annotation.XmlAccessType");
+                field_XmlAccessType_FIELD = class_XmlAccessType.getField("FIELD");
+                field_XmlAccessType_FIELD_VALUE = field_XmlAccessType_FIELD.get(null);
+            } catch(Throwable ex){
+                classXmlAccessorType_error = true;
+            }
+        }
+
+        return value == field_XmlAccessType_FIELD_VALUE;
+    }
+
+    public static Annotation getXmlAccessorType(Class clazz) {
+        if (class_XmlAccessorType == null && !classXmlAccessorType_error) {
+
+            try{
+                class_XmlAccessorType = Class.forName("javax.xml.bind.annotation.XmlAccessorType");
+            } catch(Throwable ex){
+                classXmlAccessorType_error = true;
+            }
+        }
+
+        if (class_XmlAccessorType == null) {
+            return null;
+        }
+
+        return  clazz.getAnnotation(class_XmlAccessorType);
+    }
+
+//
+//    public static boolean isXmlAccessType(Class clazz) {
+//        if (class_XmlAccessType == null && !class_XmlAccessType_error) {
+//
+//            try{
+//                class_XmlAccessType = Class.forName("javax.xml.bind.annotation.XmlAccessType");
+//            } catch(Throwable ex){
+//                class_XmlAccessType_error = true;
+//            }
+//        }
+//
+//        if (class_XmlAccessType == null) {
+//            return false;
+//        }
+//
+//        return  class_XmlAccessType.isAssignableFrom(clazz);
+//    }
 
     public static boolean isClob(Class clazz) {
         if (class_Clob == null && !class_Clob_error) {

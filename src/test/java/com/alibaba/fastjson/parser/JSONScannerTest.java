@@ -23,7 +23,6 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import sun.util.calendar.ZoneInfo;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;

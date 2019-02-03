@@ -792,6 +792,12 @@ public class ParserConfig {
             }
         }
 
+        if (asmEnable) {
+            if (TypeUtils.isXmlField(clazz)) {
+                asmEnable = false;
+            }
+        }
+
         if (!asmEnable) {
             return new JavaBeanDeserializer(this, clazz, type);
         }

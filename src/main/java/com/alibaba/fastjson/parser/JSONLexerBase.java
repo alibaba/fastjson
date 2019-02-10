@@ -3831,8 +3831,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             }
         } else if (chLocal == 'n' &&
                    charAt(bp + offset) == 'u' &&
-                   charAt(bp + offset + 1) == 'l'
-                   && charAt(bp + offset + 2) == 'l') {
+                   charAt(bp + offset + 1) == 'l' &&
+                   charAt(bp + offset + 2) == 'l') {
             matchStat = VALUE_NULL;
             value = null;
             offset += 3;

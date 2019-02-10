@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2017 Alibaba Group.
+ * Copyright 1999-2019 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1337,8 +1337,6 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 return null;
             }
         }
-
-
 
         final String strVal;
         for (;;) {
@@ -3537,7 +3535,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 String text = this.subString(start, count);
                 value = Double.parseDouble(text);
             }
-        } else if (chLocal == 'n' && charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
+        } else if (chLocal == 'n' &&
+                   charAt(bp + offset) == 'u' &&
+                   charAt(bp + offset + 1) == 'l'
+                   && charAt(bp + offset + 2) == 'l') {
             matchStat = VALUE_NULL;
             value = 0;
             offset += 3;
@@ -3693,7 +3694,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
             char[] chars = this.sub_chars(start, count);
             value = new BigDecimal(chars);
-        } else if (chLocal == 'n' && charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
+        } else if (chLocal == 'n' &&
+                   charAt(bp + offset) == 'u' &&
+                   charAt(bp + offset + 1) == 'l' &&
+                   charAt(bp + offset + 2) == 'l') {
             matchStat = VALUE_NULL;
             value = null;
             offset += 3;
@@ -3825,7 +3829,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 String strVal = this.subString(start, count);
                 value = new BigInteger(strVal);
             }
-        } else if (chLocal == 'n' && charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
+        } else if (chLocal == 'n' &&
+                   charAt(bp + offset) == 'u' &&
+                   charAt(bp + offset + 1) == 'l'
+                   && charAt(bp + offset + 2) == 'l') {
             matchStat = VALUE_NULL;
             value = null;
             offset += 3;
@@ -4118,7 +4125,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             }
 
             dateVal = new java.util.Date(millis);
-        } else if (chLocal == 'n' && charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
+        } else if (chLocal == 'n' &&
+                   charAt(bp + offset) == 'u' &&
+                   charAt(bp + offset + 1) == 'l' &&
+                   charAt(bp + offset + 2) == 'l') {
             matchStat = VALUE_NULL;
             dateVal = null;
             offset += 3;
@@ -4599,8 +4609,18 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
         next();
 
-        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
-                || ch == '\f' || ch == '\b' || ch == ':' || ch == '/') {
+        if (ch == ' '  ||
+            ch == ','  ||
+            ch == '}'  ||
+            ch == ']'  ||
+            ch == '\n' ||
+            ch == '\r' ||
+            ch == '\t' ||
+            ch == EOI  ||
+            ch == '\f' ||
+            ch == '\b' ||
+            ch == ':'  ||
+            ch == '/') {
             token = JSONToken.TRUE;
         } else {
             throw new JSONException("scan true error");
@@ -4625,8 +4645,16 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             }
             next();
 
-            if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
-                    || ch == '\f' || ch == '\b') {
+            if (ch == ' '  ||
+                ch == ','  ||
+                ch == '}'  ||
+                ch == ']'  ||
+                ch == '\n' ||
+                ch == '\r' ||
+                ch == '\t' ||
+                ch == EOI  ||
+                ch == '\f' ||
+                ch == '\b') {
                 token = JSONToken.NULL;
             } else {
                 throw new JSONException("scan null error");
@@ -4644,8 +4672,16 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
         next();
 
-        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
-                || ch == '\f' || ch == '\b') {
+        if (ch == ' '  ||
+            ch == ','  ||
+            ch == '}'  ||
+            ch == ']'  ||
+            ch == '\n' ||
+            ch == '\r' ||
+            ch == '\t' ||
+            ch == EOI  ||
+            ch == '\f' ||
+            ch == '\b') {
             token = JSONToken.NEW;
         } else {
             throw new JSONException("scan new error");
@@ -4678,8 +4714,18 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
         next();
 
-        if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
-                || ch == '\f' || ch == '\b' || ch == ':' || ch == '/') {
+        if (ch == ' '  ||
+            ch == ','  ||
+            ch == '}'  ||
+            ch == ']'  ||
+            ch == '\n' ||
+            ch == '\r' ||
+            ch == '\t' ||
+            ch == EOI  ||
+            ch == '\f' ||
+            ch == '\b' ||
+            ch == ':'  ||
+            ch == '/') {
             token = JSONToken.FALSE;
         } else {
             throw new JSONException("scan false error");
@@ -4833,7 +4879,12 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     public final void skipWhitespace() {
         for (;;) {
             if (ch <= '/') {
-                if (ch == ' ' || ch == '\r' || ch == '\n' || ch == '\t' || ch == '\f' || ch == '\b') {
+                if (ch == ' '  ||
+                    ch == '\r' ||
+                    ch == '\n' ||
+                    ch == '\t' ||
+                    ch == '\f' ||
+                    ch == '\b') {
                     next();
                     continue;
                 } else if (ch == '/') {
@@ -5178,7 +5229,13 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     public static boolean isWhitespace(char ch) {
         // 专门调整了判断顺序
-        return ch <= ' ' && (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b');
+        return ch <= ' '  &&
+              (ch == ' '  ||
+               ch == '\n' ||
+               ch == '\r' ||
+               ch == '\t' ||
+               ch == '\f' ||
+               ch == '\b');
     }
 
     protected static final long  MULTMIN_RADIX_TEN     = Long.MIN_VALUE / 10;

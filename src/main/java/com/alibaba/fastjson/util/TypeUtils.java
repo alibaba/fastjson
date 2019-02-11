@@ -2350,6 +2350,8 @@ public class TypeUtils{
             Type actualTypeArgument = actualTypeArguments[i];
             if (actualTypeArgument instanceof TypeVariable) {
                 actualTypeArguments[i] = typeParameterMap.get(actualTypeArgument);
+            } else if (actualTypeArgument instanceof ParameterizedType) {
+                actualTypeArguments[i] = makeParameterizedType(getRawClass(actualTypeArgument), ((ParameterizedType) actualTypeArgument).getActualTypeArguments(), typeParameterMap);
             }
         }
         return new ParameterizedTypeImpl(actualTypeArguments, null, rawClass);

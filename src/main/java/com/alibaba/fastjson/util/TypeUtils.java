@@ -2347,14 +2347,20 @@ public class TypeUtils{
         Type[] actualTypeArguments = new Type[length];
         System.arraycopy(typeParameters, 0, actualTypeArguments, 0, length);
         for (int i = 0; i < actualTypeArguments.length; i++) {
-            Type actualTypeArgument = actualTypeArguments[i];
-            if (actualTypeArgument instanceof TypeVariable) {
-                actualTypeArguments[i] = typeParameterMap.get(actualTypeArgument);
-            } else if (actualTypeArgument instanceof ParameterizedType) {
-                actualTypeArguments[i] = makeParameterizedType(getRawClass(actualTypeArgument), ((ParameterizedType) actualTypeArgument).getActualTypeArguments(), typeParameterMap);
-            }
+            actualTypeArguments[i] = expandType(actualTypeArguments[i], typeParameterMap);
         }
         return new ParameterizedTypeImpl(actualTypeArguments, null, rawClass);
+    }
+
+    private static Type expandType(Type type, Map<TypeVariable, Type> typeParameterMap) {
+        if (type instanceof TypeVariable) {
+            return typeParameterMap.get(type);
+        } else if (type instanceof ParameterizedType) {
+            return makeParameterizedType(getRawClass(type), ((ParameterizedType) type).getActualTypeArguments(), typeParameterMap);
+        } else if (type instanceof GenericArrayType) {
+            return new GenericArrayTypeImpl(expandType(((GenericArrayType) type).getGenericComponentType(), typeParameterMap));
+        }
+        return type;
     }
 
     private static Type getWildcardTypeUpperBounds(Type type) {

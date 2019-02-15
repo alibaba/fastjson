@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-abstract class KeyedCollection<TKey, TItem> implements CollectionEx<TItem>, Cloneable {
+public abstract class KeyedCollection<TKey, TItem> implements CollectionEx<TItem>, Cloneable {
     private transient Map<TKey, TItem> items = new LinkedHashMap<TKey, TItem>();
 
     protected abstract TKey getKeyForItem(TItem item);
@@ -16,30 +16,37 @@ abstract class KeyedCollection<TKey, TItem> implements CollectionEx<TItem>, Clon
 
     //region override
 
+    @Override
     public int size() {
         return this.items.size();
     }
 
+    @Override
     public boolean isEmpty() {
         return this.items.isEmpty();
     }
 
+    @Override
     public boolean contains(Object key) {
         return this.items.containsKey(key);
     }
 
+    @Override
     public Iterator<TItem> iterator() {
         return this.items.values().iterator();
     }
 
+    @Override
     public Object[] toArray() {
         return this.items.values().toArray();
     }
 
+    @Override
     public <T> T[] toArray(T[] a) {
         return this.items.values().toArray(a);
     }
 
+    @Override
     public boolean add(TItem item) {
         if (item == null)
             throw new IllegalArgumentException("item can not be null.");
@@ -48,14 +55,17 @@ abstract class KeyedCollection<TKey, TItem> implements CollectionEx<TItem>, Clon
         return true;
     }
 
+    @Override
     public boolean remove(Object key) {
         return this.items.remove(key) != null;
     }
 
+    @Override
     public boolean containsAll(Collection<?> keys) {
         return this.items.keySet().containsAll(keys);
     }
 
+    @Override
     public boolean addAll(Collection<? extends TItem> items) {
         boolean modified = false;
         for (TItem item : items)
@@ -63,6 +73,7 @@ abstract class KeyedCollection<TKey, TItem> implements CollectionEx<TItem>, Clon
         return modified;
     }
 
+    @Override
     public boolean removeAll(Collection<?> keys) {
         boolean modified = false;
         for (Object key : keys)
@@ -70,6 +81,7 @@ abstract class KeyedCollection<TKey, TItem> implements CollectionEx<TItem>, Clon
         return modified;
     }
 
+    @Override
     public boolean retainAll(Collection<?> keys) {
         boolean modified = false;
         for (TKey key : this.items.keySet()) {
@@ -79,10 +91,12 @@ abstract class KeyedCollection<TKey, TItem> implements CollectionEx<TItem>, Clon
         return modified;
     }
 
+    @Override
     public void clear() {
         this.items.clear();
     }
 
+    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append('[');

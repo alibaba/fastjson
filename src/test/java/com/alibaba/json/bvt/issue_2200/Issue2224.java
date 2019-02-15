@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.json.bvt.issue_2200.issue2224.PersonCollection;
 import com.alibaba.json.bvt.issue_2200.issue2224_2.PersonGroupedCollection;
 import com.alibaba.json.bvt.issue_2200.issue2224_3.ArrayPersonGroupedCollection;
+import com.alibaba.json.bvt.issue_2200.issue2224_4.MAPersonGroupedCollection;
 import junit.framework.TestCase;
 
 public class Issue2224 extends TestCase {
@@ -55,6 +56,26 @@ public class Issue2224 extends TestCase {
         assertEquals("李四", personCollection.get("李四")[0].getName());
         assertEquals("224", personCollection.get("李四")[1].getIdNo());
         assertEquals("李四", personCollection.get("李四")[1].getName());
+        String json2 = JSON.toJSONString(personCollection);
+        assertNotNull(json2);
+    }
+
+    //support inherit with other parameterized type and item type is generic array
+    public void test_for_issue_4() {
+        String json = "[[{\"idNo\":\"123\",\"name\":\"张三\"},{\"idNo\":\"124\",\"name\":\"张三\"}],[{\"idNo\":\"223\",\"name\":\"李四\"},{\"idNo\":\"224\",\"name\":\"李四\"}]]";
+        MAPersonGroupedCollection personCollection = JSON.parseObject(json, MAPersonGroupedCollection.class);
+        assertNotNull(personCollection);
+        assertEquals(2, personCollection.size());
+        assertEquals(2, personCollection.get("张三").length);
+        assertEquals("123", personCollection.get("张三")[0].get("idNo"));
+        assertEquals("张三", personCollection.get("张三")[0].get("name"));
+        assertEquals("124", personCollection.get("张三")[1].get("idNo"));
+        assertEquals("张三", personCollection.get("张三")[1].get("name"));
+        assertEquals(2, personCollection.get("李四").length);
+        assertEquals("223", personCollection.get("李四")[0].get("idNo"));
+        assertEquals("李四", personCollection.get("李四")[0].get("name"));
+        assertEquals("224", personCollection.get("李四")[1].get("idNo"));
+        assertEquals("李四", personCollection.get("李四")[1].get("name"));
         String json2 = JSON.toJSONString(personCollection);
         assertNotNull(json2);
     }

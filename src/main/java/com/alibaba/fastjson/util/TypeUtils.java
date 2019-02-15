@@ -2307,13 +2307,13 @@ public class TypeUtils{
             return getWildcardTypeUpperBounds(actualTypeArguments[0]);
         }
         Class<?> rawClass = (Class<?>) rawType;
-        Map<TypeVariable, Type> typeParameterMap = createTypeParameterMap(rawClass.getTypeParameters(), actualTypeArguments);
+        Map<TypeVariable, Type> actualTypeMap = createActualTypeMap(rawClass.getTypeParameters(), actualTypeArguments);
         Type superType = getCollectionSuperType(rawClass);
         if (superType instanceof ParameterizedType) {
             Class<?> superClass = getRawClass(superType);
             Type[] superClassTypeParameters = ((ParameterizedType) superType).getActualTypeArguments();
             return superClassTypeParameters.length > 0
-                    ? getCollectionItemType(makeParameterizedType(superClass, superClassTypeParameters, typeParameterMap))
+                    ? getCollectionItemType(makeParameterizedType(superClass, superClassTypeParameters, actualTypeMap))
                     : getCollectionItemType(superClass);
         }
         return getCollectionItemType((Class<?>) superType);
@@ -2333,34 +2333,33 @@ public class TypeUtils{
         return assignable == null ? clazz.getGenericSuperclass() : assignable;
     }
 
-    private static Map<TypeVariable, Type> createTypeParameterMap(TypeVariable[] typeParameters, Type[] actualTypeArguments) {
+    private static Map<TypeVariable, Type> createActualTypeMap(TypeVariable[] typeParameters, Type[] actualTypeArguments) {
         int length = typeParameters.length;
-        Map<TypeVariable, Type> typeParameterMap = new HashMap<TypeVariable, Type>(length);
+        Map<TypeVariable, Type> actualTypeMap = new HashMap<TypeVariable, Type>(length);
         for (int i = 0; i < length; i++) {
-            typeParameterMap.put(typeParameters[i], actualTypeArguments[i]);
+            actualTypeMap.put(typeParameters[i], actualTypeArguments[i]);
         }
-        return typeParameterMap;
+        return actualTypeMap;
     }
 
-    private static ParameterizedType makeParameterizedType(Class<?> rawClass, Type[] typeParameters, Map<TypeVariable, Type> typeParameterMap) {
+    private static ParameterizedType makeParameterizedType(Class<?> rawClass, Type[] typeParameters, Map<TypeVariable, Type> actualTypeMap) {
         int length = typeParameters.length;
         Type[] actualTypeArguments = new Type[length];
-        System.arraycopy(typeParameters, 0, actualTypeArguments, 0, length);
-        for (int i = 0; i < actualTypeArguments.length; i++) {
-            actualTypeArguments[i] = expandType(actualTypeArguments[i], typeParameterMap);
+        for (int i = 0; i < length; i++) {
+            actualTypeArguments[i] = getActualType(typeParameters[i], actualTypeMap);
         }
         return new ParameterizedTypeImpl(actualTypeArguments, null, rawClass);
     }
 
-    private static Type expandType(Type type, Map<TypeVariable, Type> typeParameterMap) {
-        if (type instanceof TypeVariable) {
-            return typeParameterMap.get(type);
-        } else if (type instanceof ParameterizedType) {
-            return makeParameterizedType(getRawClass(type), ((ParameterizedType) type).getActualTypeArguments(), typeParameterMap);
-        } else if (type instanceof GenericArrayType) {
-            return new GenericArrayTypeImpl(expandType(((GenericArrayType) type).getGenericComponentType(), typeParameterMap));
+    private static Type getActualType(Type typeParameter, Map<TypeVariable, Type> actualTypeMap) {
+        if (typeParameter instanceof TypeVariable) {
+            return actualTypeMap.get(typeParameter);
+        } else if (typeParameter instanceof ParameterizedType) {
+            return makeParameterizedType(getRawClass(typeParameter), ((ParameterizedType) typeParameter).getActualTypeArguments(), actualTypeMap);
+        } else if (typeParameter instanceof GenericArrayType) {
+            return new GenericArrayTypeImpl(getActualType(((GenericArrayType) typeParameter).getGenericComponentType(), actualTypeMap));
         }
-        return type;
+        return typeParameter;
     }
 
     private static Type getWildcardTypeUpperBounds(Type type) {

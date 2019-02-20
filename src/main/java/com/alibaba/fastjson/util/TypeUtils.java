@@ -1428,6 +1428,18 @@ public class TypeUtils{
             }
             mappings.put(clazz.getName(), clazz);
         }
+
+        String[] w = new String[]{
+                "java.util.Collections$UnmodifiableMap"
+        };
+        for(String className : w){
+            Class<?> clazz = loadClass(className);
+            if(clazz == null){
+                break;
+            }
+            mappings.put(clazz.getName(), clazz);
+        }
+
         String[] awt = new String[]{
                 "java.awt.Rectangle",
                 "java.awt.Point",
@@ -1440,6 +1452,7 @@ public class TypeUtils{
             }
             mappings.put(clazz.getName(), clazz);
         }
+
         String[] spring = new String[]{
                 "org.springframework.util.LinkedMultiValueMap",
                 "org.springframework.util.LinkedCaseInsensitiveMap",

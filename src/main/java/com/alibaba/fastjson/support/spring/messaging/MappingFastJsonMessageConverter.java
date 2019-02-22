@@ -79,13 +79,21 @@ public class MappingFastJsonMessageConverter extends AbstractMessageConverter {
     @Override
     protected Object convertToInternal(Object payload, MessageHeaders headers, Object conversionHint) {
         // encode payload to json string or byte[]
-        Object obj = null;
+        Object obj;
         if (byte[].class == getSerializedPayloadClass()) {
-            obj = JSON.toJSONBytes(fastJsonConfig.getCharset(), payload, fastJsonConfig.getSerializeConfig(), fastJsonConfig.getSerializeFilters(),
-                    fastJsonConfig.getDateFormat(), JSON.DEFAULT_GENERATE_FEATURE, fastJsonConfig.getSerializerFeatures());
+            if (payload instanceof String && JSON.isValid((String) payload)) {
+                obj = ((String) payload).getBytes(fastJsonConfig.getCharset());
+            } else {
+                obj = JSON.toJSONBytes(fastJsonConfig.getCharset(), payload, fastJsonConfig.getSerializeConfig(), fastJsonConfig.getSerializeFilters(),
+                        fastJsonConfig.getDateFormat(), JSON.DEFAULT_GENERATE_FEATURE, fastJsonConfig.getSerializerFeatures());
+            }
         } else {
-            obj = JSON.toJSONString(payload, fastJsonConfig.getSerializeConfig(), fastJsonConfig.getSerializeFilters(),
-                    fastJsonConfig.getDateFormat(), JSON.DEFAULT_GENERATE_FEATURE, fastJsonConfig.getSerializerFeatures());
+            if (payload instanceof String && JSON.isValid((String) payload)) {
+                obj = payload;
+            } else {
+                obj = JSON.toJSONString(payload, fastJsonConfig.getSerializeConfig(), fastJsonConfig.getSerializeFilters(),
+                        fastJsonConfig.getDateFormat(), JSON.DEFAULT_GENERATE_FEATURE, fastJsonConfig.getSerializerFeatures());
+            }
         }
 
         return obj;

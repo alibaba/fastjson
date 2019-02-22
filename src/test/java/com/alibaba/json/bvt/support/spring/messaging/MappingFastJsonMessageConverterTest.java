@@ -2,72 +2,88 @@ package com.alibaba.json.bvt.support.spring.messaging;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
-import org.springframework.messaging.Message;
 import com.alibaba.fastjson.support.spring.messaging.MappingFastJsonMessageConverter;
 import junit.framework.TestCase;
 import org.junit.Assert;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 
 
 public class MappingFastJsonMessageConverterTest extends TestCase {
 
-	public void test_1() throws Exception {
+    public void test_1() throws Exception {
 
-		MappingFastJsonMessageConverter converter = new MappingFastJsonMessageConverter();
+        MappingFastJsonMessageConverter converter = new MappingFastJsonMessageConverter();
 
-		Assert.assertNotNull(converter.getFastJsonConfig());
-		converter.setFastJsonConfig(new FastJsonConfig());
+        Assert.assertNotNull(converter.getFastJsonConfig());
+        converter.setFastJsonConfig(new FastJsonConfig());
 
-		VO p = new VO();
-		p.setId(1);
+        VO p = new VO();
+        p.setId(1);
 
-		String pstr = JSON.toJSONString(p);
+        String pstr = JSON.toJSONString(p);
 
-		System.out.println(pstr);
+        System.out.println(pstr);
 
-		TestMessage message = new TestMessage(pstr);
+        TestMessage message = new TestMessage(pstr);
 
-		// test fromMessage/convertFromInternal
-		VO vo = (VO)converter.fromMessage(message,VO.class);
-		Assert.assertEquals(1,vo.getId());
+        // test fromMessage/convertFromInternal
+        VO vo = (VO) converter.fromMessage(message, VO.class);
+        Assert.assertEquals(1, vo.getId());
 
-		// test toMessage/convertToInternal
-		Message message1 = converter.toMessage(vo,null);
-		System.out.println(message1.getPayload());
-		Assert.assertEquals("{\"id\":1}", new String((byte[])message1.getPayload()));
+        // test toMessage/convertToInternal
+        Message message1 = converter.toMessage(vo, null);
+        System.out.println(message1.getPayload());
+        Assert.assertEquals("{\"id\":1}", new String((byte[]) message1.getPayload()));
 
-	}
+//		// test toMessage/convertToInternal
+        Message message2 = converter.toMessage("{\"id\":1}", null);
+        System.out.println(message2.getPayload());
+        Assert.assertEquals("{\"id\":1}", new String((byte[]) message2.getPayload()));
 
-	public static class TestMessage<T> implements Message<T>{
+        converter.setSerializedPayloadClass(String.class);
 
-		private T payload;
+        // test toMessage/convertToInternal
+        Message message3 = converter.toMessage(vo, null);
+        System.out.println(message3.getPayload());
+        Assert.assertEquals("{\"id\":1}", message3.getPayload());
 
-		public TestMessage(T payload){
-			this.payload = payload;
-		}
+//		// test toMessage/convertToInternal
+        Message message4 = converter.toMessage("{\"id\":1}", null);
+        System.out.println(message4.getPayload());
+        Assert.assertEquals("{\"id\":1}", message4.getPayload());
+    }
 
-		@Override
-		public T getPayload() {
-			return (T)payload;
-		}
+    public static class TestMessage<T> implements Message<T> {
 
-		@Override
-		public MessageHeaders getHeaders() {
-			return null;
-		}
-	}
+        private T payload;
 
-	public static class VO {
+        public TestMessage(T payload) {
+            this.payload = payload;
+        }
 
-		private int id;
+        @Override
+        public T getPayload() {
+            return (T) payload;
+        }
 
-		public int getId() {
-			return id;
-		}
+        @Override
+        public MessageHeaders getHeaders() {
+            return null;
+        }
+    }
 
-		public void setId(int id) {
-			this.id = id;
-		}
+    public static class VO {
 
-	}
+        private int id;
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+    }
 }

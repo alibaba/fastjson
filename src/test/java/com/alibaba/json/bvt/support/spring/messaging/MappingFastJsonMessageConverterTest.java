@@ -34,7 +34,7 @@ public class MappingFastJsonMessageConverterTest extends TestCase {
 		// test toMessage/convertToInternal
 		Message message1 = converter.toMessage(vo,null);
 		System.out.println(message1.getPayload());
-		Assert.assertEquals("{\"id\":1}",message1.getPayload());
+		Assert.assertEquals("{\"id\":1}", new String((byte[])message1.getPayload()));
 
 	}
 

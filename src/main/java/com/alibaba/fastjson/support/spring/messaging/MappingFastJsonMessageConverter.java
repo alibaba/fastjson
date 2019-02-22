@@ -15,6 +15,7 @@ import java.nio.charset.Charset;
  * Compatible Spring Messaging version 4+
  *
  * @author KimmKing
+ * @author Victor.Zxy
  * @see AbstractMessageConverter
  * @since 1.2.47
  */
@@ -65,8 +66,7 @@ public class MappingFastJsonMessageConverter extends AbstractMessageConverter {
         Object payload = message.getPayload();
         Object obj = null;
         if (payload instanceof byte[]) {
-            obj = JSON.parseObject((byte[]) payload, 0, ((byte[]) payload).length,
-                    fastJsonConfig.getCharset(), targetClass, fastJsonConfig.getParserConfig(),
+            obj = JSON.parseObject((byte[]) payload, fastJsonConfig.getCharset(), targetClass, fastJsonConfig.getParserConfig(),
                     fastJsonConfig.getParseProcess(), JSON.DEFAULT_PARSER_FEATURE, fastJsonConfig.getFeatures());
         } else if (payload instanceof String) {
             obj = JSON.parseObject((String) payload, targetClass, fastJsonConfig.getParserConfig(),
@@ -78,8 +78,16 @@ public class MappingFastJsonMessageConverter extends AbstractMessageConverter {
 
     @Override
     protected Object convertToInternal(Object payload, MessageHeaders headers, Object conversionHint) {
-        // encode payload to json string
-        return JSON.toJSONString(payload, fastJsonConfig.getSerializeConfig(), fastJsonConfig.getSerializeFilters(),
-                fastJsonConfig.getDateFormat(), JSON.DEFAULT_GENERATE_FEATURE, fastJsonConfig.getSerializerFeatures());
+        // encode payload to json string or byte[]
+        Object obj = null;
+        if (byte[].class == getSerializedPayloadClass()) {
+            obj = JSON.toJSONBytes(fastJsonConfig.getCharset(), payload, fastJsonConfig.getSerializeConfig(), fastJsonConfig.getSerializeFilters(),
+                    fastJsonConfig.getDateFormat(), JSON.DEFAULT_GENERATE_FEATURE, fastJsonConfig.getSerializerFeatures());
+        } else {
+            obj = JSON.toJSONString(payload, fastJsonConfig.getSerializeConfig(), fastJsonConfig.getSerializeFilters(),
+                    fastJsonConfig.getDateFormat(), JSON.DEFAULT_GENERATE_FEATURE, fastJsonConfig.getSerializerFeatures());
+        }
+
+        return obj;
     }
 }

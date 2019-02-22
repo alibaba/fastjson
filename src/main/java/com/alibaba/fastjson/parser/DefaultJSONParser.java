@@ -348,6 +348,8 @@ public class DefaultJSONParser implements Closeable {
                                     instance = new HashMap();
                                 } else if ("java.util.Collections$EmptyMap".equals(typeName)) {
                                     instance = Collections.emptyMap();
+                                } else if ("java.util.Collections$UnmodifiableMap".equals(typeName)) {
+                                    instance = Collections.unmodifiableMap(new HashMap());
                                 } else {
                                     instance = clazz.newInstance();
                                 }

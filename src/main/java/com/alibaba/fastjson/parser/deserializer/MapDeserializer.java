@@ -29,6 +29,8 @@ public class MapDeserializer implements ObjectDeserializer {
             return null;
         }
 
+        boolean unmodifiableMap = "java.util.Collections$UnmodifiableMap".equals(type.getTypeName());
+
         Map<Object, Object> map = (lexer.getFeatures() & Feature.OrderedField.mask) != 0
                 ? createMap(type, lexer.getFeatures())
                 : createMap(type);
@@ -37,7 +39,11 @@ public class MapDeserializer implements ObjectDeserializer {
 
         try {
             parser.setContext(context, map, fieldName);
-            return (T) deserialze(parser, type, fieldName, map);
+            T t = (T) deserialze(parser, type, fieldName, map);
+            if (unmodifiableMap) {
+                t = (T) Collections.unmodifiableMap((Map) t);
+            }
+            return t;
         } finally {
             parser.setContext(context);
         }
@@ -364,6 +370,10 @@ public class MapDeserializer implements ObjectDeserializer {
         Class<?> clazz = (Class<?>) type;
         if (clazz.isInterface()) {
             throw new JSONException("unsupport type " + type);
+        }
+
+        if ("java.util.Collections$UnmodifiableMap".equals(clazz.getName())) {
+            return new HashMap();
         }
         
         try {

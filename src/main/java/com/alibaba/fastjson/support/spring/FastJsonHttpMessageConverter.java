@@ -96,46 +96,109 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
         super(MediaType.ALL);
     }
 
+    /**
+     * Gets charset.
+     *
+     * @return the charset
+     * @see FastJsonConfig#getCharset()
+     * @deprecated
+     */
     @Deprecated
     public Charset getCharset() {
         return this.fastJsonConfig.getCharset();
     }
 
+    /**
+     * Sets charset.
+     *
+     * @param charset the charset
+     * @see FastJsonConfig#setCharset(Charset)
+     * @deprecated
+     */
     @Deprecated
     public void setCharset(Charset charset) {
         this.fastJsonConfig.setCharset(charset);
     }
 
+    /**
+     * Gets date format.
+     *
+     * @return the date format
+     * @see FastJsonConfig#getDateFormat()
+     * @deprecated
+     */
     @Deprecated
     public String getDateFormat() {
         return this.fastJsonConfig.getDateFormat();
     }
 
+    /**
+     * Sets date format.
+     *
+     * @param dateFormat the date format
+     * @see FastJsonConfig#setDateFormat(String)
+     * @deprecated
+     */
     @Deprecated
     public void setDateFormat(String dateFormat) {
         this.fastJsonConfig.setDateFormat(dateFormat);
     }
 
+    /**
+     * Get features serializer feature [].
+     *
+     * @return the serializer feature []
+     * @see FastJsonConfig#getSerializerFeatures()
+     * @deprecated
+     */
     @Deprecated
     public SerializerFeature[] getFeatures() {
         return this.fastJsonConfig.getSerializerFeatures();
     }
 
+    /**
+     * Sets features.
+     *
+     * @param features the features
+     * @see FastJsonConfig#setSerializerFeatures(SerializerFeature...)
+     * @deprecated
+     */
     @Deprecated
     public void setFeatures(SerializerFeature... features) {
         this.fastJsonConfig.setSerializerFeatures(features);
     }
 
+    /**
+     * Get filters serialize filter [].
+     *
+     * @return the serialize filter []
+     * @see FastJsonConfig#getSerializeFilters()
+     * @deprecated
+     */
     @Deprecated
     public SerializeFilter[] getFilters() {
         return this.fastJsonConfig.getSerializeFilters();
     }
 
+    /**
+     * Sets filters.
+     *
+     * @param filters the filters
+     * @see FastJsonConfig#setSerializeFilters(SerializeFilter...)
+     * @deprecated
+     */
     @Deprecated
     public void setFilters(SerializeFilter... filters) {
         this.fastJsonConfig.setSerializeFilters(filters);
     }
 
+    /**
+     * Add serialize filter.
+     *
+     * @param filter the filter
+     * @see FastJsonConfig#setSerializeFilters(SerializeFilter...)
+     * @deprecated
+     */
     @Deprecated
     public void addSerializeFilter(SerializeFilter filter) {
         if (filter == null) {

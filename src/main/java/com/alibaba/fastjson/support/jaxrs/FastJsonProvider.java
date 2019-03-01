@@ -2,6 +2,7 @@ package com.alibaba.fastjson.support.jaxrs;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
@@ -128,48 +129,108 @@ public class FastJsonProvider //
     }
 
     /**
-     * Set charset. the default charset is UTF-8
+     * Instantiates a new Fast json provider.
+     *
+     * @param charset the charset
+     * @see FastJsonConfig#setCharset(Charset)
+     * @deprecated
      */
     @Deprecated
     public FastJsonProvider(String charset) {
         this.fastJsonConfig.setCharset(Charset.forName(charset));
     }
 
+    /**
+     * Gets charset.
+     *
+     * @return the charset
+     * @see FastJsonConfig#getCharset()
+     * @deprecated
+     */
     @Deprecated
     public Charset getCharset() {
         return this.fastJsonConfig.getCharset();
     }
 
+    /**
+     * Sets charset.
+     *
+     * @param charset the charset
+     * @see FastJsonConfig#setCharset(Charset)
+     * @deprecated
+     */
     @Deprecated
     public void setCharset(Charset charset) {
         this.fastJsonConfig.setCharset(charset);
     }
 
+    /**
+     * Gets date format.
+     *
+     * @return the date format
+     * @see FastJsonConfig#getDateFormat()
+     * @deprecated
+     */
     @Deprecated
     public String getDateFormat() {
         return this.fastJsonConfig.getDateFormat();
     }
 
+    /**
+     * Sets date format.
+     *
+     * @param dateFormat the date format
+     * @see FastJsonConfig#setDateFormat(String)
+     * @deprecated
+     */
     @Deprecated
     public void setDateFormat(String dateFormat) {
         this.fastJsonConfig.setDateFormat(dateFormat);
     }
 
+    /**
+     * Get features serializer feature [].
+     *
+     * @return the serializer feature []
+     * @see FastJsonConfig#getFeatures()
+     * @deprecated
+     */
     @Deprecated
     public SerializerFeature[] getFeatures() {
         return this.fastJsonConfig.getSerializerFeatures();
     }
 
+    /**
+     * Sets features.
+     *
+     * @param features the features
+     * @see FastJsonConfig#setFeatures(Feature...)
+     * @deprecated
+     */
     @Deprecated
     public void setFeatures(SerializerFeature... features) {
         this.fastJsonConfig.setSerializerFeatures(features);
     }
 
+    /**
+     * Get filters serialize filter [].
+     *
+     * @return the serialize filter []
+     * @see FastJsonConfig#getSerializeFilters()
+     * @deprecated
+     */
     @Deprecated
     public SerializeFilter[] getFilters() {
         return this.fastJsonConfig.getSerializeFilters();
     }
 
+    /**
+     * Sets filters.
+     *
+     * @param filters the filters
+     * @see FastJsonConfig#setSerializeFilters(SerializeFilter...)
+     * @deprecated
+     */
     @Deprecated
     public void setFilters(SerializeFilter... filters) {
         this.fastJsonConfig.setSerializeFilters(filters);

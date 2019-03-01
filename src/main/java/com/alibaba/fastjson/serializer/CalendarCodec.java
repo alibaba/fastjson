@@ -41,8 +41,8 @@ public class CalendarCodec extends ContextObjectDeserializer implements ObjectSe
         DateFormat dateFormat = new SimpleDateFormat(format);
         if (dateFormat == null) {
             dateFormat = new SimpleDateFormat(JSON.DEFFAULT_DATE_FORMAT, serializer.locale);
-            dateFormat.setTimeZone(serializer.timeZone);
         }
+        dateFormat.setTimeZone(serializer.timeZone);
         String text = dateFormat.format(calendar.getTime());
         out.writeString(text);
     }

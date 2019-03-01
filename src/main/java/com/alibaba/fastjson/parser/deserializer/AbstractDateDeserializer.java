@@ -34,12 +34,12 @@ public abstract class AbstractDateDeserializer extends ContextObjectDeserializer
             if (format != null) {
                 SimpleDateFormat simpleDateFormat = null;
                 try {
-                    simpleDateFormat = new SimpleDateFormat(format, JSON.defaultLocale);
+                    simpleDateFormat = new SimpleDateFormat(format, parser.lexer.getLocale());
                 } catch (IllegalArgumentException ex) {
                     if (format.contains("T")) {
                         String fromat2 = format.replaceAll("T", "'T'");
                         try {
-                        simpleDateFormat = new SimpleDateFormat(fromat2, JSON.defaultLocale);
+                        simpleDateFormat = new SimpleDateFormat(fromat2, parser.lexer.getLocale());
                         } catch (IllegalArgumentException e2) {
                             throw ex;
                         }
@@ -47,7 +47,7 @@ public abstract class AbstractDateDeserializer extends ContextObjectDeserializer
                 }
 
                 if (JSON.defaultTimeZone != null) {
-                    simpleDateFormat.setTimeZone(JSON.defaultTimeZone);
+                    simpleDateFormat.setTimeZone(parser.lexer.getTimeZone());
                 }
 
                 try {
@@ -64,12 +64,13 @@ public abstract class AbstractDateDeserializer extends ContextObjectDeserializer
                         if (format.contains("T")) {
                             String fromat2 = format.replaceAll("T", "'T'");
                             try {
-                                simpleDateFormat = new SimpleDateFormat(fromat2, JSON.defaultLocale);
+                                simpleDateFormat = new SimpleDateFormat(fromat2, parser.lexer.getLocale());
                             } catch (IllegalArgumentException e2) {
                                 throw ex;
                             }
                         }
                     }
+                    simpleDateFormat.setTimeZone(parser.lexer.getTimeZone());
 
                     try {
                         val = simpleDateFormat.parse(strVal);

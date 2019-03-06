@@ -1469,6 +1469,7 @@ public class TypeUtils{
                 "org.springframework.security.oauth2.common.DefaultExpiringOAuth2RefreshToken",
                 "org.springframework.security.oauth2.common.DefaultOAuth2AccessToken",
                 "org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken",
+                "org.springframework.cache.support.NullValue",
         };
         for(String className : spring){
             Class<?> clazz = loadClass(className);

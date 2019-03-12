@@ -262,6 +262,11 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                         token = JSONToken.EOF;
                         return;
                     }
+
+                    if (ch == 'n') {
+                        scanNullOrNew(false);
+                        return;
+                    }
                     break;
                 case JSONToken.LITERAL_INT:
                     if (ch >= '0' && ch <= '9') {
@@ -4608,6 +4613,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     }
 
     public final void scanNullOrNew() {
+        scanNullOrNew(true);
+    }
+
+    public final void scanNullOrNew(boolean acceptColon) {
         if (ch != 'n') {
             throw new JSONException("error parse null or new");
         }
@@ -4625,8 +4634,17 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             }
             next();
 
-            if (ch == ' ' || ch == ',' || ch == '}' || ch == ']' || ch == '\n' || ch == '\r' || ch == '\t' || ch == EOI
-                    || ch == '\f' || ch == '\b') {
+            if (ch == ' '
+                    || ch == ','
+                    || ch == '}'
+                    || ch == ']'
+                    || ch == '\n'
+                    || ch == '\r'
+                    || ch == '\t'
+                    || ch == EOI
+                    || (ch == ':' && acceptColon)
+                    || ch == '\f'
+                    || ch == '\b') {
                 token = JSONToken.NULL;
             } else {
                 throw new JSONException("scan null error");

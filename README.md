@@ -30,9 +30,9 @@ https://github.com/eishay/jvm-serializers/wiki
 ## Download
 
 - [maven][1]
-- [the latest JAR][2]  
+- [the latest JAR][2]
 
-[1]: http://repo1.maven.org/maven2/com/alibaba/fastjson/  
+[1]: http://repo1.maven.org/maven2/com/alibaba/fastjson/
 [2]: https://search.maven.org/remote_content?g=com.alibaba&a=fastjson&v=LATEST
 
 ## Maven

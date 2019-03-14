@@ -33,18 +33,7 @@ import com.alibaba.fastjson.serializer.SerializeBeanInfo;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
+import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.AccessControlException;
@@ -1883,6 +1872,19 @@ public class TypeUtils{
                 }
                 if(propertyNamingStrategy != null && !fieldAnnotationAndNameExists){
                     propertyName = propertyNamingStrategy.translate(propertyName);
+                }
+                /**
+                 * <pre>
+                 *     int name;
+                 *     int getUsername(){
+                 *         // do something others
+                 *         return name;
+                 *     }
+                 *     事实上如果没有username字段,即使根据getUsername获得了username,但是也不应该被序列化
+                 * </pre>
+                 */
+                if (field == null) {
+                    continue;
                 }
                 FieldInfo fieldInfo = new FieldInfo(propertyName, method, field, clazz, null, ordinal, serialzeFeatures, parserFeatures,
                         annotation, fieldAnnotation, label);

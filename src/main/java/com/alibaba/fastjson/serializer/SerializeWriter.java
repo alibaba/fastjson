@@ -763,15 +763,20 @@ public final class SerializeWriter extends Writer {
                                     && (i > 9007199254740991L || i < -9007199254740991L);
 
         if (i == Long.MIN_VALUE) {
-            if (needQuotationMark) write("\"-9223372036854775808\"");
-            else write("-9223372036854775808");
+            if (needQuotationMark) {
+                write("\"-9223372036854775808\"");
+            } else {
+                write("-9223372036854775808");
+            }
             return;
         }
 
         int size = (i < 0) ? IOUtils.stringSize(-i) + 1 : IOUtils.stringSize(i);
 
         int newcount = count + size;
-        if (needQuotationMark) newcount += 2;
+        if (needQuotationMark) {
+            newcount += 2;
+        }
         if (newcount > buf.length) {
             if (writer == null) {
                 expandCapacity(newcount);

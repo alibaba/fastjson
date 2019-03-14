@@ -52,7 +52,9 @@ public class Retrofit2ConverterFactory extends Converter.Factory {
     }
 
     public static Retrofit2ConverterFactory create(FastJsonConfig fastJsonConfig) {
-        if (fastJsonConfig == null) throw new NullPointerException("fastJsonConfig == null");
+        if (fastJsonConfig == null) {
+            throw new NullPointerException("fastJsonConfig == null");
+        }
         return new Retrofit2ConverterFactory(fastJsonConfig);
     }
 

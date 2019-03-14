@@ -64,7 +64,9 @@ public class UTF8Decoder extends CharsetDecoder {
 
     private static CoderResult lookupN(ByteBuffer src, int n) {
         for (int i = 1; i < n; i++) {
-            if (isNotContinuation(src.get())) return CoderResult.malformedForLength(i);
+            if (isNotContinuation(src.get())) {
+                return CoderResult.malformedForLength(i);
+            }
         }
         return CoderResult.malformedForLength(n);
     }
@@ -75,7 +77,9 @@ public class UTF8Decoder extends CharsetDecoder {
                 int b1 = src.get();
                 if ((b1 >> 2) == -2) {
                     // 5 bytes 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
-                    if (src.remaining() < 4) return CoderResult.UNDERFLOW;
+                    if (src.remaining() < 4) {
+                        return CoderResult.UNDERFLOW;
+                    }
                     return lookupN(src, 5);
                 }
                 if ((b1 >> 1) == -2) {
@@ -95,8 +99,12 @@ public class UTF8Decoder extends CharsetDecoder {
             case 4: // we don't care the speed here
                 b1 = src.get() & 0xff;
                 b2 = src.get() & 0xff;
-                if (b1 > 0xf4 || (b1 == 0xf0 && (b2 < 0x90 || b2 > 0xbf)) || (b1 == 0xf4 && (b2 & 0xf0) != 0x80) || isNotContinuation(b2)) return CoderResult.malformedForLength(1);
-                if (isNotContinuation(src.get())) return CoderResult.malformedForLength(2);
+                if (b1 > 0xf4 || (b1 == 0xf0 && (b2 < 0x90 || b2 > 0xbf)) || (b1 == 0xf4 && (b2 & 0xf0) != 0x80) || isNotContinuation(b2)) {
+                    return CoderResult.malformedForLength(1);
+                }
+                if (isNotContinuation(src.get())) {
+                    return CoderResult.malformedForLength(2);
+                }
                 return CoderResult.malformedForLength(3);
             default:
                 throw new IllegalStateException();

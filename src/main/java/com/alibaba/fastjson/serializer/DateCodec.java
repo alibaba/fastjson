@@ -131,8 +131,9 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
             
             out.write(buf);
 
-            int timeZone = calendar.getTimeZone().getOffset(calendar.getTimeInMillis()) / (3600 * 1000);
-            if (timeZone == 0) {
+            float timeZoneF = calendar.getTimeZone().getOffset(calendar.getTimeInMillis()) / (3600.0f * 1000);
+            int timeZone = (int)timeZoneF;
+            if (timeZone == 0.0) {
                 out.write('Z');
             } else {
                 if (timeZone > 9) {
@@ -150,8 +151,11 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
                     out.write('0');
                     out.writeInt(-timeZone);
                 }
-
-                out.append(":00");
+                out.write(':');
+                // handles uneven timeZones 30 mins, 45 mins
+                // this would always be less than 60
+                int offSet = (int)((timeZoneF - timeZone) * 60);
+                out.append(String.format("%02d", offSet));
             }
 
             out.write(quote);

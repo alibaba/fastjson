@@ -49,7 +49,7 @@ public class TypeCollector {
         int longOrDoubleQuantity = 0;
         for (Type t : argTypes) {
             String className = t.getClassName();
-            if (className.equals("long") || className.equals("double")) {
+            if ("long".equals(className) || "double".equals(className)) {
                 longOrDoubleQuantity++;
             }
         }
@@ -82,7 +82,7 @@ public class TypeCollector {
             braces = braces + "[";
             s = s.substring(0, s.length() - 2);
         }
-        if (!braces.equals("")) {
+        if (!"".equals(braces)) {
             if (primitives.containsKey(s)) {
                 s = braces + primitives.get(s);
             } else {

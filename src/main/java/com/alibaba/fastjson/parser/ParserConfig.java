@@ -572,7 +572,7 @@ public class ParserConfig {
             }
         }
 
-        if (className.equals("java.nio.file.Path")) {
+        if ("java.nio.file.Path".equals(className)) {
             deserializers.put(clazz, derializer = MiscCodec.instance);
         }
 

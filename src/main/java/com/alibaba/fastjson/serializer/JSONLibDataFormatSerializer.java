@@ -11,6 +11,7 @@ public class JSONLibDataFormatSerializer implements ObjectSerializer {
     public JSONLibDataFormatSerializer(){
     }
 
+    @Override
     @SuppressWarnings("deprecation")
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
     	if (object == null) {

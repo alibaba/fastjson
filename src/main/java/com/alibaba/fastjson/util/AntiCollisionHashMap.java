@@ -84,25 +84,30 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
     private int hashString(String key) {
 
         int hash = SEED * random;
-        for (int i = 0; i < key.length(); i++)
+        for (int i = 0; i < key.length(); i++) {
             hash = (hash * KEY) ^ key.charAt(i);
+        }
         return (hash ^ (hash >> 1)) & M_MASK;
     }
 
     public AntiCollisionHashMap(int initialCapacity, float loadFactor) {
-        if (initialCapacity < 0)
+        if (initialCapacity < 0) {
             throw new IllegalArgumentException("Illegal initial capacity: "
                     + initialCapacity);
-        if (initialCapacity > MAXIMUM_CAPACITY)
+        }
+        if (initialCapacity > MAXIMUM_CAPACITY) {
             initialCapacity = MAXIMUM_CAPACITY;
-        if (loadFactor <= 0 || Float.isNaN(loadFactor))
+        }
+        if (loadFactor <= 0 || Float.isNaN(loadFactor)) {
             throw new IllegalArgumentException("Illegal load factor: "
                     + loadFactor);
+        }
 
         // Find a power of 2 >= initialCapacity
         int capacity = 1;
-        while (capacity < initialCapacity)
+        while (capacity < initialCapacity) {
             capacity <<= 1;
+        }
 
         this.loadFactor = loadFactor;
         threshold = (int) (capacity * loadFactor);
@@ -191,6 +196,7 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      *
      * @return the number of key-value mappings in this map
      */
+    @Override
     public int size() {
         return size;
     }
@@ -200,6 +206,7 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      *
      * @return <tt>true</tt> if this map contains no key-value mappings
      */
+    @Override
     public boolean isEmpty() {
         return size == 0;
     }
@@ -222,18 +229,22 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      *
      * @see #put(Object, Object)
      */
+    @Override
     public V get(Object key) {
-        if (key == null)
+        if (key == null) {
             return getForNullKey();
+        }
         int hash = 0;
-        if (key instanceof String)
+        if (key instanceof String) {
             hash = hash(hashString((String) key));
-        else
+        } else {
             hash = hash(key.hashCode());
+        }
         for (Entry<K, V> e = table[indexFor(hash, table.length)]; e != null; e = e.next) {
             Object k;
-            if (e.hash == hash && ((k = e.key) == key || key.equals(k)))
+            if (e.hash == hash && ((k = e.key) == key || key.equals(k))) {
                 return e.value;
+            }
         }
         return null;
     }
@@ -246,8 +257,9 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      */
     private V getForNullKey() {
         for (Entry<K, V> e = table[0]; e != null; e = e.next) {
-            if (e.key == null)
+            if (e.key == null) {
                 return e.value;
+            }
         }
         return null;
     }
@@ -261,6 +273,7 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      * @return <tt>true</tt> if this map contains a mapping for the specified
      *         key.
      */
+    @Override
     public boolean containsKey(Object key) {
         return getEntry(key) != null;
     }
@@ -276,8 +289,9 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
         for (Entry<K, V> e = table[indexFor(hash, table.length)]; e != null; e = e.next) {
             Object k;
             if (e.hash == hash
-                    && ((k = e.key) == key || (key != null && key.equals(k))))
+                    && ((k = e.key) == key || (key != null && key.equals(k)))) {
                 return e;
+            }
         }
         return null;
     }
@@ -296,14 +310,17 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      *         can also indicate that the map previously associated
      *         <tt>null</tt> with <tt>key</tt>.)
      */
+    @Override
     public V put(K key, V value) {
-        if (key == null)
+        if (key == null) {
             return putForNullKey(value);
+        }
         int hash = 0;
-        if (key instanceof String)
+        if (key instanceof String) {
             hash = hash(hashString((String) key));
-        else
+        } else {
             hash = hash(key.hashCode());
+        }
         int i = indexFor(hash, table.length);
         for (Entry<K, V> e = table[i]; e != null; e = e.next) {
             Object k;
@@ -430,10 +447,12 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      * @throws NullPointerException
      *             if the specified map is null
      */
+    @Override
     public void putAll(Map<? extends K, ? extends V> m) {
         int numKeysToBeAdded = m.size();
-        if (numKeysToBeAdded == 0)
+        if (numKeysToBeAdded == 0) {
             return;
+        }
 
 		/*
 		 * Expand the map if the map if the number of mappings to be added is
@@ -446,13 +465,16 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
 		 */
         if (numKeysToBeAdded > threshold) {
             int targetCapacity = (int) (numKeysToBeAdded / loadFactor + 1);
-            if (targetCapacity > MAXIMUM_CAPACITY)
+            if (targetCapacity > MAXIMUM_CAPACITY) {
                 targetCapacity = MAXIMUM_CAPACITY;
+            }
             int newCapacity = table.length;
-            while (newCapacity < targetCapacity)
+            while (newCapacity < targetCapacity) {
                 newCapacity <<= 1;
-            if (newCapacity > table.length)
+            }
+            if (newCapacity > table.length) {
                 resize(newCapacity);
+            }
         }
 
         for (Iterator<? extends Map.Entry<? extends K, ? extends V>> i = m
@@ -472,6 +494,7 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      *         can also indicate that the map previously associated
      *         <tt>null</tt> with <tt>key</tt>.)
      */
+    @Override
     public V remove(Object key) {
         Entry<K, V> e = removeEntryForKey(key);
         return (e == null ? null : e.value);
@@ -497,10 +520,11 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
                     && ((k = e.key) == key || (key != null && key.equals(k)))) {
                 modCount++;
                 size--;
-                if (prev == e)
+                if (prev == e) {
                     table[i] = next;
-                else
+                } else {
                     prev.next = next;
+                }
                 return e;
             }
             prev = e;
@@ -514,8 +538,9 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      * Special version of remove for EntrySet.
      */
     final Entry<K, V> removeMapping(Object o) {
-        if (!(o instanceof Map.Entry))
+        if (!(o instanceof Map.Entry)) {
             return null;
+        }
 
         Map.Entry<K, V> entry = (Map.Entry<K, V>) o;
         Object key = entry.getKey();
@@ -531,10 +556,11 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
             if (e.hash == hash && e.equals(entry)) {
                 modCount++;
                 size--;
-                if (prev == e)
+                if (prev == e) {
                     table[i] = next;
-                else
+                } else {
                     prev.next = next;
+                }
                 return e;
             }
             prev = e;
@@ -548,11 +574,13 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      * Removes all of the mappings from this map. The map will be empty after
      * this call returns.
      */
+    @Override
     public void clear() {
         modCount++;
         Entry[] tab = table;
-        for (int i = 0; i < tab.length; i++)
+        for (int i = 0; i < tab.length; i++) {
             tab[i] = null;
+        }
         size = 0;
     }
 
@@ -565,15 +593,20 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      * @return <tt>true</tt> if this map maps one or more keys to the specified
      *         value
      */
+    @Override
     public boolean containsValue(Object value) {
-        if (value == null)
+        if (value == null) {
             return containsNullValue();
+        }
 
         Entry[] tab = table;
-        for (int i = 0; i < tab.length; i++)
-            for (Entry e = tab[i]; e != null; e = e.next)
-                if (value.equals(e.value))
+        for (int i = 0; i < tab.length; i++) {
+            for (Entry e = tab[i]; e != null; e = e.next) {
+                if (value.equals(e.value)) {
                     return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -582,10 +615,13 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      */
     private boolean containsNullValue() {
         Entry[] tab = table;
-        for (int i = 0; i < tab.length; i++)
-            for (Entry e = tab[i]; e != null; e = e.next)
-                if (e.value == null)
+        for (int i = 0; i < tab.length; i++) {
+            for (Entry e = tab[i]; e != null; e = e.next) {
+                if (e.value == null) {
                     return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -595,6 +631,7 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      *
      * @return a shallow copy of this map
      */
+    @Override
     public Object clone() {
         AntiCollisionHashMap<K, V> result = null;
         try {
@@ -628,40 +665,48 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
             hash = h;
         }
 
+        @Override
         public final K getKey() {
             return key;
         }
 
+        @Override
         public final V getValue() {
             return value;
         }
 
+        @Override
         public final V setValue(V newValue) {
             V oldValue = value;
             value = newValue;
             return oldValue;
         }
 
+        @Override
         public final boolean equals(Object o) {
-            if (!(o instanceof Map.Entry))
+            if (!(o instanceof Map.Entry)) {
                 return false;
+            }
             Map.Entry e = (Map.Entry) o;
             Object k1 = getKey();
             Object k2 = e.getKey();
             if (k1 == k2 || (k1 != null && k1.equals(k2))) {
                 Object v1 = getValue();
                 Object v2 = e.getValue();
-                if (v1 == v2 || (v1 != null && v1.equals(v2)))
+                if (v1 == v2 || (v1 != null && v1.equals(v2))) {
                     return true;
+                }
             }
             return false;
         }
 
+        @Override
         public final int hashCode() {
             return (key == null ? 0 : key.hashCode())
                     ^ (value == null ? 0 : value.hashCode());
         }
 
+        @Override
         public final String toString() {
             return getKey() + "=" + getValue();
         }
@@ -678,8 +723,9 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
     void addEntry(int hash, K key, V value, int bucketIndex) {
         Entry<K, V> e = table[bucketIndex];
         table[bucketIndex] = new Entry<K, V>(hash, key, value, e);
-        if (size++ >= threshold)
+        if (size++ >= threshold) {
             resize(2 * table.length);
+        }
     }
 
     /**
@@ -706,36 +752,44 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
             expectedModCount = modCount;
             if (size > 0) { // advance to first entry
                 Entry[] t = table;
-                while (index < t.length && (next = t[index++]) == null)
+                while (index < t.length && (next = t[index++]) == null) {
                     ;
+                }
             }
         }
 
+        @Override
         public final boolean hasNext() {
             return next != null;
         }
 
         final Entry<K, V> nextEntry() {
-            if (modCount != expectedModCount)
+            if (modCount != expectedModCount) {
                 throw new ConcurrentModificationException();
+            }
             Entry<K, V> e = next;
-            if (e == null)
+            if (e == null) {
                 throw new NoSuchElementException();
+            }
 
             if ((next = e.next) == null) {
                 Entry[] t = table;
-                while (index < t.length && (next = t[index++]) == null)
+                while (index < t.length && (next = t[index++]) == null) {
                     ;
+                }
             }
             current = e;
             return e;
         }
 
+        @Override
         public void remove() {
-            if (current == null)
+            if (current == null) {
                 throw new IllegalStateException();
-            if (modCount != expectedModCount)
+            }
+            if (modCount != expectedModCount) {
                 throw new ConcurrentModificationException();
+            }
             Object k = current.key;
             current = null;
             AntiCollisionHashMap.this.removeEntryForKey(k);
@@ -745,18 +799,21 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
     }
 
     private final class ValueIterator extends HashIterator<V> {
+        @Override
         public V next() {
             return nextEntry().value;
         }
     }
 
     private final class KeyIterator extends HashIterator<K> {
+        @Override
         public K next() {
             return nextEntry().getKey();
         }
     }
 
     private final class EntryIterator extends HashIterator<Map.Entry<K, V>> {
+        @Override
         public Map.Entry<K, V> next() {
             return nextEntry();
         }
@@ -790,6 +847,7 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      * <tt>retainAll</tt>, and <tt>clear</tt> operations. It does not support
      * the <tt>add</tt> or <tt>addAll</tt> operations.
      */
+    @Override
     public Set<K> keySet() {
 
         Set<K> ks = keySet;
@@ -797,22 +855,27 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
     }
 
     private final class KeySet extends AbstractSet<K> {
+        @Override
         public Iterator<K> iterator() {
             return newKeyIterator();
         }
 
+        @Override
         public int size() {
             return size;
         }
 
+        @Override
         public boolean contains(Object o) {
             return containsKey(o);
         }
 
+        @Override
         public boolean remove(Object o) {
             return AntiCollisionHashMap.this.removeEntryForKey(o) != null;
         }
 
+        @Override
         public void clear() {
             AntiCollisionHashMap.this.clear();
         }
@@ -830,24 +893,29 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      * <tt>clear</tt> operations. It does not support the <tt>add</tt> or
      * <tt>addAll</tt> operations.
      */
+    @Override
     public Collection<V> values() {
         Collection<V> vs = values;
         return (vs != null ? vs : (values = new Values()));
     }
 
     private final class Values extends AbstractCollection<V> {
+        @Override
         public Iterator<V> iterator() {
             return newValueIterator();
         }
 
+        @Override
         public int size() {
             return size;
         }
 
+        @Override
         public boolean contains(Object o) {
             return containsValue(o);
         }
 
+        @Override
         public void clear() {
             AntiCollisionHashMap.this.clear();
         }
@@ -867,6 +935,7 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      *
      * @return a set view of the mappings contained in this map
      */
+    @Override
     public Set<Map.Entry<K, V>> entrySet() {
         return entrySet0();
     }
@@ -877,26 +946,32 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
     }
 
     private final class EntrySet extends AbstractSet<Map.Entry<K, V>> {
+        @Override
         public Iterator<Map.Entry<K, V>> iterator() {
             return newEntryIterator();
         }
 
+        @Override
         public boolean contains(Object o) {
-            if (!(o instanceof Map.Entry))
+            if (!(o instanceof Map.Entry)) {
                 return false;
+            }
             Map.Entry<K, V> e = (Map.Entry<K, V>) o;
             Entry<K, V> candidate = getEntry(e.getKey());
             return candidate != null && candidate.equals(e);
         }
 
+        @Override
         public boolean remove(Object o) {
             return removeMapping(o) != null;
         }
 
+        @Override
         public int size() {
             return size;
         }
 
+        @Override
         public void clear() {
             AntiCollisionHashMap.this.clear();
         }

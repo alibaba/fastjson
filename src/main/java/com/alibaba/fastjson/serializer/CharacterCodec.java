@@ -30,6 +30,7 @@ public class CharacterCodec implements ObjectSerializer, ObjectDeserializer {
 
     public final static CharacterCodec instance = new CharacterCodec();
 
+    @Override
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.out;
 
@@ -47,6 +48,7 @@ public class CharacterCodec implements ObjectSerializer, ObjectDeserializer {
         }
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         Object value = parser.parse();
@@ -55,6 +57,7 @@ public class CharacterCodec implements ObjectSerializer, ObjectDeserializer {
             : (T) TypeUtils.castToChar(value);
     }
 
+    @Override
     public int getFastMatchToken() {
         return JSONToken.LITERAL_STRING;
     }

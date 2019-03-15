@@ -45,6 +45,7 @@ public class JSONPResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     }
 
 
+    @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
 
 
@@ -53,6 +54,7 @@ public class JSONPResponseBodyAdvice implements ResponseBodyAdvice<Object> {
                 (returnType.getContainingClass().isAnnotationPresent(ResponseJSONP.class) || returnType.hasMethodAnnotation(ResponseJSONP.class));
     }
 
+    @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
                                   Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request,
                                   ServerHttpResponse response) {

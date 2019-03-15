@@ -35,6 +35,7 @@ public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
 
     public final static BigDecimalCodec instance = new BigDecimalCodec();
 
+    @Override
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.out;
 
@@ -70,6 +71,7 @@ public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
         }
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         try {
@@ -100,6 +102,7 @@ public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
             : (T) TypeUtils.castToBigDecimal(value);
     }
 
+    @Override
     public int getFastMatchToken() {
         return JSONToken.LITERAL_INT;
     }

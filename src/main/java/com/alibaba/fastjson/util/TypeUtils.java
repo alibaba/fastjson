@@ -443,7 +443,7 @@ public class TypeUtils{
             if (strVal.indexOf('-') > 0 || strVal.indexOf('+') > 0) {
                 if (format == null) {
                     if (strVal.length() == JSON.DEFFAULT_DATE_FORMAT.length()
-                            || (strVal.length() == 22 && JSON.DEFFAULT_DATE_FORMAT.equals("yyyyMMddHHmmssSSSZ"))) {
+                            || (strVal.length() == 22 && "yyyyMMddHHmmssSSSZ".equals(JSON.DEFFAULT_DATE_FORMAT))) {
                         format = JSON.DEFFAULT_DATE_FORMAT;
                     } else if (strVal.length() == 10) {
                         format = "yyyy-MM-dd";
@@ -1029,7 +1029,7 @@ public class TypeUtils{
         }
 
         String className = clazz.getName();
-        if(className.equals("javax.xml.datatype.XMLGregorianCalendar")){
+        if("javax.xml.datatype.XMLGregorianCalendar".equals(className)){
             Date date = castToDate(obj);
             Calendar calendar = Calendar.getInstance(JSON.defaultTimeZone, JSON.defaultLocale);
             calendar.setTime(date);
@@ -1711,11 +1711,11 @@ public class TypeUtils{
                 continue;
             }
 
-            if(methodName.equals("getMetaClass")
-                    && method.getReturnType().getName().equals("groovy.lang.MetaClass")){
+            if("getMetaClass".equals(methodName)
+                    && "groovy.lang.MetaClass".equals(method.getReturnType().getName())){
                 continue;
             }
-            if(methodName.equals("getSuppressed")
+            if("getSuppressed".equals(methodName)
                     && method.getDeclaringClass() == Throwable.class){
                 continue;
             }
@@ -1811,10 +1811,10 @@ public class TypeUtils{
                 if(methodName.length() < 4){
                     continue;
                 }
-                if(methodName.equals("getClass")){
+                if("getClass".equals(methodName)){
                     continue;
                 }
-                if(methodName.equals("getDeclaringClass") && clazz.isEnum()){
+                if("getDeclaringClass".equals(methodName) && clazz.isEnum()){
                     continue;
                 }
                 char c3 = methodName.charAt(3);
@@ -2484,16 +2484,16 @@ public class TypeUtils{
     public static boolean isProxy(Class<?> clazz){
         for(Class<?> item : clazz.getInterfaces()){
             String interfaceName = item.getName();
-            if(interfaceName.equals("net.sf.cglib.proxy.Factory") //
-                    || interfaceName.equals("org.springframework.cglib.proxy.Factory")){
+            if("net.sf.cglib.proxy.Factory".equals(interfaceName) //
+                    || "org.springframework.cglib.proxy.Factory".equals(interfaceName)){
                 return true;
             }
-            if(interfaceName.equals("javassist.util.proxy.ProxyObject") //
-                    || interfaceName.equals("org.apache.ibatis.javassist.util.proxy.ProxyObject")
+            if("javassist.util.proxy.ProxyObject".equals(interfaceName) //
+                    || "org.apache.ibatis.javassist.util.proxy.ProxyObject".equals(interfaceName)
                     ){
                 return true;
             }
-            if (interfaceName.equals("org.hibernate.proxy.HibernateProxy")) {
+            if ("org.hibernate.proxy.HibernateProxy".equals(interfaceName)) {
                 return true;
             }
         }
@@ -2627,7 +2627,7 @@ public class TypeUtils{
                 continue;
             }
 
-            if(parameterTypes.length > 0 && parameterTypes[parameterTypes.length - 1].getName().equals("kotlin.jvm.internal.DefaultConstructorMarker")){
+            if(parameterTypes.length > 0 && "kotlin.jvm.internal.DefaultConstructorMarker".equals(parameterTypes[parameterTypes.length - 1].getName())){
                 continue;
             }
             if(creatorConstructor != null && creatorConstructor.getParameterTypes().length >= parameterTypes.length){

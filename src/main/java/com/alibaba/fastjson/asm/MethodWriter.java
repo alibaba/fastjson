@@ -124,6 +124,7 @@ public class MethodWriter implements MethodVisitor {
     // Implementation of the MethodVisitor interface
     // ------------------------------------------------------------------------
 
+    @Override
     public void visitInsn(final int opcode) {
         // adds the instruction to the bytecode of the method
         code.putByte(opcode);
@@ -131,6 +132,7 @@ public class MethodWriter implements MethodVisitor {
         // Label currentBlock = this.currentBlock;
     }
 
+    @Override
     public void visitIntInsn(final int opcode, final int operand) {
         // Label currentBlock = this.currentBlock;
         // adds the instruction to the bytecode of the method
@@ -141,6 +143,7 @@ public class MethodWriter implements MethodVisitor {
         // }
     }
 
+    @Override
     public void visitVarInsn(final int opcode, final int var) {
         // Label currentBlock = this.currentBlock;
         // adds the instruction to the bytecode of the method
@@ -161,6 +164,7 @@ public class MethodWriter implements MethodVisitor {
         }
     }
 
+    @Override
     public void visitTypeInsn(final int opcode, final String type) {
         Item i = cw.newClassItem(type);
         // Label currentBlock = this.currentBlock;
@@ -168,6 +172,7 @@ public class MethodWriter implements MethodVisitor {
         code.put12(opcode, i.index);
     }
 
+    @Override
     public void visitFieldInsn(final int opcode, final String owner, final String name, final String desc) {
         Item i = cw.newFieldItem(owner, name, desc);
         // Label currentBlock = this.currentBlock;
@@ -175,6 +180,7 @@ public class MethodWriter implements MethodVisitor {
         code.put12(opcode, i.index);
     }
 
+    @Override
     public void visitMethodInsn(final int opcode, final String owner, final String name, final String desc) {
         boolean itf = opcode == Opcodes.INVOKEINTERFACE;
         Item i = cw.newMethodItem(owner, name, desc, itf);
@@ -192,6 +198,7 @@ public class MethodWriter implements MethodVisitor {
         }
     }
 
+    @Override
     public void visitJumpInsn(final int opcode, final Label label) {
         // Label currentBlock = this.currentBlock;
         // adds the instruction to the bytecode of the method
@@ -208,11 +215,13 @@ public class MethodWriter implements MethodVisitor {
         }
     }
 
+    @Override
     public void visitLabel(final Label label) {
         // resolves previous forward references to label, if any
         label.resolve(this, code.length, code.data);
     }
 
+    @Override
     public void visitLdcInsn(final Object cst) {
         Item i = cw.newConstItem(cst);
         // Label currentBlock = this.currentBlock;
@@ -227,6 +236,7 @@ public class MethodWriter implements MethodVisitor {
         }
     }
 
+    @Override
     public void visitIincInsn(final int var, final int increment) {
         // adds the instruction to the bytecode of the method
 //        if ((var > 255) || (increment > 127) || (increment < -128)) {
@@ -236,11 +246,13 @@ public class MethodWriter implements MethodVisitor {
 //        }
     }
 
+    @Override
     public void visitMaxs(final int maxStack, final int maxLocals) {
         this.maxStack = maxStack;
         this.maxLocals = maxLocals;
     }
 
+    @Override
     public void visitEnd() {
     }
 

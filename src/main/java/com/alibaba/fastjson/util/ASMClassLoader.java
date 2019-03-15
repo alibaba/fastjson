@@ -64,6 +64,7 @@ public class ASMClassLoader extends ClassLoader {
     static {
         DOMAIN = (java.security.ProtectionDomain) java.security.AccessController.doPrivileged(new PrivilegedAction<Object>() {
 
+            @Override
             public Object run() {
                 return ASMClassLoader.class.getProtectionDomain();
             }
@@ -157,6 +158,7 @@ public class ASMClassLoader extends ClassLoader {
         return JSON.class.getClassLoader();
     }
 
+    @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         Class<?> mappingClass = classMapping.get(name);
         if (mappingClass != null) {

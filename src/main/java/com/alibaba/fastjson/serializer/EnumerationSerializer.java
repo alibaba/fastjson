@@ -9,6 +9,7 @@ import java.util.Enumeration;
 public class EnumerationSerializer implements ObjectSerializer {
     public static EnumerationSerializer instance = new EnumerationSerializer();
     
+    @Override
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.out;
 

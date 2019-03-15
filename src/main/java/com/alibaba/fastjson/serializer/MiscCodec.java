@@ -63,6 +63,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         FILE_RELATIVE_PATH_SUPPORT = "true".equals(IOUtils.getStringProperty("fastjson.deserializer.fileRelativePathSupport"));
     }
 
+    @Override
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType,
                       int features) throws IOException {
         SerializeWriter out = serializer.out;
@@ -154,7 +155,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
             }
             out.write('}');
             return;
-        } else if (object.getClass().getName().equals("net.sf.json.JSONNull")) {
+        } else if ("net.sf.json.JSONNull".equals(object.getClass().getName())) {
             out.writeNull();
             return;
         } else if (object instanceof org.w3c.dom.Node) {
@@ -195,6 +196,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         return;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         JSONLexer lexer = parser.lexer;
@@ -213,10 +215,10 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
                 String key = lexer.stringVal();
                 lexer.nextToken(JSONToken.COLON);
 
-                if (key.equals("address")) {
+                if ("address".equals(key)) {
                     parser.accept(JSONToken.COLON);
                     address = parser.parseObject(InetAddress.class);
-                } else if (key.equals("port")) {
+                } else if ("port".equals(key)) {
                     parser.accept(JSONToken.COLON);
                     if (lexer.token() != JSONToken.LITERAL_INT) {
                         throw new JSONException("port is not int");
@@ -376,7 +378,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         if (clazz instanceof Class) {
             String className = ((Class) clazz).getName();
 
-            if (className.equals("java.nio.file.Path")) {
+            if ("java.nio.file.Path".equals(className)) {
                 try {
                     if (method_paths_get == null && !method_paths_get_error) {
                         Class<?> paths = TypeUtils.loadClass("java.nio.file.Paths");
@@ -402,6 +404,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         throw new JSONException("MiscCodec not support " + clazz.toString());
     }
 
+    @Override
     public int getFastMatchToken() {
         return JSONToken.LITERAL_STRING;
     }

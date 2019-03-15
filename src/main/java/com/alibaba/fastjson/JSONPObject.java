@@ -44,6 +44,7 @@ public class JSONPObject implements JSONSerializable {
         return toString();
     }
 
+    @Override
     public void write(JSONSerializer serializer, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter writer = serializer.out;
 
@@ -64,6 +65,7 @@ public class JSONPObject implements JSONSerializable {
         writer.write(')');
     }
 
+    @Override
     public String toString() {
         return JSON.toJSONString(this);
     }

@@ -85,6 +85,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
         this(new CharArrayReader(input, 0, inputLength), features);
     }
 
+    @Override
     public final char charAt(int index) {
         if (index >= bufLength) {
             if (bufLength == -1) {
@@ -136,6 +137,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
         return buf[index];
     }
 
+    @Override
     public final int indexOf(char ch, int startIndex) {
         int offset = startIndex - bp;
         for (;; ++offset) {
@@ -150,10 +152,12 @@ public final class JSONReaderScanner extends JSONLexerBase {
         }
     }
 
+    @Override
     public final String addSymbol(int offset, int len, int hash, final SymbolTable symbolTable) {
         return symbolTable.addSymbol(buf, offset, len, hash);
     }
 
+    @Override
     public final char next() {
         int index = ++bp;
 
@@ -202,10 +206,12 @@ public final class JSONReaderScanner extends JSONLexerBase {
         return ch = buf[index];
     }
 
+    @Override
     protected final void copyTo(int offset, int count, char[] dest) {
         System.arraycopy(buf, offset, dest, 0, count);
     }
 
+    @Override
     public final boolean charArrayCompare(char[] chars) {
         for (int i = 0; i < chars.length; ++i) {
             if (charAt(bp + i) != chars[i]) {
@@ -216,6 +222,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
         return true;
     }
 
+    @Override
     public byte[] bytesValue() {
         if (token == JSONToken.HEX) {
             throw new JSONException("TODO");
@@ -224,6 +231,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
         return IOUtils.decodeBase64(buf, np + 1, sp);
     }
 
+    @Override
     protected final void arrayCopy(int srcPos, char[] dest, int destPos, int length) {
         System.arraycopy(buf, srcPos, dest, destPos, length);
     }
@@ -231,6 +239,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
     /**
      * The value of a literal token, recorded as a string. For integers, leading 0x and 'l' suffixes are suppressed.
      */
+    @Override
     public final String stringVal() {
         if (!hasSpecial) {
             int offset = np + 1;
@@ -247,6 +256,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
         }
     }
 
+    @Override
     public final String subString(int offset, int count) {
         if (count < 0) {
             throw new StringIndexOutOfBoundsException(count);
@@ -255,6 +265,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
         // return text.substring(offset, offset + count);
     }
 
+    @Override
     public final char[] sub_chars(int offset, int count) {
         if (count < 0) {
             throw new StringIndexOutOfBoundsException(count);
@@ -268,6 +279,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
         return chars;
     }
 
+    @Override
     public final String numberString() {
         int offset = np;
         if (offset == -1) {
@@ -284,6 +296,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
         return value;
     }
 
+    @Override
     public final BigDecimal decimalValue() {
         int offset = np;
         if (offset == -1) {
@@ -299,6 +312,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
         return new BigDecimal(buf, offset, sp);
     }
 
+    @Override
     public void close() {
         super.close();
 
@@ -315,6 +329,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
         return bufLength == -1 || bp == buf.length || ch == EOI && bp + 1 == buf.length;
     }
 
+    @Override
     public final boolean isBlankInput() {
         for (int i = 0;; ++i) {
             char chLocal = buf[i];

@@ -40,6 +40,7 @@ public class Labels {
             }
         }
 
+        @Override
         public boolean apply(String label) {
             if (excludes != null) {
                 return Arrays.binarySearch(excludes, label) < 0;

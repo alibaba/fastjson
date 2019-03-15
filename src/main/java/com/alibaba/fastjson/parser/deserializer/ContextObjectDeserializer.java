@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 
 public abstract class ContextObjectDeserializer implements ObjectDeserializer {
+    @Override
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         return deserialze(parser, type, fieldName, null, 0);
     }

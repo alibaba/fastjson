@@ -24,10 +24,12 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 @ControllerAdvice
 public class FastJsonViewResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
+    @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
         return FastJsonHttpMessageConverter.class.isAssignableFrom(converterType) && returnType.hasMethodAnnotation(FastJsonView.class);
     }
 
+    @Override
     public FastJsonContainer beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
         FastJsonContainer container = getOrCreateContainer(body);
         beforeBodyWriteInternal(container, selectedContentType, returnType, request, response);

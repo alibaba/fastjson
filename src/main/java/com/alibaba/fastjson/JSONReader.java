@@ -165,6 +165,7 @@ public class JSONReader implements Closeable {
         return parser.lexer.token();
     }
 
+    @Override
     public void close() {
         parser.close();
     }

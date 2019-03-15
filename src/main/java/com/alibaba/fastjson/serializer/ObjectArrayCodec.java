@@ -39,6 +39,7 @@ public class ObjectArrayCodec implements ObjectSerializer, ObjectDeserializer {
     public ObjectArrayCodec(){
     }
 
+    @Override
     public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
                                                                                                        throws IOException {
         SerializeWriter out = serializer.out;
@@ -124,6 +125,7 @@ public class ObjectArrayCodec implements ObjectSerializer, ObjectDeserializer {
         }
     }
     
+    @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         final JSONLexer lexer = parser.lexer;
@@ -242,6 +244,7 @@ public class ObjectArrayCodec implements ObjectSerializer, ObjectDeserializer {
         return (T) objArray; // TODO
     }
 
+    @Override
     public int getFastMatchToken() {
         return JSONToken.LBRACKET;
     }

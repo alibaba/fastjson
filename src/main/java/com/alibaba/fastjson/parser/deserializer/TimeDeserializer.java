@@ -14,6 +14,7 @@ public class TimeDeserializer implements ObjectDeserializer {
 
     public final static TimeDeserializer instance = new TimeDeserializer();
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         JSONLexer lexer = parser.lexer;
@@ -86,6 +87,7 @@ public class TimeDeserializer implements ObjectDeserializer {
         throw new JSONException("parse error");
     }
 
+    @Override
     public int getFastMatchToken() {
         return JSONToken.LITERAL_INT;
     }

@@ -86,22 +86,27 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         }
     }
 
+    @Override
     public int size() {
         return map.size();
     }
 
+    @Override
     public boolean isEmpty() {
         return map.isEmpty();
     }
 
+    @Override
     public boolean containsKey(Object key) {
         return map.containsKey(key);
     }
 
+    @Override
     public boolean containsValue(Object value) {
         return map.containsValue(value);
     }
 
+    @Override
     public Object get(Object key) {
         Object val = map.get(key);
 
@@ -339,6 +344,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         return castToTimestamp(value);
     }
 
+    @Override
     public Object put(String key, Object value) {
         return map.put(key, value);
     }
@@ -348,6 +354,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         return this;
     }
 
+    @Override
     public void putAll(Map<? extends String, ? extends Object> m) {
         map.putAll(m);
     }
@@ -357,6 +364,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         return this;
     }
 
+    @Override
     public void clear() {
         map.clear();
     }
@@ -366,6 +374,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         return this;
     }
 
+    @Override
     public Object remove(Object key) {
         return map.remove(key);
     }
@@ -375,14 +384,17 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         return this;
     }
 
+    @Override
     public Set<String> keySet() {
         return map.keySet();
     }
 
+    @Override
     public Collection<Object> values() {
         return map.values();
     }
 
+    @Override
     public Set<Map.Entry<String, Object>> entrySet() {
         return map.entrySet();
     }
@@ -395,18 +407,21 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         );
     }
 
+    @Override
     public boolean equals(Object obj) {
         return this.map.equals(obj);
     }
 
+    @Override
     public int hashCode() {
         return this.map.hashCode();
     }
 
+    @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Class<?>[] parameterTypes = method.getParameterTypes();
         if (parameterTypes.length == 1) {
-            if (method.getName().equals("equals")) {
+            if ("equals".equals(method.getName())) {
                 return this.equals(args[0]);
             }
 
@@ -556,6 +571,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
             }
         }
 
+        @Override
         protected Class<?> resolveClass(ObjectStreamClass desc)
                 throws IOException, ClassNotFoundException {
             String name = desc.getName();
@@ -572,6 +588,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
             return super.resolveClass(desc);
         }
 
+        @Override
         protected Class<?> resolveProxyClass(String[] interfaces)
                 throws IOException, ClassNotFoundException {
             for (String interfacename : interfaces) {
@@ -582,6 +599,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         }
 
         //Hack:默认构造方法会调用这个方法，重写此方法使用反射还原部分关键属性
+        @Override
         protected void readStreamHeader() throws IOException, StreamCorruptedException {
 
         }

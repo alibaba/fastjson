@@ -22,6 +22,7 @@ public class AnnotationSerializer implements ObjectSerializer {
 
     public static AnnotationSerializer instance = new AnnotationSerializer();
 
+    @Override
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         Class objClass = object.getClass();
         Class[] interfaces = objClass.getInterfaces();

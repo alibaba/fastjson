@@ -12,6 +12,7 @@ import java.lang.reflect.Type;
 public class JSONPDeserializer implements ObjectDeserializer {
     public static final JSONPDeserializer instance = new JSONPDeserializer();
 
+    @Override
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         JSONLexerBase lexer = (JSONLexerBase) parser.getLexer();
 
@@ -58,6 +59,7 @@ public class JSONPDeserializer implements ObjectDeserializer {
         return (T) jsonp;
     }
 
+    @Override
     public int getFastMatchToken() {
         return 0;
     }

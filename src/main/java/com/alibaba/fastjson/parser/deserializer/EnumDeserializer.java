@@ -110,6 +110,7 @@ public class EnumDeserializer implements ObjectDeserializer {
         return ordinalEnums[ordinal];
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         try {
@@ -171,6 +172,7 @@ public class EnumDeserializer implements ObjectDeserializer {
         }
     }
 
+    @Override
     public int getFastMatchToken() {
         return JSONToken.LITERAL_INT;
     }

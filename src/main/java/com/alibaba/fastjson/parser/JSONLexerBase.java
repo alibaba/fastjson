@@ -93,6 +93,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         this.token = token;
     }
 
+    @Override
     public final void nextToken() {
         sp = 0;
 
@@ -222,6 +223,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     }
 
+    @Override
     public final void nextToken(int expect) {
         sp = 0;
 
@@ -372,6 +374,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
     }
 
+    @Override
     public final void nextTokenWithColon() {
         nextTokenWithChar(':');
     }
@@ -395,14 +398,17 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
     }
 
+    @Override
     public final int token() {
         return token;
     }
 
+    @Override
     public final String tokenName() {
         return JSONToken.name(token);
     }
 
+    @Override
     public final int pos() {
         return pos;
     }
@@ -411,6 +417,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         return stringDefaultValue;
     }
 
+    @Override
     public final Number integerValue() throws NumberFormatException {
         long result = 0;
         boolean negative = false;
@@ -500,10 +507,12 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
     }
 
+    @Override
     public final void nextTokenWithColon(int expect) {
         nextTokenWithChar(':');
     }
 
+    @Override
     public float floatValue() {
         String strVal = numberString();
         float floatValue = Float.parseFloat(strVal);
@@ -520,6 +529,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         return Double.parseDouble(numberString());
     }
 
+    @Override
     public void config(Feature feature, boolean state) {
         features = Feature.config(features, feature, state);
 
@@ -528,10 +538,12 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
     }
 
+    @Override
     public final boolean isEnabled(Feature feature) {
         return isEnabled(feature.mask);
     }
 
+    @Override
     public final boolean isEnabled(int feature) {
         return (this.features & feature) != 0;
     }
@@ -540,10 +552,12 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         return (this.features & feature) != 0 || (features & feature) != 0;
     }
 
+    @Override
     public abstract String numberString();
 
     public abstract boolean isEOF();
 
+    @Override
     public final char getCurrent() {
         return ch;
     }
@@ -558,6 +572,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     // return ch;
     // }
 
+    @Override
     public abstract char next();
 
     protected void skipComment() {
@@ -592,6 +607,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
     }
 
+    @Override
     public final String scanSymbol(final SymbolTable symbolTable) {
         skipWhitespace();
 
@@ -635,6 +651,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     protected abstract void arrayCopy(int srcPos, char[] dest, int destPos, int length);
 
+    @Override
     public final String scanSymbol(final SymbolTable symbolTable, final char quote) {
         int hash = 0;
 
@@ -809,14 +826,17 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         return value;
     }
 
+    @Override
     public final void resetStringPosition() {
         this.sp = 0;
     }
 
+    @Override
     public String info() {
         return "";
     }
 
+    @Override
     public final String scanSymbolUnQuoted(final SymbolTable symbolTable) {
         if (token == JSONToken.ERROR && pos == 0 && bp == 1) {
             bp = 0; // adjust
@@ -873,6 +893,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     protected abstract void copyTo(int offset, int count, char[] dest);
 
+    @Override
     public final void scanString() {
         np = bp;
         hasSpecial = false;
@@ -1012,22 +1033,27 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         return this.calendar;
     }
 
+    @Override
     public TimeZone getTimeZone() {
         return timeZone;
     }
 
+    @Override
     public void setTimeZone(TimeZone timeZone) {
         this.timeZone = timeZone;
     }
 
+    @Override
     public Locale getLocale() {
         return locale;
     }
 
+    @Override
     public void setLocale(Locale locale) {
         this.locale = locale;
     }
 
+    @Override
     public final int intValue() {
         if (np == -1) {
             np = 0;
@@ -1082,8 +1108,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
     }
 
+    @Override
     public abstract byte[] bytesValue();
 
+    @Override
     public void close() {
         if (sbuf.length <= 1024 * 8) {
             SBUF_LOCAL.set(sbuf);
@@ -1091,6 +1119,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         this.sbuf = null;
     }
 
+    @Override
     public final boolean isRef() {
         if (sp != 4) {
             return false;
@@ -1317,6 +1346,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         return strVal;
     }
 
+    @Override
     public String scanString(char expectNextChar) {
         matchStat = UNKNOWN;
 
@@ -1547,6 +1577,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         return hash;
     }
 
+    @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Enum<?> scanEnum(Class<?> enumClass, final SymbolTable symbolTable, char serperator) {
         String name = scanSymbolWithSeperator(symbolTable, serperator);
@@ -1556,6 +1587,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         return Enum.valueOf((Class<? extends Enum>) enumClass, name);
     }
 
+    @Override
     public String scanSymbolWithSeperator(final SymbolTable symbolTable, char serperator) {
         matchStat = UNKNOWN;
 
@@ -1783,6 +1815,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         return list;
     }
 
+    @Override
     public void scanStringArray(Collection<String> list, char seperator) {
         matchStat = UNKNOWN;
 
@@ -2072,6 +2105,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         return array;
     }
 
+    @Override
     public boolean scanBoolean(char expectNext) {
         matchStat = UNKNOWN;
 
@@ -2127,6 +2161,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
     }
 
+    @Override
     public int scanInt(char expectNext) {
         matchStat = UNKNOWN;
 
@@ -2389,6 +2424,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         return negative ? -value : value;
     }
 
+    @Override
     public long scanLong(char expectNextChar) {
         matchStat = UNKNOWN;
 
@@ -2658,6 +2694,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         return value;
     }
 
+    @Override
     public final float scanFloat(char seperator) {
         matchStat = UNKNOWN;
 
@@ -2811,6 +2848,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
     }
 
+    @Override
     public double scanDouble(char seperator) {
         matchStat = UNKNOWN;
 
@@ -2949,6 +2987,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
     }
 
+    @Override
     public BigDecimal scanDecimal(char seperator) {
         matchStat = UNKNOWN;
 
@@ -4779,6 +4818,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
     }
 
+    @Override
     public abstract String stringVal();
 
     public abstract String subString(int offset, int count);
@@ -4872,6 +4912,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     protected abstract boolean charArrayCompare(char[] chars);
 
+    @Override
     public boolean isBlankInput() {
         for (int i = 0;; ++i) {
             char chLocal = charAt(i);
@@ -4888,6 +4929,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         return true;
     }
 
+    @Override
     public final void skipWhitespace() {
         for (;;) {
             if (ch <= '/') {
@@ -5078,6 +5120,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         token = JSONToken.HEX;
     }
 
+    @Override
     public final void scanNumber() {
         np = bp;
 
@@ -5162,6 +5205,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
     }
 
+    @Override
     public final long longValue() throws NumberFormatException {
         long result = 0;
         boolean negative = false;
@@ -5216,6 +5260,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
     }
 
+    @Override
     public final Number decimalValue(boolean decimal) {
         char chLocal = charAt(np + sp - 1);
         try {
@@ -5237,6 +5282,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
     }
 
+    @Override
     public abstract BigDecimal decimalValue();
 
     public static boolean isWhitespace(char ch) {
@@ -5283,6 +5329,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public int getFeatures() {
         return this.features;
     }

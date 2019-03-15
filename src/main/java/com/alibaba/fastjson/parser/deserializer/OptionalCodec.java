@@ -18,6 +18,7 @@ public class OptionalCodec implements ObjectSerializer, ObjectDeserializer {
 
     public static OptionalCodec instance = new OptionalCodec();
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         
@@ -61,10 +62,12 @@ public class OptionalCodec implements ObjectSerializer, ObjectDeserializer {
         return (T) Optional.of(value);
     }
 
+    @Override
     public int getFastMatchToken() {
         return JSONToken.LBRACE;
     }
 
+    @Override
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType,
                       int features) throws IOException {
 

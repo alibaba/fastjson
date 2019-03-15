@@ -35,6 +35,7 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
 
     public static IntegerCodec instance = new IntegerCodec();
 
+    @Override
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.out;
 
@@ -61,6 +62,7 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
         }
     }
     
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         final JSONLexer lexer = parser.lexer;
@@ -109,6 +111,7 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
         return (T) intObj;
     }
 
+    @Override
     public int getFastMatchToken() {
         return JSONToken.LITERAL_INT;
     }

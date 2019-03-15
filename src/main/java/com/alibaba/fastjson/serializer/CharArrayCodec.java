@@ -13,6 +13,7 @@ import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 
 public class CharArrayCodec implements ObjectDeserializer {
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         return (T) deserialze(parser);
@@ -70,6 +71,7 @@ public class CharArrayCodec implements ObjectDeserializer {
             : (T) JSON.toJSONString(value).toCharArray();
     }
 
+    @Override
     public int getFastMatchToken() {
         return JSONToken.LITERAL_STRING;
     }

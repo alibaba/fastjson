@@ -70,6 +70,7 @@ public class MappingFastJsonValue implements JSONSerializable {
         return this.jsonpFunction;
     }
 
+    @Override
     public void write(JSONSerializer serializer, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter writer = serializer.out;
 

@@ -17,6 +17,7 @@ public class MapDeserializer implements ObjectDeserializer {
     public static MapDeserializer instance = new MapDeserializer();
     
     
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         if (type == JSONObject.class && parser.getFieldTypeResolver() == null) {
@@ -55,7 +56,7 @@ public class MapDeserializer implements ObjectDeserializer {
             ParameterizedType parameterizedType = (ParameterizedType) type;
             Type keyType = parameterizedType.getActualTypeArguments()[0];
             Type valueType = null;
-            if(map.getClass().getName().equals("org.springframework.util.LinkedMultiValueMap")){
+            if("org.springframework.util.LinkedMultiValueMap".equals(map.getClass().getName())){
                 valueType = List.class;
             }else{
                 valueType = parameterizedType.getActualTypeArguments()[1];
@@ -384,6 +385,7 @@ public class MapDeserializer implements ObjectDeserializer {
     }
     
 
+    @Override
     public int getFastMatchToken() {
         return JSONToken.LBRACE;
     }

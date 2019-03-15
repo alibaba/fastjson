@@ -19,6 +19,7 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
         super(mapping, clazz, clazz);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         JSONLexer lexer = parser.lexer;
@@ -192,6 +193,7 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
         return null;
     }
 
+    @Override
     public int getFastMatchToken() {
         return JSONToken.LBRACE;
     }

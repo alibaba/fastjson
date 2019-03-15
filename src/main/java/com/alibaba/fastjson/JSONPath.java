@@ -587,7 +587,7 @@ public class JSONPath implements JSONAware {
                 Object key = entry.getKey();
 
                 if (key instanceof String) {
-                    String path = parent.equals("/") ?  "/" + key : parent + "/" + key;
+                    String path = "/".equals(parent) ?  "/" + key : parent + "/" + key;
                     paths(values, paths, path, entry.getValue(), config);
                 }
             }
@@ -599,7 +599,7 @@ public class JSONPath implements JSONAware {
 
             int i = 0;
             for (Object item : collection) {
-                String path = parent.equals("/") ?  "/" + i : parent + "/" + i;
+                String path = "/".equals(parent) ?  "/" + i : parent + "/" + i;
                 paths(values, paths, path, item, config);
                 ++i;
             }
@@ -615,7 +615,7 @@ public class JSONPath implements JSONAware {
             for (int i = 0; i < len; ++i) {
                 Object item = Array.get(javaObject, i);
 
-                String path = parent.equals("/") ?  "/" + i : parent + "/" + i;
+                String path = "/".equals(parent) ?  "/" + i : parent + "/" + i;
                 paths(values, paths, path, item, config);
             }
 
@@ -636,7 +636,7 @@ public class JSONPath implements JSONAware {
                     String key = entry.getKey();
 
                     if (key instanceof String) {
-                        String path = parent.equals("/") ?  "/" + key : parent + "/" + key;
+                        String path = "/".equals(parent) ?  "/" + key : parent + "/" + key;
                         paths(values, paths, path, entry.getValue(), config);
                     }
                 }
@@ -1640,7 +1640,7 @@ public class JSONPath implements JSONAware {
 
                 if (segment instanceof PropertySegment) {
                     PropertySegment propertySegment = (PropertySegment) segment;
-                    if ((!propertySegment.deep) && propertySegment.propertyName.equals("*")) {
+                    if ((!propertySegment.deep) && "*".equals(propertySegment.propertyName)) {
                         continue;
                     }
                 }
@@ -1769,10 +1769,12 @@ public class JSONPath implements JSONAware {
 
         public final static SizeSegment instance = new SizeSegment();
 
+        @Override
         public Integer eval(JSONPath path, Object rootObject, Object currentObject) {
             return path.evalSize(currentObject);
         }
 
+        @Override
         public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
             throw new UnsupportedOperationException();
         }
@@ -1782,6 +1784,7 @@ public class JSONPath implements JSONAware {
 
         public final static MaxSegment instance = new MaxSegment();
 
+        @Override
         public Object eval(JSONPath path, Object rootObject, Object currentObject) {
             Object max = null;
             if (rootObject instanceof Collection) {
@@ -1805,6 +1808,7 @@ public class JSONPath implements JSONAware {
             return max;
         }
 
+        @Override
         public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
             throw new UnsupportedOperationException();
         }
@@ -1813,6 +1817,7 @@ public class JSONPath implements JSONAware {
     static class MinSegment implements Segment {
         public final static MinSegment instance = new MinSegment();
 
+        @Override
         public Object eval(JSONPath path, Object rootObject, Object currentObject) {
             Object min = null;
             if (rootObject instanceof Collection) {
@@ -1836,6 +1841,7 @@ public class JSONPath implements JSONAware {
             return min;
         }
 
+        @Override
         public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
             throw new UnsupportedOperationException();
         }
@@ -1904,10 +1910,12 @@ public class JSONPath implements JSONAware {
 
         public final static KeySetSegment instance = new KeySetSegment();
 
+        @Override
         public Object eval(JSONPath path, Object rootObject, Object currentObject) {
             return path.evalKeySet(currentObject);
         }
 
+        @Override
         public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
             throw new UnsupportedOperationException();
         }
@@ -1925,6 +1933,7 @@ public class JSONPath implements JSONAware {
             this.deep = deep;
         }
 
+        @Override
         public Object eval(JSONPath path, Object rootObject, Object currentObject) {
             if (deep) {
                 List<Object> results = new ArrayList<Object>();
@@ -1936,6 +1945,7 @@ public class JSONPath implements JSONAware {
             }
         }
 
+        @Override
         public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
             JSONLexerBase lexer = (JSONLexerBase) parser.lexer;
 
@@ -2141,6 +2151,7 @@ public class JSONPath implements JSONAware {
             }
         }
 
+        @Override
         public Object eval(JSONPath path, Object rootObject, Object currentObject) {
             List<Object> fieldValues = new ArrayList<Object>(propertyNames.length);
 
@@ -2152,6 +2163,7 @@ public class JSONPath implements JSONAware {
             return fieldValues;
         }
 
+        @Override
         public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
             JSONLexerBase lexer = (JSONLexerBase) parser.lexer;
 
@@ -2262,6 +2274,7 @@ public class JSONPath implements JSONAware {
         public final static WildCardSegment instance = new WildCardSegment(false);
         public final static WildCardSegment instance_deep = new WildCardSegment(true);
 
+        @Override
         public Object eval(JSONPath path, Object rootObject, Object currentObject) {
             if (!deep) {
                 return path.getPropertyValues(currentObject);
@@ -2272,6 +2285,7 @@ public class JSONPath implements JSONAware {
             return values;
         }
 
+        @Override
         public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
             if (context.eval) {
                 Object object = parser.parse();
@@ -2308,6 +2322,7 @@ public class JSONPath implements JSONAware {
             this.index = index;
         }
 
+        @Override
         public Object eval(JSONPath path, Object rootObject, Object currentObject) {
             return path.getArrayItem(currentObject, index);
         }
@@ -2320,6 +2335,7 @@ public class JSONPath implements JSONAware {
             return path.removeArrayItem(path, currentObject, index);
         }
 
+        @Override
         public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
             JSONLexerBase lexer = (JSONLexerBase) parser.lexer;
             if (lexer.seekArrayToItem(index)
@@ -2338,6 +2354,7 @@ public class JSONPath implements JSONAware {
             this.indexes = indexes;
         }
 
+        @Override
         public Object eval(JSONPath path, Object rootObject, Object currentObject) {
             List<Object> items = new JSONArray(indexes.length);
             for (int i = 0; i < indexes.length; ++i) {
@@ -2347,6 +2364,7 @@ public class JSONPath implements JSONAware {
             return items;
         }
 
+        @Override
         public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
             if (context.eval) {
                 Object object = parser.parse();
@@ -2383,6 +2401,7 @@ public class JSONPath implements JSONAware {
             this.step = step;
         }
 
+        @Override
         public Object eval(JSONPath path, Object rootObject, Object currentObject) {
             int size = SizeSegment.instance.eval(path, rootObject, currentObject);
             int start = this.start >= 0 ? this.start : this.start + size;
@@ -2401,6 +2420,7 @@ public class JSONPath implements JSONAware {
             return items;
         }
 
+        @Override
         public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
             throw new UnsupportedOperationException();
         }
@@ -2417,6 +2437,7 @@ public class JSONPath implements JSONAware {
             this.propertyNameHash = TypeUtils.fnv1a_64(propertyName);
         }
 
+        @Override
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
             Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash);
 
@@ -2434,6 +2455,7 @@ public class JSONPath implements JSONAware {
             this.propertyNameHash = TypeUtils.fnv1a_64(propertyName);
         }
 
+        @Override
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
             Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash);
 
@@ -2457,6 +2479,7 @@ public class JSONPath implements JSONAware {
             this.eq = eq;
         }
 
+        @Override
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
             Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash);
             boolean result = value.equals(propertyValue);
@@ -2481,6 +2504,7 @@ public class JSONPath implements JSONAware {
             this.not = not;
         }
 
+        @Override
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
             Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash);
 
@@ -2517,6 +2541,7 @@ public class JSONPath implements JSONAware {
             this.not = not;
         }
 
+        @Override
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
             Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash);
 
@@ -2549,6 +2574,7 @@ public class JSONPath implements JSONAware {
             this.not = not;
         }
 
+        @Override
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
             Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash);
 
@@ -2593,6 +2619,7 @@ public class JSONPath implements JSONAware {
             this.not = not;
         }
 
+        @Override
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
             Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash);
 
@@ -2626,6 +2653,7 @@ public class JSONPath implements JSONAware {
             this.op = op;
         }
 
+        @Override
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
             Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash);
 
@@ -2744,6 +2772,7 @@ public class JSONPath implements JSONAware {
             propertyNameHash = TypeUtils.fnv1a_64(propertyName);
         }
 
+        @Override
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
             Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash);
 
@@ -2789,6 +2818,7 @@ public class JSONPath implements JSONAware {
             propertyNameHash = TypeUtils.fnv1a_64(propertyName);
         }
 
+        @Override
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
             Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash);
 
@@ -2891,6 +2921,7 @@ public class JSONPath implements JSONAware {
             this.minLength = len;
         }
 
+        @Override
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
             Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash);
 
@@ -2946,6 +2977,7 @@ public class JSONPath implements JSONAware {
             this.not = not;
         }
 
+        @Override
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
             Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash);
 
@@ -2979,6 +3011,7 @@ public class JSONPath implements JSONAware {
             this.op = op;
         }
 
+        @Override
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
             Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash);
 
@@ -3021,6 +3054,7 @@ public class JSONPath implements JSONAware {
             this.op = op;
         }
 
+        @Override
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
             Object propertyValue = path.getPropertyValue(item, propertyName, propertyNameHash);
             if (propertyValue == null) {
@@ -3047,6 +3081,7 @@ public class JSONPath implements JSONAware {
             this.filter = filter;
         }
 
+        @Override
         @SuppressWarnings("rawtypes")
         public Object eval(JSONPath path, Object rootObject, Object currentObject) {
             if (currentObject == null) {
@@ -3075,6 +3110,7 @@ public class JSONPath implements JSONAware {
             return null;
         }
 
+        @Override
         public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
             throw new UnsupportedOperationException();
         }
@@ -3096,6 +3132,7 @@ public class JSONPath implements JSONAware {
             this.and = and;
         }
 
+        @Override
         public boolean apply(JSONPath path, Object rootObject, Object currentObject, Object item) {
             if (and) {
                 for (Filter fitler : this.fitlers) {
@@ -3815,6 +3852,7 @@ public class JSONPath implements JSONAware {
         }
     }
 
+    @Override
     public String toJSONString() {
         return JSON.toJSONString(path);
     }

@@ -25,6 +25,7 @@ public class PrimitiveArraySerializer implements ObjectSerializer {
 
     public static PrimitiveArraySerializer instance = new PrimitiveArraySerializer();
 
+    @Override
     public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.out;
         

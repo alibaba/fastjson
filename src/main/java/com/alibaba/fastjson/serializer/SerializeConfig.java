@@ -561,8 +561,8 @@ public class SerializeConfig {
                 if ((!jdk8Error) //
                     && (className.startsWith("java.time.") //
                         || className.startsWith("java.util.Optional") //
-                        || className.equals("java.util.concurrent.atomic.LongAdder")
-                        || className.equals("java.util.concurrent.atomic.DoubleAdder")
+                        || "java.util.concurrent.atomic.LongAdder".equals(className)
+                        || "java.util.concurrent.atomic.DoubleAdder".equals(className)
                     )) {
                     try {
                         {
@@ -639,7 +639,7 @@ public class SerializeConfig {
                 }
                 
                 if ((!springfoxError) //
-                    && className.equals("springfox.documentation.spring.web.json.Json")) {
+                    && "springfox.documentation.spring.web.json.Json".equals(className)) {
                     try {
                         put(Class.forName("springfox.documentation.spring.web.json.Json"), //
                                 writer = SwaggerJsonSerializer.instance);
@@ -673,7 +673,7 @@ public class SerializeConfig {
                     }
                 }
 
-                if ((!jsonnullError) && className.equals("net.sf.json.JSONNull")) {
+                if ((!jsonnullError) && "net.sf.json.JSONNull".equals(className)) {
                     try {
                         put(Class.forName("net.sf.json.JSONNull"), writer = MiscCodec.instance);
                         return writer;

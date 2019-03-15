@@ -65,6 +65,7 @@ public class SimplePropertyPreFilter implements PropertyPreFilter {
         return excludes;
     }
 
+    @Override
     public boolean apply(JSONSerializer serializer, Object source, String name) {
         if (source == null) {
             return true;

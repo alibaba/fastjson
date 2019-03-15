@@ -234,6 +234,7 @@ public class JSONSerializer extends SerializeFilterable {
         return out;
     }
 
+    @Override
     public String toString() {
         return out.toString();
     }

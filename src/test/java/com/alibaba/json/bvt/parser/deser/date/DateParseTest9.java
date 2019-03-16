@@ -1,6 +1,8 @@
 package com.alibaba.json.bvt.parser.deser.date;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
@@ -9,7 +11,6 @@ import org.junit.Assert;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.serializer.CalendarCodec;
-import com.alibaba.json.bvt.parser.deser.date.DateParseTest14.VO;
 
 
 public class DateParseTest9 extends TestCase {
@@ -18,6 +19,11 @@ public class DateParseTest9 extends TestCase {
         Date date = JSON.parseObject(text, Date.class);
         Assert.assertEquals(date.getTime(), 1242357713797L);
         
+        Assert.assertEquals(JSONToken.LITERAL_INT, CalendarCodec.instance.getFastMatchToken());
+
+        text = "\"/Date(1242357713797+0545)/\"";
+        date = JSON.parseObject(text, Date.class);
+        Assert.assertEquals(date.getTime(), 1242357713797L);
         Assert.assertEquals(JSONToken.LITERAL_INT, CalendarCodec.instance.getFastMatchToken());
     }
     
@@ -39,5 +45,21 @@ public class DateParseTest9 extends TestCase {
             error = ex;
         }
         Assert.assertNotNull(error);
+    }
+
+    public void test_dates_different_timeZones() {
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("IST"));
+        Date now = cal.getTime();
+
+        VO vo = new VO();
+        vo.date = now;
+
+        String json = JSON.toJSONString(vo);
+        VO result = JSON.parseObject(json, VO.class);
+        assertEquals(vo.date, result.date);
+    }
+
+    public static class VO {
+        public Date date;
     }
 }

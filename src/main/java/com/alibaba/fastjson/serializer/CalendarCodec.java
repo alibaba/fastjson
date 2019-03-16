@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.temporal.TemporalAccessor;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -108,13 +107,31 @@ public class CalendarCodec extends ContextObjectDeserializer implements ObjectSe
 
             out.write(buf);
 
-            int timeZone = calendar.getTimeZone().getOffset(calendar.getTimeInMillis()) / (3600 * 1000);
-            if (timeZone == 0) {
-                out.append("Z");
-            } else if (timeZone > 0) {
-                out.append("+").append(String.format("%02d", timeZone)).append(":00");
+            float timeZoneF = calendar.getTimeZone().getOffset(calendar.getTimeInMillis()) / (3600.0f * 1000);
+            int timeZone = (int)timeZoneF;
+            if (timeZone == 0.0) {
+                out.write('Z');
             } else {
-                out.append("-").append(String.format("%02d", -timeZone)).append(":00");
+                if (timeZone > 9) {
+                    out.write('+');
+                    out.writeInt(timeZone);
+                } else if (timeZone > 0) {
+                    out.write('+');
+                    out.write('0');
+                    out.writeInt(timeZone);
+                } else if (timeZone < -9) {
+                    out.write('-');
+                    out.writeInt(timeZone);
+                } else if (timeZone < 0) {
+                    out.write('-');
+                    out.write('0');
+                    out.writeInt(-timeZone);
+                }
+                out.write(':');
+                // handles uneven timeZones 30 mins, 45 mins
+                // this would always be less than 60
+                int offSet = (int)((timeZoneF - timeZone) * 60);
+                out.append(String.format("%02d", offSet));
             }
 
             out.append(quote);

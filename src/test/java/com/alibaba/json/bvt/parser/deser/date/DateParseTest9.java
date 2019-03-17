@@ -2,29 +2,45 @@ package com.alibaba.json.bvt.parser.deser.date;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Random;
 import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
-import org.junit.Assert;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.serializer.CalendarCodec;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 
 
 public class DateParseTest9 extends TestCase {
+
+    private static Random random = new Random();
+    private TimeZone original = TimeZone.getDefault();
+    private String[] zoneIds = TimeZone.getAvailableIDs();
+
+    @Override
+    public void setUp() {
+        int index = random.nextInt(zoneIds.length);
+        TimeZone.setDefault(TimeZone.getTimeZone(zoneIds[index]));
+    }
+
+    @Override
+    public void tearDown () {
+        TimeZone.setDefault(original);
+    }
+
     public void test_date() throws Exception {
         String text = "\"/Date(1242357713797+0800)/\"";
         Date date = JSON.parseObject(text, Date.class);
-        Assert.assertEquals(date.getTime(), 1242357713797L);
+        assertEquals(date.getTime(), 1242357713797L);
         
-        Assert.assertEquals(JSONToken.LITERAL_INT, CalendarCodec.instance.getFastMatchToken());
+        assertEquals(JSONToken.LITERAL_INT, CalendarCodec.instance.getFastMatchToken());
 
         text = "\"/Date(1242357713797+0545)/\"";
         date = JSON.parseObject(text, Date.class);
-        Assert.assertEquals(date.getTime(), 1242357713797L);
-        Assert.assertEquals(JSONToken.LITERAL_INT, CalendarCodec.instance.getFastMatchToken());
+        assertEquals(date.getTime(), 1242357713797L);
+        assertEquals(JSONToken.LITERAL_INT, CalendarCodec.instance.getFastMatchToken());
     }
     
     public void test_error() throws Exception {
@@ -34,7 +50,7 @@ public class DateParseTest9 extends TestCase {
         } catch (Exception ex) {
             error = ex;
         }
-        Assert.assertNotNull(error);
+        assertNotNull(error);
     }
     
     public void test_error_1() throws Exception {
@@ -44,11 +60,11 @@ public class DateParseTest9 extends TestCase {
         } catch (Exception ex) {
             error = ex;
         }
-        Assert.assertNotNull(error);
+        assertNotNull(error);
     }
 
     public void test_dates_different_timeZones() {
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("IST"));
+        Calendar cal = Calendar.getInstance();
         Date now = cal.getTime();
 
         VO vo = new VO();
@@ -56,6 +72,11 @@ public class DateParseTest9 extends TestCase {
 
         String json = JSON.toJSONString(vo);
         VO result = JSON.parseObject(json, VO.class);
+        assertEquals(vo.date, result.date);
+
+        // with iso-format
+        json = JSON.toJSONString(vo, SerializerFeature.UseISO8601DateFormat);
+        result = JSON.parseObject(json, VO.class);
         assertEquals(vo.date, result.date);
     }
 

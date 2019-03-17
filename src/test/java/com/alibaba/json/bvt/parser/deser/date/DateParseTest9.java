@@ -22,12 +22,15 @@ public class DateParseTest9 extends TestCase {
     @Override
     public void setUp() {
         int index = random.nextInt(zoneIds.length);
-        TimeZone.setDefault(TimeZone.getTimeZone(zoneIds[index]));
+        TimeZone timeZone = TimeZone.getTimeZone(zoneIds[index]);
+        TimeZone.setDefault(timeZone);
+        JSON.defaultTimeZone = timeZone;
     }
 
     @Override
     public void tearDown () {
         TimeZone.setDefault(original);
+        JSON.defaultTimeZone = original;
     }
 
     public void test_date() throws Exception {

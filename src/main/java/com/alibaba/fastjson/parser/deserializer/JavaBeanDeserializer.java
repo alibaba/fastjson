@@ -11,6 +11,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.Feature;
@@ -766,7 +767,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             Object typedObject = deserializer.deserialze(parser, userType, fieldName);
                             if (deserializer instanceof JavaBeanDeserializer) {
                                 JavaBeanDeserializer javaBeanDeserializer = (JavaBeanDeserializer) deserializer;
-                                if (typeKey != null) {
+                                if (typeKey != null && beanInfo.jsonType.typeKeyAsField()) {
                                     FieldDeserializer typeKeyFieldDeser = javaBeanDeserializer.getFieldDeserializer(typeKey);
                                     typeKeyFieldDeser.setValue(typedObject, typeName);
                                 }

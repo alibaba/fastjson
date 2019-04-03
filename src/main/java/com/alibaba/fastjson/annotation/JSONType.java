@@ -68,7 +68,7 @@ public @interface JSONType {
      * Is typeKey need to be a Field
      * @return true,needed
      */
-    boolean typeKeyAsField() default false;
+    boolean typeKeyAsField() default true;
 
     PropertyNamingStrategy naming() default PropertyNamingStrategy.CamelCase;
 

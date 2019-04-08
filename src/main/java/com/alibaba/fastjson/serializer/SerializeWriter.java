@@ -1785,7 +1785,10 @@ public final class SerializeWriter extends Writer {
     }
 
     public void writeFieldValue(char seperator, String name, long value) {
-        if (value == Long.MIN_VALUE || !quoteFieldNames) {
+        if (value == Long.MIN_VALUE
+                || !quoteFieldNames
+                || isEnabled(SerializerFeature.BrowserCompatible.mask)
+        ) {
             write(seperator);
             writeFieldName(name);
             writeLong(value);

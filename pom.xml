@@ -305,7 +305,7 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-            <version>9.3.25.v20180904</version>
+            <version>9.4.15.v20190215</version>
             <scope>test</scope>
             <optional>true</optional>
         </dependency>
@@ -554,7 +554,7 @@
         <dependency>
             <groupId>org.springframework.security.oauth</groupId>
             <artifactId>spring-security-oauth2</artifactId>
-            <version>2.3.4.RELEASE</version>
+            <version>2.3.5.RELEASE</version>
             <exclusions>
                 <exclusion>
                     <artifactId>commons-codec</artifactId>

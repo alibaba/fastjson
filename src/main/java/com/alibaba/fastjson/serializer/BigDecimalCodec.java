@@ -85,6 +85,10 @@ public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
             lexer.nextToken(JSONToken.COMMA);
             
             if (clazz == BigInteger.class) {
+                int scale = val.scale();
+                if (scale < -100 || scale > 100) {
+                    throw new NumberFormatException();
+                }
                 return (T) val.toBigInteger();
             } else {
                 return (T) val;

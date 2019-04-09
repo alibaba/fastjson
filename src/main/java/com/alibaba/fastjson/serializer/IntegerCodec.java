@@ -102,9 +102,9 @@ public final class IntegerCodec implements ObjectSerializer, ObjectDeserializer 
             BigDecimal decimalValue = lexer.decimalValue();
             lexer.nextToken(JSONToken.COMMA);
             if (clazz == long.class || clazz == Long.class) {
-                intObj = Long.valueOf(decimalValue.longValue());
+                intObj = Long.valueOf(decimalValue.longValueExact());
             } else {
-                intObj = Integer.valueOf(decimalValue.intValue());
+                intObj = Integer.valueOf(decimalValue.intValueExact());
             }
         } else {
             Object value = parser.parse();

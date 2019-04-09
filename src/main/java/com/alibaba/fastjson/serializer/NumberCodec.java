@@ -155,11 +155,11 @@ public class NumberCodec implements ObjectSerializer, ObjectDeserializer {
             lexer.nextToken(JSONToken.COMMA);
 
             if (clazz == short.class || clazz == Short.class) {
-                return (T) Short.valueOf(val.shortValue());
+                return (T) Short.valueOf(val.shortValueExact());
             }
 
             if (clazz == byte.class || clazz == Byte.class) {
-                return (T) Byte.valueOf(val.byteValue());
+                return (T) Byte.valueOf(val.byteValueExact());
             }
 
             return (T) val;

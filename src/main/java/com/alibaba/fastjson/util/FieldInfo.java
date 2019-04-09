@@ -103,7 +103,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         if (ordinal < 0) {
             ordinal = 0;
         }
-        
+
         this.name = name;
         this.method = method;
         this.field = field;

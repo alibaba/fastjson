@@ -348,11 +348,11 @@ public class TypeUtils {
 
         long longValue = -1;
 
-        if (value instanceof Number) {
+        if (value instanceof BigDecimal) {
+            longValue = ((BigDecimal) value).longValueExact();
+        } else if (value instanceof Number) {
             longValue = ((Number) value).longValue();
-        }
-
-        if (value instanceof String) {
+        } else if (value instanceof String) {
             String strVal = (String) value;
 
             if (strVal.indexOf('-') != -1) {
@@ -400,6 +400,10 @@ public class TypeUtils {
             return null;
         }
 
+        if (value instanceof BigDecimal) {
+            return ((BigDecimal) value).longValueExact();
+        }
+
         if (value instanceof Number) {
             return ((Number) value).longValue();
         }
@@ -441,6 +445,10 @@ public class TypeUtils {
             return (Integer) value;
         }
 
+        if (value instanceof BigDecimal) {
+            return ((BigDecimal) value).intValueExact();
+        }
+
         if (value instanceof Number) {
             return ((Number) value).intValue();
         }
@@ -477,6 +485,10 @@ public class TypeUtils {
 
         if (value instanceof Boolean) {
             return (Boolean) value;
+        }
+
+        if (value instanceof BigDecimal) {
+            return ((BigDecimal) value).intValueExact() == 1;
         }
 
         if (value instanceof Number) {
@@ -682,7 +694,7 @@ public class TypeUtils {
         }
 
         if (type instanceof Class) {
-            return (T) cast(obj, (Class<T>) type, mapping);
+            return (T) cast(obj, (Class<T>) type, mapping, 0);
         }
 
         if (type instanceof ParameterizedType) {
@@ -727,7 +739,9 @@ public class TypeUtils {
                 
                 for (Iterator it = ((Iterable) obj).iterator(); it.hasNext();) {
                     Object item = it.next();
-                    collection.add(cast(item, itemType, mapping));
+                    collection.add(
+                            cast(item, itemType, mapping)
+                    );
                 }
 
                 return (T) collection;

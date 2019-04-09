@@ -1284,12 +1284,59 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 }
 
                 final FieldInfo fieldInfo = fieldDeser.fieldInfo;
+                Field field = fieldDeser.fieldInfo.field;
                 Type paramType = fieldInfo.fieldType;
+
+
+                if (paramType == boolean.class) {
+                    if (value == Boolean.FALSE) {
+                        field.setBoolean(object, false);
+                        continue;
+                    }
+
+                    if (value == Boolean.TRUE) {
+                        field.setBoolean(object, true);
+                        continue;
+                    }
+                } else if (paramType == int.class) {
+                    if (value instanceof Number) {
+                        field.setInt(object, ((Number) value).intValue());
+                        continue;
+                    }
+                } else if (paramType == long.class) {
+                    if (value instanceof Number) {
+                        field.setLong(object, ((Number) value).longValue());
+                        continue;
+                    }
+                } else if (paramType == float.class) {
+                    if (value instanceof Number) {
+                        field.setFloat(object, ((Number) value).floatValue());
+                        continue;
+                    }
+                } else if (paramType == double.class) {
+                    if (value instanceof Number) {
+                        field.setDouble(object, ((Number) value).doubleValue());
+                        continue;
+                    } else if (value instanceof String) {
+                        double doubleValue = Double.parseDouble((String) value);
+                        field.setDouble(object, doubleValue);
+                        continue;
+                    }
+                } else if (value != null && paramType == value.getClass()) {
+                    field.set(object, value);
+                    continue;
+                }
+
+
                 String format = fieldInfo.format;
                 if (format != null && paramType == java.util.Date.class) {
                     value = TypeUtils.castToDate(value, format);
                 } else {
-                    value = TypeUtils.cast(value, paramType, config);
+                    if (paramType instanceof ParameterizedType) {
+                        value = TypeUtils.cast(value, (ParameterizedType) paramType, config);
+                    } else {
+                        value = TypeUtils.cast(value, paramType, config);
+                    }
                 }
 
                 fieldDeser.setValue(object, value);

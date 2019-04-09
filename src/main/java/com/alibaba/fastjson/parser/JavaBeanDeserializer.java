@@ -1069,11 +1069,15 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 } else {
                     Field field = fieldDeser.fieldInfo.field;
                     Type paramType = fieldDeser.fieldInfo.fieldType;
-                    String format = fieldDeser.fieldInfo.format;
 
                     if (paramType == boolean.class) {
-                        if (value instanceof Boolean) {
-                            field.setBoolean(object, ((Boolean) value).booleanValue());
+                        if (value == Boolean.FALSE) {
+                            field.setBoolean(object, false);
+                            continue;
+                        }
+
+                        if (value == Boolean.TRUE) {
+                            field.setBoolean(object, true);
                             continue;
                         }
                     } else if (paramType == int.class) {
@@ -1105,6 +1109,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         continue;
                     }
 
+                    String format = fieldDeser.fieldInfo.format;
                     if (format != null && paramType == Date.class && value instanceof String) {
                         try {
                             value = new SimpleDateFormat(format).parse((String) value);
@@ -1113,7 +1118,11 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             value = null;
                         }
                     } else {
-                        value = TypeUtils.cast(value, paramType, config);
+                        if (paramType instanceof ParameterizedType) {
+                            value = TypeUtils.cast(value, (ParameterizedType) paramType, config);
+                        } else {
+                            value = TypeUtils.cast(value, paramType, config);
+                        }
                     }
                     field.set(object, value);
                 }

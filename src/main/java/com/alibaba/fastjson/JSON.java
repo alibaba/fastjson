@@ -159,6 +159,13 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return jsonObject;
     }
 
+    /**
+     * @since 1.1.71.android
+     */
+    public static <T> T parseObject(String input, Type clazz, ParserConfig config, Feature... features) {
+        return parseObject(input, clazz, config, null, DEFAULT_PARSER_FEATURE, features);
+    }
+
     @SuppressWarnings("unchecked")
     public static final <T> T parseObject(String text, TypeReference<T> type, Feature... features) {
         return (T) parseObject(text, type.type, ParserConfig.global, DEFAULT_PARSER_FEATURE, features);

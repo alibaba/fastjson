@@ -706,7 +706,11 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
      * @since 1.2.9 back port 1.1.52.android
      */
     public <T> T toJavaObject(Class<T> clazz) {
-        return TypeUtils.cast(this, clazz, ParserConfig.getGlobalInstance());
+        if (clazz == Map.class) {
+            return (T) this;
+        }
+
+        return TypeUtils.cast(this, clazz, ParserConfig.getGlobalInstance(), 0);
     }
     
     /**
@@ -772,5 +776,5 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
     }
 
-    public final static String VERSION = "1.1.70";
+    public final static String VERSION = "1.1.71";
 }

@@ -1148,6 +1148,33 @@ public class TypeUtils{
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static <T> T cast(Object obj, ParameterizedType type, ParserConfig mapping){
         Type rawTye = type.getRawType();
+
+        if(rawTye == List.class || rawTye == ArrayList.class){
+            Type itemType = type.getActualTypeArguments()[0];
+            if(obj instanceof List){
+                List listObj = (List) obj;
+                List arrayList = new ArrayList(listObj.size());
+
+                for (int i = 0; i < listObj.size(); i++) {
+                    Object item = listObj.get(i);
+
+                    Object itemValue;
+                    if (itemType instanceof Class) {
+                        if (item != null && item.getClass() == JSONObject.class) {
+                            itemValue = ((JSONObject) item).toJavaObject((Class<T>) itemType, mapping, 0);
+                        } else {
+                            itemValue = cast(item, (Class<T>) itemType, mapping);
+                        }
+                    } else {
+                        itemValue = cast(item, itemType, mapping);
+                    }
+
+                    arrayList.add(itemValue);
+                }
+                return (T) arrayList;
+            }
+        }
+
         if(rawTye == Set.class || rawTye == HashSet.class //
                 || rawTye == TreeSet.class //
                 || rawTye == Collection.class //
@@ -1165,11 +1192,24 @@ public class TypeUtils{
                 }
                 for(Iterator it = ((Iterable) obj).iterator(); it.hasNext(); ){
                     Object item = it.next();
-                    collection.add(cast(item, itemType, mapping));
+
+                    Object itemValue;
+                    if (itemType instanceof Class) {
+                        if (item != null && item.getClass() == JSONObject.class) {
+                            itemValue = ((JSONObject) item).toJavaObject((Class<T>) itemType, mapping, 0);
+                        } else {
+                            itemValue = cast(item, (Class<T>) itemType, mapping);
+                        }
+                    } else {
+                        itemValue = cast(item, itemType, mapping);
+                    }
+
+                    collection.add(itemValue);
                 }
                 return (T) collection;
             }
         }
+
         if(rawTye == Map.class || rawTye == HashMap.class){
             Type keyType = type.getActualTypeArguments()[0];
             Type valueType = type.getActualTypeArguments()[1];

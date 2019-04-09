@@ -1071,6 +1071,40 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     Type paramType = fieldDeser.fieldInfo.fieldType;
                     String format = fieldDeser.fieldInfo.format;
 
+                    if (paramType == boolean.class) {
+                        if (value instanceof Boolean) {
+                            field.setBoolean(object, ((Boolean) value).booleanValue());
+                            continue;
+                        }
+                    } else if (paramType == int.class) {
+                        if (value instanceof Number) {
+                            field.setInt(object, ((Number) value).intValue());
+                            continue;
+                        }
+                    } else if (paramType == long.class) {
+                        if (value instanceof Number) {
+                            field.setLong(object, ((Number) value).longValue());
+                            continue;
+                        }
+                    } else if (paramType == float.class) {
+                        if (value instanceof Number) {
+                            field.setFloat(object, ((Number) value).floatValue());
+                            continue;
+                        }
+                    } else if (paramType == double.class) {
+                        if (value instanceof Number) {
+                            field.setDouble(object, ((Number) value).doubleValue());
+                            continue;
+                        } else if (value instanceof String) {
+                            double doubleValue = Double.parseDouble((String) value);
+                            field.setDouble(object, doubleValue);
+                            continue;
+                        }
+                    } else if (value != null && paramType == value.getClass()) {
+                        field.set(object, value);
+                        continue;
+                    }
+
                     if (format != null && paramType == Date.class && value instanceof String) {
                         try {
                             value = new SimpleDateFormat(format).parse((String) value);

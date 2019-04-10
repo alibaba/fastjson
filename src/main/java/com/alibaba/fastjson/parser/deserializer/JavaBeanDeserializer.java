@@ -237,7 +237,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     param = ctxObj;
                 }
 
-                if (param == null) {
+                if (param == null || param instanceof Collection && ((Collection)param).isEmpty()) {
                     throw new JSONException("can't create non-static inner class instance.");
                 }
 

@@ -1394,6 +1394,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 bp += offset;
                 this.ch = charAt(bp);
                 matchStat = VALUE;
+                token = JSONToken.COMMA;
                 return strVal;
             } else if (isWhitespace(chLocal)) {
                 chLocal = charAt(bp + (offset++));

@@ -340,7 +340,10 @@ public class ASMDeserializerFactory implements Opcodes {
                 
                 Class<?> itemClass = TypeUtils.getCollectionItemClass(fieldType);
                 if (itemClass == String.class) {
-                    if (fieldClass == List.class || fieldClass == Collections.class || fieldClass == ArrayList.class) {
+                    if (fieldClass == List.class
+                            || fieldClass == Collections.class
+                            || fieldClass == ArrayList.class
+                    ) {
                         mw.visitTypeInsn(NEW, type(ArrayList.class));
                         mw.visitInsn(DUP);
                         mw.visitMethodInsn(INVOKESPECIAL, type(ArrayList.class), "<init>", "()V");
@@ -378,7 +381,7 @@ public class ASMDeserializerFactory implements Opcodes {
                     mw.visitJumpInsn(IF_ICMPEQ, notError_);
 
                     mw.visitVarInsn(ALOAD, 1); // DefaultJSONParser
-                    mw.visitVarInsn(ILOAD, context.var("token"));
+                    mw.visitLdcInsn(token);
                     mw.visitMethodInsn(INVOKEVIRTUAL, DefaultJSONParser, "throwException", "(I)V");
 
                     mw.visitLabel(notError_);

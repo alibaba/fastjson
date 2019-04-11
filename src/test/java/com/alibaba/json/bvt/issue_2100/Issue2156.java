@@ -9,4 +9,10 @@ public class Issue2156 extends TestCase {
         String str = JSON.toJSONStringWithDateFormat(date, JSON.DEFFAULT_DATE_FORMAT);
         assertEquals("\"2018-07-15\"", str);
     }
+
+    public void test_for_issue_time() throws Exception {
+        java.sql.Time date = java.sql.Time.valueOf("12:13:14");
+        String str = JSON.toJSONStringWithDateFormat(date, JSON.DEFFAULT_DATE_FORMAT);
+        assertEquals("\"12:13:14\"", str);
+    }
 }

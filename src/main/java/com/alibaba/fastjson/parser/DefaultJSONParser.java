@@ -313,7 +313,19 @@ public class DefaultJSONParser implements Closeable {
                             && object.getClass().getName().equals(typeName)) {
                         clazz = object.getClass();
                     } else {
-                        clazz = config.checkAutoType(typeName, null, lexer.getFeatures());
+
+                        boolean allDigits = true;
+                        for (int i = 0; i < typeName.length(); ++i) {
+                            char c = typeName.charAt(i);
+                            if (c < '0' || c > '9') {
+                                allDigits = false;
+                                break;
+                            }
+                        }
+
+                        if (!allDigits) {
+                            clazz = config.checkAutoType(typeName, null, lexer.getFeatures());
+                        }
                     }
 
                     if (clazz == null) {

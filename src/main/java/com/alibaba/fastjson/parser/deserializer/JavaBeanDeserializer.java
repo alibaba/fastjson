@@ -811,7 +811,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         if (setFlags != null) {
                             int flagIndex = fieldIndex / 32;
                             int bitIndex = fieldIndex % 32;
-                            setFlags[flagIndex] |= (1 >> bitIndex);
+                            setFlags[flagIndex] |= (1 << bitIndex);
                         }
 
                         if (lexer.matchStat == JSONLexer.END) {
@@ -820,6 +820,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     }
                 } else {
                     boolean match = parseField(parser, key, object, type, fieldValues, setFlags);
+
                     if (!match) {
                         if (lexer.token() == JSONToken.RBRACE) {
                             lexer.nextToken();
@@ -1102,7 +1103,10 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 throw new JSONException("setter not found, class " + clazz.getName() + ", property " + key);
             }
 
-            for (FieldDeserializer fieldDeser : this.sortedFieldDeserializers) {
+            int fieldIndex = -1;
+            for (int i = 0; i < this.sortedFieldDeserializers.length; i++) {
+                FieldDeserializer fieldDeser = this.sortedFieldDeserializers[i];
+
                 FieldInfo fieldInfo = fieldDeser.fieldInfo;
                 if (fieldInfo.unwrapped //
                         && fieldDeser instanceof DefaultFieldDeserializer) {
@@ -1122,7 +1126,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                                     }
                                     lexer.nextTokenWithColon(defaultFieldDeserializer.getFastMatchToken());
                                     unwrappedFieldDeser.parseField(parser, fieldObject, objectType, fieldValues);
-                                    return true;
+                                    fieldIndex = i;
                                 } catch (Exception e) {
                                     throw new JSONException("parse unwrapped field error.", e);
                                 }
@@ -1144,7 +1148,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             } catch (Exception e) {
                                 throw new JSONException("parse unwrapped field error.", e);
                             }
-                            return true;
+                            fieldIndex = i;
                         }
                     } else if (fieldInfo.method.getParameterTypes().length == 2) {
                         lexer.nextTokenWithColon();
@@ -1154,9 +1158,18 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         } catch (Exception e) {
                             throw new JSONException("parse unwrapped field error.", e);
                         }
-                        return true;
+                        fieldIndex = i;
                     }
                 }
+            }
+
+            if (fieldIndex != -1) {
+                if (setFlags != null) {
+                    int flagIndex = fieldIndex / 32;
+                    int bitIndex = fieldIndex % 32;
+                    setFlags[flagIndex] |= (1 << bitIndex);
+                }
+                return true;
             }
             
             parser.parseExtra(object, key);
@@ -1181,6 +1194,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         lexer.nextTokenWithColon(fieldDeserializer.getFastMatchToken());
 
         fieldDeserializer.parseField(parser, object, objectType, fieldValues);
+
+        if (setFlags != null) {
+            int flagIndex = fieldIndex / 32;
+            int bitIndex = fieldIndex % 32;
+            setFlags[flagIndex] |= (1 << bitIndex);
+        }
 
         return true;
     }

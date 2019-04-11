@@ -311,7 +311,21 @@ public class DefaultJSONParser implements Closeable {
                 if (key == JSON.DEFAULT_TYPE_KEY //
                     && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
                     String typeName = lexer.scanSymbol(symbolTable, '"');
-                    Class<?> clazz = config.checkAutoType(typeName, null, lexer.features);
+
+                    boolean allDigits = true;
+                    for (int i = 0; i < typeName.length(); ++i) {
+                        char c = typeName.charAt(i);
+                        if (c < '0' || c > '9') {
+                            allDigits = false;
+                            break;
+                        }
+                    }
+
+                    Class<?> clazz = null;
+
+                    if (!allDigits) {
+                        clazz = config.checkAutoType(typeName, null, lexer.features);
+                    }
 
                     if (clazz == null) {
                         object.put(JSON.DEFAULT_TYPE_KEY, typeName);

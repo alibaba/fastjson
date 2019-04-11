@@ -100,7 +100,8 @@ public class JSONPath implements JSONAware {
             boolean last = i == segments.length - 1;
 
             if (context != null && context.object != null) {
-                return segment.eval(this, null, context.object);
+                context.object = segment.eval(this, null, context.object);
+                continue;
             }
 
             boolean eval;
@@ -121,6 +122,8 @@ public class JSONPath implements JSONAware {
                         && ((ArrayAccessSegment) nextSegment).index < 0) {
                     eval = true;
                 } else if (nextSegment instanceof FilterSegment) {
+                    eval = true;
+                } else if (segment instanceof WildCardSegment) {
                     eval = true;
                 } else {
                     eval = false;

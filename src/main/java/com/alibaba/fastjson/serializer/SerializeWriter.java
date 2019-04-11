@@ -554,6 +554,7 @@ public final class SerializeWriter extends Writer {
 
         final char[] CA = IOUtils.CA;
 
+        // base64 algorithm author Mikael Grev
         int eLen = (bytesLen / 3) * 3; // Length of even 24-bits.
         int charsLen = ((bytesLen - 1) / 3 + 1) << 2; // base64 character count
         // char[] chars = new char[charsLen];

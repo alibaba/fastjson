@@ -392,7 +392,8 @@ public class IOUtils {
      * + Line separator must be "\r\n", as specified in RFC 2045 + The array must not contain illegal characters within
      * the encoded string<br>
      * + The array CAN have illegal characters at the beginning and end, those will be dealt with appropriately.<br>
-     * 
+     *
+     * @author Mikael Grev Date: 2004-aug-02 Time: 11:31:11
      * @param chars The source array. Length 0 will return an empty array. <code>null</code> will throw an exception.
      * @return The decoded array of bytes. May be of length 0.
      */
@@ -450,7 +451,10 @@ public class IOUtils {
 
         return bytes;
     }
-    
+
+    /**
+     * @author Mikael Grev Date: 2004-aug-02 Time: 11:31:11
+     */
     public static byte[] decodeBase64(String chars, int offset, int charsLen) {
         // Check special case
         if (charsLen == 0) {
@@ -516,7 +520,8 @@ public class IOUtils {
      * + Line separator must be "\r\n", as specified in RFC 2045 + The array must not contain illegal characters within
      * the encoded string<br>
      * + The array CAN have illegal characters at the beginning and end, those will be dealt with appropriately.<br>
-     * 
+     *
+     * @author Mikael Grev Date: 2004-aug-02 Time: 11:31:11
      * @param s The source string. Length 0 will return an empty array. <code>null</code> will throw an exception.
      * @return The decoded array of bytes. May be of length 0.
      */

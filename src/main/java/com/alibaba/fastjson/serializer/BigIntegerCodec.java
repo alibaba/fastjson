@@ -34,6 +34,7 @@ public class BigIntegerCodec implements ObjectSerializer, ObjectDeserializer {
 
     public final static BigIntegerCodec instance = new BigIntegerCodec();
 
+    @Override
     public void write(JSONSerializer serializer
             , Object object
             , Object fieldName
@@ -59,6 +60,7 @@ public class BigIntegerCodec implements ObjectSerializer, ObjectDeserializer {
         out.write(str);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         return (T) deserialze(parser);
@@ -79,6 +81,7 @@ public class BigIntegerCodec implements ObjectSerializer, ObjectDeserializer {
             : (T) TypeUtils.castToBigInteger(value);
     }
 
+    @Override
     public int getFastMatchToken() {
         return JSONToken.LITERAL_INT;
     }

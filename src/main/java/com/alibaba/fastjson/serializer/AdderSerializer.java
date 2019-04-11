@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.LongAdder;
 public class AdderSerializer implements ObjectSerializer {
     public static final AdderSerializer instance = new AdderSerializer();
 
+    @Override
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.out;
         if (object instanceof LongAdder) {

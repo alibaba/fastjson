@@ -58,7 +58,7 @@ public abstract class FieldDeserializer {
             return;
         } else if (fieldInfo.fieldClass == String.class
                 && fieldInfo.format != null
-                && fieldInfo.format.equals("trim")){
+                && "trim".equals(fieldInfo.format)){
             value = ((String) value).trim();
         }
 

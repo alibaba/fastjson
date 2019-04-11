@@ -13,6 +13,7 @@ public class NumberDeserializer implements ObjectDeserializer {
 
     public final static NumberDeserializer instance = new NumberDeserializer();
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         final JSONLexer lexer = parser.lexer;
@@ -120,6 +121,7 @@ public class NumberDeserializer implements ObjectDeserializer {
         return (T) TypeUtils.castToBigDecimal(value);
     }
 
+    @Override
     public int getFastMatchToken() {
         return JSONToken.LITERAL_INT;
     }

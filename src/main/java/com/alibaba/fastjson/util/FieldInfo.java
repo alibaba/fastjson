@@ -392,6 +392,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         return actualType;
     }
 
+    @Override
     public String toString() {
         return this.name;
     }
@@ -416,6 +417,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         return null;
     }
 
+    @Override
     public int compareTo(FieldInfo o) {
         if (this.ordinal < o.ordinal) {
             return -1;

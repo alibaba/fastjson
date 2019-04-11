@@ -34,6 +34,7 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
 
     public final static CollectionCodec instance = new CollectionCodec();
 
+    @Override
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.out;
 
@@ -107,6 +108,7 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
         }
     }
 
+    @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         if (parser.lexer.token() == JSONToken.NULL) {
@@ -130,6 +132,7 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
 
   
 
+    @Override
     public int getFastMatchToken() {
         return JSONToken.LBRACKET;
     }

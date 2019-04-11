@@ -13,6 +13,7 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
 
     public final static StackTraceElementDeserializer instance = new StackTraceElementDeserializer();
 
+    @Override
     @SuppressWarnings({ "unchecked", "unused" })
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         JSONLexer lexer = parser.lexer;
@@ -95,7 +96,7 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
             } else if (key == JSON.DEFAULT_TYPE_KEY) {
                if (lexer.token() == JSONToken.LITERAL_STRING) {
                     String elementType = lexer.stringVal();
-                    if (!elementType.equals("java.lang.StackTraceElement")) {
+                    if (!"java.lang.StackTraceElement".equals(elementType)) {
                         throw new JSONException("syntax error : " + elementType);    
                     }
                 } else {
@@ -139,6 +140,7 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
         return (T) new StackTraceElement(declaringClass, methodName, fileName, lineNumber);
     }
 
+    @Override
     public int getFastMatchToken() {
         return JSONToken.LBRACE;
     }

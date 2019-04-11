@@ -16,6 +16,7 @@ public class PropertyProcessableDeserializer implements ObjectDeserializer {
         this.type = type;
     }
 
+    @Override
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         PropertyProcessable processable;
         try {
@@ -29,6 +30,7 @@ public class PropertyProcessableDeserializer implements ObjectDeserializer {
         return (T) object;
     }
 
+    @Override
     public int getFastMatchToken() {
         return JSONToken.LBRACE;
     }

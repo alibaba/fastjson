@@ -940,6 +940,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return toJSONString();
     }
 
+    @Override
     public String toJSONString() {
         SerializeWriter out = new SerializeWriter();
         try {
@@ -950,6 +951,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
     }
 
+    @Override
     public void writeJSONString(Appendable appendable) {
         SerializeWriter out = new SerializeWriter();
         try {

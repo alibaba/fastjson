@@ -125,6 +125,7 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
         }
     }
 
+    @Override
     public int getFastMatchToken() {
         if (fieldValueDeserilizer != null) {
             return fieldValueDeserilizer.getFastMatchToken();

@@ -42,6 +42,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
 
     public final static DateCodec instance = new DateCodec();
     
+    @Override
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.out;
 
@@ -164,6 +165,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
         }
     }
     
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T cast(DefaultJSONParser parser, Type clazz, Object fieldName, Object val) {
 
@@ -201,7 +203,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
             }
             
             if (strVal.length() == parser.getDateFomartPattern().length()
-                    || (strVal.length() == 22 && parser.getDateFomartPattern().equals("yyyyMMddHHmmssSSSZ"))) {
+                    || (strVal.length() == 22 && "yyyyMMddHHmmssSSSZ".equals(parser.getDateFomartPattern()))) {
                 DateFormat dateFormat = parser.getDateFormat();
                 try {
                     return (T) dateFormat.parse(strVal);
@@ -255,6 +257,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
         throw new JSONException("parse error");
     }
 
+    @Override
     public int getFastMatchToken() {
         return JSONToken.LITERAL_INT;
     }

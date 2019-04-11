@@ -19,6 +19,7 @@ public class SwaggerJsonSerializer implements ObjectSerializer {
 
     public final static SwaggerJsonSerializer instance = new SwaggerJsonSerializer();
 
+    @Override
     public void write(JSONSerializer serializer, //
                       Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.getWriter();

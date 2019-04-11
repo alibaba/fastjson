@@ -218,11 +218,13 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
     }
 
 
+    @Override
     public boolean canRead(Type type, Class<?> contextClass, MediaType mediaType) {
         return super.canRead(contextClass, mediaType);
     }
 
 
+    @Override
     public boolean canWrite(Type type, Class<?> clazz, MediaType mediaType) {
         return super.canWrite(clazz, mediaType);
     }
@@ -230,6 +232,7 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
     /*
      * @see org.springframework.http.converter.GenericHttpMessageConverter#read(java.lang.reflect.Type, java.lang.Class, org.springframework.http.HttpInputMessage)
      */
+    @Override
     public Object read(Type type, //
                        Class<?> contextClass, //
                        HttpInputMessage inputMessage //
@@ -240,6 +243,7 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
     /*
      * @see org.springframework.http.converter.GenericHttpMessageConverter.write
      */
+    @Override
     public void write(Object o, Type type, MediaType contentType, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
         super.write(o, contentType, outputMessage);// support StreamingHttpOutputMessage in spring4.0+
         //writeInternal(o, outputMessage);

@@ -35,6 +35,7 @@ public class AtomicCodec implements ObjectSerializer, ObjectDeserializer {
 
     public final static AtomicCodec instance = new AtomicCodec();
 
+    @Override
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.out;
         
@@ -90,6 +91,7 @@ public class AtomicCodec implements ObjectSerializer, ObjectDeserializer {
         out.write(']');
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         if (parser.lexer.token() == JSONToken.NULL) {
@@ -117,6 +119,7 @@ public class AtomicCodec implements ObjectSerializer, ObjectDeserializer {
         return (T) atomicArray;
     }
 
+    @Override
     public int getFastMatchToken() {
         return JSONToken.LBRACKET;
     }

@@ -1499,6 +1499,7 @@ public class DefaultJSONParser implements Closeable {
                                 + JSONToken.name(lexer.token()));
     }
 
+    @Override
     public void close() {
         final JSONLexer lexer = this.lexer;
 

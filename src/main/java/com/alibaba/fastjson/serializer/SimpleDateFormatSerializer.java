@@ -13,6 +13,7 @@ public class SimpleDateFormatSerializer implements ObjectSerializer {
         this.pattern = pattern;
     }
 
+    @Override
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
     	if (object == null) {
     		serializer.out.writeNull();

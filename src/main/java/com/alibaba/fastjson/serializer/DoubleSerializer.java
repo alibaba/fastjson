@@ -40,6 +40,7 @@ public class DoubleSerializer implements ObjectSerializer {
         this(new DecimalFormat(decimalFormat));
     }
 
+    @Override
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.out;
 

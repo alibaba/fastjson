@@ -265,6 +265,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         return object;
     }
     
+    @Override
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         return deserialze(parser, type, fieldName, 0);
     }
@@ -1254,6 +1255,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         return fieldDeserializer;
     }
 
+    @Override
     public int getFastMatchToken() {
         return JSONToken.LBRACE;
     }

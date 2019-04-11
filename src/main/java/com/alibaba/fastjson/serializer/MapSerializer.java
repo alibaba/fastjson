@@ -36,6 +36,7 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                     SerializerFeature.WriteNonStringKeyAsString,
                     SerializerFeature.BrowserSecure});
 
+    @Override
     public void write(JSONSerializer serializer
             , Object object
             , Object fieldName

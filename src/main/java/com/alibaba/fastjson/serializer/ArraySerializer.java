@@ -31,6 +31,7 @@ public class ArraySerializer implements ObjectSerializer {
         this.compObjectSerializer = compObjectSerializer;
     }
 
+    @Override
     public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
                                                                                                        throws IOException {
         SerializeWriter out = serializer.out;

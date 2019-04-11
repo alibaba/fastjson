@@ -47,6 +47,7 @@ public class FloatCodec implements ObjectSerializer, ObjectDeserializer {
         this(new DecimalFormat(decimalFormat));
     }
 
+    @Override
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.out;
         
@@ -64,6 +65,7 @@ public class FloatCodec implements ObjectSerializer, ObjectDeserializer {
         }
     }
     
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         try {
@@ -98,6 +100,7 @@ public class FloatCodec implements ObjectSerializer, ObjectDeserializer {
         return (T) TypeUtils.castToFloat(value);
     }
 
+    @Override
     public int getFastMatchToken() {
         return JSONToken.LITERAL_INT;
     }

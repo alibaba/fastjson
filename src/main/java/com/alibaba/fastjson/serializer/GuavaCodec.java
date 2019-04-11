@@ -18,6 +18,7 @@ import java.util.Map;
 public class GuavaCodec implements ObjectSerializer, ObjectDeserializer {
     public static GuavaCodec instance = new GuavaCodec();
 
+    @Override
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.out;
         if (object instanceof Multimap) {
@@ -26,6 +27,7 @@ public class GuavaCodec implements ObjectSerializer, ObjectDeserializer {
         }
     }
 
+    @Override
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         if (type == ArrayListMultimap.class) {
             ArrayListMultimap multimap = ArrayListMultimap.create();
@@ -44,6 +46,7 @@ public class GuavaCodec implements ObjectSerializer, ObjectDeserializer {
         return null;
     }
 
+    @Override
     public int getFastMatchToken() {
         return 0;
     }

@@ -35,6 +35,7 @@ public class LongCodec implements ObjectSerializer, ObjectDeserializer {
 
     public static LongCodec instance = new LongCodec();
 
+    @Override
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.out;
 
@@ -53,6 +54,7 @@ public class LongCodec implements ObjectSerializer, ObjectDeserializer {
         }
     }
     
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         final JSONLexer lexer = parser.lexer;
@@ -91,6 +93,7 @@ public class LongCodec implements ObjectSerializer, ObjectDeserializer {
             : (T) longObject;
     }
 
+    @Override
     public int getFastMatchToken() {
         return JSONToken.LITERAL_INT;
     }

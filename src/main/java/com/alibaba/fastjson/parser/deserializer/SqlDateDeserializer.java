@@ -27,6 +27,7 @@ public class SqlDateDeserializer extends AbstractDateDeserializer implements Obj
         this.timestamp = true;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     protected <T> T cast(DefaultJSONParser parser, Type clazz, Object fieldName, Object val) {
         if (timestamp) {
@@ -132,6 +133,7 @@ public class SqlDateDeserializer extends AbstractDateDeserializer implements Obj
         throw new JSONException("parse error");
     }
 
+    @Override
     public int getFastMatchToken() {
         return JSONToken.LITERAL_INT;
     }

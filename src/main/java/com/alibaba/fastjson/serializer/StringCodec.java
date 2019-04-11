@@ -30,6 +30,7 @@ public class StringCodec implements ObjectSerializer, ObjectDeserializer {
 
     public static StringCodec instance = new StringCodec();
 
+    @Override
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
                                                                                                                throws IOException {
         write(serializer, (String) object);
@@ -46,6 +47,7 @@ public class StringCodec implements ObjectSerializer, ObjectDeserializer {
         out.writeString(value);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         if (clazz == StringBuffer.class) {
@@ -111,6 +113,7 @@ public class StringCodec implements ObjectSerializer, ObjectDeserializer {
         return (T) value.toString();
     }
 
+    @Override
     public int getFastMatchToken() {
         return JSONToken.LITERAL_STRING;
     }

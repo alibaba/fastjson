@@ -60,6 +60,7 @@ public final class ResolveFieldDeserializer extends FieldDeserializer {
         this.collection = collection;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public void setValue(Object object, Object value) {
         if (map != null) {
@@ -94,6 +95,7 @@ public final class ResolveFieldDeserializer extends FieldDeserializer {
         }
     }
 
+    @Override
     public void parseField(DefaultJSONParser parser, Object object, Type objectType, Map<String, Object> fieldValues) {
 
     }

@@ -17,6 +17,7 @@ public class JavaObjectDeserializer implements ObjectDeserializer {
 
     public final static JavaObjectDeserializer instance = new JavaObjectDeserializer();
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         if (type instanceof GenericArrayType) {
@@ -46,6 +47,7 @@ public class JavaObjectDeserializer implements ObjectDeserializer {
         return (T) parser.parse(fieldName);
     }
 
+    @Override
     public int getFastMatchToken() {
         return JSONToken.LBRACE;
     }

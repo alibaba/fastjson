@@ -26,12 +26,13 @@ public class CalendarCodec extends ContextObjectDeserializer implements ObjectSe
 
     private DatatypeFactory dateFactory;
 
+    @Override
     public void write(JSONSerializer serializer, Object object, BeanContext context) throws IOException {
         SerializeWriter out = serializer.out;
         String format = context.getFormat();
         Calendar calendar = (Calendar) object;
 
-        if (format.equals("unixtime")) {
+        if ("unixtime".equals(format)) {
             long seconds = calendar.getTimeInMillis() / 1000L;
             out.writeInt((int) seconds);
             return;
@@ -47,6 +48,7 @@ public class CalendarCodec extends ContextObjectDeserializer implements ObjectSe
     }
 
 
+    @Override
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
                                                                                                                throws IOException {
         SerializeWriter out = serializer.out;
@@ -141,6 +143,7 @@ public class CalendarCodec extends ContextObjectDeserializer implements ObjectSe
         }
     }
 
+    @Override
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         return deserialze(parser, clazz, fieldName, null, 0);
     }
@@ -181,6 +184,7 @@ public class CalendarCodec extends ContextObjectDeserializer implements ObjectSe
         return dateFactory.newXMLGregorianCalendar((GregorianCalendar) calendar);
     }
 
+    @Override
     public int getFastMatchToken() {
         return JSONToken.LITERAL_INT;
     }

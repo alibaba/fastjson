@@ -165,6 +165,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
         return propertyValue;
     }
     
+    @Override
     public int compareTo(FieldSerializer o) {
         return this.fieldInfo.compareTo(o.fieldInfo);
     }

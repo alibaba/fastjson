@@ -34,6 +34,7 @@ public class ReferenceCodec implements ObjectSerializer, ObjectDeserializer {
 
     public final static ReferenceCodec instance = new ReferenceCodec();
 
+    @Override
     @SuppressWarnings("rawtypes")
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         Object item;
@@ -46,6 +47,7 @@ public class ReferenceCodec implements ObjectSerializer, ObjectDeserializer {
         serializer.write(item);
     }
 
+    @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         ParameterizedType paramType = (ParameterizedType) type;
@@ -69,6 +71,7 @@ public class ReferenceCodec implements ObjectSerializer, ObjectDeserializer {
         throw new UnsupportedOperationException(rawType.toString());
     }
 
+    @Override
     public int getFastMatchToken() {
         return JSONToken.LBRACE;
     }

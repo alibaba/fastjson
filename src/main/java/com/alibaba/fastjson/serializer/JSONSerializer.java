@@ -288,6 +288,25 @@ public class JSONSerializer extends SerializeFilterable {
         }
     }
 
+    /**
+     * @since 1.2.57
+     *
+     */
+    public final void writeAs(Object object, Class type) {
+        if (object == null) {
+            out.writeNull();
+            return;
+        }
+
+        ObjectSerializer writer = getObjectWriter(type);
+
+        try {
+            writer.write(this, object, null, null, 0);
+        } catch (IOException e) {
+            throw new JSONException(e.getMessage(), e);
+        }
+    }
+
     public final void writeWithFieldName(Object object, Object fieldName) {
         writeWithFieldName(object, fieldName, null, 0);
     }

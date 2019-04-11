@@ -1369,10 +1369,13 @@ public class JSONPath implements JSONAware {
             }
 
             int start = pos - 1;
+            char startCh = ch;
             while (ch != ']' && ch != '/' && !isEOF()) {
                 if (ch == '.' //
                         && (!predicateFlag) // 
-                        && !predicateFlag) {
+                        && !predicateFlag
+                        && startCh != '\''
+                ) {
                     break;
                 }
                 

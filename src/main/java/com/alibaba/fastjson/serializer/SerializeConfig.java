@@ -711,6 +711,11 @@ public class SerializeConfig {
                     }
                 }
 
+                if ("java.nio.HeapByteBuffer".equals(className)) {
+                    put(clazz, writer = ByteBufferCodec.instance);
+                    return writer;
+                }
+
                 Class[] interfaces = clazz.getInterfaces();
                 if (interfaces.length == 1 && interfaces[0].isAnnotation()) {
                     put(clazz, AnnotationSerializer.instance);

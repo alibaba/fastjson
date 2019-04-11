@@ -572,6 +572,10 @@ public class ParserConfig {
             }
         }
 
+        if (className.equals("java.nio.ByteBuffer")) {
+            deserializers.put(clazz, derializer = ByteBufferCodec.instance);
+        }
+
         if (className.equals("java.nio.file.Path")) {
             deserializers.put(clazz, derializer = MiscCodec.instance);
         }

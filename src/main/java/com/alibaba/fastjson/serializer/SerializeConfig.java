@@ -20,6 +20,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.deserializer.Jdk8DateCodec;
 import com.alibaba.fastjson.parser.deserializer.OptionalCodec;
+import com.alibaba.fastjson.spi.Module;
 import com.alibaba.fastjson.support.springfox.SwaggerJsonSerializer;
 import com.alibaba.fastjson.util.*;
 import com.alibaba.fastjson.util.IdentityHashMap;
@@ -73,6 +74,8 @@ public class SerializeConfig {
                     4165360493669296979L,
                     4446674157046724083L
             };
+
+    private List<Module>                                    modules                = new ArrayList<Module>();
     
 	public String getTypeKey() {
 		return typeKey;
@@ -471,6 +474,14 @@ public class SerializeConfig {
                 writer = serializers.get(clazz);
             }
         }
+
+        for (Module module : modules) {
+            writer = module.createSerializer(this, clazz);
+            if (writer != null) {
+                serializers.put(clazz, writer);
+                return writer;
+            }
+        }
         
         if (writer == null) {
             String className = clazz.getName();
@@ -801,5 +812,9 @@ public class SerializeConfig {
     public void clearSerializers() {
         this.serializers.clear();
         this.initSerializers();
+    }
+
+    public void register(Module module) {
+        this.modules.add(module);
     }
 }

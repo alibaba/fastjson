@@ -29,7 +29,8 @@ public class MapDeserializer implements ObjectDeserializer {
             return null;
         }
 
-        boolean unmodifiableMap = "java.util.Collections$UnmodifiableMap".equals(type.getTypeName());
+        boolean unmodifiableMap = type instanceof Class
+                && "java.util.Collections$UnmodifiableMap".equals(((Class) type).getName());
 
         Map<Object, Object> map = (lexer.getFeatures() & Feature.OrderedField.mask) != 0
                 ? createMap(type, lexer.getFeatures())

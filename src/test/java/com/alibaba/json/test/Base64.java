@@ -86,56 +86,56 @@ public class Base64
 	// ****************************************************************************************
 
 	/** Encodes a raw byte array into a BASE64 <code>char[]</code> representation i accordance with RFC 2045.
-	 * @param sArr The bytes to convert. If <code>null</code> or length 0 an empty array will be returned.
+	 * @param bytes The bytes to convert. If <code>null</code> or length 0 an empty array will be returned.
 	 * @param lineSep Optional "\r\n" after 76 characters, unless end of file.<br>
 	 * No line separator will be in breach of RFC 2045 which specifies max 76 per line but will be a
 	 * little faster.
 	 * @return A BASE64 encoded array. Never <code>null</code>.
 	 */
-	public final static char[] encodeToChar(byte[] sArr, boolean lineSep)
+	public final static char[] encodeToChar(byte[] bytes, boolean lineSep)
 	{
 		// Check special case
-		int sLen = sArr != null ? sArr.length : 0;
-		if (sLen == 0)
+		int bytes_len = bytes != null ? bytes.length : 0;
+		if (bytes_len == 0)
 			return new char[0];
 
-		int eLen = (sLen / 3) * 3;              // Length of even 24-bits.
-		int cCnt = ((sLen - 1) / 3 + 1) << 2;   // Returned character count
-		int dLen = cCnt + (lineSep ? (cCnt - 1) / 76 << 1 : 0); // Length of returned array
-		char[] dArr = new char[dLen];
+		int eLen = (bytes_len / 3) * 3;              // Length of even 24-bits.
+		int cCnt = ((bytes_len - 1) / 3 + 1) << 2;   // Returned character count
+		int chars_len = cCnt + (lineSep ? (cCnt - 1) / 76 << 1 : 0); // Length of returned array
+		char[] chars = new char[chars_len];
 
 		// Encode even 24-bits
 		for (int s = 0, d = 0, cc = 0; s < eLen;) {
 			// Copy next three bytes into lower 24 bits of int, paying attension to sign.
-			int i = (sArr[s++] & 0xff) << 16 | (sArr[s++] & 0xff) << 8 | (sArr[s++] & 0xff);
+			int i = (bytes[s++] & 0xff) << 16 | (bytes[s++] & 0xff) << 8 | (bytes[s++] & 0xff);
 
 			// Encode the int into four chars
-			dArr[d++] = CA[(i >>> 18) & 0x3f];
-			dArr[d++] = CA[(i >>> 12) & 0x3f];
-			dArr[d++] = CA[(i >>> 6) & 0x3f];
-			dArr[d++] = CA[i & 0x3f];
+			chars[d++] = CA[(i >>> 18) & 0x3f];
+			chars[d++] = CA[(i >>> 12) & 0x3f];
+			chars[d++] = CA[(i >>> 6) & 0x3f];
+			chars[d++] = CA[i & 0x3f];
 
 			// Add optional line separator
-			if (lineSep && ++cc == 19 && d < dLen - 2) {
-				dArr[d++] = '\r';
-				dArr[d++] = '\n';
+			if (lineSep && ++cc == 19 && d < chars_len - 2) {
+				chars[d++] = '\r';
+				chars[d++] = '\n';
 				cc = 0;
 			}
 		}
 
 		// Pad and encode last bits if source isn't even 24 bits.
-		int left = sLen - eLen; // 0 - 2.
+		int left = bytes_len - eLen; // 0 - 2.
 		if (left > 0) {
 			// Prepare the int
-			int i = ((sArr[eLen] & 0xff) << 10) | (left == 2 ? ((sArr[sLen - 1] & 0xff) << 2) : 0);
+			int i = ((bytes[eLen] & 0xff) << 10) | (left == 2 ? ((bytes[bytes_len - 1] & 0xff) << 2) : 0);
 
 			// Set last four chars
-			dArr[dLen - 4] = CA[i >> 12];
-			dArr[dLen - 3] = CA[(i >>> 6) & 0x3f];
-			dArr[dLen - 2] = left == 2 ? CA[i & 0x3f] : '=';
-			dArr[dLen - 1] = '=';
+			chars[chars_len - 4] = CA[i >> 12];
+			chars[chars_len - 3] = CA[(i >>> 6) & 0x3f];
+			chars[chars_len - 2] = left == 2 ? CA[i & 0x3f] : '=';
+			chars[chars_len - 1] = '=';
 		}
-		return dArr;
+		return chars;
 	}
 
 	/** Decodes a BASE64 encoded char array. All illegal characters will be ignored and can handle both arrays with
@@ -517,7 +517,7 @@ public class Base64
 	 * @param s The source string. Length 0 will return an empty array. <code>null</code> will throw an exception.
 	 * @return The decoded array of bytes. May be of length 0.
 	 */
-	public final static byte[] decodeFast(String s)
+	public final static byte[] dedecodeFast(String s)
 	{
 		// Check special case
 		int sLen = s.length();

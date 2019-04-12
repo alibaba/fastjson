@@ -52,19 +52,22 @@ public class CompatibleTest0 extends TestCase {
 
     public void test_5() throws Exception {
         V2 vo = new V2();
-        vo.setF2('中');
+        vo.setF1(0.2f);
+        vo.setF2(33.3);
         assertEquals(toCompatibleJSONString(vo), toJSONLibString(vo));
     }
 
     public void test_6() throws Exception {
         V2 vo = new V2();
         vo.setF1(0.1f);
+        vo.setF2(33.3);
         assertEquals(toCompatibleJSONString(vo), toJSONLibString(vo));
     }
 
     public void test_7() throws Exception {
         V2 vo = new V2();
         vo.setF2(0.1D);
+        vo.setF1(33.3f);
         assertEquals(toCompatibleJSONString(vo), toJSONLibString(vo));
     }
 

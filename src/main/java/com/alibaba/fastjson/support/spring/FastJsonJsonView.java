@@ -1,10 +1,12 @@
 package com.alibaba.fastjson.support.spring;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONPObject;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.util.IOUtils;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.view.AbstractView;
@@ -17,6 +19,7 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Fastjson for Spring MVC View.
@@ -29,10 +32,21 @@ import java.util.Set;
 
 public class FastJsonJsonView extends AbstractView {
 
+
     /**
      * default content type
      */
     public static final String DEFAULT_CONTENT_TYPE = "application/json;charset=UTF-8";
+
+    /**
+     * Default content type for JSONP: "application/javascript".
+     */
+    public static final String DEFAULT_JSONP_CONTENT_TYPE = "application/javascript";
+
+    /**
+     * Pattern for validating jsonp callback parameter values.
+     */
+    private static final Pattern CALLBACK_PARAM_PATTERN = Pattern.compile("[0-9A-Za-z_\\.]*");
 
     @Deprecated
     protected Charset charset = Charset.forName("UTF-8");
@@ -72,6 +86,11 @@ public class FastJsonJsonView extends AbstractView {
     private FastJsonConfig fastJsonConfig = new FastJsonConfig();
 
     /**
+     * jsonp parameter name
+     */
+    private String[] jsonpParameterNames = {"jsonp", "callback"};
+
+    /**
      * Set default param.
      */
     public FastJsonJsonView() {
@@ -96,46 +115,109 @@ public class FastJsonJsonView extends AbstractView {
         this.fastJsonConfig = fastJsonConfig;
     }
 
+    /**
+     * Sets serializer feature.
+     *
+     * @param features the features
+     * @see FastJsonConfig#setSerializerFeatures(SerializerFeature...)
+     * @deprecated
+     */
     @Deprecated
     public void setSerializerFeature(SerializerFeature... features) {
         this.fastJsonConfig.setSerializerFeatures(features);
     }
 
+    /**
+     * Gets charset.
+     *
+     * @return the charset
+     * @see FastJsonConfig#getCharset()
+     * @deprecated
+     */
     @Deprecated
     public Charset getCharset() {
         return this.fastJsonConfig.getCharset();
     }
 
+    /**
+     * Sets charset.
+     *
+     * @param charset the charset
+     * @see FastJsonConfig#setCharset(Charset)
+     * @deprecated
+     */
     @Deprecated
     public void setCharset(Charset charset) {
         this.fastJsonConfig.setCharset(charset);
     }
 
+    /**
+     * Gets date format.
+     *
+     * @return the date format
+     * @see FastJsonConfig#getDateFormat()
+     * @deprecated
+     */
     @Deprecated
     public String getDateFormat() {
         return this.fastJsonConfig.getDateFormat();
     }
 
+    /**
+     * Sets date format.
+     *
+     * @param dateFormat the date format
+     * @see FastJsonConfig#setDateFormat(String)
+     * @deprecated
+     */
     @Deprecated
     public void setDateFormat(String dateFormat) {
         this.fastJsonConfig.setDateFormat(dateFormat);
     }
 
+    /**
+     * Get features serializer feature [].
+     *
+     * @return the serializer feature []
+     * @see FastJsonConfig#getSerializerFeatures()
+     * @deprecated
+     */
     @Deprecated
     public SerializerFeature[] getFeatures() {
         return this.fastJsonConfig.getSerializerFeatures();
     }
 
+    /**
+     * Sets features.
+     *
+     * @param features the features
+     * @see FastJsonConfig#setSerializerFeatures(SerializerFeature...)
+     * @deprecated
+     */
     @Deprecated
     public void setFeatures(SerializerFeature... features) {
         this.fastJsonConfig.setSerializerFeatures(features);
     }
 
+    /**
+     * Get filters serialize filter [].
+     *
+     * @return the serialize filter []
+     * @see FastJsonConfig#getSerializeFilters()
+     * @deprecated
+     */
     @Deprecated
     public SerializeFilter[] getFilters() {
         return this.fastJsonConfig.getSerializeFilters();
     }
 
+    /**
+     * Sets filters.
+     *
+     * @param filters the filters
+     * @see FastJsonConfig#setSerializeFilters(SerializeFilter...)
+     * @deprecated
+     */
     @Deprecated
     public void setFilters(SerializeFilter... filters) {
         this.fastJsonConfig.setSerializeFilters(filters);
@@ -164,16 +246,54 @@ public class FastJsonJsonView extends AbstractView {
      *
      * @param extractValueFromSingleKeyModel
      */
-    public void setExtractValueFromSingleKeyModel(
-            boolean extractValueFromSingleKeyModel) {
+    public void setExtractValueFromSingleKeyModel(boolean extractValueFromSingleKeyModel) {
         this.extractValueFromSingleKeyModel = extractValueFromSingleKeyModel;
     }
+
+    /**
+     * Set JSONP request parameter names. Each time a request has one of those
+     * parameters, the resulting JSON will be wrapped into a function named as
+     * specified by the JSONP request parameter value.
+     * <p>The parameter names configured by default are "jsonp" and "callback".
+     *
+     * @see <a href="http://en.wikipedia.org/wiki/JSONP">JSONP Wikipedia article</a>
+     * @since 4.1
+     */
+    public void setJsonpParameterNames(Set<String> jsonpParameterNames) {
+        Assert.notEmpty(jsonpParameterNames, "jsonpParameterName cannot be empty");
+        this.jsonpParameterNames = jsonpParameterNames.toArray(new String[jsonpParameterNames.size()]);
+    }
+
+
+    private String getJsonpParameterValue(HttpServletRequest request) {
+        if (this.jsonpParameterNames != null) {
+            for (String name : this.jsonpParameterNames) {
+                String value = request.getParameter(name);
+
+                if (IOUtils.isValidJsonpQueryParam(value)) {
+                    return value;
+                }
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Ignoring invalid jsonp parameter value: " + value);
+                }
+            }
+        }
+        return null;
+    }
+
 
     @Override
     protected void renderMergedOutputModel(Map<String, Object> model, //
                                            HttpServletRequest request, //
                                            HttpServletResponse response) throws Exception {
         Object value = filterModel(model);
+        String jsonpParameterValue = getJsonpParameterValue(request);
+        if (jsonpParameterValue != null) {
+            JSONPObject jsonpObject = new JSONPObject(jsonpParameterValue);
+            jsonpObject.addParameter(value);
+            value = jsonpObject;
+        }
 
         ByteArrayOutputStream outnew = new ByteArrayOutputStream();
 
@@ -264,5 +384,15 @@ public class FastJsonJsonView extends AbstractView {
         }
         return result;
     }
+
+    @Override
+    protected void setResponseContentType(HttpServletRequest request, HttpServletResponse response) {
+        if (getJsonpParameterValue(request) != null) {
+            response.setContentType(DEFAULT_JSONP_CONTENT_TYPE);
+        } else {
+            super.setResponseContentType(request, response);
+        }
+    }
+
 
 }

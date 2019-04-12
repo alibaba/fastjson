@@ -12,20 +12,18 @@ import junit.framework.TestCase;
 public class JSONCreatorTest4 extends TestCase {
 
     public void test_create_error() throws Exception {
-        Exception error = null;
-        try {
-            JSON.parseObject("{\"id\":1001,\"name\":\"wenshao\",\"obj\":{\"$ref\":\"$\"}}", Entity.class);
-        } catch (JSONException ex) {
-            error = ex;
-        }
-        Assert.assertNotNull(error);
+        Entity entity = JSON.parseObject("{\"id\":1001,\"name\":\"wenshao\",\"obj\":{\"$ref\":\"$\"}}", Entity.class);
+        assertNotNull(entity);
+        assertEquals(1001, entity.id);
+        assertEquals("wenshao", entity.name);
+        assertSame(entity, entity.obj);
     }
 
     public static class Entity {
 
         private final int    id;
         private final String name;
-        private final Entity obj;
+        private Entity obj;
 
         @JSONCreator
         public Entity(@JSONField(name = "id") int id, @JSONField(name = "name") String name,
@@ -47,6 +45,9 @@ public class JSONCreatorTest4 extends TestCase {
             return obj;
         }
 
+        public void setObj(Entity obj) {
+            this.obj = obj;
+        }
     }
 
 }

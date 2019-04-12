@@ -2,6 +2,7 @@ package com.alibaba.json.bvt;
 
 import java.math.BigInteger;
 
+import com.alibaba.fastjson.JSON;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -36,5 +37,8 @@ public class JSONArrayTest2 extends TestCase {
         Assert.assertEquals(new java.sql.Date(time), array2.getSqlDate(2));
         Assert.assertEquals(new java.sql.Timestamp(time), array2.getTimestamp(2));
         Assert.assertEquals(array2.size(), array2.size());
+
+        JSON.parseArray("//arplatform.alicdn.com/images/874/1504512065305.png");
+        JSON.parseArray("//arplatform.alicdn.com/images/874/1504512065305.png");
     }
 }

@@ -3,6 +3,7 @@ package com.alibaba.json.bvt.serializer;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.alibaba.fastjson.parser.Feature;
 import junit.framework.TestCase;
 
 import org.junit.Assert;
@@ -46,5 +47,28 @@ public class NoneStringKeyTest extends TestCase {
         map.put(null, 101);
 
         Assert.assertEquals("{\"null\":101}", JSON.toJSONString(map, SerializerFeature.WriteNonStringKeyAsString));
+    }
+
+    public void test_4() throws Exception {
+        SubjectDTO dto = new SubjectDTO();
+        dto.getResults().put(3, new Result());
+
+        String json = JSON.toJSONString(dto);
+        assertEquals("{\"results\":{3:{}}}", json);
+
+        SubjectDTO dto2 = JSON.parseObject(json, SubjectDTO.class, Feature.NonStringKeyAsString);
+        System.out.println(JSON.toJSONString(dto2.getResults()));
+    }
+
+    public static class Result {
+
+    }
+
+    public static class SubjectDTO {
+        private Map<Integer, Result> results = new HashMap<Integer, Result>();
+
+        public Map<Integer, Result> getResults() {
+            return results;
+        }
     }
 }

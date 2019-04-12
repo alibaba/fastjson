@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2017 Alibaba Group.
+ * Copyright 1999-2018 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,12 +95,12 @@ public class ObjectArrayCodec implements ObjectSerializer, ObjectDeserializer {
                         Class<?> clazz = item.getClass();
 
                         if (clazz == preClazz) {
-                            preWriter.write(serializer, item, null, null, 0);
+                            preWriter.write(serializer, item, i, null, 0);
                         } else {
                             preClazz = clazz;
                             preWriter = serializer.getObjectWriter(clazz);
 
-                            preWriter.write(serializer, item, null, null, 0);
+                            preWriter.write(serializer, item, i, null, 0);
                         }
                     }
                     out.append(',');
@@ -127,14 +127,20 @@ public class ObjectArrayCodec implements ObjectSerializer, ObjectDeserializer {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         final JSONLexer lexer = parser.lexer;
-        if (lexer.token() == JSONToken.NULL) {
+        int token = lexer.token();
+        if (token == JSONToken.NULL) {
             lexer.nextToken(JSONToken.COMMA);
             return null;
         }
 
-        if (lexer.token() == JSONToken.LITERAL_STRING) {
+        if (token == JSONToken.LITERAL_STRING || token == JSONToken.HEX) {
             byte[] bytes = lexer.bytesValue();
             lexer.nextToken(JSONToken.COMMA);
+
+            if (bytes.length == 0 && type != byte[].class) {
+                return null;
+            }
+
             return (T) bytes;
         }
 

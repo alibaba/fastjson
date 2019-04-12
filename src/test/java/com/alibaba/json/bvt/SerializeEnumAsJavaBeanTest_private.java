@@ -21,6 +21,14 @@ public class SerializeEnumAsJavaBeanTest_private extends TestCase {
         assertEquals("{\"orderType\":{\"remark\":\"结算单\",\"value\":2}}", text);
     }
 
+    public void test_field_2() throws Exception {
+        Model model = new Model();
+        model.orderType = OrderType.SettleBill;
+        model.orderType1 = OrderType.SettleBill;
+        String text = JSON.toJSONString(model);
+        assertEquals("{\"orderType\":{\"remark\":\"结算单\",\"value\":2},\"orderType1\":{\"remark\":\"结算单\",\"value\":2}}", text);
+    }
+
     @JSONType(serializeEnumAsJavaBean = true)
     private static enum OrderType {
         PayOrder(1, "支付订单"), //
@@ -37,5 +45,6 @@ public class SerializeEnumAsJavaBeanTest_private extends TestCase {
 
     private static class Model {
         public OrderType orderType;
+        public OrderType orderType1;
     }
 }

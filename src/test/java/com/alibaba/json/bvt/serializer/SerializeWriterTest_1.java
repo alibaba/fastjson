@@ -50,7 +50,7 @@ public class SerializeWriterTest_1 extends TestCase {
     
     public void test_null () throws Exception {
         SerializeWriter out = new SerializeWriter(1);
-        out.writeString(null);
+        out.writeString((String) null);
         Assert.assertEquals("null", new String(out.toBytes("UTF-16"), "UTF-16"));
     }
 }

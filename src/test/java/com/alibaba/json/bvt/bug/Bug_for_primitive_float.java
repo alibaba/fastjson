@@ -27,7 +27,7 @@ public class Bug_for_primitive_float extends TestCase {
         }
 
         public void setValue(float value) {
-            throw new UnsupportedOperationException();
+            this.value = value;
         }
 
     }

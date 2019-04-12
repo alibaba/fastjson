@@ -59,7 +59,7 @@ public class StringSerializerTest extends TestCase {
 		SerializeWriter out = new SerializeWriter();
 		out.config(SerializerFeature.UseSingleQuotes, true);
 
-		out.writeString(null);
+		out.writeString((String) null);
 		Assert.assertEquals("null", out.toString());
 	}
 
@@ -67,7 +67,7 @@ public class StringSerializerTest extends TestCase {
 		SerializeWriter out = new SerializeWriter();
 		out.config(SerializerFeature.UseSingleQuotes, true);
 
-		out.writeString(null);
+		out.writeString((String) null);
 		Assert.assertEquals("null", out.toString());
 	}
 
@@ -75,7 +75,7 @@ public class StringSerializerTest extends TestCase {
 		SerializeWriter out = new SerializeWriter(1);
 		out.config(SerializerFeature.UseSingleQuotes, true);
 
-		out.writeString(null);
+		out.writeString((String) null);
 		Assert.assertEquals("null", out.toString());
 	}
 
@@ -83,7 +83,7 @@ public class StringSerializerTest extends TestCase {
 		SerializeWriter out = new SerializeWriter(1);
 		out.config(SerializerFeature.UseSingleQuotes, true);
 
-		out.writeString(null);
+		out.writeString((String) null);
 		Assert.assertEquals("null", out.toString());
 	}
 

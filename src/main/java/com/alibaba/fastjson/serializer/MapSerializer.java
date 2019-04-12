@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2017 Alibaba Group.
+ * Copyright 1999-2018 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 
@@ -28,6 +29,12 @@ import com.alibaba.fastjson.JSONObject;
 public class MapSerializer extends SerializeFilterable implements ObjectSerializer {
 
     public static MapSerializer instance = new MapSerializer();
+
+    private static final int NON_STRINGKEY_AS_STRING = SerializerFeature.of(
+            new SerializerFeature[] {
+                    SerializerFeature.BrowserCompatible,
+                    SerializerFeature.WriteNonStringKeyAsString,
+                    SerializerFeature.BrowserSecure});
 
     public void write(JSONSerializer serializer
             , Object object
@@ -54,6 +61,10 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
         Map<?, ?> map = (Map<?, ?>) object;
         final int mapSortFieldMask = SerializerFeature.MapSortField.mask;
         if ((out.features & mapSortFieldMask) != 0 || (features & mapSortFieldMask) != 0) {
+            if (map instanceof JSONObject) {
+                map = ((JSONObject) map).getInnerMap();
+            }
+
             if ((!(map instanceof SortedMap)) && !(map instanceof LinkedHashMap)) {
                 try {
                     map = new TreeMap(map);
@@ -183,28 +194,13 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                         }
                     }
                 }
-                
+
                 {
-                    List<ValueFilter> valueFilters = serializer.valueFilters;
-                    List<ContextValueFilter> contextValueFilters = this.contextValueFilters;
-                    if ((valueFilters != null && valueFilters.size() > 0) //
-                        || (contextValueFilters != null && contextValueFilters.size() > 0)) {
-                        if (entryKey == null || entryKey instanceof String) {
-                            value = this.processValue(serializer, null, object, (String) entryKey, value);
-                        } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
-                            String strKey = JSON.toJSONString(entryKey);
-                            value = this.processValue(serializer, null, object, strKey, value);
-                        }
-                    }
-                }
-                {
-                    List<ValueFilter> valueFilters = this.valueFilters;
-                    List<ContextValueFilter> contextValueFilters = this.contextValueFilters;
-                    if ((valueFilters != null && valueFilters.size() > 0) //
-                        || (contextValueFilters != null && contextValueFilters.size() > 0)) {
-                        if (entryKey == null || entryKey instanceof String) {
-                            value = this.processValue(serializer, null, object, (String) entryKey, value);
-                        } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
+                    if (entryKey == null || entryKey instanceof String) {
+                        value = this.processValue(serializer, null, object, (String) entryKey, value);
+                    } else {
+                        boolean objectOrArray = entryKey instanceof Map || entryKey instanceof Collection;
+                        if (!objectOrArray) {
                             String strKey = JSON.toJSONString(entryKey);
                             value = this.processValue(serializer, null, object, strKey, value);
                         }
@@ -212,7 +208,7 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                 }
 
                 if (value == null) {
-                    if (!out.isEnabled(SerializerFeature.WRITE_MAP_NULL_FEATURES)) {
+                    if (!out.isEnabled(SerializerFeature.WriteMapNullValue)) {
                         continue;
                     }
                 }
@@ -233,9 +229,7 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                         out.write(',');
                     }
 
-                    if (out.isEnabled(SerializerFeature.BrowserCompatible)
-                        || out.isEnabled(SerializerFeature.WriteNonStringKeyAsString)
-                        || out.isEnabled(SerializerFeature.BrowserSecure)) {
+                    if (out.isEnabled(NON_STRINGKEY_AS_STRING) && !(entryKey instanceof Enum)) {
                         String strEntryKey = JSON.toJSONString(entryKey);
                         serializer.write(strEntryKey);
                     } else {
@@ -254,13 +248,26 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
 
                 Class<?> clazz = value.getClass();
 
-                if (clazz == preClazz) {
-                    preWriter.write(serializer, value, entryKey, null, 0);
-                } else {
+                if (clazz != preClazz) {
                     preClazz = clazz;
                     preWriter = serializer.getObjectWriter(clazz);
+                }
 
-                    preWriter.write(serializer, value, entryKey, null, 0);
+                if (SerializerFeature.isEnabled(features, SerializerFeature.WriteClassName)
+                        && preWriter instanceof JavaBeanSerializer) {
+                    Type valueType = null;
+                    if (fieldType instanceof ParameterizedType) {
+                        ParameterizedType parameterizedType = (ParameterizedType) fieldType;
+                        Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+                        if (actualTypeArguments.length == 2) {
+                            valueType = actualTypeArguments[1];
+                        }
+                    }
+
+                    JavaBeanSerializer javaBeanSerializer = (JavaBeanSerializer) preWriter;
+                    javaBeanSerializer.writeNoneASM(serializer, value, entryKey, valueType, features);
+                } else {
+                    preWriter.write(serializer, value, entryKey, null, features);
                 }
             }
         } finally {

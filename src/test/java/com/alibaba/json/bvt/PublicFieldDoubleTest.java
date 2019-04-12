@@ -22,4 +22,8 @@ public class PublicFieldDoubleTest extends TestCase {
         
         Assert.assertTrue(vo1.id == vo.id);
     }
+
+    public void test_nan() throws Exception {
+        JSON.parseObject("{\"id\":NaN}", VO.class);
+    }
 }

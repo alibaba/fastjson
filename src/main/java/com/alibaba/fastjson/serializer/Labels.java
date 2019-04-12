@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2017 Alibaba Group.
+ * Copyright 1999-2018 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ public class Labels {
 
         public boolean apply(String label) {
             if (excludes != null) {
-                return Arrays.binarySearch(excludes, label) == -1;
+                return Arrays.binarySearch(excludes, label) < 0;
             }
 
             return includes != null // 

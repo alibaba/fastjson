@@ -37,35 +37,25 @@ import com.alibaba.fastjson.JSONException;
  */
 public class IOUtils {
     
-    public  final  static String FASTJSON_PROPERTIES  ="fastjson.properties";
-    
-    public final static String FASTJSON_COMPATIBLEWITHJAVABEAN="fastjson.compatibleWithJavaBean";
-    
-    public final static String FASTJSON_COMPATIBLEWITHFIELDNAME="fastjson.compatibleWithFieldName";
-    
-    public final static Properties DEFAULT_PROPERTIES =new Properties();    
-
-    public final static Charset   UTF8                 = Charset.forName("UTF-8");
-    
-    public final static char[]    DIGITS                     = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A',
-            'B', 'C', 'D', 'E', 'F'                         };
-
-    public final static boolean[] firstIdentifierFlags       = new boolean[256];
+    public final static String     FASTJSON_PROPERTIES              = "fastjson.properties";
+    public final static String     FASTJSON_COMPATIBLEWITHJAVABEAN  = "fastjson.compatibleWithJavaBean";
+    public final static String     FASTJSON_COMPATIBLEWITHFIELDNAME = "fastjson.compatibleWithFieldName";
+    public final static Properties DEFAULT_PROPERTIES               = new Properties();
+    public final static Charset    UTF8                             = Charset.forName("UTF-8");
+    public final static char[]     DIGITS                           = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+    public final static boolean[]  firstIdentifierFlags             = new boolean[256];
+    public final static boolean[]  identifierFlags                  = new boolean[256];
     static {
         for (char c = 0; c < firstIdentifierFlags.length; ++c) {
             if (c >= 'A' && c <= 'Z') {
                 firstIdentifierFlags[c] = true;
             } else if (c >= 'a' && c <= 'z') {
                 firstIdentifierFlags[c] = true;
-            } else if (c == '_') {
+            } else if (c == '_' || c == '$') {
                 firstIdentifierFlags[c] = true;
             }
         }
-    }
 
-    public final static boolean[] identifierFlags            = new boolean[256];
-
-    static {
         for (char c = 0; c < identifierFlags.length; ++c) {
             if (c >= 'A' && c <= 'Z') {
                 identifierFlags[c] = true;
@@ -77,9 +67,7 @@ public class IOUtils {
                 identifierFlags[c] = true;
             }
         }
-    }
-    
-    static {
+
         try {
             loadPropertiesFromFile();
         } catch (Throwable e) {
@@ -275,8 +263,7 @@ public class IOUtils {
      * backwards from there. Will fail if i == Integer.MIN_VALUE
      */
     public static void getChars(int i, int index, char[] buf) {
-        int q, r;
-        int charPos = index;
+        int q, r, p = index;
         char sign = 0;
 
         if (i < 0) {
@@ -284,14 +271,13 @@ public class IOUtils {
             i = -i;
         }
 
-        // Generate two digits per iteration
         while (i >= 65536) {
             q = i / 100;
             // really: r = i - (q * 100);
             r = i - ((q << 6) + (q << 5) + (q << 2));
             i = q;
-            buf[--charPos] = DigitOnes[r];
-            buf[--charPos] = DigitTens[r];
+            buf[--p] = DigitOnes[r];
+            buf[--p] = DigitTens[r];
         }
 
         // Fall thru to fast mode for smaller numbers
@@ -299,12 +285,12 @@ public class IOUtils {
         for (;;) {
             q = (i * 52429) >>> (16 + 3);
             r = i - ((q << 3) + (q << 1)); // r = i-(q*10) ...
-            buf[--charPos] = digits[r];
+            buf[--p] = digits[r];
             i = q;
             if (i == 0) break;
         }
         if (sign != 0) {
-            buf[--charPos] = sign;
+            buf[--p] = sign;
         }
     }
 
@@ -406,7 +392,8 @@ public class IOUtils {
      * + Line separator must be "\r\n", as specified in RFC 2045 + The array must not contain illegal characters within
      * the encoded string<br>
      * + The array CAN have illegal characters at the beginning and end, those will be dealt with appropriately.<br>
-     * 
+     *
+     * @author Mikael Grev Date: 2004-aug-02 Time: 11:31:11
      * @param chars The source array. Length 0 will return an empty array. <code>null</code> will throw an exception.
      * @return The decoded array of bytes. May be of length 0.
      */
@@ -464,7 +451,10 @@ public class IOUtils {
 
         return bytes;
     }
-    
+
+    /**
+     * @author Mikael Grev Date: 2004-aug-02 Time: 11:31:11
+     */
     public static byte[] decodeBase64(String chars, int offset, int charsLen) {
         // Check special case
         if (charsLen == 0) {
@@ -493,7 +483,10 @@ public class IOUtils {
         int d = 0;
         for (int cc = 0, eLen = (len / 3) * 3; d < eLen;) {
             // Assemble three bytes into an int from four "valid" characters.
-            int i = IA[chars.charAt(sIx++)] << 18 | IA[chars.charAt(sIx++)] << 12 | IA[chars.charAt(sIx++)] << 6 | IA[chars.charAt(sIx++)];
+            int i = IA[chars.charAt(sIx++)] << 18
+                    | IA[chars.charAt(sIx++)] << 12
+                    | IA[chars.charAt(sIx++)] << 6
+                    | IA[chars.charAt(sIx++)];
 
             // Add the bytes
             bytes[d++] = (byte) (i >> 16);
@@ -527,7 +520,8 @@ public class IOUtils {
      * + Line separator must be "\r\n", as specified in RFC 2045 + The array must not contain illegal characters within
      * the encoded string<br>
      * + The array CAN have illegal characters at the beginning and end, those will be dealt with appropriately.<br>
-     * 
+     *
+     * @author Mikael Grev Date: 2004-aug-02 Time: 11:31:11
      * @param s The source string. Length 0 will return an empty array. <code>null</code> will throw an exception.
      * @return The decoded array of bytes. May be of length 0.
      */
@@ -588,66 +582,75 @@ public class IOUtils {
         return dArr;
     }
     
-    public static int encodeUTF8(char[] sa, int sp, int len, byte[] da) {
-        int sl = sp + len;
+    public static int encodeUTF8(char[] chars, int offset, int len, byte[] bytes) {
+        int sl = offset + len;
         int dp = 0;
-        int dlASCII = dp + Math.min(len, da.length);
+        int dlASCII = dp + Math.min(len, bytes.length);
 
         // ASCII only optimized loop
-        while (dp < dlASCII && sa[sp] < '\u0080') {
-            da[dp++] = (byte) sa[sp++];
+        while (dp < dlASCII && chars[offset] < '\u0080') {
+            bytes[dp++] = (byte) chars[offset++];
         }
 
-        while (sp < sl) {
-            char c = sa[sp++];
+        while (offset < sl) {
+            char c = chars[offset++];
             if (c < 0x80) {
                 // Have at most seven bits
-                da[dp++] = (byte) c;
+                bytes[dp++] = (byte) c;
             } else if (c < 0x800) {
                 // 2 bytes, 11 bits
-                da[dp++] = (byte) (0xc0 | (c >> 6));
-                da[dp++] = (byte) (0x80 | (c & 0x3f));
+                bytes[dp++] = (byte) (0xc0 | (c >> 6));
+                bytes[dp++] = (byte) (0x80 | (c & 0x3f));
             } else if (c >= '\uD800' && c < ('\uDFFF' + 1)) { //Character.isSurrogate(c) but 1.7
                 final int uc;
-                int ip = sp - 1;
-                if (Character.isHighSurrogate(c)) {
+                int ip = offset - 1;
+                if (c >= '\uD800' && c < ('\uDBFF' + 1)) { // Character.isHighSurrogate(c)
                     if (sl - ip < 2) {
                         uc = -1;
                     } else {
-                        char d = sa[ip + 1];
-                        if (Character.isLowSurrogate(d)) {
-                            uc = Character.toCodePoint(c, d);
+                        char d = chars[ip + 1];
+                        // d >= '\uDC00' && d < ('\uDFFF' + 1)
+                        if (d >= '\uDC00' && d < ('\uDFFF' + 1)) { // Character.isLowSurrogate(d)
+                            uc = ((c << 10) + d) + (0x010000 - ('\uD800' << 10) - '\uDC00'); // Character.toCodePoint(c, d)
                         } else {
-                            throw new JSONException("encodeUTF8 error", new MalformedInputException(1));
+//                            throw new JSONException("encodeUTF8 error", new MalformedInputException(1));
+                            bytes[dp++] = (byte) '?';
+                            continue;
                         }
                     }
                 } else {
-                    if (Character.isLowSurrogate(c)) {
-                        throw new JSONException("encodeUTF8 error", new MalformedInputException(1));
+                    //
+                    if (c >= '\uDC00' && c < ('\uDFFF' + 1)) { // Character.isLowSurrogate(c)
+                        bytes[dp++] = (byte) '?';
+                        continue;
+//                        throw new JSONException("encodeUTF8 error", new MalformedInputException(1));
                     } else {
                         uc = c;
                     }
                 }
                 
                 if (uc < 0) {
-                    da[dp++] = (byte) '?';
+                    bytes[dp++] = (byte) '?';
                 } else {
-                    da[dp++] = (byte) (0xf0 | ((uc >> 18)));
-                    da[dp++] = (byte) (0x80 | ((uc >> 12) & 0x3f));
-                    da[dp++] = (byte) (0x80 | ((uc >> 6) & 0x3f));
-                    da[dp++] = (byte) (0x80 | (uc & 0x3f));
-                    sp++; // 2 chars
+                    bytes[dp++] = (byte) (0xf0 | ((uc >> 18)));
+                    bytes[dp++] = (byte) (0x80 | ((uc >> 12) & 0x3f));
+                    bytes[dp++] = (byte) (0x80 | ((uc >> 6) & 0x3f));
+                    bytes[dp++] = (byte) (0x80 | (uc & 0x3f));
+                    offset++; // 2 chars
                 }
             } else {
                 // 3 bytes, 16 bits
-                da[dp++] = (byte) (0xe0 | ((c >> 12)));
-                da[dp++] = (byte) (0x80 | ((c >> 6) & 0x3f));
-                da[dp++] = (byte) (0x80 | (c & 0x3f));
+                bytes[dp++] = (byte) (0xe0 | ((c >> 12)));
+                bytes[dp++] = (byte) (0x80 | ((c >> 6) & 0x3f));
+                bytes[dp++] = (byte) (0x80 | (c & 0x3f));
             }
         }
         return dp;
     }
-    
+
+    /**
+     * @deprecated
+     */
     public static int decodeUTF8(byte[] sa, int sp, int len, char[] da) {
         final int sl = sp + len;
         int dp = 0;
@@ -692,7 +695,7 @@ public class IOUtils {
                                           (((byte) 0xE0 << 12) ^
                                           ((byte) 0x80 <<  6) ^
                                           ((byte) 0x80 <<  0))));
-                        boolean isSurrogate =  c >= Character.MIN_SURROGATE && c < (Character.MAX_SURROGATE + 1);
+                        boolean isSurrogate = c >= '\uD800' && c < ('\uDFFF' + 1);
                         if (isSurrogate) {
                             return -1;
                         } else {
@@ -719,11 +722,12 @@ public class IOUtils {
                     if (((b2 & 0xc0) != 0x80 || (b3 & 0xc0) != 0x80 || (b4 & 0xc0) != 0x80) // isMalformed4
                         ||
                         // shortest form check
-                        !Character.isSupplementaryCodePoint(uc)) {
+                        !(uc >= 0x010000 && uc <  0X10FFFF + 1) // !Character.isSupplementaryCodePoint(uc)
+                    ) {
                         return -1;
                     } else {
-                        da[dp++] =  (char) ((uc >>> 10) + (Character.MIN_HIGH_SURROGATE - (Character.MIN_SUPPLEMENTARY_CODE_POINT >>> 10))); // Character.highSurrogate(uc);
-                        da[dp++] = (char) ((uc & 0x3ff) + Character.MIN_LOW_SURROGATE); // Character.lowSurrogate(uc);
+                        da[dp++] =  (char) ((uc >>> 10) + ('\uD800' - (0x010000 >>> 10))); // Character.highSurrogate(uc);
+                        da[dp++] = (char) ((uc & 0x3ff) + '\uDC00'); // Character.lowSurrogate(uc);
                     }
                     continue;
                 }
@@ -756,4 +760,20 @@ public class IOUtils {
 
         return buf.toString();
     }
+
+    public static boolean isValidJsonpQueryParam(String value){
+        if (value == null || value.length() == 0) {
+            return false;
+        }
+
+        for (int i = 0, len = value.length(); i < len; ++i) {
+            char ch = value.charAt(i);
+            if(ch != '.' && !IOUtils.isIdent(ch)){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 }

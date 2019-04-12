@@ -49,7 +49,10 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
     @SuppressWarnings("rawtypes")
     @Override
     public void parseField(DefaultJSONParser parser, Object object, Type objectType, Map<String, Object> fieldValues) {
-        if (parser.lexer.token() == JSONToken.NULL) {
+        JSONLexer lexer = parser.lexer;
+        final int token = lexer.token();
+        if (token == JSONToken.NULL
+                || (token == JSONToken.LITERAL_STRING && lexer.stringVal().length() == 0)) {
             setValue(object, null);
             return;
         }
@@ -131,11 +134,27 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
                     }
                 }
             }
+        } else if (itemType instanceof TypeVariable && objectType instanceof Class) {
+            Class objectClass = (Class) objectType;
+            TypeVariable typeVar = (TypeVariable) itemType;
+            objectClass.getTypeParameters();
+
+            for (int i = 0, size = objectClass.getTypeParameters().length; i < size; ++i) {
+                TypeVariable item = objectClass.getTypeParameters()[i];
+                if (item.getName().equals(typeVar.getName())) {
+                    Type[] bounds = item.getBounds();
+                    if (bounds.length == 1) {
+                        itemType = bounds[0];
+                    }
+                    break;
+                }
+            }
         }
 
         final JSONLexer lexer = parser.lexer;
 
-        if (lexer.token() == JSONToken.LBRACKET) {
+        final int token = lexer.token();
+        if (token == JSONToken.LBRACKET) {
             if (itemTypeDeser == null) {
                 itemTypeDeser = deserializer = parser.getConfig().getDeserializer(itemType);
                 itemFastMatchToken = deserializer.getFastMatchToken();

@@ -1,7 +1,6 @@
 package com.alibaba.json.test;
 
 import junit.framework.TestCase;
-import org.omg.CosNaming.NamingContextExtPackage.StringNameHelper;
 
 import java.text.NumberFormat;
 import java.util.Random;

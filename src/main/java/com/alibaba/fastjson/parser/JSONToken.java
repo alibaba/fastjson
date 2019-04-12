@@ -68,6 +68,7 @@ public class JSONToken {
 
     public final static int SEMI                 = 24;
     public final static int DOT                  = 25;
+    public final static int HEX                  = 26;
 
     public static String name(int value) {
         switch (value) {
@@ -121,6 +122,8 @@ public class JSONToken {
                 return "TreeSet";
             case UNDEFINED:
                 return "undefined";
+            case HEX:
+                return "hex";
             default:
                 return "Unknown";
         }

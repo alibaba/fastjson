@@ -38,14 +38,9 @@ public class EnumFieldTest extends TestCase {
     }
 
     public void test_error() throws Exception {
-        Exception error = null;
-        try {
-            JSONReader read = new JSONReader(new StringReader("{\"value\":\"a\\b\"}"));
-            read.readObject(Model.class);
-        } catch (JSONException ex) {
-            error = ex;
-        }
-        Assert.assertNotNull(error);
+        JSONReader read = new JSONReader(new StringReader("{\"value\":\"a\\b\"}"));
+        Model model = read.readObject(Model.class);
+        assertNull(model.value);
     }
     
     public void test_error_1() throws Exception {

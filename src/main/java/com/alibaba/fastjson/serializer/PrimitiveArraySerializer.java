@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2017 Alibaba Group.
+ * Copyright 1999-2018 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -131,6 +131,6 @@ public class PrimitiveArraySerializer implements ObjectSerializer {
         }
         
         char[] chars = (char[]) object;
-        out.writeString(new String(chars));
+        out.writeString(chars);
     }
 }

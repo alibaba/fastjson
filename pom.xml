@@ -192,7 +192,7 @@
             <plugin>
                 <groupId>io.realm</groupId>
                 <artifactId>realm-gradle-plugin</artifactId>
-                <version>4.1.0</version>
+                <version>5.1.0</version>
             </plugin>		
         </plugins>
     </build>
@@ -558,7 +558,7 @@
         <dependency>
             <groupId>io.realm</groupId>
             <artifactId>realm-android-library</artifactId>
-            <version>4.1.0</version>
+            <version>5.1.0</version>
             <scope>test</scope>
         </dependency>
 

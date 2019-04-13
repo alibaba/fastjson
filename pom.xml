@@ -99,11 +99,6 @@
 						<artifactId>plexus-compiler-javac</artifactId>
 						<version>2.7</version>
 					</dependency>
-					<dependency>
-						<groupId>io.realm</groupId>
-						<artifactId>realm-android-library</artifactId>
-						<version>5.1.0</version>
-					</dependency>
 				</dependencies>
 			</plugin>
 			<!--
@@ -552,6 +547,12 @@
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-generator-annprocess</artifactId>
             <version>1.21</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.realm</groupId>
+            <artifactId>realm-android-library</artifactId>
+            <version>4.1.0</version>
             <scope>test</scope>
         </dependency>
 

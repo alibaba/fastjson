@@ -312,7 +312,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             array = null;
         } else {
             array = new JSONArray();
-            parser.parseArray(array);
+            parser.parseArray(array, null);
 
             parser.handleResovleTask(array);
         }

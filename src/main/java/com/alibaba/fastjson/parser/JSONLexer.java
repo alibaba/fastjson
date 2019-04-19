@@ -1475,19 +1475,26 @@ public final class JSONLexer {
         }
 
         long longValue = 0;
-        for (;;) {
+        int precision = 1;
+        for (;;++precision) {
             if (ch >= '0'//
                 && ch <= '9') {
                 int digit = (ch - '0');
-                if (longValue < -922337203685477580L) { // Long.MIN_VALUE / 10
-                    overflow = true;
-                }
 
-                longValue *= 10;
-                if (longValue < limit + digit) {
-                    overflow = true;
+                if (precision < 18) {
+                    longValue = longValue * 10 - digit;
+                } else {
+                    if (longValue < -922337203685477580L) { // Long.MIN_VALUE / 10
+                        overflow = true;
+                    }
+
+                    longValue *= 10;
+                    if (longValue < limit + digit
+                    ) {
+                        overflow = true;
+                    }
+                    longValue -= digit;
                 }
-                longValue -= digit;
             } else {
                 break;
             }
@@ -1502,33 +1509,10 @@ public final class JSONLexer {
             }
         }
 
-        if (!negative) {
-            longValue = -longValue;
-        }
 
-        if (ch == 'L') {
-            np++;
-            next();
-            number = longValue;
-        } else if (ch == 'S') {
-            np++;
-            next();
-            number = (short) longValue;
-        } else if (ch == 'B') {
-            np++;
-            next();
-            number = (byte) longValue;
-        } else if (ch == 'F') {
-            np++;
-            next();
-            number = (float) longValue;
-        } else if (ch == 'D') {
-            np++;
-            next();
-            number = (double) longValue;
-        }
 
         boolean isDouble = false, exp = false;
+        int scale = 0;
         if (ch == '.') {
             isDouble = true;
 
@@ -1541,9 +1525,26 @@ public final class JSONLexer {
                     : text.charAt(index));
             }
 
-            for (;;) {
+            for (;;precision++) {
                 if (ch >= '0'//
                     && ch <= '9') {
+                    scale++;
+                    int digit = (ch - '0');
+
+                    if (precision < 18) {
+                        longValue = longValue * 10 - digit;
+                    } else {
+                        if (longValue < -922337203685477580L) { // Long.MIN_VALUE / 10
+                            overflow = true;
+                        }
+
+                        longValue *= 10;
+                        if (longValue < limit + digit) {
+                            overflow = true;
+                        }
+                        longValue -= digit;
+                    }
+
                     np++;
                 } else {
                     break;
@@ -1555,6 +1556,36 @@ public final class JSONLexer {
                         EOI //
                         : text.charAt(index));
                 }
+            }
+
+            if (!negative) {
+                longValue = -longValue;
+            }
+        } else {
+            if (!negative) {
+                longValue = -longValue;
+            }
+
+            if (ch == 'L') {
+                np++;
+                next();
+                number = longValue;
+            } else if (ch == 'S') {
+                np++;
+                next();
+                number = (short) longValue;
+            } else if (ch == 'B') {
+                np++;
+                next();
+                number = (byte) longValue;
+            } else if (ch == 'F') {
+                np++;
+                next();
+                number = (float) longValue;
+            } else if (ch == 'D') {
+                np++;
+                next();
+                number = (double) longValue;
             }
         }
 
@@ -1633,20 +1664,33 @@ public final class JSONLexer {
         }
 
         char[] chars;
-        if (len < sbuf.length) {
-            text.getChars(start, start + len, sbuf, 0);
-            chars = sbuf;
-        } else {
-            chars = new char[len];
-            text.getChars(start, start + len, chars, 0);
-        }
+
 
         // text.getChars(start, start + len, chars, 0);
 
         if ((!exp)//
             && (features & Feature.UseBigDecimal.mask) != 0) {
-            number = new BigDecimal(chars, 0, len);
+            if (!overflow) {
+                number = BigDecimal.valueOf(longValue, scale);
+            } else {
+                if (len < sbuf.length) {
+                    text.getChars(start, start + len, sbuf, 0);
+                    chars = sbuf;
+                } else {
+                    chars = new char[len];
+                    text.getChars(start, start + len, chars, 0);
+                }
+
+                number = new BigDecimal(chars, 0, len);
+            }
         } else {
+            if (len < sbuf.length) {
+                text.getChars(start, start + len, sbuf, 0);
+                chars = sbuf;
+            } else {
+                chars = new char[len];
+                text.getChars(start, start + len, chars, 0);
+            }
 
             try {
                 if (len <= 9 && !exp) {

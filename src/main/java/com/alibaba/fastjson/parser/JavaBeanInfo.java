@@ -31,6 +31,7 @@ class JavaBeanInfo {
     
     public final String  typeName;
     public final String  typeKey;
+    public final long    typeKeyHashCode;
 
     public final int     parserFeatures;
     public final String[] creatorConstructorParameters;
@@ -72,6 +73,11 @@ class JavaBeanInfo {
         } else {
             this.typeName = clazz.getName();
             this.typeKey = null;
+        }
+        if (typeKey == null) {
+            this.typeKeyHashCode = 0L;
+        } else {
+            this.typeKeyHashCode = TypeUtils.fnv_64_lower(typeKey);
         }
         this.parserFeatures = parserFeatures;
         

@@ -688,7 +688,9 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                                 typedObject = javaBeanDeserializer.deserialze(parser, userType, fieldName, null);
                                 if (typeKey != null) {
                                     FieldDeserializer typeKeyFieldDeser = javaBeanDeserializer.getFieldDeserializer(typeKey);
-                                    typeKeyFieldDeser.setValue(typedObject, typeName);
+                                    if (typeKeyFieldDeser != null) {
+                                        typeKeyFieldDeser.setValue(typedObject, typeName);
+                                    }
                                 }
                             } else {
                                 typedObject = deserizer.deserialze(parser, userType, fieldName);
@@ -1100,7 +1102,14 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             field.setDouble(object, ((Number) value).doubleValue());
                             continue;
                         } else if (value instanceof String) {
-                            double doubleValue = Double.parseDouble((String) value);
+                            String strVal = (String) value;
+                            double doubleValue;
+                            if (strVal.length() <= 10) {
+                                doubleValue = TypeUtils.parseDouble(strVal);
+                            } else {
+                                doubleValue = Double.parseDouble(strVal);
+                            }
+
                             field.setDouble(object, doubleValue);
                             continue;
                         }

@@ -1811,6 +1811,69 @@ public class TypeUtils {
         return Double.parseDouble(str);
     }
 
+    public static float parseFloat(String str) {
+        final int len = str.length();
+        if (len >= 10) {
+            return Float.parseFloat(str);
+        }
+
+        boolean negative = false;
+
+        long longValue = 0;
+        int scale = 0;
+        for (int i = 0; i < len; ++i) {
+            char ch = str.charAt(i);
+            if (ch == '-' && i == 0) {
+                negative = true;
+                continue;
+            }
+
+            if (ch == '.') {
+                if (scale != 0) {
+                    return Float.parseFloat(str);
+                }
+                scale = len - i - 1;
+                continue;
+            }
+
+            if (ch >= '0' && ch <= '9') {
+                int digit = ch - '0';
+                longValue = longValue * 10 + digit;
+            } else {
+                return Float.parseFloat(str);
+            }
+        }
+
+        if (negative) {
+            longValue = -longValue;
+        }
+
+        switch (scale) {
+            case 0:
+                return (float) longValue;
+            case 1:
+                return ((float) longValue) / 10;
+            case 2:
+                return ((float) longValue) / 100;
+            case 3:
+                return ((float) longValue) / 1000;
+            case 4:
+                return ((float) longValue) / 10000;
+            case 5:
+                return ((float) longValue) / 100000;
+            case 6:
+                return ((float) longValue) / 1000000;
+            case 7:
+                return ((float) longValue) / 10000000;
+            case 8:
+                return ((float) longValue) / 100000000;
+            case 9:
+                return ((float) longValue) / 1000000000;
+        }
+
+        return Float.parseFloat(str);
+    }
+
     public static long fnv_64_lower(String key) {
         if (key == null) {
             return 0L;

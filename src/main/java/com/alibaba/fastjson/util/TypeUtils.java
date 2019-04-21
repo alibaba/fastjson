@@ -349,7 +349,13 @@ public class TypeUtils {
         long longValue = -1;
 
         if (value instanceof BigDecimal) {
-            longValue = ((BigDecimal) value).longValueExact();
+            BigDecimal decimal = (BigDecimal) value;
+            int scale = decimal.scale();
+            if (scale >= -100 && scale <= 100) {
+                longValue = decimal.longValue();
+            } else {
+                longValue = decimal.longValueExact();
+            }
         } else if (value instanceof Number) {
             longValue = ((Number) value).longValue();
         } else if (value instanceof String) {
@@ -401,7 +407,13 @@ public class TypeUtils {
         }
 
         if (value instanceof BigDecimal) {
-            return ((BigDecimal) value).longValueExact();
+            BigDecimal decimal = (BigDecimal) value;
+            int scale = decimal.scale();
+            if (scale >= -100 && scale <= 100) {
+                return decimal.longValue();
+            }
+
+            return decimal.longValueExact();
         }
 
         if (value instanceof Number) {
@@ -446,7 +458,14 @@ public class TypeUtils {
         }
 
         if (value instanceof BigDecimal) {
-            return ((BigDecimal) value).intValueExact();
+            BigDecimal decimal = (BigDecimal) value;
+
+            int scale = decimal.scale();
+            if (scale >= -100 && scale <= 100) {
+                return decimal.intValue();
+            }
+
+            return decimal.intValueExact();
         }
 
         if (value instanceof Number) {
@@ -673,7 +692,7 @@ public class TypeUtils {
                 } else {
                     return (T) Enum.valueOf((Class<? extends Enum>) clazz, name);
                 }
-            } else if (obj instanceof Number) {
+            } else if (obj instanceof Integer || obj instanceof Long) {
                 int ordinal = ((Number) obj).intValue();
                 Object[] values = clazz.getEnumConstants();
                 if (ordinal < values.length) {
@@ -726,9 +745,11 @@ public class TypeUtils {
 
             if (obj instanceof List) {
                 List listObj = (List) obj;
-                ArrayList arrayList = new ArrayList(listObj.size());
 
-                for (int i = 0; i < listObj.size(); i++) {
+                int listObjSize = listObj.size();
+                ArrayList arrayList = new ArrayList(listObjSize);
+
+                for (int i = 0; i < listObjSize; i++) {
                     Object item = listObj.get(i);
 
                     Object itemValue;
@@ -839,6 +860,8 @@ public class TypeUtils {
                     Number value = (Number) map.get("lineNumber");
                     if (value == null) {
                         lineNumber = 0;
+                    } else if (value instanceof BigDecimal) {
+                        lineNumber = ((BigDecimal) value).intValueExact();
                     } else {
                         lineNumber = value.intValue();
                     }
@@ -1750,7 +1773,7 @@ public class TypeUtils {
 
     public static double parseDouble(String str) {
         final int len = str.length();
-        if (len >= 10) {
+        if (len > 10) {
             return Double.parseDouble(str);
         }
 

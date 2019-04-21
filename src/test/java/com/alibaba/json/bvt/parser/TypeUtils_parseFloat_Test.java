@@ -44,6 +44,7 @@ public class TypeUtils_parseFloat_Test extends TestCase {
 
     public void test_4() throws Exception {
         String[] array = new String[] {
+                "0.34856254",
                 "1",
                 "12",
                 "123",

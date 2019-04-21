@@ -15,6 +15,16 @@ public class TypeUtils_parseDouble_Test extends TestCase {
         }
     }
 
+    public void test_0_d() throws Exception {
+        Random r = new Random();
+
+        for (int i = 0; i < 1000 * 1000; ++i) {
+            String str = Double.toString(r.nextDouble());
+            assertEquals(Double.parseDouble(str), TypeUtils.parseDouble(str));
+        }
+    }
+
+
     public void test_1() throws Exception {
         Random r = new Random();
 
@@ -44,6 +54,7 @@ public class TypeUtils_parseDouble_Test extends TestCase {
 
     public void test_4() throws Exception {
         String[] array = new String[] {
+                "0.34856254",
                 "1",
                 "12",
                 "123",

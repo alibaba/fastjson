@@ -354,7 +354,7 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
     }
 
     /**
-     * @since  1.1.71.android & 1.2.23
+     * @since  1.1.71.android
      */
     public <T> List<T> toJavaList(Class<T> clazz) {
         List<T> list = new ArrayList<T>(this.size());

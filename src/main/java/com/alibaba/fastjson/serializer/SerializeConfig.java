@@ -21,6 +21,7 @@ import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.deserializer.Jdk8DateCodec;
 import com.alibaba.fastjson.parser.deserializer.OptionalCodec;
 import com.alibaba.fastjson.spi.Module;
+import com.alibaba.fastjson.support.moneta.MonetaCodec;
 import com.alibaba.fastjson.support.springfox.SwaggerJsonSerializer;
 import com.alibaba.fastjson.util.*;
 import com.alibaba.fastjson.util.IdentityHashMap;
@@ -724,6 +725,11 @@ public class SerializeConfig {
 
                 if ("java.nio.HeapByteBuffer".equals(className)) {
                     put(clazz, writer = ByteBufferCodec.instance);
+                    return writer;
+                }
+
+                if ("org.javamoney.moneta.Money".equals(className)) {
+                    put(clazz, writer = MonetaCodec.instance);
                     return writer;
                 }
 

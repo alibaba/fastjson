@@ -12,6 +12,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.*;
 
 import com.alibaba.fastjson.annotation.JSONField;
 
@@ -212,7 +213,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         Type genericFieldType = fieldType;
         
         if (!(fieldType instanceof Class)) {
-            genericFieldType = getFieldType(clazz, type != null ? type : clazz, fieldType);
+            genericFieldType = getFieldType(clazz, type != null ? type : clazz, fieldType,  field == null ? null : field.getDeclaringClass());
     
             if (genericFieldType != fieldType) {
                 if (genericFieldType instanceof ParameterizedType) {
@@ -257,7 +258,11 @@ public class FieldInfo implements Comparable<FieldInfo> {
         return annotatition;
     }
 
-    public static Type getFieldType(final Class<?> clazz, final Type type, Type fieldType) {
+    public static Type getFieldType(final Class<?> clazz, final Type type, Type fieldType){
+        return getFieldType(clazz, type, fieldType, null);
+    }
+
+    public static Type getFieldType(final Class<?> clazz, final Type type, Type fieldType, Class<?> declareClass) {
         if (clazz == null || type == null) {
             return fieldType;
         }
@@ -265,7 +270,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         if (fieldType instanceof GenericArrayType) {
             GenericArrayType genericArrayType = (GenericArrayType) fieldType;
             Type componentType = genericArrayType.getGenericComponentType();
-            Type componentTypeX = getFieldType(clazz, type, componentType);
+            Type componentTypeX = getFieldType(clazz, type, componentType, declareClass);
             if (componentType != componentTypeX) {
                 Type fieldTypeX = Array.newInstance(TypeUtils.getClass(componentTypeX), 0).getClass();
                 return fieldTypeX;
@@ -296,25 +301,84 @@ public class FieldInfo implements Comparable<FieldInfo> {
             ParameterizedType parameterizedFieldType = (ParameterizedType) fieldType;
 
             Type[] arguments = parameterizedFieldType.getActualTypeArguments();
-            TypeVariable<?>[] typeVariables;
+
             ParameterizedType paramType;
+            TypeVariable<?>[] typeVariables;
+            Type[] actualTypeArguments;
+
+            //如果传入的是ParameterizedType 说明是特别组装的，直接读取
             if (type instanceof ParameterizedType) {
                 paramType = (ParameterizedType) type;
                 typeVariables = clazz.getTypeParameters();
-            } else if(clazz.getGenericSuperclass() instanceof ParameterizedType) {
-                paramType = (ParameterizedType) clazz.getGenericSuperclass();
-                typeVariables = clazz.getSuperclass().getTypeParameters();
-            } else {
-                paramType = parameterizedFieldType;
-                typeVariables = type.getClass().getTypeParameters();
+                actualTypeArguments = paramType.getActualTypeArguments();
+            }else{
+                if(declareClass == null || clazz == declareClass){
+                    if(clazz.getGenericSuperclass() instanceof ParameterizedType) {
+                        paramType = (ParameterizedType) clazz.getGenericSuperclass();
+                        typeVariables = clazz.getSuperclass().getTypeParameters();
+                    } else {
+                        paramType = parameterizedFieldType;
+                        typeVariables = type.getClass().getTypeParameters();
+                    }
+
+                    actualTypeArguments = paramType.getActualTypeArguments();
+                }else{
+                    Class childClass = clazz;
+                    Class currentClass = clazz.getSuperclass();
+                    Type[] childGenericParentActualTypeArgs;
+                    TypeVariable[] currentTypeParameters;
+
+                    Map<TypeVariable, Type> finalMap = new HashMap<TypeVariable, Type>();
+
+                    for(int layer = 0;layer < 10;layer ++){
+
+
+                        //判断分析范型信息的必要性
+                        if(childClass.getGenericSuperclass() instanceof ParameterizedType){
+                            childGenericParentActualTypeArgs = ((ParameterizedType) childClass.getGenericSuperclass()).getActualTypeArguments();
+                            currentTypeParameters = currentClass.getTypeParameters();
+                            for(int i = 0; i < childGenericParentActualTypeArgs.length; i ++){
+                                //如果子类的GenericParent的argument 有级联范型，应该比对一下，尝试替换
+                                if(finalMap.containsKey(childGenericParentActualTypeArgs[i])){
+                                    Type actualArg  = finalMap.get(childGenericParentActualTypeArgs[i]);
+                                    finalMap.remove(childGenericParentActualTypeArgs[i]);
+                                    finalMap.put(currentTypeParameters[i], actualArg);
+                                }else{
+                                    finalMap.put(currentTypeParameters[i], childGenericParentActualTypeArgs[i]);
+                                }
+                            }
+                        }
+                        //只需要向上搜寻到持有类
+                        if(currentClass == declareClass){
+                            break;
+                        }else{
+                            childClass = currentClass;
+                            currentClass = currentClass.getSuperclass();
+                        }
+                    }
+
+                    Set<TypeVariable> finalTypeVariableSet = finalMap.keySet();
+                    typeVariables = new TypeVariable[finalTypeVariableSet.size()];
+                    actualTypeArguments = new Type[finalTypeVariableSet.size()];
+                    int index = 0;
+                    for (TypeVariable t :
+                            finalTypeVariableSet) {
+                        typeVariables[index] = t;
+                        actualTypeArguments[index ++] = finalMap.get(t);
+                    }
+                }
             }
 
-            boolean changed = getArgument(arguments, typeVariables, paramType.getActualTypeArguments());
+            //默认行为
+
+
+            boolean changed = getArgument(arguments, typeVariables, actualTypeArguments);
             if (changed) {
                 fieldType = new ParameterizedTypeImpl(arguments, parameterizedFieldType.getOwnerType(),
-                                                      parameterizedFieldType.getRawType());
+                        parameterizedFieldType.getRawType());
                 return fieldType;
             }
+
         }
 
         return fieldType;

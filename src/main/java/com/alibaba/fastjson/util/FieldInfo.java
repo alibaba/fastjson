@@ -335,26 +335,26 @@ public class FieldInfo implements Comparable<FieldInfo> {
                     Map<TypeVariable, Type> finalMap = new HashMap<TypeVariable, Type>();
 
                     //
-                    for(int layer = 0;layer < MAX_CLASS_EXTENSION;layer ++){
+                    for (int layer = 0; layer < MAX_CLASS_EXTENSION; layer++) {
                         //判断分析范型信息的必要性
-                        if(childClass.getGenericSuperclass() instanceof ParameterizedType){
+                        if (childClass.getGenericSuperclass() instanceof ParameterizedType) {
                             childGenericParentActualTypeArgs = ((ParameterizedType) childClass.getGenericSuperclass()).getActualTypeArguments();
                             currentTypeParameters = currentClass.getTypeParameters();
-                            for(int i = 0; i < childGenericParentActualTypeArgs.length; i ++){
+                            for (int i = 0; i < childGenericParentActualTypeArgs.length; i++) {
                                 //如果子类的GenericParent的argument 有级联范型，应该比对一下，尝试替换
-                                if(finalMap.containsKey(childGenericParentActualTypeArgs[i])){
-                                    Type actualArg  = finalMap.get(childGenericParentActualTypeArgs[i]);
+                                if (finalMap.containsKey(childGenericParentActualTypeArgs[i])) {
+                                    Type actualArg = finalMap.get(childGenericParentActualTypeArgs[i]);
                                     finalMap.remove(childGenericParentActualTypeArgs[i]);
                                     finalMap.put(currentTypeParameters[i], actualArg);
-                                }else{
+                                } else {
                                     finalMap.put(currentTypeParameters[i], childGenericParentActualTypeArgs[i]);
                                 }
                             }
                         }
                         //只需要向上搜寻到持有类
-                        if(currentClass == declareClass){
+                        if (currentClass == declareClass) {
                             break;
-                        }else{
+                        } else {
                             childClass = currentClass;
                             currentClass = currentClass.getSuperclass();
                         }

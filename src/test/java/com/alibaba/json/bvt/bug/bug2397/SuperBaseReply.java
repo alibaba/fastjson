@@ -2,24 +2,14 @@ package com.alibaba.json.bvt.bug.bug2397;
 
 import java.util.List;
 
-public class SuperBaseReply<R, T> {
-    private List<R> items;
+public class SuperBaseReply<T> {
+    private List<T> items;
 
-    private T[] itemArray;
-
-    public T[] getItemArray() {
-        return itemArray;
-    }
-
-    public void setItemArray(T[] itemArray) {
-        this.itemArray = itemArray;
-    }
-
-    public List<R> getItems() {
+    public List<T> getItems() {
         return items;
     }
 
-    public void setItems(List<R> items) {
+    public void setItems(List<T> items) {
         this.items = items;
     }
 }

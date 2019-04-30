@@ -334,7 +334,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
                     Map<TypeVariable, Type> finalMap = new HashMap<TypeVariable, Type>();
 
-                    //
+                    //想父类查找范型信息以及持有类
                     for (int layer = 0; layer < MAX_CLASS_EXTENSION; layer++) {
                         //判断分析范型信息的必要性
                         if (childClass.getGenericSuperclass() instanceof ParameterizedType) {

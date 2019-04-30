@@ -18,6 +18,9 @@ import com.alibaba.fastjson.annotation.JSONField;
 
 public class FieldInfo implements Comparable<FieldInfo> {
 
+    //继承范型分析最大搜寻层级
+    private final static int MAX_CLASS_EXTENSION = 50;
+
     public final String     name;
     public final Method     method;
     public final Field      field;
@@ -312,6 +315,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
                 typeVariables = clazz.getTypeParameters();
                 actualTypeArguments = paramType.getActualTypeArguments();
             }else{
+                //如果找不到持有类或者持有类就是当前类（不在父类中）， 则走老逻辑
                 if(declareClass == null || clazz == declareClass){
                     if(clazz.getGenericSuperclass() instanceof ParameterizedType) {
                         paramType = (ParameterizedType) clazz.getGenericSuperclass();
@@ -330,9 +334,8 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
                     Map<TypeVariable, Type> finalMap = new HashMap<TypeVariable, Type>();
 
-                    for(int layer = 0;layer < 10;layer ++){
-
-
+                    //
+                    for(int layer = 0;layer < MAX_CLASS_EXTENSION;layer ++){
                         //判断分析范型信息的必要性
                         if(childClass.getGenericSuperclass() instanceof ParameterizedType){
                             childGenericParentActualTypeArgs = ((ParameterizedType) childClass.getGenericSuperclass()).getActualTypeArguments();

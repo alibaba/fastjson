@@ -12,10 +12,18 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import com.alibaba.fastjson.annotation.JSONField;
 
 public class FieldInfo implements Comparable<FieldInfo> {
+
+    /**
+     * max super class of class inheritance searching
+     */
+    private final static int MAX_CLASS_EXTENSION = 50;
 
     public final String     name;
     public final Method     method;
@@ -212,7 +220,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         Type genericFieldType = fieldType;
         
         if (!(fieldType instanceof Class)) {
-            genericFieldType = getFieldType(clazz, type != null ? type : clazz, fieldType);
+            genericFieldType = getFieldType(clazz, type != null ? type : clazz, fieldType, field == null ? null : field.getDeclaringClass());
     
             if (genericFieldType != fieldType) {
                 if (genericFieldType instanceof ParameterizedType) {
@@ -257,7 +265,11 @@ public class FieldInfo implements Comparable<FieldInfo> {
         return annotatition;
     }
 
-    public static Type getFieldType(final Class<?> clazz, final Type type, Type fieldType) {
+    public static Type getFieldType(final Class<?> clazz, final Type type, Type fieldType){
+        return getFieldType(clazz, type, fieldType, null);
+    }
+
+    public static Type getFieldType(final Class<?> clazz, final Type type, Type fieldType, Class<?> declareClass) {
         if (clazz == null || type == null) {
             return fieldType;
         }
@@ -265,7 +277,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         if (fieldType instanceof GenericArrayType) {
             GenericArrayType genericArrayType = (GenericArrayType) fieldType;
             Type componentType = genericArrayType.getGenericComponentType();
-            Type componentTypeX = getFieldType(clazz, type, componentType);
+            Type componentTypeX = getFieldType(clazz, type, componentType, declareClass);
             if (componentType != componentTypeX) {
                 Type fieldTypeX = Array.newInstance(TypeUtils.getClass(componentTypeX), 0).getClass();
                 return fieldTypeX;
@@ -296,23 +308,79 @@ public class FieldInfo implements Comparable<FieldInfo> {
             ParameterizedType parameterizedFieldType = (ParameterizedType) fieldType;
 
             Type[] arguments = parameterizedFieldType.getActualTypeArguments();
-            TypeVariable<?>[] typeVariables;
             ParameterizedType paramType;
+            TypeVariable<?>[] typeVariables;
+            Type[] actualTypeArguments;
+
+            //if the type is a ParameterizedType, use it
             if (type instanceof ParameterizedType) {
                 paramType = (ParameterizedType) type;
                 typeVariables = clazz.getTypeParameters();
-            } else if(clazz.getGenericSuperclass() instanceof ParameterizedType) {
-                paramType = (ParameterizedType) clazz.getGenericSuperclass();
-                typeVariables = clazz.getSuperclass().getTypeParameters();
-            } else {
-                paramType = parameterizedFieldType;
-                typeVariables = type.getClass().getTypeParameters();
+                actualTypeArguments = paramType.getActualTypeArguments();
+            }else{
+                //if the declare class is null or be equivalent to clazz, just go to old path
+                if(declareClass == null || clazz == declareClass){
+                    if(clazz.getGenericSuperclass() instanceof ParameterizedType) {
+                        paramType = (ParameterizedType) clazz.getGenericSuperclass();
+                        typeVariables = clazz.getSuperclass().getTypeParameters();
+                    } else {
+                        paramType = parameterizedFieldType;
+                        typeVariables = type.getClass().getTypeParameters();
+                    }
+
+                    actualTypeArguments = paramType.getActualTypeArguments();
+                }else{
+                    Class childClass = clazz;
+                    Class currentClass = clazz.getSuperclass();
+                    Type[] childGenericParentActualTypeArgs;
+                    TypeVariable[] currentTypeParameters;
+
+                    Map<TypeVariable, Type> finalMap = new HashMap<TypeVariable, Type>();
+
+                    //analyse the whole generic info from the class inheritance
+                    for (int layer = 0; layer < MAX_CLASS_EXTENSION; layer++) {
+
+                        if (childClass.getGenericSuperclass() instanceof ParameterizedType) {
+                            childGenericParentActualTypeArgs = ((ParameterizedType) childClass.getGenericSuperclass()).getActualTypeArguments();
+                            currentTypeParameters = currentClass.getTypeParameters();
+                            for (int i = 0; i < childGenericParentActualTypeArgs.length; i++) {
+                                //if the child class's generic super class actual args is defined in the child class type parameters
+                                if (finalMap.containsKey(childGenericParentActualTypeArgs[i])) {
+                                    Type actualArg = finalMap.get(childGenericParentActualTypeArgs[i]);
+                                    finalMap.remove(childGenericParentActualTypeArgs[i]);
+                                    finalMap.put(currentTypeParameters[i], actualArg);
+                                } else {
+                                    finalMap.put(currentTypeParameters[i], childGenericParentActualTypeArgs[i]);
+                                }
+                            }
+                        }
+
+                        //search super class until find the field declare class
+                        if (currentClass == declareClass) {
+                            break;
+                        } else {
+                            childClass = currentClass;
+                            currentClass = currentClass.getSuperclass();
+                        }
+
+                    }
+
+                    Set<TypeVariable> finalTypeVariableSet = finalMap.keySet();
+                    typeVariables = new TypeVariable[finalTypeVariableSet.size()];
+                    actualTypeArguments = new Type[finalTypeVariableSet.size()];
+                    int index = 0;
+                    for (TypeVariable t :
+                            finalTypeVariableSet) {
+                        typeVariables[index] = t;
+                        actualTypeArguments[index ++] = finalMap.get(t);
+                    }
+                }
             }
 
-            boolean changed = getArgument(arguments, typeVariables, paramType.getActualTypeArguments());
+            boolean changed = getArgument(arguments, typeVariables, actualTypeArguments);
             if (changed) {
                 fieldType = new ParameterizedTypeImpl(arguments, parameterizedFieldType.getOwnerType(),
-                                                      parameterizedFieldType.getRawType());
+                        parameterizedFieldType.getRawType());
                 return fieldType;
             }
         }

@@ -1359,13 +1359,31 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         if (value instanceof Number) {
                             field.setFloat(object, ((Number) value).floatValue());
                             continue;
+                        } else if (value instanceof String) {
+                            String strVal = (String) value;
+                            float floatValue;
+                            if (strVal.length() <= 10) {
+                                floatValue = TypeUtils.parseFloat(strVal);
+                            } else {
+                                floatValue = Float.parseFloat(strVal);
+                            }
+
+                            field.setFloat(object, floatValue);
+                            continue;
                         }
                     } else if (paramType == double.class) {
                         if (value instanceof Number) {
                             field.setDouble(object, ((Number) value).doubleValue());
                             continue;
                         } else if (value instanceof String) {
-                            double doubleValue = Double.parseDouble((String) value);
+                            String strVal = (String) value;
+                            double doubleValue;
+                            if (strVal.length() <= 10) {
+                                doubleValue = TypeUtils.parseDouble(strVal);
+                            } else {
+                                doubleValue = Double.parseDouble(strVal);
+                            }
+
                             field.setDouble(object, doubleValue);
                             continue;
                         }

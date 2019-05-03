@@ -113,8 +113,17 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
 
         {
-            if ("true".equals(properties.getProperty("parser.features.ErrorOnEnumNotMatch"))) {
+            if ("true".equals(properties.getProperty("parser.features.ErrorOnEnumNotMatch"))
+                    || "true".equals(properties.getProperty("fastjson.parser.features.ErrorOnEnumNotMatch")))
+            {
                 DEFAULT_PARSER_FEATURE |= Feature.ErrorOnEnumNotMatch.getMask();
+            }
+        }
+
+        {
+            if ("false".equals(properties.getProperty("fastjson.asmEnable"))) {
+                ParserConfig.getGlobalInstance().setAsmEnable(false);
+                SerializeConfig.getGlobalInstance().setAsmEnable(false);
             }
         }
     }

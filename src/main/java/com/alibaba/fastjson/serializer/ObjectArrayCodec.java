@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2017 Alibaba Group.
+ * Copyright 1999-2018 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,12 +95,12 @@ public class ObjectArrayCodec implements ObjectSerializer, ObjectDeserializer {
                         Class<?> clazz = item.getClass();
 
                         if (clazz == preClazz) {
-                            preWriter.write(serializer, item, null, null, 0);
+                            preWriter.write(serializer, item, i, null, 0);
                         } else {
                             preClazz = clazz;
                             preWriter = serializer.getObjectWriter(clazz);
 
-                            preWriter.write(serializer, item, null, null, 0);
+                            preWriter.write(serializer, item, i, null, 0);
                         }
                     }
                     out.append(',');

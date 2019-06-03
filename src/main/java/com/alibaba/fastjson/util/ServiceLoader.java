@@ -39,7 +39,7 @@ public class ServiceLoader {
                 load(url, serviceNames);
                 loadedUrls.add(url.toString());
             }
-        } catch (IOException ex) {
+        } catch (Throwable ex) {
             // skip
         }
 

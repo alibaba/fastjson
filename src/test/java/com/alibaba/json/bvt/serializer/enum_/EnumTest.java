@@ -24,4 +24,13 @@ public class EnumTest extends TestCase {
         Assert.assertEquals("'Small'", JSON.toJSONString(Type.Small, SerializerFeature.UseSingleQuotes)); // "Small"
     }
 
+    public void test_empty() throws Exception {
+        Model model = JSON.parseObject("{\"type\":\"\"}", Model.class);
+        assertNull(model.type);
+    }
+
+    public static class Model {
+        public Type type;
+    }
+
 }

@@ -134,6 +134,21 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
                     }
                 }
             }
+        } else if (itemType instanceof TypeVariable && objectType instanceof Class) {
+            Class objectClass = (Class) objectType;
+            TypeVariable typeVar = (TypeVariable) itemType;
+            objectClass.getTypeParameters();
+
+            for (int i = 0, size = objectClass.getTypeParameters().length; i < size; ++i) {
+                TypeVariable item = objectClass.getTypeParameters()[i];
+                if (item.getName().equals(typeVar.getName())) {
+                    Type[] bounds = item.getBounds();
+                    if (bounds.length == 1) {
+                        itemType = bounds[0];
+                    }
+                    break;
+                }
+            }
         }
 
         final JSONLexer lexer = parser.lexer;

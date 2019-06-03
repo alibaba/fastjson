@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2017 Alibaba Group.
+ * Copyright 1999-2018 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -39,16 +40,28 @@ import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
+import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.TypeUtils;
+import org.w3c.dom.Node;
+
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
 public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
+    private static      boolean   FILE_RELATIVE_PATH_SUPPORT = false;
+    public final static MiscCodec instance                   = new MiscCodec();
+    private static      Method    method_paths_get;
+    private static      boolean   method_paths_get_error     = false;
 
-    public final static MiscCodec instance               = new MiscCodec();
-    private static Method         method_paths_get;
-    private static boolean        method_paths_get_error = false;
+    static {
+        FILE_RELATIVE_PATH_SUPPORT = "true".equals(IOUtils.getStringProperty("fastjson.deserializer.fileRelativePathSupport"));
+    }
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType,
                       int features) throws IOException {
@@ -144,11 +157,27 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         } else if (object.getClass().getName().equals("net.sf.json.JSONNull")) {
             out.writeNull();
             return;
+        } else if (object instanceof org.w3c.dom.Node) {
+            strVal = toString((Node) object);
         } else {
             throw new JSONException("not support class : " + objClass);
         }
 
         out.writeString(strVal);
+    }
+
+    private static String toString(org.w3c.dom.Node node) {
+        try {
+            TransformerFactory transFactory = TransformerFactory.newInstance();
+            Transformer transformer = transFactory.newTransformer();
+            DOMSource domSource = new DOMSource(node);
+
+            StringWriter out = new StringWriter();
+            transformer.transform(domSource, new StreamResult(out));
+            return out.toString();
+        } catch (TransformerException e) {
+            throw new JSONException("xml node to string error", e);
+        }
     }
 
     protected void writeIterator(JSONSerializer serializer, SerializeWriter out, Iterator<?> it) {
@@ -261,6 +290,8 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
                 if (clazz == Map.Entry.class) {
                    return (T) jsonObject.entrySet().iterator().next();
                 }
+
+                return jsonObject.toJavaObject(clazz);
             }
             throw new JSONException("expect string");
         }
@@ -308,6 +339,10 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         if (clazz == File.class) {
+            if (strVal.indexOf("..") >= 0 && !FILE_RELATIVE_PATH_SUPPORT) {
+                throw new JSONException("file relative path not support.");
+            }
+
             return (T) new File(strVal);
         }
 
@@ -321,7 +356,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         if (clazz == Class.class) {
-            return (T) TypeUtils.loadClass(strVal, parser.getConfig().getDefaultClassLoader());
+            return (T) TypeUtils.loadClass(strVal, parser.getConfig().getDefaultClassLoader(), false);
         }
 
         if (clazz == Charset.class) {

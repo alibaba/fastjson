@@ -120,7 +120,27 @@ public enum Feature {
      *
      * disable field smart match, improve performance in some scenarios.
      */
-    DisableFieldSmartMatch
+    DisableFieldSmartMatch,
+
+    /**
+     * @since 1.2.41, backport to 1.1.66.android
+     */
+    SupportAutoType,
+
+    /**
+     * @since 1.2.42
+     */
+    NonStringKeyAsString,
+
+    /**
+     * @since 1.2.45
+     */
+    CustomMapDeserializer,
+
+    /**
+     * @since 1.2.55
+     */
+    ErrorOnEnumNotMatch
     ;
 
     Feature(){

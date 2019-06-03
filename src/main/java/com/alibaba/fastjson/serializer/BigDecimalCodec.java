@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2017 Alibaba Group.
+ * Copyright 1999-2018 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@ import com.alibaba.fastjson.util.TypeUtils;
  * @author wenshao[szujobs@hotmail.com]
  */
 public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
+    final static BigDecimal LOW = BigDecimal.valueOf(-9007199254740991L);
+    final static BigDecimal HIGH = BigDecimal.valueOf(9007199254740991L);
 
     public final static BigDecimalCodec instance = new BigDecimalCodec();
 
@@ -40,13 +42,26 @@ public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
             out.writeNull(SerializerFeature.WriteNullNumberAsZero);
         } else {
             BigDecimal val = (BigDecimal) object;
+            int scale = val.scale();
 
             String outText;
-            if (out.isEnabled(SerializerFeature.WriteBigDecimalAsPlain)) {
+            if (out.isEnabled(SerializerFeature.WriteBigDecimalAsPlain) && scale >= -100 && scale < 100) {
                 outText = val.toPlainString();
             } else {
                 outText = val.toString();
             }
+
+            if (scale == 0) {
+                if (outText.length() >= 16
+                        && SerializerFeature.isEnabled(features, out.features, SerializerFeature.BrowserCompatible)
+                        && (val.compareTo(LOW) < 0
+                        || val.compareTo(HIGH) > 0))
+                {
+                    out.writeString(outText);
+                    return;
+                }
+            }
+
             out.write(outText);
 
             if (out.isEnabled(SerializerFeature.WriteClassName) && fieldType != BigDecimal.class && val.scale() == 0) {

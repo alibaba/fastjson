@@ -17,7 +17,7 @@ public class Issue1272 extends TestCase {
             exception = ex;
         }
         assertNotNull(exception);
-        assertEquals(NullPointerException.class, exception.getCause().getCause().getClass());
+        assertEquals(NullPointerException.class, exception.getCause().getClass());
     }
 
     public static class Point {

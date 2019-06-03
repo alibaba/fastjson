@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2017 Alibaba Group.
+ * Copyright 1999-2018 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,7 @@ package com.alibaba.fastjson.serializer;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
-import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
@@ -82,9 +80,9 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
                 lexer.nextToken(JSONToken.COMMA);
                 intObj = Integer.valueOf(val);
             } else if (token == JSONToken.LITERAL_FLOAT) {
-                BigDecimal decimalValue = lexer.decimalValue();
+                BigDecimal number = lexer.decimalValue();
+                intObj = TypeUtils.intValue(number);
                 lexer.nextToken(JSONToken.COMMA);
-                intObj = Integer.valueOf(decimalValue.intValue());
             } else {
                 if (token == JSONToken.LBRACE) {
                     JSONObject jsonObject = new JSONObject(true);
@@ -96,7 +94,11 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
                 }
             }
         } catch (Exception ex) {
-            throw new JSONException("parseInt error, field : " + fieldName, ex);
+            String message = "parseInt error";
+            if (fieldName != null) {
+                message += (", field : " + fieldName);
+            }
+            throw new JSONException(message, ex);
         }
 
         

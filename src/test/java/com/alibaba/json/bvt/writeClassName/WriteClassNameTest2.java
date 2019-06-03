@@ -1,5 +1,6 @@
 package com.alibaba.json.bvt.writeClassName;
 
+import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 import org.junit.Assert;
 import junit.framework.TestCase;
@@ -8,9 +9,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class WriteClassNameTest2 extends TestCase {
-    protected void setUp() throws Exception {
-        ParserConfig.global.addAccept("com.alibaba.json.bvt.writeClassName.WriteClassNameTest2");
-    }
 
     public void test_writeClassName() throws Exception {
         A a = new A();
@@ -20,7 +18,7 @@ public class WriteClassNameTest2 extends TestCase {
         Assert.assertEquals("{\"@type\":\"com.alibaba.json.bvt.writeClassName.WriteClassNameTest2$A\",\"b\":{\"id\":0}}",
                             text);
 
-        A a1 = (A) JSON.parse(text);
+        A a1 = (A) JSON.parse(text, Feature.SupportAutoType);
 
         Assert.assertNotNull(a1.getB());
     }

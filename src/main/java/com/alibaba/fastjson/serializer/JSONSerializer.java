@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2017 Alibaba Group.
+ * Copyright 1999-2018 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,7 @@ import java.io.Writer;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.IdentityHashMap;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.zip.GZIPOutputStream;
 
 import com.alibaba.fastjson.JSON;
@@ -138,7 +135,7 @@ public class JSONSerializer extends SerializeFilterable {
         return out.isEnabled(SerializerFeature.WriteClassName) //
                && (fieldType != null //
                    || (!out.isEnabled(SerializerFeature.NotWriteRootClassName)) //
-                   || context.parent != null);
+                   || (context != null && (context.parent != null)));
     }
 
     public boolean containsReference(Object value) {
@@ -148,6 +145,10 @@ public class JSONSerializer extends SerializeFilterable {
 
         SerialContext refContext = references.get(value);
         if (refContext == null) {
+            return false;
+        }
+
+        if (value == Collections.emptyMap()) {
             return false;
         }
 
@@ -186,7 +187,8 @@ public class JSONSerializer extends SerializeFilterable {
             out.write("{\"$ref\":\"$\"}");
         } else {
             out.write("{\"$ref\":\"");
-            out.write(references.get(object).toString());
+            String path = references.get(object).toString();
+            out.write(path);
             out.write("\"}");
         }
     }
@@ -202,6 +204,11 @@ public class JSONSerializer extends SerializeFilterable {
     public boolean hasNameFilters(SerializeFilterable filterable) {
         return (nameFilters != null && nameFilters.size() > 0) //
                || (filterable.nameFilters != null && filterable.nameFilters.size() > 0);
+    }
+
+    public boolean hasPropertyFilters(SerializeFilterable filterable) {
+        return (propertyFilters != null && propertyFilters.size() > 0) //
+                || (filterable.propertyFilters != null && filterable.propertyFilters.size() > 0);
     }
 
     public int getIndentCount() {
@@ -281,6 +288,25 @@ public class JSONSerializer extends SerializeFilterable {
         }
     }
 
+    /**
+     * @since 1.2.57
+     *
+     */
+    public final void writeAs(Object object, Class type) {
+        if (object == null) {
+            out.writeNull();
+            return;
+        }
+
+        ObjectSerializer writer = getObjectWriter(type);
+
+        try {
+            writer.write(this, object, null, null, 0);
+        } catch (IOException e) {
+            throw new JSONException(e.getMessage(), e);
+        }
+    }
+
     public final void writeWithFieldName(Object object, Object fieldName) {
         writeWithFieldName(object, fieldName, null, 0);
     }
@@ -312,9 +338,19 @@ public class JSONSerializer extends SerializeFilterable {
 
     public final void writeWithFormat(Object object, String format) {
         if (object instanceof Date) {
+            if ("unixtime".equals(format)) {
+                long seconds = ((Date) object).getTime() / 1000L;
+                out.writeInt((int) seconds);
+                return;
+            }
             DateFormat dateFormat = this.getDateFormat();
             if (dateFormat == null) {
-                dateFormat = new SimpleDateFormat(format, locale);
+                try {
+                    dateFormat = new SimpleDateFormat(format, locale);
+                } catch (IllegalArgumentException e) {
+                    String format2 = format.replaceAll("T", "'T'");
+                    dateFormat = new SimpleDateFormat(format2, locale);
+                }
                 dateFormat.setTimeZone(timeZone);
             }
             String text = dateFormat.format((Date) object);
@@ -346,6 +382,21 @@ public class JSONSerializer extends SerializeFilterable {
             } else {
                 out.writeByteArray(bytes);
             }
+            return;
+        }
+
+        if (object instanceof Collection) {
+            Collection collection = (Collection) object;
+            Iterator iterator = collection.iterator();
+            out.write('[');
+            for (int i = 0; i < collection.size(); i++) {
+                Object item = iterator.next();
+                if (i != 0) {
+                    out.write(',');
+                }
+                writeWithFormat(item, format);
+            }
+            out.write(']');
             return;
         }
         write(object);

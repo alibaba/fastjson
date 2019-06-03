@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2017 Alibaba Group.
+ * Copyright 1999-2018 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,7 @@
 package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.lang.reflect.WildcardType;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.TreeSet;
@@ -45,7 +43,9 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         Type elementType = null;
-        if (out.isEnabled(SerializerFeature.WriteClassName)) {
+        if (out.isEnabled(SerializerFeature.WriteClassName)
+                || SerializerFeature.isEnabled(features, SerializerFeature.WriteClassName))
+        {
             elementType = TypeUtils.getCollectionItemType(fieldType);
         }
 
@@ -93,7 +93,13 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
                 }
 
                 ObjectSerializer itemSerializer = serializer.getObjectWriter(clazz);
-                itemSerializer.write(serializer, item, i - 1, elementType, 0);
+                if (SerializerFeature.isEnabled(features, SerializerFeature.WriteClassName)
+                        && itemSerializer instanceof JavaBeanSerializer) {
+                    JavaBeanSerializer javaBeanSerializer = (JavaBeanSerializer) itemSerializer;
+                    javaBeanSerializer.writeNoneASM(serializer, item, i - 1, elementType, features);
+                } else {
+                    itemSerializer.write(serializer, item, i - 1, elementType, features);
+                }
             }
             out.append(']');
         } finally {
@@ -115,7 +121,7 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         Collection list = TypeUtils.createCollection(type);
-        
+
         Type itemType = TypeUtils.getCollectionItemType(type);
         parser.parseArray(itemType, list, fieldName);
 

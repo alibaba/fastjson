@@ -43,6 +43,12 @@ public class JavaBeanInfo {
 
     public String[] orders;
 
+    public Type[] creatorConstructorParameterTypes;
+    public String[] creatorConstructorParameters;
+
+    public boolean kotlin;
+    public Constructor<?> kotlinDefaultConstructor;
+
     public JavaBeanInfo(Class<?> clazz, //
                         Class<?> builderClass, //
                         Constructor<?> defaultConstructor, //
@@ -115,6 +121,56 @@ public class JavaBeanInfo {
         } else {
             defaultConstructorParameterSize = 0;
         }
+
+        if (creatorConstructor != null) {
+            this.creatorConstructorParameterTypes = creatorConstructor.getParameterTypes();
+
+
+            kotlin = TypeUtils.isKotlin(clazz);
+            if (kotlin) {
+                this.creatorConstructorParameters = TypeUtils.getKoltinConstructorParameters(clazz);
+                try {
+                    this.kotlinDefaultConstructor = clazz.getConstructor();
+                } catch (Throwable ex) {
+                    // skip
+                }
+
+                Annotation[][] paramAnnotationArrays = creatorConstructor.getParameterAnnotations();
+                for (int i = 0; i < creatorConstructorParameters.length && i < paramAnnotationArrays.length; ++i) {
+                    Annotation[] paramAnnotations = paramAnnotationArrays[i];
+                    JSONField fieldAnnotation = null;
+                    for (Annotation paramAnnotation : paramAnnotations) {
+                        if (paramAnnotation instanceof JSONField) {
+                            fieldAnnotation = (JSONField) paramAnnotation;
+                            break;
+                        }
+                    }
+                    if (fieldAnnotation != null) {
+                        String fieldAnnotationName = fieldAnnotation.name();
+                        if (fieldAnnotationName.length() > 0) {
+                            creatorConstructorParameters[i] = fieldAnnotationName;
+                        }
+                    }
+                }
+            } else {
+                boolean match;
+                if (creatorConstructorParameterTypes.length != fields.length) {
+                    match = false;
+                } else {
+                    match = true;
+                    for (int i = 0; i < creatorConstructorParameterTypes.length; i++) {
+                        if (creatorConstructorParameterTypes[i] != fields[i].fieldClass) {
+                            match = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (!match) {
+                    this.creatorConstructorParameters = ASMUtils.lookupParameterNames(creatorConstructor);
+                }
+            }
+        }
     }
 
     private static FieldInfo getField(List<FieldInfo> fieldList, String propertyName) {
@@ -142,15 +198,15 @@ public class JavaBeanInfo {
                 }
 
                 if (item.fieldClass.isAssignableFrom(field.fieldClass)) {
-                    fieldList.remove(i);
-                    break;
+                    fieldList.set(i, field);
+                    return true;
                 }
 
                 int result = item.compareTo(field);
 
                 if (result < 0) {
-                    fieldList.remove(i);
-                    break;
+                    fieldList.set(i, field);
+                    return true;
                 } else {
                     return false;
                 }
@@ -162,7 +218,7 @@ public class JavaBeanInfo {
     }
 
     public static JavaBeanInfo build(Class<?> clazz, Type type, PropertyNamingStrategy propertyNamingStrategy) {
-        return build(clazz, type, propertyNamingStrategy, false, TypeUtils.compatibleWithJavaBean);
+        return build(clazz, type, propertyNamingStrategy, false, TypeUtils.compatibleWithJavaBean, false);
     }
 
     public static JavaBeanInfo build(Class<?> clazz //
@@ -171,20 +227,39 @@ public class JavaBeanInfo {
             , boolean fieldBased //
             , boolean compatibleWithJavaBean
     ) {
-        JSONType jsonType = clazz.getAnnotation(JSONType.class);
+        return build(clazz, type, propertyNamingStrategy, fieldBased, compatibleWithJavaBean, false);
+    }
 
-        Class<?> builderClass = getBuilderClass(jsonType);
+    public static JavaBeanInfo build(Class<?> clazz //
+            , Type type //
+            , PropertyNamingStrategy propertyNamingStrategy //
+            , boolean fieldBased //
+            , boolean compatibleWithJavaBean
+            , boolean jacksonCompatible
+    ) {
+        JSONType jsonType = TypeUtils.getAnnotation(clazz,JSONType.class);
+        if (jsonType != null) {
+            PropertyNamingStrategy jsonTypeNaming = jsonType.naming();
+            if (jsonTypeNaming != null && jsonTypeNaming != PropertyNamingStrategy.CamelCase) {
+                propertyNamingStrategy = jsonTypeNaming;
+            }
+        }
+
+        Class<?> builderClass = getBuilderClass(clazz, jsonType);
 
         Field[] declaredFields = clazz.getDeclaredFields();
         Method[] methods = clazz.getMethods();
 
+        boolean kotlin = TypeUtils.isKotlin(clazz);
         Constructor[] constructors = clazz.getDeclaredConstructors();
 
-        Constructor<?> defaultConstructor;
-        if (builderClass == null) {
-            defaultConstructor = getDefaultConstructor(clazz, constructors);
-        } else {
-            defaultConstructor = getDefaultConstructor(builderClass, builderClass.getDeclaredConstructors());
+        Constructor<?> defaultConstructor = null;
+        if ((!kotlin) || constructors.length == 1) {
+            if (builderClass == null) {
+                defaultConstructor = getDefaultConstructor(clazz, constructors);
+            } else {
+                defaultConstructor = getDefaultConstructor(builderClass, builderClass.getDeclaredConstructors());
+            }
         }
 
         Constructor<?> creatorConstructor = null;
@@ -203,14 +278,15 @@ public class JavaBeanInfo {
         }
 
         boolean isInterfaceOrAbstract = clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers());
-        if (defaultConstructor == null || isInterfaceOrAbstract) {
-
+        if ((defaultConstructor == null && builderClass == null) || isInterfaceOrAbstract) {
             creatorConstructor = getCreatorConstructor(constructors);
 
             if (creatorConstructor != null && !isInterfaceOrAbstract) { // 基于标记 JSONCreator 注解的构造方法
                 TypeUtils.setAccessible(creatorConstructor);
 
                 Class<?>[] types = creatorConstructor.getParameterTypes();
+
+                String[] lookupParameterNames = null;
                 if (types.length > 0) {
                     Annotation[][] paramAnnotationArrays = creatorConstructor.getParameterAnnotations();
                     for (int i = 0; i < types.length; ++i) {
@@ -222,28 +298,54 @@ public class JavaBeanInfo {
                                 break;
                             }
                         }
-                        if (fieldAnnotation == null) {
-                            throw new JSONException("illegal json creator");
-                        }
+
                         Class<?> fieldClass = types[i];
                         Type fieldType = creatorConstructor.getGenericParameterTypes()[i];
-                        Field field = TypeUtils.getField(clazz, fieldAnnotation.name(), declaredFields);
-                        final int ordinal = fieldAnnotation.ordinal();
-                        final int serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
-                        final int parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
-                        FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, field,
+
+                        String fieldName = null;
+                        Field field = null;
+                        int ordinal = 0, serialzeFeatures = 0, parserFeatures = 0;
+                        if (fieldAnnotation != null) {
+                            field = TypeUtils.getField(clazz, fieldAnnotation.name(), declaredFields);
+                            ordinal = fieldAnnotation.ordinal();
+                            serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                            parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
+                            fieldName = fieldAnnotation.name();
+                        }
+
+                        if (fieldName == null || fieldName.length() == 0) {
+                            if (lookupParameterNames == null) {
+                                lookupParameterNames = ASMUtils.lookupParameterNames(creatorConstructor);
+                            }
+                            fieldName = lookupParameterNames[i];
+                        }
+
+                        if (field == null) {
+                            if (lookupParameterNames == null) {
+                                if (kotlin) {
+                                    lookupParameterNames = TypeUtils.getKoltinConstructorParameters(clazz);
+                                } else {
+                                    lookupParameterNames = ASMUtils.lookupParameterNames(creatorConstructor);
+                                }
+                            }
+
+                            if (lookupParameterNames.length > i) {
+                                String parameterName = lookupParameterNames[i];
+                                field = TypeUtils.getField(clazz, parameterName, declaredFields);
+                            }
+                        }
+
+                        FieldInfo fieldInfo = new FieldInfo(fieldName, clazz, fieldClass, fieldType, field,
                                 ordinal, serialzeFeatures, parserFeatures);
                         add(fieldList, fieldInfo);
                     }
                 }
 
-                return new JavaBeanInfo(clazz, builderClass, null, creatorConstructor, null, null, jsonType, fieldList);
-            }
-
-            factoryMethod = getFactoryMethod(clazz, methods); // 基于标记 JSONCreator 注解的工厂方法
-            if (factoryMethod != null) {
+                //return new JavaBeanInfo(clazz, builderClass, null, creatorConstructor, null, null, jsonType, fieldList);
+            } else if ((factoryMethod = getFactoryMethod(clazz, methods, jacksonCompatible)) != null) {
                 TypeUtils.setAccessible(factoryMethod);
 
+                String[] lookupParameterNames = null;
                 Class<?>[] types = factoryMethod.getParameterTypes();
                 if (types.length > 0) {
                     Annotation[][] paramAnnotationArrays = factoryMethod.getParameterAnnotations();
@@ -256,17 +358,32 @@ public class JavaBeanInfo {
                                 break;
                             }
                         }
-                        if (fieldAnnotation == null) {
+                        if (fieldAnnotation == null && !(jacksonCompatible && TypeUtils.isJacksonCreator(factoryMethod))) {
                             throw new JSONException("illegal json creator");
+                        }
+
+                        String fieldName = null;
+                        int ordinal = 0, serialzeFeatures = 0, parserFeatures = 0;
+
+                        if (fieldAnnotation != null) {
+                            fieldName = fieldAnnotation.name();
+                            ordinal = fieldAnnotation.ordinal();
+                            serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                            parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
+                        }
+
+                        if (fieldName == null || fieldName.length() == 0) {
+                            if (lookupParameterNames == null) {
+                                lookupParameterNames = ASMUtils.lookupParameterNames(factoryMethod);
+                            }
+                            fieldName = lookupParameterNames[i];
                         }
 
                         Class<?> fieldClass = types[i];
                         Type fieldType = factoryMethod.getGenericParameterTypes()[i];
-                        Field field = TypeUtils.getField(clazz, fieldAnnotation.name(), declaredFields);
-                        final int ordinal = fieldAnnotation.ordinal();
-                        final int serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
-                        final int parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
-                        FieldInfo fieldInfo = new FieldInfo(fieldAnnotation.name(), clazz, fieldClass, fieldType, field,
+
+                        Field field = TypeUtils.getField(clazz, fieldName, declaredFields);
+                        FieldInfo fieldInfo = new FieldInfo(fieldName, clazz, fieldClass, fieldType, field,
                                 ordinal, serialzeFeatures, parserFeatures);
                         add(fieldList, fieldInfo);
                     }
@@ -274,24 +391,67 @@ public class JavaBeanInfo {
                     return new JavaBeanInfo(clazz, builderClass, null, null, factoryMethod, null, jsonType, fieldList);
                 }
             } else if (!isInterfaceOrAbstract) {
+                String className = clazz.getName();
+
                 String[] paramNames = null;
-                boolean kotlin = TypeUtils.isKotlin(clazz);
                 if (kotlin && constructors.length > 0) {
                     paramNames = TypeUtils.getKoltinConstructorParameters(clazz);
-                    creatorConstructor = constructors[constructors.length - 1];
+                    creatorConstructor = TypeUtils.getKoltinConstructor(constructors, paramNames);
                     TypeUtils.setAccessible(creatorConstructor);
                 } else {
+
                     for (Constructor constructor : constructors) {
+                        Class<?>[] parameterTypes = constructor.getParameterTypes();
+
+                        if (className.equals("org.springframework.security.web.authentication.WebAuthenticationDetails")) {
+                            if (parameterTypes.length == 2 && parameterTypes[0] == String.class && parameterTypes[1] == String.class) {
+                                creatorConstructor = constructor;
+                                creatorConstructor.setAccessible(true);
+                                paramNames = ASMUtils.lookupParameterNames(constructor);
+                                break;
+                            }
+                        }
+
+                        if (className.equals("org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken")) {
+                            if (parameterTypes.length == 3
+                                    && parameterTypes[0] == Object.class
+                                    && parameterTypes[1] == Object.class
+                                    && parameterTypes[2] == Collection.class) {
+                                creatorConstructor = constructor;
+                                creatorConstructor.setAccessible(true);
+                                paramNames = new String[] {"principal", "credentials", "authorities"};
+                                break;
+                            }
+                        }
+
+                        if (className.equals("org.springframework.security.core.authority.SimpleGrantedAuthority")) {
+                            if (parameterTypes.length == 1
+                                    && parameterTypes[0] == String.class) {
+                                creatorConstructor = constructor;
+                                paramNames = new String[] {"authority"};
+                                break;
+                            }
+                        }
+
+                        //
+
+
                         boolean is_public = (constructor.getModifiers() & Modifier.PUBLIC) != 0;
                         if (!is_public) {
                             continue;
                         }
-                        paramNames = ASMUtils.lookupParameterNames(constructor);
-                        if (paramNames != null && paramNames.length != 0) {
-                            creatorConstructor = constructor;
-                            break;
+                        String[] lookupParameterNames = ASMUtils.lookupParameterNames(constructor);
+                        if (lookupParameterNames == null || lookupParameterNames.length == 0) {
+                            continue;
                         }
-                        paramNames = null;
+
+                        if (creatorConstructor != null
+                                && paramNames != null && lookupParameterNames.length <= paramNames.length) {
+                            continue;
+                        }
+
+                        paramNames = lookupParameterNames;
+                        creatorConstructor = constructor;
                     }
                 }
 
@@ -327,7 +487,13 @@ public class JavaBeanInfo {
                         if (fieldAnnotation == null) {
                             ordinal = 0;
                             serialzeFeatures = 0;
-                            parserFeatures = 0;
+
+                            if ("org.springframework.security.core.userdetails.User".equals(className)
+                                    && "password".equals(paramName)) {
+                                parserFeatures = Feature.InitStringFieldAsEmpty.mask;
+                            } else {
+                                parserFeatures = 0;
+                            }
                         } else {
                             String nameAnnotated = fieldAnnotation.name();
                             if (nameAnnotated.length() != 0) {
@@ -341,10 +507,14 @@ public class JavaBeanInfo {
                                 ordinal, serialzeFeatures, parserFeatures);
                         add(fieldList, fieldInfo);
                     }
-                    return new JavaBeanInfo(clazz, builderClass, null, creatorConstructor, null, null, jsonType, fieldList);
-                }
 
-                throw new JSONException("default constructor not found. " + clazz);
+                    if ((!kotlin)
+                            && !clazz.getName().equals("javax.servlet.http.Cookie")) {
+                        return new JavaBeanInfo(clazz, builderClass, null, creatorConstructor, null, null, jsonType, fieldList);
+                    }
+                } else {
+                    throw new JSONException("default constructor not found. " + clazz);
+                }
             }
         }
 
@@ -399,21 +569,26 @@ public class JavaBeanInfo {
                 }
 
                 String methodName = method.getName();
-                if (!methodName.startsWith(withPrefix)) {
-                    continue;
+                StringBuilder properNameBuilder;
+                if (methodName.startsWith("set") && methodName.length() > 3) {
+                    properNameBuilder = new StringBuilder(methodName.substring(3));
+                } else {
+                    if (!methodName.startsWith(withPrefix)) {
+                        continue;
+                    }
+
+                    if (methodName.length() <= withPrefix.length()) {
+                        continue;
+                    }
+
+                    properNameBuilder = new StringBuilder(methodName.substring(withPrefix.length()));
                 }
 
-                if (methodName.length() <= withPrefix.length()) {
-                    continue;
-                }
-
-                char c0 = methodName.charAt(withPrefix.length());
-
+                char c0 = properNameBuilder.charAt(0);
                 if (!Character.isUpperCase(c0)) {
                     continue;
                 }
 
-                StringBuilder properNameBuilder = new StringBuilder(methodName.substring(withPrefix.length()));
                 properNameBuilder.setCharAt(0, Character.toLowerCase(c0));
 
                 String propertyName = properNameBuilder.toString();
@@ -598,7 +773,7 @@ public class JavaBeanInfo {
                 continue;
             }
 
-            if (methodName.startsWith("get") && Character.isUpperCase(methodName.charAt(3))) {
+            if (builderClass == null && methodName.startsWith("get") && Character.isUpperCase(methodName.charAt(3))) {
                 if (method.getParameterTypes().length != 0) {
                     continue;
                 }
@@ -630,13 +805,13 @@ public class JavaBeanInfo {
                         }
                     }
 
+                    if (propertyNamingStrategy != null) {
+                        propertyName = propertyNamingStrategy.translate(propertyName);
+                    }
+
                     FieldInfo fieldInfo = getField(fieldList, propertyName);
                     if (fieldInfo != null) {
                         continue;
-                    }
-
-                    if (propertyNamingStrategy != null) {
-                        propertyName = propertyNamingStrategy.translate(propertyName);
                     }
 
                     add(fieldList, new FieldInfo(propertyName, method, null, clazz, type, 0, 0, 0, annotation, null, null));
@@ -644,7 +819,19 @@ public class JavaBeanInfo {
             }
         }
 
-        return new JavaBeanInfo(clazz, builderClass, defaultConstructor, null, factoryMethod, buildMethod, jsonType, fieldList);
+        if (fieldList.size() == 0) {
+            if (TypeUtils.isXmlField(clazz)) {
+                fieldBased = true;
+            }
+
+            if (fieldBased) {
+                for (Class<?> currentClass = clazz; currentClass != null; currentClass = currentClass.getSuperclass()) {
+                    computeFields(clazz, type, propertyNamingStrategy, fieldList, declaredFields);
+                }
+            }
+        }
+
+        return new JavaBeanInfo(clazz, builderClass, defaultConstructor, creatorConstructor, factoryMethod, buildMethod, jsonType, fieldList);
     }
 
     private static void computeFields(Class<?> clazz, Type type, PropertyNamingStrategy propertyNamingStrategy, List<FieldInfo> fieldList, Field[] fields) {
@@ -739,7 +926,6 @@ public class JavaBeanInfo {
     public static Constructor<?> getCreatorConstructor(Constructor[] constructors) {
         Constructor<?> creatorConstructor = null;
 
-
         for (Constructor<?> constructor : constructors) {
             JSONCreator annotation = constructor.getAnnotation(JSONCreator.class);
             if (annotation != null) {
@@ -791,7 +977,7 @@ public class JavaBeanInfo {
         return creatorConstructor;
     }
 
-    private static Method getFactoryMethod(Class<?> clazz, Method[] methods) {
+    private static Method getFactoryMethod(Class<?> clazz, Method[] methods, boolean jacksonCompatible) {
         Method factoryMethod = null;
 
         for (Method method : methods) {
@@ -813,10 +999,30 @@ public class JavaBeanInfo {
                 // 不应该break，否则多个静态工厂方法上存在 JSONCreator 注解时，并不会触发上述异常抛出
             }
         }
+
+        if (factoryMethod == null && jacksonCompatible) {
+            for (Method method : methods) {
+                if (TypeUtils.isJacksonCreator(method)) {
+                    factoryMethod = method;
+                    break;
+                }
+            }
+        }
         return factoryMethod;
     }
 
+    /**
+     * @deprecated
+     */
     public static Class<?> getBuilderClass(JSONType type) {
+        return getBuilderClass(null, type);
+    }
+
+    public static Class<?> getBuilderClass(Class<?> clazz, JSONType type) {
+        if (clazz != null && clazz.getName().equals("org.springframework.security.web.savedrequest.DefaultSavedRequest")) {
+            return TypeUtils.loadClass("org.springframework.security.web.savedrequest.DefaultSavedRequest$Builder");
+        }
+
         if (type == null) {
             return null;
         }

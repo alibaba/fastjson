@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
@@ -21,9 +20,15 @@ import com.alibaba.fastjson.util.FieldInfo;
 public class DefaultFieldDeserializer extends FieldDeserializer {
 
     protected ObjectDeserializer fieldValueDeserilizer;
+    protected boolean            customDeserilizer     = false;
 
-    public DefaultFieldDeserializer(ParserConfig mapping, Class<?> clazz, FieldInfo fieldInfo){
+    public DefaultFieldDeserializer(ParserConfig config, Class<?> clazz, FieldInfo fieldInfo){
         super(clazz, fieldInfo);
+        JSONField annotation = fieldInfo.getAnnotation();
+        if (annotation != null) {
+            Class<?> deserializeUsing = annotation.deserializeUsing();
+            customDeserilizer = deserializeUsing != null && deserializeUsing != Void.class;
+        }
     }
 
     public ObjectDeserializer getFieldValueDeserilizer(ParserConfig config) {

@@ -2,10 +2,8 @@ package com.alibaba.json.bvt.issue_1200;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
-import com.sun.org.apache.xpath.internal.operations.Mod;
 import junit.framework.TestCase;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;

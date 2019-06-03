@@ -33,7 +33,20 @@ public class StringFieldTest_special_2 extends TestCase {
         String text = JSON.toJSONString(model, SerializerFeature.BrowserSecure);
         text = text.replaceAll("&lt;", "<");
         text = text.replaceAll("&gt;", ">");
+//        text = text.replaceAll("\\\\/", "/");
         Model model2 = JSON.parseObject(text, Model.class);
+
+        for (int i = 0; i < model.name.length() && i < model2.name.length(); ++i) {
+            char c1 = model.name.charAt(i);
+            char c2 = model.name.charAt(i);
+            if (c1 != c2) {
+                System.out.println("diff : " + c1 + " -> " + c2);
+                break;
+            }
+        }
+//        String str = model2.name.substring(65535);
+//        System.out.println(str);
+        Assert.assertEquals(model.name.length(), model2.name.length());
         Assert.assertEquals(model.name, model2.name);
     }
     

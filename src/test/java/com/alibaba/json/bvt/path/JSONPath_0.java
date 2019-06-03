@@ -17,7 +17,7 @@ public class JSONPath_0 extends TestCase {
     }
 
     public void test_null() throws Exception {
-        Assert.assertNull(new JSONPath("$").eval(null));
+        Assert.assertNull(new JSONPath("$").extract(null));
     }
 
     public void test_map() throws Exception {

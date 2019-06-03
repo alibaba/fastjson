@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2017 Alibaba Group.
+ * Copyright 1999-2018 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,13 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
@@ -47,6 +49,25 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
             out.writeNull();
             return;
         }
+
+        Class<?> clazz = object.getClass();
+        if (clazz == java.sql.Date.class) {
+            long millis = ((java.sql.Date) object).getTime();
+            TimeZone timeZone = serializer.timeZone;
+            int offset = timeZone.getOffset(millis);
+            if (millis % offset == 0) {
+                out.writeString(object.toString());
+                return;
+            }
+        }
+
+        if (clazz == java.sql.Time.class) {
+            long millis = ((java.sql.Time) object).getTime();
+            if (millis < 24L * 60L * 60L * 1000L) {
+                out.writeString(object.toString());
+                return;
+            }
+        }
         
         Date date;
         if (object instanceof Date) {
@@ -67,15 +88,15 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
         }
         
         if (out.isEnabled(SerializerFeature.WriteClassName)) {
-            if (object.getClass() != fieldType) {
-                if (object.getClass() == java.util.Date.class) {
+            if (clazz != fieldType) {
+                if (clazz == java.util.Date.class) {
                     out.write("new Date(");
                     out.writeLong(((Date) object).getTime());
                     out.write(')');
                 } else {
                     out.write('{');
                     out.writeFieldName(JSON.DEFAULT_TYPE_KEY);
-                    serializer.write(object.getClass().getName());
+                    serializer.write(clazz.getName());
                     out.writeFieldValue(',', "val", ((Date) object).getTime());
                     out.write('}');
                 }
@@ -128,17 +149,32 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
             }
             
             out.write(buf);
-            
-            int timeZone = calendar.getTimeZone().getRawOffset()/(3600*1000);
-            if (timeZone == 0) {
+
+            float timeZoneF = calendar.getTimeZone().getOffset(calendar.getTimeInMillis()) / (3600.0f * 1000);
+            int timeZone = (int)timeZoneF;
+            if (timeZone == 0.0) {
                 out.write('Z');
             } else {
-                if (timeZone > 0) {
-                    out.append('+').append(String.format("%02d", timeZone));
-                } else {
-                    out.append('-').append(String.format("%02d", -timeZone));
+                if (timeZone > 9) {
+                    out.write('+');
+                    out.writeInt(timeZone);
+                } else if (timeZone > 0) {
+                    out.write('+');
+                    out.write('0');
+                    out.writeInt(timeZone);
+                } else if (timeZone < -9) {
+                    out.write('-');
+                    out.writeInt(timeZone);
+                } else if (timeZone < 0) {
+                    out.write('-');
+                    out.write('0');
+                    out.writeInt(-timeZone);
                 }
-                out.append(":00");
+                out.write(':');
+                // handles uneven timeZones 30 mins, 45 mins
+                // this would always be less than 60
+                int offSet = (int)((timeZoneF - timeZone) * 60);
+                out.append(String.format("%02d", offSet));
             }
 
             out.write(quote);
@@ -148,7 +184,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
     }
     
     @SuppressWarnings("unchecked")
-    protected <T> T cast(DefaultJSONParser parser, Type clazz, Object fieldName, Object val) {
+    public <T> T cast(DefaultJSONParser parser, Type clazz, Object fieldName, Object val) {
 
         if (val == null) {
             return null;
@@ -156,6 +192,8 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
 
         if (val instanceof java.util.Date) {
             return (T) val;
+        } else if (val instanceof BigDecimal) {
+            return (T) new java.util.Date(TypeUtils.longValue((BigDecimal) val));
         } else if (val instanceof Number) {
             return (T) new java.util.Date(((Number) val).longValue());
         } else if (val instanceof String) {
@@ -164,22 +202,25 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
                 return null;
             }
 
-            JSONScanner dateLexer = new JSONScanner(strVal);
-            try {
-                if (dateLexer.scanISO8601DateIfMatch(false)) {
-                    Calendar calendar = dateLexer.getCalendar();
-                    
-                    if (clazz == Calendar.class) {
-                        return (T) calendar;
+            {
+                JSONScanner dateLexer = new JSONScanner(strVal);
+                try {
+                    if (dateLexer.scanISO8601DateIfMatch(false)) {
+                        Calendar calendar = dateLexer.getCalendar();
+
+                        if (clazz == Calendar.class) {
+                            return (T) calendar;
+                        }
+
+                        return (T) calendar.getTime();
                     }
-                    
-                    return (T) calendar.getTime();
+                } finally {
+                    dateLexer.close();
                 }
-            } finally {
-                dateLexer.close();
             }
             
-            if (strVal.length() == parser.getDateFomartPattern().length()) {
+            if (strVal.length() == parser.getDateFomartPattern().length()
+                    || (strVal.length() == 22 && parser.getDateFomartPattern().equals("yyyyMMddHHmmssSSSZ"))) {
                 DateFormat dateFormat = parser.getDateFormat();
                 try {
                     return (T) dateFormat.parse(strVal);
@@ -192,18 +233,39 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
                 String dotnetDateStr = strVal.substring(6, strVal.length() - 2);
                 strVal = dotnetDateStr;
             }
-            
-//            JSONScanner iso8601Lexer = new JSONScanner(strVal);
-//            if (iso8601Lexer.scanISO8601DateIfMatch()) {
-//                val = iso8601Lexer.getCalendar().getTime();
-//            }
-//            iso8601Lexer.close();
 
             if ("0000-00-00".equals(strVal)
                     || "0000-00-00T00:00:00".equalsIgnoreCase(strVal)
                     || "0001-01-01T00:00:00+08:00".equalsIgnoreCase(strVal)) {
                 return null;
             }
+
+            int index = strVal.lastIndexOf('|');
+            if (index > 20) {
+                String tzStr = strVal.substring(index + 1);
+                TimeZone timeZone = TimeZone.getTimeZone(tzStr);
+                if (!"GMT".equals(timeZone.getID())) {
+                    String subStr = strVal.substring(0, index);
+                    JSONScanner dateLexer = new JSONScanner(subStr);
+                    try {
+                        if (dateLexer.scanISO8601DateIfMatch(false)) {
+                            Calendar calendar = dateLexer.getCalendar();
+
+                            calendar.setTimeZone(timeZone);
+
+                            if (clazz == Calendar.class) {
+                                return (T) calendar;
+                            }
+
+                            return (T) calendar.getTime();
+                        }
+                    } finally {
+                        dateLexer.close();
+                    }
+                }
+            }
+
+            // 2017-08-14 19:05:30.000|America/Los_Angeles
 //            
             long longVal = Long.parseLong(strVal);
             return (T) new java.util.Date(longVal);

@@ -16,7 +16,7 @@ public class LocalDateTimeTest4 extends TestCase {
         vo.setDate(dateTime);
         
         String text = JSON.toJSONString(vo);
-        Assert.assertEquals("{\"date\":\"2016-05-06 09:03:16\"}", text);
+        Assert.assertEquals("{\"date\":\"2016-05-06T09:03:16\"}", text);
         
         VO vo1 = JSON.parseObject(text, VO.class);
         

@@ -29,19 +29,15 @@ import static com.alibaba.fastjson.util.TypeUtils.castToSqlDate;
 import static com.alibaba.fastjson.util.TypeUtils.castToString;
 import static com.alibaba.fastjson.util.TypeUtils.castToTimestamp;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.RandomAccess;
+import java.util.*;
 
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.util.TypeUtils;
 
 /**
@@ -182,7 +178,7 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
             list.add(element);
             return null;
         }
-        
+
         if (list.size() <= index) {
             for (int i = list.size(); i < index; ++i) {
                 list.add(null);
@@ -190,7 +186,7 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
             list.add(element);
             return null;
         }
-        
+
         return list.set(index, element);
     }
 
@@ -248,6 +244,10 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
             return (JSONObject) value;
         }
 
+        if (value instanceof Map) {
+            return new JSONObject((Map) value);
+        }
+
         return (JSONObject) toJSON(value);
     }
 
@@ -258,12 +258,26 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
             return (JSONArray) value;
         }
 
+        if (value instanceof List) {
+            return new JSONArray((List) value);
+        }
+
         return (JSONArray) toJSON(value);
     }
 
     public <T> T getObject(int index, Class<T> clazz) {
         Object obj = list.get(index);
         return TypeUtils.castToJavaBean(obj, clazz);
+    }
+
+    public <T> T getObject(int index, Type type) {
+        Object obj = list.get(index);
+        if (type instanceof Class) {
+            return (T) TypeUtils.castToJavaBean(obj, (Class) type);
+        } else {
+            String json = JSON.toJSONString(obj);
+            return (T) JSON.parseObject(json, type);
+        }
     }
 
     public Boolean getBoolean(int index) {
@@ -295,11 +309,12 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
     public byte getByteValue(int index) {
         Object value = get(index);
 
-        if (value == null) {
+        Byte byteVal = castToByte(value);
+        if (byteVal == null) {
             return 0;
         }
 
-        return castToByte(value).byteValue();
+        return byteVal.byteValue();
     }
 
     public Short getShort(int index) {
@@ -311,11 +326,12 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
     public short getShortValue(int index) {
         Object value = get(index);
 
-        if (value == null) {
+        Short shortVal = castToShort(value);
+        if (shortVal == null) {
             return 0;
         }
 
-        return castToShort(value).shortValue();
+        return shortVal.shortValue();
     }
 
     public Integer getInteger(int index) {
@@ -327,11 +343,12 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
     public int getIntValue(int index) {
         Object value = get(index);
 
-        if (value == null) {
+        Integer intVal = castToInt(value);
+        if (intVal == null) {
             return 0;
         }
 
-        return castToInt(value).intValue();
+        return intVal.intValue();
     }
 
     public Long getLong(int index) {
@@ -343,11 +360,12 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
     public long getLongValue(int index) {
         Object value = get(index);
 
-        if (value == null) {
+        Long longVal = castToLong(value);
+        if (longVal == null) {
             return 0L;
         }
 
-        return castToLong(value).longValue();
+        return longVal.longValue();
     }
 
     public Float getFloat(int index) {
@@ -359,11 +377,12 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
     public float getFloatValue(int index) {
         Object value = get(index);
 
-        if (value == null) {
+        Float floatValue = castToFloat(value);
+        if (floatValue == null) {
             return 0F;
         }
 
-        return castToFloat(value).floatValue();
+        return floatValue.floatValue();
     }
 
     public Double getDouble(int index) {
@@ -375,11 +394,12 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
     public double getDoubleValue(int index) {
         Object value = get(index);
 
-        if (value == null) {
+        Double doubleValue = castToDouble(value);
+        if (doubleValue == null) {
             return 0D;
         }
 
-        return castToDouble(value);
+        return doubleValue.doubleValue();
     }
 
     public BigDecimal getBigDecimal(int index) {
@@ -445,5 +465,25 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
 
     public int hashCode() {
         return this.list.hashCode();
+    }
+
+    private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+        JSONObject.SecureObjectInputStream.ensureFields();
+        if (JSONObject.SecureObjectInputStream.fields != null && !JSONObject.SecureObjectInputStream.fields_error) {
+            ObjectInputStream secIn = new JSONObject.SecureObjectInputStream(in);
+            try {
+                secIn.defaultReadObject();
+                return;
+            } catch (java.io.NotActiveException e) {
+                // skip
+            }
+        }
+
+        in.defaultReadObject();
+        for (Object item : list) {
+            if (item != null) {
+                ParserConfig.global.checkAutoType(item.getClass().getName(), null);
+            }
+        }
     }
 }

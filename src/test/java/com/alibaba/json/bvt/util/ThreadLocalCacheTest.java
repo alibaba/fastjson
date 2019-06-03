@@ -3,6 +3,7 @@ package com.alibaba.json.bvt.util;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import com.alibaba.fastjson.util.ThreadLocalCache;
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
@@ -90,4 +91,34 @@ public class ThreadLocalCacheTest extends TestCase {
         ThreadLocal<byte[]> bytesBufLocal = (ThreadLocal<byte[]>) field.get(null);
         bytesBufLocal.set(null);
     }
+
+    public void test_chars() throws Exception {
+        ThreadLocalCache.getChars(10);
+        ThreadLocalCache.getChars(10);
+        ThreadLocalCache.getChars(20);
+        ThreadLocalCache.getChars(30);
+        clearChars();
+        ThreadLocalCache.getChars(10);
+        ThreadLocalCache.getChars(10);
+        ThreadLocalCache.getChars(20);
+        ThreadLocalCache.getChars(30);
+
+        ThreadLocalCache.clearChars();
+        ThreadLocalCache.getUTF8Decoder();
+        ThreadLocalCache.getUTF8Decoder();
+    }
+
+    public void test_bytes() throws Exception {
+        ThreadLocalCache.getBytes(10);
+        ThreadLocalCache.getBytes(10);
+        ThreadLocalCache.getBytes(20);
+        ThreadLocalCache.getBytes(30);
+        clearBytes();
+        ThreadLocalCache.getBytes(10);
+        ThreadLocalCache.getBytes(10);
+        ThreadLocalCache.getBytes(20);
+        ThreadLocalCache.getBytes(30);
+
+    }
+
 }

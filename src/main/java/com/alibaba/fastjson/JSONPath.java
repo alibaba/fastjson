@@ -1402,14 +1402,20 @@ public class JSONPath implements JSONAware {
             String text = path.substring(start, end);
             
             if (text.indexOf("\\.") != -1) {
-                String propName = text.replaceAll("\\\\\\.","\\.");
-                if (propName.indexOf("\\-") != -1) {
-                    propName = propName.replaceAll("\\\\-","-");
+                String propName;
+                if (startCh == '\'' && text.length() > 2 && text.charAt(text.length() - 1) == startCh) {
+                    propName = text.substring(1, text.length() - 1);
+                } else {
+                    propName = text.replaceAll("\\\\\\.", "\\.");
+                    if (propName.indexOf("\\-") != -1) {
+                        propName = propName.replaceAll("\\\\-", "-");
+                    }
                 }
 
                 if (predicateFlag) {
                     accept(')');
                 }
+
                 return new PropertySegment(propName, false);
             }
 

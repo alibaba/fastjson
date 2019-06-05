@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.alibaba</groupId>
 	<artifactId>fastjson</artifactId>
-	<version>1.2.59_preview_01</version>
+	<version>1.2.59_preview_02</version>
 
 	<packaging>jar</packaging>
 	<name>fastjson</name>
@@ -307,6 +307,13 @@
             <groupId>org.javamoney.moneta</groupId>
             <artifactId>moneta-core</artifactId>
             <version>1.3</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.airlift</groupId>
+            <artifactId>slice</artifactId>
+            <version>0.36</version>
             <scope>provided</scope>
         </dependency>
 

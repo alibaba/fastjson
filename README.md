@@ -21,6 +21,7 @@ Fastjson is a Java library that can be used to convert Java Objects into their J
 ## Documentation
 
 - [Documentation Home](https://github.com/alibaba/fastjson/wiki)
+- [Contributing Code](https://github.com/nschaffner/fastjson/blob/master/CONTRIBUTING.md)
 - [Frequently Asked Questions](https://github.com/alibaba/fastjson/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98)
 
 ## Benchmark
@@ -41,7 +42,7 @@ https://github.com/eishay/jvm-serializers/wiki
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>fastjson</artifactId>
-    <version>1.2.57</version>
+    <version>1.2.58</version>
 </dependency>
 ```
 
@@ -56,7 +57,7 @@ https://github.com/eishay/jvm-serializers/wiki
 ## Gradle via JCenter
 
 ``` groovy
-compile 'com.alibaba:fastjson:1.2.57'
+compile 'com.alibaba:fastjson:1.2.58'
 ```
 
 ``` groovy

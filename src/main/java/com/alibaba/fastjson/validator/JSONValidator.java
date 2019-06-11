@@ -129,9 +129,95 @@ public class JSONValidator extends JSONBytes {
 
     public void validateStr() {
         Expect(QUOTATION_MARK);
+        while(getPosition() < getMaxPosition()){
+            int nmove = 0;
+            for(byte b : getJsonBytes()) {
+                char c = (char)b;
+                if(c == QUOTATION_MARK){
+                    moveX(++nmove);
+                    return;
+                } else if(c == REVERSE_SOLIDUS) {
+                    nmove++;
+                    moveX(nmove);
+                    validateEsc();
+                    break;
+                } else if(c < CONTROL_CHARACTER) {
+                    throw new InvalidJSONException("control characters are not allowed in string type(< 0x20)");
+                }
+                nmove++;
+            }
+        }
+        throw new UnexceptedEOFException(new String(getJsonBytes()));
+    }
+
+    /**
+     * there are only seven value type and we are going to test them one by one
+     */
+    public void validateValue() {
 
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

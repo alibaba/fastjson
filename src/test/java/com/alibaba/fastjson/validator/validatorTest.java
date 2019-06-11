@@ -29,26 +29,33 @@ public class validatorTest {
     }
 
     @Test
-    public void testvalidateDigit() {
+    public void validateDigitTest() {
         validator.validateDigit();
         System.out.println("position: " + validator.getPosition());
         System.out.print(new String(validator.getJsonBytes()));
     }
 
     @Test
-    public void testvalidateNumber() {
+    public void validateNumberTest() {
         validator.validateNumber();
         System.out.println("position: " + validator.getPosition());
         System.out.print(new String(validator.getJsonBytes()));
     }
 
     @Test
-    public void testvalidateEscTest() {
+    public void validateEscTest() {
         validator.validateEsc();;
         System.out.println("position: " + validator.getPosition());
         System.out.print(new String(validator.getJsonBytes()));
     }
 
+    @Test
+    public void validateStrTest() {
+        System.out.print("length: " + validator.len());
+        validator.validateStr();
+        System.out.println("position: " + validator.getPosition());
+        System.out.print(new String(validator.getJsonBytes()));
+    }
     @Test
     public void testLittle() {
 

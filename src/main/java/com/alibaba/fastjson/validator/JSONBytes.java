@@ -36,7 +36,7 @@ public class JSONBytes implements JSONConstant {
     }
 
     public void validateLen(int len) {
-        if(maxPosition <= position) {
+        if(maxPosition < position + len) {
             throw new UnexceptedEOFException(getPartOfjson());
         }
     }

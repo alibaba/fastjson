@@ -35,7 +35,7 @@ public class JSONValidator extends JSONBytes {
 
 
     /**
-     * Validate state of Object
+     * verify the state of an Object
      */
     public void validateObj() {
         Expect(OBJ_START);
@@ -44,6 +44,54 @@ public class JSONValidator extends JSONBytes {
             return;
         }
 
+        while(true) {
+            TrimLeftSpace();
+            validateStr();
+
+            TrimLeftSpace();
+            Expect(SEP_COLON);
+
+            TrimLeftSpace();
+            validateValue();
+
+            TrimLeftSpace();
+
+            if(firstByte() == SEP_COMMA) {
+                moveOne();
+            } else if(firstByte() == OBJ_END) {
+                moveOne();
+                return;
+            }else {
+                throw new InvalidJSONException("expect any one of the following characters: ','  '}'");
+            }
+        }
+    }
+
+    /**
+     * verify the state of an Array
+     */
+    public void validateArr() {
+        Expect(ARR_START);
+        if(firstByte() == ARR_END) {
+            moveOne();
+            return;
+        }
+
+        while(true) {
+            TrimLeftSpace();
+            validateValue();
+
+            TrimLeftSpace();
+
+            if(firstByte() == SEP_COMMA) {
+                moveOne();
+            } else if(firstByte() == ARR_END) {
+                moveOne();
+                return;
+            }else {
+                throw new InvalidJSONException("expect any one of the following characters: ','  ']'");
+            }
+        }
     }
 
     /**
@@ -63,7 +111,7 @@ public class JSONValidator extends JSONBytes {
             }
             nmove++;
         }
-        throw new UnexceptedEOFException("there are another root");
+        throw new UnexceptedEOFException("The file can't be ended by a digit");
     }
 
     /**
@@ -154,8 +202,46 @@ public class JSONValidator extends JSONBytes {
      * there are only seven value type and we are going to test them one by one
      */
     public void validateValue() {
-
+        char b = (char)firstByte();
+        switch (b) {
+            case QUOTATION_MARK:
+                validateStr();
+                break;
+            case OBJ_START:
+                validateObj();
+                break;
+            case ARR_START:
+                validateArr();
+                break;
+            case BOOL_T:
+                if(byteX(1) != 'r' || byteX(2) != 'u' || byteX(3) != 'e') {
+                    throw new InvalidJSONException("expect a bool value: true");
+                }
+                moveX(4);
+                return;
+            case BOOL_F:
+                if(byteX(1) != 'a' || byteX(2) != 'l' || byteX(3) != 's' || byteX(4) != 'e') {
+                    throw new InvalidJSONException("expect a bool value: false");
+                }
+                moveX(5);
+                return;
+            case NULL_START:
+                if(byteX(1) != 'u' || byteX(2) != 'l' || byteX(3) != 'l'){
+                    throw new InvalidJSONException("expect a null value: null");
+                }
+                moveX(4);
+                return;
+            default:
+                if(b == NUMBER_MINUS || b == NUMBER_ZERO || (b >= '1' && b <= '9')) {
+                    validateNumber();
+                } else {
+                   throw new InvalidJSONException("expect any one of the following characters: '\"'  '{'  '['  't'  'f'  'n'  '-'  '0'  '1'  '2'  '3'  '4'  '5'  '6'  '7'  '8'  '9'");
+                }
+        }
+        return;
     }
+
+
 }
 
 

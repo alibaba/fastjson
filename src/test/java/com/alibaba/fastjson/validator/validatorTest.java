@@ -57,6 +57,27 @@ public class validatorTest {
         System.out.print(new String(validator.getJsonBytes()));
     }
     @Test
+    public void validateValueTest() {
+        System.out.print("length: " + validator.len());
+        validator.validateValue();
+        System.out.println("position: " + validator.getPosition());
+        System.out.print(new String(validator.getJsonBytes()));
+    }
+    @Test
+    public void validateObjTest() {
+        System.out.print("length: " + validator.len());
+        validator.validateObj();
+        System.out.println("position: " + validator.getPosition());
+        System.out.print(new String(validator.getJsonBytes()));
+    }
+    @Test
+    public void validateArrTest() {
+        System.out.print("length: " + validator.len());
+        validator.validateArr();
+        System.out.println("position: " + validator.getPosition());
+        System.out.print(new String(validator.getJsonBytes()));
+    }
+    @Test
     public void testLittle() {
 
     }

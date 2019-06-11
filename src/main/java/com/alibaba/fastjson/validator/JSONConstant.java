@@ -5,7 +5,7 @@ public interface JSONConstant {
       * json structure constant
       */
      char OBJ_START = '{'; //start of an object
-     char ONJ_END   = '}'; //end of an object
+     char OBJ_END   = '}'; //end of an object
      char ARR_START = '['; //start of an array
      char ARR_END   = ']'; //end of an array
      char SEP_COLON = ':'; //an value correspond to key
@@ -29,7 +29,15 @@ public interface JSONConstant {
      char CARRIAGE_RETURN         = 'r';
      char HORIZONTAL_TAB          = 't';
      char FOUR_HEXADECIMAL_DIGITS = 'u';
-
+     char[] ESCAPE_CHARACTER = {
+                QUOTATION_MARK,
+                REVERSE_SOLIDUS,
+                SOLIDUS,
+                BACKSPACE,
+                FORMFEED,
+                NEWLINE,
+                CARRIAGE_RETURN,
+                HORIZONTAL_TAB};
      /**
       * Json Number
       */

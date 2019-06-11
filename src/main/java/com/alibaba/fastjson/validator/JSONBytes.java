@@ -58,12 +58,12 @@ public class JSONBytes implements JSONConstant {
         moveX(1);
     }
 
-    public byte byteX(int x) {
+    public char byteX(int x) {
         validateLen(x);
-        return jsonBytes[x];
+        return (char)jsonBytes[x];
     }
 
-    public byte firstByte() {
+    public char firstByte() {
         return byteX(0);
     }
 
@@ -87,7 +87,7 @@ public class JSONBytes implements JSONConstant {
     /**
      * Expect function verify that if the first byte of jsonBytes is the target byte
      */
-    public void Expect(byte b) {
+    public void Expect(char b) {
         if(firstByte() != b) {
             throw new InvalidJSONException("expect character:" + (char)b + "\n" + getPartOfjson());
         }

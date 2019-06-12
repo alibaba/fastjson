@@ -12,19 +12,19 @@ public class JSONValidator extends JSONBytes {
      * The root of json can only be object or array.
      * We need to verify that it starts with { or [.
      */
-    public RuntimeException valideta() {
+    public RuntimeException validator() {
         TrimLeftSpace();
         if(firstByte() != OBJ_START && firstByte() != ARR_START) {
             return new InvalidJSONException("Json file should start with { or [");
         }
         if(firstByte() == OBJ_START) {
-            //
+            validateObj();
             TrimLeftSpace();
             if(len() == 0) {
                 return null;
             }
         } else if(firstByte() == ARR_START) {
-            //
+            validateArr();
             TrimLeftSpace();
             if (len() == 0) {
                 return null;
@@ -99,7 +99,9 @@ public class JSONValidator extends JSONBytes {
      * It should be return before the end of the byte date because json file can't finish with number
      */
     public void validateDigit() {
+        TrimLeftSpace();
         if(firstByte() < '0' || firstByte() > '9') {
+            System.out.println(firstByte());
             throw new InvalidJSONException("expect any one of the following characters: '0'  '1'  '2'  '3'  '4'  '5'  '6'  '7'  '8'  '9'\n" + getPartOfjson());
         }
         moveOne();
@@ -125,7 +127,9 @@ public class JSONValidator extends JSONBytes {
             moveOne();
         } else if(firstByte() >= '1' || firstByte() <= '9') {
             moveOne();
-            validateDigit();
+            if(firstByte() >= '0' && firstByte() <= '9') {
+                validateDigit();
+            }
         } else {
             throw new InvalidJSONException("expect any one of the following characters: '-'  '0'  '1'  '2'  '3'  '4'  '5'  '6'  '7'  '8'  '9'");
         }

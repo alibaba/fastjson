@@ -9,12 +9,8 @@ public class validatorTest {
 
     @Before
     public void setup() {
-        JSONFileByteTools JF = new JSONFileByteTools("1.json");
-        byte[] bytes = JF.getJsonByte();
-        JSONBytes = new JSONBytes(bytes);
-
-        JSONFileByteTools JF1 = new JSONFileByteTools("test.json");
-        byte[] bytes1 = JF1.getJsonByte();
+        JSONFileByteTools JF = new JSONFileByteTools("test.json");
+        byte[] bytes1 = JF.getJsonByte();
         validator = new JSONValidator(bytes1);
 
     }
@@ -78,8 +74,15 @@ public class validatorTest {
         System.out.print(new String(validator.getJsonBytes()));
     }
     @Test
-    public void testLittle() {
-
+    public void validatorTest() {
+        System.out.print("length: " + validator.len());
+        validator.validator();
+        System.out.println("position: " + validator.getPosition());
+        System.out.print(new String(validator.getJsonBytes()));
+    }
+    @Test
+    public void littleTest() {
+        System.out.println('5' > '9');
     }
 }
 

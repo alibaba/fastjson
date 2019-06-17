@@ -18,6 +18,8 @@ package com.alibaba.fastjson.serializer;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
+import com.alibaba.fastjson.serializer.formatter.TimeFormatter;
+import com.alibaba.fastjson.serializer.formatter.TimeFormatters;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.TypeUtils;
 
@@ -33,7 +35,7 @@ import java.util.Date;
  * @author wenshao[szujobs@hotmail.com]
  */
 public class FieldSerializer implements Comparable<FieldSerializer> {
-
+    private TimeFormatter         timeFormatter           = TimeFormatters.TIME_FORMATTER;
     public final FieldInfo        fieldInfo;
     protected final boolean       writeNull;
     protected int                 features;
@@ -156,11 +158,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
     public Object getPropertyValue(Object object) throws InvocationTargetException, IllegalAccessException {
         Object propertyValue =  fieldInfo.get(object);
         if (format != null && propertyValue != null) {
-            if (fieldInfo.fieldClass == Date.class) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat(format, JSON.defaultLocale);
-                dateFormat.setTimeZone(JSON.defaultTimeZone);
-                return dateFormat.format(propertyValue);
-            }
+            return timeFormatter.format(format,propertyValue);
         }
         return propertyValue;
     }

@@ -12,7 +12,6 @@ import java.time.OffsetTime;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.chrono.ChronoZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.Date;
@@ -25,6 +24,7 @@ import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.serializer.*;
+import com.alibaba.fastjson.serializer.formatter.Jdk8TimeFormatter;
 
 public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSerializer, ContextObjectSerializer, ObjectDeserializer {
 
@@ -183,7 +183,9 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
             if (type == ZonedDateTime.class) {
                 return (T) ZonedDateTime.ofInstant(Instant.ofEpochMilli(millis), JSON.defaultTimeZone.toZoneId());
             }
-
+            if (type == Instant.class) {
+                return (T) Instant.ofEpochMilli(millis);
+            }
             throw new UnsupportedOperationException();
         } else {
             throw new UnsupportedOperationException();
@@ -468,20 +470,12 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
     }
 
     private void write(SerializeWriter out, TemporalAccessor object, String format) {
-        DateTimeFormatter formatter;
-        if ("unixtime".equals(format) && object instanceof ChronoZonedDateTime) {
-            long seconds = ((ChronoZonedDateTime) object).toEpochSecond();
-            out.writeInt((int) seconds);
-            return;
+        Jdk8TimeFormatter formatter = Jdk8TimeFormatter.FORMATTER;
+        if (formatter.supportUnixTime(format, object)) {
+          out.writeInt((int) formatter.toUnixTime(object));
+          return;
         }
-
-        if (format == formatter_iso8601_pattern) {
-            formatter = formatter_iso8601;
-        } else {
-            formatter = DateTimeFormatter.ofPattern(format);
-        }
-
-        String text = formatter.format((TemporalAccessor) object);
+        String text = Jdk8TimeFormatter.FORMATTER.format(format, object).toString();
         out.writeString(text);
     }
 }

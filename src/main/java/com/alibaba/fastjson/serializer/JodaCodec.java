@@ -5,6 +5,7 @@ import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 
+import com.alibaba.fastjson.serializer.formatter.JodaFormatter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Locale;
@@ -436,14 +437,6 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
     }
 
     private void write(SerializeWriter out, ReadablePartial object, String format) {
-        DateTimeFormatter formatter;
-        if (format == formatter_iso8601_pattern) {
-            formatter = formatter_iso8601;
-        } else {
-            formatter = DateTimeFormat.forPattern(format);
-        }
-
-        String text = formatter.print(object);
-        out.writeString(text);
+        out.writeString(JodaFormatter.FORMATTER.format(format,object).toString());
     }
 }

@@ -34,6 +34,7 @@ import com.alibaba.fastjson.parser.deserializer.AbstractDateDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.TypeUtils;
+import com.alibaba.fastjson.serializer.formatter.DateFormatter;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -77,13 +78,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
         }
         
         if (out.isEnabled(SerializerFeature.WriteDateUseDateFormat)) {
-            DateFormat format = serializer.getDateFormat();
-            if (format == null) {
-                format = new SimpleDateFormat(JSON.DEFFAULT_DATE_FORMAT, serializer.locale);
-                format.setTimeZone(serializer.timeZone);
-            }
-            String text = format.format(date);
-            out.writeString(text);
+            out.writeString(DateFormatter.FORMATTER.format(serializer.getDateFormatPattern(),date).toString());
             return;
         }
         

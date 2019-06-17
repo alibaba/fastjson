@@ -52,7 +52,7 @@ public class Jdk8TimeFormatter implements TimeFormatter {
 
   @Override
   public long toUnixTime(Object time) {
-    return ChronoZonedDateTime.class.cast(time).toInstant().toEpochMilli();
+    return ChronoZonedDateTime.class.cast(time).toEpochSecond();
   }
 
   @Override

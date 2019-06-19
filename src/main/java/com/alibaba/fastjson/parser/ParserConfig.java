@@ -48,6 +48,8 @@ import com.alibaba.fastjson.asm.ClassReader;
 import com.alibaba.fastjson.asm.TypeCollector;
 import com.alibaba.fastjson.parser.deserializer.*;
 import com.alibaba.fastjson.serializer.*;
+import com.alibaba.fastjson.spi.Module;
+import com.alibaba.fastjson.support.moneta.MonetaCodec;
 import com.alibaba.fastjson.util.*;
 import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.ServiceLoader;
@@ -59,13 +61,13 @@ import javax.xml.datatype.XMLGregorianCalendar;
  */
 public class ParserConfig {
 
-    public final static String DENY_PROPERTY             = "fastjson.parser.deny";
-    public final static String AUTOTYPE_ACCEPT           = "fastjson.parser.autoTypeAccept";
-    public final static String AUTOTYPE_SUPPORT_PROPERTY = "fastjson.parser.autoTypeSupport";
-    
-    public static final String[] DENYS;
+    public static final String    DENY_PROPERTY             = "fastjson.parser.deny";
+    public static final String    AUTOTYPE_ACCEPT           = "fastjson.parser.autoTypeAccept";
+    public static final String    AUTOTYPE_SUPPORT_PROPERTY = "fastjson.parser.autoTypeSupport";
+
+    public static  final String[] DENYS;
     private static final String[] AUTO_TYPE_ACCEPT_LIST;
-    public static final boolean AUTO_SUPPORT;
+    public static  final boolean  AUTO_SUPPORT;
 
     static  {
         {
@@ -89,10 +91,10 @@ public class ParserConfig {
     public static ParserConfig getGlobalInstance() {
         return global;
     }
-
     public static ParserConfig                              global                = new ParserConfig();
 
     private final IdentityHashMap<Type, ObjectDeserializer> deserializers         = new IdentityHashMap<Type, ObjectDeserializer>();
+    private final ConcurrentMap<String,Class<?>>            typeMapping           = new ConcurrentHashMap<String,Class<?>>(16, 0.75f, 1);
 
     private boolean                                         asmEnable             = !ASMUtils.IS_ANDROID;
 
@@ -107,6 +109,7 @@ public class ParserConfig {
     private static boolean                                  awtError              = false;
     private static boolean                                  jdk8Error             = false;
     private static boolean                                  jodaError             = false;
+    private static boolean                                  guavaError            = false;
 
     private boolean                                         autoTypeSupport       = AUTO_SUPPORT;
     private long[]                                          denyHashCodes;
@@ -117,6 +120,7 @@ public class ParserConfig {
     private boolean                                         jacksonCompatible     = false;
 
     public boolean                                          compatibleWithJavaBean = TypeUtils.compatibleWithJavaBean;
+    private List<Module>                                    modules                = new ArrayList<Module>();
 
     {
         denyHashCodes = new long[]{
@@ -447,6 +451,14 @@ public class ParserConfig {
             return derializer;
         }
 
+        for (Module module : modules) {
+            derializer = module.createDeserializer(this, clazz);
+            if (derializer != null) {
+                putDeserializer(type, derializer);
+                return derializer;
+            }
+        }
+
         String className = clazz.getName();
         className = className.replace('$', '.');
 
@@ -548,12 +560,43 @@ public class ParserConfig {
             }
         }
 
+        if ((!guavaError) //
+                && className.startsWith("com.google.common.collect.")) {
+            try {
+                String[] names = new String[] {
+                        "com.google.common.collect.HashMultimap",
+                        "com.google.common.collect.LinkedListMultimap",
+                        "com.google.common.collect.LinkedHashMultimap",
+                        "com.google.common.collect.ArrayListMultimap",
+                        "com.google.common.collect.TreeMultimap"
+                };
+
+                for (String name : names) {
+                    if (name.equals(className)) {
+                        deserializers.put(Class.forName(name), derializer = GuavaCodec.instance);
+                        return derializer;
+                    }
+                }
+            } catch (ClassNotFoundException e) {
+                // skip
+                guavaError = true;
+            }
+        }
+
+        if (className.equals("java.nio.ByteBuffer")) {
+            deserializers.put(clazz, derializer = ByteBufferCodec.instance);
+        }
+
         if (className.equals("java.nio.file.Path")) {
             deserializers.put(clazz, derializer = MiscCodec.instance);
         }
 
         if (clazz == Map.Entry.class) {
             deserializers.put(clazz, derializer = MiscCodec.instance);
+        }
+
+        if (className.equals("org.javamoney.moneta.Money")) {
+            deserializers.put(clazz, derializer = MonetaCodec.instance);
         }
 
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -768,6 +811,12 @@ public class ParserConfig {
             }
         }
 
+        if (asmEnable) {
+            if (TypeUtils.isXmlField(clazz)) {
+                asmEnable = false;
+            }
+        }
+
         if (!asmEnable) {
             return new JavaBeanDeserializer(this, clazz, type);
         }
@@ -947,6 +996,14 @@ public class ParserConfig {
         this.acceptHashCodes = hashCodes;
     }
 
+    public Class<?> checkAutoType(Class type) {
+        if (deserializers.get(type) != null) {
+            return type;
+        }
+
+        return checkAutoType(type.getName(), null, JSON.DEFAULT_PARSER_FEATURE);
+    }
+
     public Class<?> checkAutoType(String typeName, Class<?> expectClass) {
         return checkAutoType(typeName, expectClass, JSON.DEFAULT_PARSER_FEATURE);
     }
@@ -1023,6 +1080,10 @@ public class ParserConfig {
 
         if (clazz == null) {
             clazz = deserializers.findClass(typeName);
+        }
+
+        if (clazz == null) {
+            clazz = typeMapping.get(typeName);
         }
 
         if (clazz != null) {
@@ -1142,5 +1203,13 @@ public class ParserConfig {
 
     public void setJacksonCompatible(boolean jacksonCompatible) {
         this.jacksonCompatible = jacksonCompatible;
+    }
+
+    public void register(String typeName, Class type) {
+        typeMapping.putIfAbsent(typeName, type);
+    }
+
+    public void register(Module module) {
+        this.modules.add(module);
     }
 }

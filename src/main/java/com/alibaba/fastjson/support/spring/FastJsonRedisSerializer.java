@@ -7,7 +7,9 @@ import org.springframework.data.redis.serializer.SerializationException;
 
 /**
  * {@link RedisSerializer} FastJson Impl
+ *
  * @author lihengming
+ * @author Victor.Zxy
  * @since 1.2.36
  */
 public class FastJsonRedisSerializer<T> implements RedisSerializer<T> {
@@ -32,7 +34,15 @@ public class FastJsonRedisSerializer<T> implements RedisSerializer<T> {
             return new byte[0];
         }
         try {
-            return JSON.toJSONBytes(t, fastJsonConfig.getSerializeConfig(), fastJsonConfig.getSerializerFeatures());
+            return JSON.toJSONBytes(
+                    fastJsonConfig.getCharset(),
+                    t,
+                    fastJsonConfig.getSerializeConfig(),
+                    fastJsonConfig.getSerializeFilters(),
+                    fastJsonConfig.getDateFormat(),
+                    JSON.DEFAULT_GENERATE_FEATURE,
+                    fastJsonConfig.getSerializerFeatures()
+            );
         } catch (Exception ex) {
             throw new SerializationException("Could not serialize: " + ex.getMessage(), ex);
         }
@@ -44,7 +54,15 @@ public class FastJsonRedisSerializer<T> implements RedisSerializer<T> {
             return null;
         }
         try {
-            return (T) JSON.parseObject(bytes, type, fastJsonConfig.getFeatures());
+            return (T) JSON.parseObject(
+                    bytes,
+                    fastJsonConfig.getCharset(),
+                    type,
+                    fastJsonConfig.getParserConfig(),
+                    fastJsonConfig.getParseProcess(),
+                    JSON.DEFAULT_PARSER_FEATURE,
+                    fastJsonConfig.getFeatures()
+            );
         } catch (Exception ex) {
             throw new SerializationException("Could not deserialize: " + ex.getMessage(), ex);
         }

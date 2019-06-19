@@ -32,6 +32,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     private ConcurrentMap<String, Object> extraFieldDeserializers;
 
     private final Map<String, FieldDeserializer> alterNameFieldDeserializers;
+    private Map<String, FieldDeserializer> fieldDeserializerMap;
 
     private transient long[] smartMatchHashArray;
     private transient short[] smartMatchHashArrayMapping;
@@ -61,6 +62,13 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
             sortedFieldDeserializers[i] = fieldDeserializer;
 
+            if (size > 128) {
+                if (fieldDeserializerMap == null) {
+                    fieldDeserializerMap = new HashMap<String, FieldDeserializer>();
+                }
+                fieldDeserializerMap.put(fieldInfo.name, fieldDeserializer);
+            }
+
             for (String name : fieldInfo.alternateNames) {
                 if (alterNameFieldDeserializers == null) {
                     alterNameFieldDeserializers = new HashMap<String, FieldDeserializer>();
@@ -85,6 +93,13 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     public FieldDeserializer getFieldDeserializer(String key, int[] setFlags) {
         if (key == null) {
             return null;
+        }
+
+        if (fieldDeserializerMap != null) {
+            FieldDeserializer fieldDeserializer = fieldDeserializerMap.get(key);
+            if (fieldDeserializer != null) {
+                return fieldDeserializer;
+            }
         }
         
         int low = 0;
@@ -237,7 +252,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     param = ctxObj;
                 }
 
-                if (param == null) {
+                if (param == null || param instanceof Collection && ((Collection)param).isEmpty()) {
                     throw new JSONException("can't create non-static inner class instance.");
                 }
 
@@ -479,14 +494,14 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             }
 
             String typeKey = beanInfo.typeKey;
-            for (int fieldIndex = 0;; fieldIndex++) {
+            for (int fieldIndex = 0, notMatchCount = 0;; fieldIndex++) {
                 String key = null;
                 FieldDeserializer fieldDeser = null;
                 FieldInfo fieldInfo = null;
                 Class<?> fieldClass = null;
                 JSONField feildAnnotation = null;
                 boolean customDeserilizer = false;
-                if (fieldIndex < sortedFieldDeserializers.length) {
+                if (fieldIndex < sortedFieldDeserializers.length && notMatchCount < 16) {
                     fieldDeser = sortedFieldDeserializers[fieldIndex];
                     fieldInfo = fieldDeser.fieldInfo;
                     fieldClass = fieldInfo.fieldClass;
@@ -516,7 +531,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             matchField = true;
                             valueParsed = true;
                         } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
-                            continue;  
+                            notMatchCount++;
+                            continue;
                         }
                     } else if (fieldClass == long.class || fieldClass == Long.class) {
                         long longVal = lexer.scanFieldLong(name_chars);
@@ -530,7 +546,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             matchField = true;
                             valueParsed = true;
                         } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
-                            continue;  
+                            notMatchCount++;
+                            continue;
                         }
                     } else if (fieldClass == String.class) {
                         fieldValue = lexer.scanFieldString(name_chars);
@@ -539,7 +556,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             matchField = true;
                             valueParsed = true;
                         } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
-                            continue;  
+                            notMatchCount++;
+                            continue;
                         }
                     } else if (fieldClass == java.util.Date.class && fieldInfo.format == null) {
                         fieldValue = lexer.scanFieldDate(name_chars);
@@ -548,6 +566,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             matchField = true;
                             valueParsed = true;
                         } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
+                            notMatchCount++;
                             continue;
                         }
                     } else if (fieldClass == BigDecimal.class) {
@@ -557,6 +576,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             matchField = true;
                             valueParsed = true;
                         } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
+                            notMatchCount++;
                             continue;
                         }
                     } else if (fieldClass == BigInteger.class) {
@@ -566,6 +586,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             matchField = true;
                             valueParsed = true;
                         } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
+                            notMatchCount++;
                             continue;
                         }
                     } else if (fieldClass == boolean.class || fieldClass == Boolean.class) {
@@ -581,7 +602,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             matchField = true;
                             valueParsed = true;
                         } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
-                            continue;  
+                            notMatchCount++;
+                            continue;
                         }
                     } else if (fieldClass == float.class || fieldClass == Float.class) {
                         float floatVal = lexer.scanFieldFloat(name_chars);
@@ -595,7 +617,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             matchField = true;
                             valueParsed = true;
                         } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
-                            continue;  
+                            notMatchCount++;
+                            continue;
                         }
                     } else if (fieldClass == double.class || fieldClass == Double.class) {
                         double doubleVal = lexer.scanFieldDouble(name_chars);
@@ -609,7 +632,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             matchField = true;
                             valueParsed = true;
                         } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
-                            continue;  
+                            notMatchCount++;
+                            continue;
                         }
                     } else if (fieldClass.isEnum() // 
                             && parser.getConfig().getDeserializer(fieldClass) instanceof EnumDeserializer
@@ -623,6 +647,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                                 matchField = true;
                                 valueParsed = true;
                             } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
+                                notMatchCount++;
                                 continue;
                             }
                         }
@@ -633,6 +658,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             matchField = true;
                             valueParsed = true;
                         } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
+                            notMatchCount++;
                             continue;
                         }
                     } else if (fieldClass == float[].class) {
@@ -642,6 +668,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             matchField = true;
                             valueParsed = true;
                         } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
+                            notMatchCount++;
                             continue;
                         }
                     } else if (fieldClass == float[][].class) {
@@ -651,6 +678,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             matchField = true;
                             valueParsed = true;
                         } else if (lexer.matchStat == JSONLexer.NOT_MATCH_NAME) {
+                            notMatchCount++;
                             continue;
                         }
                     } else if (lexer.matchField(name_chars)) {
@@ -811,7 +839,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         if (setFlags != null) {
                             int flagIndex = fieldIndex / 32;
                             int bitIndex = fieldIndex % 32;
-                            setFlags[flagIndex] |= (1 >> bitIndex);
+                            setFlags[flagIndex] |= (1 << bitIndex);
                         }
 
                         if (lexer.matchStat == JSONLexer.END) {
@@ -820,6 +848,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     }
                 } else {
                     boolean match = parseField(parser, key, object, type, fieldValues, setFlags);
+
                     if (!match) {
                         if (lexer.token() == JSONToken.RBRACE) {
                             lexer.nextToken();
@@ -1024,9 +1053,20 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             return null;
         }
 
-        long enumNameHashCode = lexer.scanFieldSymbol(name_chars);
+        long enumNameHashCode = lexer.scanEnumSymbol(name_chars);
         if (lexer.matchStat > 0) {
-            return enumDeserializer.getEnumByHashCode(enumNameHashCode);
+            Enum e = enumDeserializer.getEnumByHashCode(enumNameHashCode);
+            if (e == null) {
+                if (enumNameHashCode == 0xcbf29ce484222325L) {
+                    return null;
+                }
+
+                if (lexer.isEnabled(Feature.ErrorOnEnumNotMatch)) {
+                    throw new JSONException("not match enum value, " + enumDeserializer.enumClass);
+                }
+            }
+
+            return e;
         } else {
             return null;
         }
@@ -1091,7 +1131,10 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 throw new JSONException("setter not found, class " + clazz.getName() + ", property " + key);
             }
 
-            for (FieldDeserializer fieldDeser : this.sortedFieldDeserializers) {
+            int fieldIndex = -1;
+            for (int i = 0; i < this.sortedFieldDeserializers.length; i++) {
+                FieldDeserializer fieldDeser = this.sortedFieldDeserializers[i];
+
                 FieldInfo fieldInfo = fieldDeser.fieldInfo;
                 if (fieldInfo.unwrapped //
                         && fieldDeser instanceof DefaultFieldDeserializer) {
@@ -1111,7 +1154,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                                     }
                                     lexer.nextTokenWithColon(defaultFieldDeserializer.getFastMatchToken());
                                     unwrappedFieldDeser.parseField(parser, fieldObject, objectType, fieldValues);
-                                    return true;
+                                    fieldIndex = i;
                                 } catch (Exception e) {
                                     throw new JSONException("parse unwrapped field error.", e);
                                 }
@@ -1133,7 +1176,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             } catch (Exception e) {
                                 throw new JSONException("parse unwrapped field error.", e);
                             }
-                            return true;
+                            fieldIndex = i;
                         }
                     } else if (fieldInfo.method.getParameterTypes().length == 2) {
                         lexer.nextTokenWithColon();
@@ -1143,9 +1186,18 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         } catch (Exception e) {
                             throw new JSONException("parse unwrapped field error.", e);
                         }
-                        return true;
+                        fieldIndex = i;
                     }
                 }
+            }
+
+            if (fieldIndex != -1) {
+                if (setFlags != null) {
+                    int flagIndex = fieldIndex / 32;
+                    int bitIndex = fieldIndex % 32;
+                    setFlags[flagIndex] |= (1 << bitIndex);
+                }
+                return true;
             }
             
             parser.parseExtra(object, key);
@@ -1170,6 +1222,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         lexer.nextTokenWithColon(fieldDeserializer.getFastMatchToken());
 
         fieldDeserializer.parseField(parser, object, objectType, fieldValues);
+
+        if (setFlags != null) {
+            int flagIndex = fieldIndex / 32;
+            int bitIndex = fieldIndex % 32;
+            setFlags[flagIndex] |= (1 << bitIndex);
+        }
 
         return true;
     }
@@ -1273,12 +1331,77 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 }
 
                 final FieldInfo fieldInfo = fieldDeser.fieldInfo;
+                Field field = fieldDeser.fieldInfo.field;
                 Type paramType = fieldInfo.fieldType;
+
+                if (field != null) {
+                    if (paramType == boolean.class) {
+                        if (value == Boolean.FALSE) {
+                            field.setBoolean(object, false);
+                            continue;
+                        }
+
+                        if (value == Boolean.TRUE) {
+                            field.setBoolean(object, true);
+                            continue;
+                        }
+                    } else if (paramType == int.class) {
+                        if (value instanceof Number) {
+                            field.setInt(object, ((Number) value).intValue());
+                            continue;
+                        }
+                    } else if (paramType == long.class) {
+                        if (value instanceof Number) {
+                            field.setLong(object, ((Number) value).longValue());
+                            continue;
+                        }
+                    } else if (paramType == float.class) {
+                        if (value instanceof Number) {
+                            field.setFloat(object, ((Number) value).floatValue());
+                            continue;
+                        } else if (value instanceof String) {
+                            String strVal = (String) value;
+                            float floatValue;
+                            if (strVal.length() <= 10) {
+                                floatValue = TypeUtils.parseFloat(strVal);
+                            } else {
+                                floatValue = Float.parseFloat(strVal);
+                            }
+
+                            field.setFloat(object, floatValue);
+                            continue;
+                        }
+                    } else if (paramType == double.class) {
+                        if (value instanceof Number) {
+                            field.setDouble(object, ((Number) value).doubleValue());
+                            continue;
+                        } else if (value instanceof String) {
+                            String strVal = (String) value;
+                            double doubleValue;
+                            if (strVal.length() <= 10) {
+                                doubleValue = TypeUtils.parseDouble(strVal);
+                            } else {
+                                doubleValue = Double.parseDouble(strVal);
+                            }
+
+                            field.setDouble(object, doubleValue);
+                            continue;
+                        }
+                    } else if (value != null && paramType == value.getClass()) {
+                        field.set(object, value);
+                        continue;
+                    }
+                }
+
                 String format = fieldInfo.format;
                 if (format != null && paramType == java.util.Date.class) {
                     value = TypeUtils.castToDate(value, format);
                 } else {
-                    value = TypeUtils.cast(value, paramType, config);
+                    if (paramType instanceof ParameterizedType) {
+                        value = TypeUtils.cast(value, (ParameterizedType) paramType, config);
+                    } else {
+                        value = TypeUtils.cast(value, paramType, config);
+                    }
                 }
 
                 fieldDeser.setValue(object, value);

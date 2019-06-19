@@ -8,10 +8,10 @@ public class JSONPathBenchmarkTest {
 
     public static void main(String[] args) throws Exception {
         for (int i = 0; i < 5; ++i) {
-             f0();
+             f0(); // 390 353
         }
         for (int i = 0; i < 5; ++i) {
-            f1();
+//            f1();
         }
     }
 

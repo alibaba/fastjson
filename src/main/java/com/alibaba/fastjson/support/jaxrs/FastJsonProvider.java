@@ -2,6 +2,7 @@ package com.alibaba.fastjson.support.jaxrs;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
@@ -128,48 +129,108 @@ public class FastJsonProvider //
     }
 
     /**
-     * Set charset. the default charset is UTF-8
+     * Instantiates a new Fast json provider.
+     *
+     * @param charset the charset
+     * @see FastJsonConfig#setCharset(Charset)
+     * @deprecated
      */
     @Deprecated
     public FastJsonProvider(String charset) {
         this.fastJsonConfig.setCharset(Charset.forName(charset));
     }
 
+    /**
+     * Gets charset.
+     *
+     * @return the charset
+     * @see FastJsonConfig#getCharset()
+     * @deprecated
+     */
     @Deprecated
     public Charset getCharset() {
         return this.fastJsonConfig.getCharset();
     }
 
+    /**
+     * Sets charset.
+     *
+     * @param charset the charset
+     * @see FastJsonConfig#setCharset(Charset)
+     * @deprecated
+     */
     @Deprecated
     public void setCharset(Charset charset) {
         this.fastJsonConfig.setCharset(charset);
     }
 
+    /**
+     * Gets date format.
+     *
+     * @return the date format
+     * @see FastJsonConfig#getDateFormat()
+     * @deprecated
+     */
     @Deprecated
     public String getDateFormat() {
         return this.fastJsonConfig.getDateFormat();
     }
 
+    /**
+     * Sets date format.
+     *
+     * @param dateFormat the date format
+     * @see FastJsonConfig#setDateFormat(String)
+     * @deprecated
+     */
     @Deprecated
     public void setDateFormat(String dateFormat) {
         this.fastJsonConfig.setDateFormat(dateFormat);
     }
 
+    /**
+     * Get features serializer feature [].
+     *
+     * @return the serializer feature []
+     * @see FastJsonConfig#getFeatures()
+     * @deprecated
+     */
     @Deprecated
     public SerializerFeature[] getFeatures() {
         return this.fastJsonConfig.getSerializerFeatures();
     }
 
+    /**
+     * Sets features.
+     *
+     * @param features the features
+     * @see FastJsonConfig#setFeatures(Feature...)
+     * @deprecated
+     */
     @Deprecated
     public void setFeatures(SerializerFeature... features) {
         this.fastJsonConfig.setSerializerFeatures(features);
     }
 
+    /**
+     * Get filters serialize filter [].
+     *
+     * @return the serialize filter []
+     * @see FastJsonConfig#getSerializeFilters()
+     * @deprecated
+     */
     @Deprecated
     public SerializeFilter[] getFilters() {
         return this.fastJsonConfig.getSerializeFilters();
     }
 
+    /**
+     * Sets filters.
+     *
+     * @param filters the filters
+     * @see FastJsonConfig#setSerializeFilters(SerializeFilter...)
+     * @deprecated
+     */
     @Deprecated
     public void setFilters(SerializeFilter... filters) {
         this.fastJsonConfig.setSerializeFilters(filters);
@@ -242,12 +303,6 @@ public class FastJsonProvider //
         return true;
     }
 
-	/*
-     * /********************************************************** /* Partial
-	 * MessageBodyWriter impl
-	 * /**********************************************************
-	 */
-
     /**
      * Method that JAX-RS container calls to try to check whether given value
      * (of specified type) can be serialized by this provider.
@@ -293,12 +348,12 @@ public class FastJsonProvider //
         FastJsonConfig fastJsonConfig = locateConfigProvider(type, mediaType);
 
         SerializerFeature[] serializerFeatures = fastJsonConfig.getSerializerFeatures();
+
         if (pretty) {
             if (serializerFeatures == null)
                 serializerFeatures = new SerializerFeature[]{SerializerFeature.PrettyFormat};
             else {
-                List<SerializerFeature> featureList = new ArrayList<SerializerFeature>(Arrays
-                        .asList(serializerFeatures));
+                List<SerializerFeature> featureList = new ArrayList<SerializerFeature>(Arrays.asList(serializerFeatures));
                 featureList.add(SerializerFeature.PrettyFormat);
                 serializerFeatures = featureList.toArray(serializerFeatures);
             }
@@ -306,7 +361,7 @@ public class FastJsonProvider //
         }
 
         try {
-            int len = JSON.writeJSONString(entityStream, //
+            JSON.writeJSONString(entityStream, //
                     fastJsonConfig.getCharset(), //
                     obj, //
                     fastJsonConfig.getSerializeConfig(), //
@@ -315,24 +370,13 @@ public class FastJsonProvider //
                     JSON.DEFAULT_GENERATE_FEATURE, //
                     fastJsonConfig.getSerializerFeatures());
 
-//            // add Content-Length
-//            if (fastJsonConfig.isWriteContentLength()) {
-//                httpHeaders.add("Content-Length", String.valueOf(len));
-//            }
-
             entityStream.flush();
 
         } catch (JSONException ex) {
 
-            throw new WebApplicationException("Could not write JSON: " + ex.getMessage(), ex);
+            throw new WebApplicationException(ex);
         }
     }
-
-	/*
-     * /********************************************************** /*
-	 * MessageBodyReader impl
-	 * /**********************************************************
-	 */
 
     /**
      * Method that JAX-RS container calls to try to check whether values of
@@ -366,11 +410,17 @@ public class FastJsonProvider //
         try {
             FastJsonConfig fastJsonConfig = locateConfigProvider(type, mediaType);
 
-            return JSON.parseObject(entityStream, fastJsonConfig.getCharset(), genericType, fastJsonConfig.getFeatures());
+            return JSON.parseObject(entityStream,
+                    fastJsonConfig.getCharset(),
+                    genericType,
+                    fastJsonConfig.getParserConfig(),
+                    fastJsonConfig.getParseProcess(),
+                    JSON.DEFAULT_PARSER_FEATURE,
+                    fastJsonConfig.getFeatures());
 
         } catch (JSONException ex) {
 
-            throw new WebApplicationException("JSON parse error: " + ex.getMessage(), ex);
+            throw new WebApplicationException(ex);
         }
     }
 

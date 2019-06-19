@@ -20,9 +20,6 @@ import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-
 public class JavaBeanInfo {
 
     public final Class<?> clazz;
@@ -321,6 +318,21 @@ public class JavaBeanInfo {
                                 lookupParameterNames = ASMUtils.lookupParameterNames(creatorConstructor);
                             }
                             fieldName = lookupParameterNames[i];
+                        }
+
+                        if (field == null) {
+                            if (lookupParameterNames == null) {
+                                if (kotlin) {
+                                    lookupParameterNames = TypeUtils.getKoltinConstructorParameters(clazz);
+                                } else {
+                                    lookupParameterNames = ASMUtils.lookupParameterNames(creatorConstructor);
+                                }
+                            }
+
+                            if (lookupParameterNames.length > i) {
+                                String parameterName = lookupParameterNames[i];
+                                field = TypeUtils.getField(clazz, parameterName, declaredFields);
+                            }
                         }
 
                         FieldInfo fieldInfo = new FieldInfo(fieldName, clazz, fieldClass, fieldType, field,
@@ -808,8 +820,7 @@ public class JavaBeanInfo {
         }
 
         if (fieldList.size() == 0) {
-            XmlAccessorType accessorType = clazz.getAnnotation(XmlAccessorType.class);
-            if (accessorType != null && accessorType.value() == XmlAccessType.FIELD) {
+            if (TypeUtils.isXmlField(clazz)) {
                 fieldBased = true;
             }
 

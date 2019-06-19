@@ -20,8 +20,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -29,11 +27,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.*;
 
-import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.Feature;
-import com.alibaba.fastjson.parser.JSONLexer;
-import com.alibaba.fastjson.parser.JSONToken;
-import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.parser.*;
 import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
 import com.alibaba.fastjson.parser.deserializer.FieldTypeResolver;
@@ -41,7 +35,6 @@ import com.alibaba.fastjson.parser.deserializer.ParseProcess;
 import com.alibaba.fastjson.serializer.*;
 import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.TypeUtils;
-import sun.reflect.annotation.AnnotationType;
 
 /**
  * This is the main class for using Fastjson. You usually call these two methods {@link #toJSONString(Object)} and {@link #parseObject(String, Class)}.
@@ -97,23 +90,40 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         features |= SerializerFeature.WriteEnumUsingName.getMask();
         features |= SerializerFeature.SortField.getMask();
 
+        DEFAULT_GENERATE_FEATURE = features;
+
+        config(IOUtils.DEFAULT_PROPERTIES);
+    }
+
+    private static void config(Properties properties) {
         {
-            String featuresProperty = IOUtils.getStringProperty("fastjson.serializerFeatures.MapSortField");
+            String featuresProperty = properties.getProperty("fastjson.serializerFeatures.MapSortField");
             int mask = SerializerFeature.MapSortField.getMask();
             if ("true".equals(featuresProperty)) {
-                features |= mask;
+                DEFAULT_GENERATE_FEATURE |= mask;
             } else if ("false".equals(featuresProperty)) {
-                features &= ~mask;
+                DEFAULT_GENERATE_FEATURE &= ~mask;
             }
         }
 
-        DEFAULT_GENERATE_FEATURE = features;
-    }
-
-    static {
         {
-            if ("true".equals(IOUtils.DEFAULT_PROPERTIES.getProperty("parser.features.NonStringKeyAsString"))) {
+            if ("true".equals(properties.getProperty("parser.features.NonStringKeyAsString"))) {
                 DEFAULT_PARSER_FEATURE |= Feature.NonStringKeyAsString.getMask();
+            }
+        }
+
+        {
+            if ("true".equals(properties.getProperty("parser.features.ErrorOnEnumNotMatch"))
+                    || "true".equals(properties.getProperty("fastjson.parser.features.ErrorOnEnumNotMatch")))
+            {
+                DEFAULT_PARSER_FEATURE |= Feature.ErrorOnEnumNotMatch.getMask();
+            }
+        }
+
+        {
+            if ("false".equals(properties.getProperty("fastjson.asmEnable"))) {
+                ParserConfig.getGlobalInstance().setAsmEnable(false);
+                SerializeConfig.getGlobalInstance().setAsmEnable(false);
             }
         }
     }
@@ -384,10 +394,38 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
      */
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(byte[] bytes, int offset, int len, Charset charset, Type clazz, Feature... features) {
+        return (T) parseObject(bytes, offset, len, charset, clazz, ParserConfig.global, null, DEFAULT_PARSER_FEATURE, features);
+    }
+
+    /**
+     * @since 1.2.55
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T parseObject(byte[] bytes,
+                                    Charset charset,
+                                    Type clazz,
+                                    ParserConfig config,
+                                    ParseProcess processor,
+                                    int featureValues,
+                                    Feature... features) {
+        return (T) parseObject(bytes, 0, bytes.length, charset, clazz, config, processor, featureValues, features);
+    }
+
+    /**
+     * @since 1.2.55
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T parseObject(byte[] bytes, int offset, int len,
+                                    Charset charset,
+                                    Type clazz,
+                                    ParserConfig config,
+                                    ParseProcess processor,
+                                    int featureValues,
+                                    Feature... features) {
         if (charset == null) {
             charset = IOUtils.UTF8;
         }
-        
+
         String strVal;
         if (charset == IOUtils.UTF8) {
             char[] chars = allocateChars(bytes.length);
@@ -402,7 +440,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             }
             strVal = new String(bytes, offset, len, charset);
         }
-        return (T) parseObject(strVal, clazz, features);
+        return (T) parseObject(strVal, clazz, config, processor, featureValues, features);
     }
 
     @SuppressWarnings("unchecked")
@@ -465,10 +503,36 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                                     Charset charset, //
                                     Type type, //
                                     Feature... features) throws IOException {
+        return (T) parseObject(is, charset, type, ParserConfig.global, features);
+    }
+
+    /**
+     * @since 1.2.55
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T parseObject(InputStream is, //
+                                    Charset charset, //
+                                    Type type, //
+                                    ParserConfig config, //
+                                    Feature... features) throws IOException {
+        return (T) parseObject(is, charset, type, config, null, DEFAULT_PARSER_FEATURE, features);
+    }
+
+    /**
+     * @since 1.2.55
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T parseObject(InputStream is, //
+                                    Charset charset, //
+                                    Type type, //
+                                    ParserConfig config, //
+                                    ParseProcess processor, //
+                                    int featureValues, //
+                                    Feature... features) throws IOException {
         if (charset == null) {
             charset = IOUtils.UTF8;
         }
-        
+
         byte[] bytes = allocateBytes(1024 * 64);
         int offset = 0;
         for (;;) {
@@ -483,8 +547,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                 bytes = newBytes;
             }
         }
-        
-        return (T) parseObject(bytes, 0, offset, charset, type, features);
+
+        return (T) parseObject(bytes, 0, offset, charset, type, config, processor, featureValues, features);
     }
 
     public static <T> T parseObject(String text, Class<T> clazz) {
@@ -717,10 +781,35 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
      * @since 1.2.42
      */
     public static byte[] toJSONBytes(Object object, SerializeConfig config, SerializeFilter[] filters, int defaultFeatures, SerializerFeature... features) {
+        return toJSONBytes(object, config, filters, null, defaultFeatures, features);
+    }
+
+    /**
+     * @since 1.2.55
+     */
+    public static byte[] toJSONBytes(Object object, SerializeConfig config, SerializeFilter[] filters, String dateFormat, int defaultFeatures, SerializerFeature... features) {
+        return toJSONBytes(IOUtils.UTF8, object, config, filters, dateFormat, defaultFeatures, features);
+    }
+
+    /**
+     * @since 1.2.55
+     */
+    public static byte[] toJSONBytes(Charset charset, //
+                                     Object object, //
+                                     SerializeConfig config, //
+                                     SerializeFilter[] filters, //
+                                     String dateFormat, //
+                                     int defaultFeatures, //
+                                     SerializerFeature... features) {
         SerializeWriter out = new SerializeWriter(null, defaultFeatures, features);
 
         try {
             JSONSerializer serializer = new JSONSerializer(out, config);
+
+            if (dateFormat != null && dateFormat.length() != 0) {
+                serializer.setDateFormat(dateFormat);
+                serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
+            }
 
             if (filters != null) {
                 for (SerializeFilter filter : filters) {
@@ -729,7 +818,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             }
 
             serializer.write(object);
-            return out.toBytes(IOUtils.UTF8);
+            return out.toBytes(charset);
         } finally {
             out.close();
         }
@@ -870,6 +959,20 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
     }
 
+    /**
+     * @since 1.2.57
+     */
+    public String toString(SerializerFeature... features) {
+        SerializeWriter out = new SerializeWriter(null, JSON.DEFAULT_GENERATE_FEATURE, features);
+
+        try {
+            new JSONSerializer(out).write(this);
+            return out.toString();
+        } finally {
+            out.close();
+        }
+    }
+
     public void writeJSONString(Appendable appendable) {
         SerializeWriter out = new SerializeWriter();
         try {
@@ -927,7 +1030,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             for (Map.Entry<Object, Object> entry : map.entrySet()) {
                 Object key = entry.getKey();
                 String jsonKey = TypeUtils.castToString(key);
-                Object jsonValue = toJSON(entry.getValue());
+                Object jsonValue = toJSON(entry.getValue(), config);
                 json.put(jsonKey, jsonValue);
             }
 
@@ -940,7 +1043,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             JSONArray array = new JSONArray(collection.size());
 
             for (Object item : collection) {
-                Object jsonValue = toJSON(item);
+                Object jsonValue = toJSON(item, config);
                 array.add(jsonValue);
             }
 
@@ -1058,9 +1161,96 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return chars;
     }
 
+    public static boolean isValid(String str) {
+        if (str == null || str.length() == 0) {
+            return false;
+        }
+
+        JSONScanner lexer = new JSONScanner(str);
+        try {
+            lexer.nextToken();
+
+            final int token = lexer.token();
+            switch (token) {
+                case JSONToken.LBRACE:
+                    if (lexer.getCurrent() == JSONLexer.EOI) {
+                        return false;
+                    }
+                    lexer.skipObject(true);
+                    break;
+                case JSONToken.LBRACKET:
+                    lexer.skipArray(true);
+                    break;
+                case JSONToken.LITERAL_INT:
+                case JSONToken.LITERAL_STRING:
+                case JSONToken.LITERAL_FLOAT:
+                case JSONToken.LITERAL_ISO8601_DATE:
+                case JSONToken.NULL:
+                case JSONToken.TRUE:
+                case JSONToken.FALSE:
+                    lexer.nextToken();
+                    break;
+                default:
+                    return false;
+            }
+
+            return lexer.token() == JSONToken.EOF;
+        } catch (Exception ex) {
+            return false;
+        } finally {
+            lexer.close();
+        }
+    }
+
+    public static boolean isValidObject(String str) {
+        if (str == null || str.length() == 0) {
+            return false;
+        }
+
+        JSONScanner lexer = new JSONScanner(str);
+
+        try {
+            lexer.nextToken();
+            final int token = lexer.token();
+            if (token == JSONToken.LBRACE) {
+                if (lexer.getCurrent() == JSONLexer.EOI) {
+                    return false;
+                }
+                lexer.skipObject(true);
+                return lexer.token() == JSONToken.EOF;
+            }
+            return false;
+        } catch (Exception ex) {
+            return false;
+        } finally {
+            lexer.close();
+        }
+    }
+
+    public static boolean isValidArray(String str) {
+        if (str == null || str.length() == 0) {
+            return false;
+        }
+
+        JSONScanner lexer = new JSONScanner(str);
+        try {
+            lexer.nextToken();
+            final int token = lexer.token();
+            if (token == JSONToken.LBRACKET) {
+                lexer.skipArray(true);
+                return lexer.token() == JSONToken.EOF;
+            }
+            return false;
+        } catch (Exception ex) {
+            return false;
+        } finally {
+            lexer.close();
+        }
+    }
+
     public static <T> void handleResovleTask(DefaultJSONParser parser, T value) {
         parser.handleResovleTask(value);
     }
 
-    public final static String VERSION = "1.2.51";
+    public final static String VERSION = "1.2.59";
 }

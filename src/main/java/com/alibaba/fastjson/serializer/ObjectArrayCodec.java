@@ -95,12 +95,12 @@ public class ObjectArrayCodec implements ObjectSerializer, ObjectDeserializer {
                         Class<?> clazz = item.getClass();
 
                         if (clazz == preClazz) {
-                            preWriter.write(serializer, item, null, null, 0);
+                            preWriter.write(serializer, item, i, null, 0);
                         } else {
                             preClazz = clazz;
                             preWriter = serializer.getObjectWriter(clazz);
 
-                            preWriter.write(serializer, item, null, null, 0);
+                            preWriter.write(serializer, item, i, null, 0);
                         }
                     }
                     out.append(',');

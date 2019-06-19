@@ -1,3 +1,18 @@
+/*
+ * Copyright 1999-2019 Alibaba Group.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.alibaba.fastjson.parser;
 
 import java.math.BigDecimal;
@@ -10,7 +25,7 @@ public interface JSONLexer {
     char EOI            = 0x1A;
     int  NOT_MATCH      = -1;
     int  NOT_MATCH_NAME = -2;
-    int  UNKNOWN         = 0;
+    int  UNKNOWN        = 0;
     int  OBJECT         = 1;
     int  ARRAY          = 2;
     int  VALUE          = 3;
@@ -52,7 +67,7 @@ public interface JSONLexer {
     String stringVal();
 
     boolean isEnabled(int feature);
-    
+
     boolean isEnabled(Feature feature);
 
     void config(Feature feature, boolean state);
@@ -95,13 +110,13 @@ public interface JSONLexer {
     void scanStringArray(Collection<String> collection, char seperator);
 
     TimeZone getTimeZone();
-    
+
     void setTimeZone(TimeZone timeZone);
-    
+
     Locale getLocale();
-    
+
     void setLocale(Locale locale);
-    
+
     String info();
 
     int getFeatures();

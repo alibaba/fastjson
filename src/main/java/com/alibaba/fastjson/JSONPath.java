@@ -90,13 +90,18 @@ public class JSONPath implements JSONAware {
             return this.eval(root);
         }
 
+        if (segments.length == 0) {
+            return parser.parse();
+        }
+
         Context context = null;
         for (int i = 0; i < segments.length; ++i) {
             Segment segment = segments[i];
             boolean last = i == segments.length - 1;
 
             if (context != null && context.object != null) {
-                return segment.eval(this, null, context.object);
+                context.object = segment.eval(this, null, context.object);
+                continue;
             }
 
             boolean eval;
@@ -117,6 +122,8 @@ public class JSONPath implements JSONAware {
                         && ((ArrayAccessSegment) nextSegment).index < 0) {
                     eval = true;
                 } else if (nextSegment instanceof FilterSegment) {
+                    eval = true;
+                } else if (segment instanceof WildCardSegment) {
                     eval = true;
                 } else {
                     eval = false;
@@ -731,6 +738,10 @@ public class JSONPath implements JSONAware {
 
                             if ("size".equals(propertyName) || "length".equals(propertyName)) {
                                 return SizeSegment.instance;
+                            } else if ("max".equals(propertyName)) {
+                                return MaxSegment.instance;
+                            } else if ("min".equals(propertyName)) {
+                                return MinSegment.instance;
                             } else if ("keySet".equals(propertyName)) {
                                 return KeySetSegment.instance;
                             }
@@ -1361,10 +1372,13 @@ public class JSONPath implements JSONAware {
             }
 
             int start = pos - 1;
+            char startCh = ch;
             while (ch != ']' && ch != '/' && !isEOF()) {
                 if (ch == '.' //
                         && (!predicateFlag) // 
-                        && !predicateFlag) {
+                        && !predicateFlag
+                        && startCh != '\''
+                ) {
                     break;
                 }
                 
@@ -1388,14 +1402,20 @@ public class JSONPath implements JSONAware {
             String text = path.substring(start, end);
             
             if (text.indexOf("\\.") != -1) {
-                String propName = text.replaceAll("\\\\\\.","\\.");
-                if (propName.indexOf("\\-") != -1) {
-                    propName = propName.replaceAll("\\\\-","-");
+                String propName;
+                if (startCh == '\'' && text.length() > 2 && text.charAt(text.length() - 1) == startCh) {
+                    propName = text.substring(1, text.length() - 1);
+                } else {
+                    propName = text.replaceAll("\\\\\\.", "\\.");
+                    if (propName.indexOf("\\-") != -1) {
+                        propName = propName.replaceAll("\\\\-", "-");
+                    }
                 }
 
                 if (predicateFlag) {
                     accept(')');
                 }
+
                 return new PropertySegment(propName, false);
             }
 
@@ -1538,6 +1558,8 @@ public class JSONPath implements JSONAware {
                     } else {
                         throw new UnsupportedOperationException();
                     }
+                } else if ("nin".equalsIgnoreCase(name)) {
+                    op = Operator.NOT_IN;
                 } else {
                     if ("like".equalsIgnoreCase(name)) {
                         op = Operator.LIKE;
@@ -1768,6 +1790,128 @@ public class JSONPath implements JSONAware {
         }
     }
 
+    static class MaxSegment implements Segment {
+
+        public final static MaxSegment instance = new MaxSegment();
+
+        public Object eval(JSONPath path, Object rootObject, Object currentObject) {
+            Object max = null;
+            if (rootObject instanceof Collection) {
+                Iterator iterator = ((Collection) rootObject).iterator();
+                while (iterator.hasNext()) {
+                    Object next = iterator.next();
+                    if (next == null) {
+                        continue;
+                    }
+
+                    if (max == null) {
+                        max = next;
+                    } else if (compare(max, next) < 0) {
+                        max = next;
+                    }
+                }
+            } else {
+                throw new UnsupportedOperationException();
+            }
+
+            return max;
+        }
+
+        public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    static class MinSegment implements Segment {
+        public final static MinSegment instance = new MinSegment();
+
+        public Object eval(JSONPath path, Object rootObject, Object currentObject) {
+            Object min = null;
+            if (rootObject instanceof Collection) {
+                Iterator iterator = ((Collection) rootObject).iterator();
+                while (iterator.hasNext()) {
+                    Object next = iterator.next();
+                    if (next == null) {
+                        continue;
+                    }
+
+                    if (min == null) {
+                        min = next;
+                    } else if (compare(min, next) > 0) {
+                        min = next;
+                    }
+                }
+            } else {
+                throw new UnsupportedOperationException();
+            }
+
+            return min;
+        }
+
+        public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    static int compare(Object a, Object b) {
+        if (a.getClass() == b.getClass()) {
+            return ((Comparable) a).compareTo(b);
+        }
+
+        Class typeA = a.getClass();
+        Class typeB = b.getClass();
+
+        if (typeA == BigDecimal.class) {
+            if (typeB == Integer.class) {
+                b = new BigDecimal((Integer) b);
+            } else if (typeB == Long.class) {
+                b = new BigDecimal((Long) b);
+            } else if (typeB == Float.class) {
+                b = new BigDecimal((Float) b);
+            } else if (typeB == Double.class) {
+                b = new BigDecimal((Double) b);
+            }
+        } else if (typeA == Long.class) {
+            if (typeB == Integer.class) {
+                b = new Long((Integer) b);
+            } else if (typeB == BigDecimal.class) {
+                a = new BigDecimal((Long) a);
+            } else if (typeB == Float.class) {
+                a = new Float((Long) a);
+            } else if (typeB == Double.class) {
+                a = new Double((Long) a);
+            }
+        } else if (typeA == Integer.class) {
+            if (typeB == Long.class) {
+                a = new Long((Integer) a);
+            } else if (typeB == BigDecimal.class) {
+                a = new BigDecimal((Integer) a);
+            } else if (typeB == Float.class) {
+                a = new Float((Integer) a);
+            } else if (typeB == Double.class) {
+                a = new Double((Integer) a);
+            }
+        } else if (typeA == Double.class) {
+            if (typeB == Integer.class) {
+                b = new Double((Integer) b);
+            } else if (typeB == Long.class) {
+                b = new Double((Long) b);
+            } else if (typeB == Float.class) {
+                b = new Double((Float) b);
+            }
+        } else if (typeA == Float.class) {
+            if (typeB == Integer.class) {
+                b = new Float((Integer) b);
+            } else if (typeB == Long.class) {
+                b = new Float((Long) b);
+            } else if (typeB == Double.class) {
+                a = new Double((Float) a);
+            }
+        }
+
+        return ((Comparable) a).compareTo(b);
+    }
+
     static class KeySetSegment implements Segment {
 
         public final static KeySetSegment instance = new KeySetSegment();
@@ -1853,7 +1997,7 @@ public class JSONPath implements JSONAware {
                                     lexer.nextToken();
                                     continue;
                                 } else {
-                                    lexer.skipObject();
+                                    lexer.skipObject(false);
                                 }
                             } else if (matchStat == JSONLexer.NOT_MATCH) {
                                 continue;
@@ -1861,7 +2005,7 @@ public class JSONPath implements JSONAware {
                                 if (deep) {
                                     throw new UnsupportedOperationException(lexer.info());
                                 } else {
-                                    lexer.skipObject();
+                                    lexer.skipObject(false);
                                 }
                             }
                             break;
@@ -1870,7 +2014,7 @@ public class JSONPath implements JSONAware {
                             if (deep) {
                                 extract(path, parser, context);
                             } else {
-                                lexer.skipObject();
+                                lexer.skipObject(false);
                             }
                             break;
                         case JSONToken.LITERAL_STRING:
@@ -3119,6 +3263,10 @@ public class JSONPath implements JSONAware {
         if (currentObject instanceof Map) {
             Map map = (Map) currentObject;
             return map.values();
+        }
+
+        if (currentObject instanceof Collection) {
+            return (Collection) currentObject;
         }
 
         throw new UnsupportedOperationException();

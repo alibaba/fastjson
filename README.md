@@ -21,6 +21,7 @@ Fastjson is a Java library that can be used to convert Java Objects into their J
 ## Documentation
 
 - [Documentation Home](https://github.com/alibaba/fastjson/wiki)
+- [Contributing Code](https://github.com/nschaffner/fastjson/blob/master/CONTRIBUTING.md)
 - [Frequently Asked Questions](https://github.com/alibaba/fastjson/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98)
 
 ## Benchmark
@@ -30,9 +31,9 @@ https://github.com/eishay/jvm-serializers/wiki
 ## Download
 
 - [maven][1]
-- [the latest JAR][2]  
+- [the latest JAR][2]
 
-[1]: http://repo1.maven.org/maven2/com/alibaba/fastjson/  
+[1]: http://repo1.maven.org/maven2/com/alibaba/fastjson/
 [2]: https://search.maven.org/remote_content?g=com.alibaba&a=fastjson&v=LATEST
 
 ## Maven
@@ -41,7 +42,7 @@ https://github.com/eishay/jvm-serializers/wiki
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>fastjson</artifactId>
-    <version>1.2.51</version>
+    <version>1.2.58</version>
 </dependency>
 ```
 
@@ -49,18 +50,18 @@ https://github.com/eishay/jvm-serializers/wiki
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>fastjson</artifactId>
-    <version>1.1.70.android</version>
+    <version>1.1.71.android</version>
 </dependency>
 ```
 
 ## Gradle via JCenter
 
 ``` groovy
-compile 'com.alibaba:fastjson:1.2.51'
+compile 'com.alibaba:fastjson:1.2.58'
 ```
 
 ``` groovy
-compile 'com.alibaba:fastjson:1.1.70.android'
+compile 'com.alibaba:fastjson:1.1.71.android'
 ```
 
 Please see this [Wiki Download Page][Wiki] for more repository infos.
@@ -72,7 +73,7 @@ Please see this [Wiki Download Page][Wiki] for more repository infos.
 Fastjson is released under the [Apache 2.0 license](license.txt).
 
 ```
-Copyright 1999-2018 Alibaba Group Holding Ltd.
+Copyright 1999-2019 Alibaba Group Holding Ltd.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

@@ -50,24 +50,7 @@ import java.math.BigInteger;
 import java.security.AccessControlException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.AbstractCollection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -106,12 +89,22 @@ public class TypeUtils{
     private static volatile boolean kotlin_error;
     private static volatile Map<Class,String[]> kotlinIgnores;
     private static volatile boolean kotlinIgnores_error;
-    private static ConcurrentMap<String,Class<?>> mappings = new ConcurrentHashMap<String,Class<?>>(16, 0.75f, 1);
+    private static ConcurrentMap<String,Class<?>> mappings = new ConcurrentHashMap<String,Class<?>>(256, 0.75f, 1);
     private static Class<?> pathClass;
     private static boolean pathClass_error = false;
 
     private static Class<? extends Annotation> class_JacksonCreator = null;
     private static boolean class_JacksonCreator_error = false;
+
+    private static volatile Class class_Clob = null;
+    private static volatile boolean class_Clob_error = false;
+
+    private static volatile Class class_XmlAccessType = null;
+    private static volatile Class class_XmlAccessorType = null;
+    private static volatile boolean classXmlAccessorType_error = false;
+    private static volatile Method method_XmlAccessorType_value = null;
+    private static volatile Field field_XmlAccessType_FIELD = null;
+    private static volatile Object field_XmlAccessType_FIELD_VALUE = null;
 
     static{
         try{
@@ -124,6 +117,114 @@ public class TypeUtils{
 
     static{
         addBaseClassMappings();
+    }
+
+
+    public static boolean isXmlField(Class clazz) {
+        if (class_XmlAccessorType == null && !classXmlAccessorType_error) {
+            try {
+                class_XmlAccessorType = Class.forName("javax.xml.bind.annotation.XmlAccessorType");
+            } catch(Throwable ex){
+                classXmlAccessorType_error = true;
+            }
+        }
+
+        if (class_XmlAccessorType == null) {
+            return false;
+        }
+
+        Annotation annotation = clazz.getAnnotation(class_XmlAccessorType);
+        if (annotation == null) {
+            return false;
+        }
+
+        if (method_XmlAccessorType_value == null && !classXmlAccessorType_error) {
+            try {
+                method_XmlAccessorType_value = class_XmlAccessorType.getMethod("value");
+            } catch(Throwable ex){
+                classXmlAccessorType_error = true;
+            }
+        }
+
+        if (method_XmlAccessorType_value == null) {
+            return false;
+        }
+
+        Object value = null;
+        if (!classXmlAccessorType_error) {
+            try {
+                value = method_XmlAccessorType_value.invoke(annotation);
+            } catch (Throwable ex) {
+                classXmlAccessorType_error = true;
+            }
+        }
+        if (value == null) {
+            return false;
+        }
+
+        if (class_XmlAccessType == null && !classXmlAccessorType_error) {
+            try {
+                class_XmlAccessType = Class.forName("javax.xml.bind.annotation.XmlAccessType");
+                field_XmlAccessType_FIELD = class_XmlAccessType.getField("FIELD");
+                field_XmlAccessType_FIELD_VALUE = field_XmlAccessType_FIELD.get(null);
+            } catch(Throwable ex){
+                classXmlAccessorType_error = true;
+            }
+        }
+
+        return value == field_XmlAccessType_FIELD_VALUE;
+    }
+
+    public static Annotation getXmlAccessorType(Class clazz) {
+        if (class_XmlAccessorType == null && !classXmlAccessorType_error) {
+
+            try{
+                class_XmlAccessorType = Class.forName("javax.xml.bind.annotation.XmlAccessorType");
+            } catch(Throwable ex){
+                classXmlAccessorType_error = true;
+            }
+        }
+
+        if (class_XmlAccessorType == null) {
+            return null;
+        }
+
+        return  clazz.getAnnotation(class_XmlAccessorType);
+    }
+
+//
+//    public static boolean isXmlAccessType(Class clazz) {
+//        if (class_XmlAccessType == null && !class_XmlAccessType_error) {
+//
+//            try{
+//                class_XmlAccessType = Class.forName("javax.xml.bind.annotation.XmlAccessType");
+//            } catch(Throwable ex){
+//                class_XmlAccessType_error = true;
+//            }
+//        }
+//
+//        if (class_XmlAccessType == null) {
+//            return false;
+//        }
+//
+//        return  class_XmlAccessType.isAssignableFrom(clazz);
+//    }
+
+    public static boolean isClob(Class clazz) {
+        if (class_Clob == null && !class_Clob_error) {
+
+            try{
+                class_Clob = Class.forName("java.sql.Clob");
+            } catch(Throwable ex){
+                class_Clob_error = true;
+            }
+        }
+
+        if (class_Clob == null) {
+            return false;
+        }
+
+        return  class_Clob.isAssignableFrom(clazz);
     }
 
     public static String castToString(Object value){
@@ -339,7 +440,7 @@ public class TypeUtils{
                 strVal = strVal.substring(6, strVal.length() - 2);
             }
 
-            if (strVal.indexOf('-') > 0) {
+            if (strVal.indexOf('-') > 0 || strVal.indexOf('+') > 0) {
                 if (format == null) {
                     if (strVal.length() == JSON.DEFFAULT_DATE_FORMAT.length()
                             || (strVal.length() == 22 && JSON.DEFFAULT_DATE_FORMAT.equals("yyyyMMddHHmmssSSSZ"))) {
@@ -1047,6 +1148,33 @@ public class TypeUtils{
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static <T> T cast(Object obj, ParameterizedType type, ParserConfig mapping){
         Type rawTye = type.getRawType();
+
+        if(rawTye == List.class || rawTye == ArrayList.class){
+            Type itemType = type.getActualTypeArguments()[0];
+            if(obj instanceof List){
+                List listObj = (List) obj;
+                List arrayList = new ArrayList(listObj.size());
+
+                for (int i = 0; i < listObj.size(); i++) {
+                    Object item = listObj.get(i);
+
+                    Object itemValue;
+                    if (itemType instanceof Class) {
+                        if (item != null && item.getClass() == JSONObject.class) {
+                            itemValue = ((JSONObject) item).toJavaObject((Class<T>) itemType, mapping, 0);
+                        } else {
+                            itemValue = cast(item, (Class<T>) itemType, mapping);
+                        }
+                    } else {
+                        itemValue = cast(item, itemType, mapping);
+                    }
+
+                    arrayList.add(itemValue);
+                }
+                return (T) arrayList;
+            }
+        }
+
         if(rawTye == Set.class || rawTye == HashSet.class //
                 || rawTye == TreeSet.class //
                 || rawTye == Collection.class //
@@ -1064,11 +1192,24 @@ public class TypeUtils{
                 }
                 for(Iterator it = ((Iterable) obj).iterator(); it.hasNext(); ){
                     Object item = it.next();
-                    collection.add(cast(item, itemType, mapping));
+
+                    Object itemValue;
+                    if (itemType instanceof Class) {
+                        if (item != null && item.getClass() == JSONObject.class) {
+                            itemValue = ((JSONObject) item).toJavaObject((Class<T>) itemType, mapping, 0);
+                        } else {
+                            itemValue = cast(item, (Class<T>) itemType, mapping);
+                        }
+                    } else {
+                        itemValue = cast(item, itemType, mapping);
+                    }
+
+                    collection.add(itemValue);
                 }
                 return (T) collection;
             }
         }
+
         if(rawTye == Map.class || rawTye == HashMap.class){
             Type keyType = type.getActualTypeArguments()[0];
             Type valueType = type.getActualTypeArguments()[1];
@@ -1297,6 +1438,7 @@ public class TypeUtils{
                 java.util.concurrent.atomic.AtomicLong.class,
                 java.util.Collections.EMPTY_MAP.getClass(),
                 java.lang.Boolean.class,
+                java.lang.Character.class,
                 java.lang.Byte.class,
                 java.lang.Short.class,
                 java.lang.Integer.class,
@@ -1326,6 +1468,18 @@ public class TypeUtils{
             }
             mappings.put(clazz.getName(), clazz);
         }
+
+        String[] w = new String[]{
+                "java.util.Collections$UnmodifiableMap"
+        };
+        for(String className : w){
+            Class<?> clazz = loadClass(className);
+            if(clazz == null){
+                break;
+            }
+            mappings.put(clazz.getName(), clazz);
+        }
+
         String[] awt = new String[]{
                 "java.awt.Rectangle",
                 "java.awt.Point",
@@ -1338,6 +1492,7 @@ public class TypeUtils{
             }
             mappings.put(clazz.getName(), clazz);
         }
+
         String[] spring = new String[]{
                 "org.springframework.util.LinkedMultiValueMap",
                 "org.springframework.util.LinkedCaseInsensitiveMap",
@@ -1354,6 +1509,7 @@ public class TypeUtils{
                 "org.springframework.security.oauth2.common.DefaultExpiringOAuth2RefreshToken",
                 "org.springframework.security.oauth2.common.DefaultOAuth2AccessToken",
                 "org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken",
+                "org.springframework.cache.support.NullValue",
         };
         for(String className : spring){
             Class<?> clazz = loadClass(className);
@@ -2086,7 +2242,10 @@ public class TypeUtils{
 
         if(type instanceof TypeVariable){
             Type boundType = ((TypeVariable<?>) type).getBounds()[0];
-            return (Class<?>) boundType;
+            if (boundType instanceof Class) {
+                return (Class) boundType;
+            }
+            return getClass(boundType);
         }
 
         if(type instanceof WildcardType){
@@ -2166,28 +2325,91 @@ public class TypeUtils{
         }
     }
 
-    public static Type getCollectionItemType(Type fieldType){
-        Type itemType = null;
-        Class<?> clazz;
-        if(fieldType instanceof ParameterizedType){
-            Type actualTypeArgument = ((ParameterizedType) fieldType).getActualTypeArguments()[0];
-            if(actualTypeArgument instanceof WildcardType){
-                WildcardType wildcardType = (WildcardType) actualTypeArgument;
-                Type[] upperBounds = wildcardType.getUpperBounds();
-                if(upperBounds.length == 1){
-                    actualTypeArgument = upperBounds[0];
-                }
+    public static Type getCollectionItemType(Type fieldType) {
+        if (fieldType instanceof ParameterizedType) {
+            return getCollectionItemType((ParameterizedType) fieldType);
+        }
+        if (fieldType instanceof Class<?>) {
+            return getCollectionItemType((Class<?>) fieldType);
+        }
+        return Object.class;
+    }
+
+    private static Type getCollectionItemType(Class<?> clazz) {
+        return clazz.getName().startsWith("java.")
+                ? Object.class
+                : getCollectionItemType(getCollectionSuperType(clazz));
+    }
+
+    private static Type getCollectionItemType(ParameterizedType parameterizedType) {
+        Type rawType = parameterizedType.getRawType();
+        Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+        if (rawType == Collection.class) {
+            return getWildcardTypeUpperBounds(actualTypeArguments[0]);
+        }
+        Class<?> rawClass = (Class<?>) rawType;
+        Map<TypeVariable, Type> actualTypeMap = createActualTypeMap(rawClass.getTypeParameters(), actualTypeArguments);
+        Type superType = getCollectionSuperType(rawClass);
+        if (superType instanceof ParameterizedType) {
+            Class<?> superClass = getRawClass(superType);
+            Type[] superClassTypeParameters = ((ParameterizedType) superType).getActualTypeArguments();
+            return superClassTypeParameters.length > 0
+                    ? getCollectionItemType(makeParameterizedType(superClass, superClassTypeParameters, actualTypeMap))
+                    : getCollectionItemType(superClass);
+        }
+        return getCollectionItemType((Class<?>) superType);
+    }
+
+    private static Type getCollectionSuperType(Class<?> clazz) {
+        Type assignable = null;
+        for (Type type : clazz.getGenericInterfaces()) {
+            Class<?> rawClass = getRawClass(type);
+            if (rawClass == Collection.class) {
+                return type;
             }
-            itemType = actualTypeArgument;
-        } else if(fieldType instanceof Class<?> //
-                && !(clazz = (Class<?>) fieldType).getName().startsWith("java.")){
-            Type superClass = clazz.getGenericSuperclass();
-            itemType = TypeUtils.getCollectionItemType(superClass);
+            if (Collection.class.isAssignableFrom(rawClass)) {
+                assignable = type;
+            }
         }
-        if(itemType == null){
-            itemType = Object.class;
+        return assignable == null ? clazz.getGenericSuperclass() : assignable;
+    }
+
+    private static Map<TypeVariable, Type> createActualTypeMap(TypeVariable[] typeParameters, Type[] actualTypeArguments) {
+        int length = typeParameters.length;
+        Map<TypeVariable, Type> actualTypeMap = new HashMap<TypeVariable, Type>(length);
+        for (int i = 0; i < length; i++) {
+            actualTypeMap.put(typeParameters[i], actualTypeArguments[i]);
         }
-        return itemType;
+        return actualTypeMap;
+    }
+
+    private static ParameterizedType makeParameterizedType(Class<?> rawClass, Type[] typeParameters, Map<TypeVariable, Type> actualTypeMap) {
+        int length = typeParameters.length;
+        Type[] actualTypeArguments = new Type[length];
+        for (int i = 0; i < length; i++) {
+            actualTypeArguments[i] = getActualType(typeParameters[i], actualTypeMap);
+        }
+        return new ParameterizedTypeImpl(actualTypeArguments, null, rawClass);
+    }
+
+    private static Type getActualType(Type typeParameter, Map<TypeVariable, Type> actualTypeMap) {
+        if (typeParameter instanceof TypeVariable) {
+            return actualTypeMap.get(typeParameter);
+        } else if (typeParameter instanceof ParameterizedType) {
+            return makeParameterizedType(getRawClass(typeParameter), ((ParameterizedType) typeParameter).getActualTypeArguments(), actualTypeMap);
+        } else if (typeParameter instanceof GenericArrayType) {
+            return new GenericArrayTypeImpl(getActualType(((GenericArrayType) typeParameter).getGenericComponentType(), actualTypeMap));
+        }
+        return typeParameter;
+    }
+
+    private static Type getWildcardTypeUpperBounds(Type type) {
+        if (type instanceof WildcardType) {
+            WildcardType wildcardType = (WildcardType) type;
+            Type[] upperBounds = wildcardType.getUpperBounds();
+            return upperBounds.length > 0 ? upperBounds[0] : Object.class;
+        }
+        return type;
     }
 
     public static Class<?> getCollectionItemClass(Type fieldType){
@@ -2277,6 +2499,8 @@ public class TypeUtils{
                 itemType = Object.class;
             }
             list = EnumSet.noneOf((Class<Enum>) itemType);
+        } else if(rawClass.isAssignableFrom(Queue.class)){
+            list = new LinkedList();
         } else{
             try{
                 list = (Collection) rawClass.newInstance();
@@ -2307,6 +2531,9 @@ public class TypeUtils{
             if(interfaceName.equals("javassist.util.proxy.ProxyObject") //
                     || interfaceName.equals("org.apache.ibatis.javassist.util.proxy.ProxyObject")
                     ){
+                return true;
+            }
+            if (interfaceName.equals("org.hibernate.proxy.HibernateProxy")) {
                 return true;
             }
         }
@@ -2389,6 +2616,132 @@ public class TypeUtils{
             }
         }
         return true;
+    }
+
+    public static double parseDouble(String str) {
+        final int len = str.length();
+        if (len > 10) {
+            return Double.parseDouble(str);
+        }
+
+        boolean negative = false;
+
+        long longValue = 0;
+        int scale = 0;
+        for (int i = 0; i < len; ++i) {
+            char ch = str.charAt(i);
+            if (ch == '-' && i == 0) {
+                negative = true;
+                continue;
+            }
+
+            if (ch == '.') {
+                if (scale != 0) {
+                    return Double.parseDouble(str);
+                }
+                scale = len - i - 1;
+                continue;
+            }
+
+            if (ch >= '0' && ch <= '9') {
+                int digit = ch - '0';
+                longValue = longValue * 10 + digit;
+            } else {
+                return Double.parseDouble(str);
+            }
+        }
+
+        if (negative) {
+            longValue = -longValue;
+        }
+
+        switch (scale) {
+            case 0:
+                return (double) longValue;
+            case 1:
+                return ((double) longValue) / 10;
+            case 2:
+                return ((double) longValue) / 100;
+            case 3:
+                return ((double) longValue) / 1000;
+            case 4:
+                return ((double) longValue) / 10000;
+            case 5:
+                return ((double) longValue) / 100000;
+            case 6:
+                return ((double) longValue) / 1000000;
+            case 7:
+                return ((double) longValue) / 10000000;
+            case 8:
+                return ((double) longValue) / 100000000;
+            case 9:
+                return ((double) longValue) / 1000000000;
+        }
+
+        return Double.parseDouble(str);
+    }
+
+    public static float parseFloat(String str) {
+        final int len = str.length();
+        if (len >= 10) {
+            return Float.parseFloat(str);
+        }
+
+        boolean negative = false;
+
+        long longValue = 0;
+        int scale = 0;
+        for (int i = 0; i < len; ++i) {
+            char ch = str.charAt(i);
+            if (ch == '-' && i == 0) {
+                negative = true;
+                continue;
+            }
+
+            if (ch == '.') {
+                if (scale != 0) {
+                    return Float.parseFloat(str);
+                }
+                scale = len - i - 1;
+                continue;
+            }
+
+            if (ch >= '0' && ch <= '9') {
+                int digit = ch - '0';
+                longValue = longValue * 10 + digit;
+            } else {
+                return Float.parseFloat(str);
+            }
+        }
+
+        if (negative) {
+            longValue = -longValue;
+        }
+
+        switch (scale) {
+            case 0:
+                return (float) longValue;
+            case 1:
+                return ((float) longValue) / 10;
+            case 2:
+                return ((float) longValue) / 100;
+            case 3:
+                return ((float) longValue) / 1000;
+            case 4:
+                return ((float) longValue) / 10000;
+            case 5:
+                return ((float) longValue) / 100000;
+            case 6:
+                return ((float) longValue) / 1000000;
+            case 7:
+                return ((float) longValue) / 10000000;
+            case 8:
+                return ((float) longValue) / 100000000;
+            case 9:
+                return ((float) longValue) / 1000000000;
+        }
+
+        return Float.parseFloat(str);
     }
 
     public static long fnv1a_64_lower(String key){

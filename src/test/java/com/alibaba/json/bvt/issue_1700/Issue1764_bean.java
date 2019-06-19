@@ -9,15 +9,40 @@ import static com.alibaba.fastjson.serializer.SerializerFeature.BrowserCompatibl
 
 public class Issue1764_bean extends TestCase {
     public void test_for_issue() throws Exception {
-        Model model = new Model();
-        model.value = 9007199254741992L;
+        assertEquals("{\"value\":\"9007199254741992\"}"
+                , JSON.toJSONString(
+                        new Model(9007199254741992L)));
 
-        String str = JSON.toJSONString(model);
-        assertEquals("{\"value\":\"9007199254741992\"}", str);
+        assertEquals("{\"value\":\"9007199254741990\"}"
+                , JSON.toJSONString(
+                        new Model(9007199254741990L)));
+
+        assertEquals("{\"value\":100}"
+                , JSON.toJSONString(
+                        new Model(100L)));
+
+        assertEquals("{\"value\":\"-9007199254741990\"}"
+                , JSON.toJSONString(
+                        new Model(-9007199254741990L)));
+
+        assertEquals("{\"value\":-9007199254740990}"
+                , JSON.toJSONString(
+                        new Model(-9007199254740990L)));
+
     }
+
+
 
     @JSONType(serialzeFeatures = BrowserCompatible)
     public static class Model {
         public long value;
+
+        public Model() {
+
+        }
+
+        public Model(long value) {
+            this.value = value;
+        }
     }
 }

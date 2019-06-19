@@ -37,8 +37,8 @@ public class UTF8Test_decode extends TestCase {
 
         for (int i = 0; i < 10; ++i) {
             long start = System.currentTimeMillis();
-//            f0(); // 764
-            f1(); // 695
+            f0(); // 764
+//            f1(); // 695
 //            f2(); // 975
             long millis = System.currentTimeMillis() - start;
             System.out.println("millis : " + millis);

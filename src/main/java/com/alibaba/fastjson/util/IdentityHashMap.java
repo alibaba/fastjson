@@ -16,7 +16,6 @@
 package com.alibaba.fastjson.util;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 /**
  * for concurrent IdentityHashMap

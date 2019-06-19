@@ -6,7 +6,6 @@ import com.alibaba.fastjson.JSONPObject;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
-import com.alibaba.fastjson.util.IOUtils;
 import org.springframework.core.ResolvableType;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
@@ -59,8 +58,6 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
 
     public static final MediaType APPLICATION_JAVASCRIPT = new MediaType("application", "javascript");
 
-    private Charset charset = Charset.forName("UTF-8");
-
     @Deprecated
     protected SerializerFeature[] features = new SerializerFeature[0];
 
@@ -99,46 +96,109 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
         super(MediaType.ALL);
     }
 
+    /**
+     * Gets charset.
+     *
+     * @return the charset
+     * @see FastJsonConfig#getCharset()
+     * @deprecated
+     */
     @Deprecated
     public Charset getCharset() {
         return this.fastJsonConfig.getCharset();
     }
 
+    /**
+     * Sets charset.
+     *
+     * @param charset the charset
+     * @see FastJsonConfig#setCharset(Charset)
+     * @deprecated
+     */
     @Deprecated
     public void setCharset(Charset charset) {
         this.fastJsonConfig.setCharset(charset);
     }
 
+    /**
+     * Gets date format.
+     *
+     * @return the date format
+     * @see FastJsonConfig#getDateFormat()
+     * @deprecated
+     */
     @Deprecated
     public String getDateFormat() {
         return this.fastJsonConfig.getDateFormat();
     }
 
+    /**
+     * Sets date format.
+     *
+     * @param dateFormat the date format
+     * @see FastJsonConfig#setDateFormat(String)
+     * @deprecated
+     */
     @Deprecated
     public void setDateFormat(String dateFormat) {
         this.fastJsonConfig.setDateFormat(dateFormat);
     }
 
+    /**
+     * Get features serializer feature [].
+     *
+     * @return the serializer feature []
+     * @see FastJsonConfig#getSerializerFeatures()
+     * @deprecated
+     */
     @Deprecated
     public SerializerFeature[] getFeatures() {
         return this.fastJsonConfig.getSerializerFeatures();
     }
 
+    /**
+     * Sets features.
+     *
+     * @param features the features
+     * @see FastJsonConfig#setSerializerFeatures(SerializerFeature...)
+     * @deprecated
+     */
     @Deprecated
     public void setFeatures(SerializerFeature... features) {
         this.fastJsonConfig.setSerializerFeatures(features);
     }
 
+    /**
+     * Get filters serialize filter [].
+     *
+     * @return the serialize filter []
+     * @see FastJsonConfig#getSerializeFilters()
+     * @deprecated
+     */
     @Deprecated
     public SerializeFilter[] getFilters() {
         return this.fastJsonConfig.getSerializeFilters();
     }
 
+    /**
+     * Sets filters.
+     *
+     * @param filters the filters
+     * @see FastJsonConfig#setSerializeFilters(SerializeFilter...)
+     * @deprecated
+     */
     @Deprecated
     public void setFilters(SerializeFilter... filters) {
         this.fastJsonConfig.setSerializeFilters(filters);
     }
 
+    /**
+     * Add serialize filter.
+     *
+     * @param filter the filter
+     * @see FastJsonConfig#setSerializeFilters(SerializeFilter...)
+     * @deprecated
+     */
     @Deprecated
     public void addSerializeFilter(SerializeFilter filter) {
         if (filter == null) {
@@ -196,11 +256,17 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
         return readType(getType(clazz, null), inputMessage);
     }
 
-    private Object readType(Type type, HttpInputMessage inputMessage) throws IOException {
+    private Object readType(Type type, HttpInputMessage inputMessage) {
 
         try {
             InputStream in = inputMessage.getBody();
-            return JSON.parseObject(in, fastJsonConfig.getCharset(), type, fastJsonConfig.getFeatures());
+            return JSON.parseObject(in,
+                    fastJsonConfig.getCharset(),
+                    type,
+                    fastJsonConfig.getParserConfig(),
+                    fastJsonConfig.getParseProcess(),
+                    JSON.DEFAULT_PARSER_FEATURE,
+                    fastJsonConfig.getFeatures());
         } catch (JSONException ex) {
             throw new HttpMessageNotReadableException("JSON parse error: " + ex.getMessage(), ex);
         } catch (IOException ex) {
@@ -235,7 +301,7 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
             // 保持原有的MappingFastJsonValue对象的contentType不做修改 保持旧版兼容。
             // 但是新的JSONPObject将返回标准的contentType：application/javascript ，不对是否有function进行判断
             if (value instanceof MappingFastJsonValue) {
-                if(!StringUtils.isEmpty(((MappingFastJsonValue) value).getJsonpFunction())){
+                if (!StringUtils.isEmpty(((MappingFastJsonValue) value).getJsonpFunction())) {
                     isJsonp = true;
                 }
             } else if (value instanceof JSONPObject) {

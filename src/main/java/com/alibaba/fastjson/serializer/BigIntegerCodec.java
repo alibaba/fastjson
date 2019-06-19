@@ -29,10 +29,16 @@ import com.alibaba.fastjson.util.TypeUtils;
  * @author wenshao[szujobs@hotmail.com]
  */
 public class BigIntegerCodec implements ObjectSerializer, ObjectDeserializer {
+    private final static BigInteger LOW = BigInteger.valueOf(-9007199254740991L);
+    private final static BigInteger HIGH = BigInteger.valueOf(9007199254740991L);
 
     public final static BigIntegerCodec instance = new BigIntegerCodec();
 
-    public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
+    public void write(JSONSerializer serializer
+            , Object object
+            , Object fieldName
+            , Type fieldType, int features) throws IOException
+    {
         SerializeWriter out = serializer.out;
 
         if (object == null) {
@@ -41,7 +47,16 @@ public class BigIntegerCodec implements ObjectSerializer, ObjectDeserializer {
         }
         
         BigInteger val = (BigInteger) object;
-        out.write(val.toString());
+        String str = val.toString();
+        if (str.length() >= 16
+                && SerializerFeature.isEnabled(features, out.features, SerializerFeature.BrowserCompatible)
+                && (val.compareTo(LOW) < 0
+                    || val.compareTo(HIGH) > 0))
+        {
+            out.writeString(str);
+            return;
+        }
+        out.write(str);
     }
 
     @SuppressWarnings("unchecked")

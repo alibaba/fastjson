@@ -137,4 +137,29 @@ public class UTF8DecoderTest extends TestCase {
 
         }
     }
+
+    /**
+     * @deprecated
+     */
+    public void test_5() throws Exception {
+        UTF8Decoder decoder = new UTF8Decoder();
+
+        String str = "⌛︎€\uD83D\uDC69\uD83D\uDC68\uD83D\uDC68\uD83C\uDFFB\uD83D\uDC69\uD83C\uDFFFU+1F9D2: Child\tText\t\uD83E\uDDD2\t\uD83E\uDDD2\uD83C\uDFFB\t\uD83E\uDDD2\uD83C\uDFFC\t\uD83E\uDDD2\uD83C\uDFFD\t\uD83E\uDDD2\uD83C\uDFFE\t\uD83E\uDDD2\uD83C\uDFFF\n\uD83E\uDDD1\uD83C\uDFFF\uD83C\uDE1A️\uD83C\uDC04️❤️";
+        byte[] bytes =str.getBytes("UTF-8");
+        ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+        decoder.decode(byteBuffer);
+    }
+
+    /**
+     * @deprecated
+     */
+    public void test_6() throws Exception {
+        UTF8Decoder decoder = new UTF8Decoder();
+
+        String str = "\u20AC";
+        byte[] bytes =str.getBytes("UTF-8");
+        ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+        decoder.decode(byteBuffer);
+    }
+
 }

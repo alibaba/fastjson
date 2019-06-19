@@ -20,6 +20,8 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.deserializer.Jdk8DateCodec;
 import com.alibaba.fastjson.parser.deserializer.OptionalCodec;
+import com.alibaba.fastjson.spi.Module;
+import com.alibaba.fastjson.support.moneta.MonetaCodec;
 import com.alibaba.fastjson.support.springfox.SwaggerJsonSerializer;
 import com.alibaba.fastjson.util.*;
 import com.alibaba.fastjson.util.IdentityHashMap;
@@ -36,7 +38,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.*;
 import java.nio.charset.Charset;
-import java.sql.Clob;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.*;
@@ -68,6 +69,14 @@ public class SerializeConfig {
     private final IdentityHashMap<Type, ObjectSerializer> serializers;
 
     private final boolean                                 fieldBased;
+
+    private long[]                                        denyClasses =
+            {
+                    4165360493669296979L,
+                    4446674157046724083L
+            };
+
+    private List<Module>                                    modules                = new ArrayList<Module>();
     
 	public String getTypeKey() {
 		return typeKey;
@@ -95,6 +104,12 @@ public class SerializeConfig {
     }
 
     public final ObjectSerializer createJavaBeanSerializer(Class<?> clazz) {
+        String className = clazz.getName();
+        long hashCode64 = TypeUtils.fnv1a_64(className);
+	    if (Arrays.binarySearch(denyClasses, hashCode64) >= 0) {
+	        throw new JSONException("not support class : " + className);
+        }
+
 	    SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null, propertyNamingStrategy, fieldBased);
 	    if (beanInfo.fields.length == 0 && Iterable.class.isAssignableFrom(clazz)) {
 	        return MiscCodec.instance;
@@ -460,6 +475,14 @@ public class SerializeConfig {
                 writer = serializers.get(clazz);
             }
         }
+
+        for (Module module : modules) {
+            writer = module.createSerializer(this, clazz);
+            if (writer != null) {
+                serializers.put(clazz, writer);
+                return writer;
+            }
+        }
         
         if (writer == null) {
             String className = clazz.getName();
@@ -512,7 +535,7 @@ public class SerializeConfig {
             } else if (Calendar.class.isAssignableFrom(clazz) //
                     || XMLGregorianCalendar.class.isAssignableFrom(clazz)) {
                 put(clazz, writer = CalendarCodec.instance);
-            } else if (Clob.class.isAssignableFrom(clazz)) {
+            } else if (TypeUtils.isClob(clazz)) {
                 put(clazz, writer = ClobSeriliazer.instance);
             } else if (TypeUtils.isPath(clazz)) {
                 put(clazz, writer = ToStringSerializer.instance);
@@ -645,6 +668,7 @@ public class SerializeConfig {
                         String[] names = new String[] {
                                 "com.google.common.collect.HashMultimap",
                                 "com.google.common.collect.LinkedListMultimap",
+                                "com.google.common.collect.LinkedHashMultimap",
                                 "com.google.common.collect.ArrayListMultimap",
                                 "com.google.common.collect.TreeMultimap"
                         };
@@ -697,6 +721,16 @@ public class SerializeConfig {
                         // skip
                         jodaError = true;
                     }
+                }
+
+                if ("java.nio.HeapByteBuffer".equals(className)) {
+                    put(clazz, writer = ByteBufferCodec.instance);
+                    return writer;
+                }
+
+                if ("org.javamoney.moneta.Money".equals(className)) {
+                    put(clazz, writer = MonetaCodec.instance);
+                    return writer;
                 }
 
                 Class[] interfaces = clazz.getInterfaces();
@@ -784,5 +818,9 @@ public class SerializeConfig {
     public void clearSerializers() {
         this.serializers.clear();
         this.initSerializers();
+    }
+
+    public void register(Module module) {
+        this.modules.add(module);
     }
 }

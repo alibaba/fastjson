@@ -42,8 +42,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.List;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.TypeUtils;
 
@@ -117,6 +119,10 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
             return (JSONObject) value;
         }
 
+        if (value instanceof Map) {
+            return new JSONObject((Map) value);
+        }
+
         if (value instanceof String) {
             return JSON.parseObject((String) value);
         }
@@ -129,6 +135,10 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
 
         if (value instanceof JSONArray) {
             return (JSONArray) value;
+        }
+
+        if (value instanceof List) {
+            return new JSONArray((List) value);
         }
 
         if (value instanceof String) {
@@ -328,11 +338,11 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
 
         return castToTimestamp(value);
     }
-    
+
     public Object put(String key, Object value) {
         return map.put(key, value);
     }
-    
+
     public JSONObject fluentPut(String key, Object value) {
         map.put(key, value);
         return this;
@@ -380,9 +390,9 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     @Override
     public Object clone() {
         return new JSONObject(map instanceof LinkedHashMap //
-                              ? new LinkedHashMap<String, Object>(map) //
-                                  : new HashMap<String, Object>(map)
-                                  );
+                ? new LinkedHashMap<String, Object>(map) //
+                : new HashMap<String, Object>(map)
+        );
     }
 
     public boolean equals(Object obj) {
@@ -399,7 +409,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
             if (method.getName().equals("equals")) {
                 return this.equals(args[0]);
             }
-            
+
             Class<?> returnType = method.getReturnType();
             if (returnType != void.class) {
                 throw new JSONException("illegal setter");
@@ -415,7 +425,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
 
             if (name == null) {
                 name = method.getName();
-                
+
                 if (!name.startsWith("set")) {
                     throw new JSONException("illegal setter");
                 }
@@ -467,7 +477,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
                     throw new JSONException("illegal getter");
                 }
             }
-            
+
             Object value = map.get(name);
             return TypeUtils.cast(value, method.getGenericReturnType(), ParserConfig.getGlobalInstance());
         }
@@ -497,12 +507,12 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         for (Entry entry : map.entrySet()) {
             final Object key = entry.getKey();
             if (key != null) {
-                ParserConfig.global.checkAutoType(key.getClass().getName(), null);
+                ParserConfig.global.checkAutoType(key.getClass());
             }
 
             final Object value = entry.getValue();
             if (value != null) {
-                ParserConfig.global.checkAutoType(value.getClass().getName(), null);
+                ParserConfig.global.checkAutoType(value.getClass());
             }
         }
     }
@@ -547,14 +557,23 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         }
 
         protected Class<?> resolveClass(ObjectStreamClass desc)
-        throws IOException, ClassNotFoundException {
+                throws IOException, ClassNotFoundException {
             String name = desc.getName();
-            ParserConfig.global.checkAutoType(name, null);
+            if (name.length() > 2) {
+                int index = name.lastIndexOf('[');
+                if (index != -1) {
+                    name = name.substring(index + 1);
+                }
+                if (name.length() > 2 && name.charAt(0) == 'L' && name.charAt(name.length() - 1) == ';') {
+                    name = name.substring(1, name.length() - 1);
+                }
+                ParserConfig.global.checkAutoType(name, null, Feature.SupportAutoType.mask);
+            }
             return super.resolveClass(desc);
         }
 
         protected Class<?> resolveProxyClass(String[] interfaces)
-        throws IOException, ClassNotFoundException {
+                throws IOException, ClassNotFoundException {
             for (String interfacename : interfaces) {
                 //检查是否处于黑名单
                 ParserConfig.global.checkAutoType(interfacename, null);
@@ -566,5 +585,29 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         protected void readStreamHeader() throws IOException, StreamCorruptedException {
 
         }
+    }
+
+    public <T> T toJavaObject(Class<T> clazz) {
+        if (clazz == Map.class) {
+            return (T) this;
+        }
+
+        if (clazz == Object.class && !containsKey(JSON.DEFAULT_TYPE_KEY)) {
+            return (T) this;
+        }
+
+        return TypeUtils.castToJavaBean(this, clazz, ParserConfig.getGlobalInstance());
+    }
+
+    public <T> T toJavaObject(Class<T> clazz, ParserConfig config, int features) {
+        if (clazz == Map.class) {
+            return (T) this;
+        }
+
+        if (clazz == Object.class && !containsKey(JSON.DEFAULT_TYPE_KEY)) {
+            return (T) this;
+        }
+
+        return TypeUtils.castToJavaBean(this, clazz, config);
     }
 }

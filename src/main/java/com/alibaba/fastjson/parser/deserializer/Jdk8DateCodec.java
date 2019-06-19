@@ -12,13 +12,17 @@ import java.time.OffsetTime;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.chrono.ChronoZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
+import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
+import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.serializer.*;
 
@@ -115,6 +119,20 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                     formatter = ISO_FIXED_FORMAT;
                 }
 
+                if (formatter == null) {
+                    if (text.length() <= 19) {
+                        JSONScanner s = new JSONScanner(text);
+                        TimeZone timeZone = parser.lexer.getTimeZone();
+                        s.setTimeZone(timeZone);
+                        boolean match = s.scanISO8601DateIfMatch(false);
+                        if (match) {
+                            Date date = s.getCalendar().getTime();
+                            return (T) ZonedDateTime.ofInstant(date.toInstant(), timeZone.toZoneId());
+                        }
+                    }
+
+                }
+
                 ZonedDateTime zonedDateTime = parseZonedDateTime(text, formatter);
 
                 return (T) zonedDateTime;
@@ -147,14 +165,23 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
             long millis = lexer.longValue();
             lexer.nextToken();
 
+            if ("unixtime".equals(format)) {
+                millis *= 1000;
+            }
+
             if (type == LocalDateTime.class) {
                 return (T) LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), JSON.defaultTimeZone.toZoneId());
             }
+
             if (type == LocalDate.class) {
                 return (T) LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), JSON.defaultTimeZone.toZoneId()).toLocalDate();
             }
             if (type == LocalTime.class) {
                 return (T) LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), JSON.defaultTimeZone.toZoneId()).toLocalTime();
+            }
+
+            if (type == ZonedDateTime.class) {
+                return (T) ZonedDateTime.ofInstant(Instant.ofEpochMilli(millis), JSON.defaultTimeZone.toZoneId());
             }
 
             throw new UnsupportedOperationException();
@@ -243,6 +270,14 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                 } else if (c4 == '년') {
                     formatter = formatter_dt19_kr;
                 }
+            }
+        }
+
+        if (formatter == null) {
+            JSONScanner dateScanner = new JSONScanner(text);
+            if (dateScanner.scanISO8601DateIfMatch(false)) {
+                Instant instant = dateScanner.getCalendar().toInstant();
+                return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
             }
         }
 
@@ -434,6 +469,12 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
 
     private void write(SerializeWriter out, TemporalAccessor object, String format) {
         DateTimeFormatter formatter;
+        if ("unixtime".equals(format) && object instanceof ChronoZonedDateTime) {
+            long seconds = ((ChronoZonedDateTime) object).toEpochSecond();
+            out.writeInt((int) seconds);
+            return;
+        }
+
         if (format == formatter_iso8601_pattern) {
             formatter = formatter_iso8601;
         } else {

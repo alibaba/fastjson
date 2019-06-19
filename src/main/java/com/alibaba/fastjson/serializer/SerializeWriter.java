@@ -554,6 +554,7 @@ public final class SerializeWriter extends Writer {
 
         final char[] CA = IOUtils.CA;
 
+        // base64 algorithm author Mikael Grev
         int eLen = (bytesLen / 3) * 3; // Length of even 24-bits.
         int charsLen = ((bytesLen - 1) / 3 + 1) << 2; // base64 character count
         // char[] chars = new char[charsLen];
@@ -763,8 +764,11 @@ public final class SerializeWriter extends Writer {
                                     && (i > 9007199254740991L || i < -9007199254740991L);
 
         if (i == Long.MIN_VALUE) {
-            if (needQuotationMark) write("\"-9223372036854775808\"");
-            else write("-9223372036854775808");
+            if (needQuotationMark) {
+                write("\"-9223372036854775808\"");
+            } else {
+                write("-9223372036854775808");
+            }
             return;
         }
 
@@ -855,8 +859,8 @@ public final class SerializeWriter extends Writer {
                             write('\\');
                             write('u');
                             write(IOUtils.DIGITS[(ch >>> 12) & 15]);
-                            write(IOUtils.DIGITS[(ch >>> 8) & 15]);
-                            write(IOUtils.DIGITS[(ch >>> 4) & 15]);
+                            write(IOUtils.DIGITS[(ch >>> 8 ) & 15]);
+                            write(IOUtils.DIGITS[(ch >>> 4 ) & 15]);
                             write(IOUtils.DIGITS[ch & 15]);
                             continue;
                         }
@@ -881,7 +885,7 @@ public final class SerializeWriter extends Writer {
                             write('u');
                             write('0');
                             write('0');
-                            write(IOUtils.ASCII_CHARS[ch * 2]);
+                            write(IOUtils.ASCII_CHARS[ch * 2    ]);
                             write(IOUtils.ASCII_CHARS[ch * 2 + 1]);
                             continue;
                         }
@@ -890,9 +894,9 @@ public final class SerializeWriter extends Writer {
                             write('\\');
                             write('u');
                             write(IOUtils.DIGITS[(ch >>> 12) & 15]);
-                            write(IOUtils.DIGITS[(ch >>> 8) & 15]);
-                            write(IOUtils.DIGITS[(ch >>> 4) & 15]);
-                            write(IOUtils.DIGITS[ch & 15]);
+                            write(IOUtils.DIGITS[(ch >>> 8 ) & 15]);
+                            write(IOUtils.DIGITS[(ch >>> 4 ) & 15]);
+                            write(IOUtils.DIGITS[ ch         & 15]);
                             continue;
                         }
                     } else {
@@ -903,9 +907,9 @@ public final class SerializeWriter extends Writer {
                             if (IOUtils.specicalFlags_doubleQuotes[ch] == 4) {
                                 write('u');
                                 write(IOUtils.DIGITS[ch >>> 12 & 15]);
-                                write(IOUtils.DIGITS[ch >>> 8 & 15]);
-                                write(IOUtils.DIGITS[ch >>> 4 & 15]);
-                                write(IOUtils.DIGITS[ch & 15]);
+                                write(IOUtils.DIGITS[ch >>> 8  & 15]);
+                                write(IOUtils.DIGITS[ch >>> 4  & 15]);
+                                write(IOUtils.DIGITS[ch        & 15]);
                             } else {
                                 write(IOUtils.replaceChars[ch]);
                             }
@@ -982,7 +986,8 @@ public final class SerializeWriter extends Writer {
                     || ch == '\f'//
                     || ch == '\n' //
                     || ch == '\r' //
-                    || ch == '\t') {
+                    || ch == '\t'
+                ) {
                     System.arraycopy(buf, i + 1, buf, i + 2, end - i - 1);
                     buf[i] = '\\';
                     buf[i + 1] = replaceChars[(int) ch];
@@ -992,7 +997,8 @@ public final class SerializeWriter extends Writer {
 
                 if (ch == '"' //
                     || ch == '/' //
-                    || ch == '\\') {
+                    || ch == '\\'
+                ) {
                     System.arraycopy(buf, i + 1, buf, i + 2, end - i - 1);
                     buf[i] = '\\';
                     buf[i + 1] = ch;
@@ -1002,7 +1008,7 @@ public final class SerializeWriter extends Writer {
 
                 if (ch < 32) {
                     System.arraycopy(buf, i + 1, buf, i + 6, end - i - 1);
-                    buf[i] = '\\';
+                    buf[i    ] = '\\';
                     buf[i + 1] = 'u';
                     buf[i + 2] = '0';
                     buf[i + 3] = '0';
@@ -1014,7 +1020,7 @@ public final class SerializeWriter extends Writer {
 
                 if (ch >= 127) {
                     System.arraycopy(buf, i + 1, buf, i + 6, end - i - 1);
-                    buf[i] = '\\';
+                    buf[i    ] = '\\';
                     buf[i + 1] = 'u';
                     buf[i + 2] = IOUtils.DIGITS[(ch >>> 12) & 15];
                     buf[i + 3] = IOUtils.DIGITS[(ch >>> 8) & 15];
@@ -1034,10 +1040,10 @@ public final class SerializeWriter extends Writer {
             return;
         }
 
-        int specialCount = 0;
-        int lastSpecialIndex = -1;
+        int specialCount      = 0;
+        int lastSpecialIndex  = -1;
         int firstSpecialIndex = -1;
-        char lastSpecial = '\0';
+        char lastSpecial      = '\0';
 
         for (int i = start; i < end; ++i) {
             char ch = buf[i];
@@ -1093,24 +1099,28 @@ public final class SerializeWriter extends Writer {
                     int srcPos = lastSpecialIndex + 1;
                     int destPos = lastSpecialIndex + 6;
                     int LengthOfCopy = end - lastSpecialIndex - 1;
+
                     System.arraycopy(buf, srcPos, buf, destPos, LengthOfCopy);
-                    buf[lastSpecialIndex] = '\\';
+                    buf[lastSpecialIndex  ] = '\\';
                     buf[++lastSpecialIndex] = 'u';
                     buf[++lastSpecialIndex] = '2';
                     buf[++lastSpecialIndex] = '0';
                     buf[++lastSpecialIndex] = '2';
                     buf[++lastSpecialIndex] = '8';
+
                 } else if (lastSpecial == '\u2029') {
                     int srcPos = lastSpecialIndex + 1;
                     int destPos = lastSpecialIndex + 6;
                     int LengthOfCopy = end - lastSpecialIndex - 1;
+
                     System.arraycopy(buf, srcPos, buf, destPos, LengthOfCopy);
-                    buf[lastSpecialIndex] = '\\';
+                    buf[lastSpecialIndex  ] = '\\';
                     buf[++lastSpecialIndex] = 'u';
                     buf[++lastSpecialIndex] = '2';
                     buf[++lastSpecialIndex] = '0';
                     buf[++lastSpecialIndex] = '2';
                     buf[++lastSpecialIndex] = '9';
+
                 } else if (lastSpecial == '(' || lastSpecial == ')' || lastSpecial == '<' || lastSpecial == '>') {
                     int srcPos = lastSpecialIndex + 1;
                     int destPos = lastSpecialIndex + 6;
@@ -1162,9 +1172,9 @@ public final class SerializeWriter extends Writer {
                         buf[bufIndex++] = '\\';
                         buf[bufIndex++] = 'u';
                         buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 12) & 15];
-                        buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 8) & 15];
-                        buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 4) & 15];
-                        buf[bufIndex++] = IOUtils.DIGITS[ch & 15];
+                        buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 8 ) & 15];
+                        buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 4 ) & 15];
+                        buf[bufIndex++] = IOUtils.DIGITS[ch          & 15];
                         end += 5;
                     } else if (ch < IOUtils.specicalFlags_doubleQuotes.length //
                         && IOUtils.specicalFlags_doubleQuotes[ch] != 0 //
@@ -1173,9 +1183,9 @@ public final class SerializeWriter extends Writer {
                         if (IOUtils.specicalFlags_doubleQuotes[ch] == 4) {
                             buf[bufIndex++] = 'u';
                             buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 12) & 15];
-                            buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 8) & 15];
-                            buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 4) & 15];
-                            buf[bufIndex++] = IOUtils.DIGITS[ch & 15];
+                            buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 8 ) & 15];
+                            buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 4 ) & 15];
+                            buf[bufIndex++] = IOUtils.DIGITS[ch          & 15];
                             end += 5;
                         } else {
                             buf[bufIndex++] = replaceChars[(int) ch];
@@ -1186,9 +1196,9 @@ public final class SerializeWriter extends Writer {
                             buf[bufIndex++] = '\\';
                             buf[bufIndex++] = 'u';
                             buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 12) & 15];
-                            buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 8) & 15];
-                            buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 4) & 15];
-                            buf[bufIndex++] = IOUtils.DIGITS[ch & 15];
+                            buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 8 ) & 15];
+                            buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 4 ) & 15];
+                            buf[bufIndex++] = IOUtils.DIGITS[ch          & 15];
                             end += 5;
                         } else {
                             buf[bufIndex++] = ch;
@@ -1229,13 +1239,17 @@ public final class SerializeWriter extends Writer {
                     char ch = text[i];
 
                     if (isEnabled(SerializerFeature.BrowserSecure)) {
-                        if (ch == '(' || ch == ')' || ch == '<' || ch == '>') {
+                        if (ch == '('
+                                || ch == ')'
+                                || ch == '<'
+                                || ch == '>'
+                        ) {
                             write('\\');
                             write('u');
                             write(IOUtils.DIGITS[(ch >>> 12) & 15]);
-                            write(IOUtils.DIGITS[(ch >>> 8) & 15]);
-                            write(IOUtils.DIGITS[(ch >>> 4) & 15]);
-                            write(IOUtils.DIGITS[ch & 15]);
+                            write(IOUtils.DIGITS[(ch >>> 8 ) & 15]);
+                            write(IOUtils.DIGITS[(ch >>> 4 ) & 15]);
+                            write(IOUtils.DIGITS[ch          & 15]);
                             continue;
                         }
                     }
@@ -1259,7 +1273,7 @@ public final class SerializeWriter extends Writer {
                             write('u');
                             write('0');
                             write('0');
-                            write(IOUtils.ASCII_CHARS[ch * 2]);
+                            write(IOUtils.ASCII_CHARS[ch * 2    ]);
                             write(IOUtils.ASCII_CHARS[ch * 2 + 1]);
                             continue;
                         }
@@ -1268,9 +1282,9 @@ public final class SerializeWriter extends Writer {
                             write('\\');
                             write('u');
                             write(IOUtils.DIGITS[(ch >>> 12) & 15]);
-                            write(IOUtils.DIGITS[(ch >>> 8) & 15]);
-                            write(IOUtils.DIGITS[(ch >>> 4) & 15]);
-                            write(IOUtils.DIGITS[ch & 15]);
+                            write(IOUtils.DIGITS[(ch >>> 8 ) & 15]);
+                            write(IOUtils.DIGITS[(ch >>> 4 ) & 15]);
+                            write(IOUtils.DIGITS[ch          & 15]);
                             continue;
                         }
                     } else {
@@ -1281,9 +1295,9 @@ public final class SerializeWriter extends Writer {
                             if (IOUtils.specicalFlags_doubleQuotes[ch] == 4) {
                                 write('u');
                                 write(IOUtils.DIGITS[ch >>> 12 & 15]);
-                                write(IOUtils.DIGITS[ch >>> 8 & 15]);
-                                write(IOUtils.DIGITS[ch >>> 4 & 15]);
-                                write(IOUtils.DIGITS[ch & 15]);
+                                write(IOUtils.DIGITS[ch >>> 8  & 15]);
+                                write(IOUtils.DIGITS[ch >>> 4  & 15]);
+                                write(IOUtils.DIGITS[ch        & 15]);
                             } else {
                                 write(IOUtils.replaceChars[ch]);
                             }
@@ -1473,7 +1487,7 @@ public final class SerializeWriter extends Writer {
                     int destPos = lastSpecialIndex + 6;
                     int LengthOfCopy = end - lastSpecialIndex - 1;
                     System.arraycopy(buf, srcPos, buf, destPos, LengthOfCopy);
-                    buf[lastSpecialIndex] = '\\';
+                    buf[lastSpecialIndex  ] = '\\';
                     buf[++lastSpecialIndex] = 'u';
                     buf[++lastSpecialIndex] = '2';
                     buf[++lastSpecialIndex] = '0';
@@ -1484,7 +1498,7 @@ public final class SerializeWriter extends Writer {
                     int destPos = lastSpecialIndex + 6;
                     int LengthOfCopy = end - lastSpecialIndex - 1;
                     System.arraycopy(buf, srcPos, buf, destPos, LengthOfCopy);
-                    buf[lastSpecialIndex] = '\\';
+                    buf[lastSpecialIndex  ] = '\\';
                     buf[++lastSpecialIndex] = 'u';
                     buf[++lastSpecialIndex] = '2';
                     buf[++lastSpecialIndex] = '0';
@@ -1772,7 +1786,10 @@ public final class SerializeWriter extends Writer {
     }
 
     public void writeFieldValue(char seperator, String name, long value) {
-        if (value == Long.MIN_VALUE || !quoteFieldNames) {
+        if (value == Long.MIN_VALUE
+                || !quoteFieldNames
+                || isEnabled(SerializerFeature.BrowserCompatible.mask)
+        ) {
             write(seperator);
             writeFieldName(name);
             writeLong(value);
@@ -2035,9 +2052,9 @@ public final class SerializeWriter extends Writer {
                         buf[bufIndex++] = '\\';
                         buf[bufIndex++] = 'u';
                         buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 12) & 15];
-                        buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 8) & 15];
-                        buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 4) & 15];
-                        buf[bufIndex++] = IOUtils.DIGITS[ch & 15];
+                        buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 8 ) & 15];
+                        buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 4 ) & 15];
+                        buf[bufIndex++] = IOUtils.DIGITS[ch          & 15];
                         valueEnd += 5;
                     } else if (ch < IOUtils.specicalFlags_doubleQuotes.length //
                         && IOUtils.specicalFlags_doubleQuotes[ch] != 0 //
@@ -2046,9 +2063,9 @@ public final class SerializeWriter extends Writer {
                         if (IOUtils.specicalFlags_doubleQuotes[ch] == 4) {
                             buf[bufIndex++] = 'u';
                             buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 12) & 15];
-                            buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 8) & 15];
-                            buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 4) & 15];
-                            buf[bufIndex++] = IOUtils.DIGITS[ch & 15];
+                            buf[bufIndex++] = IOUtils.DIGITS[(ch >>>  8) & 15];
+                            buf[bufIndex++] = IOUtils.DIGITS[(ch >>>  4) & 15];
+                            buf[bufIndex++] = IOUtils.DIGITS[ch          & 15];
                             valueEnd += 5;
                         } else {
                             buf[bufIndex++] = replaceChars[(int) ch];
@@ -2059,9 +2076,9 @@ public final class SerializeWriter extends Writer {
                             buf[bufIndex++] = '\\';
                             buf[bufIndex++] = 'u';
                             buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 12) & 15];
-                            buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 8) & 15];
-                            buf[bufIndex++] = IOUtils.DIGITS[(ch >>> 4) & 15];
-                            buf[bufIndex++] = IOUtils.DIGITS[ch & 15];
+                            buf[bufIndex++] = IOUtils.DIGITS[(ch >>>  8) & 15];
+                            buf[bufIndex++] = IOUtils.DIGITS[(ch >>>  4) & 15];
+                            buf[bufIndex++] = IOUtils.DIGITS[ch          & 15];
                             valueEnd += 5;
                         } else {
                             buf[bufIndex++] = ch;

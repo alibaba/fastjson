@@ -148,6 +148,10 @@ public class JSONSerializer extends SerializeFilterable {
             return false;
         }
 
+        if (value == Collections.emptyMap()) {
+            return false;
+        }
+
         Object fieldName = refContext.fieldName;
 
         return fieldName == null || fieldName instanceof Integer || fieldName instanceof String;
@@ -284,6 +288,25 @@ public class JSONSerializer extends SerializeFilterable {
         }
     }
 
+    /**
+     * @since 1.2.57
+     *
+     */
+    public final void writeAs(Object object, Class type) {
+        if (object == null) {
+            out.writeNull();
+            return;
+        }
+
+        ObjectSerializer writer = getObjectWriter(type);
+
+        try {
+            writer.write(this, object, null, null, 0);
+        } catch (IOException e) {
+            throw new JSONException(e.getMessage(), e);
+        }
+    }
+
     public final void writeWithFieldName(Object object, Object fieldName) {
         writeWithFieldName(object, fieldName, null, 0);
     }
@@ -315,6 +338,11 @@ public class JSONSerializer extends SerializeFilterable {
 
     public final void writeWithFormat(Object object, String format) {
         if (object instanceof Date) {
+            if ("unixtime".equals(format)) {
+                long seconds = ((Date) object).getTime() / 1000L;
+                out.writeInt((int) seconds);
+                return;
+            }
             DateFormat dateFormat = this.getDateFormat();
             if (dateFormat == null) {
                 try {

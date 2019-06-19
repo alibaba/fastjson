@@ -15,7 +15,6 @@
  */
 package com.alibaba.fastjson.serializer;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -46,7 +45,6 @@ import com.alibaba.fastjson.util.TypeUtils;
 import org.w3c.dom.Node;
 
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;

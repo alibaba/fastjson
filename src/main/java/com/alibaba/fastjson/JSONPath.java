@@ -2136,7 +2136,7 @@ public class JSONPath implements JSONAware {
         }
         
         public boolean remove(JSONPath path, Object parent) {
-            return path.removePropertyValue(parent, propertyName);
+            return path.removePropertyValue(parent, propertyName, deep);
         }
     }
 
@@ -3718,10 +3718,18 @@ public class JSONPath implements JSONAware {
     }
     
     @SuppressWarnings({"rawtypes" })
-    protected boolean removePropertyValue(Object parent, String name) {
+    protected boolean removePropertyValue(Object parent, String name, boolean deep) {
         if (parent instanceof Map) {
             Object origin = ((Map) parent).remove(name);
-            return origin != null;
+            boolean found = origin != null;
+
+            if (deep) {
+                for (Object item : ((Map) parent).values()) {
+                    removePropertyValue(item, name, deep);
+                }
+            }
+
+            return found;
         }
 
         ObjectDeserializer derializer = parserConfig.getDeserializer(parent.getClass());
@@ -3733,12 +3741,28 @@ public class JSONPath implements JSONAware {
 
         if (beanDerializer != null) {
             FieldDeserializer fieldDeserializer = beanDerializer.getFieldDeserializer(name);
-            if (fieldDeserializer == null) {
-                return false;
+
+            boolean found = false;
+            if (fieldDeserializer != null) {
+                fieldDeserializer.setValue(parent, null);
+                found = true;
             }
 
-            fieldDeserializer.setValue(parent, null);
-            return true;
+            if (deep) {
+                Collection<Object> propertyValues = this.getPropertyValues(parent);
+                for (Object item : propertyValues) {
+                    if (item == null) {
+                        continue;
+                    }
+                    removePropertyValue(item, name, deep);
+                }
+            }
+
+            return found;
+        }
+
+        if (deep) {
+            return false;
         }
 
         throw new UnsupportedOperationException();

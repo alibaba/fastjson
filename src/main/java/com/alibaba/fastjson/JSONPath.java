@@ -3395,6 +3395,15 @@ public class JSONPath implements JSONAware {
             return null;
         }
 
+        if (currentObject instanceof String) {
+            try {
+                JSONObject object = JSON.parseObject((String) currentObject);
+                currentObject = object;
+            } catch (Exception ex) {
+                // skip
+            }
+        }
+
         if (currentObject instanceof Map) {
             Map map = (Map) currentObject;
             Object val = map.get(propertyName);

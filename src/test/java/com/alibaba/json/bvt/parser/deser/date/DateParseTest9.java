@@ -80,7 +80,7 @@ public class DateParseTest9 extends TestCase {
         // with iso-format
         json = JSON.toJSONString(vo, SerializerFeature.UseISO8601DateFormat);
         result = JSON.parseObject(json, VO.class);
-        assertEquals(vo.date, result.date);
+        assertEquals(JSON.toJSONString(vo.date), JSON.toJSONString(result.date));
     }
 
     public static class VO {

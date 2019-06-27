@@ -3863,4 +3863,26 @@ public class JSONPath implements JSONAware {
     public String toJSONString() {
         return JSON.toJSONString(path);
     }
+
+    public static Object reserve(Object object, String... paths) {
+        if (paths == null || paths.length == 0) {
+            return object;
+        }
+
+        JSONObject reserved = new JSONObject(true);
+        for (String item : paths) {
+            JSONPath path = JSONPath.compile(item);
+            path.init();
+            Segment lastSegement = path.segments[path.segments.length - 1];
+            if (lastSegement instanceof PropertySegment) {
+                PropertySegment propertySegment = (PropertySegment) lastSegement;
+                Object value = path.eval(object);
+                reserved.put(propertySegment.propertyName, value);
+            } else {
+                // skip
+            }
+        }
+
+        return reserved;
+    }
 }

@@ -3895,7 +3895,7 @@ public class JSONPath implements JSONAware {
             if (lastSegement instanceof PropertySegment) {
                 PropertySegment propertySegment = (PropertySegment) lastSegement;
                 Object value = path.eval(object);
-                reserved.put(propertySegment.propertyName, value);
+                path.set(reserved, value);
             } else {
                 // skip
             }

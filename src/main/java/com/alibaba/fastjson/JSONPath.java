@@ -3893,8 +3893,10 @@ public class JSONPath implements JSONAware {
             path.init();
             Segment lastSegement = path.segments[path.segments.length - 1];
             if (lastSegement instanceof PropertySegment) {
-                PropertySegment propertySegment = (PropertySegment) lastSegement;
                 Object value = path.eval(object);
+                if (value == null) {
+                    continue;
+                }
                 path.set(reserved, value);
             } else {
                 // skip

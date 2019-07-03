@@ -5,5 +5,12 @@
 /.idea
 /.DS_Store
 *.iml
+*.iws
+*.ipr
+*.class
+*.jar
+*~
+*.swp
+*.swo
 
 /bin/

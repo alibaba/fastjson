@@ -15,14 +15,14 @@
  */
 package com.alibaba.fastjson.parser;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.util.IOUtils;
+
 import java.io.Closeable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.util.IOUtils;
 
 import static com.alibaba.fastjson.parser.JSONToken.*;
 
@@ -958,6 +958,9 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                         putChar('\r');
                         break;
                     case '"': // 34
+                        // preserve the backslash as
+                        // it signals the start of embedded JSON
+                        putChar('\\');
                         putChar('"');
                         break;
                     case '\'': // 39

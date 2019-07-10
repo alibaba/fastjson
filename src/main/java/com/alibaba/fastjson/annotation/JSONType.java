@@ -64,6 +64,12 @@ public @interface JSONType {
 
     boolean serializeEnumAsJavaBean() default false;
 
+    /**
+     * Is typeKey need to be a Field
+     * @return true,needed
+     */
+    boolean typeKeyAsField() default true;
+
     PropertyNamingStrategy naming() default PropertyNamingStrategy.CamelCase;
 
     /**

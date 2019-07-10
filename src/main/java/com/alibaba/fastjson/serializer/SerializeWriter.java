@@ -775,7 +775,9 @@ public final class SerializeWriter extends Writer {
         int size = (i < 0) ? IOUtils.stringSize(-i) + 1 : IOUtils.stringSize(i);
 
         int newcount = count + size;
-        if (needQuotationMark) newcount += 2;
+        if (needQuotationMark) {
+            newcount += 2;
+        }
         if (newcount > buf.length) {
             if (writer == null) {
                 expandCapacity(newcount);

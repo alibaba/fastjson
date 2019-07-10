@@ -9,7 +9,7 @@ import junit.framework.TestCase;
  */
 public class MaxBufSizeTest extends TestCase {
     public void test_max_buf() throws Exception {
-        SerializeWriter writer = new SerializeWriter();
+        SerializeWriter writer = new SerializeWriter(2);
 
         Throwable error = null;
         try {

@@ -4,6 +4,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.Arrays;
+import java.util.ArrayList;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
@@ -115,6 +118,37 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
                 ex = createException(message, cause, exClass);
                 if (ex == null) {
                     ex = new Exception(message, cause);
+                } else {
+                    // 产生message或cause为空的异常实例，通过反射对异常信息赋值
+                    if ((message != null && ex.getMessage() == null) ||
+                            (cause != null && ex.getCause() == null)) {
+                        List<Field> fields = new ArrayList<Field>();
+                        Class exClz = ex.getClass();
+                        while (exClz != null) {
+                            if (exClz.getSuperclass() != null) {
+                                if (exClz.getSuperclass().equals(Object.class)) {
+                                    Field[] fieldArr = exClz.getDeclaredFields();
+                                    fields.addAll(Arrays.asList(fieldArr));
+                                }
+                            }
+                            exClz = exClz.getSuperclass();
+                        }
+                        for (Field field : fields) {
+                            if (message != null && ex.getMessage() == null) {
+                                if (field.getName().equals("detailMessage")) {
+                                    field.setAccessible(true);
+                                    field.set(ex, message);
+                                }
+                            }
+                            if (cause != null && ex.getCause() == null) {
+                                if (field.getName().equals("cause")) {
+                                    field.setAccessible(true);
+                                    field.set(ex, message);
+                                }
+                            }
+                        }
+
+                    }
                 }
             } catch (Exception e) {
                 throw new JSONException("create instance error", e);
@@ -125,7 +159,7 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
             ex.setStackTrace(stackTrace);
         }
 
-        if (otherValues != null) {
+        if (otherValues != null && !ex.getClass().equals(Exception.class)) {
             JavaBeanDeserializer exBeanDeser = null;
 
             if (exClass != null) {
@@ -187,6 +221,15 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
 
         if (defaultConstructor != null) {
             return (Throwable) defaultConstructor.newInstance();
+        }
+
+        // 获取参数为null的实例
+        Constructor<?>[] constructors = exClass.getConstructors();
+        if (constructors.length > 0) {
+            Class<?>[] types = constructors[0].getParameterTypes();
+            int length = types.length;
+            Object[] params = new Object[length];
+            return (Throwable)constructors[0].newInstance(params);
         }
 
         return null;

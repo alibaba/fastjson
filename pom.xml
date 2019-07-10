@@ -188,6 +188,12 @@
                     </execution>
                 </executions>
             </plugin>
+			
+            <plugin>
+                <groupId>io.realm</groupId>
+                <artifactId>realm-gradle-plugin</artifactId>
+                <version>5.1.0</version>
+            </plugin>		
         </plugins>
     </build>
 
@@ -562,6 +568,12 @@
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-generator-annprocess</artifactId>
             <version>1.21</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.realm</groupId>
+            <artifactId>realm-android-library</artifactId>
+            <version>5.1.0</version>
             <scope>test</scope>
         </dependency>
 

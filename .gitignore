@@ -5,5 +5,5 @@
 /.idea
 /.DS_Store
 *.iml
-
+/src/test/java/com/alibaba/json/bvt/parser/autoType/AutoTypeTest4.java
 /bin/

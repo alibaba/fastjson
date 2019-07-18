@@ -9,8 +9,11 @@ import junit.framework.TestCase;
 public class Issue1089 extends TestCase {
     public void test_for_issue() throws Exception {
         String json = "{\"ab\":123,\"a_b\":456}";
+        String json2 = "{\"a_b\":456, \"ab\":123,}";
         TestBean tb = JSON.parseObject(json, TestBean.class);
+        TestBean tb2 = JSON.parseObject(json2, TestBean.class);
         assertEquals(123, tb.getAb());
+        assertEquals(123, tb2.getAb());
     }
 
     public static class TestBean {

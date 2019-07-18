@@ -1090,9 +1090,9 @@ public class TypeUtils{
                     mapping = ParserConfig.getGlobalInstance();
                 }
 
-                ObjectDeserializer derializer = mapping.getDeserializer(clazz);
-                if (derializer instanceof EnumDeserializer) {
-                    EnumDeserializer enumDeserializer = (EnumDeserializer) derializer;
+                ObjectDeserializer deserializer = mapping.getDeserializer(clazz);
+                if (deserializer instanceof EnumDeserializer) {
+                    EnumDeserializer enumDeserializer = (EnumDeserializer) deserializer;
                     return (T) enumDeserializer.getEnumByHashCode(TypeUtils.fnv1a_64(name));
                 }
 
@@ -1348,9 +1348,9 @@ public class TypeUtils{
             }
 
             JavaBeanDeserializer javaBeanDeser = null;
-            ObjectDeserializer deserizer = config.getDeserializer(clazz);
-            if (deserizer instanceof JavaBeanDeserializer) {
-                javaBeanDeser = (JavaBeanDeserializer) deserizer;
+            ObjectDeserializer deserializer = config.getDeserializer(clazz);
+            if (deserializer instanceof JavaBeanDeserializer) {
+                javaBeanDeser = (JavaBeanDeserializer) deserializer;
             }
 
             if(javaBeanDeser == null){

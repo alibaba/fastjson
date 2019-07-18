@@ -388,9 +388,9 @@ public class ParserConfig {
     }
 
     public ObjectDeserializer getDeserializer(Type type) {
-        ObjectDeserializer derializer = this.deserializers.get(type);
-        if (derializer != null) {
-            return derializer;
+        ObjectDeserializer deserializer = this.deserializers.get(type);
+        if (deserializer != null) {
+            return deserializer;
         }
 
         if (type instanceof Class<?>) {
@@ -419,18 +419,18 @@ public class ParserConfig {
     }
 
     public ObjectDeserializer getDeserializer(Class<?> clazz, Type type) {
-        ObjectDeserializer derializer = deserializers.get(type);
-        if (derializer != null) {
-            return derializer;
+        ObjectDeserializer deserializer = deserializers.get(type);
+        if (deserializer != null) {
+            return deserializer;
         }
 
         if (type == null) {
             type = clazz;
         }
 
-        derializer = deserializers.get(type);
-        if (derializer != null) {
-            return derializer;
+        deserializer = deserializers.get(type);
+        if (deserializer != null) {
+            return deserializer;
         }
 
         {
@@ -444,18 +444,18 @@ public class ParserConfig {
         }
 
         if (type instanceof WildcardType || type instanceof TypeVariable || type instanceof ParameterizedType) {
-            derializer = deserializers.get(clazz);
+            deserializer = deserializers.get(clazz);
         }
 
-        if (derializer != null) {
-            return derializer;
+        if (deserializer != null) {
+            return deserializer;
         }
 
         for (Module module : modules) {
-            derializer = module.createDeserializer(this, clazz);
-            if (derializer != null) {
-                putDeserializer(type, derializer);
-                return derializer;
+            deserializer = module.createDeserializer(this, clazz);
+            if (deserializer != null) {
+                putDeserializer(type, deserializer);
+                return deserializer;
             }
         }
 
@@ -475,8 +475,8 @@ public class ParserConfig {
                 try {
                     for (String name : names) {
                         if (name.equals(className)) {
-                            deserializers.put(Class.forName(name), derializer = AwtCodec.instance);
-                            return derializer;
+                            deserializers.put(Class.forName(name), deserializer = AwtCodec.instance);
+                            return deserializer;
                         }
                     }
                 } catch (Throwable e) {
@@ -484,7 +484,7 @@ public class ParserConfig {
                     awtError = true;
                 }
 
-                derializer = AwtCodec.instance;
+                deserializer = AwtCodec.instance;
             }
         }
 
@@ -508,8 +508,8 @@ public class ParserConfig {
 
                     for (String name : names) {
                         if (name.equals(className)) {
-                            deserializers.put(Class.forName(name), derializer = Jdk8DateCodec.instance);
-                            return derializer;
+                            deserializers.put(Class.forName(name), deserializer = Jdk8DateCodec.instance);
+                            return deserializer;
                         }
                     }
                 } else if (className.startsWith("java.util.Optional")) {
@@ -521,8 +521,8 @@ public class ParserConfig {
                     };
                     for (String name : names) {
                         if (name.equals(className)) {
-                            deserializers.put(Class.forName(name), derializer = OptionalCodec.instance);
-                            return derializer;
+                            deserializers.put(Class.forName(name), deserializer = OptionalCodec.instance);
+                            return deserializer;
                         }
                     }
                 }
@@ -549,8 +549,8 @@ public class ParserConfig {
 
                     for (String name : names) {
                         if (name.equals(className)) {
-                            deserializers.put(Class.forName(name), derializer = JodaCodec.instance);
-                            return derializer;
+                            deserializers.put(Class.forName(name), deserializer = JodaCodec.instance);
+                            return deserializer;
                         }
                     }
                 }
@@ -573,8 +573,8 @@ public class ParserConfig {
 
                 for (String name : names) {
                     if (name.equals(className)) {
-                        deserializers.put(Class.forName(name), derializer = GuavaCodec.instance);
-                        return derializer;
+                        deserializers.put(Class.forName(name), deserializer = GuavaCodec.instance);
+                        return deserializer;
                     }
                 }
             } catch (ClassNotFoundException e) {
@@ -584,19 +584,19 @@ public class ParserConfig {
         }
 
         if (className.equals("java.nio.ByteBuffer")) {
-            deserializers.put(clazz, derializer = ByteBufferCodec.instance);
+            deserializers.put(clazz, deserializer = ByteBufferCodec.instance);
         }
 
         if (className.equals("java.nio.file.Path")) {
-            deserializers.put(clazz, derializer = MiscCodec.instance);
+            deserializers.put(clazz, deserializer = MiscCodec.instance);
         }
 
         if (clazz == Map.Entry.class) {
-            deserializers.put(clazz, derializer = MiscCodec.instance);
+            deserializers.put(clazz, deserializer = MiscCodec.instance);
         }
 
         if (className.equals("org.javamoney.moneta.Money")) {
-            deserializers.put(clazz, derializer = MonetaCodec.instance);
+            deserializers.put(clazz, deserializer = MonetaCodec.instance);
         }
 
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -611,12 +611,12 @@ public class ParserConfig {
             // skip
         }
 
-        if (derializer == null) {
-            derializer = deserializers.get(type);
+        if (deserializer == null) {
+            deserializer = deserializers.get(type);
         }
 
-        if (derializer != null) {
-            return derializer;
+        if (deserializer != null) {
+            return deserializer;
         }
 
         if (clazz.isEnum()) {
@@ -624,9 +624,9 @@ public class ParserConfig {
                 Method[] methods = clazz.getMethods();
                 for (Method method : methods) {
                     if (TypeUtils.isJacksonCreator(method)) {
-                        derializer = createJavaBeanDeserializer(clazz, type);
-                        putDeserializer(type, derializer);
-                        return derializer;
+                        deserializer = createJavaBeanDeserializer(clazz, type);
+                        putDeserializer(type, deserializer);
+                        return deserializer;
                     }
                 }
             }
@@ -636,37 +636,37 @@ public class ParserConfig {
             if (jsonType != null) {
                 deserClass = jsonType.deserializer();
                 try {
-                    derializer = (ObjectDeserializer) deserClass.newInstance();
-                    deserializers.put(clazz, derializer);
-                    return derializer;
+                    deserializer = (ObjectDeserializer) deserClass.newInstance();
+                    deserializers.put(clazz, deserializer);
+                    return deserializer;
                 } catch (Throwable error) {
                     // skip
                 }
             }
 
-            derializer = new EnumDeserializer(clazz);
+            deserializer = new EnumDeserializer(clazz);
         } else if (clazz.isArray()) {
-            derializer = ObjectArrayCodec.instance;
+            deserializer = ObjectArrayCodec.instance;
         } else if (clazz == Set.class || clazz == HashSet.class || clazz == Collection.class || clazz == List.class
                    || clazz == ArrayList.class) {
-            derializer = CollectionCodec.instance;
+            deserializer = CollectionCodec.instance;
         } else if (Collection.class.isAssignableFrom(clazz)) {
-            derializer = CollectionCodec.instance;
+            deserializer = CollectionCodec.instance;
         } else if (Map.class.isAssignableFrom(clazz)) {
-            derializer = MapDeserializer.instance;
+            deserializer = MapDeserializer.instance;
         } else if (Throwable.class.isAssignableFrom(clazz)) {
-            derializer = new ThrowableDeserializer(this, clazz);
+            deserializer = new ThrowableDeserializer(this, clazz);
         } else if (PropertyProcessable.class.isAssignableFrom(clazz)) {
-            derializer = new PropertyProcessableDeserializer((Class<PropertyProcessable>) clazz);
+            deserializer = new PropertyProcessableDeserializer((Class<PropertyProcessable>) clazz);
         } else if (clazz == InetAddress.class) {
-            derializer = MiscCodec.instance;
+            deserializer = MiscCodec.instance;
         } else {
-            derializer = createJavaBeanDeserializer(clazz, type);
+            deserializer = createJavaBeanDeserializer(clazz, type);
         }
 
-        putDeserializer(type, derializer);
+        putDeserializer(type, deserializer);
 
-        return derializer;
+        return deserializer;
     }
 
     /**

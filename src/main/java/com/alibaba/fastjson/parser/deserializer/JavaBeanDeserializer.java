@@ -1335,7 +1335,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 Type paramType = fieldInfo.fieldType;
 
                 if (field != null) {
-                    if (paramType == boolean.class) {
+                    Class fieldType = field.getType();
+                    if (fieldType == boolean.class) {
                         if (value == Boolean.FALSE) {
                             field.setBoolean(object, false);
                             continue;
@@ -1345,17 +1346,17 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             field.setBoolean(object, true);
                             continue;
                         }
-                    } else if (paramType == int.class) {
+                    } else if (fieldType == int.class) {
                         if (value instanceof Number) {
                             field.setInt(object, ((Number) value).intValue());
                             continue;
                         }
-                    } else if (paramType == long.class) {
+                    } else if (fieldType == long.class) {
                         if (value instanceof Number) {
                             field.setLong(object, ((Number) value).longValue());
                             continue;
                         }
-                    } else if (paramType == float.class) {
+                    } else if (fieldType == float.class) {
                         if (value instanceof Number) {
                             field.setFloat(object, ((Number) value).floatValue());
                             continue;
@@ -1371,7 +1372,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             field.setFloat(object, floatValue);
                             continue;
                         }
-                    } else if (paramType == double.class) {
+                    } else if (fieldType == double.class) {
                         if (value instanceof Number) {
                             field.setDouble(object, ((Number) value).doubleValue());
                             continue;

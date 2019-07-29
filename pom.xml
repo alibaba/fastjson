@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.alibaba</groupId>
 	<artifactId>fastjson</artifactId>
-	<version>1.2.59_preview_07</version>
+	<version>1.2.59_preview_09</version>
 
 	<packaging>jar</packaging>
 	<name>fastjson</name>

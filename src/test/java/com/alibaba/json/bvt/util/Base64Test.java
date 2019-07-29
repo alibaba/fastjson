@@ -12,17 +12,17 @@ public class Base64Test extends TestCase {
 
         {
             byte[] bytes2 = Base64.decodeFast(base64Str);
-            assertEquals(str, new String(bytes2));
+            assertEquals(str, new String(bytes2, "UTF8"));
         }
 
         {
             byte[] bytes2 = Base64.decodeFast(base64Str, 0, base64Str.length());
-            assertEquals(str, new String(bytes2));
+            assertEquals(str, new String(bytes2, "UTF8"));
         }
 
         {
             byte[] bytes2 = Base64.decodeFast(base64Str.toCharArray(), 0, base64Str.length());
-            assertEquals(str, new String(bytes2));
+            assertEquals(str, new String(bytes2, "UTF8"));
         }
     }
 }

@@ -21,7 +21,7 @@ public class PropertyProcessableDeserializer implements ObjectDeserializer {
         try {
             processable = this.type.newInstance();
         } catch (Exception e) {
-            throw new JSONException("craete instance error");
+            throw new JSONException("create instance error");
         }
 
         Object object =parser.parse(processable, fieldName);

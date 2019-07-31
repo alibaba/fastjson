@@ -572,71 +572,70 @@ public class JSONCheckKit {
 	}
 
 	private boolean BOOLSTRCheck() {
-		String tmpStr = new String("");
-		if (jstr.charAt(index) == 't') {
-			for (int i = 0; i < 4; i++) {
-				if (index < jstr.length()) {
-					tmpStr += jstr.charAt(index);
-					index++;
-				} else {
-					index = preIndex;
-					errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
-					return false;
-				}
-			}
-
-			if (tmpStr.equals("true")) {
-				test = StatusEnum.VALUE_END;
-				return true;
-			} else {
-				index = preIndex;
+		if(jstr.charAt(index) == 't') {
+			if(jstr.charAt(++index) != 'r') {
 				errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
+				index = preIndex;
+				return false;
+			}
+			if(jstr.charAt(++index) != 'u') {
+				errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
+				index = preIndex;
+				return false;
+			}
+			if(jstr.charAt(++index) != 'e') {
+				errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
+				index = preIndex;
 				return false;
 			}
 		} else {
-			for (int i = 0; i < 5; i++) {
-				if (index < jstr.length()) {
-					tmpStr += jstr.charAt(index);
-					index++;
-				} else {
-					index = preIndex;
-					errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
-					return false;
-				}
-			}
-
-			if (tmpStr.equals("false")) {
-				test = StatusEnum.VALUE_END;
-				return true;
-			} else {
-				index = preIndex;
+			if(jstr.charAt(++index) != 'a') {
 				errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
+				index = preIndex;
+				return false;
+			}
+			if(jstr.charAt(++index) != 'l') {
+				errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
+				index = preIndex;
+				return false;
+			}
+			if(jstr.charAt(++index) != 's') {
+				errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
+				index = preIndex;
+				return false;
+			}
+			if(jstr.charAt(++index) != 'e') {
+				errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
+				index = preIndex;
 				return false;
 			}
 		}
+
+		index++;
+		test = StatusEnum.VALUE_END;
+		return true;
 	}
 
 	private boolean NULLSTRCheck() {
-		String tmpStr = new String("");
-		for (int i = 0; i < 4; i++) {
-			if (index < jstr.length()) {
-				tmpStr += jstr.charAt(index);
-				index++;
-			} else {
-				index = preIndex;
-				errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
-				return false;
-			}
-		}
+        if(jstr.charAt(++index) != 'u') {
+            errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
+            index = preIndex;
+            return false;
+        }
+        if(jstr.charAt(++index) != 'l') {
+            errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
+            index = preIndex;
+            return false;
+        }
+        if(jstr.charAt(++index) != 'l') {
+            errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
+            index = preIndex;
+            return false;
+        }
 
-		if (tmpStr.equals("null")) {
-			test = StatusEnum.VALUE_END;
-			return true;
-		} else {
-			index = preIndex;
-			errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
-			return false;
-		}
+        index++;
+		test = StatusEnum.VALUE_END;
+		return true;
 	}
 
 	private boolean VALUE_ENDCheck() {

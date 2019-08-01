@@ -1793,7 +1793,7 @@ public class TypeUtils{
                     }
                 }
                 if(paramNames != null && paramNameMapping != null && methodName.startsWith("get")){
-                    String propertyName = decapitalize(methodName.substring(3));
+                    String propertyName = toLowerCaseName(methodName.substring(3));
                     int p = Arrays.binarySearch(paramNames, propertyName);
                     if (p < 0) {
                         for (int i = 0; i < paramNames.length; i++) {
@@ -1863,7 +1863,7 @@ public class TypeUtils{
                         || c3 > 512 // for unicode method name
                         ){
                     if(compatibleWithJavaBean){
-                        propertyName = decapitalize(methodName.substring(3));
+                        propertyName = toLowerCaseName(methodName.substring(3));
                     } else{
                         propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
                     }
@@ -1873,7 +1873,7 @@ public class TypeUtils{
                 } else if(c3 == 'f'){
                     propertyName = methodName.substring(3);
                 } else if(methodName.length() >= 5 && Character.isUpperCase(methodName.charAt(4))){
-                    propertyName = decapitalize(methodName.substring(3));
+                    propertyName = toLowerCaseName(methodName.substring(3));
                 } else{
                     continue;
                 }
@@ -1886,7 +1886,7 @@ public class TypeUtils{
                 if(field == null && propertyName.length() > 1){
                     char ch = propertyName.charAt(1);
                     if(ch >= 'A' && ch <= 'Z'){
-                        String javaBeanCompatiblePropertyName = decapitalize(methodName.substring(3));
+                        String javaBeanCompatiblePropertyName = toLowerCaseName(methodName.substring(3));
                         field = ParserConfig.getFieldFromCache(javaBeanCompatiblePropertyName, fieldCacheMap);
                     }
                 }
@@ -1940,7 +1940,7 @@ public class TypeUtils{
                 String propertyName;
                 if(Character.isUpperCase(c2)){
                     if(compatibleWithJavaBean){
-                        propertyName = decapitalize(methodName.substring(2));
+                        propertyName = toLowerCaseName(methodName.substring(2));
                     } else{
                         propertyName = Character.toLowerCase(methodName.charAt(2)) + methodName.substring(3);
                     }
@@ -2299,7 +2299,7 @@ public class TypeUtils{
         return Feature.of(annotation.parseFeatures());
     }
 
-    public static String decapitalize(String name){
+    public static String toLowerCaseName(String name){
         if(name == null || name.length() == 0){
             return name;
         }

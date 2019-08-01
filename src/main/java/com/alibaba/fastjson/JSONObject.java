@@ -588,7 +588,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     }
 
     public <T> T toJavaObject(Class<T> clazz) {
-        if (clazz == Map.class) {
+        if (clazz == Map.class || clazz == JSONObject.class || clazz == JSON.class) {
             return (T) this;
         }
 

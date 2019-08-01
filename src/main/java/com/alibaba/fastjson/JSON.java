@@ -1107,6 +1107,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
      * @since 1.2.9
      */
     public <T> T toJavaObject(Class<T> clazz) {
+        if (clazz == JSONArray.class || clazz == JSON.class || clazz == Collection.class || clazz == List.class) {
+            return (T) this;
+        }
+
         return TypeUtils.cast(this, clazz, ParserConfig.getGlobalInstance());
     }
 
@@ -1252,5 +1256,5 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         parser.handleResovleTask(value);
     }
 
-    public final static String VERSION = "1.2.59";
+    public final static String VERSION = "1.2.60";
 }

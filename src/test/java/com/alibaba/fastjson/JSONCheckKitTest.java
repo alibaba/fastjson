@@ -78,6 +78,7 @@ public class JSONCheckKitTest {
 		for (int i = 0; i < 10; i++) {
 			long startTime = System.nanoTime();
 			obj.jsonCheckFromFile(filename);
+			obj.resetMembers();
 			long endTime = System.nanoTime();
 			System.out.println("程序运行时间： " + (endTime - startTime) + "ns " + (endTime - startTime) * 1e-9 + "s");
 			total += endTime - startTime;

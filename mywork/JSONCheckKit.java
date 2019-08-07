@@ -1,5 +1,3 @@
-package com.alibaba.fastjson;
-import java.util.*;
 import java.io.*;
 
 public class JSONCheckKit {
@@ -13,10 +11,40 @@ public class JSONCheckKit {
 		WRONG_MISS_DELIMITER, WRONG_MISS_COLON
 	};
 
+	private class MyStack {
+		private int capacity = 20;
+		private char[] vector = new char[capacity];
+		private int top = -1;
+
+		private boolean empty() {
+			if (top == -1)
+				return true;
+			return false;
+		}
+
+		private char pop() {
+			return vector[top--];
+		}
+
+		private void push(char tmpChar) {
+			if (top == capacity - 1) {
+				char[] newVector = new char[capacity * 2];
+				System.arraycopy(vector, 0, newVector, 0, capacity);
+				capacity *= 2;
+				vector = newVector;
+			}
+			vector[++top] = tmpChar;
+		}
+
+		private char peek() {
+			return vector[top];
+		}
+	};
+
 	private String jstr = "";
 	private int index = 0;
 	private int preIndex = 0;
-	private Stack<Character> sc = new Stack<Character>();
+	private MyStack sc = new MyStack();
 	private StatusEnum test = StatusEnum.INITIAL;
 	private ErrorTypeEnum errorType = ErrorTypeEnum.NO_ERROR;
 
@@ -232,7 +260,6 @@ public class JSONCheckKit {
 						return false;
 					}
 				} else {
-					System.out.println(lineNum);
 					return false;
 				}
 			}
@@ -572,70 +599,70 @@ public class JSONCheckKit {
 	}
 
 	private boolean BOOLSTRCheck() {
-		if(jstr.charAt(index) == 't') {
-			if(jstr.charAt(++index) != 'r') {
+		if (jstr.charAt(index) == 't') {
+			if (jstr.charAt(++index) != 'r') {
 				errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
 				index = preIndex;
 				return false;
 			}
-			if(jstr.charAt(++index) != 'u') {
+			if (jstr.charAt(++index) != 'u') {
 				errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
 				index = preIndex;
 				return false;
 			}
-			if(jstr.charAt(++index) != 'e') {
+			if (jstr.charAt(++index) != 'e') {
 				errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
 				index = preIndex;
 				return false;
 			}
 		} else {
-			if(jstr.charAt(++index) != 'a') {
+			if (jstr.charAt(++index) != 'a') {
 				errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
 				index = preIndex;
 				return false;
 			}
-			if(jstr.charAt(++index) != 'l') {
+			if (jstr.charAt(++index) != 'l') {
 				errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
 				index = preIndex;
 				return false;
 			}
-			if(jstr.charAt(++index) != 's') {
+			if (jstr.charAt(++index) != 's') {
 				errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
 				index = preIndex;
 				return false;
 			}
-			if(jstr.charAt(++index) != 'e') {
+			if (jstr.charAt(++index) != 'e') {
 				errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
 				index = preIndex;
 				return false;
 			}
 		}
-
 		index++;
 		test = StatusEnum.VALUE_END;
 		return true;
 	}
 
 	private boolean NULLSTRCheck() {
-        if(jstr.charAt(++index) != 'u') {
-            errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
-            index = preIndex;
-            return false;
-        }
-        if(jstr.charAt(++index) != 'l') {
-            errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
-            index = preIndex;
-            return false;
-        }
-        if(jstr.charAt(++index) != 'l') {
-            errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
-            index = preIndex;
-            return false;
-        }
+		String tmpStr = new String("");
+		for (int i = 0; i < 4; i++) {
+			if (index < jstr.length()) {
+				tmpStr += jstr.charAt(index);
+				index++;
+			} else {
+				index = preIndex;
+				errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
+				return false;
+			}
+		}
 
-        index++;
-		test = StatusEnum.VALUE_END;
-		return true;
+		if (tmpStr.equals("null")) {
+			test = StatusEnum.VALUE_END;
+			return true;
+		} else {
+			index = preIndex;
+			errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
+			return false;
+		}
 	}
 
 	private boolean VALUE_ENDCheck() {
@@ -698,7 +725,7 @@ public class JSONCheckKit {
 		for (int i = 0; i < index; i++) {
 			System.out.print(' ');
 		}
-		System.out.println('^');
+		System.out.println('↑');
 	}
 
 	private boolean isSpace(char tmpc) {

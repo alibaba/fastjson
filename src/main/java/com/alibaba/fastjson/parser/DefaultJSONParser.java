@@ -680,13 +680,13 @@ public class DefaultJSONParser implements Closeable {
             }
         }
 
-        ObjectDeserializer derializer = config.getDeserializer(type);
+        ObjectDeserializer deserializer = config.getDeserializer(type);
 
         try {
-            if (derializer.getClass() == JavaBeanDeserializer.class) {
-                return (T) ((JavaBeanDeserializer) derializer).deserialze(this, type, fieldName, 0);
+            if (deserializer.getClass() == JavaBeanDeserializer.class) {
+                return (T) ((JavaBeanDeserializer) deserializer).deserialze(this, type, fieldName, 0);
             } else {
-                return (T) derializer.deserialze(this, type, fieldName);
+                return (T) deserializer.deserialze(this, type, fieldName);
             }
         } catch (JSONException e) {
             throw e;
@@ -854,12 +854,12 @@ public class DefaultJSONParser implements Closeable {
                     if (isArray && lexer.token() != JSONToken.LBRACKET) {
                         List<Object> varList = new ArrayList<Object>();
 
-                        ObjectDeserializer derializer = config.getDeserializer(componentType);
-                        int fastMatch = derializer.getFastMatchToken();
+                        ObjectDeserializer deserializer = config.getDeserializer(componentType);
+                        int fastMatch = deserializer.getFastMatchToken();
 
                         if (lexer.token() != JSONToken.RBRACKET) {
                             for (;;) {
-                                Object item = derializer.deserialze(this, type, null);
+                                Object item = deserializer.deserialze(this, type, null);
                                 varList.add(item);
 
                                 if (lexer.token() == JSONToken.COMMA) {
@@ -874,8 +874,8 @@ public class DefaultJSONParser implements Closeable {
 
                         value = TypeUtils.cast(varList, type, config);
                     } else {
-                        ObjectDeserializer derializer = config.getDeserializer(type);
-                        value = derializer.deserialze(this, type, i);
+                        ObjectDeserializer deserializer = config.getDeserializer(type);
+                        value = deserializer.deserialze(this, type, i);
                     }
                 }
             }
@@ -908,9 +908,9 @@ public class DefaultJSONParser implements Closeable {
     public void parseObject(Object object) {
         Class<?> clazz = object.getClass();
         JavaBeanDeserializer beanDeser = null;
-        ObjectDeserializer deserizer = config.getDeserializer(clazz);
-        if (deserizer instanceof JavaBeanDeserializer) {
-            beanDeser = (JavaBeanDeserializer) deserizer;
+        ObjectDeserializer deserializer = config.getDeserializer(clazz);
+        if (deserializer instanceof JavaBeanDeserializer) {
+            beanDeser = (JavaBeanDeserializer) deserializer;
         }
 
         if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {

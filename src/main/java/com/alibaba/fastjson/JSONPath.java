@@ -3697,15 +3697,15 @@ public class JSONPath implements JSONAware {
             return true;
         }
 
-        ObjectDeserializer derializer = parserConfig.getDeserializer(parent.getClass());
+        ObjectDeserializer deserializer = parserConfig.getDeserializer(parent.getClass());
 
-        JavaBeanDeserializer beanDerializer = null;
-        if (derializer instanceof JavaBeanDeserializer) {
-            beanDerializer = (JavaBeanDeserializer) derializer;
+        JavaBeanDeserializer beanDeserializer = null;
+        if (deserializer instanceof JavaBeanDeserializer) {
+            beanDeserializer = (JavaBeanDeserializer) deserializer;
         }
 
-        if (beanDerializer != null) {
-            FieldDeserializer fieldDeserializer = beanDerializer.getFieldDeserializer(propertyNameHash);
+        if (beanDeserializer != null) {
+            FieldDeserializer fieldDeserializer = beanDeserializer.getFieldDeserializer(propertyNameHash);
             if (fieldDeserializer == null) {
                 return false;
             }
@@ -3732,15 +3732,15 @@ public class JSONPath implements JSONAware {
             return found;
         }
 
-        ObjectDeserializer derializer = parserConfig.getDeserializer(parent.getClass());
+        ObjectDeserializer deserializer = parserConfig.getDeserializer(parent.getClass());
 
-        JavaBeanDeserializer beanDerializer = null;
-        if (derializer instanceof JavaBeanDeserializer) {
-            beanDerializer = (JavaBeanDeserializer) derializer;
+        JavaBeanDeserializer beanDeserializer = null;
+        if (deserializer instanceof JavaBeanDeserializer) {
+            beanDeserializer = (JavaBeanDeserializer) deserializer;
         }
 
-        if (beanDerializer != null) {
-            FieldDeserializer fieldDeserializer = beanDerializer.getFieldDeserializer(name);
+        if (beanDeserializer != null) {
+            FieldDeserializer fieldDeserializer = beanDeserializer.getFieldDeserializer(name);
 
             boolean found = false;
             if (fieldDeserializer != null) {

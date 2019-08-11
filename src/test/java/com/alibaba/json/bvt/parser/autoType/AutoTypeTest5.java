@@ -22,13 +22,14 @@ public class AutoTypeTest5 extends TestCase {
     }
 
     public void test_0() throws Exception {
-        assertFalse(ParserConfig.getGlobalInstance().isAutoTypeSupport());
-        JSON.parseObject("{\"value\":{\"@type\":\"com.alibaba.json.bvt.parser.autoType.AutoTypeTest5$V1\"}}", Model.class);
+        ParserConfig config = new ParserConfig();
+        assertFalse(config.isAutoTypeSupport());
+        JSON.parseObject("{\"value\":{\"@type\":\"com.alibaba.json.bvt.parser.autoType.AutoTypeTest5$V1\"}}", Model.class, config);
 
         int size = mappings.size();
         Exception error = null;
         try {
-            JSON.parseObject("{\"value\":{\"@type\":\"com.alibaba.json.bvt.parser.autoType.AutoTypeTest5$X1\"}}", Model.class);
+            JSON.parseObject("{\"value\":{\"@type\":\"com.alibaba.json.bvt.parser.autoType.AutoTypeTest5$X1\"}}", Model.class, config);
         } catch (JSONException x) {
             error = x;
         }

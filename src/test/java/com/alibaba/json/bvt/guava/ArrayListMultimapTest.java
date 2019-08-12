@@ -2,8 +2,6 @@ package com.alibaba.json.bvt.guava;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimaps;
 import com.google.common.collect.TreeMultimap;
 import com.google.common.primitives.Ints;
 import junit.framework.TestCase;

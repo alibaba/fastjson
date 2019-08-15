@@ -421,6 +421,9 @@ public class TypeUtils{
 
         if(value instanceof Number){
             longValue = ((Number) value).longValue();
+            if ("unixtime".equals(format)) {
+                longValue *= 1000;
+            }
             return new Date(longValue);
         }
 

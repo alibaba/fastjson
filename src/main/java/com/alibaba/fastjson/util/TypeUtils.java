@@ -453,6 +453,8 @@ public class TypeUtils{
                             && strVal.charAt(26) == ':'
                             && strVal.charAt(28) == '0') {
                         format = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
+                    } else if (strVal.length() == 23 && strVal.charAt(19) == ',') {
+                        format = "yyyy-MM-dd HH:mm:ss,SSS";
                     } else {
                         format = "yyyy-MM-dd HH:mm:ss.SSS";
                     }

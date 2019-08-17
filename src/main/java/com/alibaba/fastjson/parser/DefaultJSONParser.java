@@ -160,6 +160,9 @@ public class DefaultJSONParser implements Closeable {
             ((JSONLexerBase) lexer).token = JSONToken.LBRACKET;
         } else {
             lexer.nextToken(); // prime the pump
+            if (lexer.token()!= JSONToken.LBRACE && lexer.token()!=JSONToken.LBRACKET) {
+                throw new JSONException("syntax error,except start with { or [,but actually start with "+ lexer.tokenName());
+            }
         }
     }
 

@@ -11,8 +11,8 @@ import org.junit.Test;
 public class TestIssue2638 {
 
     @Test
-    public void testBug569() {
+    public void testBug2638() {
         String str="}";
-        JSON.parseObject(str);
+        JSON.parseObject(str,Person.class);
     }
 }

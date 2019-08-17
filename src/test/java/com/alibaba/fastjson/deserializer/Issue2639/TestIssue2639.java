@@ -11,11 +11,9 @@ import org.junit.Test;
 public class TestIssue2639 {
 
     @Test
-    public  void test_Invlide(){
+    public  void test_InvalidStartToken(){
 
-//        String str="{\"name\":\"yangchao\",\"age\":18}";
-
-        String str="}";
+        String str=" }";
 
         Person person = JSONArray.parseObject(str, Person.class);
 

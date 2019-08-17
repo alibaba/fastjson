@@ -15,7 +15,7 @@ public class TestIssue2639 {
 
 //        String str="{\"name\":\"yangchao\",\"age\":18}";
 
-        String str="]";
+        String str="}";
 
         Person person = JSONArray.parseObject(str, Person.class);
 

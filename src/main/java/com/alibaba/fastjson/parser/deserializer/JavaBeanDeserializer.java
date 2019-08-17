@@ -398,6 +398,14 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         try {
             Map<String, Object> fieldValues = null;
 
+            if (token == JSONToken.RBRACE && lexer.pos()>0) {
+                lexer.nextToken(JSONToken.COMMA);
+                if (object == null) {
+                    object = createInstance(parser, type);
+                }
+                return (T) object;
+            }
+
             if (token == JSONToken.LBRACKET) {
                 final int mask = Feature.SupportArrayToBean.mask;
                 boolean isSupportArrayToBean = (beanInfo.parserFeatures & mask) != 0 //
@@ -479,14 +487,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 buf.append(", fastjson-version ").append(JSON.VERSION);
                 
                 throw new JSONException(buf.toString());
-            }
-
-            if (token == JSONToken.RBRACE) {
-                lexer.nextToken(JSONToken.COMMA);
-                if (object == null) {
-                    object = createInstance(parser, type);
-                }
-                return (T) object;
             }
 
             if (parser.resolveStatus == DefaultJSONParser.TypeNameRedirect) {

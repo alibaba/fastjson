@@ -1,6 +1,7 @@
 package com.alibaba.fastjson.deserializer;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import org.junit.*;
@@ -53,6 +54,45 @@ public class TestISO8601Date {
         assertEquals( date1, date2 );
         assertEquals( date, date1 );
         assertEquals( date, date2 );
+    }
+
+    @Test
+    public  void test_Invlide(){
+
+//        String str="{\"name\":\"yangchao\",\"age\":30}";
+
+        String str="]";
+
+        Person person = JSONArray.parseObject(str, Person.class);
+
+        System.out.println(person);
+
+    }
+
+
+    private static class Person {
+        private String name;
+        private Integer age;
+
+        public Person(){}
+
+        public Person(String name, Integer age) {
+            super();
+            this.name = name;
+            this.age = age;
+        }
+        public String getName() {
+            return name;
+        }
+        public void setName(String name) {
+            this.name = name;
+        }
+        public Integer getAge() {
+            return age;
+        }
+        public void setAge(Integer age) {
+            this.age = age;
+        }
     }
 
     private void assertEquals( Date expected, Date actual ) {

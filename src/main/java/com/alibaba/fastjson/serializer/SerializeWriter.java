@@ -627,7 +627,7 @@ public final class SerializeWriter extends Writer {
         int newcount = count + bytes.length * 2 + 3;
         if (newcount > buf.length) {
             if (writer != null) {
-                char[] chars = new char[bytes.length + 3];
+                char[] chars = new char[bytes.length * 2 + 3];
                 int pos = 0;
                 chars[pos++] = 'x';
                 chars[pos++] = '\'';

@@ -58,7 +58,7 @@ JSON字符串检测对比
  fastjson | 0.5547 | fastjson-1.2.59.jar
  Gson | 0.8588 | gson-2.7.jar
  
-JSONCheckKit超大文件测试
+JSONCheckKit超大文件测试（文件大小1.23GB）
 ------------------------
  次数 | 运行时间
  -----|-------

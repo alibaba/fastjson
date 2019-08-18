@@ -52,9 +52,7 @@ public class JSONCheckKit {
 		jstr = "";
 		index = 0;
 		preIndex = 0;
-		while (!sc.empty()) {
-			sc.pop();
-		}
+		sc.top = -1;
 		test = StatusEnum.INITIAL;
 		errorType = ErrorTypeEnum.NO_ERROR;
 	}
@@ -278,14 +276,41 @@ public class JSONCheckKit {
 		return true;
 	}
 
+	public boolean jsonCheckFromFile(BufferedReader is) throws IOException {
+		String buffer = null;
+		boolean haveNotRead = true;
+		while (true) {
+			if (haveNotRead) {
+				buffer = is.readLine();
+			}
+			if (buffer != null) {
+//				lineNum++;
+			} else
+				break;
+			boolean returnValue = jsonCheckFromString(buffer);
+			haveNotRead = true;
+			if (returnValue == true) {
+				continue;
+			}
+			boolean notMatch = (errorType == ErrorTypeEnum.WRONG_NOT_MATCH);
+			boolean missColon = (errorType == ErrorTypeEnum.WRONG_MISS_COLON);
+			if (notMatch || missColon) {
+				haveNotRead = false;
+				if ((buffer = is.readLine()) != null) {
+					index = 0;
+					errorType = ErrorTypeEnum.NO_ERROR;
+				}
+			}
+		}
+		return true;
+	}
 	private boolean INITIALCheck() {
 		while (index < jstr.length() && isSpace(jstr.charAt(index))) {
 			index++;
 		}
 
 		if (index == jstr.length()) {
-			errorType = ErrorTypeEnum.WRONG_START;
-			return false;
+			return true;
 		}
 
 		if (jstr.charAt(index) == '{') {
@@ -357,12 +382,7 @@ public class JSONCheckKit {
 			return false;
 		}
 
-		if (jstr.charAt(index) == '"') {
-			sc.pop();
-		} else {
-			errorType = ErrorTypeEnum.WRONG_NV_NAME;
-			return false;
-		}
+		sc.pop();
 		index++;
 		test = StatusEnum.COLON;
 		return true;
@@ -565,7 +585,7 @@ public class JSONCheckKit {
 				}
 			} else if (jstr.charAt(index) == 'e' || jstr.charAt(index) == 'E') {
 				index++;
-				if (jstr.charAt(index) == '\0') {
+				if (index == jstr.length()) {
 					errorType = ErrorTypeEnum.WRONG_NUM;
 					return false;
 				} else if (jstr.charAt(index) == '-' || jstr.charAt(index) == '+') {
@@ -643,26 +663,24 @@ public class JSONCheckKit {
 	}
 
 	private boolean NULLSTRCheck() {
-		String tmpStr = new String("");
-		for (int i = 0; i < 4; i++) {
-			if (index < jstr.length()) {
-				tmpStr += jstr.charAt(index);
-				index++;
-			} else {
-				index = preIndex;
-				errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
-				return false;
-			}
-		}
-
-		if (tmpStr.equals("null")) {
-			test = StatusEnum.VALUE_END;
-			return true;
-		} else {
-			index = preIndex;
+		if (jstr.charAt(++index) != 'u') {
 			errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
+			index = preIndex;
 			return false;
 		}
+		if (jstr.charAt(++index) != 'l') {
+			errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
+			index = preIndex;
+			return false;
+		}
+		if (jstr.charAt(++index) != 'l') {
+			errorType = ErrorTypeEnum.WRONG_VALUE_TYPE;
+			index = preIndex;
+			return false;
+		}
+		index++;
+		test = StatusEnum.VALUE_END;
+		return true;
 	}
 
 	private boolean VALUE_ENDCheck() {
@@ -760,14 +778,14 @@ public class JSONCheckKit {
 			for (int i = 0; i < 4; i++) {
 				index++;
 				if (index == jstr.length()) {
-					errorType = ErrorTypeEnum.WRONG_ESC_STRING;
+//					errorType = ErrorTypeEnum.WRONG_ESC_STRING;
 					return false;
 				}
 			}
 			return true;
 		}
 		default: {
-			errorType = ErrorTypeEnum.WRONG_ESC_STRING;
+//			errorType = ErrorTypeEnum.WRONG_ESC_STRING;
 			return false;
 		}
 		}

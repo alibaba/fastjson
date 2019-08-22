@@ -25,4 +25,11 @@ public class JSONPath_extract_0 extends TestCase {
                 , JSONPath.extract("{}", "$")
                         .toString());
     }
+    
+     public void test_3() throws Exception {
+       String json = "{\"id\":123,\"obj\":{\"& id\":\"1\"}}";
+        System.out.println(  JSONPath.extract(json, "$.obj")
+                .toString() );
+    }
+    
 }

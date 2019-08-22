@@ -453,6 +453,8 @@ public class TypeUtils{
                             && strVal.charAt(26) == ':'
                             && strVal.charAt(28) == '0') {
                         format = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
+                    } else if (strVal.length() == 23 && strVal.charAt(19) == ',') {
+                        format = "yyyy-MM-dd HH:mm:ss,SSS";
                     } else {
                         format = "yyyy-MM-dd HH:mm:ss.SSS";
                     }
@@ -1009,7 +1011,7 @@ public class TypeUtils{
         }
 
         if(clazz.isEnum()){
-            return (T) castToEnum(obj, clazz, config);
+            return castToEnum(obj, clazz, config);
         }
 
         if(Calendar.class.isAssignableFrom(clazz)){
@@ -1126,7 +1128,7 @@ public class TypeUtils{
             return null;
         }
         if(type instanceof Class){
-            return (T) cast(obj, (Class<T>) type, mapping);
+            return cast(obj, (Class<T>) type, mapping);
         }
         if(type instanceof ParameterizedType){
             return (T) cast(obj, (ParameterizedType) type, mapping);
@@ -1308,7 +1310,7 @@ public class TypeUtils{
                 ObjectDeserializer deserializer = config.getDeserializers().get(clazz);
                 if(deserializer != null){
                     String json = JSON.toJSONString(object);
-                    return (T) JSON.parseObject(json, clazz);
+                    return JSON.parseObject(json, clazz);
                 }
                 return (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
                         new Class<?>[]{clazz}, object);
@@ -2184,9 +2186,7 @@ public class TypeUtils{
             }
         }
         if(clazz.getSuperclass() != Object.class && clazz.getSuperclass() != null){
-            if(isJSONTypeIgnore(clazz.getSuperclass(), propertyName)){
-                return true;
-            }
+            return isJSONTypeIgnore(clazz.getSuperclass(), propertyName);
         }
         return false;
     }
@@ -2306,7 +2306,7 @@ public class TypeUtils{
         if(name.length() > 1 && Character.isUpperCase(name.charAt(1)) && Character.isUpperCase(name.charAt(0))){
             return name;
         }
-        char chars[] = name.toCharArray();
+        char[] chars = name.toCharArray();
         chars[0] = Character.toLowerCase(chars[0]);
         return new String(chars);
     }

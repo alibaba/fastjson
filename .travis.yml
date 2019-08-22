@@ -1,10 +1,14 @@
 language: java
+env:
+  global:
+    - CODECOV_TOKEN=:03f37cce-5a86-4f1b-acce-efdbb5029a5e
 jdk:
   - oraclejdk8
+dist: trusty
 before_install:
   - pip install --user codecov
 after_success:
-  - codecov
+  - codecov -t 03f37cce-5a86-4f1b-acce-efdbb5029a5e
 branches:
   except:
     - appveyor

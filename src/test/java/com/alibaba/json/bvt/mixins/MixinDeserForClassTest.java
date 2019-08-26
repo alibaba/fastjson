@@ -43,10 +43,10 @@ public class MixinDeserForClassTest extends TestCase {
     }
 
     public void test_2() throws Exception {
-        JSON.addMixIn(BaseClass.class, Mixin.class);
+        JSON.addMixInAnnotations(BaseClass.class, Mixin.class);
         BaseClass base = JSON.parseObject( "{\"a\":\"132\"}", BaseClass.class );
         Assert.assertEquals( "XXX132", base.a );
-        JSON.removeMixIn(BaseClass.class);
+        JSON.removeMixInAnnotations(BaseClass.class);
     }
 
 }

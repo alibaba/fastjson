@@ -27,11 +27,11 @@ public class MixinSerForFieldsTest extends TestCase {
     public void test() throws Exception{
         BeanClass bean = new BeanClass("1", "2");
 
-        JSON.addMixIn(BeanClass.class, MixIn.class);
+        JSON.addMixInAnnotations(BeanClass.class, MixIn.class);
         String jsonString = JSON.toJSONString(bean);
         JSONObject result = JSON.parseObject(jsonString);
         assertEquals(1, result.size());
         assertEquals("2", result.get("banana"));
-        JSON.removeMixIn(BeanClass.class);
+        JSON.removeMixInAnnotations(BeanClass.class);
     }
 }

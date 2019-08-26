@@ -52,7 +52,7 @@ public class MixinDeserForMethodsTest extends TestCase {
     }
 
     public void test_1() throws Exception {
-        JSON.addMixIn(BaseClass2.class, MixIn.class);
+        JSON.addMixInAnnotations(BaseClass2.class, MixIn.class);
         BaseClass2 result = JSON.parseObject( "{ \"name\" : \"David\", \"age\" : 13, \"student\" : true }",
                 BaseClass2.class );
         Assert.assertNotNull( result );
@@ -60,6 +60,6 @@ public class MixinDeserForMethodsTest extends TestCase {
         Assert.assertEquals( "David", result.values.get( "name" ) );
         Assert.assertEquals( "13", result.values.get( "age" ) );
         Assert.assertEquals( Boolean.TRUE, result.values.get( "student" ) );
-        JSON.removeMixIn(BaseClass2.class);
+        JSON.removeMixInAnnotations(BaseClass2.class);
     }
 }

@@ -416,7 +416,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
             }
 
             String name = null;
-            JSONField annotation = method.getAnnotation(JSONField.class);
+            JSONField annotation = TypeUtils.getAnnotation(method, JSONField.class);
             if (annotation != null) {
                 if (annotation.name().length() != 0) {
                     name = annotation.name();
@@ -448,7 +448,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
             }
 
             String name = null;
-            JSONField annotation = method.getAnnotation(JSONField.class);
+            JSONField annotation = TypeUtils.getAnnotation(method, JSONField.class);
             if (annotation != null) {
                 if (annotation.name().length() != 0) {
                     name = annotation.name();

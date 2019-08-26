@@ -28,8 +28,8 @@ public class MixinMergingTest extends TestCase
     static class PersonMixin extends ContactMixin implements Person {}
 
     public void test() throws Exception {
-        JSON.addMixIn(Person.class, PersonMixin.class);
+        JSON.addMixInAnnotations(Person.class, PersonMixin.class);
         assertEquals("{\"city\":\"Seattle\"}", JSON.toJSONString(new PersonImpl()));
-        JSON.removeMixIn(Person.class);
+        JSON.removeMixInAnnotations(Person.class);
     }
 }

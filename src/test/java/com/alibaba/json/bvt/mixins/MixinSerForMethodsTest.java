@@ -68,12 +68,12 @@ public class MixinSerForMethodsTest extends TestCase {
         assertEquals( "b2", result.get( "b" ) );
 
         BaseClass2 bean2 = new BaseClass2( "a1", "b2" );
-        JSON.addMixIn( BaseClass2.class, MixIn.class );
+        JSON.addMixInAnnotations( BaseClass2.class, MixIn.class );
         jsonString = JSON.toJSONString( bean2 );
         result = JSON.parseObject( jsonString );
         assertEquals( 2, result.size() );
         assertEquals( "b2", result.get( "b2" ) );
         assertEquals( "a1", result.get( "a" ) );
-        JSON.removeMixIn( BaseClass.class );
+        JSON.removeMixInAnnotations( BaseClass.class );
     }
 }

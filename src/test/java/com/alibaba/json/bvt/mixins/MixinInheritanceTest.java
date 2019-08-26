@@ -41,7 +41,7 @@ public class MixinInheritanceTest
     }
 
     public void test_field() throws Exception {
-        JSON.addMixIn(Beano.class, BeanoMixinSub.class);
+        JSON.addMixInAnnotations(Beano.class, BeanoMixinSub.class);
         String str = JSON.toJSONString(new Beano());
         JSONObject result = JSONObject.parseObject(str);
         assertEquals(2, result.size());
@@ -49,16 +49,16 @@ public class MixinInheritanceTest
                 || !result.containsKey("name")) {
             fail("Should have both 'id' and 'name', but content = " + result);
         }
-        JSON.removeMixIn(Beano.class);
+        JSON.removeMixInAnnotations(Beano.class);
     }
 
     public void test_method() throws Exception {
-        JSON.addMixIn(Beano2.class, BeanoMixinSub2.class);
+        JSON.addMixInAnnotations(Beano2.class, BeanoMixinSub2.class);
         String str = JSON.toJSONString(new Beano2());
         JSONObject result = JSONObject.parseObject(str);
         assertEquals(2, result.size());
         assertTrue(result.containsKey("id"));
         assertTrue(result.containsKey("name"));
-        JSON.removeMixIn(Beano2.class);
+        JSON.removeMixInAnnotations(Beano2.class);
     }
 }

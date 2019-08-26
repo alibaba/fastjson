@@ -67,6 +67,7 @@ public class SerializeConfig {
     public PropertyNamingStrategy                         propertyNamingStrategy;
 
     private final IdentityHashMap<Type, ObjectSerializer> serializers;
+    private final IdentityHashMap<Type, IdentityHashMap<Type, ObjectSerializer>> mixInSerializers;
 
     private final boolean                                 fieldBased;
 
@@ -292,7 +293,7 @@ public class SerializeConfig {
 	public SerializeConfig(int tableSize, boolean fieldBase) {
 	    this.fieldBased = fieldBase;
 	    serializers = new IdentityHashMap<Type, ObjectSerializer>(tableSize);
-		
+        this.mixInSerializers = new IdentityHashMap<Type, IdentityHashMap<Type, ObjectSerializer>>(16);
 		try {
 		    if (asm) {
 		        asmFactory = new ASMSerializerFactory();
@@ -431,7 +432,7 @@ public class SerializeConfig {
     }
 	
 	private ObjectSerializer getObjectWriter(Class<?> clazz, boolean create) {
-        ObjectSerializer writer = serializers.get(clazz);
+        ObjectSerializer writer = get(clazz);
 
         if (writer == null) {
             try {
@@ -450,7 +451,7 @@ public class SerializeConfig {
                 // skip
             }
 
-            writer = serializers.get(clazz);
+            writer = get(clazz);
         }
 
         if (writer == null) {
@@ -472,14 +473,14 @@ public class SerializeConfig {
                     // skip
                 }
 
-                writer = serializers.get(clazz);
+                writer = get(clazz);
             }
         }
 
         for (Module module : modules) {
             writer = module.createSerializer(this, clazz);
             if (writer != null) {
-                serializers.put(clazz, writer);
+                put(clazz, writer);
                 return writer;
             }
         }
@@ -779,23 +780,36 @@ public class SerializeConfig {
             }
 
             if (writer == null) {
-                writer = serializers.get(clazz);
+                writer = get(clazz);
             }
         }
         return writer;
     }
 	
-	public final ObjectSerializer get(Type key) {
-	    return this.serializers.get(key);
-	}
-
-    public boolean put(Object type, Object value) {
-        return put((Type)type, (ObjectSerializer)value);
+    public final ObjectSerializer get(Type type) {
+        Type mixin = JSON.getMixInAnnotations(type);
+        if (null == mixin) {
+            return this.serializers.get(type);
+        }
+        IdentityHashMap<Type, ObjectSerializer> mixInClasses = this.mixInSerializers.get(type);
+        if (mixInClasses == null) {
+            return null;
+        }
+        return mixInClasses.get(mixin);
     }
 
-	public boolean put(Type type, ObjectSerializer value) {
+    public boolean put(Type type, ObjectSerializer value) {
+        Type mixin = JSON.getMixInAnnotations(type);
+        if (mixin != null) {
+            IdentityHashMap<Type, ObjectSerializer> mixInClasses = this.mixInSerializers.get(type);
+            if (mixInClasses == null) {
+                //多线程下可能会重复创建，但不影响正确性
+                mixInClasses = new IdentityHashMap<Type, ObjectSerializer>(4);
+            }
+            return mixInClasses.put(mixin, value);
+        }
         return this.serializers.put(type, value);
-	}
+    }
 
     /**
      * 1.2.24

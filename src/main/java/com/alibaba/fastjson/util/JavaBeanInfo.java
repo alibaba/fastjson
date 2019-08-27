@@ -530,7 +530,7 @@ public class JavaBeanInfo {
                 withPrefix = builderAnno.withPrefix();
             }
 
-            if (withPrefix == null || withPrefix.length() == 0) {
+            if (withPrefix == null) {
                 withPrefix = "with";
             }
 
@@ -573,19 +573,23 @@ public class JavaBeanInfo {
                 if (methodName.startsWith("set") && methodName.length() > 3) {
                     properNameBuilder = new StringBuilder(methodName.substring(3));
                 } else {
-                    if (!methodName.startsWith(withPrefix)) {
-                        continue;
+                    if (withPrefix.length() == 0){
+                        properNameBuilder = new StringBuilder(methodName);
+                    } else {
+                        if (!methodName.startsWith(withPrefix)) {
+                            continue;
+                        }
+    
+                        if (methodName.length() <= withPrefix.length()) {
+                            continue;
+                        }
+    
+                        properNameBuilder = new StringBuilder(methodName.substring(withPrefix.length()));
                     }
-
-                    if (methodName.length() <= withPrefix.length()) {
-                        continue;
-                    }
-
-                    properNameBuilder = new StringBuilder(methodName.substring(withPrefix.length()));
                 }
 
                 char c0 = properNameBuilder.charAt(0);
-                if (!Character.isUpperCase(c0)) {
+                if (withPrefix.length() != 0 && !Character.isUpperCase(c0)) {
                     continue;
                 }
 

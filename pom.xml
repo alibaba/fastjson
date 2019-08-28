@@ -146,8 +146,6 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <includes>
-			<!-- Travis build workaround --> 
-			<argLine>-Xms1024m -Xmx2048m</argLine>
                         <include>**/bvt/**/*.java</include>
                     </includes>
                 </configuration>

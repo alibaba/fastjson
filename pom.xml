@@ -614,7 +614,7 @@
 						<!-- plugin docs: http://eclemma.org/jacoco/trunk/doc/ -->
 						<groupId>org.jacoco</groupId>
 						<artifactId>jacoco-maven-plugin</artifactId>
-						<version>0.8.2</version>
+						<version>0.7.6.201602180812</version>
 						<executions>
 							<execution>
 								<goals>

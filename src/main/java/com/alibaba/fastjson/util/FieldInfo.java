@@ -133,7 +133,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
                     || TypeUtils.isTransient(method);
         } else {
             fieldAccess = false;
-            fieldTransient = false;
+            fieldTransient = TypeUtils.isTransient(method);
         }
         
         if (label != null && label.length() > 0) { 

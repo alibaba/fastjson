@@ -253,7 +253,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 Class<?> fieldClass = fieldInfo.fieldClass;
 
                 if (skipTransient) {
-                    if (field != null) {
+                    if (fieldInfo != null) {
                         if (fieldInfo.fieldTransient) {
                             continue;
                         }
@@ -758,11 +758,20 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
 
     public Map<String, Object> getFieldValuesMap(Object object) throws Exception {
         Map<String, Object> map = new LinkedHashMap<String, Object>(sortedGetters.length);
-        
+        boolean skipTransient = true;
+        FieldInfo fieldInfo = null;
+
         for (FieldSerializer getter : sortedGetters) {
+            skipTransient = SerializerFeature.isEnabled(getter.features, SerializerFeature.SkipTransientField);
+            fieldInfo = getter.fieldInfo;
+
+            if (skipTransient && fieldInfo != null && fieldInfo.fieldTransient) {
+                continue;
+            }
+
             map.put(getter.fieldInfo.name, getter.getPropertyValue(object));
         }
-        
+
         return map;
     }
 

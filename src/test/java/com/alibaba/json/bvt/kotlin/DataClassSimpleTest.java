@@ -3,9 +3,6 @@ package com.alibaba.json.bvt.kotlin;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.util.ASMUtils;
 import junit.framework.TestCase;
-import kotlin.reflect.KFunction;
-import kotlin.reflect.KParameter;
-import kotlin.reflect.jvm.internal.KClassImpl;
 import org.apache.commons.io.IOUtils;
 
 import java.io.ByteArrayInputStream;

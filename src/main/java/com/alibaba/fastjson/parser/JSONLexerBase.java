@@ -3826,7 +3826,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 count = bp + offset - start - 1;
             }
 
-            if (count < 20 || (negative && count < 21)) {
+            if (count < 19 || (negative && count < 20)) {
                 value = BigInteger.valueOf(negative ? -intVal : intVal);
             } else {
 

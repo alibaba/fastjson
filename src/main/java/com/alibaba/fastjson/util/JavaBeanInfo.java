@@ -698,7 +698,7 @@ public class JavaBeanInfo {
                 }
             }
 
-            if (annotation == null && !methodName.startsWith("set")) { // TODO "set"的判断放在 JSONField 注解后面，意思是允许非 setter 方法标记 JSONField 注解？
+            if (annotation == null && !methodName.startsWith("set") || builderClass != null) { // TODO "set"的判断放在 JSONField 注解后面，意思是允许非 setter 方法标记 JSONField 注解？
                 continue;
             }
 

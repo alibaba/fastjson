@@ -27,9 +27,9 @@ JSON字符串检测对比
 
  库 | 检测性能（ms）| 版本
 ---|-------------|--------
- JSONCheckKit | 0.747
- fastjson | 0.623| fastjson-1.2.59.jar
- Gson | 0.923 | gson-2.7.jar
+ JSONCheckKit | 0.8597
+ fastjson | 9.231| fastjson-1.2.59.jar
+ Gson | 1.372 | gson-2.7.jar
  
 文件检测
 -------
@@ -54,9 +54,9 @@ JSON字符串检测对比
  
   库 | 检测性能（ms）| 版本
 ---|-------------|--------
- JSONCheckKit | 0.95202
- fastjson | 0.5547 | fastjson-1.2.59.jar
- Gson | 0.8588 | gson-2.7.jar
+ JSONCheckKit | 0.5896
+ fastjson | 1.360 | fastjson-1.2.59.jar
+ Gson | 0.7506 | gson-2.7.jar
  
 JSONCheckKit超大文件测试（文件大小1.23GB）
 ------------------------

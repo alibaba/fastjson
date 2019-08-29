@@ -1,27 +1,21 @@
 package com.alibaba.fastjson.parser.deserializer;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.parser.*;
+import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
+import com.alibaba.fastjson.util.FieldInfo;
+import com.alibaba.fastjson.util.JavaBeanInfo;
+import com.alibaba.fastjson.util.TypeUtils;
+
 import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.annotation.JSONField;
-import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
-import com.alibaba.fastjson.parser.Feature;
-import com.alibaba.fastjson.parser.JSONLexer;
-import com.alibaba.fastjson.parser.JSONLexerBase;
-import com.alibaba.fastjson.parser.JSONToken;
-import com.alibaba.fastjson.parser.ParseContext;
-import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.util.FieldInfo;
-import com.alibaba.fastjson.util.JavaBeanInfo;
-import com.alibaba.fastjson.util.TypeUtils;
 
 public class JavaBeanDeserializer implements ObjectDeserializer {
 
@@ -398,7 +392,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         try {
             Map<String, Object> fieldValues = null;
 
-            if (token == JSONToken.RBRACE) {
+            if (token == JSONToken.RBRACE && lexer.charAt(0) != '}') {
                 lexer.nextToken(JSONToken.COMMA);
                 if (object == null) {
                     object = createInstance(parser, type);

@@ -28,8 +28,8 @@ JSON字符串检测对比
  库 | 检测性能（ms）| 版本
 ---|-------------|--------
  JSONCheckKit | 0.747
- fastjson | 18.372 | fastjson-1.2.59.jar
- Gson | 7.962 | gson-2.7.jar
+ fastjson | 0.623| fastjson-1.2.59.jar
+ Gson | 0.923 | gson-2.7.jar
  
 文件检测
 -------

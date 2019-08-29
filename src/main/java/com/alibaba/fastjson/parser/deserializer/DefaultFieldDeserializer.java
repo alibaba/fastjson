@@ -24,10 +24,16 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
 
     public DefaultFieldDeserializer(ParserConfig config, Class<?> clazz, FieldInfo fieldInfo){
         super(clazz, fieldInfo);
+        ObjectDeserializer deserializer = config.getDeserializers().get(fieldInfo.fieldType);
+        if (deserializer != null && deserializer != ParserConfig.getDefaultDeserializer(fieldInfo.fieldType)) {
+            customDeserilizer = true;
+        }
         JSONField annotation = fieldInfo.getAnnotation();
         if (annotation != null) {
             Class<?> deserializeUsing = annotation.deserializeUsing();
-            customDeserilizer = deserializeUsing != null && deserializeUsing != Void.class;
+            if (deserializeUsing != null && deserializeUsing != Void.class) {
+                customDeserilizer = true;
+            }
         }
     }
 

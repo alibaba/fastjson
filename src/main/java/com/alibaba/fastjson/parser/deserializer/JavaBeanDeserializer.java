@@ -506,7 +506,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     fieldInfo = fieldDeser.fieldInfo;
                     fieldClass = fieldInfo.fieldClass;
                     feildAnnotation = fieldInfo.getAnnotation();
-                    if (feildAnnotation != null && fieldDeser instanceof DefaultFieldDeserializer) {
+                    if (fieldDeser instanceof DefaultFieldDeserializer) {
                         customDeserilizer = ((DefaultFieldDeserializer) fieldDeser).customDeserilizer;
                     }
                 }

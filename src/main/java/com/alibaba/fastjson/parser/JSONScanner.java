@@ -124,7 +124,7 @@ public final class JSONScanner extends JSONLexerBase {
             return bytes;
         }
 
-        return IOUtils.decodeBase64(text, np + 1, sp);
+        return IOUtils.decodeBase64( stringVal() );
     }
 
     /**

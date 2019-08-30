@@ -344,7 +344,7 @@ public class JSONSerializer extends SerializeFilterable {
                 return;
             }
             DateFormat dateFormat = this.getDateFormat();
-            if (dateFormat == null) {
+            if (format != null && !format.isEmpty()) {
                 try {
                     dateFormat = new SimpleDateFormat(format, locale);
                 } catch (IllegalArgumentException e) {

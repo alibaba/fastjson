@@ -4,10 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import junit.framework.TestCase;
+import org.junit.Assert;
 
-public class MixinInheritanceTest
-    extends TestCase
-{
+public class MixinInheritanceTest extends TestCase {
     static class Beano {
         public int ido = 42;
         public String nameo = "Bob";
@@ -60,5 +59,55 @@ public class MixinInheritanceTest
         assertTrue(result.containsKey("id"));
         assertTrue(result.containsKey("name"));
         JSON.removeMixInAnnotations(Beano2.class);
+    }
+
+    static class BaseClass {
+        public int a;
+        public int b;
+        public int c;
+
+        public  BaseClass() {
+
+        }
+        public BaseClass(int a, int b,int c) {
+            this.a = a;
+            this.b = b;
+            this.c = c;
+        }
+    }
+
+    class BaseMixIn {
+        @JSONField(name = "apple")
+        public int a;
+        @JSONField(name = "banana")
+        public int b;
+    }
+
+    class SubMixIn extends BaseMixIn {
+        @JSONField(name = "pear")
+        public int c;
+    }
+
+    class SubMixIn1 extends SubMixIn {
+        @JSONField(name = "watermelon")
+        public int b;
+    }
+
+    public void test_mixIn_extend() throws Exception {
+        BaseClass base = new BaseClass(1, 2,3);
+        Assert.assertEquals("{\"a\":1,\"b\":2,\"c\":3}", JSON.toJSONString(base));
+
+        JSON.addMixInAnnotations(BaseClass.class, SubMixIn.class);
+        Assert.assertEquals("{\"apple\":1,\"banana\":2,\"pear\":3}", JSON.toJSONString(base));
+        JSON.removeMixInAnnotations(BaseClass.class);
+    }
+
+    public void test_mixIn_extend1() throws Exception {
+        BaseClass base = new BaseClass(1, 2,3);
+        Assert.assertEquals("{\"a\":1,\"b\":2,\"c\":3}", JSON.toJSONString(base));
+
+        JSON.addMixInAnnotations(BaseClass.class, SubMixIn1.class);
+        Assert.assertEquals("{\"apple\":1,\"pear\":3,\"watermelon\":2}", JSON.toJSONString(base));
+        JSON.removeMixInAnnotations(BaseClass.class);
     }
 }

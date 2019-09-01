@@ -35,7 +35,7 @@ public class FastJsonHttpMessageConverterBigDataTest extends TestCase {
 
 		HttpInputMessage input = new HttpInputMessage() {
                         String text;
-                        String path = "src\\test\\resources\\com\\alibaba\\json\\bvt\\support\\spring\\jsonData\\test.json";
+                        String path = "..\\..\\..\\..\\..\\..\\..\\resources\\com\\alibaba\\json\\bvt\\support\\spring\\jsonData\\test.json";
 			public HttpHeaders getHeaders() {
 				// TODO Auto-generated method stub
 				return null;
@@ -51,7 +51,7 @@ public class FastJsonHttpMessageConverterBigDataTest extends TestCase {
 			}
 
 		};
-                String text=bigDataTest.fileRead("src\\test\\resources\\com\\alibaba\\json\\bvt\\support\\spring\\jsonData\\test.json");
+                String text=bigDataTest.fileRead("..\\..\\..\\..\\..\\..\\..\\resources\\com\\alibaba\\json\\bvt\\support\\spring\\jsonData\\test.json");
 		VO vo = (VO) converter.read(VO.class, VO.class, input);
 		Assert.assertEquals(text,"{\"str\":\""+vo.getStr()+"\"}");
 

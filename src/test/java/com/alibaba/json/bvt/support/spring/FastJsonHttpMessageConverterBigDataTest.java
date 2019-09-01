@@ -127,7 +127,7 @@ public class FastJsonHttpMessageConverterBigDataTest extends TestCase {
 
 		private String str;
 
-		public Sring getStr() {
+		public String getStr() {
 			return str;
 		}
 

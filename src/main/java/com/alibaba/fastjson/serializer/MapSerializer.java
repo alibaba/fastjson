@@ -208,7 +208,7 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                 }
 
                 if (value == null) {
-                    if (!out.isEnabled(SerializerFeature.WriteMapNullValue)) {
+                    if (!SerializerFeature.isEnabled(out.features, features, SerializerFeature.WriteMapNullValue)) {
                         continue;
                     }
                 }

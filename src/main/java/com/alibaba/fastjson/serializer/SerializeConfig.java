@@ -805,6 +805,7 @@ public class SerializeConfig {
             if (mixInClasses == null) {
                 //多线程下可能会重复创建，但不影响正确性
                 mixInClasses = new IdentityHashMap<Type, ObjectSerializer>(4);
+                mixInSerializers.put(type, mixInClasses);
             }
             return mixInClasses.put(mixin, value);
         }

@@ -870,6 +870,7 @@ public class ParserConfig {
             if (mixInClasses == null) {
                 //多线程下可能会重复创建，但不影响正确性
                 mixInClasses = new IdentityHashMap<Type, ObjectDeserializer>(4);
+                this.mixInDeserializers.put(type, mixInClasses);
             }
             mixInClasses.put(mixin, deserializer);
         } else {

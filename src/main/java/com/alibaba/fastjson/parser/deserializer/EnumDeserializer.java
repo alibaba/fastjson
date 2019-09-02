@@ -10,6 +10,7 @@ import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
+import com.alibaba.fastjson.util.TypeUtils;
 
 @SuppressWarnings("rawtypes")
 public class EnumDeserializer implements ObjectDeserializer {
@@ -32,7 +33,7 @@ public class EnumDeserializer implements ObjectDeserializer {
             JSONField jsonField = null;
             try {
                 Field field = enumClass.getField(name);
-                jsonField = field.getAnnotation(JSONField.class);
+                jsonField = TypeUtils.getAnnotation(field, JSONField.class);
                 if (jsonField != null) {
                     String jsonFieldName = jsonField.name();
                     if (jsonFieldName != null && jsonFieldName.length() > 0) {

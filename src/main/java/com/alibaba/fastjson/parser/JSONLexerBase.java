@@ -3830,15 +3830,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 count = bp + offset - start - 1;
             }
 
-            if (count < 20 || (negative && count < 21)) {
-                value = BigInteger.valueOf(negative ? -intVal : intVal);
-            } else {
-
-//            char[] chars = this.sub_chars(negative ? start + 1 : start, count);
-//            value = new BigInteger(chars, )
                 String strVal = this.subString(start, count);
                 value = new BigInteger(strVal);
-            }
         } else if (chLocal == 'n' &&
                    charAt(bp + offset) == 'u' &&
                    charAt(bp + offset + 1) == 'l' &&

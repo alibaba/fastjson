@@ -974,6 +974,9 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                         char x2 = ch = next();
                         int x_val = digits[x1] * 16 + digits[x2];
                         char x_char = (char) x_val;
+                        if (!isHexChar(x1) || !isHexChar(x2)) {
+                            throw new JSONException("invalid escape character \\x" + x1 + x2);
+                        }
                         putChar(x_char);
                         break;
                     case 'u':
@@ -5032,7 +5035,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         this.next();
     }
 
-    private boolean isHexChar(char ch) {
+    private final static boolean isHexChar(char ch) {
         return ((ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F'));
     }
 

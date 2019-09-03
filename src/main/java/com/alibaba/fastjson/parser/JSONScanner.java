@@ -791,7 +791,7 @@ public final class JSONScanner extends JSONLexerBase {
 
     @Override
     public boolean isEOF() {
-        return bp == len || ch == EOI && bp + 1 == len;
+        return bp == len || (ch == EOI && bp + 1 >= len);
     }
 
     public int scanFieldInt(char[] fieldName) {

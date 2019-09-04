@@ -5014,7 +5014,20 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                         putChar('\\');
                         break;
                     case 'x':
-                        putChar((char) (digits[next()] * 16 + digits[next()]));
+                        char x1 = next();
+                        char x2 = next();
+
+                        boolean hex1 = (x1 >= '0' && x1 <= '9')
+                                || (x1 >= 'a' && x1 <= 'f')
+                                || (x1 >= 'A' && x1 <= 'F');
+                        boolean hex2 = (x2 >= '0' && x2 <= '9')
+                                || (x2 >= 'a' && x2 <= 'f')
+                                || (x2 >= 'A' && x2 <= 'F');
+                        if (!hex1 || !hex2) {
+                            throw new JSONException("invalid escape character \\x" + x1 + x2);
+                        }
+
+                        putChar((char) (digits[x1] * 16 + digits[x2]));
                         break;
                     case 'u':
                         putChar((char) Integer.parseInt(new String(new char[] { next(), next(), next(), next() }), 16));

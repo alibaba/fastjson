@@ -45,7 +45,8 @@ public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
             int scale = val.scale();
 
             String outText;
-            if (out.isEnabled(SerializerFeature.WriteBigDecimalAsPlain) && scale >= -100 && scale < 100) {
+            if (SerializerFeature.isEnabled(features, out.features, SerializerFeature.WriteBigDecimalAsPlain)
+                    && scale >= -100 && scale < 100) {
                 outText = val.toPlainString();
             } else {
                 outText = val.toString();

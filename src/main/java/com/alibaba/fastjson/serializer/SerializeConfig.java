@@ -58,7 +58,8 @@ public class SerializeConfig {
     private static boolean                                springfoxError  = false;
     private static boolean                                guavaError      = false;
     private static boolean                                jsonnullError   = false;
-
+    private static boolean                                jsonobjectError = false;
+    
     private static boolean                                jodaError       = false;
 
     private boolean                                       asm             = !ASMUtils.IS_ANDROID;
@@ -695,6 +696,16 @@ public class SerializeConfig {
                         jsonnullError = true;
                     }
                 }
+                
+				if (!jsonobjectError && className.equals("org.json.JSONObject")) {
+					try {
+						put(Class.forName("org.json.JSONObject"), writer = JSONObjectCodec.instance);
+						return writer;
+					} catch (ClassNotFoundException e) {
+						// skip
+						jsonobjectError = true;
+					}
+				}
 
                 if ((!jodaError) && className.startsWith("org.joda.")) {
                     try {

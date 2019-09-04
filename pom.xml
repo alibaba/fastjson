@@ -593,6 +593,13 @@
             <version>4.8.42</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20180130</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <profiles>

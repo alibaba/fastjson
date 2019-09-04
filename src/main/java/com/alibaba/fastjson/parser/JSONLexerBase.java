@@ -970,13 +970,20 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                         putChar('\\');
                         break;
                     case 'x':
-                        char x1 = ch = next();
-                        char x2 = ch = next();
-                        int x_val = digits[x1] * 16 + digits[x2];
-                        char x_char = (char) x_val;
-                        if (!isHexChar(x1) || !isHexChar(x2)) {
+                        char x1 = next();
+                        char x2 = next();
+
+                        boolean hex1 = (x1 >= '0' && x1 <= '9')
+                                || (x1 >= 'a' && x1 <= 'f')
+                                || (x1 >= 'A' && x1 <= 'F');
+                        boolean hex2 = (x2 >= '0' && x2 <= '9')
+                                || (x2 >= 'a' && x2 <= 'f')
+                                || (x2 >= 'A' && x2 <= 'F');
+                        if (!hex1 || !hex2) {
                             throw new JSONException("invalid escape character \\x" + x1 + x2);
                         }
+
+                        char x_char = (char) (digits[x1] * 16 + digits[x2]);
                         putChar(x_char);
                         break;
                     case 'u':
@@ -5033,10 +5040,6 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         token = LITERAL_STRING;
         this.next();
-    }
-
-    private final static boolean isHexChar(char ch) {
-        return ((ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F'));
     }
 
     /**

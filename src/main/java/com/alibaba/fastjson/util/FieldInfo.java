@@ -86,7 +86,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         }
         
         this.label = "";
-        fieldAnnotation = null;
+        fieldAnnotation = field == null ? null : TypeUtils.getAnnotation(field, JSONField.class);
         methodAnnotation = null;
         this.getOnly = false;
         this.jsonDirect = false;

@@ -155,7 +155,7 @@ public enum SerializerFeature {
     MapSortField,
 
     /**
-     * @since 1.2.59
+     * @since 1.2.60
      */
     WriteIterableAsArray;
 

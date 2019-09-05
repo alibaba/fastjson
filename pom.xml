@@ -70,6 +70,11 @@
 			<url>https://github.com/lihengming/</url>
 			<email>89921218@qq.com</email>
 		</developer>
+		<developer>
+			<id>Omega-Ariston</id>
+			<name>Jiechuan Chen</name>
+			<email>654815312@qq.com</email>
+		</developer>
 	</developers>
 
 	<licenses>

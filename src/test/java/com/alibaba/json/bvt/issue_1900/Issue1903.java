@@ -10,6 +10,9 @@ import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Assert;
+import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 public class Issue1903 extends TestCase {
     public void test_issue() throws Exception {
         MapHandler mh = new MapHandler();
@@ -22,10 +25,13 @@ public class Issue1903 extends TestCase {
 
         System.out.println(JSON.toJSON(issues).toString()); //正确结果: {"age":20}
         System.out.println(JSON.toJSONString(issues));  //正确结果: {"age":20}
+        Assert.assertEquals("{\"age\":20}", JSON.toJSON(issues).toString());
+        Assert.assertEquals("{\"age\":20}", JSON.toJSONString(issues));
     }
 
     interface Issues1903{
         @Transient
+        @JSONField(serialzeFeatures = { SerializerFeature.SkipTransientField })
         public String getName();
         public void setName(String name);
 

@@ -127,13 +127,13 @@ public class ASMUtils {
             types = method.getParameterTypes();
             name = method.getName();
             declaringClass = method.getDeclaringClass();
-            parameterAnnotations = method.getParameterAnnotations();
+            parameterAnnotations = TypeUtils.getParameterAnnotations(method);
         } else {
             Constructor<?> constructor = (Constructor<?>) methodOrCtor;
             types = constructor.getParameterTypes();
             declaringClass = constructor.getDeclaringClass();
             name = "<init>";
-            parameterAnnotations = constructor.getParameterAnnotations();
+            parameterAnnotations = TypeUtils.getParameterAnnotations(constructor);
         }
 
         if (types.length == 0) {

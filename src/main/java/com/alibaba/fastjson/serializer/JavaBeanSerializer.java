@@ -237,7 +237,6 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
             char seperator = commaFlag ? ',' : '\0';
 
             final boolean writeClassName = out.isEnabled(SerializerFeature.WriteClassName);
-            final boolean directWritePrefix = out.quoteFieldNames && !out.useSingleQuotes;
             char newSeperator = this.writeBefore(serializer, object, seperator);
             commaFlag = newSeperator == ',';
 
@@ -252,8 +251,11 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 String fieldInfoName = fieldInfo.name;
                 Class<?> fieldClass = fieldInfo.fieldClass;
 
+                final boolean fieldUseSingleQuotes = SerializerFeature.isEnabled(out.features, fieldInfo.serialzeFeatures, SerializerFeature.UseSingleQuotes);
+                final boolean directWritePrefix = out.quoteFieldNames && !fieldUseSingleQuotes;
+
                 if (skipTransient) {
-                    if (field != null) {
+                    if (fieldInfo != null) {
                         if (fieldInfo.fieldTransient) {
                             continue;
                         }
@@ -437,7 +439,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                             } else {
                                 String propertyValueString = (String) propertyValue;
 
-                                if (out.useSingleQuotes) {
+                                if (fieldUseSingleQuotes) {
                                     out.writeStringWithSingleQuote(propertyValueString);
                                 } else {
                                     out.writeStringWithDoubleQuote(propertyValueString, (char) 0);
@@ -758,11 +760,20 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
 
     public Map<String, Object> getFieldValuesMap(Object object) throws Exception {
         Map<String, Object> map = new LinkedHashMap<String, Object>(sortedGetters.length);
-        
+        boolean skipTransient = true;
+        FieldInfo fieldInfo = null;
+
         for (FieldSerializer getter : sortedGetters) {
+            skipTransient = SerializerFeature.isEnabled(getter.features, SerializerFeature.SkipTransientField);
+            fieldInfo = getter.fieldInfo;
+
+            if (skipTransient && fieldInfo != null && fieldInfo.fieldTransient) {
+                continue;
+            }
+
             map.put(getter.fieldInfo.name, getter.getPropertyValue(object));
         }
-        
+
         return map;
     }
 

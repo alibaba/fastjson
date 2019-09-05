@@ -135,7 +135,7 @@ public class JavaBeanInfo {
                     // skip
                 }
 
-                Annotation[][] paramAnnotationArrays = creatorConstructor.getParameterAnnotations();
+                Annotation[][] paramAnnotationArrays = TypeUtils.getParameterAnnotations(creatorConstructor);
                 for (int i = 0; i < creatorConstructorParameters.length && i < paramAnnotationArrays.length; ++i) {
                     Annotation[] paramAnnotations = paramAnnotationArrays[i];
                     JSONField fieldAnnotation = null;
@@ -288,7 +288,7 @@ public class JavaBeanInfo {
 
                 String[] lookupParameterNames = null;
                 if (types.length > 0) {
-                    Annotation[][] paramAnnotationArrays = creatorConstructor.getParameterAnnotations();
+                    Annotation[][] paramAnnotationArrays = TypeUtils.getParameterAnnotations(creatorConstructor);
                     for (int i = 0; i < types.length; ++i) {
                         Annotation[] paramAnnotations = paramAnnotationArrays[i];
                         JSONField fieldAnnotation = null;
@@ -348,7 +348,7 @@ public class JavaBeanInfo {
                 String[] lookupParameterNames = null;
                 Class<?>[] types = factoryMethod.getParameterTypes();
                 if (types.length > 0) {
-                    Annotation[][] paramAnnotationArrays = factoryMethod.getParameterAnnotations();
+                    Annotation[][] paramAnnotationArrays = TypeUtils.getParameterAnnotations(factoryMethod);
                     for (int i = 0; i < types.length; ++i) {
                         Annotation[] paramAnnotations = paramAnnotationArrays[i];
                         JSONField fieldAnnotation = null;
@@ -462,7 +462,7 @@ public class JavaBeanInfo {
 
                 if (paramNames != null
                         && types.length == paramNames.length) {
-                    Annotation[][] paramAnnotationArrays = creatorConstructor.getParameterAnnotations();
+                    Annotation[][] paramAnnotationArrays = TypeUtils.getParameterAnnotations(creatorConstructor);
                     for (int i = 0; i < types.length; ++i) {
                         Annotation[] paramAnnotations = paramAnnotationArrays[i];
                         String paramName = paramNames[i];
@@ -480,7 +480,7 @@ public class JavaBeanInfo {
                         Field field = TypeUtils.getField(clazz, paramName, declaredFields);
                         if (field != null) {
                             if (fieldAnnotation == null) {
-                                fieldAnnotation = field.getAnnotation(JSONField.class);
+                                fieldAnnotation = TypeUtils.getAnnotation(field, JSONField.class);
                             }
                         }
                         final int ordinal, serialzeFeatures, parserFeatures;
@@ -525,12 +525,12 @@ public class JavaBeanInfo {
         if (builderClass != null) {
             String withPrefix = null;
 
-            JSONPOJOBuilder builderAnno = builderClass.getAnnotation(JSONPOJOBuilder.class);
+            JSONPOJOBuilder builderAnno = TypeUtils.getAnnotation(builderClass, JSONPOJOBuilder.class);
             if (builderAnno != null) {
                 withPrefix = builderAnno.withPrefix();
             }
 
-            if (withPrefix == null || withPrefix.length() == 0) {
+            if (withPrefix == null) {
                 withPrefix = "with";
             }
 
@@ -545,7 +545,7 @@ public class JavaBeanInfo {
 
                 int ordinal = 0, serialzeFeatures = 0, parserFeatures = 0;
 
-                JSONField annotation = method.getAnnotation(JSONField.class);
+                JSONField annotation = TypeUtils.getAnnotation(method, JSONField.class);
 
                 if (annotation == null) {
                     annotation = TypeUtils.getSuperMethodAnnotation(clazz, method);
@@ -573,19 +573,23 @@ public class JavaBeanInfo {
                 if (methodName.startsWith("set") && methodName.length() > 3) {
                     properNameBuilder = new StringBuilder(methodName.substring(3));
                 } else {
-                    if (!methodName.startsWith(withPrefix)) {
-                        continue;
+                    if (withPrefix.length() == 0){
+                        properNameBuilder = new StringBuilder(methodName);
+                    } else {
+                        if (!methodName.startsWith(withPrefix)) {
+                            continue;
+                        }
+    
+                        if (methodName.length() <= withPrefix.length()) {
+                            continue;
+                        }
+    
+                        properNameBuilder = new StringBuilder(methodName.substring(withPrefix.length()));
                     }
-
-                    if (methodName.length() <= withPrefix.length()) {
-                        continue;
-                    }
-
-                    properNameBuilder = new StringBuilder(methodName.substring(withPrefix.length()));
                 }
 
                 char c0 = properNameBuilder.charAt(0);
-                if (!Character.isUpperCase(c0)) {
+                if (withPrefix.length() != 0 && !Character.isUpperCase(c0)) {
                     continue;
                 }
 
@@ -598,7 +602,7 @@ public class JavaBeanInfo {
             }
 
             if (builderClass != null) {
-                JSONPOJOBuilder builderAnnotation = builderClass.getAnnotation(JSONPOJOBuilder.class);
+                JSONPOJOBuilder builderAnnotation = TypeUtils.getAnnotation(builderClass, JSONPOJOBuilder.class);
 
                 String buildMethodName = null;
                 if (builderAnnotation != null) {
@@ -659,7 +663,7 @@ public class JavaBeanInfo {
                 continue;
             }
 
-            JSONField annotation = method.getAnnotation(JSONField.class);
+            JSONField annotation = TypeUtils.getAnnotation(method, JSONField.class);
             if (annotation != null
                     && types.length == 2
                     && types[0] == String.class
@@ -698,7 +702,7 @@ public class JavaBeanInfo {
                 }
             }
 
-            if (annotation == null && !methodName.startsWith("set")) { // TODO "set"的判断放在 JSONField 注解后面，意思是允许非 setter 方法标记 JSONField 注解？
+            if (annotation == null && !methodName.startsWith("set") || builderClass != null) { // TODO "set"的判断放在 JSONField 注解后面，意思是允许非 setter 方法标记 JSONField 注解？
                 continue;
             }
 
@@ -731,7 +735,7 @@ public class JavaBeanInfo {
 
             JSONField fieldAnnotation = null;
             if (field != null) {
-                fieldAnnotation = field.getAnnotation(JSONField.class);
+                fieldAnnotation = TypeUtils.getAnnotation(field, JSONField.class);
 
                 if (fieldAnnotation != null) {
                     if (!fieldAnnotation.deserialize()) {
@@ -786,7 +790,7 @@ public class JavaBeanInfo {
                         ) {
                     String propertyName;
 
-                    JSONField annotation = method.getAnnotation(JSONField.class);
+                    JSONField annotation = TypeUtils.getAnnotation(method, JSONField.class);
                     if (annotation != null && annotation.deserialize()) {
                         continue;
                     }
@@ -798,7 +802,7 @@ public class JavaBeanInfo {
 
                         Field field = TypeUtils.getField(clazz, propertyName, declaredFields);
                         if (field != null) {
-                            JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
+                            JSONField fieldAnnotation = TypeUtils.getAnnotation(field, JSONField.class);
                             if (fieldAnnotation != null && !fieldAnnotation.deserialize()) {
                                 continue;
                             }
@@ -868,7 +872,7 @@ public class JavaBeanInfo {
             int ordinal = 0, serialzeFeatures = 0, parserFeatures = 0;
             String propertyName = field.getName();
 
-            JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
+            JSONField fieldAnnotation = TypeUtils.getAnnotation(field, JSONField.class);
 
             if (fieldAnnotation != null) {
                 if (!fieldAnnotation.deserialize()) {
@@ -942,7 +946,7 @@ public class JavaBeanInfo {
         }
 
         for (Constructor constructor : constructors) {
-            Annotation[][] paramAnnotationArrays = constructor.getParameterAnnotations();
+            Annotation[][] paramAnnotationArrays = TypeUtils.getParameterAnnotations(constructor);
             if (paramAnnotationArrays.length == 0) {
                 continue;
             }
@@ -989,7 +993,7 @@ public class JavaBeanInfo {
                 continue;
             }
 
-            JSONCreator annotation = method.getAnnotation(JSONCreator.class);
+            JSONCreator annotation = TypeUtils.getAnnotation(method, JSONCreator.class);
             if (annotation != null) {
                 if (factoryMethod != null) {
                     throw new JSONException("multi-JSONCreator");

@@ -1,5 +1,6 @@
 package com.alibaba.json.bvt.serializer;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -9,6 +10,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MapTest extends TestCase {
 
@@ -44,4 +48,27 @@ public class MapTest extends TestCase {
             out.close();
         }
     }
+
+    public void test_onJSONField() {
+        Map<String, String> map = new HashMap();
+        map.put("Ariston", null);
+        MapNullValue mapNullValue = new MapNullValue();
+        mapNullValue.setMap( map );
+        String json = JSON.toJSONString( mapNullValue );
+        assertEquals("{\"map\":{\"Ariston\":null}}", json);
+    }
+
+    class MapNullValue {
+        @JSONField(serialzeFeatures = {SerializerFeature.WriteMapNullValue})
+        private Map map;
+
+        public Map getMap() {
+            return map;
+        }
+
+        public void setMap( Map map ) {
+            this.map = map;
+        }
+    }
+
 }

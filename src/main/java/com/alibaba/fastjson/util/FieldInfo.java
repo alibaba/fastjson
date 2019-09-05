@@ -86,7 +86,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         }
         
         this.label = "";
-        fieldAnnotation = null;
+        fieldAnnotation = field == null ? null : TypeUtils.getAnnotation(field, JSONField.class);
         methodAnnotation = null;
         this.getOnly = false;
         this.jsonDirect = false;
@@ -133,7 +133,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
                     || TypeUtils.isTransient(method);
         } else {
             fieldAccess = false;
-            fieldTransient = false;
+            fieldTransient = TypeUtils.isTransient(method);
         }
         
         if (label != null && label.length() > 0) { 
@@ -247,11 +247,11 @@ public class FieldInfo implements Comparable<FieldInfo> {
         
         T annotatition = null;
         if (method != null) {
-            annotatition = method.getAnnotation(annotationClass);
+            annotatition = TypeUtils.getAnnotation(method, annotationClass);
         }
         
         if (annotatition == null && field != null) {
-            annotatition = field.getAnnotation(annotationClass);
+            annotatition = TypeUtils.getAnnotation(field, annotationClass);
         }
         
         return annotatition;

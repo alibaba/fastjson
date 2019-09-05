@@ -79,7 +79,13 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
         if (out.isEnabled(SerializerFeature.WriteDateUseDateFormat)) {
             DateFormat format = serializer.getDateFormat();
             if (format == null) {
-                format = new SimpleDateFormat(JSON.DEFFAULT_DATE_FORMAT, serializer.locale);
+                // 如果是通过FastJsonConfig进行设置，优先从FastJsonConfig获取
+                String dateFormatPattern = serializer.getFastJsonConfigDateFormatPattern();
+                if(dateFormatPattern == null) {
+                    dateFormatPattern = JSON.DEFFAULT_DATE_FORMAT;
+                }
+
+                format = new SimpleDateFormat(dateFormatPattern, serializer.locale);
                 format.setTimeZone(serializer.timeZone);
             }
             String text = format.format(date);

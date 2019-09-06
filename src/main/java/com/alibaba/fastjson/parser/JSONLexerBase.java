@@ -987,10 +987,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                         putChar(x_char);
                         break;
                     case 'u':
-                        char u1 = ch = next();
-                        char u2 = ch = next();
-                        char u3 = ch = next();
-                        char u4 = ch = next();
+                        char u1 = next();
+                        char u2 = next();
+                        char u3 = next();
+                        char u4 = next();
                         int val = Integer.parseInt(new String(new char[] { u1, u2, u3, u4 }), 16);
                         putChar((char) val);
                         break;

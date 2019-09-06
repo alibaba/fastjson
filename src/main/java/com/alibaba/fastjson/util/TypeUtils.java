@@ -1348,6 +1348,14 @@ public class TypeUtils{
                 }
             }
 
+            if (clazz.isInstance(map)) {
+                return (T) map;
+            }
+
+            if (clazz == JSONObject.class) {
+                return (T) new JSONObject(map);
+            }
+
             if (config == null) {
                 config = ParserConfig.getGlobalInstance();
             }

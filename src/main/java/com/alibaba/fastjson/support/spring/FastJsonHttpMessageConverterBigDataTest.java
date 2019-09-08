@@ -1,4 +1,4 @@
-﻿package com.alibaba.json.bvt.support.spring;
+package com.alibaba.json.bvt.support.spring;
 
 import java.io.*;
 import java.nio.charset.Charset;

@@ -20,7 +20,15 @@ public class Issue978 extends TestCase {
 
     public void test_for_issue() throws Exception {
         Model model = new Model();
-        model.date = new Date(1483413683714L);
+        model.date = new java.util.Date(1483413683714L);
+
+        JSONObject obj = (JSONObject) JSON.toJSON(model);
+        assertEquals("{\"date\":\"2017-01-03 11:21:23\"}", obj.toJSONString());
+    }
+
+    public void test_for_issue2() throws Exception {
+        Model model = new Model();
+        model.date = new java.sql.Date(1483413683714L);
 
         JSONObject obj = (JSONObject) JSON.toJSON(model);
         assertEquals("{\"date\":\"2017-01-03 11:21:23\"}", obj.toJSONString());

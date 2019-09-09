@@ -83,7 +83,7 @@ public @interface JSONField {
 	/**
 	 * Only support Object
 	 * 
-	 * @since 1.2.60
+	 * @since 1.2.61
 	 */
 	String defaultValue() default "";
 }

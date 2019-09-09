@@ -336,13 +336,13 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                             propertyValue = false;
                         }
                     } else if (fieldClass == String.class) {
-                    	int defaultMask = SerializerFeature.WriteNullStringAsEmpty.mask;
+                        int defaultMask = SerializerFeature.WriteNullStringAsEmpty.mask;
                         final int mask = defaultMask | SerializerFeature.WriteMapNullValue.mask;
-						if ((!writeAsArray) && (serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
-							continue;
-						} else if ((serialzeFeatures & defaultMask) != 0 || (out.features & defaultMask) != 0) {
-							propertyValue = "";
-						}
+                        if ((!writeAsArray) && (serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
+                            continue;
+                        } else if ((serialzeFeatures & defaultMask) != 0 || (out.features & defaultMask) != 0) {
+                            propertyValue = "";
+                        }
                     } else if (Number.class.isAssignableFrom(fieldClass)) {
                         int defaultMask = SerializerFeature.WriteNullNumberAsZero.mask;
                         final int mask = defaultMask | SerializerFeature.WriteMapNullValue.mask;

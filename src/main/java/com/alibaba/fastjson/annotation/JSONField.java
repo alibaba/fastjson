@@ -79,4 +79,11 @@ public @interface JSONField {
      * @since 1.2.31
      */
     boolean unwrapped() default false;
+    
+	/**
+	 * Only support Object
+	 * 
+	 * @since 1.2.60
+	 */
+	String defaultValue() default "";
 }

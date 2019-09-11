@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Assert;
@@ -191,6 +192,20 @@ public class JSONArrayTest extends TestCase {
         JSONArray array = JSON.parseArray("[{id:123, name:'aaa'}]");
         Assert.assertEquals(1, array.size());
         Assert.assertEquals(123, array.getObject(0, User.class).getId());
+    }
+
+    public void test_newConstructor(){
+        List<Map<String,Object>> list = new ArrayList<Map<String, Object>>();
+
+        for (int i = 0;i < 5;i++){
+            Map<String,Object> map = new HashMap<String, Object>();
+            map.put("name","Lucy_" + i);
+            map.put("age",18 + i);
+            list.add(map);
+        }
+
+        JSONArray jsonArray = new JSONArray(list);
+        System.out.println(jsonArray);
     }
 
     public static class User {

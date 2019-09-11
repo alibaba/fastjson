@@ -58,6 +58,20 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
         this.list = list;
     }
 
+    public JSONArray(Collection<?> collection) {
+        if (collection == null){
+            this.list = new ArrayList<Object>();
+        } else {
+            this.list = new ArrayList<Object>(collection.size());
+            Iterator<?> iter = collection.iterator();
+
+            while (iter.hasNext()){
+                Object o = iter.next();
+                list.add(JSON.toJSON(o));
+            }
+        }
+    }
+
     public JSONArray(int initialCapacity){
         this.list = new ArrayList<Object>(initialCapacity);
     }

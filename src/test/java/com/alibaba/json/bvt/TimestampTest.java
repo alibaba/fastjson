@@ -21,7 +21,7 @@ public class TimestampTest extends TestCase {
     public void test_0 () throws Exception {
         long millis = (System.currentTimeMillis() / 1000) * 1000;
         
-        SimpleDateFormat format = new SimpleDateFormat(JSON.DEFFAULT_DATE_FORMAT, JSON.defaultLocale);
+        SimpleDateFormat format = new SimpleDateFormat(JSON.DEFAULT_DATE_FORMAT, JSON.defaultLocale);
         format.setTimeZone(JSON.defaultTimeZone);
         String text = "\"" + format.format(new Date(millis)) + "\"";
         System.out.println(text);

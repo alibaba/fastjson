@@ -45,7 +45,7 @@ public class DefaultJSONParser implements Closeable {
 
     private final static Set<Class<?>> primitiveClasses   = new HashSet<Class<?>>();
 
-    private String                     dateFormatPattern  = JSON.DEFFAULT_DATE_FORMAT;
+    private String                     dateFormatPattern  = JSON.DEFAULT_DATE_FORMAT;
     private DateFormat                 dateFormat;
 
     public final JSONLexer             lexer;

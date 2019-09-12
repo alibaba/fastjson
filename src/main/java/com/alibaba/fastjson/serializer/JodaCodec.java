@@ -178,14 +178,12 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
                 char c13 = text.charAt(13);
                 char c16 = text.charAt(16);
                 if (c13 == ':' && c16 == ':') {
-                    if (c4 == '-' && c7 == '-') {
+                    if (c4 == '-' && c7 == '-') { // yyyy-MM-dd  or  yyyy-MM-dd'T'
                         if (c10 == 'T') {
                             formatter = formatter_iso8601;
                         } else if (c10 == ' ') {
                             formatter = defaultFormatter;
                         }
-                    } else if (c4 == '-' && c7 == '-') {
-                        formatter = defaultFormatter;
                     } else if (c4 == '/' && c7 == '/') { // tw yyyy/mm/dd
                         formatter = formatter_dt19_tw;
                     } else {
@@ -322,14 +320,12 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
                 char c13 = text.charAt(13);
                 char c16 = text.charAt(16);
                 if (c13 == ':' && c16 == ':') {
-                    if (c4 == '-' && c7 == '-') {
+                    if (c4 == '-' && c7 == '-') { // yyyy-MM-dd  or  yyyy-MM-dd'T'
                         if (c10 == 'T') {
                             formatter = formatter_iso8601;
                         } else if (c10 == ' ') {
                             formatter = defaultFormatter;
                         }
-                    } else if (c4 == '-' && c7 == '-') {
-                        formatter = defaultFormatter;
                     } else if (c4 == '/' && c7 == '/') { // tw yyyy/mm/dd
                         formatter = formatter_dt19_tw;
                     } else {
@@ -437,7 +433,7 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
 
     private void write(SerializeWriter out, ReadablePartial object, String format) {
         DateTimeFormatter formatter;
-        if (format == formatter_iso8601_pattern) {
+        if (format.equals(formatter_iso8601_pattern)) {
             formatter = formatter_iso8601;
         } else {
             formatter = DateTimeFormat.forPattern(format);

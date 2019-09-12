@@ -1337,6 +1337,10 @@ public class TypeUtils{
                 return (T) map.toString();
             }
 
+            if (clazz == JSON.class && map instanceof JSONObject) {
+                return (T) map;
+            }
+
             if (clazz == LinkedHashMap.class && map instanceof JSONObject) {
                 JSONObject jsonObject = (JSONObject) map;
                 Map innerMap = jsonObject.getInnerMap();

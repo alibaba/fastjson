@@ -3810,10 +3810,17 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         BigInteger value;
         if (chLocal >= '0' && chLocal <= '9') {
             long intVal = chLocal - '0';
+            boolean overflow = false;
+            long temp;
             for (;;) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
-                    intVal = intVal * 10 + (chLocal - '0');
+                    temp = intVal * 10 + (chLocal - '0');
+                    if (temp < intVal) {
+                        overflow = true;
+                        break;
+                    }
+                    intVal = temp;
                     continue;
                 } else {
                     break;
@@ -3835,7 +3842,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 count = bp + offset - start - 1;
             }
 
-            if (count < 20 || (negative && count < 21)) {
+            if (!overflow && (count < 20 || (negative && count < 21))) {
                 value = BigInteger.valueOf(negative ? -intVal : intVal);
             } else {
 

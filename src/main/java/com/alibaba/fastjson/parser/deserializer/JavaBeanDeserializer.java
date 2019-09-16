@@ -847,7 +847,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         }
                     }
                 } else {
-                    boolean match = parseField(parser, key, object, type, fieldValues, setFlags);
+                    boolean match = parseField(parser, key, object, type,
+                            fieldValues == null ? new HashMap<String, Object>(this.fieldDeserializers.length) : fieldValues, setFlags);
 
                     if (!match) {
                         if (lexer.token() == JSONToken.RBRACE) {

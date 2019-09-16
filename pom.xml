@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.alibaba</groupId>
 	<artifactId>fastjson</artifactId>
-	<version>1.2.60_preview_01</version>
+	<version>1.2.60_preview_04</version>
 
 	<packaging>jar</packaging>
 	<name>fastjson</name>
@@ -69,6 +69,11 @@
 			<name>李恒名</name>
 			<url>https://github.com/lihengming/</url>
 			<email>89921218@qq.com</email>
+		</developer>
+		<developer>
+			<id>Omega-Ariston</id>
+			<name>Jiechuan Chen</name>
+			<email>654815312@qq.com</email>
 		</developer>
 	</developers>
 
@@ -591,6 +596,13 @@
             <groupId>org.gitlab4j</groupId>
             <artifactId>gitlab4j-api</artifactId>
             <version>4.8.42</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20180130</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

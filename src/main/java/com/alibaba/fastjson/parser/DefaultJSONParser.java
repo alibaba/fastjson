@@ -340,19 +340,7 @@ public class DefaultJSONParser implements Closeable {
                             Object instance = null;
                             ObjectDeserializer deserializer = this.config.getDeserializer(clazz);
                             if (deserializer instanceof JavaBeanDeserializer) {
-                                JavaBeanDeserializer javaBeanDeserializer = (JavaBeanDeserializer) deserializer;
-                                instance = javaBeanDeserializer.createInstance(this, clazz);
-
-                                for (Object o : map.entrySet()) {
-                                    Map.Entry entry = (Map.Entry) o;
-                                    Object entryKey = entry.getKey();
-                                    if (entryKey instanceof String) {
-                                        FieldDeserializer fieldDeserializer = javaBeanDeserializer.getFieldDeserializer((String) entryKey);
-                                        if (fieldDeserializer != null) {
-                                            fieldDeserializer.setValue(instance, entry.getValue());
-                                        }
-                                    }
-                                }
+                            	instance = TypeUtils.cast(object, clazz, this.config);
                             }
 
                             if (instance == null) {
@@ -384,6 +372,7 @@ public class DefaultJSONParser implements Closeable {
 
                     if (object.size() > 0) {
                         Object newObj = TypeUtils.cast(object, clazz, this.config);
+                        this.setResolveStatus(NONE);
                         this.parseObject(newObj);
                         return newObj;
                     }
@@ -684,6 +673,9 @@ public class DefaultJSONParser implements Closeable {
 
         try {
             if (deserializer.getClass() == JavaBeanDeserializer.class) {
+                if (lexer.token()!= JSONToken.LBRACE && lexer.token()!=JSONToken.LBRACKET) {
+                throw new JSONException("syntax error,except start with { or [,but actually start with "+ lexer.tokenName());
+            }
                 return (T) ((JavaBeanDeserializer) deserializer).deserialze(this, type, fieldName, 0);
             } else {
                 return (T) deserializer.deserialze(this, type, fieldName);

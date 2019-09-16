@@ -99,12 +99,13 @@ public class ParserConfig {
     public static ParserConfig                              global                = new ParserConfig();
 
     private final IdentityHashMap<Type, ObjectDeserializer> deserializers         = new IdentityHashMap<Type, ObjectDeserializer>();
+    private final IdentityHashMap<Type, IdentityHashMap<Type, ObjectDeserializer>> mixInDeserializers = new IdentityHashMap<Type, IdentityHashMap<Type, ObjectDeserializer>>(16);
     private final ConcurrentMap<String,Class<?>>            typeMapping           = new ConcurrentHashMap<String,Class<?>>(16, 0.75f, 1);
 
     private boolean                                         asmEnable             = !ASMUtils.IS_ANDROID;
 
     public final SymbolTable                                symbolTable           = new SymbolTable(4096);
-    
+
     public PropertyNamingStrategy                           propertyNamingStrategy;
 
     protected ClassLoader                                   defaultClassLoader;
@@ -239,7 +240,7 @@ public class ParserConfig {
     private void initDeserializers() {
         putDefaultDeserializers(this.deserializers);
     }
-    
+
     private static String[] splitItemsFormProperty(final String property ){
         if (property != null && property.length() > 0) {
             return property.split(",");
@@ -267,7 +268,7 @@ public class ParserConfig {
             }
         }
     }
-    
+
     private void addItemsToDeny(final String[] items){
         if (items == null){
             return;
@@ -318,7 +319,7 @@ public class ParserConfig {
     }
 
     public ObjectDeserializer getDeserializer(Type type) {
-        ObjectDeserializer deserializer = this.deserializers.get(type);
+        ObjectDeserializer deserializer = get(type);
         if (deserializer != null) {
             return deserializer;
         }
@@ -349,7 +350,7 @@ public class ParserConfig {
     }
 
     public ObjectDeserializer getDeserializer(Class<?> clazz, Type type) {
-        ObjectDeserializer deserializer = deserializers.get(type);
+        ObjectDeserializer deserializer = get(type);
         if (deserializer != null) {
             return deserializer;
         }
@@ -358,7 +359,7 @@ public class ParserConfig {
             type = clazz;
         }
 
-        deserializer = deserializers.get(type);
+        deserializer = get(type);
         if (deserializer != null) {
             return deserializer;
         }
@@ -374,7 +375,7 @@ public class ParserConfig {
         }
 
         if (type instanceof WildcardType || type instanceof TypeVariable || type instanceof ParameterizedType) {
-            deserializer = deserializers.get(clazz);
+            deserializer = get(clazz);
         }
 
         if (deserializer != null) {
@@ -405,7 +406,7 @@ public class ParserConfig {
                 try {
                     for (String name : names) {
                         if (name.equals(className)) {
-                            deserializers.put(Class.forName(name), deserializer = AwtCodec.instance);
+                            putDeserializer(Class.forName(name), deserializer = AwtCodec.instance);
                             return deserializer;
                         }
                     }
@@ -438,7 +439,7 @@ public class ParserConfig {
 
                     for (String name : names) {
                         if (name.equals(className)) {
-                            deserializers.put(Class.forName(name), deserializer = Jdk8DateCodec.instance);
+                            putDeserializer(Class.forName(name), deserializer = Jdk8DateCodec.instance);
                             return deserializer;
                         }
                     }
@@ -451,7 +452,7 @@ public class ParserConfig {
                     };
                     for (String name : names) {
                         if (name.equals(className)) {
-                            deserializers.put(Class.forName(name), deserializer = OptionalCodec.instance);
+                            putDeserializer(Class.forName(name), deserializer = OptionalCodec.instance);
                             return deserializer;
                         }
                     }
@@ -479,7 +480,7 @@ public class ParserConfig {
 
                     for (String name : names) {
                         if (name.equals(className)) {
-                            deserializers.put(Class.forName(name), deserializer = JodaCodec.instance);
+                            putDeserializer(Class.forName(name), deserializer = JodaCodec.instance);
                             return deserializer;
                         }
                     }
@@ -503,7 +504,7 @@ public class ParserConfig {
 
                 for (String name : names) {
                     if (name.equals(className)) {
-                        deserializers.put(Class.forName(name), deserializer = GuavaCodec.instance);
+                        putDeserializer(Class.forName(name), deserializer = GuavaCodec.instance);
                         return deserializer;
                     }
                 }
@@ -514,19 +515,19 @@ public class ParserConfig {
         }
 
         if (className.equals("java.nio.ByteBuffer")) {
-            deserializers.put(clazz, deserializer = ByteBufferCodec.instance);
+            putDeserializer(clazz, deserializer = ByteBufferCodec.instance);
         }
 
         if (className.equals("java.nio.file.Path")) {
-            deserializers.put(clazz, deserializer = MiscCodec.instance);
+            putDeserializer(clazz, deserializer = MiscCodec.instance);
         }
 
         if (clazz == Map.Entry.class) {
-            deserializers.put(clazz, deserializer = MiscCodec.instance);
+            putDeserializer(clazz, deserializer = MiscCodec.instance);
         }
 
         if (className.equals("org.javamoney.moneta.Money")) {
-            deserializers.put(clazz, deserializer = MonetaCodec.instance);
+            putDeserializer(clazz, deserializer = MonetaCodec.instance);
         }
 
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -534,7 +535,7 @@ public class ParserConfig {
             for (AutowiredObjectDeserializer autowired : ServiceLoader.load(AutowiredObjectDeserializer.class,
                                                                             classLoader)) {
                 for (Type forType : autowired.getAutowiredFor()) {
-                    deserializers.put(forType, autowired);
+                    putDeserializer(forType, autowired);
                 }
             }
         } catch (Exception ex) {
@@ -542,7 +543,7 @@ public class ParserConfig {
         }
 
         if (deserializer == null) {
-            deserializer = deserializers.get(type);
+            deserializer = get(type);
         }
 
         if (deserializer != null) {
@@ -562,12 +563,12 @@ public class ParserConfig {
             }
 
             Class<?> deserClass = null;
-            JSONType jsonType = clazz.getAnnotation(JSONType.class);
+            JSONType jsonType = TypeUtils.getAnnotation(clazz, JSONType.class);
             if (jsonType != null) {
                 deserClass = jsonType.deserializer();
                 try {
                     deserializer = (ObjectDeserializer) deserClass.newInstance();
-                    deserializers.put(clazz, deserializer);
+                    putDeserializer(clazz, deserializer);
                     return deserializer;
                 } catch (Throwable error) {
                     // skip
@@ -634,7 +635,7 @@ public class ParserConfig {
                         // skip
                     }
                 }
-                
+
                 asmEnable = jsonType.asm();
             }
 
@@ -789,7 +790,30 @@ public class ParserConfig {
     }
 
     public void putDeserializer(Type type, ObjectDeserializer deserializer) {
-        deserializers.put(type, deserializer);
+        Type mixin = JSON.getMixInAnnotations(type);
+        if (mixin != null) {
+            IdentityHashMap<Type, ObjectDeserializer> mixInClasses = this.mixInDeserializers.get(type);
+            if (mixInClasses == null) {
+                //多线程下可能会重复创建，但不影响正确性
+                mixInClasses = new IdentityHashMap<Type, ObjectDeserializer>(4);
+                this.mixInDeserializers.put(type, mixInClasses);
+            }
+            mixInClasses.put(mixin, deserializer);
+        } else {
+            this.deserializers.put(type, deserializer);
+        }
+    }
+
+    public ObjectDeserializer get(Type type) {
+        Type mixin = JSON.getMixInAnnotations(type);
+        if (null == mixin) {
+            return this.deserializers.get(type);
+        }
+        IdentityHashMap<Type, ObjectDeserializer> mixInClasses = this.mixInDeserializers.get(type);
+        if (mixInClasses == null) {
+            return null;
+        }
+        return mixInClasses.get(mixin);
     }
 
     public ObjectDeserializer getDeserializer(FieldInfo fieldInfo) {
@@ -826,10 +850,10 @@ public class ParserConfig {
                || clazz.isEnum() //
         ;
     }
-    
+
     /**
      * fieldName,field ，先生成fieldName的快照，减少之后的findField的轮询
-     * 
+     *
      * @param clazz
      * @param fieldCacheMap :map&lt;fieldName ,Field&gt;
      */
@@ -845,7 +869,7 @@ public class ParserConfig {
             parserAllFieldToCache(clazz.getSuperclass(), fieldCacheMap);
         }
     }
-    
+
     public static Field getFieldFromCache(String fieldName, Map<String, Field> fieldCacheMap) {
         Field field = fieldCacheMap.get(fieldName);
 
@@ -927,7 +951,7 @@ public class ParserConfig {
     }
 
     public Class<?> checkAutoType(Class type) {
-        if (deserializers.get(type) != null) {
+        if (get(type) != null) {
             return type;
         }
 

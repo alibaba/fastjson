@@ -27,7 +27,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.Date;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -157,7 +156,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
     public Object getPropertyValue(Object object) throws InvocationTargetException, IllegalAccessException {
         Object propertyValue =  fieldInfo.get(object);
         if (format != null && propertyValue != null) {
-            if (fieldInfo.fieldClass == Date.class) {
+            if (fieldInfo.fieldClass == java.util.Date.class || fieldInfo.fieldClass == java.sql.Date.class) {
                 SimpleDateFormat dateFormat = new SimpleDateFormat(format, JSON.defaultLocale);
                 dateFormat.setTimeZone(JSON.defaultTimeZone);
                 return dateFormat.format(propertyValue);

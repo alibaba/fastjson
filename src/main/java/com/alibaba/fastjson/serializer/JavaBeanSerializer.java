@@ -316,7 +316,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
 
                 Object originalValue = propertyValue;
                 propertyValue = this.processValue(serializer, fieldSerializer.fieldContext, object, fieldInfoName,
-                                                        propertyValue);
+                                                        propertyValue, features);
 
                 if (propertyValue == null) {
                     int serialzeFeatures = fieldInfo.serialzeFeatures;

@@ -32,9 +32,9 @@ ASRC（Alibaba Security Response Center阿里安全响应中心）将尽快审�
 * 敏感信息泄露（密钥，Cookie，Session等）
 
 ## 奖励
-可直接导致严重每个漏洞7000元人民币
-存在限制及需要一定特殊环境下才能利用的问题将给予700-5600元人民币不等的奖励，比如需要用户主动点击才会触发的问题或需要admin权限
-只有在指定环境下才可以运行的利用将有可能被收纳但不给予奖励，或直接被忽略，比如只在fastjson+linux特定版本才会出现的问题
+* 可直接导致严重每个漏洞7000元人民币
+* 存在限制及需要一定特殊环境下才能利用的问题将给予700-5600元人民币不等的奖励，比如需要用户主动点击才会触发的问题或需要admin权限
+* 只有在指定环境下才可以运行的利用将有可能被收纳但不给予奖励，或直接被忽略，比如只在fastjson+linux特定版本才会出现的问题
 
 ## 不在收集范围的报告
 * 影响过时浏览器或平台用户的漏洞
@@ -94,9 +94,9 @@ The main categories of vulnerabilities that we are sincerely looking for are:
 * Sensitive Information Leakage (Key, Cookie, Session etc.)
 
 ## Reward
-$1,000 for one valid report
-$100-$800 for Vuls which is limited. For example, Vuls that need user interactions or administrator authority
-Vuls which only work on the special version will be accepted but no reward, or directly rejected. For example, Vul runs only on a special linux version
+* $1,000 for one valid report
+* $100-$800 for Vuls which is limited. For example, Vuls that need user interactions or administrator authority
+* Vuls which only work on the special version will be accepted but no reward, or directly rejected. For example, Vul runs only on a special linux version
 
 ## Ineligible Reports
 * Vulnerabilities affecting users of outdated browsers or platforms

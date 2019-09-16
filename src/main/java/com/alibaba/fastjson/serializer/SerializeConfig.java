@@ -813,6 +813,10 @@ public class SerializeConfig {
         return mixInClasses.get(mixin);
     }
 
+    public boolean put(Object type, Object value) {
+        return put((Type)type, (ObjectSerializer)value);
+    }
+
     public boolean put(Type type, ObjectSerializer value) {
         Type mixin = JSON.getMixInAnnotations(type);
         if (mixin != null) {

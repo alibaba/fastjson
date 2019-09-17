@@ -1284,5 +1284,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return null;
     }
 
-    public final static String VERSION = "1.2.60";
+    public final static String VERSION;
+
+    static {
+        Package pkg = JSON.class.getPackage();
+        VERSION = (pkg != null) ? pkg.getImplementationVersion() : null;
+    }
 }

@@ -417,7 +417,9 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     serializer.write(propertyValue);
                 } else {
                     if (!writeAsArray) {
-                        if (writeClassName || !fieldInfo.unwrapped) {
+                        boolean isMap = Map.class.isAssignableFrom(fieldClass);
+                        boolean isJavaBean = !fieldClass.isPrimitive() && !fieldClass.getName().startsWith("java.") || fieldClass == Object.class;
+                        if (writeClassName || !fieldInfo.unwrapped || !(isMap || isJavaBean)) {
                             if (directWritePrefix) {
                                 out.write(fieldInfo.name_chars, 0, fieldInfo.name_chars.length);
                             } else {

@@ -3,7 +3,15 @@ package com.alibaba.json.bvt.issue_2100;
 import com.alibaba.fastjson.JSON;
 import junit.framework.TestCase;
 
+import java.util.Locale;
+import java.util.TimeZone;
+
 public class Issue2156 extends TestCase {
+    protected void setUp() throws Exception {
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        JSON.defaultLocale = Locale.CHINA;
+    }
+
     public void test_for_issue() throws Exception {
         java.sql.Date date = java.sql.Date.valueOf("2018-07-15");
         String str = JSON.toJSONStringWithDateFormat(date, JSON.DEFFAULT_DATE_FORMAT);

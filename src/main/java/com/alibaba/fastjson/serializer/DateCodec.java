@@ -55,7 +55,9 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
             long millis = ((java.sql.Date) object).getTime();
             TimeZone timeZone = serializer.timeZone;
             int offset = timeZone.getOffset(millis);
-            if (offset == 0 || millis % offset == 0) {
+            //
+            if ((millis + offset) % (24 * 1000 * 3600) == 0
+                    && !SerializerFeature.isEnabled(out.features, features, SerializerFeature.WriteClassName)) {
                 out.writeString(object.toString());
                 return;
             }

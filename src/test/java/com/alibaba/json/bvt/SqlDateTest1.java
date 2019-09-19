@@ -39,13 +39,15 @@ public class SqlDateTest1 extends TestCase {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         java.util.Date d = sdf.parse("2019-09-12 16:00:00");
         java.sql.Date ds = new java.sql.Date(d.getTime());
-        System.out.println("Java Obj: " + sdf.format(ds));
+//        System.out.println("Java Obj: " + sdf.format(ds));
 
         String jvs = JSON.toJSONString(ds);
-        System.out.println("JSON Str: " + jvs);
+//        System.out.println("JSON Str: " + jvs);
 
         java.sql.Date d2s = JSON.parseObject(jvs, java.sql.Date.class);
-        System.out.println("Java Obj: " + sdf.format(d2s));
-        System.out.println("LONG: " + d2s.getTime());
+//        System.out.println("Java Obj: " + sdf.format(d2s));
+//        System.out.println("LONG: " + d2s.getTime());
+
+        assertEquals(d.getTime(), d2s.getTime());
     }
 }

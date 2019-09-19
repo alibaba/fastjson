@@ -236,6 +236,10 @@ public class SerializeConfig {
     			    asm = false;
     			    break;
                 }
+                if (annotation.defaultValue() != null && !"".equals(annotation.defaultValue())) {
+                    asm = false;
+                    break;
+                }
     		}
 		}
 		

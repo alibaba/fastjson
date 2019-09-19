@@ -199,7 +199,8 @@ public class DefaultJSONParser implements Closeable {
 
        ParseContext context = this.context;
         try {
-            Map map = object instanceof JSONObject ? ((JSONObject) object).getInnerMap() : object;
+            boolean isJsonObjectMap = object instanceof JSONObject;
+            Map map = isJsonObjectMap ? ((JSONObject) object).getInnerMap() : object;
 
             boolean setContextFlag = false;
             for (;;) {
@@ -264,7 +265,7 @@ public class DefaultJSONParser implements Closeable {
                         } else {
                             key = lexer.decimalValue(true);
                         }
-                        if (lexer.isEnabled(Feature.NonStringKeyAsString)) {
+                        if (lexer.isEnabled(Feature.NonStringKeyAsString) || isJsonObjectMap) {
                             key = key.toString();
                         }
                     } catch (NumberFormatException e) {
@@ -837,8 +838,12 @@ public class DefaultJSONParser implements Closeable {
                     if (i == types.length - 1) {
                         if (type instanceof Class) {
                             Class<?> clazz = (Class<?>) type;
-                            isArray = clazz.isArray();
-                            componentType = clazz.getComponentType();
+                            //如果最后一个type是字节数组，且当前token为字符串类型，不应该当作可变长参数进行处理
+                            //而是作为一个整体的Base64字符串进行反序列化
+                            if (!((clazz == byte[].class || clazz == char[].class) && lexer.token() == LITERAL_STRING)) {
+                                isArray = clazz.isArray();
+                                componentType = clazz.getComponentType();
+                            }
                         }
                     }
 

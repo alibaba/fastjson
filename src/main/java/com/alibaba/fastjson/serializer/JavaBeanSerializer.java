@@ -320,11 +320,14 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
 
                 if (propertyValue == null) {
                     int serialzeFeatures = fieldInfo.serialzeFeatures;
+                    JSONField jsonField = fieldInfo.getAnnotation();
                     if (beanInfo.jsonType != null) {
                         serialzeFeatures |= SerializerFeature.of(beanInfo.jsonType.serialzeFeatures());
                     }
                     // beanInfo.jsonType
-                    if (fieldClass == Boolean.class) {
+                    if (jsonField != null && !"".equals(jsonField.defaultValue())) {
+                        propertyValue = jsonField.defaultValue();
+                    } else if (fieldClass == Boolean.class) {
                         int defaultMask = SerializerFeature.WriteNullBooleanAsFalse.mask;
                         final int mask = defaultMask | SerializerFeature.WriteMapNullValue.mask;
                         if ((!writeAsArray) && (serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
@@ -417,7 +420,9 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     serializer.write(propertyValue);
                 } else {
                     if (!writeAsArray) {
-                        if (writeClassName || !fieldInfo.unwrapped) {
+                        boolean isMap = Map.class.isAssignableFrom(fieldClass);
+                        boolean isJavaBean = !fieldClass.isPrimitive() && !fieldClass.getName().startsWith("java.") || fieldClass == Object.class;
+                        if (writeClassName || !fieldInfo.unwrapped || !(isMap || isJavaBean)) {
                             if (directWritePrefix) {
                                 out.write(fieldInfo.name_chars, 0, fieldInfo.name_chars.length);
                             } else {

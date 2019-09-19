@@ -199,7 +199,8 @@ public class DefaultJSONParser implements Closeable {
 
        ParseContext context = this.context;
         try {
-            Map map = object instanceof JSONObject ? ((JSONObject) object).getInnerMap() : object;
+            boolean isJsonObjectMap = object instanceof JSONObject;
+            Map map = isJsonObjectMap ? ((JSONObject) object).getInnerMap() : object;
 
             boolean setContextFlag = false;
             for (;;) {
@@ -264,7 +265,7 @@ public class DefaultJSONParser implements Closeable {
                         } else {
                             key = lexer.decimalValue(true);
                         }
-                        if (lexer.isEnabled(Feature.NonStringKeyAsString)) {
+                        if (lexer.isEnabled(Feature.NonStringKeyAsString) || isJsonObjectMap) {
                             key = key.toString();
                         }
                     } catch (NumberFormatException e) {

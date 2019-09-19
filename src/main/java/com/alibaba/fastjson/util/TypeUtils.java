@@ -1527,8 +1527,28 @@ public class TypeUtils{
                 "org.springframework.security.oauth2.common.DefaultOAuth2AccessToken",
                 "org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken",
                 "org.springframework.cache.support.NullValue",
+                "org.springframework.jdbc.UncategorizedSQLException",
+                "org.springframework.dao.CannotAcquireLockException",
+                "org.springframework.dao.DuplicateKeyException",
+                "org.springframework.dao.QueryTimeoutException",
+                "org.springframework.dao.TransientDataAccessException",
+                "org.springframework.dao.TypeMismatchDataAccessException",
+                "org.springframework.dao.UncategorizedDataAccessException",
+                "org.springframework.dao.DataAccessResourceFailureException",
         };
         for(String className : spring){
+            Class<?> clazz = loadClass(className);
+            if(clazz == null){
+                continue;
+            }
+            mappings.put(clazz.getName(), clazz);
+        }
+
+        String[] sofa = new String[] {
+                "com.alipay.sofa.rpc.core.exception.SofaTimeOutException",
+        };
+
+        for(String className : sofa){
             Class<?> clazz = loadClass(className);
             if(clazz == null){
                 continue;

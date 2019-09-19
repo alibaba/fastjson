@@ -7,6 +7,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
@@ -27,7 +28,12 @@ public class GuavaCodec implements ObjectSerializer, ObjectDeserializer {
     }
 
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-        if (type == ArrayListMultimap.class) {
+        Type rawType = type;
+        if (type instanceof ParameterizedType) {
+            rawType = ((ParameterizedType) type).getRawType();
+        }
+
+        if (rawType == ArrayListMultimap.class) {
             ArrayListMultimap multimap = ArrayListMultimap.create();
             JSONObject object = parser.parseObject();
             for (Map.Entry entry : object.entrySet()) {

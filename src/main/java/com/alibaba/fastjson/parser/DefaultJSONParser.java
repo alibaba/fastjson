@@ -837,8 +837,12 @@ public class DefaultJSONParser implements Closeable {
                     if (i == types.length - 1) {
                         if (type instanceof Class) {
                             Class<?> clazz = (Class<?>) type;
-                            isArray = clazz.isArray();
-                            componentType = clazz.getComponentType();
+                            //如果最后一个type是字节数组，且当前token为字符串类型，不应该当作可变长参数进行处理
+                            //而是作为一个整体的Base64字符串进行反序列化
+                            if (!((clazz == byte[].class || clazz == char[].class) && lexer.token() == LITERAL_STRING)) {
+                                isArray = clazz.isArray();
+                                componentType = clazz.getComponentType();
+                            }
                         }
                     }
 

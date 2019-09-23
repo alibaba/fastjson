@@ -2157,7 +2157,7 @@ public class JSONPath implements JSONAware {
             List<Object> fieldValues = new ArrayList<Object>(propertyNames.length);
 
             for (int i = 0; i < propertyNames.length; i++) {
-                Object fieldValue = path.getPropertyValue(currentObject, propertyNames[i], propertyNamesHash[i]);
+                Object fieldValue = JSONPath.eval(currentObject, propertyNames[i]);
                 fieldValues.add(fieldValue);
             }
 

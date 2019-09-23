@@ -579,11 +579,11 @@ public class JavaBeanInfo {
                         if (!methodName.startsWith(withPrefix)) {
                             continue;
                         }
-    
+
                         if (methodName.length() <= withPrefix.length()) {
                             continue;
                         }
-    
+                        
                         properNameBuilder = new StringBuilder(methodName.substring(withPrefix.length()));
                     }
                 }
@@ -709,6 +709,7 @@ public class JavaBeanInfo {
             char c3 = methodName.charAt(3);
 
             String propertyName;
+            Field field = null;
             if (Character.isUpperCase(c3) //
                     || c3 > 512 // for unicode method name
                     ) {
@@ -719,15 +720,31 @@ public class JavaBeanInfo {
                 }
             } else if (c3 == '_') {
                 propertyName = methodName.substring(4);
+                field = TypeUtils.getField(clazz, propertyName, declaredFields);
+                if (field == null) {
+                    String temp = propertyName;
+                    propertyName = methodName.substring(3);
+                    field = TypeUtils.getField(clazz, propertyName, declaredFields);
+                    if (field == null) {
+                        propertyName = temp; //减少修改代码带来的影响
+                    }
+                }
             } else if (c3 == 'f') {
                 propertyName = methodName.substring(3);
             } else if (methodName.length() >= 5 && Character.isUpperCase(methodName.charAt(4))) {
                 propertyName = TypeUtils.decapitalize(methodName.substring(3));
             } else {
-                continue;
+                propertyName = methodName.substring(3);
+                field = TypeUtils.getField(clazz, propertyName, declaredFields);
+                if (field == null) {
+                    continue;
+                }
             }
 
-            Field field = TypeUtils.getField(clazz, propertyName, declaredFields);
+            if (field == null) {
+                field = TypeUtils.getField(clazz, propertyName, declaredFields);
+            }
+
             if (field == null && types[0] == boolean.class) {
                 String isFieldName = "is" + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
                 field = TypeUtils.getField(clazz, isFieldName, declaredFields);

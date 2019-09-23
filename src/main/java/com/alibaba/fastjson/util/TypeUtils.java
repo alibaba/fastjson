@@ -1896,6 +1896,7 @@ public class TypeUtils{
                 }
                 char c3 = methodName.charAt(3);
                 String propertyName;
+                Field field = null;
                 if(Character.isUpperCase(c3) //
                         || c3 > 512 // for unicode method name
                         ){
@@ -1907,19 +1908,36 @@ public class TypeUtils{
                     propertyName = getPropertyNameByCompatibleFieldName(fieldCacheMap, methodName, propertyName, 3);
                 } else if(c3 == '_'){
                     propertyName = methodName.substring(4);
+                    field = fieldCacheMap.get(propertyName);
+                    if (field == null) {
+                        String temp = propertyName;
+                        propertyName = methodName.substring(3);
+                        field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
+                        if (field == null) {
+                            propertyName = temp; //减少修改代码带来的影响
+                        }
+                    }
                 } else if(c3 == 'f'){
                     propertyName = methodName.substring(3);
                 } else if(methodName.length() >= 5 && Character.isUpperCase(methodName.charAt(4))){
                     propertyName = decapitalize(methodName.substring(3));
                 } else{
-                    continue;
+                    propertyName = methodName.substring(3);
+                    field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
+                    if (field == null) {
+                        continue;
+                    }
                 }
                 boolean ignore = isJSONTypeIgnore(clazz, propertyName);
                 if(ignore){
                     continue;
                 }
-                //假如bean的field很多的情况一下，轮询时将大大降低效率
-                Field field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
+
+                if (field == null) {
+                    // 假如bean的field很多的情况一下，轮询时将大大降低效率
+                    field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
+                }
+                
                 if(field == null && propertyName.length() > 1){
                     char ch = propertyName.charAt(1);
                     if(ch >= 'A' && ch <= 'Z'){
@@ -1975,6 +1993,7 @@ public class TypeUtils{
                 }
                 char c2 = methodName.charAt(2);
                 String propertyName;
+                Field field = null;
                 if(Character.isUpperCase(c2)){
                     if(compatibleWithJavaBean){
                         propertyName = decapitalize(methodName.substring(2));
@@ -1984,16 +2003,33 @@ public class TypeUtils{
                     propertyName = getPropertyNameByCompatibleFieldName(fieldCacheMap, methodName, propertyName, 2);
                 } else if(c2 == '_'){
                     propertyName = methodName.substring(3);
+                    field = fieldCacheMap.get(propertyName);
+                    if (field == null) {
+                        String temp = propertyName;
+                        propertyName = methodName.substring(2);
+                        field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
+                        if (field == null) {
+                            propertyName = temp;
+                        }
+                    }
                 } else if(c2 == 'f'){
                     propertyName = methodName.substring(2);
                 } else{
-                    continue;
+                    propertyName = methodName.substring(2);
+                    field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
+                    if (field == null) {
+                        continue;
+                    }
                 }
                 boolean ignore = isJSONTypeIgnore(clazz, propertyName);
                 if(ignore){
                     continue;
                 }
-                Field field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
+                
+                if(field == null) {
+                    field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
+                }
+                
                 if(field == null){
                     field = ParserConfig.getFieldFromCache(methodName, fieldCacheMap);
                 }

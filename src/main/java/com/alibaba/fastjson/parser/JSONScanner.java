@@ -613,14 +613,22 @@ public final class JSONScanner extends JSONLexerBase {
             char t3 = '0', t4 = '0';
             if (t2 == ':') { // ThreeLetterISO8601TimeZone
                 t3 = charAt(bp + date_len + 10 + millisLen + 4);
-                if (t3 != '0' && t3 != '3') {
-                    return false;
+                t4 = charAt(bp + date_len + 10 + millisLen + 5);
+
+                if(t0 == '1' && t1 == '2' && t3 == '4' && t4 == '5') {
+                    // handle special case for '+12:45'
+                    // support TimeZone as Pacific/Chatham and NZ-CHAT
+                } else {
+                    if (t3 != '0' && t3 != '3') {
+                        return false;
+                    }
+
+
+                    if (t4 != '0') {
+                        return false;
+                    }
                 }
 
-                t4 = charAt(bp + date_len + 10 + millisLen + 5);
-                if (t4 != '0') {
-                    return false;
-                }
                 timzeZoneLength = 6;
             } else if (t2 == '0') { // TwoLetterISO8601TimeZone
                 t3 = charAt(bp + date_len + 10 + millisLen + 4);

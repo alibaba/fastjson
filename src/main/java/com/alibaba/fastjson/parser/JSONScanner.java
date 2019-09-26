@@ -623,7 +623,7 @@ public final class JSONScanner extends JSONLexerBase {
                         // Pacific/Chatham  => +12:45
                     } else if (t0 == '0' && (t1 == '5' || t1 == '8')) {
                         // Asia/Kathmandu   => +05:45
-                        // Asia/Katmandu    => +08:45
+                        // Asia/Katmandu    => +05:45
                         // Australia/Eucla  => +08:45
                     } else {
                         return false;

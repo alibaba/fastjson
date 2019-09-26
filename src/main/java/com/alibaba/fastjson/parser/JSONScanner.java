@@ -615,14 +615,24 @@ public final class JSONScanner extends JSONLexerBase {
                 t3 = charAt(bp + date_len + 10 + millisLen + 4);
                 t4 = charAt(bp + date_len + 10 + millisLen + 5);
 
-                if(t0 == '1' && t1 == '2' && t3 == '4' && t4 == '5') {
-                    // handle special case for '+12:45'
-                    // support TimeZone as Pacific/Chatham and NZ-CHAT
+                if(t3 == '4' && t4 == '5') {
+                    // handle some special timezones like xx:45
+
+                    if (t0 == '1' && t1 == '2') {
+                        // NZ-CHAT          => +12:45
+                        // Pacific/Chatham  => +12:45
+                    } else if (t0 == '0' && (t1 == '5' || t1 == '8')) {
+                        // Asia/Kathmandu   => +05:45
+                        // Asia/Katmandu    => +08:45
+                        // Australia/Eucla  => +08:45
+                    } else {
+                        return false;
+                    }
                 } else {
+                    //handle normal timezone like xx:00 and xx:30
                     if (t3 != '0' && t3 != '3') {
                         return false;
                     }
-
 
                     if (t4 != '0') {
                         return false;

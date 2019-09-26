@@ -841,7 +841,7 @@ public class TypeUtils{
         if(value instanceof String){
             return IOUtils.decodeBase64((String) value);
         }
-        throw new JSONException("can not cast to int, value : " + value);
+        throw new JSONException("can not cast to byte[], value : " + value);
     }
 
     public static Boolean castToBoolean(Object value){

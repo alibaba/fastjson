@@ -67,6 +67,8 @@ public class DefaultJSONParser implements Closeable {
     private List<ExtraProcessor>       extraProcessors    = null;
     protected FieldTypeResolver        fieldTypeResolver  = null;
 
+    private int                        objectKeyLevel     = 0;
+
     private boolean                    autoTypeEnable;
     private String[]                   autoTypeAccept     = null;
 
@@ -276,6 +278,9 @@ public class DefaultJSONParser implements Closeable {
                         throw new JSONException("parse number key error" + lexer.info());
                     }
                 } else if (ch == '{' || ch == '[') {
+                    if (objectKeyLevel++ > 1024) {
+                        throw new JSONException("object key level > 1024");
+                    }
                     lexer.nextToken();
                     key = parse();
                     isObjectKey = true;
@@ -1160,6 +1165,10 @@ public class DefaultJSONParser implements Closeable {
         }
 
         lexer.nextToken(JSONToken.LITERAL_STRING);
+
+        if (this.context != null && this.context.level > 1024) {
+            throw new JSONException("array level > 1024");
+        }
 
         ParseContext context = this.context;
         this.setContext(array, fieldName);

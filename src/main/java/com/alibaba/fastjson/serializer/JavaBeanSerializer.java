@@ -776,7 +776,17 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 continue;
             }
 
-            map.put(getter.fieldInfo.name, getter.getPropertyValue(object));
+            if (getter.fieldInfo.unwrapped) {
+                Object unwrappedValue = getter.getPropertyValue(object);
+                Object map1 = JSON.toJSON(unwrappedValue);
+                if (map1 instanceof Map) {
+                    map.putAll((Map) map1);
+                } else {
+                    map.put(getter.fieldInfo.name, getter.getPropertyValue(object));
+                }
+            } else {
+                map.put(getter.fieldInfo.name, getter.getPropertyValue(object));
+            }
         }
 
         return map;

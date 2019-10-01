@@ -278,8 +278,8 @@ public class DefaultJSONParser implements Closeable {
                         throw new JSONException("parse number key error" + lexer.info());
                     }
                 } else if (ch == '{' || ch == '[') {
-                    if (objectKeyLevel++ > 1024) {
-                        throw new JSONException("object key level > 1024");
+                    if (objectKeyLevel++ > 512) {
+                        throw new JSONException("object key level > 512");
                     }
                     lexer.nextToken();
                     key = parse();
@@ -1166,8 +1166,8 @@ public class DefaultJSONParser implements Closeable {
 
         lexer.nextToken(JSONToken.LITERAL_STRING);
 
-        if (this.context != null && this.context.level > 1024) {
-            throw new JSONException("array level > 1024");
+        if (this.context != null && this.context.level > 512) {
+            throw new JSONException("array level > 512");
         }
 
         ParseContext context = this.context;

@@ -10,7 +10,7 @@ public class MaximumLevelTest extends TestCase {
 
         for (int ch : chars) {
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < 2000; ++i) {
+            for (int i = 0; i < 1000; ++i) {
                 sb.append((char) ch);
             }
 

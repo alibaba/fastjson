@@ -206,8 +206,6 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                         } else if (c10 == ' ') {
                             formatter = defaultFormatter;
                         }
-                    } else if (c4 == '-' && c7 == '-') {
-                        formatter = defaultFormatter;
                     } else if (c4 == '/' && c7 == '/') { // tw yyyy/mm/dd
                         formatter = formatter_dt19_tw;
                     } else {
@@ -358,8 +356,6 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                         } else if (c10 == ' ') {
                             formatter = defaultFormatter;
                         }
-                    } else if (c4 == '-' && c7 == '-') {
-                        formatter = defaultFormatter;
                     } else if (c4 == '/' && c7 == '/') { // tw yyyy/mm/dd
                         formatter = formatter_dt19_tw;
                     } else {

@@ -663,6 +663,8 @@ public class JSONPath implements JSONAware {
         private char         ch;
         private int          level;
         private boolean      hasRefSegment;
+        private static final String strArrayRegex = "\'\\s*,\\s*\'";
+        private static final Pattern strArrayPatternx = Pattern.compile(strArrayRegex);
 
         public JSONPathParser(String path){
             this.path = path;
@@ -1683,18 +1685,13 @@ public class JSONPath implements JSONAware {
 
             if (indexText.length() > 2 && firstChar == '\'' && lastChar == '\'') {
 
-                if (commaIndex == -1) {
-                    String propertyName = indexText.substring(1, indexTextLen - 1);
+                String propertyName = indexText.substring(1, indexTextLen - 1);
+
+                if (!strArrayPatternx.matcher(indexText).find()) {
                     return new PropertySegment(propertyName, false);
                 }
 
-                String[] indexesText = indexText.split(",");
-                String[] propertyNames = new String[indexesText.length];
-                for (int i = 0; i < indexesText.length; ++i) {
-                    String indexesTextItem = indexesText[i];
-                    propertyNames[i] = indexesTextItem.substring(1, indexesTextItem.length() - 1);
-                }
-
+                String[] propertyNames = propertyName.split(strArrayRegex);
                 return new MultiPropertySegment(propertyNames);
             }
 

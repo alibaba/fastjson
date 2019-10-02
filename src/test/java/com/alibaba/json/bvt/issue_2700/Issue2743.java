@@ -1,8 +1,8 @@
 package com.alibaba.json.bvt.issue_2700;
 
-import static org.junit.Assert.assertArrayEquals;
-
-import java.util.regex.Pattern;
+//import static org.junit.Assert.assertArrayEquals;
+//
+//import java.util.regex.Pattern;
 
 import com.alibaba.fastjson.JSONPath;
 
@@ -24,27 +24,27 @@ public class Issue2743 extends TestCase {
         Object obj = JSONPath.extract(json, "$[3,4]");
         assertEquals("[13,14]", obj.toString());
     }
-
-    // 场景：验证修复bug用的正则表达式
-    public void test_2() throws Exception {
-        String strArrayRegex = "\'\\s*,\\s*\'";
-        Pattern strArrayPattern = Pattern.compile(strArrayRegex);
-
-        assertFalse(
-                strArrayPattern.matcher("'com.xxx.service.xxxServiceForOrder@queryGoodsV2(Long,Long,Long)'").find());
-        assertTrue(strArrayPattern.matcher("'id','name'").find());
-        assertTrue(strArrayPattern.matcher("'id'    ,    'name'").find());
-        assertTrue(strArrayPattern.matcher("'id',    'name'").find());
-        assertTrue(strArrayPattern.matcher("'id'    ,'name'").find());
-
-        String[] strs = { "'com.xxx.service.xxxServiceForOrder@queryGoodsV2(Long,Long,Long)'" };
-        assertArrayEquals(strs, strs[0].split(strArrayRegex));
-
-        strs = new String[] { "'id", "name'" };
-        assertArrayEquals(strs, "'id','name'".split(strArrayRegex));
-        assertArrayEquals(strs, "'id'    ,    'name'".split(strArrayRegex));
-        assertArrayEquals(strs, "'id'    ,'name'".split(strArrayRegex));
-        assertArrayEquals(strs, "'id',    'name'".split(strArrayRegex));
-    }
+//
+//    // 场景：验证修复bug用的正则表达式
+//    public void test_2() throws Exception {
+//        String strArrayRegex = "\'\\s*,\\s*\'";
+//        Pattern strArrayPattern = Pattern.compile(strArrayRegex);
+//
+//        assertFalse(
+//                strArrayPattern.matcher("'com.xxx.service.xxxServiceForOrder@queryGoodsV2(Long,Long,Long)'").find());
+//        assertTrue(strArrayPattern.matcher("'id','name'").find());
+//        assertTrue(strArrayPattern.matcher("'id'    ,    'name'").find());
+//        assertTrue(strArrayPattern.matcher("'id',    'name'").find());
+//        assertTrue(strArrayPattern.matcher("'id'    ,'name'").find());
+//
+//        String[] strs = { "'com.xxx.service.xxxServiceForOrder@queryGoodsV2(Long,Long,Long)'" };
+//        assertArrayEquals(strs, strs[0].split(strArrayRegex));
+//
+//        strs = new String[] { "'id", "name'" };
+//        assertArrayEquals(strs, "'id','name'".split(strArrayRegex));
+//        assertArrayEquals(strs, "'id'    ,    'name'".split(strArrayRegex));
+//        assertArrayEquals(strs, "'id'    ,'name'".split(strArrayRegex));
+//        assertArrayEquals(strs, "'id',    'name'".split(strArrayRegex));
+//    }
 
 }

@@ -1687,7 +1687,7 @@ public class JSONPath implements JSONAware {
 
                 String propertyName = indexText.substring(1, indexTextLen - 1);
 
-                if (!strArrayPatternx.matcher(indexText).find()) {
+                if (commaIndex == -1 || !strArrayPatternx.matcher(indexText).find()) {
                     return new PropertySegment(propertyName, false);
                 }
 

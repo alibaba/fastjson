@@ -798,10 +798,16 @@ public class JSONPath implements JSONAware {
             }
 
             boolean predicateFlag = false;
+            int lparanCount = 0;
 
             if (ch == '?') {
                 next();
                 accept('(');
+                lparanCount++;
+                while (ch == '(') {
+                    next();
+                    lparanCount++;
+                }
                 predicateFlag = true;
             }
 
@@ -1204,11 +1210,17 @@ public class JSONPath implements JSONAware {
                         next();
                     }
 
+                    if (lparanCount > 1 && ch == ')') {
+                        next();
+                        lparanCount--;
+                    }
+
                     if (ch == '&' || ch == '|') {
                         filter = filterRest(filter);
                     }
 
                     if (predicateFlag) {
+                        lparanCount--;
                         accept(')');
                     }
 
@@ -1436,6 +1448,12 @@ public class JSONPath implements JSONAware {
                 next();
                 next();
 
+                boolean paren = false;
+                if (ch == '(') {
+                    paren = true;
+                    next();
+                }
+
                 while (ch == ' ') {
                     next();
                 }
@@ -1443,6 +1461,10 @@ public class JSONPath implements JSONAware {
                 Filter right = (Filter) parseArrayAccessFilter(false);
 
                 filter = new FilterGroup(filter, right, and);
+
+                if (paren && ch == ')') {
+                    next();
+                }
             }
             return filter;
         }

@@ -305,6 +305,11 @@ public class JavaBeanInfo {
 
                 computeFields(clazz, type, propertyNamingStrategy, fieldList, fields);
             }
+
+            if (defaultConstructor != null) {
+                TypeUtils.setAccessible(defaultConstructor);
+            }
+
             return new JavaBeanInfo(clazz, builderClass, defaultConstructor, null, factoryMethod, buildMethod, jsonType, fieldList);
         }
 

@@ -407,10 +407,6 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         return pos;
     }
 
-    public final boolean isFirst() {
-        return bp == 0;
-    }
-
     public final String stringDefaultValue() {
         return stringDefaultValue;
     }

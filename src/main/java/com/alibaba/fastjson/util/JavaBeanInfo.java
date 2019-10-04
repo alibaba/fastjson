@@ -224,7 +224,7 @@ public class JavaBeanInfo {
             return null;
         }
 
-        Map<TypeVariable, Type> finalMap = new HashMap<TypeVariable, Type>();
+        Map<TypeVariable, Type> typeVarMap = null;
 
         //analyse the whole generic info from the class inheritance
         for (; currentClass != null && currentClass != Object.class; childClass = currentClass, currentClass = currentClass.getSuperclass()) {
@@ -233,17 +233,21 @@ public class JavaBeanInfo {
                 TypeVariable[] currentTypeParameters = currentClass.getTypeParameters();
                 for (int i = 0; i < childGenericParentActualTypeArgs.length; i++) {
                     //if the child class's generic super class actual args is defined in the child class type parameters
-                    if (finalMap.containsKey(childGenericParentActualTypeArgs[i])) {
-                        Type actualArg = finalMap.get(childGenericParentActualTypeArgs[i]);
-                        finalMap.put(currentTypeParameters[i], actualArg);
+                    if (typeVarMap == null) {
+                        typeVarMap = new HashMap<TypeVariable, Type>();
+                    }
+
+                    if (typeVarMap.containsKey(childGenericParentActualTypeArgs[i])) {
+                        Type actualArg = typeVarMap.get(childGenericParentActualTypeArgs[i]);
+                        typeVarMap.put(currentTypeParameters[i], actualArg);
                     } else {
-                        finalMap.put(currentTypeParameters[i], childGenericParentActualTypeArgs[i]);
+                        typeVarMap.put(currentTypeParameters[i], childGenericParentActualTypeArgs[i]);
                     }
                 }
             }
         }
 
-        return finalMap;
+        return typeVarMap;
     }
 
 

@@ -106,12 +106,8 @@ public final class ListSerializer implements ObjectSerializer {
                         out.writeInt(((Integer) item).intValue());
                     } else if (clazz == Long.class) {
                         long val = ((Long) item).longValue();
-                        if (writeClassName) {
                             out.writeLong(val);
                             out.write('L');
-                        } else {
-                            out.writeLong(val);
-                        }
                     } else {
                         if ((SerializerFeature.DisableCircularReferenceDetect.mask & features) != 0){
                             itemSerializer = serializer.getObjectWriter(item.getClass());

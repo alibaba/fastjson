@@ -1449,8 +1449,6 @@ public class TypeUtils{
                 java.util.ArrayList.class,
                 java.util.concurrent.TimeUnit.class,
                 java.util.concurrent.ConcurrentHashMap.class,
-                loadClass("java.util.concurrent.ConcurrentSkipListMap"),
-                loadClass("java.util.concurrent.ConcurrentSkipListSet"),
                 java.util.concurrent.atomic.AtomicInteger.class,
                 java.util.concurrent.atomic.AtomicLong.class,
                 java.util.Collections.EMPTY_MAP.getClass(),
@@ -1480,76 +1478,6 @@ public class TypeUtils{
                 com.alibaba.fastjson.JSONArray.class,
         };
         for(Class clazz : classes){
-            if(clazz == null){
-                continue;
-            }
-            mappings.put(clazz.getName(), clazz);
-        }
-
-        String[] w = new String[]{
-                "java.util.Collections$UnmodifiableMap"
-        };
-        for(String className : w){
-            Class<?> clazz = loadClass(className);
-            if(clazz == null){
-                break;
-            }
-            mappings.put(clazz.getName(), clazz);
-        }
-
-        String[] awt = new String[]{
-                "java.awt.Rectangle",
-                "java.awt.Point",
-                "java.awt.Font",
-                "java.awt.Color"};
-        for(String className : awt){
-            Class<?> clazz = loadClass(className);
-            if(clazz == null){
-                break;
-            }
-            mappings.put(clazz.getName(), clazz);
-        }
-
-        String[] spring = new String[]{
-                "org.springframework.util.LinkedMultiValueMap",
-                "org.springframework.util.LinkedCaseInsensitiveMap",
-                "org.springframework.remoting.support.RemoteInvocation",
-                "org.springframework.remoting.support.RemoteInvocationResult",
-                "org.springframework.security.web.savedrequest.DefaultSavedRequest",
-                "org.springframework.security.web.savedrequest.SavedCookie",
-                "org.springframework.security.web.csrf.DefaultCsrfToken",
-                "org.springframework.security.web.authentication.WebAuthenticationDetails",
-                "org.springframework.security.core.context.SecurityContextImpl",
-                "org.springframework.security.authentication.UsernamePasswordAuthenticationToken",
-                "org.springframework.security.core.authority.SimpleGrantedAuthority",
-                "org.springframework.security.core.userdetails.User",
-                "org.springframework.security.oauth2.common.DefaultExpiringOAuth2RefreshToken",
-                "org.springframework.security.oauth2.common.DefaultOAuth2AccessToken",
-                "org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken",
-                "org.springframework.cache.support.NullValue",
-                "org.springframework.jdbc.UncategorizedSQLException",
-                "org.springframework.dao.CannotAcquireLockException",
-                "org.springframework.dao.DuplicateKeyException",
-                "org.springframework.dao.QueryTimeoutException",
-                "org.springframework.dao.TransientDataAccessException",
-                "org.springframework.dao.TypeMismatchDataAccessException",
-                "org.springframework.dao.UncategorizedDataAccessException",
-                "org.springframework.dao.DataAccessResourceFailureException",
-        };
-        for(String className : spring){
-            Class<?> clazz = loadClass(className);
-            if(clazz == null){
-                continue;
-            }
-            mappings.put(clazz.getName(), clazz);
-        }
-
-        String[] sofa = new String[] {
-                "com.alipay.sofa.rpc.core.exception.SofaTimeOutException",
-        };
-
-        for(String className : sofa){
-            Class<?> clazz = loadClass(className);
             if(clazz == null){
                 continue;
             }

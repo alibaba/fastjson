@@ -21,7 +21,7 @@ public class JSONPParseTest2 extends TestCase {
         assertEquals(1, param.get("id"));
         assertEquals("idonans", param.get("name"));
 
-        String json = JSON.toJSONString(jsonpObject);
-        assertEquals("parent.callback({\"name\":\"idonans\",\"id\":1})", json);
+        String json = JSON.toJSONString(jsonpObject, SerializerFeature.MapSortField);
+        assertEquals("parent.callback({\"id\":1,\"name\":\"idonans\"})", json);
     }
 }

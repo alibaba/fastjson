@@ -16,6 +16,9 @@ public class Issue2784 extends TestCase {
         assertEquals("{\"time\":"
                 + m.time.atZone(JSON.defaultTimeZone.toZoneId()).toInstant().toEpochMilli()
                 + "}", str);
+
+        Model m1 = JSON.parseObject(str, Model.class);
+        assertEquals(m.time, m1.time);
     }
 
     public void test_for_issue_1() throws Exception {
@@ -25,6 +28,9 @@ public class Issue2784 extends TestCase {
         assertEquals("{\"ztime\":"
                 + m.ztime.toInstant().toEpochMilli()
                 + "}", str);
+
+        Model m1 = JSON.parseObject(str, Model.class);
+        assertEquals(m.ztime, m1.ztime);
     }
 
     public void test_for_issue_2() throws Exception {
@@ -34,6 +40,10 @@ public class Issue2784 extends TestCase {
         assertEquals("{\"time1\":"
                 + m.time1.atZone(JSON.defaultTimeZone.toZoneId()).toEpochSecond()
                 + "}", str);
+
+        Model m1 = JSON.parseObject(str, Model.class);
+        assertEquals(m.time1.atZone(JSON.defaultTimeZone.toZoneId()).toEpochSecond()
+                , m1.time1.atZone(JSON.defaultTimeZone.toZoneId()).toEpochSecond());
     }
 
     public void test_for_issue_3() throws Exception {
@@ -43,6 +53,10 @@ public class Issue2784 extends TestCase {
         assertEquals("{\"ztime1\":"
                 + m.ztime1.toEpochSecond()
                 + "}", str);
+
+        Model m1 = JSON.parseObject(str, Model.class);
+        assertEquals(m.ztime1.toEpochSecond()
+                , m1.ztime1.toEpochSecond());
     }
 
     public void test_for_issue_4() throws Exception {
@@ -52,6 +66,10 @@ public class Issue2784 extends TestCase {
         assertEquals("{\"date\":"
                 + m.date.getTime()
                 + "}", str);
+
+        Model m1 = JSON.parseObject(str, Model.class);
+        assertEquals(m.date.getTime()
+                , m1.date.getTime());
     }
 
     public void test_for_issue_5() throws Exception {
@@ -61,6 +79,28 @@ public class Issue2784 extends TestCase {
         assertEquals("{\"date1\":"
                 + (m.date1.getTime() / 1000)
                 + "}", str);
+
+        Model m1 = JSON.parseObject(str, Model.class);
+        assertEquals(m.date1.getTime()
+                , m1.date1.getTime());
+    }
+
+    public void test_for_issue_6() throws Exception {
+        Model m = new Model();
+        m.date1 = new Date();
+        String str = JSON.toJSONString(m);
+        assertEquals("{\"date1\":"
+                + (m.date1.getTime() / 1000)
+                + "}", str);
+
+        Model m1 = JSON.parseObject(str, Model.class);
+        assertEquals(m.date1.getTime()
+                , m1.date1.getTime());
+    }
+
+    public void test_for_issue_7() throws Exception {
+        Model m = JSON.parseObject("{\"time2\":20190714121314}", Model.class);
+        assertEquals(m.time2, LocalDateTime.of(2019, 7, 14, 12, 13, 14));
     }
 
     public static class Model {
@@ -81,5 +121,8 @@ public class Issue2784 extends TestCase {
 
         @JSONField(format = "unixtime")
         public Date date1;
+
+        @JSONField(format = "yyyyMMddHHmmss")
+        public LocalDateTime time2;
     }
 }

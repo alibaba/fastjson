@@ -167,6 +167,17 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
 
             if ("unixtime".equals(format)) {
                 millis *= 1000;
+            } else if ("yyyyMMddHHmmss".equals(format)) {
+                int yyyy = (int) (millis / 10000000000L);
+                int MM = (int) ((millis / 100000000L) % 100);
+                int dd = (int) ((millis / 1000000L) % 100);
+                int HH = (int) ((millis / 10000L) % 100);
+                int mm = (int) ((millis / 100L) % 100);
+                int ss = (int) (millis % 100);
+
+                if (type == LocalDateTime.class) {
+                    return (T) LocalDateTime.of(yyyy, MM, dd, HH, mm, ss);
+                }
             }
 
             if (type == LocalDateTime.class) {

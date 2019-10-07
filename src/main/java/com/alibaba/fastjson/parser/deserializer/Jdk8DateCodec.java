@@ -465,10 +465,33 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
 
     private void write(SerializeWriter out, TemporalAccessor object, String format) {
         DateTimeFormatter formatter;
-        if ("unixtime".equals(format) && object instanceof ChronoZonedDateTime) {
-            long seconds = ((ChronoZonedDateTime) object).toEpochSecond();
-            out.writeInt((int) seconds);
-            return;
+        if ("unixtime".equals(format)) {
+            Instant instant = null;
+            if (object instanceof ChronoZonedDateTime) {
+                long seconds = ((ChronoZonedDateTime) object).toEpochSecond();
+                out.writeInt((int) seconds);
+                return;
+            }
+
+            if (object instanceof LocalDateTime) {
+                long seconds = ((LocalDateTime) object).atZone(JSON.defaultTimeZone.toZoneId()).toEpochSecond();
+                out.writeInt((int) seconds);
+                return;
+            }
+        }
+
+        if ("millis".equals(format)) {
+            Instant instant = null;
+            if (object instanceof ChronoZonedDateTime) {
+                instant = ((ChronoZonedDateTime) object).toInstant();
+            } else if (object instanceof LocalDateTime) {
+                instant = ((LocalDateTime) object).atZone(JSON.defaultTimeZone.toZoneId()).toInstant();
+            }
+            if (instant != null) {
+                long millis = instant.toEpochMilli();
+                out.writeLong(millis);
+                return;
+            }
         }
 
         if (format == formatter_iso8601_pattern) {

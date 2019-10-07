@@ -30,7 +30,7 @@ public class Issue2784 extends TestCase {
                 + "}", str);
 
         Model m1 = JSON.parseObject(str, Model.class);
-        assertEquals(m.ztime, m1.ztime);
+        assertEquals(m.ztime.toInstant().toEpochMilli(), m1.ztime.toInstant().toEpochMilli());
     }
 
     public void test_for_issue_2() throws Exception {
@@ -81,8 +81,8 @@ public class Issue2784 extends TestCase {
                 + "}", str);
 
         Model m1 = JSON.parseObject(str, Model.class);
-        assertEquals(m.date1.getTime()
-                , m1.date1.getTime());
+        assertEquals(m.date1.getTime() / 1000
+                , m1.date1.getTime() / 1000);
     }
 
     public void test_for_issue_6() throws Exception {
@@ -94,8 +94,8 @@ public class Issue2784 extends TestCase {
                 + "}", str);
 
         Model m1 = JSON.parseObject(str, Model.class);
-        assertEquals(m.date1.getTime()
-                , m1.date1.getTime());
+        assertEquals(m.date1.getTime() / 1000
+                , m1.date1.getTime() / 1000);
     }
 
     public void test_for_issue_7() throws Exception {

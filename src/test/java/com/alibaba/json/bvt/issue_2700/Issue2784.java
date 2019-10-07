@@ -6,6 +6,7 @@ import junit.framework.TestCase;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.Date;
 
 public class Issue2784 extends TestCase {
     public void test_for_issue() throws Exception {
@@ -44,6 +45,24 @@ public class Issue2784 extends TestCase {
                 + "}", str);
     }
 
+    public void test_for_issue_4() throws Exception {
+        Model m = new Model();
+        m.date = new Date();
+        String str = JSON.toJSONString(m);
+        assertEquals("{\"date\":"
+                + m.date.getTime()
+                + "}", str);
+    }
+
+    public void test_for_issue_5() throws Exception {
+        Model m = new Model();
+        m.date1 = new Date();
+        String str = JSON.toJSONString(m);
+        assertEquals("{\"date1\":"
+                + (m.date1.getTime() / 1000)
+                + "}", str);
+    }
+
     public static class Model {
         @JSONField(format = "millis")
         public LocalDateTime time;
@@ -56,5 +75,11 @@ public class Issue2784 extends TestCase {
 
         @JSONField(format = "unixtime")
         public ZonedDateTime ztime1;
+
+        @JSONField(format = "millis")
+        public Date date;
+
+        @JSONField(format = "unixtime")
+        public Date date1;
     }
 }

@@ -2991,4 +2991,27 @@ public final class JSONScanner extends JSONLexerBase {
             }
         }
     }
+
+    public String scanTypeName(SymbolTable symbolTable) {
+        if (text.startsWith("\"@type\":\"", bp)) {
+            int p = text.indexOf('"', bp + 9);
+            if (p != -1) {
+                bp += 9;
+                int h = 0;
+                for (int i = bp; i < p; i++) {
+                    h = 31 * h + text.charAt(i);
+                }
+                String typeName = addSymbol(bp, p - bp, h, symbolTable);
+                char separator = text.charAt(p + 1);
+                if (separator != ',' && separator != ']') {
+                    return null;
+                }
+                bp = p + 2;
+                ch = text.charAt(bp);
+                return typeName;
+            }
+        }
+
+        return null;
+    }
 }

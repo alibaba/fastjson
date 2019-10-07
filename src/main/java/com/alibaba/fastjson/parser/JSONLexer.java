@@ -88,6 +88,8 @@ public interface JSONLexer {
 
     boolean isRef();
 
+    String scanTypeName(SymbolTable symbolTable);
+
     String numberString();
 
     byte[] bytesValue();

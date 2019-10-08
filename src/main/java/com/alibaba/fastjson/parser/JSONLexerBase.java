@@ -1413,7 +1413,11 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 chLocal = charAt(bp + (offset++));
                 continue;
             } else {
-                matchStat = NOT_MATCH;
+                if (chLocal == ']') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = NOT_MATCH;
+                }
                 return strVal;
             }
         }

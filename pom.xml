@@ -446,8 +446,8 @@
 
         <dependency>
             <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-commons-core</artifactId>
-            <version>1.4.1.RELEASE</version>
+            <artifactId>spring-data-commons</artifactId>
+            <version>2.1.2.RELEASE</version>
             <scope>test</scope>
         </dependency>
 

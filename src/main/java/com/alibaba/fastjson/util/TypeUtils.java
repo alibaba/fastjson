@@ -841,7 +841,7 @@ public class TypeUtils{
         if(value instanceof String){
             return IOUtils.decodeBase64((String) value);
         }
-        throw new JSONException("can not cast to int, value : " + value);
+        throw new JSONException("can not cast to byte[], value : " + value);
     }
 
     public static Boolean castToBoolean(Object value){
@@ -1352,6 +1352,14 @@ public class TypeUtils{
                 }
             }
 
+            if (clazz.isInstance(map)) {
+                return (T) map;
+            }
+
+            if (clazz == JSONObject.class) {
+                return (T) new JSONObject(map);
+            }
+
             if (config == null) {
                 config = ParserConfig.getGlobalInstance();
             }
@@ -1441,8 +1449,6 @@ public class TypeUtils{
                 java.util.ArrayList.class,
                 java.util.concurrent.TimeUnit.class,
                 java.util.concurrent.ConcurrentHashMap.class,
-                loadClass("java.util.concurrent.ConcurrentSkipListMap"),
-                loadClass("java.util.concurrent.ConcurrentSkipListSet"),
                 java.util.concurrent.atomic.AtomicInteger.class,
                 java.util.concurrent.atomic.AtomicLong.class,
                 java.util.Collections.EMPTY_MAP.getClass(),
@@ -1472,56 +1478,6 @@ public class TypeUtils{
                 com.alibaba.fastjson.JSONArray.class,
         };
         for(Class clazz : classes){
-            if(clazz == null){
-                continue;
-            }
-            mappings.put(clazz.getName(), clazz);
-        }
-
-        String[] w = new String[]{
-                "java.util.Collections$UnmodifiableMap"
-        };
-        for(String className : w){
-            Class<?> clazz = loadClass(className);
-            if(clazz == null){
-                break;
-            }
-            mappings.put(clazz.getName(), clazz);
-        }
-
-        String[] awt = new String[]{
-                "java.awt.Rectangle",
-                "java.awt.Point",
-                "java.awt.Font",
-                "java.awt.Color"};
-        for(String className : awt){
-            Class<?> clazz = loadClass(className);
-            if(clazz == null){
-                break;
-            }
-            mappings.put(clazz.getName(), clazz);
-        }
-
-        String[] spring = new String[]{
-                "org.springframework.util.LinkedMultiValueMap",
-                "org.springframework.util.LinkedCaseInsensitiveMap",
-                "org.springframework.remoting.support.RemoteInvocation",
-                "org.springframework.remoting.support.RemoteInvocationResult",
-                "org.springframework.security.web.savedrequest.DefaultSavedRequest",
-                "org.springframework.security.web.savedrequest.SavedCookie",
-                "org.springframework.security.web.csrf.DefaultCsrfToken",
-                "org.springframework.security.web.authentication.WebAuthenticationDetails",
-                "org.springframework.security.core.context.SecurityContextImpl",
-                "org.springframework.security.authentication.UsernamePasswordAuthenticationToken",
-                "org.springframework.security.core.authority.SimpleGrantedAuthority",
-                "org.springframework.security.core.userdetails.User",
-                "org.springframework.security.oauth2.common.DefaultExpiringOAuth2RefreshToken",
-                "org.springframework.security.oauth2.common.DefaultOAuth2AccessToken",
-                "org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken",
-                "org.springframework.cache.support.NullValue",
-        };
-        for(String className : spring){
-            Class<?> clazz = loadClass(className);
             if(clazz == null){
                 continue;
             }
@@ -1868,6 +1824,7 @@ public class TypeUtils{
                 }
                 char c3 = methodName.charAt(3);
                 String propertyName;
+                Field field = null;
                 if(Character.isUpperCase(c3) //
                         || c3 > 512 // for unicode method name
                         ){
@@ -1879,19 +1836,36 @@ public class TypeUtils{
                     propertyName = getPropertyNameByCompatibleFieldName(fieldCacheMap, methodName, propertyName, 3);
                 } else if(c3 == '_'){
                     propertyName = methodName.substring(4);
+                    field = fieldCacheMap.get(propertyName);
+                    if (field == null) {
+                        String temp = propertyName;
+                        propertyName = methodName.substring(3);
+                        field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
+                        if (field == null) {
+                            propertyName = temp; //减少修改代码带来的影响
+                        }
+                    }
                 } else if(c3 == 'f'){
                     propertyName = methodName.substring(3);
                 } else if(methodName.length() >= 5 && Character.isUpperCase(methodName.charAt(4))){
                     propertyName = decapitalize(methodName.substring(3));
                 } else{
-                    continue;
+                    propertyName = methodName.substring(3);
+                    field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
+                    if (field == null) {
+                        continue;
+                    }
                 }
                 boolean ignore = isJSONTypeIgnore(clazz, propertyName);
                 if(ignore){
                     continue;
                 }
-                //假如bean的field很多的情况一下，轮询时将大大降低效率
-                Field field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
+
+                if (field == null) {
+                    // 假如bean的field很多的情况一下，轮询时将大大降低效率
+                    field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
+                }
+                
                 if(field == null && propertyName.length() > 1){
                     char ch = propertyName.charAt(1);
                     if(ch >= 'A' && ch <= 'Z'){
@@ -1947,6 +1921,7 @@ public class TypeUtils{
                 }
                 char c2 = methodName.charAt(2);
                 String propertyName;
+                Field field = null;
                 if(Character.isUpperCase(c2)){
                     if(compatibleWithJavaBean){
                         propertyName = decapitalize(methodName.substring(2));
@@ -1956,16 +1931,33 @@ public class TypeUtils{
                     propertyName = getPropertyNameByCompatibleFieldName(fieldCacheMap, methodName, propertyName, 2);
                 } else if(c2 == '_'){
                     propertyName = methodName.substring(3);
+                    field = fieldCacheMap.get(propertyName);
+                    if (field == null) {
+                        String temp = propertyName;
+                        propertyName = methodName.substring(2);
+                        field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
+                        if (field == null) {
+                            propertyName = temp;
+                        }
+                    }
                 } else if(c2 == 'f'){
                     propertyName = methodName.substring(2);
                 } else{
-                    continue;
+                    propertyName = methodName.substring(2);
+                    field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
+                    if (field == null) {
+                        continue;
+                    }
                 }
                 boolean ignore = isJSONTypeIgnore(clazz, propertyName);
                 if(ignore){
                     continue;
                 }
-                Field field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
+                
+                if(field == null) {
+                    field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
+                }
+                
                 if(field == null){
                     field = ParserConfig.getFieldFromCache(methodName, fieldCacheMap);
                 }

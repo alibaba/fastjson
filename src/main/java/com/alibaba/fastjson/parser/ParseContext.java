@@ -7,6 +7,7 @@ public class ParseContext {
     public Object             object;
     public final ParseContext parent;
     public final Object       fieldName;
+    public final int          level;
     public Type               type;
     private transient String  path;
 
@@ -14,6 +15,7 @@ public class ParseContext {
         this.parent = parent;
         this.object = object;
         this.fieldName = fieldName;
+        this.level = parent == null ? 0 : parent.level + 1;
     }
 
     public String toString() {

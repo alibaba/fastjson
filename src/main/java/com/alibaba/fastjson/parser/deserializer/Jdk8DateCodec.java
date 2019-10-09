@@ -167,6 +167,17 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
 
             if ("unixtime".equals(format)) {
                 millis *= 1000;
+            } else if ("yyyyMMddHHmmss".equals(format)) {
+                int yyyy = (int) (millis / 10000000000L);
+                int MM = (int) ((millis / 100000000L) % 100);
+                int dd = (int) ((millis / 1000000L) % 100);
+                int HH = (int) ((millis / 10000L) % 100);
+                int mm = (int) ((millis / 100L) % 100);
+                int ss = (int) (millis % 100);
+
+                if (type == LocalDateTime.class) {
+                    return (T) LocalDateTime.of(yyyy, MM, dd, HH, mm, ss);
+                }
             }
 
             if (type == LocalDateTime.class) {
@@ -206,8 +217,6 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                         } else if (c10 == ' ') {
                             formatter = defaultFormatter;
                         }
-                    } else if (c4 == '-' && c7 == '-') {
-                        formatter = defaultFormatter;
                     } else if (c4 == '/' && c7 == '/') { // tw yyyy/mm/dd
                         formatter = formatter_dt19_tw;
                     } else {
@@ -358,8 +367,6 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                         } else if (c10 == ' ') {
                             formatter = defaultFormatter;
                         }
-                    } else if (c4 == '-' && c7 == '-') {
-                        formatter = defaultFormatter;
                     } else if (c4 == '/' && c7 == '/') { // tw yyyy/mm/dd
                         formatter = formatter_dt19_tw;
                     } else {
@@ -469,10 +476,33 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
 
     private void write(SerializeWriter out, TemporalAccessor object, String format) {
         DateTimeFormatter formatter;
-        if ("unixtime".equals(format) && object instanceof ChronoZonedDateTime) {
-            long seconds = ((ChronoZonedDateTime) object).toEpochSecond();
-            out.writeInt((int) seconds);
-            return;
+        if ("unixtime".equals(format)) {
+            Instant instant = null;
+            if (object instanceof ChronoZonedDateTime) {
+                long seconds = ((ChronoZonedDateTime) object).toEpochSecond();
+                out.writeInt((int) seconds);
+                return;
+            }
+
+            if (object instanceof LocalDateTime) {
+                long seconds = ((LocalDateTime) object).atZone(JSON.defaultTimeZone.toZoneId()).toEpochSecond();
+                out.writeInt((int) seconds);
+                return;
+            }
+        }
+
+        if ("millis".equals(format)) {
+            Instant instant = null;
+            if (object instanceof ChronoZonedDateTime) {
+                instant = ((ChronoZonedDateTime) object).toInstant();
+            } else if (object instanceof LocalDateTime) {
+                instant = ((LocalDateTime) object).atZone(JSON.defaultTimeZone.toZoneId()).toInstant();
+            }
+            if (instant != null) {
+                long millis = instant.toEpochMilli();
+                out.writeLong(millis);
+                return;
+            }
         }
 
         if (format == formatter_iso8601_pattern) {

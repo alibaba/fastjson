@@ -193,6 +193,14 @@ public abstract class SerializeFilterable {
 
         return key;
     }
+
+    protected Object processValue(JSONSerializer jsonBeanDeser, //
+            BeanContext beanContext,
+            Object object, //
+            String key, //
+            Object propertyValue) {
+        return processValue(jsonBeanDeser, beanContext, object, key, propertyValue, 0);
+    }
     
     protected Object processValue(JSONSerializer jsonBeanDeser, //
                                BeanContext beanContext,

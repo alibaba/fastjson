@@ -370,6 +370,12 @@ public class JSONSerializer extends SerializeFilterable {
                 out.writeInt((int) seconds);
                 return;
             }
+
+            if ("millis".equals(format)) {
+                out.writeLong(((Date) object).getTime());
+                return;
+            }
+
             DateFormat dateFormat = this.getDateFormat();
             if (dateFormat == null) {
                 if (format != null) {

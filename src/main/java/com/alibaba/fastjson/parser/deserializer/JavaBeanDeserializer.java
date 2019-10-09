@@ -295,6 +295,22 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             throw new JSONException("error");
         }
 
+        String typeName = null;
+        if ((typeName = lexer.scanTypeName(parser.symbolTable)) != null) {
+            ObjectDeserializer deserializer = getSeeAlso(parser.getConfig(), this.beanInfo, typeName);
+            Class<?> userType = null;
+
+            if (deserializer == null) {
+                Class<?> expectClass = TypeUtils.getClass(type);
+                userType = parser.getConfig().checkAutoType(typeName, expectClass, lexer.getFeatures());
+                deserializer = parser.getConfig().getDeserializer(userType);
+            }
+
+            if (deserializer instanceof JavaBeanDeserializer) {
+                return ((JavaBeanDeserializer) deserializer).deserialzeArrayMapping(parser, type, fieldName, object);
+            }
+        }
+
         object = createInstance(parser, type);
 
         for (int i = 0, size = sortedFieldDeserializers.length; i < size; ++i) {
@@ -1541,7 +1557,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         return value;
     }
     
-    protected JavaBeanDeserializer getSeeAlso(ParserConfig config, JavaBeanInfo beanInfo, String typeName) {
+    protected static JavaBeanDeserializer getSeeAlso(ParserConfig config, JavaBeanInfo beanInfo, String typeName) {
         if (beanInfo.jsonType == null) {
             return null;
         }

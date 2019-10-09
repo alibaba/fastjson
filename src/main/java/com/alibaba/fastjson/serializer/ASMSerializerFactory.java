@@ -1904,7 +1904,7 @@ public class ASMSerializerFactory implements Opcodes {
                            "(L" + JSONSerializer  + ";" //
                                                                           + desc(BeanContext.class) //
                                                                           + "Ljava/lang/Object;Ljava/lang/String;" //
-                                                                          + valueDesc + ")Ljava/lang/Object;Ljava/lang/Integer;");
+                                                                          + valueDesc + ")Ljava/lang/Object;");
 
         mw.visitVarInsn(ASTORE, Context.processValue);
 

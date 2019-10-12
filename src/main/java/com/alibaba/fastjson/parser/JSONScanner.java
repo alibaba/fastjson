@@ -2362,6 +2362,8 @@ public final class JSONScanner extends JSONLexerBase {
                     }
                     return;
                 }
+            }else {
+                throw new JSONException("illegal str, " + info());
             }
         }
 

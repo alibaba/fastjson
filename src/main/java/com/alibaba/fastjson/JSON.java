@@ -1170,6 +1170,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return chars;
     }
 
+    /**
+     * @deprecated Please use {@link com.alibaba.fastjson.JSONValidator} instead.
+     */
     public static boolean isValid(String str) {
         if (str == null || str.length() == 0) {
             return false;
@@ -1211,6 +1214,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
     }
 
+    /**
+     * @deprecated Please use {@link com.alibaba.fastjson.JSONValidator} instead.
+     */
     public static boolean isValidObject(String str) {
         if (str == null || str.length() == 0) {
             return false;
@@ -1236,6 +1242,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
     }
 
+    /**
+     * @deprecated Please use {@link com.alibaba.fastjson.JSONValidator} instead.
+     */
     public static boolean isValidArray(String str) {
         if (str == null || str.length() == 0) {
             return false;

@@ -55,6 +55,9 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
     }
 
     public JSONArray(List<Object> list){
+        if (list == null){
+            throw new IllegalArgumentException("list is null.");
+        }
         this.list = list;
     }
 

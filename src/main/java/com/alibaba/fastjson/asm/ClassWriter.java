@@ -203,12 +203,12 @@ public class ClassWriter {
             mb = mb.next;
         }
         int attributeCount = 0;
-        size += pool.length;
+        size += pool.getLength();
         // allocates a byte vector of this size, in order to avoid unnecessary
         // arraycopy operations in the ByteVector.enlarge() method
         ByteVector out = new ByteVector(size);
         out.putInt(0xCAFEBABE).putInt(version);
-        out.putShort(index).putByteArray(pool.data, 0, pool.length);
+        out.putShort(index).putByteArray(pool.getData(), 0, pool.getLength());
         int mask = 393216; // Opcodes.ACC_DEPRECATED | ClassWriter.ACC_SYNTHETIC_ATTRIBUTE | ((access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) / (ClassWriter.ACC_SYNTHETIC_ATTRIBUTE / Opcodes.ACC_SYNTHETIC));
         out.putShort(access & ~mask).putShort(name).putShort(superName);
         out.putShort(interfaceCount);
@@ -228,7 +228,7 @@ public class ClassWriter {
             mb = mb.next;
         }
         out.putShort(attributeCount);
-        return out.data;
+        return out.getData();
     }
 
     // ------------------------------------------------------------------------

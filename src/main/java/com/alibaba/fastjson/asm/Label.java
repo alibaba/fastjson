@@ -142,7 +142,7 @@ public class Label {
      */
     void put(final MethodWriter owner, final ByteVector out, final int source) {
         if ((status & 2 /* RESOLVED */ ) == 0) {
-            addReference(source, out.length);
+            addReference(source, out.getLength());
             out.putShort(-1);
         } else {
             out.putShort(position - source);

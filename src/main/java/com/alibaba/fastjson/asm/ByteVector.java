@@ -36,11 +36,10 @@ package com.alibaba.fastjson.asm;
  * @author Eric Bruneton
  */
 public class ByteVector {
-
 	/**
 	 * The content of this vector.
 	 */
-	public byte[] data;
+	private byte[] data;
 
 	/**
 	 * Actual number of bytes in this vector.
@@ -51,7 +50,7 @@ public class ByteVector {
 	 * Constructs a new {@link ByteVector ByteVector} with a default initial size.
 	 */
 	public ByteVector() {
-		data = new byte[64];
+		this(64);
 	}
 
 	/**
@@ -72,9 +71,7 @@ public class ByteVector {
 	 */
 	public ByteVector putByte(final int b) {
 		int length = this.length;
-		if (length + 1 > data.length) {
-			enlarge(1);
-		}
+		enlarge(1);
 		data[length++] = (byte) b;
 		this.length = length;
 		return this;
@@ -90,9 +87,7 @@ public class ByteVector {
 	 */
 	ByteVector put11(final int b1, final int b2) {
 		int length = this.length;
-		if (length + 2 > data.length) {
-			enlarge(2);
-		}
+		enlarge(2);
 		final byte[] data = this.data;
 		data[length++] = (byte) b1;
 		data[length++] = (byte) b2;
@@ -109,9 +104,7 @@ public class ByteVector {
 	 */
 	public ByteVector putShort(final int s) {
 		int length = this.length;
-		if (length + 2 > data.length) {
-			enlarge(2);
-		}
+		enlarge(2);
 		final byte[] data = this.data;
 		data[length++] = (byte) (s >>> 8);
 		data[length++] = (byte) s;
@@ -129,9 +122,7 @@ public class ByteVector {
 	 */
 	public ByteVector put12(final int b, final int s) {
 		int length = this.length;
-		if (length + 3 > data.length) {
-			enlarge(3);
-		}
+		enlarge(3);
 		final byte[] data = this.data;
 		data[length++] = (byte) b;
 		data[length++] = (byte) (s >>> 8);
@@ -149,9 +140,7 @@ public class ByteVector {
 	 */
 	public ByteVector putInt(final int i) {
 		int length = this.length;
-		if (length + 4 > data.length) {
-			enlarge(4);
-		}
+		enlarge(4);
 		final byte[] data = this.data;
 		data[length++] = (byte) (i >>> 24);
 		data[length++] = (byte) (i >>> 16);
@@ -171,9 +160,7 @@ public class ByteVector {
 	public ByteVector putUTF8(final String s) {
 		final int charLength = s.length();
 		int len = length;
-		if (len + 2 + charLength > data.length) {
-			enlarge(2 + charLength);
-		}
+		enlarge(2 + charLength);
 		final byte[] data = this.data;
 		// optimistic algorithm: instead of computing the byte length and then
 		// serializing the string (which requires two loops), we assume the byte
@@ -206,12 +193,11 @@ public class ByteVector {
 	 * @return this byte vector.
 	 */
 	public ByteVector putByteArray(final byte[] b, final int off, final int len) {
-		if (length + len > data.length) {
-			enlarge(len);
+		if (b == null) {
+			return this;
 		}
-		if (b != null) {
-			System.arraycopy(b, off, data, length, len);
-		}
+		enlarge(len);
+		System.arraycopy(b, off, data, length, len);
 		length += len;
 		return this;
 	}
@@ -223,10 +209,27 @@ public class ByteVector {
 	 *             to receive.
 	 */
 	private void enlarge(final int size) {
+		if (length + size <= data.length) {
+			return;
+		}
 		final int length1 = 2 * data.length;
 		final int length2 = length + size;
-		final byte[] newData = new byte[length1 > length2 ? length1 : length2];
+		final byte[] newData = new byte[Math.max(length1, length2)];
 		System.arraycopy(data, 0, newData, 0, length);
 		data = newData;
+	}
+
+	/**
+	 * Get for content of this vector
+	 */
+	public byte[] getData() {
+		return data;
+	}
+
+	/**
+	 * Get actual length of this vector
+	 */
+	public int getLength() {
+		return length;
 	}
 }

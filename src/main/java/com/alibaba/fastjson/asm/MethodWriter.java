@@ -195,7 +195,7 @@ public class MethodWriter implements MethodVisitor {
     public void visitJumpInsn(final int opcode, final Label label) {
         // Label currentBlock = this.currentBlock;
         // adds the instruction to the bytecode of the method
-        if ((label.status & 2 /* Label.RESOLVED */ ) != 0 && label.position - code.length < Short.MIN_VALUE) {
+        if ((label.status & 2 /* Label.RESOLVED */ ) != 0 && label.position - code.getLength() < Short.MIN_VALUE) {
             throw new UnsupportedOperationException();
         } else {
             /*
@@ -204,13 +204,13 @@ public class MethodWriter implements MethodVisitor {
              * needed).
              */
             code.putByte(opcode);
-            label.put(this, code, code.length - 1);
+            label.put(this, code, code.getLength() - 1);
         }
     }
 
     public void visitLabel(final Label label) {
         // resolves previous forward references to label, if any
-        label.resolve(this, code.length, code.data);
+        label.resolve(this, code.getLength(), code.getData());
     }
 
     public void visitLdcInsn(final Object cst) {
@@ -263,9 +263,9 @@ public class MethodWriter implements MethodVisitor {
      */
     final int getSize() {
         int size = 8;
-        if (code.length > 0) {
+        if (code.getLength() > 0) {
             cw.newUTF8("Code");
-            size += 18 + code.length + 8 * 0;
+            size += 18 + code.getLength() + 8 * 0;
         }
         if (exceptionCount > 0) {
             cw.newUTF8("Exceptions");
@@ -283,7 +283,7 @@ public class MethodWriter implements MethodVisitor {
         final int mask = 393216; //Opcodes.ACC_DEPRECATED | ClassWriter.ACC_SYNTHETIC_ATTRIBUTE | ((access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) / (ClassWriter.ACC_SYNTHETIC_ATTRIBUTE / Opcodes.ACC_SYNTHETIC));
         out.putShort(access & ~mask).putShort(name).putShort(desc);
         int attributeCount = 0;
-        if (code.length > 0) {
+        if (code.getLength() > 0) {
             ++attributeCount;
         }
         if (exceptionCount > 0) {
@@ -291,11 +291,11 @@ public class MethodWriter implements MethodVisitor {
         }
 
         out.putShort(attributeCount);
-        if (code.length > 0) {
-            int size = 12 + code.length + 8 * 0; // handlerCount
+        if (code.getLength() > 0) {
+            int size = 12 + code.getLength() + 8 * 0; // handlerCount
             out.putShort(cw.newUTF8("Code")).putInt(size);
             out.putShort(maxStack).putShort(maxLocals);
-            out.putInt(code.length).putByteArray(code.data, 0, code.length);
+            out.putInt(code.getLength()).putByteArray(code.getData(), 0, code.getLength());
             out.putShort(0); // handlerCount
             attributeCount = 0;
             out.putShort(attributeCount);

@@ -53,6 +53,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -813,6 +815,11 @@ public class TypeUtils{
             }
             if(strVal.indexOf(',') != 0){
                 strVal = strVal.replaceAll(",", "");
+            }
+            
+            Matcher matcher = Pattern.compile("\\.0*$").matcher(strVal);
+            if(matcher.find()) {
+                strVal = matcher.replaceAll("");
             }
             return Integer.parseInt(strVal);
         }

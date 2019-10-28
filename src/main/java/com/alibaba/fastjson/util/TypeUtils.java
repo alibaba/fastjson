@@ -813,7 +813,7 @@ public class TypeUtils{
                     || "NULL".equals(strVal)){
                 return null;
             }
-            if(strVal.indexOf(',') != -1){
+            if(strVal.indexOf(',') != 0){
                 strVal = strVal.replaceAll(",", "");
             }
             

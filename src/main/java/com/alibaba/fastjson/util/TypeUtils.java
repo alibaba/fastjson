@@ -365,7 +365,7 @@ public class TypeUtils{
                     || "NULL".equals(strVal)){
                 return null;
             }
-            if(strVal.indexOf(',') != 0){
+            if(strVal.indexOf(',') != -1){
                 strVal = strVal.replaceAll(",", "");
             }
             return Float.parseFloat(strVal);
@@ -387,7 +387,7 @@ public class TypeUtils{
                     || "NULL".equals(strVal)){
                 return null;
             }
-            if(strVal.indexOf(',') != 0){
+            if(strVal.indexOf(',') != -1){
                 strVal = strVal.replaceAll(",", "");
             }
             return Double.parseDouble(strVal);
@@ -701,7 +701,7 @@ public class TypeUtils{
                     || "NULL".equals(strVal)){
                 return null;
             }
-            if(strVal.indexOf(',') != 0){
+            if(strVal.indexOf(',') != -1){
                 strVal = strVal.replaceAll(",", "");
             }
             try{
@@ -811,7 +811,7 @@ public class TypeUtils{
                     || "NULL".equals(strVal)){
                 return null;
             }
-            if(strVal.indexOf(',') != 0){
+            if(strVal.indexOf(',') != -1){
                 strVal = strVal.replaceAll(",", "");
             }
             return Integer.parseInt(strVal);

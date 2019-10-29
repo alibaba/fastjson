@@ -4,7 +4,10 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 
+import com.alibaba.fastjson.parser.ParserConfig;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 
@@ -12,6 +15,17 @@ import org.junit.Test;
  * Created by jiangyu on 2017-03-03 11:33.
  */
 public class IgnoreTypeDeserializer {
+    
+    @Before
+    public void before() {
+        ParserConfig.global.setAutoTypeSupport(true);
+    }
+
+    @After
+    public void after() {
+        ParserConfig.global.setAutoTypeSupport(false);
+    }
+
     @Test(expected = JSONException.class)
     public void parseObjectWithNotExistTypeThrowException() {
         String s = "{\"@type\":\"com.alibaba.fastjson.ValueBean\",\"val\":1}";

@@ -165,10 +165,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         if (text == null) {
             return null;
         }
-
+        System.out.println(" Object parse " + text);
         DefaultJSONParser parser = new DefaultJSONParser(text, config, features);
         Object value = parser.parse();
-
+        System.out.println(" Object parse value :" + value);
         parser.handleResovleTask(value);
 
         parser.close();

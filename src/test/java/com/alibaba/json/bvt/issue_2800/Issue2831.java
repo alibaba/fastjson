@@ -1,12 +1,13 @@
-package com.alibaba;
+package com.alibaba.json.bvt.issue_2800;
 
 import com.alibaba.fastjson.JSONObject;
+import junit.framework.TestCase;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class main {
-    public static  void main(String[] args) {
+public class Issue2831 extends TestCase {
+    public void test_for_issue() throws Exception {
         //System.out.println(1);
         Map<Object, Object> map = new HashMap();
         map.put(1, "1");
@@ -14,11 +15,9 @@ public class main {
         map.put(Boolean.valueOf("false"), "fa");
         map.put("false", "lse");
         String s = JSONObject.toJSONString(map);
-        System.out.println(s);
         JSONObject j = JSONObject.parseObject(s);
         j.put("3", null);
-        System.out.println(j.keySet());
-        System.out.println(j.containsValue(null));
+        assertEquals(5, j.size());
     }
 
 }

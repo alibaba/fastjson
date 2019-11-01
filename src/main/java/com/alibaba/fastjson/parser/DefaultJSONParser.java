@@ -290,6 +290,13 @@ public class DefaultJSONParser implements Closeable {
                     }
 
                     key = lexer.scanSymbolUnQuoted(symbolTable);
+                    if(key.equals("true")) {
+                        key = true;
+                    }
+                    if(key.equals("false")) {
+                        key = false;
+                    }
+
                     lexer.skipWhitespace();
                     ch = lexer.getCurrent();
                     if (ch != ':') {

@@ -168,7 +168,6 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         DefaultJSONParser parser = new DefaultJSONParser(text, config, features);
         Object value = parser.parse();
-        
         parser.handleResovleTask(value);
 
         parser.close();

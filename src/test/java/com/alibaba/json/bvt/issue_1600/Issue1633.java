@@ -15,6 +15,6 @@ public class Issue1633 extends TestCase {
     public void test_for_issue_bool() throws Exception {
         String text = "{false:\"abc\"}";
         JSONObject obj = JSON.parseObject(text, Feature.NonStringKeyAsString);
-        assertEquals("abc", obj.getString("false"));
+        assertEquals("abc", obj.get(false));
     }
 }

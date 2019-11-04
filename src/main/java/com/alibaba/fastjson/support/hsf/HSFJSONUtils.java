@@ -72,7 +72,7 @@ public class HSFJSONUtils {
 
                     parser.accept(JSONToken.RBRACE);
 
-                    parser.handleResovleTask(null);
+                    parser.handleResolveTask(null);
                 } else {
                     values = null;
                 }

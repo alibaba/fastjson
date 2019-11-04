@@ -1538,7 +1538,7 @@ public class DefaultJSONParser implements Closeable {
         return null;
     }
 
-    public void handleResovleTask(Object value) {
+    public void handleResolveTask(Object value) {
         if (resolveTaskList == null) {
             return;
         }

@@ -658,14 +658,21 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitLdcInsn(Feature.SortFeidFastMatch.mask);
         mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "isEnabled", "(I)Z");
 
-        mw.visitJumpInsn(IFEQ, super_);
+        Label continue_ = new Label();
+        mw.visitJumpInsn(IFNE, continue_);
+        mw.visitJumpInsn(GOTO_W, super_);
+        mw.visitLabel(continue_);
 
         mw.visitVarInsn(ALOAD, context.var("lexer"));
         mw.visitLdcInsn(context.clazz.getName());
         mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanType", "(Ljava/lang/String;)I");
 
         mw.visitLdcInsn(com.alibaba.fastjson.parser.JSONLexerBase.NOT_MATCH);
-        mw.visitJumpInsn(IF_ICMPEQ, super_);
+
+        Label continue_2 = new Label();
+        mw.visitJumpInsn(IF_ICMPNE, continue_2);
+        mw.visitJumpInsn(GOTO_W, super_);
+        mw.visitLabel(continue_2);
 
         mw.visitVarInsn(ALOAD, 1); // parser
         mw.visitMethodInsn(INVOKEVIRTUAL, DefaultJSONParser, "getContext", "()" + desc(ParseContext.class));

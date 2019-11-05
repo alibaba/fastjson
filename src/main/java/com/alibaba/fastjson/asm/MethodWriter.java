@@ -204,7 +204,8 @@ public class MethodWriter implements MethodVisitor {
              * needed).
              */
             code.putByte(opcode);
-            label.put(this, code, code.length - 1);
+            // Currently, GOTO_W is the only supported wide reference
+            label.put(this, code, code.length - 1, opcode == Opcodes.GOTO_W);
         }
     }
 

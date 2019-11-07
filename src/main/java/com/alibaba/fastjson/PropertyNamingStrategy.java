@@ -7,7 +7,8 @@ public enum PropertyNamingStrategy {
                                     CamelCase, //
                                     PascalCase, //
                                     SnakeCase, //
-                                    KebabCase;
+                                    KebabCase, //
+                                    No_Change;
 
     public String translate(String propertyName) {
         switch (this) {
@@ -63,6 +64,7 @@ public enum PropertyNamingStrategy {
 
                 return propertyName;
             }
+            case No_Change:
             default:
                 return propertyName;
         }

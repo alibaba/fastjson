@@ -1123,6 +1123,13 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         if ((fieldModifiers & Modifier.FINAL) != 0 || (fieldModifiers & Modifier.STATIC) != 0) {
                             continue;
                         }
+                        JSONField jsonField = TypeUtils.getAnnotation(field, JSONField.class);
+                        if (jsonField != null) {
+                            String alteredFieldName = field.getAnnotation(JSONField.class).name();
+                            if (!"".equals(alteredFieldName)) {
+                                fieldName = alteredFieldName;
+                            }
+                        }
                         extraFieldDeserializers.put(fieldName, field);
                     }
                 }

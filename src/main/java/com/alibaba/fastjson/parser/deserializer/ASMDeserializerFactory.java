@@ -117,6 +117,41 @@ public class ASMDeserializerFactory implements Opcodes {
 
         defineVarLexer(context, mw);
 
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitVarInsn(ALOAD, 1);
+        mw.visitMethodInsn(INVOKEVIRTUAL, DefaultJSONParser, "getSymbolTable", "()" + desc(SymbolTable.class));
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanTypeName", "(" + desc(SymbolTable.class) + ")Ljava/lang/String;");
+        mw.visitVarInsn(ASTORE, context.var("typeName"));
+
+        Label typeNameNotNull_ = new Label();
+        mw.visitVarInsn(ALOAD, context.var("typeName"));
+        mw.visitJumpInsn(IFNULL, typeNameNotNull_);
+
+        mw.visitVarInsn(ALOAD, 1);
+        mw.visitMethodInsn(INVOKEVIRTUAL, DefaultJSONParser, "getConfig", "()" + desc(ParserConfig.class));
+        mw.visitVarInsn(ALOAD, 0);
+        mw.visitFieldInsn(GETFIELD, type(JavaBeanDeserializer.class), "beanInfo", desc(JavaBeanInfo.class));
+        mw.visitVarInsn(ALOAD, context.var("typeName"));
+        mw.visitMethodInsn(INVOKESTATIC, type(JavaBeanDeserializer.class), "getSeeAlso"
+                , "(" + desc(ParserConfig.class) + desc(JavaBeanInfo.class) + "Ljava/lang/String;)" + desc(JavaBeanDeserializer.class));
+        mw.visitVarInsn(ASTORE, context.var("userTypeDeser"));
+        mw.visitVarInsn(ALOAD, context.var("userTypeDeser"));
+        mw.visitTypeInsn(INSTANCEOF, type(JavaBeanDeserializer.class));
+        mw.visitJumpInsn(IFEQ, typeNameNotNull_);
+
+        mw.visitVarInsn(ALOAD, context.var("userTypeDeser"));
+        mw.visitVarInsn(ALOAD, Context.parser);
+        mw.visitVarInsn(ALOAD, 2);
+        mw.visitVarInsn(ALOAD, 3);
+        mw.visitVarInsn(ALOAD, 4);
+        mw.visitMethodInsn(INVOKEVIRTUAL, //
+                type(JavaBeanDeserializer.class), //
+                "deserialzeArrayMapping", //
+                "(L" + DefaultJSONParser + ";Ljava/lang/reflect/Type;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+        mw.visitInsn(ARETURN);
+
+        mw.visitLabel(typeNameNotNull_);
+
         _createInstance(context, mw);
 
         FieldInfo[] sortedFieldInfoList = context.beanInfo.sortedFields;
@@ -623,14 +658,21 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitLdcInsn(Feature.SortFeidFastMatch.mask);
         mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "isEnabled", "(I)Z");
 
-        mw.visitJumpInsn(IFEQ, super_);
+        Label continue_ = new Label();
+        mw.visitJumpInsn(IFNE, continue_);
+        mw.visitJumpInsn(GOTO_W, super_);
+        mw.visitLabel(continue_);
 
         mw.visitVarInsn(ALOAD, context.var("lexer"));
         mw.visitLdcInsn(context.clazz.getName());
         mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanType", "(Ljava/lang/String;)I");
 
         mw.visitLdcInsn(com.alibaba.fastjson.parser.JSONLexerBase.NOT_MATCH);
-        mw.visitJumpInsn(IF_ICMPEQ, super_);
+
+        Label continue_2 = new Label();
+        mw.visitJumpInsn(IF_ICMPNE, continue_2);
+        mw.visitJumpInsn(GOTO_W, super_);
+        mw.visitLabel(continue_2);
 
         mw.visitVarInsn(ALOAD, 1); // parser
         mw.visitMethodInsn(INVOKEVIRTUAL, DefaultJSONParser, "getContext", "()" + desc(ParseContext.class));

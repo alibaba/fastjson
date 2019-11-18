@@ -53,11 +53,14 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
 public class TypeUtils{
+    private static final Pattern NUMBER_WITH_TRAILING_ZEROS_PATTERN = Pattern.compile("\\.0*$");
 
     public static boolean compatibleWithJavaBean = false;
     /** 根据field name的大小写输出输入数据 */
@@ -133,7 +136,7 @@ public class TypeUtils{
             return false;
         }
 
-        Annotation annotation = clazz.getAnnotation(class_XmlAccessorType);
+        Annotation annotation = TypeUtils.getAnnotation(clazz, class_XmlAccessorType);
         if (annotation == null) {
             return false;
         }
@@ -189,7 +192,7 @@ public class TypeUtils{
             return null;
         }
 
-        return  clazz.getAnnotation(class_XmlAccessorType);
+        return  TypeUtils.getAnnotation(clazz, class_XmlAccessorType);
     }
 
 //
@@ -365,7 +368,7 @@ public class TypeUtils{
                     || "NULL".equals(strVal)){
                 return null;
             }
-            if(strVal.indexOf(',') != 0){
+            if(strVal.indexOf(',') != -1){
                 strVal = strVal.replaceAll(",", "");
             }
             return Float.parseFloat(strVal);
@@ -387,7 +390,7 @@ public class TypeUtils{
                     || "NULL".equals(strVal)){
                 return null;
             }
-            if(strVal.indexOf(',') != 0){
+            if(strVal.indexOf(',') != -1){
                 strVal = strVal.replaceAll(",", "");
             }
             return Double.parseDouble(strVal);
@@ -421,6 +424,9 @@ public class TypeUtils{
 
         if(value instanceof Number){
             longValue = ((Number) value).longValue();
+            if ("unixtime".equals(format)) {
+                longValue *= 1000;
+            }
             return new Date(longValue);
         }
 
@@ -453,6 +459,8 @@ public class TypeUtils{
                             && strVal.charAt(26) == ':'
                             && strVal.charAt(28) == '0') {
                         format = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
+                    } else if (strVal.length() == 23 && strVal.charAt(19) == ',') {
+                        format = "yyyy-MM-dd HH:mm:ss,SSS";
                     } else {
                         format = "yyyy-MM-dd HH:mm:ss.SSS";
                     }
@@ -696,7 +704,7 @@ public class TypeUtils{
                     || "NULL".equals(strVal)){
                 return null;
             }
-            if(strVal.indexOf(',') != 0){
+            if(strVal.indexOf(',') != -1){
                 strVal = strVal.replaceAll(",", "");
             }
             try{
@@ -806,14 +814,19 @@ public class TypeUtils{
                     || "NULL".equals(strVal)){
                 return null;
             }
-            if(strVal.indexOf(',') != 0){
+            if(strVal.indexOf(',') != -1){
                 strVal = strVal.replaceAll(",", "");
+            }
+            
+            Matcher matcher = NUMBER_WITH_TRAILING_ZEROS_PATTERN.matcher(strVal);
+            if(matcher.find()) {
+                strVal = matcher.replaceAll("");
             }
             return Integer.parseInt(strVal);
         }
 
         if(value instanceof Boolean){
-            return ((Boolean) value).booleanValue() ? 1 : 0;
+            return (Boolean) value ? 1 : 0;
         }
         if(value instanceof Map){
             Map map = (Map) value;
@@ -836,7 +849,7 @@ public class TypeUtils{
         if(value instanceof String){
             return IOUtils.decodeBase64((String) value);
         }
-        throw new JSONException("can not cast to int, value : " + value);
+        throw new JSONException("can not cast to byte[], value : " + value);
     }
 
     public static Boolean castToBoolean(Object value){
@@ -1009,7 +1022,7 @@ public class TypeUtils{
         }
 
         if(clazz.isEnum()){
-            return (T) castToEnum(obj, clazz, config);
+            return castToEnum(obj, clazz, config);
         }
 
         if(Calendar.class.isAssignableFrom(clazz)){
@@ -1058,7 +1071,7 @@ public class TypeUtils{
             }
         }
 
-        final ObjectDeserializer objectDeserializer = config.getDeserializers().get(clazz);
+        final ObjectDeserializer objectDeserializer = config.get(clazz);
         if (objectDeserializer != null) {
             String str = JSON.toJSONString(obj);
             return JSON.parseObject(str, clazz);
@@ -1090,9 +1103,9 @@ public class TypeUtils{
                     mapping = ParserConfig.getGlobalInstance();
                 }
 
-                ObjectDeserializer derializer = mapping.getDeserializer(clazz);
-                if (derializer instanceof EnumDeserializer) {
-                    EnumDeserializer enumDeserializer = (EnumDeserializer) derializer;
+                ObjectDeserializer deserializer = mapping.getDeserializer(clazz);
+                if (deserializer instanceof EnumDeserializer) {
+                    EnumDeserializer enumDeserializer = (EnumDeserializer) deserializer;
                     return (T) enumDeserializer.getEnumByHashCode(TypeUtils.fnv1a_64(name));
                 }
 
@@ -1126,7 +1139,7 @@ public class TypeUtils{
             return null;
         }
         if(type instanceof Class){
-            return (T) cast(obj, (Class<T>) type, mapping);
+            return cast(obj, (Class<T>) type, mapping);
         }
         if(type instanceof ParameterizedType){
             return (T) cast(obj, (ParameterizedType) type, mapping);
@@ -1305,10 +1318,10 @@ public class TypeUtils{
                 if(config == null){
                     config = ParserConfig.getGlobalInstance();
                 }
-                ObjectDeserializer deserializer = config.getDeserializers().get(clazz);
+                ObjectDeserializer deserializer = config.get(clazz);
                 if(deserializer != null){
                     String json = JSON.toJSONString(object);
-                    return (T) JSON.parseObject(json, clazz);
+                    return JSON.parseObject(json, clazz);
                 }
                 return (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
                         new Class<?>[]{clazz}, object);
@@ -1332,6 +1345,10 @@ public class TypeUtils{
                 return (T) map.toString();
             }
 
+            if (clazz == JSON.class && map instanceof JSONObject) {
+                return (T) map;
+            }
+
             if (clazz == LinkedHashMap.class && map instanceof JSONObject) {
                 JSONObject jsonObject = (JSONObject) map;
                 Map innerMap = jsonObject.getInnerMap();
@@ -1343,14 +1360,22 @@ public class TypeUtils{
                 }
             }
 
+            if (clazz.isInstance(map)) {
+                return (T) map;
+            }
+
+            if (clazz == JSONObject.class) {
+                return (T) new JSONObject(map);
+            }
+
             if (config == null) {
                 config = ParserConfig.getGlobalInstance();
             }
 
             JavaBeanDeserializer javaBeanDeser = null;
-            ObjectDeserializer deserizer = config.getDeserializer(clazz);
-            if (deserizer instanceof JavaBeanDeserializer) {
-                javaBeanDeser = (JavaBeanDeserializer) deserizer;
+            ObjectDeserializer deserializer = config.getDeserializer(clazz);
+            if (deserializer instanceof JavaBeanDeserializer) {
+                javaBeanDeser = (JavaBeanDeserializer) deserializer;
             }
 
             if(javaBeanDeser == null){
@@ -1432,8 +1457,6 @@ public class TypeUtils{
                 java.util.ArrayList.class,
                 java.util.concurrent.TimeUnit.class,
                 java.util.concurrent.ConcurrentHashMap.class,
-                loadClass("java.util.concurrent.ConcurrentSkipListMap"),
-                loadClass("java.util.concurrent.ConcurrentSkipListSet"),
                 java.util.concurrent.atomic.AtomicInteger.class,
                 java.util.concurrent.atomic.AtomicLong.class,
                 java.util.Collections.EMPTY_MAP.getClass(),
@@ -1463,56 +1486,6 @@ public class TypeUtils{
                 com.alibaba.fastjson.JSONArray.class,
         };
         for(Class clazz : classes){
-            if(clazz == null){
-                continue;
-            }
-            mappings.put(clazz.getName(), clazz);
-        }
-
-        String[] w = new String[]{
-                "java.util.Collections$UnmodifiableMap"
-        };
-        for(String className : w){
-            Class<?> clazz = loadClass(className);
-            if(clazz == null){
-                break;
-            }
-            mappings.put(clazz.getName(), clazz);
-        }
-
-        String[] awt = new String[]{
-                "java.awt.Rectangle",
-                "java.awt.Point",
-                "java.awt.Font",
-                "java.awt.Color"};
-        for(String className : awt){
-            Class<?> clazz = loadClass(className);
-            if(clazz == null){
-                break;
-            }
-            mappings.put(clazz.getName(), clazz);
-        }
-
-        String[] spring = new String[]{
-                "org.springframework.util.LinkedMultiValueMap",
-                "org.springframework.util.LinkedCaseInsensitiveMap",
-                "org.springframework.remoting.support.RemoteInvocation",
-                "org.springframework.remoting.support.RemoteInvocationResult",
-                "org.springframework.security.web.savedrequest.DefaultSavedRequest",
-                "org.springframework.security.web.savedrequest.SavedCookie",
-                "org.springframework.security.web.csrf.DefaultCsrfToken",
-                "org.springframework.security.web.authentication.WebAuthenticationDetails",
-                "org.springframework.security.core.context.SecurityContextImpl",
-                "org.springframework.security.authentication.UsernamePasswordAuthenticationToken",
-                "org.springframework.security.core.authority.SimpleGrantedAuthority",
-                "org.springframework.security.core.userdetails.User",
-                "org.springframework.security.oauth2.common.DefaultExpiringOAuth2RefreshToken",
-                "org.springframework.security.oauth2.common.DefaultOAuth2AccessToken",
-                "org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken",
-                "org.springframework.cache.support.NullValue",
-        };
-        for(String className : spring){
-            Class<?> clazz = loadClass(className);
             if(clazz == null){
                 continue;
             }
@@ -1767,7 +1740,7 @@ public class TypeUtils{
              *  如果在属性或者方法上存在JSONField注解，并且定制了name属性，不以类上的propertyNamingStrategy设置为准，以此字段的JSONField的name定制为准。
              */
             Boolean fieldAnnotationAndNameExists = false;
-            JSONField annotation = method.getAnnotation(JSONField.class);
+            JSONField annotation = TypeUtils.getAnnotation(method, JSONField.class);
             if(annotation == null){
                 annotation = getSuperMethodAnnotation(clazz, method);
             }
@@ -1776,7 +1749,7 @@ public class TypeUtils{
                     constructors = clazz.getDeclaredConstructors();
                     Constructor creatorConstructor = TypeUtils.getKoltinConstructor(constructors);
                     if(creatorConstructor != null){
-                        paramAnnotationArrays = creatorConstructor.getParameterAnnotations();
+                        paramAnnotationArrays = TypeUtils.getParameterAnnotations(creatorConstructor);
                         paramNames = TypeUtils.getKoltinConstructorParameters(clazz);
                         if(paramNames != null){
                             String[] paramNames_sorted = new String[paramNames.length];
@@ -1817,7 +1790,7 @@ public class TypeUtils{
                         if(annotation == null){
                             Field field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
                             if(field != null){
-                                annotation = field.getAnnotation(JSONField.class);
+                                annotation = TypeUtils.getAnnotation(field, JSONField.class);
                             }
                         }
                     }
@@ -1859,6 +1832,7 @@ public class TypeUtils{
                 }
                 char c3 = methodName.charAt(3);
                 String propertyName;
+                Field field = null;
                 if(Character.isUpperCase(c3) //
                         || c3 > 512 // for unicode method name
                         ){
@@ -1870,19 +1844,36 @@ public class TypeUtils{
                     propertyName = getPropertyNameByCompatibleFieldName(fieldCacheMap, methodName, propertyName, 3);
                 } else if(c3 == '_'){
                     propertyName = methodName.substring(4);
+                    field = fieldCacheMap.get(propertyName);
+                    if (field == null) {
+                        String temp = propertyName;
+                        propertyName = methodName.substring(3);
+                        field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
+                        if (field == null) {
+                            propertyName = temp; //减少修改代码带来的影响
+                        }
+                    }
                 } else if(c3 == 'f'){
                     propertyName = methodName.substring(3);
                 } else if(methodName.length() >= 5 && Character.isUpperCase(methodName.charAt(4))){
                     propertyName = decapitalize(methodName.substring(3));
                 } else{
-                    continue;
+                    propertyName = methodName.substring(3);
+                    field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
+                    if (field == null) {
+                        continue;
+                    }
                 }
                 boolean ignore = isJSONTypeIgnore(clazz, propertyName);
                 if(ignore){
                     continue;
                 }
-                //假如bean的field很多的情况一下，轮询时将大大降低效率
-                Field field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
+
+                if (field == null) {
+                    // 假如bean的field很多的情况一下，轮询时将大大降低效率
+                    field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
+                }
+                
                 if(field == null && propertyName.length() > 1){
                     char ch = propertyName.charAt(1);
                     if(ch >= 'A' && ch <= 'Z'){
@@ -1892,7 +1883,7 @@ public class TypeUtils{
                 }
                 JSONField fieldAnnotation = null;
                 if(field != null){
-                    fieldAnnotation = field.getAnnotation(JSONField.class);
+                    fieldAnnotation = TypeUtils.getAnnotation(field, JSONField.class);
                     if(fieldAnnotation != null){
                         if(!fieldAnnotation.serialize()){
                             continue;
@@ -1938,6 +1929,7 @@ public class TypeUtils{
                 }
                 char c2 = methodName.charAt(2);
                 String propertyName;
+                Field field = null;
                 if(Character.isUpperCase(c2)){
                     if(compatibleWithJavaBean){
                         propertyName = decapitalize(methodName.substring(2));
@@ -1947,22 +1939,39 @@ public class TypeUtils{
                     propertyName = getPropertyNameByCompatibleFieldName(fieldCacheMap, methodName, propertyName, 2);
                 } else if(c2 == '_'){
                     propertyName = methodName.substring(3);
+                    field = fieldCacheMap.get(propertyName);
+                    if (field == null) {
+                        String temp = propertyName;
+                        propertyName = methodName.substring(2);
+                        field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
+                        if (field == null) {
+                            propertyName = temp;
+                        }
+                    }
                 } else if(c2 == 'f'){
                     propertyName = methodName.substring(2);
                 } else{
-                    continue;
+                    propertyName = methodName.substring(2);
+                    field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
+                    if (field == null) {
+                        continue;
+                    }
                 }
                 boolean ignore = isJSONTypeIgnore(clazz, propertyName);
                 if(ignore){
                     continue;
                 }
-                Field field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
+                
+                if(field == null) {
+                    field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
+                }
+                
                 if(field == null){
                     field = ParserConfig.getFieldFromCache(methodName, fieldCacheMap);
                 }
                 JSONField fieldAnnotation = null;
                 if(field != null){
-                    fieldAnnotation = field.getAnnotation(JSONField.class);
+                    fieldAnnotation = TypeUtils.getAnnotation(field, JSONField.class);
                     if(fieldAnnotation != null){
                         if(!fieldAnnotation.serialize()){
                             continue;
@@ -2051,7 +2060,7 @@ public class TypeUtils{
             if(Modifier.isStatic(field.getModifiers())){
                 continue;
             }
-            JSONField fieldAnnotation = field.getAnnotation(JSONField.class);
+            JSONField fieldAnnotation = TypeUtils.getAnnotation(field, JSONField.class);
             int ordinal = 0, serialzeFeatures = 0, parserFeatures = 0;
             String propertyName = field.getName();
             String label = null;
@@ -2120,7 +2129,7 @@ public class TypeUtils{
                     if(!match){
                         continue;
                     }
-                    JSONField annotation = interfaceMethod.getAnnotation(JSONField.class);
+                    JSONField annotation = TypeUtils.getAnnotation(interfaceMethod, JSONField.class);
                     if(annotation != null){
                         return annotation;
                     }
@@ -2151,7 +2160,7 @@ public class TypeUtils{
                 if(!match){
                     continue;
                 }
-                JSONField annotation = interfaceMethod.getAnnotation(JSONField.class);
+                JSONField annotation = TypeUtils.getAnnotation(interfaceMethod, JSONField.class);
                 if(annotation != null){
                     return annotation;
                 }
@@ -2184,9 +2193,7 @@ public class TypeUtils{
             }
         }
         if(clazz.getSuperclass() != Object.class && clazz.getSuperclass() != null){
-            if(isJSONTypeIgnore(clazz.getSuperclass(), propertyName)){
-                return true;
-            }
+            return isJSONTypeIgnore(clazz.getSuperclass(), propertyName);
         }
         return false;
     }
@@ -2306,7 +2313,7 @@ public class TypeUtils{
         if(name.length() > 1 && Character.isUpperCase(name.charAt(1)) && Character.isUpperCase(name.charAt(0))){
             return name;
         }
-        char chars[] = name.toCharArray();
+        char[] chars = name.toCharArray();
         chars[0] = Character.toLowerCase(chars[0]);
         return new String(chars);
     }
@@ -2554,7 +2561,7 @@ public class TypeUtils{
             }
         }
         if(transientClass != null){
-            Annotation annotation = method.getAnnotation(transientClass);
+            Annotation annotation = TypeUtils.getAnnotation(method, transientClass);
             return annotation != null;
         }
         return false;
@@ -2900,21 +2907,196 @@ public class TypeUtils{
         return ignores != null && Arrays.binarySearch(ignores, methodName) >= 0;
     }
 
-    public static <A extends Annotation> A getAnnotation(Class<?> clazz, Class<A> annotationClass){
-        A a = clazz.getAnnotation(annotationClass);
-        if (a != null){
-            return a;
+    public static <A extends Annotation> A getAnnotation(Class<?> targetClass, Class<A> annotationClass){
+        A targetAnnotation = targetClass.getAnnotation(annotationClass);
+
+        Class<?> mixInClass = null;
+        Type type = JSON.getMixInAnnotations(targetClass);
+        if (type instanceof Class<?>) {
+            mixInClass = (Class<?>) type;
         }
 
-        if(clazz.getAnnotations().length > 0){
-            for(Annotation annotation : clazz.getAnnotations()){
-                a = annotation.annotationType().getAnnotation(annotationClass);
-                if(a != null){
-                    return a;
+        if(mixInClass != null) {
+            A mixInAnnotation = mixInClass.getAnnotation(annotationClass);
+            if(mixInAnnotation == null && mixInClass.getAnnotations().length > 0){
+                for(Annotation annotation : mixInClass.getAnnotations()){
+                    mixInAnnotation = annotation.annotationType().getAnnotation(annotationClass);
+                    if(mixInAnnotation != null){
+                        break;
+                    }
+                }
+            }
+            if (mixInAnnotation != null) {
+                return mixInAnnotation;
+            }
+        }
+
+        if(targetAnnotation == null && targetClass.getAnnotations().length > 0){
+            for(Annotation annotation : targetClass.getAnnotations()){
+                targetAnnotation = annotation.annotationType().getAnnotation(annotationClass);
+                if(targetAnnotation != null){
+                    break;
                 }
             }
         }
-        return null;
+        return targetAnnotation;
+    }
+
+    public static <A extends Annotation> A getAnnotation(Field field, Class<A> annotationClass){
+        A targetAnnotation = field.getAnnotation(annotationClass);
+
+        Class<?> clazz = field.getDeclaringClass();
+        A mixInAnnotation;
+        Class<?> mixInClass = null;
+        Type type = JSON.getMixInAnnotations(clazz);
+        if (type instanceof Class<?>) {
+            mixInClass = (Class<?>) type;
+        }
+
+        if (mixInClass != null) {
+            Field mixInField = null;
+            String fieldName = field.getName();
+            // 递归从MixIn类的父类中查找注解（如果有父类的话）
+            for (Class<?> currClass = mixInClass; currClass != null && currClass != Object.class;
+                 currClass = currClass.getSuperclass()) {
+                try {
+                    mixInField = currClass.getDeclaredField(fieldName);
+                    break;
+                } catch (NoSuchFieldException e) {
+                    // skip
+                }
+            }
+            if (mixInField == null) {
+                return targetAnnotation;
+            }
+            mixInAnnotation = mixInField.getAnnotation(annotationClass);
+            if (mixInAnnotation != null) {
+                return mixInAnnotation;
+            }
+        }
+        return targetAnnotation;
+    }
+
+    public static <A extends Annotation> A getAnnotation(Method method, Class<A> annotationClass){
+        A targetAnnotation = method.getAnnotation(annotationClass);
+
+        Class<?> clazz = method.getDeclaringClass();
+        A mixInAnnotation;
+        Class<?> mixInClass = null;
+        Type type = JSON.getMixInAnnotations(clazz);
+        if (type instanceof Class<?>) {
+            mixInClass = (Class<?>) type;
+        }
+
+        if (mixInClass != null) {
+            Method mixInMethod = null;
+            String methodName = method.getName();
+            Class<?>[] parameterTypes = method.getParameterTypes();
+            // 递归从MixIn类的父类中查找注解（如果有父类的话）
+            for (Class<?> currClass = mixInClass; currClass != null && currClass != Object.class;
+                 currClass = currClass.getSuperclass()) {
+                try {
+                    mixInMethod = currClass.getDeclaredMethod(methodName, parameterTypes);
+                    break;
+                } catch (NoSuchMethodException e) {
+                    // skip
+                }
+            }
+            if (mixInMethod == null) {
+                return targetAnnotation;
+            }
+            mixInAnnotation = mixInMethod.getAnnotation(annotationClass);
+            if (mixInAnnotation != null) {
+                return mixInAnnotation;
+            }
+        }
+        return targetAnnotation;
+    }
+
+    public static Annotation[][] getParameterAnnotations(Method method){
+        Annotation[][] targetAnnotations = method.getParameterAnnotations();
+
+        Class<?> clazz = method.getDeclaringClass();
+        Annotation[][] mixInAnnotations;
+        Class<?> mixInClass = null;
+        Type type = JSON.getMixInAnnotations(clazz);
+        if (type instanceof Class<?>) {
+            mixInClass = (Class<?>) type;
+        }
+
+        if (mixInClass != null) {
+            Method mixInMethod = null;
+            String methodName = method.getName();
+            Class<?>[] parameterTypes = method.getParameterTypes();
+            // 递归从MixIn类的父类中查找注解（如果有父类的话）
+            for (Class<?> currClass = mixInClass; currClass != null && currClass != Object.class;
+                 currClass = currClass.getSuperclass()) {
+                try {
+                    mixInMethod = currClass.getDeclaredMethod(methodName, parameterTypes);
+                    break;
+                } catch (NoSuchMethodException e) {
+                    continue;
+                }
+            }
+            if (mixInMethod == null) {
+                return targetAnnotations;
+            }
+            mixInAnnotations = mixInMethod.getParameterAnnotations();
+            if (mixInAnnotations != null) {
+                return mixInAnnotations;
+            }
+        }
+        return targetAnnotations;
+    }
+
+    public static Annotation[][] getParameterAnnotations(Constructor constructor){
+        Annotation[][] targetAnnotations = constructor.getParameterAnnotations();
+
+        Class<?> clazz = constructor.getDeclaringClass();
+        Annotation[][] mixInAnnotations;
+        Class<?> mixInClass = null;
+        Type type = JSON.getMixInAnnotations(clazz);
+        if (type instanceof Class<?>) {
+            mixInClass = (Class<?>) type;
+        }
+
+        if (mixInClass != null) {
+            Constructor mixInConstructor = null;
+            Class<?>[] parameterTypes = constructor.getParameterTypes();
+            // 构建参数列表，因为内部类的构造函数需要传入外部类的引用
+            List<Class<?>> enclosingClasses = new ArrayList<Class<?>>(2);
+            for (Class<?> enclosingClass = mixInClass.getEnclosingClass(); enclosingClass != null; enclosingClass = enclosingClass.getEnclosingClass()) {
+                enclosingClasses.add(enclosingClass);
+            }
+            int level = enclosingClasses.size();
+            // 递归从MixIn类的父类中查找注解（如果有父类的话）
+            for (Class<?> currClass = mixInClass; currClass != null && currClass != Object.class;
+                 currClass = currClass.getSuperclass()) {
+                try {
+                    if (level != 0) {
+                        Class<?>[] outerClassAndParameterTypes = new Class[level + parameterTypes.length];
+                        System.arraycopy(parameterTypes, 0, outerClassAndParameterTypes, level, parameterTypes.length);
+                        for (int i = level; i > 0 ; i--) {
+                            outerClassAndParameterTypes[i - 1] = enclosingClasses.get(i - 1);
+                        }
+                        mixInConstructor = mixInClass.getDeclaredConstructor(outerClassAndParameterTypes);
+                    } else {
+                        mixInConstructor = mixInClass.getDeclaredConstructor(parameterTypes);
+                    }
+                    break;
+                } catch (NoSuchMethodException e) {
+                    level--;
+                }
+            }
+            if (mixInConstructor == null) {
+                return targetAnnotations;
+            }
+            mixInAnnotations = mixInConstructor.getParameterAnnotations();
+            if (mixInAnnotations != null) {
+                return mixInAnnotations;
+            }
+        }
+        return targetAnnotations;
     }
 
     public static boolean isJacksonCreator(Method method) {

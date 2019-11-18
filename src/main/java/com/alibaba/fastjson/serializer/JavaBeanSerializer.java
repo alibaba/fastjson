@@ -237,7 +237,6 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
             char seperator = commaFlag ? ',' : '\0';
 
             final boolean writeClassName = out.isEnabled(SerializerFeature.WriteClassName);
-            final boolean directWritePrefix = out.quoteFieldNames && !out.useSingleQuotes;
             char newSeperator = this.writeBefore(serializer, object, seperator);
             commaFlag = newSeperator == ',';
 
@@ -252,8 +251,11 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 String fieldInfoName = fieldInfo.name;
                 Class<?> fieldClass = fieldInfo.fieldClass;
 
+                final boolean fieldUseSingleQuotes = SerializerFeature.isEnabled(out.features, fieldInfo.serialzeFeatures, SerializerFeature.UseSingleQuotes);
+                final boolean directWritePrefix = out.quoteFieldNames && !fieldUseSingleQuotes;
+
                 if (skipTransient) {
-                    if (field != null) {
+                    if (fieldInfo != null) {
                         if (fieldInfo.fieldTransient) {
                             continue;
                         }
@@ -314,15 +316,18 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
 
                 Object originalValue = propertyValue;
                 propertyValue = this.processValue(serializer, fieldSerializer.fieldContext, object, fieldInfoName,
-                                                        propertyValue);
+                                                        propertyValue, features);
 
                 if (propertyValue == null) {
                     int serialzeFeatures = fieldInfo.serialzeFeatures;
+                    JSONField jsonField = fieldInfo.getAnnotation();
                     if (beanInfo.jsonType != null) {
                         serialzeFeatures |= SerializerFeature.of(beanInfo.jsonType.serialzeFeatures());
                     }
                     // beanInfo.jsonType
-                    if (fieldClass == Boolean.class) {
+                    if (jsonField != null && !"".equals(jsonField.defaultValue())) {
+                        propertyValue = jsonField.defaultValue();
+                    } else if (fieldClass == Boolean.class) {
                         int defaultMask = SerializerFeature.WriteNullBooleanAsFalse.mask;
                         final int mask = defaultMask | SerializerFeature.WriteMapNullValue.mask;
                         if ((!writeAsArray) && (serialzeFeatures & mask) == 0 && (out.features & mask) == 0) {
@@ -415,7 +420,9 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     serializer.write(propertyValue);
                 } else {
                     if (!writeAsArray) {
-                        if (writeClassName || !fieldInfo.unwrapped) {
+                        boolean isMap = Map.class.isAssignableFrom(fieldClass);
+                        boolean isJavaBean = !fieldClass.isPrimitive() && !fieldClass.getName().startsWith("java.") || fieldClass == Object.class;
+                        if (writeClassName || !fieldInfo.unwrapped || !(isMap || isJavaBean)) {
                             if (directWritePrefix) {
                                 out.write(fieldInfo.name_chars, 0, fieldInfo.name_chars.length);
                             } else {
@@ -437,7 +444,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                             } else {
                                 String propertyValueString = (String) propertyValue;
 
-                                if (out.useSingleQuotes) {
+                                if (fieldUseSingleQuotes) {
                                     out.writeStringWithSingleQuote(propertyValueString);
                                 } else {
                                     out.writeStringWithDoubleQuote(propertyValueString, (char) 0);
@@ -758,11 +765,30 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
 
     public Map<String, Object> getFieldValuesMap(Object object) throws Exception {
         Map<String, Object> map = new LinkedHashMap<String, Object>(sortedGetters.length);
-        
+        boolean skipTransient = true;
+        FieldInfo fieldInfo = null;
+
         for (FieldSerializer getter : sortedGetters) {
-            map.put(getter.fieldInfo.name, getter.getPropertyValue(object));
+            skipTransient = SerializerFeature.isEnabled(getter.features, SerializerFeature.SkipTransientField);
+            fieldInfo = getter.fieldInfo;
+
+            if (skipTransient && fieldInfo != null && fieldInfo.fieldTransient) {
+                continue;
+            }
+
+            if (getter.fieldInfo.unwrapped) {
+                Object unwrappedValue = getter.getPropertyValue(object);
+                Object map1 = JSON.toJSON(unwrappedValue);
+                if (map1 instanceof Map) {
+                    map.putAll((Map) map1);
+                } else {
+                    map.put(getter.fieldInfo.name, getter.getPropertyValue(object));
+                }
+            } else {
+                map.put(getter.fieldInfo.name, getter.getPropertyValue(object));
+            }
         }
-        
+
         return map;
     }
 

@@ -55,7 +55,9 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
             long millis = ((java.sql.Date) object).getTime();
             TimeZone timeZone = serializer.timeZone;
             int offset = timeZone.getOffset(millis);
-            if (offset == 0 || millis % offset == 0) {
+            //
+            if ((millis + offset) % (24 * 1000 * 3600) == 0
+                    && !SerializerFeature.isEnabled(out.features, features, SerializerFeature.WriteClassName)) {
                 out.writeString(object.toString());
                 return;
             }
@@ -63,6 +65,18 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
 
         if (clazz == java.sql.Time.class) {
             long millis = ((java.sql.Time) object).getTime();
+            if ("unixtime".equals(serializer.getDateFormatPattern())) {
+                long seconds = millis / 1000;
+                out.writeLong(seconds);
+                return;
+            }
+
+            if ("millis".equals(serializer.getDateFormatPattern())) {
+                long seconds = millis;
+                out.writeLong(millis);
+                return;
+            }
+
             if (millis < 24L * 60L * 60L * 1000L) {
                 out.writeString(object.toString());
                 return;
@@ -75,7 +89,19 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
         } else {
             date = TypeUtils.castToDate(object);
         }
-        
+
+        if ("unixtime".equals(serializer.getDateFormatPattern())) {
+            long seconds = date.getTime() / 1000;
+            out.writeLong(seconds);
+            return;
+        }
+
+        if ("millis".equals(serializer.getDateFormatPattern())) {
+            long millis = date.getTime();
+            out.writeLong(millis);
+            return;
+        }
+
         if (out.isEnabled(SerializerFeature.WriteDateUseDateFormat)) {
             DateFormat format = serializer.getDateFormat();
             if (format == null) {

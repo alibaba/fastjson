@@ -124,7 +124,12 @@ public final class JSONScanner extends JSONLexerBase {
             return bytes;
         }
 
-        return IOUtils.decodeBase64(text, np + 1, sp);
+        if (!hasSpecial) {
+            return IOUtils.decodeBase64(text, np + 1, sp);
+        } else {
+            String escapedText = new String(sbuf, 0, sp);
+            return IOUtils.decodeBase64(escapedText);
+        }
     }
 
     /**
@@ -608,14 +613,32 @@ public final class JSONScanner extends JSONLexerBase {
             char t3 = '0', t4 = '0';
             if (t2 == ':') { // ThreeLetterISO8601TimeZone
                 t3 = charAt(bp + date_len + 10 + millisLen + 4);
-                if (t3 != '0' && t3 != '3') {
-                    return false;
+                t4 = charAt(bp + date_len + 10 + millisLen + 5);
+
+                if(t3 == '4' && t4 == '5') {
+                    // handle some special timezones like xx:45
+
+                    if (t0 == '1' && t1 == '2') {
+                        // NZ-CHAT          => +12:45
+                        // Pacific/Chatham  => +12:45
+                    } else if (t0 == '0' && (t1 == '5' || t1 == '8')) {
+                        // Asia/Kathmandu   => +05:45
+                        // Asia/Katmandu    => +05:45
+                        // Australia/Eucla  => +08:45
+                    } else {
+                        return false;
+                    }
+                } else {
+                    //handle normal timezone like xx:00 and xx:30
+                    if (t3 != '0' && t3 != '3') {
+                        return false;
+                    }
+
+                    if (t4 != '0') {
+                        return false;
+                    }
                 }
 
-                t4 = charAt(bp + date_len + 10 + millisLen + 5);
-                if (t4 != '0') {
-                    return false;
-                }
                 timzeZoneLength = 6;
             } else if (t2 == '0') { // TwoLetterISO8601TimeZone
                 t3 = charAt(bp + date_len + 10 + millisLen + 4);
@@ -791,7 +814,7 @@ public final class JSONScanner extends JSONLexerBase {
 
     @Override
     public boolean isEOF() {
-        return bp == len || ch == EOI && bp + 1 == len;
+        return bp == len || (ch == EOI && bp + 1 >= len);
     }
 
     public int scanFieldInt(char[] fieldName) {
@@ -2967,5 +2990,28 @@ public final class JSONScanner extends JSONLexerBase {
                 throw new UnsupportedOperationException();
             }
         }
+    }
+
+    public String scanTypeName(SymbolTable symbolTable) {
+        if (text.startsWith("\"@type\":\"", bp)) {
+            int p = text.indexOf('"', bp + 9);
+            if (p != -1) {
+                bp += 9;
+                int h = 0;
+                for (int i = bp; i < p; i++) {
+                    h = 31 * h + text.charAt(i);
+                }
+                String typeName = addSymbol(bp, p - bp, h, symbolTable);
+                char separator = text.charAt(p + 1);
+                if (separator != ',' && separator != ']') {
+                    return null;
+                }
+                bp = p + 2;
+                ch = text.charAt(bp);
+                return typeName;
+            }
+        }
+
+        return null;
     }
 }

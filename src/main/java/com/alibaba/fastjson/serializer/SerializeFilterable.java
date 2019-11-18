@@ -193,15 +193,24 @@ public abstract class SerializeFilterable {
 
         return key;
     }
+
+    protected Object processValue(JSONSerializer jsonBeanDeser, //
+            BeanContext beanContext,
+            Object object, //
+            String key, //
+            Object propertyValue) {
+        return processValue(jsonBeanDeser, beanContext, object, key, propertyValue, 0);
+    }
     
     protected Object processValue(JSONSerializer jsonBeanDeser, //
                                BeanContext beanContext,
                                Object object, //
                                String key, //
-                               Object propertyValue) {
+                               Object propertyValue, //
+                               int features) {
 
         if (propertyValue != null) {
-            if ((jsonBeanDeser.out.writeNonStringValueAsString //
+            if ((SerializerFeature.isEnabled(jsonBeanDeser.out.features, features, SerializerFeature.WriteNonStringValueAsString)  //
                     || (beanContext != null && (beanContext.getFeatures() & SerializerFeature.WriteNonStringValueAsString.mask) != 0))
                     && (propertyValue instanceof Number || propertyValue instanceof Boolean)) {
                 String format = null;

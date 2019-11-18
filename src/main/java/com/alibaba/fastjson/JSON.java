@@ -26,6 +26,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.alibaba.fastjson.parser.*;
 import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
@@ -34,6 +35,7 @@ import com.alibaba.fastjson.parser.deserializer.FieldTypeResolver;
 import com.alibaba.fastjson.parser.deserializer.ParseProcess;
 import com.alibaba.fastjson.serializer.*;
 import com.alibaba.fastjson.util.IOUtils;
+import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.TypeUtils;
 
 /**
@@ -70,6 +72,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     public static String           DEFFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     public static int              DEFAULT_PARSER_FEATURE;
     public static int              DEFAULT_GENERATE_FEATURE;
+
+    private static final ConcurrentHashMap<Type, Type> mixInsMapper = new ConcurrentHashMap<Type, Type>(16);
+    
     static {
         int features = 0;
         features |= Feature.AutoCloseSource.getMask();
@@ -349,7 +354,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(String input, Type clazz, ParserConfig config, ParseProcess processor,
                                           int featureValues, Feature... features) {
-        if (input == null) {
+        if (input == null || input.isEmpty()) {
             return null;
         }
 
@@ -1087,7 +1092,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             try {
                 Map<String, Object> values = javaBeanSerializer.getFieldValuesMap(javaObject);
                 for (Map.Entry<String, Object> entry : values.entrySet()) {
-                    json.put(entry.getKey(), toJSON(entry.getValue()));
+                    json.put(entry.getKey(), toJSON(entry.getValue(), config));
                 }
             } catch (Exception e) {
                 throw new JSONException("toJSON error", e);
@@ -1165,6 +1170,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return chars;
     }
 
+    /**
+     * @deprecated Please use {@link com.alibaba.fastjson.JSONValidator} instead.
+     */
     public static boolean isValid(String str) {
         if (str == null || str.length() == 0) {
             return false;
@@ -1206,6 +1214,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
     }
 
+    /**
+     * @deprecated Please use {@link com.alibaba.fastjson.JSONValidator} instead.
+     */
     public static boolean isValidObject(String str) {
         if (str == null || str.length() == 0) {
             return false;
@@ -1231,6 +1242,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
     }
 
+    /**
+     * @deprecated Please use {@link com.alibaba.fastjson.JSONValidator} instead.
+     */
     public static boolean isValidArray(String str) {
         if (str == null || str.length() == 0) {
             return false;
@@ -1255,6 +1269,29 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     public static <T> void handleResovleTask(DefaultJSONParser parser, T value) {
         parser.handleResovleTask(value);
     }
+    
+    public static void addMixInAnnotations(Type target, Type mixinSource) {
+        if (target != null && mixinSource != null) {
+            mixInsMapper.put(target, mixinSource);
+        }
+    }
 
-    public final static String VERSION = "1.2.60";
+    public static void removeMixInAnnotations(Type target) {
+        if (target != null) {
+            mixInsMapper.remove(target);
+        }
+    }
+
+    public static void clearMixInAnnotations() {
+        mixInsMapper.clear();
+    }
+
+    public static Type getMixInAnnotations(Type target) {
+        if (target != null) {
+            return mixInsMapper.get(target);
+        }
+        return null;
+    }
+
+    public final static String VERSION = "1.2.63";
 }

@@ -970,18 +970,27 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                         putChar('\\');
                         break;
                     case 'x':
-                        char x1 = ch = next();
-                        char x2 = ch = next();
+                        char x1 = next();
+                        char x2 = next();
 
-                        int x_val = digits[x1] * 16 + digits[x2];
-                        char x_char = (char) x_val;
+                        boolean hex1 = (x1 >= '0' && x1 <= '9')
+                                || (x1 >= 'a' && x1 <= 'f')
+                                || (x1 >= 'A' && x1 <= 'F');
+                        boolean hex2 = (x2 >= '0' && x2 <= '9')
+                                || (x2 >= 'a' && x2 <= 'f')
+                                || (x2 >= 'A' && x2 <= 'F');
+                        if (!hex1 || !hex2) {
+                            throw new JSONException("invalid escape character \\x" + x1 + x2);
+                        }
+
+                        char x_char = (char) (digits[x1] * 16 + digits[x2]);
                         putChar(x_char);
                         break;
                     case 'u':
-                        char u1 = ch = next();
-                        char u2 = ch = next();
-                        char u3 = ch = next();
-                        char u4 = ch = next();
+                        char u1 = next();
+                        char u2 = next();
+                        char u3 = next();
+                        char u4 = next();
                         int val = Integer.parseInt(new String(new char[] { u1, u2, u3, u4 }), 16);
                         putChar((char) val);
                         break;
@@ -1100,6 +1109,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 && charAt(np + 2) == 'r' //
                 && charAt(np + 3) == 'e' //
                 && charAt(np + 4) == 'f';
+    }
+
+    public String scanTypeName(SymbolTable symbolTable) {
+        return null;
     }
 
     protected final static char[] typeFieldName = ("\"" + JSON.DEFAULT_TYPE_KEY + "\":\"").toCharArray();
@@ -1400,7 +1413,11 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 chLocal = charAt(bp + (offset++));
                 continue;
             } else {
-                matchStat = NOT_MATCH;
+                if (chLocal == ']') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = NOT_MATCH;
+                }
                 return strVal;
             }
         }
@@ -3801,10 +3818,17 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         BigInteger value;
         if (chLocal >= '0' && chLocal <= '9') {
             long intVal = chLocal - '0';
+            boolean overflow = false;
+            long temp;
             for (;;) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
-                    intVal = intVal * 10 + (chLocal - '0');
+                    temp = intVal * 10 + (chLocal - '0');
+                    if (temp < intVal) {
+                        overflow = true;
+                        break;
+                    }
+                    intVal = temp;
                     continue;
                 } else {
                     break;
@@ -3826,7 +3850,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 count = bp + offset - start - 1;
             }
 
-            if (count < 20 || (negative && count < 21)) {
+            if (!overflow && (count < 20 || (negative && count < 21))) {
                 value = BigInteger.valueOf(negative ? -intVal : intVal);
             } else {
 
@@ -5005,7 +5029,20 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                         putChar('\\');
                         break;
                     case 'x':
-                        putChar((char) (digits[next()] * 16 + digits[next()]));
+                        char x1 = next();
+                        char x2 = next();
+
+                        boolean hex1 = (x1 >= '0' && x1 <= '9')
+                                || (x1 >= 'a' && x1 <= 'f')
+                                || (x1 >= 'A' && x1 <= 'F');
+                        boolean hex2 = (x2 >= '0' && x2 <= '9')
+                                || (x2 >= 'a' && x2 <= 'f')
+                                || (x2 >= 'A' && x2 <= 'F');
+                        if (!hex1 || !hex2) {
+                            throw new JSONException("invalid escape character \\x" + x1 + x2);
+                        }
+
+                        putChar((char) (digits[x1] * 16 + digits[x2]));
                         break;
                     case 'u':
                         putChar((char) Integer.parseInt(new String(new char[] { next(), next(), next(), next() }), 16));

@@ -22,9 +22,11 @@ public class CurrencyTest5 extends TestCase {
         String str1 = "{\"value\":{\"currencyCode\":\"CNY\",\"displayName\":\"Chinese Yuan\",\"symbol\":\"CNY\"}}";
         String str2 = "{\"value\":{\"currencyCode\":\"CNY\",\"displayName\":\"人民币\",\"symbol\":\"￥\"}}";
         String str3 = "{\"value\":{\"currencyCode\":\"CNY\",\"displayName\":\"Chinese Yuan\",\"numericCodeAsString\":\"156\",\"symbol\":\"CN¥\"}}";
+        String str4 = "{\"value\":{\"currencyCode\":\"CNY\",\"displayName\":\"人民币\",\"numericCodeAsString\":\"156\",\"symbol\":\"￥\"}}";
         assertTrue(text.equals(str1)
                 || text.equals(str2)
-                || text.equals(str3));
+                || text.equals(str3)
+                || text.equals(str4));
 
         Currency currency = JSON.parseObject(text, VO.class).value;
 

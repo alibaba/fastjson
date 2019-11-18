@@ -1125,7 +1125,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         }
                         JSONField jsonField = TypeUtils.getAnnotation(field, JSONField.class);
                         if (jsonField != null) {
-                            String alteredFieldName = field.getAnnotation(JSONField.class).name();
+                            String alteredFieldName = jsonField.name();
                             if (!"".equals(alteredFieldName)) {
                                 fieldName = alteredFieldName;
                             }

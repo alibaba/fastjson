@@ -214,6 +214,7 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                         } else {
                             continue;
                         }
+                    }
                 }
 
                 if (entryKey instanceof String) {

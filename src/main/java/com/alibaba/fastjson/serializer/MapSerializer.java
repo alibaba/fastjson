@@ -209,7 +209,11 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
 
                 if (value == null) {
                     if (!out.isEnabled(SerializerFeature.WriteMapNullValue)) {
-                        continue;
+                        if (out.isEnabled(SerializerFeature.WriteNullNumberAsZero)) {
+                            value = 0;
+                        } else {
+                            continue;
+                        }
                     }
                 }
 

@@ -2521,8 +2521,16 @@ public class TypeUtils{
     public static Class<?> getRawClass(Type type){
         if(type instanceof Class<?>){
             return (Class<?>) type;
-        } else if(type instanceof ParameterizedType){
-            return getRawClass(((ParameterizedType) type).getRawType());
+        } else if(type instanceof ParameterizedType) {
+            return getRawClass(((ParameterizedType)type).getRawType());
+        } else if(type instanceof WildcardType) {
+            WildcardType wildcardType = (WildcardType) type;
+            Type[] upperBounds = wildcardType.getUpperBounds();
+            if (upperBounds.length == 1) {
+                return getRawClass(upperBounds[0]);
+            } else {
+                throw new JSONException("TODO");
+            }
         } else{
             throw new JSONException("TODO");
         }

@@ -8,6 +8,7 @@ import java.util.Locale;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.*;
+import com.alibaba.fastjson.util.TypeUtils;
 
 public abstract class AbstractDateDeserializer extends ContextObjectDeserializer implements ObjectDeserializer {
 
@@ -32,6 +33,12 @@ public abstract class AbstractDateDeserializer extends ContextObjectDeserializer
             String strVal = lexer.stringVal();
             
             if (format != null) {
+                if ("yyyy-MM-dd HH:mm:ss.SSSSSSSSS".equals(format)
+                        && clazz instanceof Class
+                        && ((Class) clazz).getName().equals("java.sql.Timestamp")) {
+                    return (T) TypeUtils.castToTimestamp(strVal);
+                }
+
                 SimpleDateFormat simpleDateFormat = null;
                 try {
                     simpleDateFormat = new SimpleDateFormat(format, parser.lexer.getLocale());

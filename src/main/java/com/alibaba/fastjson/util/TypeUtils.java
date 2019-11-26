@@ -653,9 +653,50 @@ public class TypeUtils{
             } else if(strVal.endsWith(".000000")){
                 strVal = strVal.substring(0, strVal.length() - 7);
             }
+
+            if (strVal.length() == 29
+                    && strVal.charAt(4) == '-'
+                    && strVal.charAt(7) == '-'
+                    && strVal.charAt(10) == ' '
+                    && strVal.charAt(13) == ':'
+                    && strVal.charAt(16) == ':'
+                    && strVal.charAt(19) == '.') {
+                int year = num(
+                        strVal.charAt(0),
+                        strVal.charAt(1),
+                        strVal.charAt(2),
+                        strVal.charAt(3));
+                int month = num(
+                        strVal.charAt(5),
+                        strVal.charAt(6));
+                int day = num(
+                        strVal.charAt(8),
+                        strVal.charAt(9));
+                int hour = num(
+                        strVal.charAt(11),
+                        strVal.charAt(12));
+                int minute = num(
+                        strVal.charAt(14),
+                        strVal.charAt(15));
+                int second = num(
+                        strVal.charAt(17),
+                        strVal.charAt(18));
+                int nanos = num(
+                        strVal.charAt(20),
+                        strVal.charAt(21),
+                        strVal.charAt(22),
+                        strVal.charAt(23),
+                        strVal.charAt(24),
+                        strVal.charAt(25),
+                        strVal.charAt(26),
+                        strVal.charAt(27),
+                        strVal.charAt(28));
+                return new java.sql.Timestamp(year - 1900, month - 1, day, hour, minute, second, nanos);
+            }
+
             if(isNumber(strVal)){
                 longValue = Long.parseLong(strVal);
-            } else{
+            } else {
                 JSONScanner scanner = new JSONScanner(strVal);
                 if(scanner.scanISO8601DateIfMatch(false)){
                     longValue = scanner.getCalendar().getTime().getTime();
@@ -668,6 +709,72 @@ public class TypeUtils{
             throw new JSONException("can not cast to Timestamp, value : " + value);
         }
         return new java.sql.Timestamp(longValue);
+    }
+
+    static int num(char c0, char c1) {
+        if (c0 >= '0'
+                && c0 <= '9'
+                && c1 >= '0'
+                && c1 <= '9'
+        ) {
+            return (c0 - '0') * 10
+                    + (c1 - '0');
+        }
+
+        return -1;
+    }
+
+    static int num(char c0, char c1, char c2, char c3) {
+        if (c0 >= '0'
+                && c0 <= '9'
+                && c1 >= '0'
+                && c1 <= '9'
+                && c2 >= '0'
+                && c2 <= '9'
+                && c3 >= '0'
+                && c3 <= '9'
+        ) {
+            return (c0 - '0') * 1000
+                    + (c1 - '0') * 100
+                    + (c2 - '0') * 10
+                    + (c3 - '0');
+        }
+
+        return -1;
+    }
+
+    static int num(char c0, char c1, char c2, char c3, char c4, char c5, char c6, char c7, char c8) {
+        if (c0 >= '0'
+                && c0 <= '9'
+                && c1 >= '0'
+                && c1 <= '9'
+                && c2 >= '0'
+                && c2 <= '9'
+                && c3 >= '0'
+                && c3 <= '9'
+                && c4 >= '0'
+                && c4 <= '9'
+                && c5 >= '0'
+                && c5 <= '9'
+                && c6 >= '0'
+                && c6 <= '9'
+                && c7 >= '0'
+                && c7 <= '9'
+                && c8 >= '0'
+                && c8 <= '9'
+        ) {
+            return (c0 - '0') * 100000000
+                    + (c1 - '0') * 10000000
+                    + (c2 - '0') * 1000000
+                    + (c3 - '0') * 100000
+                    + (c4 - '0') * 10000
+                    + (c5 - '0') * 1000
+                    + (c6 - '0') * 100
+                    + (c7 - '0') * 10
+                    + (c8 - '0');
+        }
+
+        return -1;
     }
 
     public static boolean isNumber(String str){

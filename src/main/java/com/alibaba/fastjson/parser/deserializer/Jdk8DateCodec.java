@@ -18,6 +18,7 @@ import java.time.temporal.TemporalAccessor;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.regex.Pattern;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
@@ -58,6 +59,9 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
     private final static String formatter_iso8601_pattern_23     = "yyyy-MM-dd'T'HH:mm:ss.SSS";
     private final static String formatter_iso8601_pattern_29     = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS";
     private final static DateTimeFormatter formatter_iso8601  = DateTimeFormatter.ofPattern(formatter_iso8601_pattern);
+
+    Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");
+
 
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName, String format, int feature) {
@@ -272,7 +276,7 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                 char c4 = text.charAt(4);
                 if (c4 == '年') {
                     if (text.charAt(text.length() - 1) == '秒') {
-                        formatter = formatter_dt19_cn_1;    
+                        formatter = formatter_dt19_cn_1;
                     } else {
                         formatter = formatter_dt19_cn;
                     }
@@ -289,10 +293,18 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                 return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
             }
         }
+        if (formatter == null) {
+            if (pattern.matcher(text).matches()) {
+                //兼容可用时间戳字符串
+                long millis = Long.parseLong(text);
+                return LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), JSON.defaultTimeZone.toZoneId());
+            } else {
+                return LocalDateTime.parse(text);
+            }
 
-        return formatter == null ? //
-            LocalDateTime.parse(text) //
-            : LocalDateTime.parse(text, formatter);
+        } else {
+            return LocalDateTime.parse(text, formatter);
+        }
     }
 
     protected LocalDate parseLocalDate(String text, String format, DateTimeFormatter formatter) {

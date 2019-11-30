@@ -66,6 +66,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     private final static ThreadLocal<char[]> SBUF_LOCAL         = new ThreadLocal<char[]>();
 
     protected String                         stringDefaultValue = null;
+    protected int                            nanos              = 0;
 
     public JSONLexerBase(int features){
         this.features = features;

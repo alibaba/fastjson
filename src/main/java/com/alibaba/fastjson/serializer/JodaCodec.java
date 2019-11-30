@@ -124,6 +124,19 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
 
                 return (T) duration;
             } else if (type == Instant.class) {
+                boolean digit = true;
+                for (int i = 0; i < text.length(); ++i) {
+                    char ch = text.charAt(i);
+                    if (ch < '0' || ch > '9') {
+                        digit = false;
+                        break;
+                    }
+                }
+                if (digit && text.length() < 19) {
+                    long epochMillis = Long.parseLong(text);
+                    return (T) new Instant(epochMillis);
+                }
+
                 Instant instant = Instant.parse(text);
 
                 return (T) instant;
@@ -247,6 +260,19 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
                     formatter = formatter_dt19_kr;
                 }
             }
+
+            boolean digit = true;
+            for (int i = 0; i < text.length(); ++i) {
+                char ch = text.charAt(i);
+                if (ch < '0' || ch > '9') {
+                    digit = false;
+                    break;
+                }
+            }
+            if (digit && text.length() < 19) {
+                long epochMillis = Long.parseLong(text);
+                return new LocalDateTime(epochMillis, DateTimeZone.forTimeZone(JSON.defaultTimeZone));
+            }
         }
 
         return formatter == null ? //
@@ -303,6 +329,20 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
                 } else if (c4 == '년') {
                     formatter = formatter_d10_kr;
                 }
+            }
+
+            boolean digit = true;
+            for (int i = 0; i < text.length(); ++i) {
+                char ch = text.charAt(i);
+                if (ch < '0' || ch > '9') {
+                    digit = false;
+                    break;
+                }
+            }
+            if (digit && text.length() < 19) {
+                long epochMillis = Long.parseLong(text);
+                return new LocalDateTime(epochMillis, DateTimeZone.forTimeZone(JSON.defaultTimeZone))
+                        .toLocalDate();
             }
         }
 

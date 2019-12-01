@@ -369,7 +369,7 @@ public class IOUtils {
     }
 
     public static boolean firstIdentifier(char ch) {
-        return ch < IOUtils.firstIdentifierFlags.length && IOUtils.firstIdentifierFlags[ch];
+        return (ch < IOUtils.firstIdentifierFlags.length && IOUtils.firstIdentifierFlags[ch]) || Character.isJavaIdentifierStart(ch);
     }
     
     public static boolean isIdent(char ch) {

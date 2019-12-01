@@ -120,7 +120,7 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                         }
                     }
 
-                    if (digit && text.length() < 19) {
+                    if (digit && text.length() > 8 && text.length() < 19) {
                         long epochMillis = Long.parseLong(text);
                         localTime = LocalDateTime
                                 .ofInstant(
@@ -183,7 +183,7 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                         break;
                     }
                 }
-                if (digit && text.length() < 19) {
+                if (digit && text.length() > 8 && text.length() < 19) {
                     long epochMillis = Long.parseLong(text);
                     return (T) Instant.ofEpochMilli(epochMillis);
                 }
@@ -332,7 +332,7 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                     break;
                 }
             }
-            if (digit && text.length() < 19) {
+            if (digit && text.length() > 8 && text.length() < 19) {
                 long epochMillis = Long.parseLong(text);
                 return LocalDateTime.ofInstant(Instant.ofEpochMilli(epochMillis), JSON.defaultTimeZone.toZoneId());
             }
@@ -402,7 +402,7 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                     break;
                 }
             }
-            if (digit && text.length() < 19) {
+            if (digit && text.length() > 8 && text.length() < 19) {
                 long epochMillis = Long.parseLong(text);
                 return LocalDateTime
                         .ofInstant(
@@ -487,7 +487,7 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                     break;
                 }
             }
-            if (digit && text.length() < 19) {
+            if (digit && text.length() > 8 && text.length() < 19) {
                 long epochMillis = Long.parseLong(text);
                 return ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMillis), JSON.defaultTimeZone.toZoneId());
             }

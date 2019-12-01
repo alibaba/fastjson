@@ -132,7 +132,7 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
                         break;
                     }
                 }
-                if (digit && text.length() < 19) {
+                if (digit && text.length() > 8 && text.length() < 19) {
                     long epochMillis = Long.parseLong(text);
                     return (T) new Instant(epochMillis);
                 }
@@ -269,7 +269,7 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
                     break;
                 }
             }
-            if (digit && text.length() < 19) {
+            if (digit && text.length() > 8 && text.length() < 19) {
                 long epochMillis = Long.parseLong(text);
                 return new LocalDateTime(epochMillis, DateTimeZone.forTimeZone(JSON.defaultTimeZone));
             }
@@ -339,7 +339,7 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
                     break;
                 }
             }
-            if (digit && text.length() < 19) {
+            if (digit && text.length() > 8 && text.length() < 19) {
                 long epochMillis = Long.parseLong(text);
                 return new LocalDateTime(epochMillis, DateTimeZone.forTimeZone(JSON.defaultTimeZone))
                         .toLocalDate();

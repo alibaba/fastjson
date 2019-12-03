@@ -1013,26 +1013,29 @@ public class ParserConfig {
 
     /**
      * @deprecated  internal method, dont call
+	 * 判断参数类是否来自基本类型，面对需求适配国产数据库，国产数据库驱动包继承自基本类型，修改后可识别
+	 * 修改人：屈逍遥 Email:987055820@qq.com
      */
     public static boolean isPrimitive2(Class<?> clazz) {
+		List<Class<?>> classes=getAllClassList(clazz);
         return clazz.isPrimitive() //
-               || clazz == Boolean.class //
-               || clazz == Character.class //
-               || clazz == Byte.class //
-               || clazz == Short.class //
-               || clazz == Integer.class //
-               || clazz == Long.class //
-               || clazz == Float.class //
-               || clazz == Double.class //
-               || clazz == BigInteger.class //
-               || clazz == BigDecimal.class //
-               || clazz == String.class //
-               || clazz == java.util.Date.class //
-               || clazz == java.sql.Date.class //
-               || clazz == java.sql.Time.class //
-               || clazz == java.sql.Timestamp.class //
+               || classes.contains(Boolean.class) //
+               || classes.contains(Character.class) //
+               || classes.contains(Byte.class) //
+               || classes.contains(Short.class) //
+               || classes.contains(Integer.class) //
+               || classes.contains(Long.class) //
+               || classes.contains(Float.class) //
+               || classes.contains(Double.class) //
+               || classes.contains(BigInteger.class) //
+               || classes.contains(BigDecimal.class) //
+               || classes.contains(String.class) //
+               || classes.contains(java.util.Date.class) //
+               || classes.contains(java.sql.Date.class) //
+               || classes.contains(java.sql.Time.class) //
+               || classes.contains(java.sql.Timestamp.class) //
                || clazz.isEnum() //
-        ;
+				;
     }
 
     /**
@@ -1357,5 +1360,16 @@ public class ParserConfig {
 
     public void register(Module module) {
         this.modules.add(module);
+    }
+	
+	//获取当前类以及其父类的list
+	public static List<Class<?>> getAllClassList(final Class<?> cls) {
+        final List<Class<?>> allClasses = new ArrayList<Class<?>>();
+        Class<?> currentClass = cls;
+        while (currentClass != null) {
+            allClasses.add(currentClass);
+            currentClass = currentClass.getSuperclass();
+        }
+        return allClasses;
     }
 }

@@ -307,13 +307,12 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
 
         if ((features & SerializerFeature.WriteClassName.mask) != 0
                 && valueClass != fieldInfo.fieldClass
-                && JavaBeanSerializer.class.isInstance(valueSerializer)) {
+                && valueSerializer instanceof JavaBeanSerializer) {
             ((JavaBeanSerializer) valueSerializer).write(serializer, propertyValue, fieldInfo.name, fieldInfo.fieldType, fieldFeatures, false);
             return;
         }
 
-        if (browserCompatible && propertyValue != null
-                && (fieldInfo.fieldClass == long.class || fieldInfo.fieldClass == Long.class)) {
+        if (browserCompatible && (fieldInfo.fieldClass == long.class || fieldInfo.fieldClass == Long.class)) {
             long value = (Long) propertyValue;
             if (value > 9007199254740991L || value < -9007199254740991L) {
                 serializer.getWriter().writeString(Long.toString(value));

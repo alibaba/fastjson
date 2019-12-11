@@ -321,6 +321,16 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         return value.toString();
     }
 
+	public String getStringValue(String key) {
+        String value = getString(key);
+
+        if (value == null) {
+            return "";
+        }
+
+        return value;
+    }
+
     public Date getDate(String key) {
         Object value = get(key);
 

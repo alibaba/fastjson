@@ -1649,15 +1649,14 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     public Collection<String> newCollectionByType(Class<?> type){
         if (type.isAssignableFrom(HashSet.class)) {
-            HashSet<String> list = new HashSet<String>();
-            return list;
+            return new HashSet<String>();
         } else if (type.isAssignableFrom(ArrayList.class)) {
-            ArrayList<String> list2 = new ArrayList<String>();
-            return list2;
+            return new ArrayList<String>();
+        } else if (type.isAssignableFrom(LinkedList.class)) {
+            return new LinkedList<String>();
         } else {
             try {
-                Collection<String> list = (Collection<String>) type.newInstance();
-                return list;
+                return (Collection<String>) type.newInstance();
             } catch (Exception e) {
                 throw new JSONException(e.getMessage(), e);
             }

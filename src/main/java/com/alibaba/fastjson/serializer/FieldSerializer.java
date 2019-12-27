@@ -245,7 +245,8 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
             } else if (Boolean.class == runtimeFieldClass) {
                 out.writeNull(features, SerializerFeature.WriteNullBooleanAsFalse.mask);
                 return;
-            } else if (Collection.class.isAssignableFrom(runtimeFieldClass)) {
+            } else if (Collection.class.isAssignableFrom(runtimeFieldClass)
+                    || runtimeFieldClass.isArray()) {
                 out.writeNull(features, SerializerFeature.WriteNullListAsEmpty.mask);
                 return;
             }

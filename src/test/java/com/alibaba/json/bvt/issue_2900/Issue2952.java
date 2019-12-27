@@ -9,14 +9,18 @@ import junit.framework.TestCase;
 
 public class Issue2952 extends TestCase {
     public void test_for_issue() throws Exception {
+        String expected = "{\"l\":null,\"s\":null,\"b\":null,\"i\":null,\"o\":null}";
+        SerializerFeature[] serializerFeatures = {
+                SerializerFeature.WriteNullListAsEmpty,
+                SerializerFeature.WriteNullStringAsEmpty,
+                SerializerFeature.WriteNullBooleanAsFalse,
+                SerializerFeature.WriteNullNumberAsZero
+        };
         SerializeConfig serializeConfig = new SerializeConfig();
         serializeConfig.setAsmEnable(true);
-        assertEquals("{\"l\":null,\"s\":null,\"b\":null,\"i\":null,\"o\":null}",
-                JSON.toJSONString(new Pojo(), serializeConfig,
-                        SerializerFeature.WriteNullListAsEmpty,
-                        SerializerFeature.WriteNullStringAsEmpty,
-                        SerializerFeature.WriteNullBooleanAsFalse,
-                        SerializerFeature.WriteNullNumberAsZero));
+        assertEquals(expected, JSON.toJSONString(new Pojo(), serializeConfig, serializerFeatures));
+        serializeConfig.setAsmEnable(false);
+        assertEquals(expected, JSON.toJSONString(new Pojo(), serializeConfig, serializerFeatures));
     }
 
     public static class Pojo {

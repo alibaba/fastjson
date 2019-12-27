@@ -19,8 +19,8 @@ public class Issue2962 extends TestCase {
     }
 
     public void test_dates_different_timeZones() {
-    	for (String id : TimeZone.getAvailableIDs()) {
-    		TimeZone timeZone = TimeZone.getTimeZone(id);
+        for (String id : TimeZone.getAvailableIDs()) {
+            TimeZone timeZone = TimeZone.getTimeZone(id);
             TimeZone.setDefault(timeZone);
             JSON.defaultTimeZone = timeZone;
 
@@ -36,10 +36,10 @@ public class Issue2962 extends TestCase {
 
             // with iso-format
             json = JSON.toJSONString(vo, SerializerFeature.UseISO8601DateFormat);
-    		System.out.println(id + " " + json);
+            System.out.println(id + " " + json);
             result = JSON.parseObject(json, VO.class);
             assertEquals(JSON.toJSONString(vo.date), JSON.toJSONString(result.date));
-    	}
+        }
     }
 
     public static class VO {

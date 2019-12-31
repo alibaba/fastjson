@@ -2,6 +2,7 @@ package com.alibaba.json.bvt.issue_2900;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
@@ -16,11 +17,14 @@ public class Issue2952 extends TestCase {
                 SerializerFeature.WriteNullBooleanAsFalse,
                 SerializerFeature.WriteNullNumberAsZero
         };
-        SerializeConfig serializeConfig = new SerializeConfig();
-        serializeConfig.setAsmEnable(true);
-        assertEquals(expected, JSON.toJSONString(new Pojo(), serializeConfig, serializerFeatures));
-        serializeConfig.setAsmEnable(false);
-        assertEquals(expected, JSON.toJSONString(new Pojo(), serializeConfig, serializerFeatures));
+        SerializeConfig asmConfig = new SerializeConfig();
+        asmConfig.setAsmEnable(true);
+        assertEquals(expected, JSON.toJSONString(new Pojo(), asmConfig, serializerFeatures));
+        assertEquals(expected, JSON.toJSONString(new Pojo2(), asmConfig, serializerFeatures));
+        SerializeConfig noasmConfig = new SerializeConfig();
+        noasmConfig.setAsmEnable(false);
+        assertEquals(expected, JSON.toJSONString(new Pojo(), noasmConfig, serializerFeatures));
+        assertEquals(expected, JSON.toJSONString(new Pojo2(), noasmConfig, serializerFeatures));
     }
 
     public static class Pojo {
@@ -33,6 +37,20 @@ public class Issue2952 extends TestCase {
         @JSONField(serialzeFeatures=SerializerFeature.WriteMapNullValue, ordinal=3)
         public Integer i;
         @JSONField(serialzeFeatures=SerializerFeature.WriteMapNullValue, ordinal=4)
+        public Object o;
+    }
+
+    @JSONType(serialzeFeatures=SerializerFeature.WriteMapNullValue)
+    public static class Pojo2 {
+        @JSONField(ordinal=0)
+        public Object[] l;
+        @JSONField(ordinal=1)
+        public String s;
+        @JSONField(ordinal=2)
+        public Boolean b;
+        @JSONField(ordinal=3)
+        public Integer i;
+        @JSONField(ordinal=4)
         public Object o;
     }
 }

@@ -115,17 +115,6 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                 }
             }
         }
-
-        if (beanInfo.jsonType != null) {
-            for (Class<? extends SerializeFilter> filterClass : beanInfo.jsonType.serialzeFilters()) {
-                try {
-                    SerializeFilter filter = filterClass.getConstructor().newInstance();
-                    this.addFilter(filter);
-                } catch (Exception e) {
-                    // skip
-                }
-            }
-        }
     }
 
     public void writeDirectNonContext(JSONSerializer serializer, //
@@ -371,7 +360,9 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                                 && (serialzeFeatures & SerializerFeature.WriteMapNullValue.mask) == 0) {
                             propertyValue = Collections.emptyList();
                         }
-                    } else if ((!writeAsArray) && (!fieldSerializer.writeNull) && !out.isEnabled(SerializerFeature.WriteMapNullValue.mask)){
+                    } else if ((!writeAsArray) && (!fieldSerializer.writeNull)
+                            && !out.isEnabled(SerializerFeature.WriteMapNullValue.mask)
+                            && (serialzeFeatures & SerializerFeature.WriteMapNullValue.mask) == 0) { 
                         continue;
                     }
                 }
@@ -447,10 +438,14 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                         JSONField fieldAnnotation = fieldInfo.getAnnotation();
                         if (fieldClass == String.class && (fieldAnnotation == null || fieldAnnotation.serializeUsing() == Void.class)) {
                             if (propertyValue == null) {
+                                int serialzeFeatures = fieldSerializer.features;
+                                if (beanInfo.jsonType != null) {
+                                    serialzeFeatures |= SerializerFeature.of(beanInfo.jsonType.serialzeFeatures());
+                                }
                                 if ((out.features & SerializerFeature.WriteNullStringAsEmpty.mask) != 0
-                                        && (fieldSerializer.features & SerializerFeature.WriteMapNullValue.mask) == 0) {
+                                        && (serialzeFeatures & SerializerFeature.WriteMapNullValue.mask) == 0) {
                                     out.writeString("");
-                                } else if ((fieldSerializer.features & SerializerFeature.WriteNullStringAsEmpty.mask) != 0) {
+                                } else if ((serialzeFeatures & SerializerFeature.WriteNullStringAsEmpty.mask) != 0) {
                                     out.writeString("");
                                 } else {
                                     out.writeNull();

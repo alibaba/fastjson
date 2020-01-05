@@ -2,6 +2,7 @@ package com.alibaba.json.demo;
 
 import java.math.BigDecimal;
 
+import com.alibaba.fastjson.JSON;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSONObject;
@@ -16,5 +17,16 @@ public class Demo1 extends TestCase {
 
         String text = jsonObject.toJSONString();
         System.out.println(text);
+    }
+
+    public void test_1() throws Exception {
+        String dataString = "{\"value\":0.5D}";
+        System.out.println(JSON.parse(dataString));
+        dataString = "{\"value\":5D}";
+        System.out.println(JSON.parse(dataString));
+        dataString = "{\"value\":3e5D}";
+        System.out.println(JSON.parse(dataString));
+        dataString = "{\"value\":4.5F}";
+        System.out.println(JSON.parse(dataString));
     }
 }

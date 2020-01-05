@@ -1561,6 +1561,10 @@ public final class JSONLexer {
             if (!negative) {
                 longValue = -longValue;
             }
+            if (ch == 'F' || ch == 'D') {
+                np++;
+                next();
+            }
         } else {
             if (!negative) {
                 longValue = -longValue;

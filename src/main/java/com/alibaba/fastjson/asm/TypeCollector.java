@@ -77,12 +77,12 @@ public class TypeCollector {
     private boolean correctTypeName(Type type, String paramTypeName) {
         String s = type.getClassName();
         // array notation needs cleanup.
-        String braces = "";
+        StringBuilder braces = new StringBuilder();
         while (s.endsWith("[]")) {
-            braces = braces + "[";
+            braces.append('[');
             s = s.substring(0, s.length() - 2);
         }
-        if (!braces.equals("")) {
+        if (!braces.toString().isEmpty()) {
             if (primitives.containsKey(s)) {
                 s = braces + primitives.get(s);
             } else {

@@ -2346,11 +2346,11 @@ public final class JSONScanner extends JSONLexerBase {
                     return;
                 }
             }
+        }
 
-            for (int j = 0; j < bp; j++) {
-                if (text.charAt(j) == ' ') {
-                    i ++;
-                }
+        for (int j = 0; j < bp; j++) {
+            if (j < text.length() && text.charAt(j) == ' ') {
+                i++;
             }
         }
 

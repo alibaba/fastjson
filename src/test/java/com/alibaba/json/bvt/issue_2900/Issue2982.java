@@ -15,7 +15,6 @@ public class Issue2982 extends TestCase {
         assertTrue(JSONArray.isValidArray(jsonStr));
         assertTrue(JSON.isValidArray(jsonStr));
         assertTrue(JSONObject.isValidArray(jsonStr));
-        assertTrue(JSONArray.parseArray(jsonStr).getString(0) instanceof String);
     }
 
 

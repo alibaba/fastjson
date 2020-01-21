@@ -2348,6 +2348,12 @@ public final class JSONScanner extends JSONLexerBase {
             }
         }
 
+        for (int j = 0; j < bp; j++) {
+            if (j < text.length() && text.charAt(j) == ' ') {
+                i++;
+            }
+        }
+
         if (i == text.length()) {
             throw new JSONException("illegal str, " + info());
         }

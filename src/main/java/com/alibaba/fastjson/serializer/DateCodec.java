@@ -190,7 +190,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
                     out.writeInt(timeZone);
                 } else if (timeZone < -9) {
                     out.write('-');
-                    out.writeInt(timeZone);
+                    out.writeInt(-timeZone);
                 } else if (timeZone < 0) {
                     out.write('-');
                     out.write('0');
@@ -199,7 +199,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
                 out.write(':');
                 // handles uneven timeZones 30 mins, 45 mins
                 // this would always be less than 60
-                int offSet = (int)((timeZoneF - timeZone) * 60);
+                int offSet = (int)(Math.abs(timeZoneF - timeZone) * 60);
                 out.append(String.format("%02d", offSet));
             }
 

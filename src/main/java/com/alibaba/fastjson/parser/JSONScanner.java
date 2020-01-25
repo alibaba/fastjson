@@ -706,7 +706,7 @@ public final class JSONScanner extends JSONLexerBase {
         }
 
         if (calendar.getTimeZone().getRawOffset() != timeZoneOffset) {
-            calendar.setTimeZone(new SimpleTimeZone(timeZoneOffset, "" + timeZoneOffset));
+            calendar.setTimeZone(new SimpleTimeZone(timeZoneOffset, Integer.toString(timeZoneOffset)));
         }
     }
 

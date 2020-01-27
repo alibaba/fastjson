@@ -627,6 +627,8 @@ public final class SerializeWriter extends Writer {
         int newcount = count + bytes.length * 2 + 3;
         if (newcount > buf.length) {
             if (writer != null) {
+                // chars' length should be bytes.length * 2 + 3 because chars increases twice faster than bytes in loop,
+                // and there are another three char: "x", "'" and "'" .
                 char[] chars = new char[bytes.length * 2 + 3];
                 int pos = 0;
                 chars[pos++] = 'x';
@@ -644,6 +646,8 @@ public final class SerializeWriter extends Writer {
                 }
                 chars[pos++] = '\'';
                 try {
+                    // flush existing content in buf first
+                    flush();
                     writer.write(chars);
                 } catch (IOException ex) {
                     throw new JSONException("writeBytes error.", ex);

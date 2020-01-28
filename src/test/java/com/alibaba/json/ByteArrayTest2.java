@@ -6,22 +6,21 @@ import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
+import junit.framework.TestCase;
 import org.junit.Assert;
-import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 
 
-public class ByteArrayTest  {
+public class ByteArrayTest2  extends TestCase {
 
     public static class CertFile {
         public String name;
         public byte[] data;
     }
 
-    @Test
     public void test_0() throws Exception {
         ParserConfig.getGlobalInstance().setAutoTypeSupport(true);
 

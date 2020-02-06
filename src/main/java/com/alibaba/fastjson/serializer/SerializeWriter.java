@@ -626,30 +626,6 @@ public final class SerializeWriter extends Writer {
     public void writeHex(byte[] bytes) {
         int newcount = count + bytes.length * 2 + 3;
         if (newcount > buf.length) {
-            if (writer != null) {
-                char[] chars = new char[bytes.length * 2 + 3];
-                int pos = 0;
-                chars[pos++] = 'x';
-                chars[pos++] = '\'';
-
-                for (int i = 0; i < bytes.length; ++i) {
-                    byte b = bytes[i];
-
-                    int a = b & 0xFF;
-                    int b0 = a >> 4;
-                    int b1 = a & 0xf;
-
-                    chars[pos++] = (char) (b0 + (b0 < 10 ? 48 : 55));
-                    chars[pos++] = (char) (b1 + (b1 < 10 ? 48 : 55));
-                }
-                chars[pos++] = '\'';
-                try {
-                    writer.write(chars);
-                } catch (IOException ex) {
-                    throw new JSONException("writeBytes error.", ex);
-                }
-                return;
-            }
             expandCapacity(newcount);
         }
 

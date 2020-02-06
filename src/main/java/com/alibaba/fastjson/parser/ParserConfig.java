@@ -61,16 +61,22 @@ import javax.xml.datatype.XMLGregorianCalendar;
  */
 public class ParserConfig {
 
+    public static final String    DENY_PROPERTY_INTERNAL    = "fastjson.parser.deny.internal";
     public static final String    DENY_PROPERTY             = "fastjson.parser.deny";
     public static final String    AUTOTYPE_ACCEPT           = "fastjson.parser.autoTypeAccept";
     public static final String    AUTOTYPE_SUPPORT_PROPERTY = "fastjson.parser.autoTypeSupport";
 
+    public static  final String[] DENYS_INTERNAL;
     public static  final String[] DENYS;
     private static final String[] AUTO_TYPE_ACCEPT_LIST;
     public static  final boolean  AUTO_SUPPORT;
     private static final long[]   INTERNAL_WHITELIST_HASHCODES;
 
     static  {
+        {
+            String property = IOUtils.getStringProperty(DENY_PROPERTY_INTERNAL);
+            DENYS_INTERNAL = splitItemsFormProperty(property);
+        }
         {
             String property = IOUtils.getStringProperty(DENY_PROPERTY);
             DENYS = splitItemsFormProperty(property);
@@ -191,6 +197,7 @@ public class ParserConfig {
     private static boolean                                  guavaError            = false;
 
     private boolean                                         autoTypeSupport       = AUTO_SUPPORT;
+    private long[]                                          internalDenyHashCodes;
     private long[]                                          denyHashCodes;
     private long[]                                          acceptHashCodes;
 
@@ -337,6 +344,7 @@ public class ParserConfig {
         initDeserializers();
 
         addItemsToDeny(DENYS);
+        addItemsToDeny0(DENYS_INTERNAL);
         addItemsToAccept(AUTO_TYPE_ACCEPT_LIST);
 
     }
@@ -449,6 +457,17 @@ public class ParserConfig {
             } else if ("false".equals(property)) {
                 this.autoTypeSupport = false;
             }
+        }
+    }
+
+    private void addItemsToDeny0(final String[] items){
+        if (items == null){
+            return;
+        }
+
+        for (int i = 0; i < items.length; ++i) {
+            String item = items[i];
+            this.addDenyInternal(item);
         }
     }
 
@@ -1100,6 +1119,28 @@ public class ParserConfig {
         this.defaultClassLoader = defaultClassLoader;
     }
 
+    public void addDenyInternal(String name) {
+        if (name == null || name.length() == 0) {
+            return;
+        }
+
+        long hash = TypeUtils.fnv1a_64(name);
+        if (internalDenyHashCodes == null) {
+            this.internalDenyHashCodes = new long[] {hash};
+            return;
+        }
+
+        if (Arrays.binarySearch(this.internalDenyHashCodes, hash) >= 0) {
+            return;
+        }
+
+        long[] hashCodes = new long[this.internalDenyHashCodes.length + 1];
+        hashCodes[hashCodes.length - 1] = hash;
+        System.arraycopy(this.internalDenyHashCodes, 0, hashCodes, 0, this.internalDenyHashCodes.length);
+        Arrays.sort(hashCodes);
+        this.internalDenyHashCodes = hashCodes;
+    }
+
     public void addDeny(String name) {
         if (name == null || name.length() == 0) {
             return;
@@ -1198,6 +1239,17 @@ public class ParserConfig {
         boolean internalWhite = Arrays.binarySearch(INTERNAL_WHITELIST_HASHCODES,
                 TypeUtils.fnv1a_64(className)
         ) >= 0;
+
+        if (internalDenyHashCodes != null) {
+            long hash = h3;
+            for (int i = 3; i < className.length(); ++i) {
+                hash ^= className.charAt(i);
+                hash *= PRIME;
+                if (Arrays.binarySearch(internalDenyHashCodes, hash) >= 0) {
+                    throw new JSONException("autoType is not support. " + typeName);
+                }
+            }
+        }
 
         if ((!internalWhite) && (autoTypeSupport || expectClassFlag)) {
             long hash = h3;

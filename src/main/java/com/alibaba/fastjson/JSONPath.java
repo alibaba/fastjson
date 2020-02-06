@@ -1,16 +1,11 @@
 package com.alibaba.fastjson;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import com.alibaba.fastjson.parser.*;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.parser.Feature;
+import com.alibaba.fastjson.parser.JSONLexer;
+import com.alibaba.fastjson.parser.JSONLexerBase;
+import com.alibaba.fastjson.parser.JSONToken;
+import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
@@ -20,6 +15,28 @@ import com.alibaba.fastjson.serializer.ObjectSerializer;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.TypeUtils;
+
+import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -61,6 +78,20 @@ public class JSONPath implements JSONAware {
             this.segments = parser.explain();
             this.hasRefSegment = parser.hasRefSegment;
         }
+    }
+
+    public boolean isRef() {
+        init();
+        for (int i = 0; i < segments.length; ++i) {
+            Segment segment = segments[i];
+            Class segmentType = segment.getClass();
+            if (segmentType == ArrayAccessSegment.class
+                    || segmentType == PropertySegment.class) {
+                continue;
+            }
+            return false;
+        }
+        return true;
     }
 
     public Object eval(Object rootObject) {

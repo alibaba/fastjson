@@ -1564,7 +1564,10 @@ public class DefaultJSONParser implements Closeable {
                 refValue = getObject(ref);
                 if (refValue == null) {
                     try {
-                        refValue = JSONPath.eval(value, ref);
+                        JSONPath jsonpath = JSONPath.compile(ref);
+                        if (jsonpath.isRef()) {
+                            refValue = jsonpath.eval(value);
+                        }
                     } catch (JSONPathException ex) {
                         // skip
                     }
@@ -1581,7 +1584,10 @@ public class DefaultJSONParser implements Closeable {
                         && fieldDeser.fieldInfo != null
                         && !Map.class.isAssignableFrom(fieldDeser.fieldInfo.fieldClass)) {
                     Object root = this.contextArray[0].object;
-                    refValue = JSONPath.eval(root, ref);
+                    JSONPath jsonpath = JSONPath.compile(ref);
+                    if (jsonpath.isRef()) {
+                        refValue = jsonpath.eval(root);
+                    }
                 }
 
                 fieldDeser.setValue(object, refValue);

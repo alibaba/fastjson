@@ -445,6 +445,8 @@ public class JavaBeanInfo {
                                 creatorConstructor.setAccessible(true);
                                 paramNames = ASMUtils.lookupParameterNames(constructor);
                                 break;
+                            } else {
+                                continue;
                             }
                         }
 
@@ -457,6 +459,8 @@ public class JavaBeanInfo {
                                 creatorConstructor.setAccessible(true);
                                 paramNames = new String[] {"principal", "credentials", "authorities"};
                                 break;
+                            } else {
+                                continue;
                             }
                         }
 
@@ -466,6 +470,8 @@ public class JavaBeanInfo {
                                 creatorConstructor = constructor;
                                 paramNames = new String[] {"authority"};
                                 break;
+                            } else {
+                                continue;
                             }
                         }
 

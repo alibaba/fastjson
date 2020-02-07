@@ -1,4 +1,4 @@
-package test.java.com.alibaba.json.bvt.issue_2900;
+package com.alibaba.json.bvt.issue_2900;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;

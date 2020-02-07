@@ -1,0 +1,7 @@
+tasks:
+  - init: mvn install -DskipTests=true
+
+vscode:
+  extensions:
+    - vscjava.vscode-maven@0.21.0:37ZOg7jK2M04yXsE+ItbZg==
+    - GabrielBB.vscode-lombok@1.0.0:fYRHVd+UkrccCfjaRz7jKw==

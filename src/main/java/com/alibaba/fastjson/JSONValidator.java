@@ -174,11 +174,10 @@ public abstract class JSONValidator implements Cloneable {
                     else {
                         error();
                     }
-
-                    do {
+                    
+                    while (ch >= '0' && ch <= '9') {
                         next();
                     }
-                    while (ch >= '0' && ch <= '9');
                 }
 
                 type = Type.Value;

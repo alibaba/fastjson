@@ -1,5 +1,6 @@
 package com.wheelchair.validate;
 
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONValidator;
 import org.junit.Test;
 
@@ -13,32 +14,83 @@ public class JSONValidatorTest {
 
     @Test
     public void validate_test1() throws Throwable {
-        assertTrue(JSONValidator.from("{\"string\":\"a\",\"nums\":[0,-1,10,0.123,1e5,-1e+6,+0.1e-7],\"object\":{\"empty\":{},\"list\":[]},\"list\":[\"object\",{\"true\":true,\"false\":false,\"null\":null}]}").validate());
+        boolean thrown = false;
+        try {
+            JSONValidator.from("{\"string\":\"a\",\"nums\":[0,-1,10,0.123,1e5,-1e+6,0.1e-7],\"object\":{\"empty\":{},\"list\":[]},\"list\":[\"object\",{\"true\":true,\"false\":false,\"null\":null}]}").validate();
+        } catch (JSONException e) {
+            thrown = true;
+        }
+        assertFalse(thrown);
     }
     @Test
     public void validate_test2() throws Throwable {
-        assertTrue(JSONValidator.from("{noQuotationMarksError}").validate());
+        boolean thrown = false;
+        try {
+            JSONValidator.from("{noQuotationMarksError}").validate();
+        } catch (JSONException e) {
+            thrown = true;
+        }
+        assertTrue(thrown);
     }
     @Test
     public void validate_test3() throws Throwable {
-        assertTrue(JSONValidator.from("{\"colonError\"}").validate());
+        boolean thrown = false;
+        try {
+            JSONValidator.from("{\"colonError\"}").validate();
+        } catch (JSONException e) {
+            thrown = true;
+        }
+        assertTrue(thrown);
 
     }
     @Test
     public void validate_test4() throws Throwable {
-        assertTrue(JSONValidator.from("{\"square_brackets_error\": [1}").validate());
-
+        boolean thrown = false;
+        try {
+            JSONValidator.from("[1}").validate();
+        } catch (JSONException e) {
+            thrown = true;
+        }
+        assertTrue(thrown);
     }
     @Test
     public void validate_test5() throws Throwable {
-        assertTrue(JSONValidator.from("{\"num_err1\":+a}").validate());
+        boolean thrown = false;
+        try {
+            JSONValidator.from("-a").validate();
+        } catch (JSONException e) {
+            thrown = true;
+        }
+        assertTrue(thrown);
     }
     @Test
     public void validate_test6() throws Throwable {
-        assertTrue(JSONValidator.from("{\"num_err1\":1ea}").validate());
+        boolean thrown = false;
+        try {
+            JSONValidator.from("+1").validate();
+        } catch (JSONException e) {
+            thrown = true;
+        }
+        assertTrue(thrown);
     }
     @Test
     public void validate_test7() throws Throwable {
-        assertTrue(JSONValidator.from("{\"num_err1\":trua}").validate());
+        boolean thrown = false;
+        try {
+            JSONValidator.from("1ea").validate();
+        } catch (JSONException e) {
+            thrown = true;
+        }
+        assertTrue(thrown);
+    }
+    @Test
+    public void validate_test8() throws Throwable {
+        boolean thrown = false;
+        try {
+            JSONValidator.from("trua").validate();
+        } catch (JSONException e) {
+            thrown = true;
+        }
+        assertTrue(thrown);
     }
 }

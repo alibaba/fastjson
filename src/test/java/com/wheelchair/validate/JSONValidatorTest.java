@@ -13,7 +13,7 @@ public class JSONValidatorTest {
 
     @Test
     public void validate_test1() throws Throwable {
-        assertTrue(JSONValidator.from("{\"string\":\"a\",\"nums\":[0,-1,10,0.123,1e5,-1e+6,1e-7],\"object\":{\"empty\":{},\"list\":[]},\"list\":[\"object\",{\"true\":true,\"false\":false,\"null\":null}]}").validate());
+        assertTrue(JSONValidator.from("{\"string\":\"a\",\"nums\":[0,-1,10,0.123,1e5,-1e+6,+0.1e-7],\"object\":{\"empty\":{},\"list\":[]},\"list\":[\"object\",{\"true\":true,\"false\":false,\"null\":null}]}").validate());
     }
     @Test
     public void validate_test2() throws Throwable {

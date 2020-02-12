@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 public class JSONValidatorTest {
 
     @Test
-    public void validate_test1() throws Throwable {
+    public void validate_test_accurate() throws Throwable {
         boolean thrown = false;
         try {
             JSONValidator.from("{\"string\":\"a\",\"nums\":[0,-1,10,0.123,1e5,-1e+6,0.1e-7],\"object\":{\"empty\":{},\"list\":[]},\"list\":[\"object\",{\"true\":true,\"false\":false,\"null\":null}]}").validate();
@@ -22,8 +22,9 @@ public class JSONValidatorTest {
         }
         assertFalse(thrown);
     }
+
     @Test
-    public void validate_test2() throws Throwable {
+    public void validate_test_quotation() throws Throwable {
         boolean thrown = false;
         try {
             JSONValidator.from("{noQuotationMarksError}").validate();
@@ -32,8 +33,9 @@ public class JSONValidatorTest {
         }
         assertTrue(thrown);
     }
+
     @Test
-    public void validate_test3() throws Throwable {
+    public void validate_test_colon() throws Throwable {
         boolean thrown = false;
         try {
             JSONValidator.from("{\"colonError\"}").validate();
@@ -43,8 +45,9 @@ public class JSONValidatorTest {
         assertTrue(thrown);
 
     }
+
     @Test
-    public void validate_test4() throws Throwable {
+    public void validate_test_bracket() throws Throwable {
         boolean thrown = false;
         try {
             JSONValidator.from("[1}").validate();
@@ -53,8 +56,9 @@ public class JSONValidatorTest {
         }
         assertTrue(thrown);
     }
+
     @Test
-    public void validate_test5() throws Throwable {
+    public void validate_test_num1() throws Throwable {
         boolean thrown = false;
         try {
             JSONValidator.from("-a").validate();
@@ -63,8 +67,31 @@ public class JSONValidatorTest {
         }
         assertTrue(thrown);
     }
+
     @Test
-    public void validate_test6() throws Throwable {
+    public void validate_test_num2() throws Throwable {
+        boolean thrown = false;
+        try {
+            JSONValidator.from("1.a1").validate();
+        } catch (JSONException e) {
+            thrown = true;
+        }
+        assertTrue(thrown);
+    }
+
+    @Test
+    public void validate_test_num3() throws Throwable {
+        boolean thrown = false;
+        try {
+            JSONValidator.from("1.e1").validate();
+        } catch (JSONException e) {
+            thrown = true;
+        }
+        assertTrue(thrown);
+    }
+
+    @Test
+    public void validate_test_num4() throws Throwable {
         boolean thrown = false;
         try {
             JSONValidator.from("+1").validate();
@@ -73,8 +100,9 @@ public class JSONValidatorTest {
         }
         assertTrue(thrown);
     }
+
     @Test
-    public void validate_test7() throws Throwable {
+    public void validate_test_num5() throws Throwable {
         boolean thrown = false;
         try {
             JSONValidator.from("1ea").validate();
@@ -83,8 +111,9 @@ public class JSONValidatorTest {
         }
         assertTrue(thrown);
     }
+
     @Test
-    public void validate_test8() throws Throwable {
+    public void validate_test_tfn() throws Throwable {
         boolean thrown = false;
         try {
             JSONValidator.from("trua").validate();

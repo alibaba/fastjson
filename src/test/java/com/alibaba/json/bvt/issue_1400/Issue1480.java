@@ -7,12 +7,13 @@ import junit.framework.TestCase;
 import org.junit.Assert;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Issue1480 extends TestCase {
     public void test_for_issue() throws Exception {
 
-        Map<Integer,Integer> map = new HashMap<Integer,Integer>();
+        Map<Integer,Integer> map = new LinkedHashMap<Integer,Integer>();
         map.put(1,10);
         map.put(2,4);
         map.put(3,5);

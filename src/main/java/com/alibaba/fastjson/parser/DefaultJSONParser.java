@@ -398,6 +398,7 @@ public class DefaultJSONParser implements Closeable {
 
                 if (key == "$ref"
                         && context != null
+                        && (object == null || object.size() == 0)
                         && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
                     lexer.nextToken(JSONToken.LITERAL_STRING);
                     if (lexer.token() == JSONToken.LITERAL_STRING) {

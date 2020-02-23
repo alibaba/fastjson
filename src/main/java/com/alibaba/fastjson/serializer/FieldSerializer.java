@@ -59,13 +59,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
         this.fieldInfo = fieldInfo;
         this.fieldContext = new BeanContext(beanType, fieldInfo);
 
-        if (beanType != null
-                && (fieldInfo.isEnum
-                    || fieldInfo.fieldClass == long.class
-                    || fieldInfo.fieldClass == Long.class
-                    || fieldInfo.fieldClass == BigInteger.class
-                    || fieldInfo.fieldClass == BigDecimal.class)
-        ) {
+        if (beanType != null) {
             JSONType jsonType = TypeUtils.getAnnotation(beanType,JSONType.class);
             if (jsonType != null) {
                 for (SerializerFeature feature : jsonType.serialzeFeatures()) {
@@ -78,6 +72,8 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
                     } else if(feature == SerializerFeature.BrowserCompatible){
                         features |= SerializerFeature.BrowserCompatible.mask;
                         browserCompatible = true;
+                    } else if (feature == SerializerFeature.WriteMapNullValue) {
+                        features |= SerializerFeature.WriteMapNullValue.mask;
                     }
                 }
             }
@@ -115,7 +111,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
                 }
             }
             
-            features = SerializerFeature.of(annotation.serialzeFeatures());
+            features |= SerializerFeature.of(annotation.serialzeFeatures());
         }
         
         this.writeNull = writeNull;
@@ -245,7 +241,8 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
             } else if (Boolean.class == runtimeFieldClass) {
                 out.writeNull(features, SerializerFeature.WriteNullBooleanAsFalse.mask);
                 return;
-            } else if (Collection.class.isAssignableFrom(runtimeFieldClass)) {
+            } else if (Collection.class.isAssignableFrom(runtimeFieldClass)
+                    || runtimeFieldClass.isArray()) {
                 out.writeNull(features, SerializerFeature.WriteNullListAsEmpty.mask);
                 return;
             }

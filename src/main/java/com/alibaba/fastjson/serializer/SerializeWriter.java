@@ -794,6 +794,12 @@ public final class SerializeWriter extends Writer {
             writeNull();
             return;
         }
+        if ((beanFeatures & SerializerFeature.WriteMapNullValue.mask) != 0
+                && (beanFeatures & ~SerializerFeature.WriteMapNullValue.mask
+                & SerializerFeature.WRITE_MAP_NULL_FEATURES) == 0) {
+            writeNull();
+            return;
+        }
         
         if (feature == SerializerFeature.WriteNullListAsEmpty.mask) {
             write("[]");

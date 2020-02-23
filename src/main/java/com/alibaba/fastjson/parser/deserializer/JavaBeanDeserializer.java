@@ -3,6 +3,7 @@ package com.alibaba.fastjson.parser.deserializer;
 import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -1419,8 +1420,13 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 }
 
                 String format = fieldInfo.format;
-                if (format != null && paramType == java.util.Date.class) {
-                    value = TypeUtils.castToDate(value, format);
+                if (format != null) {
+                    if (paramType == Date.class) {
+                        value = TypeUtils.castToDate(value, format);
+                    }
+                    if (paramType == LocalDateTime.class) {
+                        value = TypeUtils.castToLocalDateTime(value, format);
+                    }
                 } else {
                     if (paramType instanceof ParameterizedType) {
                         value = TypeUtils.cast(value, (ParameterizedType) paramType, config);

@@ -18,7 +18,7 @@
 		<gpg.skip>true</gpg.skip>
 		<javadoc.skip>true</javadoc.skip>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jdk.version>1.6</jdk.version>
+		<jdk.version>1.8</jdk.version>
 	</properties>
 
 	<scm>
@@ -95,8 +95,8 @@
 				<version>3.8.0</version>
 				<configuration>
 					<encoding>UTF-8</encoding>
-					<source>${jdk.version}</source>
-					<target>${jdk.version}</target>
+					<source>8</source>
+					<target>8</target>
 				</configuration>
 				<dependencies>
 					<dependency>

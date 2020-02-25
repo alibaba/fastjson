@@ -2984,6 +2984,11 @@ public class TypeUtils{
                 }
                 constructor = item;
             }
+
+            if (constructor == null) {
+                return null;
+            }
+
             List parameters = (List) kotlin_kfunction_getParameters.invoke(constructor);
             String[] names = new String[parameters.size()];
             for(int i = 0; i < parameters.size(); i++){

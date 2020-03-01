@@ -292,7 +292,18 @@ public class MapDeserializer implements ObjectDeserializer {
                     lexer.nextToken(keyDeserializer.getFastMatchToken());
                 }
 
-                Object key = keyDeserializer.deserialze(parser, keyType, null);
+                Object key;
+                if (lexer.token() == JSONToken.LITERAL_STRING
+                        && keyDeserializer instanceof JavaBeanDeserializer
+                ) {
+                    String keyStrValue = lexer.stringVal();
+                    lexer.nextToken();
+                    DefaultJSONParser keyParser = new DefaultJSONParser(keyStrValue, parser.getConfig(), parser.getLexer().getFeatures());
+                    keyParser.setDateFormat(parser.getDateFomartPattern());
+                    key = keyDeserializer.deserialze(keyParser, keyType, null);
+                } else {
+                    key = keyDeserializer.deserialze(parser, keyType, null);
+                }
 
                 if (lexer.token() != JSONToken.COLON) {
                     throw new JSONException("syntax error, expect :, actual " + lexer.token());

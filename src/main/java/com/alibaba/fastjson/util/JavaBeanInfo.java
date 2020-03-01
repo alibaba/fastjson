@@ -325,7 +325,7 @@ public class JavaBeanInfo {
                 String[] lookupParameterNames = null;
                 if (types.length > 0) {
                     Annotation[][] paramAnnotationArrays = TypeUtils.getParameterAnnotations(creatorConstructor);
-                    for (int i = 0; i < types.length; ++i) {
+                    for (int i = 0; i < types.length && i < paramAnnotationArrays.length; ++i) {
                         Annotation[] paramAnnotations = paramAnnotationArrays[i];
                         JSONField fieldAnnotation = null;
                         for (Annotation paramAnnotation : paramAnnotations) {

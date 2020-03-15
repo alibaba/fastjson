@@ -3363,6 +3363,10 @@ public class JSONPath implements JSONAware {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected Collection<Object> getPropertyValues(final Object currentObject) {
+        if (currentObject == null) {
+            return null;
+        }
+
         final Class<?> currentClass = currentObject.getClass();
 
         JavaBeanSerializer beanSerializer = getJavaBeanSerializer(currentClass);

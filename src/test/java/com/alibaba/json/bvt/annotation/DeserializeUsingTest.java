@@ -22,6 +22,14 @@ public class DeserializeUsingTest extends TestCase {
         assertEquals(SubjectEnum.MATH.ordinal(), teacher.getSubjectList().get(1).intValue());
     }
 
+    public void test_deserializeUsing2() throws Exception {
+        String jsonStr = "{'subjectList':['CHINESE','MATH']}";
+
+        Teacher teacher = JSON.parseObject(jsonStr).toJavaObject(Teacher.class);
+        assertEquals(SubjectEnum.CHINESE.ordinal(), teacher.getSubjectList().get(0).intValue());
+        assertEquals(SubjectEnum.MATH.ordinal(), teacher.getSubjectList().get(1).intValue());
+    }
+
     public static class Teacher {
 
         @JSONField(deserializeUsing = SubjectListDeserializer.class)

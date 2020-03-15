@@ -1358,6 +1358,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 Field field = fieldDeser.fieldInfo.field;
                 Type paramType = fieldInfo.fieldType;
 
+                if (fieldInfo.declaringClass != null) {
+                    DefaultJSONParser parser = new DefaultJSONParser(JSON.toJSONString(value));
+                    fieldDeser.parseField(parser, object, paramType, null);
+                    continue;
+                }
+
                 if (field != null) {
                     Class fieldType = field.getType();
                     if (fieldType == boolean.class) {

@@ -436,7 +436,7 @@ public class SerializeConfig {
         return getObjectWriter(clazz, true);
     }
 	
-	private ObjectSerializer getObjectWriter(Class<?> clazz, boolean create) {
+	public ObjectSerializer getObjectWriter(Class<?> clazz, boolean create) {
         ObjectSerializer writer = get(clazz);
 
         if (writer == null) {
